@@ -1,29 +1,31 @@
 # einvoice-site: marketing site for e-invoice fix-and-explain
 
-A trilingual (German, French, English) static marketing site with an early-access form, for the
+A four-language (German, French, English, Dutch) static marketing site with an early-access form, for the
 e-invoice "fix and explain" service (the product itself is built separately in
 `apps/einvoice-preflight`). **Early access: nothing here is live or charged yet.**
 
 > **Native review required before launch.** The German and French copy was written directly in each
-> language (not machine-translated), but a native speaker must check `content/i18n/de.mjs` and
-> `content/i18n/fr.mjs`, and the deadline texts in `content/deadlines.mjs`, before the site goes
+> language (not machine-translated), but a native speaker must check `content/i18n/de.mjs`,
+> `content/i18n/fr.mjs` and `content/i18n/nl.mjs` (Dutch, drafted by the agent on 2026-11-27 from the
+> English text for Flemish readers, formal "u"; check Belgian usage such as btw-plichtige,
+> ondernemingsnummer, FOD Financiën), and the deadline texts in `content/deadlines.mjs`, before the site goes
 > public. Pay particular attention to the privacy pages and to tax terms (Rechnungsaussteller,
 > sonstige Rechnung, plateforme agréée, e-reporting, TVA sur les débits).
 
 ## What is on the site
 
-| Page | de | fr | en |
-|---|---|---|---|
-| Home: deadlines, what fix-and-explain does, what is and is not checked | `/de/` | `/fr/` | `/en/` |
-| Accountants: a plan per client | `/de/steuerberater/` | `/fr/experts-comptables/` | `/en/accountants/` |
-| API for invoicing software vendors: the response, validation-only `explain=0`, how usage is billed, the early-access form with "vendor" chosen | `/de/api/` | `/fr/api/` | `/en/api/` |
-| Pricing (from `content/pricing.mjs`) | `/de/preise/` | `/fr/tarifs/` | `/en/pricing/` |
-| Germany deadlines | `/de/fristen/deutschland/` | `/fr/echeances/allemagne/` | `/en/deadlines/germany/` |
-| France deadlines | `/de/fristen/frankreich/` | `/fr/echeances/france/` | `/en/deadlines/france/` |
-| Poland (KSeF) deadlines | `/de/fristen/polen/` | `/fr/echeances/pologne/` | `/en/deadlines/poland/` |
-| Belgium (Peppol) deadlines | `/de/fristen/belgien/` | `/fr/echeances/belgique/` | `/en/deadlines/belgium/` |
-| Early-access form (double opt-in) | `/de/fruehzugang/` | `/fr/acces-anticipe/` | `/en/early-access/` |
-| Privacy (GDPR, exactly what the form stores) | `/de/datenschutz/` | `/fr/confidentialite/` | `/en/privacy/` |
+| Page | de | fr | en | nl |
+|---|---|---|---|---|
+| Home: deadlines, what fix-and-explain does, what is and is not checked | `/de/` | `/fr/` | `/en/` | `/nl/` |
+| Accountants: a plan per client | `/de/steuerberater/` | `/fr/experts-comptables/` | `/en/accountants/` | `/nl/boekhouders/` |
+| API for invoicing software vendors: the response, validation-only `explain=0`, how usage is billed, the early-access form with "vendor" chosen | `/de/api/` | `/fr/api/` | `/en/api/` | `/nl/api/` |
+| Pricing (from `content/pricing.mjs`) | `/de/preise/` | `/fr/tarifs/` | `/en/pricing/` | `/nl/prijzen/` |
+| Germany deadlines | `/de/fristen/deutschland/` | `/fr/echeances/allemagne/` | `/en/deadlines/germany/` | `/nl/termijnen/duitsland/` |
+| France deadlines | `/de/fristen/frankreich/` | `/fr/echeances/france/` | `/en/deadlines/france/` | `/nl/termijnen/frankrijk/` |
+| Poland (KSeF) deadlines | `/de/fristen/polen/` | `/fr/echeances/pologne/` | `/en/deadlines/poland/` | `/nl/termijnen/polen/` |
+| Belgium (Peppol) deadlines | `/de/fristen/belgien/` | `/fr/echeances/belgique/` | `/en/deadlines/belgium/` | `/nl/termijnen/belgie/` |
+| Early-access form (double opt-in) | `/de/fruehzugang/` | `/fr/acces-anticipe/` | `/en/early-access/` | `/nl/vroege-toegang/` |
+| Privacy (GDPR, exactly what the form stores) | `/de/datenschutz/` | `/fr/confidentialite/` | `/en/privacy/` | `/nl/privacy/` |
 
 Plus `/` (language chooser, the `x-default`), `404.html`, `sitemap.xml` (with `xhtml:link` hreflang
 alternates), `robots.txt` (AI crawlers allowed on pages, `/api/` disallowed), `llms.txt`, `_headers`
@@ -43,8 +45,8 @@ site.config.mjs           languages, product name (working name "E-Invoice Prefl
 content/deadlines.mjs     every date and rule the site states, with official source + check date
 content/pricing.mjs       plans, API meter, cost model (docs/PRICING.md explains it)
 content/routes.mjs        page ids and slugs per language
-content/i18n/{de,fr,en}.mjs   copy per language
-migrations/0001_early_access.sql   D1 schema
+content/i18n/{de,fr,en,nl}.mjs   copy per language
+migrations/0001_early_access.sql   D1 schema (0003 widens the lang CHECK to nl)
 docs/PRICING.md           pricing proposal (cost-plus)
 test/                     node:test suites (build, pricing, worker against node:sqlite)
 ```
@@ -53,7 +55,7 @@ test/                     node:test suites (build, pricing, worker against node:
 
 ```bash
 node build.mjs                 # dev build for http://localhost:8787
-node --test test/*.test.mjs    # 37 tests
+node --test test/*.test.mjs    # 39 tests
 ```
 
 Lint/format with the root biome config: `pnpm exec biome check --write apps/einvoice-site` from the
@@ -95,8 +97,19 @@ read directly on 2026-11-27, so `checkedVia: "direct"`; the French versions are 
 has no Dutch version. `finances.belgium.be` answered with a CAPTCHA, so nothing is taken from it. Not
 asserted: penalty amounts (not on the pages read), the B2G rules beyond the threshold, and an
 e-reporting date (2028 is in the coalition agreement, not yet in law, so it is a rule, not a dated
-row; the test keeps it that way). The page says we are not a Peppol access point. A Dutch version of
-the site is the next step once the deploy has run (ROADMAP, Dutch part 2).
+row; the test keeps it that way). The page says we are not a Peppol access point. The Dutch version of
+the site followed the same day (below).
+
+**Dutch (added 2026-11-27).** Every page in Dutch under `/nl/` (`content/i18n/nl.mjs`; `nl-BE` dates,
+"€ 19,50" prices, `og:locale` `nl_BE`), written for Flemish accountants first: the home lead and the
+"checked" list open with Belgium, the Belgium page adds a section on why a Peppol invoice is refused
+(rule families and the 0208 enterprise-number check, no frequency claims), and the deadline texts in
+`content/deadlines.mjs` carry an `nl` line each. The Poland page says plainly that KSeF rules have no
+Dutch explanations yet. `migrations/0003_early_access_nl.sql` rebuilds `early_access` so `lang` may be
+`nl` (SQLite cannot alter a CHECK); `test/worker.test.mjs` signs up in Dutch and checks a foreign
+language is still refused. The Belgian sources are still cited in their French versions;
+efacture.belgium.be also publishes them in Dutch (`/nl/`), worth switching to on the Dutch pages once
+someone reads those versions directly.
 
 Not asserted on purpose: penalty amounts, the list of approved French platforms, and the details of
 the BMF letter of 15 October 2026 beyond a pointer to it. Add them only with a source.
@@ -122,12 +135,12 @@ Double opt-in, modelled on grants' newsletter (`apps/grants/docs/EMAIL_MARKETING
 - Resend limits per address: one email per 10 minutes, at most 5 per rolling day.
 - Delete: HMAC-signed link (`SIGNING_SECRET`), not stored, in every email and in `List-Unsubscribe`
   with RFC 8058 one-click. Deleting removes the whole row.
-- Daily cron: unconfirmed rows deleted 7 days after the last request; confirmed rows 24 months after
+- Daily Durable Object alarm (`purge-clock.mjs`, not a cron trigger: the account has 5): unconfirmed rows deleted 7 days after the last request; confirmed rows 24 months after
   confirmation.
 - **Stored:** email, role, countries, language, consent version and times, token hash/expiry, send
   count and times. **Not stored:** IP address, user agent. Worker observability is off in
   `wrangler.jsonc` because the privacy pages say request logging is off. If you turn it on, update
-  the three privacy pages first.
+  the four privacy pages first.
 
 The privacy pages name Cloudflare (hosting, D1, Email Service) as processor and the transfer basis
 (EU-U.S. Data Privacy Framework + SCCs). **Have them reviewed** (by a native speaker and ideally a
@@ -152,7 +165,7 @@ see the list and that views are logged (new paragraph in de/fr/en: include it in
 
 ## Before launch
 
-1. Native-speaker review of de/fr copy (above).
+1. Native-speaker review of de/fr/nl copy (above).
 2. Re-check every source directly and update `checked` / `checkedVia` in `content/deadlines.mjs`.
 3. Decide the product name (`SITE_NAME` in `site.config.mjs`) and the domain.
 4. Production build: `SITE_URL=https://... CONTROLLER_NAME=... CONTROLLER_ADDRESS=... CONTROLLER_EMAIL=... node build.mjs --prod`

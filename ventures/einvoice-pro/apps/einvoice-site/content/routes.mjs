@@ -1,20 +1,20 @@
 // Every page, its slug per language, and whether search engines should index it. The build renders
-// each (page, language) pair and links the three language versions with hreflang. The worker
+// each (page, language) pair and links the four language versions with hreflang. The worker
 // (worker.mjs) redirects to the `flow` pages after a form action, so it imports this file too.
 import { COUNTRIES } from "./deadlines.mjs";
 
 export const PAGES = [
-  { id: "home", slug: { de: "", fr: "", en: "" }, index: true, priority: "1.0" },
+  { id: "home", slug: { de: "", fr: "", en: "", nl: "" }, index: true, priority: "1.0" },
   {
     id: "accountants",
-    slug: { de: "steuerberater", fr: "experts-comptables", en: "accountants" },
+    slug: { de: "steuerberater", fr: "experts-comptables", en: "accountants", nl: "boekhouders" },
     index: true,
     priority: "0.9",
   },
-  { id: "api", slug: { de: "api", fr: "api", en: "api" }, index: true, priority: "0.8" },
+  { id: "api", slug: { de: "api", fr: "api", en: "api", nl: "api" }, index: true, priority: "0.8" },
   {
     id: "pricing",
-    slug: { de: "preise", fr: "tarifs", en: "pricing" },
+    slug: { de: "preise", fr: "tarifs", en: "pricing", nl: "prijzen" },
     index: true,
     priority: "0.8",
   },
@@ -25,19 +25,20 @@ export const PAGES = [
       de: `fristen/${c.slug.de}`,
       fr: `echeances/${c.slug.fr}`,
       en: `deadlines/${c.slug.en}`,
+      nl: `termijnen/${c.slug.nl}`,
     },
     index: true,
     priority: "0.9",
   })),
   {
     id: "early-access",
-    slug: { de: "fruehzugang", fr: "acces-anticipe", en: "early-access" },
+    slug: { de: "fruehzugang", fr: "acces-anticipe", en: "early-access", nl: "vroege-toegang" },
     index: true,
     priority: "0.7",
   },
   {
     id: "privacy",
-    slug: { de: "datenschutz", fr: "confidentialite", en: "privacy" },
+    slug: { de: "datenschutz", fr: "confidentialite", en: "privacy", nl: "privacy" },
     index: true,
     priority: "0.3",
   },
@@ -49,6 +50,7 @@ export const PAGES = [
       de: "fruehzugang/postfach",
       fr: "acces-anticipe/verifiez",
       en: "early-access/check-inbox",
+      nl: "vroege-toegang/inbox",
     },
   },
   {
@@ -58,6 +60,7 @@ export const PAGES = [
       de: "fruehzugang/bestaetigt",
       fr: "acces-anticipe/confirme",
       en: "early-access/confirmed",
+      nl: "vroege-toegang/bevestigd",
     },
   },
   {
@@ -67,12 +70,13 @@ export const PAGES = [
       de: "fruehzugang/geloescht",
       fr: "acces-anticipe/supprime",
       en: "early-access/deleted",
+      nl: "vroege-toegang/verwijderd",
     },
   },
   {
     id: "form-error",
     flow: true,
-    slug: { de: "fruehzugang/fehler", fr: "acces-anticipe/erreur", en: "early-access/error" },
+    slug: { de: "fruehzugang/fehler", fr: "acces-anticipe/erreur", en: "early-access/error", nl: "vroege-toegang/fout" },
   },
 ];
 

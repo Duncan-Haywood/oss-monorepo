@@ -58,7 +58,7 @@ test("each page: lang, one title, description, one h1, banner; titles unique per
   }
 });
 
-test("indexable pages: canonical plus reciprocal hreflang for de, fr, en and x-default", () => {
+test("indexable pages: canonical plus reciprocal hreflang for de, fr, en, nl and x-default", () => {
   for (const p of PAGES.filter((x) => x.index)) {
     for (const lang of LANGS) {
       const html = htmlOf(p.id, lang);
@@ -155,8 +155,9 @@ test("no page states a date that is not in the sourced table", () => {
     de: "Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember",
     fr: "janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre",
     en: "January|February|March|April|May|June|July|August|September|October|November|December",
+    nl: "januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december",
   };
-  const DAY = { de: "\\d{1,2}\\.", fr: "(?:1er|\\d{1,2})", en: "\\d{1,2}" };
+  const DAY = { de: "\\d{1,2}\\.", fr: "(?:1er|\\d{1,2})", en: "\\d{1,2}", nl: "\\d{1,2}" };
   for (const lang of LANGS) {
     const allowed = new Set([...iso].map((d) => longDate(d, lang)));
     const re = new RegExp(`${DAY[lang]}[\\s\\u00a0](?:${MONTHS[lang]})[\\s\\u00a0]\\d{4}`, "g");
@@ -220,6 +221,16 @@ test("privacy pages list what the database stores, and no IP", () => {
       "7 jours",
       "24 mois",
       "art. 6, paragraphe 1, point a)",
+      "Cloudflare",
+    ],
+    nl: [
+      "e-mailadres",
+      "rol",
+      "toestemmingstekst",
+      "hash van de bevestigingslink",
+      "7 dagen",
+      "24 maanden",
+      "art. 6, lid 1, punt a)",
       "Cloudflare",
     ],
   };
@@ -291,6 +302,7 @@ test("Poland: KSeF dates read directly from the Ministry's site, linked from eve
     en: "We do not send invoices to KSeF",
     de: "Wir senden keine Rechnungen an KSeF",
     fr: "Nous n'envoyons pas de factures à KSeF",
+    nl: "Wij sturen geen facturen naar KSeF",
   };
   for (const lang of LANGS) {
     const html = htmlOf("deadlines-pl", lang);
@@ -330,6 +342,7 @@ test("Belgium: Peppol dates read directly from efacture.belgium.be, linked from 
     en: "We are not a Peppol access point",
     de: "Wir sind kein Peppol-Access-Point",
     fr: "Nous ne sommes pas un point d'accès Peppol",
+    nl: "Wij zijn geen Peppol-toegangspunt",
   };
   for (const lang of LANGS) {
     const html = htmlOf("deadlines-be", lang);
@@ -342,4 +355,22 @@ test("Belgium: Peppol dates read directly from efacture.belgium.be, linked from 
   }
   assert.match(read("llms.txt"), /Belgium, 2026-01-01 \(issue\).*efacture\.belgium\.be/);
   assert.match(read("llms.txt"), /not a Peppol access point/);
+});
+
+test("Dutch: every page in Dutch for Belgian readers, Belgium first, dates and prices in nl-BE form", () => {
+  assert.ok(LANGS.includes("nl"));
+  for (const p of PAGES) assert.ok(p.slug.nl !== undefined, `${p.id}: no Dutch slug`);
+  assert.equal(pathOf("deadlines-be", "nl"), "/nl/termijnen/belgie/");
+  assert.equal(longDate("2026-01-01", "nl"), "1 januari 2026");
+  const home = text(htmlOf("home", "nl")).replace(/\s+/g, " ");
+  // The lead names the Belgian date from the sourced table, not typed text.
+  assert.ok(home.includes("Sinds 1 januari 2026 moeten Belgische btw-plichtige ondernemingen"), "lead");
+  assert.ok(home.indexOf("schema 0208") < home.indexOf("CII-XSD-schema"), "Belgium listed first");
+  assert.match(htmlOf("pricing", "nl"), /€\u00a0\d+/, "euro sign first with a no-break space");
+  assert.match(htmlOf("home", "nl"), /<meta property="og:locale" content="nl_BE">/);
+  // KSeF rules have no Dutch templates (einvoice-preflight ROADMAP, "Dutch explanations, part 1"),
+  // so the Polish page must not promise a Dutch explanation.
+  assert.ok(text(htmlOf("deadlines-pl", "nl")).includes("nog geen Nederlandse uitleg"));
+  assert.match(read("llms.txt"), /## Pagina's \(Nederlands\)/);
+  assert.match(read("index.html"), /hreflang="nl"/);
 });

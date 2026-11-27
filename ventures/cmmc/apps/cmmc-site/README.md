@@ -66,7 +66,7 @@ node src/build.mjs
    only its SHA-256 stored) and a leave link (HMAC with `TOKEN_SECRET`, not stored).
 3. Confirm and leave links open a page with a button; the change happens on POST, so link scanners
    cannot confirm or delete.
-4. Daily cron deletes never-confirmed rows after 30 days.
+4. A daily Durable Object alarm (`src/purge-clock.mjs`, not a cron trigger: the account has 5) deletes never-confirmed rows after 30 days.
 
 No email address or token is ever logged.
 
