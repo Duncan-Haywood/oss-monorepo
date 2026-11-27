@@ -169,6 +169,92 @@ requireNonEmpty(pages, only, 'built pages');
 
 console.log(`Checking ${pages.length} pages at ${BASE}, ${RUNS.map((v) => v.name).join(', ')}\n`);
 
+// One axe pass, with the sticky-panel re-measure. Returns axe's result with
+// the colour findings that passed once unstuck already removed.
+async function measure(page) {
+  await page.addScriptTag({ content: axeSource });
+  const result = await page.evaluate(
+    async (tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }),
+    TAGS,
+  );
+  // axe reads a sticky result panel's text against the page behind it, not
+  // the panel's own fill: measured 2026-11-14 on a 1-in-25 sample, 64 of 66
+  // colour findings were near-white ink on the page background at
+  // 1.01-1.07:1 (holiday-light, spray-foam, countertop, cabinet bid
+  // calculators; two fee guides), every one legible in a screenshot of the
+  // dark panel. So when colour findings sit inside a sticky or scrolling
+  // panel, lay those panels out as ordinary blocks (no colour changes) and
+  // measure once more. A node is kept only if it fails both times, and the
+  // number dropped is printed, so a real failure is never hidden and a
+  // dismissal is never silent.
+  const contrastHit = result.violations.find((v) => v.id === 'color-contrast');
+  if (contrastHit) {
+    const unstuck = await page.evaluate(() => {
+      let n = 0;
+      for (const el of document.querySelectorAll('body *')) {
+        const cs = getComputedStyle(el);
+        const sticky = cs.position === 'sticky' || cs.position === 'fixed';
+        const scrolls = /auto|scroll/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1;
+        if (!sticky && !scrolls) continue;
+        el.style.setProperty('position', 'static', 'important');
+        if (scrolls) {
+          el.style.setProperty('max-height', 'none', 'important');
+          el.style.setProperty('height', 'auto', 'important');
+        }
+        n++;
+      }
+      return n;
+    });
+    if (unstuck) {
+      const again = await page.evaluate(
+        async () => window.axe.run(document, { runOnly: { type: 'rule', values: ['color-contrast'] } }),
+      );
+      const still = new Set((again.violations[0]?.nodes || []).map((node) => node.target.join(' ')));
+      const before = contrastHit.nodes.length;
+      contrastHit.nodes = contrastHit.nodes.filter((node) => still.has(node.target.join(' ')));
+      dismissed += before - contrastHit.nodes.length;
+    }
+  }
+  return result;
+}
+
+function push(result, where, label) {
+  for (const violation of result.violations) {
+    for (const node of violation.nodes) {
+      findings.push({
+        page: where,
+        viewport: label,
+        rule: violation.id,
+        impact: violation.impact,
+        help: violation.help,
+        why: (node.any?.[0]?.message || node.all?.[0]?.message || '').replace(/\s+/g, ' '),
+        html: node.html.replace(/\s+/g, ' ').slice(0, 140),
+        target: node.target.join(' '),
+      });
+    }
+  }
+}
+
+// CLICK is a comma-separated list of selectors (`CLICK='#load-ok'`). Each one
+// present and visible on a page is clicked once, then the page settles. Pages
+// without any of them are measured only as they load, as before.
+const CLICKS = (process.env.CLICK || '').split(',').map((s) => s.trim()).filter(Boolean);
+let clicked = 0;
+async function pressAll(page) {
+  const pressed = [];
+  for (const selector of CLICKS) {
+    const target = page.locator(selector).first();
+    if (!(await target.count()) || !(await target.isVisible())) continue;
+    await target.click({ timeout: 5000 });
+    pressed.push(selector);
+  }
+  if (pressed.length) {
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    await page.waitForTimeout(300);
+  }
+  return pressed;
+}
+
 const browser = await chromium.launch(LAUNCH);
 const findings = [];
 let checked = 0;
@@ -202,62 +288,18 @@ for (const viewport of RUNS) {
         probe.remove();
         document.documentElement.style.backgroundColor = canvas;
       });
-      await page.addScriptTag({ content: axeSource });
-      const result = await page.evaluate(
-        async (tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }),
-        TAGS,
-      );
-      // axe reads a sticky result panel's text against the page behind it, not
-      // the panel's own fill: measured 2026-11-14 on a 1-in-25 sample, 64 of 66
-      // colour findings were near-white ink on the page background at
-      // 1.01-1.07:1 (holiday-light, spray-foam, countertop, cabinet bid
-      // calculators; two fee guides), every one legible in a screenshot of the
-      // dark panel. So when colour findings sit inside a sticky or scrolling
-      // panel, lay those panels out as ordinary blocks (no colour changes) and
-      // measure once more. A node is kept only if it fails both times, and the
-      // number dropped is printed, so a real failure is never hidden and a
-      // dismissal is never silent.
-      const contrastHit = result.violations.find((v) => v.id === 'color-contrast');
-      if (contrastHit) {
-        const unstuck = await page.evaluate(() => {
-          let n = 0;
-          for (const el of document.querySelectorAll('body *')) {
-            const cs = getComputedStyle(el);
-            const sticky = cs.position === 'sticky' || cs.position === 'fixed';
-            const scrolls = /auto|scroll/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1;
-            if (!sticky && !scrolls) continue;
-            el.style.setProperty('position', 'static', 'important');
-            if (scrolls) {
-              el.style.setProperty('max-height', 'none', 'important');
-              el.style.setProperty('height', 'auto', 'important');
-            }
-            n++;
-          }
-          return n;
-        });
-        if (unstuck) {
-          const again = await page.evaluate(
-            async () => window.axe.run(document, { runOnly: { type: 'rule', values: ['color-contrast'] } }),
-          );
-          const still = new Set((again.violations[0]?.nodes || []).map((node) => node.target.join(' ')));
-          const before = contrastHit.nodes.length;
-          contrastHit.nodes = contrastHit.nodes.filter((node) => still.has(node.target.join(' ')));
-          dismissed += before - contrastHit.nodes.length;
-        }
-      }
-      for (const violation of result.violations) {
-        for (const node of violation.nodes) {
-          findings.push({
-            page: relative,
-            viewport: viewport.name,
-            rule: violation.id,
-            impact: violation.impact,
-            help: violation.help,
-            why: (node.any?.[0]?.message || node.all?.[0]?.message || '').replace(/\s+/g, ' '),
-            html: node.html.replace(/\s+/g, ' ').slice(0, 140),
-            target: node.target.join(' '),
-          });
-        }
+      const result = await measure(page);
+      push(result, relative, viewport.name);
+      // CLICK: press the named buttons that exist on this page (in order),
+      // then measure again, so result panels that only appear after a click
+      // are read too. Findings already seen before the click are not repeated.
+      const pressed = await pressAll(page);
+      if (pressed.length) {
+        clicked++;
+        const seen = new Set(result.violations.flatMap((v) => v.nodes.map((n) => `${v.id} ${n.target.join(' ')}`)));
+        const after = await measure(page);
+        for (const v of after.violations) v.nodes = v.nodes.filter((n) => !seen.has(`${v.id} ${n.target.join(' ')}`));
+        push(after, relative, `${viewport.name}+click(${pressed.join(',')})`);
       }
     } catch (error) {
       findings.push({
@@ -282,6 +324,7 @@ const dismissedLine = dismissed
   ? `${dismissed} colour finding(s) inside sticky or scrolling panels passed when re-measured and are not counted.`
   : '';
 if (dismissedLine) console.log(`\n${dismissedLine}`);
+if (CLICKS.length) console.log(`CLICK=${CLICKS.join(',')}: pressed on ${clicked} page run(s), each measured again after the click.`);
 
 if (findings.length === 0) {
   console.log(`\n${pages.length} pages, ${RUNS.length} viewport/scheme runs: no WCAG A/AA violations.`);
