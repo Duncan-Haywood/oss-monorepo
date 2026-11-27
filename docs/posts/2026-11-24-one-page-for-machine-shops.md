@@ -803,3 +803,35 @@ with no total. A machine or finish since removed from the rate card is
 printed as removed, not silently dropped. Next, if shops ask: a saved job
 with its own number and status, and a barcode on each operation so time on
 the floor can be checked against the quote.
+
+## Update, 27 November 2026: the quote as a free Excel template
+
+A lot of shops quote in a spreadsheet, and many search for one before they
+search for software. So the [machining quote
+template](https://marisstella.app/machine-shop-guides/machining-quote-template.html)
+is now a free `.xlsx` with two sheets. The quote worksheet holds your setup,
+programming and machine rates, markup, scrap allowance, the part, optional
+calibration factors, up to six other operations and six quantity breaks. The
+customer quote sheet holds what the buyer sees: price each, extended price,
+part number and revision, validity date, lead time and terms. None of the
+cost lines go on it.
+
+Its formulas match the browser
+[quote calculator](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html)
+exactly. The test fills both with the same invented numbers, recalculates the
+workbook in LibreOffice and compares every line at every break with the
+calculator's code. The price each on the quote is rounded up to the cent the
+same way, so the template and the calculator never quote different prices
+for the same inputs. The file ships with no rates, prices or markup: only the
+quantity breaks (1, 5, 10, 25, 50, 100) are filled in. A "before you send
+it" row lists what a buyer would send back, such as a missing revision,
+validity or lead time, or a larger lot that costs less in total than the
+smaller one before it.
+
+The template is built by code with no spreadsheet library
+(`ventures/machine-shop-guides/quote-template.mjs`), and
+`node quote-template.mjs --check` fails if the committed file is stale. A
+spreadsheet is fine for a few quotes a week. It gets slow when you have to
+look up the last revision you quoted, follow up on open quotes, or turn an
+emailed drawing into the inputs. That is the work the RFQ-to-quote product in
+development is for.

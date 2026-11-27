@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software", "machining-quote-template"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {

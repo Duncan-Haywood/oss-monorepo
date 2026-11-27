@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKksFMiTjhXNQEmrvby",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T04:18:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Bet #2 front door: free machining quote template (Excel) in machine-shop-guides",
+  "projects": [
+    "machine-shop-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19603",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "venture-preflight first run failed: the new page's title was 71 characters and its meta description over 160; both were shortened and the length tests pass"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py --bets",
+      "issue": "Every bet #1-#4 Next item was claimed or gated on demand/owner/deploy; for #2 and #4 the output named no untouched growth topic, so picking work took ~15 tool calls of reading ROADMAPs and slug_dupe on cross-bet tasks (products-to-public-repo, inboxes-without-owner), all already held by open PRs."
+    },
+    {
+      "file": "ventures/machine-shop-guides/README.md",
+      "issue": "The honesty rule 'No machining cost figure that is not the user's own input' is stated in the README only; a shipped example workbook would have broken it silently, so the rule is now enforced for the template by a test, but not venture-wide."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is to build the top bet in private-monorepo; every ungated item there was claimed or waits on demand/owner, and the cross-bet unblockers had live PRs from other sessions.",
+      "did": "Built bet #2's public front door (an Excel quote template aimed at a search the guides did not cover), not a private product feature.",
+      "result": "Shipped page + xlsx + 8 tests; no private change."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "'No new free single-purpose tools' \u2014 this is a downloadable template on an existing front-door venture for a ranked bet, the exception the rule allows.",
+      "did": "Added to machine-shop-guides, linked to the calculator and the RFQ-to-quote early-access CTA.",
+      "result": "In scope of the front-door exception."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (new section, 27 November: the quote as a free Excel template)"
+  ],
+  "goal": null,
+  "notes": "private-monorepo clone worked first try via add_repo. Local checks: quote-template.test.mjs 8/8 (LibreOffice recalc vs costLot() every line every break, quote price to the cent); run_venture_tests.py machine-shop-guides 267 pass + site page checks; platform/pages description-length + title-length 9/9 after fix; venture-preflight rerun result below.",
+  "corrections": [],
+  "redteam": null
+}
