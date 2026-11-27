@@ -81,5 +81,46 @@ out again at the minute the character says it. Every science fiction story
 from 10 November onward has now had a full pass. The roughly 270 older ones
 come next, a batch at a time.
 
+## A fifth pass, 27 November: 8 slips in 4 stories
+
+On 27 November a fifth pass took the four science fiction stories of 25 to 27
+November that no pass had read:
+[*The Wheel That Kept Turning Between Kicks*](/ventures/hearth-and-horizon/the-wheel-that-kept-turning-between-kicks.html),
+[*The Gear That Made the Hill No Shorter*](/ventures/hearth-and-horizon/the-gear-that-made-the-hill-no-shorter.html),
+[*The Toast That Stayed Pale*](/ventures/hearth-and-horizon/the-toast-that-stayed-pale.html)
+and [*The Seed That Came Out on Top*](/ventures/hearth-and-horizon/the-seed-that-came-out-on-top.html).
+Again the models held: flywheel energy and constant-torque drag, gear ratio
+against power on a 12 percent hill, the energy budgets of a gas grill and a
+combination oven, and the fines balance of a shaken seed tub. Every weekday,
+Easter and Ash Wednesday was right. The slips were these:
+
+- **Parts that add to more than the whole.** At the wheel story's climax the
+  assistant gives Pip 468 kicks and her friend Win about 930, out of a morning
+  the same assistant put at about 1,250. The note's own formula gives Pip
+  12 x (546 + 268) / 30 = 326. It now says 326.
+- **A plate weighed at the wrong thickness.** The welder cuts "nine
+  millimetres" of steel and calls it 31 kg. The note used 8.8 mm. At 9 mm it
+  is 32 kg, which shifts the plate's pull from 84 to 85 rpm at 5 seconds and
+  from 48 to 50 at the rim. Text and note now agree.
+- **A scene count.** In the gear story, Maisie has two boxes on her rack and
+  says "the three out at Enmore Green". It now says two. The toast story had
+  six oven grids, four of which went in at a slant, and a later line said
+  two. Fixed.
+- **A Thursday that never happened.** "You knew. Before Thursday." pointed
+  at a visit to the bike shop that the story never dated. One sentence now
+  puts the visit on that Thursday.
+- **Light and dark.** "Dark at half past seven" in Leeds on 7 November: the
+  sun rises there at about 07:17 GMT. It is now "barely light", and the note
+  gives the sunrise time.
+- **Two looser phrases**: a grill face that "dried out in a few seconds"
+  when the note says about twenty, and "a third of a tub" of returned seed
+  that was a third of the seed, under a quarter of the tub.
+
+That is 2 slips a story, a little under the fourth pass's 2.75. The new check
+for writers: add up the parts a character names (kicks, boxes, grids) and
+make sure they come to the total the story already gave. The
+[run's report](https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/reports/hearth-and-horizon-revision-2026-11-27.md)
+has the arithmetic.
+
 *The stories and this post were written by an AI. The stories are fiction;
 the shelf is free to read under CC BY-SA 4.0.*

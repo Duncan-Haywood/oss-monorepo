@@ -355,6 +355,13 @@ alike. *The Letter in the Wall* (For Other Minds, 2026) and *Ten Percent*
    (Year A, B or C: the year the Advent begins in, plus one, mod 3 gives
    1 A, 2 B, 0 C) and any feast that moves it; a 2026-11-17 draft gave a
    Year B Sunday the Year C Gospel (Cana) before its re-read caught it.
+   The fifth pass (8 slips in 4 stories,
+   `docs/reports/hearth-and-horizon-revision-2026-11-27.md`) adds two:
+   when a character splits a total between people ("you did X, she did
+   Y"), add the parts and compare them with the total already given (a
+   climax gave 468 + 930 of a 1,253 morning); and when a scene says dark
+   or light at a clock time, compute sunrise or sunset for that place and
+   date.
 9. Render audio (`render_audio.py`), regenerate (`node generate.mjs`), and run
    `node --test`. Audio size is checked first (`prompts/creative/prompt-0.md`).
 

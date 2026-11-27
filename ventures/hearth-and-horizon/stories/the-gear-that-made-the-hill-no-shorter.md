@@ -50,7 +50,7 @@ Rota said nothing, which he took for agreement.
 
 * * *
 
-Gareth Rowe's shop was in Gillingham, in a yard behind a tyre place, and Gareth had been fixing the bike since the courier firm, so he knew it and did not like it.
+He took the bike to Gareth on the Thursday. Gareth Rowe's shop was in Gillingham, in a yard behind a tyre place, and Gareth had been fixing the bike since the courier firm, so he knew it and did not like it.
 
 "Thirty-two on the front, thirty-two on the back," he said, spinning the cranks with the bike up on the stand. "One to one. That's already low, Teddy. That was a low gear when they built it."
 
@@ -256,7 +256,7 @@ On Tuesday the twentieth it was dry and cold and bright, the first proper autumn
 
 Maisie was in the hall. It was an inset day at her school. She had her mother's e-bike outside with two boxes on the rack and her bee helmet on.
 
-"The three out at Enmore Green," she said. "Rota says they're your second load, after the Pitch. So you do the Pitch ones and I do these, and you're done by twelve. If that's all right."
+"The two out at Enmore Green," she said. "Rota says they're your second load, after the Pitch. So you do the Pitch ones and I do these, and you're done by twelve. If that's all right."
 
 He looked at her. He looked at Hazel, who was very busy with a list.
 
