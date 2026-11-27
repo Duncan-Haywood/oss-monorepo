@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjeDF4iQdmWMx9JBPn",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T22:18:23Z",
+  "ended": "2026-11-27T22:22:31Z",
+  "wall_minutes": 4.33,
+  "tokens_in": 3363565,
+  "tokens_out": 13065,
+  "cost_usd": 1.5426,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19895",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "platform/ci/live_funnel_check.mjs and portfolio/smb/cbp_counts.py: hosts refused by the session proxy (marisstella.app, census.gov)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets printed bet #3 as 'priv-einvoice-pro-deploy.yml: not in this clone' because bet_apps() took the last backticked name in the cell; fixed in this PR"
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "every ranked bet's ROADMAP Next is gated on demand or the owner, so a scheduled run has no free product item; the explore slot had to look for gaps by hand"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "no new post: the fix is internal tooling and the bets.md entry is a screen, neither tells a customer something new; the paid products' topics are already dense (383 e-invoice posts)",
+      "did": "recorded the screen in bets.md instead of a post",
+      "result": "PR small and focused"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Explore idea: make the bet-routing tool see every bet (bet #3 was invisible to --bets start-here), plus a sourced screen of welding-qualification records software as a possible bet (not ranked, score 14). Also swept marketing-page prices against each paid app's billing/paddle-catalog.json for payapps, jobshop-quote, cmmc and seller-books: no drift found (the $ figures that did not match were competitor prices).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9c614b36-a871-5d1f-9571-2705511af597",
+    "transcripts": 1,
+    "first": "2026-11-27T22:18:23Z",
+    "last": "2026-11-27T22:22:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 84,
+        "output": 13065,
+        "thinking": 3286,
+        "cache_read": 3285498,
+        "cache_write_5m": 0,
+        "cache_write_1h": 77983,
+        "api_equivalent_usd": 1.5426,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 84,
+      "output": 13065,
+      "thinking": 3286,
+      "cache_read": 3285498,
+      "cache_write_5m": 0,
+      "cache_write_1h": 77983,
+      "api_equivalent_usd": 1.5426,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.33,
+      "active_minutes": 4.33,
+      "model_minutes": 2.86,
+      "tool_minutes": 1.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "fix+test 0.5h, market screen 1.5h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 129.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
