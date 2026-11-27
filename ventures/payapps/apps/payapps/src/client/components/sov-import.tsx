@@ -3,7 +3,13 @@
 // contract sum. Only the confirmed lines go to the bulk SOV endpoint.
 import type { ProjectDetailDto, ProjectDto } from "@shared/api/types";
 import { formatCents } from "@shared/money";
-import { findSov, importSovFile, parseCsv, type SovImportResult } from "@shared/sov-import";
+import {
+  findSov,
+  type ImportedSovLine,
+  importSovFile,
+  parseCsv,
+  type SovImportResult,
+} from "@shared/sov-import";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, orgPath, projectPath } from "../lib/api";
@@ -88,13 +94,17 @@ export function SovImport({
   // While a scan with no text is read by OCR: the page it is on, of how many.
   const [ocrPage, setOcrPage] = useState<[number, number] | null>(null);
 
+  // The lines are passed to mutate() rather than read from `result` here: useMutation takes
+  // new options in an effect, so a click landing between the render that shows the preview
+  // and that effect would otherwise run the previous render's mutationFn, see no result and
+  // fail with "Nothing to import" (seen in the deploy's tests, run 45950799211).
   const save = useMutation({
-    mutationFn: () => {
-      if (!result?.ok) throw new Error("Nothing to import");
+    mutationFn: (lines: ImportedSovLine[]) => {
+      if (lines.length === 0) throw new Error("Nothing to import");
       return api<ProjectDetailDto>(bulkPath, {
         method: "POST",
         body: {
-          lines: result.lines.map(({ itemNumber, description, originalCents }) => ({
+          lines: lines.map(({ itemNumber, description, originalCents }) => ({
             itemNumber,
             description,
             originalCents,
@@ -363,7 +373,7 @@ export function SovImport({
             type="button"
             className="btn"
             disabled={save.isPending}
-            onClick={() => save.mutate()}
+            onClick={() => save.mutate(result.lines)}
           >
             Add {result.lines.length} line{result.lines.length === 1 ? "" : "s"} to the schedule
           </button>
