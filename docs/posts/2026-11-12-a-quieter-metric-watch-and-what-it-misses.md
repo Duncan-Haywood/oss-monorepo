@@ -5,6 +5,8 @@ tags: [changepoint-detector, time-series, alerts, open-source]
 description: "Allowing for sticky noise cut false alerts from 32 to 1.5 per 1,000 checks, but the watch now reaches 29 of 52 marked real changes, down from 38."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 The [changepoint watch](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html) checks a daily metric and messages you once when its level has moved for good. Its first default had a weak spot: noise that is sticky, where today's value leans on yesterday's. Most business metrics are like that. On noise that sticky (lag-1 correlation 0.8) and with no change at all, it sent 32 false alerts per 1,000 checks.
 
 The engine already had a fix: a Bayesian pass that models that stickiness (an AR(1) term). So we ran a third test round. As in the first two, the rule was written into the script and committed before the run: a candidate replaces the default only if it averages no more false alerts over four no-change streams and reports at least as many real steps over five step streams. The seeds were fresh, not the ones used before.

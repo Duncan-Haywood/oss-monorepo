@@ -4,7 +4,7 @@
 // which the watch's change detectors hear on a small section about 1 time in 7 at best; a rise (a post that takes
 // off) never trips this check. README "A template-shaped tracking loss" (round 2, pre-registered).
 //
-// Statistical check on data you supply, not advice. FSL-1.1-MIT licence.
+// Statistical check on data you supply, not advice. All rights reserved.
 
 export const DARK_DEFAULTS = { days: 3, frac: 0.1, base: 28, minLevel: 20 };
 

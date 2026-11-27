@@ -6,6 +6,8 @@ tags: [ventures, changepoint-detector, analytics, ga4]
 description: "A help centre losing its GA4 tag moved active users 4%. The watch heard it on 0-6 of 40 simulated sites; a dark-section check heard all 40, with no false calls."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 A tracking tag usually breaks one template at a time. A theme update drops it from the blog
 layout, a help centre moves to a hosted tool, or checkout ends up on a payment provider's domain.
 Every page of that type goes dark for everyone, and the rest of the site carries on as normal.

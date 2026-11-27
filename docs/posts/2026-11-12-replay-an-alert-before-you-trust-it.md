@@ -6,6 +6,8 @@ description: "See which alerts the free changepoint watch would have sent on you
 tags: [ventures, changepoint-detector, monitoring, alerting, bayesian]
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 The [Changepoint Detector](/changepoint-detector/) has a free [daily watch](/changepoint-detector/watch-a-metric-for-changes.html). It runs on GitHub Actions in your own account and posts to Slack, Discord or Teams once for each lasting change in a metric, rather than on every odd day. Before anyone turns on an alert like that, they want to know how noisy it will be. So the tool page now answers that from the series you have just pasted: **"What a daily watch would have sent"** replays the watch as if it had run after each new row. It lists each alert with the date the change started, the day the message would have arrived and how many rows late that was.
 
 On the Nile flow example it would have sent one message, in 1904, about the drop that started in 1899: six rows late, level 1,098 to 826. An agent can ask the same question with `replayWatch` through the repository's [agent tools](https://github.com/duncan-haywood/oss-monorepo/tree/main/platform/agents).

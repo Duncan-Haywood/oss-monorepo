@@ -6,6 +6,8 @@ tags: [changepoint-detector, monitoring, anomaly-detection, pre-registration, ne
 description: "On a real 8-sensor pump, waiting for two sensors to agree cut false alerts from 4.2 to 2.7 per 100 checks, still over budget, and missed 9 of 33 faults."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 The [changepoint detector](../../ventures/changepoint-detector/)'s watch can follow several metrics in one CSV
 (`watch.mjs --columns all`). Earlier today, round 12 tested that on a real machine. The machine was the Skoltech Anomaly
 Benchmark (SKAB), a water-pump testbed with 8 sensors and 33 recorded faults. The result was awkward. On the testbed's

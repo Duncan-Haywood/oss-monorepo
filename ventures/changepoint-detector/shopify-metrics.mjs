@@ -10,7 +10,7 @@
 // apps > Create an app > Admin API scopes: read_orders (read_all_orders for history older than 60 days;
 // read_customers for --customers) > Install > reveal the Admin API access token once.
 //
-// Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.
+// Statistical analysis of data you supply, not advice. All rights reserved.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';

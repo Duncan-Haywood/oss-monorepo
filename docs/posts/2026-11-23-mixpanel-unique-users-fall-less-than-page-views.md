@@ -6,6 +6,8 @@ tags: [changepoint-detection, mixpanel, github-actions, monitoring]
 description: "The free metric watch now reads Mixpanel. Unique users fall far less than page views when a snippet goes missing, so it watches them with a stricter setting."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 The [Changepoint Detector](https://marisstella.app/changepoint-detector/)'s
 [metric watch](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html#mixpanel) runs once a day
 in your own GitHub Actions. It messages Slack, Discord or Teams only when a metric's level has really moved. It

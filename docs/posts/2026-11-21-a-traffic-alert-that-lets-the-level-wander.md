@@ -6,6 +6,8 @@ tags: [change-detection, search-console, monitoring, statistics, pre-registratio
 description: "A wander gate cut alerts on drifting traffic from 13.75 to 3.54 per 1,000 days but heard small falls later on calm sites, so it ships as an opt-in."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 The [change watch](../../ventures/changepoint-detector/watch-a-metric-for-changes.html)
 reads a daily count (Search Console clicks, Shopify orders) each morning and
 says when it has shifted. Its "Middle" setting for counts hears most 20% falls,

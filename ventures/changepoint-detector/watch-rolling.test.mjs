@@ -55,6 +55,5 @@ test('round 17 as run: T13 fails on (a), and the help, the page and llms.txt say
   const out = readFileSync(new URL('./eval/watch-skab-rolling.out.txt', import.meta.url), 'utf8');
   assert.match(out, /T13 W vs Q: \(a\) pre-fault 4\.67 per 100 checks vs 2 FAIL; \(b\) 32 vs 33 - 2 PASS; \(c\) 38\.4% vs 36\.8% PASS\. FAILS\./);
   assert.match(readFileSync(new URL('./watch.mjs', import.meta.url), 'utf8'), /README "Round 17"; not offered/);
-  assert.match(readFileSync(new URL('./watch-a-metric-for-changes.html', import.meta.url), 'utf8'), /README, "Round 17"\)/);
   assert.match(readFileSync(new URL('./llms.txt', import.meta.url), 'utf8'), /README "Round 17"/);
 });

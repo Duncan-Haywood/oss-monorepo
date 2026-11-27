@@ -149,7 +149,7 @@
 
   <section class="card" aria-labelledby="replay-h" id="replay-card" hidden>
     <h2 id="replay-h">3. What a daily watch would have sent</h2>
-    <p>Before you set up an alert, see how it would have behaved on your own history. This replays the <a href="watch-a-metric-for-changes.html">daily watch</a> as if it had run after each new row: the first check (at 20% of the series) records the changes already there, then each later change is alerted once, after 5 rows on its far side. Same engine, still in this tab. To keep watching from today, use &ldquo;Keep watching a series&rdquo; below.</p>
+    <p>Before you set up an alert, see how it would have behaved on your own history. This replays the daily watch as if it had run after each new row: the first check (at 20% of the series) records the changes already there, then each later change is alerted once, after 5 rows on its far side. Same engine, still in this tab. To keep watching from today, use &ldquo;Keep watching a series&rdquo; below.</p>
     <button type="button" class="secondary" id="replay-run">Replay as a daily watch</button>
     <p class="summary" id="replay-summary" role="status"></p>
     <div class="scroll"><table id="replay-table"></table></div>
@@ -206,7 +206,7 @@
 
   <section class="card" id="report-card" aria-labelledby="report-h" hidden>
     <h2 id="report-h">Branded change report</h2>
-    <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions (with several columns: each column's chart and agreed changes and the one segmentation for all of them), as one page to print or save as PDF. Unlock it with a licence key. The code is FSL-1.1-MIT, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions (with several columns: each column's chart and agreed changes and the one segmentation for all of them), as one page to print or save as PDF. Unlock it with a licence key. The code is all rights reserved, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
     <p id="report-buy-row" hidden><a id="report-buy" class="cta" rel="noopener" target="_blank">Buy a licence key</a></p>
     <p><label>Licence key <input id="report-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="report-check">Check key</button> <span id="report-state" role="status"></span></p>
     <div id="report-fields" hidden>
@@ -230,7 +230,7 @@
     <button type="button" id="watch-check">Check for new changes</button>
     <button type="button" class="secondary" id="watch-forget">Forget this watch</button>
     <pre id="watch-status" role="status" hidden></pre>
-    <p class="note">How the defaults were chosen (four rounds, rules written before each run, false-alert and miss rates on synthetic and 31 real labelled series): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/changepoint-detector#watching-a-growing-series-2026-11-12-four-pre-registered-rounds-ships">README, &ldquo;Watching a growing series&rdquo;</a>. To be messaged in Slack, Discord, Teams or Mattermost without opening this page, run the same watch every day in your own GitHub account: <a href="watch-a-metric-for-changes.html">self-hosted daily watch</a>.</p>
+    <p class="note">How the defaults were chosen (four rounds, rules written before each run, false-alert and miss rates on synthetic and 31 real labelled series): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/changepoint-detector#watching-a-growing-series-2026-11-12-four-pre-registered-rounds-ships">README, &ldquo;Watching a growing series&rdquo;</a>.</p>
   </section>
 
   <section class="card" aria-labelledby="method-h">
@@ -288,8 +288,8 @@
     <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>drift_run</code>, <code>watch_check</code>, <code>watch_replay</code>, <code>watch_eagerness</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>, and on the watch page <code>watch_repo_zip</code> and <code>watch_repo_link</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More research algorithms on your own data: the <a href="../kalman-smoother/">Kalman smoother</a> for the level under a noisy series, with gaps filled and outliers told apart from level shifts; <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. For time-to-event data (churn, failures, relapse), the <a href="../survival-analysis/">survival analysis tool</a> gives Kaplan-Meier curves, log-rank tests and Cox hazard ratios. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>. To check which of many test results survive multiple-testing correction, use <a href="../fdr-multiple-testing/">Benjamini-Hochberg and q-values</a>. To separate a seasonal pattern from the trend before looking for a change, use <a href="../stl-decomposition/">STL decomposition</a>. For measurements from a production line or lab with subgroups, run rules and Cpk, use <a href="../spc-control-charts/">SPC control charts</a>.</p>
-    <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
-  <p class="more-pages">Also: <a href="how-do-you-know-if-a-time-series-really-changed.html">How Do You Know If a Time Series Really Changed? (Free Changepoint Detection)</a> · <a href="watch-a-metric-for-changes.html">Get alerted when a metric really shifts (free, self-hosted daily watch)</a> · <a href="change-report-for-analysts.html">A printable change report for analysts, with samples</a></p>
+    <p class="support">Free to use and source visible. If this helped, the <a href="LICENSE" rel="noopener">code is under an all-rights-reserved notice</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  <p class="more-pages">Also: <a href="how-do-you-know-if-a-time-series-really-changed.html">How Do You Know If a Time Series Really Changed? (Free Changepoint Detection)</a> · <a href="change-report-for-analysts.html">A printable change report for analysts, with samples</a></p>
   </footer>
 
   <script type="module">
@@ -639,7 +639,7 @@
           : "";
         const notes = [];
         if (job.replayedAs) notes.push(`Replayed with the level model: the watch has level, volatility and counts models, not the ${esc(job.replayedAs)} model chosen above.`);
-        notes.push(`Detector: ${esc(r.settings.detector)}. Measured on 31 labelled real series, the default sent about 18 alerts per 1,000 daily checks, 41% of them at a change people had marked, and it often misses steps of about 1 noise sd (details on the <a href="watch-a-metric-for-changes.html">watch page</a>). If this history looks right to you, keep watching it below, or set the same thing up on GitHub Actions in your own account, free.`);
+        notes.push(`Detector: ${esc(r.settings.detector)}. Measured on 31 labelled real series, the default sent about 18 alerts per 1,000 daily checks, 41% of them at a change people had marked, and it often misses steps of about 1 noise sd (README, "Watching a growing series"). If this history looks right to you, keep watching it below.`);
         $("#replay-note").innerHTML = notes.join(" ");
         $("#replay-note").hidden = false;
         record("watch_replay");

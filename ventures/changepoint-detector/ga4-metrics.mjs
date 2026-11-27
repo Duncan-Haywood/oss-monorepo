@@ -14,7 +14,7 @@
 // reporting/data/v1/rest/v1beta/properties/runReport), a token from Google's OAuth 2.0 server-to-server flow (RS256
 // JWT bearer assertion, scope analytics.readonly; the signing is shared with search-console-metrics.mjs).
 //
-// Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.
+// Statistical analysis of data you supply, not advice. All rights reserved.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';

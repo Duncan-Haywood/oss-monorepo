@@ -15,7 +15,7 @@
 // and one for the people across all the named events. HogQL reads timestamps in the project's time zone, so a day is
 // the project's day.
 //
-// Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.
+// Statistical analysis of data you supply, not advice. All rights reserved.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';

@@ -5,6 +5,8 @@ tags: [change-detection, search-console, monitoring, statistics, pre-registratio
 description: "A traffic alert's wander gate now reads the days before a change, so calm sites keep every small fall while drifting sites still get half the alerts."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 This morning the [change watch](../../ventures/changepoint-detector/watch-a-metric-for-changes.html)
 got an opt-in for counts that drift: `--wander gated`. Traffic that wanders
 with seasons and news looks like a staircase to a step detector, and every new

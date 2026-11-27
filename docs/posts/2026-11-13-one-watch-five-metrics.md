@@ -6,6 +6,8 @@ tags: [changepoint-detection, monitoring, alerting, kpi, pre-registration, negat
 description: "The changepoint watch now monitors every column of a KPI sheet. A pre-registered split of the alert budget across columns failed on noise and real data."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 The [changepoint detector's watch](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html) runs daily in your own GitHub account and messages Slack, Discord, Teams or Mattermost when a metric changes level for good, not on one odd day. Until today it watched one column. A business that tracks orders, revenue and sign-ups needed three repositories.
 
 Now one is enough:

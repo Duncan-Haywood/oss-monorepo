@@ -86,9 +86,10 @@ where it departs from the paper.
   skipped on its own above 10,000 points (see "Agreed changes on worker threads in the CLI").
 - **Watch a metric** (2026-11-12): `node watch.mjs daily.csv --state watch-state.json` after each new row
   reports each new change once, after 5 points on its far side, and can post to a Slack, Discord, Teams or
-  Mattermost webhook (`--webhook-env NAME`). `deploy/make-watch-repo.sh <folder>` makes a standalone
-  repository with a daily GitHub Actions workflow, so anyone can run it in their own account; page:
-  [watch-a-metric-for-changes.html](watch-a-metric-for-changes.html). How the defaults were chosen:
+  Mattermost webhook (`--webhook-env NAME`). The standalone watch repository for your own GitHub account
+  (`deploy/make-watch-repo.sh`, the no-terminal zip and its page) was withdrawn on 2026-11-27: the product is
+  all rights reserved and hosted-only, so it no longer hands out copies of its code to run yourself
+  (`portfolio/monetization/LICENSING_TRANSITION.md`). How the defaults were chosen:
   "Watching a growing series" below. Since 2026-11-12 (later) the page replays the watch on the series
   you just analysed ("What a daily watch would have sent"), and agents call `replayWatch` in `watch-core.mjs`
   (README "Replaying the watch on your own history").
@@ -146,9 +147,7 @@ the result.
   `two-hinge.mjs`, `known-date.mjs`, `slope-breaks.mjs` and `drift-level.mjs` used to copy.
 
 The imports run one way: `stats-core` and `bocpd` <- `segmentation` <- `presteps` <- `engine`, so no module imports one
-that imports it back. A new module the watch needs goes in `deploy/make-watch-repo.sh` too (then `node
-deploy/build-watch-repo-files.mjs`), or a deployer's repository is missing it (`watch-modules-closed.test.mjs` fails
-when one is left out); both new modules are in it.
+that imports it back.
 
 Checked 2026-11-21: `node eval/split-identity-check.mjs` runs `analyze()` on 216 seeded series across 36 option sets
 (every model, season, trend, AR(1), noise floor, log, spikes, spells, slope tests, dispersion, holidays, bursts,
@@ -543,7 +542,7 @@ and honour Do Not Track.
 **Best-effort hosting, no SLA.** Free and experimental; may be slow, broken, moved, or taken offline
 without notice.
 
-Free to use and source available (FSL-1.1-MIT, see `LICENSE`). Optional support:
+Free to use and source visible (all rights reserved, see `LICENSE`). Optional support:
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).
 
 ## What you use today, and what this does differently
@@ -4832,14 +4831,10 @@ the state is not saved, so the next run retries. `--fail-on-alert` exits 1, whic
 emails its owner. Tests: `watch.test.mjs` (12; a local HTTP server stands in for the webhook; no real
 chat service was called).
 
-**Self-deploy.** `sh deploy/make-watch-repo.sh <folder>` (or the `curl ... | sh -s -- <folder>` line in
-the script's header, which needs no clone) writes the engine, `watch.mjs`, the FSL-1.1-MIT licence, a README and
-`.github/workflows/watch-metric.yml`: a daily run that reads the `METRIC_CSV` variable (a file in the
-repository or an https link, such as a published Google Sheet's CSV), posts to the `WATCH_WEBHOOK_URL`
-secret if set, and commits `watch-state.json` back. Nothing in it calls anything the owner runs. The
-workflow's own shell steps are replayed over simulated weeks of daily runs by `watch-workflow.test.mjs`
-(section "The self-deploy workflow, run as a deployer's repository runs it" below); it has still not run on
-GitHub itself.
+**Self-deploy (withdrawn 2026-11-27).** `deploy/make-watch-repo.sh`, its GitHub Actions workflow, the
+no-terminal zip (`watch-repo.mjs`) and their tests were removed when the product moved to an all-rights-reserved
+notice and hosted-only use: each made a copy of the code, under an all-rights-reserved notice, for the customer's own
+repository. The sections below that describe them are kept as the record of what was built and measured.
 
 **Round 1: which detector and how much confirmation** (`eval/watch-replay.mjs`, output
 `eval/watch-replay.out.txt`). The rule was written in the script's header before the first run:

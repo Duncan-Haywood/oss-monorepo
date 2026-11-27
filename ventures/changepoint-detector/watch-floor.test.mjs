@@ -84,5 +84,4 @@ test('round 14 as run: T10 fails on the pre-fault rate and on faults caught, and
   assert.match(out, /T10 F vs Q: \(a\) pre-fault 2\.27 per 100 checks vs 2 FAIL; \(b\) 28 vs 33 - 2 FAIL; \(c\) 46\.5% vs 36\.8% PASS\. FAILS\./);
   assert.match(out, /Q {2}Quiet, no floor\s+457\s+168 \(36\.8%\)/);
   assert.match(readFileSync(new URL('./watch.mjs', import.meta.url), 'utf8'), /the automatic version is not offered/);
-  assert.match(readFileSync(new URL('./watch-a-metric-for-changes.html', import.meta.url), 'utf8'), /set a floor by hand on the loud columns that do not matter/);
 });

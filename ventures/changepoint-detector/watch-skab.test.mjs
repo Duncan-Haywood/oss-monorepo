@@ -80,5 +80,4 @@ test('round 12 as run: all three rules fail, and the hint and --columns texts sa
   const v = Array.from({ length: 120 }, (_, i) => Math.sin(i / 3) + (i > 80 ? 4 : 0));
   assert.match(eagernessText(eagernessReplay(v)), /Nor on a third: .*118 of 123 marked changes against the default's 97, but only 28\.4%/);
   assert.match(readFileSync(new URL('./watch.mjs', import.meta.url), 'utf8'), /Quiet on all 8 columns sent 8\.5 alert lines per 100 checks/);
-  assert.match(readFileSync(new URL('./watch-a-metric-for-changes.html', import.meta.url), 'utf8'), /all eight columns sent 8\.5 alert lines per 100 checks/);
 });

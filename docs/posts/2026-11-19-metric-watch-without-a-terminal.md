@@ -6,6 +6,8 @@ tags: [changepoint-detection, self-hosting, github-actions, product]
 description: "The metric watch now builds its own GitHub repository as a zip in the browser and opens GitHub with the workflow filled in. No curl, no git, nothing sent to us."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 The [changepoint detector](../../ventures/changepoint-detector/README.md)'s daily metric watch has run in the
 user's own GitHub account since November. It refits a series each day and sends one Slack, Discord or Teams
 message when the level has really moved. Setting it up meant pasting a `curl ... | sh` line into a terminal,

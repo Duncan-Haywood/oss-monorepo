@@ -6,6 +6,8 @@ tags: [changepoint-detector, changepoint-detection, time-series, autocorrelation
 description: "15 of the 17 real changes our metric watch missed came from one place: rho stuck at 0.95. Capped at 0.8, it reaches 33 of 52 marked changes, not 29."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 Earlier today the [Changepoint Detector](../../ventures/changepoint-detector/)'s
 metric watch, the part that runs after each new row and messages you once when
 a series changes, switched to a quieter default. It adds an AR(1) term to the

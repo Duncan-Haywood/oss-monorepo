@@ -6,6 +6,8 @@ tags: [changepoint-detection, posthog, github-actions, monitoring]
 description: "The free metric watch now reads PostHog: a daily count per event plus the people doing them, so a dropped capture call reaches you in days."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 The [Changepoint Detector](https://marisstella.app/changepoint-detector/)'s
 [metric watch](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html#posthog) runs once a day
 in your own GitHub Actions and messages Slack, Discord or Teams only when a metric's level has really moved. It

@@ -121,18 +121,6 @@ test('CLI: refuses to run without --state or --dry-run', async () => {
   await assert.rejects(main(['x.csv'], { out: () => {} }), /--state/);
 });
 
-test('deploy/make-watch-repo.sh makes a folder that runs on its own', async () => {
-  const { execFileSync } = await import('node:child_process');
-  const dest = join(mkdtempSync(join(tmpdir(), 'watch-repo-')), 'w');
-  execFileSync('sh', [new URL('./deploy/make-watch-repo.sh', import.meta.url).pathname, dest]);
-  for (const f of ['watch.mjs', 'engine.mjs', 'LICENSE', 'README.md', '.github/workflows/watch-metric.yml']) assert.ok(existsSync(join(dest, f)), f);
-  writeFileSync(join(dest, 'data/metric.csv'), csvOf(stepSeries(80, 60, 4)));
-  const out = execFileSync('node', ['watch.mjs', 'data/metric.csv', '--state', 'watch-state.json'], { cwd: dest, encoding: 'utf8' });
-  assert.match(out, /First check: 1 change already in the history/);
-  assert.match(readFileSync(join(dest, '.github/workflows/watch-metric.yml'), 'utf8'), /--state watch-state\.json/);
-  assert.match(readFileSync(join(dest, 'README.md'), 'utf8'), /github\.com\/sponsors/);
-});
-
 test('the defaults are the ones the pre-registered replay chose (eval/watch-replay*.out.txt)', () => {
   const r1 = readFileSync(new URL('./eval/watch-replay.out.txt', import.meta.url), 'utf8');
   const r2 = readFileSync(new URL('./eval/watch-replay-round2.out.txt', import.meta.url), 'utf8');
@@ -373,15 +361,4 @@ test('CLI --columns with --detector auto: each column is picked against the whol
   await main([csv, '--suggest', '--columns', 'a,b', '--alerts-per', '2/month'], { out: (x) => (s += x) });
   assert.match(s, /per column, 2 columns/);
   assert.match(s, /== a ==[\s\S]*== b ==/);
-});
-
-test('deploy/make-watch-repo.sh: the standalone folder runs --columns too', async () => {
-  const { execFileSync } = await import('node:child_process');
-  const dest = join(mkdtempSync(join(tmpdir(), 'watch-repo-')), 'w');
-  execFileSync('sh', [new URL('./deploy/make-watch-repo.sh', import.meta.url).pathname, dest]);
-  const a = stepSeries(80, 60, 4), b = stepSeries(80, 200, 0, 9);
-  writeFileSync(join(dest, 'data/metric.csv'), 'date,a,b\n' + a.map((v, i) => `${i + 1},${v.toFixed(3)},${b[i].toFixed(3)}`).join('\n') + '\n');
-  const out = execFileSync('node', ['watch.mjs', 'data/metric.csv', '--state', 'watch-state.json', '--columns', 'all'], { cwd: dest, encoding: 'utf8' });
-  assert.match(out, /== a ==\nFirst check: 1 change already in the history/);
-  assert.match(readFileSync(join(dest, 'README.md'), 'utf8'), /--columns all/);
 });

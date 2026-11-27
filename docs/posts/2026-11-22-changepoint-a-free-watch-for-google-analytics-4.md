@@ -6,6 +6,8 @@ tags: [changepoint-detection, google-analytics, monitoring, self-hosting]
 description: "The changepoint watch now reads a GA4 property through the Data API, in your own GitHub account, and reports when sessions or key events move and stay."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 The most expensive analytics failures are quiet ones. A release drops the tracking tag from a few templates, or
 a consent banner change stops some visits being counted, or the sign-up form stops sending its event. The GA4
 dashboard keeps drawing a line, only lower, and nobody notices until the monthly report.
