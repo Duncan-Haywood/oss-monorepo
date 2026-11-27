@@ -1,6 +1,6 @@
 ---
-kind: agent-doc
-subjects: [payapps, products-to-public-repo]
+kind: note
+subjects: [security]
 ---
 # Pre-publication audit: PayApps, its site, packages/ and the trust and legal docs
 
