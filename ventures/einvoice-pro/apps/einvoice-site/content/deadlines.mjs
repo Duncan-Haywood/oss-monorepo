@@ -2,11 +2,13 @@
 // checked. Pages render ONLY from this file: a date that is not here cannot appear on the site, and
 // test/build.test.mjs fails if an entry lacks an official source or a check date.
 //
-// How these were checked (2026-11-24): direct fetches of bundesfinanzministerium.de, impots.gouv.fr
-// and economie.gouv.fr were blocked by the build environment's network policy (DNS refused), so each
-// statement was matched against the official page's text as returned by a web search restricted to
-// those domains. `checkedVia` says so, and the pages show it. Re-check by opening each URL in a
-// browser before launch and set `checkedVia: "direct"` with the new date (README, "Before launch").
+// How these were checked: on 2026-11-24 bundesfinanzministerium.de, impots.gouv.fr and
+// economie.gouv.fr could not be fetched from the build environment, so each statement was first
+// matched against search excerpts. On 2026-11-27 the BMF and impots.gouv.fr pages and PDFs answered
+// and every German and French statement was re-read against the official text itself
+// (`checkedVia: "direct"`). economie.gouv.fr still answered 403, so nothing cites it any more: the
+// French dates now come from impots.gouv.fr. `checkedVia: "search-excerpt"` stays allowed for a
+// future source that cannot be opened, and the pages mark it with a *.
 
 /** Official hosts a source may live on. Anything else fails the build test. */
 export const OFFICIAL_HOSTS = [
@@ -24,50 +26,43 @@ export const SOURCES = {
     title:
       "Fragen und Antworten zur Einführung der obligatorischen (verpflichtenden) E-Rechnung zum 1. Januar 2025",
     url: "https://www.bundesfinanzministerium.de/Content/DE/FAQ/e-rechnung.html",
-    checked: "2026-11-24",
-    checkedVia: "search-excerpt",
+    checked: "2026-11-27",
+    checkedVia: "direct",
   },
   bmfLetter2025: {
     publisher: "Bundesministerium der Finanzen",
     title: "BMF-Schreiben vom 15. Oktober 2025: Einführung der obligatorischen E-Rechnung",
     url: "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2025-10-15-einfuehrung-obligatorische-e-rechnung.pdf?__blob=publicationFile&v=3",
-    checked: "2026-11-24",
-    checkedVia: "search-excerpt",
+    checked: "2026-11-27",
+    checkedVia: "direct",
   },
   bmfLetter2026: {
     publisher: "Bundesministerium der Finanzen",
     title: "BMF-Schreiben vom 15. Oktober 2026: Obligatorische elektronische Rechnung",
     url: "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2026-10-15-obligatorische-elektronische-rechnung.pdf?__blob=publicationFile",
-    checked: "2026-11-24",
-    checkedVia: "search-excerpt",
-  },
-  frEconomie: {
-    publisher: "Ministère de l'Économie (economie.gouv.fr)",
-    title: "Tout savoir sur la facturation électronique pour les entreprises",
-    url: "https://www.economie.gouv.fr/tout-savoir-sur-la-facturation-electronique-pour-les-entreprises",
-    checked: "2026-11-24",
-    checkedVia: "search-excerpt",
+    checked: "2026-11-27",
+    checkedVia: "direct",
   },
   frImpotsDecouvre: {
     publisher: "DGFiP (impots.gouv.fr)",
     title: "Je découvre la facturation électronique",
     url: "https://www.impots.gouv.fr/professionnel/je-decouvre-la-facturation-electronique",
-    checked: "2026-11-24",
-    checkedVia: "search-excerpt",
+    checked: "2026-11-27",
+    checkedVia: "direct",
   },
   frImpotsGuide: {
     publisher: "DGFiP (impots.gouv.fr)",
     title: "Facturation électronique : guide pratique de démarrage au 1er septembre 2026",
     url: "https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/guide_pratique_facturation_electronique.pdf",
-    checked: "2026-11-24",
-    checkedVia: "search-excerpt",
+    checked: "2026-11-27",
+    checkedVia: "direct",
   },
-  frImpotsMentions: {
+  frImpotsFaq: {
     publisher: "DGFiP (impots.gouv.fr)",
-    title: "Facturation électronique : fiche 1-f (nouvelles mentions)",
-    url: "https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/fiches_reforme/fiche-1_f_ps.pdf",
-    checked: "2026-11-24",
-    checkedVia: "search-excerpt",
+    title: "Foire aux questions : je découvre la facturation électronique",
+    url: "https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/faq---fe_je-decouvre-la-facturation-electronique.pdf",
+    checked: "2026-11-27",
+    checkedVia: "direct",
   },
   // Poland: read directly from the Ministry of Finance's KSeF site on 2026-11-26 (the pages answered
   // from the build environment, so `checkedVia: "direct"`). Each page's own "Zmodyfikowano" date:
@@ -166,10 +161,10 @@ export const COUNTRIES = [
         kind: "issue",
         source: "bmfFaq",
         text: {
-          de: "Ende der allgemeinen Übergangsfrist: Bis zu diesem Tag dürfen alle Rechnungsaussteller statt einer E-Rechnung noch eine sonstige Rechnung (Papier oder z. B. einfaches PDF) ausstellen.",
-          fr: "Fin de la période transitoire générale : jusqu'à cette date, tout émetteur peut encore émettre une « autre facture » (papier ou PDF simple, par exemple) au lieu d'une e-facture.",
-          en: "End of the general transition period: until this day, any issuer may still send an 'other invoice' (paper or, for example, a plain PDF) instead of an e-invoice.",
-          nl: "Einde van de algemene overgangsperiode: tot deze dag mag elke uitreiker nog een 'andere factuur' (op papier of bijvoorbeeld een gewone pdf) versturen in plaats van een e-factuur.",
+          de: "Ende der allgemeinen Übergangsfrist: Bis zu diesem Tag dürfen alle Rechnungsaussteller statt einer E-Rechnung noch eine sonstige Rechnung ausstellen. Papier geht immer; ein anderes elektronisches Format (z. B. ein PDF per E-Mail) nur, wenn der Empfänger zustimmt.",
+          fr: "Fin de la période transitoire générale : jusqu'à cette date, tout émetteur peut encore émettre une « autre facture » au lieu d'une e-facture. Le papier est toujours possible ; un autre format électronique (un PDF envoyé par e-mail, par exemple) seulement si le destinataire l'accepte.",
+          en: "End of the general transition period: until this day, any issuer may still send an 'other invoice' instead of an e-invoice. Paper is always allowed; another electronic format (for example a PDF by email) only if the recipient agrees to it.",
+          nl: "Einde van de algemene overgangsperiode: tot deze dag mag elke uitreiker nog een 'andere factuur' versturen in plaats van een e-factuur. Papier mag altijd; een ander elektronisch formaat (bijvoorbeeld een pdf per e-mail) alleen als de ontvanger daarmee instemt.",
         },
       },
       {
@@ -239,7 +234,7 @@ export const COUNTRIES = [
       {
         date: "2026-09-01",
         kind: "issue",
-        source: "frEconomie",
+        source: "frImpotsDecouvre",
         text: {
           de: "Große Unternehmen (GE) und mittelgroße Unternehmen (ETI) müssen E-Rechnungen ausstellen und das E-Reporting übermitteln.",
           fr: "Les grandes entreprises (GE) et les entreprises de taille intermédiaire (ETI) doivent émettre leurs factures au format électronique et transmettre leurs données d'e-reporting.",
@@ -250,7 +245,7 @@ export const COUNTRIES = [
       {
         date: "2027-09-01",
         kind: "issue",
-        source: "frEconomie",
+        source: "frImpotsGuide",
         text: {
           de: "Kleine und mittlere Unternehmen (PME) und Kleinstunternehmen müssen spätestens ab diesem Tag E-Rechnungen ausstellen und das E-Reporting übermitteln. Ein freiwilliger früherer Einstieg ist möglich.",
           fr: "Les PME et les micro-entreprises doivent émettre leurs factures au format électronique, et transmettre leur e-reporting, au plus tard à cette date. Elles peuvent entrer volontairement plus tôt.",
@@ -263,19 +258,19 @@ export const COUNTRIES = [
       {
         source: "frImpotsDecouvre",
         text: {
-          de: "Zugelassene Plattformen übermitteln Rechnungen in einem von drei Formaten: UBL, CII oder Factur-X (ein PDF mit eingebettetem strukturierten XML).",
-          fr: "Les plateformes agréées transmettent les factures dans l'un de trois formats : UBL, CII ou Factur-X (un PDF auquel est joint un fichier XML structuré).",
-          en: "Approved platforms transmit invoices in one of three formats: UBL, CII or Factur-X (a PDF with structured XML attached).",
-          nl: "Erkende platforms versturen facturen in een van drie formaten: UBL, CII of Factur-X (een pdf met daarin een gestructureerd XML-bestand).",
+          de: "Eine E-Rechnung muss ein vorgegebenes Format haben: UBL, CII oder ein gemischtes Format aus strukturierten Daten und einem Bild der Rechnung (so ist Factur-X aufgebaut). Sie wird über eine zugelassene Plattform (plateforme agréée) übermittelt.",
+          fr: "Une facture électronique doit respecter un format donné : UBL, CII ou un format mixte composé d'un fichier de données structurées et d'un fichier image (c'est le cas de Factur-X). Elle est transmise par une plateforme agréée.",
+          en: "An e-invoice must use a set format: UBL, CII or a mixed format of structured data plus an image of the invoice (which is how Factur-X is built). It is sent through an approved platform (plateforme agréée).",
+          nl: "Een e-factuur moet een vastgelegd formaat hebben: UBL, CII of een gemengd formaat met gestructureerde gegevens en een afbeelding van de factuur (zo is Factur-X opgebouwd). Ze wordt via een erkend platform (plateforme agréée) verstuurd.",
         },
       },
       {
-        source: "frImpotsMentions",
+        source: "frImpotsFaq",
         text: {
-          de: "Neue Pflichtangaben: die SIREN des Kunden, die Art des Umsatzes (Lieferung, Dienstleistung oder beides) und gegebenenfalls die Option zur Besteuerung nach vereinbarten Entgelten (TVA sur les débits).",
-          fr: "Nouvelles mentions obligatoires : le SIREN du client, la catégorie de l'opération (livraison de biens, prestation de services ou les deux) et, le cas échéant, l'option pour le paiement de la TVA d'après les débits.",
-          en: "New mandatory details: the customer's SIREN, the category of the transaction (goods, services or both) and, where it applies, the option to pay VAT on debits.",
-          nl: "Nieuwe verplichte vermeldingen: het SIREN-nummer van de klant, de categorie van de handeling (levering van goederen, dienstverrichting of beide) en, waar van toepassing, de keuze om de btw te voldoen op basis van de facturering (TVA sur les débits).",
+          de: "Vier neue Pflichtangaben: die SIREN des Kunden, die Art des Umsatzes (Lieferung, Dienstleistung oder beides), gegebenenfalls die Option zur Besteuerung nach vereinbarten Entgelten (TVA sur les débits) und die Lieferadresse, wenn sie von der Rechnungsadresse abweicht.",
+          fr: "Quatre nouvelles mentions obligatoires : le SIREN du client, la catégorie de l'opération (livraison de biens, prestation de services ou les deux), l'option pour le paiement de la TVA d'après les débits le cas échéant, et l'adresse de livraison si elle diffère de l'adresse de facturation.",
+          en: "Four new mandatory details: the customer's SIREN, the category of the transaction (goods, services or both), the option to pay VAT on debits where it applies, and the delivery address when it differs from the billing address.",
+          nl: "Vier nieuwe verplichte vermeldingen: het SIREN-nummer van de klant, de categorie van de handeling (levering van goederen, dienstverrichting of beide), waar van toepassing de keuze om de btw te voldoen op basis van de facturering (TVA sur les débits), en het leveringsadres als dat afwijkt van het factuuradres.",
         },
       },
     ],

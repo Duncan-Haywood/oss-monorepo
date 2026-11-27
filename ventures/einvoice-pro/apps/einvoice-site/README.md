@@ -64,15 +64,27 @@ repo root.
 ## Deadlines: sources and how they were checked
 
 Every date on the site comes from `content/deadlines.mjs`. Each entry names an official page
-(bundesfinanzministerium.de, impots.gouv.fr, economie.gouv.fr) and the date it was checked; the
-country pages print both. Tests fail if a source is not on an official host, has no check date, or
-if any page states a date that is not in that file.
+(bundesfinanzministerium.de, impots.gouv.fr, and for Poland and Belgium the sites below) and the date
+it was checked; the country pages print both. Tests fail if a source is not on an official host, has
+no check date, or if any page states a date that is not in that file.
 
-**Limitation, stated on the pages too:** on 2026-11-24 the build environment could not open those
-three sites directly (DNS was blocked by its network policy). Each statement was matched against the
-official page's own text as returned by a web search restricted to the official domain. Before
-launch, open every URL in a browser, re-read the wording, and set `checkedVia: "direct"` with the new
-date.
+**Germany and France, read directly on 2026-11-27.** On 2026-11-24 the build environment could not
+open these sites, so each statement was first matched against search excerpts and the pages carried a
+* note saying so. On 2026-11-27 the BMF FAQ, both BMF letters (15 October 2025 and 15 October 2026)
+and the impots.gouv.fr page, start-up guide and FAQ PDF answered, and every German and French
+statement was re-read against the official text (`checkedVia: "direct"`, and a test keeps it so).
+What the re-read changed:
+
+- Germany, 31 December 2026: the transition rule now says that paper is always allowed but a PDF or
+  other electronic "sonstige Rechnung" needs the recipient's consent (BMF FAQ, question 11). The old
+  wording implied any issuer could send a plain PDF.
+- France: economie.gouv.fr still answered 403, so the issue dates now cite impots.gouv.fr ("Je
+  découvre la facturation électronique" for GE/ETI in 2026; the start-up guide for PME, TPE and micro
+  in 2027 and voluntary early entry). The formats rule follows that page's wording (UBL, CII or a
+  mixed format of structured data plus an image, which is what Factur-X is). The four new mentions
+  now cite the DGFiP FAQ PDF (question 3.4), which lists them, and gained the fourth one (delivery
+  address when it differs from the billing address); the earlier source, a fiche for small service
+  businesses, did not list them.
 
 Covered: Germany, France, Poland and Belgium. Not covered: other countries (they have their own
 timelines).

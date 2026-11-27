@@ -192,8 +192,10 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
 - A native German and a native French reviewer for the explanation templates and the site
   copy (both say they are unreviewed); a native Polish reviewer for the KSeF templates and the
   workspace page's Polish text before KSeF is marketed in Polish.
-- Re-check each official deadline source directly (the site's sources were read through
-  search excerpts on 2026-11-24; `apps/einvoice-site/content/deadlines.mjs`).
+- ~~Re-check each official deadline source directly~~ done 2026-11-27
+  (launch-re-check-each-official-deadline): every German and French statement re-read against the
+  BMF and impots.gouv.fr text itself, two wordings corrected, all sources `checkedVia: "direct"`
+  (einvoice-site README, "Germany and France, read directly on 2026-11-27").
 
 - Dutch explanations, part 1 (2026-11-27, dutch-explanations-part-1): the wedge in bets.md promises
   "plain German, French or Dutch", and the app had no Dutch. Every rule except the KSeF ones (111 ids)

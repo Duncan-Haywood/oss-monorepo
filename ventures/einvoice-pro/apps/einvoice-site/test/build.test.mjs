@@ -281,6 +281,30 @@ test("no script on any page (CSP script-src 'none')", () => {
   assert.match(read("_headers"), /script-src 'none'/);
 });
 
+test("Germany and France: every statement read directly from the BMF or impots.gouv.fr, no * note", () => {
+  const hosts = {
+    de: ["www.bundesfinanzministerium.de", "bundesfinanzministerium.de"],
+    fr: ["www.impots.gouv.fr"],
+  };
+  for (const key of ["de", "fr"]) {
+    const c = COUNTRIES.find((x) => x.key === key);
+    for (const d of [...c.deadlines, ...c.rules]) {
+      const s = SOURCES[d.source];
+      assert.ok(hosts[key].includes(new URL(s.url).host), `${key}: ${d.source}`);
+      assert.equal(s.checkedVia, "direct", `${key}: ${d.source}`);
+    }
+    for (const lang of LANGS) {
+      const html = htmlOf(`deadlines-${key}`, lang);
+      assert.ok(!/<p class="small">\* /.test(html), `${key}/${lang}: no * note`);
+    }
+  }
+  // The BMF FAQ (question 11): a PDF or other electronic "other invoice" needs the recipient's consent.
+  const de = COUNTRIES.find((x) => x.key === "de");
+  const transition = de.deadlines.find((d) => d.date === "2026-12-31");
+  assert.match(transition.text.de, /Empfänger zustimmt/);
+  assert.match(transition.text.en, /recipient agrees/);
+});
+
 test("Poland: KSeF dates read directly from the Ministry's site, linked from every page, no KSeF sending claimed", () => {
   const pl = COUNTRIES.find((c) => c.key === "pl");
   assert.deepEqual(
