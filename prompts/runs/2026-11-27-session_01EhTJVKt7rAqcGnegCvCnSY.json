@@ -35,6 +35,14 @@
     {
       "file": "platform/ci/test_*.py convention",
       "issue": "`python3 -m unittest platform/ci/test_x.py` fails from repo root because the stdlib `platform` module shadows the directory; must cd platform/ci first."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps-site",
+      "issue": "`vitest run <file>` without --config vitest.unit.config.ts fails with 'Cannot find package @site/build'; use pnpm test:unit."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Campaign suites run with node --test (type-stripping), so a test that passes there can still fail the package's tsc typecheck in CI; run `tsc -p tsconfig.json --noEmit` after adding TS tests."
     }
   ],
   "deviations": [
@@ -47,7 +55,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "4 campaigns on ventures/payapps/packages/billing (grace 8/8, period 6/8, checkout-token 2/8, entitlement 8/8). 6 gaps fixed, 2 equivalent; rerun: all gaps caught_after_fix. Same tests ported to jobshop-quote, cmmc, seller-books billing copies (identical sources). Guard added: platform/ci/check_billing_copies.py fails on drift of shared billing source files across the 4 copies; first run green with notes for existing test drift in paddle.test.ts and paddle-key.test.ts. Suites: 89/89 pass in each of the 4 billing packages.",
+  "notes": "4 campaigns on ventures/payapps/packages/billing (grace 8/8, period 6/8, checkout-token 2/8, entitlement 8/8). 6 gaps fixed, 2 equivalent; rerun: all gaps caught_after_fix. Same tests ported to jobshop-quote, cmmc, seller-books billing copies (identical sources). Guard added: platform/ci/check_billing_copies.py fails on drift of shared billing source files across the 4 copies; first run green with notes for existing test drift in paddle.test.ts and paddle-key.test.ts. Suites: 89/89 pass in each of the 4 billing packages. Also regenerated payapps-site catalogue export (red on main). Billing test typecheck fixed: node:test t.mock typing fails under the package's types:[] tsconfig, so the getRandomValues stub uses defineProperty.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -544,7 +552,14 @@
         ]
       }
     ],
-    "real_defects": []
+    "real_defects": [
+      {
+        "file": "ventures/payapps/apps/payapps-site/catalogue-export/features.html",
+        "issue": "Catalogue export stale on main after the Texas notices of claim feature (PR #19750): payapps-site CI's catalogue-export test was red; features.html, llms.txt and llms-full.txt omitted the feature.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19761"
+      }
+    ]
   },
   "usage": {
     "measured_by": "prompts/runcost.py v1",
