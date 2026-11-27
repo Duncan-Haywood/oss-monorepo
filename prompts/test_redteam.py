@@ -301,6 +301,7 @@ class CampaignTest(unittest.TestCase):
 
     def test_skipped_tests_reads_each_runner(self):
         self.assertEqual(redteam.skipped_tests("# pass 5\n# fail 0\n# skipped 3\n"), 3)
+        self.assertEqual(redteam.skipped_tests("\u2139 pass 5\n\u2139 skipped 2\n"), 2)
         self.assertEqual(redteam.skipped_tests("== 12 passed, 2 skipped in 0.4s =="), 2)
         self.assertEqual(redteam.skipped_tests("Ran 9 tests\n\nOK (skipped=4)"), 4)
         self.assertEqual(redteam.skipped_tests("# pass 5\n# skipped 0\n"), 0)

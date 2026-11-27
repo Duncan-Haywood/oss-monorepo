@@ -292,10 +292,11 @@ def run_suite(cmd: list[str], cwd: Path, timeout: int = TIMEOUT_SECONDS,
     return passed, round(time.monotonic() - start, 1)
 
 
-# How each runner reports skipped tests: node --test "# skipped 3", pytest
+# How each runner reports skipped tests: node --test "# skipped 3" (TAP) or
+# "ℹ skipped 3" (the spec reporter, which CI gets), pytest
 # "2 passed, 3 skipped", unittest "OK (skipped=3)".
 _SKIPPED = (
-    re.compile(r"^# skipped (\d+)\s*$", re.M),
+    re.compile(r"^(?:#|\u2139) skipped (\d+)\s*$", re.M),
     re.compile(r"\b(\d+) skipped\b"),
     re.compile(r"\bskipped=(\d+)\b"),
 )
