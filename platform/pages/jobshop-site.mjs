@@ -22,10 +22,14 @@ export const JOBSHOP_EXPORT = path.join(ROOT, 'ventures', 'jobshop-quote', 'apps
 const PRODUCTION = 'https://marisstella.app/';
 const TEXT = new Set(['.html', '.xml', '.txt', '.css', '.svg']);
 
-/** Rewrites `https://marisstella.app/jobshop...` to `<baseUrl>jobshop...`; other hosts untouched. */
+/**
+ * Rewrites every `https://marisstella.app/...` link (its own pages, and the manufacturing page it
+ * links for the CMMC workspace) to `<baseUrl>...`. Other hosts, the app's subdomain included, are
+ * untouched: `https://marisstella.app/` never occurs inside `https://jobshop-quote.marisstella.app/`.
+ */
 export function rebase(text, baseUrl) {
   if (!baseUrl || baseUrl === PRODUCTION) return text;
-  return text.split(`${PRODUCTION}${JOBSHOP_SITE_DIR}`).join(`${baseUrl}${JOBSHOP_SITE_DIR}`);
+  return text.split(PRODUCTION).join(baseUrl);
 }
 
 /**

@@ -45,6 +45,15 @@ test('rebase moves only the site origin, never the app host', () => {
   const s = '<a href="https://marisstella.app/jobshop/pricing"> <a href="https://jobshop-quote.marisstella.app/sign-up">';
   assert.equal(rebase(s, 'https://marisstella.app/'), s);
   assert.equal(rebase(s, 'http://localhost:8000/'), '<a href="http://localhost:8000/jobshop/pricing"> <a href="https://jobshop-quote.marisstella.app/sign-up">');
+  assert.equal(rebase('<a href="https://marisstella.app/industries/manufacturing/#cmmc">', 'https://catalogue.test/'), '<a href="https://catalogue.test/industries/manufacturing/#cmmc">');
+});
+
+test('every catalogue-origin link in the export points at a page this build serves', () => {
+  // The CMMC link goes to the manufacturing page's section, not an unserved /cmmc/.
+  const home = readFileSync(path.join(JOBSHOP_EXPORT, 'index.html'), 'utf8');
+  for (const [, url] of home.matchAll(/href="https:\/\/marisstella\.app\/([^"#]*)/g)) {
+    assert.ok(url === '' || url.startsWith('jobshop/') || url === 'industries/manufacturing/', url);
+  }
 });
 
 test('relativise turns the site\'s root-relative links into ./ links, nothing else', () => {
