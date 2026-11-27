@@ -6,6 +6,9 @@ import {
   CA_NOTICE_RECIPIENTS,
   FL_NOTICE_RECIPIENTS,
   FL_SERVICE_METHODS,
+  TX_DELIVERY_METHODS,
+  TX_NOTICE_KINDS,
+  TX_NOTICE_RECIPIENTS,
 } from "@lien-waivers";
 import { ATTACHMENT_CATEGORIES } from "@shared/attachments";
 import {
@@ -132,6 +135,12 @@ export const projects = sqliteTable(
      */
     flFirstFurnishedOn: text("fl_first_furnished_on"),
     /**
+     * Texas notices of claim (Tex. Prop. Code § 53.056): whether the job is a residential
+     * construction project (§ 53.001(10), second month) or not (third month). Setting it turns on
+     * the per-month reminder from the job's unpaid pay apps; null when not tracked (migration 0084).
+     */
+    txProjectKind: text("tx_project_kind", { enum: ["commercial", "residential"] }),
+    /**
      * Georgia: whether a notice of commencement (O.C.G.A. § 44-14-361.5) was filed for the job (true
      * filed, false not filed, null not known), and the contractor's name and address as that notice
      * shows them. They preselect the answer on an affidavit of nonpayment's copy to the contractor
@@ -139,6 +148,18 @@ export const projects = sqliteTable(
      */
     gaNocFiled: integer("ga_noc_filed", { mode: "boolean" }),
     gaNocContractor: text("ga_noc_contractor"),
+    /**
+     * Lien deadline (src/shared/lien-deadline.ts, migration 0086): the state the property is in (two
+     * letters), whether the job is residential (states with a shorter clock for a home), the day this
+     * company last furnished labor or materials, and, for California and Arizona, the completion of
+     * the work of improvement and the day the owner recorded a notice of completion. All null when not
+     * entered; without a last-furnished date the deadline is estimated from the billing.
+     */
+    lienState: text("lien_state"),
+    lienResidential: integer("lien_residential", { mode: "boolean" }).notNull().default(false),
+    lastFurnishedOn: text("last_furnished_on"),
+    workCompletedOn: text("work_completed_on"),
+    noticeOfCompletionOn: text("notice_of_completion_on"),
     /** The one-click sample job (services/payapps/sample.ts): not counted toward the plan. */
     isSample: integer("is_sample", { mode: "boolean" }).notNull().default(false),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
@@ -576,6 +597,37 @@ export const flNoticeSends = sqliteTable(
     createdAt: createdAt(),
   },
   (t) => [index("fl_notice_sends_project_idx").on(t.orgId, t.projectId)],
+);
+
+/**
+ * A Texas notice of claim the company recorded as sent, one row per recipient (the owner or reputed
+ * owner, the original contractor, §§ 53.056(a-1), 53.057(a-1)) and, for § 53.056, per month of
+ * unpaid work, with how it went (§ 53.003(b)) and the mail or tracking number (migration 0084).
+ */
+export const txNoticeSends = sqliteTable(
+  "tx_notice_sends",
+  {
+    id: text("id").primaryKey(),
+    orgId: orgId(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    kind: text("kind", { enum: TX_NOTICE_KINDS }).notNull(),
+    /** YYYY-MM of the unpaid labor or materials (§ 53.056); null for a retainage notice. */
+    workMonth: text("work_month"),
+    recipient: text("recipient", { enum: TX_NOTICE_RECIPIENTS }).notNull(),
+    recipientNameAddress: text("recipient_name_address").notNull(),
+    method: text("method", { enum: TX_DELIVERY_METHODS }).notNull(),
+    /** ISO date mailed, handed to the carrier or delivered in person. */
+    sentOn: text("sent_on").notNull(),
+    /** Certified mail number or the carrier's tracking number. */
+    tracking: text("tracking"),
+    /** Claim amount as stated on the notice, cents; null when not entered. */
+    amountCents: cents("amount_cents"),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("tx_notice_sends_project_idx").on(t.orgId, t.projectId)],
 );
 
 /**

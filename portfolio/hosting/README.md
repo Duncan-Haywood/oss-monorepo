@@ -113,10 +113,10 @@ rewrite.
 plan (1,000 on Workers Paid), and every schedule on every Worker counts.
 `python3 platform/ci/cron_budget.py --strict` lists them and fails CI when the
 configured ones exceed [`cloudflare-plan.json`](cloudflare-plan.json) (on
-2026-11-27, after P098: 5 configured, 4 on workflow-deployed Workers, so none
-spare). A new daily or hourly job goes on a Durable Object alarm instead, which
+2026-11-27, after P098: 5 configured, all 5 on workflow-deployed Workers, so
+none spare). A new daily or hourly job goes on a Durable Object alarm instead, which
 is not a cron trigger and works on the free plan (SQLite-backed objects): the
-three landing sites' sign-up purges do this (`ventures/*/apps/*-site`,
+four landing sites' sign-up purges do this (`ventures/*/apps/*-site`,
 `purge-clock.mjs` / `purge-clock.ts`).
 
 **Terms users see.** Hosted surfaces carry the no-warranty and no-SLA copy

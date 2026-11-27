@@ -1,0 +1,166 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKmXT1iFwFjobjt7n1N",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T12:10:58Z",
+  "ended": "2026-11-27T12:17:37Z",
+  "wall_minutes": 19.52,
+  "tokens_in": 14024234,
+  "tokens_out": 43087,
+  "cost_usd": 5.0002,
+  "tool_calls": 104,
+  "task": "payapps-site served at marisstella.app/payapps (duplicate of PR #19733); landed: front-door link from pay-application-generator",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19736",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "first venture-preflight rerun failed check_conflict_markers on ventures/payapps/site/404.html",
+      "why": "the preflight started before the commit that deleted the file, so it was tracked but missing from the tree",
+      "fix": "commit, then rerun"
+    },
+    {
+      "what": "misread a raw-copy diff as 'the catalogue injects no chrome'",
+      "why": "diffed dist/payapps while the build was still running",
+      "fix": "rechecked after BUILD_EXIT=0: pf-site.js is injected; privacy copy names the counter"
+    },
+    {
+      "what": "duplicate work: PR #19733 (another session) served the same site and merged at 13:30 UTC while this PR waited on starved runners",
+      "why": "slug_dupe.py was run with 'payapps-site' and 'payapps' at 12:13; #19733 was opened after that check, and no second check ran before the merge (CLAUDE.md asks for one before opening the PR, which was done; it does not ask again before merging)",
+      "fix": "merged main and kept main's version of every overlapping file; this PR now carries only the pay-application-generator link to ../payapps/ and this record"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/hosting/README.md",
+      "issue": "'A static product needs no deploy work' does not say that check.mjs refuses root-absolute links and requires a 'no warranty' line on every entry page, or that build.mjs injects pf-site.js (the counter) only once the slug is in launched.json; a trial build showed the pages copied unchanged with no chrome, which looked like the final state."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "'Next: serve it (a deploy workflow, or the static pages...)' gave no hint that the early-access form needs the Worker API, so the static route needs a mode without it."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "The duplicate check runs at task pick and before the PR opens. A PR that waits about 90 minutes on starved runners can be overtaken by a parallel session doing the same task. A re-check before each fix push would have caught #19733 about an hour earlier."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new or extended blog post: the work is a served marketing site (features, pricing, llms.txt), which is itself the marketing page; the customer posts were brought up to 'open' in PR #19666 the same day.",
+      "did": "README 'Where it is served' section + ROADMAP line instead",
+      "result": "n/a"
+    },
+    {
+      "file": "portfolio/hosting/README.md",
+      "why": "Committed generated output (ventures/payapps/site/) instead of building payapps-site inside the catalogue workflow, which would need a control-plane change to priv-portfolio-pages.yml.",
+      "did": "pnpm export:static plus a drift test that fails when the committed copy differs from a fresh export",
+      "result": "unit tests pass; the catalogue build picks the copy up"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Kept PR #19736 open and shrank it to what #19733 lacks, instead of closing it as superseded",
+      "did": "merged origin/main and took main's files for every overlapping path",
+      "result": "4-file diff: generator link plus page test, and this record"
+    }
+  ],
+  "writeups": [],
+  "goal": "bet #1 traffic: a served product page with pricing and features for PayApps (open on the Free plan)",
+  "notes": "Local verification: payapps-site pnpm test:unit 32/32, test:worker 10/10, typecheck, biome clean; pay-application-generator page.test 11/11; platform/pages cta-row-phone, siblings, venture-preflight tests pass; node platform/pages/venture-preflight.mjs payapps: 'preflight clean for payapps' (build + check.mjs). Trial catalogue build confirmed dist/payapps/ gets the shared chrome (pf-site.js counter), which the static privacy notice names. check.mjs first flagged root-absolute links, missing 'no warranty', an unreachable 404 and no launch date; siblings flagged payapps as an orphan; cta-row-phone flagged a real phone-width defect. All fixed. 13:53 UTC: PR #19733 (session_01AcxTtLcPohUQszKb2rLFra) had already merged the same feature in a different form: catalogue-export/ plus platform/pages/payapps-site.mjs, with no free-tool chrome. That is the better design for a paid product page, so this PR took main's version. Unique value kept: pay-application-generator's suite sections link the product page ../payapps/ (page.test 12/12, check_pages_links OK).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a3e8066c-8bc2-582e-898f-b18e5da3ca07",
+    "transcripts": 1,
+    "first": "2026-11-27T12:10:58Z",
+    "last": "2026-11-27T12:30:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 101,
+        "input": 195,
+        "output": 43087,
+        "thinking": 12213,
+        "cache_read": 13853156,
+        "cache_write_5m": 0,
+        "cache_write_1h": 170883,
+        "api_equivalent_usd": 5.0002,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 101,
+      "input": 195,
+      "output": 43087,
+      "thinking": 12213,
+      "cache_read": 13853156,
+      "cache_write_5m": 0,
+      "cache_write_1h": 170883,
+      "api_equivalent_usd": 5.0002,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 104,
+    "tools": {
+      "Bash": 101,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.52,
+      "active_minutes": 19.52,
+      "model_minutes": 10.15,
+      "tool_minutes": 9.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "static export mode, drift test, catalogue integration fixes for a marketing site",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 120.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -3,6 +3,13 @@
 Bet #2 of the 2026-11-24 direction (paid vertical software for SMBs): AI RFQ-to-quote for CNC and
 fabrication job shops. Pricing and the paid path stay dark until the items marked **launch** are done.
 
+Status: **live on the free Early access plan** (2026-11-27). First production deploy: jobshop-quote-deploy
+run 46013246899 (manual, main at e8be3de0f), on the account's workers.dev address; the smoke test answered
+`{"ok":true,"app":"jobshop-quote","email":true,"files":"d1"}`, so sign-up email works and files are kept
+in D1 (no R2 yet). AI extraction is off (no `JOBSHOP_ANTHROPIC_API_KEY`; the owner's choice, LAUNCH-REVIEW.md
+section 1), inbound RFQ email is off, paid plans are dark. The workflow now defaults to
+`jobshop-quote.marisstella.app` (PR #19764); the next run moves the app there. No customers yet.
+
 ## Done (v0.1, this core)
 
 - Shops, members, roles (owner/admin/estimator/viewer), invitation links.
@@ -700,11 +707,13 @@ fabrication job shops. Pricing and the paid path stay dark until the items marke
 
 ## Next
 
-3. **launch** Operator and contact email are filled in and launch is agent-approved
+3. **launch** (first deploy done 2026-11-27, run 46013246899, see Status; still open: the run on
+   `jobshop-quote.marisstella.app`, then `push: branches: [main]`) Operator and contact email are filled in and launch is agent-approved
    (`docs/legal/OPERATOR.md`, 2026-11-26); the deploy workflow is ported to oss-monorepo
    (`.github/workflows/priv-jobshop-quote-deploy.yml`, 2026-11-27, manual and main-only; its first run
-   has its launch review, `docs/LAUNCH-REVIEW.md`, 2026-11-27, and waits on R2 edit for the Cloudflare token,
-   `ventures/jobshop-quote/DEPLOY.md`, "Then"); run `jobshop-quote-deploy` once, onboard the sender domain,
+   has its launch review, `docs/LAUNCH-REVIEW.md`, 2026-11-27; R2 no longer blocks it, since without the
+   bucket files are kept in D1's `file_blobs`, `src/worker/ports/file-store.ts`, 2026-11-27, and on a
+   free D1 that is 500 MB per database, so add R2 edit to the token before shops fill it); run `jobshop-quote-deploy` once, onboard the sender domain,
    pick `JOBSHOP_DOMAIN`, and add `push: branches: [main]` (docs/DEPLOY.md, "Before strangers sign
    up"). Inbound RFQs: set `JOBSHOP_INBOUND_EMAIL=on` and `CLOUDFLARE_EMAIL_ROUTING_TOKEN` (item 8).
 4. Billing, part 4 (the RFQ page's 80%/100% banner for every member done 2026-11-25; the deploy

@@ -1,8 +1,9 @@
 # Seller Books
 
 Profit and Schedule C books for resellers on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify,
-Amazon (FBA or shipped yourself), TikTok Shop and Square (a card reader or the Square app at a market or flea
-market, from its Transactions CSV), plus the sales made off them (cash at a market or flea market, Facebook
+Amazon (FBA or shipped yourself), TikTok Shop, Square (a card reader or the Square app at a market or flea
+market, from its Transactions CSV) and PayPal (sales paid by PayPal off the marketplaces, from its Activity
+download), plus the sales made off them (cash at a market or flea market, Facebook
 Marketplace, a local pickup paid by Venmo), which are typed in one at a time. You import the
 marketplaces' own reports, track cost of goods per item and per lot, and log mileage (typed in, or read from
 a mileage tracker app's CSV export). The app then shows
@@ -18,6 +19,11 @@ sends nothing, and each email has a one-click stop link.
 Expenses can be typed in or read from a bank or card statement CSV, each line with a suggested category and
 the ones that are really inventory, marketplace fees or fuel left unticked with the reason; a merchant filed
 before starts with the seller's own latest category.
+The deposits on a bank statement can be checked against the payouts the books expect ("Did I import everything?" on
+the Imports page): each deposit that names a platform is set against that platform's sales and shipping, less refunds,
+fees and postage, month by month, so a month whose report was never imported shows up as deposits with no sales
+behind them; matched deposits are listed and any that is not a payout (a refund of a purchase) can be unticked. The
+statement is read on the server and not saved (`src/shared/reconcile-payouts.ts`).
 A platform's Form 1099-K can be checked against the books: box 1a (and the monthly boxes) next to the books'
 item sales, with and without shipping and the sales tax the platform collected, and the months that do not
 match named (nothing typed is saved).

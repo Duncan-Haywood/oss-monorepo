@@ -11,43 +11,57 @@
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pay Application Generator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a pay application?", "acceptedAnswer": {"@type": "Answer", "text": "A pay application (also called a payment application, progress billing or draw request) is the document a contractor sends the owner each period to be paid for the work done so far. It shows the contract sum, change orders, how much is complete and stored, the retainage held back, what was already paid, and what is due now."}}, {"@type": "Question", "name": "How is retainage calculated on a pay application?", "acceptedAnswer": {"@type": "Answer", "text": "Retainage is a percentage of the work completed and stored to date, commonly 5 to 10 percent. This page multiplies each line's completed work by the work rate and its stored materials by the stored rate, rounds to the cent per line, and adds them. It can also drop the rate once the job passes a completion point, if your contract allows it."}}, {"@type": "Question", "name": "How do I fill in the previous certificates line?", "acceptedAnswer": {"@type": "Answer", "text": "Take it from your last application: the current payment due that was certified, summed across all earlier applications. If you leave it blank this page estimates it as previous work less retainage at today's rate, and says so in the findings, because that only holds if the rate never changed."}}, {"@type": "Question", "name": "How do change orders work?", "acceptedAnswer": {"@type": "Answer", "text": "Add each approved change order as its own line with a negative or positive scheduled value, and put CO in the item column (CO-1, CO-2) or in a Type column. They are separated from the original contract sum and shown as the net change."}}, {"@type": "Question", "name": "How do I carry the schedule forward to next month?", "acceptedAnswer": {"@type": "Answer", "text": "After working out an application, use Next month. Each line's previous column becomes previous plus this period, this period goes to zero, stored materials stay in the stored column until you bill them as installed, and previous certificates become this application's total earned less retainage. Start it on the page straight away, or download the CSV and open it next month. If the owner certified a different amount than you billed, type the certified figure into previous certificates."}}, {"@type": "Question", "name": "Is there a free pay application template in Excel?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The page offers a blank .xlsx with an application summary linked to a continuation sheet of 30 lines, retainage on work and stored materials, and every total as a formula. After working out an application you can also download it filled in, with ten spare rows the totals already cover. It is this tool's own layout, not the AIA form."}}, {"@type": "Question", "name": "Can I use the Excel continuation sheet I already have?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose the .xlsx file. The page looks through each sheet for the table (a sheet named G703, continuation or schedule first), reads it under the title block and column letters, skips subtotals, stops at the totals row, and tells you if the sheet's own totals or retainage do not add up. An old .xls file needs saving as .xlsx or CSV first. Nothing is uploaded."}}, {"@type": "Question", "name": "Is this the AIA G702 and G703 form?", "acceptedAnswer": {"@type": "Answer", "text": "No. It produces the same kind of summary and line-by-line table, in plain text, CSV and Excel, but it is not the AIA form, which is copyrighted, and it is not affiliated with the American Institute of Architects. If your owner requires the AIA form, use the numbers here to fill it in."}}, {"@type": "Question", "name": "Is my project data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The schedule is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
   <style>
-    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    /* Colour tokens (2026-11-27): one palette for light, one for dark. The dark set is screen-only, so a
+       printed application stays dark ink on white whatever the reader's setting. */
+    :root { color-scheme: light dark; --bg: #f3f4f1; --ink: #1b1f2a; --head: #3b2a14; --muted: #54503f; --link: #7a3e0a;
+      --card: #fff; --line: #dad6c8; --rule: #e8e4d6; --field: #fff; --field-line: #b9b39c; --btn: #7a3e0a; --btn-ink: #fff;
+      --soft: #efe8d8; --pre: #fbfaf5; --strip: #3b2a14; --shadow: #3b2a1410;
+      --high-bg: #fde8e8; --high: #9a3412; --med-bg: #fdf0d5; --med: #7c5e10; --chip: #e8e4d6; }
+    @media screen and (prefers-color-scheme: dark) {
+      :root { --bg: #15130f; --ink: #e9e4d8; --head: #f1dfc0; --muted: #b8af9b; --link: #f2ad6f;
+        --card: #1f1c16; --line: #3a352b; --rule: #2f2b23; --field: #14120e; --field-line: #6d6553; --btn: #e9a263; --btn-ink: #1d1206;
+        --soft: #332d23; --pre: #191712; --strip: #5b3c15; --shadow: #00000040;
+        --high-bg: #4a1d14; --high: #ffb59f; --med-bg: #3d3011; --med: #f1cf73; --chip: #332d23; }
+    }
+    @media print { :root { color-scheme: light; } }
+    :root { font: 16px system-ui, sans-serif; color: var(--ink); background: var(--bg); }
     body { max-width: 1040px; margin: auto; padding: 28px; }
-    a { color: #7a3e0a; }
-    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b2a14; }
-    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b2a14; }
+    a { color: var(--link); }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: var(--head); }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: var(--head); }
     h3 { font-size: 1rem; margin: 18px 0 4px; }
     p, li { line-height: 1.55; }
-    .note, footer { font-size: .86rem; color: #54503f; }
-    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b2a1410; margin: 18px 0; }
+    .note, footer { font-size: .86rem; color: var(--muted); }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px var(--shadow); margin: 18px 0; }
     label { display: block; font-weight: 600; margin: 12px 0 4px; }
-    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid var(--field-line); border-radius: 7px; font: 15px system-ui, sans-serif; background: var(--field); color: inherit; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
     @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
-    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a3e0a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
-    button.secondary { background: #efe8d8; color: #3b2a14; }
-    .live { position: sticky; bottom: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 18px; margin: 18px -22px -22px; padding: 10px 22px 12px; background: #3b2a14; color: #fff; border-radius: 0 0 13px 13px; font-size: .86rem; font-variant-numeric: tabular-nums; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: var(--btn); color: var(--btn-ink); font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: var(--soft); color: var(--head); }
+    .live { position: sticky; bottom: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 18px; margin: 18px -22px -22px; padding: 10px 22px 12px; background: var(--strip); color: #fff; border-radius: 0 0 13px 13px; font-size: .86rem; font-variant-numeric: tabular-nums; }
     .live[hidden] { display: none; }
     .live b { font-size: 1.08rem; margin-left: 4px; }
     .live a { color: #fff; font-weight: 700; margin-left: auto; }
     .live a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
     @media (max-width: 560px) { .card { padding: 18px 16px; } .live { margin: 18px -16px -18px; padding: 8px 16px 10px; gap: 0 14px; } .live a { margin-left: 0; } }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
-    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--rule); }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
-    tr.total td { font-weight: 700; border-top: 2px solid #3b2a14; }
-    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    tr.total td { font-weight: 700; border-top: 2px solid var(--head); }
+    .finding { border-bottom: 1px solid var(--rule); padding: 10px 0; }
     .finding:last-child { border-bottom: 0; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
-    .pill.high { background: #fde8e8; color: #9a3412; }
-    .pill.medium { background: #fdf0d5; color: #7c5e10; }
-    .pill.info { background: #e8e4d6; color: #3b2a14; }
-    .due { font-size: 1.6rem; font-weight: 800; color: #3b2a14; }
-    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
-    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
-    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .pill.high { background: var(--high-bg); color: var(--high); }
+    .pill.medium { background: var(--med-bg); color: var(--med); }
+    .pill.info { background: var(--chip); color: var(--head); }
+    .due { font-size: 1.6rem; font-weight: 800; color: var(--head); }
+    footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid var(--field-line); border-radius: 7px; font: 13px ui-monospace, monospace; background: var(--field); color: inherit; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: var(--pre); border: 1px solid var(--line); border-radius: 8px; padding: 16px; overflow-x: auto; }
     .scroll { overflow-x: auto; }
+    .scroll:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
     /* Phone (measured 2026-11-26 at 390 px): the 10-column results table was 1,004 px wide in a
        sideways scroller, with every amount after Scheduled off screen, and the padded summary
        wrapped each amount under its label. Below 600 px each line is a card ("1 General
@@ -58,26 +72,30 @@
     .sum-view { display: none; }
     @media (max-width: 600px) {
       input, select { font-size: 16px; } /* under 16 px, iOS zooms the page on focus */
+      /* The paste box is wrap="off" so columns line up on a desktop. At 390 px (measured 2026-11-27) that showed
+         the middle of each pasted line in a sideways scroller inside the box; on a phone it wraps instead, and
+         #paste-count says how many lines it holds. */
+      textarea#paste { white-space: pre-wrap; overflow-wrap: anywhere; overflow-x: hidden; min-height: 190px; }
       table.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
       table.stack, table.stack tbody { display: block; }
-      table.stack tr { display: flex; flex-wrap: wrap; column-gap: 12px; border: 1px solid #dad6c8; border-radius: 10px; padding: 10px 12px 4px; margin: 0 0 10px; background: #fff; }
-      table.stack td { flex: 0 0 calc(50% - 6px); box-sizing: border-box; min-width: 0; display: flex; flex-direction: column; border: 0; border-top: 1px solid #e8e4d6; padding: 5px 0 6px; text-align: left; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-      table.stack td::before { content: attr(data-label); color: #54503f; font-size: .78rem; font-weight: 600; line-height: 1.3; }
-      table.stack td:first-child, table.stack td:nth-child(2) { display: block; border: 0; padding: 0 0 8px; font-weight: 700; color: #3b2a14; font-variant-numeric: normal; }
+      table.stack tr { display: flex; flex-wrap: wrap; column-gap: 12px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px 4px; margin: 0 0 10px; background: var(--card); }
+      table.stack td { flex: 0 0 calc(50% - 6px); box-sizing: border-box; min-width: 0; display: flex; flex-direction: column; border: 0; border-top: 1px solid var(--rule); padding: 5px 0 6px; text-align: left; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+      table.stack td::before { content: attr(data-label); color: var(--muted); font-size: .78rem; font-weight: 600; line-height: 1.3; }
+      table.stack td:first-child, table.stack td:nth-child(2) { display: block; border: 0; padding: 0 0 8px; font-weight: 700; color: var(--head); font-variant-numeric: normal; }
       table.stack td:first-child { flex: 0 0 auto; column-gap: 0; }
       table.stack td:nth-child(2) { flex: 1 1 60%; margin-left: -4px; }
       table.stack td:empty { display: none; }
       pre.sum.has-view { display: none; }
-      .sum-view:not([hidden]) { display: block; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 6px 12px; font-size: .9rem; }
-      .sum-view .sv-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 5px 0; border-top: 1px solid #e8e4d6; }
+      .sum-view:not([hidden]) { display: block; background: var(--pre); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: .9rem; }
+      .sum-view .sv-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 5px 0; border-top: 1px solid var(--rule); }
       .sum-view .sv-row:first-child, .sum-view .sv-gap + .sv-row, .sum-view .sv-text + .sv-row { border-top: 0; }
-      .sum-view .sv-v { font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; color: #3b2a14; }
+      .sum-view .sv-v { font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; color: var(--head); }
       .sum-view .sv-v span { display: block; white-space: nowrap; }
       .sum-view .sv-text { padding: 3px 0; }
-      .sum-view .sv-head { font-weight: 700; color: #3b2a14; }
-      .sum-view .sv-text:not(.sv-head) { color: #54503f; font-size: .85rem; }
+      .sum-view .sv-head { font-weight: 700; color: var(--head); }
+      .sum-view .sv-text:not(.sv-head) { color: var(--muted); font-size: .85rem; }
       .sum-view .sv-item { position: relative; padding: 4px 0 4px 1em; }
-      .sum-view .sv-item::before { content: "•"; position: absolute; left: 0; color: #54503f; }
+      .sum-view .sv-item::before { content: "•"; position: absolute; left: 0; color: var(--muted); }
       .sum-view .sv-gap { height: 8px; }
     }
     @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } .sum-view { display: none !important; } pre.sum { display: block !important; } button, #inputs, footer, #rules, #faq, #suite, #template, #next, header { display: none; } }
@@ -99,7 +117,8 @@
     <label for="file">Choose an Excel workbook (.xlsx) or a CSV file</label>
     <input type="file" id="file" accept=".xlsx,.xlsm,.csv,.tsv,.txt,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
     <label for="paste">…or paste the schedule</label>
-    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Item,Description,Scheduled value,Previous,This period,Stored&#10;1,General conditions,48000,24000,6000,0"></textarea>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Item,Description,Scheduled value,Previous,This period,Stored&#10;1,General conditions,48000,24000,6000,0" aria-describedby="paste-count"></textarea>
+    <p class="note" id="paste-count"></p>
     <h2 style="margin-top:20px">2. Retainage and the application</h2>
     <div class="grid">
       <div><label for="ret">Retainage on work, percent</label><input id="ret" inputmode="decimal" value="10"></div>
@@ -129,7 +148,7 @@
     <pre class="sum" id="summary"></pre>
     <div id="report-findings"></div>
     <div id="import-notes" hidden><h3>From your spreadsheet</h3><ul class="note" id="import-list"></ul></div>
-    <div class="scroll"><table class="stack sov-out"><thead><tr><th scope="col">Item</th><th scope="col">Description</th><th scope="col" class="n">Scheduled</th><th scope="col" class="n">Previous</th><th scope="col" class="n">This period</th><th scope="col" class="n">Stored</th><th scope="col" class="n">Completed</th><th scope="col" class="n">%</th><th scope="col" class="n">Balance</th><th scope="col" class="n">Retainage</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="scroll" tabindex="0" role="region" aria-label="Continuation sheet, line by line"><table class="stack sov-out"><thead><tr><th scope="col">Item</th><th scope="col">Description</th><th scope="col" class="n">Scheduled</th><th scope="col" class="n">Previous</th><th scope="col" class="n">This period</th><th scope="col" class="n">Stored</th><th scope="col" class="n">Completed</th><th scope="col" class="n">%</th><th scope="col" class="n">Balance</th><th scope="col" class="n">Retainage</th></tr></thead><tbody id="rows"></tbody></table></div>
     <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download schedule (CSV)</button> <button type="button" class="secondary" id="dl-xlsx">Download as Excel (live formulas)</button> <button type="button" class="secondary" id="print">Print</button></p>
     <p class="note">The Excel file has two sheets in this tool's own layout, an application summary and a lettered continuation sheet, with every total as a formula and ten spare rows the totals already cover. It is a standard .xlsx file, checked in LibreOffice.</p>
     <div id="next">
@@ -151,7 +170,7 @@
     <h2>Billing every month on several jobs?</h2>
     <p><strong>PayApps</strong>, our hosted pay-app billing for subcontractors and small general contractors, is <strong>open now</strong>: schedules of values saved per job and carried forward each month, retainage tracked line by line until release, and approved change orders landing on the next bill, with the application summary and continuation sheet as PDF and CSV. It is free on one active job, with no card. Lien waivers, QuickBooks and job costing are in the paid plans, which are not on sale yet. This free page stays free.</p>
     <p>Already billing with this page's Excel download? Choose it when you set up a PayApps job: the schedule of values is read from the continuation sheet, and the work billed to date can become the job's opening balance, so the next application there carries on from your last one. The workbook is read in your browser, as it is here.</p>
-    <p><a href="https://payapps.marisstella.app/?signup&amp;from=pay-application-generator">Start free in PayApps</a></p>
+    <p><a href="https://payapps.marisstella.app/?signup&amp;from=pay-application-generator">Start free in PayApps</a> or <a href="../payapps/">see what PayApps does and what each plan adds</a></p>
   </section>
 
   <section class="card" id="rules">
@@ -238,8 +257,15 @@
     // run(text, quiet): quiet is the live preview while typing. It fills the #live strip, does not scroll,
     // and sets the report's aria-live to off so a screen reader is not read the whole result on every keystroke.
     const live = $("#live");
+    // "N lines pasted": the box itself may only show a few of them (it scrolls), so say how many it holds.
+    const countLines = () => {
+      const n = $("#paste").value.split(/\r?\n/).filter((l) => l.trim()).length;
+      $("#paste-count").textContent = n ? `${n} line${n > 1 ? "s" : ""} in the box.` : "";
+    };
+    countLines();
     const strip = (html) => { live.innerHTML = html; live.hidden = !html; };
     function run(text, quiet = false) {
+      countLines();
       report.setAttribute("aria-live", quiet ? "off" : "polite");
       const s = settings();
       let r = compute(text, s);
@@ -301,7 +327,7 @@
       if (!text.trim()) { report.hidden = true; last = null; strip(""); return; }
       if (run(text, true) === null) { try { await loadSheet(); } catch { return; } run(text, true); }
     };
-    $("#inputs").addEventListener("input", (e) => { if (e.target.id === "file") return; clearTimeout(timer); timer = setTimeout(preview, 300); });
+    $("#inputs").addEventListener("input", (e) => { if (e.target.id === "file") return; if (e.target.id === "paste") countLines(); clearTimeout(timer); timer = setTimeout(preview, 300); });
     $("#file").addEventListener("change", () => { if (/\.(xlsx|xlsm)$/i.test($("#file").files[0]?.name || "")) loadSheet().catch(() => {}); });
     $("#load-ok").addEventListener("click", () => {
       $("#paste").value = sampleList(); $("#file").value = "";
@@ -312,7 +338,7 @@
       run($("#paste").value); record("example_loaded");
       status.textContent = "Worked example: a made-up renovation with two change orders, one of them deductive.";
     });
-    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; showImport(null); strip(""); status.textContent = "Choose a file and click Work out the application, or paste the schedule: the payment due updates as you type."; });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; showImport(null); strip(""); countLines(); status.textContent = "Choose a file and click Work out the application, or paste the schedule: the payment due updates as you type."; });
     $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("pay-application-summary.txt", summaryText(last.r, last.s), "text/plain"); } });
     $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("pay-application-schedule.csv", scheduleCsv(last.r), "text/csv"); } });
     const XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -338,7 +364,7 @@
       const n = last && nextPeriod(last.r, last.s);
       if (!n) return;
       record("next_period_started");
-      $("#paste").value = n.csv; $("#file").value = ""; fill(n.settings);
+      $("#paste").value = n.csv; $("#file").value = ""; fill(n.settings); countLines();
       report.hidden = true; last = null; strip("");
       status.textContent = `Application ${n.settings.applicationNo || ""} started from the last one. Enter this period's work on each line, move any installed stored materials into This period, then click Work out the application. ${n.notes.join(" ")}`.replace(/\s+/g, " ");
       $("#inputs").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });

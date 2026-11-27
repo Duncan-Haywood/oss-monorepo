@@ -5,6 +5,7 @@ import { csvCell, toCsv } from "@shared/csv";
 import { type ExpenseCategory, PLATFORM_LABELS, PLATFORMS, type Platform } from "@shared/enums";
 import { estimate } from "@shared/estimated-tax";
 import { reconcile1099k } from "@shared/reconcile-1099k";
+import { reconcilePayouts } from "@shared/reconcile-payouts";
 import { Hono } from "hono";
 import { z } from "zod";
 import { badRequest, notFound } from "../../lib/errors";
@@ -50,7 +51,10 @@ import {
   yearEndPackageFiles,
   yearEndReadme,
 } from "../../services/books/year-end";
+import { ImportFormatError } from "../../services/importers/parse";
+import { parseStatement } from "../../services/importers/statement";
 import type { AppEnv } from "../../types";
+import { MAX_IMPORT_BYTES } from "./imports";
 import { isoDate } from "./schemas";
 
 const routes = new Hono<AppEnv>();
@@ -379,6 +383,47 @@ routes.post("/1099k-reconcile", validate("json", recBody), async (c) => {
       books: pnl.cells.filter((cell) => cell.platform === q.platform),
     }),
   );
+});
+
+// The deposits on a bank statement checked against the payouts the books expect per platform and month
+// (shared/reconcile-payouts.ts). The statement comes in the POST body and nothing is stored.
+const payoutBody = z.object({
+  csv: z.string().min(1).max(MAX_IMPORT_BYTES),
+  chargesAre: z.enum(["positive", "negative"]).optional(),
+  exclude: z.array(z.number().int().min(1)).max(2000).optional(),
+});
+
+routes.post("/payout-reconcile", validate("json", payoutBody), async (c) => {
+  const q = c.req.valid("json");
+  let parsed: ReturnType<typeof parseStatement>;
+  try {
+    parsed = parseStatement(q.csv, { chargesAre: q.chargesAre });
+  } catch (e) {
+    if (e instanceof ImportFormatError) throw badRequest(e.message, e.details);
+    throw e;
+  }
+  if (!parsed.period) throw badRequest("No row of this statement has a readable date.");
+  const { from, to } = parsed.period;
+  const pnl = await pnlReport(
+    c.var.ctx,
+    c.var.tenant.orgId,
+    `${from.slice(0, 7)}-01`,
+    `${to.slice(0, 7)}-31`,
+  );
+  return c.json({
+    ...reconcilePayouts({
+      from,
+      to,
+      deposits: parsed.moneyIn,
+      books: pnl.cells,
+      exclude: q.exclude,
+      platforms: PLATFORMS,
+      labels: PLATFORM_LABELS,
+    }),
+    signRule: parsed.signRule,
+    chargesAre: parsed.chargesAre,
+    warnings: parsed.warnings.filter((w) => !w.includes("money in and were left out")),
+  });
 });
 
 const dollars = (cents: number | null) => (cents == null ? "" : (cents / 100).toFixed(2));

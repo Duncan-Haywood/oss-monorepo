@@ -8,7 +8,8 @@
 // also record each notice it gave (who, how, when, where) and enter the day it first furnished work:
 // PayApps then counts § 8204(a)'s 20 days, flags a late notice, prints the § 8118 proof of notice
 // declaration for each one, and the cash report reminds until the owner and direct contractor have
-// one recorded. Florida's log of notices served is in fl-notices.ts. Not legal advice; see the
+// one recorded. Florida's log of notices served is in fl-notices.ts, Texas' notices of claim in
+// tx-notices.ts. Not legal advice; see the
 // package README.
 import {
   CA_NOTICE_METHOD_LABELS,
@@ -42,6 +43,7 @@ import { badRequest, notFound } from "../../lib/errors";
 import { assertLienWaivers, orgPlan } from "../billing";
 import { flNoticeLog } from "./fl-notices";
 import { noticeFileCounts, purgeNoticeFiles } from "./notice-files";
+import { txNoticeLog } from "./tx-notices";
 import { fieldErrors, orgName } from "./waivers";
 
 function parseState(state: string) {
@@ -161,6 +163,13 @@ export async function noticeOverview(
         ? await flNoticeLog(ctx, orgId, projectId, {
             owner: p.ownerName ?? undefined,
             contractor: prefill.directContractor || undefined,
+          })
+        : null,
+    tx:
+      state === "TX"
+        ? await txNoticeLog(ctx, orgId, projectId, {
+            owner: p.ownerName ?? undefined,
+            "original-contractor": prefill.directContractor || undefined,
           })
         : null,
   };

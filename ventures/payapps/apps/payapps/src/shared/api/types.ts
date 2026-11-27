@@ -5,6 +5,9 @@ import type {
   FlNoticeRecipient,
   FlServedBasis,
   FlServiceMethod,
+  TxDeliveryMethod,
+  TxNoticeKind,
+  TxNoticeRecipient,
 } from "@lien-waivers";
 import type {
   CloseoutKind,
@@ -36,6 +39,7 @@ import type { InsuranceRequirement, RequirementCheck } from "../insurance-requir
 import type { CommitmentKind, CostCategory, JobCostReport } from "../job-cost";
 import type { JobEventAction, JobEventData } from "../job-history";
 import type { LegalStatusDto } from "../legal";
+import type { LienDeadlineResult } from "../lien-deadline";
 import type { LowerTierPartyKind, LowerTierStatus, LowerTierSummary } from "../lower-tier-waivers";
 import type { PayAppEventAction, PayAppEventData } from "../pay-app-history";
 import type { ComputedApplication, Warning } from "../payapp-math";
@@ -132,6 +136,12 @@ export interface ProjectDto {
   gaNocFiled: boolean | null;
   /** Georgia: the contractor's name and address as the notice of commencement shows them, or null. */
   gaNocContractor: string | null;
+  /** Lien deadline inputs (src/shared/lien-deadline.ts): the property's state, or null. */
+  lienState: string | null;
+  lienResidential: boolean;
+  lastFurnishedOn: string | null;
+  workCompletedOn: string | null;
+  noticeOfCompletionOn: string | null;
   /** Where the job's lines sit under the GC's Procore SOV positions, or null when never saved. */
   procoreSsov: ProcoreSsovPlacement | null;
   status: "active" | "closed";
@@ -540,6 +550,8 @@ export interface ProjectDetailDto extends ProjectDto {
   /** True once a pay app was submitted: original SOV and contract sum are then locked. */
   billingStarted: boolean;
   sovTotalCents: number;
+  /** The last day to record a lien on the job, from its state and dates (src/shared/lien-deadline.ts). */
+  lienDeadline: LienDeadlineResult;
 }
 
 export interface PlanDto {
@@ -671,6 +683,51 @@ export interface NoticeOverviewDto {
   ca: CaNoticeLogDto | null;
   /** Florida only (state=FL): the notices recorded as served and the 45/40-day dates. */
   fl: FlNoticeLogDto | null;
+  /** Texas only (state=TX): the notices of claim recorded as sent and the months still owed one. */
+  tx: TxNoticeLogDto | null;
+}
+
+/** A Texas notice of claim recorded as sent to one recipient. */
+export interface TxNoticeSendDto {
+  id: string;
+  kind: TxNoticeKind;
+  workMonth: string | null;
+  recipient: TxNoticeRecipient;
+  recipientNameAddress: string;
+  method: TxDeliveryMethod;
+  sentOn: string;
+  tracking: string | null;
+  amountCents: number | null;
+  /** The § 53.056 deadline for its month (after § 53.003(e)); null for retainage. */
+  dueOn: string | null;
+  onTime: boolean | null;
+  timing: string;
+}
+
+/** A month of work the job's pay apps show as unpaid, with its § 53.056 notice date. */
+export interface TxUnpaidMonthDto {
+  workMonth: string;
+  /** The pay apps whose period touches the month and still have a balance. */
+  payAppNumbers: number[];
+  /** Unpaid on those pay apps, cents (not split by month). */
+  unpaidCents: number;
+  statutory: string;
+  dueOn: string;
+  /** Legal holidays the deadline rolled past (§ 53.003(e)). */
+  holidays: string[];
+  /** Recipients with no notice recorded for the month. */
+  missing: TxNoticeRecipient[];
+}
+
+export interface TxNoticeLogDto {
+  /** Null: not tracked; set it to get the months and the reminder. */
+  projectKind: "commercial" | "residential" | null;
+  sends: TxNoticeSendDto[];
+  /** Unpaid months from the pay apps, oldest first; empty when not tracked. */
+  unpaidMonths: TxUnpaidMonthDto[];
+  methods: { id: TxDeliveryMethod; label: string }[];
+  recipients: { id: TxNoticeRecipient; label: string }[];
+  recipientPrefill: Partial<Record<TxNoticeRecipient, string>>;
 }
 
 /** A Florida Notice to Owner, or a copy, recorded as served on one person. */

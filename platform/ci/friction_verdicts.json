@@ -383,6 +383,38 @@
    "by": "platform/ci/migration_regen.py",
    "at": "2026-11-27T02:20:10Z",
    "note": "repo_relative() accepts absolute and cwd-relative app paths inside --repo; test_absolute_and_cwd_relative_paths"
+  },
+  {
+   "file": "platform/ci/quality_audit.py",
+   "match": "changed since audit: unknown",
+   "verdict": "fixed",
+   "by": "quality_audit.py refresh_main + with_main_marks",
+   "at": "2026-11-27T14:01:23Z",
+   "note": "2026-11-27 rerun on a shallow clone: queue fetched back to 2026-11-07 in 60 s and printed real 'changed since audit: N commit(s)' lines"
+  },
+  {
+   "file": ".github/prompts/cloud-session.md",
+   "match": "eCFR|ecfr",
+   "verdict": "fixed",
+   "by": "platform/ci/egress_hosts.json",
+   "at": "2026-11-27T14:01:24Z",
+   "note": "the www.ecfr.gov entry carries the versioner API + curl --compressed fallback; egress_probe.py prints it"
+  },
+  {
+   "file": "prompts/perf/prompt-0.md",
+   "match": "module-exclusive|scratch walker",
+   "verdict": "fixed",
+   "by": "this PR",
+   "at": "2026-11-27T14:01:25Z",
+   "note": "module-exclusive.mjs takes a .mjs entry; module-weight.mjs reads multi-app ventures and built Vite dist"
+  },
+  {
+   "file": "platform/perf/module-exclusive.mjs",
+   "match": "mjs root|HTML page",
+   "verdict": "fixed",
+   "by": "this PR",
+   "at": "2026-11-27T14:01:25Z",
+   "note": "a .mjs/.js argument's static imports are the roots"
   }
  ]
 }

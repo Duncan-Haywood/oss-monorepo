@@ -1,0 +1,213 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { checkFa3, internalIdValid, looksLikeFa3, nipValid } from "./fa3.mjs";
+import { preflightDocuments } from "./report.mjs";
+
+const read = (f) => readFileSync(new URL(`./examples/${f}`, import.meta.url), "utf8");
+const clean = read("fa3-invoice.xml");
+const bad = read("fa3-invoice-with-defects.xml");
+const rules = (xml) => checkFa3(xml).findings.map((f) => f.rule).sort();
+
+test("NIP check digit", () => {
+  assert.ok(nipValid("5260250995"));
+  assert.ok(nipValid("5252344078"));
+  assert.ok(!nipValid("5260250994"));
+  assert.ok(!nipValid("526025099"));
+});
+
+test("the clean example is recognised and passes", () => {
+  assert.ok(looksLikeFa3(clean));
+  assert.ok(!looksLikeFa3("<Invoice xmlns=\"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2\"/>"));
+  assert.deepEqual(checkFa3(clean), { findings: [], skipped: [] });
+});
+
+test("planted defects are each found", () => {
+  // bad NIP, line 2 net 250 against 2 x 100, P_13_1 / P_14_1 / P_15 off, unknown rate 9 on line 3
+  assert.deepEqual(rules(bad), ["PL-002", "PL-004", "PL-005", "PL-006", "PL-006", "PL-007", "PL-008"]);
+});
+
+test("a foreign-currency invoice needs the tax in PLN", () => {
+  const eur = clean.replace("<KodWaluty>PLN", "<KodWaluty>EUR");
+  assert.deepEqual(rules(eur), ["PL-011", "PL-011"]);
+});
+
+test("correcting invoices are checked as differences (fa3-payment-split.test.mjs has the before/after cases)", () => {
+  const kor = clean.replace("<RodzajFaktury>VAT", "<RodzajFaktury>KOR");
+  assert.deepEqual(checkFa3(kor), { findings: [], skipped: [] });
+  assert.deepEqual(rules(kor.replace("<P_15>1584.00", "<P_15>1.00")), ["PL-008"]);
+});
+
+test("report.mjs routes a FA(3) file to these rules, not the EN 16931 reader", async () => {
+  const res = await preflightDocuments([{ name: "fa3.xml", source: bad }]);
+  const rep = res.reports[0];
+  assert.match(rep.envelope, /FA\(3\)/);
+  assert.ok(rep.errors.some((e) => e.rule === "PL-002"));
+});
+
+// The schema gate (fa3-xsd.mjs, PL-012..PL-017), read from schemat_FA(3)_v1-0E.xsd by build-fa3-schema.mjs.
+const rich = read("fa3-invoice-rich.xml");
+const found = (xml) => checkFa3(xml).findings.filter((f) => /^PL-01[2-7]$/.test(f.rule));
+
+test("the schema gate passes the clean and the rich example (both validate with xmllint)", () => {
+  assert.deepEqual(checkFa3(rich), { findings: [], skipped: [] });
+});
+
+test("an unknown element, a second P_15 and a missing required element are each named", () => {
+  assert.deepEqual(found(clean.replace("<P_15>", "<Extra>1</Extra><P_15>")).map((f) => f.rule), ["PL-012"]);
+  assert.deepEqual(found(clean.replace("<P_15>1584.00</P_15>", "<P_15>1584.00</P_15><P_15>1584.00</P_15>")).map((f) => f.rule), ["PL-012"]);
+  const noRodzaj = found(clean.replace("<RodzajFaktury>VAT</RodzajFaktury>", ""));
+  assert.deepEqual(noRodzaj.map((f) => f.rule), ["PL-014"]);
+  assert.match(noRodzaj[0].message, /RodzajFaktury is required in Fa/);
+});
+
+test("elements out of sequence are PL-013", () => {
+  const swapped = clean.replace("<P_1>2026-03-02</P_1>\n    <P_2>FV/2026/03/001</P_2>", "<P_2>FV/2026/03/001</P_2>\n    <P_1>2026-03-02</P_1>");
+  const r = found(swapped);
+  assert.deepEqual(r.map((f) => f.rule), ["PL-013"]);
+  assert.match(r[0].message, /out of place in Fa/);
+});
+
+test("values outside the schema's patterns, lengths, dates and code lists are PL-015 and are not echoed", () => {
+  const cases = [
+    ["<NIP>5260250995</NIP>", "<NIP>52602509</NIP>"],        // NIP pattern
+    ["<KodWaluty>PLN", "<KodWaluty>pln"],                    // currency code list
+    ["<P_1>2026-03-02</P_1>", "<P_1>2026-03</P_1>"],         // date
+    ["<P_13_1>1200.00", "<P_13_1>1200.001"],                  // two decimals
+    ["<P_2>FV/2026/03/001", `<P_2>${"X".repeat(300)}`],       // length
+    ["<P_8B>10</P_8B>", "<P_8B>ten</P_8B>"],                 // not a number
+  ];
+  for (const [from, to] of cases) {
+    const r = found(clean.replace(from, to));
+    assert.deepEqual(r.map((f) => f.rule), ["PL-015"], to);
+    assert.ok(!r[0].message.includes("5260") && !r[0].message.includes("ten"));
+  }
+});
+
+test("the form code's fixed attributes are PL-016", () => {
+  const r = found(clean.replace('wersjaSchemy="1-0E"', 'wersjaSchemy="1-0X"'));
+  assert.deepEqual(r.map((f) => f.rule), ["PL-016"]);
+  assert.deepEqual(found(clean.replace(' kodSystemowy="FA (3)"', "")).map((f) => f.rule), ["PL-016"]);
+});
+
+test("a cut-off file is PL-017 and skips the other checks", () => {
+  const cut = clean.slice(0, clean.indexOf("</Fa>"));
+  const r = checkFa3(cut);
+  assert.deepEqual(r.findings.map((f) => f.rule), ["PL-017"]);
+  assert.match(r.skipped[0], /cut off/);
+});
+
+test("correction and settlement seeds pass the schema gate and, since 2026-11-15, the totals checks too", () => {
+  for (const f of ["fa3-correction.xml", "fa3-settlement.xml"]) {
+    const r = checkFa3(read(f));
+    // The settlement seed carries a Zalacznik block, so it gets KSeF's batch-only note (PL-020, not blocking).
+    assert.deepEqual(r.findings.filter((x) => x.severity !== "note"), [], f);
+    assert.equal(r.findings.length, f === "fa3-settlement.xml" ? 1 : 0, f);
+    assert.deepEqual(r.skipped, [], f);
+  }
+});
+
+test("transport seed (carrier, cargo, route, a second transport by the 'other' branch) passes the schema gate and the sums", () => {
+  const r = checkFa3(read("fa3-transport.xml"));
+  assert.deepEqual(r.findings, []);
+  const noCargo = read("fa3-transport.xml").replace(/<OpisLadunku>1<\/OpisLadunku>\s*/, "");
+  assert.deepEqual(rules(noCargo), ["PL-013"]); // the next element is then out of place
+});
+
+test("a correction missing its corrected-invoice block, and a settlement with its advance block out of order, are found", () => {
+  const noRef = read("fa3-correction.xml").replace(/<DaneFaKorygowanej>[\s\S]*?<\/DaneFaKorygowanej>\s*/g, "");
+  assert.deepEqual(rules(noRef), ["PL-014"]);
+  const s = read("fa3-settlement.xml");
+  const moved = s.replace(/(<ZaliczkaCzesciowa>[\s\S]*?<\/ZaliczkaCzesciowa>)\s*/, "").replace("</Fa>", "$1</Fa>".replace("$1", s.match(/<ZaliczkaCzesciowa>[\s\S]*?<\/ZaliczkaCzesciowa>/)[0]) );
+  assert.ok(rules(moved).includes("PL-013"));
+});
+
+// KSeF's own acceptance checks beyond the XSD (PL-018..PL-022), from the Ministry's
+// "Weryfikacja faktury" (CIRFMF/ksef-docs faktury/weryfikacja-faktury.md, 09.04.2026).
+const enc = (s) => new TextEncoder().encode(s);
+const TODAY = { today: "2026-11-14" };
+const p3 = (id) => `<Podmiot3><DaneIdentyfikacyjne>${id}<Nazwa>Odbiorca</Nazwa></DaneIdentyfikacyjne><Adres><KodKraju>PL</KodKraju><AdresL1>ul. Akacjowa 2</AdresL1></Adres><Rola>2</Rola></Podmiot3>`;
+const withP3 = (id) => clean.replace("</Podmiot2>", `</Podmiot2>${p3(id)}`);
+const r2 = (src, opts = TODAY) => checkFa3(src, opts).findings.map((f) => f.rule).sort();
+
+test("KSeF: the clean example as bytes draws nothing", () => {
+  assert.deepEqual(checkFa3(enc(clean), TODAY).findings, []);
+});
+
+test("KSeF: a byte-order mark, a non-UTF-8 prolog, Windows-1250 bytes and a processing instruction are each PL-018", () => {
+  const bom = new Uint8Array([0xef, 0xbb, 0xbf, ...enc(clean)]);
+  assert.deepEqual(r2(bom), ["PL-018"]);
+  assert.deepEqual(r2("\uFEFF" + clean), ["PL-018"]);
+  const decl = clean.startsWith("<?xml") ? clean.replace(/^<\?xml[^?]*\?>/, '<?xml version="1.0" encoding="ISO-8859-2"?>') : '<?xml version="1.0" encoding="ISO-8859-2"?>\n' + clean;
+  assert.deepEqual(r2(decl), ["PL-018"]);
+  assert.match(checkFa3(decl, TODAY).findings[0].message, /ISO-8859-2/);
+  const cp1250 = enc(clean.replace("</Faktura>", "<!-- x --></Faktura>"));
+  const bytes = Uint8Array.from([...cp1250.slice(0, -12), 0xb9, ...cp1250.slice(-12)]); // a lone 0xB9 (cp1250 'ą') inside the comment
+  assert.ok(r2(bytes).includes("PL-018"));
+  const pi = clean.replace("</Faktura>", '<?xml-stylesheet href="fa.xsl"?></Faktura>');
+  assert.deepEqual(r2(pi), ["PL-018"]);
+  // A PI inside a comment is not one.
+  assert.deepEqual(r2(clean.replace("</Faktura>", "<!-- <?pi x?> --></Faktura>")), []);
+  // UTF-16 is refused outright.
+  const le = Uint8Array.from([0xff, 0xfe, ...[...clean].flatMap((c) => [c.charCodeAt(0) & 0xff, c.charCodeAt(0) >> 8])]);
+  assert.ok(r2(le).includes("PL-018"));
+  assert.match(checkFa3(le, TODAY).findings.find((f) => f.rule === "PL-018").message, /UTF-16/);
+});
+
+test("KSeF: discouraged code points are PL-019, counted, never echoed beyond the code point", () => {
+  const xml = clean.replace(/<P_7>([^<]*)<\/P_7>/, "<P_7>$1\u0085\u0086\u0090</P_7>");
+  assert.notEqual(xml, clean);
+  const f = checkFa3(xml, TODAY).findings.filter((x) => x.rule === "PL-019");
+  assert.equal(f.length, 1);
+  assert.match(f[0].message, /holds 2 characters .*first: U\+0086/); // U+0085 (NEL) is not in KSeF's list
+  assert.deepEqual(r2(clean.replace(/<P_7>([^<]*)<\/P_7>/, "<P_7>$1\u{1FFFE}</P_7>")), ["PL-019"]);
+  assert.deepEqual(r2(clean.replace(/<P_7>([^<]*)<\/P_7>/, "<P_7>$1 éą</P_7>")), []);
+});
+
+test("KSeF: 1,000,000 bytes without an attachment, 3,000,000 with; an attachment gets the batch-only note", () => {
+  const pad = (n) => clean.replace("</Faktura>", `<!--${"x".repeat(n)}--></Faktura>`);
+  const at = enc(pad(0)).length;
+  assert.deepEqual(r2(pad(1_000_000 - at)), []);
+  assert.deepEqual(r2(pad(1_000_001 - at)), ["PL-020"]);
+  const s = read("fa3-settlement.xml");
+  const big = s.replace("</Faktura>", `<!--${"x".repeat(1_500_000)}--></Faktura>`);
+  const f = checkFa3(big, TODAY).findings;
+  assert.deepEqual(f.map((x) => [x.rule, x.severity || ""]), [["PL-020", "note"]]);
+});
+
+test("KSeF: an issue date after today in Poland is PL-021; today is fine", () => {
+  assert.deepEqual(r2(clean, { today: "2026-03-01" }), ["PL-021"]);
+  assert.deepEqual(r2(clean, { today: "2026-03-02" }), []);
+});
+
+test("warsawToday is the Polish calendar day", async () => {
+  const { warsawToday } = await import("./fa3.mjs");
+  assert.equal(warsawToday(new Date("2026-03-01T23:30:00Z")), "2026-03-02"); // 00:30 CET
+  assert.equal(warsawToday(new Date("2026-07-01T21:59:00Z")), "2026-07-01"); // 23:59 CEST
+  assert.equal(warsawToday(new Date("2026-07-01T22:00:00Z")), "2026-07-02");
+});
+
+test("KSeF: Podmiot3's NIP and the NIP inside its IDWew get the check digit (production only, said so)", () => {
+  assert.deepEqual(r2(withP3("<NIP>5252344078</NIP>")), []);
+  const bad = checkFa3(withP3("<NIP>5252344079</NIP>"), TODAY).findings;
+  assert.deepEqual(bad.map((f) => f.rule), ["PL-002"]);
+  assert.match(bad[0].message, /third party 1 .*production/);
+  // 5252344078-0000 + check digit: 5+6+5+6+3+12+4+0+7+24, then 0s = 72, so 2.
+  assert.ok(internalIdValid("5252344078-00002"));
+  assert.ok(!internalIdValid("5252344078-00001"));
+  assert.deepEqual(r2(withP3("<IDWew>5252344078-00002</IDWew>")), []);
+  assert.deepEqual(r2(withP3("<IDWew>5252344079-00002</IDWew>")), ["PL-002"]);
+  const own = checkFa3(withP3("<IDWew>5252344078-00001</IDWew>"), TODAY).findings;
+  assert.deepEqual(own.map((f) => f.rule), ["PL-002"]);
+  assert.match(own[0].message, /its own check digit/);
+});
+
+test("KSeF: two files in one batch with the same seller NIP, RodzajFaktury and P_2 are PL-022 on the second", async () => {
+  const r = await preflightDocuments([{ name: "a.xml", source: enc(clean) }, { name: "b.xml", source: enc(clean) }]);
+  const ids = r.reports.map((x) => x.errors.map((e) => e.rule).filter((id) => id === "PL-022"));
+  assert.deepEqual(ids, [[], ["PL-022"]]);
+  assert.match(r.reports[1].errors.find((e) => e.rule === "PL-022").message, /a\.xml/);
+  const other = clean.replace(/<P_2>[^<]*<\/P_2>/, "<P_2>FV/2026/OTHER</P_2>");
+  const r3 = await preflightDocuments([{ name: "a.xml", source: enc(clean) }, { name: "c.xml", source: enc(other) }]);
+  assert.ok(r3.reports.every((x) => !x.errors.some((e) => e.rule === "PL-022")));
+});

@@ -37,6 +37,7 @@ import {
 import { and, asc, eq, gte, inArray, lte } from "drizzle-orm";
 import type { z } from "zod";
 import type { AppContext } from "../../context";
+import { allInChunks } from "../../db/in-chunks";
 import {
   crewMembers,
   jobCostEntries,
@@ -239,20 +240,21 @@ async function jobsFor(ctx: AppContext, orgId: string, include: Set<string>) {
   // Active jobs, plus a closed one this week already has hours on.
   const picked = rows.filter((r) => !r.isSample && (r.status === "active" || include.has(r.id)));
   const ids = picked.map((r) => r.id);
-  const lines =
-    ids.length === 0
-      ? []
-      : await ctx.db
-          .select({
-            id: sovLines.id,
-            projectId: sovLines.projectId,
-            itemNumber: sovLines.itemNumber,
-            description: sovLines.description,
-          })
-          .from(sovLines)
-          .where(and(eq(sovLines.orgId, orgId), inArray(sovLines.projectId, ids)))
-          .orderBy(asc(sovLines.sortOrder))
-          .all();
+  // In slices of job ids (D1's 100-parameter cap): a company with ~100 active jobs broke the week.
+  // The sort order is per job, and a job sits in one slice.
+  const lines = await allInChunks(ids, (slice) =>
+    ctx.db
+      .select({
+        id: sovLines.id,
+        projectId: sovLines.projectId,
+        itemNumber: sovLines.itemNumber,
+        description: sovLines.description,
+      })
+      .from(sovLines)
+      .where(and(eq(sovLines.orgId, orgId), inArray(sovLines.projectId, slice)))
+      .orderBy(asc(sovLines.sortOrder))
+      .all(),
+  );
   return picked.map(
     (p): TimesheetJobDto => ({
       id: p.id,
@@ -341,18 +343,17 @@ async function laborWithPosted(
 ): Promise<TimesheetLaborDto[]> {
   const items = laborItems(weekStart, jobs, costs);
   const refs = [...new Set(items.map((i) => i.reference))];
-  const posted =
-    refs.length === 0
-      ? []
-      : await ctx.db
-          .select({
-            projectId: jobCostEntries.projectId,
-            reference: jobCostEntries.reference,
-            amountCents: jobCostEntries.amountCents,
-          })
-          .from(jobCostEntries)
-          .where(and(eq(jobCostEntries.orgId, orgId), inArray(jobCostEntries.reference, refs)))
-          .all();
+  const posted = await allInChunks(refs, (slice) =>
+    ctx.db
+      .select({
+        projectId: jobCostEntries.projectId,
+        reference: jobCostEntries.reference,
+        amountCents: jobCostEntries.amountCents,
+      })
+      .from(jobCostEntries)
+      .where(and(eq(jobCostEntries.orgId, orgId), inArray(jobCostEntries.reference, slice)))
+      .all(),
+  );
   return items.map((i) => {
     const hits = posted.filter((p) => p.projectId === i.projectId && p.reference === i.reference);
     return {

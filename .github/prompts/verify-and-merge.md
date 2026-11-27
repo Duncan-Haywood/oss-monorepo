@@ -23,6 +23,7 @@ node --test platform/deploy/*.test.mjs
 node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs
 node --test platform/devstats/*.test.mjs
+node --test platform/perf/*.test.mjs           # module-weight / module-exclusive; <1 s
 node --test platform/daily/*.test.mjs
 node --test platform/aws/stacks/email-ops/sender/*.test.mjs  # SES sender, consent store, unsubscribe
 (cd platform/audio && python3 -m unittest test_narrate)  # the narration engine; needs numpy, ffmpeg for the Master case

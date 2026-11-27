@@ -145,11 +145,32 @@ export const PUBLIC_PLANS = PLAN_LIST.filter((p) => p.key === "free" || p.purcha
 export const STORAGE_FEATURE = /\b\d+\s*(?:MB|GB)\b.*\battach/i;
 
 /**
- * The plan's feature lines as a deployment can honour them. With no file storage bound (no R2
- * bucket: uploads answer 503), each storage line says it is not switched on yet rather than
- * advertising space nobody can use; with storage, the lines are the catalog's.
+ * Each company's file storage while a deployment keeps files in D1 because no R2 bucket is bound
+ * (worker/ports/file-store.ts); the plan's own figure applies on R2.
  */
-export function planFeatures(plan: Pick<Plan, "features">, attachments: boolean): string[] {
-  if (attachments) return [...plan.features];
+export const D1_ORG_LIMIT_BYTES = 50 * MB;
+
+/**
+ * Where a deployment keeps attached files: "r2" (the plan's storage), "d1" (each company capped at
+ * D1_ORG_LIMIT_BYTES), or false (no store at all: uploads answer 503). `true` means "r2".
+ */
+export type AttachmentStore = "r2" | "d1" | boolean;
+
+/**
+ * The plan's feature lines as a deployment can honour them. With no file storage at all, each
+ * storage line says it is not switched on yet rather than advertising space nobody can use; with
+ * files in D1, a line selling more than the D1 cap says what each company gets for now; on R2, the
+ * lines are the catalog's.
+ */
+export function planFeatures(
+  plan: Pick<Plan, "features" | "attachmentStorageBytes">,
+  store: AttachmentStore,
+): string[] {
+  if (store === true || store === "r2") return [...plan.features];
+  if (store === "d1") {
+    if (plan.attachmentStorageBytes <= D1_ORG_LIMIT_BYTES) return [...plan.features];
+    const now = `${Math.round(D1_ORG_LIMIT_BYTES / MB)} MB`;
+    return plan.features.map((f) => (STORAGE_FEATURE.test(f) ? `${f} (${now} for now)` : f));
+  }
   return plan.features.map((f) => (STORAGE_FEATURE.test(f) ? `${f} (not switched on yet)` : f));
 }

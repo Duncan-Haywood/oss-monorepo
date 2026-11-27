@@ -2,7 +2,9 @@
 // every page, sitemap.xml, robots.txt and llms.txt from this file, and the tests read it, so a fact
 // lives in one place.
 //
-// Copy rules (docs/PRICING.md, README.md): early access, nothing is sold yet; no testimonials, no
+// Copy rules (docs/PRICING.md, README.md): the product's status comes from one switch (src/launch.mjs):
+// before APP_URL, early access and nothing sold; after, open now on the Free plan, paid plans "not on
+// sale yet" until PAID_PLANS_ON. No testimonials, no
 // savings or refund claims, no ratings; not tax advice; 1099-K stated calmly and correctly (federal
 // threshold $20,000 and 200 transactions); no fee percentages we would have to keep current — the
 // product reads what each seller was actually charged from their own reports.
@@ -27,10 +29,32 @@ export const EARLY_ACCESS_CONSENT_TEXT =
 export const EARLY_ACCESS_SUBSCRIBE_MESSAGE =
   "Thanks! If this address can receive our emails, a confirmation link is on its way. Check your inbox (and spam folder) to finish signing up.";
 
+import { launch } from "./launch.mjs";
+
 export const TAGLINE = "True profit and Schedule C books for resellers";
 
-export const SUMMARY =
-  "Seller Books is bookkeeping for people who resell on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop and Square. It brings your sales from every platform into one ledger, takes out the fees each platform actually charged, matches what you paid for each item, logs your sourcing miles, and builds a Schedule C worksheet you or your tax preparer can work from. It is in early access: nothing is for sale yet.";
+const SUMMARY_BASE =
+  "Seller Books is bookkeeping for people who resell on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop and Square. It brings your sales from every platform into one ledger, takes out the fees each platform actually charged, matches what you paid for each item, logs your sourcing miles, and builds a Schedule C worksheet you or your tax preparer can work from.";
+
+/**
+ * The Free plan, as apps/seller-books/src/shared/plans.ts sets it (test/site.test.mjs reads that file
+ * and checks these numbers).
+ */
+export const FREE_PLAN = { platforms: 1, ordersPerMonth: 25, members: 1 };
+// The copy says "one platform": change it with FREE_PLAN.platforms.
+
+/** One sentence on what can be used today and what is for sale (launch.mjs). */
+export function statusSentence() {
+  const l = launch();
+  if (!l.open) return "It is in early access: nothing is for sale yet.";
+  const free = `It is open now: free for one platform and up to ${FREE_PLAN.ordersPerMonth} orders a month, with no card`;
+  return l.paidOn
+    ? `${free}, and paid plans for more platforms and orders.`
+    : `${free}. Paid plans for more platforms and orders are not on sale yet.`;
+}
+
+/** The product summary with its current status (home lead, JSON-LD, llms.txt). */
+export const summary = () => `${SUMMARY_BASE} ${statusSentence()}`;
 
 export const NOT_TAX_ADVICE =
   "Seller Books is bookkeeping software, not a tax adviser. It organises your numbers; what you deduct and how you file is your decision, or your tax professional's.";
@@ -200,7 +224,10 @@ export const PLATFORMS = [
     report: "the Transactions CSV (Dashboard > Transactions > Export)",
   },
 ];
-/** What the product does (home page "What it does" and llms.txt). Future tense: it's being built. */
+/**
+ * What the product does (home page and llms.txt). Every item is in the app today
+ * (apps/seller-books/README.md); add one only once it is.
+ */
 export const FEATURES = [
   {
     key: "profit",
@@ -241,6 +268,11 @@ export const FEATURES = [
     key: "1099k-check",
     title: "Check a 1099-K against your books",
     body: "Type the figures from a platform's Form 1099-K and see them beside your books for that platform and year: item sales, then with the shipping buyers paid, then with the sales tax the platform collected. Type the monthly boxes too and the months that don't match are named, such as a month whose report you haven't imported or a sale dated at the end of one month by you and the start of the next by the platform. The form counts payments before refunds and fees, so it is usually higher than your profit; this shows where the difference comes from. Nothing you type is saved.",
+  },
+  {
+    key: "deposit-check",
+    title: "Did I import everything? Check your deposits",
+    body: "Upload the statement of the bank account your payouts go to. Each deposit that names a platform is set against what your books say that platform should have paid you (sales and shipping, less refunds, fees and postage), month by month. A month with Mercari deposits and no Mercari sales in your books is a report you haven't imported; deposits running behind your books usually mean money still on the platform or paid to another account. You see every deposit it matched and can untick one that isn't a payout, such as a refund of something you bought. The statement isn't saved.",
   },
   {
     key: "quickbooks",
@@ -286,8 +318,9 @@ export const SCHEDULE_C_LINES = [
 ];
 
 /**
- * Proposed tiers (docs/PRICING.md has the reasoning). Nothing is charged during early access.
- * `orders` = orders per month across all platforms, the main value and cost driver.
+ * Paid tiers (docs/PRICING.md has the reasoning). Prices, orders and `includes` are the app's own
+ * (apps/seller-books/src/shared/plans.ts; test/site.test.mjs checks them). Not charged until
+ * PAID_PLANS_ON. `orders` = orders per month across all platforms, the main value and cost driver.
  */
 export const TIERS = [
   {
@@ -299,10 +332,12 @@ export const TIERS = [
     platforms: "Up to 2 platforms",
     for: "Selling part time, on one or two platforms",
     includes: [
-      "Up to 100 orders a month",
+      "Up to 2 platforms",
+      "About 100 orders a month (going over never locks anything)",
       "Fees, cost of goods and profit per sale",
-      "Mileage log",
-      "Year-end Schedule C worksheet",
+      "Bulk lots split across items",
+      "Mileage and expense logs",
+      "Schedule C worksheet and CSV export",
     ],
   },
   {
@@ -314,12 +349,11 @@ export const TIERS = [
     platforms: "Every platform",
     for: "Reselling is your main work and you crosslist",
     includes: [
-      "Up to 600 orders a month",
-      "Everything in Side hustle",
-      "Bulk lots split across items",
-      "Inventory at year end (what's unsold, at cost)",
+      "Every platform: eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square",
+      "About 600 orders a month (going over never locks anything)",
       "Monthly profit by platform",
-      "Export for your tax preparer (CSV)",
+      "Year-end inventory at cost",
+      "Everything in Side hustle",
     ],
     featured: true,
   },
@@ -332,23 +366,48 @@ export const TIERS = [
     platforms: "Every platform",
     for: "A reselling business with helpers or a bookkeeper",
     includes: [
-      "Up to 2,500 orders a month",
-      "Everything in Full time",
+      "Every platform",
+      "About 2,500 orders a month (going over never locks anything)",
       "Up to 3 extra users (a helper, your bookkeeper or tax preparer)",
-      "Quarterly profit summaries for estimated-tax planning",
-      "Inventory aging (what's been sitting longest)",
+      "Everything in Full time",
     ],
   },
 ];
 
-export const FAQ = [
+/** The Free plan's lines on the pricing page (plans.ts "free" features). */
+export const FREE_INCLUDES = [
+  "1 platform",
+  "Up to 25 orders a month",
+  "Fees, cost of goods and profit per sale",
+  "Mileage and expense logs",
+  "Schedule C worksheet",
+];
+
+const FAQ_AVAILABLE = {
+  q: "Is Seller Books available now?",
+  pre: "Not yet. It is in early access: you can join the list and we'll email you when there's an invite for you. Nothing is for sale and we don't take payment details.",
+  open: "Yes. Create an account and use it free for one platform and up to 25 orders a month, with every report: profit by platform and month, the stock report and the Schedule C worksheet. No card is asked for.",
+};
+
+const FAQ_COST = {
+  q: "What does it cost?",
+  pre: "The proposed prices are on the pricing page: from $15 a month, depending on how many orders you ship and how many platforms you sell on. They may change before launch, and early-access members will hear about any price before they're asked to pay.",
+  open: "The Free plan costs nothing: one platform and up to 25 orders a month. Paid plans start at $15 a month, sized by how many orders you ship and how many platforms you sell on (the pricing page has them); they are not on sale yet, so nothing is charged and no card is asked for.",
+  paid: "The Free plan costs nothing: one platform and up to 25 orders a month. Paid plans start at $15 a month, sized by how many orders you ship and how many platforms you sell on; the pricing page has them.",
+};
+
+const pick = (item) => {
+  const l = launch();
+  return { q: item.q, a: !l.open ? item.pre : l.paidOn && item.paid ? item.paid : item.open };
+};
+
+/** The questions page, with the availability and price answers for the current launch state. */
+export const faqItems = () => [pick(FAQ_AVAILABLE), ...FAQ.slice(0, 7), pick(FAQ_COST), FAQ[7]];
+
+const FAQ = [
   {
-    q: "Is Seller Books available now?",
-    a: "Not yet. It is in early access: you can join the list and we'll email you when there's an invite for you. Nothing is for sale and we don't take payment details.",
-  },
-  {
-    q: "Which platforms will it work with?",
-    a: "eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop and Square. Sales come in from the reports each platform lets you download, and through a direct connection where a platform offers one.",
+    q: "Which platforms does it work with?",
+    a: "eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop and Square. Sales come in from the reports each platform lets you download (no account connection is needed), and sales with no report are typed in.",
   },
   {
     q: "What about sales I make in person or on Facebook Marketplace?",
@@ -373,10 +432,6 @@ export const FAQ = [
   {
     q: "Do I need Seller Books if I only sell a few things a year?",
     a: "Probably not. Selling your own used things for less than you paid is generally not a profit, and a spreadsheet may be all you need. Seller Books is for people who buy to resell.",
-  },
-  {
-    q: "What will it cost?",
-    a: "The proposed prices are on the pricing page: from $15 a month, depending on how many orders you ship and how many platforms you sell on. They may change before launch, and early-access members will hear about any price before they're asked to pay.",
   },
   {
     q: "What happens to my data?",

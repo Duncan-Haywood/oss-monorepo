@@ -108,7 +108,8 @@
     {
       "name": "nfelib NF-e samples",
       "paths": [
-        "ventures/einvoice-preflight/eval/nfe-corpus/nfelib/*"
+        "ventures/einvoice-preflight/eval/nfe-corpus/nfelib/*",
+        "ventures/einvoice-pro/apps/einvoice-preflight/eval/nfe-corpus/nfelib/*"
       ],
       "license": "MIT",
       "source": "https://github.com/akretion/nfelib at d1b0fbe9 (nfelib/nfe/samples/v4_0/), unchanged",
@@ -117,7 +118,8 @@
     {
       "name": "sped-nfe NF-e fixtures",
       "paths": [
-        "ventures/einvoice-preflight/eval/nfe-corpus/sped-nfe/*"
+        "ventures/einvoice-preflight/eval/nfe-corpus/sped-nfe/*",
+        "ventures/einvoice-pro/apps/einvoice-preflight/eval/nfe-corpus/sped-nfe/*"
       ],
       "license": "LGPL-3.0-or-later OR MIT",
       "source": "https://github.com/nfephp-org/sped-nfe at ff80086a (tests/fixtures/xml/), unchanged",
@@ -127,7 +129,8 @@
     {
       "name": "NAV Online Számla sample invoices",
       "paths": [
-        "ventures/einvoice-preflight/fixtures/hungary-nav/*"
+        "ventures/einvoice-preflight/fixtures/hungary-nav/*",
+        "ventures/einvoice-pro/apps/einvoice-preflight/fixtures/hungary-nav/*"
       ],
       "license": "MIT",
       "source": "https://github.com/nav-gov-hu/Online-Invoice (sample/), credentials in one API sample replaced",
@@ -137,7 +140,9 @@
       "name": "fontoxpath 3.34.0 with xspattern 3.1.0 and prsc 4.0.0 (bundled)",
       "paths": [
         "ventures/einvoice-preflight/plain/fontoxpath.esm.js",
-        "ventures/einvoice-preflight/plain/*.LICENSE.txt"
+        "ventures/einvoice-preflight/plain/*.LICENSE.txt",
+        "ventures/einvoice-pro/apps/einvoice-preflight/plain/fontoxpath.esm.js",
+        "ventures/einvoice-pro/apps/einvoice-preflight/plain/*.LICENSE.txt"
       ],
       "license": "MIT",
       "source": "npm fontoxpath, xspattern and prsc, bundled and minified by build-plain-rules.mjs",
@@ -147,7 +152,9 @@
       "name": "E-invoicing Schematron rules compiled to JSON",
       "paths": [
         "ventures/einvoice-preflight/plain/*.json",
-        "ventures/einvoice-preflight/plain/NOTICE.txt"
+        "ventures/einvoice-preflight/plain/NOTICE.txt",
+        "ventures/einvoice-pro/apps/einvoice-preflight/plain/*.json",
+        "ventures/einvoice-pro/apps/einvoice-preflight/plain/NOTICE.txt"
       ],
       "license": "EUPL-1.2 AND Apache-2.0 AND MPL-2.0 AND LGPL-3.0-only",
       "source": "ConnectingEurope/eInvoicing-EN16931, itplr-kosit/xrechnung-schematron, OpenPEPPOL, phive-rules and others; NOTICE.txt names each set and its upstream commit",

@@ -2,10 +2,12 @@
 
 Status: **live on the Free plan** (2026-11-27). Live at https://payapps.marisstella.app since run 45963162134 (PR #19642,
 custom domain; workers.dev is off). The first live deploy, run 45949861746, was on workers.dev. The smoke test answered
-`{"ok":true,"app":"payapps","email":true}`, so sign-up email works. Attachments (R2) are off until the
-Cloudflare token gets Workers R2 Storage edit; until then `/api/health` answers `"files": false`, and the
-plan lists (`/api/billing/plans`, the Billing page) mark each storage line "(not switched on yet)"
-instead of selling space nobody can use (2026-11-27). No customers yet. Paid plans are dark
+`{"ok":true,"app":"payapps","email":true}`, so sign-up email works. The Cloudflare token has no Workers
+R2 Storage edit, so there is no bucket; since 2026-11-27 (files-without-r2) attachments work anyway, kept
+in D1's `file_blobs` (`src/worker/ports/file-store.ts`) at 50 MB per company and 300 MB in all, with
+`/api/health` answering `"fileStore": "d1"` and storage lines above 50 MB reading "(50 MB for now)"
+(docs/DEPLOY.md, step 3). Add R2 edit to the token before companies fill it; files then move to R2 with
+nothing to copy. No customers yet. Paid plans are dark
 (`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.
 
 ## Done (this MVP)
@@ -1001,6 +1003,52 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   `services/payapps/notice-files.ts`; worker test `test/worker/ca-notice-files.test.ts`. Not done:
   listing the attached receipts on the § 8118 proof PDF, and the § 2015.5 perjury sentence.
 
+- Lien deadline per job (2026-11-27, every plan; job-lien-deadlines). The job page's "Lien deadline"
+  panel takes the property's state, whether the job is residential (where the state has a shorter
+  clock for a home), the day this company last furnished labor or materials and, for California and
+  Arizona, the project's completion and a recorded notice of completion (`projects.lien_state`,
+  `lien_residential`, `last_furnished_on`, `work_completed_on`, `notice_of_completion_on`, migration
+  0086, saved through the job's PATCH and listed in the job history). It shows the last day to record
+  or file the lien in ten states (AZ § 33-993, CA § 8414, CO § 38-22-109, FL § 713.08(5), GA
+  § 44-14-361.1, NC § 44A-12(b), NY Lien Law § 10, OH § 1311.06(B), TX § 53.052, WA § 60.04.091),
+  rules ported from the free mechanics-lien-deadline-calculator, whose timing was checked against the
+  statute text on 2026-11-25. Always the safe side: with no last-furnished date it counts from the
+  start of the latest application that bills work (the last day of work is on or after it) and says
+  so; a completion-based state with no completion date counts from last furnishing; a weekend date
+  moves back to the Friday. The cash page, its CSV ("Lien deadline" column) and the weekly email name
+  it on a job that still owes money (retainage included) within 45 days of the date and up to 30
+  after, once the date rests on an entered last day or the work is complete (an active job's
+  estimate moves every month, so it would only nag). Why: a sub's unpaid balance is only as safe as
+  its lien rights, and SubLien sells this tracking from $199/mo (bets.md). Rules in
+  `src/shared/lien-deadline.ts`; tests `src/shared/lien-deadline.test.ts` (every state's date by
+  hand), `test/worker/lien-deadline.test.ts`, `test/unit/lien-deadline-panel.test.tsx`. Also fixed:
+  the cash CSV's Total row was one column short since "Pay terms count from" was added, so its past
+  due total sat under that header. Not done: holidays, public jobs (bond claims), states beyond the
+  ten, the notice of intent dates (Colorado) as their own reminder, and a lien recorded on the job.
+
+- Notices of claim: Texas, part 2 (2026-11-27, Crew and up; texas-notices-of-claim-part-2). Under
+  the Texas notices, "Notices of claim sent (Texas)": the job is tracked as a residential construction
+  project or not (`projects.tx_project_kind`, migration 0084), which turns on the rest. The months
+  the job's sent pay apps leave unpaid are listed (a period spanning two months lists both; the
+  balance is not split), each with its § 53.056(a-1) date and who has no notice recorded for it
+  (`src/shared/tx-notices.ts`). Each notice is recorded per recipient (owner or reputed owner,
+  original contractor) and, for § 53.056, per month (`tx_notice_sends`): how it went (certified mail,
+  in person, traceable private delivery, § 53.003(b)), the day sent, the mail or tracking number and
+  the claim amount; `txSendTiming` says on time or late (certified mail complies on deposit,
+  § 53.003(c)). The cash page and weekly email remind from 30 days before each unpaid month's date
+  until both recipients have one, and for 30 days after a missed one, at most three a job. Texas
+  legal holidays: `txLegalHoliday` follows Gov't Code § 662.021 (the national holidays of
+  § 662.003(a) and the state holidays of (b)(1)-(6), not 24 or 26 December), so every Texas date now
+  rolls past a holiday as § 53.003(e) says; part 1's dates could be a day early (15 February 2027,
+  Presidents' Day, is now 16 February). Snapshot `packages/lien-waivers/sources/tx-gv-662.txt`.
+  Job history: tracking set or stopped, recorded, deleted. Tests: `packages/lien-waivers/test/
+  tx-notice.test.ts` (every 2027 legal holiday against the snapshot, exactly 15 that year, the roll,
+  the timing), `src/shared/tx-notices.test.ts` (months, windows, cap) and
+  `test/worker/tx-notice-log.test.ts` (unpaid month from a real pay app, reminder narrowing and
+  stopping, residential, history, plan and role gates, tenant isolation). Not done: the retainage
+  notice's 30 days from a saved completion date, files per record (the green card), and a notice
+  date by work month that the pay app's lines rather than its period say.
+
 - Notices of claim: Texas (2026-11-27, Crew and up, with lien waivers; texas-notice-of-claim). The
   job page's "Preliminary notice of right to lien" panel, for a Texas job, offers both of the notices a
   sub or supplier ("a claimant other than an original contractor") must send to keep a lien under
@@ -1664,6 +1712,26 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   step 4 and 5 messages checked, several weeks in one file (the schema allows it), and an amendment
   flag.
 
+- Certified payroll, part 3d: Illinois IDOL Certified Transcript of Payroll CSV (2026-11-27,
+  certified-payroll-il-ctp-upload, every plan). An "Illinois public works" section on the certified
+  payroll page makes the same week as the CSV the IDOL CTP portal takes by Full Import, in the 102
+  columns of IDOL's own template (`Full-CTP-Upload.xlsx` on labor.illinois.gov, read 2026-11-27, its
+  misspelt "Wednsday"/"Satday" headers and repeated names kept, since the portal wants the template's
+  column names and order). One row per worker per classification (IDOL FAQ 7); each day's hours
+  under its own weekday whatever day the week ends (FAQ 13); hours on other projects that week as
+  the "non-prevailing" columns, their gross as 7B less 7A, net split by gross unless typed; fringe
+  credits by IDOL's five hourly columns (guessed from the plan, changeable); double time, AddOT15 and
+  AddOT20 where typed; dates MM/DD/YYYY as the training slides show. Checks the slides' required
+  fields (project county, contractor contact, phone and email, the public body). Race, ethnicity,
+  gender and veteran status (asked by the Act; FAQ 15) are held in the page's memory only; the other
+  extras are saved with the draft in the browser (Privacy Policy sentence added; no POLICY_VERSION
+  bump, as for New York). `src/shared/il-ctp.ts`, `src/client/components/il-ctp-section.tsx`; tests
+  `src/shared/il-ctp.test.ts`, `test/unit/certified-payroll-page.test.tsx`. Not yet checked against
+  a real upload: IDOL's template does not list the race, ethnicity and gender values its portal
+  accepts (its sample row has "Chinese" / "Y" / "M"), so those are typed as the worker gives them.
+  Next, if Illinois customers ask: the accepted values from a real upload's errors, and IDOL's
+  classification names offered as a list from the county's rate sheet.
+
 - Getting started, part 5 (2026-11-26): where companies stall, in the owner's metrics.
   `GET /api/admin/metrics` now carries `activation`: for every company, and for those that signed
   up inside the window, how many reached each checklist step (job, schedule of values, pay
@@ -2289,7 +2357,8 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
   `"email": true` (docs/EMAIL.md); the deploy workflow ran once by hand (`priv-payapps-deploy.yml` in
-  oss-monorepo). Next: let it run on every merge (`push: branches: [main]`, a control-plane PR)
+  oss-monorepo). Done 2026-11-27: it runs on every merge to main that touches `ventures/payapps/`
+  (Markdown-only changes excepted), so merged fixes reach the live app without a hand dispatch
 - Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
   agent-approved under `docs/legal/OPERATOR.md` (no attorney review; open checks listed there)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on"); the
@@ -2385,18 +2454,18 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   CSV, if people ask (a by-day CSV fills the week since 2026-11-26), save the crew and rates with the job instead of the
   browser if people ask, other states' prevailing-wage formats once their official specs are read (California's DIR eCPR
   XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b;
-  Washington's L&I XML done 2026-11-27: part 3c; New Jersey's Wage Hub CSV next, once njwages.nj.gov answers), and the upload formats of the compliance
+  Washington's L&I XML done 2026-11-27: part 3c; Illinois' IDOL CTP CSV done 2026-11-27: part 3d;
+  New Jersey's Wage Hub CSV next, once njwages.nj.gov answers), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
 - Notice to Owner, Florida, part 3 (part 2, the notices served per person, the saved first day and
   the reminder, done 2026-11-27): files per record (the mail log or USPS tracking printout
   § 713.18(2)(c) says to keep), the company's tier so the contractor's copy joins the reminder, and
   § 713.18(3)'s returned-mail rule, if contractors use the log
-- Texas notices of claim, part 2 (part 1, both statutory forms and the deadlines, done 2026-11-27):
-  a log of the notices sent per month and per recipient (owner and GC, § 53.056(a-1)) with the
-  delivery method and tracking (§ 53.003(b)), the unpaid months read from the job's pay apps, and a
-  reminder on the cash page and in the weekly email before each 15th; Texas legal holidays for
-  § 53.003(e)
+- Texas notices of claim, part 3 (part 2, the log, unpaid months from pay apps, the reminder and
+  legal holidays, done 2026-11-27): the retainage notice's 30 days from a saved completion date with
+  its own reminder, files per record (the certified mail receipt or proof of receipt), if
+  contractors use the log
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask

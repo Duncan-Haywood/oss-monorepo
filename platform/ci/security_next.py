@@ -12,13 +12,19 @@ so two runs cannot both win the same alert.
 
 Usage:
     python3 platform/ci/security_next.py            # what to take next, or "go to step 1"
-    python3 platform/ci/security_next.py --claim    # also push its claim branch
+    python3 platform/ci/security_next.py --claim    # also push its claim branch, and its batch's
     python3 platform/ci/security_next.py --all      # every workable alert, not just the top
 
 Exit codes: 0 an alert is workable (printed first), 3 none is (queue empty, all claimed or
 triaged: go to step 1), 2 the queue is unavailable or git failed.
 
-The parsing (`parse_queue`, `triaged_numbers`, `pick`) touches no network and is unit-tested
+Batch: each alert file says to fix every queued alert in the same file (and the same rule
+in sibling files) in one PR, claiming each one's branch too, but --claim used to take only
+the top alert, so the rest were claimed by hand or not at all (2026-11-27 friction: "there
+is no flag to claim a list"). --claim now also claims the top alert's batch (`batch_of`)
+and names each number won or lost; `--claim --no-batch` takes the top one alone.
+
+The parsing (`parse_queue`, `triaged_numbers`, `pick`, `batch_of`) touches no network and is unit-tested
 in test_security_next.py.
 """
 from __future__ import annotations
@@ -107,6 +113,24 @@ def pick(alerts: list[dict], claimed: set[int], triaged: set[int]) -> list[dict]
     return [a for a in alerts if a["number"] not in claimed and a["number"] not in triaged]
 
 
+def _file(alert: dict) -> str:
+    return alert["where"].rsplit(":", 1)[0]
+
+
+def batch_of(top: dict, todo: list[dict]) -> list[dict]:
+    """The other workable alerts the alert files say to fix with `top` in one PR: every
+    one in the same file, and the same rule in a sibling file (same directory)."""
+    path = _file(top)
+    folder = path.rsplit("/", 1)[0] if "/" in path else ""
+
+    def sibling(a: dict) -> bool:
+        p = _file(a)
+        return (p.rsplit("/", 1)[0] if "/" in p else "") == folder
+
+    return [a for a in todo if a["number"] != top["number"]
+            and (_file(a) == path or (a["rule"] == top["rule"] and sibling(a)))]
+
+
 def git(*args: str, check: bool = True) -> subprocess.CompletedProcess:
     return subprocess.run(["git", *args], capture_output=True, text=True, check=check)
 
@@ -146,10 +170,33 @@ def claim(n: int) -> str | None:
     return sha if r.returncode == 0 else None
 
 
+def claim_batch(top: dict, todo: list[dict]) -> list[int]:
+    """Claim `top`'s batch; print and return the numbers won. A lost one is another run's."""
+    batch = batch_of(top, todo)
+    if not batch:
+        return []
+    won = [a["number"] for a in batch if claim(a["number"])]
+    lost = [a["number"] for a in batch if a["number"] not in won]
+    if won:
+        print("Batch (same file, or same rule beside it): also claimed "
+              + ", ".join(f"#{n}" for n in won)
+              + f". Fix them in the same PR, on the #{top['number']} branch; their own claim "
+              "branches only hold the claim, so leave them for branch_cleanup.py.")
+        for a in batch:
+            if a["number"] in won:
+                print("  " + a["line"])
+    if lost:
+        print("Another run holds " + ", ".join(f"#{n}" for n in lost)
+              + ": leave those to it.")
+    return won
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--claim", action="store_true", help="push the claim branch of the alert taken")
     ap.add_argument("--all", action="store_true", help="list every workable alert")
+    ap.add_argument("--no-batch", action="store_true",
+                    help="with --claim, take the top alert alone, not its same-file batch")
     args = ap.parse_args(argv)
 
     try:
@@ -193,6 +240,8 @@ def main(argv: list[str] | None = None) -> int:
                       f"Read `git show origin/{QUEUE_BRANCH}:alerts/{a['number']}.md`; "
                       f"work on it with `git checkout -B {BRANCH_PREFIX}{a['number']} {sha[:12]}` "
                       "(the branch holds one empty claim commit, so start from it, not origin/main).")
+                if not args.no_batch:
+                    claim_batch(a, todo)
                 return 0
             print(f"#{a['number']} was claimed by another run first; trying the next.")
         print("Every workable alert was claimed while this ran: go to step 1.")

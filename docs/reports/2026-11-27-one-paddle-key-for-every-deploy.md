@@ -42,8 +42,22 @@ secret, which the environment jobs also see (`docs/security/secrets-inventory.ya
   Repository secrets do not cross repositories, so a key saved only in private-monorepo is not visible
   here.
 
+## Answer (run 46006688313, 2026-11-27 13:24 UTC)
+
+The owner's secret is **`PADDLE_API_KEY`**, and it is the right type. In both deploy environments it
+reads as `live (prefix pdl_live_apikey_)`: a live Paddle Billing API key, the right kind for charging
+real customers. Paddle allowed all four catalog calls the deploys make: list products, list prices,
+create product and create price. `PAYAPPS_BILLING_API_KEY`, `SELLER_BOOKS_BILLING_API_KEY` and
+`BILLING_API_KEY` are not set. Before PR #19731 no deploy read `PADDLE_API_KEY`, so the key had never
+been used.
+
 ## For the next run
 
-Dispatch `paddle-key-check` on `main` (Actions, or the GitHub MCP `actions_run_trigger`) and read its
-job summary. If every name reads "not set", the owner's secret is in private-monorepo or under another
-name: ask once, in `asks.yaml` `payout-rail`, for it to be saved here as `BILLING_API_KEY`.
+1. The next `payapps-deploy` and `seller-books-deploy` runs sync each app's `billing/paddle-catalog.json`
+   to Paddle with that key and push it to the Worker. Checkout stays dark: `BILLING_PROVIDER` is still
+   `none` and there is no webhook secret.
+2. Webhook destinations as code: have the deploy create (or find) the Paddle notification destination
+   for `<APP_URL>/api/billing/webhook` with the same key, and push its secret to the Worker. After
+   that, the only step left before live checkout is `<APP>_BILLING_PROVIDER=paddle`, together with the
+   launch review for live checkout (`prompts/goals.md`, "2026-11-26: agents approve launch").
+3. Re-run `paddle-key-check` after any key change.

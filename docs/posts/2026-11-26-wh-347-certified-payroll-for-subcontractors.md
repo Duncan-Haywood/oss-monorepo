@@ -2,8 +2,8 @@
 title: "Filling out the WH-347 certified payroll every week: a subcontractor's guide"
 seo_title: "How to fill out WH-347 certified payroll for subcontractors"
 date: 2026-11-26
-tags: [payapps, for-customers, construction, certified-payroll, davis-bacon, wh-347, prevailing-wage, california, ecpr, new-york, new-jersey, washington, illinois]
-description: "The WH-347 column by column for Davis-Bacon subs, the checks before sending it, and the CA, NY and WA files for states that want it filed online."
+tags: [payapps, for-customers, construction, certified-payroll, davis-bacon, wh-347, prevailing-wage, california, ecpr, new-york, new-jersey, washington, illinois, idol]
+description: "The WH-347 column by column for Davis-Bacon subs, the checks before sending it, and the CA, NY, WA and IL files for states that file online."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -155,6 +155,36 @@ does not give you:
 NYSDOL suggests a small test upload first. Whatever you upload goes into its system of record,
 so test with a real week you're ready to file, not dummy data.
 
+## Illinois public works: the IDOL Certified Transcript of Payroll upload
+
+On a job whose contract says it is subject to the Illinois Prevailing Wage Act, each contractor and
+subcontractor files its own certified payroll with the Illinois Department of Labor, in IDOL's
+Certified Transcript of Payroll portal (IDOL's FAQ: a contract that mentions only Davis-Bacon does
+not go to IDOL). You can type each worker in, or upload the whole week as a CSV with the portal's
+"Full Import". IDOL publishes the template, `Full-CTP-Upload.xlsx`, on its Certified Transcript of
+Payroll page. What trips people up, from the template, IDOL's training slides and its FAQ (read
+2026-11-27):
+
+- **Keep the template's columns exactly.** There are 102, in a fixed order, and some headers are
+  misspelt ("WednsdayPrevailingHoursWorked", "SatdayPrevailingHoursWorked") or repeated (two
+  ContactFirstName columns, four Zip4s). Don't fix them: the slides say to follow the template's
+  column names, and the FAQ says the order cannot be changed. Save it as CSV.
+- **One project per file** (FAQ 16) and **one row per worker per classification** (FAQ 7), with the
+  project, your contact person, phone and email (IDOL emails the filed PDF there) and the public
+  body repeated on every row.
+- **Hours go under the weekday they were worked**, Sunday to Saturday. A week that runs Thursday to
+  Wednesday still starts on the Thursday column (FAQ 13).
+- **"Non-prevailing" hours are the worker's hours that week on other projects** (FAQ 3), with their
+  own rates, gross and net. IDOL wants them to see that overtime was paid on the whole week.
+- **The worker's race, ethnicity, gender and veteran status are required.** FAQ 15: if you don't
+  know them, "ask your employees". The template doesn't list the values its portal accepts.
+- **Fringes are hourly amounts in five columns**: pension/retirement, health and welfare, vacation,
+  training and other insurance. Cash paid in lieu of fringes has no column.
+- Each row also takes the rate schedule's **region** (ALL, N, NE, E, SE, S, SW, W, NW), **class
+  type** (ALL, BLD, FLT, HWY, O&C, RIV) and, where the county's schedule numbers it, a **class code**
+  from 1 to 14.
+- A week with no work needs no payroll (FAQ 8). Mistakes can be withdrawn and corrected until the
+  15th of the following month (FAQ 4).
 ## Washington public works: the L&I PWIA XML upload
 
 In Washington every contractor on a public works project files certified payroll online with L&I,
@@ -265,6 +295,16 @@ It sits on the job, next to that job's pay applications:
   rate schedule says so. Cash in lieu is reported as "Other Benefit (Type)" with an explanation.
   State and local tax are split out of the withholding, and disability/PFL and dues out of
   "other", so the PDF and the XML agree. The output validates against NYSDOL's XSD.
+- **Illinois public works (added 2026-11-27):** tick the Illinois box and the same week downloads
+  as a CSV in IDOL's upload template: the 102 columns in order, one row per worker per
+  classification, each day under its own weekday. You add the project's county, your contact
+  person, the public body, each worker's address and phone, the region and class type, and any
+  hours on other projects that week. Their gross comes from the WH-347's "gross for all work" less
+  this project's, and the net is split between the two by gross unless you type it. Fringe plans go
+  to IDOL's five hourly columns (you can change the guess). The SSN's last four come from the WH-347
+  ID number. Race, ethnicity, gender and veteran status are held only while the page is open: they
+  are not saved with the draft and never sent to us. It has not been through a real IDOL upload
+  yet, so check the portal's review page before you certify.
 - **Washington public works (added 2026-11-27):** tick the Washington box and the same week
   downloads as the XML file for L&I's PWIA upload. You add the Intent ID, the county, addresses, and
   each row's L&I trade (picked from L&I's list) and classification; apprentices get their ARTS ID

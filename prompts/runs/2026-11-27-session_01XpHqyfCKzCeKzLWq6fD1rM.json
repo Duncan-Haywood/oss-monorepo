@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyfCKzCeKzLWq6fD1rM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T14:39:23Z",
+  "ended": "2026-11-27T14:45:58Z",
+  "wall_minutes": 6.78,
+  "tokens_in": 4894321,
+  "tokens_out": 17196,
+  "cost_usd": 2.1756,
+  "tool_calls": 49,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19774",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Listed payapps' open files-without-r2 claim as MERGED because jobshop-quote's PR #19749 used the same slug; fixed in this PR."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`python3 -m unittest platform/ci/test_roadmap_claim.py` from the repo root fails (module 'platform' shadows stdlib); run it from platform/ci."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Every bet's ROADMAP Next item was gated on demand or already claimed (payapps 23/23 gated, einvoice deploy in PR #19767, jobshop domain in PR #19764, files-without-r2 in #19755/#19771). Checked live health of payapps, seller-books and jobshop-quote and crawled 128 marisstella.app pages (no broken links), then shipped the claim-tool fix those checks turned up instead of a product feature.",
+      "did": "Fixed roadmap_claim's cross-app merged detection.",
+      "result": "payapps listing now shows files-without-r2 as live; 39 tests pass."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No post: a tooling fix, nothing for customers to read.",
+      "did": "No writeup",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Live checks 2026-11-27: payapps.marisstella.app/api/health ok, files:false (R2 unbound, PR #19755 open); seller-books ok, billing:false; jobshop-quote live on a workers.dev host named after the owner's account (PR #19764 moves it to jobshop-quote.marisstella.app); cmmc never deployed (no runs of priv-cmmc-deploy.yml). Tests: platform/ci test_roadmap_claim 39 OK.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "15becb3f-c8c1-5206-beab-9ca95386f553",
+    "transcripts": 1,
+    "first": "2026-11-27T14:39:23Z",
+    "last": "2026-11-27T14:46:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 91,
+        "output": 17196,
+        "thinking": 5225,
+        "cache_read": 4784941,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109289,
+        "api_equivalent_usd": 2.1756,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 91,
+      "output": 17196,
+      "thinking": 5225,
+      "cache_read": 4784941,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109289,
+      "api_equivalent_usd": 2.1756,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 41,
+      "mcp__github__actions_list": 3,
+      "ToolSearch": 2,
+      "mcp__github__get_job_logs": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.78,
+      "active_minutes": 6.78,
+      "model_minutes": 4.24,
+      "tool_minutes": 2.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "find cross-app slug bug, patch, two tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 68.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

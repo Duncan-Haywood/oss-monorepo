@@ -2,7 +2,12 @@
 // unauthenticated by design; the provider's signature is the authentication (services/billing.ts).
 import { PUBLIC_PLANS } from "@shared/plans";
 import { Hono } from "hono";
-import { handleWebhook, InvalidWebhookError, publicPlan } from "../services/billing";
+import {
+  attachmentStore,
+  handleWebhook,
+  InvalidWebhookError,
+  publicPlan,
+} from "../services/billing";
 import type { AppEnv } from "../types";
 
 const routes = new Hono<AppEnv>();
@@ -12,9 +17,9 @@ routes.get("/plans", (c) => {
   // `checkoutAvailable`: whether this deployment can sell a plan now (a payment provider is
   // configured), as the org Billing page reports it. `purchasable` on a plan is catalog data only.
   return c.json({
-    items: PUBLIC_PLANS.map((p) => publicPlan(p, Boolean(c.var.ctx.env.FILES))),
+    items: PUBLIC_PLANS.map((p) => publicPlan(p, attachmentStore(c.var.ctx.env))),
     checkoutAvailable: c.var.ctx.billing !== null,
-    // False while the deployment has no R2 bucket: uploads answer 503 and no plan's storage is usable.
+    // True whenever a file store exists: R2, or D1 while the bucket is not bound (ports/file-store.ts).
     attachmentsAvailable: Boolean(c.var.ctx.env.FILES),
   });
 });

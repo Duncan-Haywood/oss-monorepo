@@ -35,6 +35,7 @@ import {
 } from "@shared/tm-tickets";
 import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import type { AppContext } from "../../context";
+import { allInChunks } from "../../db/in-chunks";
 import {
   changeOrders,
   organization,
@@ -106,11 +107,9 @@ async function userNames(ctx: AppContext, list: Row[]) {
     ...new Set(list.flatMap((r) => [r.createdBy, r.updatedBy]).filter((x): x is string => !!x)),
   ];
   if (ids.length === 0) return new Map<string, string>();
-  const found = await ctx.db
-    .select({ id: user.id, name: user.name })
-    .from(user)
-    .where(inArray(user.id, ids))
-    .all();
+  const found = await allInChunks(ids, (slice) =>
+    ctx.db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, slice)).all(),
+  );
   return new Map(found.map((u) => [u.id, u.name]));
 }
 

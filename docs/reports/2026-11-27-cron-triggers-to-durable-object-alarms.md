@@ -52,10 +52,16 @@ cloud sessions). Alarms are retried with backoff when the handler throws (`api/a
 - Not checked: a real deploy. The first deploy of each site creates the Durable Object
   namespace from the migration, and nothing here has deployed one.
 
+**einvoice-site (added while this PR was open).** einvoice-site (bet #3) landed on main with
+a sixth schedule of the same kind. It was converted the same way: a new `entry.mjs` is the
+wrangler `main`, wraps `worker.mjs` (left untouched, so its `scheduled` is dead code) and
+exports `PurgeClock`. Its `node --test` suite passes 42/42. With cmmc now deployed, that is
+5 configured and 5 deployed, so **none spare**.
+
 ## For the next job that wants a schedule
 
 Copy the pattern instead of adding a cron. A scheduled job is a `purge(env)` that returns
-a number; the clock does the rest. `cmmc-site` is still synced from `private-monorepo`, so
-its changed files are in `ventures/cmmc/sync-from-private.sh`'s `keep_local` until private
-has them. The other route is the owner moving the account to Workers Paid ($5 a month, 1,000
+a number; the clock does the rest. `cmmc-site` and `einvoice-site` are still synced from `private-monorepo`, so their changed
+files are in `keep_local` in `ventures/cmmc/sync-from-private.sh` and
+`ventures/einvoice-pro/sync-from-private.sh` until private has them. The other route is the owner moving the account to Workers Paid ($5 a month, 1,000
 cron triggers), then setting `portfolio/hosting/cloudflare-plan.json` to match.

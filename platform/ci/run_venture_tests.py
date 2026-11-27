@@ -56,6 +56,10 @@ no PR before 2026-11-12, and one let a stray `</head>` reach main (#15195);
 since 2026-11-13 also the unwired platform/ci unit tests and `doc_index.py check`
 (71 of 121 test files ran in no workflow; test_doc_index.py had been red for days).
 
+A named local run also says which package-manager test steps (`pnpm test:unit`, vitest,
+playwright) a venture's own workflow runs, and prints PART rather than ok: this runner never runs
+them, and payapps' "ok, 10 tests" hid its 1,956 vitest tests (js_run_elsewhere, 2026-11-27).
+
 Exit 0 when every suite passes (ventures with no tests are skipped), else 1.
 """
 import argparse
@@ -167,6 +171,71 @@ def python_run_elsewhere(slug):
     """[(workflow name, command)] for steps that run the venture's Python tests."""
     return [(wf.name, cmds[0]) for wf, steps in _workflow_steps(WORKFLOWS)
             if (cmds := test_commands(slug, wf, steps))]
+
+
+# Package-manager test steps (`pnpm test:unit`, `npm run test`, vitest, playwright) a venture's own
+# workflow runs. This runner never runs them: `run_venture_tests.py payapps` printed "ok, 10 tests"
+# for its top-level *.test.mjs while the 1,384 vitest unit and 572 worker tests ran only in
+# payapps-ci.yml (run-record doc friction 2026-11-27, four sessions, after the pnpm workspaces
+# payapps, jobshop-quote, seller-books and cmmc moved in).
+# `node --test` of *.test.ts/.js counts too: a venture with its own workflow gets only its *.test.mjs
+# here (own_workflow_slugs), so einvoice-pro's billing and admin-metrics .ts tests ran only there.
+JS_TEST = re.compile(r"\b(?:pnpm|npm|yarn)\b[^#\n]*\btest(?::[\w-]+)?\b|\bvitest\b|\bplaywright\s+test\b"
+                     r"|\bnode\s+--test\b[^#\n]*\.test\.(?:ts|mts|cts|js|cjs)\b")
+RUN_LINE = re.compile(r"^(\s*)-?\s*run:\s*(.*)$")
+
+
+def _js_test_steps(text):
+    """[(command, the lines around it)] for each package-manager test step, `run: |` blocks included."""
+    lines = text.splitlines()
+    out = []
+    for i, line in enumerate(lines):
+        m = RUN_LINE.match(line)
+        if not m:
+            continue
+        body = [m.group(2)]
+        if m.group(2).strip() in ("|", ">", "|-", ">-"):
+            body = []
+            for nxt in lines[i + 1:]:
+                if nxt.strip() and len(nxt) - len(nxt.lstrip()) <= len(m.group(1)):
+                    break
+                body.append(nxt)
+        cmds = [b.strip() for b in body if JS_TEST.search(b) and not re.search(r"\binstall\b", b)]
+        if cmds:
+            out.append((" && ".join(cmds), " ".join(lines[max(0, i - 3):i + 2])))
+    return out
+
+
+@functools.lru_cache(maxsize=None)
+def js_run_elsewhere(slug):
+    """[(workflow name, command)] for the pnpm/npm/vitest/playwright test steps of the venture's own
+    workflows (see test_commands for which steps count), which a named local run cannot stand in for."""
+    out = []
+    for wf in sorted(WORKFLOWS.glob("*.y*ml")):
+        if wf.name == "ventures-tests.yml":
+            continue
+        text = wf.read_text()
+        if f"ventures/{slug}" not in text and not wf.name.startswith((f"{slug}-", f"{slug}.")):
+            continue
+        out += [(wf.name, cmd) for cmd in test_commands(slug, wf, _js_test_steps(text))]
+    return out
+
+
+def js_note(slug):
+    """'; NOT run here: ...' for a named run's line, or '' when the venture has no such steps."""
+    steps = js_run_elsewhere(slug)
+    if not steps:
+        return ""
+    by_wf = {}
+    for w, c in steps:
+        by_wf.setdefault(w, []).append(c)
+    parts = []
+    for w, cmds in by_wf.items():
+        uniq = list(dict.fromkeys(cmds))
+        shown = ", ".join(f"`{c}`" for c in uniq[:3]) + (f" +{len(uniq) - 3} more" if len(uniq) > 3 else "")
+        parts.append(f"{len(cmds)} step(s) of {w} ({shown}; "
+                     f"python3 platform/ci/run_workflow_locally.py {w})")
+    return "; NOT run here: " + "; ".join(parts)
 
 
 def elsewhere_commands(slug):
@@ -285,6 +354,7 @@ def clear_workflow_caches():
     """Forget what the workflows said (tests rewrite them between calls)."""
     python_run_elsewhere.cache_clear()
     _workflow_steps.cache_clear()
+    js_run_elsewhere.cache_clear()
 
 
 def python_test_dirs(slug):
@@ -783,6 +853,8 @@ def main(argv):
             suite_file_times.perf_history)))
         print("\nTimes are relative (suites ran in parallel). Which file is slow, timed alone: "
               "python3 platform/ci/suite_file_times.py <slug>")
+        print("Not timed here: the pnpm/npm suites ventures run in workflows of their own (payapps, "
+              "jobshop-quote, seller-books, cmmc ...); python3 platform/ci/ci_profile.py --top ranks those jobs.")
         return 0
 
     if args.since is not None and args.since.strip("0 "):
@@ -833,12 +905,15 @@ def main(argv):
             times[slug] = secs
             also = sorted({c[-1] for c in elsewhere_commands(slug)}) if elsewhere else []
             unrun = sorted({w for w, _ in python_run_elsewhere(slug)}) if no_yaml else []
-            if unrun:
+            # A session checking its own work reads "ok" as the CI pass; on CI (--since) those
+            # workflows run on their own, so the note is left off there.
+            js = js_note(slug) if PROGRESS else ""
+            if unrun or js:
                 partial.append(slug)
-            print(f"{('PART' if unrun else 'ok  ') if ok else 'FAIL'} {slug} ({secs:.1f}s{ran_note(out)})"
+            print(f"{('PART' if unrun or js else 'ok  ') if ok else 'FAIL'} {slug} ({secs:.1f}s{ran_note(out)})"
                   + (f" incl. Python steps of {', '.join(also)}" if also else "")
                   + (f"; Python steps of {', '.join(unrun)} NOT run (no PyYAML)" if unrun else "")
-                  + skipped_note(out), flush=True)
+                  + js + skipped_note(out), flush=True)
             if not ok:
                 failed.append(slug)
                 if ON_ACTIONS:
@@ -853,8 +928,8 @@ def main(argv):
         print(f"suite times written to {out}")
     print(f"{len(slugs)} suites run, {len(failed)} failed"
           + (f": {' '.join(sorted(failed))}" if failed else "")
-          + (f"; {len(partial)} only partly run (own-workflow Python steps need PyYAML): "
-             f"{' '.join(sorted(partial))}" if partial else ""))
+          + (f"; {len(partial)} only partly run (own-workflow steps not run here, named on their "
+             f"lines): {' '.join(sorted(partial))}" if partial else ""))
     unknown = [s for s in (lint_slugs_named if args.slugs else []) if not (VENTURES / s).is_dir()]
     if unknown:
         print(f"error: no such venture: {' '.join(unknown)} (pass the folder name under ventures/)")

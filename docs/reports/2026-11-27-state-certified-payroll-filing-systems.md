@@ -113,3 +113,20 @@ session, so New Jersey's CSV template is the next to fetch; lni.wa.gov answered 
   morning found the separate "Submit Payroll in XML File" route, L&I's published `xmlschema.xsd` and
   the XML Payroll Upload Guide, and built the file (validated with xmllint). Lesson: the step-by-step
   PDF is not the whole spec; search for the upload guide by name before ruling a format out.
+
+## Update, later on 2026-11-27: Illinois built (part 3d)
+
+labor.illinois.gov answered 200 through the proxy, and its Certified Transcript of Payroll page
+(`/laws-rules/conmed/certifiedtranscriptofpayroll.html`) links the Full Import template
+`/content/dam/soi/en/web/idol/laws-rules/conmed/documents/ctp/Full-CTP-Upload.xlsx` (one sheet: a
+102-column header row and two sample rows), the "2026 Prevailing Wage Certified Transcript of
+Payroll Training Slides" PDF in the same folder (`pdftotext -layout` reads it; it gives the date
+format MM/DD/YYYY, the required fields and the region, class type and class code options) and
+`/faqs/certifiedpayrollfaq.html` (17 answers; 3, 7, 13, 15 and 16 shape the file). PayApps now
+writes that CSV (`src/shared/il-ctp.ts`). What the sources leave open, for whoever gets a real
+upload: the race, ethnicity and gender values the portal accepts (the sample has "Chinese" with
+ethnicity "Y", and "Hispanic or Latino" as a race), whether the hour and money columns take more
+than two decimals, and what AddOT15/AddOT20 mean per hour versus per week (PayApps writes what is
+typed, 0 by default). The contractor's FEIN and the "Agency" dropdown are on the manual-entry
+screen but not in the template, so the file has neither. New Jersey's CSV template is still out of reach (njwages.nj.gov
+answered 403 here too; see the New Jersey note above).

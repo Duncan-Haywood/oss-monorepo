@@ -371,6 +371,7 @@ ventures/edi-x12-order-checker/usage.mjs
 ventures/editorconfig-explainer/usage.mjs
 ventures/egress-window-bid-calculator/usage.mjs
 ventures/einvoice-preflight/usage.mjs
+ventures/einvoice-pro/apps/einvoice-preflight/usage.mjs
 ventures/eitc-calculator/usage.mjs
 ventures/electrical-panel-upgrade-bid-calculator/usage.mjs
 ventures/elevator-traffic-analysis/usage.mjs

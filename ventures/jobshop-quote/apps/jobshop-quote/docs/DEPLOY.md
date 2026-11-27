@@ -17,12 +17,17 @@ reviewers to the `jobshop-quote-production` environment (Settings -> Environment
 
 1. Lint, typecheck, unit and worker tests, `scripts/provision.test.mjs` (skippable for a commit
    jobshop-quote-ci already passed), then `pnpm build`.
-2. Checks the Cloudflare token, picks the URL: `https://<JOBSHOP_DOMAIN>` when that variable is set
-   and its zone is on the account, else `https://jobshop-quote.<account subdomain>.workers.dev`.
+2. Checks the Cloudflare token, picks the URL: `https://<JOBSHOP_DOMAIN>` (default
+   `jobshop-quote.marisstella.app`, 2026-11-27) when its zone is on the account and the token can reach
+   it, else `https://jobshop-quote.<account subdomain>.workers.dev` with a warning.
 3. `scripts/provision.mjs` creates the D1 database and the R2 bucket if missing (`wrangler deploy`
    does not) and writes `dist/jobshop_quote/wrangler.deploy.json` (the Cloudflare Vite plugin names the
-   build folder after the worker, with an underscore) with the database id. **R2 is required**: without
-   it the run stops before anything is deployed, because RFQ uploads and "Mark sent" both write there.
+   build folder after the worker, with an underscore) with the database id. **Without R2** (not
+   enabled on the account, or the token refused on it with "Authentication error [code: 10000]") the run
+   warns and deploys with no bucket binding: RFQ files, logos and sent quote PDFs then go to D1's
+   `file_blobs` table in 1 MiB chunks (`src/worker/ports/file-store.ts`) and `/api/health` answers
+   `"files": "d1"`. Once a later deploy binds the bucket, new files go to R2 (`"files": "r2"`) and the
+   ones already in D1 are still read from there, so nothing has to be copied (2026-11-27).
 4. Applies D1 migrations **before** the new code goes live, so migrations must stay backward
    compatible.
 5. Syncs `billing/paddle-catalog.json` to Paddle when `JOBSHOP_BILLING_API_KEY` is set and reads the
@@ -50,7 +55,7 @@ binding above. The workflow itself has not run yet.
 | --- | --- | --- |
 | `CLOUDFLARE_API_TOKEN` | secret | every run: Workers Scripts, D1 and R2 edit (plus Zone Read, DNS and Workers Routes edit for a custom domain). Shared with grants and payapps. |
 | `CLOUDFLARE_ACCOUNT_ID` | secret or variable | every run |
-| `JOBSHOP_DOMAIN` | variable | optional custom host, e.g. `quote.marisstella.app` |
+| `JOBSHOP_DOMAIN` | variable | custom host; default `jobshop-quote.marisstella.app` (2026-11-27). If the token cannot read that zone the run warns and deploys on workers.dev |
 | `JOBSHOP_EMAIL_FROM` | variable | sender; default `Job Shop Quote <no-reply@marisstella.app>`, domain onboarded to Email Service ([EMAIL.md](EMAIL.md)) |
 | `JOBSHOP_ANTHROPIC_API_KEY` | secret | AI extraction of RFQs. The workflow in this repository reads only this name (no fallback to the shared `ANTHROPIC_API_KEY`, so the spend is an explicit choice). Without it, "Extract with AI" answers 503 and the rest of the app works. |
 | `JOBSHOP_AUTH_SECRET` | secret | optional; overrides the generated one |
@@ -82,7 +87,8 @@ stripped from the deploy config so the offline demo can never reach production.
 
 ## Differences from payapps
 
-- R2 is required (payapps deploys without it and answers 503 on uploads).
+- Without R2 both deploy; payapps turns attachments off (uploads answer 503), Job Shop Quote keeps
+  its files in D1, because RFQ intake and "Mark sent" cannot work without them.
 - An Anthropic key is synced (payapps calls no LLM); the app's own key wins over the shared one.
 - `INBOUND_EMAIL_DOMAIN` is set as well as the QuickBooks settings (same names as payapps', each app
   with its own Intuit keys and token key).

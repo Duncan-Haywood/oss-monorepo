@@ -13,6 +13,7 @@ import {
   PRODUCT_NAME,
   type PublicPage,
 } from "@shared/site";
+import { examplePanel } from "./example";
 import { type Html, hasEarlyAccess, href, html, primaryCta, type SiteContext } from "./html";
 import { launchOf, plansSentence } from "./launch";
 
@@ -102,11 +103,14 @@ function home(ctx: SiteContext): BuiltPage {
   const faq = homeFaq(ctx);
   const main = html`
 <section class="hero">
-  <div class="wrap">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
     <p class="eyebrow">${l.open ? "Open now · free on one job" : "Early access · in development"}</p>
     <h1>The monthly pay app, without the spreadsheet scramble.</h1>
     <p class="lede">${PRODUCT_NAME} is ${l.open ? "a hosted pay-application tool" : "a pay-application tool we are building"} for subcontractors: your schedule of values, retainage, change orders and lien waivers in one place, so each month's pay app is a review instead of a rebuild.</p>
     <p class="cta-row">${primaryCta(ctx, "home")} <a class="link-strong" href="${href(ctx, PAGES.features.path)}">${l.open ? "See what it does" : "See what we're building"}</a></p>
+    </div>
+    ${examplePanel()}
   </div>
 </section>
 
@@ -292,8 +296,9 @@ export const FEATURES: readonly Feature[] = [
     bullets: [
       "Prints the state's statutory form where we have checked the text against the statute: Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah and Wyoming, plus Missouri's residential final waiver and Massachusetts' partial waiver and subordination of lien (its pay-app lines filled from the application); a general form in states with no statutory form",
       "Once a payment arrives, a reminder for the unconditional waiver you now owe, for the amount actually paid",
+      "The lien deadline on every job (every plan): the last day to record a mechanics lien in Arizona, California, Colorado, Florida, Georgia, New York, North Carolina, Ohio, Texas or Washington, from the property's state and your last day on site, with the statute cited, and a warning on the cash page and in the weekly email 45 days ahead on any job that still owes you money",
       "Preliminary notices from the job page where the statute sets the wording or contents: California (private works), Florida's Notice to Owner, Texas' notices of claim and Wyoming so far, prefilled from the job",
-      "Texas: the § 53.056 notice of claim for unpaid labor or materials and the § 53.057 notice of claim for unpaid retainage, word for word, with the 15th-of-the-month date for each unpaid month, the retainage notice's 30 days and the lien affidavit dates",
+      "Texas: the § 53.056 notice of claim for unpaid labor or materials and the § 53.057 notice of claim for unpaid retainage, word for word, with the 15th-of-the-month date for each unpaid month (rolled past weekends and Texas legal holidays), the retainage notice's 30 days and the lien affidavit dates; the months read from the job's unpaid pay apps, a log of each notice sent, and a reminder on the cash page and in the weekly email before each month's date",
       "Florida: the § 713.06 Notice to Owner word for word, with the 45-day last day to serve it and the 40-day last day to mail it so service counts on mailing (§ 713.18), from the day you first furnished work; record each notice and copy served (owner, contractor, the notice of commencement's designee) with how and when it went, see when each counts as served, and get a reminder on the cash page and in the weekly email until the owner has one",
       "California: record each preliminary notice you give, see the 20-day deadline from the day you first furnished work, get a reminder until the owner and GC have one, print the § 8118 proof of notice declaration, and keep the mailing receipt and return receipt with each notice",
       "We don't tell you which waiver to sign or what it means for your rights: that is a question for your attorney",

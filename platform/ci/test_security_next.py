@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import security_alerts  # noqa: E402
 import security_next  # noqa: E402
-from security_next import claimed_numbers, json_triaged, parse_queue, pick, triaged_numbers  # noqa: E402
+from security_next import batch_of, claimed_numbers, json_triaged, parse_queue, pick, triaged_numbers  # noqa: E402
 
 QUEUE = """# Security queue
 
@@ -163,6 +163,71 @@ class LostClaimMessageTest(unittest.TestCase):
         code, out = self._main([])
         self.assertEqual(code, 3)
         self.assertNotIn("Nothing claimed", out)
+
+
+BATCH_QUEUE = """# Security queue
+
+- [high] #1489 `js/bad-tag-filter` in `ventures/pay-app-guides/txnotice.test.mjs:128`: alerts/1489.md
+- [high] #1490 `js/double-escaping` in `ventures/pay-app-guides/txnotice.test.mjs:128`: alerts/1490.md
+- [high] #1491 `js/bad-tag-filter` in `ventures/pay-app-guides/other.test.mjs:9`: alerts/1491.md
+- [high] #1492 `js/double-escaping` in `ventures/pay-app-guides/other.test.mjs:9`: alerts/1492.md
+- [high] #1493 `js/bad-tag-filter` in `ventures/elsewhere/x.mjs:1`: alerts/1493.md
+"""
+
+
+class BatchTest(unittest.TestCase):
+    """The batch the alert files ask for: same file, plus the same rule beside it."""
+
+    def test_same_file_and_same_rule_in_sibling(self):
+        alerts, _ = parse_queue(BATCH_QUEUE)
+        got = [a["number"] for a in batch_of(alerts[0], alerts)]
+        # 1492: other rule, other file; 1493: same rule, other directory.
+        self.assertEqual(got, [1490, 1491])
+
+    def test_no_batch_for_a_lone_alert(self):
+        alerts, _ = parse_queue(QUEUE)
+        self.assertEqual(batch_of(alerts[0], alerts), [])
+
+    def _main(self, argv, taken=()):
+        import contextlib
+        import io
+        from unittest import mock
+
+        claimed = []
+
+        def fake_claim(n):
+            if n in taken:
+                return None
+            claimed.append(n)
+            return "abc123def4567890"
+
+        def fake_git(*args, check=True):
+            out = {"show": BATCH_QUEUE}.get(args[0], "")
+            return subprocess.CompletedProcess(args, 0, out, "")
+
+        buf = io.StringIO()
+        with mock.patch.object(security_next, "git", fake_git), \
+                mock.patch.object(security_next, "claim", fake_claim), \
+                mock.patch.object(security_next, "triaged_on_main", lambda: set()), \
+                contextlib.redirect_stdout(buf):
+            code = security_next.main(argv)
+        return code, claimed, buf.getvalue()
+
+    def test_claim_takes_the_batch(self):
+        code, claimed, out = self._main(["--claim"])
+        self.assertEqual(code, 0)
+        self.assertEqual(claimed, [1489, 1490, 1491])
+        self.assertIn("also claimed #1490, #1491", out)
+
+    def test_lost_batch_member_is_named(self):
+        code, claimed, out = self._main(["--claim"], taken={1491})
+        self.assertEqual(claimed, [1489, 1490])
+        self.assertIn("Another run holds #1491", out)
+
+    def test_no_batch_flag(self):
+        code, claimed, out = self._main(["--claim", "--no-batch"])
+        self.assertEqual(claimed, [1489])
+        self.assertNotIn("Batch", out)
 
 
 if __name__ == "__main__":

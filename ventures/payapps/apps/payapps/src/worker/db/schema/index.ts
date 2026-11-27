@@ -5,6 +5,7 @@ export * from "./company-documents";
 export * from "./daily-reports";
 export * from "./digest";
 export * from "./estimates";
+export * from "./file-blobs";
 export * from "./job-cost-qbo";
 export * from "./lower-tier-waivers";
 export * from "./onboarding";

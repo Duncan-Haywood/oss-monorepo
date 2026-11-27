@@ -4,7 +4,7 @@
 // extensions, and drafts of the statutory notice forms word for word.
 //
 // Source: Tex. Prop. Code §§ 53.001, 53.003, 53.052, 53.054, 53.055, 53.056, 53.057, 53.081,
-// 53.101, 53.103, 53.106, 53.158 and 53.254, Tex. Gov't Code § 662.003, and H.B. 2237 (2021) SECTIONS
+// 53.101, 53.103, 53.106, 53.158 and 53.254, Tex. Gov't Code §§ 662.003 and 662.021, and H.B. 2237 (2021) SECTIONS
 // 37-38, as published by the Texas Legislature, read 2026-11-27; snapshot in sources/tx-53.txt,
 // which txnotice.test.mjs checks every quoted phrase and both forms against.
 //
@@ -13,9 +13,11 @@
 // construction project), so March work is due 15 June (15 May residential).
 //
 // Weekends and holidays: § 53.003(e) extends a deadline that falls "on a Saturday, Sunday, or legal
-// holiday" to "the next day that is not". Chapter 53 does not define "legal holiday"; this file
-// counts the national and state holidays of Gov't Code § 662.003(a), (b) on the dates that section
-// gives (not observed days, and not § 662.003(c)'s optional holidays). Every result keeps the
+// holiday" to "the next day that is not". Gov't Code § 662.021 says a legal holiday "includes only"
+// the national holidays of § 662.003(a) and the state holidays of § 662.003(b)(1) through (6); this
+// file counts those on the dates § 662.003 gives (not observed days, not 24 or 26 December, which are
+// state holidays under (b)(7)-(8) but not legal holidays, and not § 662.003(c)'s optional
+// holidays). Every result keeps the
 // unmoved date as the one to plan on and reports the extended date separately, so no reading of
 // "legal holiday" makes the plan late. Pure functions, no I/O.
 
@@ -50,8 +52,8 @@ export const RESERVED_FUNDS_DAYS = 30; // § 53.101(a), § 53.103(2)
 export const AFFIDAVIT_COPY_DAYS = 5; // § 53.055(a)
 export const MAX_MONTHS = 36;
 
-// Gov't Code § 662.003(a) national and (b) state holidays for a year, on the dates the section
-// names. nth weekday: weekday 0 = Sunday; n = -1 means the last one in the month.
+// Gov't Code § 662.021 legal holidays for a year: § 662.003(a) national and (b)(1)-(6) state
+// holidays, on the dates § 662.003 names. nth weekday: weekday 0 = Sunday; n = -1 means the last one in the month.
 function nthWeekday(year, month0, weekday, n) {
   if (n === -1) {
     const last = new Date(Date.UTC(year, month0 + 1, 0));
@@ -79,8 +81,6 @@ export function holidays(year) {
     [d(6, 19), "Emancipation Day in Texas"],
     [d(8, 27), "Lyndon Baines Johnson Day"],
     [addDays(thanksgiving, 1), "the Friday after Thanksgiving Day"],
-    [d(12, 24), "December 24"],
-    [d(12, 26), "December 26"],
   ];
   // Two can share a day (Martin Luther King, Jr., Day and Confederate Heroes Day in 2026).
   const out = new Map();

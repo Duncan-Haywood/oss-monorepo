@@ -133,7 +133,7 @@ export function matchNyClassification(name: string): string | null {
   return BY_NORM.get(normName(name)) ?? null;
 }
 
-const STATES: Record<string, string> = {
+export const US_STATES: Record<string, string> = {
   AL: "Alabama",
   AK: "Alaska",
   AZ: "Arizona",
@@ -187,15 +187,15 @@ const STATES: Record<string, string> = {
   WY: "Wyoming",
   PR: "Puerto Rico",
 };
-const STATE_NAMES = new Set(Object.values(STATES).map((s) => s.toLowerCase()));
+const STATE_NAMES = new Set(Object.values(US_STATES).map((s) => s.toLowerCase()));
 
 /** "ny" -> "New York"; "new jersey" -> "New Jersey"; anything else -> null. */
 export function fullStateName(s: string): string | null {
   const t = s.trim();
-  const ab = STATES[t.toUpperCase()];
+  const ab = US_STATES[t.toUpperCase()];
   if (ab) return ab;
   if (!STATE_NAMES.has(t.toLowerCase())) return null;
-  return Object.values(STATES).find((n) => n.toLowerCase() === t.toLowerCase()) ?? null;
+  return Object.values(US_STATES).find((n) => n.toLowerCase() === t.toLowerCase()) ?? null;
 }
 
 function xmlEscape(s: string): string {

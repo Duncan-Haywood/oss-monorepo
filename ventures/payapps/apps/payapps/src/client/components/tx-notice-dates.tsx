@@ -1,8 +1,7 @@
 // Texas' deadlines beside its two notices of claim (Tex. Prop. Code §§ 53.056, 53.057, 53.052 as
 // amended by H.B. 2237): one notice per month of unpaid work, the retainage notice, and the lien
 // affidavits. Pure date math from packages/lien-waivers/src/tx-dates.ts, run in the browser; nothing
-// is saved. Dates move past a weekend (§ 53.003(e)) but not past a legal holiday, so a date shown can
-// be a day early, never late.
+// is saved. Dates move past a weekend or a legal holiday (§ 53.003(e); Gov't Code § 662.021).
 import {
   txLienAffidavitDue,
   txMonthOf,
@@ -97,7 +96,10 @@ export function TxNoticeDates() {
           {months.rows.map((r) => (
             <li key={r.workMonth}>
               {monthName(r.workMonth)} work: send the notice by <strong>{r.due}</strong>
-              {r.movedForWeekend ? ` (the 15th, ${r.statutory}, is a weekend)` : ""}.
+              {r.moved
+                ? ` (moved from the 15th, ${r.statutory}, past ${r.holidays.length ? r.holidays.join(" and ") : "a weekend"})`
+                : ""}
+              .
             </li>
           ))}
         </ul>
@@ -130,7 +132,8 @@ export function TxNoticeDates() {
         </p>
       )}
       <p className="text-xs text-slate-500">
-        Moved past a weekend (§ 53.003(e)), not past a legal holiday. Not legal advice.
+        Moved past a Saturday, Sunday or legal holiday (§ 53.003(e); the legal holidays of Tex.
+        Gov't Code § 662.021, not 24 or 26 December or the optional holidays). Not legal advice.
       </p>
     </div>
   );

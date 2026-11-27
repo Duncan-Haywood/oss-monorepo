@@ -24,7 +24,7 @@ Seller Books (the "Service") is operated by **Maris Stella Labs LLC**, a Colorad
 
 The Service helps resellers keep their books: it imports the sales, fee and payout reports you download from the marketplaces you sell on, matches sales to the cost of goods **you enter** (per item or spread across a bulk lot), keeps your mileage and expense logs (including purchases you pick from a bank or card statement), shows profit by platform and month, and builds a Schedule C **worksheet** from those numbers. It also works out figures from what you enter: business use of your home (line 30, simplified method), the closing inventory you record for a year, quarterly federal estimated tax payments, a comparison of your books with a Form 1099-K you type in, and files you can take elsewhere (CSV exports, a journal for QuickBooks Online, and one ZIP of the year-end files for your tax preparer).
 
-Seller Books is not affiliated with, endorsed by or sponsored by eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok, Square, Intuit (QuickBooks) or the IRS. Their names are used only to say which reports the Service reads or which software its exports are laid out for.
+Seller Books is not affiliated with, endorsed by or sponsored by eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok, Square, PayPal, Intuit (QuickBooks) or the IRS. Their names are used only to say which reports the Service reads or which software its exports are laid out for.
 
 ## 3. Your books are yours to check
 

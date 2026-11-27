@@ -1,0 +1,34 @@
+{
+  "id": "P099",
+  "title": "promptctl's change index still disagrees with git for a glob the PR itself adds files under (P094's residual case)",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "test_promptctl.LastChangeIndexTest.test_lookups_without_a_git_call_match_the_per_file_call failed on PR #19635's prompts-ci `validate` (runs 45955048821 and 45955659069, 2026-11-27 06:57 and 07:05 UTC) for path 'prompts/runs/*.json': the index gave ' (file last changed on or before 2026-11-26, the shallow-clone edge)', `git log -1` gave the PR head's own commit (2026-11-27T06:55:55Z, 07:01:38Z). P094's fix pins the edge answer to the first-parent root, which holds while the merge is TREESAME to the base for the path. Every PR that adds a run record under prompts/runs/ makes the merge differ from the base for that glob, so git simplifies to the PR-side root instead. It passed on the same PR's heads 8cb3a867 and ab3972a8 and failed on 4807ff33 and 871d5bf3, so it depends on the two roots' dates, which makes it look flaky.",
+  "evidence": [
+    "PR #19635 prompts-ci runs 45955048821 (head 4807ff33) and 45955659069 (head 871d5bf3): AssertionError, Tuples differ, subTest path='prompts/runs/*.json'",
+    "prompts/promptctl.py _last_change_indexes: `if cur[0] == first_root: into[line] = cur` (P094) assumes git always walks to the first parent's root"
+  ],
+  "change": "For a path both roots list, pick the root git would reach: the first parent's when the merge's tree entry for the path equals the base root's (git ls-tree), else the PR-side root; for a glob, any matched file that differs sends it to the PR side. Or return None from _index_hit for paths under more than one root so the per-file call answers. Add a two-root temp-repo test where the PR side adds a file under the glob.",
+  "touches": [
+    "prompts/promptctl.py",
+    "prompts/test_promptctl.py"
+  ],
+  "metric": "prompts-ci validate failures of this test on PRs in the 14 days after the fix",
+  "baseline": "2 seen on PR #19635 (2026-11-27), after P094's fix",
+  "opened": "2026-11-27",
+  "source": "ventures run, PR #19635 CI",
+  "pr": "this",
+  "result": null,
+  "history": [
+    {
+      "date": "2026-11-27",
+      "note": "_index_hit returns None for a glob or a directory when the clone has more than one shallow root, so `git log -1` answers (globs are a handful of lookups). Made in PR #19635, where it blocked prompts-ci; test_promptctl passes (local clone has 10 shallow roots)."
+    },
+    {
+      "date": "2026-11-27",
+      "note": "First push fixed the glob subtest; prompts-ci (head c6a16b66) then failed the same way for 'prompts/', a directory the PR itself changed. Directories take the same rule."
+    }
+  ]
+}

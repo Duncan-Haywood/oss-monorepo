@@ -413,6 +413,36 @@ class ClaimRaceTest(unittest.TestCase):
         _, listing = self.main(self.b)
         self.assertIn("[MERGED] quickbooks-part-5", listing)
 
+    def test_same_slug_merged_for_another_venture_stays_open(self):
+        # 2026-11-27: jobshop-quote's [files-without-r2] (PR #19749) marked payapps' open claim
+        # of the same slug MERGED while payapps' own PR was still open.
+        for d in ("ventures/payapps/apps/payapps", "ventures/payapps/apps/payapps-site",
+                  "ventures/jobshop-quote/apps/jobshop-quote"):
+            (self.a / d).mkdir(parents=True)
+            (self.a / d / ".keep").write_text("")
+        self.assertEqual(self.main(self.a, "--claim", "2", "--slug", "files without r2")[0], 0)
+        self.merge("jobshop-quote (bet #2): files in D1 when R2 is not bound [files-without-r2] (#19749)")
+        _, full = self.main(self.a, "--all")
+        self.assertNotIn("MERGED files-without-r2", full)
+        # Its own venture's app (or a subject naming no app) still marks it.
+        self.merge("payapps-site (bet #1): files without R2 on the pricing page [files-without-r2]")
+        _, full = self.main(self.a, "--all")
+        self.assertIn("MERGED files-without-r2", full)
+
+    def test_foreign_subject(self):
+        apps = {"payapps": "payapps", "payapps-site": "payapps", "jobshop-quote": "jobshop-quote",
+                "jobshop-site": "jobshop-quote"}
+        f = rc.foreign_subject
+        self.assertTrue(f("jobshop-quote (bet #2): x", "payapps", apps))
+        self.assertTrue(f("jobshop-quote-deploy: x", "payapps", apps))
+        self.assertFalse(f("jobshop-site: x", "jobshop-quote", apps))
+        self.assertFalse(f("payapps-deploy (bet #1): x", "payapps", apps))
+        self.assertFalse(f("pay-app-guides (bet #1 front door): x", "payapps", apps))
+        self.assertFalse(f("QuickBooks, part 5: SOV lines", "payapps", apps))
+        self.assertFalse(f("jobshop-quote: x", None, apps))
+        # An app with no public directory (private-monorepo) is foreign to every listed app.
+        self.assertTrue(f("payapps: x", "grants", apps))
+
     def test_commit_before_the_claim_does_not_mark_it(self):
         self.merge("QuickBooks part 5 groundwork", ago=600)
         self.assertEqual(self.main(self.a, "--claim", "1")[0], 0)

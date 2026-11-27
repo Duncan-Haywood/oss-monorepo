@@ -49,8 +49,9 @@ Dispatched on `main` after PR #19617. It got a runner, passed install, checks an
 `https://payapps.<account subdomain>.workers.dev`, then stopped in provisioning: the repository's
 Cloudflare token is refused on R2 (`Authentication error [code: 10000]`). `provision.mjs` now treats
 that like R2 not enabled (deploy without attachments, with a warning naming the missing permission),
-so the next run gets past it. Owner step to turn attachments on: add Account -> Workers R2 Storage ->
-Edit to `CLOUDFLARE_API_TOKEN`.
+so the next run gets past it. Since 2026-11-27 attachments work without R2, kept in D1 with a 50 MB per
+company and 300 MB total cap (`apps/payapps/docs/DEPLOY.md`, step 3). Owner step before companies fill
+that: add Account -> Workers R2 Storage -> Edit to `CLOUDFLARE_API_TOKEN`.
 
 
 ## Runs 2 and 3 (2026-11-27)

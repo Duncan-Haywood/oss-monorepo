@@ -200,6 +200,46 @@ class FakeVentures(unittest.TestCase):
         rvt.clear_workflow_caches()
         self.assertFalse(rvt.has_tests("shared"))
 
+    PNPM_CI = ("jobs:\n  app:\n    defaults:\n      run:\n        working-directory: ventures/ws/apps/a\n"
+               "    steps:\n      - run: pnpm install --frozen-lockfile\n      - run: pnpm typecheck\n"
+               "      - run: pnpm test:unit\n      - run: pnpm test:worker\n"
+               "      - name: e2e\n        run: |\n          pnpm build\n          pnpm exec playwright test\n"
+               "      - run: node --test scripts/x.test.mjs\n"
+               "      - run: node --test \"packages/b/src/**/*.test.ts\"\n")
+
+    def test_a_named_pnpm_workspace_is_part_run_and_names_its_workflow(self):
+        # 2026-11-27: `run_venture_tests.py payapps` printed "ok, 10 tests" in 0.6 s while its
+        # vitest suites (1,956 tests) ran only in payapps-ci.yml; four sessions read it as a pass.
+        self.venture("ws", {"x.test.mjs": "import test from 'node:test'; test('t', () => {});"})
+        (self.wf / "ws-ci.yml").write_text(self.PNPM_CI)
+        self.assertEqual([c for _, c in rvt.js_run_elsewhere("ws")],
+                         ["pnpm test:unit", "pnpm test:worker", "pnpm exec playwright test",
+                          'node --test "packages/b/src/**/*.test.ts"'])
+        with mock.patch.object(rvt, "ON_ACTIONS", False), mock.patch("sys.stdout") as out:
+            self.assertEqual(rvt.main(["--no-elsewhere", "ws"]), 0)
+        printed = "".join(c.args[0] for c in out.write.call_args_list if c.args)
+        self.assertIn("PART ws", printed)
+        self.assertIn("NOT run here: 4 step(s) of ws-ci.yml", printed)
+        self.assertIn("run_workflow_locally.py ws-ci.yml", printed)
+        self.assertIn("1 only partly run", printed)
+
+    def test_ci_mode_and_plain_ventures_keep_ok(self):
+        self.venture("ws", {"x.test.mjs": "import test from 'node:test'; test('t', () => {});"})
+        (self.wf / "ws-ci.yml").write_text(self.PNPM_CI)
+        with mock.patch.object(rvt, "ON_ACTIONS", True), mock.patch("sys.stdout") as out:
+            self.assertEqual(rvt.main(["ws"]), 0)
+        printed = "".join(c.args[0] for c in out.write.call_args_list if c.args)
+        self.assertIn("ok   ws", printed)
+        self.assertNotIn("NOT run here", printed)
+        # A shared workflow whose pnpm step works in another directory does not count.
+        (self.wf / "ws-ci.yml").unlink()
+        (self.wf / "other.yml").write_text(
+            "on:\n  push:\n    paths: ['ventures/ws/**']\njobs:\n  t:\n    steps:\n"
+            "      - working-directory: ventures/elsewhere\n        run: pnpm test\n")
+        rvt.clear_workflow_caches()
+        self.assertEqual(rvt.js_run_elsewhere("ws"), [])
+        self.assertEqual(rvt.js_note("ws"), "")
+
     def test_pytest_style_files_unittest_cannot_see_are_not_a_failure(self):
         self.venture("pyt", {"test_a.py": "def test_x():\n    assert False\n"})
         self.assertTrue(rvt.run("pyt")[1])

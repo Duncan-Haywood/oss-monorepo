@@ -38,12 +38,12 @@
     }
   },
   "counts": {
-    "ventures": 1447,
+    "ventures": 1448,
     "by_vertical": {
       "construction": 166,
       "manufacturing-engineering": 10,
       "online-sellers": 106,
-      "eu-einvoicing-accounting": 12,
+      "eu-einvoicing-accounting": 13,
       "nonprofits": 10,
       "freelancers": 156,
       "landlords": 37,
@@ -57,14 +57,14 @@
     "front_doors_by_bet": {
       "payapps": 155,
       "jobshop-quote": 11,
-      "einvoice": 12,
+      "einvoice": 13,
       "cmmc": 3,
       "seller-books": 106,
       "residential-takeoff": 11,
       "grants": 9
     },
     "by_status": {
-      "front-door": 307,
+      "front-door": 308,
       "frozen": 1140
     }
   },
@@ -3071,6 +3071,14 @@
       "front_door_for": "einvoice",
       "status": "front-door",
       "why": "the free validator the e-invoice bet (#3) is imported from"
+    },
+    {
+      "venture": "einvoice-pro",
+      "vertical": "eu-einvoicing-accounting",
+      "rule": "slug",
+      "site_category": "evidence",
+      "front_door_for": "einvoice",
+      "status": "front-door"
     },
     {
       "venture": "eitc-calculator",

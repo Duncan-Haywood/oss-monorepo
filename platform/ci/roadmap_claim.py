@@ -20,7 +20,7 @@ second run's push fails and it picks another item. No files, so no CI runs on it
 instead, whatever --repo says, so its claims live on this repository's origin. A claim older than --stale-hours (6) is
 shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since the run
 that made it has ended. A claim whose slug a later commit subject on origin/main names
-(the PR title, punctuation ignored) is shown as MERGED and is no sibling. A claim records a hash of the session id, so re-running --claim on
+(the PR title, punctuation ignored) is shown as MERGED and is no sibling, unless the subject leads with an app of another venture (jobshop-quote's [files-without-r2] is not payapps'). A claim records a hash of the session id, so re-running --claim on
 your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md, or work not on its Next list, takes --slug alone (`--claim 0 --slug X` means the same). A number the Next list uses twice is refused unless --slug names the one meant. A free item whose text says it waits ("if people ask", "once real companies are counted", "once ... reachable", "the owner runs", "if those ever exist", "on a Windows PC", "a real iPhone photo")
 is listed as gated with the phrase quoted (an item that mixes asks is gated only when every
 open ask waits; the listing names the open one), and the listing ends with the free, ungated item numbers. A --slug whose
@@ -409,7 +409,34 @@ def claim_info(repo: str, app: str, claims: dict[str, tuple[int, str]]) -> dict[
     return info
 
 
-def merged_claims(repo: str, info: dict[str, tuple[int, str]], branch: str = "main") -> dict[str, str]:
+def app_ventures(repo: str) -> dict[str, str]:
+    """{app: venture} for every `ventures/<venture>/apps/<app>` directory in `repo`."""
+    return {h.name: h.parent.parent.name for h in Path(repo).glob("ventures/*/apps/*") if h.is_dir()}
+
+
+def foreign_subject(subject: str, app: str | None, apps: dict[str, str]) -> bool:
+    """True when the subject leads with an app of another venture than `app`'s.
+
+    Claim slugs are per app, but commit subjects are repository-wide: jobshop-quote's
+    "[files-without-r2]" (PR #19749) marked payapps' open claim of the same slug MERGED on
+    2026-11-27 while payapps' own PR #19755 was still open. A subject names its app first
+    ("jobshop-quote (bet #2): ...", "payapps-site: ..."); the longest app name that the
+    lead is or starts with decides. A lead naming no known app (pay-app-guides, a
+    workflow, a plain title) stays a match, as before.
+    """
+    if not app or not apps:
+        return False
+    lead = re.split(r"[\s(:\[]", subject.strip().lower(), maxsplit=1)[0]
+    names = [n for n in apps if lead == n or lead.startswith(n + "-")]
+    if not names:
+        return False
+    other = max(names, key=len)
+    mine = apps.get(app)
+    return other != app and apps[other] != mine
+
+
+def merged_claims(repo: str, info: dict[str, tuple[int, str]], branch: str = "main",
+                  app: str | None = None) -> dict[str, str]:
     """{slug: subject} for claims whose slug a commit on origin/<branch> names since the claim.
 
     A claim branch outlives the work: nobody releases it after the PR merges, so for six
@@ -434,6 +461,8 @@ def merged_claims(repo: str, info: dict[str, tuple[int, str]], branch: str = "ma
         ts, _, subject = line.partition("\t")
         if ts.isdigit():
             commits.append((int(ts), subject, "-" + re.sub(r"[^a-z0-9]+", "-", subject.lower()) + "-"))
+    apps = app_ventures(repo) if app else {}
+    commits = [c for c in commits if not foreign_subject(c[1], app, apps)]
     out = {}
     for ts, subject, norm in reversed(commits):  # oldest first, so the first merge names it
         hits = {s for s, (claimed, _) in info.items() if ts >= claimed - 60 and f"-{s}-" in norm}
@@ -805,7 +834,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
         where = "" if home == repo else f", claims in {home}"
         claims = parse_claims(ls.stdout, app)
         info = claim_info(home, app, claims)
-        merged = merged_claims(home, info)
+        merged = merged_claims(home, info, app=app)
         live = sum(1 for s, (ts, _) in info.items() if s not in merged and ts and now - ts < stale_s)
         present.append((live, rank, app))
         if not roadmap.is_file():
@@ -906,7 +935,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if r.returncode == 0 else 2
 
     info = claim_info(a.repo, a.app, claims)
-    merged = merged_claims(a.repo, info)
+    merged = merged_claims(a.repo, info, app=a.app)
 
     if a.claim == 0 and a.slug:
         # Three runs on 2026-11-26 wrote `--claim 0 --slug X` for a new item; it means --slug alone.
@@ -970,7 +999,7 @@ def main(argv: list[str] | None = None) -> int:
         fresh = refresh(a.repo, a.app)
         if fresh is not None:
             claims, info = fresh
-            merged = merged_claims(a.repo, info)
+            merged = merged_claims(a.repo, info, app=a.app)
             mine_ts = info.get(slug, (int(now), ""))[0]
             mine_sha = claims.get(slug, (0, ""))[1]
             first = [] if a.distinct else [

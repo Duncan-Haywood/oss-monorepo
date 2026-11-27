@@ -1,4 +1,11 @@
-import { FREE_PLAN, PLAN_LIST, PUBLIC_PLANS, planFeatures, STORAGE_FEATURE } from "@shared/plans";
+import {
+  D1_ORG_LIMIT_BYTES,
+  FREE_PLAN,
+  PLAN_LIST,
+  PUBLIC_PLANS,
+  planFeatures,
+  STORAGE_FEATURE,
+} from "@shared/plans";
 import { describe, expect, it } from "vitest";
 
 describe("planFeatures", () => {
@@ -21,6 +28,20 @@ describe("planFeatures", () => {
     expect(planFeatures(FREE_PLAN, false)).toContain(
       "250 MB of attached backup and photos (not switched on yet)",
     );
+  });
+
+  it("says what each company gets for now while files are kept in D1", () => {
+    for (const p of PUBLIC_PLANS) {
+      const d1 = planFeatures(p, "d1");
+      const storage = d1.filter((f) => STORAGE_FEATURE.test(f));
+      expect(storage).toHaveLength(1);
+      if (p.attachmentStorageBytes > D1_ORG_LIMIT_BYTES)
+        expect(storage[0]).toMatch(/\(50 MB for now\)$/);
+      expect(d1.filter((f) => !STORAGE_FEATURE.test(f))).toEqual(
+        p.features.filter((f) => !STORAGE_FEATURE.test(f)),
+      );
+    }
+    for (const p of PLAN_LIST) expect(planFeatures(p, "r2")).toEqual(p.features);
   });
 
   it("does not mistake other lines for storage", () => {

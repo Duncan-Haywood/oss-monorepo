@@ -23,6 +23,7 @@ import type { AppContext } from "../context";
 import { companyDocumentFiles, companyDocuments } from "../db/schema";
 import { badRequest, notFound } from "../lib/errors";
 import { newId } from "../lib/ids";
+import { storageLimitBytes } from "../ports/file-store";
 import { orgPlan } from "./billing";
 import {
   type AttachmentDto,
@@ -69,7 +70,7 @@ export async function listDocumentFiles(
   ]);
   return {
     items: rows.map(dto),
-    storage: { usedBytes: used, limitBytes: plan.attachmentStorageBytes },
+    storage: { usedBytes: used, limitBytes: storageLimitBytes(ctx.env, plan) },
     enabled: Boolean(ctx.env.FILES),
   };
 }
@@ -109,7 +110,7 @@ export async function addDocumentFile(
   const problem = attachmentProblem(
     { name: input.file.name, sizeBytes: input.file.size },
     existing.length,
-    { usedBytes: used, limitBytes: plan.attachmentStorageBytes },
+    { usedBytes: used, limitBytes: storageLimitBytes(ctx.env, plan) },
     { max: MAX_ATTACHMENTS_PER_COMPANY_DOCUMENT, noun: "document" },
   );
   if (problem) throw badRequest(problem);

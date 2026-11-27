@@ -2,7 +2,7 @@
 
 Bet #5 in [`portfolio/monetization/bets.md`](../../portfolio/monetization/bets.md). Hosted SaaS on
 Cloudflare Workers: import the marketplaces' own reports (eBay, Poshmark, Mercari, Whatnot, Depop,
-Etsy, Shopify, Amazon, TikTok Shop, Square), track cost of goods per item and per lot, log mileage and
+Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal), track cost of goods per item and per lot, log mileage and
 expenses, and get profit by platform and month, a stock report, a Schedule C **worksheet** (not a
 filing, not tax advice), quarterly estimates, a 1099-K check and a QuickBooks Online journal export.
 Plans: Free (1 platform, 25 orders a month), Side hustle $15, Full time $35, Business $69 a month

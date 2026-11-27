@@ -1,0 +1,119 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync, readdirSync } from "node:fs";
+
+const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+// Every regex metacharacter, backslash included, matched literally.
+const escapeRegExp = (s) => s.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
+const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+const robots = readFileSync(new URL("./robots.txt", import.meta.url), "utf8");
+const engineSrc = readFileSync(new URL("./page-engine.mjs", import.meta.url), "utf8");
+
+test("browser page is discoverable and names the user job", () => {
+  assert.match(page, /<title>E-invoice Preflight/);
+  assert.match(page, /meta name="description"/);
+  assert.match(page, /application\/ld\+json/);
+  assert.match(page, /Catch invoice defects before you submit/);
+  assert.match(page, /INV-022 through INV-027/);
+  assert.match(page, /INV-028 and INV-029/);
+  assert.match(page, /INV-030 and INV-031/);
+  assert.match(page, /INV-032 through INV-034/);
+  assert.match(page, /INV-035 and INV-036/);
+  assert.match(page, /INV-037 and INV-038/);
+  assert.match(page, /INV-039 through INV-041/);
+  assert.match(page, /INV-042 and INV-043/);
+  assert.match(page, /INV-044 through INV-046/);
+  assert.match(page, /INV-047 through INV-049/);
+  assert.match(page, /INV-050 through INV-052/);
+  assert.match(page, /INV-053 and INV-054/);
+  assert.match(page, /Load a credit note without a reference/);
+  assert.match(page, /Load a 0% line without a reason/);
+  assert.match(page, /Load mixed rates without a breakdown/);
+  assert.match(page, /Load a buyer GLN that fails its check/);
+  assert.match(page, /Load a period that ends before it starts/);
+  assert.match(page, /Load a SEPA transfer without an IBAN/);
+  assert.match(page, /Load a PO that repeats the invoice number/);
+  assert.match(page, /Load a header discount that does not match its percent/);
+  assert.match(page, /Load terms days that do not match the due date/);
+  assert.match(page, /Factur-X \.pdf/);
+  assert.match(page, /Factur-X \/ ZUGFeRD \/ XRechnung PDF unwrap/);
+  assert.match(page, /Factur-X \/ ZUGFeRD \/ XRechnung PDF with an embedded invoice/);
+  assert.match(page, /accept="[^"]*\.pdf/);
+  assert.match(page, /arrayBuffer\(\)/);
+  assert.match(page, /report\.envelope/);
+  assert.match(page, /Unwrapped factur-x\.xml \(CII\) from the PDF/);
+});
+
+test("browser page can download the grouped remediation CSV", () => {
+  assert.match(page, /id="downloadRemediationCsv"/);
+  assert.match(page, /Download remediation CSV/);
+  assert.match(page, /buildRemediationCsv/);
+  assert.match(page, /einvoice-preflight-remediation\.csv/);
+});
+
+test("copy checklist falls back when the Clipboard API is denied", () => {
+  assert.match(page, /function fallbackCopy/);
+  assert.match(page, /execCommand\("copy"\)/);
+  assert.match(page, /async function copyText/);
+  assert.match(page, /await copyText\(text\)/);
+});
+
+test("disclaimer and optional sponsors are visible", () => {
+  assert.match(page, /No warranty/);
+  assert.match(page, /not legal, tax, financial, or accounting advice/i);
+  assert.match(page, /github.com\/sponsors\/Duncan-Haywood/);
+  assert.match(page, /never changes what the tool does/);
+});
+
+test("sitemap and robots list the browser page", () => {
+  assert.match(sitemap, /einvoice-preflight\/index.html/);
+  assert.match(robots, /Allow: \//);
+  assert.match(robots, /Sitemap: sitemap.xml/);
+});
+
+// Regression: sitemap.xml carried a trailing entry pointing at README.md (a
+// raw github.com/blob URL, not a servable page) even after the venture had
+// real HTML pages. A crawler following it wastes a fetch on prose instead of
+// the product, and every .html page the venture actually ships should be
+// reachable from the sitemap it publishes.
+test("sitemap does not point at README.md and lists every shipped html page", () => {
+  assert.doesNotMatch(sitemap, /README\.md/);
+  const htmlFiles = readdirSync(new URL("./", import.meta.url)).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
+  }
+});
+
+test("links to the FIFO pick evidence tool", () => {
+  assert.match(page, /href="\.\.\/fifo-pick-evidence\/"/, "the sibling-tool link is missing");
+});
+
+test("links to the EU VAT OSS calculator", () => {
+  assert.match(page, /href="\.\.\/eu-vat-oss-calculator\/"/, "the OSS sibling-tool link is missing");
+});
+
+test("browser page offers the arithmetic repair", () => {
+  assert.match(page, /id="repair"/);
+  // The repair modules reach the page through page-engine.mjs, loaded on demand.
+  assert.match(page, /import\("\.\/page-engine\.mjs"\)/);
+  assert.match(page, /repairInvoice\(JSON\.parse\(text\)\)/);
+  assert.match(engineSrc, /from "\.\/repair\.mjs"/);
+  assert.match(engineSrc, /from "\.\/repair-cii\.mjs"/);
+  assert.match(engineSrc, /from "\.\/repair-ubl\.mjs"/);
+  assert.match(engineSrc, /from "\.\/repair-facturx\.mjs"/);
+  assert.match(page, /id="repairedPdf"/);
+});
+
+test("the page's static imports stay light; the engine loads on demand", async () => {
+  // Before 2026-11-20 the inline script statically imported 114 modules
+  // (about 3.3 MB), so no handler was attached until all of them arrived.
+  const script = page.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  const statics = [...script.matchAll(/^\s*import\b[^;]*?from\s*"([^"]+)"/gm)].map((m) => m[1]);
+  assert.deepEqual(statics.sort(), ["./checkout.mjs", "./licence.mjs", "./usage.mjs"]);
+  // Every name the page calls through `engine.` or destructures from loadEngine() is exported.
+  const engine = await import("./page-engine.mjs");
+  const used = new Set([...script.matchAll(/(?<![\w-])engine\.(\w+)\(/g)].map((m) => m[1]));
+  for (const m of script.matchAll(/const \{([^}]+)\} = await loadEngine\(\)/g)) for (const n of m[1].split(",")) used.add(n.trim());
+  assert.ok(used.size >= 14, `only ${used.size} engine names found`);
+  for (const name of used) assert.equal(typeof engine[name], "function", name);
+});

@@ -1,0 +1,83 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtKrA1PsocfdBU36RQS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T06:18:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "move-einvoice-pro-public (bet #3): move the paid e-invoice edition into ventures/einvoice-pro so it can deploy from this repository's runners",
+  "projects": [
+    "einvoice-pro"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19635",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reports every bet's Next list as 'waits on demand'; nothing says the real gap for bets #2-#4 is that their code still sits in private-monorepo where Actions start no jobs, so the deploy item can never run. The move tasks (portfolio/work/tasks.yaml) only listed PayApps."
+    },
+    {
+      "file": "portfolio/work/tasks.yaml",
+      "issue": "products-to-public-repo lists per-app move tasks for PayApps only; einvoice had two duplicate open move PRs (#19574, #19575) targeting the apps/ layout that main never adopted, and no task row to tell a session they were stale."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Says PayApps moved to ventures/payapps, but not that later moves should follow that layout instead of the top-level apps/ layout older open PRs use."
+    },
+    {
+      "file": "platform/security/baseline.yaml",
+      "issue": "The trivy entries for the einvoice Dockerfiles said the runtime stage deletes npm, npx, corepack and yarn; neither Dockerfile did. A reason in an exception list is not checked against the file it excuses."
+    },
+    {
+      "file": "prompts/test_promptctl.py",
+      "issue": "LastChangeIndexTest failed on this PR's merge-shaped history (index dated prompts/runs/*.json to the shallow edge, git log -1 to the merge); passes on main and on a plain branch."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Most PRs carry a customer post; this one moves code and has no customer-facing change, so no post.",
+      "did": "Agent doc in docs/reports instead (2026-11-27-move-einvoice-pro-public.md).",
+      "result": "n/a"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "Two other sessions' PRs (#19574, #19575) do the same move but in a layout main no longer has; adopting either would mean rewriting most of it.",
+      "did": "Redid the move from a newer private commit in main's ventures/<name> layout, reusing the unmerged cq-einvoice CodeQL fixes, and pointed at both PRs in the report.",
+      "result": "pending CI"
+    },
+    {
+      "file": "prompt.md (\"never suppress the rule\")",
+      "why": "CodeQL's high py/clear-text-logging alert on the moved cli.py is the CLI printing the user's own report (triaged as intended on the free edition's copy, #34); agents cannot dismiss alerts and the ruleset blocks a high one.",
+      "did": "Dropped the Python CLI from the paid copy, which never runs it; the free edition keeps it. No suppression comment, no weakened test.",
+      "result": "pending CI"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-move-einvoice-pro-public.md"
+  ],
+  "goal": "$10k MRR: bet #3's paid edition reaches a repository whose runners can deploy it ahead of the 2027-01-01 German mandate",
+  "notes": "Security queue empty; ideas inbox empty. Bet #1 (payapps) had 6 open PRs and a deploy run queued by another session; bets #2/#4 all Next items wait on demand. Bet #3's top Next item is its first deploy, impossible from private-monorepo. Local: pro 278/278, worker 9/9, checker 2,240 pass/149 skip/1 env fail (pdfdetach save refused in container), Python 445 OK, site 37/37, billing+admin-metrics 102/102, check_third_party ok, publish_surface ok, prepub audit block 0. Repo-wide checks then found, and this PR fixed: a false 'code is under an MIT licence' line on the 106 moved pages and 4 generators; descriptions over the site limits (free edition's shorter texts ported); two auto-fit grids; a real windows-1252 decoding bug in pro/pdf-text.mjs (byte-exact now, with tests); 8 inherited-key lookups (Object.hasOwn); the opt-out registry line; and Dockerfiles that did not drop npm although the trivy baseline said they did. Gate exceptions re-keyed in PR #19643 (merges first). Private PR 485 carries the first round of fixes. Python CLI dropped from the paid copy after CodeQL flagged cli.py's print(report) (free edition keeps it).",
+  "corrections": [],
+  "redteam": null
+}

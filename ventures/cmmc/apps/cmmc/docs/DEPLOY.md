@@ -2,12 +2,13 @@
 
 One Cloudflare Worker (`cmmc-workspace`) serves the SPA and the API, with a D1 database
 (`cmmc-workspace`) and an R2 bucket for evidence files (`cmmc-workspace-files`). The workflow
-`.github/workflows/cmmc-deploy.yml` in `private-monorepo` (not ported yet: [the workspace DEPLOY.md](../../../DEPLOY.md)) does the whole
+[`.github/workflows/priv-cmmc-deploy.yml`](../../../../../.github/workflows/priv-cmmc-deploy.yml) in this repository (ported
+2026-11-27 from private-monorepo's `cmmc-deploy.yml`, which never ran: [the workspace DEPLOY.md](../../../DEPLOY.md)) does the whole
 deploy; there are no dashboard steps beyond the settings below. It is a port of jobshop-quote's
 deploy (`apps/jobshop-quote/docs/DEPLOY.md`, itself ported from payapps), with the differences listed
 at the end.
 
-**It runs by hand only** (Actions -> cmmc-deploy -> Run workflow), so a merge never puts the app in
+**It runs by hand only** (Actions -> cmmc-deploy -> Run workflow, on `main`), so a merge never puts the app in
 front of strangers before the items in "Before strangers sign up" are done. After launch, add
 `push: branches: [main]` to the workflow so every merge ships. To gate each run, add required
 reviewers to the `cmmc-production` environment (Settings -> Environments).
@@ -20,8 +21,13 @@ reviewers to the `cmmc-production` environment (Settings -> Environments).
    its zone is on the account, else `https://cmmc-workspace.<account subdomain>.workers.dev`.
 3. `scripts/provision.mjs` creates the D1 database and the R2 bucket if missing (`wrangler deploy`
    does not) and writes `dist/cmmc_workspace/wrangler.deploy.json` (the Cloudflare Vite plugin names
-   the build folder after the worker, with an underscore) with the database id. **R2 is required**:
-   without it the run stops before anything is deployed, because evidence uploads write there.
+   the build folder after the worker, with an underscore) with the database id. **Without R2** (not enabled on the account,
+   or the token refused on it with "Authentication error [code: 10000]", as the shared token was on
+   2026-11-27) the script warns and leaves the bucket binding out, and evidence files go to D1's
+   `file_blobs` table in 1 MiB chunks (`src/worker/ports/file-store.ts`); `/api/health` then answers
+   `"files": "d1"`. Add Account -> Workers R2 Storage -> Edit to the token and re-run: new files go to
+   R2, and files already in D1 stay readable (reads try R2, then D1), so nothing is copied. D1 holds
+   up to 10 GB per database on Workers Paid, so bind R2 before many organisations fill it.
 4. Applies D1 migrations **before** the new code goes live, so migrations must stay backward
    compatible.
 5. Syncs `billing/paddle-catalog.json` (Level 2 and Level 2 + Quality, monthly and annual) to Paddle
@@ -44,7 +50,10 @@ Checked locally on 2026-11-25 without credentials: `pnpm build`, then
 `node scripts/provision.mjs --dry-run --write-config dist/cmmc_workspace/wrangler.deploy.json` and
 `pnpm exec wrangler deploy --dry-run --config dist/cmmc_workspace/wrangler.deploy.json`, which lists
 `env.DB (cmmc-workspace)`, `env.FILES (cmmc-workspace-files)`, `APP_ENV`, `APP_URL` and `LLM_MODEL`.
-The workflow itself has not run yet.
+The workflow itself has not run yet. Differences from the private workflow: it defaults the host to
+`cmmc.marisstella.app` (as PayApps and Seller Books use `<app>.marisstella.app`; an unreachable zone
+falls back to workers.dev with a warning), and it reads only `CMMC_ANTHROPIC_API_KEY`, with no fallback
+to the shared `ANTHROPIC_API_KEY`, so no AI spend starts until the owner sets the app's own key.
 
 ## Settings
 
@@ -52,9 +61,10 @@ The workflow itself has not run yet.
 | --- | --- | --- |
 | `CLOUDFLARE_API_TOKEN` | secret | every run: Workers Scripts, D1 and R2 edit (plus Zone Read, DNS and Workers Routes edit for a custom domain). Shared with the other apps. |
 | `CLOUDFLARE_ACCOUNT_ID` | secret or variable | every run |
-| `CMMC_DOMAIN` | variable | optional custom host, e.g. `cmmc.marisstella.app` |
-| `CMMC_ANTHROPIC_API_KEY` | secret | AI drafts of implementation statements and policy procedures; falls back to the shared `ANTHROPIC_API_KEY`. Without either, drafting answers 503 and the rest of the app works. |
+| `CMMC_DOMAIN` | variable | custom host; default `cmmc.marisstella.app` |
+| `CMMC_ANTHROPIC_API_KEY` | secret | AI drafts of implementation statements and policy procedures; no fallback to the shared `ANTHROPIC_API_KEY` (since the 2026-11-27 port). Without it, drafting answers 503 and the rest of the app works. |
 | `CMMC_AUTH_SECRET` | secret | optional; overrides the generated one (32+ characters) |
+| `CMMC_GLOBAL_DAILY_LLM_CAP_USD` | variable | optional; passed to the Worker as `GLOBAL_DAILY_LLM_CAP_USD` (dollars a day across every org, `0` stops every draft, `off` disables the cap); unset keeps the code's $1.50 ([LAUNCH-REVIEW.md](LAUNCH-REVIEW.md), section 1) |
 | `CMMC_BILLING_PROVIDER` | variable | `paddle` turns checkout on once the two Paddle secrets are set; default `none` ([BILLING.md](BILLING.md)) |
 | `CMMC_BILLING_API_KEY`, `CMMC_BILLING_WEBHOOK_SECRET` | secrets | paid plans |
 | `CMMC_BILLING_PRICE_IDS` | secret | fallback only, when the catalog sync fails |

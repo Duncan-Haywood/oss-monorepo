@@ -13,8 +13,10 @@ import {
   closeoutReadiness,
   summarizeCloseout,
 } from "@shared/closeout";
+import type { LienDeadline, LienDeadlineResult } from "@shared/lien-deadline";
 import { centsToDecimal } from "@shared/money";
 import { type PunchItemFacts, summarizePunchList } from "@shared/punch-list";
+import type { TxSendFacts } from "@shared/tx-notices";
 import type { WaiverFollowUpInput } from "@shared/waiver-followup";
 import { and, asc, eq } from "drizzle-orm";
 import type { AppContext } from "../../context";
@@ -25,13 +27,17 @@ import {
   lienWaivers,
   projects,
   punchItems,
+  txNoticeSends,
 } from "../../db/schema";
 import { csvCell } from "../export/csv";
-import { loadBundle, type ProjectBundle, paymentsOf } from "./bundle";
+import { loadBundle, type ProjectBundle, paymentsOf, projectLienDeadline } from "./bundle";
 import { retainagePosition } from "./closeout";
 import { flMissingRecipients } from "./fl-notices";
 import { missingRecipients } from "./notices";
 import { followUpInput } from "./waivers";
+
+const lienOf = (r: LienDeadlineResult): LienDeadline | null =>
+  r.kind === "deadline" ? r.deadline : null;
 
 /** Today in UTC as YYYY-MM-DD (the report's "as of" date). */
 export const isoDay = (d: Date) => d.toISOString().slice(0, 10);
@@ -42,6 +48,7 @@ export function toCashInput(
   noticeSends: ReadonlyMap<string, { recipient: CaNoticeRecipient }[]> = new Map(),
   closeouts: ReadonlyMap<string, CloseoutReadiness> = new Map(),
   flSends: ReadonlyMap<string, { recipient: FlNoticeRecipient }[]> = new Map(),
+  txSends: ReadonlyMap<string, TxSendFacts[]> = new Map(),
 ): CashReportProjectInput {
   const p = b.project;
   const missing = p.caFirstFurnishedOn ? missingRecipients(noticeSends.get(p.id) ?? []) : [];
@@ -74,6 +81,10 @@ export function toCashInput(
         : null,
     flNotice:
       p.flFirstFurnishedOn && flMissing.length > 0 ? flNoticeDates(p.flFirstFurnishedOn) : null,
+    lienDeadline: lienOf(projectLienDeadline(b)),
+    txNotice: p.txProjectKind
+      ? { residential: p.txProjectKind === "residential", sends: txSends.get(p.id) ?? [] }
+      : null,
     changeOrders: b.changeOrders.map((co) => ({
       id: co.id,
       number: co.number,
@@ -93,6 +104,7 @@ export function toCashInput(
           number: a.number,
           status: a.status,
           applicationDate: a.applicationDate,
+          periodFrom: a.periodFrom,
           periodTo: a.periodTo,
           submittedOn: a.submittedAt ? isoDay(a.submittedAt) : null,
           certifiedAmountCents: a.certifiedAmountCents,
@@ -181,10 +193,25 @@ export async function orgCashReport(
     list.push(r);
     flSends.set(r.projectId, list);
   }
+  const txRows = await ctx.db
+    .select({
+      projectId: txNoticeSends.projectId,
+      kind: txNoticeSends.kind,
+      workMonth: txNoticeSends.workMonth,
+      recipient: txNoticeSends.recipient,
+    })
+    .from(txNoticeSends)
+    .where(eq(txNoticeSends.orgId, orgId));
+  const txSends = new Map<string, TxSendFacts[]>();
+  for (const r of txRows) {
+    const list = txSends.get(r.projectId) ?? [];
+    list.push(r);
+    txSends.set(r.projectId, list);
+  }
   const asOf = isoDay(ctx.now());
   const closeouts = await closeoutReadinessByJob(ctx, orgId, bundles, asOf);
   return cashReport(
-    bundles.map((b) => toCashInput(b, waivers, noticeSends, closeouts, flSends)),
+    bundles.map((b) => toCashInput(b, waivers, noticeSends, closeouts, flSends, txSends)),
     asOf,
   );
 }
@@ -270,6 +297,7 @@ export function cashReportCsv(r: CashReport): string {
     "Waiting on the owner's payment (pay-when-paid)",
     "Pay-when-paid outer limit (days from the application date)",
     "Retainage waiting on close-out",
+    "Lien deadline",
   ];
   const rows = r.projects.map((p) => [
     p.name,
@@ -318,6 +346,9 @@ export function cashReportCsv(r: CashReport): string {
         ? "none: the close-out checklist is in"
         : p.closeout.blockers.join(" ")
       : null,
+    p.lienDeadline
+      ? `${p.lienDeadline.dueOn} (${p.lienDeadline.stateName}, ${p.lienDeadline.citation}${p.lienDeadline.basis === "estimated" ? "; estimated from billing" : ""})`
+      : null,
   ]);
   const t = r.totals;
   const total = [
@@ -338,6 +369,7 @@ export function cashReportCsv(r: CashReport): string {
     null,
     null,
     null,
+    null,
     amt(t.pastDueCents),
     amt(t.dueNext30Cents),
     t.waiversToSend || null,
@@ -349,6 +381,7 @@ export function cashReportCsv(r: CashReport): string {
     amt(t.awaitingOwnerCents),
     null,
     amt(t.retainageWaitingOnCloseoutCents),
+    null,
   ];
   const lines = [
     header,

@@ -4,6 +4,8 @@ import {
   CA_NOTICE_RECIPIENTS,
   FL_NOTICE_RECIPIENTS,
   FL_SERVICE_METHODS,
+  TX_DELIVERY_METHODS,
+  TX_NOTICE_RECIPIENTS,
 } from "@lien-waivers";
 import { z } from "zod";
 import { isTimeZone } from "../cash-digest";
@@ -133,6 +135,21 @@ const projectFields = z.object({
   gaNocFiled: z.boolean().nullish(),
   /** Georgia: the contractor's name and address as the notice of commencement shows them. */
   gaNocContractor: optText(300),
+  /** Lien deadline: the property's state (two letters; null clears it). */
+  lienState: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{2}$/, "Enter the state's two-letter code, like CA")
+    .nullish(),
+  /** Lien deadline: the job is residential (a shorter clock in New York, Ohio and Texas). */
+  lienResidential: z.boolean().optional(),
+  /** Lien deadline: the day this company last furnished labor or materials. */
+  lastFurnishedOn: isoDate.nullish(),
+  /** Lien deadline (California, Arizona): completion of the whole work of improvement. */
+  workCompletedOn: isoDate.nullish(),
+  /** Lien deadline (California, Arizona): the day the owner recorded a notice of completion. */
+  noticeOfCompletionOn: isoDate.nullish(),
 });
 /** A new job: retainage defaults to 10% on work and on stored materials. */
 export const projectSchema = projectFields.extend({
@@ -830,6 +847,29 @@ export const flNoticeSendSchema = z.object({
 });
 /** PATCH /projects/:id/notices/fl/sends/:sendId: the delivery date, once the evidence is back. */
 export const flNoticeDeliveredSchema = z.object({ deliveredOn: isoDate.nullable() });
+/** PUT /projects/:id/notices/tx/project-kind: residential or not (§ 53.001(10)); null stops tracking. */
+export const txProjectKindSchema = z.object({
+  projectKind: z.enum(["commercial", "residential"]).nullable(),
+});
+/** POST /projects/:id/notices/tx/sends: a Texas notice of claim recorded as sent to one recipient. */
+export const txNoticeSendSchema = z
+  .object({
+    kind: z.enum(["labor-materials", "retainage"]),
+    workMonth: z
+      .string()
+      .regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Use YYYY-MM")
+      .nullish(),
+    recipient: z.enum(TX_NOTICE_RECIPIENTS),
+    recipientNameAddress: z.string().trim().min(1, "Enter who it went to").max(500),
+    method: z.enum(TX_DELIVERY_METHODS),
+    sentOn: isoDate,
+    tracking: z.string().trim().max(100).nullish(),
+    amountCents: cents.min(0).nullish(),
+  })
+  .refine((b) => b.kind === "retainage" || Boolean(b.workMonth), {
+    message: "Enter the month of the unpaid work",
+    path: ["workMonth"],
+  });
 export const updateWaiverSchema = z.object({ status: z.enum(WAIVER_STATUSES) });
 /**
  * PUT .../waivers/:id/ga-affidavit/filing: record Georgia's affidavit of nonpayment as filed, and
@@ -891,6 +931,7 @@ export const gaPaidAffidavitSchema = z
 export type ProjectInput = z.infer<typeof projectSchema>;
 export type CaNoticeSendBody = z.infer<typeof caNoticeSendSchema>;
 export type FlNoticeSendBody = z.infer<typeof flNoticeSendSchema>;
+export type TxNoticeSendBody = z.infer<typeof txNoticeSendSchema>;
 export type OpeningInputBody = z.infer<typeof openingSchema>;
 export type CreateWaiverInput = z.infer<typeof createWaiverSchema>;
 export type GaAffidavitFilingBody = z.infer<typeof gaAffidavitFilingSchema>;

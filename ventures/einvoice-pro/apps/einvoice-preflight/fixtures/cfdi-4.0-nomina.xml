@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A synthetic CFDI 4.0 de nómina (type N, unstamped) with the Nómina 1.2 complement:
+     a fortnightly pay from one of SAT's published test companies to one of its published
+     test persons. Wage 7,500.00 taxed and grocery vouchers 600.00 exempt (TotalSueldos
+     8,100.00); social security 210.35 and ISR 698.20 withheld; travel allowance 1,000.00
+     as another payment. Concepto 9,100.00 less 908.55 is 8,191.45. The CURP and the CLABE
+     carry valid check digits but belong to no one. Passes every MX rule; nomina12.test.mjs
+     and eval/nomina-mutations.mjs plant defects in it. -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:nomina12="http://www.sat.gob.mx/nomina12" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd http://www.sat.gob.mx/nomina12 http://www.sat.gob.mx/sitio_internet/cfd/nomina/nomina12.xsd" Version="4.0" Serie="N" Folio="1031" Fecha="2026-10-31T12:00:00" FormaPago="99" NoCertificado="30001000000500003416" Certificado="" SubTotal="9100.00" Descuento="908.55" Moneda="MXN" Total="8191.45" TipoDeComprobante="N" Exportacion="01" MetodoPago="PUE" LugarExpedicion="86000" Sello="">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="XOJI740919U48" Nombre="INGRID XODAR JIMENEZ" DomicilioFiscalReceptor="88965" RegimenFiscalReceptor="605" UsoCFDI="CN01"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="84111505" Cantidad="1" ClaveUnidad="ACT" Descripcion="Pago de nómina" ValorUnitario="9100.00" Importe="9100.00" Descuento="908.55" ObjetoImp="01"/>
+  </cfdi:Conceptos>
+  <cfdi:Complemento>
+    <nomina12:Nomina Version="1.2" TipoNomina="O" FechaPago="2026-10-31" FechaInicialPago="2026-10-16" FechaFinalPago="2026-10-31" NumDiasPagados="16.000" TotalPercepciones="8100.00" TotalDeducciones="908.55" TotalOtrosPagos="1000.00">
+      <nomina12:Emisor RegistroPatronal="B5510768108"/>
+      <nomina12:Receptor Curp="XOJI740919MSRDMN00" NumSeguridadSocial="04078873454" FechaInicioRelLaboral="2019-03-01" Antigüedad="P399W" TipoContrato="01" Sindicalizado="No" TipoJornada="01" TipoRegimen="02" NumEmpleado="120" Departamento="Cobranza" Puesto="Analista" RiesgoPuesto="1" PeriodicidadPago="04" CuentaBancaria="032180000118359719" SalarioBaseCotApor="490.22" SalarioDiarioIntegrado="520.00" ClaveEntFed="SON"/>
+      <nomina12:Percepciones TotalSueldos="8100.00" TotalGravado="7500.00" TotalExento="600.00">
+        <nomina12:Percepcion TipoPercepcion="001" Clave="00500" Concepto="Sueldos, Salarios Rayas y Jornales" ImporteGravado="7500.00" ImporteExento="0.00"/>
+        <nomina12:Percepcion TipoPercepcion="029" Clave="00510" Concepto="Vales de despensa" ImporteGravado="0.00" ImporteExento="600.00"/>
+      </nomina12:Percepciones>
+      <nomina12:Deducciones TotalOtrasDeducciones="210.35" TotalImpuestosRetenidos="698.20">
+        <nomina12:Deduccion TipoDeduccion="001" Clave="00301" Concepto="Seguridad social" Importe="210.35"/>
+        <nomina12:Deduccion TipoDeduccion="002" Clave="00302" Concepto="ISR" Importe="698.20"/>
+      </nomina12:Deducciones>
+      <nomina12:OtrosPagos>
+        <nomina12:OtroPago TipoOtroPago="003" Clave="00103" Concepto="Viáticos entregados al trabajador" Importe="1000.00"/>
+      </nomina12:OtrosPagos>
+    </nomina12:Nomina>
+  </cfdi:Complemento>
+</cfdi:Comprobante>
