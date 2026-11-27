@@ -65,7 +65,7 @@ ${FAQ.map(([q, a]) => `<h3>${q}</h3>\n<p>${a}</p>`).join("\n")}
 <footer>
 <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
 <p><strong>Nothing leaves your browser.</strong> The explanations paraphrase the Italian text of specification 1.9; the Agenzia delle Entrate's own documents (agenziaentrate.gov.it) are the authority, and SdI alone decides whether a file is accepted.</p>
-<p class="support">Free to use and source available. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p class="support">Free to use and source visible. The <a href="LICENSE" rel="noopener">code is under an all-rights-reserved notice</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
 </footer>
 </main></body></html>
 `;

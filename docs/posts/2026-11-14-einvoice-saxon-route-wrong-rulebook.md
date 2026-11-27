@@ -6,6 +6,8 @@ tags: [einvoice-preflight, ventures]
 description: "Our self-hosted Saxon route ran EU EN 16931 rules on Singapore, Japanese and Saudi e-invoices: 78 false errors on 10 valid files. It now hands them off."
 ---
 
+> **Update, 2026-11-27:** the offer to run the checker as your own self-hosted API was withdrawn. The checker on the site and its command line still work.
+
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) checks an e-invoice against the official validation rules before it is sent. It has two ways to run those rules. The plain route ships with the page: the rules compiled to JSON and run by an MIT XPath engine. The Saxon route is optional: a self-hoster compiles the official stylesheets and runs them in Saxon-JS.
 
 The Saxon build only covers three rule sets: the EU base (EN 16931), Germany's XRechnung and Peppol BIS. Everything added since lives only in the plain route: Peppol PINT for Singapore, Australia and New Zealand, Japan, Malaysia, the UAE and Oman; Saudi Arabia's ZATCA rules; and the national add-ons for Romania, the Netherlands and Portugal.

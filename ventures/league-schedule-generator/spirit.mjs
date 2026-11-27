@@ -1,4 +1,4 @@
-// Sportsmanship (spirit) ratings for the self-hosted league page (server.mjs). After a game each captain
+// Sportsmanship (spirit) ratings for the league page (server.mjs). After a game each captain
 // rates the OTHER team's sportsmanship from their captain link: either five categories scored 0 to 4
 // (the shape of the WFDF Spirit of the Game score sheet used in ultimate, total 0 to 20, where 10 means
 // "good, nothing to note"), or one score from 1 to 5. The organiser sees every team's average received,

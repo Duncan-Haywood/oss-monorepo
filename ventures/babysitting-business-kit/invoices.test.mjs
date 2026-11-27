@@ -261,9 +261,9 @@ test("recordStripeEvent ignores other events, unpaid sessions and unknown invoic
 });
 
 test("the Stripe variables are documented and the payment code calls no account but the sitter's", () => {
-  const guide = fs.readFileSync(new URL("./self-host.html", import.meta.url), "utf8");
+  const guide = fs.readFileSync(new URL("./README.md", import.meta.url), "utf8");
   const code = fs.readFileSync(new URL("./invoices-server.mjs", import.meta.url), "utf8");
-  for (const k of new Set([...code.matchAll(/env\.([A-Z][A-Z0-9_]+)/g)].map((m) => m[1]))) assert.ok(guide.includes(`<code>${k}</code>`), `${k} missing from self-host.html`);
+  for (const k of new Set([...code.matchAll(/env\.([A-Z][A-Z0-9_]+)/g)].map((m) => m[1]))) assert.ok(guide.includes(`\`${k}\``), `${k} missing from README.md`);
   assert.match(fs.readFileSync(new URL("./README.md", import.meta.url), "utf8"), /STRIPE_WEBHOOK_SECRET/);
   assert.doesNotMatch(code, /sk_(live|test)_[A-Za-z0-9]{8,}|acct_[A-Za-z0-9]{6,}/, "no keys or connected accounts in the code");
   assert.match(fs.readFileSync(new URL("./Dockerfile", import.meta.url), "utf8"), /invoices-server\.mjs/);

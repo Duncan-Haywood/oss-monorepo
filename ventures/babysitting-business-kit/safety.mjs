@@ -4,7 +4,7 @@
 //   Late-sit check-in    newCheckin(), checkinAction(), checkinDue(), alertMessage(),
 //                        mergeSafety(): a trusted contact and a "home by" time; if the
 //                        sitter has not tapped "I'm home safe" by then plus a grace
-//                        period, the sitter's own server alerts the contact. Off until the sitter starts one.
+//                        period, the sitter's server alerts the contact. Off until the sitter starts one.
 //   Emergency card       emergencyCard(): a printable page per family from the family
 //                        record and its info sheet (intake.mjs), with 911 and Poison Help.
 //   House checklist      HOUSE_CHECKLIST, checklistState(), setChecklistItem(): exits,

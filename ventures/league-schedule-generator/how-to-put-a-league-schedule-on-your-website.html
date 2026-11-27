@@ -6,9 +6,9 @@
   <title>How To Put A League Schedule On Your Website (Free Embed)</title>
   <meta name="description" content="Show your league's next games, latest results and standings on your club website with a free embed that updates itself when you post a score.">
   <meta property="og:title" content="How To Put A League Schedule On Your Website (Free Embed)">
-  <meta property="og:description" content="A read-only embed for Wix, Squarespace, WordPress or Google Sites that follows every result and rainout. Self-hosted and free.">
+  <meta property="og:description" content="A read-only embed for Wix, Squarespace, WordPress or Google Sites that follows every result and rainout.">
   <link rel="canonical" href="./how-to-put-a-league-schedule-on-your-website.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I put my league schedule on my club website for free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, if you run the self-hosted league page. The organiser page gives you a short embed code: an iframe and four lines of script. Paste it into your site builder's embed block and the schedule, latest results and standings show on your own page."}}, {"@type": "Question", "name": "Does the embedded schedule update by itself?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The embed is served by your league server, so a result you post or a game you move shows on the club website within a minute, with no re-pasting. A schedule pasted as a table or an image would have to be redone after every change."}}, {"@type": "Question", "name": "Is it safe to put the embed code in public page source?", "acceptedAnswer": {"@type": "Answer", "text": "The embed carries its own read-only key, separate from the player link. Anyone who copies it can read the schedule, which the embed already shows, but cannot send a score, mark availability or sign anything. Changing ADMIN_KEY retires every pasted copy."}}, {"@type": "Question", "name": "Which website builders does it work with?", "acceptedAnswer": {"@type": "Answer", "text": "Any builder with an HTML or embed block: Wix (Embed code), Squarespace (Code block), WordPress (Custom HTML), Google Sites (Embed) and hand-made sites. Builders that strip scripts still show the schedule, in a fixed 600 pixel box that scrolls."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I put my league schedule on my club website for free?", "acceptedAnswer": {"@type": "Answer", "text": "Not with this tool today: its league page (server.mjs) does this, but it is no longer offered to run yourself and no hosted version is live yet. In that page: The organiser page gives you a short embed code: an iframe and four lines of script. Paste it into your site builder's embed block and the schedule, latest results and standings show on your own page."}}, {"@type": "Question", "name": "Does the embedded schedule update by itself?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The embed is served by your league server, so a result you post or a game you move shows on the club website within a minute, with no re-pasting. A schedule pasted as a table or an image would have to be redone after every change."}}, {"@type": "Question", "name": "Is it safe to put the embed code in public page source?", "acceptedAnswer": {"@type": "Answer", "text": "The embed carries its own read-only key, separate from the player link. Anyone who copies it can read the schedule, which the embed already shows, but cannot send a score, mark availability or sign anything. Changing ADMIN_KEY retires every pasted copy."}}, {"@type": "Question", "name": "Which website builders does it work with?", "acceptedAnswer": {"@type": "Answer", "text": "Any builder with an HTML or embed block: Wix (Embed code), Squarespace (Code block), WordPress (Custom HTML), Google Sites (Embed) and hand-made sites. Builders that strip scripts still show the schedule, in a fixed 600 pixel box that scrolls."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
     body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
@@ -27,8 +27,7 @@
   <p><a href="./">&larr; League schedule generator</a></p>
   <h1>How to put a league schedule on your website</h1>
   <p>Most clubs want the schedule on their own site, where new players and parents look first. The usual ways are a pasted table or a PDF that goes stale at the first rainout, a screenshot nobody can search, or the widget a league platform gives you on a paid plan. The hard part is not showing the schedule once. It is keeping the club page right after every result and every moved game.</p>
-  <p>The free, self-hosted league page now gives you an embed code for that. You paste it once; the club page then shows whatever the league server shows, a minute later at most.</p>
-  <p><a class="cta" href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#run-your-own-league-page-self-hosted" rel="noopener">Run your own league page</a> (FSL-1.1-MIT licensed, one small Node server, your own disk)</p>
+  <p>This guide describes the league page in this tool's source code (<code>server.mjs</code>). It is no longer offered for you to run on your own server, and no hosted version is live yet, so read the steps below as how the feature works rather than something you can switch on today.</p>
   <h2>How it works</h2>
   <ol>
     <li><strong>Build and publish the season</strong> on your league page as usual.</li>
@@ -53,7 +52,7 @@
   <p>It does not host your league: the embed needs your league server running. It does not show availability, rosters, contacts, sportsmanship comments or anything else the organiser page keeps private. If you want registration, payments and an app for every team in one paid product, a league platform such as TeamSnap, LeagueApps or SportsEngine is the right tool.</p>
   <h2>Questions</h2>
   <h3>Can I put my league schedule on my club website for free?</h3>
-  <p>Yes, if you run the self-hosted league page. The organiser page gives you a short embed code: an iframe and four lines of script. Paste it into your site builder's embed block and the schedule, latest results and standings show on your own page.</p>
+  <p>Not with this tool today: its league page (server.mjs) does this, but it is no longer offered to run yourself and no hosted version is live yet. In that page: The organiser page gives you a short embed code: an iframe and four lines of script. Paste it into your site builder's embed block and the schedule, latest results and standings show on your own page.</p>
   <h3>Does the embedded schedule update by itself?</h3>
   <p>Yes. The embed is served by your league server, so a result you post or a game you move shows on the club website within a minute, with no re-pasting. A schedule pasted as a table or an image would have to be redone after every change.</p>
   <h3>Is it safe to put the embed code in public page source?</h3>
@@ -64,7 +63,7 @@
 </main>
 <footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Check dates and venues with your organiser.</p>
-    <p>The schedule tool runs in your browser. The embed is served by the league page you host yourself, from one state file on your own server; nothing is sent to us. Free to use and source available: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+    <p>The schedule tool runs in your browser. Free to use and source visible: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
   </footer>
 </body>
 </html>

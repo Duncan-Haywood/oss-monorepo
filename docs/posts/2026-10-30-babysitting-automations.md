@@ -6,6 +6,8 @@ description: "The kit's server can now send six follow-up messages a solo babysi
 tags: [babysitting-business-kit, automation, sms, email]
 ---
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run the kit's server on your own account were withdrawn. The in-browser kit still works.
+
 Most of a babysitter's sales work happens after the family says yes. You confirm the sit, check in the day before, say thank you, ask for a few words for your website, remind them about the $69 from Sunday, and a month later ask whether they would like another date night. Each one is a short message, and each one is easy to forget when you have three families and a class schedule.
 
 The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) already drafted those messages on its Today tab. Its optional self-hosted server can now send them, on the sitter's own Resend (email) and Twilio (text) accounts, once each rule is turned on in Settings:

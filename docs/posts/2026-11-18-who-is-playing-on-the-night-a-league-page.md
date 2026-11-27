@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, product]
 description: "The league page players already open now takes In, Maybe or Out per game and tells the organiser which teams are short of players before the night."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 Most forfeits in a rec league are not a surprise to anyone but the organiser. The team captain has
 known since Monday that four people are away; the organiser finds out at the court. Paid team apps
 fix this with RSVPs tied to player accounts. TeamSnap, SportsEngine and Spond all do it, per team,

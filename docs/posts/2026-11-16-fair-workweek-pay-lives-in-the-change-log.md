@@ -6,6 +6,8 @@ tags: [scheduling, shift-roster-builder, fair-workweek, compliance]
 description: "Shift Roster Builder's self-hosted hub now logs every change to a posted week and prices predictability pay under Seattle, Oregon or Chicago rules."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 Seattle, Oregon and Chicago make covered restaurants and shops post schedules
 14 days ahead. When the employer then changes a posted shift inside that
 window, the worker is owed "predictability pay". You can't see that cost by

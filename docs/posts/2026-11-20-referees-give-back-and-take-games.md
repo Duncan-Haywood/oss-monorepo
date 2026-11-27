@@ -6,6 +6,8 @@ tags: [league-schedule, referees, self-hosted, tools]
 description: "The self-hosted league page now gives every official a private link: their games, a calendar feed, a give-back button and the open games they are free to take."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 The referee list is usually fine on the day it goes out. It breaks a fortnight later, when someone texts the organiser that they cannot do Tuesday, the organiser texts four people, two say yes, and one of them turns out to be the coach of the home team.
 
 The [league schedule generator](../../ventures/league-schedule-generator/)'s self-hosted league page (`server.mjs`, MIT, runs on a box you own) now takes that loop off the organiser. You paste the officials in the format the browser page already reads, for example `Sam Ortiz (Hawks): Tue, Thu max 8`, and every game gets one. Each official then has a private link with three things on it:

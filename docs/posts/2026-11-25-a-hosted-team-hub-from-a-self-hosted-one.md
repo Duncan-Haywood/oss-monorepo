@@ -6,6 +6,8 @@ tags: [shift-roster-builder, aws, hosting, saas]
 description: "The team hub ran one team per deploy on the user's own server. It now runs many teams on one AWS deployment with the same handler. Built, not deployed."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 Shift Roster Builder's team hub is the part that gets a roster to the staff:
 the manager publishes the week, everyone opens one link to see their shifts,
 clock in, call out or ask for time off. Until today it came in two

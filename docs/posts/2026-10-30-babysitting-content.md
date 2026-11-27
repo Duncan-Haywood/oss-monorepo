@@ -6,6 +6,8 @@ tags: [babysitting-business-kit, content, local-seo, byok]
 description: "A topic bank, captions sized per channel, a blog the sitter approves, and optional AI drafts on their own key that can't publish until they add something true."
 ---
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run the kit's server on your own account were withdrawn. The in-browser kit still works.
+
 A babysitter who runs their own business gets most of their families through word of mouth: church, school, Nextdoor, a friend's Facebook share. Posting helps, but "what do I post this week?" is the part that stalls. The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now has a **Posts & blog** tab for that.
 
 **The topic bank.** 76 topics for parents: safety (safe sleep, food allergies, Poison Control's 1-800-222-1222), activities, routines, date nights, back-to-school and the holidays. Ten of them are faith topics (Advent, bedtime prayers, Bible stories), and they only appear when the sitter turns on the optional faith section. A family's beliefs are never scored anywhere in the kit. Each topic has a three-point outline, a local search phrase ("date night babysitter in Springfield") and a caption for each channel.

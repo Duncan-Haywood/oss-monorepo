@@ -6,6 +6,8 @@ tags: [babysitting-business-kit, safety, self-hosted, privacy]
 description: "A check-in that alerts a trusted contact if a sitter isn't home on time, ignoring quiet hours, plus a per-family emergency card and a 10-item house checklist."
 ---
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run the kit's server on your own account were withdrawn. The in-browser kit still works.
+
 Babysitters often drive home alone late at night from a house they had not seen a month earlier. The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now has a **Safety** tab for that part of the job.
 
 **Late-sit check-in.** Before a sit, the sitter names someone they trust and sets a "home by" time. Their own server (the optional one they self-host) handles the rest:

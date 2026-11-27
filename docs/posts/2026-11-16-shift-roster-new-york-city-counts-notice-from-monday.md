@@ -5,6 +5,8 @@ tags: [scheduling, shift-roster-builder, fair-workweek, new-york-city]
 description: "Shift Roster Builder's team hub now prices New York City's fast food schedule-change premiums: flat $10 to $75 per change, counted to the week's first day."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 The [Shift Roster Builder](../../ventures/shift-roster-builder/)'s self-hosted
 team hub keeps a dated log of every change to a posted week and prices it under
 a city's predictive-scheduling ("fair workweek") rules. Seattle, Oregon,

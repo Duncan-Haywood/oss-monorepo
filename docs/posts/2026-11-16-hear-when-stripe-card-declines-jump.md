@@ -6,6 +6,8 @@ description: "A free watch that reads payments, revenue and declines from your o
 tags: [changepoint-detector, stripe, monitoring, alerts]
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 A checkout that starts declining a quarter of its cards does not throw an error anyone
 sees. Sales just get thinner, and most small shops notice days later, if at all.
 [Changepoint Detector](../../ventures/changepoint-detector/README.md) already had a

@@ -595,6 +595,9 @@ tasks:
       babysitting-business-kit, quick-pick-survey, einvoice-preflight,
       changepoint-detector's repo watch): owner, 2026-11-27, drop those
       offers, then relicense. `relicense_arr.py --residue <slug>` lists them.
+      2026-11-27: all 21 relicensed (16 in PR 19560, the six self-host ones
+      next); self-host guides, deploy templates and changepoint-detector's
+      own-GitHub-repo watch removed; its old URL is a withdrawal notice.
       Step 3 done 2026-11-27: platform/security/prepub_audit.py; PayApps,
       payapps-site and packages/ audited with 0 block findings
       (docs/reports/2026-11-27-prepub-audit-payapps.md).

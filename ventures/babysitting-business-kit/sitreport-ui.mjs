@@ -1,7 +1,7 @@
 // Babysitting Business Kit: the "Sit reports and medicine" box in the Families tab.
 // Write a report on a phone at the end of a sit, log medicine against the parents'
 // written authorization, see each family's history, print an incident report and,
-// with the sitter's own server set up for email, send the report to the parent.
+// with the sitter's server set up for email, send the report to the parent.
 
 import * as SR from "./sitreport.mjs";
 import { newId } from "./engine.mjs";
@@ -131,7 +131,7 @@ export function mountSitReports(box, { getDesk, save, esc, record = () => {}, to
       <button type="button" class="secondary" id="sr_dose">Log this dose</button>
       <p><button type="button" id="sr_save">Save report</button>${note ? ` <span class="note" role="status">${esc(note)}</span>` : ""}</p>
       ${SR.getReport(desk, c.b.id, c.date) ? (() => { const msg = SR.reportMessage(r, { family: c.family, profile: desk.profile }); return `<div class="msg">${esc(msg)}</div><button type="button" class="secondary small" data-copy="${esc(msg)}">Copy message</button>${s.url && s.key ? `<button type="button" class="secondary small" data-sr-email>${r.emailedAt ? "Email again" : "Email to the parent"}</button>` : ""}${r.emailedAt ? ` <span class="note">emailed ${esc(r.emailedAt.slice(0, 16).replace("T", " "))}</span>` : ""}${SR.hasIncident(r) ? `<button type="button" class="secondary small" data-sr-incident="${esc(sel)}">Print incident report</button>` : ""}`; })() : ""}
-      ${s.url && s.key ? "" : `<p class="note">With your own server synced and its email set up, you can email reports straight to the parent.</p>`}`;
+      ${s.url && s.key ? "" : `<p class="note">With a server synced and its email set up, you can email reports straight to the parent.</p>`}`;
 
     if (!desk.families.some((f) => f.id === histFamily)) histFamily = (c && c.family.id) || (desk.families[0] || {}).id || "";
     const hist = histFamily ? SR.familyReports(desk, histFamily) : [];

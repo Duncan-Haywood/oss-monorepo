@@ -1,4 +1,4 @@
-// Sub pool for the self-hosted league page (2026-11-18): players who are free on a match night say so
+// Sub pool for the league page (2026-11-18): players who are free on a match night say so
 // once ("I can sub on Tue 25 Nov"), and the organiser sees, beside every team that is short for that
 // night, the subs who are free, and places one with a click. Placing a sub writes an In answer for that
 // team's game (marked as a sub), so the counts, the short-team list and the reminder emails all see it.

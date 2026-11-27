@@ -210,6 +210,6 @@ test("normalizeDesk keeps the network, the app and image ship the files, the env
   // Loaded the first time the tab opens (page.test.mjs, "tab-only modules load on demand").
   assert.match(html, /network: \{ box: "\w+", load: \(\) => import\("\.\/network-ui\.mjs"\), mount: \(m\) => \{[^\n]*m\.mountNetwork\(/);
   for (const f of ["network.mjs", "network-server.mjs", "network-ui.mjs"]) assert.ok(read("./Dockerfile").includes(` ${f}`), f);
-  for (const k of ["NETWORK_ID", "NETWORK_PEERS"]) assert.ok(read("./self-host.html").includes(`<code>${k}</code>`), k);
+  for (const k of ["NETWORK_ID", "NETWORK_PEERS"]) assert.ok(read("./README.md").includes(`\`${k}\``), k);
   assert.doesNotMatch(read("./network.mjs"), /node:/, "the browser half has no Node imports");
 });

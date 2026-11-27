@@ -6,6 +6,8 @@ tags: [changepoint-detection, google-analytics, posthog, monitoring]
 description: "With the GA4 tag gone from half a site's pages, active users fell only to 76%. Our old watch heard it on 1 site in 40; the new default hears 37 to 40."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 The [Changepoint Detector](https://marisstella.app/changepoint-detector/)'s free
 [metric watch](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html) runs once a day in your
 own GitHub Actions and messages you when a metric's level has really moved. Earlier today we found that

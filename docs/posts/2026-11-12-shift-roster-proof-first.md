@@ -6,6 +6,8 @@ tags: [shift-roster-builder, product, optimisation, measurement]
 description: "Timing each stage of the roster builder's exact check found two passes the proof made redundant. 40-person weeks: 15-57 s to 6-12 s, all proven."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 The [Shift Roster Builder](https://marisstella.app/shift-roster-builder/) has an optional exact check. It tries to prove that no roster under your rules covers more shifts or costs less than the one it shows you. On small weeks the check is quick. On a 40-person week it took long enough that nobody would wait for it, and one week in three came back "not proven".
 
 ## Where the time went

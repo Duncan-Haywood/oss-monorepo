@@ -84,6 +84,5 @@ test('the committed output, when present: four arms scored and T14 judged for R,
   assert.match(txt, /K  rolling move floor, k read \(round 17\) .* 42\/309 .* 1\.24/);
   const help = readFileSync(new URL('./watch.mjs', import.meta.url), 'utf8');
   assert.match(help, /README "Round 18"/);
-  assert.match(readFileSync(new URL('./watch-a-metric-for-changes.html', import.meta.url), 'utf8'), /README, "Round 18"/);
   assert.match(readFileSync(new URL('./llms.txt', import.meta.url), 'utf8'), /README "Round 18"/);
 });

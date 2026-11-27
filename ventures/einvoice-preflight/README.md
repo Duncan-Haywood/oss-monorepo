@@ -331,7 +331,7 @@ the base rules, and the defects file raises BR-CO-15, BR-CO-16, BR-CO-17, BR-S-0
 and BR-61. The bundled UBL example names XRechnung 3.0 and the XRechnung rules
 find what a German public buyer would reject: no seller contact (BR-DE-2) and no
 buyer post code (BR-DE-9). The Docker image builds the rules in a first stage and
-ships them with Saxon-JS (`?schematron=1`). JSON drafts have no XML to check. On a self-hosted copy the web page has an "Also run the official EN 16931 Schematron" box: it posts the XML to the page's own `/v1/validate?schematron=1` (`official.mjs`) and lists the official findings beside the built-in ones; on a static host with no API it says the check did not run, never a pass.
+ships them with Saxon-JS (`?schematron=1`). JSON drafts have no XML to check. When the page is served by `server.mjs` with the Saxon files built, it has an "Also run the official EN 16931 Schematron" box: it posts the XML to the page's own `/v1/validate?schematron=1` (`official.mjs`) and lists the official findings beside the built-in ones; on a static host with no API it says the check did not run, never a pass.
 
 **In the page, on any static host (shipped).** `plain/` holds the same official rules as plain JSON, compiled from the Schematron source by `node build-plain-rules.mjs` (`plain-compile.mjs`; needs `npm i --no-save slimdom fontoxpath esbuild`), and fontoxpath (MIT, bundled) to run them (`plain-schematron.mjs`, loaded by `official-browser.mjs`). No Saxon, no server, no licence caveat: the web page runs the EN 16931, XRechnung and Peppol rules in your browser and downloads only the sets your file's BT-24 needs (about 0.3 MB for a base-only check). `plain/manifest.json` records the upstream commit of each set. It is checked against the Saxon route: every example in `examples/` and the official eInvoicing-EN16931 examples (40 files) give the same rule at the same location as the compiled SEFs, and 353 of 353 randomly edited copies (deleted elements, changed amounts and codes, blanked values) do too (`plain-schematron.test.mjs` repeats the example comparison when the SEFs are built). Where it differs from XSLT by design, it says so:
 - fontoxpath keeps numbers in doubles where the rules assume exact `xs:decimal`; a failed top-level equality is re-asked as "equal within 1e-7", which can only clear a finding (the XRechnung-O example's BR-O-08 is floating-point noise without it), never raise one;
@@ -658,49 +658,18 @@ no accounts, no cost.
 
 **Countdown on the hub (shipped 2026-11-02).** `mandate-countdown.js` reads `mandate-dates.json` and shows the next 8 milestones with days left on the mandates hub, or the next 12 for one chosen country. Days are whole calendar days in the visitor's browser (DST safe); no tracking, one same-origin fetch, and the table below still holds every date if the script fails. `mandate-countdown.test.mjs` (4 tests) pins the day arithmetic, sorting, filtering and links; opened in headless Chromium: 8 rows, Poland filter gives its dated entry, no console errors. **Size selector (shipped 2026-11-08).** `whichapplies.mjs` writes `which-e-invoice-mandate-applies.html`: country plus one number (France: a size class) gives the start date and days left for Germany (EUR 800,000), Spain (EUR 8 million), the UAE (AED 50 million), Poland (PLN 200 million; the smallest wave is defined by monthly sales and only noted), Oman (OMR 5 million) and France. The cut-offs are the ones on the country pages; `whichapplies.test.mjs` (8 tests) pins the edges, every date against `mandate-dates.json`, freshness and the links; clicked in headless Chromium, no console errors. **Malaysia added 2026-11-09:** five turnover bands from the MyInvois phases table on its country page (above RM100 million 1 Aug 2024, down to up to RM1 million 1 Jul 2026, reported; the page notes sources disagree on that last band), each date checked against that table by `whichapplies.test.mjs` (the hub cell holds only the first date). Not done: other countries with size waves (Saudi waves, Singapore, Ireland), headcount-based rules, and any confirmation from a tax authority.
 
-## Run it as your own API (self-hosted, one click)
+## The HTTP API (`server.mjs`)
 
-The same rules are available as a small HTTP service you run in **your own**
-account. Nothing is stored, nothing is forwarded, and the author runs nothing
-in between. Use it from an ERP, a webhook or a CI job instead of shelling out
-to the CLI.
+`server.mjs` serves the same rules as a small HTTP API with no dependencies
+(`POST /v1/validate` for one file, `POST /v1/validate/batch` for many, with
+duplicate invoice numbers flagged as INV-019, and `POST /v1/generate` for the
+creator below). The response is the CLI's `--format json` report plus a
+`disclaimer`. Since 2026-11-27 it is no longer offered for others to deploy
+and run themselves: the paid product is hosted only and its code is all
+rights reserved (`LICENSE`). The `Dockerfile` here builds it.
 
-**Deploy:** fork this repository, then open
-`https://render.com/deploy?repo=<your fork URL>`. `render.yaml` builds the
-`Dockerfile` here on Render's free plan and generates an `EINVOICE_API_KEY`
-for you. Anywhere that runs Docker works too:
-
-```sh
-cd ventures/einvoice-preflight
-docker build -t einvoice-preflight . && docker run -p 8080:8080 -e EINVOICE_API_KEY=change-me einvoice-preflight
-# or, with Node 20+ and no Docker:  EINVOICE_API_KEY=change-me node server.mjs
-```
-
-```sh
-# one invoice: body is the raw file; Content-Type (or ?name=x.pdf) picks the parser
-curl -H "Authorization: Bearer $KEY" -H "Content-Type: application/xml" \
-  --data-binary @invoice.xml https://YOUR-HOST/v1/validate
-# a batch (base64 for PDFs); also flags duplicate invoice numbers (INV-019)
-curl -H "Authorization: Bearer $KEY" -d '{"documents":[{"name":"a.json","content":"{...}"}]}' \
-  https://YOUR-HOST/v1/validate/batch
-```
-
-The response is the CLI's `--format json` report plus a `disclaimer`. With no
-`EINVOICE_API_KEY` the API is open, so set one on anything public.
-
-| Variable | Default | Meaning |
-|---|---|---|
-| `PORT` | `8080` | listen port |
-| `EINVOICE_API_KEY` | none | require `Authorization: Bearer <key>` on `/v1/*` |
-| `EINVOICE_MAX_BYTES` | `1048576` | per-invoice size limit |
-| `EINVOICE_MAX_BATCH` | `50` | documents per batch |
-| `EINVOICE_RATE_LIMIT_PER_MIN` | `120` | per client IP (honours `X-Forwarded-For`) |
-| `EINVOICE_CORS_ORIGIN` | none | allow browser calls from this origin |
-| `EINVOICE_SERVE_UI` | on | `0` serves the API only |
-
-If this saves you a rejected invoice run, you can chip in at
-<https://buymeacoffee.com/duncanhaywood>. Same safety boundary as below:
-preflight, not a Peppol/EN 16931 conformance validator, and no warranty.
+Same safety boundary as below: preflight, not a Peppol/EN 16931 conformance
+validator, and no warranty.
 
 ## Create an e-invoice (new)
 
@@ -713,7 +682,6 @@ usual answer is a paid invoicing subscription. This writes the file instead.
 # Browser: open create.html (or GET /create.html on the server). No upload.
 node generate-cli.mjs examples/draft-invoice.json -o RE-2026-001.xml          # XRechnung 3.0 UBL
 node generate-cli.mjs examples/draft-invoice.json -f cii -p peppol -o out.xml # CII, Peppol BIS 3.0
-curl -H "Authorization: Bearer $KEY" -d '{"draft":{...},"format":"ubl"}' https://YOUR-HOST/v1/generate
 ```
 
 A *draft* is who, what and how much (`examples/draft-invoice.json`). Line
@@ -1778,7 +1746,7 @@ What changed:
 
 - `plain/en16931-1.3.8-ubl.json` (977 checks) compiled from tag `validation-1.3.8` (commit 0cabbbf) by `build-plain-rules.mjs`, beside the current base (982). Against it the current base adds UBL-SR-51..59, lacks BR-CO-25, BR-66, BR-67 and UBL-CR-631, and words 44 other tests differently.
 - An add-on may name the base release it sits on (`ADDONS["cius-ro"].base` in `schematron-core.mjs`); the plain route (page and Node) runs that base under it and reports the set as `en16931-1.3.8`. A copy without the file falls back to the current base.
-- The report (CLI and server API) sends files that carry a national add-on (CIUS-RO, CIUS-PT, NLCIUS) to the plain route even when the Saxon files are built. Before, a self-hosted server with Saxon checked a Romanian file against the current EU base alone, with none of the 122 Romanian checks, since those sets have no Saxon form.
+- The report (CLI and server API) sends files that carry a national add-on (CIUS-RO, CIUS-PT, NLCIUS) to the plain route even when the Saxon files are built. Before, a server with Saxon checked a Romanian file against the current EU base alone, with none of the 122 Romanian checks, since those sets have no Saxon form.
 
 Measured with `eval/phive-corpus.mjs --good --set cius-ro/1.0.9` on ANAF's 10 good cases: UBL-SR-53 on 4 files before, 0 after; the 1.3.8 base raises no new official finding, so the official rule sets now pass all 10. What remains on them is built-in INV checks already read as faults in the examples (the 13-digit seller id, line nets that are not quantity times price) or not yet read (INV-025/027 on example0's Danish IBAN with a mismatched BIC, INV-041, INV-046, INV-051). Tests: `cius-ro-base.test.mjs` (4). The Saxon route (and the page's optional `./browser/` Saxon build) has no 1.3.8 base; since 2026-11-14 it hands Romanian files to the plain route (see "The Saxon route hands off what it cannot check"). No real ANAF-accepted invoice from a business has been run.
 
@@ -1804,7 +1772,7 @@ Measured with `eval/phive-corpus.mjs` on phive-rules commit 37a2664, every examp
 
 ## The Saxon route hands off what it cannot check (2026-11-14)
 
-`build-schematron.mjs` compiles three rule sets for Saxon: the EN 16931 base, XRechnung and Peppol BIS. The PINT and ZATCA sets (which replace the EU base) and the national add-ons (CIUS-RO on its 1.3.8 base, NLCIUS, CIUS-PT) exist only as `./plain/` JSON. The report already sent those files to the plain route, but two Saxon runners did not: a self-hosted page with a `./browser/` Saxon build (`loadBrowserRunner` used Saxon for every file once Saxon loaded), and a direct `runSchematron` call. Both checked such a file against the current EU base alone: a valid Singapore or Saudi invoice failed on EU code lists, and no Dutch or Romanian rule ran.
+`build-schematron.mjs` compiles three rule sets for Saxon: the EN 16931 base, XRechnung and Peppol BIS. The PINT and ZATCA sets (which replace the EU base) and the national add-ons (CIUS-RO on its 1.3.8 base, NLCIUS, CIUS-PT) exist only as `./plain/` JSON. The report already sent those files to the plain route, but two Saxon runners did not: a page served with a `./browser/` Saxon build (`loadBrowserRunner` used Saxon for every file once Saxon loaded), and a direct `runSchematron` call. Both checked such a file against the current EU base alone: a valid Singapore or Saudi invoice failed on EU code lists, and no Dutch or Romanian rule ran.
 
 - `plainOnlySets(xml, syntax)` (`schematron-core.mjs`) names the sets a file needs that have no Saxon form: a matching PINT/ZATCA profile, or an add-on marked `plainOnly` (cius-ro, nlcius, cius-pt).
 - `loadBrowserRunner` sends those files to the `./plain/` runner (loaded on first need); with no `./plain/` it returns `unavailable` with `plainOnly`, so the page asks the server, never an EU-base result in their place.
@@ -2219,7 +2187,7 @@ warning is seeded into it in `hungary-nav-product-fee.test.mjs` (8 tests). No re
 business's product fee invoice has been read.
 
 Tests: `hungary-nav.test.mjs` (14) and `hungary-nav-product-fee.test.mjs` (8) on
-six of NAV's files kept in `fixtures/hungary-nav/` with NAV's FSL-1.1-MIT licence.
+six of NAV's files kept in `fixtures/hungary-nav/` with NAV's all-rights-reserved notice.
 
 ### The schema gate: invoiceData.xsd with NTCA common 1.0 (2026-11-15, latest)
 

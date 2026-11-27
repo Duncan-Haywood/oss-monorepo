@@ -6,6 +6,8 @@ description: "Best-worst screens of four took fewer taps than pairs in 11 of 12 
 tags: [quick-pick-survey, maxdiff, best-worst-scaling, pairwise-comparison, ranking, product]
 ---
 
+> **Update, 2026-11-27:** the offer to deploy your own copy of the survey app was withdrawn, and no hosted version is live yet. The list ranker and decision page still work.
+
 Earlier today [Quick Pick's list ranker](https://marisstella.app/quick-pick-survey/rank.html)
 gained a [best and worst of four](https://marisstella.app/quick-pick-survey/maxdiff-best-worst.html)
 mode: each screen shows four options, and you tap the one you like most,

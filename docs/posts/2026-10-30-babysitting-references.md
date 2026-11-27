@@ -6,6 +6,8 @@ tags: [babysitting-business-kit, consent, references]
 description: "A private link per reference, two consents stored with exact wording and time, withdrawal by the same link, and a packet listing only people who said yes."
 ---
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run the kit's server on your own account were withdrawn. The in-browser kit still works.
+
 The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) already kept a yes/no per reference for "may this quote go on your website". The sitter set it. That is fine when a parent said yes in a text, but it leaves no record of what the parent actually agreed to, and nothing stops a stale copy of the data from turning a "no" back into a "yes".
 
 This change moves the answer to the person giving the reference.

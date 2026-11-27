@@ -6,6 +6,8 @@ tags: [league-schedule, soccer, rec-leagues, tools]
 description: "The self-hosted league page now keeps a cards log, works out every ban from the league's rules and serves it only in games actually played."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 Any league with referees keeps a cards list. The rule fits on one line (five yellows is a one-game ban, a red is a ban too); the counting is where organisers lose evenings. Which game does a ban start from? Does last Monday's rainout count as served? A player booked twice in one game: is that two more cautions, or a sending off?
 
 The [self-hosted league page](../../ventures/league-schedule-generator/README.md) now answers those for the organiser. They keep one plain-text log in the admin page, a line per card, in the same style as results:

@@ -6,6 +6,8 @@ tags: [start-here, shift-roster-builder, scheduling, small-business]
 description: "Who Shift Roster Builder is for, what it does for a small team's weekly rota, your first ten minutes, and the labour rules it does not model."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 If you manage a small team and the weekly schedule is a spreadsheet you
 shuffle on Sunday night, this post is for you. It covers who Shift Roster
 Builder suits, what it gives you, how to build your first week in about ten

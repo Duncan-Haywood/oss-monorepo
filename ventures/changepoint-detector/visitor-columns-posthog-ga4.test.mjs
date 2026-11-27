@@ -37,11 +37,3 @@ test('a GA4 site that lost the tag from half its pages: the middle setting hears
   assert.ok((middle.activeUsers ?? []).some(near), `middle dated ${middle.activeUsers}`);
   assert.ok((middle.screenPageViews ?? []).some(near), `page views dated ${middle.screenPageViews}`);
 });
-
-test('the workflow watches GA4 (page views included) and PostHog with the middle setting', () => {
-  const yml = readFileSync(new URL('./deploy/watch-metric.yml', import.meta.url), 'utf8');
-  const branch = (csv) => yml.slice(yml.indexOf(`METRIC_CSV=${csv}`), yml.indexOf('elif', yml.indexOf(`METRIC_CSV=${csv}`)));
-  assert.match(branch('data/ga4.csv'), /W="--columns \$\(cols 'sessions\|activeUsers\|screenPageViews\|keyEvents'\) \$MIDDLE"/);
-  assert.match(branch('data/posthog.csv'), /W="--columns \$\(cols 'event_\.\*\|users'\) \$MIDDLE"/);
-  assert.match(yml, /MIDDLE="--detector pelt --overdispersion nb --trend gated"/);
-});

@@ -6,6 +6,8 @@ tags: [shift-roster-builder, product, measurement]
 description: "When the pricier pay LP no longer fits the time budget, the open-hours LP now steers the scheduler. It filled one or two more shifts on 2 of 10 test weeks."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 Earlier today [Shift Roster Builder](https://marisstella.app/shift-roster-builder/) learned to [steer its day-by-day search with a linear program](2026-11-14-shift-roster-let-the-lower-bound-steer.md). The linear program (LP) is a relaxed version of the whole week's schedule. Its answer says, roughly, who should work which shift. Pulling the search toward that answer found rosters that no small change could reach. On some weeks that meant cheaper pay, and on others it meant fewer shifts left uncovered.
 
 There was a catch. The LP doing the steering is the one that also prices pay, and on a 60-person week it takes about four seconds. The scheduler only runs it when that much of the 20-second budget is left. On many big weeks there isn't that much left, so the steering never ran.

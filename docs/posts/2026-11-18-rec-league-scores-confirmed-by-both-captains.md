@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, product]
 description: "Each team gets a captain link. When both captains report the same score it goes into the table; when they differ, the organiser sees both."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 The self-hosted league page in
 [League Schedule Generator](https://marisstella.app/league-schedule-generator/) has had a
 "Report a score" form for a while. Every score sent there waited for the organiser to approve it.

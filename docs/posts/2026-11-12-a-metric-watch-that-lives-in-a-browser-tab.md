@@ -6,6 +6,8 @@ tags: [changepoint-detector, ventures]
 description: "The changepoint watch needed a GitHub repo and a daily job. Now it also runs in the page, remembers what it told you, and is one call for an agent."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 This morning the [changepoint detector](https://marisstella.app/changepoint-detector/) learned to watch a series. Most people with a metric want that, not a one-off answer: tell me once when sign-ups, orders or latency have moved for good, and leave me alone on odd days. The watch refits the series after each new row and reports a change only when five points sit on its far side. It also remembers what it has already reported, so the same step never comes back as a second alert. Four rounds of tests chose the defaults, each rule written down before its run. On 31 real labelled series it sent 18 alerts per 1,000 checks, and 41% of them landed on a change a human annotator had marked.
 
 It shipped as a [self-hosted daily job](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html): a script makes a small repository, GitHub Actions runs it every morning, and it posts to Slack or Discord. That's the right shape for a team. It's too much for one person who checks a dashboard twice a week.

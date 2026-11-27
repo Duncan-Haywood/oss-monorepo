@@ -6,6 +6,8 @@ tags: [league-schedule-generator, sports, product]
 description: "The self-hosted league page now takes player waivers: your own text, versioned by hash, guardians for minors, and each team's unsigned players listed."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 Most rec leagues ask every player to agree to a waiver or a code of conduct before they play. Collecting the signatures is easy. The paper sheet at week one, a form tool, a waiver app or a league platform all do that part. The chore is the night before the first game: matching a pile of signatures to eight rosters and working out who on each team still has not signed.
 
 The [League Schedule Generator](https://marisstella.app/league-schedule-generator/)'s self-hosted league page now does that part. The page is one small Node server, MIT licensed, that an organiser runs on their own Fly, Render or Docker box. It already handled fixtures, the table, calendar feeds, captain score reports and team sign-ups. Waivers were the one gap its README named against the paid league platforms.

@@ -6,6 +6,8 @@ tags: [changepoint-detection, plausible, umami, monitoring]
 description: "When a tag drops off half a site's pages, visitors fall only about a quarter. Our earlier test missed it; the watches now use a stricter setting."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 The [Changepoint Detector](https://marisstella.app/changepoint-detector/)'s free
 [metric watch](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html#plausible) runs once a
 day in your own GitHub Actions and messages you when a metric's level has really moved. For Plausible and Umami it

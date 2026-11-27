@@ -1,5 +1,5 @@
 // The installable app: manifest, icons, the offline service worker (run for real in
-// a sandbox against this directory), and the self-hosted server serving all of it.
+// a sandbox against this directory), and the server serving all of it.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
@@ -129,7 +129,7 @@ test("offline, a cached page is served from the cache and a navigation falls bac
   assert.equal(miss.type, "error");
 });
 
-test("the self-hosted server serves the PWA files and guide pages with the right types, and the image copies them", async () => {
+test("the server serves the PWA files and guide pages with the right types, and the image copies them", async () => {
   const state = { desk: emptyDesk() };
   const h = handler(state, () => {}, {}, () => Date.parse("2026-10-30T12:00:00Z"), async () => ({ ok: true }));
   const get = (path) => new Promise((resolve) => {

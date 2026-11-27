@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, product]
 description: "Players free on a match night put their name down once; the organiser sees them beside every short team and places one with a click."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 Earlier today the self-hosted league page in
 [League Schedule Generator](https://marisstella.app/league-schedule-generator/) learned to
 take In, Maybe or Out per game and to tell the organiser which teams are short before the night.

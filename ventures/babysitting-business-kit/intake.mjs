@@ -248,7 +248,7 @@ export function intakeFormPage(desk, family = {}, { action = "" } = {}) {
   const contacts = Array.from({ length: MAX_CONTACTS }, (_, n) => `<fieldset><legend>Emergency contact ${n + 1}${n ? " (optional)" : ""}</legend>${CONTACT_FIELDS.map(([key, label, max]) => input(`ec${n + 1}_${key}`, label, "", { type: key === "phone" ? "tel" : "text", max })).join("")}</fieldset>`).join("");
   const care = CARE_FIELDS.map(([key, label, max]) => input(key, label, (family.care || {})[key] || "", { area: max > 200, max })).join("");
   const body = `
-<p>${esc(who)} asked you to fill this in once before the first sit, so the information a babysitter needs in an emergency is written down. ${action ? "It goes only to your sitter's own server. You can only send it once; tell your sitter directly about anything that changes later." : "Print it, fill it in and give it to your sitter."}</p>
+<p>${esc(who)} asked you to fill this in once before the first sit, so the information a babysitter needs in an emergency is written down. ${action ? "It goes only to your sitter's server. You can only send it once; tell your sitter directly about anything that changes later." : "Print it, fill it in and give it to your sitter."}</p>
 ${action ? `<form method="post" action="${esc(action)}">` : "<form>"}
 <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <h2>Parent</h2>
@@ -367,7 +367,7 @@ export function intakeHTML(desk, today, base = "") {
     ].filter(Boolean).join("");
     return `<tr><td><strong>${esc(f.name)}</strong></td><td>${state}${f.intakeToken && !base ? '<br><span class="note">Add your server address in Settings, then Sync, to send this as a link.</span>' : ""}</td><td class="note">${flags.map((x) => `<span class="pill ${x.kind === "safety" ? "bad" : "warm"}">${esc(x.kind)}</span> ${esc(x.label)}`).join("<br>")}</td><td>${btns}</td></tr>`;
   });
-  return `<h3>Family info sheets and meet-and-greets</h3><p class="note">Send each family a one-time link (it needs your own server; the family fills it in once and it merges into their record on your next Sync) or print the paper sheet. Flags here are prompts to ask about, from your records: safety and payment only.</p><table><thead><tr><th>Family</th><th>Info sheet</th><th>Check</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
+  return `<h3>Family info sheets and meet-and-greets</h3><p class="note">Send each family a one-time link (it needs a connected server; the family fills it in once and it merges into their record on your next Sync) or print the paper sheet. Flags here are prompts to ask about, from your records: safety and payment only.</p><table><thead><tr><th>Family</th><th>Info sheet</th><th>Check</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
 }
 
 // ---------- the printable kit / published page ----------
@@ -394,7 +394,7 @@ ${flags}
 <p class="note">One red flag is a question to ask, not a verdict. Two, or one the family will not discuss, is a good reason to decline politely.</p>
 ${personal ? "" : `<p class="noprint"><a href="./index.html">Open the Babysitting Business Kit</a>: it sends each family a one-time info sheet (kids, allergies, medications, bedtimes, emergency contacts, doctor) that fills in their record, and shows which channel (church, school, Nextdoor, referrals, your website) brings the families who book.</p>`}
 </main>
-<footer><p>${NO_WARRANTY}</p><p>Not affiliated with any church, school, Nextdoor or the FTC. Free to use and source available under the FSL-1.1-MIT licence: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/babysitting-business-kit">source</a>. ${SPONSOR}</p></footer>
+<footer><p>${NO_WARRANTY}</p><p>Not affiliated with any church, school, Nextdoor or the FTC. Free to use and source visible under an all-rights-reserved notice: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/babysitting-business-kit">source</a>. ${SPONSOR}</p></footer>
 </body>
 </html>
 `;

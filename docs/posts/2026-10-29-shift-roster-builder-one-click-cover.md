@@ -5,6 +5,8 @@ description: "The self-hosted manager page now lists who can cover a called-out 
 tags: [shift-roster-builder, scheduling, self-hosted]
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 When someone calls out, the manager's real job is "who takes it?". The [shift-roster-builder](../../ventures/shift-roster-builder/) server already showed, for each call-out, who could cover it without moving anyone else, cheapest first, with overtime flagged. It stopped there: you still had to edit the week and publish again.
 
 Each candidate now has a **Give to** button. It moves the shift on the published schedule, adjusts both people's hours, and clears the call-out and any trade request that involved the shift, since those were checked against the old week. The staff page shows the change straight away, and the "Tell the team" links give you the text to send.

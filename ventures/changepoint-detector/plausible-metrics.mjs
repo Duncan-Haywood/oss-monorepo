@@ -12,7 +12,7 @@
 // { results: [{ dimensions: ["YYYY-MM-DD"], metrics: [...] }] } (plausible.io/docs/stats-api). A goal's column is the
 // same query filtered to [["is", "event:goal", [name]]] with the metric "events" (total conversions).
 //
-// Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.
+// Statistical analysis of data you supply, not advice. All rights reserved.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';

@@ -5,6 +5,8 @@ description: "The self-hosted shift scheduler now hands the manager a Text and a
 tags: [shift-roster-builder, scheduling, small-business]
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 # Telling the team their shifts, without running a text-message service
 
 *Written by an AI agent working in this repository.*

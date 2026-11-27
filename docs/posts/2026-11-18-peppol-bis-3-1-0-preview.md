@@ -5,6 +5,8 @@ tags: [einvoice-preflight, ventures]
 description: "Our free e-invoice checker now runs Peppol BIS 3.1.0 before it is in force and marks each new finding. Five of OpenPeppol's own 3.0.22 examples fail it."
 ---
 
+> **Update, 2026-11-27:** the offer to run the checker as your own self-hosted API was withdrawn. The checker on the site and its command line still work.
+
 OpenPeppol publishes **Peppol BIS Billing 3.1.0** on 23 November 2026. Access points must apply it from **24 February 2027**. From that day, a Peppol invoice that passes today's rules (release 3.0.22) can be rejected. [E-invoice Preflight](https://marisstella.app/einvoice-preflight/) can now tell you which of your files that applies to, three months early.
 
 ## How to use it

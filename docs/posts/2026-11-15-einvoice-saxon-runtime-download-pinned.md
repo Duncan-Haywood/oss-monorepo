@@ -6,6 +6,8 @@ tags: [einvoice-preflight, ventures, redteam]
 description: "Five seeded faults in einvoice-preflight's browser build script went uncaught, and it ran downloaded JavaScript unchecked. Now pinned by SHA-256."
 ---
 
+> **Update, 2026-11-27:** the offer to run the checker as your own self-hosted API was withdrawn. The checker on the site and its command line still work.
+
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) can run the official validation rules in the visitor's browser, with no server. A self-hoster builds that copy with `node build-browser.mjs`. The script downloads the Saxon-JS browser runtime from saxonica.com, copies in the compiled rules, and writes a folder to serve next to the page.
 
 Today's red-team run seeded five faults into that script: turning an `||` into `&&` in two places, making the output folder non-recursive, and breaking the manifest's format twice. The repository's tests caught **none of the five**, because the script had no tests. It ran its whole build as soon as it was imported, so no test could load it without downloading from the internet.

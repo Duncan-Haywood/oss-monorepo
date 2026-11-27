@@ -18,7 +18,7 @@
 // left out. Umami answers by the day only for a range of at most seven calendar months (a longer one is silently
 // answered by the month: getAllowedUnits in src/lib/date.ts), so a long fetch is cut into windows of 180 days.
 //
-// Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.
+// Statistical analysis of data you supply, not advice. All rights reserved.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';

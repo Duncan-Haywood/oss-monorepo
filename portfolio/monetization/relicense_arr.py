@@ -84,7 +84,7 @@ REWRITES: list[tuple[re.Pattern[str], str]] = [
 # words, even when an earlier rewrite (relicense_fsl.py) gave them our name:
 # rewriting it would misstate someone else's licence. A line that also names
 # our own product is rewritten as usual.
-THIRD_PARTY = re.compile(r"\bproject\b|GitHub (?:copy|file)|hledger|tinydng|csv2ofx|ofxparse|pysyncon|DeltaCFO"
+THIRD_PARTY = re.compile(r"(?<!Support the )\bproject\b|GitHub (?:copy|file)|hledger|tinydng|csv2ofx|ofxparse|pysyncon|DeltaCFO"
                          r"|MoneyChat|written by someone else|\bupstream\b|fetched at run time"
                          r"|photos-import-tools", re.I)
 OWN = re.compile(r"oss-monorepo|marisstella|Maris Stella|\bour own\b|this tool|this repository"

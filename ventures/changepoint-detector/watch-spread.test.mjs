@@ -65,6 +65,4 @@ test('the round fails on (b), and the help and the watch page say so', async () 
   assert.match(out, /T11 R vs Q: \(a\) pre-fault 1\.40 per 100 checks vs 2 PASS; \(b\) 27 vs 33 - 2 FAIL; \(c\) 59\.3% vs 36\.8% PASS\. FAILS\./);
   const help = readFileSync(new URL('./watch.mjs', import.meta.url), 'utf8');
   assert.match(help, /README "Round 15"; not offered/);
-  const page = readFileSync(new URL('./watch-a-metric-for-changes.html', import.meta.url), 'utf8');
-  assert.match(page, /README, "Round 15"/);
 });

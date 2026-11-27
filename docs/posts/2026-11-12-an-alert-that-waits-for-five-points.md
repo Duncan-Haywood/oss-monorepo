@@ -5,6 +5,8 @@ tags: [changepoint-detector, time-series, monitoring, pre-registration, self-hos
 description: The changepoint detector now watches a daily metric and messages you once per new change. Defaults picked by replaying 6,369 labelled checks.
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 Most people who ask "did this metric change?" ask it more than once. They ask every Monday. The [changepoint detector](https://marisstella.app/changepoint-detector/) answered it once per paste. It now has a watch mode. `watch.mjs` runs after each new row of a CSV, refits the series and posts to Slack, Discord, Teams or Mattermost when the level has changed. It posts once per change, after five points sit on the far side of it. A [setup script](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html) writes a standalone repository with a daily GitHub Actions job, so the watch runs in your own account and nothing goes through us.
 
 The hard part is not the plumbing. It is deciding when a change is real enough to interrupt someone. A refit on day 204 can find a step that day 205 moves by two points and day 210 drops. So we replayed series one point at a time, the way a cron job sees them, and counted every message a person would have got.

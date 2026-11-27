@@ -27,8 +27,7 @@
   <p><a href="./">&larr; League schedule generator</a></p>
   <h1>How to track yellow card suspensions in a rec league</h1>
   <p>Every soccer, futsal and hockey league with referees ends up keeping a cards list. The rule is simple (five yellows is a one-game ban, a red is a ban too); the counting is not. Which game does a ban start from? Does last week's rainout count as served? Is the player who got two yellows on Monday at four cautions now, or sent off? Most organisers keep it in a spreadsheet and work it out by hand before each game night, and a captain finds out about a suspension when the referee does.</p>
-  <p>The free, self-hosted league page now does the counting. You keep one plain-text log in the organiser page, a line per card. It works out every ban from your rules, serves each one in the team's own games after the card, counting only games already played, and shows each captain which of their players sit out which upcoming game.</p>
-  <p><a class="cta" href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#run-your-own-league-page-self-hosted" rel="noopener">Run your own league page</a> (FSL-1.1-MIT licensed, one small Node server, your own disk)</p>
+  <p>This guide describes the league page in this tool's source code (<code>server.mjs</code>). It is no longer offered for you to run on your own server, and no hosted version is live yet, so read the steps below as how the feature works rather than something you can switch on today.</p>
   <h2>How it works</h2>
   <ol>
     <li><strong>Set your rules.</strong> Under Cards, suspensions and scorers: a ban after every so many yellows (0 turns accumulation off), how many games that ban is, whether each later yellow ban gets longer, and the standard ban for a straight red and for a sending off for two yellows.</li>
@@ -70,7 +69,7 @@
 </main>
 <footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. An organising aid: suspensions and any sanction are your league's decisions. Not affiliated with any football association or governing body. The example teams and cards are invented.</p>
-    <p>The schedule tool runs in your browser. The cards log lives on the league page you host yourself, in one state file on your own server; nothing is sent to us. Free to use and source available: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+    <p>The schedule tool runs in your browser. Free to use and source visible: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
   </footer>
 </body>
 </html>

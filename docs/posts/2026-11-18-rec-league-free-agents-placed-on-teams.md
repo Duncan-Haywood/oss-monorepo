@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, product]
 description: "A self-hosted league page now takes free-agent sign-ups and suggests a team for each: smallest roster first, experience spread, friends kept together."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 Every adult rec league has players who want in but have no team: someone new in town, a friend of a
 friend, a player whose old team folded. Leagues call them free agents. The usual handling is a Google
 Form, then the organiser reads the list, looks at which teams are short, guesses who would fit where,

@@ -58,6 +58,10 @@ class Phrases(unittest.TestCase):
         line = "a public FSL-1.1-MIT-licensed GitHub file (Delta-Compute/DeltaCFOAgent)"
         self.assertEqual(self.rw(line, "ventures/x/README.md"), line)
 
+    def test_our_support_the_project_footer_is_still_ours(self):
+        self.assertEqual(self.rw('<a href="x">Support the project</a> · FSL-1.1-MIT licence.'),
+                         '<a href="x">Support the project</a> · all-rights-reserved notice.')
+
     def test_rewriting_twice_changes_nothing(self):
         once = self.rw("Free to use and source available under the FSL-1.1-MIT licence.")
         self.assertEqual(self.rw(once), once)

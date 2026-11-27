@@ -1,4 +1,4 @@
-// Captain score confirmation for the self-hosted league page (server.mjs). Every team gets its own
+// Captain score confirmation for the league page (server.mjs). Every team gets its own
 // captain link (the league link plus a per-team key). A captain reports the score of a game their team
 // has played; when the other captain reports the same score, the result goes straight into the table
 // and the organiser does nothing. Different scores wait for the organiser with both side by side; a

@@ -6,6 +6,8 @@ tags: [einvoice-preflight, e-invoicing, peppol, zatca]
 description: "The self-hosted e-invoice preflight API gave Singapore InvoiceNow and Saudi ZATCA files the EU rules. It now runs each file's own published rule set."
 ---
 
+> **Update, 2026-11-27:** the offer to run the checker as your own self-hosted API was withdrawn. The checker on the site and its command line still work.
+
 [einvoice-preflight](https://marisstella.app/einvoice-preflight/) checks
 invoices against EN 16931 and national rule sets. Its browser page already read
 a Peppol PINT file (Singapore, Australia/New Zealand) or a Saudi ZATCA file

@@ -5,6 +5,8 @@ tags: [scheduling, shift-roster-builder, time-clock, small-business]
 description: "Shift Roster Builder's self-hosted hub now earns paid sick leave or PTO per hour worked, at the manager's own rate and caps, and keeps it past the punch trim."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 Many US states and cities require paid sick leave that is earned by the hour:
 a common form is one hour for every 30 or 40 worked, with a cap on what can be
 earned in a year, a cap on what can be held, and a limit on what carries into

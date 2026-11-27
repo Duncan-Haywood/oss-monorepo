@@ -1,6 +1,6 @@
 // Offline shell for the installed app (Add to Home Screen). Caches this
 // directory's own files only. It never touches /api/*, the website inquiry form,
-// the calendar feed or anything on another origin, so the self-hosted server's
+// the calendar feed or anything on another origin, so the server's
 // desk, keys and leads are always fetched live and never stored here.
 //
 // The shell is the files below plus every module index.html imports, found at

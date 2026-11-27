@@ -6,6 +6,8 @@ tags: [scheduling, shift-roster-builder, small-business, time-tracking]
 description: "The self-hosted team page now has a time clock: staff punch on their phone, managers see hours against the schedule and get a payroll CSV."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 The [Shift Roster Builder](../../ventures/shift-roster-builder/) has a team
 page you can host yourself, free, in your own Cloudflare account. Staff open
 one link to see their shifts and ask for swaps, cover or time off. What it

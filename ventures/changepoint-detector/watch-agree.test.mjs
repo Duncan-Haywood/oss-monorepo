@@ -55,5 +55,4 @@ test('round 13 as run: T9 fails on the normal run and on faults caught, and the 
   assert.match(out, /T9 A2 vs A1, Quiet: \(a\) normal run 2\.69 per 100 checks vs 2 FAIL; \(b\) 22 vs 31 - 2 FAIL; \(c\) 37\.2% vs 31\.5% PASS\. FAILS\./);
   assert.match(out, /16 \|\s+8\s+Accelerometer1RMS \+ Accelerometer2RMS/);
   assert.match(readFileSync(new URL('./watch.mjs', import.meta.url), 'utf8'), /Waiting for two columns to agree does not fix it/);
-  assert.match(readFileSync(new URL('./watch-a-metric-for-changes.html', import.meta.url), 'utf8'), /Asking for two columns to agree before an alert was tested on the same testbed and does not ship/);
 });

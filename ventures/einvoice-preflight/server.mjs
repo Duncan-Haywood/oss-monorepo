@@ -1,4 +1,4 @@
-// Self-hostable HTTP API for e-invoice preflight. Zero dependencies: Node 20+.
+// HTTP API for e-invoice preflight. Zero dependencies: Node 20+.
 //
 //   POST /v1/validate        raw body = one invoice (JSON, UBL/CII XML or a
 //                            Factur-X PDF). Content-Type picks the filename

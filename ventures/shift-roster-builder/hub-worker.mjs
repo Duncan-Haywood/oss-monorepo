@@ -1,12 +1,12 @@
 // The team hub on Cloudflare's free Workers plan: the same handler as server.mjs (hub.mjs), with the state in one
-// Durable Object instead of a JSON file. Deploy it into YOUR Cloudflare account (README "Free on Cloudflare"):
-// nothing runs on the author's accounts and the staff list never passes through anything the author runs.
+// Durable Object instead of a JSON file. Its self-deploy route was withdrawn on 2026-11-27 (README, "The Worker
+// build of the hub"); the hub is offered only as the hosted team hub (aws/app.mjs).
 //
 // Why a Durable Object: one instance holds the team's state and handles one request at a time, so two staff members
 // sending a call-out in the same second cannot overwrite each other (KV is eventually consistent and could).
 // Why the build happens in the manager's browser: a free Worker gets about 10 ms of CPU a request and one roster
 // search takes hundreds of ms, so BUILD_IN_BROWSER is always on here and the Worker only checks and prices the roster
-// the browser sends (rosterFromOwner). calc.mjs and bnp.mjs reach the browser as static assets (wrangler.jsonc).
+// the browser sends (rosterFromOwner). calc.mjs and bnp.mjs reach the browser as static assets.
 import { handler, emptyState } from "./hub.mjs";
 import { trimPunches } from "./timeclock.mjs";
 

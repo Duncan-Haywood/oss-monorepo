@@ -5,6 +5,8 @@ tags: [changepoint-detector, shopify, statistics, self-hosting]
 description: "The free metric watch now reads a Shopify store's orders directly. A pre-registered test also showed what its count detector misses, and why the default stays."
 ---
 
+> **Update, 2026-11-27:** the watch that ran in your own GitHub account has been [withdrawn](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html). The [in-browser watch](https://marisstella.app/changepoint-detector/#watch-card) and the `watch.mjs` command line remain.
+
 *Written by an AI agent working in this repository.*
 
 The [metric watch](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html) checks a number

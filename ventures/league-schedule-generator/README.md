@@ -233,7 +233,7 @@ keeps balance first, as everywhere else on the bowling page.
 
 ## Already have a schedule? The league page runs on it as it is (2026-11-23)
 
-Until now the self-hosted league page (`server.mjs`) only ran on a season it built itself. Most
+Until now the league page (`server.mjs`) only ran on a season it built itself. Most
 organisers who would host it already have a season: one they typed into a spreadsheet, or one exported
 from TeamSnap, LeagueApps, SportsEngine or a club website. They had to retype it as teams and dates
 and accept a different season, so standings, rainout moves, calendar feeds, the website embed,
@@ -496,7 +496,7 @@ information.
 
 ## Cards and suspensions served against the fixture list (2026-11-21)
 
-The self-hosted league page (`server.mjs`) keeps a **cards log** and works out who is suspended for which game
+The league page (`server.mjs`) keeps a **cards log** and works out who is suspended for which game
 (`discipline.mjs`). The organiser types one line per event under **Cards, suspensions and scorers** in `/admin`:
 
 ```
@@ -678,7 +678,7 @@ full-size fields still built the weekend grid by hand. `tournament.mjs` and
 ## The league on the club's own website: a read-only embed (2026-11-20)
 
 Clubs want the schedule on their own site, where new players and parents look. Until now an organiser could
-download a static `league-page.html`, which goes stale at the first rainout. The self-hosted server now serves
+download a static `league-page.html`, which goes stale at the first rainout. The league server now serves
 `/embed?k=...` (`embed.mjs`): a small read-only page made for an `<iframe>` on Wix, Squarespace, WordPress, Google
 Sites or a hand-made site, rebuilt from the same state as `/league`, so a posted result or a moved game shows on
 the club page within a minute (it is cached 60 s).
@@ -713,7 +713,7 @@ the club page within a minute (it is cached 60 s).
 
 ## The player page on a phone's home screen, readable with no signal (2026-11-20)
 
-Players look up their next game at the field, where the signal is often one bar or none. The self-hosted league page
+Players look up their next game at the field, where the signal is often one bar or none. The league page
 (`/league?t=...`, and a captain's `&c=...` link) is now an installable web app that opens from the last copy the phone
 saved (`pwa.mjs`):
 
@@ -727,7 +727,7 @@ saved (`pwa.mjs`):
   next time. A refused link (401) never replaces a good copy. Admin pages, forms and calendar feeds are never cached.
 - **My team first:** the "Show only" team is remembered on the phone, and a captain's page starts on the captain's team.
 - **Alternatives today:** TeamSnap, LeagueApps and SportsEngine ship native apps with offline schedules, behind accounts
-  and per-team plans. This gives a self-hosted league the same "open it at the field" behaviour with no app store,
+  and per-team plans. This gives a league on this page the same "open it at the field" behaviour with no app store,
   no account and no install beyond "Add to Home Screen".
 - **Checked:** `pwa.test.mjs` (icons decoded and CRC-checked, nothing outside the maskable circle but the background;
   manifests for player and captain links; the worker run against stand-in caches: network first, offline copy marked,
@@ -865,22 +865,22 @@ Measured over 4 to 20 teams (`node eval/reverse-leg.mjs`, `eval/reverse-leg.txt`
 
 The cost is the last column: the pairs that close leg one open leg two, so they meet on consecutive weeks (the rematch report under the schedule shows it). That is why it is an option and not the default (quality audit round 87 named both sides). Each pair still plays once at each ground, and `validateSchedule` passes every size tested. With carry-over spreading on, the search picks its own second leg, so the option is not applied and a notice says so; with several games a night the reversed leg is kept (`reverse-leg.test.mjs`).
 
-## Run your own league page (self-hosted)
+## The league page (`server.mjs`)
 
-The browser tool builds the season; `server.mjs` gets it to your players. You keep the setup and post results in
+Since 2026-11-27 the league page is no longer offered for you to run on your own server (the product is
+all rights reserved and moving to hosted only), and no hosted version is live yet. This section documents how it
+works. The browser tool builds the season; `server.mjs` gets it to your players. You keep the setup and post results in
 `/admin?key=...`; your players open **one link** (`/league?t=...`) to see every fixture, the standings and the
 play-off bracket, and add their own team's schedule to their calendar (`.ics`). No accounts, no per-team fee, no
 third party: zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** TeamSnap, LeagueApps and SportsEngine hold your players' data behind per-team accounts and
-  paid plans. This is the sign-up, publish-fixtures-and-table loop for one league, FSL-1.1-MIT-licensed. Team sign-ups take
+  paid plans. This is the sign-up, publish-fixtures-and-table loop for one league. Team sign-ups take
   the fee on the organiser's own payment link (it never handles a card); waivers, notices, availability and
   sportsmanship ratings are below. It has no in-app chat or card processing; use one of them if you need those.
 - **Secrets:** `ADMIN_KEY` unlocks `/admin`; `LEAGUE_TOKEN` is the secret in the player link. The server refuses to
-  serve without both. Put it behind HTTPS (Fly and Render do); keys are in the URL, so do not share admin links. Ten wrong links from one address lock it out for 15 minutes (HTTP 429); behind a proxy the last `X-Forwarded-For` hop is used.
-- **Run:** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`, or `docker compose up -d`
-  (`docker-compose.yml`), Fly (`fly.toml`), or Render (`render.yaml`, deploy from your fork; it generates both
-  secrets). Nothing runs on the author's accounts.
+  serve without both. Put it behind HTTPS; keys are in the URL, so do not share admin links. Ten wrong links from one address lock it out for 15 minutes (HTTP 429); behind a proxy the last `X-Forwarded-For` hop is used.
+- **Run (development and tests):** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`.
 - **On a phone, with no signal (2026-11-20):** the player and captain pages install to the home screen and open from the last saved copy when the field has no signal (`pwa.mjs`; section "The player page on a phone's home screen" above).
 - **Calendar feeds:** the player page links a subscribe-able feed for the whole league and each team (`webcal://`, Google Calendar, or the plain address). Optional `PUBLIC_URL=https://league.example.org` fixes the address in those links; without it the request's host is used (README "Calendar files that follow a rainout").
 - **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
@@ -1133,7 +1133,7 @@ size from 2 to 24 teams.
 **Privacy.** Everything runs in your browser; team names and dates are never
 uploaded. Anonymous feature counts stay in local storage and can be switched off.
 
-FSL-1.1-MIT licence, see `LICENSE`.
+all-rights-reserved notice, see `LICENSE`.
 
 **Returning each season.** The last setup is remembered in this browser's local storage only (Clear forgets it); share-by-link still carries a setup inside the URL.
 
@@ -1737,7 +1737,7 @@ sign-up sheet and late list. The `/join` free agents went onto this search the s
 
 ### Free agents from `/join` placed by the late-sign-up search (2026-11-19, latest)
 
-The self-hosted league page used to pre-pick each free agent's team by a least-filled rule (smallest roster
+The league page used to pre-pick each free agent's team by a least-filled rule (smallest roster
 first, ties to the least free-agent experience). It now runs `addLateSignups` from `teams.mjs`:
 
 - **Rostered players are pinned**, free agents are the late sign-ups, friend pairs are `together` groups.
@@ -1779,7 +1779,7 @@ time or all at once; nobody already on a roster is ever moved. Next: a real leag
 ## Play-off results fill the bracket (2026-11-18, latest)
 
 Until now the bracket stopped at seeding: every later game read "winner of R1M1" for the whole play-off, and the
-organiser redrew the bracket by hand each week. Now a **Play-off results** box (page section 4, the self-hosted
+organiser redrew the bracket by hand each week. Now a **Play-off results** box (page section 4, the league
 `/admin` form, and the share link) takes the games as they are played, and the bracket fills in.
 
 - **What you type.** One game per line, any order: `Hawks 2 - 1 Owls`, `Hawks beat Owls` (no score),
@@ -1795,7 +1795,7 @@ organiser redrew the bracket by hand each week. Now a **Play-off results** box (
 - **What it shows.** Each played game as `R1M2: #2 Owls 1 - 1 #3 Lynx (Lynx on penalties) -> Lynx`, later games with
   the teams now known (`R2M1: #1 Hawks vs #3 Lynx`), then `Next up: ...` or, once decided, `Champion: Hawks.
   Runner-up: Lynx. Third: Owls.` The same text goes to the league page download, the plain-text export and the
-  self-hosted `/league` page. A line that fits no game due is named with its line number (`no game between Hawks and
+  `/league` page. A line that fits no game due is named with its line number (`no game between Hawks and
   Bears is due in the bracket (check the earlier rounds' results and the spelling)`) on the page and in `/admin`.
 - **Kept apart from the table.** Play-off results never reach the standings, so the seeding cannot move under the
   bracket once the play-off starts. "Start next season" clears them with the other results.
@@ -1808,7 +1808,7 @@ organiser redrew the bracket by hand each week. Now a **Play-off results** box (
   bracket text when the lines are shuffled. Double elimination at 3 to 20 teams, six random play-outs each (108):
   the champion lost at most once and every other team exactly twice, the reset played or dropped as the grand final
   fell (both seen), the game count equal to `games` or `maxGames`, and the same champion from shuffled lines. Plus
-  the error lines, penalties, the share link, and the self-hosted `buildLeague` path; and clicked in Chromium (6 teams,
+  the error lines, penalties, the share link, and the `buildLeague` path; and clicked in Chromium (6 teams,
   4-team play-off with a third-place game: champion, runner-up, third and the bad line shown). Made-up leagues only;
   no real league has used it yet.
 
@@ -2362,7 +2362,7 @@ twice). Old ids against fixture ids:
 The duplicates come from the old id's position-in-round part: removing or moving one game
 renumbered the others on that night. No file repeats an id.
 
-**Subscribe on the self-hosted league page.** `server.mjs`'s player page now offers, for the
+**Subscribe on the league page.** `server.mjs`'s player page now offers, for the
 whole league (`/league/ics?t=...&team=all`, new) and each team, a `webcal://` subscribe link,
 a Google Calendar add-by-URL link, the plain address to paste into any app, and the download.
 A subscribed calendar re-reads the feed on its own schedule (each app decides how often), so
@@ -5686,7 +5686,7 @@ check as the sibling packs (`licence.mjs`, `paddle.mjs`). The card in
 `index.html` shows only once `checkout.mjs` carries a Paddle price id (the
 2026-11-25 note below), so nothing is for sale today. The schedule, CSV, calendar, web page
 and score sheets stay free. The key is an honest-buyer convenience, not copy
-protection; the code is FSL-1.1-MIT. Checked: `node --test printpack.test.mjs`
+protection; the code is all rights reserved. Checked: `node --test printpack.test.mjs`
 (5 cases: a page per team with each game once and the bye, escaping of every
 typed field, SVG and non-hex colour refused, the card dark, the key check never
 throwing offline); whole suite 312 passing. Not checked: a real checkout, or

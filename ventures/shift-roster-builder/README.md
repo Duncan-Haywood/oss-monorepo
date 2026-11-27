@@ -28,24 +28,21 @@ answer "subscription required" until checkout exists. Tested: `aws/app.test.mjs`
 (Postgres 16, twenty simultaneous replies, none lost), `aws/console-browser.check.mjs` (Chromium: sign-in with code +
 PKCE against a faked Cognito, create, publish, staff view, delete).
 
-## Run your own team schedule (self-hosted)
+## The team hub (`server.mjs`, `hub.mjs`)
 
-The browser tool builds the roster; `server.mjs` is the part that gets it to your staff. You build and publish the
+The browser tool builds the roster; the team hub is the part that gets it to your staff. You build and publish the
 week, and your team opens **one link** to see their shifts, add them to their calendar (`.ics`) and send you their
-availability, which you merge into the staff list in one click. No accounts, no per-seat price, no third party:
-zero dependencies, one JSON file on a disk you own.
+availability, which you merge into the staff list in one click. It is offered only as the hosted team hub above
+(built, not live yet). Self-hosting it was offered until 2026-11-27 and is withdrawn (owner, 2026-11-27: the paid
+products are hosted-only, source visible with all rights reserved); the notes below describe the code.
 
 - **Alternatives today:** When I Work, Deputy, Homebase and 7shifts charge per user per month and hold your staff
-  data. This is the same publish-and-notify loop for a single small team, on your own server, FSL-1.1-MIT-licensed. It does
+  data. This is the same publish-and-notify loop for a single small team. It does
   not do payroll, photo clock-ins or push notifications; if you need those, use one of them. Since
   2026-11-15 it has a simple time clock and timesheet (section "Time clock and timesheets" below).
 - **Secrets:** `ADMIN_KEY` unlocks `/admin?key=...` (edit, build, publish, merge). `TEAM_TOKEN` is the secret in the
   staff link `/team?t=...`. The server refuses to serve without both. Wages, hour caps and payroll never appear on the
-  staff page (tested). Put it behind HTTPS (Fly and Render do); the key is in the URL, so do not share admin links.
-- **Run:** `ADMIN_KEY=a TEAM_TOKEN=b STATE=./state.json node server.mjs`, or one of:
-  `docker compose up -d` (`docker-compose.yml`), Fly (`fly.toml`), or Render
-  (`render.yaml`, deploy from your fork; it generates both secrets). Nothing runs on the author's accounts.
-- **Free on Cloudflare, no server, no card (2026-11-15):** [Deploy to Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shift-roster-builder), or from a clone of this folder `npx wrangler deploy` then `npx wrangler secret put ADMIN_KEY` and `npx wrangler secret put TEAM_TOKEN`. Details in "Free on Cloudflare" below.
+  staff page (tested). It is served only over HTTPS; the key is in the URL, so do not share admin links.
 - **On the phone:** the staff page is an installable web app (manifest + a small service worker, `server.mjs`). "Add to home screen" opens it full-screen like an app, and the last schedule the phone saw stays readable with no signal. Only the schedule page is cached; forms are never replayed offline. No app-store account, no push notifications.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
 - **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Since 2026-11-16, optional per-person clock PINs and an optional site geofence (section "Clock PINs and a site geofence"); without them it is an honour system. Also since 2026-11-16, paid sick leave (or PTO) earned per hour worked at the rate and caps you set, off until `LEAVE_ACCRUAL` is set (section "Paid sick leave from the time clock"). Details in "Time clock and timesheets" below.
@@ -263,7 +260,7 @@ the free Cloudflare Worker alike (`clockguard.mjs`, Web Crypto, no Node built-in
 - **What it does not do.** A determined person can fake a phone's location or share a PIN; these stop the casual cases and
   leave the decision with you, which is what the flag mode is for. There is no photo check. Location data about staff is
   personal data in many places (GDPR in the UK and EU, notice rules in some US states): tell staff before you turn the
-  geofence on. Nothing about where anyone is goes anywhere but your own server, and even there only the distance is stored.
+  geofence on. Nothing about where anyone is goes anywhere but the hub's server, and even there only the distance is stored.
 - **Checked:** `clockguard.test.mjs` (five tests): PIN format, salted hashes with no PIN in the clear, the five-try lock and
   its expiry and reset; the distance (Westminster to the Eiffel Tower within 1.5 km of 340.5 km), the accuracy allowance and
   its cap, no coordinates kept, staff-typed reason text stripped; place flags on the timesheet and in the CSV; the hub end to
@@ -700,17 +697,13 @@ Oregon preset was checked against the statute itself. Reading it showed two pric
   653.432(7) coercion penalty are printed as notes, not enforced. The rule texts were read, not checked by an
   employment lawyer, and no real Oregon site has used this.
 
-## Free on Cloudflare: no server, no card (2026-11-15)
+## The Worker build of the hub (2026-11-15; self-deploy withdrawn 2026-11-27)
 
-The team hub ran only where a disk and a process can live: Docker on your own box, Fly, or Render's starter plan
-($7 a month with a disk; the free plan has none). For a ten-person café that is the whole price of the paid schedulers
-it replaces. It now also runs on **Cloudflare's free Workers plan**, in the deployer's own account:
+`hub-worker.mjs` runs the hub on a Cloudflare Worker with its state in a Durable Object. It was written so a team
+could deploy the hub into its own free Cloudflare account; that self-deploy offer, its Deploy button and its
+`wrangler.jsonc`, `.assetsignore` and `.dev.vars.example` were removed on 2026-11-27 with the other self-host routes.
+What it showed still holds for the hosted hub:
 
-- **Deploy:** the [Deploy to Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shift-roster-builder) button copies this folder into your GitHub account and deploys it,
-  asking for the secrets listed in `.dev.vars.example` (`ADMIN_KEY`, `TEAM_TOKEN`; optional webhooks). By hand:
-  `npx wrangler deploy` in this folder, then `npx wrangler secret put ADMIN_KEY` and `... TEAM_TOKEN` (long random
-  strings, e.g. `openssl rand -hex 16`). Open `https://team-schedule-hub.<you>.workers.dev/admin?key=<ADMIN_KEY>` and
-  send staff `/team?t=<TEAM_TOKEN>`.
 - **How:** `hub-worker.mjs` runs the same handler as `server.mjs` (moved to `hub.mjs`, which now uses no Node built-ins)
   and keeps the state in one SQLite-backed Durable Object (the kind the free plan offers): one instance answers one
   request at a time, so two staff sending a call-out in the same second cannot overwrite each other, which a KV store
@@ -719,8 +712,8 @@ it replaces. It now also runs on **Cloudflare's free Workers plan**, in the depl
   search takes hundreds (the sample week: 154 ms warm, ~300 ms cold, in Node). So on the Worker (and on the Node server
   with `BUILD_IN_BROWSER=1`) "Build and publish" imports `calc.mjs` into the admin page, builds there, and posts only who
   works which shift; the Worker checks it against every hard rule and prices it (`rosterFromOwner` in `calc.mjs`, no
-  search). `wrangler.jsonc` serves `calc.mjs` and `bnp.mjs` as static files and `.assetsignore` keeps every other file
-  in this folder out of the upload. Without JavaScript the Worker refuses to publish and says why.
+  search). The Worker served only `calc.mjs` and `bnp.mjs` as static files. Without JavaScript it refuses to publish
+  and says why.
 - **Measured** (`node eval/hub-worker-cpu.mjs`, `eval/hub-worker-cpu.out.txt`; Node wall time, warm, median of 9): on
   the four templates every Worker request costs 0.1 to 1.3 ms (publish from the browser's roster 0.6-1.3 ms, the admin
   page with a call-out and a trade waiting 0.2-0.6 ms, the staff page 0.2-0.5 ms) against 11-154 ms for a build.
@@ -729,8 +722,7 @@ it replaces. It now also runs on **Cloudflare's free Workers plan**, in the depl
   `.assetsignore`'s `!` lines work); 503-free with the secrets from `.dev.vars`, 401 on a wrong key;
   `hub-browser.check.mjs` against it in Chromium built the sample week in the page and published it ($3,690, the known
   best); two availability replies, then a restart of `wrangler dev`, and the week, both replies and a 10-event calendar
-  feed were still there. **Not yet run on a live Cloudflare account**, and the Deploy button's secret prompt
-  (from `.dev.vars.example`) is from Cloudflare's documentation as remembered, not tried.
+  feed were still there. Never run on a live Cloudflare account.
 - **Request checks now read the published week.** Cover candidates, trade checks and pick-up checks used to rebuild
   the roster from the *draft* lists on every admin page load. That was too slow for a Worker, and wrong in two cases a
   manager hits every week: after an approved trade, cover or pick-up, the rebuilt week no longer matched the published
@@ -741,10 +733,7 @@ it replaces. It now also runs on **Cloudflare's free Workers plan**, in the depl
   old code.
 - Tests: `node --test hub-worker.test.mjs roster-from-owner.test.mjs server.test.mjs` (the Worker against a stand-in
   Durable Object: secrets, the browser-only publish, a refused rule-breaking roster, a restart keeping the week, cover
-  candidates, the deploy config); browser: `hub-browser.check.mjs`.
-- Cost to the deployer: nothing on the free plan as long as the team stays inside its daily request and Durable Object
-  limits, which a small team's few hundred page loads a week does by a wide margin (Cloudflare's limits as remembered;
-  check the current ones). Webhook alerts are best effort (a Worker may stop an unawaited fetch after replying).
+  candidates); browser: `hub-browser.check.mjs`.
 
 ## Model
 
@@ -1109,7 +1098,7 @@ Open `index.html`, or `node --test` to run the tests. No build step, no dependen
 
 ## No warranty
 
-Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. FSL-1.1-MIT licensed.
+Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. All rights reserved.
 
 **Split-shift and spread-of-hours premium, for scale (2026-10-29).** Give the page your local minimum wage and the notice prices one extra hour at that wage for every person-day with an unpaid gap over 1 hour or a first-to-last span over 10 hours (`splitShiftPay` in `calc.mjs`; `premiumHours`, `splitGap`, `spread` and a California-style wage `credit` are options). Tested on hand-built weeks only; which places owe it, for whom, is the employer's to check.
 

@@ -688,6 +688,10 @@ const NOT_EVIDENCE_SLUGS = new Set([
 // sales-report analyzers and invoice CSV checks that belong elsewhere. Placed second in the rules so no
 // earlier prefix claims a member; `build.test.mjs` fails if a later rule still names one by its exact slug.
 export const SALES_SLUGS = new Set([
+      // `babysitting-business-kit` joined 2026-11-27: it had sat in `self-hosted` only by its deploy manifests, which went
+      // when its self-host offer was withdrawn. Lead scoring, reply drafts, rate quotes and unpaid-sit reminders are this
+      // section's lead-to-paid-invoice job. (`services` was the first pick; its offline bundle would pass 4 MiB.)
+      'babysitting-business-kit',
       'freelance-lead-tracker',
       'sales-cadence-builder',
       'sales-call-notes-desk',

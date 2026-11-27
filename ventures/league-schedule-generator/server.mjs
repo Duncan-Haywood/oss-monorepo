@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Self-hosted league page: you build the season and post results, your players open one link to see
+// League page: you build the season and post results, your players open one link to see
 // fixtures, the table and a calendar feed for their team. Zero dependencies; run it on a box you own.
 //   ADMIN_KEY=... LEAGUE_TOKEN=... STATE=/data/state.json PORT=8080 node server.mjs
 // ADMIN_KEY unlocks /admin. LEAGUE_TOKEN is the secret in the link you share (/league?t=...).

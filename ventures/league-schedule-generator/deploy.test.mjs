@@ -24,13 +24,8 @@ test("the Dockerfile copies every module server.mjs reaches, not only the ones i
   for (const f of seen) assert.ok(copied.includes(f), `${f} is reached from server.mjs but not copied into the image`);
 });
 
-test("every deploy file requires both secrets and keeps state on a disk", () => {
-  for (const f of ["./docker-compose.yml", "./render.yaml"]) {
-    const t = read(f);
-    assert.match(t, /ADMIN_KEY/, f);
-    assert.match(t, /LEAGUE_TOKEN/, f);
+test("no one-click self-deploy template ships (hosted only since 2026-11-27)", () => {
+  for (const f of ["./docker-compose.yml", "./render.yaml", "./fly.toml"]) {
+    assert.ok(!fs.existsSync(new URL(f, import.meta.url)), `${f} is back; the league page is not offered for self-hosting`);
   }
-  assert.match(read("./fly.toml"), /\[mounts\]/);
-  assert.match(read("./render.yaml"), /disk:/);
-  assert.doesNotMatch(read("./render.yaml") + read("./fly.toml"), /duncan/i);
 });

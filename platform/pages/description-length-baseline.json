@@ -1,7 +1,7 @@
 {
  "note": "Venture pages whose meta description is over 160 characters. May only shrink: node platform/pages/description-length.mjs --write after shortening descriptions.",
  "max": 160,
- "count": 2779,
+ "count": 2777,
  "pages": [
   "ventures/1099-k-threshold-checker/index.html",
   "ventures/1099-k-threshold-checker/vs-checking-the-threshold-yourself.html",
@@ -247,7 +247,6 @@
   "ventures/babysitting-business-kit/how-much-to-charge-for-babysitting.html",
   "ventures/babysitting-business-kit/how-to-start-a-babysitting-business.html",
   "ventures/babysitting-business-kit/meet-and-greet.html",
-  "ventures/babysitting-business-kit/self-host.html",
   "ventures/backdoor-roth-pro-rata-calculator/index.html",
   "ventures/backflow-test-fee-calculator/how-to-price-a-multi-device-backflow-test-visit.html",
   "ventures/backflow-test-fee-calculator/index.html",
@@ -450,7 +449,6 @@
   "ventures/changelog-keeper/index.html",
   "ventures/changepoint-detector/change-report-for-analysts.html",
   "ventures/changepoint-detector/how-do-you-know-if-a-time-series-really-changed.html",
-  "ventures/changepoint-detector/watch-a-metric-for-changes.html",
   "ventures/chant-forge/index.html",
   "ventures/chargeback-evidence-packet/how-to-respond-to-a-chargeback.html",
   "ventures/chargeback-evidence-packet/vs-a-generic-dispute-checklist.html",

@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, product]
 description: "The self-hosted league page now carries organiser notices: for everyone or one team, with an end date, optionally emailed to each team's contacts."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 Every rec league organiser sends the same messages each season: courts 3 and 4 are closed on Tuesday,
 fees are due by Friday, play-offs start on the 12th. They go out on a group chat or a mass email, and
 then they are gone: a player who joined late never saw them, and nobody can find the one about the

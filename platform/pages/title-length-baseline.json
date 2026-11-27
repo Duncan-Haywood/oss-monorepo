@@ -1,7 +1,7 @@
 {
  "note": "Venture pages whose <title> is over 70 characters. May only shrink: node platform/pages/title-length.mjs --write after shortening titles.",
  "max": 70,
- "count": 1059,
+ "count": 1058,
  "pages": [
   "ventures/1099-vendor-csv-checker/index.html",
   "ventures/1099-vendor-tracker/vs-tracking-vendors-in-a-spreadsheet.html",
@@ -166,7 +166,6 @@
   "ventures/changelog-keeper/index.html",
   "ventures/changepoint-detector/how-do-you-know-if-a-time-series-really-changed.html",
   "ventures/changepoint-detector/index.html",
-  "ventures/changepoint-detector/watch-a-metric-for-changes.html",
   "ventures/chant-forge/index.html",
   "ventures/chargeback-evidence-packet/vs-a-generic-dispute-checklist.html",
   "ventures/charitable-deduction-calculator/vs-doing-the-math-by-hand.html",

@@ -6,6 +6,8 @@ tags: [league-schedule-generator, rec-leagues, scheduling, open-source]
 description: "The self-hosted league page now runs on a season made elsewhere: rows pasted from Excel, a TeamSnap or club-site CSV, or an .ics calendar."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 The [League Schedule Generator](../../ventures/league-schedule-generator/) has
 two halves. The free page builds a fair round robin. The self-hosted league page
 (`server.mjs`, MIT, runs on the organiser's own server) then runs the season:

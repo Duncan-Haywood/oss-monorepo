@@ -73,7 +73,7 @@ ${sections}
 <footer>
 <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before you rely on it.</strong> Dates come from the country pages, which cite public guidance and say where sources disagree; confirm with your tax authority.</p>
 <p><strong>Nothing leaves your browser.</strong> This page is static.</p>
-<p class="support">Free to use and source available. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p class="support">Free to use and source visible. The <a href="LICENSE" rel="noopener">code is under an all-rights-reserved notice</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
 </footer>
 </main>
 </body></html>

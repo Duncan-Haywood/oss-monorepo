@@ -127,7 +127,7 @@ export function mountNetwork(root, { getDesk, save, esc, record = () => {}, toda
     const st = N.networkStats(desk);
     const tbl = (head, rows) => rows.length ? `<table><thead><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table>` : `<p class="note">None yet.</p>`;
     root.innerHTML = `
-      <p class="note">People you trust to take work you can't. Pass on a family only with their OK: the app records when and how they said yes, and leaves their phone or email out of your message until they agree to that too. Nothing here is sent anywhere unless you copy a message or, with your own server, press Send.</p>
+      <p class="note">People you trust to take work you can't. Pass on a family only with their OK: the app records when and how they said yes, and leaves their phone or email out of your message until they agree to that too. Nothing here is sent anywhere unless you copy a message or, with a server connected, press Send.</p>
       <h3>Backup sitters</h3>${sitters}${form}
       <h3>Pass on a request</h3>${leadPart}
       <h3>Passed on (${n.sent.length})</h3>${sent || `<p class="note">Nothing passed on yet.</p>`}${out ? `<p class="note" role="status">${esc(out)}</p>` : ""}

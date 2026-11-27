@@ -96,7 +96,7 @@ test("swiss-pairing.html: disclaimer, usage events, honest measured claims, link
   assert.match(html, /No warranty/);
   assert.match(html, /Not FIDE-endorsed/i);
   assert.match(html, /Turn usage counting off/);
-  assert.match(html, /FSL-1.1-MIT licence/);
+  assert.match(html, /all-rights-reserved notice/);
   // The accuracy figures must be the ones the replay file records.
   const replay = readFileSync(new URL("./eval/swiss-big-brackets.txt", import.meta.url), "utf8");
   assert.match(replay, /ALL chess-results\s+rounds\s+54 \(err 0\)\s+exact\s+51/);

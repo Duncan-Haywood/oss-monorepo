@@ -4,7 +4,7 @@ After using this, a babysitter who runs their own business can **answer the righ
 
 **Live tool:** https://marisstella.app/babysitting-business-kit/ · **Guide:** [Babysitting taxes, explained](babysitting-taxes.html)
 
-Free and FSL-1.1-MIT. A browser app with no build step and no account, plus an optional one-file Node 22 server with zero dependencies that the sitter runs on their own hosting account.
+Free to use; source visible, all rights reserved ([LICENSE](LICENSE)). A browser app with no build step and no account, plus an optional one-file Node 22 server with zero dependencies.
 
 ## Who it is for
 
@@ -47,7 +47,7 @@ Not affiliated with any of the products named above; they are named only to say 
 - **Sit reports and medicine** (`sitreport.mjs`): in the Families tab, an end-of-sit report filled on a phone (arrival and departure, meals, nap or bedtime, diapers or potty, activities, mood, notes for the parents) that becomes a friendly message to copy and is stored on the sit, one per date of a weekly series. A separate, red-bordered incident section (what happened, first aid given, when and how the parents were told) adds an "INCIDENT" block to the message and a printable incident report with signature lines. A medication log: a medicine is logged against the parents' written authorization (child, medicine, dose, times or "as needed" with a minimum gap and a most-per-sit, parent's name, signed and valid-until dates; a printable blank form, "a template, not legal or medical advice"), and the app warns before logging when there is no authorization, it is unsigned, undated or expired, the dose differs, the time is outside the authorized times (30 minutes either way unless the parents set another window) or that time's dose is already given. Warnings stay on the record. A record, not medical advice. Each family has a report history. With the server and Resend set up, "Email to the parent" sends the report to the family's email on file (`POST /api/sitreport/email`, admin key; the recipient never comes from the request).
 - **Invoices and getting paid** (`invoices.mjs`): an invoice per sit or per period (a week of a weekly family), numbered (`INV-2026-001`), with each sit's lines from the rate card, what is already paid, the balance and a due date; print it or save it as a PDF from the print dialog. Your Venmo, Zelle, Cash App, PayPal or check details come from your settings. Record a payment (with an optional tip, kept apart from what the sit cost but counted as income) and print a receipt. An aging table splits what is owed into current, 1-30, 31-60 and over 60 days past due, and always adds up to the Today list's unpaid total. With the server, each invoice has a private pay link; card payments are optional and go to your own Stripe account (below).
 - **Packages, gift certificates and group nights** (`packages.mjs`, Packages tab): bundles the sitter defines (a date-night bundle of 4 sits, a summer block of 40 hours, school-holiday days), with a suggested price from the sitter's own rate card less a chosen discount; a sale is income on the day it is paid, and each sit drawn from it gets a credit that marks it paid without counting the money twice (`taxSummary` leaves `credit` payments out and adds package and gift sales). Gift certificates with a random 8-symbol code (an alphabet with no 0/O, 1/I, 2/Z, 5/S or 8/B; redrawn on a collision), an amount or hours, an optional use-by date, a printable page, and a balance that carries across sits. Expiry dates come with a plain note: some states restrict gift-certificate expiry and fees, so check your state's rules. A parents' night out planner: per-child price with a family cap, capacity from adults × the sitter's children-per-adult limit (a warning when the ratio is exceeded, a waitlist after that), allergies and under-age children flagged, a church-bulletin or school-newsletter announcement draft, "Add to schedule", and with the server an optional `/event/<token>` sign-up form whose answers survive the next Sync.
-- **Backup and sync:** a JSON backup file; or sync with the sitter's own server.
+- **Backup and sync:** a JSON backup file; or sync with a kit server.
 - **Automations (with the server):** six follow-through rules you turn on one by one (confirmation, day-before reminder, thank-you with a testimonial ask, rebook nudge, unpaid reminders, opt-in birthday notes), by email or text, with quiet hours, opt-outs and a preview of what would go out now. Details below.
 - **On a phone:** installable from the browser (Add to Home Screen): `manifest.webmanifest`, icons rendered from `icon.svg` by `make-icons.mjs`, and `sw.js`, which caches the app and every module `index.html` imports (it follows the imports itself, so new modules need no edit) and never caches `/api/*`, `/inquiry` or the calendar feed. On narrow screens the tab bar sits at the bottom and controls are at least 44 px tall. Tabs follow the WAI-ARIA pattern (`tabs.mjs`: arrow keys, Home, End, `aria-controls`), focus is always visible, and text colours meet WCAG AA contrast (checked in `a11y.test.mjs`).
 - **Guides for searchers:** [How to start a babysitting business](how-to-start-a-babysitting-business.html), [How much to charge for babysitting](how-much-to-charge-for-babysitting.html) (the rate-card logic, with worked examples the tests recompute with `quote()`; no invented national averages) and [Babysitting references](babysitting-references.html).
@@ -96,7 +96,39 @@ Everything outside the box is **off until you set it, on your own accounts**:
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | optional card payments on invoices, into your own Stripe account: the pay link (`/pay/<token>`) creates a Stripe Checkout Session for the balance plus an optional tip, and `/stripe/webhook` (add it in Stripe for `checkout.session.completed`) verifies the `Stripe-Signature` and records the payment. Stripe charges you its own per-payment fee |
 | `LLM_PROVIDER` (`anthropic`, `openai`, `openai-compatible`, `ollama`), `LLM_API_KEY`, `LLM_MODEL`, `LLM_BASE_URL` | blog drafts from your own model account or a local model; with none set, drafts come from the topic template |
 
-**Deploy:** `render.yaml` (Render, starter plan with a 1 GB disk; it generates `ADMIN_KEY` and `CAL_TOKEN`), `fly.toml` (Fly.io, one always-on machine with a volume), `docker-compose.yml` (any box with Docker), or the [one-click deploy page](https://marisstella.app/deploy/?app=babysitting-business-kit), which builds all three from `render.yaml`. Nothing runs on the author's accounts. Step by step, with costs: [self-host.html](self-host.html).
+
+### Every server setting
+
+The full list of environment variables the server reads (`deploy.test.mjs` checks it against the code).
+
+| Variable | Needed? | What it does |
+|---|---|---|
+| `ADMIN_KEY` | Yes | Password for syncing, the API and the `/admin` page. 32 random characters. |
+| `CAL_TOKEN` | For the calendar | The secret part of your calendar link. |
+| `TZ` | Recommended | Your time zone, e.g. `America/Chicago`. |
+| `DIGEST_HOUR` | No (7) | Hour of the morning to-do list. |
+| `NOTIFY_WEBHOOK_URL`, `NOTIFY_FORMAT` | No | Phone alerts: an ntfy.sh topic address (default format), or a Slack or Discord webhook. |
+| `RESEND_API_KEY`, `FROM_EMAIL`, `NOTIFY_EMAIL` | No | Email through your own Resend account; `NOTIFY_EMAIL` is where your alerts go and where families' replies land. |
+| `AUTO_REPLY` | No (0) | `1` emails your reply draft to a family as soon as they ask (never to a lead the kit marks as a decline). |
+| `AUTO_FOLLOW_UP` | No (0) | `1` emails due follow-ups with the morning digest. |
+| `BACKUP_S3_BUCKET`, `BACKUP_S3_ACCESS_KEY_ID`, `BACKUP_S3_SECRET_ACCESS_KEY` | No | A daily off-site copy to your own S3-compatible bucket (AWS S3, Cloudflare R2, Backblaze B2). Off until all three are set. |
+| `BACKUP_S3_ENDPOINT`, `BACKUP_S3_REGION`, `BACKUP_S3_PREFIX` | No | For non-AWS buckets: the provider's S3 endpoint (https only) and region (R2 uses `auto`). Prefix defaults to `babysitting-desk/`. |
+| `BACKUP_DIR`, `BACKUP_KEEP` | No | Where daily snapshots go (default: `backups` beside the state file) and how many to keep (14). |
+| `BOOK_WEEKS` | No (2) | How many weeks of open times the public `/book` page shows (1 to 8). |
+| `PUBLIC_URL` | For automations | Your server's address (`https://...`): puts an unsubscribe link in automated emails and is the address Twilio's incoming-text webhook calls. |
+| `UNSUBSCRIBE_SECRET` | No | Signs unsubscribe links; defaults to `ADMIN_KEY`. |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM` | No | Texts through your own Twilio account, for the automations you turn on in Settings. Families must have agreed to texts. |
+| `TWILIO_WEBHOOK_URL` | No | The exact incoming-text URL Twilio signs, if it differs from `PUBLIC_URL` + `/twilio/inbound`. |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | No | Optional card payments on your invoices, into your own Stripe account. Both are needed: the secret key from your Stripe dashboard, and the signing secret (`whsec_...`) of a webhook endpoint you add at `PUBLIC_URL/stripe/webhook` for the `checkout.session.completed` event. A family's pay link then offers "Pay by card" (with an optional tip if you turn tips on), and the payment is recorded on the invoice once Stripe confirms it. Stripe charges you a fee per payment; check current pricing at stripe.com/pricing. Try it first with test-mode keys. |
+| `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL`, `LLM_BASE_URL` | No | Blog drafts on your own model account (`anthropic`, `openai`, `openai-compatible`, `ollama`). Drafts wait for your approval. |
+| `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `OLLAMA_HOST` | No | Alternatives to `LLM_PROVIDER`: setting one of these picks that provider. |
+| `NETWORK_ID`, `NETWORK_PEERS` | No | The sitter network handoff between two kit servers, off until set. `NETWORK_ID` is your server's short name (letters, digits, `-`); `NETWORK_PEERS` lists `theirname=shared-secret` pairs, one secret per pair of sitters, at least 16 characters (`openssl rand -hex 16`). Each side sets the other's name and the same secret. A handoff carries only a family's first name, the kids' ages and the time, signed with HMAC-SHA256, and only after you recorded the family's OK. |
+| `STATE`, `PORT` | Set for you | `/data/desk.json` and `8080` in the container. |
+
+### Late-sit safety check-in
+
+The app's Safety tab can start a check-in before a late sit: a trusted contact and a "home by" time. It needs no new settings, only texts (`TWILIO_ACCOUNT_SID` and friends) or email (`RESEND_API_KEY`, `FROM_EMAIL`) already set up; with neither, the server refuses the check-in so you never rely on one that cannot fire. At the home-by time the server pings you (your `NOTIFY_WEBHOOK_URL` or `NOTIFY_EMAIL`) with your private link, `PUBLIC_URL`/safe/<token>, where you tap "I'm home safe", extend or cancel. After the grace period it texts or emails your contact your name, phone, the time and only the place you chose to share, never anything about the children, and an all-clear when you check in. Unlike the automations, it ignores quiet hours: a safety alert goes out at any hour. The server checks every minute, so an alert can be up to a minute late; it is a backup, not an emergency service.
+
 
 **Data safety (`backup.mjs`):** atomic writes; a daily snapshot beside the state file (newest 14 kept); at startup a state file that does not parse is moved to `desk.json.corrupt-<time>` and logged, never overwritten, and the newest good snapshot loads instead; `GET /api/backup` downloads the desk, `GET /api/backups` lists snapshots, `POST /api/restore` takes a desk JSON or `{"snapshot": "desk-YYYY-MM-DD.json"}` and saves the current desk first; `/admin` (admin key, sent as a header) shows versions, lead counts, last digest, which integrations are on (names only), disk use and the snapshots. Optional off-site copy to your own S3-compatible bucket (`BACKUP_S3_BUCKET`, `BACKUP_S3_ACCESS_KEY_ID`, `BACKUP_S3_SECRET_ACCESS_KEY`, plus `BACKUP_S3_ENDPOINT`/`BACKUP_S3_REGION` for R2, B2 or MinIO), signed with AWS Signature V4 in plain `node:crypto` and tested against AWS's published SigV4 test suite.
 
@@ -145,4 +177,4 @@ Everything runs in your browser. Your data is never uploaded by the page, and th
 
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.
 
-FSL-1.1-MIT licence. Optional support: https://github.com/sponsors/Duncan-Haywood
+All rights reserved. Optional support: https://github.com/sponsors/Duncan-Haywood

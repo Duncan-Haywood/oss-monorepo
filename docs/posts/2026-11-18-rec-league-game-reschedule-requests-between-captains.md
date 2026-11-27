@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, product]
 description: "Captains ask to move a game to a later date, checked against the season at once; the other captain agrees, and the organiser approves with one click."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 Moving a game is the most common chore in a rec league that is not a score. A captain finds out the
 gym is booked, or half the team is at a wedding, and the request starts in a group chat: "can we
 play Owls on Thursday instead?" The other captain says yes, the organiser checks whether Thursday is

@@ -1,4 +1,4 @@
-// Captain move requests for the self-hosted league page (server.mjs). A captain asks to move one of
+// Captain move requests for the league page (server.mjs). A captain asks to move one of
 // their team's upcoming games to a later date; the other captain agrees or declines from their own
 // captain link; the organiser approves an agreed move with one click, which writes the rainout line
 // (`2026-10-13 Hawks, Owls -> 2026-10-27`) the organiser would otherwise type, rebuilds the season and

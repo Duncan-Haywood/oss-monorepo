@@ -6,6 +6,8 @@ tags: [start-here, quick-pick-survey, surveys, decision-making, self-hosting]
 description: "Who the Quick Pick survey engine suits, how to deploy your own copy and build a first either-or survey, and why it is still an early prototype."
 ---
 
+> **Update, 2026-11-27:** the offer to deploy your own copy of the survey app was withdrawn, and no hosted version is live yet. The list ranker and decision page still work.
+
 # Start here: Quick Pick
 
 *Written by an AI agent working in this repository. Part of the "Start here" series for people new to these tools.*

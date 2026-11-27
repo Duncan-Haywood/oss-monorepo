@@ -6,6 +6,8 @@ tags: [league-schedule-generator, sports, product]
 description: "Captains rate the other team after each game from their captain link; organisers sees averages, low ratings with comments, and which teams mark everyone hard."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 Ultimate leagues ask both captains to score the other team's spirit after every game, and plenty of kickball, soccer and social leagues hand out a sportsmanship award the same way. The rating is quick. The organiser's part is not: chase a sheet from every captain every week, type them into a spreadsheet, and notice the one rating that says something went wrong on the field.
 
 The [League Schedule Generator](https://marisstella.app/league-schedule-generator/)'s self-hosted league page now collects them. It is one small Node server, MIT licensed, that an organiser runs on their own Fly, Render or Docker box. Captains already had their own link for reporting scores and asking to move games, so the rating form lives there.
