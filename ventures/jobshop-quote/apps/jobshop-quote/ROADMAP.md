@@ -483,6 +483,15 @@ fabrication job shops. Pricing and the paid path stay dark until the items marke
   suggestions. A file that gives nothing is marked once ("Could not measure this CAD file") and not
   offered again. Basis for 1 MB: 76 ms for a 166 KB STEP in Node (about 0.5 ms per KB), so ten 1 MB
   files stay near 5 s; a linear estimate, not a measurement of a large file. No migration.
+  Measured 2026-11-27 (docs/GEOMETRY-LIMITS.md, geometry-large-step-timing): 15 real STEP files,
+  0.4 to 12.9 MB (NIST test models, Onshape exports), timed in workerd at 0.03 to 0.19 ms per KB
+  (12.9 MB in 1.3 s), so CPU never limits; memory does: the 12.9 MB file needed 198 MB of V8 heap
+  against the isolate's 128 MB, and a request killed for memory cannot record its failure, so its
+  Measure button would fail on every click. The STEP parser now keeps lists at exact size and names
+  once (132 MB for that file, same results on all 36 files), and a CAD file over 6 MB
+  (`MAX_MEASURE_BYTES`; every real file up to 6 MB fitted in 78 MB) is stored with the reason
+  ("Over 6 MB, too large to measure here ...") and never offered Measure.
+  `packages/cad-features/scripts/heap.ts` finds the heap a file needs.
 
 - E2E Playwright suite (2026-11-25): `pnpm test:e2e` (`scripts/e2e-run.sh`, `playwright.config.ts`,
   `test/e2e/`), offline on a fresh local D1 built from the committed migrations (port 5198, state in
@@ -732,8 +741,10 @@ fabrication job shops. Pricing and the paid path stay dark until the items marke
    fitting) if shops send STL for machined parts; removal rates by material (done 2026-11-25; from a CSV in the rate-card import
    done 2026-11-26). Hardening
    (size threshold done 2026-11-25): a queue consumer that measures large files in the background
-   if shops find the Measure click a chore; time a real 10-15 MB STEP in workerd to replace the
-   linear estimate behind the 1 MB limit.
+   if shops find the Measure click a chore; real 10-15 MB STEP files timed in workerd, done
+   2026-11-27 (docs/GEOMETRY-LIMITS.md: CPU is fine, memory is the limit, files over 6 MB are not
+   measured); next, if shops send assemblies over 6 MB: free each body's sampled edges as it is
+   done (`Sampler.cache` in step.ts), or measure large files in a container with more memory.
 6. Email the quote, part 4 (signature, the estimator's copy and threading into the RFQ email done
    2026-11-25; the RFQ's own `References` chain kept ahead of its Message-ID, done 2026-11-26,
    docs/EMAIL.md): a per-estimator signature line if shops ask for one beyond the shop-level block.

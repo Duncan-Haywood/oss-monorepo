@@ -1,6 +1,11 @@
 // Cash report across an org's jobs (src/shared/cash-report.ts holds the math). Every project's
 // applications are recomputed from their entries, as everywhere else: nothing derived is stored.
-import { type CaNoticeRecipient, caNoticeDueOn } from "@lien-waivers";
+import {
+  type CaNoticeRecipient,
+  caNoticeDueOn,
+  type FlNoticeRecipient,
+  flNoticeDates,
+} from "@lien-waivers";
 import { type CashReport, type CashReportProjectInput, cashReport } from "@shared/cash-report";
 import {
   type CloseoutItemFacts,
@@ -13,10 +18,18 @@ import { type PunchItemFacts, summarizePunchList } from "@shared/punch-list";
 import type { WaiverFollowUpInput } from "@shared/waiver-followup";
 import { and, asc, eq } from "drizzle-orm";
 import type { AppContext } from "../../context";
-import { closeoutItems, lienNoticeSends, lienWaivers, projects, punchItems } from "../../db/schema";
+import {
+  closeoutItems,
+  flNoticeSends,
+  lienNoticeSends,
+  lienWaivers,
+  projects,
+  punchItems,
+} from "../../db/schema";
 import { csvCell } from "../export/csv";
 import { loadBundle, type ProjectBundle, paymentsOf } from "./bundle";
 import { retainagePosition } from "./closeout";
+import { flMissingRecipients } from "./fl-notices";
 import { missingRecipients } from "./notices";
 import { followUpInput } from "./waivers";
 
@@ -28,9 +41,11 @@ export function toCashInput(
   waivers: ReadonlyMap<string, WaiverFollowUpInput[]> = new Map(),
   noticeSends: ReadonlyMap<string, { recipient: CaNoticeRecipient }[]> = new Map(),
   closeouts: ReadonlyMap<string, CloseoutReadiness> = new Map(),
+  flSends: ReadonlyMap<string, { recipient: FlNoticeRecipient }[]> = new Map(),
 ): CashReportProjectInput {
   const p = b.project;
   const missing = p.caFirstFurnishedOn ? missingRecipients(noticeSends.get(p.id) ?? []) : [];
+  const flMissing = p.flFirstFurnishedOn ? flMissingRecipients(flSends.get(p.id) ?? []) : [];
   const approvedChanges = b.changeOrders
     .filter((co) => co.status === "approved")
     .reduce((s, co) => s + co.items.reduce((t, i) => t + i.amountCents, 0), 0);
@@ -57,6 +72,8 @@ export function toCashInput(
             missing: missing.map((m) => (m === "owner" ? "owner" : "direct contractor")),
           }
         : null,
+    flNotice:
+      p.flFirstFurnishedOn && flMissing.length > 0 ? flNoticeDates(p.flFirstFurnishedOn) : null,
     changeOrders: b.changeOrders.map((co) => ({
       id: co.id,
       number: co.number,
@@ -154,10 +171,20 @@ export async function orgCashReport(
     list.push(r);
     noticeSends.set(r.projectId, list);
   }
+  const flRows = await ctx.db
+    .select({ projectId: flNoticeSends.projectId, recipient: flNoticeSends.recipient })
+    .from(flNoticeSends)
+    .where(eq(flNoticeSends.orgId, orgId));
+  const flSends = new Map<string, { recipient: FlNoticeRecipient }[]>();
+  for (const r of flRows) {
+    const list = flSends.get(r.projectId) ?? [];
+    list.push(r);
+    flSends.set(r.projectId, list);
+  }
   const asOf = isoDay(ctx.now());
   const closeouts = await closeoutReadinessByJob(ctx, orgId, bundles, asOf);
   return cashReport(
-    bundles.map((b) => toCashInput(b, waivers, noticeSends, closeouts)),
+    bundles.map((b) => toCashInput(b, waivers, noticeSends, closeouts, flSends)),
     asOf,
   );
 }

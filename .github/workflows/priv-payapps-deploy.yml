@@ -48,8 +48,11 @@ jobs:
         working-directory: ventures/payapps/apps/payapps
     env:
       WRANGLER_SEND_METRICS: "false"
-      # Optional custom domain (zone on the same Cloudflare account); empty = workers.dev.
-      APP_DOMAIN: ${{ vars.PAYAPPS_DOMAIN }}
+      # Custom domain (zone on the same Cloudflare account). Defaults to a subdomain of the catalogue's
+      # own domain: the workers.dev address carries the account's subdomain (a person's name), which is
+      # not a link for 30 public guide pages. If the token cannot reach the zone, "Resolve URL" warns and
+      # deploys on workers.dev, as before. Set PAYAPPS_DOMAIN to change it.
+      APP_DOMAIN: ${{ vars.PAYAPPS_DOMAIN || 'payapps.marisstella.app' }}
     steps:
       - name: Cloudflare credentials present
         working-directory: .
@@ -252,10 +255,11 @@ jobs:
           APP_URL: ${{ steps.urls.outputs.app_url }}
         run: |
           url="${APP_URL%/}/api/health"
-          deadline=$((SECONDS + 90))
+          # A new custom domain's certificate can take a few minutes on its first deploy.
+          deadline=$((SECONDS + 300))
           until body="$(curl -fsS --max-time 10 "$url" 2>/dev/null)" && jq -e '.ok == true and .app == "payapps"' <<<"$body" >/dev/null; do
             if (( SECONDS >= deadline )); then
-              echo "::error::$url did not answer ok within 90s (last: ${body:-no response})"
+              echo "::error::$url did not answer ok within 300s (last: ${body:-no response})"
               exit 1
             fi
             sleep 3

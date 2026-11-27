@@ -143,16 +143,6 @@ export function normalizeTaxId(id: string): string {
   return /^\d{3}[- ]?\d{2}[- ]?\d{4}$/.test(t) ? t.replace(/[- ]/g, "") : t;
 }
 
-/** Removes HTML tags, repeating until none is left (one pass on "<<b>b>" leaves "<b>"). */
-export function stripTags(text: string): string {
-  let previous: string;
-  do {
-    previous = text;
-    text = text.replace(/<[^>]*>/g, "");
-  } while (text !== previous);
-  return text;
-}
-
 function xmlEscape(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -660,3 +650,13 @@ export function ecprNextWeek(w: EcprWorkerInput): EcprWorkerInput {
 
 export const ECPR_NOTICE =
   "Prepared with PayApps in the California DIR eCPR XML format, schema version 2.0 (read from dir.ca.gov, November 2026). Not a Department of Industrial Relations product and not legal advice. Upload it as a draft first where the portal offers one, and check every figure against your payroll records: DIR stores the totals as you send them.";
+
+/** Plain text from a note: tags removed until none are left, then any stray angle bracket. */
+function stripTags(text: string): string {
+  let out = text;
+  for (let prev = ""; prev !== out; ) {
+    prev = out;
+    out = out.replace(/<[^>]*>/g, "");
+  }
+  return out.replace(/[<>]/g, "");
+}

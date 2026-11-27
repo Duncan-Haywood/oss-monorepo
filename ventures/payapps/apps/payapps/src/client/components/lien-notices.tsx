@@ -3,10 +3,9 @@
 // Wyoming's § 29-10-101(a) today, from packages/lien-waivers). The values come from the job and the company; the user checks them, adds
 // what the job does not know (the work, the legal description) and prints the notice (Wyoming's
 // with the blank lien waiver form it says is attached). Printing saves nothing; for California the
-// notices given are recorded below it (ca-notice-log.tsx); for Florida the first day of work gives
-// the 45-day serve-by and 40-day mail-by dates, counted in the browser and not saved. Crew plan and
-// up, like lien waivers.
-import { flNoticeDates } from "@lien-waivers";
+// notices given are recorded below it (ca-notice-log.tsx), and for Florida the notices served, with
+// the first day of work saved for the 45-day and 40-day dates (fl-notice-log.tsx). Crew plan and up,
+// like lien waivers.
 import type { NoticeOverviewDto } from "@shared/api/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -14,41 +13,9 @@ import { useEffect, useState } from "react";
 import { api, downloadPost } from "../lib/api";
 import { CaNoticeLog } from "./ca-notice-log";
 import { ErrorText } from "./error";
+import { FlNoticeLog } from "./fl-notice-log";
 
 const STATE_NAMES: Record<string, string> = { CA: "California", FL: "Florida", WY: "Wyoming" };
-
-/** Florida's two dates from the first day of work (§ 713.06(2)(a), § 713.18(2)); not saved. */
-function FlNoticeDates() {
-  const [first, setFirst] = useState("");
-  let dates: ReturnType<typeof flNoticeDates> | null = null;
-  try {
-    dates = first ? flNoticeDates(first) : null;
-  } catch {
-    dates = null;
-  }
-  return (
-    <div className="grid gap-1">
-      <label>
-        <span className="text-slate-600">First day you furnished work on this job</span>{" "}
-        <input
-          className="input w-44"
-          type="date"
-          value={first}
-          onChange={(e) => setFirst(e.target.value)}
-        />
-      </label>
-      {dates && (
-        <p>
-          Serve the notice by <strong>{dates.serveBy}</strong> (45 days, § 713.06(2)(a)). Mailed by
-          registered, Global Express Guaranteed or certified mail by <strong>{dates.mailBy}</strong>{" "}
-          (40 days), it counts as served the day it is mailed, if you keep the mail log or USPS
-          tracking records (§ 713.18(2)). Calendar days, not moved for a weekend or holiday; this
-          date is not saved.
-        </p>
-      )}
-    </div>
-  );
-}
 
 export function LienNoticesPanel(props: { orgId: string; base: string }) {
   const { orgId, base } = props;
@@ -189,7 +156,7 @@ export function LienNoticesPanel(props: { orgId: string; base: string }) {
             </div>
             {print.error && <ErrorText error={print.error} />}
             {o.ca && <CaNoticeLog base={base} log={o.ca} />}
-            {o.state === "FL" && <FlNoticeDates />}
+            {o.fl && <FlNoticeLog base={base} log={o.fl} />}
           </>
         )}
         <p className="text-xs text-slate-500">

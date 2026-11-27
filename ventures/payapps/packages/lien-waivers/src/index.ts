@@ -31,6 +31,21 @@ export {
   flNoticeDates,
 } from "./fl-notice.ts";
 export {
+  FL_MAIL_ON_MAILING,
+  FL_NOTICE_RECIPIENT_LABELS,
+  FL_NOTICE_RECIPIENTS,
+  FL_REMINDER_RECIPIENTS,
+  FL_SERVICE_METHOD_LABELS,
+  FL_SERVICE_METHODS,
+  type FlNoticeGiven,
+  type FlNoticeRecipient,
+  type FlNoticeService,
+  type FlServedBasis,
+  type FlServiceMethod,
+  flNoticeService,
+  flServiceText,
+} from "./fl-service.ts";
+export {
   GA_AFFIDAVIT_COPY_DAYS,
   GA_AFFIDAVIT_ID,
   GA_WAIVER_DAYS,

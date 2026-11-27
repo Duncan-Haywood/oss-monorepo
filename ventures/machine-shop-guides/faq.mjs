@@ -154,6 +154,14 @@ export const FAQ = {
     ["Do ISO 9001 and AS9100 require contract review?",
       "Both ask for a review of the requirements before you commit to supply, in clause 8.2.3 (review of the requirements for products and services)."],
   ],
+  "machine-hour-rate.html": [
+    ["How do I calculate a CNC machine hour rate?",
+      "Add up what the machine costs a year (depreciation or lease, the cost of money tied up in it, floor space, maintenance and its share of shop overhead) and divide by the hours you can bill, then add the per-hour costs: power, tooling and, for an attended hour, the operator. This page does that per machine from your own numbers."],
+    ["Why does utilization change the machine rate so much?",
+      "Most of an hour's cost is yearly cost spread over billable hours, so the same machine billing fewer hours costs more per hour. The page shows each machine's rate at 10 points more and less utilization, so an optimistic guess is easy to see."],
+    ["Should a machine shop have one shop rate or a rate per machine?",
+      "A rate per machine prices work more accurately when the machines cost very different amounts to own and run: a single blended rate undercharges hours on the expensive machines and overcharges hours on the cheap ones. The page gives both the per-machine rates and the blended one."],
+  ],
   "drawing-review.html": [
     ["What should I check on a part drawing before quoting?",
       "The title block (part number, revision, material, finish), whether the revision table's last row matches it, the general tolerance block, every numbered note, the tightest tolerances and surface finishes, and any distribution or export marking."],
