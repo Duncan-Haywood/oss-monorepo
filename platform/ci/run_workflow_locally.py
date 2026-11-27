@@ -2326,9 +2326,9 @@ def post_precheck(changed, repo: str = REPO) -> tuple[bool, str]:
 # checks it first and stops in under a second.
 RECORD_PRECHECK_STOP = (
     "Stopped before the sweep: run record(s) {paths} still have outcome null, "
-    "so prompts-ci's validate step would fail on them. Fill in outcome (and "
-    "pr) first, or sweep before writing the record (--no-record-check sweeps "
-    "anyway).")
+    "so prompts-ci's validate step would fail on them. To verify the work "
+    "first and fill the record in after, rerun with --no-record-check; "
+    "otherwise fill in outcome (and pr) and rerun.")
 
 
 def blank_records(changed, repo: str = REPO) -> list[str]:
@@ -2705,6 +2705,26 @@ def checkout_drift(before, after) -> str | None:
     return f"tracked files changed while the sweep ran{same_head}{where}" + born_hint(before, after)
 
 
+# The "do not edit the checkout" warning used to appear only in the hand-off
+# note, 100 s in, after a run had already edited, formatted or merged into the
+# checkout. Seven doc-friction reports (2026-11-26..27; friction_rank clusters
+# on this file and cloud-session.md) asked for it before the sweep starts, and
+# two lost a step that reads `git status` (D1 migration drift) to a new file
+# not yet committed. One line at the start costs nothing to read.
+def start_note(checkout: str, n: int, before=None) -> str:
+    """The line printed before a sweep: what it reads and what voids it."""
+    loose = len(getattr(before, "untracked", {}) or {})
+    extra = (f" {loose} untracked file(s) now: steps that read `git status` "
+             "(migration drift checks) fail on them until they are committed."
+             if loose else "")
+    return (f"Sweeping {n} workflow(s) over {checkout} as it stands: until the "
+            "last one ends, editing, formatting or merging into tracked files "
+            "there voids the later verdicts; committing files already written "
+            "is fine. Merge main first, and write new files (the run record) before "
+            "starting or after it ends."
+            + extra)
+
+
 def born_hint(before, after) -> str:
     """A sentence when every moved path was created after the sweep started.
 
@@ -2800,6 +2820,7 @@ def _run_selected(args, selected, held, absent=(), changed=()) -> int:
         return 0
 
     before = checkout_fingerprint(with_untracked=True)
+    print(start_note(REPO, len(selected), before), flush=True)
 
     failures, out_of_budget, after_skip, ci_only = [], [], [], []
     failed_steps = []
