@@ -94,3 +94,11 @@ test('index links one hop to the retainage-cashflow-calculator sibling', () => {
     'index must link ../retainage-cashflow-calculator/ so crawlers reach the retainage calculator in one hop',
   );
 });
+
+test("PayApps front door: one tagged sign-up link, open-now wording, paid plans not oversold", () => {
+  const links = html.match(/https:\/\/payapps\.marisstella\.app\/\?signup&amp;from=[a-z0-9._\/-]+/g) || [];
+  assert.deepEqual(links, ["https://payapps.marisstella.app/?signup&amp;from=subcontractor-cashflow-planner"]);
+  assert.match(html, /class="[^"]*payapps-cta[^"]*">[^<]*PayApps/);
+  assert.match(html, /not on sale yet/);
+  assert.doesNotMatch(html, /workers\.dev/);
+});

@@ -39,3 +39,12 @@ test("outside-Part-1 numbers on the page match the README and the eval record", 
   for (const n of ["79 of 80", "43 of 49"]) { assert.ok(html.includes(n), n); assert.ok(readme.includes(n), n); assert.ok(ev.includes(n), n); }
   assert.match(html, /id="buriedPanel"/);
 });
+
+test("PayApps front door: one tagged sign-up link, open-now wording, paid plans not oversold", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const links = html.match(/https:\/\/payapps\.marisstella\.app\/\?signup&amp;from=[a-z0-9._\/-]+/g) || [];
+  assert.deepEqual(links, ["https://payapps.marisstella.app/?signup&amp;from=submittal-register"]);
+  assert.match(html, /class="[^"]*payapps-cta[^"]*">[^<]*PayApps/);
+  assert.match(html, /not on sale yet/);
+  assert.doesNotMatch(html, /workers\.dev/);
+});

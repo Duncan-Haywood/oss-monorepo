@@ -24,3 +24,7 @@ The register is Part 1 submittal articles; the outside-Part-1 list's match to Pa
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/submittal-register): FSL-1.1-MIT licensed.
+
+## Hosted version
+
+- [PayApps](https://payapps.marisstella.app/?signup&from=submittal-register): hosted pay-app billing for specialty subcontractors, open now and free on one job; paid plans are not on sale yet.
