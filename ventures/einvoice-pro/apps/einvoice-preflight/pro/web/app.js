@@ -154,13 +154,19 @@ const T = {
     invalidLink: "This link has expired or was already used. Ask for a new one.",
     emailInUse: "Another workspace already signs in with this address.",
     emailPanelH: "Sign-in email",
-    emailPanelP: "Optional. A confirmed address lets you sign in with a link if you lose your API key. It is used only for sign-in links.",
+    emailPanelP: "Optional. A confirmed address lets you sign in with a link if you lose your API key. It is used only for sign-in links and, if you turn it on below, the client summary.",
     emailCurrent: "Signs in with",
     emailNone: "No sign-in email yet.",
     emailSave: "Send confirmation link",
     emailRemove: "Remove",
     confirmEmailRemove: "Remove the sign-in email? Links already sent stop working.",
     verifySent: "A confirmation link was sent to {email}. It works for 24 hours.",
+    digestLabel: "Client summary by email",
+    digestP: "How many clients need attention, invoices still failing and the most frequent rules, sent to this address. Counts and rule ids only: no client names or invoice contents.",
+    digestOff: "Off",
+    digestWeekly: "Weekly",
+    digestMonthly: "Monthly",
+    digestSaved: "Saved.",
   },
   de: {
     title: "E-Rechnungs-Arbeitsbereich",
@@ -285,13 +291,19 @@ const T = {
     invalidLink: "Dieser Link ist abgelaufen oder wurde bereits verwendet. Fordern Sie einen neuen an.",
     emailInUse: "Ein anderer Arbeitsbereich meldet sich bereits mit dieser Adresse an.",
     emailPanelH: "Anmelde-E-Mail",
-    emailPanelP: "Optional. Mit einer bestätigten Adresse können Sie sich per Link anmelden, wenn Sie Ihren API-Schlüssel verlieren. Sie wird nur für Anmeldelinks verwendet.",
+    emailPanelP: "Optional. Mit einer bestätigten Adresse können Sie sich per Link anmelden, wenn Sie Ihren API-Schlüssel verlieren. Sie wird nur für Anmeldelinks und, wenn Sie sie unten einschalten, die Mandantenübersicht verwendet.",
     emailCurrent: "Anmeldung mit",
     emailNone: "Noch keine Anmelde-E-Mail.",
     emailSave: "Bestätigungslink senden",
     emailRemove: "Entfernen",
     confirmEmailRemove: "Anmelde-E-Mail entfernen? Bereits gesendete Links funktionieren dann nicht mehr.",
     verifySent: "Ein Bestätigungslink wurde an {email} gesendet. Er ist 24 Stunden gültig.",
+    digestLabel: "Mandantenübersicht per E-Mail",
+    digestP: "Wie viele Mandanten Handlungsbedarf haben, noch fehlerhafte Rechnungen und die häufigsten Regeln, an diese Adresse. Nur Zahlen und Regel-IDs: keine Mandantennamen oder Rechnungsinhalte.",
+    digestOff: "Aus",
+    digestWeekly: "Wöchentlich",
+    digestMonthly: "Monatlich",
+    digestSaved: "Gespeichert.",
   },
   fr: {
     title: "Espace e-facture",
@@ -416,13 +428,19 @@ const T = {
     invalidLink: "Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.",
     emailInUse: "Un autre espace se connecte déjà avec cette adresse.",
     emailPanelH: "E-mail de connexion",
-    emailPanelP: "Facultatif. Une adresse confirmée vous permet de vous connecter par lien si vous perdez votre clé d'API. Elle ne sert qu'aux liens de connexion.",
+    emailPanelP: "Facultatif. Une adresse confirmée vous permet de vous connecter par lien si vous perdez votre clé d'API. Elle ne sert qu'aux liens de connexion et, si vous l'activez ci-dessous, à la synthèse clients.",
     emailCurrent: "Connexion avec",
     emailNone: "Pas encore d'e-mail de connexion.",
     emailSave: "Envoyer le lien de confirmation",
     emailRemove: "Supprimer",
     confirmEmailRemove: "Supprimer l'e-mail de connexion ? Les liens déjà envoyés ne fonctionneront plus.",
     verifySent: "Un lien de confirmation a été envoyé à {email}. Il est valable 24 heures.",
+    digestLabel: "Synthèse clients par e-mail",
+    digestP: "Le nombre de clients à traiter, les factures encore non conformes et les règles les plus fréquentes, envoyés à cette adresse. Uniquement des nombres et des identifiants de règles : ni noms de clients ni contenu de factures.",
+    digestOff: "Désactivée",
+    digestWeekly: "Hebdomadaire",
+    digestMonthly: "Mensuelle",
+    digestSaved: "Enregistré.",
   },
   // Polish: drafted without a native-speaker read (ROADMAP "Must do"); the legal texts stay English.
   pl: {
@@ -548,13 +566,19 @@ const T = {
     invalidLink: "Ten link wygasł lub został już użyty. Poproś o nowy.",
     emailInUse: "Inny obszar roboczy loguje się już tym adresem.",
     emailPanelH: "E-mail do logowania",
-    emailPanelP: "Opcjonalnie. Potwierdzony adres pozwala zalogować się linkiem, jeśli zgubisz klucz API. Służy wyłącznie do linków logowania.",
+    emailPanelP: "Opcjonalnie. Potwierdzony adres pozwala zalogować się linkiem, jeśli zgubisz klucz API. Służy wyłącznie do linków logowania oraz, jeśli włączysz je poniżej, do podsumowania klientów.",
     emailCurrent: "Logowanie przez",
     emailNone: "Brak e-maila do logowania.",
     emailSave: "Wyślij link potwierdzający",
     emailRemove: "Usuń",
     confirmEmailRemove: "Usunąć e-mail do logowania? Wysłane już linki przestaną działać.",
     verifySent: "Link potwierdzający wysłano na {email}. Jest ważny 24 godziny.",
+    digestLabel: "Podsumowanie klientów e-mailem",
+    digestP: "Ilu klientów wymaga uwagi, faktury nadal błędne i najczęstsze reguły, wysyłane na ten adres. Tylko liczby i identyfikatory reguł: bez nazw klientów i treści faktur.",
+    digestOff: "Wył.",
+    digestWeekly: "Co tydzień",
+    digestMonthly: "Co miesiąc",
+    digestSaved: "Zapisano.",
   },
   nl: {
     title: "E-factuurwerkruimte",
@@ -679,13 +703,19 @@ const T = {
     invalidLink: "Deze link is verlopen of al gebruikt. Vraag een nieuwe aan.",
     emailInUse: "Een andere werkruimte gebruikt dit adres al om aan te melden.",
     emailPanelH: "Aanmeldadres",
-    emailPanelP: "Optioneel. Met een bevestigd adres kunt u zich aanmelden met een link als u uw API-sleutel kwijt bent. Het wordt alleen gebruikt voor aanmeldlinks.",
+    emailPanelP: "Optioneel. Met een bevestigd adres kunt u zich aanmelden met een link als u uw API-sleutel kwijt bent. Het wordt alleen gebruikt voor aanmeldlinks en, als u het hieronder inschakelt, het klantenoverzicht.",
     emailCurrent: "Meldt aan met",
     emailNone: "Nog geen aanmeldadres.",
     emailSave: "Bevestigingslink sturen",
     emailRemove: "Verwijderen",
     confirmEmailRemove: "Het aanmeldadres verwijderen? Al verstuurde links werken dan niet meer.",
     verifySent: "Er is een bevestigingslink gestuurd naar {email}. Hij werkt 24 uur.",
+    digestLabel: "Klantenoverzicht per e-mail",
+    digestP: "Hoeveel klanten actie vragen, facturen die nog worden afgekeurd en de meest voorkomende regels, naar dit adres. Alleen aantallen en regel-id's: geen klantnamen of factuurinhoud.",
+    digestOff: "Uit",
+    digestWeekly: "Wekelijks",
+    digestMonthly: "Maandelijks",
+    digestSaved: "Opgeslagen.",
   },
 };
 
@@ -1328,8 +1358,36 @@ function emailPanel() {
     h("p", { class: "small" }, t("emailPanelP")),
     h("p", {}, current ? h("span", {}, `${t("emailCurrent")} `, h("strong", {}, current), " ") : t("emailNone"), remove),
     form,
+    current ? digestControl() : "",
     msg,
   );
+}
+
+/** The client summary email (pro/digest.mjs): off, weekly or monthly, to the confirmed address. */
+function digestControl() {
+  const now = state.account?.account?.digest ?? "off";
+  const note = h("span", { class: "small", role: "status" });
+  const select = /** @type {HTMLSelectElement} */ (
+    h(
+      "select",
+      {
+        id: "adigest",
+        onchange: async () => {
+          note.replaceChildren();
+          try {
+            const r = await api("PUT", "/v1/account/digest", { digest: select.value, lang: state.lang });
+            if (state.account?.account) state.account.account.digest = r.digest;
+            note.replaceChildren(` ${t("digestSaved")}`);
+          } catch (err) {
+            select.value = state.account?.account?.digest ?? "off";
+            note.replaceChildren(errorBox(err));
+          }
+        },
+      },
+      ...["off", "weekly", "monthly"].map((v) => h("option", { value: v, ...(v === now ? { selected: true } : {}) }, t(v === "off" ? "digestOff" : v === "weekly" ? "digestWeekly" : "digestMonthly"))),
+    )
+  );
+  return h("div", {}, h("p", { class: "small" }, t("digestP")), h("p", { class: "row" }, h("label", { for: "adigest" }, t("digestLabel"), " ", select), note));
 }
 
 function signOut() {

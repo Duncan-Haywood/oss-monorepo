@@ -942,7 +942,7 @@ What is not switched on yet, so you know before you sign up:
 
 Later the same day the CMMC and ISO 9001 workspace opened too: **CMMC
 Workspace**, at
-[cmmc.marisstella.app](https://cmmc.marisstella.app/?signup&from=docs/posts/machine-shops),
+[cmmc.marisstella.app](https://cmmc.marisstella.app/signup?from=docs/posts/machine-shops),
 free on Level 1 (the 15 FAR 52.204-21 safeguards, their evidence and the SSP,
 one user, no card). Level 2, with the SPRS score and the POA&M, is a paid
 plan that is not on sale yet, and "Draft with AI" is off there too. What the

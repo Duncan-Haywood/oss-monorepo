@@ -51,7 +51,7 @@ The page now lists every objective under its requirement, and the shop marks eac
 ## Update, 27 November 2026: the workspace is open, free on Level 1
 
 Everything above calls the workspace "in development". Since 27 November it is open at
-[cmmc.marisstella.app](https://cmmc.marisstella.app/?signup&from=docs/posts/cmmc-level-1), and a shop
+[cmmc.marisstella.app](https://cmmc.marisstella.app/signup?from=docs/posts/cmmc-level-1), and a shop
 can sign up today on the free **Level 1** plan, with no card. That plan is the Level 1
 self-assessment described at the top of this post, kept as a record instead of a browser tab: the 15
 FAR 52.204-21 requirements with their objectives, a status and a "how we meet it" line for each,

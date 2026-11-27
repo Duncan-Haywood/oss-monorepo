@@ -323,8 +323,8 @@ export const PRODUCT_LINES = Object.freeze([
     href: null,
     appName: 'CMMC Workspace',
     // Deployed from ventures/cmmc (cmmc-deploy run 46022366507, 2026-11-27; ventures/cmmc/DEPLOY.md).
-    // `?signup` opens "Create an account" (apps/cmmc/src/client/lib/auth-mode.ts).
-    appUrl: 'https://cmmc.marisstella.app/?signup&from=products',
+    // `/signup` opens "Create account" (apps/cmmc/src/client/lib/auth-mode.ts).
+    appUrl: 'https://cmmc.marisstella.app/signup?from=products',
     industry: 'manufacturing',
     kind: 'software',
     tools: ['machine-shop-guides'],

@@ -150,6 +150,12 @@ CREATE TABLE IF NOT EXISTS usage_charges (
   finished_at TEXT,
   PRIMARY KEY (account_id, period)
 );
+CREATE TABLE IF NOT EXISTS digest_sends (
+  account_id TEXT NOT NULL REFERENCES accounts(id),
+  period TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (account_id, period)
+);
 `;
 
 /** Run after ADDED_COLUMNS, since it indexes columns that older databases gain there. */
@@ -176,6 +182,9 @@ export const ADDED_COLUMNS = /** @type {const} */ ([
   // the verified sign-in address (lower-cased) and when it was verified (pro/email.mjs)
   ["accounts", "email", "TEXT"],
   ["accounts", "email_verified_at", "TEXT"],
+  // the client summary email the account asked for (pro/digest.mjs) and its language
+  ["accounts", "digest", "TEXT NOT NULL DEFAULT 'off'"],
+  ["accounts", "digest_lang", "TEXT"],
   // invoices a check found errors in, per month (the metered API's "explained" unit; store.mjs Usage)
   ["usage", "error_documents", "INTEGER NOT NULL DEFAULT 0"],
   ["metered_documents", "had_errors", "INTEGER NOT NULL DEFAULT 0"],
@@ -206,6 +215,8 @@ const toAccount = (r) => ({
   termsVersion: r.terms_version ?? null,
   email: r.email ?? null,
   emailVerifiedAt: r.email_verified_at ?? null,
+  digest: r.digest === "weekly" || r.digest === "monthly" ? r.digest : "off",
+  digestLang: r.digest_lang ?? null,
 });
 /** @param {Record<string, any>} r @returns {import("./store.mjs").UsageCharge} */
 const toUsageCharge = (r) => ({
@@ -328,6 +339,8 @@ export class SqlStore {
       termsVersion: input.termsVersion ?? null,
       email: null,
       emailVerifiedAt: null,
+      digest: /** @type {import("./store.mjs").DigestFrequency} */ ("off"),
+      digestLang: null,
     };
     await this.db.run("INSERT INTO accounts (id, name, plan, created_at, terms_version) VALUES (?, ?, ?, ?, ?)", [
       account.id,
@@ -350,6 +363,33 @@ export class SqlStore {
   async findAccountByEmail(email) {
     const [r] = await this.db.all("SELECT * FROM accounts WHERE email = ?", [email]);
     return r ? toAccount(r) : null;
+  }
+
+  // --- client summary email (see store.mjs for the contract) ---
+  /** @param {string} accountId @param {import("./store.mjs").DigestFrequency} digest @param {string | null} lang @returns {Promise<"ok" | "not_found">} */
+  async setAccountDigest(accountId, digest, lang) {
+    const r = await this.db.run("UPDATE accounts SET digest = ?, digest_lang = ? WHERE id = ?", [digest, lang, accountId]);
+    return r.changes ? "ok" : "not_found";
+  }
+
+  /** Cross-tenant, for the admin-triggered send only. @param {"weekly" | "monthly"} frequency */
+  async listDigestAccounts(frequency) {
+    return (await this.db.all("SELECT * FROM accounts WHERE digest = ? AND email IS NOT NULL ORDER BY created_at, id", [frequency])).map(toAccount);
+  }
+
+  /** @param {string} accountId @param {string} period */
+  async claimDigest(accountId, period) {
+    const { changes } = await this.db.run("INSERT INTO digest_sends (account_id, period, created_at) VALUES (?, ?, ?) ON CONFLICT (account_id, period) DO NOTHING", [
+      accountId,
+      period,
+      this.now().toISOString(),
+    ]);
+    return changes > 0;
+  }
+
+  /** @param {string} accountId @param {string} period */
+  async releaseDigest(accountId, period) {
+    await this.db.run("DELETE FROM digest_sends WHERE account_id = ? AND period = ?", [accountId, period]);
   }
 
   /** @param {string} accountId @param {string | null} email @returns {Promise<"ok" | "taken" | "not_found">} */

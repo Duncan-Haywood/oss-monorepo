@@ -8,7 +8,7 @@ Status: **live on the free Level 1 plan** (2026-11-27). First production deploy:
 answered `{"ok":true,"app":"cmmc-workspace","billing":false,"email":true,"files":"d1"}`. AI drafts are
 off (no `CMMC_ANTHROPIC_API_KEY`, the owner's choice), Level 2 and Level 2 + Quality are dark (no
 Paddle secrets), evidence is kept in D1. The machine-shop guides, the products page and the
-manufacturing tool doors link to `/?signup&from=<page>` (`src/client/lib/auth-mode.ts`, 2026-11-27).
+manufacturing tool doors link to `/signup?from=<page>` (`src/client/lib/auth-mode.ts`, 2026-11-27).
 No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
 
 ## Done
@@ -431,6 +431,23 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   bucket on "not enabled" or code 10000 and writes `files=r2|d1` to the job output; `/api/health`
   answers `"files": "r2" | "d1"`. Ported from Job Shop Quote (PR #19749), live that way since its first
   deploy. `test/worker/file-store.test.ts` uploads, downloads and deletes evidence with no bucket.
+
+- The marketing site opens and is served (2026-11-27, cmmc-site-served). The app went live at
+  `https://cmmc.marisstella.app` (cmmc-deploy run 46022366507: `/api/health` ok, email on, files in D1,
+  billing dark). `apps/cmmc-site/src/launch.mjs` is the one switch (`APP_URL`, `PAID_PLANS_ON`): open,
+  every page's call to action and the header link "Start free" to `/signup?from=cmmc-site/<page>` and
+  "Sign in"; the early-access pages and form are gone; pricing shows the app's own plans
+  (`src/plans.mjs`, which `test/plans.test.mjs` checks against `src/shared/plans.ts`: names,
+  descriptions, prices, annual prices, feature lines), the paid ones "not on sale yet"; the privacy
+  notice says the site keeps nothing and links the app's policy; the security page no longer says
+  files are in R2 and names the app's four roles; a no-warranty footer. The old proposed prices
+  ($39/$149/$249) no longer appear anywhere. The catalogue builds the site straight from source
+  (`platform/pages/cmmc-site.mjs`, no committed export) into `marisstella.app/cmmc/`, listed in the
+  sitemap index. On that static host the SPRS calculator scores in the browser: `build.mjs` ships
+  `sprs.mjs` itself as `sprs.js` with the official data inlined, and `sprs-page.js` applies it to the
+  page (ticks kept, result, noindex), the same functions the Worker runs (tested equal); the submit
+  button sends `calc=1`, so "nothing ticked" scores 110 instead of showing no result. The app's sign-in
+  screen opens on "Create account" at `/signup` or `?mode=signup` (`src/client/lib/auth-mode.ts`).
 
 ## Must do before a public launch
 

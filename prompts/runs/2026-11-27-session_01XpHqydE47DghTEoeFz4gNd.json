@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqydE47DghTEoeFz4gNd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T15:39:04Z",
+  "ended": "2026-11-27T15:46:08Z",
+  "wall_minutes": 7.2,
+  "tokens_in": 6109882,
+  "tokens_out": 27234,
+  "cost_usd": 2.8037,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19791",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported every ranked bet (payapps, jobshop-quote, einvoice-preflight, cmmc) as 'free and not gated: none'; the work had to be found outside the ROADMAPs (decision queue payout-rail's 'domain review wants pricing, terms, privacy, refund policy')."
+    },
+    {
+      "file": "docs/reports/explore-2026-11-27-site-legal-operator.md",
+      "issue": "Its 'Still open' note (refund policy reachable on the domain) was the most useful pointer of the run but lives in a report, not in any bet's ROADMAP or tasks.yaml, so roadmap_claim cannot see it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No customer post: legal pages are not post material, and a thin post would cut against the consolidate-posts direction.",
+      "did": "Wrote an agent doc in docs/reports instead.",
+      "result": "The next run checking other bets' sites for the same gap has a pointer."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-payapps-site-legal-pages.md"
+  ],
+  "goal": null,
+  "notes": "payapps-site test:unit 48/48, test:worker 11/11, typecheck and biome clean; platform/pages payapps-site + footer-privacy node tests 11/11; 390px screenshots checked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "22eb80ae-f941-5e1f-b393-a4328920d296",
+    "transcripts": 1,
+    "first": "2026-11-27T15:39:04Z",
+    "last": "2026-11-27T15:46:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 104,
+        "output": 27234,
+        "thinking": 5127,
+        "cache_read": 5976875,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132903,
+        "api_equivalent_usd": 2.8037,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 104,
+      "output": 27234,
+      "thinking": 5127,
+      "cache_read": 5976875,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132903,
+      "api_equivalent_usd": 2.8037,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 54,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.2,
+      "active_minutes": 7.2,
+      "model_minutes": 5.5,
+      "tool_minutes": 1.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a web developer adding three legal pages from existing documents with a renderer, drift test and footer links",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 142.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

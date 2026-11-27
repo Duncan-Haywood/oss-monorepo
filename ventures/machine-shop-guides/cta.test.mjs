@@ -29,7 +29,7 @@ test("before launch the legacy text is kept; after, the block replaces it once a
   assert.doesNotMatch(live, /Read what is planned and how to get early access/);
   assert.match(live, /Both products are open, free to start/);
   assert.match(live, /sign-up\?from=machine-shop-guides%2Fx/);
-  assert.match(live, /cmmc\.marisstella\.app\/\?signup&amp;from=machine-shop-guides%2Fx/);
+  assert.match(live, /cmmc\.marisstella\.app\/signup\?from=machine-shop-guides%2Fx/);
   const noCmmc = apply(LEGACY, "x.html", { cmmcUrl: null });
   assert.match(noCmmc, /Quoting is open now; the CMMC workspace is coming/);
   assert.match(noCmmc, /The CMMC workspace is not released yet/);
@@ -59,14 +59,16 @@ test("the free plan's numbers match the app's plans.ts", () => {
   assert.match(status("x.html"), /40 RFQs a month and 3 users/);
 });
 
-test("CMMC Workspace: own host, ?signup link, and the free plan its plans.ts defines", () => {
+test("CMMC Workspace: own host, /signup link, and the free plan its plans.ts defines", () => {
   const u = new URL(CMMC_APP_URL);
   assert.equal(u.protocol, "https:");
   assert.ok(u.hostname.endsWith(".marisstella.app"), u.hostname);
-  assert.equal(cmmcSignupUrl(CMMC_APP_URL, "index.html"), "https://cmmc.marisstella.app/?signup&from=machine-shop-guides");
-  // apps/cmmc reads `?signup` to open "Create an account".
+  assert.equal(cmmcSignupUrl(CMMC_APP_URL, "index.html"), "https://cmmc.marisstella.app/signup?from=machine-shop-guides");
+  // apps/cmmc opens "Create account" at /signup.
   const app = readFileSync(new URL("../cmmc/apps/cmmc/src/client/App.tsx", import.meta.url), "utf8");
-  assert.match(app, /initialAuthMode\(window\.location\.search\)/);
+  assert.match(app, /authModeFromLocation\(window\.location\.pathname/);
+  const mode = readFileSync(new URL("../cmmc/apps/cmmc/src/client/lib/auth-mode.ts", import.meta.url), "utf8");
+  assert.match(mode, /signup\|sign-up/);
   const plans = readFileSync(new URL("../cmmc/apps/cmmc/src/shared/plans.ts", import.meta.url), "utf8");
   const free = plans.slice(plans.indexOf('key: "free"'), plans.indexOf('key: "level2"'));
   assert.match(free, /priceCents: 0,/);

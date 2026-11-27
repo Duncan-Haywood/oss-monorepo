@@ -17,8 +17,8 @@
 //
 // CMMC Workspace (bet #4) opened on its free Level 1 plan with cmmc-deploy run 46022366507
 // (2026-11-27, https://cmmc.marisstella.app, health `{"ok":true,"email":true,"files":"d1"}`), so
-// CMMC_APP_URL is set. Its link is `<app>/?signup&from=machine-shop-guides/<page>`: `?signup` opens
-// "Create an account" (apps/cmmc/src/client/lib/auth-mode.ts). Its free plan is the one in
+// CMMC_APP_URL is set. Its link is `<app>/signup?from=machine-shop-guides/<page>`: `/signup` opens
+// "Create account" (apps/cmmc/src/client/lib/auth-mode.ts, as the cmmc-site links do). Its free plan is the one in
 // apps/cmmc/src/shared/plans.ts (`free`); Level 2, with the SPRS score and POA&M, is paid and not on
 // sale, and the status says so (cta.test.mjs reads that file).
 //
@@ -55,11 +55,11 @@ export function signupUrl(appUrl, page) {
   return `${appUrl.replace(/\/+$/, "")}/sign-up?from=${encodeURIComponent(from)}`;
 }
 
-/** CMMC Workspace's sign-up link: `?signup` opens "Create an account". */
+/** CMMC Workspace's sign-up link: `/signup` opens "Create account". */
 export function cmmcSignupUrl(cmmcUrl, page) {
   const name = page.replace(/\.html$/, "");
   const from = name === "index" ? "machine-shop-guides" : `machine-shop-guides/${name}`;
-  return `${cmmcUrl.replace(/\/+$/, "")}/?signup&from=${encodeURIComponent(from)}`;
+  return `${cmmcUrl.replace(/\/+$/, "")}/signup?from=${encodeURIComponent(from)}`;
 }
 
 export function heading(appUrl = JOBSHOP_APP_URL, cmmcUrl = CMMC_APP_URL) {

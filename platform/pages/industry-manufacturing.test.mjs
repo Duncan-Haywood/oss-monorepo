@@ -65,17 +65,18 @@ test('products are in development or open free, unpriced, and never claim certif
       // An open product: its own host on the catalogue's domain, never workers.dev, and the paid plans unsold.
       assert.match(p.appUrl, /^https:\/\/[a-z-]+\.marisstella\.app\//);
       assert.match(p.status, /^Open: free/);
-      assert.ok(html.includes(`href="${p.appUrl.replace(/&/g, '&amp;')}"`), p.appUrl);
+      assert.ok(html.includes(`href="${p.appUrl}"`), p.appUrl);
     } else {
       assert.match(p.status, /in development/i);
     }
   }
   assert.match(text, /Paid plans are not on sale yet/);
-  assert.match(text, /is a paid plan that is not on sale yet/);
-  // A product still in development keeps the early-access link and no price.
+  // Every product open (both since 2026-11-27): no early-access offer is left on the page.
   if (PRODUCTS.some((p) => !p.appUrl)) {
     assert.match(text, /early access/i);
     assert.match(text, /Pricing is not set yet/);
+  } else {
+    assert.doesNotMatch(text, /Pricing is not set yet/);
   }
   assert.doesNotMatch(text, /\$\d+\s*(?:\/|a |per )mo/i);
   assert.doesNotMatch(text, /\b(?:get|become|guarantee[sd]?|achieve)\s+(?:CMMC\s+)?certifi/i);
@@ -158,18 +159,26 @@ test("the free plan line matches Job Shop Quote's own FREE_PLAN", () => {
   assert.equal(jq.freePlan, `${rfqs} RFQs a month, ${members} users, no card`);
 });
 
-test('the meta description fits the 160-character budget check.mjs enforces', () => {
-  const d = /<meta name="description" content="([^"]*)"/.exec(html)[1];
-  assert.ok(d.length <= 160, `${d.length} characters`);
-});
-
-test("the CMMC free plan line matches CMMC Workspace's own free plan", () => {
+test("CMMC Workspace's free plan line matches its own plans.ts", () => {
   const src = readFileSync(new URL('../../ventures/cmmc/apps/cmmc/src/shared/plans.ts', import.meta.url), 'utf8');
   const free = src.slice(src.indexOf('key: "free"'), src.indexOf('key: "level2"'));
   assert.match(free, /priceCents: 0,/);
-  assert.match(free, /level2: false,/);
-  const members = Number(/maxMembers: (\d+)/.exec(free)[1]);
-  const cm = PRODUCTS.find((p) => p.id === 'cmmc');
-  assert.ok(cm.freePlan.endsWith(`, ${members} user, no card`), cm.freePlan);
-  assert.ok(html.includes('Start free in CMMC Workspace'));
+  assert.match(free, /maxMembers: 1,/);
+  assert.match(free, /"Level 1: the 15 FAR 52\.204-21 safeguards"/);
+  const cmmc = PRODUCTS.find((p) => p.id === 'cmmc');
+  assert.equal(cmmc.freePlan, 'Level 1 (the 15 FAR 52.204-21 safeguards), 1 user, no card');
+  assert.match(cmmc.note, /not switched on yet/, 'AI drafting is off in the hosted app');
+});
+
+test("links an open product's own site only when the build copied it in", () => {
+  const linked = renderManufacturingPage({ productSites: new Set(['cmmc']) });
+  assert.ok(linked.includes('href="../../cmmc/">Features and pricing</a>'));
+  assert.ok(!renderManufacturingPage().includes('cmmc/">Features and pricing'), 'no link to a site the build did not write');
+  assert.ok(linked.includes('>Start free in CMMC Workspace</a>'));
+  assert.ok(linked.includes('>Start free in Job Shop Quote</a>'));
+});
+
+test('the meta description fits the 160-character budget check.mjs enforces', () => {
+  const d = /<meta name="description" content="([^"]*)"/.exec(html)[1];
+  assert.ok(d.length <= 160, `${d.length} characters`);
 });

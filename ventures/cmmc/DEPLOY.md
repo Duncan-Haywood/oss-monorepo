@@ -53,12 +53,11 @@ AUTH_SECRET step all passed, and the Worker attached the default custom domain:
 `https://cmmc.marisstella.app/api/health` answered
 `{"ok":true,"app":"cmmc-workspace","billing":false,"email":true,"files":"d1"}`. So sign-up email
 works, evidence files are kept in D1 (no R2 bucket; add R2 edit to the token before shops fill it),
-paid plans are dark (no `CMMC_BILLING_*`), and AI drafts are off (no `CMMC_ANTHROPIC_API_KEY`: "Draft"
-answers that drafting is not configured). A second dispatch a second later (run 46022369260) was
+paid plans are dark (no `CMMC_BILLING_*`), and AI drafts are off (no `CMMC_ANTHROPIC_API_KEY`). A second dispatch a second later (run 46022369260) was
 cancelled by the workflow's concurrency group before it started.
 
 Front doors since then: the 21 machine-shop guides (`ventures/machine-shop-guides/cta.mjs`), the
-products page and the manufacturing tool doors link to `/?signup&from=<page>`, which opens "Create an
+products page and the manufacturing tool doors link to `/signup?from=<page>`, which opens "Create
 account" (`apps/cmmc/src/client/lib/auth-mode.ts`). That change reaches the live app on the next
 deploy: the workflow is manual, so dispatch it once more after the PR that carries it merges.
 

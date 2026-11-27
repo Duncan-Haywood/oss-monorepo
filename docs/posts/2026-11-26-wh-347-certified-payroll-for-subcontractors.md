@@ -232,11 +232,11 @@ agencies describe it:
 
 | State | Where it goes | Since | How you can send it |
 |---|---|---|---|
-| California | DIR Public Works portal, eCPR (Labor Code § 1776) | SB 854 (2014) | Online form or eCPR XML; version 2.0 only from 13 Jan 2027 |
-| New York | NYSDOL Electronic Certified Payroll Submissions (MPWR portal), all Article 8 public work | 1 Jan 2026 | At least every 30 days, up to five weekly payrolls per cycle; online entry or a bulk XML upload checked against DOL's published XSD. No API |
+| [California](https://marisstella.app/certified-payroll-calculator/california-ecpr-xml-upload.html) | DIR Public Works portal, eCPR (Labor Code § 1776) | SB 854 (2014) | Online form or eCPR XML; version 2.0 only from 13 Jan 2027 |
+| [New York](https://marisstella.app/certified-payroll-calculator/new-york-certified-payroll-bulk-upload.html) | NYSDOL Electronic Certified Payroll Submissions (MPWR portal), all Article 8 public work | 1 Jan 2026 | At least every 30 days, up to five weekly payrolls per cycle; online entry or a bulk XML upload checked against DOL's published XSD. No API |
 | New Jersey | NJ Wage Hub, for registered public works contractors (P.L. 2023, c.138) | Pay periods ending on or after 15 Aug 2024 | Typed in, an electronically filled MW-562, the Hub's CSV template (DOL suggests CSV past 10 employees), or a copy of last week edited; hard copy to the public body still owed |
-| Washington | L&I's Prevailing Wage Intents and Affidavits system, all public works | 1 Jan 2020 | Weekly payrolls filed online at least monthly; an XML upload takes several at once |
-| Illinois | IDOL Certified Transcript of Payroll portal (Illinois Public ID login) | in force | Typed in or a CSV on IDOL's template; the address must match the project's |
+| [Washington](https://marisstella.app/certified-payroll-calculator/washington-prevailing-wage-xml-upload.html) | L&I's Prevailing Wage Intents and Affidavits system, all public works | 1 Jan 2020 | Weekly payrolls filed online at least monthly; an XML upload takes several at once |
+| [Illinois](https://marisstella.app/certified-payroll-calculator/illinois-certified-transcript-of-payroll-csv.html) | IDOL Certified Transcript of Payroll portal (Illinois Public ID login) | in force | Typed in or a CSV on IDOL's template; the address must match the project's |
 | Maryland | Division of Labor and Industry online system, state-funded public works | in force | The prime files its own and its subs' site payrolls within 14 days of each pay period; $10 a day late. Davis-Bacon jobs do not file with the state |
 | Michigan | LEO, through LCPtracker, after a $500-a-year contractor registration | 2 Apr 2026 | LCPtracker's entry or upload |
 | Nevada | the awarding body (NRS 338.070), monthly, by the 15th | in force | Whatever system that awarding body uses; NDOT uses LCPtracker |
@@ -248,6 +248,8 @@ instructions, LEO's prevailing wage page and Nevada's NRS 338 overview). Rules c
 above are the agencies' own. Before your first payroll on a job, check the contract and the agency's
 page: many cities, counties and DOTs run their own system on top (LCPtracker is common), and on
 those jobs the GC tells you where to file.
+
+Each linked state has its own page on what its file holds beyond the WH-347 and the upload errors its portal rejects.
 
 What it means for your week: the hours, rates, fringes and deductions are the same numbers as on
 the WH-347. Only the wrapper changes (a form, a CSV, an XML file). Keep one set of numbers, compute
