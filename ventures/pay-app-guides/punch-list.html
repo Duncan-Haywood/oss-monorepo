@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Punch List Template and Tracker for Subcontractors</title>
+  <meta name="description" content="Free punch list tracker for subcontractors: paste the GC's list, see open, overdue and accepted items, and send one back-check email.">
+  <meta property="og:title" content="Punch list template and tracker for subcontractors">
+  <meta property="og:description" content="Paste the punch list from the walk-through: open, overdue, done and accepted items, the retainage still waiting on it, a back-check email and a CSV with a column for the GC's initials.">
+  <link rel="canonical" href="./punch-list.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 13px/1.5 ui-monospace, monospace; background: var(--card); color: var(--ink); }
+    pre.out { white-space: pre-wrap; background: var(--card); border: 1px solid var(--input); border-radius: 7px; padding: 10px; font-size: 13px; }
+    .flag { color: var(--bad, #a4262c); }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Punch list template and tracker for subcontractors", "datePublished": "2026-11-27", "dateModified": "2026-11-27"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a punch list in construction?", "acceptedAnswer": {"@type": "Answer", "text": "The list of small items still to fix or finish near the end of a job, written at a walk-through by the GC, architect, owner or an inspector. Each item is fixed, marked done, then back-checked and accepted by whoever listed it."}}, {"@type": "Question", "name": "Who is responsible for punch list items?", "acceptedAnswer": {"@type": "Answer", "text": "The trade whose work the item is. An item that is another trade's work, or work built as the drawings show, should be raised with the GC in writing straight away, so it is reassigned instead of staying on your list."}}, {"@type": "Question", "name": "Does the punch list hold up retainage?", "acceptedAnswer": {"@type": "Answer", "text": "Often. Many subcontracts tie retainage release to completion and acceptance of your scope, and an open punch item is the most common reason given for holding the balance. Your subcontract says what release actually depends on."}}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>Punch list template and tracker for subcontractors</h1>
+  <p>The <strong>punch list</strong> is the last thing between a subcontractor and its retainage. At the walk-through the GC, architect, owner or an inspector lists what is left to fix; you fix each item, mark it done, and the GC back-checks and accepts it. Items that are fixed but never walked, or that belong to another trade, keep the list open for weeks. Paste your list below to see where each item stands and send one back-check request.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="retainage-release.html">Getting retainage released</a>
+    <a href="retainage-tracker.html">Retainage tracker</a>
+    <a href="tm-tickets.html">T&amp;M tickets</a>
+    <a href="how-to-write-an-rfi.html">How to write an RFI</a>
+  </nav>
+</header>
+<main>
+<section class="card">
+  <h2>What each punch item should record</h2>
+  <p>A template is only these columns. Keep one row per item, numbered, so the GC and you are talking about the same thing.</p>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Column</th><th role="columnheader" scope="col">Why it matters</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Column">Item number</td><td role="cell" data-label="Why it matters">Use the GC's numbers when the list came from them. "Item 14 is done" beats "the plate by the lobby".</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Location</td><td role="cell" data-label="Why it matters">Room, gridline or floor, as the drawings name it, so the crew and the back-check find the same spot.</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Description</td><td role="cell" data-label="Why it matters">What is wrong, in the words of whoever listed it. Rewording it invites "that is not what I wrote".</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Listed by, listed and due dates</td><td role="cell" data-label="Why it matters">GC, architect, owner, inspector or your own walk, and when they need it. Without a due date, nothing is ever overdue and nothing is ever finished.</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Fixed (date and who)</td><td role="cell" data-label="Why it matters">Your record that the work was done, and the date you asked for the back-check from.</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Accepted (date and who)</td><td role="cell" data-label="Why it matters">The GC's initials or a name and date. This is what you show when retainage is held "for the punch list".</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Not ours</td><td role="cell" data-label="Why it matters">The reason an item is another trade's work or built as drawn. Tell the GC in writing; it stays out of your count here, not off their list.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">The tracker below downloads exactly these columns as a CSV, with a blank <em>GC initials</em> column to print and walk with.</p>
+</section>
+
+<section class="card" id="tracker">
+  <h2>Punch list tracker</h2>
+  <p>Paste a table with a header row (<code>Item, Location, Description, Listed by, Listed, Due, Fixed, Fixed by, Accepted, Accepted by, Not ours</code>; only <em>Description</em> is required), or paste the list straight from the GC's email, one item per line: numbering like <code>1.</code> or <code>P-004</code> is dropped and a location before " - ", ": " or a tab is split off. Dates as YYYY-MM-DD or MM/DD/YYYY. It runs in this browser tab; nothing is uploaded.</p>
+  <label for="pl-text">Punch items (CSV, pasted spreadsheet cells, or one item per line)</label>
+  <textarea id="pl-text" spellcheck="false"></textarea>
+  <p><button type="button" class="secondary" id="pl-sample">Load the example</button> <label for="pl-file" style="display:inline">Or open a CSV</label> <input type="file" id="pl-file" accept=".csv,.tsv,.txt,text/csv"></p>
+  <div class="grid">
+    <div><label for="pl-asof">As of</label><input id="pl-asof" type="date"></div>
+    <div><label for="pl-ret">Retainage held on this job ($, optional)</label><input id="pl-ret" inputmode="decimal"></div>
+  </div>
+  <div aria-live="polite">
+    <p id="pl-errors" class="flag"></p>
+    <p id="pl-summary"></p>
+    <h3>Items</h3>
+    <ul id="pl-items"></ul>
+    <h3>What to do</h3>
+    <ul id="pl-findings"></ul>
+  </div>
+  <p><button type="button" id="pl-csv">Download the punch list (CSV)</button></p>
+
+  <h3>Back-check request</h3>
+  <div class="grid">
+    <div><label for="em-gc">GC</label><input id="em-gc" placeholder="Hill Builders"></div>
+    <div><label for="em-pm">GC's project manager</label><input id="em-pm" placeholder="Maria Hill"></div>
+    <div><label for="em-project">Project</label><input id="em-project" placeholder="Elm St Clinic"></div>
+    <div><label for="em-sub">Your company</label><input id="em-sub" placeholder="Spark Electric"></div>
+  </div>
+  <pre class="out" id="pl-email"></pre>
+  <p><button type="button" id="pl-copy">Copy email</button></p>
+  <p class="note">The email lists the items you marked fixed and how many are still open. It does not say your subcontract's conditions for payment or retainage are met; those are in your subcontract.</p>
+</section>
+
+<section class="card">
+  <h2>Closing a punch list fast</h2>
+  <ol>
+    <li><strong>Walk your own scope first.</strong> A list you write before the GC's walk is shorter than the one they write, and it is yours to schedule.</li>
+    <li><strong>Get the list in writing, numbered, with due dates.</strong> Ask for it the day of the walk. Push back on items that are not yours that same week, in writing; once a list has been open a month, nobody remembers who caused the damaged tile.</li>
+    <li><strong>Fix in batches by area</strong> and record the date and who fixed each item as you go.</li>
+    <li><strong>Ask for one back-check per batch.</strong> One email naming every fixed item (the tracker writes it) gets them walked together, instead of a call per item.</li>
+    <li><strong>Get each item initialled.</strong> A signed or initialled list is what ends the "still open" conversation when you ask for retainage. Then send the request: <a href="retainage-release.html">getting retainage released</a> lists the close-out documents usually asked for alongside the punch list and writes the request letter.</li>
+  </ol>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>What is a punch list in construction?</h3>
+  <p>The list of small items still to fix or finish near the end of a job, written at a walk-through by the GC, architect, owner or an inspector. Each item is fixed, marked done, then back-checked and accepted by whoever listed it.</p>
+  <h3>Who is responsible for punch list items?</h3>
+  <p>The trade whose work the item is. An item that is another trade's work, or work built as the drawings show, should be raised with the GC in writing straight away, so it is reassigned instead of staying on your list.</p>
+  <h3>Does the punch list hold up retainage?</h3>
+  <p>Often. Many subcontracts tie retainage release to completion and acceptance of your scope, and an open punch item is the most common reason given for holding the balance. Your subcontract says what release actually depends on.</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>A punch list that ends in your retainage</h2>
+  <p>PayApps is hosted pay-app billing for specialty subcontractors. Each job keeps its punch list (open, overdue, done and accepted, the back-check email, a printable list with a column for the GC's initials) next to its close-out documents, pay applications and retainage, and says what still stands between the job and the release. <!-- cta-status: generated by cta.mjs, do not edit by hand -->It is <strong>open now</strong>: pay applications with retainage and change orders, free on one job, no card. Lien waivers, QuickBooks and job costing are in the paid plans, which are not on sale yet. <a href="https://payapps.marisstella.app/?signup&amp;from=pay-app-guides%2Fpunch-list">Start free in PayApps</a>.<!-- /cta-status --></p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" id="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="tm-tickets.html">T&amp;M ticket log and CO request</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="front-loading-schedule-of-values.html">Front-loading check (balanced SOV)</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      <li><a href="how-to-write-an-rfi.html">RFI drafter and how to write an RFI</a></li>
+      <li><a href="punch-list.html" aria-current="page">Punch list tracker and back-check email</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="progress-billing.html">Progress billing and draw schedules</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="gc-portal-billing.html">Billing in Procore, Textura and GCPay</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="california-preliminary-notice.html">California 20-day preliminary notice</a></li>
+      <li><a href="florida-notice-to-owner.html">Florida Notice to Owner (45 days)</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      <li><a href="joint-checks.html">Joint check splitter and split letter</a></li>
+      <li><a href="miller-act-payment-bond-claims.html">Miller Act bond claim deadlines (federal jobs)</a></li>
+      <li><a href="pay-app-cash-forecast.html">When will I get paid? Cash forecast</a></li>
+      <li><a href="certificate-of-insurance-for-subcontractors.html">Certificates of insurance (COI)</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Statutory lien waiver forms</h2>
+      <ul>
+      <li><a href="arizona-lien-waiver-forms.html">Arizona</a></li>
+      <li><a href="california-lien-waiver-forms.html">California</a></li>
+      <li><a href="florida-lien-waiver-forms.html">Florida</a></li>
+      <li><a href="georgia-lien-waiver-forms.html">Georgia</a></li>
+      <li><a href="massachusetts-lien-waiver-forms.html">Massachusetts</a></li>
+      <li><a href="michigan-lien-waiver-forms.html">Michigan</a></li>
+      <li><a href="mississippi-lien-waiver-forms.html">Mississippi</a></li>
+      <li><a href="missouri-lien-waiver-forms.html">Missouri</a></li>
+      <li><a href="nevada-lien-waiver-forms.html">Nevada</a></li>
+      <li><a href="texas-lien-waiver-forms.html">Texas</a></li>
+      <li><a href="utah-lien-waiver-forms.html">Utah</a></li>
+      <li><a href="wyoming-lien-waiver-forms.html">Wyoming</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This guide and tracker are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, accounting, or financial advice, and they do not replace your contract, your accountant, or an attorney. You are responsible for verifying anything you rely on or send. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. What you type stays in this tab. Anonymous counters (<code>guide_punch_list_viewed</code>, <code>punch_list_tracked</code>, <code>punch_csv_downloaded</code>, <code>punch_email_copied</code>) are kept in local storage on your device only, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { compute, summaryText, backCheckEmail, itemsCsv, sampleItems, SAMPLE_SETTINGS, statusLabel } from "./punch.mjs";
+  import { dayText } from "./colog.mjs";
+  record("guide_punch_list_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  const li = (text, cls) => { const e = document.createElement("li"); e.textContent = text; if (cls) e.className = cls; return e; };
+  let last = null, counted = false;
+  function render() {
+    const r = compute($("pl-text").value, { asOf: $("pl-asof").value, retainage: $("pl-ret").value });
+    last = r.errors.length ? null : r;
+    $("pl-errors").textContent = r.errors.join(" ");
+    if (!last) { for (const id of ["pl-items", "pl-findings"]) $(id).replaceChildren(); $("pl-summary").textContent = ""; $("pl-email").textContent = ""; return; }
+    $("pl-summary").textContent = summaryText(r);
+    $("pl-items").replaceChildren(...r.items.map((x) => li(`${x.number}${x.location ? ` (${x.location})` : ""}: ${x.description}. ${statusLabel(x.status)}${x.status === "overdue" ? `, ${x.daysOverdue} day${x.daysOverdue === 1 ? "" : "s"} past due` : ""}${x.status === "accepted" && x.accepted != null ? ` ${dayText(x.accepted)}${x.acceptedBy ? ` by ${x.acceptedBy}` : ""}` : ""}${x.status === "disputed" ? `: ${x.notOurs}` : ""}`, x.status === "overdue" ? "flag" : "")));
+    $("pl-findings").replaceChildren(...(r.findings.length ? r.findings.map((f) => li(f.text, f.severity === "high" ? "flag" : "")) : [li("Nothing to chase yet.")]));
+    $("pl-email").textContent = backCheckEmail(r, { gc: $("em-gc").value, pm: $("em-pm").value, project: $("em-project").value, sub: $("em-sub").value }) || "No items marked fixed and waiting on a back-check.";
+  }
+  $("pl-csv").addEventListener("click", () => { if (!last) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([itemsCsv(last)], { type: "text/csv" })); a.download = "punch-list.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); record("punch_csv_downloaded"); });
+  $("pl-copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("pl-email").textContent); $("pl-copy").textContent = "Copied"; record("punch_email_copied"); } catch { $("pl-copy").textContent = "Select the email and copy it"; } });
+  $("pl-sample").addEventListener("click", () => { $("pl-text").value = sampleItems(); $("pl-asof").value = SAMPLE_SETTINGS.asOf; $("pl-ret").value = SAMPLE_SETTINGS.retainage; render(); });
+  $("pl-file").addEventListener("change", async (e) => { const f = e.target.files?.[0]; if (f) { $("pl-text").value = await f.text(); render(); } });
+  for (const id of ["pl-text", "pl-asof", "pl-ret", "em-gc", "em-pm", "em-project", "em-sub"]) $(id).addEventListener("input", () => { render(); if (!counted && last) { counted = true; record("punch_list_tracked"); } });
+  $("pl-sample").click();
+</script>
+</body>
+</html>

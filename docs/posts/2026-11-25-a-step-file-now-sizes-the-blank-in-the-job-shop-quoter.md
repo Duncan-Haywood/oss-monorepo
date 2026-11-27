@@ -374,6 +374,41 @@ measured at upload, as before. All the job-shop tests pass (262 unit and 149
 Worker tests), including new ones for the deferred path, the role check and isolation between
 shops.
 
+## How big a STEP file it can measure: timed on 15 real files
+
+That check is now done (2026-11-27). We used 15 real STEP exports, 0.4 to 12.9 MB. Twelve are
+NIST's public test parts, from NX, CATIA, Creo and SolidWorks; the largest STEP NIST publishes
+is 6.1 MB. Three are multi-body printer parts exported from Onshape, at 3.2, 7.8 and 12.9 MB. We
+timed each one in workerd, the runtime Cloudflare Workers use. The full tables are in the app's
+`docs/GEOMETRY-LIMITS.md`.
+
+**Time was never the problem.** The slowest file took 0.19 ms per KB, not 0.5. The 12.9 MB
+assembly measured in 1.3 s, and ten 1 MB files at upload take under 2 s of the 30 s budget.
+
+**Memory was.** A Worker gets 128 MB in all. The 12.9 MB file needed 198 MB of heap to measure,
+and when a Worker runs out of memory it is stopped on the spot. It cannot even record that it
+failed. So the Measure button on that file would have failed on every click, with no explanation.
+Memory also doesn't follow file size. A 1.9 MB part with many free-form surfaces needed more than
+a 5.8 MB part made of flat and round faces, because the parser keeps every edge it traced.
+
+Two changes:
+
+- **The STEP reader uses less memory.** It was keeping every list of numbers with room for 17
+  values when most hold three. Lists are now trimmed to size, and repeated names are stored once.
+  The 12.9 MB file now needs 132 MB instead of 198 MB. It reads faster, and every result on the 36
+  test files is unchanged, down to the byte.
+- **Over 6 MB, the app says so instead of trying.** Every real file up to 6 MB measured in 78 MB
+  or less, and both files above that needed over 120 MB. So a CAD file over 6 MB is kept for
+  download and marked "Over 6 MB, too large to measure here", and no Measure button is offered.
+  The estimator enters the blank by hand, or asks the customer for the single part without the
+  assembly or PMI annotations, which is usually much smaller. NIST's version of one part shows
+  this: 1.9 MB with PMI, 1.1 MB as geometry alone.
+
+The 6 MB line comes from 12 files, so treat it as a judgment, not a guarantee. A 6 MB file packed
+with free-form surfaces could still run out of memory. If that happens, only that one click
+fails, and the file stays as it was. If shops send assemblies over 6 MB often, the next step is
+to measure them somewhere with more memory.
+
 ## The quote now replies in the customer's own email thread
 
 A buyer who emails an RFQ expects the quote back as a reply to that email. Until now the quoter

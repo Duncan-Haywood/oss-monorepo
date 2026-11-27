@@ -45,7 +45,7 @@ import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES 
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
 import { loadPages, resolvePostTitleClashes } from './page-identity.mjs';
-import { addModulePreloads } from './preload.mjs';
+import { addModulePreloads, flattenWorkerGraphs } from './preload.mjs';
 import { COOKIES_PATH, legalDocuments, legalFooterHtml, PRIVACY_PATH, TERMS_PATH } from './legal-pages.mjs';
 import { injectDir as injectWebAnalytics, normaliseToken as normaliseAnalyticsToken, resolveToken as resolveAnalyticsToken } from '../analytics/web-analytics.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
@@ -14304,6 +14304,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // static import graph as modulepreload links, so the browser fetches it in
   // one round instead of one round per import level (preload.mjs).
   const preloads = await addModulePreloads(outDir, { listFiles });
+  // Module workers get no modulepreload: their entry files list their whole
+  // graph instead, so a worker's first start is two fetch rounds, not one per
+  // level (preload.mjs, flattenWorkerGraphs). After the page preloads, which
+  // read the modules as written.
+  preloads.workers = await flattenWorkerGraphs(outDir, { listFiles });
 
   // Before the offline layer, which hashes the finished pages. The deploy
   // runs the same pass again over pages written after build.mjs (the
@@ -14469,7 +14474,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   // above); saying "Drew N" there contradicted the PREVIEW ONLY note below
   // (run record 2026-11-18, session_01XpHqygH4H).
   console.log(`${result.only ? 'Planned (not drawn)' : 'Drew'} ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
-  console.log(`Module preload: ${result.preloads.links} link(s) on ${result.preloads.pages} page(s); deepest import chain ${result.preloads.deepest}.`);
+  console.log(`Module preload: ${result.preloads.links} link(s) on ${result.preloads.pages} page(s); deepest import chain ${result.preloads.deepest}. Module workers flattened: ${result.preloads.workers.workers} (${result.preloads.workers.imports} import(s) added; deepest ${result.preloads.workers.deepest}).`);
   if (result.only) {
     console.log(`\nPREVIEW ONLY (--only=${result.only.join(',')}): the hub, sitemap and search list just these, `
       + 'links to other ventures point at the repository and no share cards were drawn; '

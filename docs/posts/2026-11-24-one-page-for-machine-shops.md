@@ -835,3 +835,56 @@ spreadsheet is fine for a few quotes a week. It gets slow when you have to
 look up the last revision you quoted, follow up on open quotes, or turn an
 emailed drawing into the inputs. That is the work the RFQ-to-quote product in
 development is for.
+
+## Update, 27 November 2026: a rate for each machine, not one for the shop
+
+Every quote tool here asks for a machine rate and none of them worked one
+out. The new [machine hour rate
+calculator](https://marisstella.app/machine-shop-guides/machine-hour-rate.html)
+does, per machine, from the shop's own numbers: ownership (a yearly lease,
+or straight-line depreciation plus the cost of money on the average
+investment), floor space at the building's cost per square foot,
+maintenance, and the shop's overhead shared by billable hours, all divided
+by scheduled hours times utilization; then power (kW times average load
+times price), tooling per spindle hour and, for an attended hour, the
+operator's loaded wage divided by the machines one person runs and by
+utilization.
+
+A hand-checked case from its tests: a machine bought for $100,000, sold
+for $20,000 after 8 years, money at 6%, 150 sq ft at $12, $4,000 of
+maintenance and 2,000 billable hours out of 4,000 carries $19,400 a year,
+$9.70 an hour. Add $1.50 of power and $5 of tooling and the machine hour is
+$16.20; an operator at $40 an hour running two of them at 50% utilization
+adds $40 more. At 60% utilization the same machine and operator cost
+$47.92; at 40%, $68.63. That spread, from one number most shops guess, is
+why the page shows each machine's rate at 10 points either side.
+
+Two things it will not do: ship a figure of its own (every field starts
+empty, and the example is labelled invented) or say what the market pays
+for an hour. The rate links straight into the [job-shop quote
+calculator](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html)
+(`?machineRate=`), and the paid quoting app keeps the same rate per
+machine on its rate card.
+
+## Update, 27 November 2026: the quote calculator answers before you press anything
+
+The free [CNC machining quote calculator](https://marisstella.app/cnc-machining-quote-calculator/)
+opens with a real job already filled in (a turned part from 12 ft bar, 50 off, quoted at $38 each),
+but until today it showed nothing until you pressed "Cost this job", and on a phone that
+button sits about 3,700 pixels below the headline. Now the page works the job out as it
+loads and again as you change any field, and a strip pinned to the bottom of the screen
+while you scroll the form shows the three numbers a quote turns on: cost per part ($16.17
+for the example), the price at your target margin ($24.88) and the margin at the price you
+were about to quote (57.4%). The full breakdown and the lot-size curve are still below the
+form. Working it out as you type is not counted as a use; only the button is.
+
+The same day the [laser cutting and engraving
+price calculator](https://marisstella.app/laser-cutting-engraving-job-price-calculator/) and
+the [powder coating job price
+calculator](https://marisstella.app/powder-coating-job-price-calculator/) got the same
+treatment. Both open with a made-up job filled in and used to hide the answer behind
+"Price this job". Now the laser page shows, as it loads, $4.35 a piece and $261.09 for 60
+birch-ply coasters, earning $278.01 per laser hour; the powder coating page shows $17.62 a
+piece, $5.04 per square foot and $705.00 for 40 parts. Change the order to 200 and the strip
+moves to $3.89 and $16.76 a piece. A half-typed materials line shows what is wrong in the
+strip instead of an old price.

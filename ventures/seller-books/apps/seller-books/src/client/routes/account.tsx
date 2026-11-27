@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { ApiError, api } from "../lib/api";
-import { appPath } from "../lib/base-path";
+import { appPath, safeNextPath } from "../lib/base-path";
 import { LegalFooter } from "./legal";
 
 export const MIN_PASSWORD_LENGTH = 10;
@@ -24,7 +24,8 @@ const NEXT_KEY = "seller-books.after-verify";
 
 export function rememberNext(next: string | null) {
   try {
-    if (next?.startsWith("/") && !next.startsWith("//")) sessionStorage.setItem(NEXT_KEY, next);
+    const safe = safeNextPath(next);
+    if (safe) sessionStorage.setItem(NEXT_KEY, safe);
     else sessionStorage.removeItem(NEXT_KEY);
   } catch {
     // Storage blocked: the user lands on their shops instead.
@@ -33,9 +34,9 @@ export function rememberNext(next: string | null) {
 
 function takeNext(): string {
   try {
-    const next = sessionStorage.getItem(NEXT_KEY);
+    const next = safeNextPath(sessionStorage.getItem(NEXT_KEY));
     sessionStorage.removeItem(NEXT_KEY);
-    if (next?.startsWith("/") && !next.startsWith("//")) return next;
+    if (next) return next;
   } catch {
     // ignore
   }

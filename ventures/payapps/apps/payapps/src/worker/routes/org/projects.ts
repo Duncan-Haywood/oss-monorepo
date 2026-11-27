@@ -9,6 +9,9 @@ import {
   changeOrderSchema,
   changeOrderSentSchema,
   delayBackupSchema,
+  flFirstFurnishedSchema,
+  flNoticeDeliveredSchema,
+  flNoticeSendSchema,
   noticePdfSchema,
   openingSchema,
   procoreSsovSchema,
@@ -20,6 +23,7 @@ import {
 import type {
   CaNoticeSendDto,
   ChangeOrderDto,
+  FlNoticeSendDto,
   ProjectDetailDto,
   SovLineDto,
 } from "@shared/api/types";
@@ -76,6 +80,12 @@ import {
   setChangeOrderSubmitted,
 } from "../../services/payapps/change-orders";
 import { loadChangeOrderRequest } from "../../services/payapps/documents";
+import {
+  deleteFlNoticeSend,
+  recordFlNoticeSend,
+  setFlFirstFurnished,
+  setFlNoticeDelivered,
+} from "../../services/payapps/fl-notices";
 import { jobHistoryCsv, listJobEvents, recordJobEvents } from "../../services/payapps/job-history";
 import {
   addNoticeFile,
@@ -106,6 +116,7 @@ import {
 import { getRfi, updateRfi } from "../../services/payapps/rfis";
 import { createSampleProject } from "../../services/payapps/sample";
 import { loadDelayLogDocument } from "../../services/payapps/schedule-delays";
+import { certifiedPayrollHours } from "../../services/payapps/timesheets";
 import type { AppEnv } from "../../types";
 
 const routes = new Hono<AppEnv>();
@@ -568,6 +579,99 @@ routes.delete("/:projectId/notices/ca/sends/:sendId", editor, async (c) => {
   return c.json({ ok: true });
 });
 
+// Florida Notices to Owner served: the first-furnished date, each notice or copy recorded as
+// served, and its delivery date once the evidence is back (Crew and up; editors record).
+routes.put(
+  "/:projectId/notices/fl/first-furnished",
+  editor,
+  validate("json", flFirstFurnishedSchema),
+  async (c) => {
+    const projectId = c.req.param("projectId");
+    const r = await setFlFirstFurnished(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      projectId,
+      c.req.valid("json").firstFurnishedOn,
+    );
+    if (r.changed) {
+      await log(c, { id: projectId, isSample: r.isSample }, [
+        { action: "fl_first_furnished_set", data: { date: r.firstFurnishedOn } },
+      ]);
+    }
+    return c.json({ firstFurnishedOn: r.firstFurnishedOn });
+  },
+);
+
+const flNoticeData = (s: {
+  recipient: FlNoticeSendDto["recipient"];
+  method: FlNoticeSendDto["method"];
+  sentOn: string;
+  deliveredOn: string | null;
+  tracking: string | null;
+}): JobEventData => ({
+  flRecipient: s.recipient,
+  flMethod: s.method,
+  date: s.sentOn,
+  deliveredOn: s.deliveredOn,
+  tracking: s.tracking,
+});
+
+routes.post(
+  "/:projectId/notices/fl/sends",
+  editor,
+  validate("json", flNoticeSendSchema),
+  async (c) => {
+    const projectId = c.req.param("projectId");
+    const { send, isSample } = await recordFlNoticeSend(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      projectId,
+      c.var.tenant.userId,
+      c.req.valid("json"),
+    );
+    await log(c, { id: projectId, isSample }, [
+      { action: "fl_notice_recorded", subjectId: send.id, data: flNoticeData(send) },
+    ]);
+    return c.json(send, 201);
+  },
+);
+
+routes.patch(
+  "/:projectId/notices/fl/sends/:sendId",
+  editor,
+  validate("json", flNoticeDeliveredSchema),
+  async (c) => {
+    const projectId = c.req.param("projectId");
+    const { send, isSample, changed } = await setFlNoticeDelivered(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      projectId,
+      c.req.param("sendId"),
+      c.req.valid("json").deliveredOn,
+    );
+    if (changed) {
+      await log(c, { id: projectId, isSample }, [
+        { action: "fl_notice_delivered_set", subjectId: send.id, data: flNoticeData(send) },
+      ]);
+    }
+    return c.json(send);
+  },
+);
+
+routes.delete("/:projectId/notices/fl/sends/:sendId", editor, async (c) => {
+  const projectId = c.req.param("projectId");
+  const { send, isSample } = await deleteFlNoticeSend(
+    c.var.ctx,
+    c.var.tenant.orgId,
+    projectId,
+    c.req.param("sendId"),
+  );
+  await log(c, { id: projectId, isSample }, [
+    { action: "fl_notice_deleted", subjectId: send.id, data: flNoticeData(send) },
+  ]);
+  return c.json({ ok: true });
+});
+
 // Files kept with a notice record: § 8118(b)'s mailing receipt or proof of delivery, the signed
 // declaration (Crew and up to add or remove; any member lists and downloads).
 const noticeIds = (c: {
@@ -704,6 +808,21 @@ routes.post(
     });
   },
 );
+
+// The job's hours for a certified payroll week, from the company's crew timesheets
+// (src/shared/timesheet-certified.ts): read by the certified payroll page to fill the WH-347 without
+// the time.csv round-trip. Every member, as every member reads the timesheet weeks.
+routes.get("/:projectId/certified-payroll/timesheet-hours", async (c) => {
+  const project = await getProjectRow(c.var.ctx, c.var.tenant.orgId, c.req.param("projectId"));
+  return c.json(
+    await certifiedPayrollHours(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      project.id,
+      c.req.query("weekEnding") ?? "",
+    ),
+  );
+});
 
 // Contractor's sworn statement (Illinois, Michigan, a lender's or title company's) to go with a pay
 // application (src/shared/sworn-statement.ts): posted, checked and printed; nothing is stored. Every

@@ -1,7 +1,7 @@
 # PayApps — Roadmap
 
-Status: **live on the Free plan** (2026-11-27). `payapps-deploy` run 45949861746 (commit 5f432ae0,
-from oss-monorepo) deployed https://payapps.duncan-andrew-haywood.workers.dev and its smoke test answered
+Status: **live on the Free plan** (2026-11-27). Live at https://payapps.marisstella.app since run 45963162134 (PR #19642,
+custom domain; workers.dev is off). The first live deploy, run 45949861746, was on workers.dev. The smoke test answered
 `{"ok":true,"app":"payapps","email":true}`, so sign-up email works. Attachments (R2) are off until the
 Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are dark
 (`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.
@@ -1021,6 +1021,31 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   45-day reminder in the cash page and the weekly email, the combined notice to contractor on bonded
   and public jobs (§ 255.05, § 713.23), and the notice of nonpayment and claim of lien (§ 713.08).
 
+- Notice to Owner: Florida, part 2 (2026-11-27, Crew and up;
+  notice-to-owner-florida-part-2-part-1). Under the Florida notice, "Notices served (Florida)": the
+  first day of work is saved with the job (`projects.fl_first_furnished_on`, migration 0082), so the
+  45-day serve-by and 40-day mail-by dates stay put, and each notice or copy is recorded per person
+  (`fl_notice_sends`): the owner, the contractor, the subcontractor (from a supplier to a sub-sub), the
+  notice of commencement's designee, the lender (§ 713.06(2)(a), (b), (d)); how it went (certified,
+  registered or Global Express Guaranteed mail, hand delivery, common carrier, posting, § 713.18(1));
+  the day sent, the delivery date from the evidence of delivery, and the mail or tracking number. The
+  package's `flNoticeService` (`packages/lien-waivers/src/fl-service.ts`) says when each counts as
+  served: on mailing for the three mail services within the 40 days (§ 713.18(2)), otherwise on
+  delivery, entered later on the record (PATCH) when the green card or tracking comes back; on time
+  against the 45 days, or late with § 713.06(2)(a)'s "complete defense" sentence. Moving the first day
+  re-reads every record. The cash page and weekly email remind until a notice to the owner is recorded
+  (`flNoticeText` in `src/shared/cash-report.ts`), worded for three windows: mail by day 40, serve by
+  day 45 (hand delivery or a carrier is safer then), and past day 45 (what is lost, and clear the date
+  if you contract with the owner directly). The contractor's copy does not hold the reminder open:
+  only a sub-sub or a supplier to a sub owes it, which PayApps cannot know, so the reminder names it.
+  Job history: first day set or cleared, recorded, delivery date set, deleted. Tests:
+  `packages/lien-waivers/test/fl-service.test.ts` (every quoted phrase against the snapshot, each
+  rule) and `test/worker/fl-notice-log.test.ts` (dates, reminder wordings, mailing vs delivery,
+  re-reading, history, plan and role gates, tenant isolation). Not done: files per record (the mail
+  log or tracking printout § 713.18(2)(c) says to keep, as California's records hold receipts),
+  § 713.18(3)'s returned-mail rule, and a company setting for its tier so the contractor's copy can
+  join the reminder.
+
 - GC portal exports, part 1: Procore's subcontractor SOV template (2026-11-25). On the job page, under
   the schedule of values, "Procore subcontractor SOV": choose the CSV template the GC's Procore
   commitment gives (Subcontractor Schedule of Values tab, Edit SSOV, Import CSV, Download CSV
@@ -1562,6 +1587,58 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   addresses and SSNs from a payroll export instead of typing them each session, and the portal's
   draft-upload errors checked against a real upload (DIR's classification names are not published:
   an unrecognized one becomes "Other").
+
+- Certified payroll, part 3b: New York NYSDOL bulk-upload XML (2026-11-27, certified-payroll-ny-nysdol-xml,
+  every plan). A "New York public work" section on the certified payroll page makes the same week
+  as the XML file the NYSDOL Certified Payroll portal takes by bulk upload (electronic filing required
+  for Article 8 public work since 1 January 2026). Read from dol.ny.gov on 2026-11-27: the XSD
+  ("Version 2.0", NYDOL_CertPayroll UPDATED.xsd), the sample, the Bulk Upload Formatting Guide and its
+  XML Work Classification List (261 names, vendored as `src/shared/ny-classifications.ts`; the portal
+  rejects any other name). Adds what NYSDOL asks and the WH-347 does not: the PRC number (10
+  characters), the worker's address with the state spelled out (two letters are expanded), the SSN's
+  last four (from the WH-347 ID no. when it is four digits) or else the date of birth, never both, the
+  New York registered-apprentice flag (from RA, changeable), a classification from the list per row
+  (hyphen/en-dash and case near misses matched to the list's spelling), deductions by type (state and
+  local tax out of the withholding, disability/PFL and dues out of "other", the rest under the
+  WH-347's description) and supplements per classification by NYSDOL type (guessed from the plan,
+  changeable; overtime rate the same or time and a half per plan; cash in lieu as "Other Benefit
+  (Type)" with an explanation). Checks the XSD's limits (lengths, 999.99 wage rates, 9,999.99 per
+  deduction, 10 deductions, 50 supplements, 500 employees) and the guide's common errors (duplicate
+  employee, both identifiers). Gross in the file is the WH-347's 7B and net its column 9, so they
+  agree with the PDF. Dates of birth are held in the page's memory only; the other extras are saved
+  with the draft in the browser (Privacy Policy sentence added; data stays on the device, so no
+  POLICY_VERSION bump). Output validates against NYSDOL's XSD with xmllint (`NY_CPR_XSD=<path> pnpm
+  test:unit`; the XSD is NYSDOL's file and not vendored). `src/shared/ny-cpr.ts`,
+  `src/client/components/ny-cpr-section.tsx`; tests `src/shared/ny-cpr.test.ts`,
+  `test/unit/certified-payroll-page.test.tsx`. Next, if New York customers ask: a real test upload's
+  errors checked, and the classification list refreshed when NYSDOL republishes it.
+
+- Certified payroll, part 3c: Washington L&I PWIA XML (2026-11-27, certified-payroll-wa-lni-xml, every
+  plan). A "Washington public works" section on the certified payroll page makes the same week as the
+  XML file L&I's Prevailing Wage Intent and Affidavit system takes ("Submit Payroll in XML File";
+  online filing at least monthly on all public works). Read on 2026-11-27: L&I's schema
+  (`lni.wa.gov/licensing-permits/_docs/xmlschema.xsd`, last modified 2020-06-23; the link is in
+  LCPtracker's WA guide, the PWIA portal links it behind a login), the XML Payroll Upload Guide
+  (January 2020) and the trade code list the schema links ("CP Trade Codes + Description.xlsx", 99
+  codes, the same set as the schema's patterns; vendored with the schema's 39 counties as
+  `src/shared/wa-codes.ts`). Adds what L&I asks and the WH-347 does not: the Intent ID, the full SSN
+  (held in page memory only, checked against the SSA's never-issued patterns the schema documents,
+  duplicates refused), the home address (two-letter state), per row the trade code and county (the
+  job's or the row's own, matched case-insensitively and written in Title Case as the guide asks)
+  and L&I's job classification (default the WH-347's), the apprentice's ARTS ID, state (WA/OR/MT/AK),
+  occupation, step and step hours for RA rows (no jobClass, as the schema says), fringe plans into
+  L&I's five fixed benefit fields by type (guessed, changeable; plans of one type add up; other plans
+  and cash in lieu as named tradeBenefits), a per-row "overtime is double time" switch, optional
+  gender/ethnicity/veteran status, and a no-work week (noWorkPerformFlag, no employees; next week
+  clears it). Obsolete elements (WageId, apprentice program IDs) are left out, as the guide asks.
+  Gross pay is the WH-347's 7B, FICA and withholding its own, "other" under its description, so the
+  PDF and the XML agree. Output validates against L&I's schema with xmllint (`WA_CPR_XSD=<path> pnpm
+  test:unit`; the schema is L&I's file and not vendored). Privacy Policy sentence added (data stays
+  on the device, no POLICY_VERSION bump). `src/shared/wa-cpr.ts`,
+  `src/client/components/wa-cpr-section.tsx`; tests `src/shared/wa-cpr.test.ts`,
+  `test/unit/certified-payroll-page.test.tsx`. Next, if Washington customers ask: a real PWIA upload's
+  step 4 and 5 messages checked, several weeks in one file (the schema allows it), and an amendment
+  flag.
 
 - Getting started, part 5 (2026-11-26): where companies stall, in the owner's metrics.
   `GET /api/admin/metrics` now carries `activation`: for every company, and for those that signed
@@ -2152,6 +2229,12 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   payroll reports and QuickBooks bring labor in weeks after it is worked, and time tracking is a
   standard module of the suites the bet compares against (JobTread, Contractor Foreman, Knowify).
 
+- Crew timesheets, part 2a (2026-11-27, every plan, timesheets-part-2-certified-payroll-fill): the
+  certified payroll page's "Fill hours from PayApps timesheets" reads the job's week straight from
+  the timesheets (`GET .../projects/:id/certified-payroll/timesheet-hours`,
+  `src/shared/timesheet-certified.ts`) instead of the time.csv export and import; two workweeks when
+  the payroll week straddles them; other jobs' hours and missing trades named. docs/TIMESHEETS.md.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2167,18 +2250,22 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   Done 2026-11-27: the site is "PayApps" (no longer "PayPencil") and has the launch switch the guides
   have: `APP_URL`/`PAID_PLANS_ON` in `apps/payapps-site/src/shared/site.ts` (or the build's env) turn
   every page from early access into "open now, free on one job" with sign-up links tagged
-  `from=payapps-site/<page>`; a workers.dev address is refused. Next: serve it (a deploy workflow, or
-  the static pages on marisstella.app/payapps) and set `APP_URL` with `cta.mjs`'s on launch day
-- At launch, point the free guides at sign-up: set `APP_URL` in `ventures/pay-app-guides/cta.mjs` to the
-  deployed origin and run `node cta.mjs` there (30 pages' CTAs switch from "in development" to "open
-  now, free on one job" and link to `/?signup&from=pay-app-guides/<page>`, which opens "Create an
-  account", `src/client/lib/auth-mode.ts`); set `PAID_PLANS_ON` once checkout is live. Update the
-  "Can I buy the pay-app suite today?" answer in `platform/pages/industry-construction.mjs` the same day
+  `from=payapps-site/<page>`; a workers.dev address is refused. `APP_URL` is set to
+  https://payapps.marisstella.app (the app's custom domain, PR #19642), so the built site says "open
+  now". Next: serve it (a deploy workflow, or the static pages on marisstella.app/payapps); set
+  `PAID_PLANS_ON` here and in `cta.mjs` the day checkout is live
+- Done 2026-11-27 (launch-signups-open): the free guides point at sign-up (`APP_URL` in
+  `ventures/pay-app-guides/cta.mjs`, now https://payapps.marisstella.app; 42 pages say "open now", name
+  what the Free plan leaves out and link to `/?signup&from=pay-app-guides/<page>`; `state-forms.mjs`
+  runs its pages through `cta.mjs` so a rebuild cannot revert them); the construction industry page
+  shows the suite as "Open · free on one job" with a Start free link and the paid-only modules; the
+  in-app strip reads the public plan list (`src/client/lib/launch-notice.ts`). Left: set
+  `PAID_PLANS_ON` in cta.mjs once checkout is live (the strip follows by itself)
 
 ## Next (suite, by promise)
 
-- Crew timesheets, part 2: the week's hours filling the certified payroll page directly (today
-  through the time detail CSV), a foreman entering hours from a phone for the crew on one job, an
+- Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
+  2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if
   contractors ask
 - Job schedule, part 2 (part 1, activities, the sequence check, the shift and the lookahead PDF,
@@ -2243,14 +2330,14 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
 - Certified payroll, part 3: the hours from a QuickBooks Time or payroll connection instead of a
   CSV, if people ask (a by-day CSV fills the week since 2026-11-26), save the crew and rates with the job instead of the
   browser if people ask, other states' prevailing-wage formats once their official specs are read (California's DIR eCPR
-  XML, schema 2.0, done 2026-11-26: part 3a), and the upload formats of the compliance
+  XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b;
+  Washington's L&I XML done 2026-11-27: part 3c; New Jersey's Wage Hub CSV next, once njwages.nj.gov answers), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
-- Notice to Owner, Florida, part 2 (part 1, the § 713.06(2)(c) form and the 45/40-day dates, done
-  2026-11-27): the notices served recorded per person (owner, contractor, the notice of
-  commencement's designee) with how and when, the first-day date saved with the job, and the 45-day
-  reminder on the cash page and in the weekly email, as California's log does; then the notice of
-  nonpayment (§ 713.08) if contractors use it
+- Notice to Owner, Florida, part 3 (part 2, the notices served per person, the saved first day and
+  the reminder, done 2026-11-27): files per record (the mail log or USPS tracking printout
+  § 713.18(2)(c) says to keep), the company's tier so the contractor's copy joins the reminder, and
+  § 713.18(3)'s returned-mail rule, if contractors use the log
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask

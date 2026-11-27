@@ -3,7 +3,7 @@ title: "Filling out the WH-347 certified payroll every week: a subcontractor's g
 seo_title: "How to fill out WH-347 certified payroll for subcontractors"
 date: 2026-11-26
 tags: [payapps, for-customers, construction, certified-payroll, davis-bacon, wh-347, prevailing-wage, california, ecpr, new-york, new-jersey, washington, illinois]
-description: "The WH-347 column by column for Davis-Bacon subcontractors, the checks before sending it, and the states (CA, NY, NJ, WA, IL) that want it filed online."
+description: "The WH-347 column by column for Davis-Bacon subs, the checks before sending it, and the CA, NY and WA files for states that want it filed online."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -124,6 +124,74 @@ upload. What changed, from DIR's XSD and "eCPR XML Guidelines V2" (read 2026-11-
 The one thing the WH-347 can't give you is the full Social Security number. DOL says never put it on
 the federal form; DIR's file requires it. Keep the two apart.
 
+## New York public work: the NYSDOL bulk upload file
+
+On New York public work under Labor Law Article 8, the payroll goes into NYSDOL's Certified Payroll
+portal, required since 1 January 2026. You can type each worker in, or upload one XML file per
+project per week. NYSDOL publishes an XSD ("XML SCHEMA for electronic New York Certified Payroll
+Records Version 2.0"), a sample file, a Bulk Upload Formatting Guide and the list of classification
+names the file must use (all read on dol.ny.gov on 2026-11-27). What the file wants that the WH-347
+does not give you:
+
+- **The project's PRC number** (prevailing rate case number, 10 characters), from your portal
+  dashboard. A PRC that doesn't match the project you picked, or a week ending date that doesn't
+  match the week you picked, fails the upload.
+- **The worker's home address, with the state spelled out.** "NY" is rejected ("State is
+  invalid"); write "New York".
+- **The last four digits of the SSN, or else the date of birth.** One or the other, never both:
+  the guide lists "both" as a common error.
+- **Whether the worker is a New York registered apprentice** (true or false).
+- **A classification from NYSDOL's list, spelled exactly as printed.** "Electrician" alone is not
+  on it; "Electrician – Building/Wireman" is, with its en dash. A name that doesn't match is
+  rejected ("Work Category is invalid"). A worker with two classifications is one employee with two
+  work weeks. Listing the same worker twice is rejected as a duplicate.
+- **Deductions by type** (up to 10, each under $10,000) and **supplements by type**: Health/Welfare,
+  Vacation/Holiday, Apprenticeship/Training, Pension or "Other Benefit (Type)". Each supplement is
+  tied to a classification and has its own straight-time and overtime hourly rate. An "Other" one
+  needs an explanation, and the other types must leave the explanation empty.
+- **Limits:** 500 employees per file, one project and one week per file, wage rates up to $999.99
+  in the XSD (the guide's table says $9,999.99; the portal validates against the XSD).
+
+NYSDOL suggests a small test upload first. Whatever you upload goes into its system of record,
+so test with a real week you're ready to file, not dummy data.
+
+## Washington public works: the L&I PWIA XML upload
+
+In Washington every contractor on a public works project files certified payroll online with L&I,
+at least once a month, in the Prevailing Wage Intent and Affidavit (PWIA) system. You can type each
+week in, or use "Submit Payroll in XML File". L&I publishes the XML schema
+(lni.wa.gov/licensing-permits/_docs/xmlschema.xsd), an XML Payroll Upload Guide and a list of its
+four-letter trade codes (all read on 2026-11-27). What the file wants that the WH-347 does not give
+you:
+
+- **The project's Intent ID**, the number L&I gave the Statement of Intent to Pay Prevailing Wages
+  you filed. The upload checks that you can file for that Intent.
+- **The worker's full 9-digit Social Security number** (RCW 39.12.120), not the last four the
+  WH-347 now asks for. Numbers the SSA never issues (starting with 9, 666 or 000, 00 in the middle,
+  0000 at the end) are rejected, and so is the same SSN twice in one week.
+- **The home address** with a two-letter state and a 5- or 9-digit ZIP.
+- **For each row, L&I's trade code and the county of the work.** The trade is four capital letters
+  from L&I's list (ELEC for inside electricians, PLUM for plumbers and pipefitters, LABO for
+  laborers; 99 codes). The county must be one of Washington's 39, in Title Case ("Walla Walla").
+  The job classification must match L&I's journey-level wage lookup for the project's bid due date
+  or award date. A worker who worked two trades, counties or rates in the week gets one entry per
+  combination.
+- **Apprentices:** no job classification, but the ARTS registration ID, the state of registration
+  (WA, OR, MT or AK only), the apprentice occupation and step name from L&I's apprentice wage lookup,
+  and the step's begin and end hours as whole numbers.
+- **Fringe benefits by type, per hour:** pension, health and welfare, vacation, holiday and the
+  apprentice training fund each have their own field (zero if none). Anything else, including cash
+  paid in lieu, is listed by name.
+- **Overtime and double time apart.** The WH-347 has one overtime column; L&I's file has separate
+  overtime and double-time hours and rates.
+- **A week with no work** can be filed with a no-work flag and no workers.
+
+After the upload L&I runs five checks: the file against the schema, the week (every week for an
+Intent must end on the same weekday, and a week already filed becomes an amendment that replaces it),
+the workers' details, the trades and classifications (you can map a mismatch to L&I's own), and,
+optional but recommended, the wages against the prevailing rate. If that last step shows you paid
+less, L&I's guide says to pay the difference on the next check and file an amended week.
+
 ## Other states where certified payroll is filed online
 
 California is no longer the only state that wants the payroll in its own system. On a **state or
@@ -170,6 +238,13 @@ It sits on the job, next to that job's pay applications:
 - "Hours from a time report" reads a by-day CSV in your browser, matches workers by name, refuses a
   pay-period date column with the reason, and lists every hour it left out (holiday, PTO, double
   time).
+- **Hours from PayApps timesheets (added 2026-11-27):** if your crew's hours are already on the
+  Timesheets page, one button fills the week for this job, with no export and import. Straight time
+  and overtime are what the timesheet counted (hours past 40 in your workweek, across every job),
+  each worker's trade becomes the classification, and the page names anyone who also worked other
+  jobs that week, since the WH-347's "gross amount earned" for all work has to include that pay.
+  If the payroll week ends on a different day than your workweek, both workweeks are read and each
+  day keeps its own overtime.
 - "Start next week" moves the payroll number and date on and clears hours and deductions, keeping
   the crew, rates and plans.
 - Workers' names and numbers are not stored on our servers: the draft stays in your browser and the
@@ -181,9 +256,26 @@ It sits on the job, next to that job's pay applications:
   rules before you download, and the output validates against DIR's published XSD. The file is
   built in your browser. Full SSNs and ITINs are held only while the page is open: they are not
   saved with the draft and never sent to us.
+- **New York public work (added 2026-11-27):** tick the New York box and the same week downloads
+  as NYSDOL's bulk upload XML. You add the PRC number, addresses, and each row's classification,
+  picked from NYSDOL's own list of 261 names (a near miss like "Laborer - Building" with a hyphen
+  is matched to the list's spelling). The SSN's last four come from the WH-347 ID number when it is
+  four digits. Otherwise you enter the date of birth, which is held only while the page is open.
+  Fringe plans become supplements of the type you pick, at time and a half on overtime where your
+  rate schedule says so. Cash in lieu is reported as "Other Benefit (Type)" with an explanation.
+  State and local tax are split out of the withholding, and disability/PFL and dues out of
+  "other", so the PDF and the XML agree. The output validates against NYSDOL's XSD.
+- **Washington public works (added 2026-11-27):** tick the Washington box and the same week
+  downloads as the XML file for L&I's PWIA upload. You add the Intent ID, the county, addresses, and
+  each row's L&I trade (picked from L&I's list) and classification; apprentices get their ARTS ID
+  and step. Fringe plans go into L&I's pension, medical, vacation, holiday and training fields by
+  the type you pick, and other plans and cash in lieu are listed by name. A row can be marked as
+  double time. A week with no work makes the no-work file. Full SSNs are held only while the page is
+  open: not saved with the draft and never sent to us. The output validates against L&I's
+  published schema.
 
 Not yet: hours straight from a QuickBooks Time or payroll connection, the crew saved with the job
-instead of the browser, the other states' files in the table above (New York's XML is the likeliest next, since NYSDOL publishes an XSD to check a file against), and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
+instead of the browser, the other states' files in the table above (New Jersey's Wage Hub CSV next, once its template can be read), and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
 contractors ask for them.
 
 PayApps is in early access and not yet offered for sale:

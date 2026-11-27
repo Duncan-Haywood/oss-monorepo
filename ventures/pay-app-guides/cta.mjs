@@ -20,8 +20,8 @@
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-/** The deployed app's origin, e.g. "https://payapps.example.com". null until the first deploy. */
-export const APP_URL = null;
+/** The deployed app's origin (payapps-deploy run 45949861746, 2026-11-27). null shows the pre-launch text. */
+export const APP_URL = "https://payapps.marisstella.app";
 /** True once Paddle checkout is live in the app (apps/payapps/docs/BILLING.md). */
 export const PAID_PLANS_ON = false;
 
@@ -45,7 +45,9 @@ export function status(page, appUrl = APP_URL, paidOn = PAID_PLANS_ON) {
   if (!appUrl) return LEGACY;
   const plans = paidOn
     ? "free on one job, then $99 to $249 a month by active jobs"
-    : "free on one job, no card; paid plans for more jobs are not on sale yet";
+    : // The Free plan has no lien waivers, QuickBooks or job costing (apps/payapps/src/shared/plans.ts),
+      // and many guides are waiver pages: say so, so nobody signs up expecting a form Free cannot print.
+      "pay applications with retainage and change orders, free on one job, no card. Lien waivers, QuickBooks and job costing are in the paid plans, which are not on sale yet";
   return `It is <strong>open now</strong>: ${plans}. <a href="${signupUrl(appUrl, page).replace(/&/g, "&amp;")}">Start free in PayApps</a>.`;
 }
 

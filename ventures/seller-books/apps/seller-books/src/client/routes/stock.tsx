@@ -25,7 +25,7 @@ export function StockPage() {
   const q = useQuery({
     queryKey: ["stock", orgId, asOf, from],
     queryFn: () =>
-      api<StockReport>(orgPath(orgId, `/reports/stock?asOf=${asOf}&from=${from}&to=${to}`)),
+      api<StockReport>(orgPath(orgId, `/reports/stock?${new URLSearchParams({ asOf, from, to })}`)),
     enabled: from <= to,
   });
   const r = q.data;

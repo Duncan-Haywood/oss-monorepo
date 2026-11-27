@@ -163,6 +163,12 @@ export interface CashReportProjectInput {
    * first-furnished date is entered or everyone it waits on has one.
    */
   caNotice?: { dueOn: string; missing: string[] } | null;
+  /**
+   * Florida Notice to Owner reminder (services/payapps/fl-notices.ts): the § 713.06(2)(a) 45-day
+   * serve-by date and the § 713.18(2) 40-day mail-by date. Absent when no first-furnished date is
+   * entered or a notice to the owner is recorded.
+   */
+  flNotice?: { serveBy: string; mailBy: string } | null;
   /** The GC's monthly billing cutoff, day of the month (src/shared/billing-cutoff.ts); null when not set. */
   billingDay?: number | null;
   /**
@@ -514,6 +520,33 @@ export function caNoticeText(
 }
 
 /**
+ * The cash page's (and the weekly email's) reminder to serve Florida's Notice to Owner: 45 calendar
+ * days after first furnishing (Fla. Stat. § 713.06(2)(a)), or mailed by registered, Global Express
+ * Guaranteed or certified mail within 40 days to count as served that day (§ 713.18(2)). Once the 45
+ * days pass, "the failure to serve the notice, or to timely serve it, is a complete defense to
+ * enforcement of a lien", so the late wording says what is lost instead of urging a notice.
+ */
+export function flNoticeText(
+  n: { serveBy: string; mailBy: string } | null | undefined,
+  asOf: string,
+): string | null {
+  if (!n) return null;
+  const inDays = (to: string) => {
+    const days = daysBetween(asOf, to);
+    return days === 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`;
+  };
+  const copy =
+    " (with a copy to the contractor if you are a sub-subcontractor or a supplier to a subcontractor)";
+  if (asOf <= n.mailBy) {
+    return `Florida Notice to Owner: none recorded yet for the owner${copy}. Mail it by certified or registered mail ${inDays(n.mailBy)}, by ${n.mailBy}, and it counts as served that day (Fla. Stat. § 713.18(2)); it must be served by ${n.serveBy} (45 days, § 713.06(2)(a)).`;
+  }
+  if (asOf <= n.serveBy) {
+    return `Florida Notice to Owner must be served ${inDays(n.serveBy)}, by ${n.serveBy} (45 days after you first furnished work, Fla. Stat. § 713.06(2)(a)), and none is recorded for the owner${copy}. Past the 40 days, mail counts only when delivered, so hand delivery or a carrier with proof of delivery is safer now.`;
+  }
+  return `Florida Notice to Owner was due ${n.serveBy} and none is recorded for the owner. A late notice is "a complete defense to enforcement of a lien" (Fla. Stat. § 713.06(2)(a)): if you served one, record it on the job; if you do not owe one (you hired on with the owner directly), clear the first-furnished date.`;
+}
+
+/**
  * The next step on a finished job with retainage held. Without the close-out checklist it is the
  * generic one; with it, it names what still stands between the job and the release, or, once
  * nothing does, points to the release request the checklist drafts. It never says the
@@ -682,6 +715,8 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
     closedShort.filter((c) => c.reason === r).reduce((s, c) => s + c.cents, 0);
   const caText = caNoticeText(p.status === "active" ? p.caNotice : null, asOf);
   if (caText) actions.push(caText);
+  const flText = flNoticeText(p.status === "active" ? p.flNotice : null, asOf);
+  if (flText) actions.push(flText);
   // The GC's billing cutoff: drafts count too (a draft dated before a passed cutoff is a missed one).
   if (p.billingDay && p.status === "active" && !workComplete) {
     const cutoff = billingCutoff(

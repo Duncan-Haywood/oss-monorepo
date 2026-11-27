@@ -631,6 +631,18 @@ class EndToEnd(unittest.TestCase):
             self.assertTrue(blocks(v, "unpinned-action"))
             self.assertEqual(gate.main(["finalize", "--out", d]), 1)
 
+    def test_diff_file_sees_secrets_a_new_workflow_reads(self):
+        # 2026-11-27: --diff read no file, so a new deploy workflow's secrets passed locally and blocked in CI.
+        diff = ("diff --git a/.github/workflows/priv-x.yml b/.github/workflows/priv-x.yml\nnew file mode 100644\n"
+                "--- /dev/null\n+++ b/.github/workflows/priv-x.yml\n@@ -0,0 +1,7 @@\n+on: workflow_dispatch\n"
+                "+permissions:\n+  contents: read\n+jobs:\n+  d:\n+    env:\n+      T: ${{ secrets.SOME_DEPLOY_TOKEN }}\n")
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, "pr.diff").write_text(diff)
+            gate.main(["analyze", "--diff", str(Path(d, "pr.diff")), "--out", d])
+            v = json.loads(Path(d, "verdict.json").read_text())
+            self.assertTrue(any(f["rule"] == "workflow-escalation" and f["evidence"] == "SOME_DEPLOY_TOKEN"
+                                and f["severity"] == "block" for f in v["findings"]), v["findings"])
+
     def test_finalize_without_verdict_fails_closed(self):
         with tempfile.TemporaryDirectory() as d:
             self.assertEqual(gate.main(["finalize", "--out", d]), 1)

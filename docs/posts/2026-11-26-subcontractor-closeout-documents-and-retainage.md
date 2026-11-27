@@ -52,6 +52,27 @@ When the GC asks for something new at the end, you can point to what was actuall
 Some won't apply to your job. Write down why ("no equipment to train on") instead of just leaving
 it off the list. That way, the question doesn't come up again a month later.
 
+## Close the punch list first
+
+The documents are usually the slow part, but the punch list is the gate GCs name first. A few
+habits keep it from staying open for weeks:
+
+- **Walk your own scope before the GC does.** Your list is shorter than theirs, and you can
+  schedule it.
+- **Get the GC's list in writing, numbered, with a due date on each item,** the day of the walk.
+  Without a due date nothing is ever late, and nothing is ever finished.
+- **Push back on items that aren't yours that same week, in writing.** A damaged ceiling tile
+  from another trade stays on your list until someone moves it.
+- **Record when each item was fixed and by whom, then ask for one back-check per batch.** One
+  email naming every fixed item gets them walked together.
+- **Get each item initialled or accepted with a name and date.** That's what you point to when
+  retainage is held "for the punch list".
+
+The free [punch list tracker](https://marisstella.app/pay-app-guides/punch-list.html) reads the
+list as the GC emailed it (or as a table), shows each item as open, overdue, done and waiting on
+the back-check, accepted, or not yours, and writes the back-check email and a CSV with a column
+for the GC's initials. It runs in the browser and uploads nothing.
+
 ## Deliver them once, as one package
 
 Documents sent one at a time over six weeks, to different people, get lost. Then the GC's project
@@ -87,7 +108,7 @@ but whether it covers your job depends on the state and the type of project.
 
 ## In PayApps
 
-PayApps, the pay-application and job-paperwork tool in development for subcontractors, has a
+PayApps, the pay-application and job-paperwork tool for subcontractors, has a
 close-out checklist on every job, on every plan:
 
 - the standard list (warranty, O&M manuals, as-builts, attic stock, final inspection, final
@@ -105,5 +126,7 @@ close-out checklist on every job, on every plan:
 - once nothing stands in the way, an email to the GC's project manager asking for the release,
   drafted from what you entered.
 
-The product is in early access and nothing is for sale yet:
-[construction tools and early access](https://marisstella.app/industries/construction/).
+PayApps is open now: pay applications with retainage and change orders are free on one job,
+with no card. The punch list and close-out checklist are on every plan. Lien waivers, QuickBooks and
+job costing are in the paid plans, which are not on sale yet:
+[start free in PayApps](https://payapps.marisstella.app/?signup&from=post%2Fcloseout-documents).

@@ -1648,9 +1648,14 @@ def build_ctx(args) -> Ctx:
     _GUARD[str(JUDGE_ROOT)] = guard
     if args.diff:
         changes = parse_unified_diff(Path(args.diff).read_text(encoding="utf-8", errors="replace"))
-        none = lambda _p: None  # noqa: E731
+        # A file the diff adds is whole in it: its head text is the added lines and it had no base, so
+        # whole-file rules (workflow-escalation, ...) still see new files. Other files stay unknown.
+        added = {c.path: "\n".join(t for _, t in c.added) + "\n" for c in changes if c.status == "A" and not c.binary}
+        read_head = lambda p: added.get(p)  # noqa: E731
+        read_base = lambda p: "" if p in added else None  # noqa: E731
         co = guard.parse_codeowners((JUDGE_ROOT / ".github" / "CODEOWNERS").read_text(encoding="utf-8"))
-        return Ctx(changes, none, none, cfg, co, co, notes=["diff-only mode: rules that need whole files were limited"])
+        return Ctx(changes, read_base, read_head, cfg, co, co,
+                   notes=["diff-only mode: rules that need whole files saw only files the diff adds"])
     repo = Path(args.repo).resolve()
     changes = changes_from_git(repo, args.base, args.head)
     rb, rh = git_reader(repo, args.base), git_reader(repo, args.head)

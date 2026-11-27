@@ -24,9 +24,12 @@ For the session that opens PayApps (bet #1) to the public.
 
 ## Still to do on launch day
 
-1. The app answers on its public origin (PR #19642's `payapps.marisstella.app`).
-2. Set `APP_URL` here and in `pay-app-guides/cta.mjs` together; bump `CONTENT_UPDATED` (the feed's
-   "open on the Free plan" entry takes that date).
+1. Done (adopted by a later session, same day): the app answers on `https://payapps.marisstella.app`
+   (PR #19642), `cta.mjs` already linked it, and `APP_URL` in `src/shared/site.ts` is now set to the
+   same origin with `CONTENT_UPDATED` 2026-11-27, so every built page says "open now, free on one job".
+   The proxy in cloud sessions refuses `payapps.marisstella.app`, so the live answer was not re-read
+   from here; the ROADMAP records the health check from the deploy run.
+2. Still to do: set `PAID_PLANS_ON` here and in `cta.mjs` the day Paddle checkout is live.
 3. The site itself is **not served yet**: `https://marisstella.app/payapps/` answered 404 on
    2026-11-27. It needs either a `priv-payapps-site-deploy.yml` (Worker + D1 for the early-access
    list; a control-plane PR) or, once open, its static pages published under the catalogue (the

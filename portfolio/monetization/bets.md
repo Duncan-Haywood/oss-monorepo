@@ -23,10 +23,10 @@ without a sales team, Margin, Time = time to first dollar.
 | # | Bet | Customer | WTP | Size | Dist | Margin | Time | Total | Where it is built |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | **Pay-app billing → contractor suite** | specialty subcontractors, small GCs | 4 | 5 | 4 | 5 | 4 | 22 | `ventures/payapps/apps/payapps` (moved from private-monorepo 2026-11-27) |
-| 2 | **AI RFQ-to-quote for job shops** | CNC and fabrication shops | 5 | 3 | 3 | 4 | 4 | 19 | new `private-monorepo/apps/jobshop-quote` |
+| 2 | **AI RFQ-to-quote for job shops** | CNC and fabrication shops | 5 | 3 | 3 | 4 | 4 | 19 | `ventures/jobshop-quote/apps/jobshop-quote` (moved 2026-11-27, PR #19594) |
 | 3 | **E-invoice fix-and-explain** | DE/FR SMEs, their accountants, small invoicing vendors | 3 | 5 | 4 | 5 | 4 | 21 | `einvoice-preflight` imported to private |
 | 4 | **CMMC L1/L2 + ISO 9001 workspace** | small defense/aerospace shops | 4 | 5 | 3 | 4 | 3 | 19 | new `private-monorepo/apps/cmmc` |
-| 5 | **Reseller profit and Schedule C books** | multi-platform resellers | 4 | 4 | 5 | 4 | 4 | 21 | new `private-monorepo/apps/seller-books` |
+| 5 | **Reseller profit and Schedule C books** | multi-platform resellers | 4 | 4 | 5 | 4 | 4 | 21 | `ventures/seller-books/apps/seller-books` (moved 2026-11-27, PR #19618) |
 | 6 | **Residential takeoff (roof, siding, framing lists from PDFs)** | remodelers, roofers, framers | 4 | 4 | 3 | 3 | 4 | 18 | `private-monorepo/apps/wall-framing-takeoff` |
 | 7 | **Grant Autopilot** (live) | small nonprofits | 4 | 3 | 3 | 3 | 3 | 16 | `private-monorepo/apps/grants` |
 
@@ -49,7 +49,7 @@ SMBs; revisit as a research-derived product).
 ## The evidence
 
 Each bet's **Growth path** is a plan, not evidence: the topics a run opens
-with `roadmap_claim.py <app> --slug` when the ROADMAP's Next list has nothing
+with `python3 platform/ci/roadmap_claim.py <app> --slug` when the ROADMAP's Next list has nothing
 free. `roadmap_claim.py --bets` lists them with the claims already on each.
 
 ### 1. Pay-app billing for subcontractors, the wedge into a contractor suite

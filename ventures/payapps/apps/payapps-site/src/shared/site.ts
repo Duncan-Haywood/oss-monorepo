@@ -9,12 +9,11 @@
 
 export const PRODUCT_NAME = "PayApps";
 /**
- * The deployed app's origin, e.g. "https://payapps.marisstella.app". null until the app is on a
- * public address we are happy to link from public pages (not the workers.dev one, which carries the
- * account's subdomain). The build reads env APP_URL when set. Switch it together with APP_URL in
- * ventures/pay-app-guides/cta.mjs, so the guides and this site open on the same day.
+ * The deployed app's origin. Set 2026-11-27, when the app moved to https://payapps.marisstella.app
+ * (PR #19642); never the workers.dev address, which carries the account's subdomain. The build reads
+ * env APP_URL when set. Keep it equal to APP_URL in ventures/pay-app-guides/cta.mjs.
  */
-export const APP_URL: string | null = null;
+export const APP_URL: string | null = "https://payapps.marisstella.app";
 /** True once Paddle checkout is live in the app (apps/payapps/docs/BILLING.md). Env PAID_PLANS_ON=1. */
 export const PAID_PLANS_ON = false;
 /** Production URL (origin + base path). The build reads env SITE_URL when set. */
@@ -23,7 +22,7 @@ export const SITE_TAGLINE = "Monthly pay applications for subcontractors";
 /** One line used wherever the site talks about pay-app forms, waivers or retainage. */
 export const NOT_AIA_NOTE = `${PRODUCT_NAME} is not affiliated with the American Institute of Architects (AIA) and does not produce AIA Contract Documents. Nothing on this site is legal advice.`;
 /** Date the public copy last changed (sitemap <lastmod>, feed <updated>). */
-export const CONTENT_UPDATED = "2026-11-25";
+export const CONTENT_UPDATED = "2026-11-27";
 
 export interface PublicPage {
   /** Site path without the base path; "/" is the home page. */

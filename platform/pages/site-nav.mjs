@@ -742,6 +742,12 @@ html{overflow-x:clip}
  * error-code pages' rule-text cells wrapped into a 190 px column, and rows ran past the screen
  * (br-fr-error-codes: worst 1,779 px at 390 px).
  *
+ * `td class="prose"` does the same for one cell (polish, 2026-11-27): a table whose sentences
+ * sit in one column and whose other cells are a word or two (the e-invoicing mandates table:
+ * "Key dates" beside Status, Format and "Checked?"). Whole-table `prose` there put every short
+ * value on a line of its own under its label, +7% page height at 390 px; the cell class keeps
+ * those beside their labels and gives the dates the card's full width.
+ *
  * `class="stack fields"` is for a calculator's editable rows (polish, 2026-11-27): each row is
  * a card whose cells form a grid of label-above-field pairs, about three short fields to a line
  * at 390 px; the first cell, selects, textareas and `input.wide` take a whole line, a lone
@@ -768,8 +774,8 @@ export const STACK_TABLE_CSS = `
   table.stack.compact td{flex:1 1 9.5em;width:auto;text-align:right}
   table.stack.compact td::before{width:auto;text-align:left;vertical-align:baseline}
   table.stack.compact td:first-child,table.stack.compact th[scope=row]{flex-basis:100%;text-align:left}
-  table.stack.prose td{display:block}
-  table.stack.prose td::before{display:block;width:auto;min-width:0;padding:0 0 2px}
+  table.stack.prose td,table.stack td.prose{display:block}
+  table.stack.prose td::before,table.stack td.prose::before{display:block;width:auto;min-width:0;padding:0 0 2px}
   table.stack.fields tr{display:grid;grid-template-columns:repeat(auto-fill,minmax(5em,1fr));gap:8px 10px;padding:10px 12px 12px}
   table.stack.fields td,table.stack.fields td:first-child{display:flex;flex-direction:column;justify-content:flex-end;
     width:auto;min-width:0;border:0;padding:0;font-weight:inherit}

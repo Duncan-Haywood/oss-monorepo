@@ -9,7 +9,12 @@ const routes = new Hono<AppEnv>();
 
 routes.get("/plans", (c) => {
   c.header("Cache-Control", "public, max-age=300");
-  return c.json({ items: PUBLIC_PLANS.map(publicPlan) });
+  // `checkoutAvailable`: whether this deployment can sell a plan now (a payment provider is
+  // configured), as the org Billing page reports it. `purchasable` on a plan is catalog data only.
+  return c.json({
+    items: PUBLIC_PLANS.map(publicPlan),
+    checkoutAvailable: c.var.ctx.billing !== null,
+  });
 });
 
 routes.post("/webhook", async (c) => {

@@ -34,6 +34,15 @@ test('UK and rest-of-world sellers send their own schedule from REGIONS', () => 
   const row = depopOf(decode(whereToSellUrl({ ...INPUTS, region: 'row' })));
   assert.equal(row.commissionRate, REGIONS.row.sellingRate);
   assert.equal(row.paymentRate, 0);
+  const au = depopOf(decode(whereToSellUrl({ ...INPUTS, region: 'au' })));
+  assert.equal(au.commissionRate, 0);
+  assert.equal(au.paymentRate, 2.6);
+  assert.equal(au.paymentFixed, 0.30);
+});
+
+test('a boosted Australian sale sends the 8% boost rate, not 12%', () => {
+  const au = depopOf(decode(whereToSellUrl({ ...INPUTS, region: 'au', boosted: true })));
+  assert.equal(au.commissionRate, 8);
 });
 
 test('a boosted sale adds the boost rate to the commission', () => {
