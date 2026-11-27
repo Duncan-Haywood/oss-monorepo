@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, mobile]
+topics: [design]
 date: 2026-11-27
 ---
 # Polish 2026-11-27: the last 43 phone swipes on the construction front doors
