@@ -104,6 +104,36 @@ test('build writes an index, one page per post and a feed, each with a disclaime
   assert.match(feed, new RegExp(`<id>${BASE}writing/hello/</id>`));
 });
 
+test('a post folded into another leaves the lists and its address redirects', async () => {
+  const root = repoWith({
+    '2026-10-16-keep.md': post('Keep', '2026-10-16'),
+    '2026-10-17-old.md': post('Old', '2026-10-17', 'merged_into: keep\n'),
+  });
+  const moved = [];
+  assert.deepEqual(loadPosts(root, undefined, { moved }).map((p) => p.slug), ['keep']);
+  assert.deepEqual(moved.map((p) => p.slug), ['old']);
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-moved-'));
+  // Not in the sitemap's list, the index, the feed or the search index.
+  assert.deepEqual(await buildWriting(out, BASE, { root }), ['keep', 'topic/tools', 'podcast']);
+  for (const f of ['index.html', 'feed.xml', 'search.json']) {
+    assert.ok(!(await fs.readFile(path.join(out, WRITING_PATH, f), 'utf8')).includes('old/'), f);
+  }
+  const stub = await fs.readFile(path.join(out, WRITING_PATH, 'old/index.html'), 'utf8');
+  assert.match(stub, new RegExp(`<link rel="canonical" href="${BASE}writing/keep/">`));
+  assert.match(stub, /<meta name="robots" content="noindex">/);
+  assert.match(stub, /http-equiv="refresh" content="0; url=/);
+  // A typo or a chain of moves fails the build rather than redirecting to a 404.
+  assert.throws(() => loadPosts(repoWith({ '2026-10-17-old.md': post('Old', '2026-10-17', 'merged_into: nowhere\n') })), /not a live post/);
+  assert.throws(
+    () => loadPosts(repoWith({
+      '2026-10-16-a.md': post('A', '2026-10-16'),
+      '2026-10-17-b.md': post('B', '2026-10-17', 'merged_into: a\n'),
+      '2026-10-18-c.md': post('C', '2026-10-18', 'merged_into: b\n'),
+    })),
+    /not a live post/,
+  );
+});
+
 test('a link to a sibling post file becomes a link to its page', async () => {
   const root = repoWith({
     '2026-10-01-first.md': post('First', '2026-10-01'),

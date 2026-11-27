@@ -44,6 +44,7 @@ import { SITE_NAME, TITLE_BUDGET, siteTitle, sponsorsNote, withSiteHeader } from
 import { loadResearchRegistry } from './research-registry.mjs';
 import { decodeEntities } from './entities.mjs';
 import { completeArticleNode } from './article-ld.mjs';
+import { stubPage } from './redirect-stubs.mjs';
 import { softwareLines } from './business.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
@@ -355,7 +356,7 @@ export function parseFrontMatter(src) {
  * took 48 minutes to go live (169 at worst). Pull requests stay strict, and
  * the `test` job still fails on `main`, so the bad post is still flagged.
  */
-export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, { skipBad = process.env.PAGES_SKIP_BAD_POSTS === '1' } = {}) {
+export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, { skipBad = process.env.PAGES_SKIP_BAD_POSTS === '1', moved = null } = {}) {
   const POSTS_DIR = dirName; // shadows the module constant so every message names the directory read
   const dir = path.join(root, POSTS_DIR);
   if (!existsSync(dir)) return [];
@@ -379,6 +380,17 @@ export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, { skipBad = 
   for (const p of posts) {
     if (seen.has(p.slug)) throw new Error(`${POSTS_DIR}: two posts share the slug "${p.slug}"`);
     seen.add(p.slug);
+  }
+  // A post folded into another (`merged_into: <slug>`) leaves every list, feed and sitemap; its
+  // old address becomes a redirect (`renderMovedPost`). The target must be a live post, so a
+  // typo or a chain of moves fails the build instead of sending readers to a 404.
+  const live = new Map(posts.filter((p) => !p.mergedInto).map((p) => [p.slug, p]));
+  for (let i = posts.length - 1; i >= 0; i--) {
+    const p = posts[i];
+    if (!p.mergedInto) continue;
+    if (!live.has(p.mergedInto)) throw new Error(`${p.source}: merged_into "${p.mergedInto}" is not a live post's slug`);
+    posts.splice(i, 1);
+    if (moved) moved.push(p);
   }
   return posts.sort((a, b) => (a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date)));
 }
@@ -436,6 +448,7 @@ function loadPost(root, POSTS_DIR, name, projects = NO_PROJECTS) {
     // The venture a "Tools and projects" post is about: its first tag naming a folder in ventures/.
     project: projectOf(tags, topicOf(tags, meta.topic, projects), projects),
     source: `${POSTS_DIR}/${name}`,
+    mergedInto: meta.merged_into ? String(meta.merged_into) : undefined,
     body,
     words,
     minutes: Math.max(1, Math.round(words / 230)),
@@ -1647,7 +1660,7 @@ export function renderPodcastIndex(episodes, { baseUrl = '', socialCard = '' } =
 /** The ids of the topics at least one post has, in TOPICS order. */
 export const topicIds = (posts) => TOPICS.map((t) => t.id).filter((id) => posts.some((p) => p.topic === id));
 
-async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebase, episodes = [], byPost = new Map(), agentPosts = 0, projects = [], published = new Set() }) {
+async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebase, episodes = [], byPost = new Map(), agentPosts = 0, projects = [], published = new Set(), moved = [] }) {
   const dir = path.join(outDir, section.path);
   await fs.mkdir(dir, { recursive: true });
   await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts })));
@@ -1699,6 +1712,20 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
     mkdirSync(path.join(dir, post.slug), { recursive: true });
     writeFileSync(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section, projects })));
   }
+  for (const post of moved) {
+    mkdirSync(path.join(dir, post.slug), { recursive: true });
+    writeFileSync(path.join(dir, post.slug, 'index.html'), rebase(renderMovedPost(post, { baseUrl, section })));
+  }
+}
+
+/**
+ * The page left at a folded post's address: canonical, a zero-second refresh (which Google
+ * treats as a permanent redirect) and noindex, the same stub the old GitHub Pages origin
+ * serves (`redirect-stubs.mjs`). Without a base URL it points one directory up.
+ */
+export function renderMovedPost(post, { baseUrl = '', section = BLOG } = {}) {
+  const target = baseUrl ? `${baseUrl}${section.path}${post.mergedInto}/` : `../${post.mergedInto}/`;
+  return stubPage(target);
 }
 
 /**
@@ -1714,7 +1741,8 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
 // relative paths are repository paths and render as GitHub links.
 // `published` holds the slugs the site serves at `<slug>/`, so a project page links its tool.
 export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '', originAlias = '', published = new Set() } = {}) {
-  const posts = loadPosts(root);
+  const moved = [];
+  const posts = loadPosts(root, POSTS_DIR, { moved });
   const agentPosts = loadPosts(root, AGENT_POSTS_DIR);
   const topicByPost = new Map(posts.map((p) => [p.slug, p.topic]));
   const episodes = loadEpisodes(root, new Set(posts.map((p) => p.slug))).map((ep) => ({ ...ep, topic: topicByPost.get(ep.post) || 'tools' }));
@@ -1727,7 +1755,7 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
     ...projectGroups(posts.filter((p) => p.topic === 'tools'), { root }),
     ...projectGroups(posts.filter((p) => p.topic === 'research'), { root, topic: 'research', questions: (slug) => questions.get(slug) || '', ledes: (slug) => ledes.get(slug) || '' }),
   ];
-  await writeSection(outDir, posts, BLOG, { baseUrl, socialCard, rebase, episodes, byPost, agentPosts: agentPosts.length, projects, published });
+  await writeSection(outDir, posts, BLOG, { baseUrl, socialCard, rebase, episodes, byPost, agentPosts: agentPosts.length, projects, published, moved });
   // Every page writeSection wrote links this (shell(); writeSection made outDir).
   await fs.writeFile(path.join(outDir, WRITING_STYLE_FILE), renderWritingStyle());
   if (agentPosts.length) {

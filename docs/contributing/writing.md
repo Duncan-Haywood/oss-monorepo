@@ -52,6 +52,7 @@ Your post starts here. No `# H1`: the site makes one from `title`.
 | `description` | yes | At most 160 characters, and not a copy of another post's |
 | `tags` | yes | A non-empty `[list]`. Reuse existing spellings (`ai-agents`, not `AI agents` or `ai-agent`); `grep -h '^tags:' docs/posts/*.md \| sort \| uniq -c \| sort -rn \| head -40` lists them |
 | `seo_title` | no | A shorter title for the browser tab and search results, at most 70 characters |
+| `merged_into` | no | The slug (no date) of a live post this one was folded into. The post leaves the index, feeds, search and sitemap, and its old address becomes a redirect to that post (canonical, zero-second refresh, `noindex`). Keep `title`, `date` and `description`; the body can shrink to a one-line pointer. A slug that is not a live post fails the build |
 | `topic` | no | Overrides the topic the blog derives from the tags: `start`, `agents`, `research`, `tools` or `infrastructure` ([`platform/pages/writing.mjs`](../../platform/pages/writing.mjs), `TOPICS`) |
 
 Link another post by its file name, `[title](2026-10-16-slug.md)`; that works
