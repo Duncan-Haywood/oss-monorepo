@@ -170,6 +170,16 @@ decisions:
     the margin floor and its PR records a thorough review (`prompts/goals.md`,
     "2026-11-26: agents approve launch"). Operator: Maris Stella Labs LLC,
     Colorado. Webhook destinations can be automated the same way next.
+    Owner, 2026-11-27: "there is a paddle secret don't know if it's the
+    right type." What the deploys need, by prefix (never paste a value
+    anywhere but the secrets store): a server-side API key, which starts
+    `pdl_live_apikey_` (`pdl_sdbx_apikey_` is the sandbox). A client-side
+    token (`live_...` / `test_...`) or a notification secret
+    (`pdl_ntfset_...`) will not work as the API key. Grants reads
+    `BILLING_API_KEY`; PayApps, Job Shop Quote, CMMC, Seller Books and
+    E-invoice read their own `<APP>_BILLING_API_KEY`, so one secret only
+    reaches Grants until the deploys fall back to the shared key (agent
+    work, not yours).
   unlocks:
     - >-
       The only thing that moves the revenue ceiling off $0. Every other item in
@@ -223,60 +233,6 @@ decisions:
     Open VSX, the VS Code Marketplace, Packagist and RubyGems all reachable
     (`portfolio/research/egress-reachability/results-2026-10-31.json`).
 
-- id: search-engine-verification
-  asks: []
-  prs: [12907]
-  gates: distribution
-  exposure: none
-  opened: "2026-11-03"
-  action: >-
-    Prove to Google and Bing that you own https://marisstella.app/, then hand
-    them the sitemap. (1) Google Search Console, https://search.google.com/search-console:
-    add a URL-prefix property for https://marisstella.app/, pick the "HTML tag"
-    method, and paste only the `content="..."` value into the `google` list in
-    `platform/seo/site-verification.json` (or give it to any agent session).
-    Merging deploys the tag to the home page; then press Verify, and under
-    Sitemaps submit `sitemap.xml`. A Domain property verified by a DNS TXT
-    record in Cloudflare works as well and needs no file change.
-    (2) Bing Webmaster Tools, https://www.bing.com/webmasters: "Import from
-    Google Search Console" after step 1 (no token needed), or the meta-tag
-    method into the `bing` list. (3) Optional, for the measurement loop: in
-    Google Cloud, enable the Search Console API, create a service account, add
-    its email as a Restricted user on the property, and store the key JSON as
-    the repository secret `GSC_SERVICE_ACCOUNT_JSON`; `platform/seo/probe.py
-    gsc` then reads clicks, impressions and position. (4) Repository About ->
-    Website: https://marisstella.app/. Tokens are public by design (each
-    engine reads them from the live page); the service-account key is a
-    secret and goes only in the secrets store. Remove this row once (1) and
-    (2) verify.
-  unlocks:
-    - >-
-      Google indexing on purpose instead of by luck. On 2026-11-03 no
-      tracked query (8 of 23 run, `platform/seo/history/observations.jsonl`),
-      including the brand name and `site:marisstella.app`, returned a single
-      marisstella.app page, while the live audit (`probe.py audit`) found no
-      blocker: robots allows all, 1,327 child sitemaps, self canonicals, no
-      noindex. The site is crawlable and undiscovered. Search Console is the
-      only route to Google's own sitemap submission, URL inspection and
-      indexing reports; there is no IndexNow for Google.
-    - >-
-      Bing Webmaster data. Bing's index also serves several AI assistants'
-      web search, so it is the cheapest lever on "AI agents find us".
-      IndexNow (Bing, Yandex, Seznam, Naver) was submitted by hand on
-      2026-11-03 and answered 200, which means "asked", not "indexed".
-    - >-
-      Real ranking numbers for the feedback loop (`platform/seo/README.md`):
-      without Search Console, Google rankings are read only by agent web
-      searches, which are a sample, not a measurement.
-  blocked_by: []
-  note: >-
-    Replaces `pages-custom-domain` (opened 2026-09-10), which asked for a
-    custom domain; marisstella.app has served the site since 2026-10-30, so
-    that row was done. Its history is in git (`git log -p --
-    portfolio/ledger/asks.yaml`). No money, no new account beyond a Google and
-    Microsoft login the owner already controls, and fully reversible (remove
-    the token, delete the property).
-
 - id: aws-turnover
   asks: []
   prs: [18802]
@@ -321,40 +277,13 @@ decisions:
     Cloudflare is the registrar. The cloudflare-mail-and-ruleset row's
     Email Routing part becomes moot once SES receives mail; its ruleset
     part does not.
+    Agent inboxes (owner, 2026-11-27: "i don't want to be in charge of this
+    ... probably be intended to set up there instead"): no owner step of
+    their own. The Cloudflare row `agent-inboxes-secrets` is gone. On AWS,
+    `platform/aws/stacks/edge-api` generates the inbox token into Secrets
+    Manager and `stacks/email-ops` receives mail through SES, so the inboxes
+    arrive with this row's step 1; step 6 covers SES sending.
 
-- id: agent-inboxes-secrets
-  asks: []
-  prs: [19197]
-  gates: revenue
-  exposure: credential
-  opened: "2026-11-26"
-  action: >-
-    Turn on the agent-managed inboxes (platform/email/README.md, "Owner
-    steps"). (1) Add secrets to the `cloudflare` environment: MAIL_AGENT_TOKEN, MAIL_READ_TOKEN,
-    MAIL_OWNER_TOKEN and MAIL_UNSUBSCRIBE_SECRET (each `openssl rand -hex
-    32`) and EMAIL_FORWARD_TO (your personal address; it receives privacy@
-    and security@ copies, flag alerts and the daily digest). (2) Make sure
-    the Cloudflare token can do Workers Scripts Write, D1 Write, Zone Email
-    Routing Rules Edit, Zone Settings Edit, DNS Edit and Account Email
-    Routing Addresses Edit (R2 Write too if you enable R2, which Cloudflare
-    asks a payment method for; without it raw mail stays in D1). (3) Run
-    Actions -> email-deploy, then Actions -> Cloudflare email routing with
-    "apply" ticked, and click the verification link Cloudflare emails you.
-    (4) When agents should answer customers: onboard marisstella.app to
-    Cloudflare Email Service. Give agent sessions MAIL_AGENT_TOKEN and
-    MAIL_API_URL.
-  unlocks:
-    - >-
-      hello@, support@, privacy@, billing@ and the product addresses receive
-      mail (the Privacy Policy's contact has had no MX record), Paddle's
-      domain review sees working support and privacy contacts, and agents
-      can triage and answer support mail inside code-enforced guardrails.
-  blocked_by: []
-  note: >-
-    Owner, 2026-11-26: "we need agent managed inboxes for the domains."
-    Supersedes the last sentence of web-analytics-token (confirm hello@
-    receives mail). Every value is a secret only the owner holds; nothing
-    else is waiting on a person.
 - id: web-analytics-token
   asks: []
   prs: [18774]
