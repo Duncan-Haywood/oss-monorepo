@@ -7,15 +7,7 @@ do not edit by hand. Take the first one whose claim branch
 
 Triaged already: alerts in `platform/security/codeql-triage.json` are listed apart, at the end; `docs/reports/*security-queue*.md` on main has earlier runs' notes. A false positive you find goes in the JSON file with its reason (only the owner can dismiss alerts).
 
-Scanned commit: `46eb4b55547d` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 46eb4b55547d origin/main -- <path>` before fixing (each alert file says how).
-
-- [high] #1479 `js/xss-through-dom` in `ventures/seller-books/apps/seller-books/src/client/routes/org.tsx:198`: alerts/1479.md
-- [high] #1480 `js/incomplete-url-substring-sanitization` in `ventures/seller-books/apps/seller-books-site/test/site.test.mjs:246`: alerts/1480.md
-- [high] #1481 `js/incomplete-url-substring-sanitization` in `ventures/seller-books/apps/seller-books-site/test/site.test.mjs:274`: alerts/1481.md
-- [high] #1482 `js/incomplete-url-substring-sanitization` in `ventures/seller-books/apps/seller-books-site/test/site.test.mjs:275`: alerts/1482.md
-- [high] #1483 `js/incomplete-url-substring-sanitization` in `ventures/seller-books/apps/seller-books-site/test/site.test.mjs:337`: alerts/1483.md
-- [high] #1484 `js/incomplete-url-substring-sanitization` in `ventures/seller-books/apps/seller-books-site/test/site.test.mjs:338`: alerts/1484.md
-- [medium] #1478 `js/client-side-unvalidated-url-redirection` in `ventures/seller-books/apps/seller-books/src/client/routes/account.tsx:315`: alerts/1478.md
+Empty: no open alerts awaiting a fix.
 
 ## Triaged, awaiting dismissal
 
