@@ -146,9 +146,22 @@ export function describeWebhookAction(a: WebhookAction): string {
   }
 }
 
-/** True for a value shaped like a Paddle notification secret (pdl_ntfset_…). */
+/**
+ * True for a value shaped like a Paddle notification secret: `pdl_ntfset_` and more, with no
+ * whitespace. The body's alphabet is not documented, so it is not checked (the first live run,
+ * 2026-11-27, refused Paddle's own secret under a stricter pattern).
+ */
 export function isEndpointSecret(v: unknown): v is string {
-  return typeof v === "string" && /^pdl_ntfset_[A-Za-z0-9_]{16,}$/.test(v);
+  return typeof v === "string" && v.length > 20 && v.startsWith("pdl_ntfset_") && !/\s/.test(v);
+}
+
+/** What a secret field holds, safe to log: never more than the public prefix. */
+export function describeSecretField(v: unknown): string {
+  if (v === undefined) return "field absent";
+  if (v === null) return "null";
+  if (typeof v !== "string") return `a ${typeof v}`;
+  const prefix = v.startsWith("pdl_ntfset_") ? "prefix pdl_ntfset_" : "another prefix";
+  return `a string of ${v.length} characters, ${prefix}${/\s/.test(v) ? ", with whitespace" : ""}`;
 }
 
 type Json = Record<string, unknown>;
@@ -204,6 +217,11 @@ export class PaddleWebhookClient {
       .data as PaddleNotificationSetting;
   }
 
+  async get(id: string): Promise<PaddleNotificationSetting> {
+    return (await this.call("GET", `/notification-settings/${encodeURIComponent(id)}`))
+      .data as PaddleNotificationSetting;
+  }
+
   async update(id: string, body: Json): Promise<PaddleNotificationSetting> {
     return (await this.call("PATCH", `/notification-settings/${encodeURIComponent(id)}`, body))
       .data as PaddleNotificationSetting;
@@ -233,11 +251,17 @@ export async function syncWebhookDestination(
   let after: PaddleNotificationSetting | null = existing ?? null;
   if (opts.apply && action.kind === "create") after = await client.create(action.body);
   if (opts.apply && action.kind === "update") after = await client.update(action.id, action.body);
-  const secret = after?.endpoint_secret_key ?? existing?.endpoint_secret_key ?? null;
+  let secret: unknown = after?.endpoint_secret_key ?? existing?.endpoint_secret_key;
   if (after && !isEndpointSecret(secret)) {
-    throw new Error(
-      `Paddle returned destination ${after.id} without a notification secret (pdl_ntfset_…)`,
-    );
+    // A list or write response may leave the secret out: read the one destination.
+    const seen = describeSecretField(secret);
+    const one = await client.get(after.id);
+    secret = one.endpoint_secret_key;
+    if (!isEndpointSecret(secret)) {
+      throw new Error(
+        `Paddle returned destination ${after.id} without a usable notification secret (write/list response: ${seen}; GET by id: ${describeSecretField(secret)})`,
+      );
+    }
   }
   return {
     action,

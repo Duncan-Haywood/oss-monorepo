@@ -1,7 +1,7 @@
 # payapps-site: marketing site for the pay-app product
 
 The public site for the subcontractor pay-application product (the app itself is `apps/payapps`, built
-separately). Pages: home, features, pricing, early access, privacy. It also serves `llms.txt`,
+separately). Pages: home, features, pricing, early access, privacy, and the Terms of Service, Refund Policy and Acceptable Use Policy (rendered from `apps/payapps/docs/legal/*.md`; `pnpm sync:legal` after the app's documents change, and a unit test fails until you do). It also serves `llms.txt`,
 `llms-full.txt`, `sitemap.xml`, `robots.txt`, an Atom `feed.xml` and JSON-LD on every page.
 
 > **Product name: PayApps**, the app's own name (`apps/payapps/index.html`) and the one the free
@@ -22,6 +22,9 @@ separately). Pages: home, features, pricing, early access, privacy. It also serv
   everything else is **next**.
 - Prices are the app's own plans (`apps/payapps/src/shared/plans.ts`); `test/unit/plans-sync.test.ts`
   fails when the pricing page drifts from them.
+- Screenshots of the app (`public/shots/`) come only from `pnpm stills` in `apps/payapps`: the real
+  app, the worked example's made-up job, figures asserted before capture. Re-run it after a UI
+  change, then `pnpm export:catalogue`. No mock-ups standing in for the product.
 - No competitor comparisons until they come with sourced, dated facts (see `docs/PRICING.md`, "Market check").
 - Wherever pay-app forms, waivers or retainage come up: "not affiliated with the AIA, does not produce
   AIA Contract Documents, not legal advice" (`NOT_AIA_NOTE`).
@@ -92,7 +95,7 @@ marketing, with an unsubscribe header.
 ## Served now: the catalogue copy (2026-11-27)
 
 https://marisstella.app/payapps/ serves `catalogue-export/`, a committed static copy of the open site
-built with `earlyAccess: false`: home, features, pricing, privacy, sitemap, llms.txt, llms-full.txt and
+built with `earlyAccess: false`: home, features, pricing, privacy, terms, refunds, acceptable use, sitemap, llms.txt, llms-full.txt and
 the feed, with no early-access pages, forms or scripts (the app is open, and nothing runs behind the
 copy, so its privacy notice says the site stores nothing and points at the app's Privacy Policy).
 `platform/pages/payapps-site.mjs` copies it into the catalogue build on every merge, without the

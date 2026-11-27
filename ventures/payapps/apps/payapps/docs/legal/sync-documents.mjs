@@ -2,6 +2,9 @@
 // Workers cannot read the repo at runtime, so the documents are bundled as string constants.
 // Run from apps/payapps:  node docs/legal/sync-documents.mjs
 // A unit test (src/worker/services/legal/documents.test.ts) fails if the two drift apart.
+// The marketing site publishes terms, refunds and acceptable-use as pages too: after an edit, also run
+// `pnpm sync:legal && pnpm export:catalogue` in apps/payapps-site (its test/unit/legal.test.ts fails
+// until you do).
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
