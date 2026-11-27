@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { FUNNELS, judgeAppPage, judgeFrontDoor } from './live_funnel_check.mjs';
+import { FUNNELS, isUnreachable, judgeAppPage, judgeFrontDoor, verdict } from './live_funnel_check.mjs';
 
 const good = {
   status: 200,
@@ -88,4 +88,20 @@ test('every funnel names an https app and a sign-up path', () => {
     assert.match(f.base, /^https:\/\/[a-z-]+\.marisstella\.app$/);
     assert.match(f.signupPath, /^\//);
   }
+});
+
+test('a proxy refusing the tunnel or DNS failing is unreachable, not a broken site', () => {
+  assert.ok(isUnreachable('page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://payapps.marisstella.app/?signup'));
+  assert.ok(isUnreachable('page.goto: net::ERR_NAME_NOT_RESOLVED at https://x.marisstella.app/'));
+  assert.ok(isUnreachable('getaddrinfo ENOTFOUND marisstella.app'));
+  assert.ok(!isUnreachable('page.goto: Timeout 30000ms exceeded.'));
+  assert.ok(!isUnreachable('page.goto: net::ERR_CERT_DATE_INVALID at https://payapps.marisstella.app/'));
+  assert.ok(!isUnreachable(undefined));
+});
+
+test('SKIP only when every problem is an unreachable host; one real finding makes it FAIL', () => {
+  assert.equal(verdict([]), 'ok');
+  assert.equal(verdict([{ text: 'desktop: unreachable', unreachable: true }, { text: 'phone: unreachable', unreachable: true }]), 'skip');
+  assert.equal(verdict([{ text: 'desktop: unreachable', unreachable: true }, { text: 'front door answered 404' }]), 'fail');
+  assert.equal(verdict([{ text: 'desktop: answered 500' }]), 'fail');
 });

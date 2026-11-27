@@ -6,7 +6,10 @@
 //   node platform/ci/live_funnel_check.mjs            # every product in FUNNELS
 //   node platform/ci/live_funnel_check.mjs --only payapps --json
 //
-// Exit 0 when every check passes, 1 when one fails, 2 when the browser could not start.
+// Exit 0 when every check passes, 1 when one fails, 2 when the browser could not start, 3 when
+// nothing failed but a host could not be reached from this machine at all (a proxy refusing the
+// CONNECT, DNS that does not resolve: cloud sessions' allowlists block marisstella.app). An
+// unreachable host says nothing about the site, so it is reported as SKIP, never as FAIL.
 // Needs Playwright (pre-installed in cloud sessions). Read-only: GET requests only.
 //
 // Why: the deploy workflows check /api/health, which stays green when the page a visitor sees is
@@ -37,6 +40,24 @@ export const FUNNELS = [
 
 /** Responses a signed-out visitor is expected to get: the session probe answers 401. */
 export const EXPECTED_FAILURES = [/\/api\/me$/, /\/api\/auth\/get-session$/];
+
+/** Browser and Node errors that mean this machine never reached the host, not that the site is broken. */
+export const UNREACHABLE = /ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY_CONNECTION_FAILED|ERR_NAME_NOT_RESOLVED|ERR_INTERNET_DISCONNECTED|ERR_NETWORK_ACCESS_DENIED|ENOTFOUND|EAI_AGAIN/;
+
+/** True when an error message says the host was never reached. */
+export function isUnreachable(message) {
+  return UNREACHABLE.test(String(message ?? ''));
+}
+
+/**
+ * Sort one funnel's problems: FAIL when any is a real finding, SKIP when every one is an
+ * unreachable host, ok when there are none.
+ * @param {{text: string, unreachable?: boolean}[]} found
+ */
+export function verdict(found) {
+  if (!found.length) return 'ok';
+  return found.every((p) => p.unreachable) ? 'skip' : 'fail';
+}
 
 const STALE_TITLE = /in development|coming soon|untitled|vite \+|react app/i;
 
@@ -125,10 +146,14 @@ async function visitApp(browser, funnel, viewport) {
 async function visitFrontDoor(browser, url) {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
-  const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => null);
+  let error = null;
+  const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch((e) => {
+    error = String(e.message).split('\n')[0];
+    return null;
+  });
   const links = resp ? await page.$$eval('a[href]', (as) => as.map((a) => a.href)) : [];
   await ctx.close();
-  return { url, status: resp?.status() ?? 0, links };
+  return { url, status: resp?.status() ?? 0, links, error };
 }
 
 export async function run(funnels, chromium) {
@@ -136,19 +161,27 @@ export async function run(funnels, chromium) {
   const results = [];
   try {
     for (const f of funnels) {
-      const problems = [];
+      const found = [];
       for (const [label, vp] of [['desktop', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]]) {
         try {
           const v = await visitApp(browser, f, vp);
-          for (const p of judgeAppPage(v)) problems.push(`${label}: ${p}`);
+          for (const p of judgeAppPage(v)) found.push({ text: `${label}: ${p}` });
         } catch (e) {
-          problems.push(`${label}: could not load (${String(e.message).split('\n')[0]})`);
+          const msg = String(e.message).split('\n')[0];
+          found.push(isUnreachable(msg)
+            ? { text: `${label}: unreachable from this machine (${msg})`, unreachable: true }
+            : { text: `${label}: could not load (${msg})` });
         }
       }
       for (const url of f.frontDoors) {
-        problems.push(...judgeFrontDoor(await visitFrontDoor(browser, url), f));
+        const fd = await visitFrontDoor(browser, url);
+        if (fd.error && isUnreachable(fd.error)) {
+          found.push({ text: `front door ${url} unreachable from this machine (${fd.error})`, unreachable: true });
+        } else {
+          for (const p of judgeFrontDoor(fd, f)) found.push({ text: p });
+        }
       }
-      results.push({ app: f.app, url: f.base + f.signupPath, problems });
+      results.push({ app: f.app, url: f.base + f.signupPath, verdict: verdict(found), problems: found.map((p) => p.text) });
     }
   } finally {
     await browser.close();
@@ -172,11 +205,15 @@ async function main() {
   if (argv.includes('--json')) console.log(JSON.stringify(results, null, 2));
   else {
     for (const r of results) {
-      console.log(`${r.problems.length ? 'FAIL' : 'ok  '} ${r.app}  ${r.url}`);
+      console.log(`${{ ok: 'ok  ', skip: 'SKIP', fail: 'FAIL' }[r.verdict]} ${r.app}  ${r.url}`);
       for (const p of r.problems) console.log(`       ${p}`);
     }
+    if (results.some((r) => r.verdict === 'skip')) {
+      console.log('SKIP: the host was never reached (proxy or DNS); this says nothing about the site. Run it where the host is reachable.');
+    }
   }
-  process.exit(results.some((r) => r.problems.length) ? 1 : 0);
+  if (results.some((r) => r.verdict === 'fail')) process.exit(1);
+  process.exit(results.some((r) => r.verdict === 'skip') ? 3 : 0);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) await main();
