@@ -87,6 +87,51 @@ in the move PR:
 - Workflow file names: check `ventures/<slug>` has no workflow of the same
   name (this app's free edition owns `einvoice-preflight-ci.yml`).
 
+## Blocked on CodeQL (2026-11-27, end of this run)
+
+Every other check on PR #19574 is green: security-scan, adversarial-gate,
+risk-review and both app CIs. The `codeql gate` jobs and the ruleset's
+`code_scanning` rule (medium or higher) fail, because a moved file is new to
+CodeQL. The same lines under `ventures/einvoice-preflight` do not show up as
+open alerts on main (presumably dismissed), but alerts are per path. Agents
+cannot dismiss alerts. So each finding needs a code fix, or the owner
+dismisses it on the PR. 41 findings:
+
+- **Python (4):** `py/clear-text-logging-sensitive-data` at
+  `src/einvoice_preflight/cli.py:853`, the same as main's triaged #34 (the CLI
+  prints the user's own invoice report); `py/clear-text-storage-sensitive-data`
+  at `tests/test_bic.py:176`, `tests/test_iban.py:165` and
+  `tests/test_remittance.py:184`, the same as triaged #2 to #4 (synthetic
+  IBANs written to a temporary directory).
+- **JS (37, all under `apps/einvoice-preflight` unless named):**
+  - `js/incomplete-multi-character-sanitization` (comment stripping, 9):
+    abrasf.mjs:317, abrasf.test.mjs:112, build-rio-codes.mjs:38 (2), fa3.mjs:305,
+    facturx.mjs:261, mandate-calendar.mjs:20, nfse.mjs:443, ubl-xsd.mjs:143.
+    Fix: repeat the replace until the string is stable.
+  - `js/bad-tag-filter` (3): build-rio-codes.mjs:39 and :53, and
+    `apps/einvoice-site/test/build.test.mjs:27`.
+  - `js/double-escaping` (5): build-fr-rules.mjs:35, mandate-calendar.mjs:20,
+    title-length.test.mjs:10, `apps/einvoice-site/test/build.test.mjs:26`. Fix:
+    decode `&amp;` last.
+  - `js/incomplete-hostname-regexp` (5, tests): facturae-signature.test.mjs:44,
+    :46, :48, :49 and sdi-receipt.test.mjs:10. Fix: escape the dots.
+  - `js/incomplete-url-substring-sanitization` (3): nfe.mjs:52 and nfse.mjs:51
+    (namespace checks: compare exactly), and
+    `packages/billing/src/paddle.test.ts:252`.
+  - `js/incomplete-sanitization` (6, backslashes): page.test.mjs:81,
+    peppol-readiness.mjs:132, plain-compile.mjs:214 and
+    rule-reference-page.test.mjs:62, :66, :104.
+  - `js/redos` (3): flux10-detect-redos.test.mjs:14. This test deliberately
+    builds a slow pattern.
+  - `js/identity-replacement` (4, medium): build-facturae-schema.mjs:28,
+    facturae.test.mjs:88, pro/fixes.test.mjs:123 and
+    verifactu-response.test.mjs:100.
+
+The PayApps move (PR #19571) and every later move will hit the same wall. One
+fix worth weighing, as its own reviewed process change: run CodeQL's PR
+diff against the files' previous path. Alternatively, move with `git mv`, so
+there is no second copy, then rename detection keeps the alerts' history.
+
 ## Next
 
 1. A `priv-einvoice-deploy.yml` here (from the private

@@ -28,10 +28,11 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [
     "First draft overwrote the free edition's existing .github/workflows/einvoice-preflight-ci.yml with the paid app's CI; caught at commit review, restored, and renamed mine einvoice-pro-ci.yml.",
-    "First CI round: 5 red checks (third-party inventory, hidden U+FEFF, docker-copy false positive on a directory URL, checklist coverage for new test dirs, check_code_refs on a goals.md private-monorepo path now that apps/ exists, and the adversarial gate reading 'secrets.' + next word in a workflow comment as a secret). All fixed in one commit."
+    "First CI round: 5 red checks (third-party inventory, hidden U+FEFF, docker-copy false positive on a directory URL, checklist coverage for new test dirs, check_code_refs on a goals.md private-monorepo path now that apps/ exists, and the adversarial gate reading 'secrets.' + next word in a workflow comment as a secret). All fixed in one commit.",
+    "PR #19574 not merged: the codeql gate (python, javascript-typescript) and the ruleset's code_scanning rule fail on 41 findings in moved code (4 Python, 37 JS) that are already on main under ventures/ but new by path; agents cannot dismiss alerts. Listed in docs/reports/2026-11-27-prepub-audit-einvoice.md. Merged instead: PR #19583 (security baseline entry)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -54,6 +55,10 @@
     {
       "file": "docs/reports/2026-11-27-prepub-audit-payapps.md",
       "issue": "A moved app needs third_party.json, hidden_unicode, checklist_coverage and publish-surface updates; none of that is listed for the next mover."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "Moving code between paths makes every existing CodeQL finding 'new'; nothing in the move task (products-to-public-repo) or the gate docs warns of it, and only the owner can dismiss. Cost this run its merge."
     }
   ],
   "deviations": [
@@ -74,7 +79,7 @@
     "docs/reports/2026-11-27-prepub-audit-einvoice.md"
   ],
   "goal": null,
-  "notes": "Local verification: pro 263/263, worker 9/9, checker 2231 pass/149 skip/1 env-only fail (pdfdetach -save refused by container wrapper), einvoice-site 35/35, ci_policy_check ok, risk_review blocked on nothing. packages/billing and admin-metrics copied byte-for-byte from PR #19571 so both moves merge in either order.",
+  "notes": "Local verification: pro 263/263, worker 9/9, checker 2231 pass/149 skip/1 env-only fail (pdfdetach -save refused by container wrapper), einvoice-site 35/35, ci_policy_check ok, risk_review blocked on nothing. packages/billing and admin-metrics copied byte-for-byte from PR #19571 so both moves merge in either order. Merged: PR #19583. Open: #19574 (all checks green except CodeQL), private-monorepo #462 (freeze note, draft; merge after #19574).",
   "corrections": [],
   "redteam": null,
   "usage": {

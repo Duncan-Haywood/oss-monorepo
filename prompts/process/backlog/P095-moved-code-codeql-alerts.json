@@ -1,0 +1,27 @@
+{
+  "id": "P095",
+  "title": "Moving a paid app into apps/ makes every CodeQL finding in it new, and only the owner can dismiss",
+  "status": "open",
+  "owner": "agent",
+  "effect": 4,
+  "cost": 3,
+  "problem": "Task products-to-public-repo copies each private app here. CodeQL alerts are keyed by path, so the copy's findings count as new on lines the PR adds. That holds even where the same lines sit under ventures/<slug> on main and their alerts were dismissed or triaged there. PR #19574 (einvoice paid edition, 2026-11-27) passed every other check but failed `codeql gate (python)` on 4 findings and `codeql gate (javascript-typescript)` on 37, and the ruleset's code_scanning rule (medium or higher) blocks the merge. Agents cannot dismiss alerts. PayApps (PR #19571) and the later moves will hit the same wall.",
+  "evidence": [
+    "PR #19574 job 140305917942 (python gate): 4 findings, the same as main's triaged #2, #3, #4 and #34 under ventures/einvoice-preflight",
+    "PR #19574 job 140305917820 (JS gate): 37 findings in apps/einvoice-preflight, apps/einvoice-site and packages/billing; listed in docs/reports/2026-11-27-prepub-audit-einvoice.md",
+    ".github/rulesets/main.json: code_scanning CodeQL security_alerts_threshold medium_or_higher"
+  ],
+  "change": "Pick one, in its own reviewed PR. (a) Fix the findings in the moved code. Most are mechanical: repeat comment-stripping replaces until the string is stable, decode &amp; last, escape the dots in test regexes, compare namespaces exactly. (b) When a moved file's free-edition twin under ventures/ is retired, move it with git mv so no second copy exists. (c) Ask the owner, through decision_queue.py, to bulk-dismiss the listed false positives. Write the chosen route into the products-to-public-repo task notes, so the next move plans for it.",
+  "touches": [
+    "apps/einvoice-preflight",
+    "platform/ci/codeql_gate.py",
+    "portfolio/work/tasks.yaml"
+  ],
+  "metric": "move PRs under products-to-public-repo blocked by CodeQL on moved-but-unchanged code",
+  "baseline": "1 (PR #19574, 2026-11-27); PR #19571 likely the same",
+  "opened": "2026-11-27",
+  "source": "ventures run, PR #19574 CI",
+  "pr": null,
+  "result": null,
+  "history": []
+}
