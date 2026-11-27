@@ -1,0 +1,5193 @@
+{
+  "source": "oss-monorepo ventures/machine-shop-guides/scope.mjs classify(asset, \"2\"), every combination of answers per kind, written 2026-11-26",
+  "cases": [
+    {
+      "kind": "workstation",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "workstation",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "workstation",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "workstation",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "workstation",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "workstation",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "workstation",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "workstation",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "workstation",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "workstation",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "workstation",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "workstation",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "workstation",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "workstation",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "workstation",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "workstation",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cam",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cam",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cam",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cam",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cam",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cam",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cam",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cam",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "cam",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "cam",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cam",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cam",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cam",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cam",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cam",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "server",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "server",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "server",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "server",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "server",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "server",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "server",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "server",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "server",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "server",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "server",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "server",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "server",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "server",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "server",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "mobile",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "mobile",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "mobile",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "mobile",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "mobile",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "mobile",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "mobile",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "mobile",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "mobile",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "mobile",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "mobile",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "mobile",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "mobile",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "mobile",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "mobile",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "printer",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "printer",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "printer",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "printer",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "printer",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "printer",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "printer",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "printer",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "printer",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "printer",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "printer",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "printer",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "printer",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "printer",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "printer",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "network",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "network",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "network",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "network",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "network",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "network",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "network",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "network",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "network",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "network",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "network",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "network",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "network",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "network",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "network",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "security",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "security",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "security",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "security",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "security",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "security",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "security",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "security",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "security",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "security",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "security",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "security",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "security",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "security",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "security",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cloud",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Say whether the service holds CUI, Security Protection Data (logs, configuration) or neither."
+      ]
+    },
+    {
+      "kind": "cloud",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": true,
+      "cat": "unresolved",
+      "gaps": [
+        "Say whether the service holds CUI, Security Protection Data (logs, configuration) or neither."
+      ]
+    },
+    {
+      "kind": "cloud",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "cui",
+      "csp": false,
+      "cat": "cui",
+      "gaps": [
+        "Get the provider's service description and customer responsibility matrix (170.19(c)(2)(ii))."
+      ]
+    },
+    {
+      "kind": "cloud",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "cui",
+      "csp": true,
+      "cat": "cui",
+      "gaps": [
+        "Get the provider's evidence that it meets security requirements equivalent to the FedRAMP Moderate baseline (DFARS 252.204-7012(b)(2)(ii)(D)), and its customer responsibility matrix."
+      ]
+    },
+    {
+      "kind": "cloud",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "spd",
+      "csp": false,
+      "cat": "spa",
+      "gaps": [
+        "Get the provider's service description and customer responsibility matrix (170.19(c)(2)(ii))."
+      ]
+    },
+    {
+      "kind": "cloud",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "spd",
+      "csp": true,
+      "cat": "spa",
+      "gaps": [
+        "Get the provider's service description and customer responsibility matrix (170.19(c)(2)(ii))."
+      ]
+    },
+    {
+      "kind": "cloud",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "neither",
+      "csp": false,
+      "cat": "oos",
+      "gaps": []
+    },
+    {
+      "kind": "cloud",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "neither",
+      "csp": true,
+      "cat": "oos",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cnc",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cnc",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cnc",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cnc",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cnc",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cnc",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cnc",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cnc",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "cnc",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cnc",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cnc",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cnc",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cnc",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cnc",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cmm",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cmm",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cmm",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cmm",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cmm",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cmm",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cmm",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "cmm",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "cmm",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cmm",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cmm",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cmm",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "cmm",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "cmm",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "iot",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "iot",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "iot",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "iot",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "iot",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "iot",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "iot",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "iot",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "iot",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "iot",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "iot",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "iot",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "iot",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "iot",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "gfe",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "gfe",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "gfe",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "gfe",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "gfe",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "gfe",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "gfe",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "gfe",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "gfe",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "specialized",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "gfe",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "gfe",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "gfe",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "gfe",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "gfe",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "removable",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "removable",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "removable",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "removable",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "removable",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "removable",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "removable",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "removable",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "removable",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "removable",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "removable",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "removable",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "removable",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "removable",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "removable",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "paper",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "paper",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "paper",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "paper",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "paper",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "paper",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "paper",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "paper",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "paper",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "paper",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "paper",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "paper",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "paper",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "paper",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "paper",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "other",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "other",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "other",
+      "cui": "unknown",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "other",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "other",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "other",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "other",
+      "cui": "unknown",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": ["Answer whether it handles CUI."]
+    },
+    {
+      "kind": "other",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "yes",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "yes",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "cui",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "other",
+      "cui": "can",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "unresolved",
+      "gaps": [
+        "Write the policy, procedure or practice that keeps CUI off it, or treat it as a CUI Asset."
+      ]
+    },
+    {
+      "kind": "other",
+      "cui": "can",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "crma",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "can",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "can",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "other",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "other",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "other",
+      "cui": "cannot",
+      "security": false,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "oos",
+      "gaps": [
+        "Say how it is physically or logically separated from CUI assets: the rule asks you to be ready to justify it."
+      ]
+    },
+    {
+      "kind": "other",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": false,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    },
+    {
+      "kind": "other",
+      "cui": "cannot",
+      "security": true,
+      "unsecurable": true,
+      "policy": "Blocked by policy",
+      "espData": "unknown",
+      "csp": false,
+      "cat": "spa",
+      "gaps": []
+    }
+  ]
+}

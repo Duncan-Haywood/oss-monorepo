@@ -1,5 +1,5 @@
 // Shop settings from a sheet: the markups, the line minimum, how long a quote is valid, the default
-// quantity breaks, the default lead time and the terms printed on quotes, read from label/value rows ("Labor markup | 15%") anywhere on a worksheet, so a
+// quantity breaks, the default fallout, the default lead time and the terms printed on quotes, read from label/value rows ("Labor markup | 15%") anywhere on a worksheet, so a
 // shop's price list that keeps them in a block above its rate table imports in one pass, and an
 // exported settings sheet reads back unchanged.
 //
@@ -14,6 +14,7 @@
 // exported sheet still reads back unchanged. A number setting has no empty state, so "(none)" there
 // is an error that says what to write instead.
 import { type ShopSettingsDto, shopSettingsPatchSchema } from "./api";
+import { MAX_FALLOUT_BPS } from "./costing";
 import { formatMoney, headerCurrencyMark, markFits, otherCurrencyMessage } from "./currency";
 import {
   clean,
@@ -33,6 +34,7 @@ export type SettingField =
   | "minimumLineCents"
   | "quoteValidDays"
   | "defaultQuantities"
+  | "defaultFalloutBps"
   | "defaultLeadTimeText"
   | "quoteTerms";
 
@@ -58,6 +60,7 @@ export type SettingsPatch = Partial<{
   minimumLineCents: number;
   quoteValidDays: number;
   defaultQuantities: number[];
+  defaultFalloutBps: number | null;
   defaultLeadTimeText: string | null;
   quoteTerms: string | null;
 }>;
@@ -70,6 +73,7 @@ export const SETTING_LABELS: Record<SettingField, string> = {
   minimumLineCents: "Minimum line charge",
   quoteValidDays: "Quote valid (days)",
   defaultQuantities: "Default quantities",
+  defaultFalloutBps: "Default fallout",
   defaultLeadTimeText: "Default lead time",
   quoteTerms: "Quote terms",
 };
@@ -137,6 +141,20 @@ export function matchSettingLabel(raw: string): Match | null {
     /\b(default|breaks?|quantities|qtys)\b/.test(h)
   )
     return { field: "defaultQuantities" };
+  // Fallout is parts scrapped in process (start 104 to ship 100). "Scrap" alone could also be a
+  // material's kerf and drop, and "Yield" is the complement, so both are refused with what to write.
+  if (/\b(fallout|fall out|reject rate|rejects?|part scrap|scrap parts|yield loss)\b/.test(h))
+    return { field: "defaultFalloutBps" };
+  if (/^(default |standard |expected )?yield\b/.test(h))
+    return {
+      refuse:
+        'quotes take the fallout, not the yield (a 97% yield is 3% fallout): label it "Default fallout" and write the parts expected to scrap',
+    };
+  if (/^(default |standard |expected )?scrap( rate| %| allowance| percent(age)?)?$/.test(h))
+    return {
+      refuse:
+        'could be parts scrapped in process or a material\'s kerf and drop: label parts scrapped "Default fallout" (kerf and drop go on each material row as its scrap %)',
+    };
   if (/^(default |standard |quoted? )?lead ?times?$/.test(h))
     return { field: "defaultLeadTimeText" };
   // "Lead time (days)" or "Lead time per part" is a number for one part, not the quote's wording.
@@ -244,8 +262,23 @@ export function readTextCell(raw: string, max: number): Read<string> {
   return { ok: true, value: t };
 }
 
+/**
+ * The default fallout: a percentage ("3%", "3", "2.5 %"), at most 50%. 0 is read as no default
+ * (null), as the settings editor saves a blank or 0 box.
+ */
+export function readFalloutCell(s: string): Read<number | null> {
+  const res = readPercentCell(s);
+  if (!res.ok) return { ok: false, error: res.error };
+  if (res.value > MAX_FALLOUT_BPS)
+    return {
+      ok: false,
+      error: `${Number((res.value / 100).toFixed(2))}% is over ${MAX_FALLOUT_BPS / 100}%: starting more than twice the order is a process to fix, not to quote`,
+    };
+  return { ok: true, value: res.value === 0 ? null : res.value };
+}
+
 /** What to write instead of "(none)" in a setting that cannot be empty. */
-const NO_CLEAR: Record<Exclude<SettingField, TextField>, string> = {
+const NO_CLEAR: Record<Exclude<SettingField, TextField | "defaultFalloutBps">, string> = {
   laborMarkupBps: 'cannot be empty: write "0%" for no markup',
   materialMarkupBps: 'cannot be empty: write "0%" for no markup',
   outsideServiceMarkupBps: 'cannot be empty: write "0%" for no markup',
@@ -262,7 +295,9 @@ function readValue(
   currency: string | null,
 ): Read<SettingValue> {
   if (isClear(cell))
-    return isTextField(field) ? { ok: true, value: null } : { ok: false, error: NO_CLEAR[field] };
+    return isTextField(field) || field === "defaultFalloutBps"
+      ? { ok: true, value: null }
+      : { ok: false, error: NO_CLEAR[field] };
   switch (field) {
     case "defaultLeadTimeText":
     case "quoteTerms":
@@ -277,6 +312,8 @@ function readValue(
       return readDaysCell(cell, /\b(weeks?|wks?)\b/i.test(label) ? "weeks" : "days");
     case "defaultQuantities":
       return readQuantitiesCell(cell);
+    case "defaultFalloutBps":
+      return readFalloutCell(cell);
   }
 }
 
@@ -413,6 +450,7 @@ const EXPORT_ORDER: SettingField[] = [
   "minimumLineCents",
   "quoteValidDays",
   "defaultQuantities",
+  "defaultFalloutBps",
   "defaultLeadTimeText",
   "quoteTerms",
 ];

@@ -605,7 +605,8 @@ fabrication job shops. Pricing and the paid path stay dark until the items marke
   by a hand-checked test (the audit's surviving ceil → round mutant now fails). Next from the same
   audit, if shops ask: a per-lot labor line for programming and first-article inspection (today a
   setup-only operation, which now prices at the labor markup); parts per bar from bar length, part
-  length, parting kerf and remnant instead of typed by hand; a shop-wide default fallout.
+  length, parting kerf and remnant instead of typed by hand; a shop-wide default fallout (done
+  2026-11-27, below).
 - Customer links: accept or decline online (2026-11-26, claim `quote-acceptance-link`). The quote
   email has a box (on by default) that adds "Accept or decline this quote online: <link>" under the
   footer, a clickable link in the HTML; "Copy a customer link" on the quote page makes one to send
@@ -687,6 +688,15 @@ fabrication job shops. Pricing and the paid path stay dark until the items marke
   The traveler prints the cut list ("Cut 53 blanks at 3" (13.25 ft)") and the bars to pull.
   Price dates and history (#437) record the price per foot too. `src/shared/material-per-foot.test.ts`, `test/worker/material-per-foot.test.ts`
   (D1 round trip, whole-bar preview, refusals, the import and another shop).
+- Default fallout (2026-11-27, the last open costing item of the 2026-11-26 quality audit that
+  needed no shop to ask): "Default fallout %" in Shop and pricing rules (`defaultFalloutBps`,
+  migration 0040, 0.01% to 50%; blank or 0 is none). Every new quote line from an RFQ and every
+  "Add line" starts with it, so 100 good parts at 3% start 104 without the estimator typing it on
+  each line; a line pre-filled from a won quote keeps that quote's own fallout. The settings sheet
+  reads and exports it ("Default fallout", "Fallout %", "Reject rate", "Yield loss"; "(none)"
+  clears it); "Yield" is refused ("a 97% yield is 3% fallout") and "Scrap" alone is refused because
+  it could be a material's kerf and drop. `src/shared/settings-import.test.ts`,
+  `test/worker/default-fallout.test.ts`.
 
 ## Next
 

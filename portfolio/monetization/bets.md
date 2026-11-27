@@ -230,6 +230,45 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
   so prices are anchored low; better as a module of #1 (daily reports
   already exist) than a bet.
 
+- **Screened 2026-11-27, not ranked (score 15):** *FSMA 204 food
+  traceability for small food manufacturers and distributors* (lot codes,
+  Critical Tracking Events and Key Data Elements for foods on FDA's Food
+  Traceability List, and the 24-hour sortable spreadsheet FDA can ask for).
+  WTP 2, Size 4, Dist 3, Margin 4, Time 2.
+  - **Deadline:** the rule's original date was 20 Jan 2026; FDA
+    [proposed 20 Jul 2028](https://www.govinfo.gov/content/pkg/FR-2025-08-07/html/2025-14967.htm)
+    (90 FR, 7 Aug 2025, "ACTION: Proposed rule"), and FDA's
+    [rule page](https://www.fda.gov/food/food-safety-modernization-act-fsma/fsma-final-rule-requirements-additional-traceability-records-certain-foods)
+    says the Continuing Appropriations ... Act of 2026 "directed FDA not to
+    enforce the Food Traceability Rule prior to that same date". So
+    federal demand is about 20 months off. Retailers move earlier:
+    Kroger required an EDI 856 ASN with traceability data from suppliers by
+    [30 Jun 2025](https://www.food-safety.com/articles/9322-krogers-traceability-policy-goes-beyond-fsma-204-by-including-all-foods),
+    for all foods, not just the list.
+  - **Size:** Census County Business Patterns 2022, read with
+    `python3 portfolio/smb/cbp_counts.py 311 4244`: 30,503 food
+    manufacturing establishments (NAICS 311; 20,796 under 20 employees)
+    and 34,852 grocery wholesalers (4244; 27,268 under 20). Not every one
+    handles a listed food. Farms selling at most $25,000 a year and some
+    direct-to-consumer and on-farm-packaged food are exempt
+    ([21 CFR 1.1305](https://www.ecfr.gov/current/title-21/section-1.1305),
+    read from the eCFR API).
+  - **Prices anchor low:** ReposiTrak sells to suppliers "for as low as $49
+    per month" (its March 2025 Business Wire release; seen in a search
+    excerpt, the page answered 403) and had
+    [4,000 suppliers by Oct 2024](https://www.food-safety.com/articles/9812-repositrak-traceability-network-grows-to-4-000-suppliers-furthering-fsma-204-compliance).
+    The retailers choose that network, so suppliers join it rather than
+    shop around. ReciPal lot tracing
+    [$50/mo](https://www.recipal.com/blog/resources/best-food-traceability-software)
+    (vendor's own roundup, Oct 2026); Wherefour from
+    [$600/mo](https://softwareconnect.com/food-traceability/trustproduce)
+    (aggregator). Wholechain's [pricing page](https://wholechain.com/pricing)
+    lists tiers with no prices.
+  - **Why not now:** the low end is a retailer-backed network at $49, the
+    hard date is 2028, and we have no foothold with food buyers. Look again
+    in early 2028, or if a food manufacturer becomes a customer of #2 or #4
+    (lot traceability can sit next to ISO 9001 document control).
+
 ## Hardware (long term, not a ranked bet)
 
 Open hardware becomes outsourced hardware companies over a long horizon

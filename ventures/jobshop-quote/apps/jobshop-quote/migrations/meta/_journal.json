@@ -281,6 +281,13 @@
       "when": 1795741962878,
       "tag": "0039_material_price_cwt_metre",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "6",
+      "when": 1795779819433,
+      "tag": "0040_shop_default_fallout",
+      "breakpoints": true
     }
   ]
 }

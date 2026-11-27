@@ -71,6 +71,13 @@
       "when": 1795755582469,
       "tag": "0009_estimate_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1795774245041,
+      "tag": "0010_estimate_reminders",
+      "breakpoints": true
     }
   ]
 }

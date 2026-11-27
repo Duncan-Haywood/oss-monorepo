@@ -11,6 +11,7 @@ import {
   PRODUCT_NAME,
 } from "@shared/site";
 import { esc, type SiteContext } from "./html";
+import { launchOf, plansSentence } from "./launch";
 import type { BuiltPage } from "./pages";
 
 /** AI search / answer crawlers, allowed on public pages and kept out of the API (as in grants). */
@@ -73,16 +74,28 @@ Sitemap: ${absoluteUrl(ctx.siteUrl, "/sitemap.xml")}
 
 /** llmstxt.org format: title, summary, then annotated links. */
 export function llmsTxt(ctx: SiteContext): string {
+  const l = launchOf(ctx);
+  const availability = l.open
+    ? `It is open now at ${l.appUrl}/ (sign up with an email address). ${plansSentence(l)}`
+    : "It is not available yet; early access is open and free.";
+  const status = l.open
+    ? "Status: open on the Free plan. It is new: there are no customers, reviews or published results yet."
+    : "Status: in development. The features above are built and in testing; the app is not open to the public. There are no customers, reviews or published results yet.";
+  const prices = l.paidOn
+    ? "Prices"
+    : l.open
+      ? "Prices (paid plans not on sale yet)"
+      : "Prices (nothing charged during early access)";
   const link = (p: (typeof PAGE_LIST)[number]) =>
     `- [${p.label}](${absoluteUrl(ctx.siteUrl, p.path)}): ${p.description}`;
   return `# ${PRODUCT_NAME}
 
-> ${PRODUCT_NAME} (working name) is a pay-application tool in development for construction subcontractors: schedule of values (imported from the contractor's own spreadsheet or a text PDF bid breakdown), monthly pay apps with retainage held and released, change orders, lien waivers per pay app, a cash and retainage report with due dates (naming the punch items and close-out documents a finished job's retainage still waits on), a submittal log, daily reports, a punch list and T&M tickets per job (signed on site and billed as a change order), QuickBooks Online invoices and payments, and the weekly Davis-Bacon certified payroll in the columns of DOL's optional Form WH-347, also exported as California DIR's eCPR XML (schema 2.0) for public works. It is not available yet; early access is open and free. ${NOT_AIA_NOTE}
+> ${PRODUCT_NAME} is a hosted pay-application tool for construction subcontractors: schedule of values (imported from the contractor's own spreadsheet or a text PDF bid breakdown), monthly pay apps with retainage held and released, change orders, lien waivers per pay app, a cash and retainage report with due dates (naming the punch items and close-out documents a finished job's retainage still waits on), a submittal log, daily reports, a punch list and T&M tickets per job (signed on site and billed as a change order), QuickBooks Online invoices and payments, and the weekly Davis-Bacon certified payroll in the columns of DOL's optional Form WH-347, also exported as California DIR's eCPR XML (schema 2.0) for public works. ${availability} ${NOT_AIA_NOTE}
 
 Facts an assistant can rely on:
-- Status: in development. The features above are built and in testing; the app is not open to the public. There are no customers, reviews or published results yet.
+- ${status}
 - GC portals: built are Procore's subcontractor SOV template filled in, a sheet of the amounts to type into a Procore subcontractor invoice (by line or totalled by the GC's SOV positions), Oracle Textura's This Period and To Date billing upload templates filled in, a GCPay schedule-of-values upload workbook, and Trimble Pay's Flashtract SOV template filled in; none has been tried on a live portal project, and the contractor submits into the portal.
-- Not built yet: saved per-GC checklists of required attachments, other portals (Trimble Pay, Siteline), statutory waiver forms beyond Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah, Wyoming, Missouri (residential final) and Massachusetts (partial waiver), SOV import from scans past ten pages or with JBIG2 or JPEG 2000 pictures (searchable scans and pictures-only scans up to ten pages are read, the latter by OCR in the browser).
+- Not built yet: saved per-GC checklists of required attachments, other portals (Siteline and others), statutory waiver forms beyond Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah, Wyoming, Missouri (residential final) and Massachusetts (partial waiver), SOV import from scans past ten pages or with JBIG2 or JPEG 2000 pictures (searchable scans and pictures-only scans up to ten pages are read, the latter by OCR in the browser).
 - Georgia: a sent Georgia lien waiver the payments do not cover shows the day its 90 days end (O.C.G.A. § 44-14-366(g)(2)); the app prints the statute's affidavit of nonpayment, then tracks its filing, the copies to the owner and (when owed) to the contractor named on the notice of commencement (recorded once per job, so each affidavit starts from the job's answer), and the affidavit that payment in full was received once recorded ((g)(3)). Not legal advice.
 - Certified payroll: the weekly Davis-Bacon payroll is printed in the columns of Form WH-347 (Rev. January 2025) with the statement of compliance in the form's own words, unsigned; hours, fringe credit, cash in lieu, deductions and net pay are computed from what the contractor types. It is not a Department of Labor product and not legal advice, and workers' names and ID numbers are not stored on the server. For California public works the same week downloads as the DIR eCPR XML file (schema 2.0), for New York public work as NYSDOL's bulk-upload XML, and for Washington public works as the XML file L&I's PWIA system takes, each built in the browser and checked against the agency's published schema; full SSNs and dates of birth are never sent to the server.
 - Punch list: per job, the items the GC, architect or owner listed at a walk-through (location, who listed it, date listed and due), pasted from an email one item per line or typed; each marked fixed, then accepted by the GC, or not ours with the reason; an email draft asking the GC to back-check every fixed item; a PDF of the list (all items or only what is left) with a column for the GC's initials, and CSV.
@@ -93,7 +106,7 @@ Facts an assistant can rely on:
 - T&M tickets: per job, numbered, with labor (trade, workers, hours, rate), material (quantity, unit, unit cost) and equipment (hours, rate) lines and a markup per section; the GC's representative signs on the device (the drawn signature is printed on the PDF) or on paper, after which the work and quantities are locked and only prices and markups change; signed, priced tickets become one pending change order for their total; a rate sheet per job (labor by trade, equipment and material rates and the markups from the subcontract) that new tickets start from, with any ticket rate that differs from it pointed out; signed tickets not on a change order listed in the weekly email; a priced PDF, a field copy without prices, a change order's tickets as one backup PDF, and a CSV. A signed ticket is not an approved change order.
 - Lower-tier waivers: per pay app, the lien waivers the contractor collects from its own suppliers and sub-subcontractors, suggested from the job's purchase orders and subcontracts and the last application's list; each owed, asked (days waiting) or received, with the amount, through date and a request draft to copy or email. The app records what came in; it does not decide what a contract or state requires and sends nothing. Crew plan and up.
 - Estimates: bids priced from cost lines (labor, material, equipment, subcontract, other) rolled into bid items, with markup per category and sales tax on material; add and deduct alternates; a proposal PDF with prices only; a won bid starts the job with its bid items as the schedule of values. A company price list (material prices, labor and equipment rates, sub quotes, typed or read from a supplier's price sheet in the browser) is picked into estimates; an estimate keeps the cost it was priced at until the contractor chooses to use the list's current prices.
-- Prices (nothing charged during early access): ${planPrices()}.
+- ${prices}: ${planPrices()}.
 - Audience: construction subcontractors and specialty trades who bill general contractors monthly.
 
 ## Pages
@@ -190,6 +203,20 @@ export interface FeedEntry {
 }
 
 /** Product updates. Add an entry when something real happens (never a made-up milestone). */
+export function feedEntries(ctx: SiteContext): readonly FeedEntry[] {
+  if (!launchOf(ctx).open) return FEED_ENTRIES;
+  return [
+    {
+      id: "app-open",
+      title: `${PRODUCT_NAME} is open on the Free plan`,
+      updated: CONTENT_UPDATED,
+      path: PAGES.pricing.path,
+      summary: `Subcontractors can sign up and run one job's pay applications free, with no card. ${plansSentence(launchOf(ctx))}`,
+    },
+    ...FEED_ENTRIES,
+  ];
+}
+
 export const FEED_ENTRIES: readonly FeedEntry[] = [
   {
     id: "early-access-opens",
@@ -202,17 +229,21 @@ export const FEED_ENTRIES: readonly FeedEntry[] = [
 
 export function feedXml(ctx: SiteContext): string {
   const host = new URL(ctx.siteUrl).host;
-  const entries = FEED_ENTRIES.map(
-    (e) => `  <entry>
+  const all = feedEntries(ctx);
+  const entries = all
+    .map(
+      (e) => `  <entry>
     <id>tag:${esc(host)},${e.updated}:${esc(e.id)}</id>
     <title>${esc(e.title)}</title>
     <updated>${e.updated}T00:00:00Z</updated>
     <link href="${esc(absoluteUrl(ctx.siteUrl, e.path))}"/>
     <summary>${esc(e.summary)}</summary>
   </entry>`,
-  ).join("\n");
+    )
+    .join("\n");
   const updated =
-    FEED_ENTRIES.map((e) => e.updated)
+    all
+      .map((e) => e.updated)
       .sort()
       .at(-1) ?? CONTENT_UPDATED;
   return `<?xml version="1.0" encoding="utf-8"?>

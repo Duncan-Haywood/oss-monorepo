@@ -9,8 +9,9 @@ import {
   PRODUCT_NAME,
   type PublicPage,
 } from "@shared/site";
+import { type LaunchInput, launchOf, plansSentence, signupUrl } from "./launch";
 
-export interface SiteContext {
+export interface SiteContext extends LaunchInput {
   /** Origin + base path, e.g. "https://marisstella.app/payapps". */
   siteUrl: string;
 }
@@ -62,6 +63,30 @@ export function jsonLdScript(data: unknown): Html {
 
 const NAV: readonly PublicPage[] = [PAGES.features, PAGES.pricing];
 
+/** The page's main call to action: early access before launch, "Start free" after (launch.ts). */
+export function primaryCta(ctx: SiteContext, from: string, label?: string): Html {
+  const l = launchOf(ctx);
+  if (l.appUrl) {
+    return html`<a class="btn" href="${signupUrl(l.appUrl, from)}">${label ?? "Start free on one job"}</a>`;
+  }
+  return html`<a class="btn" href="${href(ctx, PAGES.earlyAccess.path)}">${label ?? "Join early access"}</a>`;
+}
+
+/** The footer's status line. */
+export function statusLine(ctx: SiteContext): string {
+  const l = launchOf(ctx);
+  return l.open
+    ? `${PRODUCT_NAME} is open now. ${plansSentence(l)}`
+    : `${PRODUCT_NAME} is in development. Early access is open; nothing is for sale yet.`;
+}
+
+function headerCta(ctx: SiteContext): Html {
+  const l = launchOf(ctx);
+  return l.appUrl
+    ? html`<a href="${`${l.appUrl}/`}">Sign in</a> <a class="btn btn-small" href="${signupUrl(l.appUrl, "header")}">Start free</a>`
+    : html`<a class="btn btn-small" href="${href(ctx, PAGES.earlyAccess.path)}">Join early access</a>`;
+}
+
 export interface ShellOptions {
   page: PublicPage;
   main: Html;
@@ -107,7 +132,7 @@ ${graph}
     <a class="logo" href="${href(ctx, "/")}"><span class="logo-mark" aria-hidden="true"></span>${PRODUCT_NAME}</a>
     <nav aria-label="Main">
       ${NAV.map((p) => html`<a href="${href(ctx, p.path)}"${p.path === page.path ? raw(' aria-current="page"') : ""}>${p.label}</a>`)}
-      <a class="btn btn-small" href="${href(ctx, PAGES.earlyAccess.path)}">Join early access</a>
+      ${headerCta(ctx)}
     </nav>
   </div>
 </header>
@@ -116,12 +141,12 @@ ${main}
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p><strong>${PRODUCT_NAME}</strong> is in development. Early access is open; nothing is for sale yet. <span class="provisional">(${PRODUCT_NAME} is a working name.)</span></p>
+    <p>${statusLine(ctx)}</p>
     <p class="fine">${NOT_AIA_NOTE}</p>
     <p class="footer-links">
       <a href="${href(ctx, PAGES.features.path)}">Features</a>
       <a href="${href(ctx, PAGES.pricing.path)}">Pricing</a>
-      <a href="${href(ctx, PAGES.earlyAccess.path)}">Early access</a>
+      ${launchOf(ctx).appUrl ? html`<a href="${`${launchOf(ctx).appUrl}/`}">Sign in</a>` : html`<a href="${href(ctx, PAGES.earlyAccess.path)}">Early access</a>`}
       <a href="${href(ctx, PAGES.privacy.path)}">Privacy</a>
       <a href="${href(ctx, "/llms.txt")}">llms.txt</a>
     </p>

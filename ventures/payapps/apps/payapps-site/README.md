@@ -4,13 +4,18 @@ The public site for the subcontractor pay-application product (the app itself is
 separately). Pages: home, features, pricing, early access, privacy. It also serves `llms.txt`,
 `llms-full.txt`, `sitemap.xml`, `robots.txt`, an Atom `feed.xml` and JSON-LD on every page.
 
-> **Product name: "PayPencil" is a working name.** It nods to the "pencil draft" subs send a GC before
-> the final pay app. No trademark or domain search has been done. To rename, change `PRODUCT_NAME` in
-> `src/shared/site.ts`, plus the text in `public/og.svg` and `docs/PRICING.md`.
+> **Product name: PayApps**, the app's own name (`apps/payapps/index.html`) and the one the free
+> pay-app-guides already use. It was "PayPencil" until 2026-11-27. No trademark or domain search has
+> been done. To rename, change `PRODUCT_NAME` in `src/shared/site.ts`, plus the text in `public/og.svg`.
 
 ## Honesty rules (the copy)
 
-- The product is **in development**. The site says "early access", collects interest and sells nothing.
+- One switch, `APP_URL` (with `PAID_PLANS_ON`) in `src/shared/site.ts` or the build's env, sets the
+  status everywhere (`src/site/launch.ts`). Before launch (`null`) the site says **in development**,
+  collects early-access interest and sells nothing. Once set, every page says **open now, free on one
+  job**, its buttons go to `<APP_URL>/?signup&from=payapps-site/<page>` (the app opens on "Create an
+  account"), and paid plans are "not on sale yet" until `PAID_PLANS_ON`. `test/unit/launch.test.ts`
+  checks all three states.
 - No testimonials, customer counts, logos, ratings or outcome claims. The JSON-LD carries no offers
   and no review or rating markup; `test/unit/site.test.ts` checks for the obvious cases.
 - A feature is marked **built · in testing** only once it is in the app (`apps/payapps/ROADMAP.md`, "Done");
@@ -20,6 +25,17 @@ separately). Pages: home, features, pricing, early access, privacy. It also serv
 - No competitor comparisons until they come with sourced, dated facts (see `docs/PRICING.md`, "Market check").
 - Wherever pay-app forms, waivers or retainage come up: "not affiliated with the AIA, does not produce
   AIA Contract Documents, not legal advice" (`NOT_AIA_NOTE`).
+
+## Launching
+
+Set `APP_URL` on the same day as `APP_URL` in `ventures/pay-app-guides/cta.mjs`, to the app's public
+origin. `normaliseAppUrl` refuses a `workers.dev` address (its subdomain is the Cloudflare account's,
+a person's name), a path, or plain http, so a wrong value fails the build instead of shipping. Bump
+`CONTENT_UPDATED` the same day: the feed's "open on the Free plan" entry takes that date.
+
+```
+APP_URL=https://payapps.marisstella.app pnpm build     # one-off, without changing the constant
+```
 
 ## Stack (same family as apps/grants)
 
