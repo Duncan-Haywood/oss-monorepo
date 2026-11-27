@@ -183,10 +183,10 @@ links. The arithmetic (outstanding, due dates, days overdue, simple-interest
 carrying cost, bucket and GC totals) is checked against hand sums in its
 tests.
 
-This is the gap the pay-app suite we are building is meant to close:
+This is the gap PayApps, our pay-app suite, is meant to close:
 retainage worked out per line on every pay application, a running balance
 per job, a reminder when it is due for release, the punch list and closeout
-documents that gate it, and a QuickBooks sync. It
-is in development with early access at
-[marisstella.app/industries/construction](https://marisstella.app/industries/construction/).
-Nothing is for sale yet.
+documents that gate it, and a QuickBooks sync. It is open and free on one
+active job, with no card:
+[start free at marisstella.app/industries/construction](https://marisstella.app/industries/construction/).
+The QuickBooks sync is on the paid plans, which are not on sale yet.
