@@ -3,7 +3,7 @@ title: "Keeping material prices current in machine-shop quotes"
 seo_title: "Machine shop quoting: keep material prices current"
 date: 2026-11-27
 tags: [jobshop-quote, for-customers, cnc, quoting, materials, ventures]
-description: "Rate cards typed in once quote old metal prices. Date each price, import the supplier's sheet, keep cwt and metre prices exact, see the quotes it touches."
+description: "Rate cards typed in once quote old metal prices. Date each price, import the supplier's sheet, keep cwt and metre prices exact, edit bar setups, see the quotes it touches."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -130,6 +130,31 @@ History, **New price** and the list of open quotes a price touches all read in t
 for example "$440.00/cwt, up 6.7% from $412.50/cwt". If a shop re-enters a $4.25/lb price as
 $425.00/cwt, the price is re-dated, but no open quote is flagged for Re-price, because nothing a
 quote charges has changed.
+
+## Changing how bar stock is cut and bought
+
+Bar, tube and extrusion priced by the foot carry more than a price: a cut allowance (saw kerf and
+facing added to each blank), the bar length the shop buys, and the remnant each bar leaves in the
+chuck or bar feeder. These change too. The shop switches from 12 ft to 20 ft bars, or puts a wider
+blade on the saw. Until now that meant retiring the material and adding it again, which lost its
+price history.
+
+Each per-foot material now has **Bar setup** next to New price. It edits the stock size, cut
+allowance, bar length and remnant (or the scrap % when the shop charges by the length used), and
+leaves the price and its date as they are. Before saving, **Check a blank** shows what one part
+gets per bar now and with the new settings (made-up figures):
+
+> A 2.875 in blank: 3 in per part, 47 parts per bar now; 3.0625 in per part, 46 parts per bar
+> with these settings.
+
+A sixteenth of an inch of extra kerf costs one part per bar here, and the check makes that visible
+before the change goes onto the card. It uses the same arithmetic as the quote. If a blank no
+longer fits the usable bar, the check says the price would be blocked.
+
+Draft lines priced with the old setup say so, the same way they do for a price change: "This line
+was priced with 1018 CRS 1 in round at 0.125 in cut allowance, 144 in bars (3 in remnant); the
+rate card now has 0.1875 in cut allowance, 144 in bars (3 in remnant). Re-price to use it." Sent
+quotes keep what they went out at.
 
 ## What comes next
 
