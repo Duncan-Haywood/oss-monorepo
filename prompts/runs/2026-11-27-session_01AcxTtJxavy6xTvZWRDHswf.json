@@ -1,0 +1,516 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtJxavy6xTvZWRDHswf",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T19:06:58Z",
+  "ended": "2026-11-27T19:07:45Z",
+  "wall_minutes": 10.01,
+  "tokens_in": 7175543,
+  "tokens_out": 29247,
+  "cost_usd": 2.9597,
+  "tool_calls": 71,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19848",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "targets lists no payapps app files (vitest suites, not plain node --test), so the lien-deadline and API schema code users rely on most is out of campaign reach; the real defect was found by reading, not by a campaign."
+    },
+    {
+      "file": "platform/ci/check_calendar_dates.py",
+      "issue": "The repo-wide calendar-date lint missed the zod shape-only regex form, which is how most API date fields in the hosted apps are validated; extended here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 1 says to let the tool draw a target; I aimed at payapps billing (bet #1 checkout and webhook path) per the north-star note in the same prompt.",
+      "did": "Three --target campaigns on packages/billing (0.6 s suites) and a manual hunt of the app's lien-deadline and schemas.",
+      "result": "1 real defect found and patched, plus 1 gap closed."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the change is a validation fix and a lint with nothing new for a customer to read.",
+      "did": "Recorded everything in the PR and this record.",
+      "result": "null"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Guard added: check_calendar_dates.py pattern 4 (zod date regex without a calendar refine), 5 hits on its first run (cmmc org routes x4, payapps nj-cpr), all fixed in this PR. Verification: payapps tsc 0, unit 1491 pass/4 skip, worker 600 pass; billing node --test 127 pass; cmmc tsc 0, unit 498 + worker 164 pass, new calendar-date test pass; test_check_calendar_dates 17 OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 1005318419,
+        "commit": "8df1b5369",
+        "sites": 47,
+        "baseline_seconds": 0.6,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 78,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (u.protocol !== \"https:\") throw new Error(\"app URL must be https\");",
+            "after": "if (u.protocol === \"https:\") throw new Error(\"app URL must be https\");",
+            "line_text": "  if (u.protocol !== \"https:\") throw new Error(\"app URL must be https\");",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 126,
+            "col": 21,
+            "operator": "neq-flip",
+            "before": "if (current.active !== want.active) {",
+            "after": "if (current.active === want.active) {",
+            "line_text": "  if (current.active !== want.active) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 130,
+            "col": 26,
+            "operator": "neq-flip",
+            "before": "if (current.api_version !== 1) {",
+            "after": "if (current.api_version === 1) {",
+            "line_text": "  if (current.api_version !== 1) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 160,
+            "col": 8,
+            "operator": "eq-flip",
+            "before": "if (v === undefined) return \"field absent\";",
+            "after": "if (v !== undefined) return \"field absent\";",
+            "line_text": "  if (v === undefined) return \"field absent\";",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 161,
+            "col": 8,
+            "operator": "eq-flip",
+            "before": "if (v === null) return \"null\";",
+            "after": "if (v !== null) return \"null\";",
+            "line_text": "  if (v === null) return \"null\";",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 194,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "const hint = res.status === 403 ? ` (give the key ${perm})` : \"\";",
+            "after": "const hint = res.status === 404 ? ` (give the key ${perm})` : \"\";",
+            "line_text": "      const hint = res.status === 403 ? ` (give the key ${perm})` : \"\";",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 205,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "for (let page = 0; next && page < 20; page++) {",
+            "after": "for (let page = 0; next && page < 21; page++) {",
+            "line_text": "    for (let page = 0; next && page < 20; page++) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 248,
+            "col": 79,
+            "operator": "eq-flip",
+            "before": "const existing = action.kind === \"create\" ? null : settings.find((s) => s.id === action.id);",
+            "after": "const existing = action.kind === \"create\" ? null : settings.find((s) => s.id !== action.id);",
+            "line_text": "  const existing = action.kind === \"create\" ? null : settings.find((s) => s.id === action.id);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/billing/src/checkout-token.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 1040829883,
+        "commit": "8df1b5369",
+        "sites": 42,
+        "baseline_seconds": 0.6,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/checkout-token.ts",
+            "line": 11,
+            "col": 50,
+            "operator": "times-to-div",
+            "before": "export const CHECKOUT_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;",
+            "after": "export const CHECKOUT_TOKEN_TTL_MS = 24 * 60 * 60 / 1000;",
+            "line_text": "export const CHECKOUT_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/checkout-token.ts",
+            "line": 22,
+            "col": 19,
+            "operator": "lt-to-le",
+            "before": "while (id.length < 24) {",
+            "after": "while (id.length <= 24) {",
+            "line_text": "  while (id.length < 24) {",
+            "caught": true,
+            "seconds": 51.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/checkout-token.ts",
+            "line": 25,
+            "col": 18,
+            "operator": "and-to-or",
+            "before": "if (b < 252 && id.length < 24) id += ALPHABET[b % 36];",
+            "after": "if (b < 252 || id.length < 24) id += ALPHABET[b % 36];",
+            "line_text": "      if (b < 252 && id.length < 24) id += ALPHABET[b % 36];",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/checkout-token.ts",
+            "line": 25,
+            "col": 31,
+            "operator": "lt-to-le",
+            "before": "if (b < 252 && id.length < 24) id += ALPHABET[b % 36];",
+            "after": "if (b < 252 && id.length <= 24) id += ALPHABET[b % 36];",
+            "line_text": "      if (b < 252 && id.length < 24) id += ALPHABET[b % 36];",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/checkout-token.ts",
+            "line": 25,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "if (b < 252 && id.length < 24) id += ALPHABET[b % 36];",
+            "after": "if (b < 252 && id.length < 25) id += ALPHABET[b % 36];",
+            "line_text": "      if (b < 252 && id.length < 24) id += ALPHABET[b % 36];",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/checkout-token.ts",
+            "line": 25,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "if (b < 252 && id.length < 24) id += ALPHABET[b % 36];",
+            "after": "if (b < 252 && id.length < 24) id += ALPHABET[b % 37];",
+            "line_text": "      if (b < 252 && id.length < 24) id += ALPHABET[b % 36];",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/checkout-token.ts",
+            "line": 46,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "if (rest.length || !checkoutId || !sig || !ID_RE.test(checkoutId) || !SIG_RE.test(sig)) {",
+            "after": "if (rest.length || !checkoutId && !sig || !ID_RE.test(checkoutId) || !SIG_RE.test(sig)) {",
+            "line_text": "  if (rest.length || !checkoutId || !sig || !ID_RE.test(checkoutId) || !SIG_RE.test(sig)) {",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "ID_RE and SIG_RE reject an empty or missing part on their own (RegExp.test(undefined) tests \"undefined\", which neither matches), so the emptiness checks are redundant: no token parses differently."
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/checkout-token.ts",
+            "line": 106,
+            "col": 14,
+            "operator": "false-to-true",
+            "before": ": { ok: false, reason: \"checkout token replay\" };",
+            "after": ": { ok: true, reason: \"checkout token replay\" };",
+            "line_text": "      : { ok: false, reason: \"checkout token replay\" };",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/billing/src/grace.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 125489324,
+        "commit": "8df1b5369",
+        "sites": 20,
+        "baseline_seconds": 0.6,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 18,
+            "operator": "times-to-div",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 / 60 * 60 * 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 * 61 * 60 * 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 9,
+            "col": 53,
+            "operator": "times-to-div",
+            "before": "export const PAST_DUE_GRACE_MS = PAST_DUE_GRACE_DAYS * DAY_MS;",
+            "after": "export const PAST_DUE_GRACE_MS = PAST_DUE_GRACE_DAYS / DAY_MS;",
+            "line_text": "export const PAST_DUE_GRACE_MS = PAST_DUE_GRACE_DAYS * DAY_MS;",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Exported (index.ts re-exports grace.ts) but nothing read it; period-grace.test.ts now pins it to 7 days."
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 20,
+            "col": 13,
+            "operator": "neq-flip",
+            "before": "if (status !== \"past_due\" || !pastDueSince) return null;",
+            "after": "if (status === \"past_due\" || !pastDueSince) return null;",
+            "line_text": "  if (status !== \"past_due\" || !pastDueSince) return null;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 20,
+            "col": 28,
+            "operator": "or-to-and",
+            "before": "if (status !== \"past_due\" || !pastDueSince) return null;",
+            "after": "if (status !== \"past_due\" && !pastDueSince) return null;",
+            "line_text": "  if (status !== \"past_due\" || !pastDueSince) return null;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 21,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "return new Date(pastDueSince.getTime() + graceDays * DAY_MS);",
+            "after": "return new Date(pastDueSince.getTime() - graceDays * DAY_MS);",
+            "line_text": "  return new Date(pastDueSince.getTime() + graceDays * DAY_MS);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 31,
+            "col": 24,
+            "operator": "and-to-or",
+            "before": "return until !== null && now.getTime() < until.getTime();",
+            "after": "return until !== null || now.getTime() < until.getTime();",
+            "line_text": "  return until !== null && now.getTime() < until.getTime();",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 45,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (sameSubscription && current?.status === \"past_due\" && current.pastDueSince) {",
+            "after": "if (sameSubscription || current?.status === \"past_due\" && current.pastDueSince) {",
+            "line_text": "  if (sameSubscription && current?.status === \"past_due\" && current.pastDueSince) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/payapps/apps/payapps/src/shared/api/schemas.ts",
+        "issue": "isoDate checked only the NNNN-NN-NN shape, so every API date field accepted impossible days. A last-furnished, completion or notice-of-completion date of 2026-13-01 was stored and then lienDeadline (src/shared/lien-deadline.ts addDays -> toISOString) threw RangeError on the job view, the cash page (every job of the company, since it loops all jobs) and the weekly email; 2026-02-31 was stored and silently read as 3 March. Fixed: isoDate refines to a real calendar day (src/shared/calendar-date.ts), and lienDeadline, lastFurnishedFloor and the Miller notice treat an impossible stored date as not entered so rows saved before the fix cannot crash.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0b1b9677-827b-5bdc-b43d-f3e8c054eb3b",
+    "transcripts": 1,
+    "first": "2026-11-27T19:06:58Z",
+    "last": "2026-11-27T19:16:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 134,
+        "output": 29247,
+        "thinking": 6315,
+        "cache_read": 7055006,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120403,
+        "api_equivalent_usd": 2.9597,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 134,
+      "output": 29247,
+      "thinking": 6315,
+      "cache_read": 7055006,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120403,
+      "api_equivalent_usd": 2.9597,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 69,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.01,
+      "active_minutes": 10.01,
+      "model_minutes": 5.42,
+      "tool_minutes": 4.59,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "find and reproduce the crash, fix the schema and the 3 call sites, extend the lint, run 3 suites",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 168.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
