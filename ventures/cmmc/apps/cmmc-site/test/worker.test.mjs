@@ -247,6 +247,23 @@ test("leave link deletes the entry; forged or other-id tokens fail", async () =>
   );
 });
 
+test("purge keeps an old unconfirmed row while its newest confirmation link still works", async () => {
+  // Signed up on day 0, link re-sent on day 29: that email says the link works for 7 days, so the
+  // day-31 purge must keep the row; once the link has expired too (day 36+), it goes.
+  const env = makeEnv();
+  const t0 = Date.UTC(2026, 9, 1);
+  const input = { email: "late@shop.example", level: "l1", size: "" };
+  await signup(env, input, { now: t0 });
+  await signup(env, input, { now: t0 + 29 * DAY });
+  assert.equal(env.EMAIL.sent.length, 2);
+  assert.equal(await purgePending(env, t0 + 31 * DAY), 0);
+  assert.equal(await confirm(env, tokenFrom(env.EMAIL.sent[1], "confirm"), t0 + 35 * DAY), true);
+  const env2 = makeEnv();
+  await signup(env2, input, { now: t0 });
+  await signup(env2, input, { now: t0 + 29 * DAY });
+  assert.equal(await purgePending(env2, t0 + 36 * DAY + MINUTE), 1);
+});
+
 test("purge deletes only never-confirmed rows older than 30 days", async () => {
   const env = makeEnv();
   const t0 = Date.UTC(2026, 9, 1);
