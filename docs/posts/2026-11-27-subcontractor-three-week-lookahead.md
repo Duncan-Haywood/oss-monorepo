@@ -2,7 +2,7 @@
 title: "A subcontractor's three-week lookahead: keeping your own schedule when the GC's slips"
 seo_title: "Subcontractor three-week lookahead: schedule, sequence and slips"
 date: 2026-11-27
-tags: [for-customers, payapps, construction, scheduling, lookahead, subcontractors, holidays, p6, delays, time-extension]
+tags: [for-customers, payapps, construction, scheduling, lookahead, subcontractors, holidays, p6, delays, time-extension, crews, pay-app-guides]
 description: "A subcontractor's own lookahead: check its sequence, skip holidays, start from the GC's P6 file, move it after a slip, log delays by activity."
 ---
 
@@ -71,6 +71,22 @@ observe it on the Friday before a Saturday or the Monday after a Sunday, so Inde
 union agreements add the day after Thanksgiving. Your company calendar decides; the federal list
 is only a starting point.
 
+## Every job, by crew
+
+The GC's lookahead covers only that GC's job. A subcontractor with more than one job has a
+question no GC asks: **where is each crew next week?** Crew A could be on the clinic Monday to
+Wednesday and on the school from Wednesday, and nobody notices until Wednesday morning.
+
+So keep one more view: the open activities from *all* your active jobs, grouped by crew instead
+of by job. For each crew it shows its open activities on every job for this week and next, as
+bars over the workdays, and the days it has work on two jobs at once. Two jobs on one day isn't
+always a problem. A crew of six can send two to the school for a morning. But it should be a
+choice someone made, not something the foreman finds out on site.
+
+The grouping only works if the crew is written the same way on every job: "Crew A" on one and
+"Electrical crew 1" on another show up as two crews. Pick a short name per crew or foreman and
+use it everywhere.
+
 ## Tie each lost hour to the activity it held up
 
 When you ask the GC for more time, the first question is which work was held up, on which days,
@@ -137,7 +153,10 @@ for subcontractors, on every plan:
 - a company holiday list (added 2026-11-27): type the days you take off, or add the federal
   holidays for a year and delete the ones your crews work. Every workday count, sequence check,
   move and lookahead skips them, and the PDF names the holidays it left out;
-- a crew lookahead across every active job, grouped by the crew typed on each activity;
+- a crew lookahead across every active job, grouped by the crew typed on each activity ("Crew A"
+  and "crew  a" are one crew), linked from the company page and each job's schedule. It lists the
+  days a crew has work on two or more jobs and downloads as a PDF for the Monday crew meeting. The
+  Free plan has one active job, so in practice this page is for paid plans;
 - delays by activity (added 2026-11-27): a daily report names the activity its lost hours held
   up, the schedule lists the days and hours per activity, and the delay log (each day's hours,
   weather and the delay as written) prints as a PDF for one activity or all, in a date range. On
@@ -154,3 +173,9 @@ ones you type: nothing is scheduled for you.
 
 The product is in early access and nothing is for sale yet:
 [construction tools and early access](https://marisstella.app/industries/construction/).
+
+## What changed
+
+- 2026-11-27: folded in "A three-week lookahead for subcontractors: one job for the GC, every job
+  for your crews", written the same day on the same subject. Its crew section is above, under
+  "Every job, by crew"; its old address now forwards here.
