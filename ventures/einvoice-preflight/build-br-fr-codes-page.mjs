@@ -62,7 +62,7 @@ export function renderPage() {
     return `<section>
 <h2>${esc(title)}</h2>
 ${lede ? `<p class="note">${esc(lede)}</p>` : ""}
-<div class="table-wrap"><table class="stack">
+<div class="table-wrap"><table class="stack prose">
 <thead><tr><th>Rule</th><th>What it checks (English)</th><th>FNFE-MPE text (French)</th><th>Applies to</th></tr></thead>
 <tbody>
 ${list.map((r) => `<tr${anchor(r.code)}><td><strong>${esc(r.code)}</strong>${r.flag === "warning" ? " <em>warning</em>" : ""}</td><td>${esc(r.en)}</td><td lang="fr">${esc(r.fr)}</td><td>${[...r.syntaxes].join(", ")}</td></tr>`).join("\n")}
