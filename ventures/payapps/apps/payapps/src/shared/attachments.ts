@@ -281,7 +281,7 @@ export function packetTypeProblem(contentType: string): string | null {
     return null;
   }
   if (contentType === "image/heic") {
-    return "This HEIC photo was attached from a browser that cannot read HEIC, so it stayed HEIC and cannot be placed in the PDF. Attach it again from Safari (which converts it to JPEG on upload), or as JPEG (on an iPhone: Settings > Camera > Formats > Most Compatible), or send it separately.";
+    return "This HEIC photo was attached from a browser that cannot read HEIC, so it stayed HEIC and cannot be placed in the PDF. Attach it again from Safari, or from Chrome or Edge on a computer or phone that plays HEVC video (each converts it to JPEG on upload), or as JPEG (on an iPhone: Settings > Camera > Formats > Most Compatible), or send it separately.";
   }
   if (contentType === "image/webp")
     return "This WebP image was attached before PayApps converted WebP to JPEG, or from a browser that could not read it. Attach it again (it is converted to JPEG on upload), or send it separately.";
@@ -290,7 +290,8 @@ export function packetTypeProblem(contentType: string): string | null {
 
 /**
  * Photo types the packet cannot hold but a browser may be able to decode: HEIC (an iPhone's default;
- * Safari decodes it, Chrome and Firefox do not) and WebP (every current browser). The upload form
+ * Safari decodes it as an image, Chrome, Edge and Firefox through their HEVC video decoder where the
+ * device has one: client/lib/heic-webcodecs.ts) and WebP (every current browser). The upload form
  * converts these to JPEG before sending, when the browser can, so the photo goes in the packet
  * (`client/lib/packet-photo.ts`). Judged by extension, as the Worker judges the stored type.
  */

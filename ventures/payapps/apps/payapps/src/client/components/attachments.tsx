@@ -489,7 +489,8 @@ export function AttachmentsPanel(props: {
           <p className="text-xs text-slate-500 sm:col-span-3">
             PDF, photos (JPEG, PNG, HEIC, WebP), spreadsheets, Word documents or text, up to 15 MB
             each. HEIC and WebP photos are converted to JPEG on upload when this browser can read
-            them (Safari reads HEIC), so they go in the PDF packet.{" "}
+            them (Safari reads HEIC, and so do Chrome and Edge where the device plays HEVC video), so
+            they go in the PDF packet.{" "}
             {formatBytes(data.storage.usedBytes)} of {formatBytes(data.storage.limitBytes)} used on
             your plan.
           </p>
