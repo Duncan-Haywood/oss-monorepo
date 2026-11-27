@@ -1,0 +1,51 @@
+name: YAML cut values
+
+# Fails a pull request that leaves an unquoted YAML value with ` #<text>` in
+# it: YAML reads that as a comment, so `title: ... bet #4)` loads cut short
+# and nothing else complains (platform/ci/check_yaml_cut_values.py). Reads
+# tracked files only; publishes nothing, pushes nothing, calls no paid API.
+
+on:
+  pull_request:
+    paths: ["**/*.yaml", "**/*.yml", "platform/ci/check_yaml_cut_values.py", "platform/ci/test_check_yaml_cut_values.py"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same pull request cancels the superseded run; `main`
+# keeps every run (platform/ci/validate_workflows.py, invariant 9).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            *.yaml
+            *.yml
+            /platform/ci/
+            /platform/security/locks/
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: >-
+          python3 -m pip install --quiet --require-hashes --only-binary :all: --no-deps -r platform/security/locks/pyyaml.txt
+
+      - name: No unquoted YAML value cut short by a comment
+        run: python3 platform/ci/check_yaml_cut_values.py
+
+      - name: Guard unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_yaml_cut_values

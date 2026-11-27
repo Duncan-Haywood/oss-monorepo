@@ -681,7 +681,7 @@ tasks:
       build; refresh this copy with ventures/payapps/sync-from-private.sh.
   - id: move-jobshop-quote-public
     direction: paid-bets
-    title: Move Job Shop Quote and the packages it imports into this repository (step 4 of products-to-public-repo, bet #2)
+    title: "Move Job Shop Quote and the packages it imports into this repository (step 4 of products-to-public-repo, bet #2)"
     done_when: >-
       ventures/jobshop-quote/ holds the app and its site under the
       all-rights-reserved notice, with the packages they import, CI ported
@@ -698,7 +698,7 @@ tasks:
       port shows the pattern, then the private copy removed.
   - id: move-einvoice-pro-public
     direction: paid-bets
-    title: Move E-invoice Fix & Explain (bet #3) and the packages it imports into this repository (step 4 of products-to-public-repo)
+    title: "Move E-invoice Fix & Explain (bet #3) and the packages it imports into this repository (step 4 of products-to-public-repo)"
     done_when: >-
       ventures/einvoice-pro/ holds the paid edition and its site under the
       all-rights-reserved notice, with the packages it imports, its CI ported
@@ -720,7 +720,7 @@ tasks:
       roadmap_claim.py, remove the private copy.
   - id: move-wall-framing-takeoff-public
     direction: paid-bets
-    title: Move Residential Takeoff, the paid Wall Framing Takeoff (bet #6), into this repository (step 4 of products-to-public-repo)
+    title: "Move Residential Takeoff, the paid Wall Framing Takeoff (bet #6), into this repository (step 4 of products-to-public-repo)"
     done_when: >-
       ventures/residential-takeoff/ holds the paid edition under the
       all-rights-reserved notice, its tests run in ventures-tests.yml and
@@ -740,7 +740,7 @@ tasks:
       ventures/residential-takeoff/sync-from-private.sh.
   - id: move-seller-books-public
     direction: paid-bets
-    title: Move Seller Books (bet #5) and the packages it imports into this repository (step 4 of products-to-public-repo)
+    title: "Move Seller Books (bet #5) and the packages it imports into this repository (step 4 of products-to-public-repo)"
     done_when: >-
       ventures/seller-books/ holds the app and its marketing site under the
       all-rights-reserved notice, with the packages it imports, its CI ported
@@ -764,7 +764,7 @@ tasks:
       sign-ups.
   - id: move-cmmc-public
     direction: paid-bets
-    title: Move CMMC Workspace and the packages it imports into this repository (step 4 of products-to-public-repo, bet #4)
+    title: "Move CMMC Workspace and the packages it imports into this repository (step 4 of products-to-public-repo, bet #4)"
     done_when: >-
       ventures/cmmc/ holds the app and its site under the all-rights-reserved
       notice, with the packages they import, CI ported to this repository's
