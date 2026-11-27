@@ -977,6 +977,7 @@ ventures/repository-branch-hygiene/usage.mjs
 ventures/required-checks-drift-check/usage.mjs
 ventures/requirements-pin-check/usage.mjs
 ventures/reseller-books/usage.mjs
+ventures/residential-takeoff/apps/wall-framing-takeoff/usage.mjs
 ventures/restaurant-delivery-commission-analyzer/usage.mjs
 ventures/restaurant-labor-cost-daypart-analyzer/usage.mjs
 ventures/restaurant-pos-menu-mix-analyzer/usage.mjs
