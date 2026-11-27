@@ -100,6 +100,23 @@ class CalendarDates(unittest.TestCase):
         ]:
             self.assertEqual(c.scan_text(text), [], text)
 
+    def test_flags_a_schema_that_checks_only_the_shape(self):
+        for text in [
+            'const isoDate = z.string().regex(/^\\d{4}-\\d{2}-\\d{2}$/, "Use YYYY-MM-DD");',
+            'const day = z\n  .string()\n  .regex(/^\\d{4}-\\d{2}-\\d{2}$/)\n  .nullable()\n  .optional();',
+            'const d = z.union([z.literal(""), z.string().regex(/^\\d{4}-\\d{2}-\\d{2}$/)]);',
+        ]:
+            line = next(n for n, l in enumerate(text.splitlines(), 1) if ".regex(" in l)
+            self.assertEqual(c.scan_text(text), [line], text)
+
+    def test_accepts_a_schema_with_a_calendar_refine(self):
+        for text in [
+            'const isoDate = z\n  .string()\n  .regex(/^\\d{4}-\\d{2}-\\d{2}$/, "Use YYYY-MM-DD")\n  .refine(isCalendarDate, "x");',
+            'on: z.string().regex(/^\\d{4}-\\d{2}-\\d{2}$/).refine((d) => {',
+            'const time = z.string().regex(/^\\d{2}:\\d{2}$/);',
+        ]:
+            self.assertEqual(c.scan_text(text), [], text)
+
     def test_root_is_the_repository(self):
         self.assertTrue((c.ROOT / "platform" / "ci" / "check_calendar_dates.py").is_file())
 

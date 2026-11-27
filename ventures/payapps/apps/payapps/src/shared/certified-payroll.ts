@@ -25,6 +25,7 @@
 // the browser and the download.
 
 import { z } from "zod";
+import { isCalendarDate } from "./calendar-date";
 
 /** Rows (worker x classification) per page 1 of the form; DOL numbers entry 9 as row 1 of page 2. */
 export const ROWS_PER_PAGE = 8;
@@ -89,7 +90,10 @@ export const certifiedPayrollSchema = z.object({
   businessAddress: text(300).min(1, "Enter the business address"),
   projectLocation: text(300).min(1, "Enter the project's address, or its county and state"),
   wageDeterminations: text(300).min(1, "Enter the wage determination number(s) and revision"),
-  weekEnding: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD"),
+  weekEnding: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+    .refine(isCalendarDate, "Not a calendar date: use YYYY-MM-DD"),
   workers: z.array(certifiedPayrollWorkerSchema).max(MAX_ROWS).default([]),
   apprenticeships: z
     .array(
