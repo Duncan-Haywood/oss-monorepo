@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-27
+---
 # Seller Books: quarterly estimate figures saved per shop (estimates-saved-payments)
 
 Bet #5 (reseller profit and Schedule C books), private-monorepo PR 476.
