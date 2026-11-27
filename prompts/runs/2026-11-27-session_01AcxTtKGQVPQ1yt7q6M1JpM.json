@@ -30,7 +30,9 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "test/unit/submittal-import-ui.test.tsx failed once under the full unit suite's load; passes alone with and without this change (timing flake, not fixed here)"
+    "test/unit/submittal-import-ui.test.tsx failed once under the full unit suite's load; passes alone with and without this change (timing flake, not fixed here)",
+    "Wrote a literal U+FEFF (BOM) in the CSV reader's regex and a test string; check_hidden_unicode failed changed-ventures in CI; replaced with \\uFEFF escapes",
+    "Post front matter over the caps on the first push (title/description/seo_title); fixed in the second commit after check_posts.py"
   ],
   "integrity_issues": [],
   "doc_friction": [

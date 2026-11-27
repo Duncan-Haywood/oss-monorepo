@@ -127,7 +127,7 @@ export function readTrimblePayGrid(grid: Grid, sheetName = "Sheet1"): TrimblePay
 
 /** Reads the template saved as CSV. Never throws. */
 export function readTrimblePayCsv(text: string): TrimblePayTemplateResult {
-  const src = text.replace(/^﻿/, "");
+  const src = text.replace(/^\uFEFF/, "");
   if (src.trim() === "") return { ok: false, error: "The file is empty." };
   return readTrimblePayGrid(parseCsv(src));
 }

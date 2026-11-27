@@ -82,7 +82,7 @@ describe("readTrimblePayGrid", () => {
   });
 
   it("reads a CSV template", () => {
-    const r = readTrimblePayCsv("﻿No.,Description,Value\r\n,,\r\n");
+    const r = readTrimblePayCsv("\uFEFFNo.,Description,Value\r\n,,\r\n");
     expect(r.ok && r.template.roles).toEqual(["item", "description", "value"]);
   });
 });
