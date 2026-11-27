@@ -8,10 +8,13 @@ quote expiry and Cloudflare Email Service for account and quote mail. The workfl
 does the whole deploy; there are no dashboard steps beyond the settings below. It is a port of
 payapps' deploy (`apps/payapps/docs/DEPLOY.md`), with the differences listed at the end.
 
-**It runs by hand only** (Actions -> jobshop-quote-deploy -> Run workflow, from `main`), so a merge never puts the
-app in front of strangers before the items in "Before strangers sign up" are done. After launch, add
-`push: branches: [main]` to the workflow so every merge ships. To gate each run, add required
-reviewers to the `jobshop-quote-production` environment (Settings -> Environments).
+**It runs on every merge to `main` that touches `ventures/jobshop-quote/`** (Markdown-only changes
+excepted) and by hand (Actions -> jobshop-quote-deploy -> Run workflow, from `main`). The push trigger
+was added on 2026-11-27, after two good manual runs (46013246899, then 46018975911 on
+`jobshop-quote.marisstella.app` with `email: true`), once the launch items in "Before strangers sign
+up" that sign-up needs were done. A push run always runs the full checks; `skip_checks` is a dispatch
+input only. To gate each run, add required reviewers to the `jobshop-quote-production` environment
+(Settings -> Environments).
 
 ## What a run does
 
@@ -79,8 +82,8 @@ stripped from the deploy config so the offline demo can never reach production.
   served at `/legal/:key`, accepted once per user) with the operator (Maris Stella Labs LLC, Colorado) and
   contact email filled in; launch authority is `docs/legal/OPERATOR.md` at the repository root. After any change in substance, run `node docs/legal/sync-documents.mjs` and bump
   `POLICY_VERSION` in `src/shared/legal.ts` so every user is asked to accept the new version.
-- Owner: run the workflow once, onboard the sender domain so `/api/health` reports `email: true`, and
-  decide the host (`JOBSHOP_DOMAIN`).
+- Done 2026-11-27: the workflow ran (46013246899, 46018975911), `/api/health` reports `email: true`,
+  and the host is the default `jobshop-quote.marisstella.app` (`JOBSHOP_DOMAIN` unset).
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md) to sell the paid plans.
 - Owner, optional: an Intuit developer app and the three `JOBSHOP_QBO_*` secrets for QuickBooks
   Online invoices (docs/QUICKBOOKS.md, "Turning it on").

@@ -61,3 +61,15 @@ been used.
    that, the only step left before live checkout is `<APP>_BILLING_PROVIDER=paddle`, together with the
    launch review for live checkout (`prompts/goals.md`, "2026-11-26: agents approve launch").
 3. Re-run `paddle-key-check` after any key change.
+
+## Step 2 done for PayApps (2026-11-27, paddle-webhook-destination)
+
+`payapps-deploy` now finds or creates the notification destination for
+`https://payapps.marisstella.app/api/billing/webhook` with the same key and pushes its signing
+secret to the Worker as `BILLING_WEBHOOK_SECRET` (code: `ventures/payapps/packages/billing/src/paddle-webhook.ts`,
+script `scripts/paddle-webhook.ts`; rules in `apps/payapps/docs/BILLING.md`, step 4). The destination
+stays inactive until `PAYAPPS_BILLING_PROVIDER=paddle`, so the switch is the last step. Unknown until
+the first run after merge: whether the key has `notification_setting.read`/`.write` (the step warns
+and names the permission if not). Read the deploy's summary line "Paddle notification destination".
+Next: the same for `seller-books-deploy` (copy the two files into `ventures/seller-books/packages/billing`
+and set its own event list), and the launch review for live checkout.
