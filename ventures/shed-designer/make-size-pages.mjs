@@ -81,7 +81,7 @@ const CSS = `    :root { font-family: ui-sans-serif, system-ui, sans-serif; colo
 const ICON = `<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23784421'/%3E%3Cpath%20d='M6%2015L16%207l10%208v10H6z'%20fill='%23fff'/%3E%3C/svg%3E">`;
 const FOOT = `  <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not engineering, construction, building-code or legal advice and does not replace a qualified professional or your building department. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Prices are store listings seen 2026-10-29 and may be stale; type your own in the tool.</p>
-    <p>Everything runs in your browser; nothing is uploaded. FSL-1.1-MIT licensed. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shed-designer">Source</a> · <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a></p>
+    <p>Everything runs in your browser; nothing is uploaded. All rights reserved. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shed-designer">Source</a> · <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a></p>
   </footer>`;
 
 const sizeRow = (f) => `<tr><td><a href="${slug(f.w, f.l)}">${f.w}x${f.l}</a></td><td class="n">${f.pieces}</td><td class="n">${f.boards}</td><td class="n">${money(f.lumber)}</td><td class="n">${money(f.total)}</td></tr>`;

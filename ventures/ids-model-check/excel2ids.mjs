@@ -656,7 +656,7 @@ export const EXCEL2IDS_README = [
   ["The Requirements sheet follows the layout of buildingSMART-community's Excel2IDS template (github.com/buildingsmart-community/Excel2IDS): asset categories in columns from R, one requirement per row from 19, an X where a category needs a requirement."],
   ["A value in \"double quotes\" is a pattern; commas, semicolons or line breaks make a list of allowed values. Toggle a row or column off with FALSE."],
   ["Drop it back on IDS Model Check (https://marisstella.app/ids-model-check/) to get one IDS per purpose, audited, or run node cli.mjs --from-sheet. Excel2IDS's own tool reads it too, with these differences (checked by running it, 2026-11-19): it writes <milestone>LOD400</milestone> into every IDS, <version>None</version> when the version cell is empty, and the escape _x000D_ where a cell holds a carriage return; and it keeps only one exact IFC version (several become IFC4X3_ADD2). Every category has a purpose, because the tool stops on an empty one."],
-  ["Made by IDS Model Check (FSL-1.1-MIT). Not legal or professional advice; check the IDS you hand over."],
+  ["Made by IDS Model Check (all rights reserved). Not legal or professional advice; check the IDS you hand over."],
 ];
 
 export function excel2IdsToXlsx(grid) {

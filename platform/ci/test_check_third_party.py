@@ -28,6 +28,14 @@ class ScanFile(unittest.TestCase):
         got = kinds("vendor/LICENSE", FSL_TEXT.format(year=2024, holder="Functional Software, Inc."))
         self.assertEqual(got, [("licence file", "FSL-1.1-MIT; Functional Software, Inc")])
 
+    def test_owner_all_rights_reserved_notice_is_quiet(self):
+        root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+        with open(os.path.join(root, "portfolio", "monetization", "licences", "ALL-RIGHTS-RESERVED")) as fh:
+            text = fh.read()
+        self.assertEqual(kinds("ventures/x/LICENSE", text), [])
+        foreign = text.replace("Duncan Haywood", "Someone Else Ltd")
+        self.assertEqual(kinds("vendor/LICENSE", foreign), [("licence file", "all rights reserved; Someone Else Ltd. All rights reserved")])
+
     def test_owner_fsl_spdx_is_quiet(self):
         self.assertEqual(kinds("a/b.rs", "// SPDX-License-Identifier: FSL-1.1-MIT\n"), [])
 
