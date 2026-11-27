@@ -498,9 +498,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (102 stories)
+### Little Lamps (103 stories)
 
 - [Bonaventure and the Name at the Bedside](stories/bonaventure-and-the-name-at-the-bedside.md) (2026-11-27; 9 min read, text only)
+- [Ignatius and the Red and Blue Ink](stories/ignatius-and-the-red-and-blue-ink.md) (2026-11-27; 10 min read, text only)
 - [Leo and the King at the River](stories/leo-and-the-king-at-the-river.md) (2026-11-27; 9 min read, text only)
 - [Romuald and the Little Houses in the Forest](stories/romuald-and-the-little-houses-in-the-forest.md) (2026-11-27; 9 min read, text only)
 - [André and the Door at Notre-Dame College](stories/andre-and-the-door-at-notre-dame-college.md) (2026-11-26; 9 min read, text only)
