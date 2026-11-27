@@ -39,6 +39,10 @@
     {
       "file": "ventures/payapps/apps/payapps/docs/DEPLOY.md",
       "issue": "The token row lists R2 edit as required, but the repository token has none; nothing in the tree records which permissions the shared token actually holds."
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "PR #19625 was titled as a workflow port when I checked, then retitled after it took the same R2 fix; a title search cannot catch duplicates that change scope mid-flight."
     }
   ],
   "deviations": [
@@ -47,13 +51,19 @@
       "why": "Deploy plumbing gives a customer nothing new to read; no post.",
       "did": "Documented the fallback in the app's docs/DEPLOY.md",
       "result": "docs match the code"
+    },
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "why": "My R2 fix duplicated #19625 once it merged",
+      "did": "Merged main into my branch taking main's version, and used the PR for the next deploy blocker (SOV import race) instead of closing it",
+      "result": "one PR, no duplicate code"
     }
   ],
   "writeups": [
     "ventures/payapps/apps/payapps/docs/DEPLOY.md (extended)"
   ],
   "goal": null,
-  "notes": "Bet #1 first deploy (run 45947552522) failed: Cloudflare token lacks R2 permission. provision.mjs now falls back to no-attachments as it already did for R2-not-enabled. node --test scripts/provision.test.mjs 6/6. After merge, re-dispatch payapps-deploy on main; owner can add Workers R2 Storage: Edit to the token to turn attachments on.",
+  "notes": "Bet #1. First deploy (run 45947552522) failed on R2 auth; I patched provision.mjs, but PR #19625 landed the same fix first and run 45949861746 deployed PayApps (Free plan, no attachments) to https://payapps.duncan-andrew-haywood.workers.dev, smoke test passed. My duplicate was resolved to main's version. The next dispatch (45950799211) stopped on a race in the SOV import: useMutation's mutationFn read `result` from a stale closure ('Nothing to import' shown beside the preview). Fixed by passing the input as the mutation argument. Unit suite 1286 passed, typecheck and biome clean. 12 parallel loaded runs did not reproduce the race on the old code; the failed run's DOM is the evidence. Follow-up: other components may close over state in mutationFn the same way.",
   "corrections": [],
   "redteam": null,
   "usage": {
@@ -61,50 +71,54 @@
     "session_id": "cf46655e-a3c2-5dfd-aff9-0d3cbaba21cb",
     "transcripts": 1,
     "first": "2026-11-27T05:56:07Z",
-    "last": "2026-11-27T05:58:39Z",
+    "last": "2026-11-27T06:22:37Z",
     "primary_model": "claude-opus-5-5",
     "models": {
       "claude-opus-5-5": {
-        "requests": 26,
-        "input": 53,
-        "output": 8228,
-        "thinking": 1018,
-        "cache_read": 2237222,
+        "requests": 73,
+        "input": 148,
+        "output": 21415,
+        "thinking": 3617,
+        "cache_read": 10469934,
         "cache_write_5m": 0,
-        "cache_write_1h": 94375,
-        "api_equivalent_usd": 1.3672,
+        "cache_write_1h": 191952,
+        "api_equivalent_usd": 4.0585,
         "fast_requests": 0
       }
     },
     "totals": {
-      "requests": 26,
-      "input": 53,
-      "output": 8228,
-      "thinking": 1018,
-      "cache_read": 2237222,
+      "requests": 73,
+      "input": 148,
+      "output": 21415,
+      "thinking": 3617,
+      "cache_read": 10469934,
       "cache_write_5m": 0,
-      "cache_write_1h": 94375,
-      "api_equivalent_usd": 1.3672,
+      "cache_write_1h": 191952,
+      "api_equivalent_usd": 4.0585,
       "api_equivalent_complete": true
     },
-    "cache_hit_share": 0.96,
-    "tool_calls": 27,
+    "cache_hit_share": 0.982,
+    "tool_calls": 71,
     "tools": {
-      "Bash": 22,
-      "ToolSearch": 1,
-      "mcp__github__actions_list": 1,
-      "mcp__github__get_job_logs": 1,
-      "mcp__github__pull_request_read": 1,
-      "mcp__github__create_pull_request": 1
+      "Bash": 43,
+      "mcp__github__get_job_logs": 6,
+      "ReadNotifications": 6,
+      "mcp__github__pull_request_read": 5,
+      "mcp__github__actions_list": 4,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1,
+      "mcp__github__merge_pull_request": 1
     },
     "web_searches": 0,
     "time": {
-      "wall_minutes": 2.53,
-      "active_minutes": 2.53,
-      "model_minutes": 1.71,
-      "tool_minutes": 0.82,
-      "waiting_on_human_minutes": 0.0,
-      "human_prompts": 1,
+      "wall_minutes": 26.51,
+      "active_minutes": 7.67,
+      "model_minutes": 4.89,
+      "tool_minutes": 2.78,
+      "waiting_on_human_minutes": 18.84,
+      "human_prompts": 7,
       "stalls": 0,
       "subagent_minutes": 0.0
     },
@@ -113,12 +127,12 @@
       "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
     },
     "human_equivalent": {
-      "hours": 1.0,
-      "basis": "diagnose deploy log, patch and test provisioning fallback",
+      "hours": 2.0,
+      "basis": "diagnose two deploy failures, fix provisioning fallback and a React Query stale-closure race",
       "rate_usd_per_hour": 100.0,
-      "usd": 100.0
+      "usd": 200.0
     },
-    "leverage": 73.1,
+    "leverage": 49.3,
     "certainty": {
       "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
       "model": "high: the `model` field on each API response, not the configured model",
