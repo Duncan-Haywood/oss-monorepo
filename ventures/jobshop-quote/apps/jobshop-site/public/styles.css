@@ -614,3 +614,60 @@ summary:focus-visible {
   height: 1px;
   overflow: hidden;
 }
+
+/* Screenshots of the app (pages.ts SHOTS, captured by apps/jobshop-quote `pnpm stills`) */
+.shots-lead {
+  max-width: 42rem;
+  margin-inline: auto;
+  color: var(--n-600);
+}
+.shots {
+  display: grid;
+  gap: 1.75rem;
+  align-items: start;
+  margin: 1.75rem 0 1.25rem;
+}
+@media (min-width: 900px) {
+  .shots {
+    grid-template-columns: minmax(0, 1fr) 17rem;
+  }
+}
+.shot {
+  margin: 1.25rem 0 0;
+  min-width: 0;
+}
+.shots .shot {
+  margin: 0;
+}
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--n-0);
+  border: 1px solid var(--n-200);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.shot-link {
+  display: block;
+  border-radius: var(--radius);
+}
+.shot-link:focus-visible {
+  outline: 3px solid var(--brand-600);
+  outline-offset: 3px;
+}
+.shot-phone img {
+  max-width: 17rem;
+  margin-inline: auto;
+}
+.shot figcaption {
+  color: var(--n-600);
+  font-size: 0.92rem;
+  margin-top: 0.7rem;
+}
+@media (max-width: 899px) {
+  /* On a phone the phone still is the readable one, so it comes first. */
+  .shot-phone {
+    order: -1;
+  }
+}

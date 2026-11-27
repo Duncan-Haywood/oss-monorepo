@@ -61,7 +61,7 @@ export interface PnlCell {
   salesTaxCollectedCents: number;
   /** The part a marketplace collected and sent to the state. */
   marketplaceSalesTaxCents: number;
-  /** The part the seller collected (Square, PayPal, their Shopify store, direct sales): theirs to file. */
+  /** The part the seller collected (Square, PayPal, Venmo, their Shopify store, direct sales): theirs to file. */
   sellerSalesTaxCents: number;
   /** Tax the seller handed back on refunds of those sales (read where the report gives it). */
   sellerSalesTaxRefundedCents: number;

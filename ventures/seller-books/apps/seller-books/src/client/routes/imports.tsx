@@ -274,11 +274,11 @@ function DirectSaleForm({ orgId, stock }: { orgId: string; stock: ItemRow[] }) {
       <h2 className="font-medium md:col-span-4">Add a direct sale</h2>
       <p className="text-sm text-stone-600 md:col-span-4">
         A sale with no marketplace report: cash at a market or flea market, Facebook Marketplace, a
-        local pickup paid by Venmo, PayPal or Cash App. It counts in your profit and loss and in
-        gross receipts on the Schedule C worksheet like an imported order. Enter the price before
-        any sales tax, and the sales tax you charged on top in its own box: it is kept out of income
-        and listed in the sales tax report on the dashboard. Booth fees and market rent go under
-        Expenses.
+        local pickup paid by Cash App or Zelle (Venmo and PayPal statements can be imported). It
+        counts in your profit and loss and in gross receipts on the Schedule C worksheet like an
+        imported order. Enter the price before any sales tax, and the sales tax you charged on top
+        in its own box: it is kept out of income and listed in the sales tax report on the
+        dashboard. Booth fees and market rent go under Expenses.
       </p>
       <label className="text-sm">
         <span className="label">Type</span>

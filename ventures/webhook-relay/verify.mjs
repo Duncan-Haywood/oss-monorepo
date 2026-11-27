@@ -17,7 +17,8 @@ export const SCHEMES = ["none", "stripe", "github", "shopify", "slack", "paddle"
 
 export function verify(scheme, { headers, body, secret, nowSec = Math.floor(Date.now() / 1000), header }) {
   if (scheme === "none") return OK;
-  if (!secret) return fail("route has no secret configured");
+  // A blank or non-string secret is no secret: anyone could sign with it.
+  if (typeof secret !== "string" || !secret.trim()) return fail("route has no secret configured");
   switch (scheme) {
     case "stripe": {
       const parts = Object.fromEntries((headers["stripe-signature"] || "").split(",").map((p) => p.split("=")).filter((p) => p.length === 2));

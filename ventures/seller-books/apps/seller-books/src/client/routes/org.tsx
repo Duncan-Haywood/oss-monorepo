@@ -170,7 +170,7 @@ function PnlTable({ rows, first }: { rows: PnlCell[]; first: (c: PnlCell) => str
 }
 
 /**
- * The tax the seller collected on the sales they rang up themselves (Square, PayPal, their Shopify store,
+ * The tax the seller collected on the sales they rang up themselves (Square, PayPal, Venmo, their Shopify store,
  * direct sales): theirs to report on their own sales tax return, by month and quarter. Hidden when the
  * range has no sale on those channels.
  */
@@ -203,11 +203,11 @@ function SellerSalesTax({
         </a>
       </div>
       <p className="text-sm text-stone-600">
-        Tax charged on sales you rang up yourself: Square, a PayPal checkout, your own Shopify store
-        and the direct sales you typed in. No marketplace sent it to the state, so reporting and
-        paying it is up to you. Tax handed back is read from Square refunds and the direct refunds
-        you type in; for PayPal and Shopify refunds, check it against their reports. Which sales are
-        taxable, and where, is for you or your preparer.
+        Tax charged on sales you rang up yourself: Square, PayPal and Venmo payments, your own
+        Shopify store and the direct sales you typed in. No marketplace sent it to the state, so
+        reporting and paying it is up to you. Tax handed back is read from Square refunds and the
+        direct refunds you type in; for PayPal, Venmo and Shopify refunds, check it against their
+        reports. Which sales are taxable, and where, is for you or your preparer.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">

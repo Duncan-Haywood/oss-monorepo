@@ -27,7 +27,7 @@ without a sales team, Margin, Time = time to first dollar.
 | 3 | **E-invoice fix-and-explain** | DE/FR SMEs, their accountants, small invoicing vendors | 3 | 5 | 4 | 5 | 4 | 21 | `ventures/einvoice-pro/apps/einvoice-preflight` (moved 2026-11-27, PR #19635's copy; deploy workflow not yet ported) |
 | 4 | **CMMC L1/L2 + ISO 9001 workspace** | small defense/aerospace shops | 4 | 5 | 3 | 4 | 3 | 19 | new `private-monorepo/apps/cmmc` |
 | 5 | **Reseller profit and Schedule C books** | multi-platform resellers | 4 | 4 | 5 | 4 | 4 | 21 | `ventures/seller-books/apps/seller-books` (moved 2026-11-27, PR #19618) |
-| 6 | **Residential takeoff (roof, siding, framing lists from PDFs)** | remodelers, roofers, framers | 4 | 4 | 3 | 3 | 4 | 18 | `private-monorepo/apps/wall-framing-takeoff` |
+| 6 | **Residential takeoff (roof, siding, framing lists from PDFs)** | remodelers, roofers, framers | 4 | 4 | 3 | 3 | 4 | 18 | `ventures/residential-takeoff/apps/wall-framing-takeoff` (moved from private-monorepo 2026-11-27; not served yet) |
 | 7 | **Grant Autopilot** (live) | small nonprofits | 4 | 3 | 3 | 3 | 3 | 16 | `private-monorepo/apps/grants` |
 
 Why this order rather than by total: #1, #2 and #4 are SMBs at $99–$300+ a

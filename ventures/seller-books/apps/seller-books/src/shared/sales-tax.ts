@@ -3,7 +3,7 @@
 // The marketplaces this app imports (eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Amazon, TikTok Shop)
 // collect and send the sales tax on the sales made through them, so their tax is never the seller's to
 // file (the platform pages in seller-books-site say so for each one). The tax on a sale the seller rang
-// up themselves is different: Square at a booth, a PayPal checkout, a sale typed in as a direct sale, and
+// up themselves is different: Square at a booth, a PayPal or Venmo payment, a sale typed in as a direct sale, and
 // an order on the seller's own Shopify store. That money was collected by the seller for the state; it is
 // not income, and it is what goes on the seller's own sales tax return.
 //
@@ -18,6 +18,7 @@ export type TaxCollector = "marketplace" | "seller";
 const SELLER_COLLECTED: ReadonlySet<string> = new Set<SaleChannel>([
   "square",
   "paypal",
+  "venmo",
   "shopify",
   "direct",
 ]);
@@ -28,7 +29,7 @@ export function taxCollector(channel: string): TaxCollector {
 }
 
 /** Channels whose tax the seller collected, in report order. */
-export const SELLER_TAX_CHANNELS = ["square", "paypal", "shopify", "direct"] as const;
+export const SELLER_TAX_CHANNELS = ["square", "paypal", "venmo", "shopify", "direct"] as const;
 
 /** Channels whose seller-collected tax needs a caveat in the report. */
 export const SELLER_TAX_CAVEATS: Partial<Record<SaleChannel, string>> = {

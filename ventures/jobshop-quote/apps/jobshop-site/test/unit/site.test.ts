@@ -3,7 +3,7 @@ import { AI_CRAWLERS, buildSite, fileFor, mainText, resolveBuildOptions } from "
 import { CMMC_SITE_URL, LAUNCH, type Launch } from "@site/config";
 import { esc } from "@site/html";
 import { statusLine } from "@site/layout";
-import { AI_OFF } from "@site/pages";
+import { AI_OFF, SHOTS } from "@site/pages";
 import { PUBLIC_ROUTES, publicRoutes } from "@site/routes";
 import { describe, expect, it } from "vitest";
 
@@ -88,6 +88,7 @@ describe("prerendered pages", () => {
       ...PUBLIC_ROUTES_OPEN.map((r) => `/jobshop${r.path === "/" ? "/" : r.path}`),
       "/jobshop/styles.css",
       "/jobshop/favicon.svg",
+      ...Object.values(SHOTS).map((s) => `/jobshop/shots/${s.file}`),
     ]);
     for (const p of pages) {
       for (const [, href] of p.html.matchAll(/(?:href|action)="(\/[^"#]*)/g)) {

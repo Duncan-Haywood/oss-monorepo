@@ -68,6 +68,16 @@
       "notice": "ventures/wall-framing-takeoff/fixtures/BSI-LICENSE.md"
     },
     {
+      "name": "buildingSMART IFC sample files (residential takeoff fixtures, same files as the free edition's)",
+      "paths": [
+        "ventures/residential-takeoff/apps/wall-framing-takeoff/fixtures/bsi-*.ifc",
+        "ventures/residential-takeoff/apps/wall-framing-takeoff/fixtures/BSI-LICENSE.md"
+      ],
+      "license": "CC-BY-4.0",
+      "source": "https://github.com/buildingSMART/Sample-Test-Files, unmodified",
+      "notice": "ventures/residential-takeoff/apps/wall-framing-takeoff/fixtures/BSI-LICENSE.md"
+    },
+    {
       "name": "flufl.bounce test messages",
       "paths": [
         "ventures/sales-agent/eval/bounce-corpus/*"

@@ -32,7 +32,7 @@ describe("taxCollector", () => {
   it("the marketplaces collect their own sales' tax; the seller collects the rest", () => {
     for (const p of ["ebay", "poshmark", "mercari", "whatnot", "depop", "etsy", "amazon", "tiktok"])
       expect(taxCollector(p)).toBe("marketplace");
-    for (const p of ["square", "paypal", "shopify", "direct"])
+    for (const p of ["square", "paypal", "venmo", "shopify", "direct"])
       expect(taxCollector(p)).toBe("seller");
     expect(taxCollector("something-new")).toBe("marketplace");
   });

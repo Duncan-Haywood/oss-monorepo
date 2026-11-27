@@ -11,6 +11,7 @@ import { parsePoshmarkSalesReport } from "./poshmark";
 import { parseShopifyOrders, parseShopifyPaymentsTransactions } from "./shopify";
 import { parseSquareTransactions } from "./square";
 import { parseTiktokShopStatement } from "./tiktok";
+import { parseVenmoStatement } from "./venmo";
 import { parseWhatnotOrdersReport } from "./whatnot";
 
 export type { ImportParseResult, ParsedCharge, ParsedFee, ParsedSale } from "./parse";
@@ -83,6 +84,12 @@ export const REPORTS = {
     label:
       "PayPal: Activity download, CSV (Activity > Statements), sales paid by PayPal off the marketplaces",
     parse: parsePaypalActivity,
+  },
+  venmo_statement: {
+    platform: "venmo",
+    label:
+      "Venmo: statement, CSV (Statements > Download CSV), sales paid by Venmo off the marketplaces",
+    parse: parseVenmoStatement,
   },
 } as const satisfies Record<
   string,

@@ -818,6 +818,12 @@ export const noticePdfSchema = z.object({
     .record(z.string().max(64), z.string().max(2000))
     .refine((r) => Object.keys(r).length <= 40, "Too many fields"),
 });
+/** POST .../notices/miller.pdf: the Miller Act 90-day notice (nothing is saved). */
+export const millerNoticePdfSchema = z.object({
+  fields: z
+    .record(z.string().max(64), z.string().max(2000))
+    .refine((r) => Object.keys(r).length <= 20, "Too many fields"),
+});
 /** POST .../waivers/:id/ga-affidavit.pdf: Georgia's affidavit of nonpayment (nothing is saved). */
 export const gaAffidavitPdfSchema = z.object({
   fields: z

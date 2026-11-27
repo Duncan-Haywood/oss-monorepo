@@ -103,7 +103,7 @@ routes.get(
   },
 );
 
-// The sales tax the seller collected themselves (Square, PayPal, their Shopify store, direct sales), by
+// The sales tax the seller collected themselves (Square, PayPal, Venmo, their Shopify store, direct sales), by
 // month and channel with quarter totals, for their own sales tax return (shared/sales-tax.ts). Tax a
 // marketplace collected is not in it: the marketplace sent it.
 routes.get(
