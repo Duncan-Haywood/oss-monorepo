@@ -299,7 +299,7 @@ decisions:
 
 - id: einvoice-provider-identification
   asks: []
-  prs: []
+  prs: [19918]
   gates: revenue
   exposure: legal-person
   opened: "2026-11-27"
