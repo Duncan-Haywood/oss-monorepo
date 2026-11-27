@@ -204,3 +204,16 @@ test('the open pay-app card lists what Free includes and what waits for paid pla
     assert.ok(done.includes(`- ${heading}`), `${heading} is in ROADMAP Done`);
   }
 });
+
+test('the hero leads with the open product; the waitlist form sits below the products', () => {
+  const html = renderConstructionPage({ baseUrl: BASE, earlyAccessUrl: 'https://edge.example' });
+  const open = PRODUCTS.find((p) => p.status === 'open-free');
+  const start = html.indexOf('class="ic-start ic-start-lg"');
+  assert.ok(start > 0, 'hero sign-up button');
+  assert.ok(html.slice(start, start + 300).includes(open.appUrl.replace(/&/g, '&amp;')));
+  const firstH2 = html.indexOf('<h2');
+  assert.ok(start < firstH2, 'sign-up button comes before the first section');
+  const form = html.indexOf('class="ea-form"');
+  assert.ok(form > html.indexOf('id="product-pay-apps"'), 'early-access form after the product cards');
+  assert.ok(html.includes('id="early-access"'), 'the form has its own heading');
+});
