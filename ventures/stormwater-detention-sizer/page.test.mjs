@@ -77,11 +77,12 @@ test("the guide's and FAQ's worked numbers are the engine's", () => {
   for (const t of [`a ${o.orificeDiameterIn.toFixed(1)} in orifice`, `a ${f2(o.weirLengthFt)} ft weir`, `crest at ${f2(o.weirCrestFt)} ft`, `<strong>${f2(s100.peakStage)} ft</strong>`, `<strong>${f2(a.requiredDepthFt)} ft deep</strong>`, `about ${fmt0(s2.peakStorageFt3)} cubic feet`, `about ${fmt0(s100.peakStorageFt3)} cubic feet stored`, `about ${a.topLengthFt.toFixed(0)} by ${a.topWidthFt.toFixed(0)} ft`, `fills the basin to ${f2(s2.peakStage)} ft`, `peak of ${f2(s100.prePeak)} cfs`]) assert.ok(g.includes(t), t);
   for (const t of [`from ${f2(s2.prePeak)} to ${f2(s2.postPeak)} cfs`, `from ${f2(s100.prePeak)} to ${f2(s100.postPeak)} cfs`, `A ${o.orificeDiameterIn.toFixed(1)} in orifice and a ${f2(o.weirLengthFt)} ft weir with its crest at ${f2(o.weirCrestFt)} ft`, `fills the basin to ${f2(s100.peakStage)} ft`, `it is ${f2(a.requiredDepthFt)} ft deep`]) assert.ok(faq.includes(t), t);
   // unit hydrograph figures in step 2
-  const post = triangularUH(5, 0.2, 2), pre = triangularUH(5, 0.5, 2);
+  const dt = a.input.dtMin;
+  const post = triangularUH(5, 0.2, dt), pre = triangularUH(5, 0.5, dt);
   assert.ok(g.includes(`${post.tp.toFixed(4)} hours to a peak of ${f2(post.qp)} cfs per inch`));
   assert.ok(g.includes(`${pre.tp.toFixed(4)} hours and ${f2(pre.qp)} cfs per inch`));
   // the orifice-only 100-year level
-  const r = route(analyze(sampleInput()).storms[1].inflow, 2, (h) => pondStorage(h, a.input), (h) => outletFlow(h, { orificeDiameter: o.orificeDiameterFt }));
+  const r = route(analyze(sampleInput()).storms[1].inflow, dt, (h) => pondStorage(h, a.input), (h) => outletFlow(h, { orificeDiameter: o.orificeDiameterFt }));
   assert.ok(g.includes(`back the water ${f2(r.peakStage)} ft up the bank`));
   // volume polynomial of the example basin: L W, (L + W) z, 4/3 z^2
   assert.ok(g.includes("6,000 h + 480 h² + 12 h³"));

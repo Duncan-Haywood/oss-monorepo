@@ -18,7 +18,7 @@ application summary and continuation sheet as PDF and CSV, the cash and
 retainage report, and the RFI, submittal, estimate and daily-report logs.
 Lien waivers, QuickBooks Online and job costing are in the paid plans, which
 are **not on sale yet**: checkout is off until payments are set up. It has
-no customers yet. [Start free in PayApps](https://payapps.duncan-andrew-haywood.workers.dev/?signup&from=docs/posts/pay-applications).
+no customers yet. [Start free in PayApps](https://payapps.marisstella.app/?signup&from=docs/posts/pay-applications).
 Check every figure before you send it to a GC: PayApps does the arithmetic,
 you sign the application.
 

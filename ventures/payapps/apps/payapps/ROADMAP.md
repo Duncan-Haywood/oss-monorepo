@@ -1,7 +1,7 @@
 # PayApps — Roadmap
 
-Status: **live on the Free plan** (2026-11-27). `payapps-deploy` run 45949861746 (commit 5f432ae0,
-from oss-monorepo) deployed https://payapps.duncan-andrew-haywood.workers.dev and its smoke test answered
+Status: **live on the Free plan** (2026-11-27). Live at https://payapps.marisstella.app since run 45963162134 (PR #19642,
+custom domain; workers.dev is off). The first live deploy, run 45949861746, was on workers.dev. The smoke test answered
 `{"ok":true,"app":"payapps","email":true}`, so sign-up email works. Attachments (R2) are off until the
 Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are dark
 (`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.

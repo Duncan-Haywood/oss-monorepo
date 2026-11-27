@@ -176,6 +176,12 @@ describe("buildEcpr", () => {
     expect(xml).toContain("<CPR:notes>Foreman &amp; lead</CPR:notes>");
   });
 
+  it("leaves no tag in notes when one is nested inside another", () => {
+    const w = [{ ...workers[0], notes: "<<b>script>x" }, workers[1]];
+    const xml = buildEcpr(payroll(), job, w, ids).xml ?? "";
+    expect(xml).toContain("<CPR:notes>scriptx</CPR:notes>");
+  });
+
   it("refuses what DIR's upload rejects", () => {
     const errors = (r: ReturnType<typeof buildEcpr>) =>
       r.issues.filter((i) => i.level === "error").map((i) => i.message);

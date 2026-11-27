@@ -199,7 +199,8 @@
       "what": "Rest-of-world schedule is a flat 10% with no processing fee. Depop charges payment processing outside the US/UK too, and from 22 July 2026 Australian sellers on AUD sales pay 0% selling + 2.6% + A$0.30 (an A$50 sale: tool 5.00, Depop 1.60). The same claim is on index.html:34/:211 and the guide's table.",
       "where": "ventures/depop-fee-calculator/calc.mjs:44",
       "category": "source-data",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19668"
     },
     {
       "severity": "medium",
@@ -235,16 +236,18 @@
       "what": "README says every rate is lifted from Depop's Help Centre, but the boost base is the author's inference (calc.mjs:33-38); the source is never linked by URL, and the 2026-11-24 recheck covered only the US row.",
       "where": "ventures/depop-fee-calculator/README.md:51",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19668"
     },
     {
       "severity": "low",
       "what": "Rest-of-world currency hard-coded to '$', so EUR or AUD sellers see dollar signs.",
       "where": "ventures/depop-fee-calculator/calc.mjs:44",
       "category": "code-craft",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19668"
     }
   ],
-  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19225"],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19225", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19668"],
   "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2, median 2); finished (completeness 3). The US and UK unboosted arithmetic is exact: four hand recomputations (US $50 -> 2.10, US $22+$8 -> 1.44, UK GBP45 base -> 1.605, target price 32.6939) all match. The gaps are in the schedule, not the arithmetic: rest of world is modelled as 10% with no processing although Depop charges processing there and moved Australia to 0% + 2.6% + A$0.30 on 22 July 2026; the boost fee ignores the 8% non-US/UK rate and the shipping-inclusive base for own-label sales; and the region comparison ranks payouts across currencies. Four of five seeded mutants survive. Depop's own pages were not reachable from this container (DNS allowlist), so the Depop figures here come from web-search extracts of those pages; a session with network access should confirm them before a fix lands. It is a working front door to Seller Books (bet #5) for US/UK sellers."
 }
