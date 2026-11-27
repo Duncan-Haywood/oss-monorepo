@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVPPzGzDeineU5JfHyu",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T14:56:17Z",
+  "ended": "2026-11-27T15:10:07Z",
+  "wall_minutes": 16.37,
+  "tokens_in": 17416248,
+  "tokens_out": 68458,
+  "cost_usd": 6.5992,
+  "tool_calls": 108,
+  "task": "jobshop-site-served: open the Job Shop Quote marketing site (bet #2) and serve it at marisstella.app/jobshop",
+  "projects": [
+    "jobshop-quote",
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19780",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--claim takes only an item number; a new slug-only claim is `--slug X --note ...` with no --claim, which the --bets hint ('open a new item ... with --slug') says but --claim's error does not."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "marisstella.app and the deployed app hosts answer 403 through the cloud proxy, so 'is it live' has to come from the deploy job log (get_job_logs on the smoke-test step), not curl; worth a line in cloud-session.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the deliverable is the product's own marketing site (home, how it works, pricing, FAQ, llms.txt), which is the customer-facing write-up for bet #2; a separate post would duplicate it.",
+      "did": "Extended the product's site, its README and ROADMAP instead.",
+      "result": "Site served by the next catalogue build after merge."
+    },
+    {
+      "file": "platform/pages/payapps-site.mjs",
+      "why": "Wrote a sibling jobshop-site.mjs instead of generalising payapps-site.mjs, to leave PayApps' tested module untouched in a PR about bet #2.",
+      "did": "Duplicated ~40 lines of copy logic with its own tests.",
+      "result": "Both work; a later run can fold them into one product-site helper."
+    }
+  ],
+  "writeups": [
+    "ventures/jobshop-quote/apps/jobshop-site/catalogue-export (the marketing site itself)",
+    "ventures/jobshop-quote/apps/jobshop-site/README.md (launch switch)"
+  ],
+  "goal": "$10k MRR: traffic and sign-up path for bet #2, whose app was live with no front door",
+  "notes": "Security queue empty, IDEAS empty; route drew ventures. Bet #1 payapps had no free ungated item; bet #2 jobshop-quote's app was deployed (run 46018975911, health ok at jobshop-quote.marisstella.app per the job log) but its site was unserved and still pre-launch. Built a LAUNCH switch so copy follows what the hosted app does (AI reading off until the owner sets JOBSHOP_ANTHROPIC_API_KEY). Verification: jobshop-site tsc + biome clean, vitest unit 49/49, worker 13/13; node --test jobshop-site, industry-manufacturing, payapps-site, business, products pass; node --test build.test.mjs check.test.mjs cta-row-phone.test.mjs industry-construction.test.mjs: 459 pass, 0 fail (348 s).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "acd14b75-7f8a-5075-96ea-5445d708baf5",
+    "transcripts": 1,
+    "first": "2026-11-27T14:56:17Z",
+    "last": "2026-11-27T15:12:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 105,
+        "input": 203,
+        "output": 68458,
+        "thinking": 12555,
+        "cache_read": 17192190,
+        "cache_write_5m": 0,
+        "cache_write_1h": 223855,
+        "api_equivalent_usd": 6.5992,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 105,
+      "input": 203,
+      "output": 68458,
+      "thinking": 12555,
+      "cache_read": 17192190,
+      "cache_write_5m": 0,
+      "cache_write_1h": 223855,
+      "api_equivalent_usd": 6.5992,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 108,
+    "tools": {
+      "Bash": 97,
+      "Read": 5,
+      "ToolSearch": 2,
+      "mcp__github__actions_list": 2,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.37,
+      "active_minutes": 16.37,
+      "model_minutes": 10.22,
+      "tool_minutes": 6.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a web developer opening a static marketing site behind a launch switch, rewriting copy against the app, export plus catalogue wiring and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 90.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
