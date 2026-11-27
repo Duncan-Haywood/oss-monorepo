@@ -88,6 +88,15 @@ test("remediation CSV surfaces read errors as INV-READ", async () => {
   assert.match(csv, /INV-READ,1,Invoice could not be read\./);
 });
 
+test("remediation CSV defuses a cell a spreadsheet would run as a formula", () => {
+  const csv = buildRemediationCsv({
+    reports: [{ file: "a.xml", errors: [{ rule: "X-1", message: "=HYPERLINK(\"http://x\")", fix: "-12.50" }] }],
+    readErrors: [],
+  });
+  assert.match(csv, /'=HYPERLINK/);
+  assert.match(csv, /,-12\.50$/m);
+});
+
 test("oversized input is refused before parsing", async () => {
   const result = await preflightDocuments(
     [{ name: "large.json", source: JSON.stringify(VALID) }],

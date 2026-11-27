@@ -33,7 +33,7 @@ const checkers = Object.fromEntries(Object.entries(schema.roots).map(([name, roo
 
 const ENTITY = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
 const decode = (s) => s.replace(/&(?:#x([0-9a-fA-F]+)|#(\d+)|(amp|lt|gt|quot|apos));/g, (m, hex, dec, named) =>
-  named ? ENTITY[named] : String.fromCodePoint(hex ? parseInt(hex, 16) : Number(dec)));
+  named ? ENTITY[named] : ((n) => (n <= 0x10ffff ? String.fromCodePoint(n) : m))(hex ? parseInt(hex, 16) : Number(dec)));
 
 /**
  * A tree of { name, ns, text, attrs, raw, children }: names are local, `ns` is the element's

@@ -205,7 +205,7 @@ export async function runsSince(store, accountId, clientId, since, maxPages = 50
 /** A spreadsheet cell: quoted, and a leading = + - @ (or tab/CR) neutralised so it is not run as a formula. @param {unknown} v */
 export function csvCell(v) {
   let s = v === null || v === undefined ? "" : String(v);
-  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
   return /[",\r\n;']/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 

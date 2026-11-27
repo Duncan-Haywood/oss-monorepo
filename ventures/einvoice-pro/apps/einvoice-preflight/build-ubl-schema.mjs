@@ -22,6 +22,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { parseXmlTree } from "./ubl.mjs";
 
 export const UBL_ZIP = "https://docs.oasis-open.org/ubl/os-UBL-2.1/UBL-2.1.zip";
@@ -211,7 +212,7 @@ export function buildUblSchema(dir) {
   return { roots, complex: kept, simple, elements: Object.keys(elements).length };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   let dir = process.argv[2];
   let source = "local copy of os-UBL-2.1/xsd";
   if (!dir) {

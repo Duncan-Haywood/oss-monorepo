@@ -79,3 +79,9 @@ test("jurisdiction: eu, other, or unknown when the listing does not say", () => 
   assert.equal(jurisdictionOf([{ name: "einvoice-pro" }], "einvoice-pro"), "unknown");
   assert.equal(jurisdictionOf([], "einvoice-pro"), "unknown");
 });
+
+test("parseArgs refuses a value flag given last with no value", () => {
+  assert.throws(() => parseArgs(["--domain"]), /--domain needs a value/);
+  assert.throws(() => parseArgs(["--write-config"]), /--write-config needs a value/);
+  assert.equal(parseArgs(["--domain", "Example.COM"]).domain, "example.com");
+});

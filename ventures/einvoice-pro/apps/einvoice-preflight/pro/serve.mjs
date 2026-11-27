@@ -33,7 +33,7 @@ import { FileStore, MemoryStore } from "./store.mjs";
 export const FREE_API_PATHS = new Set(["/v1/validate", "/v1/validate/batch", "/v1/repair", "/v1/generate"]);
 
 /** The fonts create.html fetches for its Factur-X PDF, read once at start-up by exact file name. */
-const FONTS_DIR = new URL("../fonts/", import.meta.url);
+const FONTS_DIR = new URL("../fonts/", import.meta.url); // docker-copy: ok (a directory; Dockerfile.pro copies it as ./fonts)
 const FONTS = new Map(
   readdirSync(FONTS_DIR)
     .filter((f) => /^[A-Za-z0-9-]+\.ttf$/.test(f))

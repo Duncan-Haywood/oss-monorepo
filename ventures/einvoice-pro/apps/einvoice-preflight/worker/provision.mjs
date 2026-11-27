@@ -38,8 +38,13 @@ export function parseArgs(argv) {
   const args = { writeConfig: /** @type {string | null} */ (null), domain: "", dryRun: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === "--write-config") args.writeConfig = argv[++i] ?? null;
-    else if (a === "--domain") args.domain = (argv[++i] ?? "").trim().toLowerCase();
+    // A flag that takes a value, given last with none, is an error rather than an empty value.
+    const value = () => {
+      if (i + 1 >= argv.length) throw new Error(`${a} needs a value`);
+      return argv[++i];
+    };
+    if (a === "--write-config") args.writeConfig = value();
+    else if (a === "--domain") args.domain = value().trim().toLowerCase();
     else if (a === "--dry-run") args.dryRun = true;
     else throw new Error(`unknown argument: ${a}`);
   }

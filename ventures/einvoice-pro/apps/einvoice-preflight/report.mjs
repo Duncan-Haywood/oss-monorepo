@@ -596,7 +596,10 @@ export function buildJsonReport({ reports, readErrors }) {
 }
 
 function csvCell(value) {
-  const text = String(value ?? "");
+  let text = String(value ?? "");
+  // A cell a spreadsheet would run as a formula (= + - @, tab, CR) gets a leading apostrophe; a
+  // plain number such as -12.50 stays a number.
+  if (/^[=+\-@\t\r]/.test(text) && !/^-?\d+(\.\d+)?$/.test(text)) text = `'${text}`;
   if (/[",\n\r]/.test(text)) return `"${text.replaceAll('"', '""')}"`;
   return text;
 }
