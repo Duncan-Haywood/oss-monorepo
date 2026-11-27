@@ -23,6 +23,7 @@ import {
   orgRootRoutes,
   rateCardRoutes,
 } from "./routes/org/shop";
+import { quoteJobRoutes, shopLoadRoutes } from "./routes/org/shop-load";
 import { costingRoutes, quoteRoutes, rfqRoutes } from "./routes/org/work";
 import {
   authRoutes,
@@ -74,7 +75,9 @@ export function createApp() {
   org.route("/inbound-email", inboundEmailRoutes);
   org.route("/notifications", notificationRoutes);
   org.route("/rfqs", rfqRoutes);
+  org.route("/quotes", quoteJobRoutes);
   org.route("/quotes", quoteRoutes);
+  org.route("/shop-load", shopLoadRoutes);
   org.route("/costing", costingRoutes);
   org.route("/routings", routingRoutes);
   org.route("/billing", orgBillingRoutes);

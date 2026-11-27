@@ -62,6 +62,7 @@ import {
 } from "../lib/api";
 import { canEstimate, useOrg, useOrgId, useShopDay } from "./layout";
 import { QuoteQuickBooksCard } from "./quickbooks";
+import { JobCard, LeadTimeCard } from "./shop-load";
 
 export function QuoteDetailPage() {
   const orgId = useOrgId();
@@ -228,11 +229,13 @@ export function QuoteDetailPage() {
           canEdit={canEstimate(org.data?.role)}
         />
       )}
+      {q.status === "won" && <JobCard quote={q} />}
       {q.status === "won" && <Traveler orgId={orgId} quote={q} />}
       {q.status === "won" && (
         <QuoteQuickBooksCard orgId={orgId} quote={q} canSend={canEstimate(org.data?.role)} />
       )}
       <Header orgId={orgId} quote={q} editable={editable} onSaved={setData} />
+      {draft && <LeadTimeCard quote={q} />}
       {q.lines.map((l) => (
         <LineEditor
           key={l.id}
