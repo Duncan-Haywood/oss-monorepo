@@ -12,7 +12,7 @@
   "vars": {
     "APP_ENV": "test",
     "SITE_URL": "https://example.test/payapps",
-    "EMAIL_FROM": "PayPencil <no-reply@example.org>",
+    "EMAIL_FROM": "PayApps <no-reply@example.org>",
     "EMAIL_MODE": "log"
   }
 }

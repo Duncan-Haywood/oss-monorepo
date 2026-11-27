@@ -1,7 +1,7 @@
 ---
 title: "How long are the hips and valleys on an L-shaped hip roof?"
 date: 2026-11-26
-updated: 2026-11-26
+updated: 2026-11-27
 tags: [wall-framing-takeoff, for-customers, construction]
 description: Hip, valley and ridge lengths for an L-shaped hip roof, and its sheathing by hand, with hip cut-offs reused at valleys and at the next course's hip.
 ---
@@ -149,8 +149,36 @@ Our takeoff had exactly this bug. It measured each course at the heights where t
 
 If you sheathe a plan like this by hand, measure the shared plane as one piece and look at the course lengths behind the bump-out.
 
+## A bay window: when hips stop running at 45 degrees (added 2026-11-27)
+
+The 45-degree rule above holds only where the walls meet square. A bay window with 45-degree sides, a clipped corner or a wing set at an angle has corners of 135 degrees, and there the hip bisects the corner instead. In plan it runs at 67.5 degrees to each wall, not 45. Measure its run the same way, square off one of the eaves it starts from, and use a different multiplier:
+
+| Corner (inside the walls) | Plan length per foot of run | Hip or valley length per foot of run at 6 in 12 |
+| --- | --- | --- |
+| 90 degrees (square) | 1.414 | 1.500 |
+| 135 degrees (a 45-degree bay or clipped corner) | 1.082 | 1.192 |
+
+The plan factor is 1 ÷ sin(half the corner): 1 ÷ sin 45° = 1.414 for a square corner and 1 ÷ sin 67.5° = 1.082 for a bay corner. To get the length along the slope, add the rise as before: √(plan factor² + (pitch/12)²). An inside corner of 225 degrees, where a bay side meets the house wall, gets the same 1.082: its valley bisects that corner too.
+
+**Worked example.** Take a 40 × 24 ft house at 6 in 12 with 12 in eaves. On one long wall sits a bay that is 8 ft wide where it meets the wall, 4 ft across its front and 2 ft deep, with 45-degree sides.
+
+- **Without the bay:** 12.21 squares, 136 ft of eave, a 16 ft ridge and four hips of 19.5 ft (78 ft).
+- **The bay's own hips:** its two front corners send hips inward. They meet over the bay's centre line, 5.83 ft of run in from the front eave, at 6.95 ft each along the slope. From there a short hip climbs the centre line between the two bay sides, which are square to each other, so it takes the square-corner plan factor: 4.83 ft of run, 7.24 ft along the slope.
+- **Two valleys:** one from each corner where a bay side meets the house wall, 10.66 ft of run, so 12.71 ft each along the slope. They meet the short centre hip at its top, 10.66 ft in from the house's own eave, where the bay's roof dies into the house's front slope.
+- **With the bay:** 12.36 squares, 137.66 ft of eave, the same 16 ft ridge, 99.14 ft of hip in seven pieces and 25.41 ft of valley in two.
+
+So the bay adds 0.15 squares of roofing, but 21 ft of hip cap and 25 ft of valley flashing. A roof report that skips the bay, or prices those hips at the 45-degree factor, comes out short on exactly the items that are priced by the foot.
+
+The takeoff now draws the roof over outlines with angled sides as well. The method is the one above: every eave moves inward at one rate, and each corner traces a hip or valley along its bisector. The eave line's corners are mitred, set where the two eave lines meet. How it was checked:
+
+- on the 300 random square-cornered outlines from before, it gives the same ridge, hip and valley lengths, line counts, peak and volume as the square-cornered method, also with each outline rotated and mirrored;
+- a regular octagon and a rectangle with clipped corners match their closed forms, and the bay above was worked by hand;
+- on 800 random outlines with sides at any angle, every line is inside the outline and lies where at least two roof planes meet, and no point is higher than its distance to the walls allows.
+
+It gives squares, eave length and every ridge, hip and valley. It does **not** yet lay out rafters or sheathing courses on angled planes, and it says so instead of guessing. It has not been compared with a roofer's measured roof.
+
 ## Where to use it
 
-This is part of the estimating module we are building for the contractor suite, and it is not on the free framing page yet. Until it is, the multipliers above get you there by hand for an L, T or U. The free [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/) already counts studs, plates, headers and the board order for the walls under that roof.
+This is part of the estimating module we are building for the contractor suite, and it is not on the free framing page yet. Until it is, the multipliers above get you there by hand for an L, T or U, and the bay table for a 45-degree bay. The free [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/) already counts studs, plates, headers and the board order for the walls under that roof.
 
 Quantities only, not engineering: hip and valley rafter sizes, bearing and connections are for your engineer or the local building department.

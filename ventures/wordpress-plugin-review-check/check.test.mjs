@@ -22,7 +22,7 @@ function makeFixture(files) {
 }
 
 const GOOD_README = '=== X ===\nStable tag: 1.0.0\nLicense: GPLv2\nLicense URI: https://x\n';
-const GOOD_HEADER = '<?php\n/**\n * Plugin Name: X\n * Version: 1.0.0\n */\n';
+const GOOD_HEADER = '<?php\n/**\n * Plugin Name: X\n * Version: 1.0.0\n * License: GPLv2\n */\n';
 
 test('collectFiles finds PHP sources and readme.txt, and skips vendored directories', () => {
   const root = makeFixture({
@@ -118,6 +118,20 @@ test('runCheck: a second readme.txt in the tree is reported, not silently merged
   try {
     const result = runCheck({ root, readmeOverride: null, pluginFileOverride: null });
     assert.equal(result.additionalReadmePaths.length, 1);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('runCheck: a proprietary licence fails and the text names the Plugin Check error', () => {
+  const root = makeFixture({
+    'example.php': GOOD_HEADER.replace('License: GPLv2', 'License: Proprietary'),
+    'readme.txt': GOOD_README.replace('License: GPLv2', 'License: Proprietary'),
+  });
+  try {
+    const result = runCheck({ root, readmeOverride: null, pluginFileOverride: null });
+    assert.equal(result.report.ok, false);
+    assert.deepEqual(result.report.licenseIssues.map((i) => i.code), ['plugin_header_invalid_license']);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

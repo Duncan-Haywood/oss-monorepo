@@ -12,8 +12,10 @@ routes.get("/plans", (c) => {
   // `checkoutAvailable`: whether this deployment can sell a plan now (a payment provider is
   // configured), as the org Billing page reports it. `purchasable` on a plan is catalog data only.
   return c.json({
-    items: PUBLIC_PLANS.map(publicPlan),
+    items: PUBLIC_PLANS.map((p) => publicPlan(p, Boolean(c.var.ctx.env.FILES))),
     checkoutAvailable: c.var.ctx.billing !== null,
+    // False while the deployment has no R2 bucket: uploads answer 503 and no plan's storage is usable.
+    attachmentsAvailable: Boolean(c.var.ctx.env.FILES),
   });
 });
 
