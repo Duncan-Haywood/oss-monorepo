@@ -135,7 +135,7 @@ Double opt-in, modelled on grants' newsletter (`apps/grants/docs/EMAIL_MARKETING
 - Resend limits per address: one email per 10 minutes, at most 5 per rolling day.
 - Delete: HMAC-signed link (`SIGNING_SECRET`), not stored, in every email and in `List-Unsubscribe`
   with RFC 8058 one-click. Deleting removes the whole row.
-- Daily cron: unconfirmed rows deleted 7 days after the last request; confirmed rows 24 months after
+- Daily Durable Object alarm (`purge-clock.mjs`, not a cron trigger: the account has 5): unconfirmed rows deleted 7 days after the last request; confirmed rows 24 months after
   confirmation.
 - **Stored:** email, role, countries, language, consent version and times, token hash/expiry, send
   count and times. **Not stored:** IP address, user agent. Worker observability is off in

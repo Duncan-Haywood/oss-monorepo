@@ -34,8 +34,10 @@
       "simple": { "limit": 5, "period": 60 }
     }
   ],
-  // Daily: delete sign-ups never confirmed within 30 days.
-  "triggers": { "crons": ["41 4 * * *"] },
+  // Daily purge of never-confirmed sign-ups: PurgeClock's alarm (src/worker/purge-clock.ts), not a
+  // cron trigger: the Free plan allows 5 cron triggers per account (platform/ci/cron_budget.py).
+  "durable_objects": { "bindings": [{ "name": "PURGE_CLOCK", "class_name": "PurgeClock" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PurgeClock"] }],
   "vars": {
     "APP_ENV": "development",
     "SITE_URL": "http://localhost:8787",

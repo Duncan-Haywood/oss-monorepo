@@ -29,7 +29,10 @@ python3 "$repo/platform/security/prepub_audit.py" "$src" "${paths[@]}" \
 # Files edited here after the copy (CodeQL fixes, the deploy doc's link) that the rewrites below do
 # not reproduce: saved before the replace and put back after it. Drop an entry once private has it.
 keep_local=(packages/billing/src/paddle.test.ts packages/billing/src/paddle-key.test.ts
-  apps/cmmc/docs/DEPLOY.md)
+  apps/cmmc/docs/DEPLOY.md
+  # P098: the site purge moved from a cron trigger to a Durable Object alarm here (2026-11-27).
+  apps/cmmc-site/src/worker.mjs apps/cmmc-site/src/purge-clock.mjs
+  apps/cmmc-site/test/purge-clock.test.mjs apps/cmmc-site/wrangler.jsonc apps/cmmc-site/README.md)
 saved="$(mktemp -d)"
 for f in "${keep_local[@]}"; do mkdir -p "$saved/$(dirname "$f")"; cp "$here/$f" "$saved/$f"; done
 

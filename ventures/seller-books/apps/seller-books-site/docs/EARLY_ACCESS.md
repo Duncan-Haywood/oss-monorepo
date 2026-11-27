@@ -22,7 +22,7 @@ waitlist needs. Code: `src/early-access.mjs` (logic), `src/worker.mjs` (routes),
    `List-Unsubscribe` + `List-Unsubscribe-Post: List-Unsubscribe=One-Click` (RFC 8058); the POST route
    has no Origin check because mail providers send it. Unsubscribing keeps the address as a suppression
    record and clears the survey answers and IP hash (as `/privacy` says).
-5. **Purge.** Daily cron deletes signups never confirmed within 30 days, once their newest confirmation link (7 days) has also expired.
+5. **Purge.** A daily Durable Object alarm (`src/purge-clock.mjs`; any request to the Worker arms it, then it re-arms itself; not a cron trigger, since the account allows 5) deletes signups never confirmed within 30 days, once their newest confirmation link (7 days) has also expired.
 
 ## Data (`early_access_signups`)
 

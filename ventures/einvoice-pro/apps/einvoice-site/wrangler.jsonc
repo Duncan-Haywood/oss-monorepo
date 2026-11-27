@@ -3,7 +3,7 @@
 {
   "$schema": "../grants/node_modules/wrangler/config-schema.json",
   "name": "einvoice-site",
-  "main": "worker.mjs",
+  "main": "entry.mjs",
   "compatibility_date": "2026-11-01",
   // Static pages from build.mjs. /api/* runs the worker first; everything else is a static file.
   "assets": {
@@ -24,7 +24,10 @@
   // Cloudflare Email Service (transactional). The confirmation email is transactional; launch news
   // to confirmed addresses must go through a provider that allows marketing mail (README).
   "send_email": [{ "name": "EMAIL" }],
-  "triggers": { "crons": ["17 3 * * *"] },
+  // The daily purge runs on PurgeClock's alarm (purge-clock.mjs, entry.mjs), not a cron trigger:
+  // the Free plan allows 5 cron triggers per account (platform/ci/cron_budget.py).
+  "durable_objects": { "bindings": [{ "name": "PURGE_CLOCK", "class_name": "PurgeClock" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PurgeClock"] }],
   "vars": {
     // Set both before launch (README "Before launch"). SIGNING_SECRET is a secret:
     //   wrangler secret put SIGNING_SECRET
