@@ -29,7 +29,10 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "prompts validate failed once on P095 (merge-commit directory lookup); merging main into the branch cleared it",
+    "publish_surface --check failed until the snapshot was rewritten (expected for a new push trigger)"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -57,7 +60,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue empty (12 claimed). Ideas empty. Custom-domain link swap was taken by PR #19665 and the marketing site by #19659, so both were skipped. Local adversarial gate: 0 blocking, 1 warning (an existing || true). risk_review: nothing blocked.",
+  "notes": "Security queue empty (12 claimed). Ideas empty. Custom-domain link swap was taken by PR #19665 and the marketing site by #19659, so both were skipped. Local adversarial gate: 0 blocking, 1 warning (an existing || true). risk_review: nothing blocked. Main was red on pay-app-guides (punch-list.html and florida-notice-to-owner.html built before #19665's domain switch and nav additions); fixed here with node cta.mjs and node nav.mjs, 325 pass. validate hit P095 once; merging main cleared it (the documented workaround).",
   "corrections": [],
   "redteam": null,
   "usage": {
