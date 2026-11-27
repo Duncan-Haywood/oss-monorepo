@@ -1,0 +1,22 @@
+{
+  "id": "P095",
+  "title": "promptctl's change index misses a merge that changes a directory against both parents when no single file under it does",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "test_promptctl.LastChangeIndexTest.test_lookups_without_a_git_call_match_the_per_file_call failed on PR #19588's `validate` job (job 140292241668, 2026-11-27 03:24 UTC) for path='prompts/' and 'prompts/runs/*.json': the index said ' (file last changed on or before 2026-11-27, the shallow-clone edge)', `git log -1 -- prompts/` gave the refs/pull merge commit. The PR branch was behind main and both sides had added different run records: the merge differs from each parent under prompts/, so `git log -1 -- <dir>` reports it, but `--diff-merges=c` lists a file only when it differs from every parent, so no file names the merge and the index falls through to the PR head, a shallow root. Any PR that adds a run record while main gains another hits it. Reproduced locally with a --no-ff merge of origin/main and the branch, cloned --depth 2.",
+  "evidence": [
+    "PR #19588 validate job 140292241668: Tuples differ, path='prompts/' and 'prompts/runs/*.json'",
+    "/tmp repro: git clone --depth 2 of the merge; git log -1 -- prompts/ = merge, index = PR head (in .git/shallow)"
+  ],
+  "change": "For directory and glob lookups, treat a merge as touching the prefix when the files it changes against the first parent and against the second parent (git log -m --name-only, or two diff-tree calls per merge on a shallow two-root clone) both fall under it; or have _index_hit return None for directories when the newest hit is a shallow root and a merge sits above it, so the per-file call answers. Add a test with a two-root merge whose parents each add a different file in one directory.",
+  "touches": ["prompts/promptctl.py", "prompts/test_promptctl.py"],
+  "metric": "validate failures of this test on PRs in the 14 days after the fix",
+  "baseline": "1 seen (PR #19588, 2026-11-27); worked around by merging main into the branch",
+  "opened": "2026-11-27",
+  "source": "ventures run, PR #19588 CI",
+  "pr": null,
+  "result": null,
+  "history": []
+}

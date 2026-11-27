@@ -50,6 +50,10 @@
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "--bets found no free ungated item on any of 7 bets (payapps: 20 Next, all waiting on demand); the work queue was the fallback."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "validate's LastChangeIndexTest failed on this PR because the branch was behind main and both sides added run records (a merge that changes prompts/ against both parents with no single file doing so); merged main to get green and filed P095."
     }
   ],
   "deviations": [
