@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsx scripts/build.ts",
     "export:catalogue": "tsx scripts/export-catalogue.ts",
+    "sync:legal": "tsx scripts/sync-legal.ts",
     "dev": "pnpm build && wrangler dev",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "pnpm test:unit && pnpm test:worker",

@@ -127,6 +127,7 @@ ${[PAGES.home, PAGES.features, PAGES.pricing, ...(ea ? [PAGES.earlyAccess] : [])
 ## Optional
 
 ${link(publicPage("privacy", ea))}
+${[PAGES.terms, PAGES.refunds, PAGES.acceptableUse].map(link).join("\n")}
 - [Full text](${absoluteUrl(ctx.siteUrl, "/llms-full.txt")}): every public page as plain Markdown.
 - [Updates feed](${absoluteUrl(ctx.siteUrl, "/feed.xml")}): Atom feed of site updates.
 `;

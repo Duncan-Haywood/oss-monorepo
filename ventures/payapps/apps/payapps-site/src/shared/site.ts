@@ -98,6 +98,39 @@ export const PAGES = {
     changefreq: "yearly",
     priority: 0.3,
   },
+  terms: {
+    path: "/terms",
+    file: "terms.html",
+    title: `Terms of Service · ${PRODUCT_NAME}`,
+    description:
+      "PayApps Terms of Service from Maris Stella Labs LLC: plans, billing through Paddle, your content, liability and Colorado law, as the app asks you to accept.",
+    indexable: true,
+    label: "Terms",
+    changefreq: "yearly",
+    priority: 0.3,
+  },
+  refunds: {
+    path: "/refunds",
+    file: "refunds.html",
+    title: `Refund Policy · ${PRODUCT_NAME}`,
+    description:
+      "PayApps refunds: free on one job first, a full refund within 30 days of your first paid payment, cancel any time, and how to ask through Paddle or by email.",
+    indexable: true,
+    label: "Refunds",
+    changefreq: "yearly",
+    priority: 0.3,
+  },
+  acceptableUse: {
+    path: "/acceptable-use",
+    file: "acceptable-use.html",
+    title: `Acceptable Use Policy · ${PRODUCT_NAME}`,
+    description:
+      "What you agree not to do with PayApps: no false or inflated pay apps or waivers, no data you have no right to share, no probing or reselling the service.",
+    indexable: true,
+    label: "Acceptable use",
+    changefreq: "yearly",
+    priority: 0.2,
+  },
   checkEmail: {
     path: "/early-access/check-your-email",
     file: "early-access/check-your-email.html",
@@ -133,6 +166,14 @@ export const PAGES = {
 } as const satisfies Record<string, PublicPage>;
 
 export type PageKey = keyof typeof PAGES;
+
+/** The legal pages: each renders the app's own document of the same name (src/site/legal.ts). */
+export const LEGAL_PAGES = {
+  terms: "terms",
+  refunds: "refunds",
+  acceptableUse: "acceptable-use",
+} as const satisfies Partial<Record<PageKey, string>>;
+export type LegalPageKey = keyof typeof LEGAL_PAGES;
 export const PAGE_LIST: readonly PublicPage[] = Object.values(PAGES);
 
 /**

@@ -16,6 +16,7 @@ import {
 import { examplePanel } from "./example";
 import { type Html, hasEarlyAccess, href, html, primaryCta, type SiteContext } from "./html";
 import { launchOf, plansSentence } from "./launch";
+import { legalPage } from "./legal";
 
 export interface Faq {
   q: string;
@@ -633,7 +634,7 @@ function pricing(ctx: SiteContext): BuiltPage {
     </article>`,
     )}
   </div>
-  <p class="note">Prices in US dollars, before any sales tax. No setup fee; cancel any time. The <a href="${href(ctx, PAGES.features.path)}">features page</a> marks what is built and what comes next.</p>
+  <p class="note">Prices in US dollars, before any sales tax. No setup fee; cancel any time, and a full refund within 30 days of your first paid payment (<a href="${href(ctx, PAGES.refunds.path)}">Refund Policy</a>). The <a href="${href(ctx, PAGES.features.path)}">features page</a> marks what is built and what comes next.</p>
   <h2>Questions about pricing</h2>
   ${faqList(faq)}
   <p class="cta-row">${primaryCta(ctx, "pricing")}</p>
@@ -826,6 +827,10 @@ export function buildPage(ctx: SiteContext, key: PageKey): BuiltPage {
       return earlyAccess(ctx);
     case "privacy":
       return privacy(ctx);
+    case "terms":
+    case "refunds":
+    case "acceptableUse":
+      return { page: PAGES[key], ...legalPage(ctx, key) };
     default:
       return statusPage(ctx, key);
   }
