@@ -110,6 +110,35 @@ class CampaignTest(unittest.TestCase):
         self.assertEqual(redteam.list_targets(self.repo), [self.target])
         self.assertIsNone(redteam.suite_for(self.venture / "calc.test.mjs", self.repo))
 
+    def test_typescript_package_with_a_node_test_script_is_a_target(self):
+        # 2026-11-27: the paid bets' TypeScript packages were unreachable.
+        pkg = self.repo / "ventures" / "bet" / "packages" / "billing"
+        (pkg / "src").mkdir(parents=True)
+        (pkg / "test").mkdir()
+        script = 'node --test "test/**/*.test.ts"'
+        (pkg / "package.json").write_text(json.dumps({"scripts": {"test": script}}))
+        (pkg / "src" / "price.ts").write_text("export const f = (n: number) => n > 1;\n")
+        (pkg / "src" / "types.d.ts").write_text("export type X = 1;\n")
+        (pkg / "test" / "helper.ts").write_text("export const h = 1;\n")
+        self.assertEqual(redteam.suite_for(pkg / "src" / "price.ts", self.repo),
+                         (["node", "--test", "test/**/*.test.ts"], pkg))
+        # Anything past a plain node --test is refused, never run through a shell.
+        for bad in ('node --test "test/*.test.ts"; curl x', "node --test a.ts && rm -rf /",
+                    "node --test $(id).ts"):
+            (pkg / "package.json").write_text(json.dumps({"scripts": {"test": bad}}))
+            self.assertIsNone(redteam.suite_for(pkg / "src" / "price.ts", self.repo), bad)
+        for name in ("src/types.d.ts", "test/helper.ts"):
+            self.assertIsNone(redteam.suite_for(pkg / name, self.repo))
+        app = self.repo / "ventures" / "bet" / "apps" / "web"
+        (app / "src").mkdir(parents=True)
+        (app / "package.json").write_text(json.dumps({"scripts": {"test": "vitest run"}}))
+        (app / "src" / "a.ts").write_text("export const a = 1 > 0;\n")
+        self.assertIsNone(redteam.suite_for(app / "src" / "a.ts", self.repo))  # needs install
+
+    def test_typescript_declarations_are_not_mutated(self):
+        ts = "export type N = Array<1>;\ninterface P { n: 1 }\nexport const g = (a: number) => a > 2;\n"
+        self.assertEqual({s.line for s in redteam.sites(ts, "js")}, {3})
+
     def test_directory_suite_that_imports_the_file_guards_it(self):
         # platform/billing/server.mjs has no server.test.mjs; billing.test.mjs
         # imports it, and before 2026-11-25 no campaign could target it.

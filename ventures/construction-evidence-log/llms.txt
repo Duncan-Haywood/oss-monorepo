@@ -13,3 +13,7 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/construction-evidence-log): FSL-1.1-MIT licensed.
+
+## Hosted version
+
+- [PayApps](https://payapps.marisstella.app/?signup&from=construction-evidence-log): hosted pay-app billing for specialty subcontractors, open now and free on one job; paid plans are not on sale yet.

@@ -17,6 +17,7 @@ import { CaNoticeLog } from "./ca-notice-log";
 import { ErrorText } from "./error";
 import { FlNoticeLog } from "./fl-notice-log";
 import { TxNoticeDates } from "./tx-notice-dates";
+import { TxNoticeLog } from "./tx-notice-log";
 
 const STATE_NAMES: Record<string, string> = {
   CA: "California",
@@ -185,6 +186,7 @@ export function LienNoticesPanel(props: { orgId: string; base: string }) {
             {o.ca && <CaNoticeLog base={base} log={o.ca} />}
             {o.fl && <FlNoticeLog base={base} log={o.fl} />}
             {o.state === "TX" && <TxNoticeDates />}
+            {o.tx && <TxNoticeLog base={base} log={o.tx} />}
           </>
         )}
         <p className="text-xs text-slate-500">

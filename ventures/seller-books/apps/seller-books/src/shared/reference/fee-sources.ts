@@ -140,4 +140,11 @@ export const FEE_SOURCES: PlatformFeeSource[] = [
     rules: [],
     note: "The Transactions CSV gives Square's fee on every payment (glossary: \u201cFees: The amount of fees collected at the time of payment processing or service (excludes taxes)\u201d, read 2026-11-26). Rates depend on how the card was taken (tapped, keyed, online) and the seller's plan, so none is recorded. Cash payments carry no fee.",
   },
+  {
+    platform: "paypal",
+    officialPages: ["https://www.paypal.com/us/webapps/mpp/merchant-fees"],
+    feesFromReport: ["payment_processing", "other"],
+    rules: [],
+    note: "The Activity Download gives PayPal's fee on every payment in its Fee column (field reference: \u201cThe localized fee amount that is associated with the transaction\u201d, developer.paypal.com, read 2026-11-27); dispute and chargeback fees arrive as rows of their own. Rates depend on how the buyer paid and the account type, so none is recorded.",
+  },
 ];

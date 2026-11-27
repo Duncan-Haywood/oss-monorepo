@@ -1,6 +1,6 @@
 # Deploys ventures/jobshop-quote/apps/jobshop-quote (Job Shop Quote, paid bet #2) to Cloudflare Workers:
 # one Worker (`jobshop-quote`) for the SPA and the API, a D1 database (`jobshop-quote`), an R2 bucket for
-# drawings, CAD files and sent quote PDFs (`jobshop-quote-files`, required), Workers AI for drawing text
+# drawings, CAD files and sent quote PDFs (`jobshop-quote-files`; without it files are kept in D1), Workers AI for drawing text
 # and a daily cron for quote expiry. Ported on 2026-11-27 from private-monorepo's
 # jobshop-quote-deploy.yml, which never ran (private-monorepo's Actions start no jobs), following
 # priv-payapps-deploy.yml. What each step does and every setting:
@@ -150,8 +150,8 @@ jobs:
           { echo "domain=$domain"; echo "app_url=$url"; } >>"$GITHUB_OUTPUT"
           echo "Deploying jobshop-quote to $url"
 
-      # Unlike payapps, R2 is required (drawings, CAD, sent quote PDFs): the script fails without it,
-      # before anything is deployed.
+      # Without R2 (not enabled, or the token refused on it) the script warns and leaves the bucket
+      # binding out; the app then keeps drawings, CAD files and sent quote PDFs in D1 (file-store.ts).
       - name: Provision D1 + R2 and write the deploy config
         id: provision
         env:

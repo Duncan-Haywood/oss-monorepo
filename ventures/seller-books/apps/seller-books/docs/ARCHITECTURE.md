@@ -428,8 +428,8 @@ apps/jobshop-quote, apps/payapps and apps/cmmc):
   platform limit does not (billing counts platforms by import, `platformsUsed`). No sales tax field: the form
   asks for the price before tax. Expenses can be tagged "Direct sales" (booth fees, market rent) so they sit in
   that P&L row. Tests: `test/worker/direct-sales.test.ts`. Square's card reader sales import
-  since 2026-11-26 (platform `square`, `services/importers/square.ts`, IMPORTERS.md "Square"); next, if sellers
-  ask: PayPal Zettle's.
+  since 2026-11-26 (platform `square`, `services/importers/square.ts`, IMPORTERS.md "Square"), and PayPal's Activity download since 2026-11-27 (platform `paypal`,
+  `services/importers/paypal.ts`, IMPORTERS.md "PayPal"); next, if sellers ask: PayPal Zettle's, Venmo's statement.
 - Still open from the 2026-11-26 quality audit (`oss-monorepo` `portfolio/quality/audits/2026-11-26-seller-books.json`):
   nothing. Fixed since 2026-11-26 (mileage-rate-by-trip-date): line 9 prices each trip at the IRS rate on its date
   (above, "Line 9"), and the mileage log's rows carry that rate and amount, totalling to line 9 to the cent

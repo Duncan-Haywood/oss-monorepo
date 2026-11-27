@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVKxYkTHSpZBpSw1AXi",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T12:55:53Z",
+  "ended": "2026-11-27T13:23:01Z",
+  "wall_minutes": 27.36,
+  "tokens_in": 10882578,
+  "tokens_out": 35842,
+  "cost_usd": 4.0529,
+  "tool_calls": 97,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19751",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Security queue showed alerts #1489/#1490 unclaimed; by the time I pushed the claim branches (seconds later) another run held both. Not a doc error, but the claim race costs a minute per run when several sessions start together."
+    },
+    {
+      "file": "ventures/payapps/README.md",
+      "issue": "'Where the work happens' still says private-monorepo is where scheduled runs build and this copy is a snapshot; .github/prompts/cloud-session.md says PayApps moved here on 2026-11-27 and to build here. Followed cloud-session.md."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Two perf runs started on the same payapps worker-suite target within minutes; I measured and implemented isolate:false plus the admin IN-chunk fix before slug_dupe showed #19715 had just merged the identical change. Running slug_dupe on the target's file path (not just a keyword) before profiling would have saved ~20 minutes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "After my perf change duplicated #19715, the best remaining item on its not-changed list was a correctness bug in bet #1 (customer-facing 500s past ~98 jobs), not CI time. I took it as a product fix in the perf run.",
+      "did": "Chunked the per-job IN (...) reads with a shared helper plus a regression test",
+      "result": "3 endpoints fixed, test fails before and passes after"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: an internal bug fix in a paid product doesn't make a customer post on its own. The write-up extends the existing history doc.",
+      "did": "Extended docs/history/payapps-worker-tests-perf-2026-11-27.md",
+      "result": "next run has the remaining chunk sites listed"
+    }
+  ],
+  "writeups": [
+    "docs/history/payapps-worker-tests-perf-2026-11-27.md (third pass section)"
+  ],
+  "goal": null,
+  "notes": "Metric: none for perf (the perf change duplicated #19715 and was discarded). Measured before that: payapps worker suite 160 s cold (4 cores, vitest JSON reporter, 563 tests) vs 34 s with --isolate=false, same as #19715 found. Shipped instead: correctness fix. Verification: many-jobs.test.ts 3/3 fail without the fix, pass with it; full worker suite 569 passed in 31.8 s, and under --sequence.shuffle.files seed 91; typecheck clean; biome clean on the changed files. Security queue: #1489/#1490 were claimed by another run before my claim push.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fd453590-5d9e-5a9d-9fdb-b4ef7cea3d1e",
+    "transcripts": 1,
+    "first": "2026-11-27T12:55:53Z",
+    "last": "2026-11-27T13:23:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 92,
+        "input": 178,
+        "output": 35842,
+        "thinking": 7582,
+        "cache_read": 10733826,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148574,
+        "api_equivalent_usd": 4.0529,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 92,
+      "input": 178,
+      "output": 35842,
+      "thinking": 7582,
+      "cache_read": 10733826,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148574,
+      "api_equivalent_usd": 4.0529,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 92,
+      "Write": 2,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.36,
+      "active_minutes": 27.36,
+      "model_minutes": 8.34,
+      "tool_minutes": 19.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "find 5 unbounded IN sites, write helper and 120-job regression test, verify",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 98.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

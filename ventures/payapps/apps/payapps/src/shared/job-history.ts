@@ -11,6 +11,9 @@ import {
   FL_SERVICE_METHOD_LABELS,
   type FlNoticeRecipient,
   type FlServiceMethod,
+  type TxDeliveryMethod,
+  type TxNoticeKind,
+  type TxNoticeRecipient,
 } from "@lien-waivers";
 import { formatCents } from "./money";
 import { type RfiFacts, rfiLabel } from "./rfi";
@@ -42,6 +45,9 @@ export const JOB_EVENT_ACTIONS = [
   "fl_notice_recorded",
   "fl_notice_delivered_set",
   "fl_notice_deleted",
+  "tx_project_kind_set",
+  "tx_notice_recorded",
+  "tx_notice_deleted",
   "rfi_created",
   "rfi_sent_changed",
   "rfi_answered",
@@ -104,6 +110,13 @@ export interface JobEventData {
   /** Florida Notice to Owner: who it went to and how (ids from packages/lien-waivers). */
   flRecipient?: FlNoticeRecipient;
   flMethod?: FlServiceMethod;
+  /** Texas notice of claim: which, for which month, to whom and how (ids from packages/lien-waivers). */
+  txKind?: TxNoticeKind;
+  txWorkMonth?: string | null;
+  txRecipient?: TxNoticeRecipient;
+  txMethod?: TxDeliveryMethod;
+  /** Texas: "residential", "commercial" or null (not tracked). */
+  txProjectKind?: string | null;
   /** Florida: the delivery date from the evidence of delivery; null: not entered or cleared. */
   deliveredOn?: string | null;
   /** Tracking or receipt number of a mailed notice. */
@@ -256,6 +269,26 @@ const flManner = (d: JobEventData) => {
   return `${how} on ${d.date ?? ""}${delivered}${tracking}`;
 };
 
+const TX_RECIPIENT_NAMES: Record<TxNoticeRecipient, string> = {
+  owner: "the owner",
+  "original-contractor": "the original contractor",
+};
+const TX_HOW: Record<TxDeliveryMethod, string> = {
+  "certified-mail": "by certified mail",
+  "in-person": "in person",
+  "traceable-private": "by traceable private delivery",
+};
+const txNotice = (d: JobEventData) => {
+  const which =
+    d.txKind === "retainage"
+      ? "Texas notice of claim for unpaid retainage"
+      : `Texas notice of claim for ${d.txWorkMonth ?? "a month's"} work`;
+  const to = d.txRecipient ? TX_RECIPIENT_NAMES[d.txRecipient] : "a recipient";
+  const how = d.txMethod ? ` ${TX_HOW[d.txMethod]}` : "";
+  const tracking = d.tracking ? `, tracking number ${d.tracking}` : "";
+  return `${which} to ${to}${how} on ${d.date ?? ""}${tracking}`;
+};
+
 /** One sentence for an event, as the job history and its CSV show it. */
 export function describeJobEvent(action: JobEventAction, d: JobEventData = {}): string {
   switch (action) {
@@ -334,6 +367,14 @@ export function describeJobEvent(action: JobEventAction, d: JobEventData = {}): 
         : `${flNotice(d)}: delivery date cleared`;
     case "fl_notice_deleted":
       return `${flNotice(d)} sent${flManner(d)}: record deleted`;
+    case "tx_project_kind_set":
+      return d.txProjectKind
+        ? `Texas notices of claim tracked, as a ${d.txProjectKind === "residential" ? "residential construction project" : "project other than residential"}`
+        : "Texas notices of claim no longer tracked";
+    case "tx_notice_recorded":
+      return `${txNotice(d)} recorded as sent`;
+    case "tx_notice_deleted":
+      return `${txNotice(d)}: record deleted`;
     case "rfi_created": {
       const sent = d.date ? `, sent to the GC ${d.date}` : ", not sent yet";
       return `${rfi(d)} entered${d.description ? `: ${d.description}` : ""}${sent}`;

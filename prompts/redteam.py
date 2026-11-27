@@ -105,7 +105,10 @@ OPERATORS: tuple[Operator, ...] = (
 
 SKIP_LINE = re.compile(
     r"^\s*(//|#|\*|/\*|import\b|from\s+\S+\s+import\b|export\s*\{|\"\"\"|'''"
-    r"|if __name__ == )")
+    r"|if __name__ == "
+    # TypeScript declarations: type-only, so esbuild/Node strip them and no
+    # mutant there can change behaviour.
+    r"|(?:export\s+)?(?:declare\s|interface\s|type\s+\w+\s*[=<]))")
 
 
 # Docstrings and block comments, which span lines and change no behaviour.
@@ -115,7 +118,8 @@ BLOCK_CLOSE = {'"""': '"""', "'''": "'''", "/*": "*/"}
 
 
 def lang_of(path: Path) -> str | None:
-    return {".mjs": "js", ".js": "js", ".py": "py"}.get(path.suffix)
+    # TypeScript takes the JS operators: the mutated syntax is the same.
+    return {".mjs": "js", ".js": "js", ".ts": "js", ".py": "py"}.get(path.suffix)
 
 
 @dataclass(frozen=True)
@@ -186,6 +190,8 @@ def suite_for(path: Path, repo: Path = REPO) -> tuple[list[str], Path] | None:
     if rel.startswith(EXCLUDED_PREFIXES) or path.name.startswith("test_") \
             or ".test." in path.name or "/tests/" in f"/{rel}":
         return None
+    if path.suffix == ".ts":
+        return _ts_suite(path, repo)
     lang = lang_of(path)
     parts = rel.split("/")
     if lang == "js":
@@ -238,13 +244,47 @@ def suite_for(path: Path, repo: Path = REPO) -> tuple[list[str], Path] | None:
     return None
 
 
+NODE_TS_TEST = re.compile(
+    r'node(?:\s+--[\w-]+(?:=[\w-]+)?)*\s+--test(?:\s+--[\w-]+(?:=[\w-]+)?)*'
+    r'(?:\s+"?[\w./*{},-]+\.ts"?)+')
+
+
+def _ts_suite(path: Path, repo: Path) -> tuple[list[str], Path] | None:
+    """The nearest package.json's `test` script, when it is a plain `node --test`
+    over .ts files (Node 22.18+ strips types, so it needs no install).
+
+    The paid bets moved into ventures/ on 2026-11-27 (payapps, jobshop-quote,
+    seller-books) are pnpm workspaces in TypeScript, and two red-team runs that
+    day found no file of theirs among the targets. Their packages (lien
+    waivers, billing, qbo-sync, cad-features) test with `node --test`; the apps
+    test with vitest, which needs `pnpm install`, so they stay out for now."""
+    rel = path.relative_to(repo).as_posix()
+    if path.name.endswith(".d.ts") or "/test/" in f"/{rel}":
+        return None
+    d = path.parent
+    while d != repo and repo in d.parents:
+        pkg = d / "package.json"
+        if pkg.is_file():
+            try:
+                script = json.loads(pkg.read_text(encoding="utf-8")).get("scripts", {}).get("test", "")
+            except (ValueError, AttributeError):
+                return None
+            # Only a plain `node [--flags] --test <globs>.ts`, run as argv with no
+            # shell: a package.json in the tree must not be able to run anything else.
+            if isinstance(script, str) and NODE_TS_TEST.fullmatch(script.strip()):
+                return shlex.split(script), d
+            return None
+        d = d.parent
+    return None
+
+
 def list_targets(repo: Path = REPO, under: str | None = None) -> list[Path]:
     """Guarded files; `under` keeps those below a repo-relative directory, or that one
     file when it names a file (doc_friction 2026-11-25: a file path printed 0 targets).
     A path that is neither is read as a name prefix, so `ventures/x/salestax` lists
     salestax-rules.mjs and salestaxreturn.mjs (three doc_friction reports, 2026-11-25/26)."""
     out = []
-    tracked = subprocess.run(["git", "ls-files", "*.mjs", "*.js", "*.py"], cwd=repo,
+    tracked = subprocess.run(["git", "ls-files", "*.mjs", "*.js", "*.ts", "*.py"], cwd=repo,
                              capture_output=True, text=True, check=True).stdout.split()
     under = under.strip("/") if under else ""
     prefix = under + "/" if under else ""

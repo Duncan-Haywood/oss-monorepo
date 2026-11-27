@@ -153,8 +153,8 @@ blue team run"). In rough order of preference:
   a test, then fix it.
 - **Turn the defect you just fixed into a check**, a lint under `platform/ci/`
   or a test over every file of that kind, so the next copy fails CI instead
-  of waiting for a red-team run to find it (2026-11-03: the dead-host guard in
-  `platform/ci/test_no_dead_pages_base.py`).
+  of waiting for a red-team run. A new `platform/ci/test_*.py` or `check_*.py`
+  needs no workflow edit: `unwired_checks.py` (via `ventures-tests.yml`) runs it.
 - **Dogfood our own security products on this repository.** `ventures/`
   ships checkers for workflow injection, secret leaks, pinned actions, Docker
   build secrets, cookie flags and more. `.github/workflows/workflow-self-audit.yml`

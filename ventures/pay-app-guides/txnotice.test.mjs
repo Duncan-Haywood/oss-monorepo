@@ -30,23 +30,27 @@ test("a Saturday or Sunday date is extended to the next business day (§ 53.003(
   assert.equal(r.months[3].extended, "2026-11-16");
 });
 
-test("holidays: Gov't Code § 662.003 national and state days, a shared day named once", () => {
+test("holidays: Gov't Code § 662.021 legal holidays, a shared day named once", () => {
   const h = holidays(2026);
   assert.equal(h.get(parseDate("2026-01-19")), "Martin Luther King, Jr., Day and Confederate Heroes Day");
   assert.equal(h.get(parseDate("2026-11-26")), "Thanksgiving Day");
   assert.equal(h.get(parseDate("2026-11-27")), "the Friday after Thanksgiving Day");
   assert.equal(h.get(parseDate("2026-05-25")), "Memorial Day");
   assert.equal(h.get(parseDate("2026-06-19")), "Emancipation Day in Texas");
-  assert.equal(h.size, 16);
-  assert.equal(holidays(2027).size, 17);
+  assert.equal(h.size, 14);
+  assert.equal(holidays(2027).size, 15);
+  // 24 and 26 December are state holidays (§ 662.003(b)(7)-(8)) but not legal holidays (§ 662.021).
+  assert.equal(h.get(parseDate("2026-12-24")), undefined);
+  assert.equal(h.get(parseDate("2026-12-26")), undefined);
   // November 2026 work is due 2027-02-15, Presidents' Day: moved to Tuesday.
   const nov = monthlyDates({ fromMonth: "2026-11" }).months[0];
   assert.equal(nov.date, "2027-02-15");
   assert.equal(nov.extended, "2027-02-16");
-  // A Friday holiday then a weekend: 2026-12-24 (Thu), 25, 26 (Sat), 27 (Sun) -> 28.
-  const d = deadline(parseDate("2026-12-24"));
+  // A Friday holiday then a weekend: 2026-12-25 (Fri), 26 (Sat), 27 (Sun) -> 28; the 24th stays.
+  const d = deadline(parseDate("2026-12-25"));
   assert.equal(d.extended, "2026-12-28");
-  assert.equal(d.why.length, 4);
+  assert.equal(d.why.length, 3);
+  assert.equal(deadline(parseDate("2026-12-24")).extended, null);
   // Optional holidays (§ 662.003(c)) do not move a date: Good Friday 2027 is 26 March.
   assert.equal(deadline(parseDate("2027-03-26")).extended, null);
 });
@@ -124,12 +128,24 @@ test("draft fills blanks, keeps the statute's underscores, and adds the homestea
   assert.throws(() => draftNotice("nope"));
 });
 
+// Visible text of the page: script blocks dropped (any case, `</script >` too), tags
+// dropped, entities decoded in one pass so "&amp;#39;" stays literal.
+const ENTITIES = { "&amp;": "&", "&#39;": "'", "&rsquo;": "'" };
+function pageText(html) {
+  return html.replace(/<script\b[\s\S]*?<\/script[^>]*>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&(?:amp|#39|rsquo);/g, (e) => ENTITIES[e]);
+}
+
 test("every quoted phrase on the page is in the statute snapshot", () => {
-  const body = PAGE.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#39;|&rsquo;/g, "'");
+  const body = pageText(PAGE);
   const quotes = [...body.matchAll(/“([^”]+)”/g)].map((m) => m[1]);
   assert.ok(quotes.length >= 10, `only ${quotes.length} quotes`);
   for (const q of quotes) assert.ok(flatS.includes(flat(q)), `not in the statute: “${q}”`);
   for (const line of DELIVERY) assert.ok(/§ 53\.003/.test(line));
+});
+
+test("page text extraction drops upper-case script blocks and does not double-decode entities", () => {
+  assert.equal(pageText("a<SCRIPT>x</SCRIPT >b").replace(/\s/g, ""), "ab");
+  assert.equal(pageText("&amp;#39;"), "&#39;");
 });
 
 test("page: inputs labelled, wired to txnotice.mjs, sources linked with a read date, disclaimer", () => {
