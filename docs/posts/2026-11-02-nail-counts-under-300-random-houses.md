@@ -3,6 +3,7 @@ title: "Nail counts checked against 300 random houses"
 date: 2026-11-02
 tags: [wall-framing-takeoff, testing, construction]
 description: A seeded fuzz test now checks that the framing takeoff's nail counts add up across 300 random wall plans, and found nothing wrong.
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 The framing takeoff counts nails by connection: stud ends, plates, jacks to kings, header plies, sheathing edges. A count like that can be wrong quietly, because a missing connection still gives a plausible total.

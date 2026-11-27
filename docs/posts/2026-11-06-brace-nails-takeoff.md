@@ -4,6 +4,7 @@ seo_title: "Wall brace nails in a framing takeoff nail count"
 date: 2026-11-06
 tags: [wall-framing-takeoff, fasteners, construction]
 description: "The open-source wall framing takeoff can now add the nails driven through each diagonal wall brace to its framing nail total."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 The brace count landed earlier today, but the nails holding each brace were missing from the nail box count. `fasteners.wallBracing.nailsPerBrace` is a whole number you type (0 to 200, default 0, so nothing changes unless you set it). It adds braces times that number to the framing nail total, a "Wall braces" line in the connection list and the wall's own row.

@@ -4,6 +4,7 @@ seo_title: "Ridge vent nail count and box cost in a framing takeoff budget"
 date: 2026-11-06
 tags: [wall-framing-takeoff, roofing, budget]
 description: "The wall framing takeoff now turns a typed ridge vent nail spacing and box size into a priced budget line."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 A ridge vent is nailed down both flanges, and the nails are easy to leave out of a bid. The Wall Framing Takeoff already counted them when you typed a spacing in inches on centre and how many nails come in a box. As of today those boxes are also a budget line, "Ridge vent nail boxes", priced from the `ridgeNailBox` price you type. With no price typed the line is listed unpriced, never guessed.

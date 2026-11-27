@@ -4,6 +4,7 @@ seo_title: "Deck Ledger Fastener Spacing: Load Per Foot and Lag Screw Count"
 date: 2026-11-08
 tags: [wall-framing-takeoff, deck, construction]
 description: "The deck framing tool now turns joist load into pounds per foot of ledger and compares it with the fastener value you type from the maker's table."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 Attached decks fail at the ledger more often than anywhere else, so it is the connection worth checking first. The [wall framing takeoff](/ventures/wall-framing-takeoff/) already counted ledger fasteners (two per 16 in) but never asked whether that is enough. The new `deck.ledgerCheck` does.

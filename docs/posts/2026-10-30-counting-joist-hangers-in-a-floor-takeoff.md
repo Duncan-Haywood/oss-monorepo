@@ -3,6 +3,7 @@ title: "Counting joist hangers in a floor takeoff"
 date: 2026-10-30
 tags: [wall-framing-takeoff, construction, estimating]
 description: "The wall-framing takeoff now counts the joist hangers around a stairwell opening: single hangers for tail joists, double hangers for the headers."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 A floor takeoff that lists joists and subfloor sheets but not hangers leaves out a line the framer has to buy anyway. The [wall framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) now counts them for a stairwell opening in the floor.

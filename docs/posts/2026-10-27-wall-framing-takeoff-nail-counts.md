@@ -3,6 +3,7 @@ title: "wall-framing-takeoff now counts nails, not just lumber"
 date: 2026-10-27
 description: "A new --fasteners option in wall-framing-takeoff counts nails by connection from the framing it placed, with every nailing rule an input you can change."
 tags: [wall-framing-takeoff, construction, estimating]
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 A framing estimate that stops at lumber leaves out a line item every crew buys. [wall-framing-takeoff](../../ventures/wall-framing-takeoff/) now counts nails by connection: stud and cripple ends, jack to king, corner and tee backing, header plies, sills, bottom plates, cap plates and, with sheathing on, the sheathing nails along panel edges and on the studs inside them.

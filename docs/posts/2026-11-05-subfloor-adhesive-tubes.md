@@ -4,6 +4,7 @@ seo_title: "Estimating subfloor construction adhesive tubes from joist length"
 date: 2026-11-05
 tags: [wall-framing-takeoff, floor-framing, construction]
 description: "The open-source wall framing takeoff now counts subfloor adhesive tubes from the joist and rim board lengths, with the bead size and tube you type."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 Subfloor adhesive is another line people guess. The wall framing takeoff now works it out, as an opt-in `floor.adhesive` setting.
