@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyeBaonAYPtF9fRxpKA",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T08:38:48Z",
+  "ended": "2026-11-27T08:48:41Z",
+  "wall_minutes": 10.05,
+  "tokens_in": 3135602,
+  "tokens_out": 14378,
+  "cost_usd": 1.4943,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19677",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Moved the preview build dir while a python http.server was serving it; the 'after' screenshot first came from the old build (the server follows the inode). Re-served the new dir on another port."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "polish_next.py's top item (French code-list rows) was a low-value table tweak while bet #1's front-door page had a funnel defect; the prompt says 'a paid bet's pages first' but polish_next.py does not rank by that, so a run following the quick start would miss it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the polish note's next item (code-list rows) for bet #1's construction page, per 'a paid bet's pages first'.",
+      "did": "Preview build with --only and Playwright shots of one page instead of a full survey.",
+      "result": "Found and fixed the hero leading with a waitlist for a different product while PayApps is open; 2164/2164 page tests pass."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/posts post: a CTA move on one page is not worth a reader's time; the docs/reports note carries the before and after.",
+      "did": "Agent doc only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-27-construction-hero-cta.md"
+  ],
+  "goal": null,
+  "notes": "node --test 'platform/pages/*.test.mjs': 2164 pass, 0 fail. Risk review: no blockers; two checks answered in the PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "031ac231-c56b-5ae2-a0af-1195ea5dce35",
+    "transcripts": 1,
+    "first": "2026-11-27T08:38:48Z",
+    "last": "2026-11-27T08:48:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 79,
+        "output": 14378,
+        "thinking": 2010,
+        "cache_read": 3061245,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74278,
+        "api_equivalent_usd": 1.4943,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 79,
+      "output": 14378,
+      "thinking": 2010,
+      "cache_read": 3061245,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74278,
+      "api_equivalent_usd": 1.4943,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 34,
+      "Read": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.05,
+      "active_minutes": 10.05,
+      "model_minutes": 2.86,
+      "tool_minutes": 7.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
