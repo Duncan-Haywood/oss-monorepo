@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKn48yfinnqDWN5kz2m",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T08:18:00Z",
+  "ended": "2026-11-27T08:22:40Z",
+  "wall_minutes": 5.51,
+  "tokens_in": 4679445,
+  "tokens_out": 18709,
+  "cost_usd": 2.0874,
+  "tool_calls": 51,
+  "task": "bet #1 PayApps public side: customer posts' stale 'early access, nothing for sale' closings switched to the live Free-plan state; duplicate lookahead post folded",
+  "projects": [
+    "payapps",
+    "docs/posts"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19666",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first folded_into target used the dated filename (writing/2026-11-27-...); post slugs drop the date",
+      "fix": "checked with foldTargetProblem against loadPosts slugs and corrected to writing/subcontractor-three-week-lookahead/"
+    },
+    {
+      "what": "first draft of the Florida NTO post said the Notice to Owner log was free",
+      "fix": "ROADMAP marks it Crew and up; reworded before commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/2026-11-27-folding-thin-posts.md",
+      "issue": "says writing/<post-slug>/ but not that the slug drops the YYYY-MM-DD- prefix of the filename; my first target was the dated name"
+    },
+    {
+      "file": "apps/payapps/ROADMAP.md (certified-payroll-part-3)",
+      "issue": "names New Jersey's Wage Hub CSV as next, but nj.gov and njwages.nj.gov are refused by the cloud proxy (curl 403, WebFetch ENOTFOUND), so a cloud run cannot read the template"
+    },
+    {
+      "file": "ventures/pay-app-guides/cta.mjs",
+      "issue": "the launch switch rewrote the 42 guides but nothing covers docs/posts, so 13 customer posts kept saying 'nothing is for sale yet' after the Free plan opened"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "every free ROADMAP item for bet #1 waits on demand and the one marked next (NJ Wage Hub CSV) cannot be read from this session; the funnel copy readers see on the blog was wrong, which loses signups now",
+      "did": "fixed the closing CTAs on 13 PayApps customer posts and folded a duplicate post instead of a product feature",
+      "result": "merged with CI"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-subcontractor-three-week-lookahead.md (extended: crew lookahead across jobs, folded from three-week-lookahead-for-subcontractors); no new post, per the consolidation direction"
+  ],
+  "goal": null,
+  "notes": "Skipped docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md: open PR #19665 edits it (app domain). Links point at marisstella.app/industries/construction/ (its Start free button) so the domain change in #19665/#19663 needs no edit here. Plan gates checked in src/shared/plans.ts and ROADMAP: Free has no lien waivers, QuickBooks, job costing or Florida NTO. Local: run_workflow_locally --for-changes all ok; pages build and security gates deferred to PR CI; writing-fold/style/writing tests 73/73 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "03a801f3-7d19-54e0-bab2-d04d6f98c6f3",
+    "transcripts": 1,
+    "first": "2026-11-27T08:18:00Z",
+    "last": "2026-11-27T08:23:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 95,
+        "output": 18709,
+        "thinking": 3567,
+        "cache_read": 4579741,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99609,
+        "api_equivalent_usd": 2.0874,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 95,
+      "output": 18709,
+      "thinking": 3567,
+      "cache_read": 4579741,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99609,
+      "api_equivalent_usd": 2.0874,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.51,
+      "active_minutes": 5.51,
+      "model_minutes": 3.87,
+      "tool_minutes": 1.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "a marketer checking 14 posts against the plan gates and folding one post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 95.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
