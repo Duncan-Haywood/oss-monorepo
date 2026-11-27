@@ -1,0 +1,1 @@
+ALTER TABLE `qbo_connections` ADD `auto_send_payments` integer DEFAULT false NOT NULL;

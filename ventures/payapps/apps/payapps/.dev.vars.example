@@ -1,0 +1,5 @@
+# Copy to .dev.vars for `pnpm dev`. Never commit real secrets.
+AUTH_SECRET=change-me-to-a-long-random-string-at-least-32-chars
+# Offline demo: the signed fake billing provider (no Paddle account, no network). Remove to see the
+# dark state (checkout answers 503). Never set in production.
+FAKE_EXTERNALS=true

@@ -1,0 +1,36 @@
+{
+  "Invoice": {
+    "Id": "1047",
+    "SyncToken": "0",
+    "DocNumber": "PA-0002",
+    "TxnDate": "2026-11-30",
+    "DueDate": "2026-12-30",
+    "CustomerRef": { "value": "58", "name": "Mesa Ridge Builders" },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Framing, 60% complete this period",
+        "Amount": 30000.0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": { "ItemRef": { "value": "12", "name": "Framing" } }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Retainage held (10%), pay application #2",
+        "Amount": -3000.0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": { "ItemRef": { "value": "31", "name": "Retainage" } }
+      },
+      {
+        "Amount": 27000.0,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TotalAmt": 27000.0,
+    "Balance": 27000.0
+  },
+  "time": "2026-11-24T10:00:05.000-08:00"
+}

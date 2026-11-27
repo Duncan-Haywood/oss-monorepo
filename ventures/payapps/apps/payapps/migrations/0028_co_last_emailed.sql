@@ -1,0 +1,1 @@
+ALTER TABLE `change_orders` ADD `last_emailed_on` text;

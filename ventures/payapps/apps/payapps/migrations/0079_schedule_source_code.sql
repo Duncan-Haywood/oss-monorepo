@@ -1,0 +1,1 @@
+ALTER TABLE `schedule_activities` ADD `source_code` text;

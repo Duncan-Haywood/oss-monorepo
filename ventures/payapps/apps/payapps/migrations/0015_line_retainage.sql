@@ -1,0 +1,1 @@
+ALTER TABLE `sov_lines` ADD `retainage_pct_bps` integer;
