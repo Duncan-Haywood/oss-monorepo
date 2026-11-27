@@ -187,3 +187,18 @@ allow:
     contains: '"repo:*/*@${var.public_repository_id}:*",'
     reason: a widening of a Deny, not an Allow - the payments RCP refuses any ID-qualified OIDC subject carrying the public repository's numeric ID, so a rename of the public repository cannot slip past it; it can only refuse more, and no trust or Allow uses it
     added: 2026-11-26
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/baseline/security.tf
+    contains: "# detector (aws_guardduty_detector.security, whose alias is this account),"
+    reason: a comment renamed to aws_guardduty_detector.security[0] when the resource gains count (single-account mode only); GuardDuty stays on in every account, and organization mode reads the detector AWS creates for the delegated admin instead of failing to create a second one (apply run 45929949287)
+    added: 2026-11-27
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/baseline/security.tf
+    contains: "detector_id                      = aws_guardduty_detector.security.id"
+    reason: aws_guardduty_organization_configuration keeps auto_enable_organization_members = "ALL"; only its detector_id source changes, to the delegated admin's existing detector (data source) in organization mode, because CreateDetector fails there with "a detector already exists" (apply run 45929949287)
+    added: 2026-11-27
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/baseline/tests/mock.tftest.hcl
+    contains: "condition     = aws_guardduty_detector.security.enable && length(aws_securityhub_standards_subscription.single) == 2"
+    reason: the same single-account assert, re-indexed to aws_guardduty_detector.security[0] when the resource gains count; it still requires the detector enabled, and a new organization-mode assert requires the adopted detector
+    added: 2026-11-27
