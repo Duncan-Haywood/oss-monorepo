@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVMBRBwg5wK9w3uuSMp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T17:56:03Z",
+  "ended": "2026-11-27T18:07:31Z",
+  "wall_minutes": 11.92,
+  "tokens_in": 13942894,
+  "tokens_out": 56957,
+  "cost_usd": 5.6284,
+  "tool_calls": 86,
+  "task": "bet #6 wall-framing-takeoff: gable ends read from a DXF roof layer (gable-rakes-dxf-roof-layer)",
+  "projects": [
+    "private-monorepo/apps/wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/489",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first gable test used 6:12, whose 16 ft 9 in rafter exceeds the sample stock's 16 ft 2x8",
+      "fix": "tests at 4:12"
+    },
+    {
+      "what": "eval check read only the eave line's first note, so the gable note never reached the status",
+      "fix": "page joins every roof-layer note"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets lists bets #1-#5 with nothing free and gated 'waits on demand'; bet #6 only shows as 'not in this clone', so finding free work there needed a private clone first. A hint to clone when every in-repo bet is gated would save a few calls."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "step 3 asks for the run record in the work PR, but bet #6's work merges in private-monorepo, so the record goes in a separate oss-monorepo PR; the master prompt does not say so for private-repo bets."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no customer post: the paid edition of the takeoff is not on sale and the free edition is frozen (ventures/wall-framing-takeoff README), so a post would point readers at nothing they can use",
+      "did": "README, ROADMAP and llms.txt in the private app document the feature; the run record holds the verification",
+      "result": "feature documented where the next run reads it"
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/wall-framing-takeoff/README.md, 'Gable ends on the roof layer' section"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3). Ideas inbox empty. Routed ventures/1. Bets #1-#5 had no free ungated ROADMAP item (all 'waits on demand' or claimed); cloned private-monorepo (worked first time with add_repo) and took bet #6's roadmap Next item from PR #488: gable rakes on the roof layer. Shipped: gableEnds detection (ridge square into a side away from corners, meeting another roof line), eave and rake overhangs measured apart, offsetSides for the no-wall case, roofFromOutline honours drawn gable ends (ridge can run the short way; gable main + up to two wings; half-hip refused), hip drawings frame as hip (previously defaulted to gable), CLI --rake-overhang=, page fills the gable form. Verification: roofdxf.test.mjs 16 pass (7 new); full app suite 1334 pass / 2 skipped / 0 fail; eval-roof-plan-click.mjs all ok with a new gable block, no page errors. No CI workflow covers this app in private-monorepo, so the PR had no checks; merged on local verification. Risk review: nothing blocked; one false-positive 'email' check on cli.mjs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "101f25e0-25c7-5017-b88d-278bc085a3f0",
+    "transcripts": 1,
+    "first": "2026-11-27T17:56:03Z",
+    "last": "2026-11-27T18:07:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 164,
+        "output": 56957,
+        "thinking": 16803,
+        "cache_read": 13724780,
+        "cache_write_5m": 0,
+        "cache_write_1h": 217950,
+        "api_equivalent_usd": 5.6284,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 164,
+      "output": 56957,
+      "thinking": 16803,
+      "cache_read": 13724780,
+      "cache_write_5m": 0,
+      "cache_write_1h": 217950,
+      "api_equivalent_usd": 5.6284,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 80,
+      "ToolSearch": 1,
+      "mcp__github__actions_list": 1,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.92,
+      "active_minutes": 11.92,
+      "model_minutes": 9.97,
+      "tool_minutes": 1.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a developer adding gable detection, two-overhang measurement, framing selection and page wiring with tests to an existing DXF roof reader",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 142.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
