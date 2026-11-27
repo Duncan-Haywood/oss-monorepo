@@ -404,6 +404,25 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   `convertibleToJpeg`/`convertedSize` in `src/shared/attachments.ts`; checked in Chromium with a real
   WebP (1200 x 800 to a JPEG the packet's `readJpeg` reads; 5000 x 4000 scaled to 3903 x 3123; an
   undecodable HEIC passed through unchanged). Not checked on a real iPhone yet.
+- HEIC photos from Chrome, Edge and Firefox (2026-11-27, Backup packets part 3, every plan): where the
+  browser cannot open a HEIC as an image, the upload form now decodes it with the browser's own HEVC
+  video decoder through WebCodecs (the device's decoder, so no HEVC code is bundled or licensed) and
+  converts it to JPEG as Safari's path does. `src/shared/heif.ts` reads the HEIF container with no
+  dependency: the primary item as one HEVC image or a grid of tiles (iPhones use 512 x 512), each
+  item's bytes from iloc (file or idat), and the hvcC, ispe, clap, irot and imir properties, with
+  limits (1,024 tiles, 16,384 pixels a side); it builds the WebCodecs codec string from the hvcC.
+  `src/client/lib/heic-webcodecs.ts` feeds each tile as a key frame, draws each decoded frame at its
+  grid place straight onto a canvas at the JPEG's size (so a 48-megapixel photo never needs a
+  48-megapixel canvas), then crops, turns and mirrors. If the browser has no VideoDecoder, says it
+  cannot decode the profile, or a tile fails or never comes out, the original HEIC is uploaded as
+  before; the packet's note now names Chrome and Edge too. Checked in Chromium by
+  `test/fixtures/pdf-sources/heic-webcodecs-check.cjs`: this Chromium has no HEVC decoder, so ffmpeg
+  decodes exactly the bytes our parser hands the stub decoder, and everything else is the real code;
+  on four libheif HEICs (3 x 2 grids plain, turned and transposed, and one single image) and the
+  64 x 48 clap fixture, ours matches libheif's decode at 40.9 to 48.1 dB PSNR at full size and 34.8
+  to 35.8 dB scaled to 37%, and the wrong orientation scores 8.4 dB. Not yet checked on a device
+  with a hardware HEVC decoder or with a real iPhone photo; colour profiles are not applied (an
+  iPhone's Display P3 shows a little less saturated).
 - Packet order (2026-11-25): the pay-app attachments panel lists the files ticked "In packet" under
   "Packet order"; drag a row (desktop) or use the up and down arrows (phone, keyboard) to put the
   backup in the order the GC asks for, and the download sends `?files=` in that order, so the
@@ -1703,6 +1722,19 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   retainage waits on getting all of them to the GC in one delivery it can check off; Procore and
   Buildertrend keep close-out documents with files, and part 1 tracked only their dates
   (portfolio bets.md, #1).
+- **Close-out, part 3: retainage waiting on close-out** (2026-11-27, every plan,
+  closeout-part-3-cash-report): on the cash report, a finished job with retainage held now reads its
+  close-out checklist with its punch list (the job page's `closeoutReadiness`). While punch items or
+  documents are open, its next step says "waiting on close-out" and names them (2 punch list items
+  not accepted, 1 document still to send); once nothing is, it says the checklist is in and points
+  to the release request drafted there. A new total, `retainageWaitingOnCloseoutCents`, splits the
+  "Retainage on finished jobs" tile and the weekly email's retainage line into what can be asked for
+  now and what waits on close-out; the CSV gets a "Retainage waiting on close-out" column. A job
+  with neither list started keeps the plain "bill the retainage" step, so a company that does not
+  keep the checklist is not told its money waits on one. Two queries per company
+  (`closeoutReadinessByJob` in `services/payapps/cash.ts`); nothing stored. Why: retainage on
+  finished work is a sub's last and slowest money, and the cash report said "bill it now" on jobs
+  the job page knew were not ready (portfolio bets.md, #1).
 - Daily reports, part 1 (2026-11-26, every plan, daily-reports-part-1): one field log per job and day
   (`/orgs/:orgId/projects/:projectId/daily-reports`, linked from the job page): weather and high/low °F
   as typed (no weather service), hours lost to weather or a delay, crew lines (company, trade, workers,
@@ -2078,6 +2110,11 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
 - Owner: an Intuit developer app, its keys and redirect URI, and `QBO_TOKEN_KEY`
   (docs/QUICKBOOKS.md, "Turning it on"); check one invoice in a sandbox company first
 - Marketing site with the pricing table (`apps/payapps-site`, PR #18) reading `/api/billing/plans`
+- At launch, point the free guides at sign-up: set `APP_URL` in `ventures/pay-app-guides/cta.mjs` to the
+  deployed origin and run `node cta.mjs` there (30 pages' CTAs switch from "in development" to "open
+  now, free on one job" and link to `/?signup&from=pay-app-guides/<page>`, which opens "Create an
+  account", `src/client/lib/auth-mode.ts`); set `PAID_PLANS_ON` once checkout is live. Update the
+  "Can I buy the pay-app suite today?" answer in `platform/pages/industry-construction.mjs` the same day
 
 ## Next (suite, by promise)
 
@@ -2128,8 +2165,8 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   other portals (Trimble Pay/Flashtract, Siteline) if customers bill through
   them. Parts 1 to 3 (Procore SSOV and invoice sheet, Textura's two billing uploads, GCPay's SOV
   upload) are done
-- Backup packets, part 3: HEIC photos attached from Chrome or Firefox (no HEIC decoder there: one
-  in WebAssembly, or the Worker's); save a packet order with the pay
+- Backup packets, part 3 (HEIC from Chrome, Edge and Firefox through WebCodecs done 2026-11-27): check
+  it on a Windows PC and an Android phone with a real iPhone photo; save a packet order with the pay
   app if people ask for it to survive a reload
 - Getting started, part 6: once real companies are counted (part 5, 2026-11-26), change the step most of them
   stall on; per-step time from sign-up if counts alone do not say why
@@ -2149,10 +2186,9 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask
-- Close-out, part 3: (part 2 is done 2026-11-26: files per document and the binder PDF) close-out
-  events beyond files in the job history (sent, accepted, not required), documents overdue across
-  jobs in the weekly email, and a "retainage waiting on close-out" line on the cash report, if
-  contractors use the checklist.
+- Close-out, part 4: (part 3, retainage waiting on close-out on the cash report and in the weekly
+  email, done 2026-11-27) close-out events beyond files in the job history (sent, accepted, not
+  required) and documents overdue across jobs in the weekly email, if contractors use the checklist.
 - Punch list, part 2: photos per item (before and after, the attachments rules the RFIs use),
   punch events in the job history, items overdue across jobs in the weekly email, and a line on the
   retainage-release pay application naming the punch list's state, if people ask; a GC's punch list

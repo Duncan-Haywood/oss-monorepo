@@ -8,7 +8,7 @@ import type {
   ProjectDetailDto,
   ProjectDto,
 } from "@shared/api/types";
-import { addDays } from "@shared/cash-report";
+import { addDays, type CashReport } from "@shared/cash-report";
 import { describe, expect, it } from "vitest";
 import { addToOrg, api, call, createTestUser, grantPlan, setupTenant } from "./helpers";
 
@@ -207,6 +207,50 @@ describe("close-out checklist", () => {
     await call(`${url}/${doc.id}`, { method: "PATCH", as, json: { sentOn: today() } });
     list = await call<CloseoutDto>(url, { as });
     expect(list.readiness).toEqual({ ready: true, blockers: [] });
+  });
+
+  it("the cash report says what the finished job's retainage waits on, then that it is in", async () => {
+    const { url, base, as, orgId, projectId } = await job();
+    await billAndSubmit(base, as, 1_000_000);
+    const cash = () => call<CashReport>(`/api/orgs/${orgId}/reports/cash`, { as });
+    // Neither list started: the plain step, not "waiting on close-out".
+    const plain = (await cash()).projects.find((p) => p.id === projectId);
+    expect(plain?.closeout).toBeNull();
+    expect(plain?.actions[0]).toMatch(/bill the retainage/);
+    const punch = await call<{ id: string }>(`${base}/punch-list`, {
+      method: "POST",
+      as,
+      expect: 201,
+      json: { description: "Missing cover plate", location: "Room 104" },
+    });
+    const doc = await call<CloseoutItemDto>(url, {
+      method: "POST",
+      as,
+      expect: 201,
+      json: { kind: "warranty", title: "Warranty letter" },
+    });
+    let r = await cash();
+    let row = r.projects.find((p) => p.id === projectId);
+    expect(row?.closeout?.ready).toBe(false);
+    expect(row?.actions[0]).toContain("waiting on close-out");
+    expect(row?.actions[0]).toContain("1 punch list item is not accepted yet");
+    expect(row?.actions[0]).toContain("1 close-out document is still to send");
+    expect(r.totals.retainageOnCompleteJobsCents).toBe(100_000);
+    expect(r.totals.retainageWaitingOnCloseoutCents).toBe(100_000);
+    const csv = await (await api(`/api/orgs/${orgId}/reports/cash.csv`, { as })).text();
+    expect(csv.split("\r\n")[0]).toContain("Retainage waiting on close-out");
+
+    await call(`${base}/punch-list/${punch.id}`, {
+      method: "PATCH",
+      as,
+      json: { completedOn: today(), acceptedOn: today() },
+    });
+    await call(`${url}/${doc.id}`, { method: "PATCH", as, json: { sentOn: today() } });
+    r = await cash();
+    row = r.projects.find((p) => p.id === projectId);
+    expect(row?.closeout).toEqual({ ready: true, blockers: [] });
+    expect(row?.actions[0]).toContain("close-out checklist is in");
+    expect(r.totals.retainageWaitingOnCloseoutCents).toBe(0);
   });
 
   it("asks for the rest of the work to be billed before the retainage", async () => {

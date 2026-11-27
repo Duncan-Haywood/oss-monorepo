@@ -1,0 +1,1 @@
+ALTER TABLE `machines` ADD `seconds_per_hole` real;

@@ -28,11 +28,13 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [
     "curl to the Actions log zip and to payapps.*.workers.dev refused by the proxy (403); read logs via get_job_logs instead"
   ],
-  "integrity_issues": [],
+  "integrity_issues": [
+    "My first diagnosis (a slow runner; raise waitFor to 10 s) was wrong: PR #19639 showed a useMutation stale-closure race, which a longer wait would not fix. The timeout change was dropped before the merge; only the deploy record landed."
+  ],
   "doc_friction": [
     {
       "file": "ventures/payapps/apps/payapps/ROADMAP.md",
@@ -52,10 +54,11 @@
     }
   ],
   "writeups": [
-    "ventures/payapps/DEPLOY.md (second and third runs)"
+    "ventures/payapps/DEPLOY.md (run 2's URL, version, email)",
+    "ventures/payapps/apps/payapps/ROADMAP.md status"
   ],
   "goal": null,
-  "notes": "Security queue empty; ideas inbox empty; routed ventures/1 to bet #1 PayApps. Found deploy run 2 live (health ok, email true) and run 3 failing on a flaky sov-import waitFor (3,087 ms against 3 s). Raised the async util timeout to 10 s and the test timeout to 20 s. pnpm test:unit locally: 138 files, 1286 passed, 1 skipped.",
+  "notes": "Security queue empty; ideas inbox empty; routed ventures/1 to bet #1 PayApps. Found deploy run 2 live (health ok, email true) and run 3 failing on sov-import. I first took it for a slow runner and raised async timeouts; while CI ran, PR #19639 merged the real fix (the mutationFn read stale state). I dropped my timeout change and merged only the live URL, version and email:true into DEPLOY.md and the ROADMAP status. pnpm test:unit locally passed with my change (1286/1 skipped), which shows nothing about the race.",
   "corrections": [],
   "redteam": null,
   "usage": {

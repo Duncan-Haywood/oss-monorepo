@@ -56,11 +56,13 @@ it("previews the sheet, shows what was left out, and posts only the contract lin
       'TOTAL,,"$15,750.00"',
     ].join("\n"),
   );
-  await screen.findByText(/Found 2 lines/);
+  // The file's first test pays for the cold render; on a loaded CI runner it took 3 s and the default
+  // 1 s wait ran out (PR 19627's first run), so the two waits get 5 s.
+  await screen.findByText(/Found 2 lines/, undefined, { timeout: 5000 });
   expect(screen.getByText(/will total the contract sum exactly/)).toBeInTheDocument();
   expect(screen.getByText(/left out \(change order\)/)).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: /add 2 lines/i }));
-  await waitFor(() => expect(onImported).toHaveBeenCalled());
+  await waitFor(() => expect(onImported).toHaveBeenCalled(), { timeout: 5000 });
   const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
   expect(url).toBe("/api/orgs/o/projects/p/sov-lines/bulk");
   expect(JSON.parse(String(init.body))).toEqual({

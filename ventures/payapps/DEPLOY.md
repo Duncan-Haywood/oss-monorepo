@@ -53,17 +53,17 @@ so the next run gets past it. Owner step to turn attachments on: add Account -> 
 Edit to `CLOUDFLARE_API_TOKEN`.
 
 
-## Second run: live (2026-11-27, run 45949861746)
+## Runs 2 and 3 (2026-11-27)
 
-Dispatched on `main` at 5f432ae0 (PR #19625). Every step passed: checks, build, D1 provisioning and
-migrations, deploy (version `e9f3df29-1349-4b1e-8656-4d67ffc12631`), `AUTH_SECRET` generated on the
-Worker, and the smoke test: `https://payapps.duncan-andrew-haywood.workers.dev/api/health` answered
-`{"ok":true,"app":"payapps","email":true}`. Attachments are off (`R2: false`, the token above).
-
-## Third run: a flaky test, nothing deployed (run 45950799211)
-
-Dispatched at 6e69be0e, no PayApps change since the second run. The checks step failed on one
-unit test, `sov-import.test.tsx` "previews the sheet ... posts only the contract lines": its
-`waitFor` ran out at the 3 s async timeout on the runner (the test took 3,087 ms). The live version
-was not touched. `test/unit/setup.ts` now waits up to 10 s (a passing wait returns at once) and
-`vitest.unit.config.ts` sets a 20 s test timeout above it, so a slow runner no longer blocks a deploy.
+- Run 45949861746 (after PR #19625) **deployed**: provisioning, D1 migrations, the deploy (version
+  `e9f3df29-1349-4b1e-8656-4d67ffc12631`) and the smoke test all passed:
+  `https://payapps.duncan-andrew-haywood.workers.dev/api/health` answered
+  `{"ok":true,"app":"payapps","email":true}`, so sign-up email works. No attachments (R2) and paid
+  plans dark.
+- Run 45950799211 (on `6e69be0e`) stopped in Checks: `test/unit/sov-import.test.tsx` timed out
+  waiting for the import to post. Cause: `useMutation` takes new options in an effect, so a click
+  landing between the render that shows the preview and that effect ran the earlier render's
+  `mutationFn`, which saw no result. The SOV import and the P6 schedule import now pass what they
+  post to `mutate()` instead of reading component state inside `mutationFn`. Write new
+  `mutationFn`s the same way when the button appears in the render that an async read (a file, OCR)
+  sets.

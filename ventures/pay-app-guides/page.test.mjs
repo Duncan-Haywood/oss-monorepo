@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
+import { APP_URL, apply as applyCta } from "./cta.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 // Read from the folder, not a literal list: parallel PRs that each add a page
@@ -14,8 +15,12 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
     assert.match(html, /not legal/, name);
     assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/, name);
     assert.match(html, /id="optout"/, name);
-    assert.match(html, /in development, with early access<\/strong>; nothing is for sale yet/, name);
-    assert.match(html, /href="https:\/\/marisstella\.app\/industries\/construction\/"/, name);
+    // The CTA's lead and status come from cta.mjs (one switch at launch); run `node cta.mjs`.
+    assert.equal(applyCta(html, name), html, `${name}: CTA out of date, run node cta.mjs`);
+    if (!APP_URL) {
+      assert.match(html, /in development, with early access<\/strong>; nothing is for sale yet/, name);
+      assert.match(html, /href="https:\/\/marisstella\.app\/industries\/construction\/"/, name);
+    }
     assert.match(html, /<title>[^<]{3,60}<\/title>/, name);
     const desc = /<meta name="description" content="([^"]*)"/.exec(html);
     assert.ok(desc && desc[1].length <= 160, `${name}: meta description must be 160 characters or fewer`);
@@ -328,6 +333,8 @@ const FAQ_PAGES = [
   "retainage-in-quickbooks.html", "retainage-release.html", "retainage-tracker.html",
   "schedule-of-values-template.html", "stored-materials-billing.html",
   "sworn-statement.html", "tm-tickets.html",
+  // state-forms.mjs: one page per state with statutory waiver forms
+  ...["arizona", "california", "florida", "georgia", "massachusetts", "michigan", "mississippi", "missouri", "nevada", "texas", "utah", "wyoming"].map((s) => `${s}-lien-waiver-forms.html`),
 ];
 
 test("guides with an FAQ keep FAQPage markup that matches visible questions", () => {
