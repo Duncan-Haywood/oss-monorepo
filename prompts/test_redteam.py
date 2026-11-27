@@ -296,7 +296,6 @@ class CampaignTest(unittest.TestCase):
         self.assertEqual(camp["baseline_skipped"], 0)
         (self.venture / "calc.test.mjs").write_text(
             CALC_TEST + 'test("needs a dep", { skip: "npm i x" }, () => {});\n')
-        subprocess.run(["git", "commit", "-qam", "skip"], cwd=self.repo, check=True)
         camp = redteam.campaign(self.target, 1, seed=1, repo=self.repo)
         self.assertEqual(camp["baseline_skipped"], 1)
 
