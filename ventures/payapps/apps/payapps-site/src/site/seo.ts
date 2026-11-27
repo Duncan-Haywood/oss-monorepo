@@ -115,19 +115,16 @@ function planPrices(): string {
   ).join("; ");
 }
 
-/** Applies `step` until the text stops changing, so a removal cannot leave a new match behind. */
-function untilStable(text: string, step: (s: string) => string): string {
+/** The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only. */
+export function htmlToMarkdown(input: string): string {
+  // Repeat until nothing changes, so "<scr<script></script>ipt>" cannot reassemble a <script> block.
+  let text = input;
   let previous: string;
   do {
     previous = text;
-    text = step(text);
+    text = text.replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, "");
   } while (text !== previous);
-  return text;
-}
-
-/** The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only. */
-export function htmlToMarkdown(input: string): string {
-  return untilStable(input, (s) => s.replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, ""))
+  return text
     .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, "\n# $1\n\n")
     .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, "\n## $1\n\n")
     .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, "\n### $1\n\n")
