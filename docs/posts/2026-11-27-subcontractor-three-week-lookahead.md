@@ -120,6 +120,22 @@ yours, and P6 holds things a sub's own schedule doesn't need:
   inspection) is visible as the reason, not as your delay.
 - The date it was printed.
 
+## Every job, by crew
+
+The GC's lookahead covers only the GC's job. A subcontractor with more than one job has a
+question no GC asks: **where is each crew next week?** Crew A could be on the clinic Monday to
+Wednesday and on the school from Wednesday, and nobody notices until Wednesday morning.
+
+So keep one more view: the open activities from *all* your active jobs, grouped by crew instead
+of by job. For each crew it shows its open activities on every job for this week and next, as
+bars over the workdays, and the days it has work on two jobs at once. Two jobs on one day is not
+always a problem (a crew of six can send two to the school for a morning), but it should be a
+choice someone made, not something the foreman finds out on site.
+
+The grouping only works if each crew is written the same way on every job. "Crew A" on one job
+and "Electrical crew 1" on another are two crews to any list. Pick a short name per crew or
+foreman and use it everywhere.
+
 ## In PayApps
 
 Job schedules are now part of PayApps, the pay-application and job-paperwork tool in development
@@ -137,7 +153,10 @@ for subcontractors, on every plan:
 - a company holiday list (added 2026-11-27): type the days you take off, or add the federal
   holidays for a year and delete the ones your crews work. Every workday count, sequence check,
   move and lookahead skips them, and the PDF names the holidays it left out;
-- a crew lookahead across every active job, grouped by the crew typed on each activity;
+- a crew lookahead across every active job, grouped by the crew typed on each activity (capitals
+  and spacing ignored, so "Crew A" and "crew  a" are one crew), with the days a crew has work on
+  two or more jobs, and a PDF for the Monday crew meeting. The Free plan has one active job, so
+  this page matters once you are on a paid plan;
 - delays by activity (added 2026-11-27): a daily report names the activity its lost hours held
   up, the schedule lists the days and hours per activity, and the delay log (each day's hours,
   weather and the delay as written) prints as a PDF for one activity or all, in a date range. On
@@ -152,5 +171,5 @@ for subcontractors, on every plan:
 Weekends are skipped, and so are the holidays you list. Nothing else is assumed. Dates are the
 ones you type: nothing is scheduled for you.
 
-The product is in early access and nothing is for sale yet:
-[construction tools and early access](https://marisstella.app/industries/construction/).
+The job schedule is on every plan, and PayApps is open: free on one active job, with no card.
+[Start free](https://marisstella.app/industries/construction/). The paid plans (more jobs and users, lien waivers, QuickBooks and job costing) are not on sale yet.

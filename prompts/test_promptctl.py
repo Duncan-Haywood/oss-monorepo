@@ -867,6 +867,50 @@ class LastChangeIndexTest(unittest.TestCase):
                 promptctl._GIT_MEMO.clear()
                 promptctl._GIT_MEMO.update(saved)
 
+    def test_merge_that_changes_a_directory_through_each_parent_dates_it(self):
+        # P095, 2026-11-27 (PR #19644): main and the PR each added a different run record, so the
+        # merge differs from both parents under prompts/ (git's directory TREESAME) yet from
+        # neither in any one file; `--diff-merges=c` listed nothing and the index fell to a root.
+        run = promptctl.subprocess.run
+        for depth in ("2", "5"):
+            with self.subTest(depth=depth), tempfile.TemporaryDirectory() as tmp:
+                src, dst = Path(tmp) / "src", Path(tmp) / "dst"
+                (src / "d").mkdir(parents=True)
+
+                def git(*args, cwd=src, when=None):
+                    env = dict(os.environ, GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@x", GIT_COMMITTER_NAME="t",
+                               GIT_COMMITTER_EMAIL="t@x", **({"GIT_COMMITTER_DATE": when} if when else {}))
+                    run(["git", *args], cwd=cwd, env=env, check=True, capture_output=True)
+
+                git("init", "-q", "-b", "main")
+                (src / "d" / "a.txt").write_text("a")
+                (src / "e").mkdir()
+                (src / "e" / "a.txt").write_text("a")
+                git("add", "."); git("commit", "-qm", "base", when="2026-11-20T00:00:00Z")
+                (src / "d" / "m.txt").write_text("1")
+                git("add", "."); git("commit", "-qm", "main", when="2026-11-26T10:00:00Z")
+                git("checkout", "-qb", "pr", "HEAD~1")
+                (src / "d" / "p.txt").write_text("2")
+                (src / "e" / "p.txt").write_text("2")  # e/ changes on the PR side only: TREESAME to it
+                git("add", "."); git("commit", "-qm", "pr", when="2026-11-26T12:00:00Z")
+                git("checkout", "-q", "main")
+                git("merge", "-q", "--no-ff", "--no-commit", "pr")
+                (src / "x.txt").write_text("3")  # a file the merge itself adds keeps the index non-empty
+                git("add", "."); git("commit", "-qm", "merge", when="2026-11-27T02:00:00Z")
+                git("clone", "-q", f"--depth={depth}", f"file://{src}", str(dst), cwd=tmp)
+                saved = dict(promptctl._GIT_MEMO)
+                try:
+                    with unittest.mock.patch.object(promptctl, "ROOT", dst / "prompts"):
+                        promptctl._GIT_MEMO.clear()
+                        for path in ("d/", "d", "d/*.txt", "e/", "e/*.txt", "*.txt"):
+                            with self.subTest(path=path):
+                                self.assertEqual(promptctl._changed_note(path),
+                                                 promptctl._changed_note_uncached(path))
+                        self.assertIn("2026-11-27", promptctl._changed_note("d/")[0])
+                finally:
+                    promptctl._GIT_MEMO.clear()
+                    promptctl._GIT_MEMO.update(saved)
+
     def test_lookups_without_a_git_call_match_the_per_file_call(self):
         # Directories, free text in a `file` field, a shallow root's files and bare names are
         # answered from the one `git log` and one `git ls-files` (2026-11-26: 438 + 1230 + 270

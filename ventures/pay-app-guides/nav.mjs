@@ -34,6 +34,7 @@ export const GROUPS = [
     ["retainage-tracker.html", "Retainage tracker (every job)"],
     ["gc-portal-billing.html", "Billing in Procore, Textura and GCPay"],
     ["pay-application-software-compared.html", "Pay app software compared"],
+    ["coconstruct-alternatives.html", "CoConstruct closing: your options"],
   ]],
   ["Getting paid and lien waivers", [
     ["prompt-payment-laws.html", "Prompt payment laws by state"],
@@ -41,6 +42,7 @@ export const GROUPS = [
     ["lien-waiver-forms-by-state.html", "Lien waiver forms by state"],
     ["california-preliminary-notice.html", "California 20-day preliminary notice"],
     ["florida-notice-to-owner.html", "Florida Notice to Owner (45 days)"],
+    ["texas-lien-notice.html", "Texas monthly lien notice deadlines"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],
     ["paid-short.html", "Paid short? Reconcile the check"],
