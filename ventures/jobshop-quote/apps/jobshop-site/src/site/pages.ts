@@ -15,6 +15,7 @@ import {
 import { ANNUAL_DISCOUNT, EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/plans";
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAME } from "./config";
 import { type Html, html } from "./html";
+import { EXAMPLE, shopRate, usd } from "./shop-rate";
 
 export interface RenderContext {
   /** "" or a path like "/jobshop": prefixed to every internal link. */
@@ -710,6 +711,8 @@ export function comparePage(ctx: RenderContext): Html {
       Dozens a week, with parts that repeat, is where quoting software pays for the estimator's time.</li>
       <li><strong>Decide whether you need an ERP.</strong> If you already run one, try its quoting module
       first. If you don't, buying an ERP just to quote is a large project; quoting-only tools are smaller.</li>
+      <li><strong>Know your rates first.</strong> Every tool prices from your hourly rates, so a rate that
+      is too low gives a wrong quote in all of them (<a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how to work one out</a>).</li>
       <li><strong>Price it on your own work.</strong> Quote last month's RFQs in any tool you trial and compare
       the numbers with what you actually charged and what the jobs cost.</li>
       <li><strong>Check who owns your data.</strong> Ask whether your drawings are used to train AI models and
@@ -722,6 +725,140 @@ export function comparePage(ctx: RenderContext): Html {
   </div>
 </section>
 ${ctaBand(ctx, "Try it on last month's RFQs", open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
+/**
+ * A guide aimed at a search estimators and owners make ("machine shop hourly rate", "how to calculate
+ * CNC shop rate"). Method only: every figure is from the made-up shop in ./shop-rate, computed there,
+ * and labelled as made up. No industry averages are quoted, since we have no source we can cite for them.
+ */
+export function shopRatePage(ctx: RenderContext): Html {
+  const e = EXAMPLE;
+  const r = shopRate(e);
+  const tended = shopRate({ ...e, machinesPerOperator: 2 });
+  const naive = shopRate({ ...e, billableHoursPerYear: e.paidHoursPerYear });
+  const pct = (f: number) => `${Math.round(f * 100)}%`;
+  const rows: [string, string, string][] = [
+    [
+      "Machine ownership",
+      `(${usd(e.machinePrice, false)} − ${usd(e.resaleValue, false)} resale) ÷ ${e.yearsOfUse} years`,
+      `${usd(r.ownershipPerYear, false)} a year`,
+    ],
+    [
+      "Running the machine",
+      "maintenance, tooling, coolant, power",
+      `${usd(e.runningCostPerYear, false)} a year`,
+    ],
+    [
+      "Its share of overhead",
+      "rent, insurance, office, software",
+      `${usd(e.overheadSharePerYear, false)} a year`,
+    ],
+    [
+      "Machine and overhead",
+      `${usd(r.machineAndOverheadPerYear, false)} ÷ ${e.billableHoursPerYear.toLocaleString("en-US")} billable hours`,
+      `${usd(r.machinePerBillableHour)} an hour`,
+    ],
+    [
+      "Operator, per paid hour",
+      `${usd(e.operatorWage)} wage + ${pct(e.laborBurden)} taxes, insurance and benefits`,
+      `${usd(r.operatorPerPaidHour)} an hour`,
+    ],
+    [
+      "Operator, per billable hour",
+      `${usd(r.operatorPerPaidHour)} × ${e.paidHoursPerYear.toLocaleString("en-US")} paid ÷ ${e.billableHoursPerYear.toLocaleString("en-US")} billable`,
+      `${usd(r.operatorPerBillableHour)} an hour`,
+    ],
+    [
+      "Cost of a billable hour",
+      "machine and overhead + operator",
+      `${usd(r.costPerBillableHour)} an hour`,
+    ],
+    [
+      `Rate at a ${pct(e.margin)} margin`,
+      `${usd(r.costPerBillableHour)} ÷ (1 − ${e.margin})`,
+      `${usd(r.rateAtMargin)} an hour`,
+    ],
+  ];
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to work out a machine shop hourly rate</h1>
+    <p class="lead">The hourly rate on a quote has to pay for the machine, the operator, the building and a
+    profit, out of the hours a customer actually pays for. Here is a method that starts from your own
+    books, a worked example, and the mistakes that make a rate too low.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>The method in five steps</h2>
+    <ol>
+      <li><strong>What the machine costs you each year.</strong> Take the installed price, subtract what you
+      expect to sell it for, and divide by the years you will run it. Add a year of maintenance, tooling,
+      coolant and power for that machine. If you financed it, the interest belongs here too.</li>
+      <li><strong>Its share of overhead.</strong> Rent, insurance, utilities, the office, the estimator, software
+      and everything else that does not belong to one machine, split across your machines. Splitting by
+      floor space or by the hours each runs is fairer than an even split when machines differ a lot.</li>
+      <li><strong>Billable hours, honestly counted.</strong> Not the hours the doors are open: the hours the
+      machine spends on work a customer pays for. Setups you don't charge, maintenance, prove-outs, scrap
+      remakes and idle time all come out. Your job records are the best source; a guess here moves the
+      rate more than any other number.</li>
+      <li><strong>The operator.</strong> Wage plus payroll taxes, workers' comp, insurance and benefits gives
+      the cost of a paid hour. The operator is paid for more hours than the machine bills, so spread the
+      whole paid year over the billable hours. One operator tending two machines splits that cost between them.</li>
+      <li><strong>Add the profit.</strong> Divide the cost of a billable hour by one minus your margin. A 20%
+      margin means dividing by 0.8, which is not the same as adding 20%.</li>
+    </ol>
+
+    <h2>A worked example</h2>
+    <p>One 3-axis mill, one operator, one shift. <strong>Every number here is made up to show the
+    arithmetic</strong>; they are not typical figures for any region or trade. Use your own.</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">Made-up shop: ${e.paidHoursPerYear.toLocaleString("en-US")} paid operator hours, of which the mill bills ${e.billableHoursPerYear.toLocaleString("en-US")} (${pct(r.utilisation)}).</caption>
+        <thead><tr><th scope="col">Line</th><th scope="col">Worked out as</th><th scope="col">Amount</th></tr></thead>
+        <tbody>
+          ${rows.map((row) => html`<tr><th scope="row">${row[0]}</th><td>${row[1]}</td><td>${row[2]}</td></tr>`)}
+        </tbody>
+      </table>
+    </div>
+    <p>Two variations on the same shop show which inputs matter most:</p>
+    <ul>
+      <li>If the operator tends two such mills, each mill carries half the operator and its cost falls from
+      ${usd(r.costPerBillableHour)} to ${usd(tended.costPerBillableHour)} an hour.</li>
+      <li>Divide by every paid hour instead of billable hours (the common shortcut of about 2,000 hours a
+      year) and the cost comes out at ${usd(naive.costPerBillableHour)} an hour: ${usd(r.costPerBillableHour - naive.costPerBillableHour)} an hour short, on every hour you bill.</li>
+    </ul>
+
+    <h2>Mistakes that make a rate too low</h2>
+    <ul>
+      <li><strong>Counting open hours as billable.</strong> The step above: the rate is only as good as the
+      billable-hours figure, so check it against last year's jobs.</li>
+      <li><strong>One rate for every machine.</strong> A 5-axis machine and a manual lathe cost very different
+      amounts to own. A blended rate overprices the simple work you lose and underprices the complex work
+      you win.</li>
+      <li><strong>Mixing up margin and markup.</strong> In the example a 20% markup gives
+      ${usd(r.rateAtSameMarkup)} an hour, a 20% margin ${usd(r.rateAtMargin)}. Decide which one your
+      targets mean.</li>
+      <li><strong>Leaving setup in the hourly rate.</strong> Setup time is real machine time. Charging it as its
+      own line, or at its own rate, keeps small runs from being priced like large ones.</li>
+      <li><strong>Never revisiting it.</strong> Wages, rent and power change. Rework the rate when they do,
+      and at least once a year.</li>
+    </ul>
+
+    <h2>Where the rate goes next</h2>
+    <p>A rate is half of a quote; the other half is how long the part takes. In ${SITE_NAME} each machine
+    on your rate card has its own hourly rate and, if you want one, a separate setup rate. A quote line is
+    then the time on each machine at that machine's rate, plus material, outside processes, minimums and
+    your markup, with every figure showing the rate it used. You can
+    <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a> or import your
+    existing rate sheet from a spreadsheet.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax or financial
+    advice; your accountant can tell you how depreciation, financing and overhead are treated in your own
+    books, and those may differ from the simple straight-line figures used here.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Put your rates on a rate card", ctx.launch.open ? "The Early access plan is free and needs no card. Enter each machine's rate once and quote real RFQs from it." : "Early access is free and asks only about your shop.")}`;
 }
 
 export interface Faq {
@@ -1010,6 +1147,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/pricing": pricingPage,
   "/for-cmmc-shops": cmmcPage,
   "/compare": comparePage,
+  "/machine-shop-hourly-rate": shopRatePage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
   "/early-access/thanks": thanksPage,

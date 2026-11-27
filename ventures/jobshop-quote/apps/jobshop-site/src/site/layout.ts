@@ -116,6 +116,7 @@ ${body}
             <li><a href="${appLink(ctx.launch, "/legal/terms")}">Terms</a></li>`
                 : html`<li><a href="${href(ctx, "/early-access")}">Early access</a></li>`
             }
+            <li><a href="${href(ctx, "/machine-shop-hourly-rate")}">Machine shop hourly rate</a></li>
             <li><a href="${href(ctx, "/privacy")}">Privacy</a></li>
             <li><a href="${CMMC_SITE_URL}">CMMC Workspace</a></li>
           </ul>
