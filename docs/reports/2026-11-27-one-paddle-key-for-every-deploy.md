@@ -1,6 +1,6 @@
 ---
 kind: note
-subjects: [billing, paddle, payapps, seller-books]
+subjects: [payapps, seller-books, security]
 ---
 # One Paddle key for every deploy here, and a key check that can run
 
