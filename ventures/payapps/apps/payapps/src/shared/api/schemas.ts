@@ -135,6 +135,21 @@ const projectFields = z.object({
   gaNocFiled: z.boolean().nullish(),
   /** Georgia: the contractor's name and address as the notice of commencement shows them. */
   gaNocContractor: optText(300),
+  /** Lien deadline: the property's state (two letters; null clears it). */
+  lienState: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{2}$/, "Enter the state's two-letter code, like CA")
+    .nullish(),
+  /** Lien deadline: the job is residential (a shorter clock in New York, Ohio and Texas). */
+  lienResidential: z.boolean().optional(),
+  /** Lien deadline: the day this company last furnished labor or materials. */
+  lastFurnishedOn: isoDate.nullish(),
+  /** Lien deadline (California, Arizona): completion of the whole work of improvement. */
+  workCompletedOn: isoDate.nullish(),
+  /** Lien deadline (California, Arizona): the day the owner recorded a notice of completion. */
+  noticeOfCompletionOn: isoDate.nullish(),
 });
 /** A new job: retainage defaults to 10% on work and on stored materials. */
 export const projectSchema = projectFields.extend({

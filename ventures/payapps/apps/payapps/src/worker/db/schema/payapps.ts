@@ -148,6 +148,18 @@ export const projects = sqliteTable(
      */
     gaNocFiled: integer("ga_noc_filed", { mode: "boolean" }),
     gaNocContractor: text("ga_noc_contractor"),
+    /**
+     * Lien deadline (src/shared/lien-deadline.ts, migration 0086): the state the property is in (two
+     * letters), whether the job is residential (states with a shorter clock for a home), the day this
+     * company last furnished labor or materials, and, for California and Arizona, the completion of
+     * the work of improvement and the day the owner recorded a notice of completion. All null when not
+     * entered; without a last-furnished date the deadline is estimated from the billing.
+     */
+    lienState: text("lien_state"),
+    lienResidential: integer("lien_residential", { mode: "boolean" }).notNull().default(false),
+    lastFurnishedOn: text("last_furnished_on"),
+    workCompletedOn: text("work_completed_on"),
+    noticeOfCompletionOn: text("notice_of_completion_on"),
     /** The one-click sample job (services/payapps/sample.ts): not counted toward the plan. */
     isSample: integer("is_sample", { mode: "boolean" }).notNull().default(false),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
