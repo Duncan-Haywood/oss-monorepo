@@ -1,0 +1,1 @@
+ALTER TABLE `change_orders` ADD `schedule_days` integer;

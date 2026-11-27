@@ -1,0 +1,11 @@
+{
+  "Item": {
+    "Id": "31",
+    "SyncToken": "0",
+    "Name": "Retainage",
+    "Type": "Service",
+    "Active": true,
+    "IncomeAccountRef": { "value": "92", "name": "Retainage Receivable" }
+  },
+  "time": "2026-11-24T10:00:04.000-08:00"
+}

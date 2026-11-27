@@ -1,0 +1,1 @@
+ALTER TABLE `sov_lines` ADD `opening_released_cents` integer DEFAULT 0 NOT NULL;

@@ -1,0 +1,143 @@
+name: payapps CI
+
+# PR and main checks for ventures/payapps (the PayApps app, its marketing site
+# and the four workspace packages they import as source). Ported from
+# private-monorepo's payapps-ci.yml, payapps-site-ci.yml, billing-ci.yml and
+# qbo-sync-ci.yml on 2026-11-27 (task move-payapps-public). Read-only and
+# secret-free: deploying is a separate workflow (ventures/payapps/DEPLOY.md).
+# Run locally: python3 platform/ci/run_workflow_locally.py payapps-ci.yml
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "ventures/payapps/**"
+      - ".github/workflows/payapps-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/payapps/**"
+      - ".github/workflows/payapps-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same pull request cancels the superseded run; `main`
+# keeps every run (platform/ci/validate_workflows.py, invariant 9).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  app:
+    name: payapps (lint, types, tests, build, migrations)
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: ventures/payapps/apps/payapps
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            ventures/payapps
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          package_json_file: ventures/payapps/package.json
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: ventures/payapps/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec biome ci .
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+      - run: pnpm test:worker
+      - run: pnpm build
+      - name: No source maps in the public assets
+        run: node ../../scripts/check-no-client-maps.mjs dist/client
+      - name: Deploy provisioning script
+        run: node --test scripts/provision.test.mjs
+      - name: D1 migrations in sync with schema
+        run: |
+          pnpm exec drizzle-kit check
+          pnpm exec drizzle-kit generate --name drift-check
+          if [[ -n "$(git status --porcelain migrations)" ]]; then
+            echo "::error::Schema changed without a migration. Run 'pnpm db:generate' and commit it."
+            git status --porcelain migrations
+            exit 1
+          fi
+
+  site:
+    name: payapps-site (lint, types, tests, build)
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ventures/payapps/apps/payapps-site
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            ventures/payapps
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          package_json_file: ventures/payapps/package.json
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: ventures/payapps/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec biome ci .
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+      - run: pnpm test:worker
+      - run: pnpm build
+
+  packages:
+    name: packages (billing, lien-waivers, qbo-sync, admin-metrics, scripts)
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ventures/payapps
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            ventures/payapps
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          package_json_file: ventures/payapps/package.json
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: ventures/payapps/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec biome ci packages scripts
+      - name: billing
+        working-directory: ventures/payapps/packages/billing
+        run: pnpm typecheck && pnpm test
+      - name: lien-waivers (statutory text checked against its official snapshot)
+        working-directory: ventures/payapps/packages/lien-waivers
+        run: pnpm typecheck && pnpm test
+      - name: qbo-sync
+        working-directory: ventures/payapps/packages/qbo-sync
+        run: pnpm typecheck && pnpm test
+      - name: admin-metrics
+        run: node --test packages/admin-metrics/src/*.test.ts
+      - name: scripts
+        run: node --test scripts/*.test.mjs
