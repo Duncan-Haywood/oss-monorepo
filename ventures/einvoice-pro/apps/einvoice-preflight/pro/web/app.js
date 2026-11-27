@@ -124,6 +124,7 @@ const T = {
     blocking: "blocking",
     warnings: "warnings",
     fixedFile: "Download fixed file",
+    viewFile: "Readable view (HTML, printable)",
     diff: "Download diff",
     fixedPass: "The fixed file passes every check that ran.",
     fixedFail: "The fixed file still has findings that need a person.",
@@ -262,6 +263,7 @@ const T = {
     blocking: "blockierend",
     warnings: "Warnungen",
     fixedFile: "Korrigierte Datei herunterladen",
+    viewFile: "Lesbare Ansicht (HTML, druckbar)",
     diff: "Änderungen (Diff) herunterladen",
     fixedPass: "Die korrigierte Datei besteht alle durchgeführten Prüfungen.",
     fixedFail: "Die korrigierte Datei hat noch Befunde, die ein Mensch klären muss.",
@@ -400,6 +402,7 @@ const T = {
     blocking: "bloquantes",
     warnings: "avertissements",
     fixedFile: "Télécharger le fichier corrigé",
+    viewFile: "Vue lisible (HTML, imprimable)",
     diff: "Télécharger les modifications (diff)",
     fixedPass: "Le fichier corrigé passe tous les contrôles effectués.",
     fixedFail: "Le fichier corrigé comporte encore des constats à traiter par une personne.",
@@ -539,6 +542,7 @@ const T = {
     blocking: "blokujące",
     warnings: "ostrzeżenia",
     fixedFile: "Pobierz poprawiony plik",
+    viewFile: "Czytelny widok (HTML, do druku)",
     diff: "Pobierz zmiany (diff)",
     fixedPass: "Poprawiony plik przechodzi wszystkie uruchomione kontrole.",
     fixedFail: "Poprawiony plik nadal ma uwagi, które musi wyjaśnić człowiek.",
@@ -677,6 +681,7 @@ const T = {
     blocking: "blokkerend",
     warnings: "waarschuwingen",
     fixedFile: "Gecorrigeerd bestand downloaden",
+    viewFile: "Leesbare weergave (HTML, afdrukbaar)",
     diff: "Verschillen downloaden",
     fixedPass: "Het gecorrigeerde bestand doorstaat alle uitgevoerde controles.",
     fixedFail: "Het gecorrigeerde bestand heeft nog bevindingen die een mens moet bekijken.",
@@ -1592,7 +1597,54 @@ function rulesRunText(r) {
   return parts.join("; ");
 }
 
-function resultCard(r) {
+/**
+ * The readable view of one checked file (POST /v1/view): the invoice as a printable page with each
+ * finding on its field, downloaded as HTML. The file was checked already, so it costs nothing.
+ * @param {File} file @param {URLSearchParams} q
+ */
+async function downloadView(file, q) {
+  /** @type {Record<string, string>} */
+  const headers = { "content-type": /\.pdf$/i.test(file.name) ? "application/pdf" : "application/xml" };
+  if (state.key) headers.authorization = `Bearer ${state.key}`;
+  const params = new URLSearchParams(q);
+  params.set("name", file.name);
+  params.delete("fix");
+  const res = await fetch(`/v1/view?${params}`, { method: "POST", headers, body: file });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new ApiError(res.status, data?.error?.code ?? "error", data?.error?.message ?? res.statusText);
+  }
+  download(`${file.name.replace(/\.[^.]*$/, "")}-view.html`, await res.text(), "text/html;charset=utf-8");
+}
+
+/** @param {{ file: File, q: URLSearchParams }} source */
+function viewButton(source) {
+  const note = h("span", { class: "small", role: "status" });
+  const btn = /** @type {HTMLButtonElement} */ (
+    h(
+      "button",
+      {
+        type: "button",
+        class: "secondary",
+        onclick: async () => {
+          btn.disabled = true;
+          note.replaceChildren();
+          try {
+            await downloadView(source.file, source.q);
+          } catch (e) {
+            note.replaceChildren(errorBox(e));
+          }
+          btn.disabled = false;
+        },
+      },
+      t("viewFile"),
+    )
+  );
+  return h("div", { class: "row" }, btn, note);
+}
+
+/** @param {any} r one result @param {{ file: File, q: URLSearchParams }} [source] the checked file, when the page still has it */
+function resultCard(r, source) {
   const s = summarizeResult(r);
   const badge = h("span", { class: s.status === "pass" ? "badge ok" : "badge bad" }, s.status === "pass" ? t("pass") : t("fail"));
   const rows = s.rows.map((row) =>
@@ -1628,6 +1680,7 @@ function resultCard(r) {
     { class: "card result" },
     h("h3", {}, badge, " ", s.file, h("span", { class: "small" }, ` · ${s.blocking} ${t("blocking")}, ${s.warnings} ${t("warnings")}`)),
     h("p", { class: "small" }, `${t("rulesRun")}: ${rulesRunText(r)}`),
+    source ? viewButton(source) : null,
     rows.length ? h("ul", { class: "findings" }, ...rows) : null,
     fixBlock,
     skipped,
@@ -1688,7 +1741,11 @@ async function clientView() {
         // schematron=1: the official EN 16931 (and XRechnung / Peppol) Schematron where the server has it.
         const q = new URLSearchParams({ lang: lang.value, profile: profile.value, fix: fix.checked ? "1" : "0", schematron: "1" });
         const r = await api("POST", `/v1/clients/${encodeURIComponent(c.id)}/batches?${q}`, { documents });
-        for (const one of r.results ?? []) results.append(resultCard(one));
+        (r.results ?? []).forEach((/** @type {any} */ one, /** @type {number} */ i) => {
+          // Results come back in the order sent; the name check guards against a mismatch.
+          const file = batch[i] && batch[i].name === one.file ? batch[i] : batch.find((f) => f.name === one.file);
+          results.append(resultCard(one, file ? { file, q } : undefined));
+        });
       }
     } catch (e) {
       msg.replaceChildren(errorBox(e));

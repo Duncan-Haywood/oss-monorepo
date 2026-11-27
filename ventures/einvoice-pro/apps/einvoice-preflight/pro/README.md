@@ -347,6 +347,33 @@ and centred-layout cases).
 
 Not yet (ROADMAP, "PDF to ZUGFeRD, part 3"): scans (OCR).
 
+## The readable view (2026-11-27)
+
+`POST /v1/view?lang=de|fr|en|nl|pl&profile=&schematron=1&name=` with one invoice as the body (UBL,
+CII or a Factur-X / ZUGFeRD PDF) answers `text/html`: the invoice as a printable page (`view.mjs`).
+Seller, buyer, invoice details, lines, VAT breakdown, totals, payment and notes, each field with its
+EN 16931 number (BT-…), the values exactly as the file has them (character references decoded, never
+rounded or reformatted), code lists named in the reader's language (UNTDID 1001 document types,
+UNCL 5305 VAT categories, UNCL 4461 payment means). Every finding of the check is numbered and
+marked on the field its `path` names; a field the file lacks is shown as "missing" when a finding
+names it; a finding about a whole party or the totals sits on that section's heading; findings on
+XML paths (Schematron, XSD) or with no path are listed first. Anything else the parser read is listed
+under "Other values read from the file", so the page hides nothing. A file outside EN 16931 (FA(3),
+FatturaPA) gets the verdict and a note instead of a layout.
+
+Why: an XRechnung is XML that the accountant who receives it cannot read; free viewers show the
+invoice but not what is wrong with it, and the check says what is wrong but not where on the invoice.
+
+It runs the same check as `POST /v1/check` (no fixes; `explain=0` works, `explain=0&fix=1` is refused)
+and is metered the same way, one unit per file and month by SHA-256, so viewing a file already checked
+that month is free (`x-check-status` and the usage headers ride along). The page is built from
+escaped text only, has no script, and carries its own CSP in a meta element so it stays inert when
+opened from disk; the response also sends `VIEW_CSP` and `content-disposition: attachment`. The
+workspace shows a "Readable view (HTML, printable)" button on each batch result, which posts the file
+the page still holds and downloads `<name>-view.html`. Labels in DE/FR/EN/NL/PL (Dutch and Polish
+unreviewed, like the rest of the workspace). `view.test.mjs`; driven in Chromium on a defective UBL
+and a Factur-X PDF.
+
 ## The workspace page
 
 `GET /app` serves `web/`: a stranger signs up with a firm name (`POST /v1/signup`, a trial account,
