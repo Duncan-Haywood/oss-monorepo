@@ -25,7 +25,7 @@ without a sales team, Margin, Time = time to first dollar.
 | 1 | **Pay-app billing → contractor suite** | specialty subcontractors, small GCs | 4 | 5 | 4 | 5 | 4 | 22 | `ventures/payapps/apps/payapps` (moved from private-monorepo 2026-11-27) |
 | 2 | **AI RFQ-to-quote for job shops** | CNC and fabrication shops | 5 | 3 | 3 | 4 | 4 | 19 | `ventures/jobshop-quote/apps/jobshop-quote` (moved 2026-11-27, PR #19594) |
 | 3 | **E-invoice fix-and-explain** | DE/FR SMEs, their accountants, small invoicing vendors | 3 | 5 | 4 | 5 | 4 | 21 | `ventures/einvoice-pro/apps/einvoice-preflight` (moved 2026-11-27, PR #19635's copy; deploy workflow not yet ported) |
-| 4 | **CMMC L1/L2 + ISO 9001 workspace** | small defense/aerospace shops | 4 | 5 | 3 | 4 | 3 | 19 | new `private-monorepo/apps/cmmc` |
+| 4 | **CMMC L1/L2 + ISO 9001 workspace** | small defense/aerospace shops | 4 | 5 | 3 | 4 | 3 | 19 | `ventures/cmmc/apps/cmmc` (moved 2026-11-27, PR #19689; deploys on merge, PR #19821) |
 | 5 | **Reseller profit and Schedule C books** | multi-platform resellers | 4 | 4 | 5 | 4 | 4 | 21 | `ventures/seller-books/apps/seller-books` (moved 2026-11-27, PR #19618) |
 | 6 | **Residential takeoff (roof, siding, framing lists from PDFs)** | remodelers, roofers, framers | 4 | 4 | 3 | 3 | 4 | 18 | `ventures/residential-takeoff/apps/wall-framing-takeoff` (moved from private-monorepo 2026-11-27; not served yet) |
 | 7 | **Grant Autopilot** (live) | small nonprofits | 4 | 3 | 3 | 3 | 3 | 16 | `private-monorepo/apps/grants` |
@@ -171,8 +171,9 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
   a re-derived worst case (20k tokens in per draft, Opus prices), the legal
   pages now cover ISO 9001 and computed dates and match the code, and a
   service-wide AI cap of $1.50 a day keeps the free plan inside the venture's
-  $50 budget. The deploy waits only on porting `cmmc-deploy` here
-  (`ventures/cmmc/DEPLOY.md`); checkout stays dark until Paddle verification.
+  $50 budget. It deployed on 2026-11-27, open on free Level 1 (PR #19783), and
+  redeploys on every merge that touches `ventures/cmmc` (PR #19821,
+  `ventures/cmmc/DEPLOY.md`); checkout stays dark until Paddle verification.
 
 ### 5. Reseller profit and Schedule C books
 

@@ -108,7 +108,14 @@ class ParseTest(unittest.TestCase):
                           ("Backup packets, part 3: check it on a Windows PC and an Android phone "
                            "with a real iPhone photo", "waits on a device"),
                           ("test the scan on a real phone", "waits on a device"),
-                          ("verify the print layout on an iPad", "waits on a device")):
+                          ("verify the print layout on an iPad", "waits on a device"),
+                          # einvoice-preflight #4 (2026-11-27): eight sessions were sent to it.
+                          ("Accountant client dashboard, part 4 (part 3, the schedule, done "
+                           "2026-11-27): client names in the email only with the DPA Annex III "
+                           "change and the 30-day notice (pro/README.md); and the failing rules "
+                           "grouped by seller once the run history stores a seller id, if "
+                           "accountants ask", "legal step"),
+                          ("name the mail provider, which needs the notice in DPA 4.2", "legal step")):
             self.assertEqual(rc.gate(text), why, text)
         self.assertEqual(rc.gate_match("Saved crews; if shops ask for it (part 2)"),
                          ("waits on demand", "if shops ask for it"))
@@ -125,7 +132,9 @@ class ParseTest(unittest.TestCase):
                      "Phone layout for the daily report on narrow screens",
                      "HEIC from Chrome, Edge and Firefox through WebCodecs",
                      "check the layout on phones at 375 px",
-                     "Retainage on a real job's pay app"):
+                     "Retainage on a real job's pay app",
+                     # payapps: a lien notice is the product, not a contract change.
+                     "the 90-day notice drafted from a federal job"):
             self.assertIsNone(rc.gate(free), free)
 
     def test_gate_reads_each_open_ask(self):
