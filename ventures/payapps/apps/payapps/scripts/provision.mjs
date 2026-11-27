@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Idempotent provisioning for a PayApps deploy (docs/DEPLOY.md). Safe to run on every deploy; the deploy
-// workflow (.github/workflows/priv-payapps-deploy.yml) runs it after `pnpm build` and before `wrangler deploy`.
+// workflow (.github/workflows/payapps-deploy.yml) runs it after `pnpm build` and before `wrangler deploy`.
 //
 //   node scripts/provision.mjs --write-config dist/payapps/wrangler.deploy.json
 //   node scripts/provision.mjs --write-config dist/payapps/wrangler.deploy.json --domain payapps.example.org
@@ -107,23 +107,23 @@ export function d1IdFrom(list, name) {
 export const ALREADY_EXISTS =
   /already exists|already taken|already in use|duplicate|\[code: (10004|11009)\]/i;
 export const R2_NOT_ENABLED = /enable R2|10042/i;
-
 /**
- * How to run wrangler: the app's own (`pnpm exec wrangler`), or, when PAYAPPS_WRANGLER_BIN names one,
- * that binary. The deploy job sets it to a pinned global wrangler so it never installs the app's
- * dependencies next to the Cloudflare token (.github/workflows/priv-payapps-deploy.yml).
+ * The token cannot use R2 (no "Workers R2 Storage: Edit" on it): Cloudflare answers the bucket call with
+ * "Authentication error [code: 10000]", as on the first deploy from oss-monorepo (run 45947552522,
+ * 2026-11-27). Like R2 not enabled, the deploy goes on without attachments rather than not at all.
+ * Only the R2 call's error is tested against this, so it never hides a D1 or deploy failure.
  */
-export function wranglerCommand(env = process.env) {
-  const bin = (env.PAYAPPS_WRANGLER_BIN ?? "").trim();
-  if (!bin) return ["pnpm", ["exec", "wrangler"]];
-  if (!/^[\w./-]+$/.test(bin))
-    throw new Error(`PAYAPPS_WRANGLER_BIN must be a plain path (got "${bin}")`);
-  return [bin, []];
+export const R2_NO_ACCESS = /Authentication error|\[code: 10000\]/i;
+
+/** Why the bucket is unavailable, or "" when the error is something else (which must fail the deploy). */
+export function r2Unavailable(message) {
+  if (R2_NOT_ENABLED.test(message)) return "not-enabled";
+  if (R2_NO_ACCESS.test(message)) return "no-access";
+  return "";
 }
 
 function wrangler(args, { allowFailure = false } = {}) {
-  const [cmd, pre] = wranglerCommand();
-  const res = spawnSync(cmd, [...pre, ...args], {
+  const res = spawnSync("pnpm", ["exec", "wrangler", ...args], {
     cwd: APP_DIR,
     encoding: "utf8",
     env: { ...process.env, WRANGLER_SEND_METRICS: "false", FORCE_COLOR: "0" },
@@ -167,10 +167,13 @@ function main() {
       args.dryRun,
     );
   } catch (e) {
-    if (!R2_NOT_ENABLED.test(String(e?.message ?? e))) throw e;
+    const why = r2Unavailable(String(e?.message ?? e));
+    if (!why) throw e;
     r2Enabled = false;
     console.log(
-      "::warning title=R2 not enabled::Attachments are off until R2 is enabled (Cloudflare dashboard -> R2 Object Storage). Re-run the deploy afterwards.",
+      why === "not-enabled"
+        ? "::warning title=R2 not enabled::Attachments are off until R2 is enabled (Cloudflare dashboard -> R2 Object Storage). Re-run the deploy afterwards."
+        : "::warning title=Token has no R2 access::Attachments are off: the Cloudflare token was refused on R2 (Authentication error, code 10000). Add Account -> Workers R2 Storage -> Edit to CLOUDFLARE_API_TOKEN and re-run the deploy.",
     );
   }
 

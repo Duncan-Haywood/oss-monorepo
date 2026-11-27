@@ -62,9 +62,9 @@ threw is retried on redelivery. `test/worker/billing.test.ts` covers each of the
 1. Paddle account verified (needs live pricing, terms, privacy and refund pages: the marketing site,
    PR #18, and the legal pages at `/legal/terms`, `/legal/privacy` and `/legal/refunds`, drafts that
    need the owner's contact email and counsel review first).
-2. Sync `billing/paddle-catalog.json` to Paddle and pass the price ids read back to the Worker as
-   `BILLING_PRICE_IDS` (the ported deploy, `priv-payapps-deploy.yml`, does not run the sync yet: see
-   [DEPLOY.md](DEPLOY.md), step 5; it copies `PAYAPPS_BILLING_PRICE_IDS` to the Worker). Products and prices are code (regenerated from
+2. The deploy workflow (`payapps-deploy`, [DEPLOY.md](DEPLOY.md)) syncs
+   `billing/paddle-catalog.json` to Paddle when `PAYAPPS_BILLING_API_KEY` is set and passes the price
+   ids read back to the Worker as `BILLING_PRICE_IDS`. Products and prices are code (regenerated from
    `PLAN_LIST`; a unit test fails when it is stale).
 3. Worker secrets (owner only, app-prefixed in GitHub, e.g. `PAYAPPS_BILLING_API_KEY`):
    `BILLING_API_KEY`, `BILLING_WEBHOOK_SECRET`, plus the variable `PAYAPPS_BILLING_PROVIDER=paddle`
