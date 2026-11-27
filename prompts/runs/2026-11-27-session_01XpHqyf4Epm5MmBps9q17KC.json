@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyf4Epm5MmBps9q17KC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T06:38:23Z",
+  "ended": "2026-11-27T06:48:23Z",
+  "wall_minutes": 10.3,
+  "tokens_in": 9263859,
+  "tokens_out": 28168,
+  "cost_usd": 3.5388,
+  "tool_calls": 75,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19644",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "platform/pages build.test.mjs run together with the construction tests outlasted the 120 s foreground timeout; moved to background"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/pay-app-guides/state-forms.mjs",
+      "issue": "Its rebuild test was already failing on main (state pages out of date) and its build ignored cta.mjs, so following the ROADMAP's 'set APP_URL and run node cta.mjs' alone would have been reverted by the next node state-forms.mjs"
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "The launch step said '30 pages' and 'open now, free on one job'; it is 42 pages, and the Free plan excludes lien waivers, so the planned wording would have oversold the waiver guides"
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/src/client/components/layout.tsx",
+      "issue": "The in-app 'not yet offered for sale' strip was on no launch checklist; found only by opening the live app"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/pay-app-guides/cta.mjs",
+      "why": "The planned status text 'free on one job' would let a lien-waiver guide imply Free prints waivers",
+      "did": "status names what Free leaves out (waivers, QuickBooks, job costing)",
+      "result": "tests updated; honest on all 42 pages"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Did not dispatch payapps-deploy after merge myself if the flaky-test fix (open PR #19638) is not on main; a red Checks step blocks it",
+      "did": "left the redeploy to the next run or to after #19638 merges, noted in PR",
+      "result": "live app keeps the old strip until redeployed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (Open now section)",
+    "ventures/payapps/apps/payapps/ROADMAP.md (launch bullet)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); ideas inbox empty; route ventures/1 -> bet #1 PayApps. Found deploy run 2 live; deploy records and the flaky test already in open PRs #19628/#19638, so took the unclaimed launch switch. Probed the live app in Chromium: Sign in form with Create-an-account link; /?signup not yet deployed (deployed commit predates #19631). pay-app-guides node --test 296/296; industry-construction 17/17; payapps typecheck clean, vitest unit 1309 passed 1 skipped; biome ci clean on touched files; risk_review nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e23b2851-d812-5c85-baf3-b630c84b7203",
+    "transcripts": 1,
+    "first": "2026-11-27T06:38:23Z",
+    "last": "2026-11-27T06:48:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 137,
+        "output": 28168,
+        "thinking": 5621,
+        "cache_read": 9119858,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143864,
+        "api_equivalent_usd": 3.5388,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 137,
+      "output": 28168,
+      "thinking": 5621,
+      "cache_read": 9119858,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143864,
+      "api_equivalent_usd": 3.5388,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 67,
+      "mcp__github__actions_list": 2,
+      "mcp__github__get_job_logs": 2,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.3,
+      "active_minutes": 10.3,
+      "model_minutes": 6.67,
+      "tool_minutes": 3.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "read launch checklist, change copy on 42 pages and an industry page, a small React change with tests, verify live app",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 113.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
