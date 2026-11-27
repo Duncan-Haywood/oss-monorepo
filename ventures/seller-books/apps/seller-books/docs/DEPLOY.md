@@ -47,7 +47,7 @@ the version id). A rollback does not undo a migration.
 | `SELLER_BOOKS_EMAIL_FROM` | variable | sender; default `Seller Books <no-reply@marisstella.app>`, domain onboarded to Email Service ([EMAIL.md](EMAIL.md)) |
 | `SELLER_BOOKS_AUTH_SECRET` | secret | optional; overrides the generated one (32+ characters) |
 | `SELLER_BOOKS_BILLING_PROVIDER` | variable | `paddle` turns checkout on once the two Paddle secrets are set; default `none` ([BILLING.md](BILLING.md)) |
-| `SELLER_BOOKS_BILLING_API_KEY`, `SELLER_BOOKS_BILLING_WEBHOOK_SECRET` | secrets | paid plans |
+| `SELLER_BOOKS_BILLING_API_KEY` (else the shared `BILLING_API_KEY`, then `PADDLE_API_KEY`), `SELLER_BOOKS_BILLING_WEBHOOK_SECRET` | secrets | paid plans |
 | `SELLER_BOOKS_BILLING_PRICE_IDS` | secret | fallback only, when the catalog sync fails |
 
 `BILLING_PROVIDER` goes to the Worker as a var, not a secret: Cloudflare refuses a secret with the same

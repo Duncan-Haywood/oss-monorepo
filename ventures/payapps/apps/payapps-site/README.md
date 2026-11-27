@@ -89,7 +89,20 @@ marketing, with an unsubscribe header.
   With `EMAIL_MODE=log` (the default in `wrangler.jsonc`) the confirmation email, links included, is
   printed to the console.
 
-## Deploying (not automated yet)
+## Served now: the catalogue copy (2026-11-27)
+
+https://marisstella.app/payapps/ serves `catalogue-export/`, a committed static copy of the open site
+built with `earlyAccess: false`: home, features, pricing, privacy, sitemap, llms.txt, llms-full.txt and
+the feed, with no early-access pages, forms or scripts (the app is open, and nothing runs behind the
+copy, so its privacy notice says the site stores nothing and points at the app's Privacy Policy).
+`platform/pages/payapps-site.mjs` copies it into the catalogue build on every merge, without the
+catalogue's free-tool chrome, and the root `sitemap.xml` index lists `payapps/sitemap.xml`.
+
+**After any change to the pages, the plans or the launch switch, run `pnpm export:catalogue` and
+commit `catalogue-export/`.** `test/unit/catalogue-export.test.ts` fails until you do. The catalogue
+build is plain Node with no pnpm install, which is why the copy is committed rather than built there.
+
+## Deploying the Worker (not automated; only if the early-access list is wanted again)
 
 1. Choose the URL. The default assumes `marisstella.app/payapps`, like grants at `/grants`. Pages are
    built into `dist/payapps/`, and `run_worker_first` already lists `/payapps/api/*`. Add a route for

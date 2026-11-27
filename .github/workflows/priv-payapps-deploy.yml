@@ -175,9 +175,9 @@ jobs:
       - name: Sync the Paddle catalog
         id: paddle
         env:
-          BILLING_API_KEY: ${{ secrets.PAYAPPS_BILLING_API_KEY }}
+          BILLING_API_KEY: ${{ secrets.PAYAPPS_BILLING_API_KEY || secrets.BILLING_API_KEY || secrets.PADDLE_API_KEY }}
         run: |
-          if [[ -z "$BILLING_API_KEY" ]]; then echo "PAYAPPS_BILLING_API_KEY not set: paid plans stay dark"; exit 0; fi
+          if [[ -z "$BILLING_API_KEY" ]]; then echo "No Paddle key (PAYAPPS_BILLING_API_KEY, BILLING_API_KEY or PADDLE_API_KEY): paid plans stay dark"; exit 0; fi
           out="$RUNNER_TEMP/paddle-price-ids.json"
           if node ../../packages/billing/scripts/paddle-catalog.ts --catalog billing/paddle-catalog.json --apply --price-ids-out "$out" \
              && ids="$(jq -c . "$out")"; then
@@ -210,7 +210,7 @@ jobs:
         env:
           CONFIG: ${{ steps.provision.outputs.config }}
           S_AUTH_SECRET: ${{ secrets.PAYAPPS_AUTH_SECRET }}
-          S_BILLING_API_KEY: ${{ secrets.PAYAPPS_BILLING_API_KEY }}
+          S_BILLING_API_KEY: ${{ secrets.PAYAPPS_BILLING_API_KEY || secrets.BILLING_API_KEY || secrets.PADDLE_API_KEY }}
           S_BILLING_WEBHOOK_SECRET: ${{ secrets.PAYAPPS_BILLING_WEBHOOK_SECRET }}
           S_BILLING_PRICE_IDS: ${{ steps.paddle.outputs.price_ids || secrets.PAYAPPS_BILLING_PRICE_IDS }}
           S_QBO_CLIENT_ID: ${{ secrets.PAYAPPS_QBO_CLIENT_ID }}

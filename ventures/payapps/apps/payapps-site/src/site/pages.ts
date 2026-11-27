@@ -9,10 +9,11 @@ import {
   NOT_AIA_NOTE,
   PAGES,
   type PageKey,
+  PRIVACY_NO_LIST,
   PRODUCT_NAME,
   type PublicPage,
 } from "@shared/site";
-import { type Html, href, html, primaryCta, type SiteContext } from "./html";
+import { type Html, hasEarlyAccess, href, html, primaryCta, type SiteContext } from "./html";
 import { launchOf, plansSentence } from "./launch";
 
 export interface Faq {
@@ -729,6 +730,7 @@ function earlyAccess(ctx: SiteContext): BuiltPage {
 // ---------- privacy ----------
 
 function privacy(ctx: SiteContext): BuiltPage {
+  if (!hasEarlyAccess(ctx)) return privacyNoList(ctx);
   const page = PAGES.privacy;
   const main = html`
 <section class="page-head">
@@ -751,6 +753,33 @@ function privacy(ctx: SiteContext): BuiltPage {
   <p>Only the people who run ${PRODUCT_NAME} can see the list: your email address, the page you signed up from, whether you confirmed, and the date. Each time they view it, that view is logged.</p>
   <h2>Where it's kept</h2>
   <p>The site and the list run on Cloudflare (Workers, D1 database, Email Service), in the United States.</p>
+</div>`;
+  return { page, main, jsonLd: [webPage(ctx, page), breadcrumbs(ctx, page)] };
+}
+
+/**
+ * The privacy notice of the static catalogue copy (no early-access list): the pages have no form,
+ * cookie or script, so the only data is what the host sees serving them. The account's own data is
+ * the app's Privacy Policy (apps/payapps/docs/legal/privacy.md, served at <APP_URL>/legal/privacy).
+ */
+function privacyNoList(ctx: SiteContext): BuiltPage {
+  const page = PRIVACY_NO_LIST;
+  const appUrl = launchOf(ctx).appUrl;
+  const main = html`
+<section class="page-head">
+  <div class="wrap narrow">
+    <p class="eyebrow">Privacy</p>
+    <h1>Privacy notice for this website</h1>
+    <p class="lede">Last updated ${CONTENT_UPDATED}. This covers these marketing pages only.</p>
+  </div>
+</section>
+<div class="wrap narrow section prose">
+  <h2>What this website stores</h2>
+  <p>Nothing about you. These pages have no forms, set no cookies and run no analytics, advertising or other scripts.</p>
+  <h2>What the host sees</h2>
+  <p>The pages are served by Cloudflare as part of the marisstella.app site. Like any web host, Cloudflare handles the request your browser sends (including its IP address) to deliver the page and protect the site, under Cloudflare's own privacy policy.</p>
+  <h2>Your ${PRODUCT_NAME} account</h2>
+  <p>Signing up happens in the app${appUrl ? html`, at <a href="${`${appUrl}/`}">${new URL(appUrl).host}</a>` : ""}. What the app stores about your account and your jobs, and how to delete it, is in its <a href="${appUrl ? `${appUrl}/legal/privacy` : href(ctx, "/")}">Privacy Policy</a>.</p>
 </div>`;
   return { page, main, jsonLd: [webPage(ctx, page), breadcrumbs(ctx, page)] };
 }
