@@ -11,6 +11,7 @@ import {
   guessFringeCategory,
   normalizeTaxId,
   periodFromLevel,
+  stripTags,
 } from "./ca-ecpr";
 import { certifiedPayrollSchema } from "./certified-payroll";
 
@@ -174,6 +175,12 @@ describe("buildEcpr", () => {
       "<CPR:contractorName>Smith &amp; Sons &lt;Drywall&gt;</CPR:contractorName>",
     );
     expect(xml).toContain("<CPR:notes>Foreman &amp; lead</CPR:notes>");
+  });
+
+  it("strips every tag from notes, nested ones included", () => {
+    expect(stripTags("<b><i>Foreman</i></b> lead")).toBe("Foreman lead");
+    expect(stripTags("<<i></i>script>x")).not.toMatch(/<[^>]*>/);
+    expect(stripTags("plain 5 > 4")).toBe("plain 5 > 4");
   });
 
   it("refuses what DIR's upload rejects", () => {

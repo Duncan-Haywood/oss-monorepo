@@ -117,4 +117,10 @@ describe("html helpers", () => {
       ),
     ).toBe("## Hi\n\nA [link](/x) & **bold**\n\n- one");
   });
+
+  it("drops scripts that a single pass would reassemble", () => {
+    expect(htmlToMarkdown("<p>a</p><scr<script></script>ipt>bad()</script><p>b</p>")).toBe(
+      "a\n\nb",
+    );
+  });
 });

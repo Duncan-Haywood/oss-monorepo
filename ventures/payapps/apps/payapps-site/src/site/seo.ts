@@ -114,10 +114,19 @@ function planPrices(): string {
   ).join("; ");
 }
 
+/** Applies `step` until the text stops changing, so a removal cannot leave a new match behind. */
+function untilStable(text: string, step: (s: string) => string): string {
+  let previous: string;
+  do {
+    previous = text;
+    text = step(text);
+  } while (text !== previous);
+  return text;
+}
+
 /** The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only. */
 export function htmlToMarkdown(input: string): string {
-  return input
-    .replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, "")
+  return untilStable(input, (s) => s.replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, ""))
     .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, "\n# $1\n\n")
     .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, "\n## $1\n\n")
     .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, "\n### $1\n\n")

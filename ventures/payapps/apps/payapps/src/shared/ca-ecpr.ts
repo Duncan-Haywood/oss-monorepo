@@ -143,6 +143,16 @@ export function normalizeTaxId(id: string): string {
   return /^\d{3}[- ]?\d{2}[- ]?\d{4}$/.test(t) ? t.replace(/[- ]/g, "") : t;
 }
 
+/** Removes HTML tags, repeating until none is left (one pass on "<<b>b>" leaves "<b>"). */
+export function stripTags(text: string): string {
+  let previous: string;
+  do {
+    previous = text;
+    text = text.replace(/<[^>]*>/g, "");
+  } while (text !== previous);
+  return text;
+}
+
 function xmlEscape(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -443,7 +453,7 @@ export function buildEcpr(
         zip: ca.zip,
         ssn: /^\d{9}$/.test(ssn) ? ssn : "",
         itin: /^\d{9}$/.test(itin) && !/^\d{9}$/.test(ssn) ? itin : "",
-        notes: ca.notes.replace(/<[^>]*>/g, ""),
+        notes: stripTags(ca.notes),
         classifications,
         travelSubsCents: ca.travelSubsCents,
         deductions,
