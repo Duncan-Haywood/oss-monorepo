@@ -121,7 +121,8 @@
       <div><label for="skOrtho"><input id="skOrtho" type="checkbox" checked> Keep walls square (horizontal or vertical)</label></div>
     </div>
     <div class="grid">
-      <div><label for="skImg">Trace over a picture (optional; stays on your device)</label><input id="skImg" type="file" accept="image/*"></div>
+      <div><label for="skImg">Trace over a picture or a plan PDF (optional; stays on your device)</label><input id="skImg" type="file" accept="image/*,application/pdf,.pdf"><span id="skPdfPageWrap" hidden> <label for="skPdfPage">Sheet</label><select id="skPdfPage"></select></span></div>
+      <div><label for="skPdfSnap"><input id="skPdfSnap" type="checkbox" checked> Snap wall clicks to a plan PDF's line ends</label></div>
       <div><label for="skScaleLen">Real distance between two points on it</label><input id="skScaleLen" placeholder="e.g. 24 ft"></div>
       <div><button type="button" class="secondary" id="skScale" disabled>Set scale: click the two points</button> <button type="button" class="secondary" id="skMovePic" disabled>Move picture: click a spot, then where it goes</button> <button type="button" class="secondary" id="skLevel" disabled>Straighten picture: click two points that should be level</button> <button type="button" class="secondary" id="skPlumb" disabled>…or plumb (straight up and down)</button> <button type="button" class="secondary" id="skImgOff" disabled>Remove picture</button></div>
       <div><label for="skImgOpacity">Picture strength</label><input id="skImgOpacity" type="range" min="10" max="100" value="45"></div>
@@ -611,7 +612,7 @@
     <p><strong>No warranty.</strong> This tool is provided as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>material_list_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bid_package_unlocked</code>, <code>bid_package_opened</code>, <code>bids_leveled</code>, <code>change_order_saved</code>, <code>sensitivity_run</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>openings_csv_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>dxf_roof_layer</code>, <code>ifc_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>material_list_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bid_package_unlocked</code>, <code>bid_package_opened</code>, <code>bids_leveled</code>, <code>change_order_saved</code>, <code>sensitivity_run</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>openings_csv_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>dxf_roof_layer</code>, <code>ifc_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_pdf</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Before you submit a building permit packet, the <a href="../permit-packet-preflight/">permit packet preflight</a> checks your files against the city's own checklist. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/residential-takeoff" rel="noopener">residential-takeoff on GitHub</a>; the MIT free edition is <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff</a>.</p>
     <p class="support">Source visible. The <a href="LICENSE" rel="noopener">code is all rights reserved</a>; the free edition it grew from stays MIT. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Sponsoring</a> is optional and never changes what the tool does.</p>
@@ -1939,8 +1940,19 @@
           const q = pointAtLength(chain, dir, typed, $("#skOrtho").checked);
           if (q) return q;
         }
-        return snapPoint(raw, sk, opts());
+        return pdfSnap(raw, snapPoint(raw, sk, opts()));
       };
+      // A plan PDF's line ends, placed with the picture (planpdf.mjs). A wall end still wins over them.
+      let pdfUV = null, pdfSnaps = null, pdfSnapsFor = null, viewW = 648;
+      const pdfSnap = (raw, q) => {
+        if (!pdfUV || !trace || !$("#skPdfSnap").checked) return q;
+        if (sk.walls.some((w) => (w.a.x === q.x && w.a.y === q.y) || (w.b.x === q.x && w.b.y === q.y))) return q;
+        if (pdfSnapsFor !== trace) { pdfSnaps = new GridSnapsCtor(trace, pdfUV); pdfSnapsFor = trace; }
+        const line = chain && $("#skOrtho").checked ? (Math.abs(raw.x - chain.x) >= Math.abs(raw.y - chain.y) ? { axis: "h", at: chain.y } : { axis: "v", at: chain.x }) : null;
+        const s = pdfSnaps.near(raw, Math.max(2, viewW / 90), line);
+        return s ? { x: Math.round(s.x * 16) / 16, y: Math.round(s.y * 16) / 16 } : q;
+      };
+      let GridSnapsCtor = null;
       const el = (name, attrs, text) => { const n = document.createElementNS(NS, name); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text !== undefined) n.textContent = text; return n; };
       let trace = null, traceHref = "", scalePts = null, movePts = null, levelPts = null, levelAxis = "h";
       // The picture is kept on this device only: downscaled to a JPEG data URL with its placement.
@@ -1970,6 +1982,7 @@
         minX = Math.floor(minX / 12) * 12; minY = Math.floor(minY / 12) * 12; maxX = Math.ceil(maxX / 12) * 12; maxY = Math.ceil(maxY / 12) * 12;
         svg.setAttribute("viewBox", `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
         const wpx = maxX - minX;
+        viewW = wpx;
         for (let x = minX; x <= maxX; x += 12) svg.append(el("line", { x1: x, y1: minY, x2: x, y2: maxY, stroke: x % 120 === 0 ? "#cfc8b4" : "#ebe6d8", "stroke-width": x % 120 === 0 ? 1.2 : 0.6 }));
         for (let y = minY; y <= maxY; y += 12) svg.append(el("line", { x1: minX, y1: y, x2: maxX, y2: y, stroke: y % 120 === 0 ? "#cfc8b4" : "#ebe6d8", "stroke-width": y % 120 === 0 ? 1.2 : 0.6 }));
         if (trace) svg.insertBefore(el("image", { href: traceHref, x: trace.x, y: trace.y, width: trace.w, height: trace.h, ...(trace.a ? { transform: `rotate(${trace.a} ${trace.x + trace.w / 2} ${trace.y + trace.h / 2})` } : {}), opacity: Number($("#skImgOpacity").value) / 100, preserveAspectRatio: "none", "pointer-events": "none" }), svg.firstChild);
@@ -2100,6 +2113,8 @@
       $("#skFinish").addEventListener("click", finish);
       $("#skImg").addEventListener("change", (e) => {
         const f = /** @type {HTMLInputElement} */ (e.target).files?.[0];
+        if (f && (f.type === "application/pdf" || /\.pdf$/i.test(f.name))) { openPlanPdf(f); return; }
+        $("#skPdfPageWrap").hidden = true; pdfUV = null; pdfDoc = null;
         if (!f || !/^image\//.test(f.type)) return;
         const url = URL.createObjectURL(f), im = new Image();
         im.onload = () => {
@@ -2114,12 +2129,47 @@
             href = c.toDataURL("image/jpeg", 0.8); URL.revokeObjectURL(url);
           } catch (e) { /* keep the blob URL: shown now, not kept across reloads */ }
           trace = t; traceHref = href; enableTrace(true); record("sketch_trace_image");
+          draw(); // before the note: draw() rewrites the info line
           $("#skInfo").textContent = "Picture placed 40 ft wide. Set its scale: type a distance you know on it, press the button, then click its two ends.";
-          draw();
         };
         im.onerror = () => { URL.revokeObjectURL(url); $("#skInfo").textContent = "That file could not be read as a picture."; };
         im.src = url;
       });
+      // A plan PDF: its line work drawn as the picture, sized by the printed scale, its line ends snap points.
+      let pdfDoc = null;
+      const showPdfPage = async (n) => {
+        const { planUnderlay, GridSnaps } = await import("./planpdf.mjs");
+        GridSnapsCtor = GridSnaps;
+        const page = pdfDoc.pages.find((p) => p.page === n);
+        const u = planUnderlay(page);
+        if (!u.ok) { $("#skInfo").textContent = u.error; return; }
+        if (traceHref.startsWith("blob:")) URL.revokeObjectURL(traceHref);
+        const data = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(u.svg);
+        traceHref = data.length < 4e6 ? data : URL.createObjectURL(new Blob([u.svg], { type: "image/svg+xml" }));
+        trace = u.trace; pdfUV = u.uv; pdfSnapsFor = null; scalePts = null; movePts = null; levelPts = null;
+        enableTrace(true); record("sketch_trace_pdf");
+        draw(); // before the note: draw() rewrites the info line
+        const ft = formatLength(trace.w);
+        $("#skInfo").textContent = (u.scale
+          ? `Sheet ${n} placed at ${u.scale.label} (${ft} across), from ${u.scale.how}.`
+          : `Sheet ${n} has no scale note the reader could use, so it is placed ${ft} across: set its scale with a distance you know.`)
+          + ` Wall clicks snap to the drawing's line ends (${u.uv.length}); trace the wall centres where you can, since faces count a little long. Check one known length before you use the sketch.`
+          + (u.clipped ? " The sheet is very dense, so only part of its line work is drawn." : "");
+      };
+      const openPlanPdf = async (f) => {
+        $("#skInfo").textContent = "Reading the PDF on this device…";
+        try {
+          const [{ readPlanPdf }, { inflate }] = await Promise.all([import("./planpdf.mjs"), import("./inflate-browser.mjs")]);
+          const r = await readPlanPdf(new Uint8Array(await f.arrayBuffer()), inflate);
+          if (r.error || !r.pages.length) { $("#skInfo").textContent = r.error || "That PDF has no pages."; return; }
+          pdfDoc = r;
+          const sel = $("#skPdfPage");
+          sel.replaceChildren(...r.pages.map((p) => Object.assign(document.createElement("option"), { value: String(p.page), textContent: `Page ${p.page}` })));
+          $("#skPdfPageWrap").hidden = r.pages.length < 2;
+          await showPdfPage(r.pages[0].page);
+        } catch (e) { $("#skInfo").textContent = "That PDF could not be read."; }
+      };
+      $("#skPdfPage").addEventListener("change", () => { if (pdfDoc) showPdfPage(Number($("#skPdfPage").value)); });
       $("#skScale").addEventListener("click", () => {
         if (!trace) return;
         if (!(parseLength($("#skScaleLen").value) > 0)) { $("#skInfo").textContent = "Type the real distance between the two points first (for example 24 ft)."; return; }
@@ -2133,7 +2183,7 @@
         if (!trace) return;
         finish(); scalePts = null; movePts = null; levelAxis = axis; levelPts = []; $("#skInfo").textContent = "Click one end of a line on the picture that should be " + (axis === "v" ? "plumb" : "level") + " (a wall edge, say).";
       });
-      $("#skImgOff").addEventListener("click", () => { enableTrace(false); levelPts = null; movePts = null; if (traceHref.startsWith("blob:")) URL.revokeObjectURL(traceHref); trace = null; traceHref = ""; scalePts = null; draw(); });
+      $("#skImgOff").addEventListener("click", () => { enableTrace(false); pdfUV = null; pdfDoc = null; $("#skPdfPageWrap").hidden = true; levelPts = null; movePts = null; if (traceHref.startsWith("blob:")) URL.revokeObjectURL(traceHref); trace = null; traceHref = ""; scalePts = null; draw(); });
       $("#skImgOpacity").addEventListener("input", draw);
       $("#skUndo").addEventListener("click", () => { const h = history.pop(); if (h) { sk = JSON.parse(h); chain = null; hover = null; draw(); } });
       $("#skClear").addEventListener("click", () => { if (!sk.walls.length) return; snap(); sk = emptySketch(); chain = null; hover = null; draw(); });

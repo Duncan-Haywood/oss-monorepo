@@ -72,7 +72,7 @@ export const PRODUCTS = [
     status: 'early-access',
     for: 'Remodelers, roofers, siding contractors and framers',
     summary:
-      'Framing, sheathing, roof and siding quantities from a house you type, draw or open as IFC or DXF, and one supplier material list a lumberyard can quote from. The paid edition is open to try while checkout is not; reading plan PDFs directly is next.',
+      'Framing, sheathing, roof and siding quantities from a house you type, draw or open as IFC or DXF, and one supplier material list a lumberyard can quote from. The paid edition is open to try while checkout is not; it now places a vector plan PDF at its printed scale under the sketch, so walls are traced corner to corner.',
     planned: ['Material lists from plan PDFs', 'Feeds estimates into the pay-app suite'],
     freeToday: ['wall-framing-takeoff', 'pdf-plan-takeoff'],
     // The paid edition's app at /residential-takeoff/ (residential-takeoff-app.mjs), when copied in.

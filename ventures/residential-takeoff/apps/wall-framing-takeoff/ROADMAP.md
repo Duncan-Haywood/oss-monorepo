@@ -229,6 +229,10 @@ Ticked items are on `main`.
       sill-32 window framed as an 82.5 in door); fixed with `openingSizes`
       (`ifcwasm.mjs`, test in `ifcwasm.test.mjs`; property test on invented plans in `ifcwasm-fuzz.test.mjs`, 2026-11-04). Still open: clipping
       (ifc-engine plan, milestone 3) and a real US wood-framed model.
+- [x] (2026-11-27, `planpdf.mjs`, page card; click-checked in Chromium on the invented sample sheet
+      only) A vector plan PDF as the sketch underlay: sized by its printed scale (checked against its
+      dimension strings, half-size prints caught), wall clicks snapping to its line ends. Still open:
+      walls found without clicking (Next, item 2) and a real permit set.
 
 ### 3. The rest of the shell
 
@@ -500,6 +504,10 @@ From [`2026-11-19-wall-framing-takeoff-r5.json`](../../../../portfolio/quality/a
    "Payments"): Paddle.js overlay with a public client-side token and price id, and a small Worker that
    confirms a transaction id against Paddle's API with an owner-set key, so the page stays static.
    Needs its own deploy workflow (allowlist PR first, as Seller Books did).
-2. Material lists from plan PDFs: the construction page names it as next; the free `pdf-plan-takeoff`
-   measures lengths and areas on a scaled drawing PDF, so the first slice reads its wall runs into a plan.
+2. Material lists from plan PDFs, part 2 (part 1 done 2026-11-27: a vector plan PDF as the sketch
+   underlay at its printed scale, with clicks snapping to its line ends; README, "Plan PDF underlay"):
+   find the walls without clicking. `dxf.mjs` already pairs double lines into centre lines
+   (`pairDoubleLines`, `bridgeGaps`); run it on the page's stroked segments in inches inside a box the
+   user drags round the floor plan, offer the result as a sketch to correct, and measure it against
+   a real permit set before saying it works.
 
