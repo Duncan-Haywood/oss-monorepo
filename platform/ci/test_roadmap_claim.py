@@ -574,6 +574,11 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertIn("CLAIMED claim/payapps/price-lists-part-2c", out)
 
+    def test_bet_apps_prefers_the_app_path_over_other_quoted_files(self):
+        row = ("| 3 | **E-invoice** | 3 | `ventures/einvoice-pro/apps/einvoice-preflight` (moved; deploy "
+               "workflow `priv-einvoice-pro-deploy.yml`, manual dispatch) |\n")
+        self.assertEqual(rc.bet_apps(row), [(3, "E-invoice", "einvoice-preflight")])
+
     def test_bets_overview_skips_a_bet_with_nothing_free(self):
         bets = Path(self.tmp.name) / "bets.md"
         bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
