@@ -4,6 +4,7 @@ seo_title: "E-invoice Preflight adds Brazil"
 date: 2026-10-26
 description: "A Brazil page explains the state-authorised NF-e and tests CNPJ and CPF check digits in the browser, letters included, with the check's measured blind spot."
 tags: [einvoice-preflight, e-invoicing, brazil]
+folded_into: einvoice-preflight/brazil-nfe-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Brazil](../../ventures/einvoice-preflight/brazil-nfe-e-invoice-mandate.html), the 41st in the all-countries table. Goods invoices there are NF-e: XML that the state tax authority (SEFAZ) authorises before the goods move. The timely detail is the CNPJ, the 14-character company number. For new registrations its first 12 characters may now be letters, and the NF-e schemas were changed to accept that, with production reported for 1 July 2026.

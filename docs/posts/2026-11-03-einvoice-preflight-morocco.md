@@ -4,6 +4,7 @@ date: 2026-11-03
 seo_title: "E-invoice Preflight adds Morocco"
 description: "Morocco page: the DGI's pre-clearance e-invoicing system, vendor-reported 2026 waves, and why the newest source says no decree is published."
 tags: [einvoice-preflight, e-invoicing, morocco]
+folded_into: einvoice-preflight/morocco-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Morocco](../../ventures/einvoice-preflight/morocco-e-invoice-mandate.html), the 76th in the all-countries table. The tax authority (DGI) has been building a pre-clearance system, reported as Simpl-TVA. Several vendor guides give a first wave on 1 January 2026 (turnover above MAD 200 million) and a second on 1 July 2026. A guide dated about 28 September 2026 says the decree that sets dates and categories is not in the Official Bulletin and the 2026 start has not happened.

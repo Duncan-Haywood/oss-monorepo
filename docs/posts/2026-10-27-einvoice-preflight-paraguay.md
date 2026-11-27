@@ -3,6 +3,7 @@ title: "E-invoice Preflight adds Paraguay, with a RUC check-digit test"
 date: 2026-10-27
 description: "A Paraguay SIFEN page with a local tax-number check, and what the check does not rest on."
 tags: [einvoice-preflight, e-invoicing, paraguay]
+folded_into: einvoice-preflight/paraguay-dnit-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Paraguay](../../ventures/einvoice-preflight/paraguay-dnit-e-invoice-mandate.html), the 47th in the all-countries table.
