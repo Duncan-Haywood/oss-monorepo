@@ -65,7 +65,7 @@
       <label>Value you assign to Plus shop features <input id="otherPlusValue" type="number" min="0" step="0.01" value="0"></label>
     </div>
     <p id="plusVerdict" class="verdict"></p>
-    <table id="plusTable">
+    <table class="stack" id="plusTable">
       <thead><tr><th scope="col">Path</th><th scope="col">Listing fees</th><th scope="col">Ads you pay</th><th scope="col">Plus fee</th><th scope="col">Cash out this month</th><th scope="col">vs staying off</th></tr></thead>
       <tbody id="plusRows"></tbody>
     </table>
@@ -81,7 +81,7 @@
       <label>Custom orders this month <input id="monthlyCustomOrders" type="number" min="0" step="1" value="12"></label>
     </div>
     <p id="personalizationVerdict" class="verdict"></p>
-    <table id="personalizationTable">
+    <table class="stack" id="personalizationTable">
       <thead><tr><th scope="col">Path</th><th scope="col">Item price</th><th scope="col">Fees</th><th scope="col">Extra cash out</th><th scope="col">Kept</th><th scope="col">vs as listed</th></tr></thead>
       <tbody id="personalizationRows"></tbody>
     </table>
@@ -94,7 +94,7 @@
       <label>Etsy Ads ACOS (%) <input id="etsyAdsAcosPct" type="number" min="0" step="0.1" value="12"></label>
     </div>
     <p id="adsVerdict" class="verdict"></p>
-    <table id="adsTable">
+    <table class="stack" id="adsTable">
       <thead><tr><th scope="col">Path</th><th scope="col">Ads on this order</th><th scope="col">Fees</th><th scope="col">Kept</th><th scope="col">vs organic</th></tr></thead>
       <tbody id="adsRows"></tbody>
     </table>
@@ -104,7 +104,7 @@
     <h2>Do Offsite Ads still leave a profit?</h2>
     <p>Offsite Ads are a percentage Etsy takes on the order total when it attributes the sale to Google or social. That is not on-site Etsy Ads — ACOS is a click you buy. Shops under $10,000 in trailing 12-month sales typically pay 15%; shops over that threshold typically pay 12%. The rate in the order form above is your current assumption. This table keeps organic, 12%, and 15% on the same listing. If Offsite Ads is the only reason the order exists, leftover after the fee can still be the right take — as long as you see the number before you ship. This is arithmetic on your inputs, not Etsy's live Offsite Ads schedule and not a recommendation to opt in or out. <a href="are-etsy-offsite-ads-worth-it.html">Are Etsy Offsite Ads worth it?</a></p>
     <p id="offsiteVerdict" class="verdict"></p>
-    <table id="offsiteTable">
+    <table class="stack" id="offsiteTable">
       <thead><tr><th scope="col">Path</th><th scope="col">Offsite fee</th><th scope="col">Kept</th><th scope="col">ROI on cash</th><th scope="col">vs organic</th></tr></thead>
       <tbody id="offsiteRows"></tbody>
     </table>
@@ -122,7 +122,7 @@
       <label>Partner reject rate (%) <input id="partnerRejectRatePercent" type="number" min="0" max="99.9" step="0.1" value="0"></label>
     </div>
     <p id="partnerVerdict" class="verdict"></p>
-    <table id="partnerTable">
+    <table class="stack" id="partnerTable">
       <thead><tr><th scope="col">Path</th><th scope="col">Units</th><th scope="col">Cash out / sale</th><th scope="col">Kept / sale</th><th scope="col">This month</th><th scope="col">vs handmade month</th></tr></thead>
       <tbody id="partnerRows"></tbody>
     </table>
@@ -140,7 +140,7 @@
       <label>Listings in this window <input id="starSellerListings" type="number" min="0" step="1" value="40"></label>
     </div>
     <p id="starVerdict" class="verdict"></p>
-    <table id="starTable">
+    <table class="stack" id="starTable">
       <thead><tr><th scope="col">Path</th><th scope="col">Packed leftover</th><th scope="col">Sell-through</th><th scope="col">Expected / listing</th><th scope="col">Across listings</th><th scope="col">vs unsigned</th></tr></thead>
       <tbody id="starRows"></tbody>
     </table>
@@ -157,7 +157,7 @@
       <label>Listings in this sale <input id="saleListings" type="number" min="0" step="1" value="40"></label>
     </div>
     <p id="saleVerdict" class="verdict"></p>
-    <table id="saleTable">
+    <table class="stack" id="saleTable">
       <thead><tr><th scope="col">Path</th><th scope="col">Packed leftover</th><th scope="col">Sell-through</th><th scope="col">Expected / listing</th><th scope="col">Across listings</th><th scope="col">vs full price</th></tr></thead>
       <tbody id="saleRows"></tbody>
     </table>
@@ -171,7 +171,7 @@
       <label>Orders this month if you charge shipping <input id="monthlyOrders" type="number" min="0" step="1" value="40"></label>
     </div>
     <p id="freeShipVerdict" class="verdict"></p>
-    <table id="freeShipTable">
+    <table class="stack" id="freeShipTable">
       <thead><tr><th scope="col">Path</th><th scope="col">Item + shipping charged</th><th scope="col">Kept / order</th><th scope="col">This month</th><th scope="col">vs charging shipping</th></tr></thead>
       <tbody id="freeShipRows"></tbody>
     </table>
@@ -191,7 +191,7 @@
       <label>Shipments this month <input id="monthlyLabelShipments" type="number" min="1" step="1" value="40"></label>
     </div>
     <p id="labelsVerdict" class="verdict"></p>
-    <table id="labelsTable">
+    <table class="stack" id="labelsTable">
       <thead><tr><th scope="col">Path</th><th scope="col">Label</th><th scope="col">Extra time</th><th scope="col">Packed leftover</th><th scope="col">Expected keep</th><th scope="col">vs Etsy label</th></tr></thead>
       <tbody id="labelsRows"></tbody>
     </table>

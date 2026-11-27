@@ -70,7 +70,7 @@ test("the landing copy names the affiliate-on-item trap and the disclaimer", () 
 });
 
 test("the comparison table headers match the rendered row template", () => {
-  const table = markup.match(/<table>[\s\S]*?<\/table>/);
+  const table = markup.match(/<table(?: class="stack")?>[\s\S]*?<\/table>/);
   assert.ok(table, "comparison table missing");
   const headers = [...table[0].matchAll(/<th\b/g)];
   assert.equal(headers.length, 5, `expected 5 headers, found ${headers.length} in ${table[0]}`);

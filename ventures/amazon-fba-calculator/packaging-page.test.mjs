@@ -127,7 +127,7 @@ test("the calculator page carries the size-tier section renderPack writes into",
 
 test("the calculator's size-tier table renders one cell per column", () => {
   const { markup, scripts } = parse(index);
-  const table = markup.match(/<table id="packTable">[\s\S]*?<\/table>/);
+  const table = markup.match(/<table(?: class="stack")? id="packTable">[\s\S]*?<\/table>/);
   assert.ok(table, "index.html is missing the pack table");
   const columns = table[0].match(/<th\b/g).length;
   const body = scripts.join("\n").match(/function renderPack\([\s\S]*?\n    \}\n/);

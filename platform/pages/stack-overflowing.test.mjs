@@ -54,3 +54,24 @@ test('end tags with spaces or attributes, and --!> comments, still close the blo
   const heads = sourceTables(html).map((x) => x.head);
   assert.deepEqual(heads, [headKey('JobNet yd'), headKey('TwoNet yd')]);
 });
+
+test('--scripted stacks a script-filled table with a header (the runtime labeller covers it), still not a nested or headless one', () => {
+  const head = '<tr><th>Job</th><th>Net yd²</th></tr>';
+  for (const c of [STATIC.replace('<tbody>', '<tbody id="rows">'), STATIC.replace(/<tbody>[\s\S]*<\/tbody>/, '<tbody id="rows"></tbody>')]) {
+    const r = stackTables(c, [head], { scripted: true });
+    assert.equal(r.changed, 1, c);
+    assert.match(r.html, /^<table class="stack">/);
+  }
+  const nested = STATIC.replace('<tbody>', '<tbody id="rows">').replace('<td>1</td>', '<td><table><tr><td>1</td></tr></table></td>');
+  assert.equal(stackTables(nested, [head], { scripted: true }).changed, 0);
+  assert.equal(stackTables(STATIC, [null], { scripted: true }).changed, 0);
+});
+
+test('tables sharing a header are stacked only when every one overflowed', () => {
+  const head = '<tr><th>Job</th><th>Net yd²</th></tr>';
+  const two = STATIC + STATIC;
+  assert.equal(stackTables(two, [head]).changed, 0);
+  const r = stackTables(two, [head, head]);
+  assert.equal(r.changed, 2);
+  assert.equal((r.html.match(/<table class="stack">/g) || []).length, 2);
+});

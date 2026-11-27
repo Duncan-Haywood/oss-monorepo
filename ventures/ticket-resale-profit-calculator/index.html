@@ -85,9 +85,9 @@
     <h2>2. What it means</h2>
     <p id="price-summary"></p>
     <h3>Same order on each marketplace</h3>
-    <table><thead><tr><th>Marketplace</th><th class="num">Fee</th><th class="num">Payout</th><th class="num">Profit</th></tr></thead><tbody id="platform-rows"></tbody></table>
+    <table class="stack"><thead><tr><th>Marketplace</th><th class="num">Fee</th><th class="num">Payout</th><th class="num">Profit</th></tr></thead><tbody id="platform-rows"></tbody></table>
     <h3>Profit at different list prices</h3>
-    <table><thead><tr><th class="num">List / ticket</th><th class="num">Payout</th><th class="num">Profit if sold</th><th class="num">ROI</th></tr></thead><tbody id="sweep-rows"></tbody></table>
+    <table class="stack"><thead><tr><th class="num">List / ticket</th><th class="num">Payout</th><th class="num">Profit if sold</th><th class="num">ROI</th></tr></thead><tbody id="sweep-rows"></tbody></table>
     <p id="price-estimate" class="note"></p>
   </section>
 
@@ -102,7 +102,7 @@
   <section class="card" id="report-card" hidden aria-live="polite">
     <h2>4. Which marketplace pays you</h2>
     <p id="summary"></p>
-    <table id="results-table" hidden><thead><tr><th>Marketplace</th><th class="num">Sales</th><th class="num">Fees</th><th class="num">Profit</th><th class="num">ROI</th></tr></thead><tbody id="results-rows"></tbody></table>
+    <table class="stack" id="results-table" hidden><thead><tr><th>Marketplace</th><th class="num">Sales</th><th class="num">Fees</th><th class="num">Profit</th><th class="num">ROI</th></tr></thead><tbody id="results-rows"></tbody></table>
     <h3>Sales that lost money</h3>
     <p id="losers" class="note"></p>
     <p id="estimate" class="note"></p>
