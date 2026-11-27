@@ -2163,7 +2163,12 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   deploy workflow runs the Paddle catalog sync
 - Owner: an Intuit developer app, its keys and redirect URI, and `QBO_TOKEN_KEY`
   (docs/QUICKBOOKS.md, "Turning it on"); check one invoice in a sandbox company first
-- Marketing site with the pricing table (`apps/payapps-site`, PR #18) reading `/api/billing/plans`
+- Marketing site with the pricing table (`apps/payapps-site`, PR #18) reading `/api/billing/plans`.
+  Done 2026-11-27: the site is "PayApps" (no longer "PayPencil") and has the launch switch the guides
+  have: `APP_URL`/`PAID_PLANS_ON` in `apps/payapps-site/src/shared/site.ts` (or the build's env) turn
+  every page from early access into "open now, free on one job" with sign-up links tagged
+  `from=payapps-site/<page>`; a workers.dev address is refused. Next: serve it (a deploy workflow, or
+  the static pages on marisstella.app/payapps) and set `APP_URL` with `cta.mjs`'s on launch day
 - At launch, point the free guides at sign-up: set `APP_URL` in `ventures/pay-app-guides/cta.mjs` to the
   deployed origin and run `node cta.mjs` there (30 pages' CTAs switch from "in development" to "open
   now, free on one job" and link to `/?signup&from=pay-app-guides/<page>`, which opens "Create an
