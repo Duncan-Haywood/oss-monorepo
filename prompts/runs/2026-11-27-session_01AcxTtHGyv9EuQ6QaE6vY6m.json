@@ -38,6 +38,10 @@
     {
       "what": "two JS string literals with unescaped apostrophes in industry-online-sellers.mjs, and an over-long llms blockquote and post description",
       "fixed": "caught by node --check and build.test.mjs before push of the second commit"
+    },
+    {
+      "what": "CI pages.yml check_pages_links: reseller-books linked ../industries/online-sellers/, which the legacy GitHub Pages build does not produce; site-builder test 'no paywall language' matched 'Paid plans' in the open-free card note on the hub",
+      "fixed": "absolute https://marisstella.app/industries/online-sellers/ link; note reworded to 'Nothing is sold yet.'; full platform/pages suite 2193/2193"
     }
   ],
   "integrity_issues": [],
@@ -75,7 +79,7 @@
     "docs/posts/2026-11-27-reseller-home-office-and-equipment-deductions.md (corrected)"
   ],
   "goal": "bets #5 and #1: every visitor from 186 front-door tool pages, /products/, the home page and the online-sellers page now reaches a working Start free link instead of 'nothing to sign up for'",
-  "notes": "Verified locally: node --test industry-online-sellers, front-doors, business, products, share, home, industry-construction: 107/107; build.test.mjs subset (llms|About|home|industry|front door|product|post): 36/36; ventures/reseller-books page.test.mjs 9/9; check_post_links 0 broken; front-doors-map regenerated (construction 129, online-sellers 57 tools). Live checks: https://seller-books.marisstella.app/api/health -> ok, billing false, email true; /signup -> 200. Not done: sign-up attribution (neither app stores ?from=); apps/seller-books-site is not deployed.",
+  "notes": "Verified locally: node --test industry-online-sellers, front-doors, business, products, share, home, industry-construction: 107/107; build.test.mjs subset (llms|About|home|industry|front door|product|post): 36/36; ventures/reseller-books page.test.mjs 9/9; check_post_links 0 broken; front-doors-map regenerated (construction 129, online-sellers 57 tools). Live checks: https://seller-books.marisstella.app/api/health -> ok, billing false, email true; /signup -> 200. Not done: sign-up attribution (neither app stores ?from=); apps/seller-books-site is not deployed. Full platform/pages node --test: 2193/2193 after the fixes. venture-preflight reseller-books: clean.",
   "corrections": [],
   "redteam": null,
   "usage": {

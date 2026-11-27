@@ -44,7 +44,7 @@ export const CONTACT_EMAIL = 'hello@marisstella.app';
 
 export const STATUS = Object.freeze({
   live: Object.freeze({ label: 'Live', note: 'Open it and use it today.' }),
-  'open-free': Object.freeze({ label: 'Open · free plan', note: 'Sign up and use it today on the free plan. Paid plans are not on sale yet.' }),
+  'open-free': Object.freeze({ label: 'Open · free plan', note: 'Sign up and use it today on the free plan. Nothing is sold yet.' }),
   'early-access': Object.freeze({ label: 'In development · early access', note: 'Being built now. The free tools beside it work today.' }),
   'long-term': Object.freeze({ label: 'Long-term · open design', note: 'An open design. Nothing has been physically built yet.' }),
 });
