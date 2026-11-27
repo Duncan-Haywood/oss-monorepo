@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import {
   calculateQuote,
   suggestFleet,
-  peoplePerUnit,
+  psaiRestrooms,
   UNIT_PRESETS,
-  PEOPLE_PER_UNIT_BY_HOURS,
+  PSAI_SPECIAL_EVENT_CHART,
 } from './calc.mjs';
+import { readFileSync } from 'node:fs';
 
 const wedding = () => ({
   units: [
@@ -122,24 +123,77 @@ test('a nameless unit type still reports under a stable label', () => {
   assert.equal(result.totalUnits, 3);
 });
 
-test('people-per-unit tightens as the event runs longer, and alcohol tightens it further', () => {
-  assert.equal(peoplePerUnit({ eventHours: 4 }), 50);
-  assert.equal(peoplePerUnit({ eventHours: 8 }), 30);
-  assert.equal(peoplePerUnit({ eventHours: 8, alcohol: true }), 24);
-  assert.equal(peoplePerUnit({ eventHours: 14 }), 16);
+// Cells read off the PSAI Special Event Chart PDF (Extended Breakdown, no
+// pumping service; henniker.org copy), not off calc.mjs. The first six are the
+// quality round 109 audit's recomputation, which the old uncited table missed
+// by 2x to 4x (10 / 17 / 20 / 34 / 200 / 334).
+const PSAI_CELLS = [
+  [500, 4, 5], [500, 8, 9], [1000, 4, 8], [1000, 8, 12], [10000, 4, 50], [10000, 8, 100],
+  [500, 1, 2], [2000, 3, 9], [5000, 10, 63], [25000, 1, 38], [55000, 7, 486], [100000, 10, 1251],
+];
+
+test('fleet estimate reproduces the PSAI Special Event Chart cells', () => {
+  for (const [attendees, eventHours, expected] of PSAI_CELLS) {
+    assert.equal(suggestFleet({ attendees, eventHours }).restroomUnits, expected, `${attendees} x ${eventHours} h`);
+    assert.equal(psaiRestrooms({ attendees, eventHours }).withinChart, true);
+  }
+});
+
+test('chart shape: 25 crowd rows from 500 to 100,000, ten hourly columns, never fewer units for more people or hours', () => {
+  assert.equal(PSAI_SPECIAL_EVENT_CHART.length, 25);
+  assert.equal(PSAI_SPECIAL_EVENT_CHART[0].crowd, 500);
+  assert.equal(PSAI_SPECIAL_EVENT_CHART.at(-1).crowd, 100000);
+  PSAI_SPECIAL_EVENT_CHART.forEach((row, i) => {
+    assert.equal(row.units.length, 10);
+    row.units.forEach((u, h) => {
+      if (h > 0) assert.ok(u >= row.units[h - 1], `${row.crowd} row falls at ${h + 1} h`);
+      if (i > 0) assert.ok(u >= PSAI_SPECIAL_EVENT_CHART[i - 1].units[h], `${row.crowd} below previous row at ${h + 1} h`);
+    });
+  });
+});
+
+test('between rows, below 500, past 10 hours and with alcohol the estimate interpolates, scales and rounds up', () => {
+  // 750 x 4 h: halfway between 5 and 8 -> 6.5 -> 7
+  assert.deepEqual(psaiRestrooms({ attendees: 750, eventHours: 4 }), { restroomUnits: 7, withinChart: true });
+  // 4.2 h reads the 5-hour column (rounds up, not to nearest): 1,000 x 5 h = 9
+  assert.equal(psaiRestrooms({ attendees: 1000, eventHours: 4.2 }).restroomUnits, 9);
+  // 200 x 8 h: 9 x 200/500 = 3.6 -> 4, flagged outside the chart
+  assert.deepEqual(psaiRestrooms({ attendees: 200, eventHours: 8 }), { restroomUnits: 4, withinChart: false });
+  // 1,000 x 12 h: 13 x 12/10 = 15.6 -> 16
+  assert.deepEqual(psaiRestrooms({ attendees: 1000, eventHours: 12 }), { restroomUnits: 16, withinChart: false });
+  // alcohol +20%: 1,000 x 8 h = 12 x 1.2 = 14.4 -> 15; 500 x 8 h = 9 x 1.2 = 10.8 -> 11
+  assert.equal(psaiRestrooms({ attendees: 1000, eventHours: 8, alcohol: true }).restroomUnits, 15);
+  assert.equal(psaiRestrooms({ attendees: 500, eventHours: 8, alcohol: true }).restroomUnits, 11);
+  // exact products stay exact: 200 x 4 h = 5 x 0.4 = 2, not 3
+  assert.equal(psaiRestrooms({ attendees: 200, eventHours: 4 }).restroomUnits, 2);
+  // a tiny crowd still gets one unit
+  assert.equal(psaiRestrooms({ attendees: 10, eventHours: 2 }).restroomUnits, 1);
 });
 
 test('suggested fleet splits accessible units out and adds handwash only when food is served', () => {
-  const dry = suggestFleet({ attendees: 200, eventHours: 8, alcohol: true, foodService: false });
-  // 200 / 24 = 8.333 → 9 restrooms; 5% of 9 is 1 accessible
-  assert.equal(dry.peoplePerUnit, 24);
-  assert.equal(dry.restroomUnits, 9);
+  const dry = suggestFleet({ attendees: 1000, eventHours: 8, alcohol: true, foodService: false });
+  // 12 x 1.2 = 14.4 -> 15 restrooms; 5% of 15 rounds up to 1 accessible
+  assert.equal(dry.restroomUnits, 15);
   assert.equal(dry.ada, 1);
-  assert.equal(dry.standard, 8);
+  assert.equal(dry.standard, 14);
   assert.equal(dry.handwash, 0);
+  assert.equal(dry.peoplePerUnit, 67);
 
-  const catering = suggestFleet({ attendees: 200, eventHours: 8, alcohol: true, foodService: true });
-  assert.equal(catering.handwash, 3);
+  const catering = suggestFleet({ attendees: 1000, eventHours: 8, alcohol: true, foodService: true });
+  assert.equal(catering.handwash, 4);
+});
+
+test('the 200-person SEO page table matches the engine', () => {
+  const html = readFileSync(new URL('./how-many.html', import.meta.url), 'utf8');
+  const rows = [...html.matchAll(/<tr><td>(?:Up to (\d+)|\d+–(\d+)) hours<\/td><td>(\d+) restrooms<\/td><td>(\d+) restrooms<\/td><\/tr>/g)];
+  assert.equal(rows.length, 5);
+  for (const m of rows) {
+    const hours = Number(m[1] ?? m[2]);
+    assert.equal(suggestFleet({ attendees: 200, eventHours: hours }).restroomUnits, Number(m[3]), `${hours} h`);
+    assert.equal(suggestFleet({ attendees: 200, eventHours: hours, alcohol: true }).restroomUnits, Number(m[4]), `${hours} h alcohol`);
+  }
+  assert.match(html, /PSAI/);
+  assert.doesNotMatch(html, /not a published standard/);
 });
 
 test('zero attendees suggests an empty fleet rather than a free unit', () => {
@@ -152,7 +206,7 @@ test('zero attendees suggests an empty fleet rather than a free unit', () => {
 test('a quoted fleet lighter than the starting estimate is flagged, not forbidden', () => {
   const light = calculateQuote({
     ...wedding(),
-    attendees: 200,
+    attendees: 500,
     eventHours: 8,
     alcohol: true,
   });
@@ -160,6 +214,17 @@ test('a quoted fleet lighter than the starting estimate is flagged, not forbidde
   assert.ok(light.suggestion.restroomUnits > 5);
   assert.equal(light.restroomsLookLight, true);
   assert.ok(light.pricePerAttendee > 0);
+});
+
+test('a fleet sized to the PSAI chart is not flagged light', () => {
+  const result = calculateQuote({
+    ...wedding(),
+    units: [{ name: 'Standard portable restroom', quantity: 12, rentPerDay: 18, serviceEach: 28 }],
+    attendees: 1000,
+    eventHours: 8,
+  });
+  assert.equal(result.suggestion.restroomUnits, 12);
+  assert.equal(result.restroomsLookLight, false);
 });
 
 test('handwash and trailer rows do not count as restrooms in the light-fleet check', () => {
@@ -193,16 +258,12 @@ test('inputs that would silently produce a nonsense quote are rejected', () => {
   );
 });
 
-test('unit presets and duration table are usable positive numbers', () => {
+test('unit presets are usable positive numbers', () => {
   assert.ok(UNIT_PRESETS.length >= 4);
   for (const preset of UNIT_PRESETS) {
     assert.ok(preset.label.length > 0);
     assert.ok(preset.rentPerDay > 0);
     assert.ok(preset.serviceEach > 0);
-  }
-  assert.ok(PEOPLE_PER_UNIT_BY_HOURS.length >= 4);
-  for (const row of PEOPLE_PER_UNIT_BY_HOURS) {
-    assert.ok(row.peoplePerUnit > 0);
   }
 });
 
