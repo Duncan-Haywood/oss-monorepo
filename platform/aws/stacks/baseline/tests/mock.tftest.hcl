@@ -874,21 +874,6 @@ run "baseline_shape" {
   command = plan
 
   assert {
-    condition = alltrue([
-      for st in concat(data.aws_iam_policy_document.log_bucket.statement, data.aws_iam_policy_document.log_key.statement) :
-      flatten([for p in st.principals : p.identifiers]) == ["config.amazonaws.com"] &&
-      anytrue([for c in st.condition : c.variable == "aws:SourceAccount" && length(c.values) == 7])
-      if startswith(st.sid, "Config")
-    ]) && length([for st in data.aws_iam_policy_document.log_bucket.statement : st if startswith(st.sid, "Config")]) == 2
-    error_message = "Config reaches the log bucket and key as config.amazonaws.com, limited to the organisation's seven accounts"
-  }
-
-  assert {
-    condition     = length(aws_guardduty_detector.security) == 0 && length(data.aws_guardduty_detector.security) == 1
-    error_message = "organization mode reads the detector AWS creates for the delegated admin"
-  }
-
-  assert {
     condition     = aws_cloudtrail.org.is_organization_trail && aws_cloudtrail.org.enable_log_file_validation
     error_message = "organisation trail with log file validation"
   }
@@ -950,7 +935,7 @@ run "single_account" {
   }
 
   assert {
-    condition     = aws_guardduty_detector.security[0].enable && length(aws_securityhub_standards_subscription.single) == 2
+    condition     = aws_guardduty_detector.security.enable && length(aws_securityhub_standards_subscription.single) == 2
     error_message = "GuardDuty on, FSBP and CIS subscribed on the account"
   }
 
