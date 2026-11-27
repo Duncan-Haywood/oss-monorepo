@@ -76,7 +76,9 @@ test("next-month carry-forward is on the page and the suite pitch claims no sale
   assert.match(suite, /in development/);
   assert.match(suite, /not on sale yet/);
   assert.doesNotMatch(suite, /\$\s?\d/);
-  assert.match(suite, /https:\/\/marisstella\.app\/feedback\/\?type=idea&amp;tool=pay-application-generator/);
+  // Early access goes to the private list on the construction page, never the public feedback form.
+  assert.match(suite, /href="https:\/\/marisstella\.app\/industries\/construction\/"/);
+  assert.doesNotMatch(suite, /feedback\/\?type=idea/);
 });
 
 test("an Excel workbook can be chosen and the import is explained on the page", () => {
@@ -116,4 +118,10 @@ test("the template's own page is linked, honest about the AIA, sends nothing and
   assert.match(suite, /not on sale yet/);
   assert.doesNotMatch(suite, /\$\s?\d/);
   assert.match(page("sitemap.xml"), /pay-application-template\.html/);
+});
+
+test("the template page's early-access link is the private list, not the public feedback form", () => {
+  const suite = /<section class="card" id="suite">([\s\S]*?)<\/section>/.exec(page("pay-application-template.html"))[1];
+  assert.match(suite, /href="https:\/\/marisstella\.app\/industries\/construction\/"/);
+  assert.doesNotMatch(suite, /feedback\/\?type=idea/);
 });
