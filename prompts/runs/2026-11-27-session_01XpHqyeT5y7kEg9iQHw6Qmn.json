@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyeT5y7kEg9iQHw6Qmn",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "Owner 2026-11-27: product status; then 'do we have more items that are viable. finding wide array of smb owner profiles and targeting product suites to them'; search verification done; paddle secret type unclear; agent inboxes should not need the owner, set up on AWS",
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T02:00:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "SMB owner-profile sweep into bets.md candidates; owner-queue answers",
+  "projects": ["portfolio/monetization", "portfolio/ledger"],
+  "pr": 19553,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/smb/cbp_counts.py",
+      "issue": "www2.census.gov and api.census.gov 403 through this session's proxy, so establishment counts could not be read first-hand"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "the owner's direct question set the task, not promptctl route",
+      "did": "researched 29 profiles with four agents and wrote the candidates up",
+      "result": "report plus bets.md section"
+    },
+    {
+      "file": "portfolio/ledger/asks.yaml",
+      "why": "search-engine-verification removed on the owner's word; this session could not confirm it (no meta tag on the home page, DNS lookups blocked)",
+      "did": "removed the row; noted that a DNS TXT record carries over in the cutover export",
+      "result": "queue at 6 items"
+    }
+  ],
+  "writeups": ["docs/reports/2026-11-27-smb-profile-sweep.md"],
+  "goal": null,
+  "notes": "Verified locally: run_workflow_locally.py --for-changes, 7/7 selected workflows passed (portfolio-validate 106/106 steps); priv-codeql and priv-security-gate have no local verdict (uses: steps), CI decides. check_post_frontmatter clean, doc_index ok, decision_queue and yaml tests 104 passed. Found: PayApps, Job Shop Quote, CMMC, Seller Books and E-invoice deploys read per-app Paddle secrets, so one key reaches only Grants; queued as a separate task.",
+  "corrections": [],
+  "redteam": null
+}

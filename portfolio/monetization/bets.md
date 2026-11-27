@@ -203,6 +203,40 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
 - **Multicam sync:** free in DaVinci Resolve; PluralEyes [ended support 2024](https://support.maxon.net/hc/en-us/articles/7389361453340).
 - **Qualitative coding:** strong (Dovetail [$63M raised](https://techcrunch.com/?p=2259520)), but not SMB buyers.
 
+## Candidates from the 2026-11-27 sweep
+
+Owner, 2026-11-27: "finding wide array of smb owner profiles and targeting
+product suites to them for all of the most common problems they have." Four
+research passes covered 29 owner profiles. Evidence, sources, the watch list
+and the skip list are in
+[`docs/reports/2026-11-27-smb-profile-sweep.md`](../../docs/reports/2026-11-27-smb-profile-sweep.md).
+Establishment counts there are secondary (Census was blocked); re-read them
+with `portfolio/smb/cbp_counts.py` before relying on one. Scores are judgment.
+
+The finding: generic scheduling and POS tools are saturated, so the openings
+are paperwork an outside party demands (fire marshal, county, DEA, licensing
+surveyor, surety, a GC's insurance exhibit). The best of them grow out of
+apps already built, so they are modules or siblings of the ranked bets, not
+new standalone apps.
+
+| Candidate | Customer | Total | Grows out of | How |
+|---|---|---|---|---|
+| WIP schedule + surety pack from QuickBooks | CPAs with contractor clients; the contractors | 20 | #1 PayApps | module, plus a CPA tier |
+| Plans/photo/email → priced quote | cabinet, millwork and sign shops | 19 / 18 | #2 Job Shop Quote | same engine, new rate-card templates and pages |
+| DEA controlled-drug audit readiness | independent vet clinics | 19 | #4 CMMC engine | sibling app, no PHI |
+| Fire and life-safety inspection reports, deficiency quotes, fire-authority filing (+ backflow) | sprinkler, extinguisher, alarm contractors | 18 | #1, #2, #4 | next construction-family app |
+| Contract-to-coverage check | GCs; independent P&C agencies | 18 | #1 PayApps | module |
+| Caregiver-file and state-survey readiness | non-medical home care agencies | 18 | #4 CMMC engine | sibling app, per-state packs |
+| Staff-file and licensing-inspection readiness | child care centres | 19, low WTP | #4 CMMC engine | later |
+| County maintenance reports | Texas aerobic septic providers | 18 | none | small niche |
+| ALTA/NSPS 2026 title-commitment exceptions | land surveyors | 18 | #2 extraction | small niche |
+
+**Suggested order:** the two PayApps modules once PayApps is live; widen Job
+Shop Quote to cabinet and sign shops; fire and life-safety after PayApps'
+first payment; vet DEA on the CMMC engine. Interview about ten owners per
+candidate before building. Move a candidate into the ranked table above only
+with that evidence, in its own PR.
+
 ## Hardware (long term, not a ranked bet)
 
 Open hardware becomes outsourced hardware companies over a long horizon
