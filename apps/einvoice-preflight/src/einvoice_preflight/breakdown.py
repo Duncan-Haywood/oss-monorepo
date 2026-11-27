@@ -1,0 +1,205 @@
+"""Offline mixed-rate tax-breakdown observations.
+
+Peppol and many EN 16931 CIUS require a TaxSubtotal per rate when an
+invoice mixes standard, reduced, and zero-rated lines. An ERP export
+that only carries a header tax total is a common rejection after the
+bookkeeper already sent the file. This is arithmetic and document-shape
+checking, not a tax-law determination and not a claim that a rate is
+correct. Findings never repeat invoice numbers or line descriptions.
+"""
+
+from __future__ import annotations
+
+from decimal import Decimal, ROUND_HALF_UP
+from typing import Any
+
+from .numbers import parse_decimal
+
+from .linenet import is_flat_tax_row, tax_groups, tax_key, tax_percent_of
+
+
+def inspect_tax_breakdown(invoice: dict[str, Any]) -> list[dict[str, str]]:
+    """Return INV-037 / INV-038 observations for tax_breakdown."""
+    if not isinstance(invoice, dict):
+        return []
+    expected, unattributed, with_category = tax_groups(invoice)
+    supplied = invoice.get("tax_breakdown")
+    missing = "tax_breakdown" not in invoice or supplied in (None, "")
+    if missing or supplied == []:
+        if len(expected) > 1:
+            return [_finding(
+                "INV-037",
+                "Invoice mixes tax rates without a per-rate tax breakdown.",
+                "Add tax_breakdown with one row per rate (tax_percent, taxable, tax), or use a single tax percentage.",
+                "/tax_breakdown",
+            )]
+        return []
+    if not isinstance(supplied, list):
+        return [_finding(
+            "INV-038",
+            "Tax breakdown is not a list of per-rate rows.",
+            "Provide tax_breakdown as an array of objects with tax_percent, taxable, and tax.",
+            "/tax_breakdown",
+        )]
+    return _check_rows(supplied, expected, with_category, unattributed, en16931_tolerance(invoice))
+
+
+def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_category: bool, unattributed: bool, tolerant: bool = False) -> list[dict[str, str]]:
+    findings: list[dict[str, str]] = []
+    seen: dict[Any, int] = {}
+    for index, row in enumerate(rows):
+        path = f"/tax_breakdown/{index}"
+        if not isinstance(row, dict):
+            findings.append(_finding(
+                "INV-038",
+                f"Tax breakdown row {index + 1} is not an object.",
+                "Provide tax_percent, taxable, and tax on each breakdown row.",
+                path,
+            ))
+            continue
+        percent = tax_percent_of(row)
+        taxable = _money(row.get("taxable"))
+        tax = _money(row.get("tax"))
+        # A flat-amount tax has no rate to check and no line group to match (breakdown.mjs).
+        if is_flat_tax_row(row):
+            if tax is None:
+                findings.append(_finding(
+                    "INV-038",
+                    f"Tax breakdown row {index + 1} tax amount is missing or invalid.",
+                    "Set tax to the flat amount charged under this tax scheme.",
+                    f"{path}/tax",
+                ))
+            continue
+        if percent is None or percent < 0 or percent > 100:
+            findings.append(_finding(
+                "INV-038",
+                f"Tax breakdown row {index + 1} tax percentage is missing or invalid.",
+                "Use the tax percentage supplied by your authoritative source; this tool does not choose it.",
+                f"{path}/tax_percent",
+            ))
+            continue
+        key = tax_key(row, with_category)
+        if key is None:
+            key = percent
+        if key in seen:
+            findings.append(_finding(
+                "INV-038",
+                "Tax breakdown repeats the same tax percentage on more than one row.",
+                "Keep one breakdown row per tax percentage.",
+                f"{path}/tax_percent",
+            ))
+            continue
+        seen[key] = index
+        # A negative taxable amount is a credited line group, which is allowed.
+        if taxable is None:
+            findings.append(_finding(
+                "INV-038",
+                f"Tax breakdown row {index + 1} taxable amount is missing or invalid.",
+                "Set taxable to the net of the lines at this rate.",
+                f"{path}/taxable",
+            ))
+            continue
+        if tax is None:
+            findings.append(_finding(
+                "INV-038",
+                f"Tax breakdown row {index + 1} tax amount is missing or invalid.",
+                "Set tax to taxable times the row percentage, rounded to cents.",
+                f"{path}/tax",
+            ))
+            continue
+        expected_tax = (taxable * percent / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        # PINT Oman: the row's tax may be the sum of its lines' own VAT amounts (linenet.py).
+        line_tax = (expected.get(key) or {}).get("line_tax")
+        # EN 16931 BR-CO-17 accepts a row under one currency unit off taxable x rate (VAT rounded
+        # per line); breakdown.mjs reports that as a warning, and the CLI has no warning severity.
+        if tax != expected_tax and not (line_tax is not None and not unattributed and tax == line_tax) \
+                and not (tolerant and within_rounding_tolerance(tax, expected_tax, percent)):
+            findings.append(_finding(
+                "INV-038",
+                f"Tax breakdown row {index + 1} tax amount does not equal taxable times the percentage.",
+                f"Set tax to {expected_tax} or correct taxable and tax_percent.",
+                f"{path}/tax",
+            ))
+        group = expected.get(key)
+        if group is None and not unattributed and taxable == 0 and tax == 0:
+            # zero row, no line: a zero-amount header allowance or charge
+            continue
+        if group is None and not unattributed:
+            findings.append(_finding(
+                "INV-038",
+                f"Tax breakdown row {index + 1} names a tax percentage that no line uses.",
+                "Remove the extra row, or correct the line tax percentages.",
+                f"{path}/tax_percent",
+            ))
+            continue
+        if group is not None and not unattributed and taxable != group["taxable"]:
+            findings.append(_finding(
+                "INV-038",
+                f"Tax breakdown row {index + 1} taxable amount does not match the lines at that rate.",
+                f"Set taxable to {group['taxable']} or correct the line nets.",
+                f"{path}/taxable",
+            ))
+    for key, group in expected.items():
+        # The mirror of the zero row above: lines whose nets sum to zero at a
+        # rate carry no tax, so no row is needed (ZATCA's prepayment-deduction
+        # line at the advance's old rate: quantity 0, net 0.00).
+        if group is not None and group["taxable"] == 0:
+            continue
+        if key not in seen and not unattributed:
+            findings.append(_finding(
+                "INV-038",
+                "Tax breakdown is missing a row for a tax percentage used on the lines.",
+                "Add one breakdown row per line tax percentage.",
+                "/tax_breakdown",
+            ))
+    return findings
+
+
+def en16931_tolerance(invoice: dict[str, Any]) -> bool:
+    """Only documents declaring EN 16931 or a CIUS of it get BR-CO-17's tolerance (breakdown.mjs)."""
+    spec = str(invoice.get("specification_id") or "").strip().lower() if isinstance(invoice, dict) else ""
+    return spec.startswith("urn:cen.eu:en16931:")
+
+
+def within_rounding_tolerance(tax: Decimal | None, expected_tax: Decimal | None, percent: Decimal | None) -> bool:
+    """BR-CO-17 as CEN's Schematron tests it: under one currency unit off at a non-zero rate (breakdown.mjs)."""
+    if tax is None or expected_tax is None or not percent:
+        return False
+    return abs(tax - expected_tax) < 1
+
+
+def breakdown_tax_within_tolerance(invoice: dict[str, Any]) -> Decimal | None:
+    """The breakdown rows' tax sum when every row is within BR-CO-17's tolerance, else None (breakdown.mjs)."""
+    rows = invoice.get("tax_breakdown") if isinstance(invoice, dict) else None
+    if not isinstance(rows, list) or not rows or not en16931_tolerance(invoice):
+        return None
+    total = Decimal("0.00")
+    for row in rows:
+        if not isinstance(row, dict):
+            return None
+        tax = _money(row.get("tax"))
+        if tax is None:
+            return None
+        if not is_flat_tax_row(row):
+            percent = tax_percent_of(row)
+            taxable = _money(row.get("taxable"))
+            if percent is None or taxable is None:
+                return None
+            expected_tax = (taxable * percent / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            if tax != expected_tax and not within_rounding_tolerance(tax, expected_tax, percent):
+                return None
+        total += tax
+    return total
+
+
+def _money(value: Any) -> Decimal | None:
+    result = _number(value)
+    return result.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP) if result is not None else None
+
+
+def _number(value: Any) -> Decimal | None:
+    return parse_decimal(value)
+
+
+def _finding(rule: str, message: str, fix: str, path: str) -> dict[str, str]:
+    return {"rule": rule, "message": message, "fix": fix, "path": path}
