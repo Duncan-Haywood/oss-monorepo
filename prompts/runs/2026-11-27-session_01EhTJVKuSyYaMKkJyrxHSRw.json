@@ -28,10 +28,11 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [
     "flnto draft printed 'Inc..' when the hirer ended in a period; caught by its own test and fixed",
-    "the posting/courier <select> labels overflowed a 390px phone (scrollWidth 467); found with Playwright and fixed"
+    "the posting/courier <select> labels overflowed a 390px phone (scrollWidth 467); found with Playwright and fixed",
+    "parallel session's PR #19674 landed the same page and module names (florida-notice-to-owner.html, flnto.mjs) while this run worked; slug_dupe.py checked the slug 'florida-notice-to-owner-guide' and found nothing, because #19674 used a different title/slug"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,6 +43,10 @@
     {
       "file": "ventures/payapps/apps/payapps/ROADMAP.md",
       "issue": "21 of 22 Next items are gated on demand and the free one (#11) needs a real Windows PC and Android phone, so a cloud run can't take it; the bet's front door (public guides) is where the run's value went"
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "it matches PR titles by slug or keyword. A parallel run building the same page under another slug (florida-notice-to-owner vs florida-notice-to-owner-guide) was invisible at claim time. Checking for an existing target file on origin/main (git show origin/main:<path>) right before the first commit would have caught it"
     }
   ],
   "deviations": [
@@ -50,13 +55,19 @@
       "why": "bet #1's free item needs physical devices; I took the bet's public side (a front-door SEO page for a feature the product already has) instead",
       "did": "florida-notice-to-owner.html in pay-app-guides",
       "result": "page plus tests landed; traffic unmeasured"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate PRs: #19674 is a superset (it adds the 90-day claim of lien), so I dropped my page instead of merging two copies",
+      "did": "merged main taking its version of every conflicting file; kept only fixes main lacked",
+      "result": "PR #19684 now fixes main's Florida NTO page: the sign-up link went to the retired workers.dev address (cta.mjs regenerated), the nav block was stale (punch-list missing, page.test.mjs failing on main), and the drafted form printed 'Inc..' when the hirer's name ended in a period (fix plus test)"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-27-florida-notice-to-owner-45-days.md (extended with an update section, not a new post)"
+    "none new: main's post 2026-11-27-florida-notice-to-owner-45-days.md already covers the free page (#19674); my update section was dropped as a duplicate"
   ],
   "goal": null,
-  "notes": "pay-app-guides 315/315 tests; platform/pages industry/llms tests 32/32; Playwright 390px no overflow, no JS errors. Statute text reused from payapps' verified fl-713-06.txt snapshot; the page's form and quotes are tested against it.",
+  "notes": "Built a Florida Notice to Owner guide, then found #19674 had landed the same page first. Kept main's page and landed three fixes to it: the sign-up CTA pointed at the retired workers.dev host, the all-guides block was stale (page.test.mjs failed 2 tests on main), and the draft doubled the period after a hirer name ending in '.'. pay-app-guides suite green after the fix. The earlier preflight ran clean on the first version.",
   "corrections": [],
   "redteam": null,
   "usage": {
