@@ -140,3 +140,16 @@ export const COMP_PLAN = catalog.get("comp") as Plan;
 
 /** Plans shown publicly (free + purchasable), in price order. */
 export const PUBLIC_PLANS = PLAN_LIST.filter((p) => p.key === "free" || p.purchasable);
+
+/** A feature line that sells attachment storage ("250 MB of attached backup", "5 GB of attachments"). */
+export const STORAGE_FEATURE = /\b\d+\s*(?:MB|GB)\b.*\battach/i;
+
+/**
+ * The plan's feature lines as a deployment can honour them. With no file storage bound (no R2
+ * bucket: uploads answer 503), each storage line says it is not switched on yet rather than
+ * advertising space nobody can use; with storage, the lines are the catalog's.
+ */
+export function planFeatures(plan: Pick<Plan, "features">, attachments: boolean): string[] {
+  if (attachments) return [...plan.features];
+  return plan.features.map((f) => (STORAGE_FEATURE.test(f) ? `${f} (not switched on yet)` : f));
+}

@@ -1,18 +1,28 @@
 // Site identity and the list of public pages: the one source for the build (scripts/build.ts),
 // sitemap.xml, robots.txt, llms.txt and the worker's own HTML responses.
 //
-// The product name is PROVISIONAL (see README.md): change it here and nowhere else.
-// Copy rules: the product is in development. Say "early access"; never claim customers, results,
-// reviews or ratings, or a feature the app (apps/payapps) does not have yet.
+// The product name is the app's own ("PayApps", apps/payapps/index.html and the pay-app-guides CTAs);
+// no trademark search has been done (README.md). Change it here and nowhere else.
+// Copy rules: never claim customers, results, reviews or ratings, or a feature the app (apps/payapps)
+// does not have yet. Before APP_URL is set the product is "in development" with early access; after,
+// it is "open now" on the Free plan, and paid plans are "not on sale yet" until PAID_PLANS_ON.
 
-export const PRODUCT_NAME = "PayPencil";
+export const PRODUCT_NAME = "PayApps";
+/**
+ * The deployed app's origin. Set 2026-11-27, when the app moved to https://payapps.marisstella.app
+ * (PR #19642); never the workers.dev address, which carries the account's subdomain. The build reads
+ * env APP_URL when set. Keep it equal to APP_URL in ventures/pay-app-guides/cta.mjs.
+ */
+export const APP_URL: string | null = "https://payapps.marisstella.app";
+/** True once Paddle checkout is live in the app (apps/payapps/docs/BILLING.md). Env PAID_PLANS_ON=1. */
+export const PAID_PLANS_ON = false;
 /** Production URL (origin + base path). The build reads env SITE_URL when set. */
 export const DEFAULT_SITE_URL = "https://marisstella.app/payapps";
 export const SITE_TAGLINE = "Monthly pay applications for subcontractors";
 /** One line used wherever the site talks about pay-app forms, waivers or retainage. */
 export const NOT_AIA_NOTE = `${PRODUCT_NAME} is not affiliated with the American Institute of Architects (AIA) and does not produce AIA Contract Documents. Nothing on this site is legal advice.`;
 /** Date the public copy last changed (sitemap <lastmod>, feed <updated>). */
-export const CONTENT_UPDATED = "2026-11-25";
+export const CONTENT_UPDATED = "2026-11-27";
 
 export interface PublicPage {
   /** Site path without the base path; "/" is the home page. */
@@ -36,7 +46,7 @@ export const PAGES = {
     file: "index.html",
     title: `${PRODUCT_NAME} · ${SITE_TAGLINE}`,
     description:
-      "PayPencil is a pay-application tool in development for subcontractors: schedule of values, retainage, change orders, lien waivers and GC portals in one monthly routine. Early access is open.",
+      "PayApps: hosted pay applications for subcontractors. Schedule of values, retainage, change orders, lien waivers and GC portal files in one monthly routine.",
     indexable: true,
     label: "Home",
     changefreq: "weekly",
@@ -47,7 +57,7 @@ export const PAGES = {
     file: "features.html",
     title: `Features · ${PRODUCT_NAME}`,
     description:
-      "PayPencil for subcontractors: SOV import, monthly pay apps, retainage release, change orders, lien waivers, a cash report and QuickBooks Online. Built and next.",
+      "PayApps for subcontractors: SOV import, monthly pay apps, retainage release, change orders, lien waivers, a cash report and QuickBooks Online. Built and next.",
     indexable: true,
     label: "Features",
     changefreq: "monthly",
@@ -58,7 +68,7 @@ export const PAGES = {
     file: "pricing.html",
     title: `Pricing · ${PRODUCT_NAME}`,
     description:
-      "PayPencil pricing: free on one job, then $99, $179 or $249 a month (or yearly at 10% off), sized by active jobs. Nothing is charged during early access.",
+      "PayApps pricing: free on one job with no card, then $99, $179 or $249 a month (or yearly at 10% off), sized by active jobs.",
     indexable: true,
     label: "Pricing",
     changefreq: "monthly",
@@ -69,7 +79,7 @@ export const PAGES = {
     file: "early-access.html",
     title: `Join early access · ${PRODUCT_NAME}`,
     description:
-      "Ask for early access to PayPencil. Tell us about your jobs and the GC portals you bill through; we confirm your email once and write when there is something to try.",
+      "Ask for early access to PayApps. Tell us about your jobs and the GC portals you bill through; we confirm your email once and write when there is something to try.",
     indexable: true,
     label: "Early access",
     changefreq: "monthly",
@@ -80,7 +90,7 @@ export const PAGES = {
     file: "privacy.html",
     title: `Privacy notice · ${PRODUCT_NAME}`,
     description:
-      "What PayPencil stores when you join early access, why, how long we keep it and how to remove it with one link.",
+      "What PayApps stores when you join early access, why, how long we keep it and how to remove it with one link.",
     indexable: true,
     label: "Privacy",
     changefreq: "yearly",
@@ -98,7 +108,7 @@ export const PAGES = {
     path: "/early-access/confirmed",
     file: "early-access/confirmed.html",
     title: `You're on the list · ${PRODUCT_NAME}`,
-    description: "Your PayPencil early-access sign-up is confirmed.",
+    description: "Your PayApps early-access sign-up is confirmed.",
     indexable: false,
     label: "Confirmed",
   },
@@ -106,7 +116,7 @@ export const PAGES = {
     path: "/early-access/removed",
     file: "early-access/removed.html",
     title: `Sign-up removed · ${PRODUCT_NAME}`,
-    description: "Your PayPencil early-access sign-up has been deleted.",
+    description: "Your PayApps early-access sign-up has been deleted.",
     indexable: false,
     label: "Removed",
   },

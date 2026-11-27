@@ -3,7 +3,9 @@
 Status: **live on the Free plan** (2026-11-27). Live at https://payapps.marisstella.app since run 45963162134 (PR #19642,
 custom domain; workers.dev is off). The first live deploy, run 45949861746, was on workers.dev. The smoke test answered
 `{"ok":true,"app":"payapps","email":true}`, so sign-up email works. Attachments (R2) are off until the
-Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are dark
+Cloudflare token gets Workers R2 Storage edit; until then `/api/health` answers `"files": false`, and the
+plan lists (`/api/billing/plans`, the Billing page) mark each storage line "(not switched on yet)"
+instead of selling space nobody can use (2026-11-27). No customers yet. Paid plans are dark
 (`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.
 
 ## Done (this MVP)
@@ -2262,17 +2264,21 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   deploy workflow runs the Paddle catalog sync
 - Owner: an Intuit developer app, its keys and redirect URI, and `QBO_TOKEN_KEY`
   (docs/QUICKBOOKS.md, "Turning it on"); check one invoice in a sandbox company first
-- Marketing site with the pricing table (`apps/payapps-site`, PR #18) reading `/api/billing/plans`
+- Marketing site with the pricing table (`apps/payapps-site`, PR #18) reading `/api/billing/plans`.
+  Done 2026-11-27: the site is "PayApps" (no longer "PayPencil") and has the launch switch the guides
+  have: `APP_URL`/`PAID_PLANS_ON` in `apps/payapps-site/src/shared/site.ts` (or the build's env) turn
+  every page from early access into "open now, free on one job" with sign-up links tagged
+  `from=payapps-site/<page>`; a workers.dev address is refused. `APP_URL` is set to
+  https://payapps.marisstella.app (the app's custom domain, PR #19642), so the built site says "open
+  now". Next: serve it (a deploy workflow, or the static pages on marisstella.app/payapps); set
+  `PAID_PLANS_ON` here and in `cta.mjs` the day checkout is live
 - Done 2026-11-27 (launch-signups-open): the free guides point at sign-up (`APP_URL` in
-  `ventures/pay-app-guides/cta.mjs` is the workers.dev origin; 42 pages say "open now", name what the
-  Free plan leaves out and link to `/?signup&from=pay-app-guides/<page>`; `state-forms.mjs` now runs
-  its pages through `cta.mjs` so a rebuild cannot revert them); the construction industry page shows
-  the suite as "Open · free on one job" with a Start free link and the paid-only modules; the in-app
-  strip reads the public plan list (`src/client/lib/launch-notice.ts`) instead of saying "not yet
-  offered". Left: set `PAID_PLANS_ON` in cta.mjs once checkout is live (the strip follows by itself);
-  the marketing site `apps/payapps-site` still says early access and is not deployed; a custom domain
-  (`PAYAPPS_DOMAIN`, e.g. payapps.marisstella.app) means changing `APP_URL` and the industry page's
-  `appUrl` the same day
+  `ventures/pay-app-guides/cta.mjs`, now https://payapps.marisstella.app; 42 pages say "open now", name
+  what the Free plan leaves out and link to `/?signup&from=pay-app-guides/<page>`; `state-forms.mjs`
+  runs its pages through `cta.mjs` so a rebuild cannot revert them); the construction industry page
+  shows the suite as "Open · free on one job" with a Start free link and the paid-only modules; the
+  in-app strip reads the public plan list (`src/client/lib/launch-notice.ts`). Left: set
+  `PAID_PLANS_ON` in cta.mjs once checkout is live (the strip follows by itself)
 
 ## Next (suite, by promise)
 

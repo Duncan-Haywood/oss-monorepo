@@ -11,6 +11,7 @@ import { badRequest, notFound } from "../../lib/errors";
 import { validate } from "../../lib/validate";
 import { zip } from "../../lib/zip";
 import { requireRole } from "../../middleware/tenant";
+import { getReminderSetting, setReminder } from "../../services/books/estimate-reminders";
 import {
   deleteEstimateSettings,
   getEstimateSettings,
@@ -329,6 +330,25 @@ routes.delete(
       throw notFound("Estimated-tax figures");
     }
     return c.json({ ok: true });
+  },
+);
+
+// The 1040-ES reminder email for the signed-in member (services/books/estimate-reminders.ts): on or off,
+// the next due date and the day its reminder goes out. Owner and admins only, like the saved figures the
+// amount in it comes from.
+routes.get("/estimated-tax/reminder", requireRole("admin"), async (c) => {
+  const t = c.var.tenant;
+  return c.json(await getReminderSetting(c.var.ctx, t.orgId, t.userId));
+});
+
+routes.put(
+  "/estimated-tax/reminder",
+  requireRole("admin"),
+  validate("json", z.object({ enabled: z.boolean() })),
+  async (c) => {
+    const t = c.var.tenant;
+    const { enabled } = c.req.valid("json");
+    return c.json(await setReminder(c.var.ctx, t.orgId, t.userId, enabled));
   },
 );
 

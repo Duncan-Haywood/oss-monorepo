@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyeDApBEWWux5aNFvr8",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T10:39:12Z",
+  "ended": "2026-11-27T10:42:57Z",
+  "wall_minutes": 3.98,
+  "tokens_in": 2030696,
+  "tokens_out": 14732,
+  "cost_usd": 1.2655,
+  "tool_calls": 25,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19709",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/audits/2026-11-26-uk-holiday-pay-calculator.json",
+      "issue": "defect 1 (1 April 2024 gate) and defect 4 (roundUpHalf) were already fixed by the auditing PR #19371 and marked fixed_by; queue correctly showed only defect 0, no friction beyond reading the code to confirm."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "steps 1-5 describe a sample round while most days are another mode; the sample command redirects correctly, so this cost only a minute."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-27-quality-fix-irregular-hours-holiday-rounds-each-pay-period.md"
+  ],
+  "goal": null,
+  "notes": "Mode fix (seed 2026-11-27-988e for the queue order). Subject ventures/uk-holiday-pay-calculator, defect 0 (high, domain-rule): the 12.07% accrual now runs per pay period with reg 15B(5) hour rounding; source text fetched from legislation.gov.uk/uksi/1998/1833/regulation/15B in-session. Verification: node --test '*.test.mjs' 32/32 pass; quality_mutate roundHour->identity caught; Playwright smoke of index.html with per-period hours, no page errors. risk_review: nothing blocked. No share-meeting-bar figure (fix mode, no sample). Fix PR: #19709. Not taken: portable-restroom-event-quote high (PSAI chart is not fetchable from here to cite), wordpress-plugin-review-check high (open PR #19701).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b246f222-3cca-5ded-af03-976c8e197998",
+    "transcripts": 1,
+    "first": "2026-11-27T10:39:12Z",
+    "last": "2026-11-27T10:43:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 25,
+        "input": 50,
+        "output": 14732,
+        "thinking": 2635,
+        "cache_read": 1958271,
+        "cache_write_5m": 0,
+        "cache_write_1h": 72375,
+        "api_equivalent_usd": 1.2655,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 25,
+      "input": 50,
+      "output": 14732,
+      "thinking": 2635,
+      "cache_read": 1958271,
+      "cache_write_5m": 0,
+      "cache_write_1h": 72375,
+      "api_equivalent_usd": 1.2655,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 25,
+    "tools": {
+      "Bash": 22,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.98,
+      "active_minutes": 3.98,
+      "model_minutes": 3.0,
+      "tool_minutes": 0.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a payroll developer reading reg 15B, changing the engine, form and tests, and writing the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 237.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
