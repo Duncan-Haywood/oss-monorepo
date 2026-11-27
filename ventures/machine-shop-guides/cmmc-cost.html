@@ -87,7 +87,7 @@
 </section>
 
 <script type="module">
-  import { ROLES, ESTIMATES, emptyInputs, normaliseInputs, checkInputs, estimate, estimateToMarkdown, usd } from "./cost.mjs";
+  import { ROLES, estimateFor, emptyInputs, normaliseInputs, checkInputs, estimate, estimateToMarkdown, usd } from "./cost.mjs";
   import { recordUsage } from "./usage.mjs";
   let inp = emptyInputs();
   const f = document.getElementById("f");
@@ -95,7 +95,7 @@
   const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 
   function rolesFor() {
-    const est = ESTIMATES[inp.size][inp.level];
+    const est = estimateFor(inp);
     const used = new Set();
     for (const [, lines] of est.phases) for (const [r] of lines) used.add(r);
     for (const [r] of est.affirmation) used.add(r);

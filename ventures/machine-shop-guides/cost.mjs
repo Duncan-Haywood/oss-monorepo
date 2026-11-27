@@ -115,6 +115,13 @@ const num = (v) => {
 };
 const pick = (obj, key, fallback) => (Object.hasOwn(obj, key) ? obj[key] : fallback);
 
+/** Lookups that never reach Object.prototype ("constructor", "toString"): unknown keys read as the defaults. */
+export const levelOf = (key) => (Object.hasOwn(LEVELS, key) ? LEVELS[key] : LEVELS.l2c3pao);
+export function estimateFor(inp) {
+  const bySize = Object.hasOwn(ESTIMATES, inp.size) ? ESTIMATES[inp.size] : ESTIMATES.small;
+  return Object.hasOwn(bySize, inp.level) ? bySize[inp.level] : bySize.l2c3pao;
+}
+
 export function emptyInputs() {
   return {
     size: "small",
@@ -172,7 +179,7 @@ const sum = (rows) => rows.reduce((a, r) => a + r.cost, 0);
  */
 export function estimate(raw) {
   const inp = normaliseInputs(raw);
-  const est = ESTIMATES[inp.size][inp.level];
+  const est = estimateFor(inp);
   const phases = est.phases.map(([label, lines]) => { const rows = priced(inp, lines); return { label, rows, cost: sum(rows) }; });
   const affirmRows = priced(inp, est.affirmation);
   const affirmation = sum(affirmRows);
@@ -188,7 +195,7 @@ export function estimate(raw) {
   const gapYearly = money("gapYearly");
   const assessment = phases.reduce((a, p) => a + p.cost, 0) + affirmation + (c3pao ? c3pao.cost : 0);
 
-  const cycle = LEVELS[inp.level].cycleYears;
+  const cycle = levelOf(inp.level).cycleYears;
   const years = [1, 2, 3].map((y) => {
     const assessed = (y - 1) % cycle === 0;
     const lines = [];
@@ -204,13 +211,16 @@ export function estimate(raw) {
   const dodAssessment = est.phases.reduce((a, [, lines]) => a + lines.reduce((b, [r, h]) => b + Math.round(ROLES[r].rate * h), 0), 0)
     + est.affirmation.reduce((b, [r, h]) => b + Math.round(ROLES[r].rate * h), 0) + (c3pao ? c3pao.dod : 0);
   return {
-    inputs: inp, level: LEVELS[inp.level].label, size: SIZES[inp.size],
+    inputs: inp, level: levelOf(inp.level).label, size: Object.hasOwn(SIZES, inp.size) ? SIZES[inp.size] : SIZES.small,
     phases, affirmRows, affirmation, c3pao, assessment, gapOneTime, gapYearly,
     years, threeYear, perMonth: Math.round(threeYear / 36), custom, dodAssessment, stated: est.stated,
   };
 }
 
-export const usd = (n) => "$" + Math.round(n).toLocaleString("en-US");
+export const usd = (n) => {
+  const text = "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 const mdCell = (s) => String(s).replace(/[|\\`*_[\]<>]/g, (c) => "\\" + c).replace(/\r?\n/g, " ");
 
