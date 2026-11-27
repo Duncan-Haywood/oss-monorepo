@@ -69,8 +69,13 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
 - **WTP:** Siteline raised [$18.4M](https://www.businesswire.com/news/home/20220224005099/en/Siteline-Raises-$18.4M-to-Reimagine-Construction-Finance).
 - **Size:** NAHB: [1.9M+ specialty-trade independent contractors, 79% of
   specialty-trade establishments](https://eyeonhousing.org/2025/08/most-home-builders-are-small-businesses/);
-  employer establishments are an estimate of about 500k (official 2022 count
-  not pulled: Census EC2223BASIC).
+  Census County Business Patterns 2022: [510,803 specialty trade contractor
+  employer establishments, NAICS 238](https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip),
+  461,711 of them under 20 employees (electrical, plumbing and HVAC, 2382,
+  199,350; building finishing, 2383, 127,033; foundation, structure and
+  exterior, 2381, 104,432); plus 251,634 building contractors (236). Read
+  2026-11-27 with `python3 portfolio/smb/cbp_counts.py 238 2381 2382 2383 236`;
+  `--by-state` ranks states (CA 52,631, FL 44,445, TX 34,243).
 - **Distribution:** QuickBooks App Store; search ("AIA billing software",
   "G702 template"); free G702/G703 templates as the front door; trade
   associations.
@@ -95,8 +100,14 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
   JobBOSS² [about $3,000/yr](https://softwareconnect.com/manufacturing-estimating-quoting);
   ProShop [$650–715/mo](https://www.g2.com/products/proshop/pricing);
   Paperless Parts raised [$30M Series B](https://www.businesswire.com/news/home/20210913005163/en/Paperless-Parts-Announces-30M-Series-B-Funding-Led-by-OpenView-Partners).
-- **Size:** about [20,138 machine shops, NAICS 332710](https://www.naics.com/naics-code-description/?code=332710)
-  (third-party, year not stated); fabricators add more (count not found).
+- **Size:** Census County Business Patterns 2022: [17,433 machine shop
+  employer establishments, NAICS 332710](https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip),
+  14,619 under 20 employees (a third-party page said
+  [20,138](https://www.naics.com/naics-code-description/?code=332710), year not
+  stated). Fabricators add 3,430 structural (332312) and 4,605 sheet metal
+  (332322) shops. Read 2026-11-27 with
+  `python3 portfolio/smb/cbp_counts.py 332710 332312 332322`; top states CA
+  2,257, TX 1,326, OH 1,141, MI 926, PA 925.
 - **Distribution:** search ("machine shop quoting software"), Practical
   Machinist, r/Machinists, ERP integrations.
 - **Wedge:** email or drawing in, priced quote out, learning each shop's rates,

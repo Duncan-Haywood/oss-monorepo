@@ -12,6 +12,20 @@
   name: HVAC, plumbing and electrical contractors
   group: home-services
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '238220'
+        label: "Plumbing, heating and air-conditioning contractors"
+        establishments: 109601
+        under_20_employees: 97386
+        employees: 1176759
+      - naics: '238210'
+        label: "Electrical contractors"
+        establishments: 81842
+        under_20_employees: 72471
+        employees: 951773
     summary: 'IBISWorld [snippet]: HVAC contractors ~120,461 US businesses (2026), avg 5.1 employees;
       plumbers ~129,352 businesses (2026), avg 6.0 employees (https://www.ibisworld.com/industry-statistics/number-of-businesses/plumbers-united-states/);
       electricians ~261,958 businesses (2026), avg 4.9-5.0 employees, industry revenue $312.2bn 2025 (https://www.ibisworld.com/industry-statistics/number-of-businesses/electricians-united-states/).
@@ -154,6 +168,15 @@
   name: Roofing contractors
   group: home-services
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '238160'
+        label: "Roofing contractors"
+        establishments: 24532
+        under_20_employees: 22181
+        employees: 204998
     summary: 'IBISWorld [snippet]: ~109k US roofing businesses in 2026 (3.4% CAGR 2021-26); May 2025 report:
       ~102k businesses, 294k employees, $76.4bn revenue; average 2.1 employees per business (roofing &
       siding variant: 130k businesses, 2.6 employees). NAICS Association lists 59,589 businesses for 238160
@@ -272,6 +295,15 @@
   name: Landscaping and lawn care
   group: home-services
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '561730'
+        label: "Landscaping services"
+        establishments: 117109
+        under_20_employees: 109434
+        employees: 774028
     summary: 'IBISWorld [snippet][conflict]: 556,238 businesses (2026) on one page vs 692,777 (2025) on
       another; ~1.39-1.47M employees; average 2.1-2.5 employees per business; market $176.7bn (2026).
       Census 2002 data imply roughly 73% of landscaping units had no employees (209,072 nonemployers vs
@@ -391,6 +423,15 @@
   name: Pest control
   group: home-services
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '561710'
+        label: "Exterminating and pest control services"
+        establishments: 16080
+        under_20_employees: 14150
+        employees: 139917
     summary: 'IBISWorld [snippet][conflict]: ~31,300-34,000 US pest control businesses (2026); 148,619-177,751
       employees; average 4.5-5.2 employees per business. Statista (citing IBISWorld) 33,385 businesses
       in 2024.'
@@ -500,6 +541,15 @@
   name: Residential and commercial cleaning / janitorial
   group: home-services
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '561720'
+        label: "Janitorial services"
+        establishments: 67295
+        under_20_employees: 58970
+        employees: 1067762
     summary: 'IBISWorld [snippet]: ~1,254,202 US janitorial businesses (2026); ~2.30M employees; average
       1.8-1.9 employees per business; market $112.0bn (2026); largest firm ABM. Census 2002 data imply
       ~89% of janitorial units had no employees (427,553 nonemployers vs 50,984 employer establishments;
@@ -599,6 +649,15 @@
   name: Pool service
   group: home-services
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '561790'
+        label: "Other services to buildings and dwellings (pool cleaning is one of several; an upper bound)"
+        establishments: 17574
+        under_20_employees: 16803
+        employees: 87422
     summary: 'IBISWorld [snippet]: 78,817 US swimming-pool cleaning businesses in 2025 (another page shows
       89,046, undated); 99,529 employees (2025); average 1.3 employees per business; market $8.6-8.8bn;
       no company above 5% share.'
@@ -699,6 +758,15 @@
   name: Independent dental practices
   group: care-and-personal
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '621210'
+        label: "Offices of dentists"
+        establishments: 136140
+        under_20_employees: 129459
+        employees: 1031957
     summary: 'About 34% of US dentists practiced solo (single location, no other dentist) in 2024; 16%
       were DSO-affiliated in 2024 (ADA HPI via Becker''s/DentistryIQ [secondhand]). Share of private-practice
       dentists in solo practice fell from 66.5% (2001) to 46.2% (2021). No current Census CBP establishment/employee
@@ -812,6 +880,15 @@
   name: Independent veterinary clinics
   group: care-and-personal
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '541940'
+        label: "Veterinary services"
+        establishments: 34000
+        under_20_employees: 27337
+        employees: 468624
     summary: 'AVMA: mean FTE veterinarians per private practice 2.44 in 2009 (old). 2022 AVMA figure (via
       search summary): average gross revenue $1.72M for companion-animal-exclusive practices, $1.45M companion-animal-predominant.
       Corporate share estimates vary: 85-95% independent (AVMA 2017) vs ~30% corporate of the market (ag-econ
@@ -928,6 +1005,25 @@
   name: Hair salons, barbershops and day spas
   group: care-and-personal
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '812112'
+        label: "Beauty salons"
+        establishments: 82964
+        under_20_employees: 80092
+        employees: 386665
+      - naics: '812111'
+        label: "Barber shops"
+        establishments: 7363
+        under_20_employees: 7204
+        employees: 28674
+      - naics: '812113'
+        label: "Nail salons"
+        establishments: 33802
+        under_20_employees: 33318
+        employees: 145402
     summary: '[secondhand] Census CBP 2023 via startbusinessbystate.com: 84,176 employer salon establishments,
       391,064 employees, ~4.6 employees per establishment; Nonemployer Statistics 2023: 838,264 nonemployer
       salons with average receipts $30,374. Not verified against census.gov (API blocked). Barbershops
@@ -1037,6 +1133,15 @@
   name: Childcare centers and in-home daycares
   group: care-and-personal
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '624410'
+        label: "Child day care services (employer establishments only)"
+        establishments: 80120
+        under_20_employees: 64645
+        employees: 966107
     summary: '[secondhand of BLS MLR] About 77,000 childcare establishments employing ~942,000 workers;
       58% of establishments employed fewer than 10 people. NSECE 2019: ~118,000 regulated home-based providers
       vs NARA count of ~266,017 regulated family child care homes [secondhand via Bipartisan Policy Center].
@@ -1137,6 +1242,20 @@
   name: Independent physical therapy / chiropractic clinics
   group: care-and-personal
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '621340'
+        label: "Offices of physical, occupational and speech therapists and audiologists"
+        establishments: 50883
+        under_20_employees: 47009
+        employees: 464527
+      - naics: '621310'
+        label: "Offices of chiropractors"
+        establishments: 40179
+        under_20_employees: 39847
+        employees: 149574
     summary: 'PT: IBISWorld average ~4.0 employees per physical/occupational/speech therapy business;
       APTA 2023 benchmark covered 3,843 clinics with 20,443 FTEs (~5.3 FTE/clinic, own arithmetic). Chiropractic:
       average office with employees ~$409,600 receipts (2022 Census via consultant [secondhand]); IBISWorld
@@ -1237,6 +1356,15 @@
   name: Independent fitness studios and gyms (yoga, martial arts, boutique)
   group: care-and-personal
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '713940'
+        label: "Fitness and recreational sports centers"
+        establishments: 40786
+        under_20_employees: 32235
+        employees: 649964
     summary: '[secondhand] Census CBP 2023 via vantainsights.com: 41,556 fitness and recreational sports
       centers with payroll, 708,273 employees (~17 per establishment; includes chains and large clubs,
       so independents are smaller). Owner economics (Two-Brain, owner survey): average owner pay ~$3,967/month;
@@ -1324,6 +1452,20 @@
   name: Independent restaurants and caterers
   group: local-commerce
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '722511'
+        label: "Full-service restaurants"
+        establishments: 257282
+        under_20_employees: 167133
+        employees: 5208895
+      - naics: '722513'
+        label: "Limited-service restaurants"
+        establishments: 265179
+        under_20_employees: 175156
+        employees: 4711773
     summary: 'National Restaurant Association: more than 9 in 10 restaurants have fewer than 50 employees
       and 7 in 10 are single-unit operations. No current Census CBP average-size figure was found for
       NAICS 722511 (no source found).'
@@ -1432,6 +1574,20 @@
   name: Independent auto repair and collision shops
   group: local-commerce
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '811111'
+        label: "General automotive repair"
+        establishments: 84101
+        under_20_employees: 82481
+        employees: 385539
+      - naics: '8111'
+        label: "Automotive repair and maintenance, all"
+        establishments: 167884
+        under_20_employees: 160874
+        employees: 958913
     summary: IBISWorld estimates the average US auto mechanics business at 2.2 employees and the average
       auto body shop at 3.4 employees, with about 104,625 auto body shop businesses in 2026 (IBISWorld
       estimates, subscription data, secondhand).
@@ -1542,6 +1698,15 @@
   name: Small residential property managers (20-500 doors)
   group: local-commerce
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '531311'
+        label: "Residential property managers"
+        establishments: 57435
+        under_20_employees: 53426
+        employees: 507375
     summary: '2017 Buildium/NARPM survey: about 20% of respondents managed 1-25 units, 30% 26-100, 35%
       101-500, 15% over 500. A DoorLoop compilation reports 46% of firms have 2-5 employees and 16% are
       solo operators (vendor compilation, secondhand).'
@@ -1657,6 +1822,25 @@
   name: Craft breweries, wineries and distilleries
   group: local-commerce
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '312120'
+        label: "Breweries"
+        establishments: 5165
+        under_20_employees: 4031
+        employees: 95186
+      - naics: '312130'
+        label: "Wineries"
+        establishments: 4494
+        under_20_employees: 3742
+        employees: 65192
+      - naics: '312140'
+        label: "Distilleries"
+        establishments: 1281
+        under_20_employees: 1076
+        employees: 23736
     summary: 'Brewers Association: 9,578 operating craft breweries in 2025 (1,994 microbreweries, 3,525
       brewpubs, 3,784 taprooms, 275 regionals), production 21.9M bbl, down 5%. Wineries: about 11,450
       US wineries (WineBusiness Analytics via Farm Credit East); 83% of wineries east of the Mississippi
@@ -1787,6 +1971,15 @@
   name: Independent funeral homes
   group: local-commerce
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '812210'
+        label: "Funeral homes and funeral services"
+        establishments: 15375
+        under_20_employees: 14461
+        employees: 110512
     summary: 'NFDA: the average member funeral home serves 113 families a year with three full-time and
       four part-time employees; a newer NFDA media page reports 15,401 US funeral homes, about 75% family-
       or privately owned (data years differ).'
@@ -1892,6 +2085,20 @@
   name: Local moving companies and small trucking (owner-operator to ~20 trucks)
   group: local-commerce
   size:
+    census_cbp_2022:
+      source: https://www2.census.gov/programs-surveys/cbp/datasets/2022/cbp22us.zip
+      read: '2026-11-27, python3 portfolio/smb/cbp_counts.py; employer establishments only (no nonemployers)'
+      counts:
+      - naics: '484210'
+        label: "Used household and office goods moving"
+        establishments: 9803
+        under_20_employees: 8260
+        employees: 105910
+      - naics: '484110'
+        label: "General freight trucking, local"
+        establishments: 45436
+        under_20_employees: 41922
+        employees: 317257
     summary: 'Small fleets dominate: secondary sources cite about 91.5% of carriers operating 10 or fewer
       trucks (attributed to FMCSA data, not verified in the Pocket Guide) and ATA data of 95.5% (as of
       March 2024, via Linxup). No current Census firm count for NAICS 484210 movers was found (no source
