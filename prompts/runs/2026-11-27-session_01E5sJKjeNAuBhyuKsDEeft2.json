@@ -1,0 +1,513 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjeNAuBhyuKsDEeft2",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T16:10:43Z",
+  "ended": "2026-11-27T16:11:41Z",
+  "wall_minutes": 4.44,
+  "tokens_in": 2725706,
+  "tokens_out": 15165,
+  "cost_usd": 1.4248,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19803",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "campaign prints a tally that looks like a run-wide total but counts only the latest campaign (each of three printed seeded: 8); only rerun showed the 24 total."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a guard that runs with no agent; the defect class (prototype-key lookups) is too broad for a precise repo-wide lint without false positives.",
+      "did": "Left the new tests in the payapps suites, which ventures-tests CI runs on every PR, as the standing guard.",
+      "result": "Guards are in CI; no new platform/ci lint."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer or SEO post: a red-team test-and-hardening PR has nothing new to tell a customer.",
+      "did": "Wrote it up in the PR body and this record.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Targets: payapps billing paddle.ts, subscription-events.ts, qbo-sync retainage.ts. Catch rate 0.739 -> 1.0. Local verification: billing 106/106 tests, qbo-sync 92/92, tsc clean, run_venture_tests.py payapps exit 0. Guard added: tests for the replay-window bypass on a non-numeric ts, the tolerance edge, and own-key lookups.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/payapps/packages/billing/src/paddle.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 800388903,
+        "commit": "a6d96c4e7",
+        "sites": 60,
+        "baseline_seconds": 0.6,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle.ts",
+            "line": 46,
+            "col": 37,
+            "operator": "and-to-or",
+            "before": "const obj = (v: unknown): Json => (v && typeof v === \"object\" ? (v as Json) : {});",
+            "after": "const obj = (v: unknown): Json => (v || typeof v === \"object\" ? (v as Json) : {});",
+            "line_text": "const obj = (v: unknown): Json => (v && typeof v === \"object\" ? (v as Json) : {});",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle.ts",
+            "line": 79,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "if (amount === null || !currency || !/^[A-Z]{3}$/.test(currency)) return null;",
+            "after": "if (amount !== null || !currency || !/^[A-Z]{3}$/.test(currency)) return null;",
+            "line_text": "  if (amount === null || !currency || !/^[A-Z]{3}$/.test(currency)) return null;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle.ts",
+            "line": 79,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "if (amount === null || !currency || !/^[A-Z]{3}$/.test(currency)) return null;",
+            "after": "if (amount === null || !currency && !/^[A-Z]{3}$/.test(currency)) return null;",
+            "line_text": "  if (amount === null || !currency || !/^[A-Z]{3}$/.test(currency)) return null;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "paddleSubscriptionPrice accepted a 4-letter or non-alpha currency; test now passes 'usdd' and 'u$d'."
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle.ts",
+            "line": 113,
+            "col": 10,
+            "operator": "eq-flip",
+            "before": "if (k === \"h1\" && v) h1.push(v.toLowerCase());",
+            "after": "if (k !== \"h1\" && v) h1.push(v.toLowerCase());",
+            "line_text": "    if (k === \"h1\" && v) h1.push(v.toLowerCase());",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle.ts",
+            "line": 115,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "if (!ts || !/^\\d+$/.test(ts) || h1.length === 0) {",
+            "after": "if (!ts || !/^\\d+$/.test(ts) && h1.length === 0) {",
+            "line_text": "  if (!ts || !/^\\d+$/.test(ts) || h1.length === 0) {",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A correctly signed header with a non-numeric ts made Math.abs(NaN)>300 false, skipping the replay window; new test signs ts=abc/1e9/empty."
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle.ts",
+            "line": 119,
+            "col": 64,
+            "operator": "const-plus-one",
+            "before": "if (Math.abs(nowSec - Number(ts)) > (opts.toleranceSeconds ?? 300)) {",
+            "after": "if (Math.abs(nowSec - Number(ts)) > (opts.toleranceSeconds ?? 301)) {",
+            "line_text": "  if (Math.abs(nowSec - Number(ts)) > (opts.toleranceSeconds ?? 300)) {",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Tolerance edge untested; new test accepts +/-300 s and rejects +/-301 s."
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle.ts",
+            "line": 155,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "body: body === undefined ? undefined : JSON.stringify(body),",
+            "after": "body: body !== undefined ? undefined : JSON.stringify(body),",
+            "line_text": "      body: body === undefined ? undefined : JSON.stringify(body),",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle.ts",
+            "line": 234,
+            "col": 47,
+            "operator": "or-to-and",
+            "before": "if (!Number.isSafeInteger(req.amountMinor) || req.amountMinor <= 0) {",
+            "after": "if (!Number.isSafeInteger(req.amountMinor) && req.amountMinor <= 0) {",
+            "line_text": "    if (!Number.isSafeInteger(req.amountMinor) || req.amountMinor <= 0) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/billing/src/subscription-events.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 248447734,
+        "commit": "a6d96c4e7",
+        "sites": 33,
+        "baseline_seconds": 0.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 37,
+            "col": 13,
+            "operator": "true-to-false",
+            "before": "apply: true;",
+            "after": "apply: false;",
+            "line_text": "      apply: true;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Line 37 is the `apply: true` literal type in the SubscriptionDecision union; node strips types, so runtime is unchanged."
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 54,
+            "col": 59,
+            "operator": "and-to-or",
+            "before": "const otherSub = Boolean(current.providerSubscriptionId) && !sameSub;",
+            "after": "const otherSub = Boolean(current.providerSubscriptionId) || !sameSub;",
+            "line_text": "  const otherSub = Boolean(current.providerSubscriptionId) && !sameSub;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "With no subscription bound to the row, a cancel was misread as another subscription's; new test applies it."
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 57,
+            "col": 49,
+            "operator": "lt-to-le",
+            "before": "if (last && occurredAt && occurredAt.getTime() < last.getTime()) {",
+            "after": "if (last && occurredAt && occurredAt.getTime() <= last.getTime()) {",
+            "line_text": "  if (last && occurredAt && occurredAt.getTime() < last.getTime()) {",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "An event stamped exactly at the watermark was untested; new test applies it (Paddle emits sibling events at one occurred_at)."
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 61,
+            "col": 49,
+            "operator": "eq-flip",
+            "before": "if (s.status === \"canceled\" && (current.status === \"comp\" || otherSub)) {",
+            "after": "if (s.status === \"canceled\" && (current.status !== \"comp\" || otherSub)) {",
+            "line_text": "  if (s.status === \"canceled\" && (current.status === \"comp\" || otherSub)) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 108,
+            "col": 9,
+            "operator": "eq-flip",
+            "before": "status === \"active\" || status === \"past_due\";",
+            "after": "status !== \"active\" || status === \"past_due\";",
+            "line_text": "  status === \"active\" || status === \"past_due\";",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 129,
+            "col": 60,
+            "operator": "eq-flip",
+            "before": "const trialStartedAt = current?.trialStartedAt ?? (status === \"trialing\" ? at : null);",
+            "after": "const trialStartedAt = current?.trialStartedAt ?? (status !== \"trialing\" ? at : null);",
+            "line_text": "  const trialStartedAt = current?.trialStartedAt ?? (status === \"trialing\" ? at : null);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 130,
+            "col": 54,
+            "operator": "eq-flip",
+            "before": "const firstPaidAt = current?.firstPaidAt ?? (status === \"active\" ? at : null);",
+            "after": "const firstPaidAt = current?.firstPaidAt ?? (status !== \"active\" ? at : null);",
+            "line_text": "  const firstPaidAt = current?.firstPaidAt ?? (status === \"active\" ? at : null);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 151,
+            "col": 77,
+            "operator": "true-to-false",
+            "before": "if (current.providerSubscriptionId !== next.providerSubscriptionId) return true;",
+            "after": "if (current.providerSubscriptionId !== next.providerSubscriptionId) return false;",
+            "line_text": "  if (current.providerSubscriptionId !== next.providerSubscriptionId) return true;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+        "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/**/*.test.ts  (in ventures/payapps/packages/qbo-sync)",
+        "seed": 701497373,
+        "commit": "a6d96c4e7",
+        "sites": 40,
+        "baseline_seconds": 0.7,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 65,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "if (!Number.isInteger(rateBps) || rateBps < 0 || rateBps > 10_000) {",
+            "after": "if (!Number.isInteger(rateBps) && rateBps < 0 || rateBps > 10_000) {",
+            "line_text": "  if (!Number.isInteger(rateBps) || rateBps < 0 || rateBps > 10_000) {",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Only the upper rate bound was tested; new test refuses -1, -500, 12.5 and NaN."
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 65,
+            "col": 48,
+            "operator": "or-to-and",
+            "before": "if (!Number.isInteger(rateBps) || rateBps < 0 || rateBps > 10_000) {",
+            "after": "if (!Number.isInteger(rateBps) || rateBps < 0 && rateBps > 10_000) {",
+            "line_text": "  if (!Number.isInteger(rateBps) || rateBps < 0 || rateBps > 10_000) {",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 85,
+            "col": 15,
+            "operator": "lt-to-le",
+            "before": "if (released < 0)",
+            "after": "if (released <= 0)",
+            "line_text": "  if (released < 0)",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 88,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (heldBefore !== undefined) checkCents(heldBefore, \"retainageHeldToDateCents\");",
+            "after": "if (heldBefore === undefined) checkCents(heldBefore, \"retainageHeldToDateCents\");",
+            "line_text": "  if (heldBefore !== undefined) checkCents(heldBefore, \"retainageHeldToDateCents\");",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 105,
+            "col": 50,
+            "operator": "const-plus-one",
+            "before": "heldByRate.set(rate, (heldByRate.get(rate) ?? 0) + applyRateBps(w.amountCents, rate));",
+            "after": "heldByRate.set(rate, (heldByRate.get(rate) ?? 1) + applyRateBps(w.amountCents, rate));",
+            "line_text": "    heldByRate.set(rate, (heldByRate.get(rate) ?? 0) + applyRateBps(w.amountCents, rate));",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 108,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "let held = 0;",
+            "after": "let held = 1;",
+            "line_text": "  let held = 0;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 110,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "if (amount === 0) continue;",
+            "after": "if (amount === 1) continue;",
+            "line_text": "    if (amount === 0) continue;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 119,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (released > 0) {",
+            "after": "if (released > 1) {",
+            "line_text": "  if (released > 0) {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/payapps/packages/billing/src/paddle.ts",
+        "issue": "priceIds/STATUS_MAP looked up with record[key]: plan keys 'toString'/'constructor' resolved to Object.prototype functions, so createCheckout and chargeUsage called Paddle instead of refusing, and a status 'constructor' normalized to a function; price-keys.ts missingPriceIds had the same lookup. Reproduced with a script; fixed with Object.hasOwn.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19803"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4a276889-92ca-5ed4-9546-a4d2ea5cc159",
+    "transcripts": 1,
+    "first": "2026-11-27T16:10:43Z",
+    "last": "2026-11-27T16:15:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 64,
+        "output": 15165,
+        "thinking": 3768,
+        "cache_read": 2651779,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73863,
+        "api_equivalent_usd": 1.4248,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 64,
+      "output": 15165,
+      "thinking": 3768,
+      "cache_read": 2651779,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73863,
+      "api_equivalent_usd": 1.4248,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.44,
+      "active_minutes": 4.44,
+      "model_minutes": 3.24,
+      "tool_minutes": 1.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "triaging 7 mutants, writing tests and the hardening fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 210.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
