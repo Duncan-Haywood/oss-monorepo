@@ -117,7 +117,7 @@ const SEND_TO = "the owner or reputed owner and the original contractor";
 
 const COMMON_NOTES: readonly string[] = [
   'How to send it: "in person to the party entitled to the notice or to that party\'s agent", "by certified mail", or "by any other form of traceable, private delivery or mailing service that can confirm proof of receipt" (§ 53.003(b)). By certified mail, "deposit or mailing of the notice in the United States mail in the form required constitutes compliance" (§ 53.003(c)). Keep the receipt or tracking record.',
-  'Weekends: when a deadline "is a Saturday, Sunday, or legal holiday, the period is extended to include the next day that is not a Saturday, Sunday, or legal holiday" (§ 53.003(e)). PayApps moves a date past a weekend but not past a holiday, so the date it shows can be a day early, never late.',
+  "Weekends: when a deadline \"is a Saturday, Sunday, or legal holiday, the period is extended to include the next day that is not a Saturday, Sunday, or legal holiday\" (§ 53.003(e)). PayApps moves each date past weekends and the legal holidays of Gov't Code § 662.021 (the national holidays and Texas' state holidays; not 24 or 26 December or the optional holidays).",
   "These are the rules for an original contract (the owner's contract with the general contractor) signed on or after 1 January 2022 (H.B. 2237, 2021). Older contracts follow the earlier law, with different notices and dates. Public works are bond claims under Gov't Code ch. 2253, not covered here.",
   '"The notice may include an invoice or billing statement" (§§ 53.056(a-3), 53.057(a-3)): attach the unpaid pay application or invoice.',
 ];

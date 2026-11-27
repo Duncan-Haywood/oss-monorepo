@@ -109,6 +109,19 @@ test("TX notices: every phrase the notes quote is in the statute as published", 
   assert.ok(quotes >= 16, `${quotes} quotes checked`);
 });
 
+test("TX notices: the weekend note says what txNextBusinessDay does, holidays included", () => {
+  // Red-team 2026-11-27: part 2 taught the dates Gov't Code § 662.021's holidays, but the note
+  // printed on every notice still said PayApps did not move a date past one.
+  // 15 February 2027 is Presidents' Day: the roll goes to the 16th.
+  assert.equal(txNextBusinessDay("2027-02-15"), "2027-02-16");
+  for (const f of noticeForms("TX")) {
+    const note = f.notes.find((n) => n.startsWith("Weekends"));
+    assert.ok(note, f.id);
+    assert.doesNotMatch(note, /not past a (legal )?holiday|a day early/, f.id);
+    assert.match(note, /legal holidays of Gov't Code § 662\.021/, f.id);
+  }
+});
+
 test("TX notices: offered for Texas only, labor first", () => {
   assert.deepEqual(
     noticeForms("tx").map((n) => n.id),

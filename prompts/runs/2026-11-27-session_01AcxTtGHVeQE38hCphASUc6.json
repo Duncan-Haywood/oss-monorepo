@@ -1,0 +1,396 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtGHVeQE38hCphASUc6",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T14:06:55Z",
+  "ended": "2026-11-27T14:07:52Z",
+  "wall_minutes": 4.71,
+  "tokens_in": 3373476,
+  "tokens_out": 14674,
+  "cost_usd": 1.5643,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19765",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Edited a single-quoted TS string with unescaped apostrophes (Gov't, Texas'); whole suite failed to parse until escaped.",
+    "Did not run payapps' biome lint before the first push; the packages CI job failed on formatting of the two edited files, fixed with biome check --write."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 5 says run the target's suite; for a payapps package the CI job also runs biome lint and tsc, which the run missed until CI failed. Worth naming `pnpm lint` for pnpm workspaces."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer blog post: red-team fixes to a note text are not a customer topic; wrote the agent doc in docs/reports instead.",
+      "did": "docs/reports/redteam-2026-11-27-tx-notice-required-fields.md",
+      "result": "write-up landed with the fix"
+    }
+  ],
+  "writeups": [
+    "docs/reports/redteam-2026-11-27-tx-notice-required-fields.md"
+  ],
+  "goal": null,
+  "notes": "Security queue: 2 alerts, both claimed (exit 3). Ideas inbox empty. redteam.py open: 0 open, 1 blocked. Guard added: lien-waivers/test/required-fields.test.ts (snapshot of required/optional fields for 211 forms + blank-render checks); started green. Real defect: TX notice 'Weekends' note and README said dates were not rolled past legal holidays after PR #19750 added the roll. lien-waivers suite 268/268 pass. Also fixed main's red payapps-site catalogue-export test (stale export after PR #19750); payapps-site pnpm test 11/11 pass after pnpm export:catalogue.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/payapps/packages/lien-waivers/src/tx-notice.ts",
+        "test": "node --test test/**/*.test.ts  (in ventures/payapps/packages/lien-waivers)",
+        "seed": 575717805,
+        "commit": "547d8134e",
+        "sites": 8,
+        "baseline_seconds": 1.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-notice.ts",
+            "line": 37,
+            "col": 36,
+            "operator": "true-to-false",
+            "before": "f(\"noticeDate\", \"Date\", \"date\", true, \"The day you send the notice.\"),",
+            "after": "f(\"noticeDate\", \"Date\", \"date\", false, \"The day you send the notice.\"),",
+            "line_text": "    f(\"noticeDate\", \"Date\", \"date\", true, \"The day you send the notice.\"),",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "required flag flipped on a TX notice field; no test pinned which blanks are required. Guarded by test/required-fields.test.ts (snapshot of every form's required/optional fields, plus render-with-nothing names every required field)."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-notice.ts",
+            "line": 42,
+            "col": 6,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "      true,",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "required flag flipped on a TX notice field; no test pinned which blanks are required. Guarded by test/required-fields.test.ts (snapshot of every form's required/optional fields, plus render-with-nothing names every required field)."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-notice.ts",
+            "line": 50,
+            "col": 6,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "      true,",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "required flag flipped on a TX notice field; no test pinned which blanks are required. Guarded by test/required-fields.test.ts (snapshot of every form's required/optional fields, plus render-with-nothing names every required field)."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-notice.ts",
+            "line": 57,
+            "col": 6,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "      true,",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "required flag flipped on a TX notice field; no test pinned which blanks are required. Guarded by test/required-fields.test.ts (snapshot of every form's required/optional fields, plus render-with-nothing names every required field)."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-notice.ts",
+            "line": 64,
+            "col": 6,
+            "operator": "false-to-true",
+            "before": "false,",
+            "after": "true,",
+            "line_text": "      false,",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-notice.ts",
+            "line": 67,
+            "col": 38,
+            "operator": "true-to-false",
+            "before": "f(amountKey, amountLabel, \"text\", true, amountHelp),",
+            "after": "f(amountKey, amountLabel, \"text\", false, amountHelp),",
+            "line_text": "    f(amountKey, amountLabel, \"text\", true, amountHelp),",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-notice.ts",
+            "line": 72,
+            "col": 6,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "      true,",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "required flag flipped on a TX notice field; no test pinned which blanks are required. Guarded by test/required-fields.test.ts (snapshot of every form's required/optional fields, plus render-with-nothing names every required field)."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-notice.ts",
+            "line": 79,
+            "col": 6,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "      true,",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "required flag flipped on a TX notice field; no test pinned which blanks are required. Guarded by test/required-fields.test.ts (snapshot of every form's required/optional fields, plus render-with-nothing names every required field)."
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/billing/src/entitlement.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 731267790,
+        "commit": "547d8134e",
+        "sites": 13,
+        "baseline_seconds": 0.4,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/entitlement.ts",
+            "line": 74,
+            "col": 18,
+            "operator": "true-to-false",
+            "before": "active: true,",
+            "after": "active: false,",
+            "line_text": "          active: true,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/entitlement.ts",
+            "line": 82,
+            "col": 18,
+            "operator": "false-to-true",
+            "before": "active: false,",
+            "after": "active: true,",
+            "line_text": "          active: false,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/entitlement.ts",
+            "line": 90,
+            "col": 45,
+            "operator": "eq-flip",
+            "before": "opts.getPlan(sub.planKey) ?? (sub.status === \"comp\" ? (opts.compPlan ?? null) : null);",
+            "after": "opts.getPlan(sub.planKey) ?? (sub.status !== \"comp\" ? (opts.compPlan ?? null) : null);",
+            "line_text": "    opts.getPlan(sub.planKey) ?? (sub.status === \"comp\" ? (opts.compPlan ?? null) : null);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/entitlement.ts",
+            "line": 92,
+            "col": 53,
+            "operator": "or-to-and",
+            "before": "const statusOk = ENTITLED_STATUSES.has(sub.status) || inGrace;",
+            "after": "const statusOk = ENTITLED_STATUSES.has(sub.status) && inGrace;",
+            "line_text": "  const statusOk = ENTITLED_STATUSES.has(sub.status) || inGrace;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/entitlement.ts",
+            "line": 101,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": ": plan === null",
+            "after": ": plan !== null",
+            "line_text": "      : plan === null",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/entitlement.ts",
+            "line": 120,
+            "col": 20,
+            "operator": "max-to-min",
+            "before": "const remaining = Math.max(0, limit - used);",
+            "after": "const remaining = Math.min(0, limit - used);",
+            "line_text": "  const remaining = Math.max(0, limit - used);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/entitlement.ts",
+            "line": 120,
+            "col": 38,
+            "operator": "minus-to-plus",
+            "before": "const remaining = Math.max(0, limit - used);",
+            "after": "const remaining = Math.max(0, limit + used);",
+            "line_text": "  const remaining = Math.max(0, limit - used);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/entitlement.ts",
+            "line": 121,
+            "col": 54,
+            "operator": "le-to-lt",
+            "before": "return { used, limit, remaining, allowed: requested <= remaining };",
+            "after": "return { used, limit, remaining, allowed: requested < remaining };",
+            "line_text": "  return { used, limit, remaining, allowed: requested <= remaining };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/payapps/packages/lien-waivers/src/tx-notice.ts",
+        "issue": "The 'Weekends' note printed on both Texas notices of claim (and the package README) said PayApps moves a date past a weekend but not past a legal holiday, so dates could be a day early; texas-notices-of-claim part 2 (PR #19750) added Gov't Code \u00a7 662.021 holidays to the roll, so the printed note contradicted the dates the app shows.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19765"
+      },
+      {
+        "file": "ventures/payapps/apps/payapps-site/catalogue-export/features.html",
+        "issue": "Red on main: catalogue-export (features.html, llms.txt, llms-full.txt) was not regenerated after PR #19750 added the Texas notices feature text, so payapps-site's catalogue-export test failed and the served catalogue copy at marisstella.app/payapps/ omitted the Texas feature. Regenerated with pnpm export:catalogue.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19765"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d398f0b3-f80b-5aae-8611-d23d5e52caa3",
+    "transcripts": 1,
+    "first": "2026-11-27T14:06:55Z",
+    "last": "2026-11-27T14:11:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 80,
+        "output": 14674,
+        "thinking": 2909,
+        "cache_read": 3297008,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76388,
+        "api_equivalent_usd": 1.5643,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 80,
+      "output": 14674,
+      "thinking": 2909,
+      "cache_read": 3297008,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76388,
+      "api_equivalent_usd": 1.5643,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 37,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.71,
+      "active_minutes": 4.72,
+      "model_minutes": 3.38,
+      "tool_minutes": 1.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation run, snapshot guard over 211 forms, one note fix and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 191.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

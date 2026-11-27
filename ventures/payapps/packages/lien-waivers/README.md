@@ -23,8 +23,8 @@ the two notices a subcontractor or supplier sends to keep a Texas lien (Tex. Pro
 53.057(a-2), as amended by H.B. 2237 for original contracts from 2022-01-01), offered by
 `noticeForms("TX")`, and `src/tx-dates.ts` (no imports, safe for a browser bundle) the deadlines:
 `txMonthlyNoticeDue`, `txNoticeSchedule`, `txRetainageNoticeDue`, `txLienAffidavitDue`,
-`txRetainageAffidavitDue`, each moved past a Saturday or Sunday per § 53.003(e) but not past a legal
-holiday. Text from the Texas Legislature's chapter 53 file (`sources/tx-53-notices.txt`, read
+`txRetainageAffidavitDue`, each moved past a Saturday, Sunday or legal holiday per § 53.003(e)
+(`txLegalHoliday`: Gov't Code § 662.021's days, from `sources/tx-gv-662.txt`). Text from the Texas Legislature's chapter 53 file (`sources/tx-53-notices.txt`, read
 2026-11-27, the same file `tx-53-284.txt` came from); `test/tx-notice.test.ts` compares both whole
 forms and every quoted note with it.
 
