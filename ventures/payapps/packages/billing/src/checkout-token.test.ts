@@ -62,15 +62,24 @@ describe("checkout tokens", () => {
     await assert.rejects(signCheckoutToken(SECRET, "org_a", "org_a"), /checkout id/);
   });
 
-  it("rejects random bytes >= 252 so every id character is uniform", (t) => {
+  it("rejects random bytes >= 252 so every id character is uniform", () => {
     // 252 = 7 x 36; byte 252 would map to "0" and bias it. Feed 252 first, then 1s.
-    t.mock.method(crypto, "getRandomValues", (a: Uint8Array) => {
-      a.fill(1);
-      a[0] = 252;
-      a[1] = 255;
-      return a;
+    const real = crypto.getRandomValues;
+    Object.defineProperty(crypto, "getRandomValues", {
+      configurable: true,
+      value: <T extends ArrayBufferView | null>(a: T): T => {
+        const bytes = a as unknown as Uint8Array;
+        bytes.fill(1);
+        bytes[0] = 252;
+        bytes[1] = 255;
+        return a;
+      },
     });
-    assert.equal(newCheckoutId(), `pco_${"1".repeat(20)}`);
+    try {
+      assert.equal(newCheckoutId(), `pco_${"1".repeat(20)}`);
+    } finally {
+      Object.defineProperty(crypto, "getRandomValues", { configurable: true, value: real });
+    }
   });
 });
 
