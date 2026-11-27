@@ -105,7 +105,8 @@ export async function resolveCheckoutToken(
       ? { ok: true, orgId: row.orgId, checkoutId: row.id }
       : { ok: false, reason: "checkout token replay" };
   }
-  if (row.expiresAt.getTime() <= now.getTime()) {
+  // Written as "not after now" so an Invalid Date (NaN) counts as expired instead of never expiring.
+  if (!(row.expiresAt.getTime() > now.getTime())) {
     return { ok: false, reason: "expired checkout token" };
   }
   return { ok: true, orgId: row.orgId, checkoutId: row.id };

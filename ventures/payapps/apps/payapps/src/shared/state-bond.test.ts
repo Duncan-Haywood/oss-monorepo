@@ -3,6 +3,7 @@
 // state-bond-claims.txt). The example: a sub whose last day on the job was Friday 10 July 2026,
 // on work the public body accepted on Monday 14 December 2026.
 import { describe, expect, it } from "vitest";
+import { stateBondText } from "./lien-deadline";
 import { STATE_BOND_RULES, STATE_BOND_STATES, stateBondClaim } from "./public-jobs";
 
 const LAST = "2026-07-10";
@@ -115,5 +116,77 @@ describe("state bond claims", () => {
       state: "CO",
     });
     expect(stateBondClaim("", { tier: null, lastFurnishedOn: LAST, acceptedOn: null })).toBeNull();
+  });
+});
+
+// The cash page's and weekly email's line (stateBondText, src/shared/lien-deadline.ts), 45 days ahead
+// and 30 days after, as the Miller Act's. Virginia second tier: notice 2026-10-08, suit 2027-07-09.
+describe("state bond claim reminder on the cash page", () => {
+  const owed = { outstandingCents: 1_250_000, retainageHeldCents: 250_000 };
+  const va = () => checked("VA", "second");
+
+  it("names the next step within 45 days, with the money owed", () => {
+    const t = stateBondText(va(), owed, "2026-09-20", "second") ?? "";
+    expect(t).toBe(
+      "Virginia payment bond claim in 18 days: Give the contractor written notice of your claim by 2026-10-08 (within 90 days from your last day of labor or material, Va. Code § 2.2-4341(B)), and $15,000.00 is still owed on this job (retainage included). There is no lien on public work, so the bond is the security: send it by a method with proof of delivery (certified mail, return receipt) and ask a construction attorney if payment is not certain.",
+    );
+    expect(stateBondText(va(), owed, "2026-10-08", "second")).toContain("claim today:");
+    expect(stateBondText(va(), owed, "2026-10-07", "second")).toContain("claim tomorrow:");
+  });
+
+  it("stays quiet more than 45 days out, with nothing owed, and off the eight states", () => {
+    expect(stateBondText(va(), owed, "2026-08-23", "second")).toBeNull();
+    expect(stateBondText(va(), owed, "2026-08-24", "second")).toContain("in 45 days");
+    expect(
+      stateBondText(va(), { outstandingCents: 0, retainageHeldCents: 0 }, "2026-09-20", "second"),
+    ).toBeNull();
+    const ca = stateBondClaim("CA", { tier: null, lastFurnishedOn: LAST, acceptedOn: null });
+    expect(ca?.kind).toBe("unsupported");
+    expect(stateBondText(ca, owed, "2026-09-20")).toBeNull();
+    expect(stateBondText(null, owed, "2026-09-20")).toBeNull();
+    // No dates entered: nothing dated, nothing said.
+    const undated = stateBondClaim("VA", {
+      tier: "second",
+      lastFurnishedOn: null,
+      acceptedOn: null,
+    });
+    expect(stateBondText(undated, owed, "2026-09-20", "second")).toBeNull();
+  });
+
+  it("a step passed in the last 30 days leads, with the suit still open", () => {
+    const t = stateBondText(va(), owed, "2026-10-20", "second") ?? "";
+    expect(t).toContain(
+      "Virginia payment bond step passed on 2026-10-08: Give the contractor written notice",
+    );
+    expect(t).toContain(
+      "The next step still open: bring suit on the payment bond by 2027-07-09 (within one year after your last day of labor or material, Va. Code § 2.2-4341(C)).",
+    );
+    expect(t).toContain("Ask a construction attorney what is left on the bond.");
+    // 31 days after, and the suit still months away: quiet again.
+    expect(stateBondText(va(), owed, "2026-11-08", "second")).toBeNull();
+    // 45 days before the suit date, it comes back.
+    expect(stateBondText(va(), owed, "2027-05-25", "second")).toContain(
+      "claim in 45 days: Bring suit on the payment bond by 2027-07-09",
+    );
+  });
+
+  it("says when a notice is only for a sub's sub, and when a weekend moved the date", () => {
+    const unsure = stateBondClaim("VA", { tier: null, lastFurnishedOn: LAST, acceptedOn: null });
+    expect(stateBondText(unsure, owed, "2026-09-20", null)).toContain(
+      "Give the contractor written notice of your claim (needed if you contracted with a subcontractor rather than the prime) by 2026-10-08",
+    );
+    // New York: 120 days from 10 July is Saturday 7 November 2026.
+    const ny = checked("NY", "second");
+    expect(stateBondText(ny, owed, "2026-11-01", "second")).toContain(
+      "by 2026-11-06 (within 120 days from your last day of labor or material, N.Y. State Fin. Law § 137(3); the statute's date, 2026-11-07, is a weekend, so PayApps shows the Friday before)",
+    );
+  });
+
+  it("a first-tier sub hears only of the suit", () => {
+    const first = checked("VA", "first");
+    expect(stateBondText(first, owed, "2026-09-20", "first")).toBeNull();
+    expect(stateBondText(first, owed, "2027-06-30", "first")).toContain(
+      "Bring suit on the payment bond",
+    );
   });
 });

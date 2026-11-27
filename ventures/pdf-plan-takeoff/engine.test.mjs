@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readSheets, pathSegments } from './geometry.mjs';
 import { inflate } from './inflate-browser.mjs';
 import { samplePdf, SAMPLE } from './sample.mjs';
-import { parseScale, parseFeetInches, formatFeetInches, scaleNotes, assignScale, dimensionMatches, sheetVerdict, inferScale, realLength, phrases } from './scale.mjs';
+import { parseScale, parseFeetInches, formatFeetInches, scaleNotes, assignScale, dimensionMatches, sheetVerdict, inferScale, realLength, phrases, STANDARD_IMPERIAL } from './scale.mjs';
 import { SnapIndex, valueOf, takeoffCsv, polygonArea } from './measure.mjs';
 import { roomAt } from './rooms.mjs';
 
@@ -148,4 +148,77 @@ test('path reader: curves flattened and flagged, forms entered, clips not painte
 test('not a PDF, said plainly', async () => {
   const r = await readSheets(new TextEncoder().encode('hello'), inflate);
   assert.ok(r.flags.notPdf);
+});
+
+// redteam 2026-11-27: real defects and escaped mutants in scale.mjs and measure.mjs
+test('metric scales with a thousands separator read as the whole number', () => {
+  assert.equal(parseScale('1:1,000').ratio, 1000);
+  assert.equal(parseScale('1:2,500').ratio, 2500);
+  assert.equal(parseScale('1:1.000').ratio, 1000);
+  assert.equal(parseScale('SCALE 1:1,250').ratio, 1250);
+  assert.equal(parseScale('1:12.5').ratio, 12.5);
+  assert.equal(parseScale('1:7,5').ratio, 7.5);
+});
+
+test('a negative feet-inches dimension is negative as a whole', () => {
+  assert.equal(parseFeetInches('-3\' 6"'), -42);
+  assert.equal(parseFeetInches('-3\'-6"'), -42);
+  assert.equal(parseFeetInches('-3\''), -36);
+  assert.equal(parseFeetInches('-0\' 6"'), -6);
+});
+
+test('a zero denominator is no number, not zero or infinity', () => {
+  assert.equal(parseScale('1 1/0" = 1\'-0"'), null);
+  assert.equal(parseScale('1-1/0" = 1\'-0"'), null);
+  assert.equal(parseFeetInches('1/0"'), null);
+  assert.equal(parseFeetInches('5\' 1/0"'), null);
+});
+
+test('inch-to-inch scales: enlargements read, a zero side is refused', () => {
+  assert.equal(parseScale('3" = 1"').ratio, 1 / 3);
+  assert.equal(parseScale('1" = 1"').ratio, 1);
+  assert.equal(parseScale('1" = 0"'), null);
+  assert.equal(parseScale('0" = 1"'), null);
+});
+
+test('the standard imperial scales are the ones printed on US sheets', () => {
+  const byLabel = Object.fromEntries(STANDARD_IMPERIAL.map((s) => [s.label, s.ratio]));
+  assert.deepEqual(byLabel, {
+    '1/32" = 1\'-0"': 384, '1/16" = 1\'-0"': 192, '3/32" = 1\'-0"': 128, '1/8" = 1\'-0"': 96, '3/16" = 1\'-0"': 64,
+    '1/4" = 1\'-0"': 48, '3/8" = 1\'-0"': 32, '1/2" = 1\'-0"': 24, '3/4" = 1\'-0"': 16, '1" = 1\'-0"': 12,
+    '1 1/2" = 1\'-0"': 8, '3" = 1\'-0"': 4, '6" = 1\'-0"': 2, '12" = 1\'-0"': 1,
+    '1" = 10\'': 120, '1" = 20\'': 240, '1" = 30\'': 360, '1" = 40\'': 480, '1" = 50\'': 600, '1" = 60\'': 720, '1" = 100\'': 1200, '1" = 200\'': 2400,
+  });
+});
+
+test('three agreeing dimensions are enough to confirm a note', () => {
+  const page = { ...full, runs: full.runs.filter((r) => r.text !== '12\' - 0"' && !/^12'/.test(r.text)) };
+  const dims = dimensionMatches(page);
+  assert.equal(dims.filter((d) => d.implied === 48).length, 3, 'fixture: exactly three dimensions at 1/4"');
+  const v = sheetVerdict(page);
+  assert.equal(v.verdict, 'confirmed');
+  assert.equal(v.support, 3);
+});
+
+test('a segment spanning exactly 2500 snap cells is still snapped to', () => {
+  const end = 49 * 24 + 1; // cells 0..49 on each axis: 50 x 50 = 2500
+  const s = new SnapIndex([0, 0, end, end]);
+  assert.deepEqual(s.snap(1, 1, 3), { x: 0, y: 0, kind: 'end' });
+  const big = new SnapIndex([0, 0, 50 * 24 + 1, 50 * 24 + 1]); // 51 x 51: a sheet border, skipped
+  assert.equal(big.snap(1, 1, 3), null);
+});
+
+test('property: any scale read is finite and positive, any length finite or null', () => {
+  const nums = ['0', '1', '3', '12', '1/0', '0/0', '3/16', '1 1/0', '1-1/2', '1,000', '2.500', '.5', '007', '99999999999999999999'];
+  const forms = [(a, b) => `${a}" = 1'-0"`, (a, b) => `1" = ${a}'`, (a, b) => `${a}" = ${b}"`, (a) => `1:${a}`, (a) => `SCALE: 1 : ${a}`];
+  for (const f of forms) for (const a of nums) for (const b of nums) {
+    const r = parseScale(f(a, b));
+    if (r && 'ratio' in r) assert.ok(Number.isFinite(r.ratio) && r.ratio > 0, `${f(a, b)} -> ${r.ratio}`);
+  }
+  for (const ft of ['', '0\'', '-3\'', '12\'', '-0\'']) for (const inch of ['', '0"', '6"', '1/0"', '6 1/0"', '11.5"', '3/4"']) {
+    const t = `${ft} ${inch}`.trim();
+    if (!t) continue;
+    const v = parseFeetInches(t);
+    assert.ok(v === null || Number.isFinite(v), `${t} -> ${v}`);
+  }
 });

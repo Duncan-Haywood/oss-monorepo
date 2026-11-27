@@ -2535,8 +2535,19 @@ nothing to copy. No customers yet. Paid plans are dark
   panel's summary line shows the next bond date. Tests: `src/shared/state-bond.test.ts` (dates worked
   by hand from each statute) and `test/unit/lien-deadline-panel.test.tsx` (steps shown, acceptance
   saved, unsupported state). The public guide `ventures/pay-app-guides/state-payment-bond-claims.html`
-  carries the same table. Not done: the cash page and weekly email naming a state bond date (as they
-  do the Miller Act's), California (its site refuses the proxy), and the other states.
+  carries the same table. Not done: California (its site refuses the proxy), and the other states.
+- Public jobs, part 2c (2026-11-27, every plan, state-bond-claims-part-2): the cash page and the
+  weekly email name a state or local job's next dated bond claim step 45 days ahead
+  (`LIEN_REMIND_DAYS`) while money is owed, as they do the Miller Act's: `stateBondText` in
+  `src/shared/lien-deadline.ts`, fed by `stateBond` on the cash report's job input
+  (`services/payapps/cash.ts` runs `stateBondClaim` on a `state_local` job). A step passed in the last
+  30 days leads instead, with the next step still open (usually the suit) and "ask a construction
+  attorney". The line says when a notice applies only to a claimant not in contract with the prime
+  (the tier not said) and when a weekend moved the date. Dated steps rest only on entered days (the
+  last day, the acceptance), never on billing, so a job still billing is not nagged. Tests: the
+  reminder block in `src/shared/state-bond.test.ts` (worked dates: 45 days out, today, tomorrow,
+  passed, first tier, New York's Saturday) and a Virginia job through `/reports/cash` in
+  `test/worker/lien-deadline.test.ts`.
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
@@ -2699,7 +2710,7 @@ nothing to copy. No customers yet. Paid plans are dark
 - Public jobs, part 2 (part 1 done 2026-11-27: the owner on the job, Miller Act dates, the 16-state
   retainage cap check; part 2a, the Miller Act notice drafted from the job, done 2026-11-27): a log of
   Miller notices sent with the proof of delivery, if contractors use the draft; state bond claims
-  part 2 (part 1, eight states on the job page, done 2026-11-27): the next state bond date on the
-  cash page and weekly email 45 days ahead, as the Miller Act's is; California's stop payment notice
+  part 2 (part 1, eight states on the job page, and the next bond date on the cash page and weekly
+  email 45 days ahead, done 2026-11-27); California's stop payment notice
   and bond claim once leginfo.legislature.ca.gov answers; more states, each read from the statute
   page, if contractors mark public jobs

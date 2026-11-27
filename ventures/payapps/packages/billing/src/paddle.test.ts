@@ -116,6 +116,20 @@ describe("PaddleBillingProvider.parseWebhook", () => {
     }
   });
 
+  it("rejects a fresh header whose h1 is shorter, longer or a prefix of the real MAC", async () => {
+    // Each wrong-length h1 must fail on its length; one empty, truncated or padded value
+    // accepted here would let anyone forge a subscription.activated event.
+    const body = '{"event_type":"subscription.activated"}';
+    const ts = Math.floor(NOW / 1000);
+    const real = (await signPaddleWebhook(body, SECRET, ts)).split("h1=")[1] as string;
+    for (const h1 of ["0", real.slice(0, 1), real.slice(0, 63), `${real}0`, `${real}${real}`]) {
+      const err = await verifyPaddleSignature(`ts=${ts};h1=${h1}`, body, SECRET, {
+        nowMs: NOW,
+      }).catch((e: unknown) => e);
+      assert.ok(err instanceof WebhookSignatureError, `h1 of length ${h1.length} was accepted`);
+    }
+  });
+
   it("refuses to verify with a blank secret, whose HMAC anyone can compute", async () => {
     // A secret set to "" or whitespace (a blank paste into the secret store) would make every
     // forged webhook valid: the attacker signs with the same well-known key.

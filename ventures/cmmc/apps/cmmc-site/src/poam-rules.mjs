@@ -160,7 +160,8 @@ POA&amp;M is for the small items left at the end, not a way to defer multi-facto
 5-point requirements (3.5.3 also has a 3-point partial credit, but unlike 3.13.11 it may not go on a POA&amp;M).</p>
 <h2>Every requirement, family by family</h2>
 <p>Requirement text from ${cite("nist-800-171r2", "NIST SP 800-171 Rev. 2")}; point values from the DoD Assessment
-Methodology as listed in 32 CFR 170.24. Jump to a family:
+Methodology as listed in 32 CFR 170.24. Each requirement's assessment objectives are on the
+<a href="/cmmc-level-2-requirements">Level 2 requirements</a> page. Jump to a family:
 ${FAMILIES.map(([, code]) => `<a href="${POAM_PATH}#${code.toLowerCase()}">${code}</a>`).join(" · ")}.</p>
 ${FAMILIES.map(([, code, name]) => familyTable(code, name)).join("\n")}
 <h2>Common questions</h2>

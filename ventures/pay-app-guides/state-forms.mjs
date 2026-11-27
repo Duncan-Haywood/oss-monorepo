@@ -65,22 +65,32 @@ export function hubFacts(hub, name) {
 }
 
 // A blank: a rule with what goes there captioned under it. Inline, so it wraps with the sentence.
-const blank = (label) => `<span class="blank"><span class="line"></span><span class="cap">${esc(label)}</span></span>`;
+// With `keyed`, each blank names its field so the general form's fill-in can write into it.
+const blank = (label, key) => `<span class="blank"${key ? ` data-key="${esc(key)}"` : ""}><span class="line"></span><span class="cap">${esc(label)}</span></span>`;
 
-function fillText(text, labels) {
-  return esc(text).replace(/\{\{(\w+)\}\}/g, (_, key) => blank(labels[key] ?? key));
+function fillText(text, labels, keyed = false) {
+  return esc(text).replace(/\{\{(\w+)\}\}/g, (_, key) => blank(labels[key] ?? key, keyed && key));
 }
 
-function renderBody(form) {
+// A signature block with no lines of its own gets the package's default (render.ts, fillBlocks).
+const DEFAULT_SIGN = [
+  { label: "Claimant's Signature", value: "" },
+  { label: "Claimant's Title", value: "{{signerTitle}}" },
+  { label: "Name", value: "{{signerName}}" },
+  { label: "Date of Signature", value: "{{signedDate}}" },
+];
+
+function renderBody(form, keyed = false) {
   const labels = Object.fromEntries(form.fields.map((f) => [f.key, f.label]));
+  const fill = (t, l) => fillText(t, l, keyed);
   return form.body.map((b) => {
     switch (b.type) {
-      case "title": return `<h3 class="form-title">${fillText(b.text, labels)}</h3>`;
-      case "heading": return `<h4>${fillText(b.text, labels)}</h4>`;
-      case "paragraph": return `<p>${fillText(b.text, labels)}</p>`;
-      case "notice": return `<p class="form-notice">${fillText(b.text, labels)}</p>`;
-      case "field": return `<p class="form-field">${esc(b.label)}: ${fillText(b.value, labels)}</p>`;
-      case "signature": return `<div class="form-sign">${(b.lines ?? []).map((l) => `<p>${esc(l.label)}: ${l.value ? fillText(l.value, labels) : blank("sign here")}</p>`).join("")}</div>`;
+      case "title": return `<h3 class="form-title">${fill(b.text, labels)}</h3>`;
+      case "heading": return `<h4>${fill(b.text, labels)}</h4>`;
+      case "paragraph": return `<p>${fill(b.text, labels)}</p>`;
+      case "notice": return `<p class="form-notice">${fill(b.text, labels)}</p>`;
+      case "field": return `<p class="form-field">${esc(b.label)}: ${fill(b.value, labels)}</p>`;
+      case "signature": return `<div class="form-sign">${(b.lines ?? DEFAULT_SIGN).map((l) => `<p>${esc(l.label)}: ${l.value ? fill(l.value, labels) : blank("sign here")}</p>`).join("")}</div>`;
       case "spacer": return `<div class="form-space"></div>`;
       default: throw new Error(`${form.id}: unknown block ${b.type}`);
     }
@@ -271,6 +281,168 @@ ${faq.map(([q, a]) => `  <h3>${esc(q)}</h3>\n  <p>${esc(a)}</p>`).join("\n")}
 `;
 }
 
+// The general waiver: the four forms PayApps prints in every state that sets no wording by statute
+// (packages/lien-waivers/src/generic.ts), for the plain searches ("lien waiver form", "partial lien
+// waiver form", "conditional lien waiver form"). Same package, so the page and the app cannot drift.
+export const GENERIC_PAGE = "lien-waiver-form.html";
+const GENERIC_USE = {
+  "conditional-progress": "a progress payment you have been promised but not yet received",
+  "unconditional-progress": "a progress payment that has cleared your bank",
+  "conditional-final": "the last payment on the job, before it has cleared",
+  "unconditional-final": "the last payment on the job, once it has cleared",
+};
+const useOf = (k) => { if (!Object.hasOwn(GENERIC_USE, k)) throw new Error(`no use text for ${k}`); return GENERIC_USE[k]; };
+const GENERIC_ANCHOR = (k) => `general-${k}`;
+
+export function renderGenericPage(pkg) {
+  const forms = pkg.WAIVER_KINDS.map((k) => pkg.genericForm(k, "US"));
+  const statutory = new Set(pkg.STATUTORY_STATES.map((st) => st.state));
+  const strictStates = STATES.filter(([code]) => statutory.has(code));
+  const narrowStates = STATES.filter(([code]) => !statutory.has(code));
+  if (strictStates.length + narrowStates.length !== STATES.length || narrowStates.some(([c]) => !OTHER[c])) throw new Error("state lists out of step with the package");
+  const stateLinks = (rows) => list(rows.map(([, name]) => `<a href="${slugOf(name)}">${esc(name)}</a>`));
+  const strictNames = list(strictStates.map(([, n]) => n));
+  const title = "Free Lien Waiver Form: Conditional and Unconditional";
+  const desc = "Four free general lien waiver forms (conditional and unconditional, progress and final) to fill in and print, for states with no statutory form.";
+  const counter = "guide_waiver_form_general_viewed";
+
+  const faq = [
+    ["Can I use this lien waiver form in any state?",
+      `No. ${strictStates.length} states set the wording by statute (${strictNames}), and a waiver that does not follow their form may be unenforceable there: use that state's form instead. Missouri and Massachusetts each set one narrow form and leave the rest open. In every other state the statute prints no form, so general wording like this is common, but check the state's lien statute and have local counsel review the form before you rely on it.`],
+    ["Which lien waiver should I sign?",
+      forms.map((f) => `${f.title}: for ${useOf(f.kind)}.`).join(" ") + " Sign an unconditional waiver only once the payment it names has cleared your bank."],
+    ["What is the difference between a conditional and an unconditional lien waiver?",
+      "A conditional waiver takes effect only when the payment it describes is actually received and the check is honored, so it is safe to hand over with the pay application. An unconditional waiver takes effect when signed, paid or not, so it should only go out after the money has cleared."],
+    ["Does a progress lien waiver give up my retainage?",
+      "Not on these forms. The progress waivers exclude retention or amounts withheld, extras not yet paid, work after the through date, contract rights and any exceptions you write in. Read every waiver a GC sends you for the same exclusions before you sign it."],
+  ];
+
+  const rows = forms.map((f) => `      <tr role="row"><td role="cell" data-label="Form"><a href="#${GENERIC_ANCHOR(f.kind)}">${esc(f.title)}</a></td><td role="cell" data-label="Use it for">${esc(useOf(f.kind))}</td><td role="cell" data-label="Takes effect">${pkg.isConditional(f.kind) ? "when the payment is received and the check clears" : "when you sign it"}</td></tr>`).join("\n");
+
+  const fieldOrder = [];
+  for (const f of forms) for (const fld of f.fields) if (!fieldOrder.some((x) => x.key === fld.key)) fieldOrder.push(fld);
+  const inputs = fieldOrder.map((fld) => {
+    const id = `f-${fld.key}`;
+    const hint = fld.type === "money" ? " (as it should print, e.g. $12,500.00)" : fld.type === "date" ? " (as it should print)" : "";
+    const control = fld.type === "multiline" ? `<textarea id="${id}" data-field="${esc(fld.key)}" rows="2"></textarea>` : `<input id="${id}" data-field="${esc(fld.key)}" type="text" autocomplete="off">`;
+    return `    <p><label for="${id}">${esc(fld.label)}${hint}</label>\n    ${control}</p>`;
+  }).join("\n");
+
+  const sections = forms.map((f) => `<section class="card" id="${GENERIC_ANCHOR(f.kind)}">
+  <h2>${esc(f.title)}</h2>
+  <p class="note">Use it for: <strong>${esc(useOf(f.kind))}</strong>. General wording, not any state's statutory form.</p>
+  <div class="statutory-form">
+      ${renderBody(f, true)}
+  </div>
+  <button type="button" class="secondary print-form" data-form="${GENERIC_ANCHOR(f.kind)}">Print this form</button>
+</section>`).join("\n\n");
+
+  const ld = [
+    { "@context": "https://schema.org", "@type": "Article", headline: title, datePublished: "2026-11-27", dateModified: "2026-11-27" },
+    { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) },
+  ];
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${esc(title)}</title>
+  <meta name="description" content="${esc(desc)}">
+  <meta property="og:title" content="${esc(title)}">
+  <meta property="og:description" content="${esc(desc)}">
+  <link rel="canonical" href="./${GENERIC_PAGE}">
+  <link rel="stylesheet" href="style.css">
+${ld.map((d) => `  <script type="application/ld+json">${JSON.stringify(d).replace(/</g, "\\u003c")}</script>`).join("\n")}
+</head>
+<body>
+<!-- generated by state-forms.mjs from the PayApps lien-waiver package (generic.ts); do not edit by hand -->
+<header>
+  <p class="kicker">Pay app guides · <a href="${HUB}">lien waiver forms by state</a></p>
+  <h1>Free lien waiver form: conditional and unconditional, progress and final</h1>
+  <p>The four lien waivers a subcontractor or supplier gives as a job is paid, in plain general wording: conditional and unconditional, on a progress payment and on the final payment. Type the job's details once and all four fill in, or print them blank and fill them in by hand. Nothing you type leaves this page.</p>
+  <p><strong>Check your state first.</strong> ${strictStates.length} states set the wording by statute and may not enforce any other form: ${stateLinks(strictStates)}. Use that state's own form, printed in full on its page. ${stateLinks(narrowStates)} each set one narrow form and leave the rest open.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="${HUB}">Lien waiver forms by state</a>
+    <a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional waivers</a>
+    <a href="lien-waiver-log.html">Lien waiver log</a>
+    <a href="#all-guides" class="all">All guides</a>
+  </nav>
+</header>
+<main>
+<section class="card">
+  <h2>The four forms</h2>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Form</th><th role="columnheader" scope="col">Use it for</th><th role="columnheader" scope="col">Takes effect</th></tr></thead>
+    <tbody>
+${rows}
+    </tbody>
+  </table></div>
+  <p class="note">This wording was written for PayApps; it is not a form set by any statute and has not been reviewed by an attorney. Each form says so on its face. Lien and waiver law varies by state and changes: have a construction attorney in the job's state review it before you rely on it.</p>
+</section>
+
+<section class="card" id="fill">
+  <h2>Fill in the job once</h2>
+  <p>Whatever you type here appears in every form below, in place of its blank. Leave a box empty to keep the blank for handwriting. Nothing is saved or sent; reload the page to clear it.</p>
+  <form id="fill-form" autocomplete="off">
+${inputs}
+  </form>
+</section>
+
+${sections}
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+${faq.map(([q, a]) => `  <h3>${esc(q)}</h3>\n  <p>${esc(a)}</p>`).join("\n")}
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Fill these in from your pay app instead</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors that prints the right waiver for the job's state with each pay application, filled in from the job and the amount due, and holds the unconditional one until the payment has cleared. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> These forms and notes are provided free and as-is, without warranty of any kind, express or implied. They are not legal advice and do not replace an attorney licensed in your job's state; lien and waiver rules are strict, and courts read them in ways a general form cannot anticipate. You are responsible for what you sign. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. What you type stays in this page and is never stored. One anonymous counter (<code>${counter}</code>) is kept in local storage on your device only, and Do Not Track switches it off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  record("${counter}");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+  // Typed values replace the blank's rule; the caption stays so the signer sees what each line is.
+  const fill = (key, value) => {
+    for (const span of document.querySelectorAll(\`.blank[data-key="\${key}"] .line\`)) {
+      span.textContent = value;
+      span.classList.toggle("filled", value !== "");
+    }
+  };
+  let counted = false;
+  for (const el of document.querySelectorAll("[data-field]")) {
+    el.addEventListener("input", () => {
+      fill(el.dataset.field, el.value.trim());
+      if (!counted) { counted = true; record("guide_waiver_form_general_filled"); }
+    });
+  }
+  for (const btn of document.querySelectorAll(".print-form")) {
+    btn.addEventListener("click", () => {
+      document.body.dataset.print = "form";
+      document.getElementById(btn.dataset.form).classList.add("printing");
+      window.print();
+    });
+  }
+  addEventListener("afterprint", () => {
+    delete document.body.dataset.print;
+    for (const s of document.querySelectorAll(".printing")) s.classList.remove("printing");
+  });
+</script>
+</body>
+</html>
+`;
+}
+
 // The state's notice guide, where the guides have one: the notice comes before any waiver.
 const NOTICE = {
   CA: ["california-preliminary-notice.html", "20-day preliminary notice"],
@@ -303,6 +475,7 @@ export async function build() {
     const file = slugOf(name);
     files[file] = applyCta(apply(renderPage(pkg, hub, code, name), file), file);
   }
+  files[GENERIC_PAGE] = applyCta(apply(renderGenericPage(pkg), GENERIC_PAGE), GENERIC_PAGE);
   return files;
 }
 

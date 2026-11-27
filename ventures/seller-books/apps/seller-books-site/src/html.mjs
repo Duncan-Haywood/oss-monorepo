@@ -117,6 +117,7 @@ ${page.body}
       <a href="${href("/1099-k")}">Form 1099-K</a>
       <a href="${href("/personal-items-or-business")}">Personal items or a business</a>
       <a href="${href("/cost-of-goods-sold")}">Cost of goods sold</a>
+      <a href="${href("/reseller-inventory-spreadsheet")}">Inventory spreadsheet</a>
       <a href="${href("/mileage-deduction")}">Mileage deduction</a>
       <a href="${href("/home-office-and-equipment")}">Home office and equipment</a>
       <a href="${href("/reseller-tax-deductions")}">Reseller tax deductions</a>

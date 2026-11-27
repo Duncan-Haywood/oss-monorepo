@@ -15,6 +15,7 @@
 //
 // The planner is pure (planWebhookDestination); PaddleWebhookClient does the I/O with plain fetch.
 // The signing secret is returned to the caller and never logged here.
+import { appOriginWith } from "./app-origin.ts";
 import { nextPagePath, paddleBaseUrl } from "./paddle.ts";
 
 /**
@@ -69,21 +70,7 @@ export interface WebhookWant {
  * typo here would send billing events (with customer emails) to someone else's server.
  */
 export function webhookUrl(appUrl: string): string {
-  let u: URL;
-  try {
-    u = new URL(appUrl.trim());
-  } catch {
-    throw new Error(`app URL ${JSON.stringify(appUrl)} is not a URL`);
-  }
-  if (u.protocol !== "https:") throw new Error("app URL must be https");
-  if (u.username || u.password || u.search || u.hash)
-    throw new Error("app URL must be a bare origin (no credentials, query or fragment)");
-  // A domain name with a letter-led top-level label: no IP literals, no single-label hosts.
-  if (!/^([a-z0-9-]+\.)+[a-z][a-z0-9-]*$/.test(u.hostname))
-    throw new Error(`app URL host ${JSON.stringify(u.hostname)} is not a public host name`);
-  if (u.pathname !== "/" && u.pathname !== "")
-    throw new Error("app URL must have no path (the webhook path is added here)");
-  return `${u.origin}${WEBHOOK_PATH}`;
+  return appOriginWith(appUrl, WEBHOOK_PATH, "webhook");
 }
 
 const eventName = (e: { name: string } | string) => (typeof e === "string" ? e : e.name);

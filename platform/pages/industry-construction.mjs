@@ -72,8 +72,8 @@ export const PRODUCTS = [
     status: 'early-access',
     for: 'Remodelers, roofers, siding contractors and framers',
     summary:
-      'Framing, sheathing, roof and siding quantities from a house you type, draw or open as IFC or DXF, and one supplier material list a lumberyard can quote from. Wall runs, doors and windows clicked on a plan PDF in the free PDF plan takeoff open here as a plan (corners, tees and openings kept). The paid edition is open to try while checkout is not.',
-    planned: ['Wall runs found on a plan PDF without clicking them', 'Feeds estimates into the pay-app suite'],
+      'Framing, sheathing, roof and siding quantities from a house you type, draw or open as IFC or DXF, and one supplier material list a lumberyard can quote from. Wall runs, doors and windows clicked on a plan PDF in the free PDF plan takeoff open here as a plan (corners, tees and openings kept), or a vector plan PDF goes straight under the sketch at its printed scale, so walls are traced corner to corner. The paid edition is open to try while checkout is not.',
+      planned: ['Wall runs found on a plan PDF without clicking them', 'Feeds estimates into the pay-app suite'],
     freeToday: ['wall-framing-takeoff', 'pdf-plan-takeoff'],
     // The paid edition's app at /residential-takeoff/ (residential-takeoff-app.mjs), when copied in.
     site: 'residential-takeoff',
@@ -161,6 +161,7 @@ export const PROBLEMS = [
       ['pay-app-guides/lien-waiver-log.html', 'Lien waiver log', 'Waivers given and received matched by payment; unconditionals signed before the money cleared flagged; the next pay app’s waiver requests written.'],
       ['pay-app-guides/conditional-vs-unconditional-lien-waivers.html', 'Conditional vs unconditional lien waivers', 'The four waiver types and when to sign each.'],
       ['pay-app-guides/lien-waiver-forms-by-state.html', 'Statutory lien waiver forms by state', 'Which states require their own form, each linked to the statute.'],
+      ['pay-app-guides/lien-waiver-form.html', 'Free lien waiver form', 'The four general waivers, conditional and unconditional, filled in once and printed.'],
       ['pay-app-guides/arizona-lien-waiver-forms.html', 'Arizona lien waiver forms', 'The statutory forms (A.R.S. § 33-1008) word for word, blank and ready to print.'],
       ['pay-app-guides/california-lien-waiver-forms.html', 'California lien waiver forms', 'The statutory forms (Civ. Code §§ 8132–8138) word for word, blank and ready to print.'],
       ['pay-app-guides/florida-lien-waiver-forms.html', 'Florida lien waiver forms', 'The statutory forms (Fla. Stat. § 713.20) word for word, blank and ready to print.'],

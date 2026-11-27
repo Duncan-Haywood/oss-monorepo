@@ -216,4 +216,46 @@ describe("lien deadline", () => {
     const history = await (await api(`${job.base}/history.csv`, { as })).text();
     expect(history).toContain("public job (owner)");
   });
+
+  it("a state public job names its next bond claim step on the cash report, 45 days ahead", async () => {
+    const { orgId, userId: as } = await setupTenant("owner");
+    await grantPlan(orgId);
+    const from = addDays(today(), -80);
+    const job = await finishedJob(orgId, as, from, addDays(from, 20));
+    // Virginia's notice is 90 days from the last day: 60 days ago leaves about 30 (a weekend can
+    // move it back to the Friday before).
+    const last = addDays(today(), -60);
+    await call<ProjectDetailDto>(job.base, {
+      method: "PATCH",
+      as,
+      json: {
+        lienState: "VA",
+        publicOwner: "state_local",
+        millerTier: "second",
+        lastFurnishedOn: last,
+      },
+    });
+    let r = await call<CashReport>(`/api/orgs/${orgId}/reports/cash`, { as });
+    let row = r.projects.find((x) => x.id === job.id);
+    const text = row?.actions.find((a) => a.startsWith("Virginia payment bond claim in")) ?? "";
+    expect(text).toContain("Give the contractor written notice of your claim by");
+    expect(text).toContain("Va. Code § 2.2-4341(B)");
+    expect(row?.actions.some((a) => a.includes("lien deadline"))).toBe(false);
+
+    // In contract with the prime: no notice, and the suit is a year out, so nothing yet.
+    await call<ProjectDetailDto>(job.base, { method: "PATCH", as, json: { millerTier: "first" } });
+    r = await call<CashReport>(`/api/orgs/${orgId}/reports/cash`, { as });
+    row = r.projects.find((x) => x.id === job.id);
+    expect(row?.actions.some((a) => a.includes("payment bond"))).toBe(false);
+
+    // A state PayApps does not carry for bonds: nothing named.
+    await call<ProjectDetailDto>(job.base, {
+      method: "PATCH",
+      as,
+      json: { lienState: "CO", millerTier: "second" },
+    });
+    r = await call<CashReport>(`/api/orgs/${orgId}/reports/cash`, { as });
+    row = r.projects.find((x) => x.id === job.id);
+    expect(row?.actions.some((a) => a.includes("payment bond"))).toBe(false);
+  });
 });

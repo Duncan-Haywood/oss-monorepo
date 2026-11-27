@@ -28,6 +28,7 @@ import {
   millerDates,
   millerNotes,
   type PublicOwner,
+  type StateBondCheck,
 } from "./public-jobs";
 
 const DAY_MS = 86_400_000;
@@ -610,4 +611,54 @@ export function lienDeadlineText(
   }
   const when = left === 0 ? "today" : left === 1 ? "tomorrow" : `in ${left} days`;
   return `${d.stateName} lien deadline ${when}: ${d.act} by ${d.dueOn} (${d.rule}, ${d.citation}) and ${what}. If payment is not certain before then, talk to a construction attorney or a lien service now; a lien takes days to prepare and record.${basis}`;
+}
+
+/**
+ * The cash page's (and weekly email's) line about a state or local public job's payment bond claim
+ * (stateBondClaim in src/shared/public-jobs.ts), the state counterpart of the federal Miller Act
+ * line above. Null unless money is owed and a dated step is due within LIEN_REMIND_DAYS or passed in
+ * the last LIEN_PASSED_DAYS. Every dated step rests on a day the contractor entered (the last day of
+ * labor or material, or the public body's acceptance), never on billing, so it does not nag a job
+ * still being billed. A step passed recently leads (with the next one still ahead, if any); else the
+ * next step ahead. Steps listed for those not in contract with the prime say so when the company has
+ * not said who it contracted with.
+ */
+export function stateBondText(
+  bond: StateBondCheck | null | undefined,
+  owed: { outstandingCents: number; retainageHeldCents: number },
+  asOf: string,
+  tier: MillerTier | null = null,
+): string | null {
+  if (bond?.kind !== "checked") return null;
+  const owedCents = owed.outstandingCents + owed.retainageHeldCents;
+  if (owedCents <= 0) return null;
+  const left = (x: { dueOn: string | null }) => daysUntil(asOf, x.dueOn as string);
+  const next = bond.dated.find((x) => left(x) >= 0);
+  const passed = bond.dated.filter((x) => left(x) < 0 && left(x) >= -LIEN_PASSED_DAYS).at(-1);
+  const what =
+    owed.retainageHeldCents > 0 && owed.outstandingCents > 0
+      ? `${money(owedCents)} is still owed on this job (retainage included)`
+      : owed.retainageHeldCents > 0
+        ? `${money(owedCents)} of retainage is still held on this job`
+        : `${money(owedCents)} is still owed on this job`;
+  const who = (x: { who: "all" | "not-prime" }) =>
+    x.who === "not-prime" && tier === null
+      ? " (needed if you contracted with a subcontractor rather than the prime)"
+      : "";
+  const weekend = (x: { dueOn: string | null; statutoryOn: string | null }) =>
+    x.statutoryOn && x.statutoryOn !== x.dueOn
+      ? `; the statute's date, ${x.statutoryOn}, is a weekend, so PayApps shows the Friday before`
+      : "";
+  const name = bond.rule.name;
+  if (passed) {
+    const after =
+      next && left(next) <= 366
+        ? ` The next step still open: ${next.act.charAt(0).toLowerCase()}${next.act.slice(1)} by ${next.dueOn} (${next.rule}, ${next.citation}).`
+        : "";
+    return `${name} payment bond step passed on ${passed.dueOn}: ${passed.act}${who(passed)} (${passed.rule}, ${passed.citation}), and ${what}.${after} Ask a construction attorney what is left on the bond.`;
+  }
+  if (!next || left(next) > LIEN_REMIND_DAYS) return null;
+  const n = left(next);
+  const when = n === 0 ? "today" : n === 1 ? "tomorrow" : `in ${n} days`;
+  return `${name} payment bond claim ${when}: ${next.act}${who(next)} by ${next.dueOn} (${next.rule}, ${next.citation}${weekend(next)}), and ${what}. There is no lien on public work, so the bond is the security: send it by a method with proof of delivery (certified mail, return receipt) and ask a construction attorney if payment is not certain.`;
 }

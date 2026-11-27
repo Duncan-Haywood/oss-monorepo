@@ -928,6 +928,36 @@ irs.gov does not answer from the environment these pages are built in, so
 the rules were read through search-engine excerpts of the IRS pages on
 2026-11-27, and the page says so.
 
+## A free inventory spreadsheet, if you are not ready for books yet (added 2026-11-27)
+
+Most resellers start with a spreadsheet, and many sheets miss the two facts
+Schedule C Part III needs at year end: what a lot cost as a whole, and the
+date an item left the shelf without being sold. The free
+[reseller inventory spreadsheet](https://marisstella.app/seller-books/reseller-inventory-spreadsheet)
+(an Excel file, no sign-up) has a row per purchase with a Qty and Total Cost
+for a bin haul or mystery box, a Status of Kept, Donated or Lost with a Date
+Removed, and profit per sale and days to sell worked out. Its Year summary
+adds up, at cost, what was on hand on January 1 (line 35), bought less kept
+(line 36), sold, written off, and still in stock on December 31 (line 41),
+with a check row that reads zero when every item is accounted for.
+
+In the filled-in example (ten invented rows), $21.00 on hand plus $105.50
+bought, less $7.50 kept, $51.00 sold and $4.00 donated, leaves $64.00 in
+stock on December 31. A ski jacket bought in December and sold in January
+sits in that $64.00: its cost belongs to the year it sold. We recalculated
+the file in LibreOffice and checked every figure against the same sums done
+by hand; a test repeats that.
+
+The sheet's column names are the ones Seller Books' sourcing-sheet import
+reads (Item, SKU, Qty, Unit Cost, Total Cost, Date Bought, Status, Date
+Removed), so when it gets too long, save the Inventory tab as CSV and import
+it on the Inventory page. We ran the example's CSV through the app's own
+importer: fourteen items (the five-pair jeans lot split $4.00 each), the
+lamp as personal use and the kid's jacket as written off, nothing skipped. A
+test checks the headers against the importer's source on every change. The
+year summary is a set of figures to check with your preparer, not a return,
+and not tax advice.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across

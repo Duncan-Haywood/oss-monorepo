@@ -124,6 +124,7 @@ nav.guides a.all { font-weight: 700; }
 .statutory-form .form-sign p { margin: 0 0 6px; }
 .blank { display: inline-flex; flex-direction: column; vertical-align: top; min-width: 9em; margin: 0 2px; }
 .blank .line { display: block; border-bottom: 1px solid #000; height: 1.35em; }
+.blank .line.filled { height: auto; min-height: 1.35em; white-space: pre-wrap; }
 .blank .cap { font: 10px/1.2 system-ui, sans-serif; color: #666; text-transform: none; }
 @media print {
   body[data-print] main > *, body[data-print] header, body[data-print] nav.all-guides, body[data-print] footer { display: none !important; }

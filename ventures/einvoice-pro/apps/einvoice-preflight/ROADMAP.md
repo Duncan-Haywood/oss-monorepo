@@ -179,6 +179,14 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   "The readable view"); metered as a check, so free for a file already checked that month. einvoice-site's
   "What fix-and-explain does" lists it in all four languages, and its llms.txt names it.
 
+- Free-edition repair fixes ported (2026-11-27, free-fixes-to-paid-repair): a CII file whose kept
+  line total had a decimal comma ("960,00") was "repaired" here by dropping the line and rewriting
+  1,190.00 EUR to 47.60; `repair-cii/-ubl/-facturx/-cli.mjs` now match the free tree (refuse or skip
+  with a reason, never NaN; xref dictionaries past 4 KB; a BR-CO-17 warning is sendable), with
+  `repair-fuzz.test.mjs` and the remainder-10 BG/CZ VAT test. `einvoice-pro-ci.yml` now installs
+  slimdom and fontoxpath, so 134 official-route tests run there instead of skipping. Still-unported
+  free fixes: docs/reports/2026-11-27-einvoice-free-paid-drift.md (oss-monorepo).
+
 ## Must do before a public launch
 
 - Owner: the licence decision on the third-party rule sets in `plain/` (EUPL-1.2, MPL-2.0,
