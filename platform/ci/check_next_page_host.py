@@ -15,9 +15,11 @@ The fix is a prefix check that refuses a URL outside the base
 from __future__ import annotations
 
 import re
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from repo_files import ls_files  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 # `.replace(this.base, "")`, `.replace(baseUrl, '')`, `.replace(API_BASE, "")` ...
@@ -32,8 +34,7 @@ def scan_text(text: str) -> list[int]:
 
 
 def files(repo: Path = REPO) -> list[Path]:
-    out = subprocess.run(["git", "ls-files", "*.ts", "*.mjs", "*.js", "*.tsx"], cwd=repo,
-                         capture_output=True, text=True, check=True).stdout.split()
+    out = ls_files(repo, "*.ts", "*.mjs", "*.js", "*.tsx")
     # Tests drive a local fake whose URLs they build themselves.
     return [repo / f for f in out if "node_modules/" not in f and ".test." not in f
             and "/test/" not in f"/{f}" and "/tests/" not in f"/{f}"]
