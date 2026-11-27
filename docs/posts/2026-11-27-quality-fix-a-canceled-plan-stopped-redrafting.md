@@ -3,7 +3,7 @@ title: "Quality fix: a canceled Grant Autopilot plan now stops redrafts too"
 seo_title: "Grant writing software: what a canceled plan still does"
 date: 2026-11-27
 tags: [quality-audit, grant-autopilot, for-customers, grants, nonprofits]
-description: "Grant Autopilot checked billing only on an application's first draft. Redrafts now need a live plan as well, and the seller-books audit's fixes are on the record."
+description: "Grant Autopilot checked billing only on a first draft. Redrafts now need a live plan too, and the seller-books audit fixes are on the record."
 ---
 
 If you use grant writing software, you'll want to know what happens to your
