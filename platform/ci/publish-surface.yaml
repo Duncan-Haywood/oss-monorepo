@@ -533,3 +533,6 @@ workflows:
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
+- workflow: yaml-values-ci.yml
+  classification: none
+  publishes: []
