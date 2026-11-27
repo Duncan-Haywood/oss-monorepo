@@ -56,6 +56,8 @@
     footer { margin-top: 28px; border-top: 1px solid #d5dbe1; padding-top: 16px; }
     footer a, main a, section a { color: #1a4f7a; }
     @media (max-width: 560px) { body { padding: 20px 16px; } }
+    /* Phone cards (table.stack): the lot size is the card title, so say what it is. */
+    @media (max-width: 600px) { #lot-table td:first-child::before { content: "Lot of "; display: inline; padding: 0; font: inherit; color: inherit; } }
   </style>
 </head>
 <body>
@@ -297,9 +299,9 @@
     <div id="findings"></div>
 
     <h3>Where the money goes</h3>
+    <p class="note" id="breakdown-note">Every figure is for the whole lot. Flat lines cost the same at any quantity.</p>
     <div class="scroller">
-      <table>
-        <caption class="note" style="text-align:left;padding:6px 0">Every figure is for the whole lot. Flat lines cost the same at any quantity.</caption>
+      <table class="stack compact" aria-describedby="breakdown-note">
         <thead>
           <tr><th>Cost line</th><th class="num">This lot</th><th class="num">Per part</th><th>Scales with</th></tr>
         </thead>
@@ -316,7 +318,7 @@
     <p class="note">Recomputed from scratch at each quantity, so the material
     steps and the amortised setup are both real rather than interpolated.</p>
     <div class="scroller">
-      <table>
+      <table class="stack compact" id="lot-table">
         <thead>
           <tr>
             <th class="num">Lot</th>

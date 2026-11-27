@@ -159,7 +159,7 @@ test("the calculator page carries the liquidation section renderLiquidation writ
 
 test("the calculator's liquidation table renders one cell per column", () => {
   const { markup, scripts } = parse(index);
-  const table = markup.match(/<table id="liquidationTable">[\s\S]*?<\/table>/);
+  const table = markup.match(/<table(?: class="stack")? id="liquidationTable">[\s\S]*?<\/table>/);
   assert.ok(table, "index.html is missing the liquidation table");
   const columns = table[0].match(/<th\b/g).length;
   const body = scripts.join("\n").match(/function renderLiquidation\([\s\S]*?\n    \}\n/);

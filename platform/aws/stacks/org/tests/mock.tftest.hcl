@@ -57,6 +57,13 @@ run "baseline_shape" {
   }
 
   assert {
+    condition = alltrue([
+      for a in values(local.accounts) : can(regex("^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$", a.purpose))
+    ])
+    error_message = "account tag values use only characters AWS allows (no commas or semicolons)"
+  }
+
+  assert {
     condition     = length(aws_organizations_policy_attachment.scp) == 15
     error_message = "three SCPs on each of five OUs"
   }
