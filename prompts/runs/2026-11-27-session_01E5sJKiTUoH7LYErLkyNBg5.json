@@ -51,7 +51,7 @@
     },
     {
       "file": "portfolio/monetization/transition.py",
-      "issue": "A venture growing past the depth line silently flips its licence track in the build and turns main red in a suite PRs for that venture never run; the free front door pay-app-guides did so on 2026-11-27."
+      "issue": "A venture growing past the depth line flips its licence track in the build; PR #19687 then wrote transition.json with the free front door pay-app-guides as proprietary, apparently as a side effect of --write. Someone should decide that on purpose (an OVERRIDES row either way)."
     }
   ],
   "deviations": [
@@ -73,7 +73,7 @@
     "ventures/payapps/apps/payapps/README.md (Browser tests)"
   ],
   "goal": null,
-  "notes": "Security queue: 12 alerts, all claimed (exit 3). Ideas inbox empty. Routed ventures/2 by draw. Local verification: e2e 3/3 passed (1.4 min); typecheck clean; unit 1362 passed, 3 skipped; worker 88 files, 559 tests passed; biome clean; validate_workflows all 143 valid. risk_review: nothing blocked. CI on the first push: three reds from main, not this diff. Fixed two in this PR: pay-app-guides' Florida NTO page needed cta.mjs/nav.mjs rerun (after #19674/#19669), and transition.py classed pay-app-guides as proprietary once it grew past the depth line, so an override keeps its committed free track (transition.json unchanged, no licence change). Left prompts/test_promptctl.py LastChangeIndexTest to open PR #19681 (P095; a merge commit touching prompts/).",
+  "notes": "Security queue: 12 alerts, all claimed (exit 3). Ideas inbox empty. Routed ventures/2 by draw. Local verification: e2e 3/3 passed (1.4 min); typecheck clean; unit 1362 passed, 3 skipped; worker 88 files, 559 tests passed; biome clean; validate_workflows all 143 valid. risk_review: nothing blocked. CI on the first push: three reds from main, not this diff. Fixed two in this PR: pay-app-guides' Florida NTO page needed cta.mjs/nav.mjs rerun (after #19674/#19669), and the Florida NTO post's sign-up link still used the retired workers.dev host (check_post_links). An override keeping pay-app-guides on the free track was dropped again: PR #19687 had meanwhile rewritten transition.json with it as proprietary, and a run should not flip a licence track back and forth. Left prompts/test_promptctl.py LastChangeIndexTest to open PR #19681 (P095; a merge commit touching prompts/).",
   "corrections": [],
   "redteam": null,
   "usage": {
