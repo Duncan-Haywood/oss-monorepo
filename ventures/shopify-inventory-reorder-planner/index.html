@@ -101,7 +101,7 @@
     <p class="stats" id="report-stats"></p>
     <div id="report-findings"></div>
     <h3>By SKU (most urgent first)</h3>
-    <div class="scroll"><table><thead><tr><th scope="col">SKU</th><th scope="col">Status</th><th class="n" scope="col">Class</th><th class="n" scope="col">Sold / day</th><th class="n" scope="col">On hand</th><th class="n" scope="col">Days of cover</th><th class="n" scope="col">Reorder point</th><th scope="col">Buffer from</th><th class="n" scope="col">Order qty</th><th class="n" scope="col">Order cost</th><th class="n" scope="col">Sales at risk</th><th class="n" scope="col">Excess cash</th></tr></thead><tbody id="by-sku"></tbody></table></div>
+    <div class="scroll"><table class="stack"><thead><tr><th scope="col">SKU</th><th scope="col">Status</th><th class="n" scope="col">Class</th><th class="n" scope="col">Sold / day</th><th class="n" scope="col">On hand</th><th class="n" scope="col">Days of cover</th><th class="n" scope="col">Reorder point</th><th scope="col">Buffer from</th><th class="n" scope="col">Order qty</th><th class="n" scope="col">Order cost</th><th class="n" scope="col">Sales at risk</th><th class="n" scope="col">Excess cash</th></tr></thead><tbody id="by-sku"></tbody></table></div>
     <p class="note" id="skipped"></p>
     <label for="summary">Copyable summary</label>
     <textarea id="summary" readonly spellcheck="false"></textarea>
@@ -111,7 +111,7 @@
   <section class="card" id="backtest">
     <h2>Measured on a real store's year of orders</h2>
     <p>The reorder rule was replayed on a public dataset of a real UK online seller's 1,067,371 order lines (UCI Machine Learning Repository, Online Retail II, CC BY 4.0): 3,078 SKUs, a year held out, the plan rerun every four weeks on the latest year of orders, a 14-day lead time, and any demand that found an empty shelf counted as lost.</p>
-    <div class="scroll"><table>
+    <div class="scroll"><table class="stack">
       <thead><tr><th scope="col">At a 95% setting</th><th class="n" scope="col">Lead times with no lost sale</th><th class="n" scope="col">Units sold of units wanted</th><th class="n" scope="col">Stock carried</th></tr></thead>
       <tbody>
         <tr><th scope="row">Weekly variation only (older rule)</th><td class="n">77.5%</td><td class="n">92.6%</td><td class="n">£1.52M</td></tr>

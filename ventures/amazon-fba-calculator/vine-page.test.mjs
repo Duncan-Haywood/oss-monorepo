@@ -117,7 +117,7 @@ test("the calculator page carries the Vine section renderVine writes into", () =
   assert.match(index, /id="vineVerdict"/);
   assert.match(index, /compareVine/);
   assert.match(index, /vine_compared/);
-  const table = index.match(/<table id="vineTable">[\s\S]*?<\/table>/);
+  const table = index.match(/<table(?: class="stack")? id="vineTable">[\s\S]*?<\/table>/);
   assert.ok(table, "index.html is missing the Vine comparison table");
   const columns = table[0].match(/<th\b/g).length;
   const cells = (index.match(/function renderVine[\s\S]*?packCell\(tr, row\.id === "skip"/) || [""])[0].match(/packCell\(/g) || [];

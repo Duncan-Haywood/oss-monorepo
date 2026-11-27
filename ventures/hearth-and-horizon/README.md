@@ -497,8 +497,9 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (99 stories)
+### Little Lamps (100 stories)
 
+- [Leo and the King at the River](stories/leo-and-the-king-at-the-river.md) (2026-11-27; 9 min read, text only)
 - [André and the Door at Notre-Dame College](stories/andre-and-the-door-at-notre-dame-college.md) (2026-11-26; 9 min read, text only)
 - [Dominic Savio and the Snow in the Stove](stories/dominic-savio-and-the-snow-in-the-stove.md) (2026-11-26; 10 min read, text only)
 - [Ephrem and the Hymns for the Choir](stories/ephrem-and-the-hymns-for-the-choir.md) (2026-11-25; 9 min read, text only)
