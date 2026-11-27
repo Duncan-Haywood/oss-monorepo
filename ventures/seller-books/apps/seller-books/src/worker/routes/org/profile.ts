@@ -7,6 +7,7 @@ import { organization } from "../../db/schema";
 import { badRequest, conflict, notFound } from "../../lib/errors";
 import { validate } from "../../lib/validate";
 import { requireRole } from "../../middleware/tenant";
+import { endRenewalConsents } from "../../services/billing/renewal-consents";
 import { getSubscription } from "../../services/billing/service";
 import { deletionBlocker, exportShop } from "../../services/books/shop-data";
 import type { AppEnv } from "../../types";
@@ -68,8 +69,16 @@ routes.delete(
     if (!org) throw notFound("Organization");
     if (c.req.valid("json").confirmName.trim() !== org.name)
       throw badRequest("Type the shop's name to confirm.");
-    const blocker = deletionBlocker(await getSubscription(c.var.ctx, orgId));
+    const sub = await getSubscription(c.var.ctx, orgId);
+    const blocker = deletionBlocker(sub);
     if (blocker) throw conflict(blocker);
+    // A shop can only be deleted once nothing renews, so any consent record still open ends now, or
+    // at the paid period's end when the plan runs to it; the record is kept apart from the shop for
+    // California's retention period (billing/renewal-consents.ts). The provider's later "canceled"
+    // event finds no shop, so this is the only place that end is recorded.
+    const now = c.var.ctx.now();
+    const periodEnd = sub?.status !== "canceled" ? sub?.currentPeriodEnd : null;
+    await endRenewalConsents(c.var.ctx, { orgId }, periodEnd && periodEnd > now ? periodEnd : now);
     await c.var.ctx.db.delete(organization).where(eq(organization.id, orgId));
     c.var.ctx.logger.info("org.deleted", { orgId });
     return c.json({ ok: true });

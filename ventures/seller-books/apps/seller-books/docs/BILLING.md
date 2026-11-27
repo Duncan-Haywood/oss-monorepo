@@ -113,9 +113,18 @@ a send that reaches nobody releases the row and the next day retries. Tests:
 `test/worker/billing.test.ts` (consent required and recorded, the cancel link) and e2e spec 02 (the
 terms beside the button, the button disabled until the tick).
 
-Still open, for the owner or a lawyer when volume grows: deleting a shop deletes its consent rows with
-it (`ON DELETE CASCADE`), which may fall short of California's retention period for a cancelled
-subscriber who then deletes the shop (Paddle keeps its own transaction records); a price change needs
+**Keeping the proof (2026-11-27, renewal-consent-retention).** The consent on a pending checkout is
+deleted with its shop (`ON DELETE CASCADE`), which fell short of California's retention period (three
+years, or one year after the contract ends, whichever is longer) for a subscriber who cancels and then
+deletes the shop. So when a checkout becomes a subscription, its consent is copied to `renewal_consent`
+(`services/billing/renewal-consents.ts`, migration `0012`, which also backfills consumed checkouts): no
+foreign keys, no name or email, the Paddle subscription and customer ids as the link to the merchant
+of record's own records. A `canceled` webhook, or deleting the shop (at the paid period's end when the
+plan runs to it, since the later `canceled` event finds no shop), sets `ended_at` and `keep_until`;
+the daily cron deletes rows past `keep_until`. The Privacy Policy's "Retention" says so. Tests:
+`test/worker/renewal-consents.test.ts`.
+
+Still open, for the owner or a lawyer when volume grows: a price change needs
 its own notice under both laws (none is planned, and the Terms already promise one in advance); and
 other states (New York, Illinois, Virginia and more) have similar laws not read here.
 
