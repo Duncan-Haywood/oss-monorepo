@@ -77,6 +77,10 @@
 /platform/counter/core.mjs        @Duncan-Haywood
 /platform/counter/counter.mjs     @Duncan-Haywood
 /platform/pages/cloudflare/email-routing.mjs      @Duncan-Haywood
+# PayApps' deploy provisioning: priv-payapps-deploy.yml runs it with the
+# Cloudflare token (the app itself is built in a job with no secrets).
+/ventures/payapps/apps/payapps/scripts/provision.mjs      @Duncan-Haywood
+/ventures/payapps/apps/payapps/scripts/provision.test.mjs @Duncan-Haywood
 # The agent inboxes' Worker: it holds send capability and private mail, and
 # priv-email-deploy.yml deploys it with Cloudflare credentials.
 /platform/email/                  @Duncan-Haywood

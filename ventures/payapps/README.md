@@ -55,8 +55,8 @@ secrets). Deploying: [DEPLOY.md](DEPLOY.md).
 
 ## Where the work happens
 
-Until the deploy is ported (DEPLOY.md, "Not yet"), `private-monorepo/apps/payapps` is still where
-scheduled runs build, and this copy is a snapshot of private-monorepo commit `03e2e560`
-(2026-11-26). Refresh it with [`sync-from-private.sh`](sync-from-private.sh) and re-run the
-pre-publication audit before every refresh. Once the public deploy works, the private copy is removed
+The deploy is ported (`.github/workflows/priv-payapps-deploy.yml`, DEPLOY.md, 2026-11-27), so build
+PayApps here. This copy started as a snapshot of private-monorepo commit `03e2e560` (2026-11-26);
+[`sync-from-private.sh`](sync-from-private.sh) would overwrite the edits made here since, so do not
+refresh from private without carrying them across. Once the public deploy works, the private copy is removed
 and this directory becomes the one source.

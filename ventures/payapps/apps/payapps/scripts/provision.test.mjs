@@ -9,6 +9,7 @@ import {
   parseJson,
   R2_NOT_ENABLED,
   RESOURCES,
+  wranglerCommand,
 } from "./provision.mjs";
 
 const build = {
@@ -79,5 +80,19 @@ test("wrangler output parsing", () => {
   assert.ok(ALREADY_EXISTS.test("The bucket you tried to create already exists [code: 10004]"));
   assert.ok(
     R2_NOT_ENABLED.test("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
+  );
+});
+
+test("wranglerCommand: the app's wrangler by default, a named binary when set", () => {
+  assert.deepEqual(wranglerCommand({}), ["pnpm", ["exec", "wrangler"]]);
+  assert.deepEqual(wranglerCommand({ PAYAPPS_WRANGLER_BIN: " " }), ["pnpm", ["exec", "wrangler"]]);
+  assert.deepEqual(wranglerCommand({ PAYAPPS_WRANGLER_BIN: "wrangler" }), ["wrangler", []]);
+  assert.deepEqual(wranglerCommand({ PAYAPPS_WRANGLER_BIN: "/usr/local/bin/wrangler" }), [
+    "/usr/local/bin/wrangler",
+    [],
+  ]);
+  assert.throws(
+    () => wranglerCommand({ PAYAPPS_WRANGLER_BIN: "wrangler; rm -rf /" }),
+    /plain path/,
   );
 });

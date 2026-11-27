@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Idempotent provisioning for a PayApps deploy (docs/DEPLOY.md). Safe to run on every deploy; the deploy
-// workflow (.github/workflows/payapps-deploy.yml) runs it after `pnpm build` and before `wrangler deploy`.
+// workflow (.github/workflows/priv-payapps-deploy.yml) runs it after `pnpm build` and before `wrangler deploy`.
 //
 //   node scripts/provision.mjs --write-config dist/payapps/wrangler.deploy.json
 //   node scripts/provision.mjs --write-config dist/payapps/wrangler.deploy.json --domain payapps.example.org
@@ -108,8 +108,22 @@ export const ALREADY_EXISTS =
   /already exists|already taken|already in use|duplicate|\[code: (10004|11009)\]/i;
 export const R2_NOT_ENABLED = /enable R2|10042/i;
 
+/**
+ * How to run wrangler: the app's own (`pnpm exec wrangler`), or, when PAYAPPS_WRANGLER_BIN names one,
+ * that binary. The deploy job sets it to a pinned global wrangler so it never installs the app's
+ * dependencies next to the Cloudflare token (.github/workflows/priv-payapps-deploy.yml).
+ */
+export function wranglerCommand(env = process.env) {
+  const bin = (env.PAYAPPS_WRANGLER_BIN ?? "").trim();
+  if (!bin) return ["pnpm", ["exec", "wrangler"]];
+  if (!/^[\w./-]+$/.test(bin))
+    throw new Error(`PAYAPPS_WRANGLER_BIN must be a plain path (got "${bin}")`);
+  return [bin, []];
+}
+
 function wrangler(args, { allowFailure = false } = {}) {
-  const res = spawnSync("pnpm", ["exec", "wrangler", ...args], {
+  const [cmd, pre] = wranglerCommand();
+  const res = spawnSync(cmd, [...pre, ...args], {
     cwd: APP_DIR,
     encoding: "utf8",
     env: { ...process.env, WRANGLER_SEND_METRICS: "false", FORCE_COLOR: "0" },
