@@ -48,6 +48,7 @@ import secrets
 import subprocess
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 
 PREFIX = "claim/"
@@ -616,6 +617,21 @@ def item_marks(app: str, items: list[tuple[int, str]], claims: dict[str, tuple[i
     return rows, open_now
 
 
+def why_none(rows: list[tuple[int, str, str, str, list]]) -> tuple[str, Counter]:
+    """(" (12 waits on demand, 3 claimed)", tally) for a Next list with no free, ungated item.
+
+    Eight run records (2026-11-26..27) read "free and not gated: none" on every bet, then spent
+    10 to 20 minutes reading each ROADMAP to learn why: nearly every item waited on demand.
+    """
+    tally: Counter = Counter()
+    for _, _, _, mark, _ in rows:
+        m = re.match(r'free, ([^:]+):', mark)
+        tally[m.group(1) if m else ("merged" if mark == "MERGED" else
+                                   "stale claim" if mark.startswith("STALE") else "claimed")] += 1
+    cells = ", ".join(f"{n} {k}" for k, n in tally.most_common())
+    return (f" ({cells})" if cells else ""), tally
+
+
 def app_home(app: str, repo: str) -> tuple[str, Path]:
     """(git repo to claim in, app directory) for `app`.
 
@@ -866,6 +882,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
     now = time.time()
     start = None
     present: list[tuple[int, int, str]] = []  # (live claims, rank, app) for apps in this clone
+    gates: Counter = Counter()  # why the Next items of bets with nothing free wait
     print(f"Bets in bets.md order (claims older than {stale_s / 3600:g} h are stale):")
     for rank, name, app in bets:
         home, app_dir = app_home(app, repo)
@@ -892,8 +909,10 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
         done_lists[app] = roadmap_done(roadmap_text)
         items = next_items(roadmap_text)
         reach = probe_hosts(h for _, t in items for h in hosts_in(t)) if probe else None
-        _, open_now = item_marks(app, items, claims, info, merged, now, stale_s, tag, reach)
-        free = ", ".join(f"#{n}" for n in open_now) or "none"
+        rows, open_now = item_marks(app, items, claims, info, merged, now, stale_s, tag, reach)
+        why, tally = ("", Counter()) if open_now else why_none(rows)
+        gates += tally
+        free = ", ".join(f"#{n}" for n in open_now) or "none" + why
         print(f"{rank:>3}. {app}: {len(items)} Next, free and not gated: {free}; "
               f"{live} live claim(s) ({name}{where})")
         if open_now and start is None:
@@ -918,6 +937,15 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
               f"  (bets.md has no **Wedge:** line for bet #{rank}: read its evidence section)")
         growth_topics(rank, app, paths.get(rank, []), growth.get(app), now, stale_s, tag,
                       done_lists.get(app))
+        total = sum(gates.values())
+        if total and gates["waits on demand"] * 2 > total:
+            # The runs that read this as "invent a feature" built for customers who do not exist
+            # yet; the ones that took the bet's demand side (front-door pages, the marketing site,
+            # sign-up and onboarding) shipped and merged (2026-11-27 records).
+            print(f"  {gates['waits on demand']} of {total} Next items wait on demand, so a bet's "
+                  f"work now is demand itself: its front-door and search pages, marketing site, "
+                  f"sign-up and onboarding, not features nobody has asked for. Check "
+                  f"`slug_dupe.py <slug>` first; parallel runs take the same pages.")
     else:
         print("Start here: no ranked bet's app is in this clone.")
     return 0
