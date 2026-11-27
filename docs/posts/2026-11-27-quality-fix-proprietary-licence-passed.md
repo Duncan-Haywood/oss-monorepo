@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: our WordPress plugin checker passed a proprietary licence"
-seo_title: "WordPress plugin licence errors: invalid_license, license_mismatch and the GPL rule"
+seo_title: "WordPress plugin licence errors: invalid_license and license_mismatch"
 date: 2026-11-27
 tags: [quality-audit, wordpress-plugin-review-check, wordpress, plugin-check]
-description: "Our plugin review checker accepted any License value, including Proprietary. It now applies Plugin Check's three licence errors, and stops treating License URI as required."
+description: "Our plugin review checker accepted any License value, Proprietary included. It now applies Plugin Check's three licence errors."
 ---
 
 The first rule of the WordPress.org plugin directory is the licence: a
