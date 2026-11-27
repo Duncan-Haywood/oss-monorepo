@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjbeiNJshYabWk1a3m",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T14:18:19Z",
+  "ended": "2026-11-27T14:24:56Z",
+  "wall_minutes": 6.74,
+  "tokens_in": 2940592,
+  "tokens_out": 13302,
+  "cost_usd": 1.406,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19770",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/contrast.mjs",
+      "issue": "DIST=ventures without ONLY_SLUGS scans every venture page and runs for many minutes; the header did not say DIST can point at a source folder with ONLY_SLUGS. Now in README."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "No docs/posts post: a check-script option and 8 ARIA attributes are not worth a reader's time; the docs/reports note carries the numbers.",
+      "did": "report only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-27-contrast-click.md"
+  ],
+  "goal": null,
+  "notes": "contrast.mjs with CLICK on 7 pages x 4 runs: clean (was 8 scrollable-region-focusable). Fixture check: no CLICK pass, CLICK fail 1.6:1. Venture suites cnc 104, laser 29, powder 29 pass. risk_review: nothing triggered.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9a572a19-c6d9-5336-9f3b-7b0844b24c50",
+    "transcripts": 1,
+    "first": "2026-11-27T14:18:19Z",
+    "last": "2026-11-27T14:25:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 73,
+        "output": 13302,
+        "thinking": 2159,
+        "cache_read": 2869810,
+        "cache_write_5m": 0,
+        "cache_write_1h": 70709,
+        "api_equivalent_usd": 1.406,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 73,
+      "output": 13302,
+      "thinking": 2159,
+      "cache_read": 2869810,
+      "cache_write_5m": 0,
+      "cache_write_1h": 70709,
+      "api_equivalent_usd": 1.406,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 35,
+      "TaskStop": 1,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.74,
+      "active_minutes": 6.74,
+      "model_minutes": 3.29,
+      "tool_minutes": 3.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "engineer adding a click option to an axe script and fixing three pages",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 142.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

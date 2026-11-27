@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [accessibility, checks]
+topics: [design, accessibility]
 date: 2026-11-27
 ---
 
