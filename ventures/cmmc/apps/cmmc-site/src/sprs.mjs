@@ -1,6 +1,8 @@
-// Free SPRS score calculator (the front door to apps/cmmc). Pure functions, no I/O, no scripts in the
-// browser: the page is a plain GET form, and the Worker (early-access.mjs) scores the query string and
-// writes the result into the static page it already serves.
+// Free SPRS score calculator (the front door to apps/cmmc). Pure functions, no I/O. The page is a plain
+// GET form; the button sends calc=1, so a form with nothing ticked still has a query. Behind this
+// site's Worker (early-access.mjs), the Worker scores the query string and writes the result into the
+// static page. On a static host (the catalogue copy), build.mjs ships this same file to the browser
+// as sprs.js, with the official data inlined, and sprs-page.js applies it to the page.
 //
 // Data: the 110 NIST SP 800-171 Rev. 2 requirements and their point values come from apps/cmmc's
 // official-text.json, extracted from NIST's spreadsheet and 32 CFR 170.24(c)(2) by
@@ -168,7 +170,7 @@ ${items}
 <p>Tick each requirement your shop does <strong>not</strong> fully meet yet. Leave it unticked when every one of its
 assessment objectives is met, or when it does not apply (not applicable counts as met).</p>
 ${rows}
-<p><button type="submit" class="button">Calculate my SPRS score</button></p>
+<p><button type="submit" class="button" name="calc" value="1">Calculate my SPRS score</button></p>
 </form>`;
 }
 
