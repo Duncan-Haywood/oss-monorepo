@@ -50,6 +50,14 @@
     {
       "file": "prompts/test_promptctl.py",
       "issue": "validate job failed on LastChangeIndexTest at the shallow-clone edge, unrelated to the diff; the second run of validate passed"
+    },
+    {
+      "file": "ventures/pay-app-guides/nav.mjs",
+      "issue": "Every guide merged in parallel leaves the other guides' generated all-guides block stale, so main went red twice in this run (Florida NTO + punch list, then CoConstruct + Texas) and each PR touching the venture inherits it; a scheduled regen or a test that tolerates sibling-PR lag would stop it"
+    },
+    {
+      "file": "portfolio/monetization/transition.json",
+      "issue": "It stores payapps source_lines, so every payapps PR conflicts with every other one on it; regenerating after each main merge cost two extra CI cycles"
     }
   ],
   "deviations": [
@@ -65,7 +73,7 @@
     "docs/reports/2026-11-27-state-certified-payroll-filing-systems.md (Illinois update)"
   ],
   "goal": null,
-  "notes": "Security queue: 12 alerts, all claimed (exit 3). Ideas inbox empty. Routed ventures/1. Unit suite 1361 passed / 2 skipped; tsc clean; biome clean on changed files; venture-preflight run locally (see PR). After merging main: unit 150 files, 1381 passed / 3 skipped; worker 559 passed; tsc and biome clean.",
+  "notes": "Security queue: 12 alerts, all claimed (exit 3). Ideas inbox empty. Routed ventures/1. Unit suite 1361 passed / 2 skipped; tsc clean; biome clean on changed files; venture-preflight run locally (see PR). After merging main: unit 150 files, 1381 passed / 3 skipped; worker 559 passed; tsc and biome clean. Also fixed main-red inherited from parallel merges: regenerated pay-app-guides CTA/nav blocks (twice), the Florida NTO post's retired workers.dev link, and transition.json.",
   "corrections": [],
   "redteam": null,
   "usage": {
