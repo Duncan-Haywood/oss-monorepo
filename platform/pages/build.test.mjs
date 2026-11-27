@@ -65,6 +65,7 @@ import {
   indexNowKeyFileName,
   renderSitemapIndex,
   renderVentureSitemap,
+  sitemapPages,
   searchTokens,
   searchVariants,
   searchScore,
@@ -889,6 +890,18 @@ test('a generated sitemap lists served URLs: directories, no .html', () => {
   assert.ok(xml.includes(`<loc>${BASE}tool/compare</loc>`), 'page.html is served as page, its .html URL is a 307');
   assert.ok(xml.includes(`<loc>${BASE}tool/guides/</loc>`));
   assert.ok(!xml.includes('index.html'), 'index.html is served as its directory');
+});
+
+test('a venture sitemap leaves out the pages that say noindex', async () => {
+  // A sample report and an admin screen were listed in 11 venture sitemaps
+  // while refusing to be indexed (2026-11-27).
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'sitemap-pages-'));
+  await fs.mkdir(path.join(dir, 'guides'));
+  await fs.writeFile(path.join(dir, 'index.html'), '<title>Tool</title>');
+  await fs.writeFile(path.join(dir, 'sample-report.html'), '<meta name="robots" content="noindex"><title>Sample</title>');
+  await fs.writeFile(path.join(dir, 'admin.html'), '<meta content="noindex, nofollow" name="robots">');
+  await fs.writeFile(path.join(dir, 'guides', 'index.html'), '<meta name="robots" content="index, follow">');
+  assert.deepEqual(await sitemapPages(dir), ['guides/index.html', 'index.html']);
 });
 
 test('pageUrlPath maps a published file to the URL it is served at', () => {
