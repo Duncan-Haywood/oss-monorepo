@@ -100,6 +100,6 @@ test("layer flags take names, not regular expressions: a|b alternatives, typed c
   assert.equal(r.test("A-ROOF-1"), true); // matched anywhere, case-insensitive, as before
   assert.equal(r.test("a.eave"), true);
   assert.equal(r.test("AxEAVE"), false); // "." is a dot, not "any character"
-  assert.equal(layerPattern("(a+)+$").test("(a+)+$ layer"), true); // no catastrophic backtracking: the text is literal
+  assert.equal(layerPattern("A(1)[x]").test("plan A(1)[x] walls"), true); // brackets and parentheses are literal text
   assert.equal(layerPattern("W").test("plan-wall"), true);
 });
