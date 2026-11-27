@@ -8,6 +8,7 @@ import {
   TX_NOTICE_RECIPIENTS,
 } from "@lien-waivers";
 import { z } from "zod";
+import { isCalendarDate } from "../calendar-date";
 import { isTimeZone } from "../cash-digest";
 import { CLOSEOUT_KINDS } from "../closeout";
 import { COMPANY_DOCUMENT_KINDS } from "../company-documents";
@@ -88,7 +89,16 @@ import {
 } from "../tm-tickets";
 import { MAX_QUANTITY_MILLI, MAX_UNIT_LENGTH, MAX_UNIT_PRICE_MICROS } from "../unit-price";
 
-const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD");
+/**
+ * A real calendar day as YYYY-MM-DD. The shape alone let "2026-13-01" through, which the lien-deadline
+ * date math turned into a RangeError on the job page, the cash page and the weekly email (red team,
+ * 2026-11-27), and let "2026-02-31" through as a silent 3 March.
+ */
+export { isCalendarDate };
+export const isoDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+  .refine(isCalendarDate, "Not a calendar date: use YYYY-MM-DD");
 const cents = z.number().int().min(-1_000_000_000_00).max(1_000_000_000_00);
 const nonNegCents = cents.min(0);
 const bps = z.number().int().min(0).max(10_000);
@@ -475,10 +485,7 @@ export const addHolidaysSchema = z
       .array(
         z
           .object({
-            on: isoDate.refine((d) => {
-              const t = Date.parse(`${d}T00:00:00Z`);
-              return !Number.isNaN(t) && new Date(t).toISOString().slice(0, 10) === d;
-            }, "Not a calendar date"),
+            on: isoDate,
             name: z.string().trim().min(1, "Name the holiday").max(80),
           })
           .strict(),

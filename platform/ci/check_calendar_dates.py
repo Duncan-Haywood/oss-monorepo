@@ -31,7 +31,13 @@ before an `isNaN(var)` / `isNaN(var.getTime())` test, a date shape in those
 lines, and no round trip or calendar check from the assignment to three lines
 after the test. That run found 14 parsers of this form (grant deadlines, the
 weekly staff rota's week start, UK late-payment interest, four Stripe/review
-CSV readers) turning 30 February into 2 March. Exit 1 lists each hit.
+CSV readers) turning 30 February into 2 March.
+
+The fourth pattern is a schema that checks only the shape (added 2026-11-27): a
+zod `.regex(/^\d{4}-\d{2}-\d{2}$/...)` with no `.refine(` or calendar check on
+that line or the three after it. PayApps' shared `isoDate` was one: every API
+date field took 2026-13-01, and the lien-deadline math then threw RangeError on
+the job page, the cash page and the weekly email. Exit 1 lists each hit.
 Usage: python3 platform/ci/check_calendar_dates.py [root ...]
 """
 import pathlib
@@ -47,6 +53,10 @@ MONTH_RANGE = re.compile(r"<= ?12\b|< ?12\b|> ?12\b|monthOk")
 CALENDAR = re.compile(r"getUTCDate\(\)|getDate\(\)|getUTCMonth\(\)|getMonth\(\)|MONTH_DAYS|daysIn\w*\(|realDay\(|"
                       r"realDate\(|calDate\(|validDate\(|[cC]hecked\(")
 WINDOW = 12
+ZOD_SHAPE = re.compile(r"\.regex\(\s*/\^?\\d\{4\}-\\d\{2\}-\\d\{2\}\$?/")
+ZOD_OK = re.compile(r"refine\(|isCalendarDate|toISOString\(\)\.slice\(0, ?10\)|getUTCDate\(\)|realDay\(|calDate\(|"
+                    r"validDate\(")
+ZOD_AFTER = 3
 SPLIT_NAN = re.compile(r"isNaN\((\w+)(?:\.getTime\(\))?\)")
 BACK = 6
 SUFFIXES = {".mjs", ".js", ".cjs", ".ts"}
@@ -62,7 +72,8 @@ def scan_text(text):
     # the negated spelling was added the same day).
     nan_file = "isNaN(" in text
     range_file = " 31" in text
-    if not nan_file and not range_file:
+    zod_file = ".regex(" in text
+    if not nan_file and not range_file and not zod_file:
         return []
     lines = text.splitlines()
     hits = []
@@ -74,6 +85,9 @@ def scan_text(text):
             hits.append(i)
         elif range_file and " 31" in line and DAY_RANGE.search(line) and MONTH_RANGE.search(line) \
                 and not CALENDAR.search("\n".join(lines[i - 1:i + WINDOW])):
+            hits.append(i)
+        elif zod_file and ".regex(" in line and ZOD_SHAPE.search(line) \
+                and not ZOD_OK.search("\n".join(lines[i - 1:i + ZOD_AFTER])):
             hits.append(i)
     return hits
 
@@ -115,8 +129,9 @@ def main(argv):
     roots = argv or [ROOT / "ventures", ROOT / "platform"]
     hits = scan(roots)
     for h in hits:
-        print(f"{h}: this date check accepts 2026-02-30 (Date.parse rolls it over to March, and a 1-31 day range "
-              "gives every month 31 days); round-trip it: new Date(Date.UTC(y, m - 1, d)).getUTCDate() === d")
+        print(f"{h}: this date check accepts 2026-02-30 (Date.parse rolls it over to March, a 1-31 day range "
+              "gives every month 31 days, and a YYYY-MM-DD regex alone takes 2026-13-01); round-trip it: "
+              "new Date(Date.UTC(y, m - 1, d)).getUTCDate() === d, or .refine(isCalendarDate) on a schema")
     if hits:
         return 1
     print("check_calendar_dates: no YYYY-MM-DD validator accepts an impossible day")

@@ -24,6 +24,7 @@
 // the project's NJ prevailing wage determination.
 
 import { z } from "zod";
+import { isCalendarDate } from "./calendar-date";
 import {
   type CertifiedPayroll,
   computeCertifiedPayroll,
@@ -66,7 +67,13 @@ export const NJ_WAGE_HUB_FAQ =
   "https://www.nj.gov/labor/wageandhour/prevailing-rates/wagehubfaq.shtml";
 
 const text = () => z.string().trim();
-const isoDate = z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]);
+const isoDate = z.union([
+  z.literal(""),
+  z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .refine(isCalendarDate, "Not a calendar date: use YYYY-MM-DD"),
+]);
 
 export const njWorkerSchema = z.object({
   /** The worker's home address, printed after the name ("Employee Name and Address"). */

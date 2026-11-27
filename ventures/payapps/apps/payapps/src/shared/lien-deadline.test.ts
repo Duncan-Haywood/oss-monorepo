@@ -335,3 +335,54 @@ describe("lienDeadlineText (cash page and weekly email)", () => {
     expect(t).toContain("enter your last day on the job");
   });
 });
+
+describe("lienDeadline: a stored date that is not a calendar day (red team 2026-11-27)", () => {
+  // The API used to accept any NNNN-NN-NN, so rows may already hold "2026-13-01". The date math
+  // threw RangeError on it, taking down the job page, the cash page and the weekly email.
+  it("does not throw on an impossible last-furnished date: it falls back to billing", () => {
+    const r = lienDeadline({ state: "FL", lastFurnishedOn: "2026-13-01" });
+    expect(r.kind).toBe("no-dates");
+    const d = deadline({
+      state: "FL",
+      lastFurnishedOn: "2026-02-31",
+      apps: [
+        {
+          number: 2,
+          status: "sent",
+          periodFrom: "2026-09-01",
+          periodTo: "2026-09-30",
+          workThisPeriodCents: 100,
+        },
+      ],
+    });
+    expect(d.basis).toBe("estimated");
+    expect(d.fromOn).toBe("2026-09-01");
+  });
+  it("ignores an impossible completion or notice-of-completion date", () => {
+    const d = deadline({
+      state: "CA",
+      lastFurnishedOn: "2026-09-01",
+      completedOn: "2026-00-10",
+      noticeOfCompletionOn: "2026-09-99",
+    });
+    expect(d.statutoryOn).toBe("2026-11-30");
+    expect(d.usedLastFurnishingAsCompletion).toBe(true);
+    const va = deadline({ state: "VA", lastFurnishedOn: "2026-09-10", completedOn: "2026-13-01" });
+    expect(va.usedLastFurnishingAsCompletion).toBe(true);
+  });
+  it("skips a billing period whose start is not a calendar day", () => {
+    const r = lienDeadline({
+      state: "FL",
+      apps: [
+        {
+          number: 1,
+          status: "sent",
+          periodFrom: "2026-14-01",
+          periodTo: "2026-14-30",
+          workThisPeriodCents: 100,
+        },
+      ],
+    });
+    expect(r.kind).toBe("no-dates");
+  });
+});

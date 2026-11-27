@@ -11,6 +11,7 @@ import {
   SPECIALIZED_LABEL,
   SPECIALIZED_TYPES,
 } from "@shared/assets";
+import { isCalendarDate } from "@shared/calendar-date";
 import {
   type CmmcLevel,
   conditionalReadiness,
@@ -231,7 +232,10 @@ import {
 import type { AppEnv } from "../../types";
 
 const text = (max: number) => z.string().max(max);
-const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD");
+const date = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+  .refine(isCalendarDate, "Not a calendar date: use YYYY-MM-DD");
 const levelQuery = z.object({ level: z.enum(["1", "2"]).optional() });
 
 const routes = new Hono<AppEnv>();
@@ -722,6 +726,7 @@ routes.delete("/service-providers/:id", requireRole("editor"), async (c) => {
 const isoDay = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+  .refine(isCalendarDate, "Not a calendar date: use YYYY-MM-DD")
   .nullable()
   .optional();
 const supplierBody = z.object({
@@ -793,6 +798,7 @@ routes.delete("/suppliers/:id", requireRole("editor"), async (c) => {
 const day = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine(isCalendarDate, "Not a calendar date: use YYYY-MM-DD")
   .nullable()
   .optional();
 const personBody = z.object({
@@ -1201,7 +1207,10 @@ routes.delete("/quality/links/:linkId", requireRole("editor"), async (c) => {
 // ---- ISO 9001 document control (clause 7.5): the master list and each document's history ----
 // Every member reads on every plan, like the checklist; recording needs the quality plan
 // (services/documents). Released documents are withdrawn, never deleted.
-const docDay = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD");
+const docDay = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+  .refine(isCalendarDate, "Not a calendar date: use YYYY-MM-DD");
 const documentBody = z.object({
   docNumber: z.string().trim().min(1).max(40),
   title: z.string().trim().min(1).max(200),

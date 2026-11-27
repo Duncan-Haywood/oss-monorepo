@@ -10,6 +10,7 @@
 // (src/us-miller.ts). Printing saves nothing. Not legal advice.
 import { millerActNotice, renderNotice } from "@lien-waivers";
 import type { MillerNoticeDto, NoticeFormDto } from "@shared/api/types";
+import { isCalendarDate } from "@shared/calendar-date";
 import { projectCash } from "@shared/cash-report";
 import { formatCents } from "@shared/money";
 import { millerDates } from "@shared/public-jobs";
@@ -62,7 +63,10 @@ export async function millerNoticeOverview(
   };
   if (unpaid > 0) prefill.amountClaimed = formatCents(unpaid);
   if (p.lastFurnishedOn) prefill.lastDay = p.lastFurnishedOn;
-  const dates = p.lastFurnishedOn ? millerDates(p.lastFurnishedOn, p.millerTier ?? null) : null;
+  // A stored date from before the API checked calendar days (2026-11-27) gets no dates, not a 500.
+  const dates = isCalendarDate(p.lastFurnishedOn)
+    ? millerDates(p.lastFurnishedOn, p.millerTier ?? null)
+    : null;
   return {
     enabled: plan.lienWaivers,
     applies: applies(p.publicOwner ?? null, p.millerTier ?? null),

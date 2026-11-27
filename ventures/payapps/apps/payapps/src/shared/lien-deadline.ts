@@ -21,6 +21,7 @@
 // liens), third-tier claimants, Texas retainage claims and contracts before 2022, laborers' special
 // rules, contract terms, and the service or suit deadlines that follow a recorded lien.
 
+import { isCalendarDate } from "./calendar-date";
 import {
   MILLER_CITATION,
   type MillerTier,
@@ -331,7 +332,7 @@ export function lastFurnishedFloor(
 ): { on: string; payAppNumber: number } | null {
   let best: LienBillingApp | null = null;
   for (const a of apps) {
-    if (a.workThisPeriodCents <= 0) continue;
+    if (a.workThisPeriodCents <= 0 || !isCalendarDate(a.periodFrom)) continue;
     if (!best || a.periodFrom > best.periodFrom) best = a;
   }
   return best ? { on: best.periodFrom, payAppNumber: best.number } : null;
@@ -431,7 +432,16 @@ function millerDeadline(input: LienDeadlineInput): LienDeadlineResult {
   };
 }
 
-export function lienDeadline(input: LienDeadlineInput): LienDeadlineResult {
+export function lienDeadline(raw: LienDeadlineInput): LienDeadlineResult {
+  // A stored date that is not a calendar day (the API checked only the shape before 2026-11-27) is
+  // read as not entered: the date math would throw on it and take the cash page down with it.
+  const date = (d: string | null | undefined) => (isCalendarDate(d) ? d : null);
+  const input: LienDeadlineInput = {
+    ...raw,
+    lastFurnishedOn: date(raw.lastFurnishedOn),
+    completedOn: date(raw.completedOn),
+    noticeOfCompletionOn: date(raw.noticeOfCompletionOn),
+  };
   if (input.publicOwner === "federal") return millerDeadline(input);
   if (input.publicOwner === "state_local") {
     return { kind: "public", state: input.state?.trim().toUpperCase() || null };
