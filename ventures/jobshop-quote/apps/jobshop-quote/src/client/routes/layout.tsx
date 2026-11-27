@@ -47,6 +47,7 @@ export function OrgLayout() {
   const nav = [
     ["/app/$orgId", "Quote log"],
     ["/app/$orgId/win-loss", "Win/loss"],
+    ["/app/$orgId/shop-load", "Shop load"],
     ["/app/$orgId/rfqs", "RFQs"],
     ["/app/$orgId/rate-card", "Rate card"],
     ["/app/$orgId/routings", "Routings"],
