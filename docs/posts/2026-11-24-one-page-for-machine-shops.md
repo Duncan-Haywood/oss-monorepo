@@ -865,3 +865,15 @@ for an hour. The rate links straight into the [job-shop quote
 calculator](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html)
 (`?machineRate=`), and the paid quoting app keeps the same rate per
 machine on its rate card.
+
+## Update, 27 November 2026: the quote calculator answers before you press anything
+
+The free [CNC machining quote calculator](https://marisstella.app/cnc-machining-quote-calculator/)
+opens with a real job already filled in (a turned part from 12 ft bar, 50 off, quoted at $38 each),
+but until today it showed nothing until you pressed "Cost this job", and on a phone that
+button sits about 3,700 pixels below the headline. Now the page works the job out as it
+loads and again as you change any field, and a strip pinned to the bottom of the screen
+while you scroll the form shows the three numbers a quote turns on: cost per part ($16.17
+for the example), the price at your target margin ($24.88) and the margin at the price you
+were about to quote (57.4%). The full breakdown and the lot-size curve are still below the
+form. Working it out as you type is not counted as a use; only the button is.
