@@ -38,11 +38,11 @@
     }
   },
   "counts": {
-    "ventures": 1444,
+    "ventures": 1445,
     "by_vertical": {
       "construction": 166,
       "manufacturing-engineering": 8,
-      "online-sellers": 105,
+      "online-sellers": 106,
       "eu-einvoicing-accounting": 12,
       "nonprofits": 10,
       "freelancers": 156,
@@ -59,12 +59,12 @@
       "jobshop-quote": 10,
       "einvoice": 12,
       "cmmc": 2,
-      "seller-books": 105,
+      "seller-books": 106,
       "residential-takeoff": 11,
       "grants": 9
     },
     "by_status": {
-      "front-door": 304,
+      "front-door": 305,
       "frozen": 1140
     }
   },
@@ -8730,6 +8730,14 @@
       "site_category": "logistics",
       "front_door_for": null,
       "status": "frozen"
+    },
+    {
+      "venture": "seller-books",
+      "vertical": "online-sellers",
+      "rule": "description",
+      "site_category": "more",
+      "front_door_for": "seller-books",
+      "status": "front-door"
     },
     {
       "venture": "seller-net-sheet",

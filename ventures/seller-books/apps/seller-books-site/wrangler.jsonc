@@ -1,0 +1,49 @@
+// Seller Books marketing site + early-access list — Cloudflare Worker configuration.
+// `node build.mjs` writes dist/ first (pages live under dist/seller-books/, so the served paths
+// already carry the base path and no assets.base_path is needed). D1 is auto-provisioned by
+// `wrangler deploy` when no id is given. Not deployed yet: see README.md (Hosting, Launch checklist).
+{
+  "name": "seller-books-site",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-11-01",
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    // Only the API (and the bare host root, which 301s to the base path) runs the Worker first.
+    "run_worker_first": ["/seller-books/api/*", "/"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "seller-books-site",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Cloudflare Email Service: the double-opt-in confirmation is transactional mail. Without this
+  // binding (local dev) nothing is sent and the Worker logs `email_skipped`.
+  "send_email": [{ "name": "EMAIL" }],
+  "ratelimits": [
+    // Per client IP on POST /api/early-access/subscribe (same limit as grants' NEWSLETTER_LIMITER).
+    {
+      "name": "EARLY_ACCESS_LIMITER",
+      "namespace_id": "2001",
+      "simple": { "limit": 5, "period": 60 }
+    }
+  ],
+  "triggers": {
+    // 04:23 UTC daily: delete early-access signups never confirmed within 30 days.
+    "crons": ["23 4 * * *"]
+  },
+  // TOKEN_SECRET (HMAC for unsubscribe links and IP hashes) is a secret: `wrangler secret put
+  // TOKEN_SECRET`. With APP_ENV=production and no secret, sign-ups answer 503 (fail closed).
+  // EMAIL_FROM is a PLACEHOLDER: set a verified sender on an onboarded domain before launch.
+  "vars": {
+    "APP_ENV": "development",
+    "SITE_URL": "https://marisstella.app/seller-books",
+    "EMAIL_FROM": "Seller Books <no-reply@example.org>"
+  }
+}

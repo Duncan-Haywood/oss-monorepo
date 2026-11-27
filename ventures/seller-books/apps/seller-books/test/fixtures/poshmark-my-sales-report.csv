@@ -1,0 +1,6 @@
+Order Date,Order Id,Listing Date,Listing Title,Department,Category,Brand,Size,Color,Order Price,Seller Shipping Discount,Upgraded Shipping Label Fee,Texas Seller Fee Tax,Net Earnings,Offer Order,Bundle Order,Buyer State,Order Status
+01/03/2026,65a1b2c3d4e5f6a7b8c9d0e1,11/12/2025,Madewell Perry Street Tote,Women,Bags,Madewell,OS,Brown,$48.00,$0.00,$0.00,$0.00,$38.40,Y,N,CA,Sold
+01/10/2026,65a1b2c3d4e5f6a7b8c9d0e2,12/01/2025,J.Crew sweater,Women,Sweaters,J.Crew,M,Blue,$30.00,$1.99,$0.00,$0.00,$22.01,N,Y,TX,Sold
+01/10/2026,65a1b2c3d4e5f6a7b8c9d0e2,12/01/2025,Gap tee,Women,Tops,Gap,M,White,$10.00,$0.00,$0.00,$0.00,$7.05,N,Y,TX,Sold
+01/22/2026,65a1b2c3d4e5f6a7b8c9d0e3,12/20/2025,Kids rain boots,Kids,Shoes,Hunter,11,Red,$12.00,$0.00,$0.00,$0.06,$8.99,N,N,TX,Sold
+01/25/2026,65a1b2c3d4e5f6a7b8c9d0e4,12/22/2025,Cancelled belt,Men,Accessories,Fossil,OS,Black,$15.00,$0.00,$0.00,$0.00,$0.00,N,N,NY,Cancelled
