@@ -275,6 +275,7 @@ ${faq.map(([q, a]) => `  <h3>${esc(q)}</h3>\n  <p>${esc(a)}</p>`).join("\n")}
 const NOTICE = {
   CA: ["california-preliminary-notice.html", "20-day preliminary notice"],
   FL: ["florida-notice-to-owner.html", "Notice to Owner (45 days)"],
+  TX: ["texas-lien-notice.html", "monthly notice of claim"],
 };
 
 // The hub's "What each state asks of you" entries each end with a link to the state's page.

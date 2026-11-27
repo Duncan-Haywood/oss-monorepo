@@ -48,8 +48,9 @@ jobs:
         working-directory: ventures/seller-books/apps/seller-books
     env:
       WRANGLER_SEND_METRICS: "false"
-      # Optional custom domain (zone on the same Cloudflare account); empty = workers.dev.
-      APP_DOMAIN: ${{ vars.SELLER_BOOKS_DOMAIN }}
+      # Custom domain (zone on the same Cloudflare account), as priv-payapps-deploy.yml defaults to
+      # payapps.marisstella.app; a zone the token cannot reach falls back to workers.dev with a warning.
+      APP_DOMAIN: ${{ vars.SELLER_BOOKS_DOMAIN || 'seller-books.marisstella.app' }}
     steps:
       - name: Cloudflare credentials present
         working-directory: .
