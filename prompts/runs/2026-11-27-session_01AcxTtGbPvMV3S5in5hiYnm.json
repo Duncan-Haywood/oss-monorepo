@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtGbPvMV3S5in5hiYnm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T02:06:16Z",
+  "ended": "2026-11-27T02:11:38Z",
+  "wall_minutes": 5.54,
+  "tokens_in": 4782031,
+  "tokens_out": 23206,
+  "cost_usd": 2.2761,
+  "tool_calls": 48,
+  "task": "einvoice-preflight dutch-part-2-part-1-done-2026-11",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/455",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md / roadmap_claim.py --bets",
+      "issue": "Bet #1 payapps has 20 Next items, all waiting on demand or evidence, so every run falls through to a lower bet; the payapps blocker is customers rather than features, and the queue does not say so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bet #1 (payapps) and #2 had no free, ungated item; roadmap_claim --bets named bet #3 einvoice-preflight item 7",
+      "did": "Dutch part 2: workspace page and sign-in emails in Dutch",
+      "result": "merged as private-monorepo PR 455"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new customer post: a post marketing a Dutch workspace that no native speaker has read would overclaim, and the Dutch einvoice-site page waits on the deploy (ROADMAP Next 7)",
+      "did": "Recorded the change in the app's ROADMAP Done entry and pro/README.md",
+      "result": "none needed"
+    }
+  ],
+  "writeups": [
+    "apps/einvoice-preflight/ROADMAP.md Done entry and Next 7 (private-monorepo)",
+    "apps/einvoice-preflight/pro/README.md rows"
+  ],
+  "goal": null,
+  "notes": "private-monorepo clone worked first time after add_repo. PR 455 CI was starved (ci_starvation.py: no runner assigned), so it was verified locally: pro/*.test.mjs 263 pass 0 fail; worker/*.test.mjs 9 pass; imported suite 2231 pass, 1 environmental fail (poppler binary missing, same as the previous run), 149 skipped. Rendered in Chromium with nl-NL and nl-BE locales via node pro/serve.mjs: sign-up and the signed-in workspace show in Dutch with no page errors. risk_review.py: nothing blocked; its checks are answered in the PR body. The Dutch text was written by the agent and has not been read by a native speaker.",
+  "corrections": [],
+  "redteam": null,
+  "build_ok": true,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4cca0e7f-a43a-5980-a7d9-58579f05cdbe",
+    "transcripts": 1,
+    "first": "2026-11-27T02:06:16Z",
+    "last": "2026-11-27T02:11:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 89,
+        "output": 23206,
+        "thinking": 1879,
+        "cache_read": 4672295,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109647,
+        "api_equivalent_usd": 2.2761,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 89,
+      "output": 23206,
+      "thinking": 1879,
+      "cache_read": 4672295,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109647,
+      "api_equivalent_usd": 2.2761,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 43,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.54,
+      "active_minutes": 5.54,
+      "model_minutes": 3.91,
+      "tool_minutes": 1.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "translating ~190 UI strings and two emails into Dutch, wiring the switcher, tests and a browser check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 175.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
