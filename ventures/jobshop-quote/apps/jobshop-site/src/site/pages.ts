@@ -15,6 +15,7 @@ import {
 import { ANNUAL_DISCOUNT, EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/plans";
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAME } from "./config";
 import { type Html, html } from "./html";
+import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
 import { EXAMPLE, shopRate, usd } from "./shop-rate";
 
 export interface RenderContext {
@@ -847,7 +848,9 @@ export function shopRatePage(ctx: RenderContext): Html {
     </ul>
 
     <h2>Where the rate goes next</h2>
-    <p>A rate is half of a quote; the other half is how long the part takes. In ${SITE_NAME} each machine
+    <p>A rate is half of a quote; the other half is how long the part takes
+    (<a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to quote a machining job</a>,
+    with this rate in a worked example). In ${SITE_NAME} each machine
     on your rate card has its own hourly rate and, if you want one, a separate setup rate. A quote line is
     then the time on each machine at that machine's rate, plus material, outside processes, minimums and
     your markup, with every figure showing the rate it used. You can
@@ -1140,6 +1143,161 @@ function sitePrivacyPage(ctx: RenderContext): Html {
 </section>`;
 }
 
+/**
+ * A guide aimed at the search estimators and owners make when they start quoting or doubt their
+ * quotes ("how to quote CNC machining", "machining quote formula", "how to price a machined part").
+ * Method plus one made-up job, priced in ./quote-example to the cent the app's engine gives (checked
+ * by apps/jobshop-quote/test/unit/site-quote-example.test.ts). No industry figures are quoted.
+ */
+export function quoteGuidePage(ctx: RenderContext): Html {
+  const e = QUOTE_EXAMPLE;
+  const r = priceExample(e);
+  const [one, ten, hundred] = r.breaks;
+  if (!one || !ten || !hundred)
+    throw new Error("the quoting guide example quotes three quantities");
+  const noFallout = priceExample({ ...e, falloutBps: 0 });
+  const hundredNoFallout = noFallout.breaks[2];
+  if (!hundredNoFallout) throw new Error("the quoting guide example quotes three quantities");
+  const rate = usdCents(e.hourlyRateCents);
+  const pctBps = (bps: number) => `${bps / 100}%`;
+  const lines: [string, (b: (typeof r.breaks)[number]) => string][] = [
+    ["Parts started", (b) => b.starts.toLocaleString("en-US")],
+    ["Material", (b) => usdCents(b.materialCents)],
+    ["Setup", (b) => usdCents(b.setupCents)],
+    ["Run time", (b) => usdCents(b.runCents)],
+    ["Anodize (outside)", (b) => usdCents(b.finishingCents)],
+    ["Cost", (b) => usdCents(b.costCents)],
+    ["Markup", (b) => usdCents(b.markupCents)],
+    ["Price each", (b) => usdCents(b.unitPriceCents)],
+    ["Line total", (b) => usdCents(b.totalCents)],
+  ];
+  const setupShare = (b: (typeof r.breaks)[number]) =>
+    `${Math.round((b.setupCents / b.quantity / b.unitPriceCents) * 100)}%`;
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to quote a CNC machining job</h1>
+    <p class="lead">A machining quote is a handful of numbers added up the same way every time: material,
+    setup, run time, outside processes and your markup, priced at each quantity the customer asks for.
+    Here is the method, a worked example at 1, 10 and 100 parts, and the mistakes that lose money on jobs
+    you win.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>The method in six steps</h2>
+    <ol>
+      <li><strong>Read the RFQ for what changes the price.</strong> Material and temper, quantities,
+      tolerances tighter than your usual, finishes and platings, certifications, inspection reports and the
+      delivery date. Anything missing is a question to the customer, not a guess.</li>
+      <li><strong>Price the material from the blank, not the part.</strong> Size the stock you will
+      actually cut: the part's envelope plus facing and clamping allowance, rounded to a size you can buy.
+      Weight times price per pound, plus a share for saw kerf and drop, or the price of a whole bar or
+      plate when that is how you buy it. Keep the supplier's minimum charge.</li>
+      <li><strong>List the operations and time each one.</strong> For each setup, the minutes to load the
+      program, set work offsets, touch off tools and run a first article; for each part, the cycle time
+      plus loading and deburring. Programming is real time too: count it once per job as a setup-only
+      operation.</li>
+      <li><strong>Price time at that machine's rate.</strong> Setup minutes ÷ 60 × rate once per lot, cycle
+      minutes ÷ 60 × rate for every part started. A rate built from your own costs is the foundation
+      (<a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how to work one out</a>).</li>
+      <li><strong>Add outside processes with their lot minimums.</strong> Anodize, plating, heat treat and
+      passivation vendors usually charge per part with a minimum per batch, and for small lots the minimum
+      is the price.</li>
+      <li><strong>Plan for scrap, add markup, and quote every quantity.</strong> Start enough parts to ship
+      the order good, add your markup on material and purchased services, apply a minimum per line, and
+      repeat the whole sum at each quantity break, since setup and minimums spread differently at each.</li>
+    </ol>
+
+    <h2>A worked example</h2>
+    <p>A ${e.partName} in ${e.materialName}, two milling setups and a deburr, anodized by a vendor.
+    <strong>Every number here is made up to show the arithmetic</strong>; they are not typical prices,
+    times or rates for any region or trade. Use your own.</p>
+    <ul>
+      <li><strong>Blank:</strong> ${e.blank.lengthIn} × ${e.blank.widthIn} × ${e.blank.thicknessIn} in
+      at ${e.densityLbPerIn3} lb/in³ = ${r.blankWeightLb.toFixed(2)} lb, at ${usdCents(e.pricePerLbCents)}
+      a pound plus ${pctBps(e.scrapBps)} for kerf and facing, with a ${usdCents(e.materialMinChargeCents)}
+      minimum.</li>
+      <li><strong>Time on the ${e.machineName}</strong> at ${rate} an hour (the rate the
+      <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">hourly rate guide</a> works out,
+      profit included, so labor carries no further markup):
+        <ul>
+          ${e.operations.map(
+            (o) =>
+              html`<li>${o.label}: ${o.setupMinutes} min setup, ${o.cycleMinutesPerPart} min per part</li>`,
+          )}
+        </ul>
+        ${r.setupMinutes} setup minutes for the lot and ${r.cycleMinutesPerPart} minutes per part.</li>
+      <li><strong>${e.finishingName}:</strong> ${usdCents(e.finishingPerPartCents)} a part, minimum
+      ${usdCents(e.finishingLotChargeCents)} a lot.</li>
+      <li><strong>Fallout:</strong> ${pctBps(e.falloutBps)} of parts started are expected to scrap, so
+      each lot starts enough to ship the order good.</li>
+      <li><strong>Markup:</strong> ${pctBps(e.materialMarkupBps)} on material and on the outside service;
+      a ${usdCents(e.minimumLineCents)} minimum per line.</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up bracket at three quantities. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.</caption>
+        <thead><tr><th scope="col">Line</th>${r.breaks.map((b) => html`<th scope="col">${b.quantity.toLocaleString("en-US")} ${b.quantity === 1 ? "part" : "parts"}</th>`)}</tr></thead>
+        <tbody>
+          ${lines.map(
+            ([label, cell]) =>
+              html`<tr><th scope="row">${label}</th>${r.breaks.map((b) => html`<td>${cell(b)}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>Setup is the price of a small order.</strong> The same ${usdCents(one.setupCents)} of
+      setup is ${setupShare(one)} of the price of one part, ${setupShare(ten)} at ten and ${setupShare(hundred)}
+      at a hundred. That is why the price each falls from ${usdCents(one.unitPriceCents)} to
+      ${usdCents(ten.unitPriceCents)} to ${usdCents(hundred.unitPriceCents)}.</li>
+      <li><strong>Minimums decide the small lots.</strong> At one and ten parts the anodizer's
+      ${usdCents(e.finishingLotChargeCents)} lot minimum is the whole finishing charge, and one part's
+      material is the ${usdCents(e.materialMinChargeCents)} minimum, not the few dollars the metal weighs.</li>
+      <li><strong>Fallout is not free on small lots.</strong> At ${pctBps(e.falloutBps)} expected fallout,
+      shipping one good part means starting ${one.starts}, and shipping a hundred means starting
+      ${hundred.starts}. Leave fallout out and the hundred-part line comes to
+      ${usdCents(hundredNoFallout.totalCents)} instead of ${usdCents(hundred.totalCents)}:
+      ${usdCents(hundred.totalCents - hundredNoFallout.totalCents)} you would otherwise pay for yourself
+      when the scrap happens.</li>
+    </ul>
+
+    <h2>Mistakes that lose money on jobs you win</h2>
+    <ul>
+      <li><strong>Pricing from the finished part.</strong> The customer pays for the blank you cut, not the
+      metal left in the part. Price the stock size you will buy.</li>
+      <li><strong>Folding setup into the run rate.</strong> A per-part price that hides setup is right at one
+      quantity only. Price setup once per lot and the breaks work out by themselves.</li>
+      <li><strong>Forgetting the time that isn't cutting.</strong> Programming, first-article inspection,
+      deburring, part marking and paperwork take machine or operator time on every job.</li>
+      <li><strong>Quoting a reorder at the first order's price.</strong> A repeat job with a proven program
+      and fixtures has less setup; a reorder at a smaller quantity may need a higher price each, not the old one.</li>
+      <li><strong>No record of how the price was built.</strong> When a customer asks why the price changed,
+      or a job loses money, the basis of every figure is what lets you answer. Keep it with the quote.</li>
+      <li><strong>Never comparing quotes with actual jobs.</strong> Check the estimated hours against the
+      traveler on jobs you win. Times that are always short are a rate problem in disguise.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>${SITE_NAME} prices a quote line exactly this way. Your rate card holds each machine's hourly rate
+    (and a setup rate if you use one), your materials by the pound, by the foot or by the stock piece,
+    your finishing and outside services with their lot minimums, your markups and line minimum. The
+    estimator enters the blank, the operations and their times, and the quantity breaks; the price at each
+    break follows, every figure showing the rate it came from, and a line missing a time or a material is
+    blocked rather than priced as if it were free. The example above is priced to the cent the app gives
+    for the same inputs, checked by a test in its code. You can
+    <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a> or
+    <a class="link" href="${href(ctx, "/compare")}">compare it with other quoting software</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax or
+    financial advice, and the prices, times and rates in it are made up. Check every quote before you send
+    it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Quote your next RFQ this way", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
 /** Path → body renderer. The Worker uses earlyAccessPage directly for error re-renders. */
 export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/": homePage,
@@ -1148,6 +1306,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/for-cmmc-shops": cmmcPage,
   "/compare": comparePage,
   "/machine-shop-hourly-rate": shopRatePage,
+  "/how-to-quote-cnc-machining": quoteGuidePage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
   "/early-access/thanks": thanksPage,

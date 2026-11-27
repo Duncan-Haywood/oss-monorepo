@@ -514,7 +514,9 @@ and at least once a year.
 
 ### Where the rate goes next
 
-A rate is half of a quote; the other half is how long the part takes. In Job Shop Quote each machine
+A rate is half of a quote; the other half is how long the part takes
+(how to quote a machining job,
+with this rate in a worked example). In Job Shop Quote each machine
 on your rate card has its own hourly rate and, if you want one, a separate setup rate. A quote line is
 then the time on each machine at that machine's rate, plus material, outside processes, minimums and
 your markup, with every figure showing the rate it used. You can
@@ -528,6 +530,143 @@ books, and those may differ from the simple straight-line figures used here.
 ### Put your rates on a rate card
 
 The Early access plan is free and needs no card. Enter each machine's rate once and quote real RFQs from it.
+
+Start free
+
+## How to quote a CNC machining job
+
+Source: https://marisstella.app/jobshop/how-to-quote-cnc-machining
+
+Guide
+
+## How to quote a CNC machining job
+
+A machining quote is a handful of numbers added up the same way every time: material,
+setup, run time, outside processes and your markup, priced at each quantity the customer asks for.
+Here is the method, a worked example at 1, 10 and 100 parts, and the mistakes that lose money on jobs
+you win.
+
+### The method in six steps
+
+- Read the RFQ for what changes the price. Material and temper, quantities,
+tolerances tighter than your usual, finishes and platings, certifications, inspection reports and the
+delivery date. Anything missing is a question to the customer, not a guess.
+
+- Price the material from the blank, not the part. Size the stock you will
+actually cut: the part's envelope plus facing and clamping allowance, rounded to a size you can buy.
+Weight times price per pound, plus a share for saw kerf and drop, or the price of a whole bar or
+plate when that is how you buy it. Keep the supplier's minimum charge.
+
+- List the operations and time each one. For each setup, the minutes to load the
+program, set work offsets, touch off tools and run a first article; for each part, the cycle time
+plus loading and deburring. Programming is real time too: count it once per job as a setup-only
+operation.
+
+- Price time at that machine's rate. Setup minutes ÷ 60 × rate once per lot, cycle
+minutes ÷ 60 × rate for every part started. A rate built from your own costs is the foundation
+(how to work one out).
+
+- Add outside processes with their lot minimums. Anodize, plating, heat treat and
+passivation vendors usually charge per part with a minimum per batch, and for small lots the minimum
+is the price.
+
+- Plan for scrap, add markup, and quote every quantity. Start enough parts to ship
+the order good, add your markup on material and purchased services, apply a minimum per line, and
+repeat the whole sum at each quantity break, since setup and minimums spread differently at each.
+
+### A worked example
+
+A mounting bracket in 6061-T6 aluminum plate, two milling setups and a deburr, anodized by a vendor.
+Every number here is made up to show the arithmetic; they are not typical prices,
+times or rates for any region or trade. Use your own.
+
+- Blank: 4.25 × 3.25 × 1 in
+at 0.0975 lb/in³ = 1.35 lb, at $5.00
+a pound plus 10% for kerf and facing, with a $25.00
+minimum.
+
+- Time on the 3-axis mill at $123.85 an hour (the rate the
+hourly rate guide works out,
+profit included, so labor carries no further markup):
+
+- Program and first-article check: 60 min setup, 0 min per part
+- Op 1: face, profile, pockets: 45 min setup, 14 min per part
+- Op 2: flip, face to thickness, drill and tap: 30 min setup, 8 min per part
+- Deburr and inspect: 0 min setup, 4 min per part
+
+135 setup minutes for the lot and 26 minutes per part.
+
+- Clear anodize (outside vendor): $3.50 a part, minimum
+$150.00 a lot.
+
+- Fallout: 3% of parts started are expected to scrap, so
+each lot starts enough to ship the order good.
+
+- Markup: 15% on material and on the outside service;
+a $250.00 minimum per line.
+
+The made-up bracket at three quantities. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.
+Line1 part10 parts100 parts
+
+Parts started211104Material$25.00$81.48$770.32Setup$278.67$278.67$278.67Run time$107.34$590.35$5,581.51Anodize (outside)$150.00$150.00$364.00Cost$561.01$1,100.50$6,994.50Markup$26.25$34.72$170.15Price each$587.26$113.53$71.65Line total$587.26$1,135.30$7,165.00
+
+What the table shows:
+
+- Setup is the price of a small order. The same $278.67 of
+setup is 47% of the price of one part, 25% at ten and 4%
+at a hundred. That is why the price each falls from $587.26 to
+$113.53 to $71.65.
+
+- Minimums decide the small lots. At one and ten parts the anodizer's
+$150.00 lot minimum is the whole finishing charge, and one part's
+material is the $25.00 minimum, not the few dollars the metal weighs.
+
+- Fallout is not free on small lots. At 3% expected fallout,
+shipping one good part means starting 2, and shipping a hundred means starting
+104. Leave fallout out and the hundred-part line comes to
+$6,900.00 instead of $7,165.00:
+$265.00 you would otherwise pay for yourself
+when the scrap happens.
+
+### Mistakes that lose money on jobs you win
+
+- Pricing from the finished part. The customer pays for the blank you cut, not the
+metal left in the part. Price the stock size you will buy.
+
+- Folding setup into the run rate. A per-part price that hides setup is right at one
+quantity only. Price setup once per lot and the breaks work out by themselves.
+
+- Forgetting the time that isn't cutting. Programming, first-article inspection,
+deburring, part marking and paperwork take machine or operator time on every job.
+
+- Quoting a reorder at the first order's price. A repeat job with a proven program
+and fixtures has less setup; a reorder at a smaller quantity may need a higher price each, not the old one.
+
+- No record of how the price was built. When a customer asks why the price changed,
+or a job loses money, the basis of every figure is what lets you answer. Keep it with the quote.
+
+- Never comparing quotes with actual jobs. Check the estimated hours against the
+traveler on jobs you win. Times that are always short are a rate problem in disguise.
+
+### Doing it in Job Shop Quote
+
+Job Shop Quote prices a quote line exactly this way. Your rate card holds each machine's hourly rate
+(and a setup rate if you use one), your materials by the pound, by the foot or by the stock piece,
+your finishing and outside services with their lot minimums, your markups and line minimum. The
+estimator enters the blank, the operations and their times, and the quantity breaks; the price at each
+break follows, every figure showing the rate it came from, and a line missing a time or a material is
+blocked rather than priced as if it were free. The example above is priced to the cent the app gives
+for the same inputs, checked by a test in its code. You can
+see how a quote is built or
+compare it with other quoting software.
+
+This page explains a common costing method. It is not accounting, tax or
+financial advice, and the prices, times and rates in it are made up. Check every quote before you send
+it.
+
+### Quote your next RFQ this way
+
+The Early access plan is free and needs no card.
 
 Start free
 
