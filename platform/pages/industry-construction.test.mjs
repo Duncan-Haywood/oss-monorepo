@@ -66,6 +66,20 @@ test('no product claims to be on sale, and no price is quoted', () => {
   assert.match(html, /in development/i);
 });
 
+test('an open-free product links to sign-up and names what the Free plan leaves out', () => {
+  const open = PRODUCTS.filter((p) => p.status === 'open-free');
+  assert.ok(open.length >= 1);
+  const html = renderConstructionPage({ baseUrl: BASE });
+  for (const p of open) {
+    assert.match(p.appUrl, /^https:\/\/[^/]+\/\?signup&from=/, p.id);
+    assert.ok(html.includes(p.appUrl.replace(/&/g, '&amp;')), `${p.id}: sign-up link on the page`);
+    assert.ok(p.paidOnly?.length, `${p.id}: says what is not on the Free plan`);
+    assert.ok(html.includes(`In the paid plans, not on sale yet: ${p.paidOnly.join(', ')}`), p.id);
+  }
+  // The early-access form only offers products that are not open.
+  assert.doesNotMatch(html, /value="payapps"/);
+});
+
 test('every market fact carries an https source', () => {
   for (const f of FACTS) assert.match(f.source, /^https:\/\//);
   const html = renderConstructionPage({ baseUrl: BASE });
@@ -160,8 +174,10 @@ test('early access goes somewhere private: the edge form, or the inbox by email;
   assert.match(on, /<form class="ea-form"/);
   assert.ok(on.includes('"https://edge.example/early-access"'), 'posts to the Worker route');
   assert.ok(on.includes(CONSENT_TEXT.replace(/'/g, '&#39;')), 'shows the consent words the Worker stores');
-  assert.match(on, /<option value="payapps">Pay-app suite<\/option>/);
-  assert.match(on, /<option value="takeoff">Residential takeoff<\/option>/);
+  // PayApps is open (status open-free), so the form offers only what is still in development.
+  assert.doesNotMatch(on, /<option value="payapps">/);
+  // One product left, so the form carries it as a hidden field instead of a select.
+  assert.match(on, /<input type="hidden" name="product" value="takeoff">/);
   assert.match(on, /name="website"[^>]*tabindex="-1"/, 'honeypot field');
   assert.match(on, /<noscript>.*mailto:hello@marisstella\.app/s, 'no-script fallback');
   const off = renderConstructionPage({ baseUrl: BASE });
@@ -173,16 +189,18 @@ test('early access goes somewhere private: the edge form, or the inbox by email;
   }
 });
 
-test('built pay-app modules show as built and in testing, never as planned or available', () => {
+test('the open pay-app card lists what Free includes and what waits for paid plans, all from ROADMAP Done', () => {
   const html = renderConstructionPage({ baseUrl: BASE });
   const card = /<article class="ic-product" id="product-pay-apps">([\s\S]*?)<\/article>/.exec(html)[1];
-  assert.match(card, /Built, in testing \(not open yet\): QuickBooks Online sync/);
+  assert.match(card, /Open · free on one job/);
+  assert.match(card, /On the Free plan: pay applications/);
+  assert.match(card, /In the paid plans, not on sale yet: lien waivers, QuickBooks Online sync/);
+  assert.match(card, /Start free in PayApps/);
   assert.doesNotMatch(card, /Planned: QuickBooks/);
-  assert.match(card, /In development · early access/);
-  // Each built module must be in the app's ROADMAP "Done" list.
+  // Each module named must be in the app's ROADMAP "Done" list.
   const roadmap = readFileSync(path.join(ROOT, 'ventures/payapps/apps/payapps/ROADMAP.md'), 'utf8');
   const done = roadmap.slice(roadmap.indexOf('## Done'), roadmap.indexOf('## Next'));
-  for (const heading of ['QuickBooks Online', 'Job costing, part 1', 'RFI log', 'Submittal log', 'Estimates, part 1', 'Daily reports, part 1', 'Insurance certificates']) {
+  for (const heading of ['QuickBooks Online', 'Job costing, part 1', 'RFI log', 'Submittal log', 'Estimates, part 1', 'Daily reports, part 1', 'Insurance certificates', 'Lien waivers per pay app', 'Cash and retainage report']) {
     assert.ok(done.includes(`- ${heading}`), `${heading} is in ROADMAP Done`);
   }
 });

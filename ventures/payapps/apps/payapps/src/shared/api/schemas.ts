@@ -1,5 +1,10 @@
 // Request bodies (zod). Shared by the Worker (validation) and the SPA (types). Money: integer cents.
-import { CA_NOTICE_METHODS, CA_NOTICE_RECIPIENTS } from "@lien-waivers";
+import {
+  CA_NOTICE_METHODS,
+  CA_NOTICE_RECIPIENTS,
+  FL_NOTICE_RECIPIENTS,
+  FL_SERVICE_METHODS,
+} from "@lien-waivers";
 import { z } from "zod";
 import { isTimeZone } from "../cash-digest";
 import { CLOSEOUT_KINDS } from "../closeout";
@@ -812,6 +817,19 @@ export const caNoticeSendSchema = z.object({
   place: z.string().trim().min(1, "Enter where it was delivered or mailed").max(200),
   tracking: z.string().trim().max(100).nullish(),
 });
+/** PUT /projects/:id/notices/fl/first-furnished: the § 713.06(2)(a) start date (null clears it). */
+export const flFirstFurnishedSchema = z.object({ firstFurnishedOn: isoDate.nullable() });
+/** POST /projects/:id/notices/fl/sends: record a Florida Notice to Owner (or a copy) as served. */
+export const flNoticeSendSchema = z.object({
+  recipient: z.enum(FL_NOTICE_RECIPIENTS),
+  recipientNameAddress: z.string().trim().min(1, "Enter who it went to").max(500),
+  method: z.enum(FL_SERVICE_METHODS),
+  sentOn: isoDate,
+  deliveredOn: isoDate.nullish(),
+  tracking: z.string().trim().max(100).nullish(),
+});
+/** PATCH /projects/:id/notices/fl/sends/:sendId: the delivery date, once the evidence is back. */
+export const flNoticeDeliveredSchema = z.object({ deliveredOn: isoDate.nullable() });
 export const updateWaiverSchema = z.object({ status: z.enum(WAIVER_STATUSES) });
 /**
  * PUT .../waivers/:id/ga-affidavit/filing: record Georgia's affidavit of nonpayment as filed, and
@@ -872,6 +890,7 @@ export const gaPaidAffidavitSchema = z
 
 export type ProjectInput = z.infer<typeof projectSchema>;
 export type CaNoticeSendBody = z.infer<typeof caNoticeSendSchema>;
+export type FlNoticeSendBody = z.infer<typeof flNoticeSendSchema>;
 export type OpeningInputBody = z.infer<typeof openingSchema>;
 export type CreateWaiverInput = z.infer<typeof createWaiverSchema>;
 export type GaAffidavitFilingBody = z.infer<typeof gaAffidavitFilingSchema>;

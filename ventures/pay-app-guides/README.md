@@ -4,8 +4,9 @@ Free front door for paid bet #1, pay-app billing for specialty subcontractors
 (`portfolio/monetization/bets.md` on the bets branch). Search intent such as
 "how to fill out a pay application", "retainage", "schedule of values" and
 "lien waiver" lands here; every page ends with an honest CTA to the hosted
-product, which is **in development, with early access**, at
-https://marisstella.app/industries/construction/ (PR #18693 builds that page; the link is absolute so it is not a dead internal link before that lands).
+product, PayApps, which is **open on the Free plan** (one active job; paid
+plans not on sale yet) since 2026-11-27 at
+<https://payapps.duncan-andrew-haywood.workers.dev/?signup> (`APP_URL` in `cta.mjs`).
 
 Live: <https://marisstella.app/pay-app-guides/>
 
@@ -80,7 +81,9 @@ with its link come from `cta.mjs`. Before launch (`APP_URL = null`) they say
 set `APP_URL` to the deployed app and run `node cta.mjs`: every page then says
 "open now, free on one job" and links to `<APP_URL>/?signup&from=pay-app-guides/<page>`,
 which opens the app on "Create an account". `PAID_PLANS_ON` adds the prices
-once checkout is live. `page.test.mjs` fails if a page is out of date.
+once checkout is live. `page.test.mjs` fails if a page is out of date, and
+`state-forms.mjs` runs each state page through `cta.mjs` so a rebuild keeps
+the launch state. Switched on 2026-11-27 after deploy run 45949861746.
 
 ## No warranty
 

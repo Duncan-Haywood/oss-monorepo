@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software", "machining-quote-template"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software", "machining-quote-template", "machine-hour-rate"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -205,4 +205,16 @@ test("flow-down page: every quote is word for word from the eCFR text saved in f
   assert.match(html, /<td>FCI only \(no CUI\)<\/td><td>Level 1 \(Self\)<\/td>/);
   assert.match(html, /Level 3 \(DIBCAC\)<\/td><td>Level 2 \(C3PAO\)<\/td>/);
   assert.match(rule[0], /Level 3 \(DIBCAC\), then the CMMC Status of Level 2 \(C3PAO\) is the minimum/);
+});
+
+test("machine hour rate page ships no rates and builds its rows from text", () => {
+  const html = read("machine-hour-rate");
+  assert.doesNotMatch(html, /<input name="(overheadPerYear|rentPerSqft|powerPrice|markupPct)"[^>]*value=/);
+  assert.doesNotMatch(html, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
+  assert.doesNotMatch(html, /localStorage|sessionStorage/);
+  assert.match(html, /Load an invented example/);
+});
+
+test("the quote calculator takes a machine rate from the machine hour rate page", () => {
+  assert.match(read("job-shop-quote-calculator"), /\["setupFactor", "cycleFactor", "machineRate"\]/);
 });

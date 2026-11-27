@@ -28,12 +28,13 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [
     "First paddle-key test edit assumed the fake's call log held URLs; it holds 'METHOD host/path', so new URL() would throw; caught by reading the fake, then a TS2532 on split()[1] fixed with an anchored regex.",
     "CI changed-ventures red: pay-app-guides was already red on main because cta.mjs and state-forms.mjs wrote different CTA markup (the cta-status markers). Fixed by having state-forms.mjs pass its pages through cta.mjs's apply; both generators now leave the tree unchanged and the suite passes 296/296.",
     "CI validate red: test_promptctl LastChangeIndexTest disagrees with git when the PR merge commit differs from both parents under prompts/ (a run record on each side). Filed P095; worked around by merging main into the branch.",
-    "codeql gate still flagged js/incomplete-multi-character-sanitization: neither a chained .replace(/[<>]/g) nor a callback-based untilStable helper is recognised. Rewrote both as inline do/while fixed-point loops."
+    "codeql gate still flagged js/incomplete-multi-character-sanitization: neither a chained .replace(/[<>]/g) nor a callback-based untilStable helper is recognised. Rewrote both as inline do/while fixed-point loops.",
+    "Duplicate work: while this PR waited on CI, main merged #19646 (alert #1444), #19632 (the other four findings, with stripTags and a tokenising htmlToMarkdown) and #19642 (the pay-app-guides CTA markers), and another run filed P095 for the same prompts-ci bug. Every conflict was resolved in main's favour and my P095 was dropped. What lands is one extra regression test (nested '<<b>script>' in eCPR notes, passes on main's code) and this record."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,27 +47,27 @@
       "issue": "Running a single vitest file with plain `vitest run <file>` fails to resolve @shared/* aliases; you need `pnpm test:unit` (vitest.unit.config.ts)."
     },
     {
-      "file": "prompts/promptctl.py",
-      "issue": "Directory and glob change lookups use --diff-merges=c, so prompts-ci goes red on any PR that adds a run record while main gained one (P095)."
+      "file": "platform/ci/security_next.py",
+      "issue": "Queue claim branches did not stop parallel runs: #19632 fixed the same 4 findings without the security-fix/code-scanning-<n> branches I had pushed, so claims only work when every run that touches the file checks them (a venture run fixing CodeQL findings in its own code does not)."
     }
   ],
   "deviations": [
-    {
-      "file": "prompt.md",
-      "why": "Followed step 0 (security queue) rather than the routed quality sub-prompt, as step 0 says it comes first.",
-      "did": "Batch-fixed all 5 queued alerts in one PR",
-      "result": "Queue cleared, pending CodeQL rescan"
-    },
     {
       "file": "prompts/goals.md",
       "why": "No blog post: a security fix of test assertions and sanitisers has nothing to tell customers.",
       "did": "Wrote the PR body and this record",
       "result": "n/a"
+    },
+    {
+      "file": "prompt.md",
+      "why": "Followed step 0 (security queue) rather than the routed quality sub-prompt, as step 0 says it comes first.",
+      "did": "Batch-fixed all 5 queued alerts",
+      "result": "Superseded by parallel merges on main; one regression test survived"
     }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "billing 86/0 pass + typecheck; payapps-site test:unit 22 pass + typecheck; payapps ca-ecpr vitest 10 pass + typecheck; biome no errors. pay-app-guides 296 pass after the generator fix.",
+  "notes": "billing 86/0 pass + typecheck; payapps-site test:unit 22 pass + typecheck; payapps ca-ecpr vitest 10 pass + typecheck; biome no errors. pay-app-guides 296 pass after the generator fix. Final diff vs main: one test in ca-ecpr.test.ts plus this record; 'nested' test passes against main's stripTags.",
   "corrections": [],
   "redteam": null,
   "usage": {

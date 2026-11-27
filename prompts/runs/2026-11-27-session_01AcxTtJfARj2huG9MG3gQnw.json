@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtJfARj2huG9MG3gQnw",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T07:07:12Z",
+  "ended": "2026-11-27T07:23:59Z",
+  "wall_minutes": 16.97,
+  "tokens_in": 5064942,
+  "tokens_out": 20896,
+  "cost_usd": 2.1099,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19655",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Two failed optimizer configs on the way (globs pulled node-only subpaths; node: builtins needed rolldownOptions.external); both resolved before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/README.md",
+      "issue": "'Where the work happens' still says private-monorepo is where scheduled runs build and this copy is a snapshot, while .github/prompts/cloud-session.md says PayApps moved here on 2026-11-27 and is built in this clone; cost a check of whether a private sync would overwrite the change."
+    },
+    {
+      "file": "platform/ci/venture_suite_times.json",
+      "issue": "run_venture_tests.py --times does not cover pnpm workspaces such as ventures/payapps (vitest suites), so item 3 of the perf prompt misses the largest new suite; it had to be timed by hand."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/payapps-worker-tests-perf-2026-11-27.md",
+    "docs/posts/2026-10-20-we-almost-rewrote-it-in-rust.md (new section)"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of `pnpm test:worker` in ventures/payapps/apps/payapps (87 files, 552 tests), 4-core cloud container, after pnpm install --frozen-lockfile. Before (origin/main 991a8c4b2): 195.3 s and 193.3 s (two runs). After (Vitest test.deps.optimizer.ssr for better-auth/zod/drizzle/hono entry points): 99.1 s warm optimizer cache, 121.6 s cold (rm -rf node_modules/.vite). Per-file import (rfis.test.ts, --experimental.importDurations.print): 3.20 s -> 2.05 s. Same 552 tests pass; biome ci and typecheck pass. Local checks only; payapps-ci.yml runs on the PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e9705a67-df04-5c61-a123-131a764f0b3a",
+    "transcripts": 1,
+    "first": "2026-11-27T07:07:12Z",
+    "last": "2026-11-27T07:24:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 116,
+        "output": 20896,
+        "thinking": 3932,
+        "cache_read": 4977830,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86996,
+        "api_equivalent_usd": 2.1099,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 116,
+      "output": 20896,
+      "thinking": 3932,
+      "cache_read": 4977830,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86996,
+      "api_equivalent_usd": 2.1099,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 59,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.97,
+      "active_minutes": 16.97,
+      "model_minutes": 4.6,
+      "tool_minutes": 12.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile vitest-pool-workers imports, try optimizer configs, verify full suite twice, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 142.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

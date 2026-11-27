@@ -69,10 +69,12 @@ describe("probeVerdict", () => {
 /** A fake Paddle that accepts one key on one environment with a set of permissions. */
 function fakePaddle(opts: { key: string; env: "live" | "sandbox"; perms: string[] }) {
   const calls: string[] = [];
+  const hosts: string[] = [];
   const fetchFn = (async (input: string | URL | Request, init?: RequestInit) => {
     const url = new URL(String(input));
     const method = init?.method ?? "GET";
     calls.push(`${method} ${url.host}${url.pathname}`);
+    hosts.push(url.host);
     const env = url.host.startsWith("sandbox-api.") ? "sandbox" : "live";
     const auth = new Headers(init?.headers).get("authorization");
     if (auth !== `Bearer ${opts.key}` || env !== opts.env)
@@ -86,7 +88,7 @@ function fakePaddle(opts: { key: string; env: "live" | "sandbox"; perms: string[
     }
     return Response.json({ data: [] });
   }) as typeof fetch;
-  return { calls, fetchFn };
+  return { calls, hosts, fetchFn };
 }
 
 const ALL = ["product.read", "price.read", "product.write", "price.write"];
@@ -98,7 +100,7 @@ describe("probePaddleKey", () => {
     assert.equal(p.environment, "sandbox");
     assert.equal(p.baseUrl, "https://sandbox-api.paddle.com");
     assert.equal(keyProbeOk(p), true);
-    assert.ok(f.calls.every((c) => /^[A-Z]+ sandbox-api\.paddle\.com\//.test(c)));
+    assert.ok(f.hosts.every((h) => h === "sandbox-api.paddle.com"));
     assert.equal(f.calls.length, 4);
   });
 

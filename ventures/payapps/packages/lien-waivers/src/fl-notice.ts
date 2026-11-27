@@ -15,7 +15,8 @@ import { isIsoDate } from "./validate.ts";
  * notes quote, against the snapshot.
  *
  * Not encoded: the combined "NOTICE TO OWNER/NOTICE TO CONTRACTOR" (§ 255.05, § 713.23), public
- * works, the claim of lien (§ 713.08), and any record of when a notice was served.
+ * works and the claim of lien (§ 713.08). Who a notice went to, how, and when it counts as served
+ * are in fl-service.ts.
  */
 
 export const FL_NOTICE_ID = "FL/notice-to-owner/statutory";
