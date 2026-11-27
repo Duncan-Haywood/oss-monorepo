@@ -279,8 +279,14 @@ export class SqlStore {
   async init() {
     await this.db.exec(SCHEMA);
     for (const [table, column, type] of ADDED_COLUMNS) {
+      // Identifiers come from the ADDED_COLUMNS constant, never from a request; checked anyway,
+      // since SQL cannot bind an identifier. `db.exec` is SQLite's, not a shell.
+      if (![table, column].every((id) => /^[a-z_][a-z0-9_]*$/.test(id)) || !/^[A-Z ]+$/.test(type)) {
+        throw new Error(`bad schema migration entry: ${table}.${column}`);
+      }
       const cols = await this.db.all(`SELECT name FROM pragma_table_info('${table}')`);
-      if (!cols.some((c) => c.name === column)) await this.db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+      const alter = ["ALTER TABLE", table, "ADD COLUMN", column, type].join(" ");
+      if (!cols.some((c) => c.name === column)) await this.db.exec(alter);
     }
     await this.db.exec(AFTER_COLUMNS);
     return this;
