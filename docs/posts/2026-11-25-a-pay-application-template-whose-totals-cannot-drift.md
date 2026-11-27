@@ -137,13 +137,28 @@ page when you tap one.
 
 ## Why a spreadsheet, for a product we mean to sell
 
-The paid product in development is a hosted pay-app suite: schedules
+The paid product is PayApps, a hosted pay-app suite: schedules
 saved per job and carried forward for you, retainage tracked until
 release, lien waivers checked against the payment. A sub with one job and
 a good spreadsheet doesn't need it. A sub with eight jobs and eight
 copies of that spreadsheet does, and they find us by searching for a
-template first. So the template is free and good, and the page asks
-people who bill on several jobs to tell us how they do it today.
+template first. So the template is free and good.
+
+## Update, 2026-11-27: PayApps is open, and takes this workbook
+
+PayApps opened on its Free plan: one active job, no card
+([start free](https://payapps.marisstella.app/?signup&from=pay-application-generator)). If you already bill from this template or the
+generator's Excel download, you don't retype anything. When you set up the
+job, choose the workbook: the schedule of values is read from the
+Continuation sheet (subtotal, total and change-order rows left out of the contract lines and listed, the sheet's
+own totals checked against its lines), and the work billed to date can be
+filled in as the job's opening balance, so the first application in
+PayApps carries on from your last one. The workbook is read in your browser;
+PayApps' own tests run on files this generator wrote and LibreOffice saved.
+
+Free covers pay applications with retainage and change orders, as PDF and
+CSV. Lien waivers, QuickBooks and job costing are in the paid plans, which
+are not on sale yet. The template and the generator stay free.
 
 Source: [`ventures/pay-application-generator/workbook.mjs`](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pay-application-generator).
 The numbers are arithmetic on what you enter; your contract decides the

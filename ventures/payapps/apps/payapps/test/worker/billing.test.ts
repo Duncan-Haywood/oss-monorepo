@@ -61,13 +61,19 @@ const sub = (planKey: string, id: string, customer: string, status = "active" as
 
 describe("plans and limits", () => {
   it("lists public plans without signing in, never the complimentary plan", async () => {
-    const { items, checkoutAvailable } = await call<{
+    const { items, checkoutAvailable, attachmentsAvailable } = await call<{
       items: PlanDto[];
       checkoutAvailable: boolean;
+      attachmentsAvailable: boolean;
     }>("/api/billing/plans");
     expect(items.map((p) => p.key)).toEqual(["free", "solo", "crew", "company"]);
     // The test worker has the fake billing provider, so checkout is available, as on the Billing page.
     expect(checkoutAvailable).toBe(true);
+    // The test worker binds FILES, so storage lines are the catalog's own.
+    expect(attachmentsAvailable).toBe(true);
+    expect(items.find((p) => p.key === "free")?.features).toContain(
+      "250 MB of attached backup and photos",
+    );
     expect(items.find((p) => p.key === "solo")?.priceCents).toBe(9_900);
   });
 

@@ -129,3 +129,16 @@ export const legalAcceptances = sqliteTable(
   },
   (t) => [uniqueIndex("legal_acceptance_user_version_idx").on(t.userId, t.policyVersion)],
 );
+
+/**
+ * Which of our pages sent each new account (shared/signup-source.ts): a page name we wrote, such as
+ * `pay-app-guides/punch-list`, recorded once within a few days of sign-up. Read only as counts by
+ * the owner's metrics (services/admin/sources.ts).
+ */
+export const signupSources = sqliteTable("signup_source", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  source: text("source").notNull(),
+  createdAt: createdAt(),
+});

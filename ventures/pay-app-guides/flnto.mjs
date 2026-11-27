@@ -193,7 +193,8 @@ export function draftNotice(fields = {}) {
   const missing = [];
   const fill = {};
   for (const [key, caption, required] of FIELDS) {
-    const v = clean(fields[key]);
+    // The form puts a period after who gave the order, so "Coastline Builders Inc." must not print "Inc..".
+    const v = key === "hiredBy" ? clean(fields[key]).replace(/\.+$/, "") : clean(fields[key]);
     if (!v && required) missing.push(LABELS[key]);
     fill[key] = v || caption;
   }

@@ -1,8 +1,10 @@
 import type { MeDto, PlanDto } from "@shared/api/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { api } from "../lib/api";
+import { useEffect } from "react";
+import { ApiError, api } from "../lib/api";
 import { launchNotice } from "../lib/launch-notice";
+import { browserStore, clearSignupSource, pendingSignupSource } from "../lib/signup-source";
 import { AcceptLegal, LegalLinks } from "../pages/legal";
 
 export const meQuery = {
@@ -35,6 +37,20 @@ export function Layout() {
     !me.data.legal.acceptedAt &&
     !pathname.startsWith("/legal/") &&
     pathname !== "/unsubscribe";
+  // The "Start free" link's page (lib/signup-source.ts), posted once the visitor is signed in.
+  const signedInId = me.data?.user.id;
+  useEffect(() => {
+    if (!signedInId) return;
+    const store = browserStore();
+    const source = pendingSignupSource(store);
+    if (!source) return;
+    api("/api/me/signup-source", { method: "POST", body: { source } }).then(
+      () => clearSignupSource(store),
+      // A 400 (not a page name) is final; a network, auth, rate-limit or server error retries on
+      // the next load, until the entry ages out of the window.
+      (e) => e instanceof ApiError && e.status === 400 && clearSignupSource(store),
+    );
+  }, [signedInId]);
   const signOut = async () => {
     await api("/api/auth/sign-out", { method: "POST", body: {} });
     await qc.invalidateQueries();

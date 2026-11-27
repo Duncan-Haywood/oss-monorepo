@@ -1,4 +1,4 @@
-# Pricing and cost model (PayPencil, provisional name)
+# Pricing and cost model (PayApps)
 
 **Status: the app's prices, not yet charged.** The site shows the plans the app (`apps/payapps`) is
 set up to sell; checkout there is dark until the owner sets the Paddle secrets

@@ -12,6 +12,7 @@ strips the types; wrangler/esbuild bundles it). Adding a package.json would need
 | `src/gate.ts` | `PLATFORM_ADMIN_EMAILS` (verified email, case-insensitive), the console's `ADMIN_SERVICE_TOKEN` bearer (GET only) and the agents' `ADMIN_METRICS_TOKEN` (GET `/metrics` only; `adminActorMayAccess`, `canReadAccounts`). Tokens ≥ 32 chars, constant-time. A wrong bearer is a denial even with an admin session. |
 | `src/mrr.ts` | MRR from the price each Paddle webhook recorded (`packages/billing` `SubscriptionPrice`): month and year cycles only, per currency, discounted or unpriced subscriptions counted separately and never guessed. |
 | `src/activation.ts` | Activation funnel: companies that reached each getting-started step and the required step each stalled on, for all companies and those created in the window. The product passes booleans per step from its own checklist rules (payapps: `ActivationFunnel` on `/metrics`). |
+| `src/contract.ts` `SignupSources` | Sign-ups by the page on our sites whose Start free link they came from (`from=`), with how many have a company, reached the product's first real outcome and pay now. Optional (payapps: `sources` on `/metrics`). |
 | `src/buckets.ts` | Zero-filled UTC day and ISO-week series. |
 | `src/notify.ts` | Owner email text (new paid subscription, daily digest) and the off-by-default switch (`OWNER_NOTIFICATIONS=on` + a real sender + an admin email). Only name, email, org and plan. |
 

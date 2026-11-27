@@ -22,7 +22,7 @@
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "featureList": [
     "Flags a readme.txt Stable tag that does not match the plugin header's Version -- the directory serves whatever Stable tag names",
-    "Flags missing required readme.txt fields (Stable tag, License, License URI) and plugin header fields (Plugin Name, Version)",
+    "Flags missing required readme.txt fields (Stable tag, License) and plugin header fields (Plugin Name, Version, License), and a licence Plugin Check would reject (not GPL-compatible, or different in readme and header)",
     "Flags a $_GET/$_POST/$_REQUEST/$_COOKIE/$_SERVER value echoed with no escaping function on the same line",
     "Flags a file that reads $_POST with no nonce-verification call anywhere in it",
     "Runs fully client-side or as a Node CLI in your own CI; no upload, no account"
@@ -47,7 +47,7 @@
     {
       "@type": "Question",
       "name": "Why does processing $_POST need a nonce check?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Without a nonce (check_admin_referer, check_ajax_referer, or wp_verify_nonce), a form handler can't tell a request submitted by your own plugin's form from one a malicious site tricked a logged-in user's browser into sending (cross-site request forgery). Plugin review looks for a nonce check anywhere in a file that processes $_POST; this tool does the same file-level check." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Without a nonce (check_admin_referer, check_ajax_referer, or wp_verify_nonce), a form handler can't tell a request submitted by your own plugin's form from one a malicious site tricked a logged-in user's browser into sending (cross-site request forgery). Plugin Check's nonce rule (WordPress Coding Standards NonceVerification) works per function; this tool runs a simpler file-level check, so a nonce call elsewhere in the same file can hide a handler that has none." }
     },
     {
       "@type": "Question",
@@ -217,8 +217,10 @@ function example_save_settings() {
     if (!report.readmeFound) parts.push('no readme.txt found');
     if (!report.pluginHeaderFound) parts.push('no plugin header found');
     if (report.stableTagStatus === 'mismatch') parts.push('Stable tag does not match Version');
+    if (report.stableTagStatus === 'trunk') parts.push('Stable tag is "trunk"');
     if (report.missingRequiredReadme.length) parts.push(`readme.txt missing: ${report.missingRequiredReadme.join(', ')}`);
     if (report.missingRequiredHeader.length) parts.push(`plugin header missing: ${report.missingRequiredHeader.join(', ')}`);
+    if (report.licenseIssues.length) parts.push(`licence problem: ${report.licenseIssues.map((i) => i.code).join(', ')}`);
     if (report.unescapedOutput.length) parts.push(`${report.unescapedOutput.length} unescaped output line(s)`);
     if (report.missingNonceChecks.length) parts.push(`${report.missingNonceChecks.length} file(s) with $_POST and no nonce check`);
     summary.textContent = report.ok
@@ -254,6 +256,7 @@ function example_save_settings() {
 
     row('Required readme fields', report.missingRequiredReadme.length ? 'bad' : 'ok', report.missingRequiredReadme.length ? `Missing: ${report.missingRequiredReadme.join(', ')}` : 'All present');
     row('Required plugin header fields', report.missingRequiredHeader.length ? 'bad' : 'ok', report.missingRequiredHeader.length ? `Missing: ${report.missingRequiredHeader.join(', ')}` : 'All present');
+    row('Licence (GPL-compatible, same in readme and header)', report.licenseIssues.length ? 'bad' : 'ok', report.licenseIssues.length ? report.licenseIssues.map((i) => `${i.where}: "${i.value}" (${i.code})`).join('; ') : 'OK');
     row('Unescaped superglobal output', report.unescapedOutput.length ? 'bad' : 'ok', report.unescapedOutput.length ? `${report.unescapedOutput.length} line(s)` : 'None found');
     row('Nonce checks on $_POST handlers', report.missingNonceChecks.length ? 'bad' : 'ok', report.missingNonceChecks.length ? `${report.missingNonceChecks.length} file(s) with no check found` : 'None missing');
 
@@ -320,7 +323,7 @@ function example_save_settings() {
   <h3>What counts as "unescaped output" in a WordPress plugin?</h3>
   <p>Printing a value from $_GET, $_POST, $_REQUEST, $_COOKIE, or $_SERVER with echo/print/printf and no escaping function (esc_html, esc_attr, esc_url, sanitize_text_field, absint, and similar) wrapped around it. WordPress's own plugin-review guidance treats unescaped output as a security issue regardless of whether the specific input happens to be exploitable today -- the fix is standard, and reviewers ask for it as a matter of course.</p>
   <h3>Why does processing $_POST need a nonce check?</h3>
-  <p>Without a nonce (check_admin_referer, check_ajax_referer, or wp_verify_nonce), a form handler can't tell a request submitted by your own plugin's form from one a malicious site tricked a logged-in user's browser into sending (cross-site request forgery). Plugin review looks for a nonce check anywhere in a file that processes $_POST; this tool does the same file-level check.</p>
+  <p>Without a nonce (check_admin_referer, check_ajax_referer, or wp_verify_nonce), a form handler can't tell a request submitted by your own plugin's form from one a malicious site tricked a logged-in user's browser into sending (cross-site request forgery). Plugin Check's nonce rule (WordPress Coding Standards NonceVerification) works per function; this tool runs a simpler file-level check, so a nonce call elsewhere in the same file can hide a handler that has none.</p>
   <h3>Is my plugin's source code uploaded anywhere?</h3>
   <p>No. The browser tool reads the files you select using the File API and never sends them anywhere -- everything happens in memory in your tab. The CLI never makes a network call either.</p>
   <h3>Does a clean report mean my plugin will pass wordpress.org Plugin Review?</h3>

@@ -1,4 +1,5 @@
-// The <main> of every page and its JSON-LD. Copy rules (README.md): early access only; no customers,
+// The <main> of every page and its JSON-LD. Copy rules (README.md): early access before launch, the
+// Free plan after (launch.ts), paid plans never "on sale" before checkout is; no customers,
 // testimonials, logos, results or ratings; a feature is "built" only once it is in the app (apps/payapps
 // ROADMAP.md, "Done"), everything else is "next"; no competitor claims.
 import { formatUsd, limitText, PLANS } from "@shared/plans";
@@ -11,7 +12,8 @@ import {
   PRODUCT_NAME,
   type PublicPage,
 } from "@shared/site";
-import { type Html, href, html, type SiteContext } from "./html";
+import { type Html, href, html, primaryCta, type SiteContext } from "./html";
+import { launchOf, plansSentence } from "./launch";
 
 export interface Faq {
   q: string;
@@ -25,9 +27,6 @@ export interface BuiltPage {
 }
 
 // ---------- shared bits ----------
-
-const earlyAccessCta = (ctx: SiteContext, label = "Join early access") =>
-  html`<a class="btn" href="${href(ctx, PAGES.earlyAccess.path)}">${label}</a>`;
 
 const faqList = (items: readonly Faq[]) =>
   html`<div class="faq">${items.map((f) => html`<details><summary>${f.q}</summary><p>${f.a}</p></details>`)}</div>`;
@@ -72,34 +71,41 @@ function faqPage(items: readonly Faq[]): Record<string, unknown> {
 
 // ---------- home ----------
 
-export const HOME_FAQ: readonly Faq[] = [
-  {
-    q: `Can I use ${PRODUCT_NAME} today?`,
-    a: `Not yet. ${PRODUCT_NAME} is in development: the pay app, retainage, change orders, lien waivers, the cash report and QuickBooks Online are built and in testing, and it is not open to the public. Join early access and we will email you when you can try it. Nothing is charged during early access.`,
-  },
-  {
-    q: `Who is ${PRODUCT_NAME} for?`,
-    a: "Subcontractors and specialty trades who bill general contractors every month with a schedule of values, retainage and lien waivers: electrical, mechanical, plumbing, framing, drywall, concrete, roofing and similar trades.",
-  },
-  {
-    q: "Does it replace my GC's billing portal?",
-    a: "No. Your GC decides how pay apps are submitted. It keeps your numbers and backup in one place and gives you the PDF and CSV, so the portal step is copying finished figures, not redoing them. For Procore, Oracle Textura, GCPay and Trimble Pay it also fills the SOV and billing files those portals take; you still submit them in the portal yourself.",
-  },
-  {
-    q: "Is it an AIA G702/G703 form?",
-    a: NOT_AIA_NOTE,
-  },
-];
+export function homeFaq(ctx: SiteContext): readonly Faq[] {
+  const l = launchOf(ctx);
+  return [
+    {
+      q: `Can I use ${PRODUCT_NAME} today?`,
+      a: l.open
+        ? `Yes. ${PRODUCT_NAME} is open: sign up with your email and set up your first job. ${plansSentence(l)} It is new, so there are no customer reviews yet; tell us what gets in your way.`
+        : `Not yet. ${PRODUCT_NAME} is in development: the pay app, retainage, change orders, lien waivers, the cash report and QuickBooks Online are built and in testing, and it is not open to the public. Join early access and we will email you when you can try it. Nothing is charged during early access.`,
+    },
+    {
+      q: `Who is ${PRODUCT_NAME} for?`,
+      a: "Subcontractors and specialty trades who bill general contractors every month with a schedule of values, retainage and lien waivers: electrical, mechanical, plumbing, framing, drywall, concrete, roofing and similar trades.",
+    },
+    {
+      q: "Does it replace my GC's billing portal?",
+      a: "No. Your GC decides how pay apps are submitted. It keeps your numbers and backup in one place and gives you the PDF and CSV, so the portal step is copying finished figures, not redoing them. For Procore, Oracle Textura, GCPay and Trimble Pay it also fills the SOV and billing files those portals take; you still submit them in the portal yourself.",
+    },
+    {
+      q: "Is it an AIA G702/G703 form?",
+      a: NOT_AIA_NOTE,
+    },
+  ];
+}
 
 function home(ctx: SiteContext): BuiltPage {
   const page = PAGES.home;
+  const l = launchOf(ctx);
+  const faq = homeFaq(ctx);
   const main = html`
 <section class="hero">
   <div class="wrap">
-    <p class="eyebrow">Early access · in development</p>
+    <p class="eyebrow">${l.open ? "Open now · free on one job" : "Early access · in development"}</p>
     <h1>The monthly pay app, without the spreadsheet scramble.</h1>
-    <p class="lede">${PRODUCT_NAME} is a pay-application tool we are building for subcontractors: your schedule of values, retainage, change orders and lien waivers in one place, so each month's pay app is a review instead of a rebuild.</p>
-    <p class="cta-row">${earlyAccessCta(ctx)} <a class="link-strong" href="${href(ctx, PAGES.features.path)}">See what we're building</a></p>
+    <p class="lede">${PRODUCT_NAME} is ${l.open ? "a hosted pay-application tool" : "a pay-application tool we are building"} for subcontractors: your schedule of values, retainage, change orders and lien waivers in one place, so each month's pay app is a review instead of a rebuild.</p>
+    <p class="cta-row">${primaryCta(ctx, "home")} <a class="link-strong" href="${href(ctx, PAGES.features.path)}">${l.open ? "See what it does" : "See what we're building"}</a></p>
   </div>
 </section>
 
@@ -143,15 +149,15 @@ function home(ctx: SiteContext): BuiltPage {
       <li><strong>Send it with its backup.</strong> The application and continuation sheet as PDF and CSV for the GC's portal or email, the waiver it needs, and the backup attached.</li>
       <li><strong>Get paid and keep the books straight.</strong> Record each check, see what is past due across every job, send the invoice and payment to QuickBooks Online, and bill the retainage when the work is done, with the punch items and close-out documents it still waits on named job by job.</li>
     </ol>
-    <p>All four steps work in the app today and are being tested before it opens to the public. The <a href="${href(ctx, PAGES.features.path)}">features page</a> marks what is built and what comes next.</p>
+    <p>${l.open ? "All four steps work in the app today." : "All four steps work in the app today and are being tested before it opens to the public."} The <a href="${href(ctx, PAGES.features.path)}">features page</a> marks what is built and what comes next.</p>
   </div>
 </section>
 
 <section class="wrap section">
   <h2>Questions</h2>
-  ${faqList(HOME_FAQ)}
+  ${faqList(faq)}
   ${notAiaNote}
-  <p class="cta-row">${earlyAccessCta(ctx, "Tell us how you bill today")}</p>
+  <p class="cta-row">${primaryCta(ctx, "home-faq", l.open ? "Set up your first job free" : "Tell us how you bill today")}</p>
 </section>`;
   return {
     page,
@@ -166,7 +172,7 @@ function home(ctx: SiteContext): BuiltPage {
         inLanguage: "en-US",
       },
       {
-        // No offers or ratings: nothing is for sale yet and there are no reviews.
+        // No offers or ratings: no paid plan is on sale yet and there are no reviews.
         "@type": "SoftwareApplication",
         name: PRODUCT_NAME,
         applicationCategory: "BusinessApplication",
@@ -176,7 +182,7 @@ function home(ctx: SiteContext): BuiltPage {
         audience: { "@type": "BusinessAudience", audienceType: "Construction subcontractors" },
         url: absoluteUrl(ctx.siteUrl, "/"),
       },
-      faqPage(HOME_FAQ),
+      faqPage(faq),
     ],
   };
 }
@@ -505,22 +511,23 @@ export const FEATURES: readonly Feature[] = [
     id: "roadmap",
     title: "Also next",
     status: "next",
-    body: "In the order early-access subcontractors ask for them:",
+    body: "In the order subcontractors ask for them:",
     bullets: [
       "A saved checklist per GC: the attachments and format each GC wants, so every pay app for that GC starts with them",
-      "More portals (Trimble Pay, Siteline) when subcontractors bill through them",
+      "More portals (Siteline and others) when subcontractors bill through them",
     ],
   },
 ];
 
 function features(ctx: SiteContext): BuiltPage {
   const page = PAGES.features;
+  const l = launchOf(ctx);
   const main = html`
 <section class="page-head">
   <div class="wrap">
-    <p class="eyebrow">Features · in development</p>
+    <p class="eyebrow">${l.open ? "Features" : "Features · in development"}</p>
     <h1>What ${PRODUCT_NAME} does</h1>
-    <p class="lede">Items marked <strong>${STATUS_LABEL.built}</strong> work in the app today and are being tested before it opens to the public. Items marked <strong>${STATUS_LABEL.next}</strong> are planned, not built; subcontractors who join early access set their order.</p>
+    <p class="lede">Items marked <strong>${STATUS_LABEL.built}</strong> work in the app today${l.open ? "" : " and are being tested before it opens to the public"}. Items marked <strong>${STATUS_LABEL.next}</strong> are planned, not built; ${l.open ? "the subcontractors using it" : "subcontractors who join early access"} set their order.</p>
     <nav class="toc" aria-label="On this page"><ul>${FEATURES.map((f) => html`<li><a href="#${f.id}">${f.title}</a></li>`)}</ul></nav>
   </div>
 </section>
@@ -542,48 +549,68 @@ function features(ctx: SiteContext): BuiltPage {
     </ul>
   </section>
   ${notAiaNote}
-  <p class="cta-row">${earlyAccessCta(ctx)}</p>
+  <p class="cta-row">${primaryCta(ctx, "features")}</p>
 </div>`;
   return { page, main, jsonLd: [webPage(ctx, page), breadcrumbs(ctx, page)] };
 }
 
 // ---------- pricing ----------
 
-export const PRICING_FAQ: readonly Faq[] = [
-  {
-    q: "Is anything charged during early access?",
-    a: "No. Early access is free and needs no card. These are the prices the app is set up to charge; if they change before billing starts we will say so here first, and you choose whether to subscribe.",
-  },
-  {
-    q: "What is an active job?",
-    a: "A job you haven't closed. When a job is finished, close it and its slot frees up; its pay apps, waivers and files stay in your account to read and download on every plan.",
-  },
-  {
-    q: "What happens if I downgrade or stop paying?",
-    a: "Nothing is hidden or deleted. You can still read, export and download everything on every job. Starting new pay apps or jobs past the Free limits needs a paid plan again.",
-  },
-  {
-    q: "Why price by jobs and not by contract value?",
-    a: "Our costs grow with the number of jobs we help you set up and bill, not with their dollar value, and a flat monthly price is easier to plan for than a percentage of what you bill.",
-  },
-  {
-    q: "Is there an annual price?",
-    a: "Yes: each paid plan is also offered yearly at 10% off twelve months.",
-  },
-  {
-    q: "How were these prices set?",
-    a: "Cost-plus: each paid plan is priced at 1.8 to 2 times what it costs us to serve a customer who uses all of it. Most of that cost is support time, helping set up schedules of values and answering why a total doesn't match the GC's; the rest is hosting, file storage and payment fees.",
-  },
-];
+export function pricingFaq(ctx: SiteContext): readonly Faq[] {
+  const l = launchOf(ctx);
+  return [
+    l.paidOn
+      ? {
+          q: "Do I need a card to start?",
+          a: "No. The Free plan needs no card and has no time limit. You add a card only when you choose a paid plan, through our payment provider's checkout.",
+        }
+      : l.open
+        ? {
+            q: "Can I buy a paid plan today?",
+            a: "Not yet. The Free plan is open now with no card and no time limit. These are the prices the app is set up to charge when paid plans go on sale; if they change before then we will say so here first, and you choose whether to subscribe.",
+          }
+        : {
+            q: "Is anything charged during early access?",
+            a: "No. Early access is free and needs no card. These are the prices the app is set up to charge; if they change before billing starts we will say so here first, and you choose whether to subscribe.",
+          },
+    {
+      q: "What is an active job?",
+      a: "A job you haven't closed. When a job is finished, close it and its slot frees up; its pay apps, waivers and files stay in your account to read and download on every plan.",
+    },
+    {
+      q: "What happens if I downgrade or stop paying?",
+      a: "Nothing is hidden or deleted. You can still read, export and download everything on every job. Starting new pay apps or jobs past the Free limits needs a paid plan again.",
+    },
+    {
+      q: "Why price by jobs and not by contract value?",
+      a: "Our costs grow with the number of jobs we help you set up and bill, not with their dollar value, and a flat monthly price is easier to plan for than a percentage of what you bill.",
+    },
+    {
+      q: "Is there an annual price?",
+      a: "Yes: each paid plan is also offered yearly at 10% off twelve months.",
+    },
+    {
+      q: "How were these prices set?",
+      a: "Cost-plus: each paid plan is priced at 1.8 to 2 times what it costs us to serve a customer who uses all of it. Most of that cost is support time, helping set up schedules of values and answering why a total doesn't match the GC's; the rest is hosting, file storage and payment fees.",
+    },
+  ];
+}
 
 function pricing(ctx: SiteContext): BuiltPage {
   const page = PAGES.pricing;
+  const l = launchOf(ctx);
+  const faq = pricingFaq(ctx);
+  const lede = l.paidOn
+    ? "Start free on one job, no card. Paid plans add jobs, users, lien waivers and QuickBooks Online."
+    : l.open
+      ? "Start free on one job, no card. Paid plans add jobs, users, lien waivers and QuickBooks Online; they are not on sale yet."
+      : "Start free on one job. Paid plans add jobs, users, lien waivers and QuickBooks Online. Nothing is charged during early access.";
   const main = html`
 <section class="page-head">
   <div class="wrap">
-    <p class="eyebrow">Pricing · in development</p>
+    <p class="eyebrow">${l.open ? "Pricing" : "Pricing · in development"}</p>
     <h1>Simple monthly plans, sized by active jobs</h1>
-    <p class="lede">Start free on one job. Paid plans add jobs, users, lien waivers and QuickBooks Online. Nothing is charged during early access.</p>
+    <p class="lede">${lede}</p>
   </div>
 </section>
 <div class="wrap section">
@@ -601,13 +628,13 @@ function pricing(ctx: SiteContext): BuiltPage {
   </div>
   <p class="note">Prices in US dollars, before any sales tax. No setup fee; cancel any time. The <a href="${href(ctx, PAGES.features.path)}">features page</a> marks what is built and what comes next.</p>
   <h2>Questions about pricing</h2>
-  ${faqList(PRICING_FAQ)}
-  <p class="cta-row">${earlyAccessCta(ctx)}</p>
+  ${faqList(faq)}
+  <p class="cta-row">${primaryCta(ctx, "pricing")}</p>
 </div>`;
   return {
     page,
     main,
-    jsonLd: [webPage(ctx, page), breadcrumbs(ctx, page), faqPage(PRICING_FAQ)],
+    jsonLd: [webPage(ctx, page), breadcrumbs(ctx, page), faqPage(faq)],
   };
 }
 
@@ -651,12 +678,18 @@ const select = (name: string, label: string, options: readonly (readonly [string
 
 function earlyAccess(ctx: SiteContext): BuiltPage {
   const page = PAGES.earlyAccess;
+  const l = launchOf(ctx);
   const main = html`
 <section class="page-head">
   <div class="wrap narrow">
     <p class="eyebrow">Early access</p>
     <h1>Help us build the pay-app tool you'd actually use</h1>
-    <p class="lede">${PRODUCT_NAME} is in development. Leave your email and, if you like, a little about how you bill today. We'll confirm your address once, then write when there's something to try. No card, no charge.</p>
+    <p class="lede">${
+      l.open
+        ? `${PRODUCT_NAME} is open now, free on one job: you can start without this list. Leave your email here if you would rather hear about what comes next first, and tell us how you bill today.`
+        : `${PRODUCT_NAME} is in development. Leave your email and, if you like, a little about how you bill today. We'll confirm your address once, then write when there's something to try. No card, no charge.`
+    }</p>
+    ${l.open ? html`<p class="cta-row">${primaryCta(ctx, "early-access")}</p>` : null}
   </div>
 </section>
 <div class="wrap narrow section">
