@@ -153,7 +153,7 @@ export function calculateSale(input) {
     );
   }
   if (disputed) {
-    notes.push(`This sale is modelled with a payment dispute ruled against the seller: a flat $${DISPUTE_PENALTY.toFixed(2)} chargeback penalty on top of losing the sale, deducted from the seller's payout ledger.`);
+    notes.push(`This sale is modelled with a payment dispute ruled against the seller: a flat $${DISPUTE_PENALTY.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} chargeback penalty on top of losing the sale, deducted from the seller's payout ledger.`);
   }
   if (profit < 0) {
     notes.push('This sale loses money after Facebook’s fee, your shipping label, what you paid for the item, and packaging.');

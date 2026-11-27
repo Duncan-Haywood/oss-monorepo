@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVLWZM1zecPo1z9JJgC",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T23:56:22Z",
+  "ended": "2026-11-27T00:00:45Z",
+  "wall_minutes": 4.71,
+  "tokens_in": 3473578,
+  "tokens_out": 21002,
+  "cost_usd": 1.7286,
+  "tool_calls": 47,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19525",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "harness (Bash safety check)",
+      "issue": "Bash heredocs containing JS template-literal text (backticks, dollar-brace) were refused as unparseable removals four times; writing the text with the Write tool and passing a file worked."
+    },
+    {
+      "file": "prompts/test_promptctl.py",
+      "issue": "validate failed on this PR from a date-boundary bug in promptctl's shallow-edge index (merge checkout, parents dated 11-26 -07:00 and 11-27 UTC), unrelated to the diff; filed as prompts/process/backlog/P094."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "No docs/posts post: thousands separators are a quality fix with no reader-facing story, and the 2026-11-24 direction consolidates posts toward customer content.",
+      "did": "Wrote a docs/reports note for the next polish run only.",
+      "result": "Note lists measurements and the next items."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the full survey; took item 2 of the newest polish note's list.",
+      "did": "Measured with a static scanner instead of a site build.",
+      "result": "169 -> 0 front-door formatters, 47 suites green."
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-26-raw-money-formatters-static.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, ideas empty, routed polish. Codemod replaced currency-symbol + interpolated toFixed with toLocaleString in 75 files of 204 front-door tools; new platform/pages/raw-money-format.mjs + test ratchet at zero. run_venture_tests --changed: 47 suites, 0 failed; inline scripts node --check clean; check_money_sign and check_negative_zero_money clean. 660 remain outside front doors (free tools, demoted).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5303ea18-9ac1-5fc4-bddb-ccb49a710ef7",
+    "transcripts": 1,
+    "first": "2026-11-26T23:56:22Z",
+    "last": "2026-11-27T00:01:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 81,
+        "output": 21002,
+        "thinking": 3681,
+        "cache_read": 3394842,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78655,
+        "api_equivalent_usd": 1.7286,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 81,
+      "output": 21002,
+      "thinking": 3681,
+      "cache_read": 3394842,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78655,
+      "api_equivalent_usd": 1.7286,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 38,
+      "Write": 5,
+      "Grep": 1,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.71,
+      "active_minutes": 4.71,
+      "model_minutes": 3.64,
+      "tool_minutes": 1.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "codemod over 75 files, scanner and tests, verification and note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 231.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

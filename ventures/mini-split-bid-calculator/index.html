@@ -411,7 +411,7 @@
       el('cost').textContent = money(result.totalCost);
       el('profit').textContent = money(result.profit);
       el('perHead').textContent = money(result.pricePerHead);
-      el('perKbtu').textContent = result.pricePerKbtu === null ? 'n/a' : `$${result.pricePerKbtu.toFixed(2)}/kBTU`;
+      el('perKbtu').textContent = result.pricePerKbtu === null ? 'n/a' : `$${result.pricePerKbtu.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/kBTU`;
       el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
       el('breakEven').textContent = money(result.breakEvenPrice);
       el('breakEvenHead').textContent = money(result.breakEvenPerHead);

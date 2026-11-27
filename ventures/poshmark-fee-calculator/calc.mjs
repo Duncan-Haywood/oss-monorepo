@@ -140,16 +140,16 @@ export function calculateSale(input) {
   if (tier === 'flat' && salePrice > 0) {
     if (extraVersusPercent > 0) {
       notes.push(
-        `The flat $${FLAT_FEE.toFixed(2)} fee costs $${extraVersusPercent.toFixed(2)} more than 20% would have — an effective rate of ${effectiveRate.toFixed(1)}% on this price. Below $${BREAK_EVEN_PRICE.toFixed(2)}, the flat fee is always the worse deal, and it gets worse the cheaper the item.`,
+        `The flat $${FLAT_FEE.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} fee costs $${extraVersusPercent.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more than 20% would have — an effective rate of ${effectiveRate.toFixed(1)}% on this price. Below $${BREAK_EVEN_PRICE.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}, the flat fee is always the worse deal, and it gets worse the cheaper the item.`,
       );
     } else if (extraVersusPercent < 0) {
       notes.push(
-        `Between $${BREAK_EVEN_PRICE.toFixed(2)} and $${COMMISSION_THRESHOLD.toFixed(2)}, the flat fee is a bargain against 20% — you save $${Math.abs(extraVersusPercent).toFixed(2)} versus the percent tier.`,
+        `Between $${BREAK_EVEN_PRICE.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} and $${COMMISSION_THRESHOLD.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}, the flat fee is a bargain against 20% — you save $${Math.abs(extraVersusPercent).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} versus the percent tier.`,
       );
     }
   }
   if (tier === 'percent' && salePrice < COMMISSION_THRESHOLD + 1) {
-    notes.push(`At $${salePrice.toFixed(2)} you are just over the $${COMMISSION_THRESHOLD.toFixed(2)} line — $0.01 lower and the fee would drop to a flat $${FLAT_FEE.toFixed(2)}.`);
+    notes.push(`At $${salePrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} you are just over the $${COMMISSION_THRESHOLD.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} line — $0.01 lower and the fee would drop to a flat $${FLAT_FEE.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`);
   }
   if (profit < 0) {
     notes.push('This sale loses money after the Poshmark fee, what you paid for the item, and packaging.');
@@ -225,20 +225,20 @@ export function compareOffer(input) {
   if (crossesThreshold) {
     if (payoutDrop < 0) {
       notes.push(
-        `Crossing under $${COMMISSION_THRESHOLD.toFixed(2)} drops the commission so much that you actually keep $${Math.abs(payoutDrop).toFixed(2)} more at the lower price.`,
+        `Crossing under $${COMMISSION_THRESHOLD.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} drops the commission so much that you actually keep $${Math.abs(payoutDrop).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more at the lower price.`,
       );
     } else {
       notes.push(
-        `Of the $${priceDrop.toFixed(2)} discount, Poshmark's commission absorbed $${commissionDrop.toFixed(2)} (crossing into the flat $${FLAT_FEE.toFixed(2)} fee) and $${payoutDrop.toFixed(2)} came out of your own payout.`,
+        `Of the $${priceDrop.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} discount, Poshmark's commission absorbed $${commissionDrop.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (crossing into the flat $${FLAT_FEE.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} fee) and $${payoutDrop.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} came out of your own payout.`,
       );
     }
-    notes.push(`Once you are under $${COMMISSION_THRESHOLD.toFixed(2)}, the fee is fixed at $${FLAT_FEE.toFixed(2)} no matter how low you go — Poshmark stops sharing in any further discount.`);
+    notes.push(`Once you are under $${COMMISSION_THRESHOLD.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}, the fee is fixed at $${FLAT_FEE.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} no matter how low you go — Poshmark stops sharing in any further discount.`);
   } else if (priceDrop < 0) {
-    notes.push(`The offer is $${Math.abs(priceDrop).toFixed(2)} above the listed price, so there is no discount to weigh. Check that the two prices are not swapped.`);
+    notes.push(`The offer is $${Math.abs(priceDrop).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} above the listed price, so there is no discount to weigh. Check that the two prices are not swapped.`);
   } else if (priceDrop > 0) {
     const shareLabel = listedPrice >= COMMISSION_THRESHOLD
-      ? `Poshmark absorbed $${commissionDrop.toFixed(2)} of the $${priceDrop.toFixed(2)} discount (20% of it) — you absorbed the other $${payoutDrop.toFixed(2)}.`
-      : `The fee stayed flat at $${FLAT_FEE.toFixed(2)}, so the entire $${priceDrop.toFixed(2)} discount came out of your own payout.`;
+      ? `Poshmark absorbed $${commissionDrop.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of the $${priceDrop.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} discount (20% of it) — you absorbed the other $${payoutDrop.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`
+      : `The fee stayed flat at $${FLAT_FEE.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}, so the entire $${priceDrop.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} discount came out of your own payout.`;
     notes.push(shareLabel);
   }
 

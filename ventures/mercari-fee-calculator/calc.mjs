@@ -162,16 +162,16 @@ export function calculateSale(input) {
   if (!legacySchedule && buyerShipping > 0) {
     const feeOnShipping = buyerShipping * (SELLING_FEE_RATE / 100);
     notes.push(
-      `Your $${buyerShipping.toFixed(2)} buyer-paid shipping is inside the 10% fee base — it costs $${feeOnShipping.toFixed(2)} in fee on its own, not just the item price.`,
+      `Your $${buyerShipping.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} buyer-paid shipping is inside the 10% fee base — it costs $${feeOnShipping.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in fee on its own, not just the item price.`,
     );
   }
   if (legacySchedule) {
     notes.push(
-      `This listing is on Mercari's pre-January 6, 2025 schedule: 10% of the item price ($${sellingFee.toFixed(2)}) plus a payment processing fee of 2.9% of $${combined.toFixed(2)} plus $0.50 ($${processingFee.toFixed(2)}). Editing the listing moves it to the current all-in 10% schedule with no separate processing fee.`,
+      `This listing is on Mercari's pre-January 6, 2025 schedule: 10% of the item price ($${sellingFee.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}) plus a payment processing fee of 2.9% of $${combined.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} plus $0.50 ($${processingFee.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}). Editing the listing moves it to the current all-in 10% schedule with no separate processing fee.`,
     );
   }
   notes.push(
-    `Mercari also charges the buyer a separate ${BUYER_PROTECTION_RATE}% Buyer Protection Fee ($${buyerProtectionFee.toFixed(2)} on this sale) on top of what you charged — it comes out of the buyer's pocket, not yours, and never reduces this payout.`,
+    `Mercari also charges the buyer a separate ${BUYER_PROTECTION_RATE}% Buyer Protection Fee ($${buyerProtectionFee.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} on this sale) on top of what you charged — it comes out of the buyer's pocket, not yours, and never reduces this payout.`,
   );
   if (profit < 0) {
     notes.push('This sale loses money after Mercari’s fee, your shipping label, what you paid for the item, and packaging.');
@@ -215,9 +215,9 @@ export function compareSchedules(input) {
   if (Math.abs(payoutDifference) < 0.005) {
     notes.push('Both schedules pay out almost the same on this sale.');
   } else if (payoutDifference > 0) {
-    notes.push(`The current schedule pays $${payoutDifference.toFixed(2)} more on this sale than the legacy one would.`);
+    notes.push(`The current schedule pays $${payoutDifference.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more on this sale than the legacy one would.`);
   } else {
-    notes.push(`The legacy schedule pays $${Math.abs(payoutDifference).toFixed(2)} more on this sale than the current one would — usually because a large share of the price is buyer-paid shipping, which only the current schedule's 10% reaches.`);
+    notes.push(`The legacy schedule pays $${Math.abs(payoutDifference).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more on this sale than the current one would — usually because a large share of the price is buyer-paid shipping, which only the current schedule's 10% reaches.`);
   }
   return { ok: true, errors: [], current, legacy, payoutDifference, notes };
 }

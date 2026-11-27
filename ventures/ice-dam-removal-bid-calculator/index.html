@@ -224,7 +224,7 @@ import { encodeShare, decodeShare } from './share.mjs';
 // proposal:end
 const el = id => document.getElementById(id);
 const money = (n) => {
-  const format = (n) => `$${n.toFixed(2)}`;
+  const format = (n) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const text = format(Math.abs(n));
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
@@ -294,7 +294,7 @@ function updateQuote(shouldCount = false) {
     el('overheadOut').textContent = money(r.overhead);
     el('costOut').textContent = money(r.cost);
     el('targetOut').textContent = money(r.targetPrice);
-    el('breakEvenOut').textContent = `$${r.breakEvenRatePerFoot.toFixed(2)}/ft`;
+    el('breakEvenOut').textContent = `$${r.breakEvenRatePerFoot.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/ft`;
     el('profitOut').textContent = money(r.profit);
     el('marginOut').textContent = r.profitMarginPct === null ? '—' : `${r.profitMarginPct.toFixed(1)}%`;
     if (r.underpriced) {
@@ -305,7 +305,7 @@ function updateQuote(shouldCount = false) {
     }
     if (!r.underpriced && r.rateBelowBreakeven) {
       el('rateWarning').hidden = false;
-      el('rateWarning').textContent = `Your $${el('ratePerFoot').value}/ft rate card is below the $${r.breakEvenRatePerFoot.toFixed(2)}/ft this job's footage needs to break even on its own — the minimum service charge is what is keeping this job profitable.`;
+      el('rateWarning').textContent = `Your $${el('ratePerFoot').value}/ft rate card is below the $${r.breakEvenRatePerFoot.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/ft this job's footage needs to break even on its own — the minimum service charge is what is keeping this job profitable.`;
     } else {
       el('rateWarning').hidden = true;
     }

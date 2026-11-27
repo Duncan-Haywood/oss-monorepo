@@ -516,7 +516,7 @@
       el('overhead').textContent = money(result.overhead);
       el('cost').textContent = money(result.totalCost);
       el('profit').textContent = money(result.profit);
-      el('perLf').textContent = result.pricePerLf === null ? 'n/a' : `$${result.pricePerLf.toFixed(2)}/ft`;
+      el('perLf').textContent = result.pricePerLf === null ? 'n/a' : `$${result.pricePerLf.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/ft`;
       el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
       el('breakEven').textContent = money(result.breakEvenPrice);
       el('posts').textContent = `${result.totalPosts} (${result.totalTerminals} terminals, ${result.totalGates} gates)`;
@@ -540,7 +540,7 @@
       } else {
         verdict.hidden = false;
         verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
-        const per = result.proposed.perLf === null ? 'n/a' : `$${result.proposed.perLf.toFixed(2)}/ft`;
+        const per = result.proposed.perLf === null ? 'n/a' : `$${result.proposed.perLf.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/ft`;
         verdict.innerHTML = result.proposed.belowBreakEven
           ? `At ${money(result.proposed.price)} (${per}) this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
           : `At ${money(result.proposed.price)} (${per}) you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin.`;

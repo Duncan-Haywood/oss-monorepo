@@ -192,12 +192,12 @@ export function calculateSale(input) {
   }
   if (processingOnShippingAndTax > 0) {
     notes.push(
-      `Processing is on the checkout total, not just the hammer — $${processingOnShippingAndTax.toFixed(2)} of the processing fee is from buyer-paid shipping and tax.`,
+      `Processing is on the checkout total, not just the hammer — $${processingOnShippingAndTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of the processing fee is from buyer-paid shipping and tax.`,
     );
   }
   if (commissionOnCappedPortion > 0) {
     notes.push(
-      `The $${(salePrice - commissionCap).toFixed(2)} above the $${commissionCap.toFixed(0)} cap is not commissioned — that is $${commissionOnCappedPortion.toFixed(2)} the headline ${commissionRate}% would have taken.`,
+      `The $${(salePrice - commissionCap).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} above the $${commissionCap.toLocaleString("en-US", { maximumFractionDigits: 0 })} cap is not commissioned — that is $${commissionOnCappedPortion.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} the headline ${commissionRate}% would have taken.`,
     );
   }
   if (shippingCharged === 0 && shippingCost > 0) {

@@ -163,7 +163,7 @@
 
     function money(value) {
       if (value == null) return 'add a price';
-      const text = `$${Math.abs(value).toFixed(2)}`;
+      const text = `$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
 
@@ -188,7 +188,7 @@
           </tr>`).join('');
         let why = 'Ranked by material cost when every size has a price.';
         if (comparison.savings && comparison.savings.kind === 'cost' && comparison.savings.amount > 0) {
-          why = `${escapeHtml(comparison.winner.label)} costs $${comparison.savings.amount.toFixed(2)} less than ${escapeHtml(comparison.runnerUp.label)} on this list.`;
+          why = `${escapeHtml(comparison.winner.label)} costs $${comparison.savings.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} less than ${escapeHtml(comparison.runnerUp.label)} on this list.`;
         }
         $('message').textContent = why;
         $('result').innerHTML = `<table>

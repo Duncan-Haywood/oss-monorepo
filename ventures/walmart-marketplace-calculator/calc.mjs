@@ -307,7 +307,7 @@ function listingAtPrice(input, salePrice) {
 
 function moneyLabel(value) {
   const sign = value < 0 ? "−" : "";
-  return `${sign}$${Math.abs(value).toFixed(2)}`;
+  return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function takePercent(value, name, fallback) {
@@ -965,7 +965,7 @@ function agedWfsSummary({
     ? `${breakEvenSellThroughVsRemove.toFixed(1)}%`
     : "an unreachable sell-through";
   const rateBit = Number.isFinite(breakEvenAgedRateVsRemove) && breakEvenAgedRateVsRemove > 1e-9
-    ? ` Aged storage can fall to about $${breakEvenAgedRateVsRemove.toFixed(2)}/cu ft before keeping matches.`
+    ? ` Aged storage can fall to about $${breakEvenAgedRateVsRemove.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/cu ft before keeping matches.`
     : "";
 
   if (winner === "remove") {

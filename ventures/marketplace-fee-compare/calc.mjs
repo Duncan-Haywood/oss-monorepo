@@ -493,7 +493,7 @@ export function compareChannels(item, overrides = {}, adRates = {}) {
 export function compareSummary(rows) {
   if (!Array.isArray(rows) || rows.length === 0) return "";
   const money = (value) => {
-    const format = (value) => `$${value.toFixed(2)}`;
+    const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const text = format(Math.abs(value));
     return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
@@ -526,7 +526,7 @@ export function compareSummary(rows) {
  */
 export function comparisonText(item, rows, generatedDate = new Date().toISOString().slice(0, 10)) {
   const money = (value) => {
-    const format = (value) => `$${value.toFixed(2)}`;
+    const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const text = format(Math.abs(value));
     return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
