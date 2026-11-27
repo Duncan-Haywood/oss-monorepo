@@ -1,0 +1,390 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqycNXKwFDSjfBR5ML6M",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T19:39:34Z",
+  "ended": "2026-11-27T19:40:27Z",
+  "wall_minutes": 4.74,
+  "tokens_in": 3566345,
+  "tokens_out": 18151,
+  "cost_usd": 1.7311,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19853",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "redteam.py targets --probe reports 0.5s for every seller-books file; the time is per file, not a real per-suite probe, so it cannot tell slow suites apart there (harmless here, the suites really are fast)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: a red-team fix to two early-access lists gives a customer reader nothing new; the check's docstring and the PR record the finding for agents.",
+      "did": "Docstring plus run record, no post",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Targets: seller-books-site early-access.mjs + admin.mjs (bet #5). Sibling sweep of the early-access purge across ventures found the cmmc-site defect (payapps was already correct). Guard added: platform/ci/check_pending_purge.py, which flagged cmmc's pre-fix code on its first run. Local: seller-books-site 80/80, cmmc-site 66/66, test_check_pending_purge 4/4.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+        "test": "node --test ventures/seller-books/**/*.test.mjs  (in .)",
+        "seed": 842411075,
+        "commit": "6ebd518cf",
+        "sites": 83,
+        "baseline_seconds": 0.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 50,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "if (source.length > 200 || !/^\\/[A-Za-z0-9/_-]*$/.test(source)) {",
+            "after": "if (source.length > 200 || !/^\\/[A-Za-z0-10/_-]*$/.test(source)) {",
+            "line_text": "  if (source.length > 200 || !/^\\/[A-Za-z0-9/_-]*$/.test(source)) {",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test fed a source path with digits 2-9; added dated-path and rejected-path cases to 'email and form validation'"
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 74,
+            "col": 8,
+            "operator": "true-to-false",
+            "before": "ok: true,",
+            "after": "ok: false,",
+            "line_text": "    ok: true,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 79,
+            "col": 21,
+            "operator": "or-to-and",
+            "before": "volume: volume || null,",
+            "after": "volume: volume && null,",
+            "line_text": "      volume: volume || null,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 80,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "honeypot: website.length > 0,",
+            "after": "honeypot: website.length > 1,",
+            "line_text": "      honeypot: website.length > 0,",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: honeypot test used a long value; added a one-character honeypot test"
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 85,
+            "col": 68,
+            "operator": "const-plus-one",
+            "before": "const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, \"0\")).join(\"\");",
+            "after": "const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(17).padStart(2, \"0\")).join(\"\");",
+            "line_text": "const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, \"0\")).join(\"\");",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 129,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "if (!id || !sig || !/^[A-Za-z0-9-]{1,64}$/.test(id)) return null;",
+            "after": "if (!id || !sig || !/^[A-Za-z0-10-]{1,64}$/.test(id)) return null;",
+            "line_text": "  if (!id || !sig || !/^[A-Za-z0-9-]{1,64}$/.test(id)) return null;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 199,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)",
+            "after": "VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, 2, ?, ?)",
+            "line_text": "         VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: nothing read confirm_send_count after the first send; added a test that the first email counts as one of the day's five (sixth refused)"
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 325,
+            "col": 23,
+            "operator": "minus-to-plus",
+            "before": "const cutoff = nowMs - PENDING_RETENTION_MS;",
+            "after": "const cutoff = nowMs + PENDING_RETENTION_MS;",
+            "line_text": "  const cutoff = nowMs - PENDING_RETENTION_MS;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: purge test only had rows at epoch 0; added a 10-day-old lapsed-link row that must survive"
+          }
+        ]
+      },
+      {
+        "target": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+        "test": "node --test ventures/seller-books/**/*.test.mjs  (in .)",
+        "seed": 764946366,
+        "commit": "6ebd518cf",
+        "sites": 43,
+        "baseline_seconds": 0.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 39,
+            "col": 26,
+            "operator": "eq-flip",
+            "before": "if (raw === null || raw === \"\") return def;",
+            "after": "if (raw === null || raw !== \"\") return def;",
+            "line_text": "  if (raw === null || raw === \"\") return def;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 72,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "const days = intParam(url.searchParams.get(\"days\"), 30, 1, 366);",
+            "after": "const days = intParam(url.searchParams.get(\"days\"), 31, 1, 366);",
+            "line_text": "    const days = intParam(url.searchParams.get(\"days\"), 30, 1, 366);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 72,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "const days = intParam(url.searchParams.get(\"days\"), 30, 1, 366);",
+            "after": "const days = intParam(url.searchParams.get(\"days\"), 30, 1, 367);",
+            "line_text": "    const days = intParam(url.searchParams.get(\"days\"), 30, 1, 366);",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: days upper bound untested; added days=366 (200) and days=367 (400)"
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 78,
+            "col": 68,
+            "operator": "const-plus-one",
+            "before": "coalesce(sum(CASE WHEN status = 'unsubscribed' THEN 1 ELSE 0 END), 0) AS unsubscribed",
+            "after": "coalesce(sum(CASE WHEN status = 'unsubscribed' THEN 1 ELSE 1 END), 0) AS unsubscribed",
+            "line_text": "         coalesce(sum(CASE WHEN status = 'unsubscribed' THEN 1 ELSE 0 END), 0) AS unsubscribed",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 112,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "return json(200, body);",
+            "after": "return json(201, body);",
+            "line_text": "    return json(200, body);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 118,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "if (limit === null) return error(400, \"bad_request\", \"limit: 1-200\");",
+            "after": "if (limit !== null) return error(400, \"bad_request\", \"limit: 1-200\");",
+            "line_text": "    if (limit === null) return error(400, \"bad_request\", \"limit: 1-200\");",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 119,
+            "col": 51,
+            "operator": "neq-flip",
+            "before": "if ((url.searchParams.get(\"list\") ?? \"recent\") !== \"recent\")",
+            "after": "if ((url.searchParams.get(\"list\") ?? \"recent\") === \"recent\")",
+            "line_text": "    if ((url.searchParams.get(\"list\") ?? \"recent\") !== \"recent\")",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 146,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return error(404, \"not_found\", \"Not found\");",
+            "after": "return error(405, \"not_found\", \"Not found\");",
+            "line_text": "  return error(404, \"not_found\", \"Not found\");",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: unknown admin path untested; added a 404 not_found assertion"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+        "issue": "An unsubscribed address can be re-signed-up by anyone; the re-signup writes survey answers and an IP hash onto the suppression row, and purgePending only deletes status='pending', so if never confirmed that data stayed forever, against the privacy page ('If you unsubscribe, we keep your address only ... and delete the rest'). purgePending now scrubs those fields once the re-signup link expires; test 'an unconfirmed re-signup on an unsubscribed address is scrubbed once its link expires'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19853"
+      },
+      {
+        "file": "ventures/cmmc/apps/cmmc-site/src/early-access.mjs",
+        "issue": "purgePending deleted pending rows by created_at alone, so a confirmation link re-sent on day 29 (email: 'the link works for 7 days') was deleted on day 30. Added the link-expiry clause its seller-books and payapps siblings have, aligned the email and privacy wording, test 'purge keeps an old unconfirmed row while its newest confirmation link still works'; class guard platform/ci/check_pending_purge.py.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19853"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5f6d4b93-9519-5b67-9170-009e3f226dbc",
+    "transcripts": 1,
+    "first": "2026-11-27T19:39:34Z",
+    "last": "2026-11-27T19:44:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 81,
+        "output": 18151,
+        "thinking": 2985,
+        "cache_read": 3482358,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83906,
+        "api_equivalent_usd": 1.7311,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 81,
+      "output": 18151,
+      "thinking": 2985,
+      "cache_read": 3482358,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83906,
+      "api_equivalent_usd": 1.7311,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.74,
+      "active_minutes": 4.74,
+      "model_minutes": 3.37,
+      "tool_minutes": 1.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "mutation triage, 2 defects with tests, a lint",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 231.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
