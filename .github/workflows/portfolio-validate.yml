@@ -165,9 +165,23 @@ jobs:
     # 2026-08-26 to 2026-09-01).
     timeout-minutes: 35
     steps:
+      # Everything but audio and video. The 100 .mp3 and 16 .mp4 files (podcast
+      # episodes, narrated stories) are 0.64 GB of the 2.2 GB tree, and no step
+      # here opens one: check_payment_keys.py skips both extensions, and the
+      # other 32 tree checks printed byte-identical output with and without them
+      # (docs/history/ci-perf-2026-11-27-validate-media-sparse.md). `blob:none`
+      # makes git download only what the sparse pattern checks out; a step that
+      # reads an object it lacks (`git show <base>:<path>` in the venture-
+      # regression check) fetches that blob on demand from the public remote.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false  # read-only job; nothing here pushes
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !*.mp3
+            !*.mp4
 
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
