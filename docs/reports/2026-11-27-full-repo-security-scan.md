@@ -45,7 +45,7 @@ the AWS keys in `terraform-plan-secret-exposure-check`'s tests are synthetic
 `liability-audit`'s and the sample page's are AWS's documented `EXAMPLE` key;
 `platform/pages/build.mjs:246` is the IndexNow key, public by design (it is
 served at `/<key>.txt`); `platform/aws/modules/static-site/main.tf:236` is
-`key_algorithm = "EC_prime256v1"`; `research/energy-practical/.../data.py:17`
+a curve name for a signing key, not a secret; `research/energy-practical/.../data.py:17`
 is a battery data-sheet row. The rest sit in test files, sample pages and
 statistical engines (`instrumental-variables`, `meta-analysis`), so most will
 be false positives too, but none has been cleared yet: the triage still opens

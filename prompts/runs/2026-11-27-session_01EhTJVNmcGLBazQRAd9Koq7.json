@@ -33,7 +33,8 @@
     "a scanner-test fixture with an AWS-key-shaped literal tripped risk_review's secret check; replaced with a key built at run time",
     "the first scanner install died silently when backgrounded with '&' inside a foreground Bash call; rerunning with run_in_background worked",
     "checkov 3.4.3's lock (numpy==2.5.4) does not install on this container's Python, so the local full-repo reading covers gitleaks and semgrep only",
-    "CI validate failed on publish_surface.py --check (new workflow not in publish-surface.yaml); fixed with --write, classification 'none'"
+    "CI validate failed on publish_surface.py --check (new workflow not in publish-surface.yaml); fixed with --write, classification 'none'",
+    "security-scan failed: gitleaks read the report's quoted 'key_algorithm = ...' line as a generic key; reworded, and every changed file now passes a local gitleaks dir scan"
   ],
   "integrity_issues": [],
   "doc_friction": [
