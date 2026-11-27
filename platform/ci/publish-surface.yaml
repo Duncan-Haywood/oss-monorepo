@@ -361,7 +361,7 @@ workflows:
     gates:
     - ${{ needs.gate.outputs.ready == 'true' }}
 - workflow: priv-jobshop-quote-deploy.yml
-  classification: dispatch
+  classification: gated
   publishes:
   - job: deploy
     step: runs 'wrangler deploy'

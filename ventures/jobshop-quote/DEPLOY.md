@@ -1,8 +1,10 @@
 # Deploying Job Shop Quote from this repository
 
-**Ported 2026-11-27, not run yet.** [`.github/workflows/priv-jobshop-quote-deploy.yml`](../../.github/workflows/priv-jobshop-quote-deploy.yml)
+**Ported 2026-11-27, live since the same day** (runs 46013246899 and 46018975911, the second on
+`https://jobshop-quote.marisstella.app`). [`.github/workflows/priv-jobshop-quote-deploy.yml`](../../.github/workflows/priv-jobshop-quote-deploy.yml)
 is the port of `private-monorepo`'s `jobshop-quote-deploy.yml` (which never ran: that repository's
-Actions start no jobs). Manual only (`workflow_dispatch`), from `main` only, in the
+Actions start no jobs). It runs on every merge to `main` touching this venture (push trigger added
+2026-11-27; Markdown-only changes do not deploy) and by hand (`workflow_dispatch`), from `main` only, in the
 `jobshop-quote-production` environment. What each step does is in
 [`apps/jobshop-quote/docs/DEPLOY.md`](apps/jobshop-quote/docs/DEPLOY.md).
 

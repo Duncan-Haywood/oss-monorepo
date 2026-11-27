@@ -7,9 +7,11 @@ Status: **live on the free Early access plan** (2026-11-27). First production de
 run 46013246899 (manual, main at e8be3de0f), on the account's workers.dev address; the smoke test answered
 `{"ok":true,"app":"jobshop-quote","email":true,"files":"d1"}`, so sign-up email works and files are kept
 in D1 (no R2 yet). Live at **https://jobshop-quote.marisstella.app** since run 46018975911 (PR #19764's
-default host; same health answer). AI extraction is off (no `JOBSHOP_ANTHROPIC_API_KEY`; the owner's choice,
-LAUNCH-REVIEW.md section 1), inbound RFQ email is off, paid plans are dark. The manufacturing industry page
-links to `/sign-up`, and `platform/ci/live_funnel_check.mjs` checks the pair. No customers yet.
+default host; same health answer), and since 2026-11-27 every merge to main touching
+`ventures/jobshop-quote/` deploys (push trigger, full checks on every push run). AI extraction is off (no
+`JOBSHOP_ANTHROPIC_API_KEY`; the owner's choice, LAUNCH-REVIEW.md section 1), inbound RFQ email is off, paid
+plans are dark. The manufacturing industry page links to `/sign-up`, and `platform/ci/live_funnel_check.mjs`
+checks the pair. No customers yet.
 
 ## Done (v0.1, this core)
 
@@ -708,10 +710,11 @@ links to `/sign-up`, and `platform/ci/live_funnel_check.mjs` checks the pair. No
 
 ## Next
 
-3. **launch** (first deploy done 2026-11-27, run 46013246899; on `jobshop-quote.marisstella.app` since run
-   46018975911; still open: `push: branches: [main]` with a paths filter, as payapps-deploy) Operator and contact email are filled in and launch is agent-approved
+3. **launch** (first deploy done 2026-11-27, run 46013246899; the run on
+   `jobshop-quote.marisstella.app`, 46018975911, and `push: branches: [main]` done the same day, see
+   Status; still open: inbound RFQ email and R2 below, AI and Paddle are the owner's) Operator and contact email are filled in and launch is agent-approved
    (`docs/legal/OPERATOR.md`, 2026-11-26); the deploy workflow is ported to oss-monorepo
-   (`.github/workflows/priv-jobshop-quote-deploy.yml`, 2026-11-27, manual and main-only; its first run
+   (`.github/workflows/priv-jobshop-quote-deploy.yml`, 2026-11-27, main-only, on push since the same day; its first run
    has its launch review, `docs/LAUNCH-REVIEW.md`, 2026-11-27; R2 no longer blocks it, since without the
    bucket files are kept in D1's `file_blobs`, `src/worker/ports/file-store.ts`, 2026-11-27, and on a
    free D1 that is 500 MB per database, so add R2 edit to the token before shops fill it); run `jobshop-quote-deploy` once, onboard the sender domain,
