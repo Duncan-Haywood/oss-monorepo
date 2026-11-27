@@ -757,10 +757,10 @@
     function setSettings(s) {
       const preset = Object.entries(PRECUT).find(([, v]) => Math.abs(v - s.studLength) < 1e-6);
       $("#height").value = preset ? preset[0] : "custom";
-      $("#studLength").value = formatInches(s.studLength).replace('"', "");
+      $("#studLength").value = formatInches(s.studLength).replaceAll('"', "");
       $("#spacing").value = String(s.spacing);
-      $("#headerHeight").value = formatInches(s.headerHeight).replace('"', "");
-      $("#lap").value = formatInches(s.lap).replace('"', "");
+      $("#headerHeight").value = formatInches(s.headerHeight).replaceAll('"', "");
+      $("#lap").value = formatInches(s.lap).replaceAll('"', "");
       $("#kerf").value = s.kerf === 0.125 ? "1/8" : String(s.kerf);
       $("#cornerStuds").value = String(s.cornerStuds);
       $("#teeStuds").value = String(s.teeStuds);
@@ -1671,7 +1671,7 @@
       }
       if (t.id === "height" && t.value !== "custom") {
         const v = PRECUT[t.value];
-        $("#studLength").value = formatInches(v).replace('"', "");
+        $("#studLength").value = formatInches(v).replaceAll('"', "");
         for (const s of ui.stock) if (s.label === "precut stud") s.length = formatLength(v);
         renderStock();
       }

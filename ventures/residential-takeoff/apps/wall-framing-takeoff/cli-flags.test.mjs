@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { main, unknownFlag, BARE_FLAGS, VALUE_FLAGS } from "./cli.mjs";
+import { main, unknownFlag, BARE_FLAGS, VALUE_FLAGS, layerPattern } from "./cli.mjs";
 
 test("a mistyped flag stops the run with a suggestion", () => {
   const r = main(["plan.json", "--wholehouse"]);
@@ -93,4 +93,13 @@ test("--drawings beside --pdf is refused, not left to print the PDF alone", () =
   const r = main(["plan.json", "--drawings", "--pdf"]);
   assert.equal(r.code, 1);
   assert.match(r.out, /give only one/);
+});
+
+test("layer flags take names, not regular expressions: a|b alternatives, typed characters literal (2026-11-27)", () => {
+  const r = layerPattern("roof|A.EAVE");
+  assert.equal(r.test("A-ROOF-1"), true); // matched anywhere, case-insensitive, as before
+  assert.equal(r.test("a.eave"), true);
+  assert.equal(r.test("AxEAVE"), false); // "." is a dot, not "any character"
+  assert.equal(layerPattern("(a+)+$").test("(a+)+$ layer"), true); // no catastrophic backtracking: the text is literal
+  assert.equal(layerPattern("W").test("plan-wall"), true);
 });

@@ -56,12 +56,23 @@ import { planFromDxf } from "./dxf.mjs";
 import { stackFloors } from "./stackfloors.mjs";
 import { pathToFileURL } from "node:url";
 
-/** `--wall-layer=RE`, `--door-layer=RE`, `--window-layer=RE`: layer-name patterns (case-insensitive) for drawings whose layers are not named like "wall". */
+/**
+ * A layer-name pattern from the command line: one or more names separated by `|`, each matched
+ * case-insensitively anywhere in the layer name. Each name is escaped, so a typed `.` or `(` is a
+ * literal character, never regular-expression syntax (CodeQL js/regex-injection).
+ * @param {string} v
+ */
+export function layerPattern(v) {
+  const names = v.split("|").map((s) => s.trim()).filter(Boolean).map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  return new RegExp(names.join("|"), "i");
+}
+
+/** `--wall-layer=NAMES`, `--door-layer=NAMES`, `--window-layer=NAMES`: layer names (`a|b`, case-insensitive, matched anywhere in the name) for drawings whose layers are not named like "wall". */
 function layerOptions(argv) {
   const out = {};
   for (const [flag, key] of [["wall", "wallLayer"], ["door", "doorLayer"], ["window", "windowLayer"]]) {
     const v = argv.find((a) => a.startsWith(`--${flag}-layer=`))?.slice(flag.length + 9);
-    if (v) out[key] = new RegExp(v, "i");
+    if (v) out[key] = layerPattern(v);
   }
   return out;
 }
@@ -138,7 +149,7 @@ Usage:
   node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
   node cli.mjs plan.dxf --ifc-json=plan.json  read each wall's and opening's real height from the JSON of ifc-engine plan, same storey (a DXF carries only places and widths)
   node cli.mjs house.ifc [--storey=N|name]  the same from an IFC file (one storey at a time; the lowest by default) (IfcWall axis lines, IfcDoor/IfcWindow; hand-written fixtures only so far)
-  node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say; --wall-layer=RE, --door-layer=RE and --window-layer=RE name the layers when they are not called like that; walls drawn as two face lines are paired into centre lines automatically, --double-line forces it, --single-line turns it off) and print the plan JSON; without --plan-only it goes straight on to the takeoff
+  node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say; --wall-layer=NAMES, --door-layer=NAMES and --window-layer=NAMES (one name or a|b, matched anywhere in the layer name) name the layers when they are not called like that; walls drawn as two face lines are paired into centre lines automatically, --double-line forces it, --single-line turns it off) and print the plan JSON; without --plan-only it goes straight on to the takeoff
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
 
@@ -310,7 +321,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
         const overArg = argv.find((a) => a.startsWith("--eave-overhang="))?.slice(16);
         const typedOver = overArg === undefined ? undefined : parseLength(overArg);
         if (overArg !== undefined && !(typedOver >= 0 && typedOver <= 60)) return { code: 1, out: "--eave-overhang= is the eave overhang, 0 to 60 in (or a length like 1'6\")." };
-        const eave = /\.ifc$/i.test(args[0]) ? null : eaveFromDxf(readInput(args[0]), { units: /** @type {any} */ (units), ...(roofLayerArg ? { roofLayer: new RegExp(roofLayerArg, "i") } : {}), ...(layerOptions(argv).wallLayer ? { wallLayer: layerOptions(argv).wallLayer } : {}) });
+        const eave = /\.ifc$/i.test(args[0]) ? null : eaveFromDxf(readInput(args[0]), { units: /** @type {any} */ (units), ...(roofLayerArg ? { roofLayer: layerPattern(roofLayerArg) } : {}), ...(layerOptions(argv).wallLayer ? { wallLayer: layerOptions(argv).wallLayer } : {}) });
         if (roofLayerArg && eave && !eave.ok) return { code: 2, out: `Could not read the roof layer: ${eave.errors.join(" ")}` };
         const fromEave = eave && eave.ok && eave.eave ? outlineFromEave(eave.eave, { walls: outside, overhang: typedOver ?? 12 }) : null;
         if (fromEave && !fromEave.ok) return { code: 2, out: `Could not use the roof layer's eave line: ${fromEave.errors.join(" ")}` };

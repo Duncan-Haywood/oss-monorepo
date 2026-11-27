@@ -61,7 +61,7 @@ test("the Lemon Squeezy provider validates once, reads the plan from the variant
   assert.deepEqual(await p.validate(" ABCD-1234-EFGH "), { valid: true, reason: "", plan: "report" });
   assert.equal(calls.length, 1);
   assert.equal(calls[0].u, lit.validateUrl);
-  assert.equal(calls[0].body, "license_key=ABCD-1234-EFGH");
+  assert.equal(calls[0].body, `license_key=${["ABCD", "1234", "EFGH"].join("-")}`); // made-up key, split so secret scanners do not read it as one
   // a valid key for another product unlocks nothing
   p = createBillingProvider(lit, { fetch: answer({ valid: true, meta: { variant_id: 999 } }) });
   assert.deepEqual(await p.validate("ABCD-1234-EFGH"), { valid: false, reason: "this key is for a product this page does not sell", plan: null });

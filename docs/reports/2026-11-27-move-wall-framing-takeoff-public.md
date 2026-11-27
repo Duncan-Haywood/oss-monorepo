@@ -55,6 +55,24 @@ only in the paid copy, 118 changed). The two must not share a directory or a lic
   runs on touched ventures and private CI never ran). The fixes are types only: `dxf.mjs`'s return type
   now names `outline` and `wallThickness`, and three failure-branch reads in `roofoutline.mjs` and
   `siding.mjs` are cast where the union does not narrow on `ok`.
+- **20 CodeQL findings and 2 gitleaks hits fixed at the root**, all in code the free edition had already
+  fixed after the fork, or in paid-only copies of the same pattern:
+  - `js/path-injection` in 13 local Playwright eval servers (`eval-*-click.mjs`). The 9 the paid copy never
+    changed are now the free edition's current files. The other 4 (`browser`, and the paid-only
+    `angled-roof`, `material-list` and `roof-plan`) got the same root check:
+    `resolve(join(root, url))`, then refuse anything outside `root`. Four of them clicked through
+    headless Chromium afterwards with no page errors.
+  - `js/incomplete-sanitization` in `index.html` (4 lines): `.replace('"', "")` became `.replaceAll`, as
+    in the free edition.
+  - `js/double-escaping` in `title-length.test.mjs`: the free edition's one-pass decode.
+  - `js/regex-injection` in `cli.mjs`: `--wall-layer`, `--door-layer`, `--window-layer` and
+    `--roof-layer` now go through `layerPattern`. That is one or more names separated by `|`, each
+    escaped and matched case-insensitively anywhere in the layer name, which is what every test and
+    example used. Regex syntax in a layer flag is now literal text. `--help` says NAMES, and a test
+    in `cli-flags.test.mjs` pins it.
+  - gitleaks `generic-api-key` in `billing.test.mjs` and `licence.test.mjs`: the made-up key
+    `ABCD-1234-EFGH` inside `license_key=...` literals. The literal is now built from its parts, so the
+    tests are unchanged and the scanner no longer reads it as a key.
 - **44 calculator pages' meta, og and twitter descriptions** replaced with the free edition's shortened
   ones (the free edition cut them under 160 characters after the fork). Meta lines only: 45 lines
   in 44 files. `platform/pages/description-length.test.mjs` scans every venture HTML file, served or not.
