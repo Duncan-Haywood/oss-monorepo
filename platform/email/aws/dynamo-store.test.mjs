@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { storeContract } from '../store.test.mjs';
+import { storeContract } from '../store-contract.mjs';
 import { dynamoS3Store, s3Bucket, TEXT_BODY_MAX } from './dynamo-store.mjs';
 import { fakeDynamo } from '../../edge/aws/fake-dynamo.mjs';
 import { createService } from '../service.mjs';
@@ -122,4 +122,16 @@ test('s3Bucket: PUT, GET (404 is null) and DELETE on encoded key paths', async (
   assert.equal(await b.get('support/2026-11-26/a b.eml'), null);
   assert.deepEqual(seen, ['PUT /support/2026-11-26/a%20b.eml', 'GET /support/2026-11-26/a%20b.eml', 'DELETE /support/2026-11-26/a%20b.eml', 'GET /support/2026-11-26/a%20b.eml']);
   await assert.rejects(s3Bucket({ request: async () => new Response('', { status: 403 }) }).put('k', new Uint8Array()), /PutObject 403/);
+});
+
+test('the whole service and CLI suites pass on dynamoS3Store', async () => {
+  const { spawnSync } = await import('node:child_process');
+  // A child of `node --test` inherits NODE_TEST_CONTEXT and would report to
+  // the parent instead of printing; drop it so the child prints its summary.
+  const { NODE_TEST_CONTEXT, ...env } = process.env;
+  const r = spawnSync(process.execPath, ['--test', '--test-reporter=tap', 'service.test.mjs', 'cli.test.mjs'], {
+    cwd: new URL('..', import.meta.url), env: { ...env, MAIL_TEST_STORE: 'dynamo' }, encoding: 'utf8',
+  });
+  assert.equal(r.status, 0, `service suite on dynamo failed:\n${r.stdout.slice(-4000)}\n${r.stderr.slice(-2000)}`);
+  assert.match(r.stdout, /# fail 0/);
 });

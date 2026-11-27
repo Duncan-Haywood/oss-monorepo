@@ -1,5 +1,6 @@
 # Invariants of the email-ops stack against a mocked AWS provider: inbound
-# only for the routed support addresses into the edge-api inbox; the MX
+# only for the routed addresses, into the agent inboxes (or the edge-api
+# inbox); the inboxes' secrets generated, not pasted; the MX
 # cutover off by default; the consent table encrypted and protected; the
 # function fed by stacks/email's queue with partial-batch retries; least
 # privilege and the workload boundary. Run: tofu init -backend=false && tofu test
@@ -37,6 +38,12 @@ mock_provider "aws" {
   }
   mock_resource "aws_lambda_function_url" {
     defaults = { function_url = "https://unsub123.lambda-url.us-east-1.on.aws/" }
+  }
+  mock_resource "aws_cloudwatch_event_rule" {
+    defaults = { arn = "arn:aws:events:us-east-1:123456789012:rule/mail-inboxes-daily" }
+  }
+  mock_resource "aws_s3_bucket" {
+    defaults = { arn = "arn:aws:s3:::123456789012-mail-inboxes-us-east-1" }
   }
 }
 
@@ -88,8 +95,12 @@ run "inbound_matches_the_routing_file_and_mx_is_off" {
     error_message = "Spam/virus scanning and TLS on inbound."
   }
   assert {
-    condition     = one(aws_ses_receipt_rule.support.s3_action).bucket_name == "edge-api-inbox-test" && one(aws_ses_receipt_rule.support.s3_action).object_key_prefix == "inbox/" && one(aws_ses_receipt_rule.support.lambda_action).invocation_type == "Event"
-    error_message = "Mail lands in the edge-api inbox bucket under its prefix, then the edge function."
+    condition     = one(aws_ses_receipt_rule.support.s3_action).bucket_name == aws_s3_bucket.inboxes_raw.id && one(aws_ses_receipt_rule.support.s3_action).object_key_prefix == "inbound/" && one(aws_ses_receipt_rule.support.lambda_action).invocation_type == "Event"
+    error_message = "By default mail lands in the agent inboxes' raw bucket under inbound/, then the mail-inboxes function."
+  }
+  assert {
+    condition     = one(aws_ses_receipt_rule.support.lambda_action).function_arn == aws_lambda_function.inboxes.arn && length(aws_lambda_permission.ses_invokes_edge) == 0
+    error_message = "The receipt rule invokes the inboxes function, and the edge function gets no SES permission."
   }
   assert {
     condition     = length(aws_route53_record.inbound_mx) == 0
@@ -203,4 +214,78 @@ run "organization_without_a_ci_role" {
     condition     = endswith(local.deploy_role_arn, ":role/OrganizationAccountAccessRole")
     error_message = "organization mode falls back to the member role"
   }
+}
+
+run "inbound_can_still_go_to_the_edge_inbox" {
+  command = apply
+  variables {
+    inbound_target = "edge"
+  }
+  assert {
+    condition     = one(aws_ses_receipt_rule.support.s3_action).bucket_name == "edge-api-inbox-test" && one(aws_ses_receipt_rule.support.s3_action).object_key_prefix == "inbox/" && one(aws_ses_receipt_rule.support.lambda_action).function_arn == "arn:aws:lambda:us-east-1:123456789012:function:edge-api"
+    error_message = "inbound_target = edge sends mail to the edge-api inbox bucket and function."
+  }
+}
+
+run "agent_inboxes_need_no_pasted_secret" {
+  command = apply
+  variables {
+    owner_alert_email = "owner@example.test"
+  }
+  assert {
+    condition     = jsondecode(aws_secretsmanager_secret_version.inboxes.secret_string) == { agent_token = random_password.inbox_agent_token.result, read_token = random_password.inbox_read_token.result, owner_token = random_password.inbox_owner_token.result, unsubscribe_secret = random_password.inbox_unsubscribe.result }
+    error_message = "All four inbox secrets come from the stack's own random_password resources, under the keys lambda.mjs parseSecrets reads."
+  }
+  assert {
+    condition     = random_password.inbox_agent_token.length == 48 && !random_password.inbox_agent_token.special && random_password.inbox_owner_token.length == 48
+    error_message = "Tokens are 48 random alphanumerics."
+  }
+  assert {
+    condition     = aws_lambda_function.inboxes.environment[0].variables.MAIL_SECRET_ID == aws_secretsmanager_secret.inboxes.arn && aws_lambda_function.inboxes.environment[0].variables.OWNER_FORWARD_TO == "owner@example.test"
+    error_message = "The function reads the generated secret and the owner's alert address from the variable."
+  }
+  assert {
+    condition     = alltrue([for v in values(aws_lambda_function.inboxes.environment[0].variables) : !contains([random_password.inbox_agent_token.result, random_password.inbox_read_token.result, random_password.inbox_owner_token.result, random_password.inbox_unsubscribe.result], v)])
+    error_message = "No token value is placed in the function's environment."
+  }
+  assert {
+    condition     = aws_lambda_function.inboxes.reserved_concurrent_executions == 5 && aws_lambda_function.inboxes.handler == "email/aws/lambda.handler"
+    error_message = "Concurrency is capped and the handler is the inboxes entry point."
+  }
+  assert {
+    condition     = aws_dynamodb_table.inboxes.deletion_protection_enabled && aws_dynamodb_table.inboxes.point_in_time_recovery[0].enabled && aws_dynamodb_table.inboxes.server_side_encryption[0].enabled && aws_dynamodb_table.inboxes.ttl[0].attribute_name == "expires_at"
+    error_message = "The mail table is encrypted, recoverable, protected from deletion, and has the send-log TTL."
+  }
+  assert {
+    condition     = aws_s3_bucket_public_access_block.inboxes_raw.block_public_policy && aws_s3_bucket_public_access_block.inboxes_raw.restrict_public_buckets && one(one(aws_s3_bucket_server_side_encryption_configuration.inboxes_raw.rule).apply_server_side_encryption_by_default).sse_algorithm == "aws:kms"
+    error_message = "Raw mail is private and KMS-encrypted."
+  }
+  assert {
+    condition     = alltrue(flatten([for s in data.aws_iam_policy_document.inboxes.statement : [for a in s.actions : !strcontains(a, "*")]])) && alltrue([for s in data.aws_iam_policy_document.inboxes.statement : s.sid == "Tracing" || !contains(s.resources, "*")])
+    error_message = "The inboxes role: no wildcard actions; Resource \"*\" only for X-Ray."
+  }
+  assert {
+    condition     = one([for s in data.aws_iam_policy_document.inboxes.statement : s.actions if s.sid == "ConsentRead"]) == toset(["dynamodb:Query"])
+    error_message = "The inboxes only read the consent table; the email-ops function writes it."
+  }
+  assert {
+    condition     = one([for s in data.aws_iam_policy_document.inboxes.statement : one(s.condition).values if s.sid == "Send"]) == tolist(["*@marisstella.app"])
+    error_message = "SES sends only from the inbox domain."
+  }
+  assert {
+    condition     = aws_iam_role.inboxes.permissions_boundary == "arn:aws:iam::123456789012:policy/workload-boundary"
+    error_message = "The inboxes role carries the workload boundary."
+  }
+  assert {
+    condition     = aws_cloudwatch_event_rule.inboxes_daily.schedule_expression == "cron(17 7 * * ? *)"
+    error_message = "Purge and digest run daily at the Worker's time."
+  }
+}
+
+run "owner_alert_email_must_be_an_address" {
+  command = plan
+  variables {
+    owner_alert_email = "not-an-address"
+  }
+  expect_failures = [var.owner_alert_email]
 }

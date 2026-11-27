@@ -76,3 +76,44 @@ variable "account_mode" {
     error_message = "account_mode must be organization or single."
   }
 }
+
+variable "inbound_target" {
+  description = "Where SES delivers inbound mail: \"inboxes\" (the agent inboxes, inboxes.tf: threads, flags, the agent API) or \"edge\" (the edge-api stack's capped inbox)."
+  type        = string
+  default     = "inboxes"
+
+  validation {
+    condition     = contains(["inboxes", "edge"], var.inbound_target)
+    error_message = "inbound_target must be inboxes or edge."
+  }
+}
+
+variable "owner_alert_email" {
+  description = "Where owner flags (legal, refund, security, privacy@ mail) and the daily digest go: the AWS_BUDGET_ALERT_EMAIL the bootstrap already asks for (pass TF_VAR_owner_alert_email). Empty: alerts are logged as blocked and listed by `cli.mjs digest`."
+  type        = string
+  default     = ""
+  sensitive   = true
+
+  validation {
+    condition     = var.owner_alert_email == "" || can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", var.owner_alert_email))
+    error_message = "owner_alert_email must be an email address or empty."
+  }
+}
+
+variable "sender_name" {
+  description = "The sender's name in the marketing footer (CAN-SPAM). The inboxes refuse marketing on AWS today; kept for parity with the Worker."
+  type        = string
+  default     = ""
+}
+
+variable "postal_address" {
+  description = "The sender's postal address for the marketing footer (CAN-SPAM). Empty until the owner has one."
+  type        = string
+  default     = ""
+}
+
+variable "inboxes_reserved_concurrency" {
+  description = "Most mail-inboxes invocations at once: caps cost and what a flood of API calls can do."
+  type        = number
+  default     = 5
+}

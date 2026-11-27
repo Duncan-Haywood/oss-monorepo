@@ -5,13 +5,21 @@ import { readFileSync } from 'node:fs';
 import { createService, scopeOf, inboxFor, ownText, unsubscribeToken, readUnsubscribeToken, AI_FOOTER } from './service.mjs';
 import { d1r2Store } from './store.mjs';
 import { d1Shim, memBucket, recordingSender, rawMail } from './testkit.mjs';
+import { dynamoS3Store } from './aws/dynamo-store.mjs';
+import { fakeDynamo } from '../edge/aws/fake-dynamo.mjs';
+
+// MAIL_TEST_STORE=dynamo runs this whole suite on the AWS store
+// (aws/dynamo-store.test.mjs does, so both stores pass every test here).
+const makeStore = (bucket) => (process.env.MAIL_TEST_STORE === 'dynamo'
+  ? dynamoS3Store({ call: fakeDynamo().call, table: 'mail', bucket })
+  : d1r2Store(d1Shim(), bucket));
 
 const cfg = JSON.parse(readFileSync(new URL('./inboxes.json', import.meta.url), 'utf8'));
 const TOK = { owner: 'o'.repeat(32), agent: 'a'.repeat(32), read: 'r'.repeat(32) };
 
 function setup({ owner = 'owner@personal.test', clock = new Date('2026-11-26T10:00:00Z'), config = cfg, compliance = null } = {}) {
   const bucket = memBucket();
-  const store = d1r2Store(d1Shim(), bucket);
+  const store = makeStore(bucket);
   const sender = recordingSender('cf');
   const alerter = recordingSender('alert');
   let n = 0;

@@ -1,8 +1,10 @@
-# SES inbound for support@, hello@ and accounts@ (from
-# platform/pages/cloudflare/email-routing.json), replacing Cloudflare Email
-# Routing. Each message is written to the edge-api inbox bucket, then the
-# edge-api function stores a capped copy in its table, exactly as the
-# Worker's email() handler does today. Nothing is forwarded anywhere.
+# SES inbound for every address in platform/email/inboxes.yaml (through the
+# generated platform/pages/cloudflare/email-routing.json), replacing
+# Cloudflare Email Routing. With inbound_target = "inboxes" (the default)
+# each message is written to the agent inboxes' raw bucket and the
+# mail-inboxes function threads, classifies and flags it (inboxes.tf);
+# with "edge" it goes to the edge-api stack's simpler capped inbox instead.
+# Nothing is forwarded anywhere.
 # SES receives only for verified domains: stacks/email's transactional
 # identity is the apex, in this same account.
 
@@ -14,7 +16,23 @@ resource "aws_ses_active_receipt_rule_set" "support" {
   rule_set_name = aws_ses_receipt_rule_set.support.rule_set_name
 }
 
+locals {
+  inbound_to_inboxes = var.inbound_target == "inboxes"
+  inbound = local.inbound_to_inboxes ? {
+    bucket        = aws_s3_bucket.inboxes_raw.id
+    prefix        = local.inbound_prefix
+    function_arn  = aws_lambda_function.inboxes.arn
+    function_name = aws_lambda_function.inboxes.function_name
+    } : {
+    bucket        = local.edge.inbox_bucket_name
+    prefix        = local.edge.inbox_prefix
+    function_arn  = local.edge.function_arn
+    function_name = local.edge.function_name
+  }
+}
+
 resource "aws_lambda_permission" "ses_invokes_edge" {
+  count          = local.inbound_to_inboxes ? 0 : 1
   statement_id   = "SesInboundSupport"
   action         = "lambda:InvokeFunction"
   function_name  = local.edge.function_name
@@ -32,18 +50,18 @@ resource "aws_ses_receipt_rule" "support" {
   tls_policy    = "Require"
 
   s3_action {
-    bucket_name       = local.edge.inbox_bucket_name
-    object_key_prefix = local.edge.inbox_prefix
+    bucket_name       = local.inbound.bucket
+    object_key_prefix = local.inbound.prefix
     position          = 1
   }
 
   lambda_action {
-    function_arn    = local.edge.function_arn
+    function_arn    = local.inbound.function_arn
     invocation_type = "Event"
     position        = 2
   }
 
-  depends_on = [aws_lambda_permission.ses_invokes_edge]
+  depends_on = [aws_lambda_permission.ses_invokes_edge, aws_lambda_permission.ses_invokes_inboxes, aws_s3_bucket_policy.inboxes_raw]
 }
 
 # The cutover: off until receive_mail = true. While it is off, Cloudflare's

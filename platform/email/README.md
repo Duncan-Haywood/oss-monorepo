@@ -20,7 +20,9 @@ This directory is that, as code with an apply step:
 | `mime.mjs` | MIME parsing and building, Worker-safe |
 | `cli.mjs` | The agents' CLI, and `cli.mjs mcp`, a stdio MCP server with the same commands |
 | `aws/ses-inbound.mjs` | SES receipt event → the same `ingest` call |
-| `aws/dynamo-store.mjs` | The store port on DynamoDB (rows) + S3 (raw MIME), for the SES route |
+| `aws/dynamo-store.mjs` | The store port on DynamoDB (rows) + S3 (raw MIME); passes the same contract and the whole service suite |
+| `aws/lambda.mjs` | The Lambda entry: SES receipts, the daily purge and digest, and the agent API, with generated secrets |
+| `store-contract.mjs` | The contract every store implementation passes |
 | `schema.sql`, `wrangler.toml` | D1 schema; Worker config (no secrets, no addresses) |
 
 ## How mail flows
@@ -114,32 +116,47 @@ a product has its own domain.
 
 ## Portability: moving to AWS
 
-`service.mjs` takes three ports and nothing else. The move is:
+`service.mjs` takes three ports and nothing else. All four parts of the move
+are built; the stack is applied with the rest of `platform/aws` (owner,
+2026-11-27: the inboxes go on SES "once we fully move"):
 
-1. **Inbound**: the email-ops SES receipt rule already writes to S3 and reads
-   its recipients from the generated `email-routing.json`;
-   `aws/ses-inbound.mjs` turns that event into the same `ingest` call.
+1. **Inbound**: the email-ops SES receipt rule reads its recipients from the
+   generated `email-routing.json`, writes each message to the inboxes' raw
+   bucket under `inbound/`, and invokes the function; `aws/ses-inbound.mjs`
+   turns that event into the same `ingest` call (a Lambda action's event
+   names only itself, so the object is found as `inbound/<messageId>`).
 2. **Store**: `aws/dynamo-store.mjs`, `dynamoS3Store({ call, table, bucket })`:
    one on-demand DynamoDB table (`pk` + `sk`, no secondary index, TTL on
-   `expires_at`) for rows and `s3Bucket(...)` for raw MIME, both over the
-   zero-dependency SigV4 client in `platform/edge/aws/sigv4.mjs`. It passes
-   `storeContract` and runs the service end to end in
-   `aws/dynamo-store.test.mjs`. Keys built from header text are hashed; a
-   message's text is cut at 300 KB in the row (the whole message is in S3).
-   **Next:** the table and bucket in the email-ops stack, and step 4.
-3. **Sender**: `portSender(sesSender({...}))` from `senders.mjs`; the SES
-   sender applies the same consent policy and footer itself
-   (`addsCompliance: true`).
-4. **API**: a Lambda entry calling `service.api(request)` through the
-   function-URL adapter `platform/edge/aws/lambda.mjs` already has. Agents
-   change only `MAIL_API_URL`.
+   `expires_at`) for rows and `s3Bucket(...)` for raw MIME, over the
+   zero-dependency SigV4 client in `platform/edge/aws/sigv4.mjs`. Keys built
+   from header text are hashed; a message's text is cut at 300 KB in the row
+   (the whole message is in S3). `aws/dynamo-store.test.mjs` runs
+   `storeContract` and the whole of `service.test.mjs` and `cli.test.mjs` on
+   it (`MAIL_TEST_STORE=dynamo`).
+3. **Sender**: one email-ops `sesSender` per inbox address on the
+   transactional stream, so a reply leaves from the inbox it answers and the
+   shared suppression table is checked first. Marketing is refused on AWS
+   for now (it belongs on the `marketing` stream and its own domain).
+4. **API**: `aws/lambda.mjs` behind a function URL; agents change only
+   `MAIL_API_URL` (the stack's `inboxes_api_url` output).
 
-## Owner steps
+**No owner-pasted secrets on AWS** (task `inboxes-without-owner`): the
+agent, read and owner tokens and the unsubscribe key are `random_password`
+values in the email-ops stack (`inboxes.tf`), kept in one Secrets Manager
+secret (`inboxes_secret_arn`) that only the function and a role can read.
+The owner's address for flags and the digest is `owner_alert_email`, the
+same address the AWS bootstrap asks for as `AWS_BUDGET_ALERT_EMAIL`. What is
+left is what AWS itself forces: SES production access (step 6 of the AWS
+checklist) before replies reach anyone but verified addresses. With
+`inbound_target = "edge"` the receipt rule feeds the edge-api inbox instead.
+
+## Owner steps (Cloudflare only)
 
 > **Parked (owner, 2026-11-27):** the inboxes will be set up on AWS (SES)
 > after the move, not on Cloudflare; see `aws-turnover` in
-> `portfolio/ledger/asks.yaml`. The steps below are kept for reference and are
-> not being asked of the owner.
+> `portfolio/ledger/asks.yaml`. On AWS none of these steps exist (the
+> secrets are generated; "Portability" above). The Cloudflare steps below are
+> kept for reference and are not being asked of the owner.
 
 1. **Secrets** (Settings → Environments → `cloudflare` → add environment
    secret; that environment is limited to `main`). Generate each token with `openssl rand -hex 32`:
@@ -177,6 +194,8 @@ Check: send a mail to support@marisstella.app, then
 ```sh
 python3 platform/email/gen_config.py --check
 node --test platform/email/*.test.mjs platform/email/aws/*.test.mjs platform/pages/cloudflare/email-routing.test.mjs
+node --test platform/edge/lambda-zips.test.mjs   # the Lambda zip holds every module it imports, and loads
+cd platform/aws/stacks/email-ops && tofu init -backend=false && tofu test
 ```
 
 `service.test.mjs` runs the real SQL on SQLite (`testkit.mjs`) with an

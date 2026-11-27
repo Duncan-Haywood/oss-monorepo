@@ -652,12 +652,18 @@ tasks:
       permissions only the owner can grant, so the SES route (aws-ses-email)
       is the one with no owner step, and the owner chose it the same day
       ("all iac stuff instead we will do on aws instead once we fully move";
-      asks.yaml, aws-turnover). Progress 2026-11-27: the SES route's store,
-      platform/email/aws/dynamo-store.mjs (DynamoDB rows + S3 raw MIME),
-      passes the store contract and runs the service end to end. Left: the
-      table, bucket and generated tokens (random_password into Secrets
-      Manager) in platform/aws/stacks/email-ops, and the Lambda API entry
-      (README.md, "Portability", step 4).
+      asks.yaml, aws-turnover).
+      Progress 2026-11-27: the AWS half is built and tested.
+      platform/email/aws/dynamo-store.mjs (PR 19582; the store contract and
+      the whole service and CLI suites pass on it), aws/lambda.mjs (SES receipts, daily purge and
+      digest, agent API), and stacks/email-ops/inboxes.tf, which generates the
+      four secrets with random_password into one Secrets Manager secret and
+      takes the owner's address as var.owner_alert_email. Left: (1) the apply
+      passes TF_VAR_owner_alert_email from vars.AWS_BUDGET_ALERT_EMAIL once
+      email-ops applies from CI (stacks/github-oidc, "Not yet CI-ready");
+      (2) a way for agent sessions to read the agent token without a person
+      (an OIDC workflow that runs cli.mjs, or a session role); (3) the apply
+      itself, after aws-turnover steps 1-4.
   - id: paddle-key-check
     direction: paid-bets
     title: Report whether each Paddle key is the right kind, without printing it

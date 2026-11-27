@@ -70,7 +70,7 @@ export const PATCHABLE = {
   drafts: new Set(['status', 'reason', 'updated_at', 'subject', 'text_body', 'to_addr']),
 };
 export const ENCODE = { refs: J, cc: J, attachments: J, labels: J, why: J, html_present: Number, automated: Number, read: Number };
-const DECODE_JSON = ['refs', 'cc', 'attachments', 'labels', 'why'];
+export const DECODE_JSON = ['refs', 'cc', 'attachments', 'labels', 'why'];
 
 export function encodeRow(cols, row) {
   return cols.map((c) => {

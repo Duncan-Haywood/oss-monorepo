@@ -4,8 +4,11 @@
 #   consent.tf   the one suppression + consent table every sender checks,
 #                filled from stacks/email's events queue by the email-ops
 #                function, plus the public one-click unsubscribe endpoint;
-#   inbound.tf   SES receiving for support@, hello@, accounts@, replacing
-#                Cloudflare Email Routing, into the edge-api stack's inbox.
+#   inbound.tf   SES receiving for every inboxes.yaml address, replacing
+#                Cloudflare Email Routing, into the agent inboxes (or,
+#                with inbound_target = "edge", the edge-api stack's inbox);
+#   inboxes.tf   the agent inboxes (platform/email) on Lambda, DynamoDB and
+#                S3, with their API tokens generated here, not pasted.
 #
 # The sending side's code is sender/ (policy, consent store, SES adapter).
 
@@ -70,7 +73,26 @@ data "aws_iam_policy_document" "kms" {
     condition {
       test     = "ArnLike"
       variable = "kms:EncryptionContext:aws:logs:arn"
-      values   = ["arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/email-ops"]
+      values = [
+        "arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/email-ops",
+        "arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/${local.inboxes_name}",
+      ]
+    }
+  }
+  # SES writes inbound mail to the inboxes' raw bucket (inboxes.tf), whose
+  # default encryption is this key.
+  statement {
+    sid       = "SesInboundWrite"
+    actions   = ["kms:GenerateDataKey*", "kms:Encrypt"]
+    resources = ["*"]
+    principals {
+      type        = "Service"
+      identifiers = ["ses.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [local.account_id]
     }
   }
   dynamic "statement" {
