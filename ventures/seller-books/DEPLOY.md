@@ -14,10 +14,11 @@ This file says what the move to this repository changes (task `move-seller-books
 
 ## Not yet
 
-1. **The deploy workflow.** `private-monorepo/.github/workflows/seller-books-deploy.yml` has never run
-   (private-monorepo's Actions start no jobs). A port is a `priv-seller-books-deploy.yml` here, in its
-   own PR through the control-plane tier of `adversarial-gate`, after an allowlist PR for its secrets
-   (the pattern PayApps follows: PR #19610).
+1. **The deploy workflow: ported 2026-11-27.** [`.github/workflows/priv-seller-books-deploy.yml`](../../.github/workflows/priv-seller-books-deploy.yml),
+   manual and main-only, after the allowlist PR for its secrets (PR #19653, the pattern PayApps
+   followed in PRs #19610 and #19617). Its first run records the URL here. `/ventures/seller-books/`
+   now has a code owner, because the deploy job runs the venture's code with Cloudflare credentials
+   (`ci_policy_check.py`).
 2. **The legal pages: done 2026-11-27.** The launch review `docs/legal/OPERATOR.md` asks for is
    [apps/seller-books/docs/LAUNCH-REVIEW.md](apps/seller-books/docs/LAUNCH-REVIEW.md) (private-monorepo PR 486):
    margins 49-62% at twice the order allowance, and the four pages read against the schema, routes and

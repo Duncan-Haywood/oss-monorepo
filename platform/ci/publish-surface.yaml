@@ -400,6 +400,13 @@ workflows:
 - workflow: priv-security-gate.yml
   classification: none
   publishes: []
+- workflow: priv-seller-books-deploy.yml
+  classification: dispatch
+  publishes:
+  - job: deploy
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ github.ref == 'refs/heads/main' }}
 - workflow: priv-site-usage-pull.yml
   classification: none
   publishes: []
