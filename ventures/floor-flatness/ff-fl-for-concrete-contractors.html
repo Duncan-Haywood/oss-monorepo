@@ -35,19 +35,19 @@
     <li><strong>FL, levelness</strong>, looks at the elevation difference between readings 10 ft apart, <code>d = z₁₁ − z₁</code>. A sag between columns or a slab that runs downhill pushes it down. A floor sloped on purpose for drainage is not tested for FL.</li>
   </ul>
   <p>Each number is a constant divided by "three standard deviations plus the absolute mean" of those values, all in inches:</p>
-  <pre>FF = 4.57 / (3 × S_q + |mean q|)
+  <pre style="white-space:pre-wrap;overflow-wrap:anywhere">FF = 4.57 / (3 × S_q + |mean q|)
 FL = 12.5 / (3 × S_d + |mean d|)</pre>
   <p>So the scale is linear: halve every bump and FF doubles. These are the equations given by the published secondary sources we could check; the standard itself is sold by ASTM, so check against your copy for contract work.</p>
 
   <h2>A line worked by hand</h2>
   <p>Thirteen readings, 12 inches apart, in inches above a datum (made-up numbers, chosen to be easy to follow):</p>
-  <pre>0.00  0.04  0.06  0.04  0.00  -0.02  0.00  0.05  0.08  0.06  0.03  0.02  0.04</pre>
+  <pre style="white-space:pre-wrap;overflow-wrap:anywhere">0.00  0.04  0.06  0.04  0.00  -0.02  0.00  0.05  0.08  0.06  0.03  0.02  0.04</pre>
   <p>The 12-inch steps are +0.04, +0.02, −0.02, −0.04, −0.02, +0.02, +0.05, +0.03, −0.02, −0.03, −0.01, +0.02. Each curvature is the change from one step to the next:</p>
   <div class="tablewrap"><table>
     <thead><tr><th>q values (in)</th><th>count</th><th>mean</th><th>standard deviation</th></tr></thead>
     <tbody><tr><td>−0.02 −0.04 −0.02 +0.02 +0.04 +0.03 −0.02 −0.05 −0.01 +0.02 +0.03</td><td>11</td><td>−0.0018</td><td>0.0309</td></tr></tbody>
   </table></div>
-  <pre>FF = 4.57 / (3 × 0.0309 + 0.0018) = 4.57 / 0.0946 = 48.3</pre>
+  <pre style="white-space:pre-wrap;overflow-wrap:anywhere">FF = 4.57 / (3 × 0.0309 + 0.0018) = 4.57 / 0.0946 = 48.3</pre>
   <p>Thirteen readings give three 10-ft differences (+0.03, −0.02, −0.02), far too few for a meaningful FL; the calculator says so instead of printing a number you might quote. A real test section pools many lines, hundreds of curvatures, read in two directions.</p>
   <p>Paste those thirteen numbers into the calculator in "Sample lines" format and it returns FF 48.3. One of its tests repeats this hand calculation.</p>
 
