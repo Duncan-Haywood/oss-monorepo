@@ -222,7 +222,9 @@ describe("preliminary notices", () => {
     );
     const missing = await print({ state: "FL", formId: n?.id, fields }, as, flBase);
     expect(missing.status).toBe(400);
-    expect(await missing.text()).toContain("General description of services or materials is required");
+    expect(await missing.text()).toContain(
+      "General description of services or materials is required",
+    );
 
     const res = await print(
       {

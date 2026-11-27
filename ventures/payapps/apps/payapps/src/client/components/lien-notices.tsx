@@ -40,10 +40,10 @@ function FlNoticeDates() {
       {dates && (
         <p>
           Serve the notice by <strong>{dates.serveBy}</strong> (45 days, § 713.06(2)(a)). Mailed by
-          registered, Global Express Guaranteed or certified mail by{" "}
-          <strong>{dates.mailBy}</strong> (40 days), it counts as served the day it is mailed, if
-          you keep the mail log or USPS tracking records (§ 713.18(2)). Calendar days, not moved for
-          a weekend or holiday; this date is not saved.
+          registered, Global Express Guaranteed or certified mail by <strong>{dates.mailBy}</strong>{" "}
+          (40 days), it counts as served the day it is mailed, if you keep the mail log or USPS
+          tracking records (§ 713.18(2)). Calendar days, not moved for a weekend or holiday; this
+          date is not saved.
         </p>
       )}
     </div>

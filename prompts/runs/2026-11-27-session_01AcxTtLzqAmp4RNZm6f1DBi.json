@@ -29,11 +29,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "payapps CI lint failed on Biome formatting of two edited files; fixed with biome check --write"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -47,6 +49,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "'pnpm test:worker -- <file>' ran the whole worker suite here (several minutes), not one file; nothing says how to run one worker test file."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight for payapps fails on main's state, not this diff: no launched.json date, and it would land in the catch-all 'More free tools' section (6 > 5). Since the move into ventures/payapps on 2026-11-27 it is treated as a catalogue tool; CI's build passed, so I left it for a run that decides whether a paid product belongs in the free-tool catalogue."
     }
   ],
   "deviations": [
