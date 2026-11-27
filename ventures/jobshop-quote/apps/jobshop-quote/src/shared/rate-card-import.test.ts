@@ -746,6 +746,9 @@ describe("export for the round trip", () => {
     expect(csvField("@x")).toBe("'@x");
     expect(csvField('a "b", c')).toBe('"a ""b"", c"');
     expect(csvField("plain")).toBe("plain");
+    // A plain negative number stays a number (check_csv_formula_guard.py).
+    expect(csvField("-12.50")).toBe("-12.50");
+    expect(csvField("-3")).toBe("-3");
     const csv = exportRateCsv("machines", machines);
     expect(csv.startsWith("\ufeffMachine,Kind,")).toBe(true);
     expect(csv).toContain("\r\n'=HYPERLINK(1),mill_5axis,175.00,");

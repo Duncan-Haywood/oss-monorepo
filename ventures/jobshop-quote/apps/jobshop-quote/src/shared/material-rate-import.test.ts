@@ -309,7 +309,7 @@ describe("export", () => {
 
   it("lists every pair with the machine's default, and reads back as no change", () => {
     const csv = exportMaterialRateCsv("removal-rates", card);
-    expect(csv.startsWith("﻿")).toBe(true);
+    expect(csv.startsWith("\uFEFF")).toBe(true);
     const grid = parseCsv(csv.slice(1));
     expect(grid[0]).toEqual(materialRateExportHeaders("removal-rates"));
     expect(grid.slice(1).filter((r) => r.some((c) => c))).toEqual([

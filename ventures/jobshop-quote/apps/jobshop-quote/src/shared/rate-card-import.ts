@@ -1056,7 +1056,7 @@ const int = (n: number | null) => (n === null ? "" : String(n));
 
 /** One CSV field: quoted when needed; text a spreadsheet would run as a formula gets an apostrophe. */
 export function csvField(v: string): string {
-  const safe = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+  const safe = /^[=+\-@\t\r]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v) ? `'${v}` : v;
   return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
 
@@ -1129,5 +1129,5 @@ function exportCells(kind: RateImportKind, r: Existing): string[] {
  */
 export function exportRateCsv(kind: RateImportKind, rows: Existing[]): string {
   const lines = [EXPORT_HEADERS[kind], ...rows.map((r) => exportCells(kind, r))];
-  return `﻿${lines.map((l) => l.map(csvField).join(",")).join("\r\n")}\r\n`;
+  return `\uFEFF${lines.map((l) => l.map(csvField).join(",")).join("\r\n")}\r\n`;
 }

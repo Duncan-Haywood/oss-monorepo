@@ -433,7 +433,7 @@ export function exportSettingsCsv(s: ShopSettingsDto): string {
     ["Setting", "Value"],
     ...EXPORT_ORDER.map((f) => [SETTING_LABELS[f], exportValue(f, s)]),
   ];
-  return `﻿${lines.map((l) => l.map(csvField).join(",")).join("\r\n")}\r\n`;
+  return `\uFEFF${lines.map((l) => l.map(csvField).join(",")).join("\r\n")}\r\n`;
 }
 
 /** The blank sheet: each label with an empty value, which leaves that setting as it is. */

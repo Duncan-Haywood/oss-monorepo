@@ -28,7 +28,7 @@
 // API shapes: Cloudflare API schema (github.com/cloudflare/api-schemas, openapi.json, read 2026-11-26).
 import { appendFileSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const API = "https://api.cloudflare.com/client/v4";
 export const RULE_PREFIX = "as-code jobshop-quote: ";
@@ -208,7 +208,7 @@ export async function run({ cfg, cf, write, zoneId: givenZone, log = console.log
   return { steps, matches };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const appDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
     const cfg = JSON.parse(readFileSync(resolve(appDir, "email-routing.json"), "utf8"));

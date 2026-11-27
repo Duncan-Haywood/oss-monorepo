@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "what": "dead Markdown link in apps/jobshop-quote/docs/DEPLOY.md to the private deploy workflow",
       "fix": "names the private path and links the workspace DEPLOY.md"
+    },
+    {
+      "what": "changed-ventures tree checks (calendar dates, CSV guard, trailing flag, CLI entry, hidden unicode, thin pages), publish-surface and harness snapshot failed in CI on the first push",
+      "fix": "fixed in the copy with tests; listed in the report"
     }
   ],
   "integrity_issues": [],
@@ -58,6 +62,14 @@
     {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "editing files while the sweep runs voids half the verdicts; the guide could say: commit everything before starting --for-changes"
+    },
+    {
+      "file": "prompts/test_promptctl.py",
+      "issue": "test_lookups_without_a_git_call_match_the_per_file_call fails in prompts-ci (fetch-depth 2) when the PR's newest commit adds a run record: the cached index calls prompts/ 'the shallow-clone edge' while per-file git log dates it 2026-11-27; not a required check, left for a process run"
+    },
+    {
+      "file": "portfolio/pipeline/probes/agent-permission-harness/check_results_current.py",
+      "issue": "--write counts untracked files (node_modules from a pnpm install), so a local regenerate (56,126) never matches CI's (12,100); I copied CI's lines from the job log"
     }
   ],
   "deviations": [

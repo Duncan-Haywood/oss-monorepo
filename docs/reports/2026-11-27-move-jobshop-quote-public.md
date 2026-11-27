@@ -42,11 +42,31 @@ them).
   CadQuery and build123d sample files (Apache-2.0, `SOURCES.md` lists upstream path and commit).
   `THIRD_PARTY.md` and `portfolio/monetization/transition.json` regenerated.
 
+## Fixed because this repository's tree checks found them
+
+CI's `changed-ventures` job runs checks `private-monorepo` never had; the same classes PayApps' move
+fixed. Each fix is in the public copy only, so a later `sync-from-private.sh` reintroduces them until
+the private copy goes or gets the same patch (the checks will say so):
+
+- `traveler.ts`: the due date accepted 2026-02-30 (Date.parse rolls it to March); now
+  `isCalendarDay` round-trips it, with `traveler.test.ts`.
+- `rate-card-import.ts` `csvField`: a plain negative number (`-12.50`) was defused into text; a
+  number now passes, formulas still get the apostrophe; tests added.
+- `scripts/provision.mjs`: a trailing `--domain` with no value was `undefined`; now an error; tests.
+- `scripts/email-routing.mjs`: the entry guard compared against a `file://` string (false from a
+  path with a space); now `pathToFileURL`.
+- Nine literal U+FEFF characters written as `\uFEFF` escapes (same string).
+- The app's SPA shell `index.html` and a site test fixture are marked `noindex` (thin-page check;
+  the shell is a sign-in app, the marketing pages are `apps/jobshop-site`).
+- `platform/ci/publish-surface.yaml`: the new workflow, classification `none` (publishes nothing).
+- The agent-permission harness snapshot written as CI regenerated it (12,100 files; a local run
+  counts untracked `node_modules` and gave 56,126).
+
 ## Verification (this session)
 
 | check | result |
 | --- | --- |
-| `apps/jobshop-quote`: biome ci, typecheck, unit, worker, build, no source maps, provision and email-routing scripts, drizzle check and generate | unit 631 passed (48 files); worker 281 passed (45 files); scripts 19 passed; "No schema changes"; migrations identical to private |
+| `apps/jobshop-quote`: biome ci, typecheck, unit, worker, build, no source maps, provision and email-routing scripts, drizzle check and generate | unit 633 passed (49 files) after the fixes; worker 281 passed (45 files); scripts 19 passed; "No schema changes"; migrations identical to private |
 | `apps/jobshop-site`: biome ci, typecheck, unit, worker, build | unit 42 passed; worker 13 passed; build ok |
 | `packages/billing`, `qbo-sync`, `cad-features`: typecheck + tests; `admin-metrics` tests; `scripts/` tests; biome ci on packages and scripts | 86, 92, 73, 16, 4 passed, 0 failures |
 

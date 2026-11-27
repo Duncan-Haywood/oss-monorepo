@@ -22,6 +22,16 @@ import { renderTravelerPdf } from "./traveler-pdf";
 
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
+/** A real YYYY-MM-DD day: 2026-02-30 is refused, not rolled over to March. */
+export function isCalendarDay(v: string): boolean {
+  if (!ISO_DAY.test(v)) return false;
+  const y = Number(v.slice(0, 4));
+  const m = Number(v.slice(5, 7));
+  const d = Number(v.slice(8, 10));
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
+}
+
 export interface TravelerQuery {
   /** Requested due date, YYYY-MM-DD; printed as given. */
   due?: string;
@@ -35,7 +45,7 @@ export function parseTravelerQuery(query: Record<string, string>): TravelerQuery
   for (const [k, v] of Object.entries(query)) {
     if (k === "due") {
       if (v === "") continue;
-      if (!ISO_DAY.test(v) || Number.isNaN(Date.parse(`${v}T00:00:00Z`))) {
+      if (!isCalendarDay(v)) {
         throw badRequest("The due date must be YYYY-MM-DD");
       }
       out.due = v;

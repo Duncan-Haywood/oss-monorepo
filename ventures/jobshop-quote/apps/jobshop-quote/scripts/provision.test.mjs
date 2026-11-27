@@ -80,6 +80,9 @@ test("args: domain must be a bare hostname", () => {
   assert.equal(parseArgs(["--domain", "Quote.Example.org "]).domain, "quote.example.org");
   assert.throws(() => parseArgs(["--domain", "https://quote.example.org/"]), /bare hostname/);
   assert.throws(() => parseArgs(["--nope"]), /unknown argument/);
+  // A trailing flag with no value is an error, not undefined (check_trailing_flag_value.py).
+  assert.throws(() => parseArgs(["--domain"]), /--domain needs a value/);
+  assert.throws(() => parseArgs(["--write-config", "--dry-run"]), /--write-config needs a value/);
 });
 
 test("wrangler output parsing", () => {

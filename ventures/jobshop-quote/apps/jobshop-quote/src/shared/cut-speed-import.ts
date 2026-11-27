@@ -414,5 +414,5 @@ export function exportCutSpeedCsv(card: CutSpeedCard): string {
       real(s.pierceSeconds),
     ]);
   const lines = [CUT_SPEED_EXPORT_HEADERS, ...rows];
-  return `﻿${lines.map((l) => l.map(csvField).join(",")).join("\r\n")}\r\n`;
+  return `\uFEFF${lines.map((l) => l.map(csvField).join(",")).join("\r\n")}\r\n`;
 }
