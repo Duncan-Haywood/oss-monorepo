@@ -394,6 +394,8 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *The two walls in September* *(Drafting, 2026-11-27.)* (proposed 2026-11-27): Lord's paradox. A small Wisconsin building firm's agent is asked whether its apprentices from a Catholic high school's trades class or its adult career changers get more out of the firm's year, measured by a wall-layout test marked out of 100 each September and June over three intakes (23 school leavers, 19 changers). Regressing June on September with a group term (ANCOVA) says changers finish about 7 points higher at the same September score (p about 0.01); comparing gains says both gained about 16.5 points (difference 0.4, CI about −6 to +7). Lord's 1967 dining-hall example is the named source. The turn is that both are right answers to different questions, a retest the lead carpenter already ran (September score about two-thirds skill) and a simulation in which a third of no-difference datasets give the ANCOVA 'finding'. Keep clear of regression to the mean as the turn (*Two Point Nine*) and of multiple comparisons (*Toss It Again*, *The Forty Cuts*).
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
