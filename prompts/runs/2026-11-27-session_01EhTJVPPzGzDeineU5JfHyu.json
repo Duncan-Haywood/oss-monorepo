@@ -28,11 +28,20 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 11,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "CI custom-domain.test.mjs failed: the copied site's footer linked https://marisstella.app/cmmc, which the jobshop-only rebase left on the default origin (and which is not served).",
+      "fix": "CMMC link now points at the manufacturing page's #cmmc section; rebase rewrites every catalogue-origin link; custom-domain.test.mjs 7/7 locally."
+    },
+    {
+      "what": "venture-preflight: two meta descriptions over 160 characters.",
+      "fix": "Shortened; the site's own test now caps descriptions at 160."
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
