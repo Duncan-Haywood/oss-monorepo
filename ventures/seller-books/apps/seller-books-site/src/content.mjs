@@ -270,6 +270,11 @@ export const FEATURES = [
     body: "Type the figures from a platform's Form 1099-K and see them beside your books for that platform and year: item sales, then with the shipping buyers paid, then with the sales tax the platform collected. Type the monthly boxes too and the months that don't match are named, such as a month whose report you haven't imported or a sale dated at the end of one month by you and the start of the next by the platform. The form counts payments before refunds and fees, so it is usually higher than your profit; this shows where the difference comes from. Nothing you type is saved.",
   },
   {
+    key: "deposit-check",
+    title: "Did I import everything? Check your deposits",
+    body: "Upload the statement of the bank account your payouts go to. Each deposit that names a platform is set against what your books say that platform should have paid you (sales and shipping, less refunds, fees and postage), month by month. A month with Mercari deposits and no Mercari sales in your books is a report you haven't imported; deposits running behind your books usually mean money still on the platform or paid to another account. You see every deposit it matched and can untick one that isn't a payout, such as a refund of something you bought. The statement isn't saved.",
+  },
+  {
     key: "quickbooks",
     title: "Monthly journal entries for QuickBooks Online",
     body: "Already keep your books in QuickBooks Online, or your accountant does? Download your sales as journal entries for its journal-entry import: one entry per platform per month, with sales, shipping charged, refunds, fees, ads, postage and subscriptions on their own accounts and the net on a clearing account for each platform, so a payout is a transfer from that account to your bank. You name the accounts; cost of goods can go against an inventory account if that is how your books work. Sales tax a platform collected stays out.",

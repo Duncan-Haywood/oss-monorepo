@@ -101,3 +101,20 @@ describe("merchant rules", () => {
     expect(suggest("SHPGOODWILL.COM").kind).toBe("inventory");
   });
 });
+
+describe("money in and the statement's period, for the payout check", () => {
+  it("keeps the money-in rows it leaves out of the expenses, and the first and last dates", () => {
+    const csv = [
+      "Date,Description,Debit,Credit",
+      "01/03/2026,USPS POSTAGE,12.40,",
+      "01/09/2026,EBAY COMMERCE PAYOUT,,250.00",
+      "02/02/2026,ULINE BOXES,48.10,",
+    ].join("\n");
+    const r = parseStatement(csv);
+    expect(r.rows.map((x) => x.amountCents)).toEqual([1240, 4810]);
+    expect(r.moneyIn).toEqual([
+      { line: 3, date: "2026-01-09", description: "EBAY COMMERCE PAYOUT", amountCents: 25000 },
+    ]);
+    expect(r.period).toEqual({ from: "2026-01-03", to: "2026-02-02" });
+  });
+});
