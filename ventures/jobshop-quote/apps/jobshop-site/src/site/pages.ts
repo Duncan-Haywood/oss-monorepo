@@ -14,14 +14,6 @@ import {
 } from "@shared/early-access";
 import { ANNUAL_DISCOUNT, EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/plans";
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAME } from "./config";
-import {
-  COMMERCIAL_POWER,
-  EMPLOYER_FICA,
-  EXAMPLE,
-  machineHourlyRate,
-  usd,
-  VARIANTS,
-} from "./hourly-rate";
 import { type Html, html } from "./html";
 
 export interface RenderContext {
@@ -368,8 +360,7 @@ export function howItWorksPage(ctx: RenderContext): Html {
       body: html`<p>You enter how your shop prices work: each machine or work center and its hourly rate,
       setup charges, material costs or markups, outside processes such as anodizing, plating or heat treat
       with what your vendors charge, minimum order values, quantity breaks and how you round. This rate
-      table is the only place prices come from. Not sure what an hour on a machine costs you?
-      <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">Work out a machine's hourly rate</a>.</p>
+      table is the only place prices come from.</p>
       ${shotFigure(ctx, SHOTS.rateCard, "The rate card: each machine's hourly rate, each material's price, density, scrap and minimum, and the date every price was set. Made-up shop.")}`,
     },
     {
@@ -733,133 +724,6 @@ export function comparePage(ctx: RenderContext): Html {
 ${ctaBand(ctx, "Try it on last month's RFQs", open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
-/** /machine-shop-hourly-rate: how to work out a machine's hourly rate, with a worked example (./hourly-rate). */
-export function hourlyRatePage(ctx: RenderContext): Html {
-  const r = machineHourlyRate(EXAMPLE);
-  const e = EXAMPLE;
-  const pct = (n: number): string => `${Math.round(n * 10000) / 100}%`;
-  const src = (s: { label: string; url: string; read: string }): Html =>
-    html`<a class="link" href="${s.url}" rel="nofollow">${s.label}</a>, read ${s.read}`;
-  return html`<section class="page-head">
-  <div class="container narrow">
-    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
-    <h1>How to work out a machine shop hourly rate</h1>
-    <p class="lead">A machine's hourly rate is what the machine, its operator and its share of the shop
-    cost in a year, divided by the hours you can actually bill on it. Here is the method, line by line,
-    with a worked example you can redo with your own numbers.</p>
-  </div>
-</section>
-<section class="band">
-  <div class="container prose">
-    <h2>The formula</h2>
-    <p><strong>Hourly rate = (machine cost + upkeep + power + floor space + operator + share of overhead)
-    per year ÷ billable hours per year.</strong></p>
-    <p>That is the cost of an hour. Profit goes on top as a markup, kept separate so you can see it and
-    change it by job.</p>
-
-    <h2>Each line, and where the number comes from</h2>
-    <ol>
-      <li><strong>Machine.</strong> Price paid, installed, less what you expect to sell it for, spread over
-      the years you expect to run it. If you financed it, add the year's interest.</li>
-      <li><strong>Tooling and maintenance.</strong> Inserts, holders, coolant, way oil, service visits and
-      repairs for a year. Last year's invoices for that machine are the best guide.</li>
-      <li><strong>Power.</strong> Hours run × average draw in kW × your price per kWh. Average draw is well
-      under the nameplate: a spindle is rarely at full load. Your power bill gives the price; the US average
-      commercial price was ${COMMERCIAL_POWER.centsPerKwh}¢ per kWh in September 2026
-      (${src(COMMERCIAL_POWER.source)}), and it varies a lot by state.</li>
-      <li><strong>Floor space.</strong> The square feet the machine and its work area take × what a square
-      foot of your building costs a year (rent or mortgage, property tax, heat and light).</li>
-      <li><strong>Operator.</strong> Wage × paid hours, plus the burden: the employer's Social Security and
-      Medicare, ${pct(EMPLOYER_FICA.rate)} (${src(EMPLOYER_FICA.source)}), plus workers' comp, unemployment
-      insurance, benefits and paid time off, which your payroll reports give as a percentage. If one person
-      runs two machines, split the cost between them.</li>
-      <li><strong>Share of overhead.</strong> Everything that is not one machine: the office, estimating and
-      programming time, software, insurance, supervision, inspection. Divide it across machines by the hours
-      each runs, or by what each earns.</li>
-      <li><strong>Billable hours.</strong> Paid hours × utilization: the share of the hours you can charge a
-      customer for. Setup you bill counts; waiting for material, warm-up, maintenance, rework and idle time
-      do not.</li>
-    </ol>
-
-    <h2>A worked example</h2>
-    <p>A made-up shop with a used 3-axis vertical mill on one shift. Every input below is invented for the
-    example except the two public figures above; use your own.</p>
-    <ul>
-      <li>Bought for ${usd(e.purchasePrice, false)} installed, expected resale ${usd(e.resaleValue, false)}
-      after ${e.lifeYears} years; tooling and maintenance ${usd(e.upkeepPerYear, false)} a year.</li>
-      <li>Average draw ${e.averageKw} kW at ${e.centsPerKwh}¢ per kWh; ${e.floorSqFt} sq ft at
-      ${usd(e.floorCostPerSqFtYear, false)} per sq ft a year.</li>
-      <li>One operator at ${usd(e.wage, false)} an hour for ${e.paidHours.toLocaleString("en-US")} paid
-      hours, payroll taxes ${pct(e.ficaRate)} and other burden ${pct(e.otherBurdenRate)}.</li>
-      <li>Its share of shop overhead ${usd(e.overheadShare, false)} a year; ${e.billableHours.toLocaleString("en-US")}
-      billable hours (${pct(e.billableHours / e.paidHours)} of paid hours).</li>
-    </ul>
-    <div class="table-wrap">
-      <table class="compare">
-        <caption class="fineprint">Made-up machine and shop. Rounded to the cent; per-hour figures divide
-        each year's cost by ${e.billableHours.toLocaleString("en-US")} billable hours.</caption>
-        <thead>
-          <tr><th scope="col">Cost</th><th scope="col">Per year</th><th scope="col">Per billable hour</th></tr>
-        </thead>
-        <tbody>
-          ${r.lines.map(
-            (l) =>
-              html`<tr><th scope="row">${l.label}</th><td>${usd(l.perYear)}</td><td>${usd(l.perHour)}</td></tr>`,
-          )}
-          <tr><th scope="row"><strong>Total</strong></th><td><strong>${usd(r.totalPerYear)}</strong></td><td><strong>${usd(r.perHour)}</strong></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p>So this machine costs about <strong>${usd(r.perHour)} an hour</strong> before profit. The operator
-    and overhead are most of it; the machine itself is a small share once it is spread over its life.</p>
-
-    <h2>Utilization moves the rate more than anything else</h2>
-    <p>The same machine and costs, billed for more or fewer hours:</p>
-    <div class="table-wrap">
-      <table class="compare">
-        <caption class="fineprint">Same made-up inputs; only billable hours, or the operator split, change.
-        Power follows the hours run.</caption>
-        <thead><tr><th scope="col">Case</th><th scope="col">Cost per billable hour</th></tr></thead>
-        <tbody>
-          ${VARIANTS.map(
-            (v) =>
-              html`<tr><th scope="row">${v.label}</th><td>${usd(machineHourlyRate(v.inputs).perHour)}</td></tr>`,
-          )}
-        </tbody>
-      </table>
-    </div>
-    <p>Most of the cost is fixed, so an hour you cannot bill is spread over the hours you can. A shop that
-    sets its rate assuming 90% and bills 60% loses money on every job without seeing why. Use the
-    utilization you actually had last year, not the one you hope for.</p>
-
-    <h2>Mistakes that make a rate too low</h2>
-    <ul>
-      <li>Counting paid hours as billable hours.</li>
-      <li>Leaving out the burden: the wage alone is not what an operator costs.</li>
-      <li>Pricing a machine you own outright as free. It wears out and will need replacing.</li>
-      <li>One blended shop rate for a 5-axis mill and a manual saw. A rate per machine or work center
-      quotes the cheap work and the expensive work each at its real cost.</li>
-      <li>Never checking. Compare the hours you quoted with the hours jobs took, and the utilization you
-      assumed with what you billed, at least once a year.</li>
-    </ul>
-
-    <h2>Putting the rate to work in ${SITE_NAME}</h2>
-    <p>${SITE_NAME}'s rate card takes the result as it is: an hourly rate per machine, an optional
-    separate setup rate (for when setup is done by someone paid differently), and markups kept apart from
-    the rates, one for labor, one for material and one for outside services, plus a line minimum. Each
-    quote line is priced from those by plain arithmetic you can check, and the rates in force are
-    saved with each quote, so a later rate change does not rewrite what you sent. To check your times
-    against what jobs really took, the free
-    <a class="link" href="https://marisstella.app/machine-shop-guides/quote-vs-actual.html">quoted vs actual
-    hours</a> page reads a job history export, per machine, in your browser.</p>
-    <p class="fineprint">This guide is general information about cost arithmetic, not accounting or tax
-    advice. Depreciation for your books and taxes follows different rules (ask your accountant); the
-    straight line here is only for pricing.</p>
-  </div>
-</section>
-${ctaBand(ctx, "Put your rates in and quote a real RFQ", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
-}
-
 export interface Faq {
   q: string;
   a: string;
@@ -1146,7 +1010,6 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/pricing": pricingPage,
   "/for-cmmc-shops": cmmcPage,
   "/compare": comparePage,
-  "/machine-shop-hourly-rate": hourlyRatePage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
   "/early-access/thanks": thanksPage,
