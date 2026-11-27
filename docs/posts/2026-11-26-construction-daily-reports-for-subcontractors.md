@@ -73,6 +73,10 @@ a dispute months later can't.
 Holidays and days your crew wasn't scheduled show up as gaps too. That's fine: a gap is a
 question to answer, not an error.
 
+Check once a week, not only when you open the log. Monday morning is a good time: last week's
+missed days are still fresh, and a short report saying "no crew on site" closes a gap as surely
+as a full one. It also answers the question before anyone asks it.
+
 ## Make it quick enough that it gets done
 
 Daily reports get skipped when they take too long. Two things help:
@@ -102,6 +106,9 @@ for subcontractors, on every plan:
   man-hours totalled per day and for the job;
 - the weekdays since the first report with no report, listed on the log, each a click away
   from a new report;
+- the weekly email lists last week's missing weekdays per job, linked to that job's log. Only
+  jobs someone is still logging (a report in the last 14 days) are listed, and missing days
+  alone never send the email, since a sub isn't on site every weekday;
 - "New, with the crew from yesterday" copies the crew and equipment, nothing else;
 - photos and files kept with each report: the phone's camera opens from the report, large
   photos are shrunk before upload, and delivery tickets and inspection reports go in as PDFs or
