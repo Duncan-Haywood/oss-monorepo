@@ -30,13 +30,18 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First scripted insert of the four rules matched RETAINAGE_CAPS' MA/MI/VA keys (which come first in the file) instead of STATE_BOND_RULES; caught on the diff hunk headers and re-anchored before testing."
+    "First scripted insert of the four rules matched RETAINAGE_CAPS' MA/MI/VA keys (which come first in the file) instead of STATE_BOND_RULES; caught on the diff hunk headers and re-anchored before testing.",
+    "CI pages 'test' failed: ventures/pay-app-guides/llms-answers.txt is generated from the guide's FAQ and I had not regenerated it; fixed with node platform/pages/llms-answers.mjs ventures/pay-app-guides."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md",
       "issue": "PR #19887 added five states to the app and guide but left the customer post saying 'eight states'; fixed here. A guide-vs-post state-count check would catch it."
+    },
+    {
+      "file": "ventures/pay-app-guides/README.md",
+      "issue": "Editing a guide's FAQ needs llms-answers.mjs rerun; neither the guide README nor page.test.mjs says so, so only the platform pages suite (100 s) catches it."
     }
   ],
   "deviations": [
