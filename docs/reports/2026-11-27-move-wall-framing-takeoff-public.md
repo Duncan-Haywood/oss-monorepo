@@ -55,6 +55,9 @@ only in the paid copy, 118 changed). The two must not share a directory or a lic
   runs on touched ventures and private CI never ran). The fixes are types only: `dxf.mjs`'s return type
   now names `outline` and `wallThickness`, and three failure-branch reads in `roofoutline.mjs` and
   `siding.mjs` are cast where the union does not narrow on `ok`.
+- **44 calculator pages' meta, og and twitter descriptions** replaced with the free edition's shortened
+  ones (the free edition cut them under 160 characters after the fork). Meta lines only: 45 lines
+  in 44 files. `platform/pages/description-length.test.mjs` scans every venture HTML file, served or not.
 - `portfolio/monetization/transition.json` regenerated (`transition.py --write`). Its heuristic files the
   venture as "subscription" because it sees a script (`sync-from-private.sh`), but the product is a
   $29 one-off per house (`docs/PRICING.md`). The generated row is left as the rule writes it.
