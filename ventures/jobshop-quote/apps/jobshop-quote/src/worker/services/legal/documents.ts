@@ -11,10 +11,10 @@ export interface LegalDocumentSource {
 export const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocumentSource> = {
   terms: {
     title: "Terms of Service",
-    updatedAt: "2026-11-26",
+    updatedAt: "2026-11-27",
     markdown: `# Terms of Service
 
-**Version 2026-11-26** · Maris Stella Labs LLC
+**Version 2026-11-27** · Maris Stella Labs LLC
 
 ## 1. Who we are
 
@@ -22,13 +22,14 @@ Job Shop Quote (the "Service") is operated by **Maris Stella Labs LLC**, a Color
 
 ## 2. The Service
 
-The Service helps machining and fabrication shops turn requests for quotation (RFQs) into quotes: it reads an RFQ's text and attached drawings, suggests the part details it found, prices each quantity break from the rate card **you enter**, produces a quote PDF and cover note, can email the quote to your customer, and keeps a log of quotes won and lost.
+The Service helps machining and fabrication shops turn requests for quotation (RFQs) into quotes: it reads an RFQ's text and attached drawings, suggests the part details it found, prices each quantity break from the rate card **you enter**, produces a quote PDF and cover note, can email the quote to your customer, and keeps a log of quotes won and lost. It can also receive RFQs at an email address for your shop, share a sent quote through a customer link the customer can accept or decline through, print a job traveler for a won quote, remind your estimators of quotes that are expiring or due for a follow-up, and send a won quote to your QuickBooks Online company as an invoice if an admin connects it.
 
 ## 3. You are the one quoting
 
 Every price comes from your own rate card and the inputs you or your estimators enter (material, blank size, operations, setup and cycle times, finishing, extras and markups). The Service does the arithmetic; it does not know your machines, your costs, your customer's requirements or whether a part can be made as drawn. Before you send a quote, you are responsible for checking every part, quantity, price, lead time and term, and for making sure the quote is accurate and complete. Your customers rely on you, not on us.
 
 - **AI suggestions are suggestions.** The Service uses an AI model to read RFQs and to draft cover notes. It checks each value it extracts against the RFQ text and drops values it cannot find there, but it can still misread a drawing, miss a requirement or a revision, or leave something out. A part goes onto a quote only after one of your people confirms it. Read the RFQ and the drawings yourself.
+- **Customer answers are your customer's words.** When a customer accepts or declines a quote through a customer link, the Service records and forwards what they typed. Whether that forms an order, and on what terms, is between you and your customer.
 - **Geometry is an estimating aid.** Sizes, volumes and suggested operations read from CAD files are starting points, not measurements you can rely on without checking.
 - **No engineering, legal, tax or accounting advice.** Nothing in the Service is engineering, manufacturing, legal, tax, accounting or financial advice, and we do not review drawings for manufacturability, export control or compliance.
 
@@ -66,7 +67,7 @@ We work to keep the Service available, but it may be interrupted for maintenance
 
 ## 10. Termination
 
-You may stop using the Service and cancel at any time. We may suspend or terminate accounts that violate these Terms or the Acceptable Use Policy, or for non-payment, with notice where practical. Before your account closes, you can download your quote PDFs.
+You may stop using the Service and cancel at any time. We may suspend or terminate accounts that violate these Terms or the Acceptable Use Policy, or for non-payment, with notice where practical. Before your account closes, you can download your quote PDFs and the won/lost report (CSV).
 
 ## 11. Disclaimers
 
@@ -91,17 +92,17 @@ Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app
   },
   privacy: {
     title: "Privacy Policy",
-    updatedAt: "2026-11-26",
+    updatedAt: "2026-11-27",
     markdown: `# Privacy Policy
 
-**Version 2026-11-26** · Maris Stella Labs LLC
+**Version 2026-11-27** · Maris Stella Labs LLC
 
 This policy explains what information Job Shop Quote (operated by Maris Stella Labs LLC, "we") collects, why, who processes it, and the choices you have.
 
 ## What we collect
 
 - **Account information:** name, email address, whether the address is verified, sign-in sessions (passwords are stored only as secure hashes), shop memberships and roles, and invitations addressed to an email address (only a hash of each invitation link is stored).
-- **Your shop's rate card and settings:** shop name, machines and hourly rates, materials and prices, finishing operations, markups, minimums, routing templates and quote defaults.
+- **Your shop's rate card and settings:** shop name, machines and hourly rates, cut speeds, removal rates and drill feeds, materials and prices (with the history of each price change: who made it and, for an imported supplier sheet, the supplier and the sheet's date), finishing operations, markups, minimums, routing templates and quote defaults.
 - **RFQs:** the text of each request for quotation you paste or that arrives at your shop's RFQ email address (including the sender's name and email address, the subject and the message body), the customer details found in it, and the part details your estimators confirm. If your shop limits who can email RFQs in, we keep the list you enter and, for mail it refused, the sender's email address, the time and whether the mail failed its sender domain's SPF, DKIM or DMARC check (the last 10 only, so you can let a real customer through); the message itself is not stored.
 - **Files you upload or that arrive with an RFQ:** drawings (PDF and images), text files and CAD files (STEP, IGES, STL, DXF), with their file names and sizes, stored privately for your shop, plus the text and geometry read from them.
 - **Quotes:** each quote's lines, inputs, prices, the rate rows used, its status and won/lost outcome, the PDF as sent, the quote emails sent from the app (recipients, subject, message and whether each was sent), and the follow-ups your estimators log on sent quotes (what they wrote, who logged it, when, and the next follow-up day).
@@ -114,7 +115,7 @@ This policy explains what information Job Shop Quote (operated by Maris Stella L
 
 ## Why we use it
 
-- To provide the Service: read RFQs, price quotes from your rate card, produce quote PDFs, send the quote emails your estimators send, and remind each estimator by email of their own quotes that are about to expire or are due for a follow-up (each member can turn these off).
+- To provide the Service: read RFQs, price quotes from your rate card, produce quote PDFs, send the quote emails your estimators send, remind each estimator by email of their own quotes that are about to expire or are due for a follow-up (each member can turn these off), email the members who ask for it when an RFQ arrives at the shop's address (a notice with the subject, the sender and a link, never the message or its files), and email the shop's owners and admins once when the month's RFQ count reaches 80% and 100% of the plan's allowance.
 - To send account emails: confirming your address and resetting your password. We do not send marketing email from the app.
 - To secure the Service, prevent abuse, and keep AI spending within each plan's limits.
 - To bill you and apply plan limits.
@@ -154,7 +155,7 @@ We will update this list before adding a new subprocessor.
 - Encryption in transit (HTTPS) and at rest (provider-managed storage encryption).
 - Tenant isolation: every record and file belongs to one shop and is checked against your membership on every request.
 - Role-based access within each shop (owner, admin, estimator, viewer).
-- Operator access: our platform administrators (the people who run the service) can see account data across shops: shop names, account owners' names and email addresses, sign-up dates, plan, subscription status and the price billed. Each such view is logged. These operator tools do not show your RFQs, drawings, quotes or rate card.
+- Operator access: our platform administrators (the people who run the service) can see account data across shops: shop names, account owners' names and email addresses, sign-up dates, plan, subscription status and the price billed. Each such view is logged. These operator tools do not show your RFQs, drawings, quotes or rate card. If the operator turns it on, the platform administrators also get an email when a shop starts a paid subscription, with the shop's name, the plan and price, and the shop owner's name and email address.
 - Sent quotes are frozen: the PDF your customer received is kept unchanged with its checksum.
 
 No system is perfectly secure. We will notify affected customers of a security incident involving their data as required by law.

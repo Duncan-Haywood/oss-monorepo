@@ -41,10 +41,11 @@ this app deploys with a Cloudflare token, not that trust, so it is not affected.
 
 ## Then
 
-1. **Before the first run:** the launch review `docs/legal/OPERATOR.md` asks for, recorded in
-   `apps/jobshop-quote/docs/LAUNCH-REVIEW.md` (every paid plan's margin at full allowance, including
-   LLM and Workers AI cost per RFQ read; the Terms, Privacy, Refunds and Acceptable Use pages read
-   against what the app does). Seller Books' `apps/seller-books/docs/LAUNCH-REVIEW.md` is the model.
+1. **Launch review: done 2026-11-27.** [`apps/jobshop-quote/docs/LAUNCH-REVIEW.md`](apps/jobshop-quote/docs/LAUNCH-REVIEW.md):
+   paid plans 42-53 % at their full AI ceiling; Terms §2/§3/§10 and the Privacy Policy fixed against
+   the code (`POLICY_VERSION` 2026-11-27.1). Its open item is the owner's: pick
+   `GLOBAL_DAILY_LLM_CAP_USD` before setting `JOBSHOP_ANTHROPIC_API_KEY`, because free sign-ups can
+   spend AI up to that cap.
 2. **The Cloudflare token needs R2 edit.** PayApps' ROADMAP (2026-11-27) says its attachments are off
    because the token lacks Workers R2 Storage edit. Job Shop Quote cannot run without R2, so
    `provision.mjs` will stop the run before anything is deployed until the owner adds that permission

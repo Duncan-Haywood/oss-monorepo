@@ -93,3 +93,24 @@ NYSDOL's own sample validates against its XSD with xmllint, and so does PayApps'
 999.99 (the guide says 9,999.99); a deduction amount is at most four integer digits; `country` is
 required by the XSD though the guide marks it optional. njwages.nj.gov still answered 403 from this
 session, so New Jersey's CSV template is the next to fetch; lni.wa.gov answered 200.
+
+## Update, 2026-11-27 (third run): New Jersey and Washington specs, what this session could reach
+
+- **New Jersey.** The Wage Hub FAQ (`www.nj.gov/labor/wageandhour/prevailing-rates/wagehubfaq.shtml`,
+  200 through the proxy) links the CSV template as `https://njwages.nj.gov/assets/CSV_Template.zip`.
+  That host answered **403** again, and the Wayback Machine copy (snapshot 2025-03-26, listed by
+  `archive.org/wayback/available`) could not be fetched (connection reset at the proxy). The
+  Contractor User Guide (`www.nj.gov/labor/wageandhour/assets/PDFs/wagehub/NJWH_Contractor_User_Guide.pdf`,
+  last updated 03/06/2026, 200) says the zip holds two CSVs (step 2, hours and deductions; step 3,
+  fringe benefits) and a third file "describing the headers", so **the column list is only in the
+  zip**: do not build from the guide alone. The guide's other upload route is the fillable MW-562
+  PDF; the copy the FAQ links (`MW-562 (12_16B)Payroll Cert-Public Works test 12 16B (2).pdf`, form
+  revision MW-562 (2/25), an AcroForm) carries test values already filled in ("Arthur R"), so it is
+  not a clean blank to fill either. Next step: a session whose policy reaches njwages.nj.gov, or the
+  owner saving `CSV_Template.zip` into the repo.
+- **Washington.** L&I's PWIA step-by-step instructions
+  (`lni.wa.gov/licensing-permits/_docs/PWIA-Step-by-Step-Instructions.pdf`, 200, "last updated May
+  2025") describe certified payroll as entered on screen (Step 1 employees and rates, Step 2 hours
+  and deductions, Step 3 review and sign) plus a scanned paper form for owner-operators. No XML or
+  file upload is described there, so the "XML upload" claim in the ranking above (from a vendor
+  guide) is unconfirmed; drop Washington below Illinois until an L&I page shows a schema.
