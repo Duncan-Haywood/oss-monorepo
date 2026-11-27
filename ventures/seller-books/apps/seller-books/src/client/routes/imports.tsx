@@ -8,6 +8,7 @@ import {
 } from "@shared/enums";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { PayoutCheck } from "../components/payout-check";
 import { api, dollarsToCents, orgPath, today, usd } from "../lib/api";
 import { useOrgId } from "./org";
 import { ErrorText } from "./public";
@@ -138,6 +139,7 @@ export function ImportsPage() {
           </div>
         )}
       </section>
+      <PayoutCheck orgId={orgId} />
       <section className="card overflow-x-auto">
         <h2 className="mb-2 font-medium">Past imports</h2>
         <table className="table">

@@ -22,9 +22,14 @@ run, add required reviewers to the `payapps-production` environment (Settings ->
 3. `scripts/provision.mjs` creates the D1 database and R2 bucket if missing (`wrangler deploy` does not)
    and writes `dist/payapps/wrangler.deploy.json` with the database id. Without R2 enabled on the account,
    or with a token that has no R2 permission (Cloudflare answers "Authentication error [code: 10000]",
-   as on the first run here, 45947552522), the deploy goes on without the `FILES` binding and warns:
-   attachments read as empty and uploads answer 503; `/api/health` then answers `"files": false`
-   and every plan's storage line reads "(not switched on yet)". Add Workers R2 Storage: Edit to the token and re-run.
+   as on the first run here, 45947552522), the deploy goes on without the `FILES` binding and warns.
+   Since 2026-11-27 attachments still work then: files go to D1's `file_blobs` table in 1 MiB chunks
+   (`src/worker/ports/file-store.ts`), each company is held to 50 MB (`D1_ORG_LIMIT_BYTES`) and all
+   companies together to 300 MB (`D1_TOTAL_LIMIT_BYTES`, a 507 past it), so files never fill the
+   database; `/api/health` answers `"fileStore": "d1"` and a plan's storage line above 50 MB reads
+   "(50 MB for now)". Add Workers R2 Storage: Edit to the token and re-run before companies fill it:
+   new files then go to R2 (`"fileStore": "r2"`, the plans' own storage), files already in D1 are still
+   read, listed and deleted from there, and nothing has to be copied.
 4. Applies D1 migrations **before** the new code goes live, so migrations must stay backward compatible.
 5. Syncs `billing/paddle-catalog.json` to Paddle when `PAYAPPS_BILLING_API_KEY` is set and reads the
    price ids back (never pasted by hand).

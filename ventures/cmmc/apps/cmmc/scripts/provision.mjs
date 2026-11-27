@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Idempotent provisioning for a CMMC Workspace deploy (docs/DEPLOY.md). Safe to run on every deploy; the
-// deploy workflow (.github/workflows/cmmc-deploy.yml) runs it after `pnpm build` and before
+// deploy workflow (.github/workflows/priv-cmmc-deploy.yml) runs it after `pnpm build` and before
 // `wrangler deploy`. Ported from apps/jobshop-quote/scripts/provision.mjs (2026-11-25).
 //
 //   node scripts/provision.mjs --write-config dist/cmmc_workspace/wrangler.deploy.json

@@ -472,3 +472,53 @@ allow:
     contains: CMMC_BILLING_WEBHOOK_SECRET
     reason: "the Paddle webhook signing secret the cmmc-workspace Worker verifies notifications with; pushed with wrangler secret bulk when set, never logged"
     added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-einvoice-pro-deploy.yml
+    contains: CLOUDFLARE_API_TOKEN
+    reason: "the Cloudflare deploy token under the spelling priv-payapps-deploy.yml and priv-email-deploy.yml already read; deploys E-invoice Fix & Explain (bet #3, ventures/einvoice-pro) with wrangler from main only, by hand (D1 in the EU jurisdiction, Workers); exported only after tests and build"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-einvoice-pro-deploy.yml
+    contains: CLOUDFLAREAPITOKEN
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys E-invoice Fix & Explain (bet #3, ventures/einvoice-pro) with wrangler from main only, by hand (D1 in the EU jurisdiction, Workers)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-einvoice-pro-deploy.yml
+    contains: CLOUDFLARERESTRICTEDAPIKEY
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys E-invoice Fix & Explain (bet #3, ventures/einvoice-pro) with wrangler from main only, by hand (D1 in the EU jurisdiction, Workers)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-einvoice-pro-deploy.yml
+    contains: CLOUDFLARE_ACCOUNT_ID
+    reason: "the Cloudflare account id wrangler needs, as priv-payapps-deploy.yml reads it; deploys E-invoice Fix & Explain (bet #3, ventures/einvoice-pro) with wrangler from main only, by hand (D1 in the EU jurisdiction, Workers)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-einvoice-pro-deploy.yml
+    contains: CLOUDFLAREACCOUNTID
+    reason: "alias of CLOUDFLARE_ACCOUNT_ID the owner saved, as priv-payapps-deploy.yml reads it; deploys E-invoice Fix & Explain (bet #3, ventures/einvoice-pro) with wrangler from main only, by hand (D1 in the EU jurisdiction, Workers)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-einvoice-pro-deploy.yml
+    contains: EINVOICE_BILLING_API_KEY
+    reason: "the owner's Paddle key, read only when set, to sync billing/paddle-catalog.json to Paddle and push it to the einvoice-pro Worker (wrangler secret bulk, never logged); when unset paid plans stay dark"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-einvoice-pro-deploy.yml
+    contains: EINVOICE_BILLING_WEBHOOK_SECRET
+    reason: "the Paddle webhook signing secret the einvoice-pro Worker verifies notifications with; pushed with wrangler secret bulk when set, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-einvoice-pro-deploy.yml
+    contains: EINVOICE_BILLING_PRICE_IDS
+    reason: "fallback Paddle price ids (not credentials) pushed to the einvoice-pro Worker when the catalog sync gives none; wrangler secret bulk, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-einvoice-pro-deploy.yml
+    contains: EINVOICE_RESEND_API_KEY
+    reason: "the owner's Resend key for email sign-in, pushed to the einvoice-pro Worker with wrangler secret bulk when set, never logged; when unset email sign-in stays off"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-einvoice-pro-deploy.yml
+    contains: EINVOICE_ADMIN_TOKEN
+    reason: "optional operator token for POST /v1/admin/accounts on the einvoice-pro Worker, pushed with wrangler secret bulk when set, never logged"
+    added: 2026-11-27

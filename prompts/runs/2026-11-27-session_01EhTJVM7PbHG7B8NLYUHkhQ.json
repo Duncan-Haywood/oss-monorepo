@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVM7PbHG7B8NLYUHkhQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T13:56:28Z",
+  "ended": "2026-11-27T14:05:11Z",
+  "wall_minutes": 8.91,
+  "tokens_in": 8753252,
+  "tokens_out": 36233,
+  "cost_usd": 3.6038,
+  "tool_calls": 75,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19763",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets pointed to jobshop-quote #3 (launch), but that item is waiting on R2 edit and on another session's live files-without-r2 claim; every payapps and cmmc item waits on demand. It took about ten minutes of reading to find work nobody had claimed."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Every Growth path topic for bets #1, #2 and #5 has shipped, so the list no longer suggests anything new to build; it needs fresh topics."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The top bet (payapps) had no free item and six live claims. jobshop-quote's one free item is blocked. So I took bet #5 (seller-books, live, least crowded) and added a new slug, payout-reconcile, which follows from its wedge (bridging payouts to sales).",
+      "did": "bank-deposit vs expected-payout reconciliation",
+      "result": "merged with tests"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Skipped venture-preflight.mjs (>5 min). The change adds no pages to the static site; the seller-books-site node tests ran and pass.",
+      "did": "ran the app and site test suites",
+      "result": "all green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (new section: deposits vs books)"
+  ],
+  "goal": null,
+  "notes": "Local: tsc clean; biome clean; vitest unit 332/332, worker 140/140; vite build ok; seller-books-site node --test 58/58. risk_review: nothing triggered.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c47faeee-0f90-5448-825a-6b1053b268a0",
+    "transcripts": 1,
+    "first": "2026-11-27T13:56:28Z",
+    "last": "2026-11-27T14:05:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 140,
+        "output": 36233,
+        "thinking": 8016,
+        "cache_read": 8608500,
+        "cache_write_5m": 0,
+        "cache_write_1h": 144612,
+        "api_equivalent_usd": 3.6038,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 140,
+      "output": 36233,
+      "thinking": 8016,
+      "cache_read": 8608500,
+      "cache_write_5m": 0,
+      "cache_write_1h": 144612,
+      "api_equivalent_usd": 3.6038,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 71,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.91,
+      "active_minutes": 8.91,
+      "model_minutes": 7.18,
+      "tool_minutes": 1.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "pure function + route + UI + tests + docs for a reconciliation feature",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 166.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

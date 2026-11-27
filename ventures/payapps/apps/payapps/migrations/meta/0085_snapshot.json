@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "263c6f3c-524a-454a-9b6b-db6192f3d41e",
+  "id": "5490f8bf-f9c0-484a-b572-f8cd03107999",
   "prevId": "9895c39f-4d9c-46c0-bc55-eae1a2986528",
   "tables": {
     "account": {
@@ -2807,6 +2807,73 @@
         }
       },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "file_blobs": {
+      "name": "file_blobs",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "chunk": {
+          "name": "chunk",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "bytes": {
+          "name": "bytes",
+          "type": "blob",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "content_type": {
+          "name": "content_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "custom_metadata": {
+          "name": "custom_metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "size": {
+          "name": "size",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "file_blobs_key_chunk_pk": {
+          "columns": [
+            "key",
+            "chunk"
+          ],
+          "name": "file_blobs_key_chunk_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -6704,42 +6771,6 @@
         },
         "ga_noc_contractor": {
           "name": "ga_noc_contractor",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "lien_state": {
-          "name": "lien_state",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "lien_residential": {
-          "name": "lien_residential",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "last_furnished_on": {
-          "name": "last_furnished_on",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "work_completed_on": {
-          "name": "work_completed_on",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "notice_of_completion_on": {
-          "name": "notice_of_completion_on",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

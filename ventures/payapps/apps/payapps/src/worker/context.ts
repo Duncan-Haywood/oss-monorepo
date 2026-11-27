@@ -5,6 +5,7 @@ import { createLogger, type Logger } from "./lib/logger";
 import { createQboGateway, type QboGateway } from "./ports/accounting";
 import { type BillingProvider, createBillingProvider } from "./ports/billing";
 import { createEmailSender, type EmailSender, FakeEmailSender } from "./ports/email";
+import { withFileStore } from "./ports/file-store";
 
 export interface AppContext {
   env: Env;
@@ -34,8 +35,10 @@ export function usesFakeEmail(env: Pick<Env, "APP_ENV" | "FAKE_EXTERNALS">): boo
   return env.APP_ENV === "test" || env.FAKE_EXTERNALS === "true";
 }
 
-export function createAppContext(env: Env, overrides: Partial<Omit<AppContext, "env">> = {}) {
-  assertRuntimeEnv(env);
+export function createAppContext(rawEnv: Env, overrides: Partial<Omit<AppContext, "env">> = {}) {
+  assertRuntimeEnv(rawEnv);
+  // FILES is R2 when bound, else D1 (ports/file-store.ts), so attachments work before R2 is switched on.
+  const env = withFileStore(rawEnv);
   const logger = overrides.logger ?? createLogger({ app: "payapps", env: env.APP_ENV });
   return {
     env,

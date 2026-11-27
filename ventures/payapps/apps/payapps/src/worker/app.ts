@@ -8,6 +8,7 @@ import { contextMiddleware } from "./middleware/context";
 import { originCheck, securityHeaders } from "./middleware/security";
 import { sessionMiddleware } from "./middleware/session";
 import { requireOrg } from "./middleware/tenant";
+import { fileStoreKind } from "./ports/file-store";
 import adminRoutes from "./routes/admin";
 import authRoutes from "./routes/auth";
 import billingRoutes from "./routes/billing";
@@ -52,13 +53,15 @@ export function createApp() {
 
   // `email` says whether account mail leaves the Worker: a deploy's smoke test checks it, because with
   // verification required (production/HTTPS) nobody can finish signing up without it. `files` says
-  // whether the R2 bucket is bound: without it every attachment upload answers 503 (docs/DEPLOY.md).
+  // attachments work (always, since 2026-11-27); `fileStore` says where new files go: "r2", or "d1"
+  // until the bucket is bound (ports/file-store.ts, docs/DEPLOY.md).
   app.get("/api/health", (c) =>
     c.json({
       ok: true,
       app: "payapps",
       email: c.var.ctx.email.delivers,
       files: Boolean(c.var.ctx.env.FILES),
+      fileStore: fileStoreKind(c.var.ctx.env),
     }),
   );
 

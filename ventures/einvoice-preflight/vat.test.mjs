@@ -738,6 +738,7 @@ test("BG and CZ numbers whose check digit comes from the remainder-10 branch", (
   const cases = {
     BG955103765: "first sum leaves 10, second weight set gives 5",
     BG088448100: "both sums leave 10, check digit 0",
+    BG6003050840: "10-digit EGN whose weighted sum leaves 10, so the check digit is 0 (python-stdnum bg.vat agrees; 2026-11-27)",
     CZ30803331: "11 - 0 = 11 maps to 1",
     CZ30686130: "11 - 1 = 10 maps to 0",
     CZ5409060900: "birth number whose first nine digits leave 10, last digit 0",

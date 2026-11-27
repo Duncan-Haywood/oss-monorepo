@@ -2,10 +2,12 @@
 
 Status: **live on the Free plan** (2026-11-27). Live at https://payapps.marisstella.app since run 45963162134 (PR #19642,
 custom domain; workers.dev is off). The first live deploy, run 45949861746, was on workers.dev. The smoke test answered
-`{"ok":true,"app":"payapps","email":true}`, so sign-up email works. Attachments (R2) are off until the
-Cloudflare token gets Workers R2 Storage edit; until then `/api/health` answers `"files": false`, and the
-plan lists (`/api/billing/plans`, the Billing page) mark each storage line "(not switched on yet)"
-instead of selling space nobody can use (2026-11-27). No customers yet. Paid plans are dark
+`{"ok":true,"app":"payapps","email":true}`, so sign-up email works. The Cloudflare token has no Workers
+R2 Storage edit, so there is no bucket; since 2026-11-27 (files-without-r2) attachments work anyway, kept
+in D1's `file_blobs` (`src/worker/ports/file-store.ts`) at 50 MB per company and 300 MB in all, with
+`/api/health` answering `"fileStore": "d1"` and storage lines above 50 MB reading "(50 MB for now)"
+(docs/DEPLOY.md, step 3). Add R2 edit to the token before companies fill it; files then move to R2 with
+nothing to copy. No customers yet. Paid plans are dark
 (`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.
 
 ## Done (this MVP)
@@ -1006,7 +1008,7 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   clock for a home), the day this company last furnished labor or materials and, for California and
   Arizona, the project's completion and a recorded notice of completion (`projects.lien_state`,
   `lien_residential`, `last_furnished_on`, `work_completed_on`, `notice_of_completion_on`, migration
-  0085, saved through the job's PATCH and listed in the job history). It shows the last day to record
+  0086, saved through the job's PATCH and listed in the job history). It shows the last day to record
   or file the lien in ten states (AZ § 33-993, CA § 8414, CO § 38-22-109, FL § 713.08(5), GA
   § 44-14-361.1, NC § 44A-12(b), NY Lien Law § 10, OH § 1311.06(B), TX § 53.052, WA § 60.04.091),
   rules ported from the free mechanics-lien-deadline-calculator, whose timing was checked against the
@@ -1709,6 +1711,26 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   `test/unit/certified-payroll-page.test.tsx`. Next, if Washington customers ask: a real PWIA upload's
   step 4 and 5 messages checked, several weeks in one file (the schema allows it), and an amendment
   flag.
+
+- Certified payroll, part 3d: Illinois IDOL Certified Transcript of Payroll CSV (2026-11-27,
+  certified-payroll-il-ctp-upload, every plan). An "Illinois public works" section on the certified
+  payroll page makes the same week as the CSV the IDOL CTP portal takes by Full Import, in the 102
+  columns of IDOL's own template (`Full-CTP-Upload.xlsx` on labor.illinois.gov, read 2026-11-27, its
+  misspelt "Wednsday"/"Satday" headers and repeated names kept, since the portal wants the template's
+  column names and order). One row per worker per classification (IDOL FAQ 7); each day's hours
+  under its own weekday whatever day the week ends (FAQ 13); hours on other projects that week as
+  the "non-prevailing" columns, their gross as 7B less 7A, net split by gross unless typed; fringe
+  credits by IDOL's five hourly columns (guessed from the plan, changeable); double time, AddOT15 and
+  AddOT20 where typed; dates MM/DD/YYYY as the training slides show. Checks the slides' required
+  fields (project county, contractor contact, phone and email, the public body). Race, ethnicity,
+  gender and veteran status (asked by the Act; FAQ 15) are held in the page's memory only; the other
+  extras are saved with the draft in the browser (Privacy Policy sentence added; no POLICY_VERSION
+  bump, as for New York). `src/shared/il-ctp.ts`, `src/client/components/il-ctp-section.tsx`; tests
+  `src/shared/il-ctp.test.ts`, `test/unit/certified-payroll-page.test.tsx`. Not yet checked against
+  a real upload: IDOL's template does not list the race, ethnicity and gender values its portal
+  accepts (its sample row has "Chinese" / "Y" / "M"), so those are typed as the worker gives them.
+  Next, if Illinois customers ask: the accepted values from a real upload's errors, and IDOL's
+  classification names offered as a list from the county's rate sheet.
 
 - Getting started, part 5 (2026-11-26): where companies stall, in the owner's metrics.
   `GET /api/admin/metrics` now carries `activation`: for every company, and for those that signed
@@ -2432,7 +2454,8 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   CSV, if people ask (a by-day CSV fills the week since 2026-11-26), save the crew and rates with the job instead of the
   browser if people ask, other states' prevailing-wage formats once their official specs are read (California's DIR eCPR
   XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b;
-  Washington's L&I XML done 2026-11-27: part 3c; New Jersey's Wage Hub CSV next, once njwages.nj.gov answers), and the upload formats of the compliance
+  Washington's L&I XML done 2026-11-27: part 3c; Illinois' IDOL CTP CSV done 2026-11-27: part 3d;
+  New Jersey's Wage Hub CSV next, once njwages.nj.gov answers), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
 - Notice to Owner, Florida, part 3 (part 2, the notices served per person, the saved first day and

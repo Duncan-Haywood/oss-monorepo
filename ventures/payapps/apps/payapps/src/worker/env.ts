@@ -59,8 +59,14 @@ export interface Secrets {
 /** Optional until the sender domain is onboarded (docs/EMAIL.md); absent in tests. */
 export interface OptionalBindings {
   EMAIL?: EmailSendBinding;
-  /** R2 bucket for pay-app attachments (services/payapps/attachments.ts). Without it uploads answer 503. */
+  /**
+   * Attachment storage (services/payapps/attachments.ts and the other *-files services). Bound as the
+   * R2 bucket; `createAppContext` replaces it with R2 + a D1 fallback, or D1 alone when the bucket is
+   * not bound (ports/file-store.ts), so services always see a store.
+   */
   FILES?: R2Bucket;
+  /** The R2 bucket itself after `withFileStore` (undefined without R2): where new files go. */
+  FILES_R2?: R2Bucket;
 }
 
 export type Env = CloudflareBindings & Secrets & OptionalBindings;

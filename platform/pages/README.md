@@ -1677,6 +1677,16 @@ It loads **every** built page — 440 of them, the SEO articles included, not ju
 the 164 tool front pages — at a desktop and a phone viewport, and runs axe-core's
 WCAG 2.1 A and AA rules. Exit status is non-zero on any violation.
 
+**Result panels.** A page is measured as it loads, and most tools hide their
+answer until a button is pressed, so the panels where colour bugs live were
+never read. `CLICK='#load-ok,#load-example,#example'` presses each listed
+selector that is present and visible on a page, then measures that page again;
+findings new after the click are labelled `+click(<selector>)`. Pages without
+any of the selectors are measured once, as before. A one-page fixture with a
+`#ccc` answer revealed by `#load-example` passes without `CLICK` and fails
+(1.6:1) with it (2026-11-27). Point `DIST` at a folder and serve it to check
+pages without a full build: `DIST=ventures ONLY_SLUGS=<slug>`.
+
 A tool that calculates correctly and paints the answer in near-white on
 near-white is working software and a broken product, and until this existed
 nothing here could tell the difference. What the first run found, on

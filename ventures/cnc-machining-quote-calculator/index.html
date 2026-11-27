@@ -67,6 +67,7 @@
     @media (max-width: 560px) { body { padding: 20px 16px; } }
     /* Phone cards (table.stack): the lot size is the card title, so say what it is. */
     @media (max-width: 600px) { #lot-table td:first-child::before { content: "Lot of "; display: inline; padding: 0; font: inherit; color: inherit; } }
+    .scroller:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
   </style>
 </head>
 <body>
@@ -315,7 +316,7 @@
 
     <h3>Where the money goes</h3>
     <p class="note" id="breakdown-note">Every figure is for the whole lot. Flat lines cost the same at any quantity.</p>
-    <div class="scroller">
+    <div class="scroller" tabindex="0" role="region" aria-label="Where the money goes (table, scrolls sideways)">
       <table class="stack compact" aria-describedby="breakdown-note">
         <thead>
           <tr><th>Cost line</th><th class="num">This lot</th><th class="num">Per part</th><th>Scales with</th></tr>
@@ -332,7 +333,7 @@
     <h3>The same part at every lot size</h3>
     <p class="note">Recomputed from scratch at each quantity, so the material
     steps and the amortised setup are both real rather than interpolated.</p>
-    <div class="scroller">
+    <div class="scroller" tabindex="0" role="region" aria-label="The same part at every lot size (table, scrolls sideways)">
       <table class="stack compact" id="lot-table">
         <thead>
           <tr>

@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "cash-report daysBetween clamps at 0; first draft of lienDeadlineText used it, so a passed deadline would never be reported. Caught while reading the helper, replaced with a signed daysUntil before tests.",
-    "Two worker tests anchor the cash CSV's last column; failed on the new column, updated."
+    "Two worker tests anchor the cash CSV's last column; failed on the new column, updated.",
+    "Main took migrations 0084 (Texas notices) and then 0085 (file blobs) while this PR waited on CI; merged main twice and regenerated the lien migration as 0086."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,6 +43,10 @@
     {
       "file": "ventures/payapps/apps/payapps/src/shared/cash-report.ts",
       "issue": "daysBetween is documented as 'never negative' but the name suggests a signed difference; easy to misuse for past-deadline checks."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "The required Security gate's runs share a concurrency group; an earlier head's adversarial-llm job sat queued without a runner (ci_starvation: starved) and held the new head's required run pending for 30+ min, long enough for main to take two migration numbers."
     }
   ],
   "deviations": [
@@ -57,7 +62,7 @@
     "ventures/payapps/apps/payapps/ROADMAP.md entry"
   ],
   "goal": null,
-  "notes": "Verification: tsc clean; payapps unit 1408+3 passed; worker 568 passed; payapps-site unit 32; calculator node --test 54; biome no new diagnostics.",
+  "notes": "Verification: tsc clean; payapps unit 1408+3 passed; worker 568 passed; payapps-site unit 32; calculator node --test 54; biome no new diagnostics. After the second main merge: payapps worker 588 passed, unit 1430 passed, payapps-site 34.",
   "corrections": [],
   "redteam": null,
   "usage": {

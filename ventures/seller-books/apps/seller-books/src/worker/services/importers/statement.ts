@@ -41,6 +41,10 @@ export interface StatementParseResult {
   /** How money out was told from money in, so the page can say so and offer the flip. */
   signRule: "debit-credit-columns" | "type-column" | "given" | "guessed";
   chargesAre: ChargesAre | null;
+  /** The money-in rows left out of `rows` (payouts, refunds, card payments), for the payout check. */
+  moneyIn: { line: number; date: string; description: string; amountCents: number }[];
+  /** First and last readable date over every row, money in or out; null when none was read. */
+  period: { from: string; to: string } | null;
 }
 
 type Field = "date" | "description" | "amount" | "debit" | "credit" | "type" | "category";
@@ -223,14 +227,19 @@ export function parseStatement(
   }
 
   const rows: StatementRow[] = [];
-  let moneyIn = 0;
+  const moneyInRows: StatementParseResult["moneyIn"] = [];
   for (const x of raws) {
     let out: boolean;
     if (x.dir) out = x.dir === "out";
     else if (signRule === "debit-credit-columns") out = x.signed > 0;
     else out = chargesAre === "negative" ? x.signed < 0 : x.signed > 0;
     if (!out) {
-      moneyIn++;
+      moneyInRows.push({
+        line: x.line,
+        date: x.date,
+        description: x.description || "(no description)",
+        amountCents: Math.abs(x.signed),
+      });
       skipped.push({ line: x.line, reason: "Money in (a refund, deposit or card payment)" });
       continue;
     }
@@ -243,13 +252,27 @@ export function parseStatement(
       suggestion: suggest(x.description),
     });
   }
-  if (moneyIn > 0) {
+  if (moneyInRows.length > 0) {
     warnings.push(
-      `${moneyIn} row(s) are money in and were left out. A refund of a business purchase lowers that expense: enter the net amount by hand.`,
+      `${moneyInRows.length} row(s) are money in and were left out. A refund of a business purchase lowers that expense: enter the net amount by hand.`,
     );
   }
   const matched: Record<string, string> = {};
   for (const [k, v] of Object.entries(table.matched)) if (v !== undefined) matched[k] = v;
   skipped.sort((a, b) => a.line - b.line);
-  return { rows, rowCount: table.rows.length, skipped, warnings, matched, signRule, chargesAre };
+  const dates = raws.map((x) => x.date).sort();
+  const period = dates.length
+    ? { from: dates[0] as string, to: dates[dates.length - 1] as string }
+    : null;
+  return {
+    rows,
+    rowCount: table.rows.length,
+    skipped,
+    warnings,
+    matched,
+    signRule,
+    chargesAre,
+    moneyIn: moneyInRows,
+    period,
+  };
 }
