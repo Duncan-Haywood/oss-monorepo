@@ -119,6 +119,9 @@ export function plan(wants, products, prices) {
   return out;
 }
 
+/** Escapes every regex metacharacter (backslash included), so a slug always matches itself literally. @param {string} s */
+export const escapeRegExp = (s) => s.replace(/[\\^$.*+?()[\]{}|\/-]/g, "\\$&");
+
 /**
  * catalogue.mjs's source with each product's priceId set. Touches only the `priceId: "..."` on the line
  * that opens that product's entry; a product with no such line is reported, never guessed.
@@ -130,7 +133,7 @@ export function withPriceIds(source, ids) {
   const missing = [];
   for (const [slug, id] of Object.entries(ids)) {
     if (!/^pri_[a-z0-9]{10,40}$/.test(id)) throw new Error(`${slug}: not a Paddle price id: ${JSON.stringify(id)}`);
-    const re = new RegExp(`^(\\s*"${slug.replace(/[-]/g, "\\-")}":\\s*\\{[^\\n]*?priceId:\\s*")[^"]*(")`, "m");
+    const re = new RegExp(`^(\\s*"${escapeRegExp(slug)}":\\s*\\{[^\\n]*?priceId:\\s*")[^"]*(")`, "m");
     if (!re.test(out)) { missing.push(slug); continue; }
     out = out.replace(re, `$1${id}$2`);
   }

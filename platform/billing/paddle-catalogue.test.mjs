@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { CATALOGUE } from "./catalogue.mjs";
 import { PRICES } from "./prices.mjs";
-import { TAG, API, wanted, plan, priceBody, withPriceIds, sync, client, keyMatches, describe } from "./paddle-catalogue.mjs";
+import { TAG, API, wanted, plan, priceBody, withPriceIds, escapeRegExp, sync, client, keyMatches, describe } from "./paddle-catalogue.mjs";
 
 const CAT = {
   ...CATALOGUE,
@@ -89,6 +89,15 @@ test("withPriceIds writes only that product's priceId, and reports a product it 
   assert.equal(changed.length, 1);
   assert.match(changed[0], /"shed-designer":.*priceId: "pri_01h0000000000000000000000a"/);
   assert.throws(() => withPriceIds(src, { "shed-designer": 'x" + evil + "' }), /not a Paddle price id/);
+});
+
+test("withPriceIds treats a slug literally, backslashes and metacharacters included", () => {
+  for (const slug of ["a\\b", "a.b", "a-b", "(x)", "a\\", "[q]", "a|b"]) assert.ok(new RegExp(`^${escapeRegExp(slug)}$`).test(slug), slug);
+  const src = '  "a.b": { priceId: "" },\n  "axb": { priceId: "" },\n  "c\\\\d": { priceId: "" },\n';
+  const id = "pri_01h0000000000000000000000a";
+  assert.deepEqual(withPriceIds(src, { "a.b": id }).source.split("\n").slice(0, 2), [`  "a.b": { priceId: "${id}" },`, '  "axb": { priceId: "" },']);
+  assert.deepEqual(withPriceIds(src, { "c\\d": id }).missing, ["c\\d"]);
+  assert.doesNotThrow(() => withPriceIds(src, { "a\\": id }));
 });
 
 /** A fake Paddle that records calls and keeps state. */

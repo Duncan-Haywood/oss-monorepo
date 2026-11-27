@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVNxDjyFeX8vwhkjQpn",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T21:56:11Z",
+  "ended": "2026-11-27T21:57:22Z",
+  "wall_minutes": 1.35,
+  "tokens_in": 952296,
+  "tokens_out": 4875,
+  "cost_usd": 0.5883,
+  "tool_calls": 15,
+  "task": "security queue step 0: code-scanning alert #1514 (js/incomplete-sanitization) in platform/billing/paddle-catalogue.mjs",
+  "projects": [
+    "platform/billing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19888",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 security runs never call route, so the run has no Prompt-Version trailer to use; the first commit carried a made-up security/0 trailer before I ran route --track process."
+    },
+    {
+      "file": "platform/ci/security_next.py",
+      "issue": "--claim tells you to work on security-fix/code-scanning-1514, but the cloud harness only lets the session push its own claude/* branch; I worked there and left the claim branch as the marker."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Step 0 security fix taken instead of a routed bet; the record uses track process/1 as the closest fit for platform code.",
+      "did": "Fixed the alert, added a test, landed it on the session branch",
+      "result": "12/12 paddle-catalogue tests pass"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No post: a regex-escaping fix tells a reader nothing new; the PR body and this record cover it.",
+      "did": "No writeup",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "withPriceIds escaped only '-' in a slug; replaced it with escapeRegExp (all metacharacters, backslash included) and added a test. node --test platform/billing/paddle-catalogue.test.mjs: 12 pass, 0 fail. risk_review.py: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "da3bc896-abc6-590f-9fb0-5b9331603d05",
+    "transcripts": 1,
+    "first": "2026-11-27T21:56:11Z",
+    "last": "2026-11-27T21:57:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 15,
+        "input": 29,
+        "output": 4875,
+        "thinking": 451,
+        "cache_read": 913780,
+        "cache_write_5m": 0,
+        "cache_write_1h": 38487,
+        "api_equivalent_usd": 0.5883,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 15,
+      "input": 29,
+      "output": 4875,
+      "thinking": 451,
+      "cache_read": 913780,
+      "cache_write_5m": 0,
+      "cache_write_1h": 38487,
+      "api_equivalent_usd": 0.5883,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 15,
+    "tools": {
+      "Bash": 13,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.35,
+      "active_minutes": 1.35,
+      "model_minutes": 0.96,
+      "tool_minutes": 0.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 0.75,
+      "basis": "read alert, fix escaping, write test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 75.0
+    },
+    "leverage": 127.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

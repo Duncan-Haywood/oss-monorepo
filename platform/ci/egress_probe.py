@@ -13,7 +13,10 @@ one call, about 15 s:
     python3 platform/ci/egress_probe.py --json
 
 Each line says "ok" (the site answered; its HTTP status follows), "blocked"
-(the proxy refused the tunnel: not the site's answer), or "no answer"
+(the proxy refused the tunnel: not the site's answer), "refused" (the site
+itself answered 401, 403 or 429, or served a Cloudflare bot check: its pages
+cannot be read from this session either; leginfo.legislature.ca.gov, Justia
+and FindLaw did this on 2026-11-27 and were reported "ok"), or "no answer"
 (timeout or DNS). For a blocked host with a known fallback in
 egress_hosts.json, the fallback is printed and probed too. Uses curl, so the
 proxy and CA bundle are picked up the way every other tool here picks them up.
@@ -39,9 +42,22 @@ def url_for(entry):
     return entry.get("url") or "https://%s/" % entry["host"]
 
 
+REFUSING_CODES = ("401", "403", "429")
+
+
 def classify(returncode, code, stderr):
-    """Turn one curl result into (state, detail)."""
+    """Turn one curl result into (state, detail).
+
+    `code` is curl's -w output: the HTTP status, then the cf-mitigated header if any.
+    """
+    parts = (code or "").split()
+    code = parts[0] if parts else ""
+    mitigated = parts[1] if len(parts) > 1 else ""
     if returncode == 0 and code and code != "000":
+        if mitigated:
+            return "refused", "%s, bot check (cf-mitigated: %s)" % (code, mitigated)
+        if code in REFUSING_CODES:
+            return "refused", "%s from the site" % code
         return "ok", code
     err = (stderr or "").strip().splitlines()
     last = err[-1] if err else "curl exit %s" % returncode
@@ -56,7 +72,7 @@ def classify(returncode, code, stderr):
 
 def curl_probe(url, timeout=15):
     cmd = ["curl", "-sS", "-o", "/dev/null", "--compressed", "-r", "0-1023",
-           "-m", str(timeout), "-w", "%{http_code}", url]
+           "-m", str(timeout), "-w", "%{http_code} %header{cf-mitigated}", url]
     try:
         p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout + 5)
     except (OSError, subprocess.TimeoutExpired) as e:

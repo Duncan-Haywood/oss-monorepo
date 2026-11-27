@@ -8,6 +8,7 @@
 
 import { SITE_NAME } from "./site.mjs";
 import {
+  CONDITIONAL_MIN_PCT,
   CONDITIONAL_MIN_SCORE,
   FAMILIES,
   MAX_SCORE,
@@ -131,7 +132,7 @@ on partial credit. Every requirement is listed below with its point value and th
 ${statusBox()}
 <h2>The four rules</h2>
 <ol>
-  <li><strong>Score at least ${CONDITIONAL_MIN_SCORE} of ${MAX_SCORE}</strong> (80%) with the open items counted, scored by the
+  <li><strong>Score at least ${CONDITIONAL_MIN_SCORE} of ${MAX_SCORE}</strong> (${CONDITIONAL_MIN_PCT}%) with the open items counted, scored by the
   ${cite("dod-methodology", "DoD Assessment Methodology")}. Work it out with the <a href="/sprs-score-calculator">SPRS score calculator</a>.</li>
   <li><strong>Only 1-point requirements may be open.</strong> The ${c.fivePoint} requirements worth 5 points and the
   ${c.threePoint} worth 3 must be met. The one exception is 3.13.11 (CUI encryption): if CUI is encrypted but the
