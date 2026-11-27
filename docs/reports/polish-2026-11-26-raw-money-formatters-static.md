@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design]
+date: 2026-11-26
+---
 # Polish 2026-11-26: raw money formatters in front-door source (169 -> 0) + static check
 
 Track: polish/0. Item 2 of "Still weakest" in
