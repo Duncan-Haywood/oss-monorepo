@@ -491,7 +491,9 @@ refund and net payout, plus up to six fee columns each filed under a fee kind. C
 whatever the seller typed, so the header names accepted are the common ones (the same list the public
 `ventures/reseller-books/inventory.mjs` reads): date bought (`Date Bought`, `Purchase Date`, `Sourced`...),
 cost (`Unit Cost`, `Cost`, `Price Paid`... or a row total: `Total Cost`, `Lot Cost`...), item (`Item`,
-`Title`, `Name`...) or `SKU`/`Custom label`, and optionally `Qty`, `Status`, `Date Removed`. Fixture:
+`Title`, `Name`...) or `SKU`/`Custom label`, and optionally `Qty`, `Status`, `Date Removed` and where it was
+bought (`Where Bought`, `Source`, `Store`, `Vendor`, `Supplier`...; not `Location`, which in sellers' sheets is
+usually the storage bin), which the stock report groups profit by. Fixture:
 `test/fixtures/sourcing-sheet.csv` (authored, covers every skip reason).
 
 ## A bank or card statement (expenses, not sales)

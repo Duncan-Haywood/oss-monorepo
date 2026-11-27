@@ -732,6 +732,7 @@ export async function stockReport(
         status: inventoryItem.status,
         disposedDate: inventoryItem.disposedDate,
         soldBySaleId: inventoryItem.soldBySaleId,
+        source: inventoryItem.source,
       })
       .from(inventoryItem)
       .where(eq(inventoryItem.orgId, orgId)),
@@ -741,6 +742,7 @@ export async function stockReport(
         name: inventoryLot.name,
         acquiredDate: inventoryLot.acquiredDate,
         totalCostCents: inventoryLot.totalCostCents,
+        vendor: inventoryLot.vendor,
       })
       .from(inventoryLot)
       .where(eq(inventoryLot.orgId, orgId)),

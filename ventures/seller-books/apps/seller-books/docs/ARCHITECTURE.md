@@ -208,6 +208,13 @@ of their inventory that the P&L does not answer. All of it is the seller's own r
   report's own fees on that row − postage on that row; sales tax is left out. They are before expenses not
   tied to a sale (ads bought separately, subscriptions, supplies, and Etsy's fees, which arrive with the
   payment statement as account charges), and the page says so.
+- **Profit by source** (2026-11-27): "which stores pay?", the question resellers keep a "where bought"
+  column for. An item's source is its own `source` (typed on the Inventory page, or a sourcing sheet's
+  `Where Bought`/`Source`/`Store`/`Vendor` column), else its lot's vendor. Spellings that differ only in
+  case and spacing are one source, labelled with the earliest bought item's spelling. Per source: items sold
+  in `from`..`to`, their proceeds (as above) less their cost of goods, that profit ÷ the cost as the return,
+  the median days to sell, and the items and cost still in stock on `asOf`. Sorted by profit, items with no
+  source last. Like lot payback it is before expenses not tied to a sale, mileage to the store included.
 - Items marked gone with no date, and sales dated before their purchase, are left out with a warning that
   says how many and where to fix them.
 

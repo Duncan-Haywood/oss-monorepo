@@ -145,6 +145,11 @@ export const inventoryItem = sqliteTable(
     title: text("title").notNull(),
     acquiredDate: text("acquired_date").notNull(),
     costCents: cents("cost_cents").notNull(),
+    /**
+     * Where it was bought (a thrift store, a garage sale, a supplier), as the seller typed it. Null for an
+     * item in a lot means the lot's vendor; the stock report groups profit by it (services/books/stock.ts).
+     */
+    source: text("source"),
     /** True when the cost was typed in, false when it is the item's share of its lot. */
     costIsManual: integer("cost_is_manual", { mode: "boolean" }).notNull().default(false),
     status: text("status").notNull().default("in_stock"), // InventoryStatus

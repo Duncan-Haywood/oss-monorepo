@@ -78,9 +78,10 @@ export const COLUMNS = [
     key: "source",
     header: "Where Bought",
     kind: "text",
-    imported: false,
+    imported: true,
     width: 18,
-    about: "The thrift store, estate sale or website. For your own records.",
+    about:
+      "The thrift store, estate sale or website. Type it the same way each time: the app's stock report shows profit and return on cost by where you buy.",
   },
   {
     key: "platform",
