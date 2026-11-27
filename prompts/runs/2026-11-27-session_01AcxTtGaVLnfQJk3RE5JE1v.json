@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtGaVLnfQJk3RE5JE1v",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T05:06:10Z",
+  "ended": "2026-11-27T05:11:02Z",
+  "wall_minutes": 5.04,
+  "tokens_in": 5613192,
+  "tokens_out": 23166,
+  "cost_usd": 2.4541,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19616",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First commit carried another session's Claude-Session trailer (copied from a CI log); amended before push."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Defaulted to /home/user/private-monorepo for every app, so after PayApps moved to ventures/payapps (#19586) bet #1 runs would read and claim against a stale private copy; fixed in this PR."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Deepen task for payapps still said 'attach private-monorepo with add_repo' after the move; validate.py and monetization.py rejected any app path outside private-monorepo/apps/, so the pointer could not be updated without code changes."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "19 of 20 Next items are gated 'if people ask'; the only free one (HEIC decoding in WebAssembly) carries codec licensing and patent questions the item does not mention."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is a product slice of the top bet; the deploy port is claimed by PR #19610 and the only ungated ROADMAP item (HEIC WASM decoder) needs a licensing look first, so I fixed the routing that points every bet #1 run at the wrong repository.",
+      "did": "roadmap_claim/allocate/validate/monetization accept ventures/<v>/apps/<slug>; flagships, models, bets point at ventures/payapps.",
+      "result": "roadmap_claim.py payapps and --bets read the public ROADMAP with no private clone; tests green."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No customer post: the change is routing for agents, with nothing for a reader; writing one would be filler.",
+      "did": "DEPLOY.md step 3 and cloud-session.md updated instead of a post.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/payapps/DEPLOY.md (step 3 done)",
+    ".github/prompts/cloud-session.md (PayApps note)"
+  ],
+  "goal": null,
+  "notes": "Local checks: test_roadmap_claim 35 passed; test_allocate 161 passed; test_monetization+test_validate 30 passed; validate.py 1443 valid; monetization.py --check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f7939b6b-2d6f-5dec-87a3-2284ccc4f2af",
+    "transcripts": 1,
+    "first": "2026-11-27T05:06:10Z",
+    "last": "2026-11-27T05:11:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 99,
+        "output": 23166,
+        "thinking": 6213,
+        "cache_read": 5501846,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111247,
+        "api_equivalent_usd": 2.4541,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 99,
+      "output": 23166,
+      "thinking": 6213,
+      "cache_read": 5501846,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111247,
+      "api_equivalent_usd": 2.4541,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__actions_list": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.04,
+      "active_minutes": 5.04,
+      "model_minutes": 4.12,
+      "tool_minutes": 0.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "tool change with tests across 4 modules plus data pointers",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 122.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
