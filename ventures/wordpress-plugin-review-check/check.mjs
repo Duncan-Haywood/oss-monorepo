@@ -156,13 +156,16 @@ function formatText(result) {
   lines.push('');
 
   if (report.missingRequiredReadme.length > 0) {
-    lines.push(`[X] readme.txt is missing required field(s): ${report.missingRequiredReadme.join(', ')}. License and License URI are hard requirements for a directory submission (a GPL-compatible license must be declared); Stable tag is what the directory serves.`);
+    lines.push(`[X] readme.txt is missing required field(s): ${report.missingRequiredReadme.join(', ')}. License is a hard requirement for a directory submission (Plugin Check: no_license); Stable tag is what the directory serves.`);
+  }
+  for (const issue of report.licenseIssues ?? []) {
+    lines.push(`[X] Licence (${issue.where}): "${issue.value}". Plugin Check reports this as an error (${issue.code}): declare a GPLv2-or-later compatible licence, the same one in readme.txt and the plugin header.`);
   }
   if (report.missingRecommendedReadme.length > 0) {
     lines.push(`[i] readme.txt has no ${report.missingRecommendedReadme.join(', ')} field(s) -- recommended, not a rejection cause on its own.`);
   }
   if (report.missingRequiredHeader.length > 0) {
-    lines.push(`[X] Plugin header is missing required field(s): ${report.missingRequiredHeader.join(', ')}. Plugin Name is what WordPress needs to list the plugin at all.`);
+    lines.push(`[X] Plugin header is missing required field(s): ${report.missingRequiredHeader.join(', ')}. Plugin Name is what WordPress needs to list the plugin at all; Plugin Check errors on a missing License (plugin_header_no_license).`);
   }
   if (report.missingRecommendedHeader.length > 0) {
     lines.push(`[i] Plugin header has no ${report.missingRecommendedHeader.join(', ')} field(s) -- recommended, not a rejection cause on its own.`);

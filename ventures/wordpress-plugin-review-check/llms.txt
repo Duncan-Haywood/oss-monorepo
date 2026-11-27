@@ -1,6 +1,6 @@
 # WordPress Plugin Review Checker
 
-> Free, browser-local checker for WordPress plugin developers: catches a readme.txt Stable tag that doesn't match your plugin's Version header, missing required readme/header fields, unescaped $_GET/$_POST output, and $_POST handling with no nonce check -- before wordpress.org Plugin Review does. Nothing is uploaded.
+> Free, browser-local checker for WordPress plugin developers: catches a readme.txt Stable tag that doesn't match your plugin's Version header, missing required readme/header fields, a licence Plugin Check rejects (not GPL-compatible, or different in readme and header), unescaped $_GET/$_POST output, and $_POST handling with no nonce check -- before wordpress.org Plugin Review does. Nothing is uploaded.
 
 Free to use and source available (FSL-1.1-MIT). Results are pattern-matching findings from the files you give it, not a determination that Plugin Review will approve the plugin, and not legal or security advice.
 
