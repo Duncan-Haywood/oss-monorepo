@@ -505,10 +505,13 @@ From [`2026-11-19-wall-framing-takeoff-r5.json`](../../../../portfolio/quality/a
    client-side token, a $29 "Job report" price in the catalogue's `residential-takeoff` row), then a
    sandbox purchase end to end; then update the free edition's bid-package page and the paid
    page's "Checkout is not open yet" note. Waits on the owner.
-2. Material lists from plan PDFs, part 2 (part 1 done 2026-11-27: a vector plan PDF as the sketch
-   underlay at its printed scale, with clicks snapping to its line ends; README, "Plan PDF underlay"):
-   find the walls without clicking. `dxf.mjs` already pairs double lines into centre lines
-   (`pairDoubleLines`, `bridgeGaps`); run it on the page's stroked segments in inches inside a box the
-   user drags round the floor plan, offer the result as a sketch to correct, and measure it against
-   a real permit set before saying it works.
+2. Material lists from plan PDFs, part 2. Part 1 has two routes, both done 2026-11-27: the free
+   `pdf-plan-takeoff` writes the length runs labelled Walls, Doors and Windows on one sheet as a DXF in
+   real inches (`wallsDxf` in its `measure.mjs`) that this app opens with `planFromDxf`
+   (`pdf-takeoff-walls.test.mjs`); and the sketch takes a vector plan PDF as its underlay at its
+   printed scale, with clicks snapping to its line ends (README, "Plan PDF underlay", `planpdf.mjs`).
+   Next: find the wall runs without clicking them (the parallel face-line pairs `pairDoubleLines`
+   already reads in a DXF, taken from the PDF's painted segments at the sheet's checked scale, inside
+   a box the user drags round the floor plan, offered as a sketch to correct), measured against a real
+   permit set before saying it works, if people use either hand-off.
 

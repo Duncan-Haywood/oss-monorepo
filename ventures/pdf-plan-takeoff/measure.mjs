@@ -107,3 +107,55 @@ export function takeoffCsv(list) {
   }
   return lines.join('\n') + '\n';
 }
+
+/**
+ * Wall runs for a framing takeoff: the length measurements on one sheet whose
+ * label names walls, doors or windows, written as an ASCII DXF in real inches
+ * (walls on WALLS, doors on DOORS, windows on WINDOWS), the layers the
+ * residential takeoff's DXF reader takes. Each polyline segment is one LINE, so
+ * a run clicked around a corner keeps the corner. Every point is valued at one
+ * scale (the first wall run's), so the runs stay where they were drawn
+ * relative to each other; a run on another scale, with no scale, or on another
+ * page is left out and counted. y is flipped so the DXF reads as the sheet looks.
+ * @param {{type:string, page:number, label?:string, pts:{x:number,y:number}[], scale?:{ratio:number,system:string}|null}[]} list
+ * @param {{page?:number, wall?:RegExp, door?:RegExp, window?:RegExp}} [o]
+ * @returns {{ok:boolean, dxf?:string, page?:number, walls:number, doors:number, windows:number, skipped:{noScale:number, otherScale:number, otherPage:number}, error?:string}}
+ */
+export function wallsDxf(list, o = {}) {
+  const wallRe = o.wall ?? /wall|partition/i, doorRe = o.door ?? /door/i, winRe = o.window ?? /window|glaz/i;
+  const layerOf = (m) => {
+    const l = String(m.label || '');
+    if (doorRe.test(l)) return 'DOORS';
+    if (winRe.test(l)) return 'WINDOWS';
+    return wallRe.test(l) ? 'WALLS' : null;
+  };
+  const runs = (Array.isArray(list) ? list : []).filter((m) => m && m.type === 'length' && Array.isArray(m.pts) && m.pts.length >= 2 && layerOf(m));
+  const skipped = { noScale: 0, otherScale: 0, otherPage: 0 };
+  const firstWall = runs.find((m) => layerOf(m) === 'WALLS' && m.scale && (o.page == null || m.page === o.page));
+  const empty = { ok: false, walls: 0, doors: 0, windows: 0, skipped };
+  if (!firstWall) return { ...empty, error: 'No length measurement labelled as a wall (a label with "wall" in it) has a scale on this sheet. Measure the wall runs with the length tool under a label such as "Walls", and doors and windows across their openings under "Doors" and "Windows".' };
+  const page = firstWall.page, s = firstWall.scale;
+  const same = (t) => t && t.ratio === s.ratio && t.system === s.system;
+  const inch = (v) => {
+    const r = realLength(v, s);
+    return Math.round((s.system === 'metric' ? r / 25.4 : r) * 1000) / 1000;
+  };
+  const g = (c, v) => `${c}\n${v}\n`;
+  let body = '';
+  const n = { WALLS: 0, DOORS: 0, WINDOWS: 0 };
+  for (const m of runs) {
+    if (m.page !== page) { skipped.otherPage++; continue; }
+    if (!m.scale) { skipped.noScale++; continue; }
+    if (!same(m.scale)) { skipped.otherScale++; continue; }
+    const layer = layerOf(m);
+    const pts = layer === 'WALLS' ? m.pts : [m.pts[0], m.pts[m.pts.length - 1]]; // an opening is its two ends
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i];
+      if (a.x === b.x && a.y === b.y) continue;
+      body += g(0, 'LINE') + g(8, layer) + g(10, inch(a.x)) + g(20, -inch(a.y)) + g(30, 0) + g(11, inch(b.x)) + g(21, -inch(b.y)) + g(31, 0);
+    }
+    n[layer]++;
+  }
+  const dxf = g(0, 'SECTION') + g(2, 'HEADER') + g(9, '$INSUNITS') + g(70, 1) + g(0, 'ENDSEC') + g(0, 'SECTION') + g(2, 'ENTITIES') + body + g(0, 'ENDSEC') + g(0, 'EOF');
+  return { ok: true, dxf, page, walls: n.WALLS, doors: n.DOORS, windows: n.WINDOWS, skipped };
+}
