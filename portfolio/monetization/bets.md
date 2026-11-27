@@ -81,6 +81,15 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
   associations.
 - **Second wedge:** CoConstruct is being folded into Buildertrend, with
   [no new CoConstruct projects after 31 Mar 2027](https://coconstruct.com/migration).
+- **Certified payroll, a paid add-on subs already buy:** standalone tools
+  charge $49–$175/mo (PaidReady [$49/mo](https://www.getapp.com/all-software/a/paidready/),
+  Certified Payroll WH-347 [$79/mo](https://www.saasworthy.com/product/certified-payroll-wh-347/pricing),
+  Points North for ADP [$175/mo + $7.50/report](https://apps.adp.com/en-us/apps/253943/points-north-certified-payroll-reporting-for-run-powered-by-adp/configure));
+  Miter (construction payroll) raised a [$40M Series B, Sep 2026](https://www.constructiondive.com/press-release/20260930-miter-the-ai-platform-for-construction-raises-40-million-for-the-built-w/).
+  Davis-Bacon covers [$217B a year and 1.2M workers](https://www.federalregister.gov/documents/2023/08/23/2023-17221/updating-the-davis-bacon-and-related-acts-regulations),
+  and NY (from 1 Jan 2026), NJ (Aug 2024), WA, IL and CA now want the
+  payroll filed in a state system. Read 2026-11-27; detail and the state
+  ranking in `docs/reports/2026-11-27-state-certified-payroll-filing-systems.md`.
 - **Wedge:** pay apps + retainage + lien waivers + change orders at about
   $99–249/mo (estimate), growing into job costing, RFIs and estimating.
 - **Growth path:** job costing, RFIs, estimating, subcontractor compliance
@@ -202,6 +211,18 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
 - **Photo culling:** Aftershoot [nearly 250,000 photographers](https://www.slrlounge.com/aftershoot-new-campaign-2026/), prices falling to about $10/mo.
 - **Multicam sync:** free in DaVinci Resolve; PluralEyes [ended support 2024](https://support.maxon.net/hc/en-us/articles/7389361453340).
 - **Qualitative coding:** strong (Dovetail [$63M raised](https://techcrunch.com/?p=2259520)), but not SMB buyers.
+
+- **Screened 2026-11-27, not ranked:** *Practice management for small
+  architecture and engineering firms* (time, billing, project budgets): real
+  WTP (Monograph [about $25–55/user/mo](https://www.cloudwards.net/monograph-review/),
+  Capterra [from $60/user/mo](https://www.capterra.com/p/178124/Monograph/reviews/Capterra___3424150/);
+  BQE Core quote-only), but crowded (Monograph, BQE, Deltek Ajera) and no
+  wedge we hold that rivals lack; Census counts could not be read from the
+  session. *Safety programs for small contractors* (toolbox talks,
+  inspections): SafetyCulture has a free tier and paid plans around
+  [$24/user/mo](https://safetyculture.com/apps/construction-safety-software),
+  so prices are anchored low; better as a module of #1 (daily reports
+  already exist) than a bet.
 
 ## Hardware (long term, not a ranked bet)
 
