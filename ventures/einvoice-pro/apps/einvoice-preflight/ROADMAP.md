@@ -173,6 +173,12 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   for 2028 but not yet law), each read directly from efacture.belgium.be on 2026-11-27. The page says
   we are not a Peppol access point. `test/build.test.mjs` (+1).
 
+- Readable view (2026-11-27, einvoice-readable-view): `POST /v1/view` and a button on each workspace
+  result give the checked invoice as a printable HTML page, every field with its BT number and every
+  finding marked on its field and explained in the reader's language (`pro/view.mjs`, pro/README.md
+  "The readable view"); metered as a check, so free for a file already checked that month. einvoice-site's
+  "What fix-and-explain does" lists it in all four languages, and its llms.txt names it.
+
 ## Must do before a public launch
 
 - Owner: the licence decision on the third-party rule sets in `plain/` (EUPL-1.2, MPL-2.0,
