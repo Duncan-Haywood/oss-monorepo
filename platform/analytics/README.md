@@ -37,6 +37,11 @@ Local builds read `site.json` (or `--web-analytics-token=`).
 
 ## Owner step
 
+> **Parked (owner, 2026-11-27):** analytics will be set up in more depth on
+> AWS after the move; the `web-analytics-token` row is gone from
+> `portfolio/ledger/asks.yaml`. Until then the pages ship without the beacon
+> and the legal pages say analytics are off.
+
 The deploy token could not read zone analytics on 2026-11-19, so it probably
 cannot create a Web Analytics site either. `portfolio/ledger/asks.yaml`,
 `web-analytics-token`, gives the two ways to fix it (a token permission, or
