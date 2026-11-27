@@ -1,7 +1,7 @@
 # PayApps — Roadmap
 
-Status: **live on the Free plan** (2026-11-27). `payapps-deploy` run 45949861746 (commit 5f432ae0,
-from oss-monorepo) deployed https://payapps.duncan-andrew-haywood.workers.dev and its smoke test answered
+Status: **live on the Free plan** (2026-11-27). Live at https://payapps.marisstella.app since run 45963162134 (PR #19642,
+custom domain; workers.dev is off). The first live deploy, run 45949861746, was on workers.dev. The smoke test answered
 `{"ok":true,"app":"payapps","email":true}`, so sign-up email works. Attachments (R2) are off until the
 Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are dark
 (`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.
@@ -1613,6 +1613,33 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   `test/unit/certified-payroll-page.test.tsx`. Next, if New York customers ask: a real test upload's
   errors checked, and the classification list refreshed when NYSDOL republishes it.
 
+- Certified payroll, part 3c: Washington L&I PWIA XML (2026-11-27, certified-payroll-wa-lni-xml, every
+  plan). A "Washington public works" section on the certified payroll page makes the same week as the
+  XML file L&I's Prevailing Wage Intent and Affidavit system takes ("Submit Payroll in XML File";
+  online filing at least monthly on all public works). Read on 2026-11-27: L&I's schema
+  (`lni.wa.gov/licensing-permits/_docs/xmlschema.xsd`, last modified 2020-06-23; the link is in
+  LCPtracker's WA guide, the PWIA portal links it behind a login), the XML Payroll Upload Guide
+  (January 2020) and the trade code list the schema links ("CP Trade Codes + Description.xlsx", 99
+  codes, the same set as the schema's patterns; vendored with the schema's 39 counties as
+  `src/shared/wa-codes.ts`). Adds what L&I asks and the WH-347 does not: the Intent ID, the full SSN
+  (held in page memory only, checked against the SSA's never-issued patterns the schema documents,
+  duplicates refused), the home address (two-letter state), per row the trade code and county (the
+  job's or the row's own, matched case-insensitively and written in Title Case as the guide asks)
+  and L&I's job classification (default the WH-347's), the apprentice's ARTS ID, state (WA/OR/MT/AK),
+  occupation, step and step hours for RA rows (no jobClass, as the schema says), fringe plans into
+  L&I's five fixed benefit fields by type (guessed, changeable; plans of one type add up; other plans
+  and cash in lieu as named tradeBenefits), a per-row "overtime is double time" switch, optional
+  gender/ethnicity/veteran status, and a no-work week (noWorkPerformFlag, no employees; next week
+  clears it). Obsolete elements (WageId, apprentice program IDs) are left out, as the guide asks.
+  Gross pay is the WH-347's 7B, FICA and withholding its own, "other" under its description, so the
+  PDF and the XML agree. Output validates against L&I's schema with xmllint (`WA_CPR_XSD=<path> pnpm
+  test:unit`; the schema is L&I's file and not vendored). Privacy Policy sentence added (data stays
+  on the device, no POLICY_VERSION bump). `src/shared/wa-cpr.ts`,
+  `src/client/components/wa-cpr-section.tsx`; tests `src/shared/wa-cpr.test.ts`,
+  `test/unit/certified-payroll-page.test.tsx`. Next, if Washington customers ask: a real PWIA upload's
+  step 4 and 5 messages checked, several weeks in one file (the schema allows it), and an amendment
+  flag.
+
 - Getting started, part 5 (2026-11-26): where companies stall, in the owner's metrics.
   `GET /api/admin/metrics` now carries `activation`: for every company, and for those that signed
   up inside the window, how many reached each checklist step (job, schedule of values, pay
@@ -2202,6 +2229,12 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   payroll reports and QuickBooks bring labor in weeks after it is worked, and time tracking is a
   standard module of the suites the bet compares against (JobTread, Contractor Foreman, Knowify).
 
+- Crew timesheets, part 2a (2026-11-27, every plan, timesheets-part-2-certified-payroll-fill): the
+  certified payroll page's "Fill hours from PayApps timesheets" reads the job's week straight from
+  the timesheets (`GET .../projects/:id/certified-payroll/timesheet-hours`,
+  `src/shared/timesheet-certified.ts`) instead of the time.csv export and import; two workweeks when
+  the payroll week straddles them; other jobs' hours and missing trades named. docs/TIMESHEETS.md.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2227,8 +2260,8 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
 
 ## Next (suite, by promise)
 
-- Crew timesheets, part 2: the week's hours filling the certified payroll page directly (today
-  through the time detail CSV), a foreman entering hours from a phone for the crew on one job, an
+- Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
+  2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if
   contractors ask
 - Job schedule, part 2 (part 1, activities, the sequence check, the shift and the lookahead PDF,
@@ -2293,8 +2326,8 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
 - Certified payroll, part 3: the hours from a QuickBooks Time or payroll connection instead of a
   CSV, if people ask (a by-day CSV fills the week since 2026-11-26), save the crew and rates with the job instead of the
   browser if people ask, other states' prevailing-wage formats once their official specs are read (California's DIR eCPR
-  XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b; New
-  Jersey's Wage Hub CSV next, then Washington's XML), and the upload formats of the compliance
+  XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b;
+  Washington's L&I XML done 2026-11-27: part 3c; New Jersey's Wage Hub CSV next, once njwages.nj.gov answers), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
 - Notice to Owner, Florida, part 3 (part 2, the notices served per person, the saved first day and

@@ -1842,3 +1842,17 @@ subscription, should a scheduled venture run default to launch work
 - Metric: `runs_since_review` stays under ~80 (reviews resume); the
   workctl/roadmap_claim path reports go to zero. Compare next review.
 - Result: (next review)
+
+## E123: Review 2026-11-27, second session (drift fix only)
+
+- A parallel review session (PR #19658, E122) landed the same claim-expiry
+  fix first; this one keeps only its doc change. Bets #2 (Job Shop Quote)
+  and #5 (Seller Books) moved into `ventures/` on 2026-11-27, but
+  `prompt.md`, `bets.md` and `cloud-session.md` still sent runs to
+  `private-monorepo` for them (friction 2026-11-27 04:46 on
+  `prompts/ventures/prompt-1.md`). The bets table's last column is now the
+  one place that says where a bet is built; `prompt.md` points at it.
+- Lesson: the review claim is a PR, so two sessions that route within
+  minutes both see no claim. Open the draft PR before anything else.
+- Metric: friction naming `private-monorepo` for a moved bet; next review.
+- Result: (next review)

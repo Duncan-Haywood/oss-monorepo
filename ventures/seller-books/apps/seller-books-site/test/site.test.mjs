@@ -31,6 +31,8 @@ let pages;
 const base = () => join(out, BASE_PATH.slice(1));
 const read = (rel) => readFileSync(join(base(), rel), "utf8");
 const htmlOf = (page) => read(fileFor(page.path));
+// A real link, not just the address in the text: checks the exact href attribute.
+const linksTo = (html, url) => html.includes(`href="${url}"`);
 
 before(() => {
   out = mkdtempSync(join(tmpdir(), "seller-books-site-"));
@@ -243,7 +245,7 @@ describe("the 1099-K page", () => {
   test("quotes box 1a's IRS definition and links the instructions", () => {
     const html = htmlOf(page());
     assert.match(html, /refunded amounts, shipping amounts, or any other amounts/);
-    assert.ok(html.includes("https://www.irs.gov/instructions/i1099k"));
+    assert.ok(linksTo(html, "https://www.irs.gov/instructions/i1099k"));
     assert.ok(html.includes('"@type":"FAQPage"'));
   });
 
@@ -271,8 +273,8 @@ describe("the cost of goods sold page", () => {
 
   test("quotes the IRS wording and links the instructions and Publication 334", () => {
     const html = htmlOf(page());
-    assert.ok(html.includes("https://www.irs.gov/instructions/i1040sc"));
-    assert.ok(html.includes("https://www.irs.gov/publications/p334"));
+    assert.ok(linksTo(html, "https://www.irs.gov/instructions/i1040sc"));
+    assert.ok(linksTo(html, "https://www.irs.gov/publications/p334"));
     assert.match(html, /you can choose not to keep an inventory/);
     assert.match(html, /\$31 million or less for the 3 prior tax years/);
     assert.match(html, /Freight-in, express-in, and cartage-in/);
@@ -334,8 +336,8 @@ describe("the mileage deduction page", () => {
 
   test("links the IRS rates page and Publication 463, with FAQ markup", () => {
     const html = htmlOf(page());
-    assert.ok(html.includes("https://www.irs.gov/tax-professionals/standard-mileage-rates"));
-    assert.ok(html.includes("https://www.irs.gov/publications/p463"));
+    assert.ok(linksTo(html, "https://www.irs.gov/tax-professionals/standard-mileage-rates"));
+    assert.ok(linksTo(html, "https://www.irs.gov/publications/p463"));
     assert.ok(html.includes('"@type":"FAQPage"'));
   });
 

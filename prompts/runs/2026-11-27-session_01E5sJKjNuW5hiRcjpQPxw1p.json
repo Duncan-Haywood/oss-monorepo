@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjNuW5hiRcjpQPxw1p",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T07:22:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Port Seller Books' (bet #5) deploy workflow (duplicated by a parallel session: PR #19653 allowlist merged, PR #19662 workflow open); landed instead a fix so gate.py analyze --diff sees new files",
+  "projects": [
+    "ventures/seller-books",
+    "platform/ci/adversarial_gate"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19652",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/adversarial_gate/gate.py",
+      "issue": "`analyze --diff <file>` gave every rule read_head=None, so workflow-escalation skipped a newly added workflow: 0 findings locally where CI (--base/--head) blocks 9. It printed only '0 blocking'; the 'whole-file rules were limited' note went to verdict.json. Fixed in this PR for added files."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "payapps and jobshop-quote list 22 and 13 Next items, and every one but one is gated on demand. The 'Start here' pointer named payapps #11, whose only open ask is a manual check on a Windows PC and an Android phone, which a cloud session cannot do."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "slug_dupe.py at pick time showed no Seller Books deploy PR; a parallel session opened PR #19653 one minute after this run's PR #19652 with the same nine entries and then PR #19662 with the same workflow. Two runs reaching the same top item within a minute is not caught by a title check: a claim (roadmap_claim.py --slug) on the work task before building would have been."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is the top bet (payapps), but its roadmap is saturated and waiting on demand. Seller Books (bet #5) had code and a launch review but no deploy path here.",
+      "did": "Ported the deploy workflow and allowlist, verified locally (308 unit, 133 worker, 5 provision tests, build, provision dry run).",
+      "result": "Duplicated by a parallel session (#19653 merged, #19662 open with the same workflow plus a CODEOWNERS line I had missed). I dropped my workflow branch and closed nothing of theirs."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Most PRs carry a post; this one is a gate tooling fix with nothing user-facing.",
+      "did": "No post; the fix's reason is in the test's comment and this record.",
+      "result": null
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local verification of every step the workflow runs, in ventures/seller-books/apps/seller-books: pnpm install --frozen-lockfile; biome ci (2 warnings, 0 errors); typecheck; test:unit 308/308 passed (31 files); test:worker 133/133 passed (25 files); provision.test.mjs 5 pass 0 fail; pnpm build; check-no-client-maps clean; provision.mjs --dry-run wrote dist/seller_books/wrangler.deploy.json (workers.dev). The adversarial gate, run locally on a temp commit with the workflow, gave tier control-plane, 9 blocking (exactly the 9 secrets allowlisted in PR #19652) and 3 warnings. validate_workflows.py: all 144 workflow files valid. The allowlist's unittest suite passed 124 tests. Gate fix: test_diff_file_sees_secrets_a_new_workflow_reads fails on main's gate.py and passes with the fix; the suite passes 125/125. On this run's real workflow diff, --diff now reports 0 blocking, 3 warnings, matching --base/--head now that #19653 is on main (before the fix: 0 and 0).",
+  "corrections": [],
+  "redteam": null
+}

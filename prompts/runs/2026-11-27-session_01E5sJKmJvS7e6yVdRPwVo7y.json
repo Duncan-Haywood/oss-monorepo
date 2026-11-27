@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKmJvS7e6yVdRPwVo7y",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T08:09:54Z",
+  "ended": "2026-11-27T08:13:34Z",
+  "wall_minutes": 3.84,
+  "tokens_in": 2690484,
+  "tokens_out": 12752,
+  "cost_usd": 1.276,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19664",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 security fixes have no track; route offers none that fits venture-code security fixes. Took process (repo hygiene); a 'security' track or a note on which to use would save the guess."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "security_next.py --claim claims one alert; batching (which the alert file asks for) means pushing each security-fix/code-scanning-<n> branch by hand. A --claim-file <path> option would do the batch."
+    },
+    {
+      "file": "ventures/seller-books/sync-from-private.sh",
+      "issue": "A later sync from private-monorepo could overwrite this fix if the private copy is not updated too; the alert files do not say whether a public-side fix to a mirrored venture must also be ported."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer post: a security fix to the client redirect check is not something a customer post should describe in detail before deploy; the PR body and commit message record it.",
+      "did": "PR body + commit message only",
+      "result": "fix landed without a post"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Batched all 7 seller-books alerts (#1478-#1484). #1478 was a real open redirect via '/\\\\host'. Verified: typecheck clean, 310/310 unit tests, site 33/33, biome clean on changed files.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bedc4d90-d9f6-5076-93fc-bd0ae32b40a7",
+    "transcripts": 1,
+    "first": "2026-11-27T08:09:54Z",
+    "last": "2026-11-27T08:13:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 68,
+        "output": 12752,
+        "thinking": 2402,
+        "cache_read": 2628547,
+        "cache_write_5m": 0,
+        "cache_write_1h": 61869,
+        "api_equivalent_usd": 1.276,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 68,
+      "output": 12752,
+      "thinking": 2402,
+      "cache_read": 2628547,
+      "cache_write_5m": 0,
+      "cache_write_1h": 61869,
+      "api_equivalent_usd": 1.276,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.84,
+      "active_minutes": 3.84,
+      "model_minutes": 2.67,
+      "tool_minutes": 1.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "read 3 alerts, fix redirect helper with tests, encode queries, test edits",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 117.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

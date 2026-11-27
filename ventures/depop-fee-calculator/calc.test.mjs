@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateSale, compareRegions, feeFor, priceForTargetPayout, REGIONS, BOOST_RATE } from './calc.mjs';
+import { calculateSale, compareRegions, feeFor, priceForTargetPayout, REGIONS, BOOST_RATE, BOOST_RATES } from './calc.mjs';
 
 test('US region: 0% selling fee, 3.3% + $0.45 processing on item + shipping', () => {
   const { sellingFee, processingFee, depopFee } = feeFor({ itemPrice: 50, buyerShipping: 5, region: 'us' });
@@ -77,7 +77,7 @@ test('calculateSale always includes the buyer marketplace fee disclosure', () =>
 
 test('calculateSale notes the rest-of-world flat fee explicitly', () => {
   const result = calculateSale({ itemPrice: '30', region: 'row' });
-  assert.ok(result.notes.some(n => n.includes('flat 10%')));
+  assert.ok(result.notes.some(n => n.includes('10% selling fee')));
 });
 
 test('priceForTargetPayout solves back to the same payout (US)', () => {
@@ -101,8 +101,8 @@ test('priceForTargetPayout returns null for a non-finite target', () => {
 test('compareRegions prices the same sale under all three schedules', () => {
   const result = compareRegions({ itemPrice: '80', buyerShipping: '8' });
   assert.equal(result.ok, true);
-  assert.equal(Object.keys(result.results).sort().join(','), 'row,uk,us');
-  assert.ok(['us', 'uk', 'row'].includes(result.bestRegion));
+  assert.equal(Object.keys(result.results).sort().join(','), 'au,row,uk,us');
+  assert.ok(['us', 'uk', 'au', 'row'].includes(result.bestRegion));
 });
 
 test('compareRegions: US pays more than rest-of-world on an identical mid-size sale', () => {
@@ -116,8 +116,8 @@ test('compareRegions surfaces the same errors calculateSale would', () => {
   assert.ok(result.errors.length > 0);
 });
 
-test('REGIONS exposes exactly us, uk, row with the documented rates', () => {
-  assert.deepEqual(Object.keys(REGIONS).sort(), ['row', 'uk', 'us']);
+test('REGIONS exposes exactly us, uk, au, row with the documented rates', () => {
+  assert.deepEqual(Object.keys(REGIONS).sort(), ['au', 'row', 'uk', 'us']);
   assert.equal(REGIONS.us.processingRate, 3.3);
   assert.equal(REGIONS.us.processingFixed, 0.45);
   assert.equal(REGIONS.uk.processingRate, 2.9);
@@ -145,7 +145,56 @@ test('priceForTargetPayout returns null when no non-negative price reaches the t
 });
 
 test('compareRegions names the region that keeps the most of a $100 sale', () => {
-  // US 3.75 fee, UK 3.20 (2.9 + 0.30), rest of world 10.00: UK keeps the most.
+  // US 3.75 fee, UK 3.20 (2.9 + 0.30), AU 2.90 (2.6 + 0.30), rest of world 10.00: AU keeps the most.
   const result = compareRegions({ itemPrice: '100' });
-  assert.equal(result.bestRegion, 'uk');
+  assert.equal(result.bestRegion, 'au');
+});
+
+// Quality fix (portfolio/quality/audits/2026-11-26-depop-fee-calculator.json,
+// defects 0, 1 and 6): Australia moved to 0% + processing on 22 July 2026,
+// rest-of-world processing is charged but not modelled, boost is 8% outside
+// the US and UK, and rest-of-world amounts carry no dollar sign. Expected
+// values are recomputed by hand from the rates in README "Sources".
+test('Australia: 0% selling fee, 2.6% + A$0.30 processing (A$50 sale -> A$1.60)', () => {
+  const result = calculateSale({ itemPrice: '50', region: 'au' });
+  assert.equal(result.sellingFee, 0);
+  assert.ok(Math.abs(result.depopFee - 1.6) < 1e-9);
+  assert.ok(Math.abs(result.payout - 48.4) < 1e-9);
+  assert.equal(result.currency, 'A$');
+});
+
+test('Australia: processing applies to item plus buyer-paid shipping', () => {
+  // (40 + 10) x 2.6% + 0.30 = 1.60
+  const { processingFee } = feeFor({ itemPrice: 40, buyerShipping: 10, region: 'au' });
+  assert.ok(Math.abs(processingFee - 1.6) < 1e-9);
+});
+
+test('rest of world: the note says processing is charged and not included, and no $ sign', () => {
+  const result = calculateSale({ itemPrice: '50', region: 'row' });
+  assert.equal(result.currency, '');
+  assert.ok(result.notes.some(n => /processing fee is NOT included/.test(n)));
+  assert.ok(!result.notes.some(n => n.includes('no separate processing fee')));
+});
+
+test('boost is 12% in the US and UK and 8% in Australia and elsewhere', () => {
+  assert.deepEqual({ ...BOOST_RATES }, { us: 12, uk: 12, au: 8, row: 8 });
+  // UK GBP50 boosted: 50 x 12% = 6.00; AU A$50 boosted: 50 x 8% = 4.00; ROW 50: 4.00
+  assert.ok(Math.abs(feeFor({ itemPrice: 50, region: 'uk', boosted: true }).boostFee - 6) < 1e-9);
+  assert.ok(Math.abs(feeFor({ itemPrice: 50, region: 'au', boosted: true }).boostFee - 4) < 1e-9);
+  assert.ok(Math.abs(feeFor({ itemPrice: 50, region: 'row', boosted: true }).boostFee - 4) < 1e-9);
+});
+
+test('priceForTargetPayout uses the regional boost rate (Australia, boosted)', () => {
+  const price = priceForTargetPayout(30, { buyerShipping: 5, labelCost: 2, region: 'au', boosted: true });
+  const check = calculateSale({ itemPrice: String(price), buyerShipping: '5', labelCost: '2', region: 'au', boosted: true });
+  assert.ok(Math.abs(check.payout - 30) < 1e-6);
+  // by hand: (30 - 5 x 0.974 + 0.30 + 2) / (1 - 0.026 - 0.08) = 27.43 / 0.894
+  assert.ok(Math.abs(price - 27.43 / 0.894) < 1e-9);
+});
+
+test('compareRegions never names rest of world best: its payout leaves out processing', () => {
+  // $1 sale: US fee 0.483, UK 0.329, AU 0.326, ROW 0.10 before its unmodelled processing.
+  const result = compareRegions({ itemPrice: '1' });
+  assert.ok(result.results.row.payout > result.results.au.payout);
+  assert.equal(result.bestRegion, 'au');
 });

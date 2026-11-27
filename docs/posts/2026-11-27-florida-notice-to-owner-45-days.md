@@ -88,6 +88,27 @@ ends with the lienor's signature, name and address and a "Copies to" line.
 Since the contents need only be substantially right but the warning must be there, the safe choice
 is the statute's own wording, all of it. That is what PayApps prints.
 
+## After the notice: the claim of lien, 90 days
+
+The notice is not the lien. "The serving of the notice does not dispense with recording the claim of
+lien" (§ 713.06(2)(a)), and the claim of lien "may be recorded at any time during the progress of
+the work or thereafter but not later than 90 days after the final furnishing of the labor or
+services or materials by the lienor" ([§ 713.08(5)](https://www.flsenate.gov/Laws/Statutes/2026/713.08)).
+It is served on the owner before recording or within 15 days after (§ 713.08(4)(c)), and it asks for
+"the date and method of service of the notice to owner" (§ 713.08(1)(h)), which is one more reason
+to keep the mail log with the job.
+
+## Free: the dates and the form in your browser
+
+The [Florida Notice to Owner guide](https://marisstella.app/pay-app-guides/florida-notice-to-owner.html)
+does the arithmetic above without an account. Pick your place in the contract chain and it lists who
+gets the notice and who gets a copy; enter the first day you furnished work and how you are serving
+it, and it gives the 45-day date, the 40-day mail-by date, whether a notice already sent was on time
+(on mailing, or on delivery when it went after day 40 or by courier), and, with your last day of
+work, the 90-day claim of lien date. Below that, fill in the blanks for a printable draft of the
+§ 713.06(2)(c) form, word for word. Its tests check the whole form and every quoted phrase against
+the statute's text. It runs in the browser and uploads nothing.
+
 ## In PayApps
 
 On a Florida job, the "Preliminary notice of right to lien" panel fills the § 713.06(2)(c) form
@@ -121,9 +142,9 @@ Not covered yet: attaching the mail log or tracking printout to each record (Cal
 already take files), § 713.18(3)'s rule for a notice returned "refused" or "unclaimed", and the
 combined notice to contractor on bonded and public jobs (§ 255.05, § 713.23).
 
-PayApps is in early access: pay applications, retainage, change orders, lien waivers, preliminary
-notices and QuickBooks for subcontractors. [See what is built and join the early access
-list](https://marisstella.app/industries/construction/). This is general information about the
+PayApps is open: pay applications with retainage and change orders are free on one job, no card.
+Lien waivers, notices, QuickBooks and job costing are in the paid plans, which are not on sale yet.
+[Start free in PayApps](https://payapps.duncan-andrew-haywood.workers.dev/?signup&from=posts%2Fflorida-notice-to-owner). This is general information about the
 statute's text, not legal advice. Whether a notice is required on your job, and who must get it,
 depends on your contract chain, so check with a Florida construction attorney when the money
 matters.

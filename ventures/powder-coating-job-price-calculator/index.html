@@ -35,6 +35,15 @@
     tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
     .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
+    /* The answer for the numbers on screen, kept in view while the form is
+       scrolled: the form is ~3,000 px tall on a phone and the result sits below
+       it. Sticky inside the form card only, so it leaves with the form. */
+    .live { position: sticky; bottom: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 18px; margin: 18px -22px -22px; padding: 10px 22px 12px; background: #0b2e55; color: #fff; border-radius: 0 0 13px 13px; font-size: .86rem; font-variant-numeric: tabular-nums; }
+    .live[hidden] { display: none; }
+    .live b { font-size: 1.08rem; margin-left: 4px; }
+    .live a { color: #fff; font-weight: 700; margin-left: auto; }
+    .live a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    @media (max-width: 560px) { body { padding: 20px 16px; } .card { padding: 18px 16px; } .live { margin: 18px -16px -18px; padding: 8px 16px 10px; gap: 0 14px; } .live a { margin-left: 0; } }
     footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
     .scroll { overflow-x: auto; }
   </style>
@@ -85,6 +94,7 @@
       <button type="button" class="secondary" id="share">Copy share link</button>
     </p>
     <p class="note" id="form-status">Enter the job and your powders, or load the example, then click Price this job.</p>
+    <p class="live" id="live" hidden></p>
   </section>
 
   <section class="card" id="report" aria-live="polite" hidden>
@@ -157,11 +167,17 @@
       return input;
     }
 
-    function run(scroll = true) {
+    // announce = false for the preview that runs as fields change: the report's
+    // aria-live would otherwise read the whole result out on every keystroke.
+    function run(scroll = true, announce = true) {
       const input = read();
       const r = plan(input);
-      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      const live = $("#live");
+      report.setAttribute("aria-live", announce ? "polite" : "off");
+      if (r.error) { status.textContent = r.error; report.hidden = true; live.innerHTML = `<span>${esc(r.error)}</span>`; live.hidden = false; return false; }
       last = r;
+      live.innerHTML = `<span>Per piece<b>${usd(r.best.perPiece)}</b></span><span>Per sq ft<b>${usd(r.best.perSqFt)}</b></span><span>${r.best.qty} pieces<b>${usd(r.best.price)}</b></span><a href="#report">Full result ↓</a>`;
+      live.hidden = false;
       $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
       $("#rows").innerHTML = r.rows.map((x) => `<tr><th scope="row">${esc(x.powder)}</th><td>${x.powderLb}</td><td>${usd(x.powderCost)}</td><td>${usd(x.laborCost + x.overhead)}</td><td>${usd(x.ovenCost)}</td><td>${usd(x.cost)}</td><td>${usd(x.price)}</td><td>${usd(x.perPiece)}</td><td>${usd(x.perSqFt)}</td></tr>`).join("");
       $("#breaks").innerHTML = r.breaks.map((x) => `<tr><th scope="row">${x.qty}${x.current ? " (this order)" : ""}</th><td>${usd(x.price)}</td><td>${usd(x.perPiece)}</td><td>${x.minApplied ? "minimum charge" : ""}</td></tr>`).join("");
@@ -171,6 +187,14 @@
       if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
+
+    // The prefilled numbers are a real job: answer them on load and again as
+    // they change, without counting a use (only the buttons count one).
+    let previewTimer = 0;
+    $("#qty").closest("section").addEventListener("input", () => {
+      clearTimeout(previewTimer);
+      previewTimer = setTimeout(() => run(false, false), 250);
+    });
 
     function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
 
@@ -195,7 +219,7 @@
     });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
-    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } else run(false, false); } else run(false, false);
   </script>
 </body>
 </html>

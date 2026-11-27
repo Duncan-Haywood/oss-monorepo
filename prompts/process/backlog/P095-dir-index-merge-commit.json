@@ -8,7 +8,8 @@
   "problem": "test_promptctl.LastChangeIndexTest.test_lookups_without_a_git_call_match_the_per_file_call failed twice on PR #19644's `validate` job (job 140357845584, 2026-11-27 06:52 UTC) for path='prompts/' and 'prompts/runs/*.json': index ' (file last changed on or before 2026-11-26, the shallow-clone edge)' against git's ' (file last changed 2026-11-27)', '2026-11-27T06:48:55Z' (the merge commit). prompts-ci checks out refs/pull/N/merge at fetch-depth 2. The PR added one run record and main had merged other run records since the branch's base, so the merge commit differs from BOTH parents under prompts/ (git log -1 -- prompts/ names it: directory-level TREESAME), yet differs from neither parent in any single file, so `--diff-merges=c` lists no file for it and _dir_hit/_glob_hit fall through to a shallow root. Any PR that adds a run record while main has newer ones can hit it; P094 (different-day roots) was a different case.",
   "evidence": [
     "PR #19644 validate job 140357845584 log: Tuples differ for path='prompts/' and path='prompts/runs/*.json'",
-    "Reproduced: git fetch --depth=2 origin refs/pull/19644/merge; merge 450fd04b dated 06:48:55 with parents e04a988c (main) and de03581f (PR head), both shallow roots"
+    "Reproduced: git fetch --depth=2 origin refs/pull/19644/merge; merge 450fd04b dated 06:48:55 with parents e04a988c (main) and de03581f (PR head), both shallow roots",
+    "PR #19648 prompts-ci validate jobs 140361025283 and 140364039262 (2026-11-27 07:03 and 07:14 UTC): same two paths, same shape; passed once main was merged into the branch (the workaround above holds)"
   ],
   "change": "For merge commits, collect the per-parent changed files (`--diff-merges=separate`, or `git diff --name-only` per parent for the few merges a shallow clone holds) and let _dir_hit/_glob_hit date a directory or glob by a merge whose every parent differs somewhere under it, as git's directory TREESAME does. Add a test with a temp repo: two shallow roots, each adding a different file under one directory, merged. Workaround meanwhile: merge main into the PR branch before pushing the run record.",
   "touches": [
@@ -21,5 +22,10 @@
   "source": "ventures run, PR #19644 CI",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-11-27",
+      "note": "Second PR hit it (PR #19648, twice). Merging main into the branch cleared it."
+    }
+  ]
 }

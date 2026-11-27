@@ -1,13 +1,15 @@
 # Depop Fee Calculator
 
 A free browser tool that prices one Depop sale against Depop's current,
-per-region fee schedule: **0% selling fee** for US and UK sellers (just a
-payment-processing fee of 3.3% + $0.45 in the US, or 2.9% + £0.30 in the UK,
-on the item price plus buyer-paid shipping), and the older **flat 10% selling
-fee** that still applies outside the US and UK. It shows real profit after
+per-region fee schedule: **0% selling fee** for US, UK and (from 22 July
+2026) Australian sellers (just a payment-processing fee of 3.3% + $0.45 in the
+US, 2.9% + £0.30 in the UK, or 2.6% + A$0.30 in Australia, on the item price
+plus buyer-paid shipping), and the older **10% selling fee** that still
+applies elsewhere, where Depop also charges a payment-processing fee this
+tool does not model. It shows real profit after
 your item and shipping-label cost, the item price you need to hit a target
 profit, and a side-by-side comparison of what the same sale would pay out in
-each of the three regions. Nothing is uploaded; the arithmetic runs on the
+each of the four regions. Nothing is uploaded; the arithmetic runs on the
 visitor's own device.
 
 **Live tool:** https://marisstella.app/depop-fee-calculator/
@@ -37,9 +39,12 @@ never reduces seller payout. This tool notes that it exists without
 inventing a precise number for a scale it cannot see — a specific wrong
 figure would be worse than an honestly labelled unknown.
 
-**Outside the US and UK, the old flat 10% schedule still runs.** A seller who
-splits listings across currencies, or who is unsure which schedule their
-account is actually on, can see all three side by side for one sale rather
+**Outside the US, UK and Australia, the 10% selling fee still runs, and
+processing is charged on top.** The processing rate there depends on the
+country and payment provider, so the rest-of-world row shows only the 10% and
+says the payout is an upper bound; add your processing fee as an other cost.
+A seller who splits listings across currencies, or who is unsure which
+schedule their account is actually on, can see all four side by side for one sale rather
 than trusting either headline number.
 
 ## What it does not do
@@ -48,11 +53,33 @@ It is not Depop's live fee schedule, a listing tool, an authentication
 service, or tax advice. It does not connect to Depop, create a listing, or
 process a payment. It does not compute a dollar figure for the buyer-side
 Marketplace fee, because Depop has not published the sliding scale behind it
-precisely enough to model correctly. Every rate is a constant lifted from
-Depop's own published Help Centre article ("Seller fees and charges") and
-corroborated against independent third-party fee breakdowns, not a live
-fetch — verify every figure against your own Depop payout before you price a
-listing.
+precisely enough to model correctly. It does not model the
+rest-of-world processing fee, sales tax in the processing base (Depop includes
+applicable taxes, so the US fee is slightly understated on taxed sales), or
+shipping in the boost base for own-label sales (Depop's Boosted Listings
+policy adds it). Verify every figure against your own Depop payout before you
+price a listing.
+
+### Sources
+
+The rates are constants, not a live fetch. Depop's own pages
+([Seller fees and charges](https://depophelp.zendesk.com/hc/en-gb/articles/360001791127),
+the Boosted Listings policy, and the 2026-07 Australia announcement on
+news.depop.com) were not reachable from the sessions that wrote and audited
+this tool, so the figures were taken from search extracts of those pages and
+from independent fee guides that quote them:
+
+| figure | as of | basis |
+|---|---|---|
+| US 0% + 3.3% + $0.45 on item + shipping | rechecked 2026-11-24 | Help Centre, via fee guides |
+| UK 0% + 2.9% + £0.30 on item + shipping | 2026-11 | Help Centre, via fee guides |
+| AU 0% + 2.6% + A$0.30 on AUD sales, from 22 July 2026 | 2026-11-27 | Depop AU announcement (0% selling fee, processing and boost still apply); the 2.6% + A$0.30 rate from fee guides, not seen on a Depop page |
+| Rest of world 10% selling fee, plus processing (rate not modelled) | 2026-11-27 | fee guides quoting the Help Centre |
+| Boost 12% US/UK, 8% elsewhere | 2026-11-27 | Boosted Listings policy, via search extracts; fee guides disagree on the 8% |
+| Boost base = item price | inference | the author's reading; the policy adds shipping for own-label sales |
+
+A session with access to depophelp.zendesk.com should confirm the AU rate and
+the 8% boost rate first ([audit](../../portfolio/quality/audits/2026-11-26-depop-fee-calculator.json)).
 
 ## First visitor
 
@@ -60,8 +87,8 @@ r/Depop and r/DepopSuccess, where "how much does Depop actually take" and
 "why did my payout not match" are recurring threads, and the search phrases
 "depop fee calculator," "depop seller fees," and "how much does depop take."
 Several existing calculators for this niche quote a single flat rate; this
-one keeps the US/UK 0%-plus-processing schedule, the rest-of-world 10% flat
-schedule, and the Boosted Listings surcharge separate rather than collapsing
+one keeps the US/UK/Australia 0%-plus-processing schedules, the rest-of-world
+10% schedule, and the Boosted Listings surcharge separate rather than collapsing
 them into one number, and separates the buyer-paid Marketplace fee from
 seller payout explicitly rather than folding it in by mistake.
 
