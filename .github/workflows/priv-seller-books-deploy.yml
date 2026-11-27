@@ -1,0 +1,272 @@
+# Deploys ventures/seller-books/apps/seller-books (Seller Books, paid bet #5) to Cloudflare Workers: one
+# Worker (`seller-books`) for the SPA and the API and a D1 database (`seller-books`); no R2 bucket
+# (imports are parsed in the request and only the rows are kept). Ported on 2026-11-27 from
+# private-monorepo's seller-books-deploy.yml, which never ran (private-monorepo's Actions start no
+# jobs), following priv-payapps-deploy.yml. What each step does and every setting:
+# ventures/seller-books/apps/seller-books/docs/DEPLOY.md; why it lives here: ventures/seller-books/DEPLOY.md.
+#
+# Manual only (workflow_dispatch), from main only. The launch review is recorded
+# (apps/seller-books/docs/LAUNCH-REVIEW.md, under docs/legal/OPERATOR.md), so an agent may run it and
+# open sign-ups on the Free plan. Paid plans stay dark: checkout turns on only when the owner sets
+# SELLER_BOOKS_BILLING_PROVIDER=paddle and the two Paddle secrets (apps/seller-books/docs/BILLING.md).
+# After a first good run, a separate PR may add `push: branches: [main]` with a paths filter.
+#
+# Hardening, as in priv-payapps-deploy.yml: actions pinned by SHA, checkout without persisted
+# credentials and sparse to the venture, a job-level guard that refuses any ref but main, and
+# Cloudflare credentials exported only after install, tests and build.
+name: seller-books-deploy
+on:
+  workflow_dispatch:
+    inputs:
+      skip_checks:
+        description: "Skip lint/typecheck/tests (only for a commit seller-books CI already passed)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seller-books-deploy
+  cancel-in-progress: false # never cancel a deploy (or a migration) half-way
+
+jobs:
+  deploy:
+    name: deploy (production)
+    # A dispatch from a branch could ship unreviewed code with production secrets: main only.
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    # Limit this environment to `main` and, if wanted, add required reviewers (Settings -> Environments).
+    # The SELLER_BOOKS_* secrets belong here; the Cloudflare ones are the repository's.
+    environment:
+      name: seller-books-production
+      url: ${{ steps.urls.outputs.app_url }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ventures/seller-books/apps/seller-books
+    env:
+      WRANGLER_SEND_METRICS: "false"
+      # Optional custom domain (zone on the same Cloudflare account); empty = workers.dev.
+      APP_DOMAIN: ${{ vars.SELLER_BOOKS_DOMAIN }}
+    steps:
+      - name: Cloudflare credentials present
+        working-directory: .
+        env:
+          HAS_TOKEN: ${{ (secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY) != '' }}
+          HAS_ACCOUNT: ${{ (secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID || vars.CLOUDFLARE_ACCOUNT_ID) != '' }}
+        run: |
+          if [[ "$HAS_TOKEN" != "true" || "$HAS_ACCOUNT" != "true" ]]; then
+            echo "::error title=Missing Cloudflare secrets::Need CLOUDFLARE_API_TOKEN (Workers Scripts and D1 edit; Zone Read, DNS and Workers Routes edit for a custom domain) and CLOUDFLARE_ACCOUNT_ID. Nothing was deployed."
+            exit 1
+          fi
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            ventures/seller-books
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          package_json_file: ventures/seller-books/package.json
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: ventures/seller-books/pnpm-lock.yaml
+      # Cloudflare credentials are exported only after install, tests and build.
+      - run: pnpm install --frozen-lockfile
+
+      - name: Checks
+        if: ${{ !inputs.skip_checks }}
+        run: |
+          pnpm exec biome ci .
+          pnpm typecheck
+          pnpm test:unit
+          pnpm test:worker
+      - name: Deploy provisioning script tests
+        if: ${{ !inputs.skip_checks }}
+        run: node --test ./scripts/provision.test.mjs
+
+      - name: Build
+        run: pnpm build
+      - name: No source maps in the public assets (proprietary source)
+        run: node ../../scripts/check-no-client-maps.mjs dist/client
+
+      - name: Cloudflare credentials
+        env:
+          CF_SECRET: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID || vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # Used exactly as stored: a transformed secret would print unmasked (actions-secret-leak-check).
+          token="$CF_SECRET"
+          account="$CF_ACCOUNT"
+          api=https://api.cloudflare.com/client/v4
+          ok() { jq -e '.success == true' >/dev/null 2>&1; }
+          if ! { curl -sS -H "Authorization: Bearer $token" "$api/user/tokens/verify" | ok ||
+                 curl -sS -H "Authorization: Bearer $token" "$api/accounts/$account/tokens/verify" | ok; }; then
+            echo "::error title=Cloudflare token rejected::CLOUDFLARE_API_TOKEN is not an active API token for account CLOUDFLARE_ACCOUNT_ID."
+            exit 1
+          fi
+          { echo "CLOUDFLARE_API_TOKEN=$token"; echo "CLOUDFLARE_ACCOUNT_ID=$account"; } >>"$GITHUB_ENV"
+
+      - name: Resolve URL
+        id: urls
+        run: |
+          api=https://api.cloudflare.com/client/v4
+          auth=(-H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
+          domain="$(printf '%s' "$APP_DOMAIN" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+          if [[ -n "$domain" && ! "$domain" =~ ^[a-z0-9.-]+$ ]]; then
+            echo "::error title=Bad SELLER_BOOKS_DOMAIN::Use a bare host name such as books.marisstella.app. Nothing was deployed."
+            exit 1
+          fi
+          if [[ -n "$domain" ]]; then
+            zone="$(awk -F. '{print $(NF-1)"."$NF}' <<<"$domain")"
+            zone_id="$(curl -sS "${auth[@]}" "$api/zones?name=$zone&account.id=$CLOUDFLARE_ACCOUNT_ID" | jq -r '.result[0].id // empty' 2>/dev/null || true)"
+            if [[ -z "$zone_id" ]]; then
+              echo "::warning title=Custom domain skipped::Zone $zone is not reachable with this token (needs Zone Read, DNS Edit, Workers Routes Edit). Deploying on workers.dev."
+              domain=""
+            fi
+          fi
+          if [[ -n "$domain" ]]; then
+            url="https://$domain"
+          else
+            sub="$(curl -sS "${auth[@]}" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | jq -r '.result.subdomain // empty' 2>/dev/null || true)"
+            if [[ -z "$sub" ]]; then
+              echo "::error title=No workers.dev subdomain::Open Workers & Pages once in the Cloudflare dashboard (or set SELLER_BOOKS_DOMAIN), then re-run. Nothing was deployed."
+              exit 1
+            fi
+            url="https://seller-books.$sub.workers.dev"
+          fi
+          { echo "domain=$domain"; echo "app_url=$url"; } >>"$GITHUB_OUTPUT"
+          echo "Deploying seller-books to $url"
+
+      - name: Provision D1 and write the deploy config
+        id: provision
+        env:
+          DOMAIN: ${{ steps.urls.outputs.domain }}
+        run: node ./scripts/provision.mjs --write-config dist/seller_books/wrangler.deploy.json ${DOMAIN:+--domain "$DOMAIN"}
+
+      # Migrations run BEFORE the new code goes live, so they must stay backward compatible.
+      - name: Apply D1 migrations
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+        run: pnpm exec wrangler d1 migrations apply DB --remote --config "$CONFIG"
+
+      # Products and prices as code: billing/paddle-catalog.json is synced to Paddle and the price ids
+      # are read back, never pasted. Skipped (and checkout stays dark) without the Paddle key. Only items
+      # tagged custom_data.app=seller-books are touched; nothing is deleted.
+      # A Paddle problem must not block shipping the app: a failed sync warns and leaves price_ids empty,
+      # so the secret sync below falls back to SELLER_BOOKS_BILLING_PRICE_IDS (or checkout stays dark).
+      - name: Sync the Paddle catalog
+        id: paddle
+        env:
+          BILLING_API_KEY: ${{ secrets.SELLER_BOOKS_BILLING_API_KEY }}
+        run: |
+          if [[ -z "$BILLING_API_KEY" ]]; then echo "SELLER_BOOKS_BILLING_API_KEY not set: paid plans stay dark"; exit 0; fi
+          out="$RUNNER_TEMP/paddle-price-ids.json"
+          if node ../../packages/billing/scripts/paddle-catalog.ts --catalog billing/paddle-catalog.json --apply --price-ids-out "$out" \
+             && ids="$(jq -c . "$out")"; then
+            echo "price_ids=$ids" >>"$GITHUB_OUTPUT"
+          else
+            echo "::warning title=Paddle catalog sync failed::The app still deploys; price ids fall back to SELLER_BOOKS_BILLING_PRICE_IDS if set."
+          fi
+
+      - name: Deploy
+        id: deploy
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+          APP_URL: ${{ steps.urls.outputs.app_url }}
+          # The sender domain must be onboarded to Cloudflare Email Service (apps/seller-books/docs/EMAIL.md).
+          EMAIL_FROM: ${{ vars.SELLER_BOOKS_EMAIL_FROM || 'Seller Books <no-reply@marisstella.app>' }}
+          # Not secret ("paddle" or "none"); a var because a Worker secret cannot share a var's name.
+          BILLING_PROVIDER: ${{ vars.SELLER_BOOKS_BILLING_PROVIDER || 'none' }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-deploy.ndjson
+        run: |
+          pnpm exec wrangler deploy --config "$CONFIG" \
+            --var "APP_ENV:production" --var "APP_URL:${APP_URL%/}" --var "EMAIL_FROM:$EMAIL_FROM" \
+            --var "BILLING_PROVIDER:$BILLING_PROVIDER" \
+            --message "${GITHUB_SHA::12} via workflow_dispatch (run ${GITHUB_RUN_ID})"
+          version="$(jq -r 'select(.type=="deploy") | .version_id // empty' "$WRANGLER_OUTPUT_FILE_PATH" 2>/dev/null | tail -1 || true)"
+          echo "version_id=$version" >>"$GITHUB_OUTPUT"
+
+      - name: Sync secrets from GitHub (non-empty only)
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+          S_AUTH_SECRET: ${{ secrets.SELLER_BOOKS_AUTH_SECRET }}
+          S_BILLING_API_KEY: ${{ secrets.SELLER_BOOKS_BILLING_API_KEY }}
+          S_BILLING_WEBHOOK_SECRET: ${{ secrets.SELLER_BOOKS_BILLING_WEBHOOK_SECRET }}
+          S_BILLING_PRICE_IDS: ${{ steps.paddle.outputs.price_ids || secrets.SELLER_BOOKS_BILLING_PRICE_IDS }}
+        run: |
+          umask 077
+          file="$RUNNER_TEMP/worker-env.json"
+          trap 'rm -f "$file"' EXIT
+          node -e '
+            const out = {};
+            for (const [k, v] of Object.entries(process.env)) {
+              if (k.startsWith("S_") && v && v.trim()) out[k.slice(2)] = v;
+            }
+            require("node:fs").writeFileSync(process.argv[1], JSON.stringify(out));
+            console.log(`syncing ${Object.keys(out).length} secret(s): ${Object.keys(out).sort().join(", ") || "none"}`);
+          ' "$file"
+          if [[ "$(jq 'length' "$file")" -gt 0 ]]; then
+            pnpm exec wrangler secret bulk "$file" --name seller-books --config "$CONFIG"
+          fi
+
+      # The app refuses to start sessions without AUTH_SECRET. Generated once, stored only on the Worker.
+      - name: Generate AUTH_SECRET if missing (never overwrites)
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+        run: |
+          # Fails the step (pipefail) if the list cannot be read: never guess and overwrite a secret.
+          existing="$(pnpm exec wrangler secret list --format json --name seller-books --config "$CONFIG" \
+            | sed -n '/^\[/,$p' | jq -r '.[].name')"
+          if grep -qx AUTH_SECRET <<<"$existing"; then
+            echo "AUTH_SECRET already set: keeping it"
+          else
+            value="$(openssl rand -hex 32)"
+            echo "::add-mask::$value"
+            printf '%s' "$value" | pnpm exec wrangler secret put AUTH_SECRET --name seller-books --config "$CONFIG" >/dev/null
+            unset value
+            echo "AUTH_SECRET generated and stored on the Worker (write-only)"
+          fi
+
+      - name: Smoke test /api/health
+        env:
+          APP_URL: ${{ steps.urls.outputs.app_url }}
+          BILLING_PROVIDER: ${{ vars.SELLER_BOOKS_BILLING_PROVIDER || 'none' }}
+        run: |
+          url="${APP_URL%/}/api/health"
+          deadline=$((SECONDS + 90))
+          until body="$(curl -fsS --max-time 10 "$url" 2>/dev/null)" && jq -e '.ok == true and .app == "seller-books"' <<<"$body" >/dev/null; do
+            if (( SECONDS >= deadline )); then
+              echo "::error::$url did not answer ok within 90s (last: ${body:-no response})"
+              exit 1
+            fi
+            sleep 3
+          done
+          echo "healthy: $url -> $body"
+          # Sign-up needs a verified email in production: without mail nobody can finish signing up.
+          if ! jq -e '.email == true' <<<"$body" >/dev/null; then
+            echo "::warning title=Account mail is off::$url reports email:false, so nobody can verify an address and finish signing up. Onboard the EMAIL_FROM sender domain to Cloudflare Email Service (apps/seller-books/docs/EMAIL.md) and re-run."
+          fi
+          # Checkout asked for but not on: the Paddle secrets are missing or rejected (apps/seller-books/docs/BILLING.md).
+          if [[ "$BILLING_PROVIDER" == "paddle" ]] && ! jq -e '.billing == true' <<<"$body" >/dev/null; then
+            echo "::warning title=Checkout is off::SELLER_BOOKS_BILLING_PROVIDER=paddle but $url reports billing:false. Set SELLER_BOOKS_BILLING_API_KEY and SELLER_BOOKS_BILLING_WEBHOOK_SECRET (apps/seller-books/docs/BILLING.md) and re-run."
+          fi
+
+      - name: Summary
+        if: always()
+        env:
+          APP_URL: ${{ steps.urls.outputs.app_url }}
+          VERSION: ${{ steps.deploy.outputs.version_id }}
+        run: |
+          {
+            echo "### seller-books-deploy"
+            echo "- url: ${APP_URL:-n/a}"
+            echo "- version: \`${VERSION:-n/a}\` (rollback: \`pnpm exec wrangler rollback <version-id> --name seller-books\`)"
+            echo "- commit: \`$GITHUB_SHA\`"
+          } >>"$GITHUB_STEP_SUMMARY"

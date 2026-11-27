@@ -29,6 +29,7 @@ import { HoursCell } from "../components/hours-cell";
 import { meQuery } from "../components/layout";
 import { MoneyInput } from "../components/money-input";
 import { NyCprSection, type NyDraftJob } from "../components/ny-cpr-section";
+import { TimesheetFill } from "../components/timesheet-fill";
 import { TimesheetImport } from "../components/timesheet-import";
 import { WaCprSection, type WaDraftJob } from "../components/wa-cpr-section";
 import { api, downloadPost, projectPath } from "../lib/api";
@@ -405,6 +406,14 @@ export function CertifiedPayrollPage() {
           number of your own, never the full SSN. Gross for this project left blank is hours times
           rates plus cash in lieu; gross for all work left blank is the same as this project.
         </p>
+        <TimesheetFill
+          orgId={orgId}
+          projectId={projectId}
+          weekEnding={draft.weekEnding ?? ""}
+          workers={draft.workers}
+          make={{ worker: blankWorker, row: blankRow }}
+          onFill={(workers) => set({ workers })}
+        />
         <TimesheetImport
           weekEnding={draft.weekEnding ?? ""}
           projectName={p.name}

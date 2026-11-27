@@ -2239,6 +2239,12 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   Next, if it earns its time: the change-order and second-application path, the sample job, and an
   invited PM through the email link.
 
+- Crew timesheets, part 2a (2026-11-27, every plan, timesheets-part-2-certified-payroll-fill): the
+  certified payroll page's "Fill hours from PayApps timesheets" reads the job's week straight from
+  the timesheets (`GET .../projects/:id/certified-payroll/timesheet-hours`,
+  `src/shared/timesheet-certified.ts`) instead of the time.csv export and import; two workweeks when
+  the payroll week straddles them; other jobs' hours and missing trades named. docs/TIMESHEETS.md.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2264,8 +2270,8 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
 
 ## Next (suite, by promise)
 
-- Crew timesheets, part 2: the week's hours filling the certified payroll page directly (today
-  through the time detail CSV), a foreman entering hours from a phone for the crew on one job, an
+- Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
+  2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if
   contractors ask
 - Job schedule, part 2 (part 1, activities, the sequence check, the shift and the lookahead PDF,
