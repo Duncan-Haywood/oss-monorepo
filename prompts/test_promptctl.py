@@ -811,6 +811,39 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
 
 
 class LastChangeIndexTest(unittest.TestCase):
+    def test_two_shallow_roots_date_like_git(self):
+        # CI's PR checkout is a merge whose two parents are shallow roots; for a file only the
+        # roots list, git names the first-parent root, not the newer one (PR #19529).
+        import subprocess
+        with tempfile.TemporaryDirectory() as tmp:
+            src, shal = Path(tmp, "src"), Path(tmp, "shal")
+            src.mkdir()
+            def git(*args, date="2026-11-20T00:00:00Z", cwd=src):
+                env = dict(os.environ, GIT_COMMITTER_DATE=date, GIT_AUTHOR_DATE=date)
+                subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *args],
+                               cwd=cwd, env=env, check=True, capture_output=True)
+            git("init", "-q", "-b", "main")
+            (src / "f").write_text("a")
+            git("add", "f"); git("commit", "-qm", "A")
+            git("checkout", "-qb", "br")
+            (src / "g").write_text("b")
+            git("add", "g"); git("commit", "-qm", "B", date="2026-11-27T00:00:00Z")
+            git("checkout", "-q", "main")
+            (src / "h").write_text("c")
+            git("add", "h"); git("commit", "-qm", "C", date="2026-11-26T00:00:00Z")
+            git("merge", "-q", "--no-ff", "br", "-m", "M", date="2026-11-27T01:00:00Z")
+            git("clone", "-q", "--depth=2", src.as_uri(), str(shal), cwd=tmp)
+            with unittest.mock.patch.object(promptctl, "ROOT", shal / "prompts"):
+                promptctl._GIT_MEMO.clear()
+                try:
+                    for path in ("f", "g", "h"):
+                        with self.subTest(path=path):
+                            self.assertEqual(promptctl._changed_note(path),
+                                             promptctl._changed_note_uncached(path))
+                    self.assertIn("2026-11-26", promptctl._changed_note("f")[0])
+                finally:
+                    promptctl._GIT_MEMO.clear()
+
     def test_batch_index_matches_per_file_log(self):
         promptctl._GIT_MEMO.clear()
         idx = promptctl._last_change_index()

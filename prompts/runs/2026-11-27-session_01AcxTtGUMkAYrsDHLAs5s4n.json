@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "PR CI validate failed on test_promptctl LastChangeIndexTest: on CI's two-shallow-root merge checkout the one-pass index dated a root-only file by the newer root while git log -1 follows the first parent. Fixed in this PR (promptctl._first_parent_root) with a regression test that builds a two-root shallow clone."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -47,7 +49,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue empty; ideas inbox empty; routed process/1 by draw. Backlog has only owner or blocked rows, so Critique mode via friction_rank --live --ungated --days 3. Fixed cluster 8 (check_post_frontmatter over-cap messages now quote the overflow) and cluster 4 (redteam list_targets accepts a name prefix). Tests: test_check_post_frontmatter 41 OK, test_redteam 26 OK; main_health 330/330 before the change. No backlog ids touched.",
+  "notes": "Security queue empty; ideas inbox empty; routed process/1 by draw. Backlog has only owner or blocked rows, so Critique mode via friction_rank --live --ungated --days 3. Fixed cluster 8 (check_post_frontmatter over-cap messages now quote the overflow) and cluster 4 (redteam list_targets accepts a name prefix). Tests: test_check_post_frontmatter 41 OK, test_redteam 26 OK; main_health 330/330 before the change. No backlog ids touched. Also fixed a latent promptctl bug the PR CI exposed (any PR changing prompts/*.py would hit it): edge index now prefers HEAD's first-parent shallow root. prompts unittest discover 163 OK.",
   "corrections": [],
   "redteam": null,
   "usage": {

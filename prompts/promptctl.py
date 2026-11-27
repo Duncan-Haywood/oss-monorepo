@@ -1312,15 +1312,35 @@ def _last_change_indexes() -> tuple[dict[str, tuple[str, str]], dict[str, tuple[
     into: dict[str, tuple[str, str]] = idx
     cur: tuple[str, str] | None = None
     edge = _shallow_boundary()
+    # With several shallow roots (CI's PR merge checkout has two), `git log -1 -- path` for a
+    # path only the roots list follows first parents through the merges, which change nothing
+    # there, so it names the first-parent root, not the newest one (2026-11-27, PR #19529:
+    # test_lookups_without_a_git_call_match_the_per_file_call dated such a file a day late).
+    first_root = _first_parent_root(edge) if len(edge) > 1 else None
+    override = False
     for line in out.splitlines():
         if line.startswith("@"):
             sha, _, when = line[1:].partition(" ")
             # A shallow root "adds" every file: it dates a path only when no real commit does.
             cur = (sha, when)
             into = edge_idx if sha in edge else idx
+            override = sha == first_root
         elif line and cur:
-            into.setdefault(line, cur)
+            if override:
+                edge_idx[line] = cur
+            else:
+                into.setdefault(line, cur)
     return idx, edge_idx
+
+
+def _first_parent_root(edge: set[str]) -> str | None:
+    """The shallow root HEAD's first-parent chain ends at; None if git cannot say."""
+    try:
+        chain = subprocess.run(["git", "rev-list", "--first-parent", "HEAD"], cwd=ROOT.parent,
+                               capture_output=True, text=True, timeout=60).stdout.split()
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return next((sha for sha in chain if sha in edge), None)
 
 
 def _changed_note(path: str) -> tuple[str, str]:
