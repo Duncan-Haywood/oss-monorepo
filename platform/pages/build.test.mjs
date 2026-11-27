@@ -2343,6 +2343,8 @@ test('every published venture page routes back to the hub', async () => {
     // PayApps' own marketing site (payapps-site.mjs): a product's site with its own header and
     // footer, copied in without the catalogue chrome on purpose.
     .filter((f) => !path.relative(outDir, f).startsWith(`payapps${path.sep}`))
+    // Job Shop Quote's (jobshop-site.mjs), the same arrangement.
+    .filter((f) => !path.relative(outDir, f).startsWith(`jobshop${path.sep}`))
     // CMMC Workspace's own marketing site (cmmc-site.mjs), likewise.
     .filter((f) => !path.relative(outDir, f).startsWith(`cmmc${path.sep}`));
 

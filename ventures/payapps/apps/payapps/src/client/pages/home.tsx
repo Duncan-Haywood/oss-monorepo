@@ -222,6 +222,8 @@ export function HomePage() {
   if (!me.data) return <AuthForm />;
   return (
     <div className="mx-auto max-w-lg space-y-6">
+      {/* Every other signed-in page has an h1; screen readers and the tab's outline need one here too. */}
+      <h1 className="sr-only">Your companies</h1>
       <MyInvitations />
       {me.data.memberships.length > 0 && (
         <div className="card">

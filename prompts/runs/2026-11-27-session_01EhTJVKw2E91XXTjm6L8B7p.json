@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVKw2E91XXTjm6L8B7p",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T16:56:01Z",
+  "ended": "2026-11-27T17:00:58Z",
+  "wall_minutes": 5.1,
+  "tokens_in": 2464131,
+  "tokens_out": 11614,
+  "cost_usd": 1.3329,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19811",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/routing.json",
+      "issue": "review_every = 40 routed a fourth review on 2026-11-27; the three before it reached the same 'keep collecting: the intervals overlap' verdict, so most of a review's budget re-measures an unchanged null result."
+    },
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "says to open the claim PR as a draft within minutes, but a PR needs a commit; the run committed a stub experiments.md entry to open it, which the prompt could say."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "third review of the day already ran the full set of candidate decisions with the same null result; took the reduced pass the prompt allows",
+      "did": "steps 1, 3, 7, 8 and one tool fix from step 5; no derive, audit or drift report",
+      "result": "merged"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Reduced review pass. measure: ventures/process/review candidates all 'keep collecting'. Fix: roadmap_claim.py --bets says why a bet has nothing free (gate tally) and points at demand-side work when most items wait on demand. Verified: test_roadmap_claim 42 tests OK; promptctl validate ok; unittest discover -s prompts OK; --bets on the live tree prints payapps '21 waits on demand, 1 waits on a device, 1 waits on evidence'. No post: a review run changes tools and logs, and experiments.md E125 is its write-up.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "02d8ef21-7c05-5a58-a34e-7e9911ab98a1",
+    "transcripts": 1,
+    "first": "2026-11-27T16:56:01Z",
+    "last": "2026-11-27T17:01:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 59,
+        "output": 11614,
+        "thinking": 2612,
+        "cache_read": 2386175,
+        "cache_write_5m": 0,
+        "cache_write_1h": 77897,
+        "api_equivalent_usd": 1.3329,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 59,
+      "output": 11614,
+      "thinking": 2612,
+      "cache_read": 2386175,
+      "cache_write_5m": 0,
+      "cache_write_1h": 77897,
+      "api_equivalent_usd": 1.3329,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.1,
+      "active_minutes": 5.1,
+      "model_minutes": 2.26,
+      "tool_minutes": 2.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "an engineer reading the friction report, changing the tool and its test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 112.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -423,6 +423,22 @@
    "by": "this PR: land-your-work.md 'Ready PRs that stalled' says to re-land from your own branch when you cannot push to its branch",
    "at": "2026-11-27T15:21:56Z",
    "note": "the doc now names the harness push rule and the re-land path"
+  },
+  {
+   "file": "CLAUDE.md",
+   "match": "register_repo_root",
+   "verdict": "by-design",
+   "by": "cloud-session.md 'Reaching private-monorepo' step 3 says to skip it",
+   "at": "2026-11-27T17:20:50Z",
+   "note": "The wrong text is add_repo's tool result, outside this repo; CLAUDE.md points to cloud-session.md, which handles it (checked 2026-11-27)."
+  },
+  {
+   "file": ".github/prompts/cloud-session.md",
+   "match": "No projects matched",
+   "verdict": "fixed",
+   "by": "6893cbb7f (zero-dependency apps skip the install) + a25c6a3ce (cd to the root; --dir still resolves against the cwd)",
+   "at": "2026-11-27T17:21:18Z",
+   "note": "Every report after the 11-26 06:14Z verdict names a case those two commits now cover in step 3 (checked 2026-11-27)."
   }
  ]
 }

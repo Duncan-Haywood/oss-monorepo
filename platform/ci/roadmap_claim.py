@@ -29,7 +29,9 @@ refused as NEAR (exit 4) unless --distinct; claims are read again after the push
 that landed first in the same seconds releases yours (exit 4) and a same-item part shows as ALSO CLAIMED. Merged and stale claims not under an item are
 summed up in one line each (--all lists them with notes). A refused claim push says TAKEN
 (a rival holds the branch, exit 4) or PUSH FAILED (no one does; retry, exit 2). Exit codes: 0 ok, 2 usage or git error, 4 the item is already
-claimed (pick another). When no bet has a free, ungated item, --bets lists each bet's
+claimed (pick another). --bets also lists each bet's open "Must do before a public launch"
+bullets, gated like Next items, and starts a run on the first free one when its bet ranks at
+or above the first free Next item. When no bet has a free, ungated item, --bets lists each bet's
 `**Growth path:**` topics from bets.md with the live and merged claims on each, and names
 the least-crowded bet's first topic with no live claim. Both picks (the free item and the
 untouched topic) rotate per session among the first three, so parallel runs spread out.
@@ -48,6 +50,7 @@ import secrets
 import subprocess
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 
 PREFIX = "claim/"
@@ -171,7 +174,7 @@ GATES = (
         r"\b(?:if|once|until)\s+(?!it\b|this\b|that\b)(?:[\w'-]+\s+){0,3}?(?:asks?|requests?)\b", re.I)),
     ("waits on a source", re.compile(
         r"\bonce\b[^.;()]{0,60}\b(?:reachable|published|available|in hand|is live|goes live|"
-        r"answers|(?:is|can be) read|has run)\b|\b403\b|\bwhen\b[^.;]{0,60}\bchanges?\b|\bno public (?:spec|format|columns?|schema|docs?)\b", re.I)),
+        r"answers|(?:is|can be) read|has run)\b|\bthe day\b[^.;()]{0,40}\b(?:is|goes) live\b|\b403\b|\bwhen\b[^.;]{0,60}\bchanges?\b|\bno public (?:spec|format|columns?|schema|docs?)\b", re.I)),
     ("owner step", re.compile(
         r"\bowner[- ](?:only|steps?|actions?)\b|\bneeds the owner\b|"
         r"\b(?:once|until|after|when)\s+the owner\b|\bthe owner (?:runs|onboards|sets|adds)\b|"
@@ -616,6 +619,21 @@ def item_marks(app: str, items: list[tuple[int, str]], claims: dict[str, tuple[i
     return rows, open_now
 
 
+def why_none(rows: list[tuple[int, str, str, str, list]]) -> tuple[str, Counter]:
+    """(" (12 waits on demand, 3 claimed)", tally) for a Next list with no free, ungated item.
+
+    Eight run records (2026-11-26..27) read "free and not gated: none" on every bet, then spent
+    10 to 20 minutes reading each ROADMAP to learn why: nearly every item waited on demand.
+    """
+    tally: Counter = Counter()
+    for _, _, _, mark, _ in rows:
+        m = re.match(r'free, ([^:]+):', mark)
+        tally[m.group(1) if m else ("merged" if mark == "MERGED" else
+                                   "stale claim" if mark.startswith("STALE") else "claimed")] += 1
+    cells = ", ".join(f"{n} {k}" for k, n in tally.most_common())
+    return (f" ({cells})" if cells else ""), tally
+
+
 def app_home(app: str, repo: str) -> tuple[str, Path]:
     """(git repo to claim in, app directory) for `app`.
 
@@ -730,6 +748,58 @@ def roadmap_done(roadmap: str) -> list[str]:
         slugs = " ".join(_SLUG_IN_TEXT.findall(text.split(":", 1)[0]))
         out.append(f"{lead} {slugs}".strip())
     return out
+
+
+LAUNCH_HEAD = "must do before a public launch"
+# A launch-list bullet that records a shipped feature: "Dutch explanations, part 1 (2026-11-27,
+# slug): ..." or "ISO 9001 dates in the calendar (2026-11-27)." Runs park changelog entries there.
+_SHIPPED = re.compile(r"^\W*(?:done\b|[^:()]{3,100}\(\d{4}-\d\d-\d\d\b)", re.I)
+
+
+def launch_items(roadmap: str) -> list[str]:
+    """Open bullets under `## Must do before a public launch`, continuation lines joined.
+
+    Thirty-odd run records on 2026-11-27 found every bet's Next list gated on demand ("if
+    people ask", with no customers yet to ask) while the launch list, the work that stands
+    between a bet and its first paying customer, was never shown: cmmc's "Run cmmc-deploy
+    once (an agent may dispatch it)" and einvoice's "re-check each official deadline source"
+    sat there unpicked. Done and Owner bullets and shipped-feature entries are left out; a
+    bullet with "Left:" keeps only what follows its last "Left:".
+    """
+    items: list[str] = []
+    inside = False
+    for line in roadmap.splitlines():
+        if line.startswith("## "):
+            inside = line[3:].strip().lower().startswith(LAUNCH_HEAD)
+            continue
+        if not inside:
+            continue
+        m = re.match(r"^[-*]\s+(.*)", line)
+        if m:
+            items.append(m.group(1).strip())
+        elif items and line.startswith((" ", "\t")) and line.strip():
+            items[-1] += " " + line.strip()
+    out = []
+    for text in items:
+        if _SHIPPED.match(text) and "Left:" not in text or re.match(r"\W*owner\b", text, re.I):
+            continue
+        out.append(text.rsplit("Left:", 1)[1].strip() if "Left:" in text else text)
+    return out
+
+
+def launch_marks(items: list[str], info: dict[str, tuple[int, str]], merged: dict[str, str],
+                 now: float, stale_s: float, reach: dict[str, str] | None = None
+                 ) -> list[tuple[str, str, str]]:
+    """(slug, text, mark) per launch item: "free", the gate, or the live claims on its words."""
+    rows = []
+    for text in items:
+        slug = slugify(text, 5)
+        live, _ = topic_claims(slug, info, merged, now, stale_s)
+        hit = gate_match(text, reach)
+        mark = (f"claimed: {', '.join(live[:2])}" if live else
+                f'{hit[0]}: "{hit[1]}"' if hit else "free")
+        rows.append((slug, text, mark))
+    return rows
 
 
 def topic_done(topic: str, done: list[str]) -> int:
@@ -865,7 +935,9 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
     print_unblockers(tasks_yaml or TASKS_YAML, tag)
     now = time.time()
     start = None
+    launch_start = None
     present: list[tuple[int, int, str]] = []  # (live claims, rank, app) for apps in this clone
+    gates: Counter = Counter()  # why the Next items of bets with nothing free wait
     print(f"Bets in bets.md order (claims older than {stale_s / 3600:g} h are stale):")
     for rank, name, app in bets:
         home, app_dir = app_home(app, repo)
@@ -892,14 +964,32 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
         done_lists[app] = roadmap_done(roadmap_text)
         items = next_items(roadmap_text)
         reach = probe_hosts(h for _, t in items for h in hosts_in(t)) if probe else None
-        _, open_now = item_marks(app, items, claims, info, merged, now, stale_s, tag, reach)
-        free = ", ".join(f"#{n}" for n in open_now) or "none"
+        rows, open_now = item_marks(app, items, claims, info, merged, now, stale_s, tag, reach)
+        why, tally = ("", Counter()) if open_now else why_none(rows)
+        gates += tally
+        free = ", ".join(f"#{n}" for n in open_now) or "none" + why
         print(f"{rank:>3}. {app}: {len(items)} Next, free and not gated: {free}; "
               f"{live} live claim(s) ({name}{where})")
+        launch = launch_marks(launch_items(roadmap_text), info, merged, now, stale_s, reach)
+        for slug, ltext, mark in launch:
+            print(f"       launch list [{mark}] {ltext[:110]}{'...' if len(ltext) > 110 else ''}")
+        free_launch = [(slug, t) for slug, t, mark in launch if mark == "free"]
+        if free_launch and launch_start is None:
+            launch_start = (rank, app, free_launch)
         if open_now and start is None:
             start = (rank, app, open_now)
         growth[app] = (info, merged)
-    if start:
+    if launch_start and (start is None or launch_start[0] <= start[0]):
+        # The launch list comes before Next: it is what stands between the bet and revenue.
+        rank, app, free_launch = launch_start
+        slug, ltext = spread(free_launch, tag)[0]
+        print(f"Start here: bet #{rank} {app}, its launch list (\"Must do before a public launch\" in "
+              f"its ROADMAP): {ltext[:140]}{'...' if len(ltext) > 140 else ''} "
+              f"(`roadmap_claim.py {app} --slug launch-{slug} --note ...`; check `slug_dupe.py` first, "
+              f"since launch work is often in an open PR).")
+        if start:
+            print(f"  Or a free Next item: bet #{start[0]} {start[1]}, item #{start[2][0]}.")
+    elif start:
         rank, app, nums = start
         order = spread(nums, tag)
         alt = f"; if it is taken, #{', #'.join(map(str, order[1:SPREAD]))}" if len(order) > 1 else ""
@@ -918,6 +1008,15 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
               f"  (bets.md has no **Wedge:** line for bet #{rank}: read its evidence section)")
         growth_topics(rank, app, paths.get(rank, []), growth.get(app), now, stale_s, tag,
                       done_lists.get(app))
+        total = sum(gates.values())
+        if total and gates["waits on demand"] * 2 > total:
+            # The runs that read this as "invent a feature" built for customers who do not exist
+            # yet; the ones that took the bet's demand side (front-door pages, the marketing site,
+            # sign-up and onboarding) shipped and merged (2026-11-27 records).
+            print(f"  {gates['waits on demand']} of {total} Next items wait on demand, so a bet's "
+                  f"work now is demand itself: its front-door and search pages, marketing site, "
+                  f"sign-up and onboarding, not features nobody has asked for. Check "
+                  f"`slug_dupe.py <slug>` first; parallel runs take the same pages.")
     else:
         print("Start here: no ranked bet's app is in this clone.")
     return 0

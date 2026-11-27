@@ -14,7 +14,8 @@
       "!**/worker-configuration.d.ts",
       "!**/routeTree.gen.ts",
       "!**/migrations/meta",
-      "!**/*.md"
+      "!**/*.md",
+      "!**/catalogue-export"
     ]
   },
   "formatter": {
