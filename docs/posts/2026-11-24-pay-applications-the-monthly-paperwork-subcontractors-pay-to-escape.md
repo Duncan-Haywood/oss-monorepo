@@ -2,7 +2,7 @@
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
 updated: 2026-11-27
-tags: [construction, subcontractors, electrical-contractors, hvac-contractors, drywall-contractors, concrete-contractors, site-work-contractors, roofing-contractors, masonry-contractors, painting-contractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, insurance-certificates, pay-app-guides, for-customers]
+tags: [construction, subcontractors, electrical-contractors, hvac-contractors, drywall-contractors, concrete-contractors, site-work-contractors, roofing-contractors, masonry-contractors, painting-contractors, millwork-contractors, flooring-contractors, glazing-contractors, steel-contractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, insurance-certificates, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and PayApps, now open free on one job."
 ---
 
@@ -626,7 +626,7 @@ browser and never uploaded.
 
 Each trade bills the same monthly form differently, so the guides now have
 one page per trade (added 2026-11-27; site work, roofing, masonry and
-painting the same day): what the GC checks, an example
+painting the same day, then millwork, flooring, glazing and steel): what the GC checks, an example
 schedule of values, and where that trade usually loses money.
 
 - [Electrical contractors](https://marisstella.app/pay-app-guides/electrical-contractor-billing.html):
@@ -653,6 +653,18 @@ schedule of values, and where that trade usually loses money.
 - [Commercial painting](https://marisstella.app/pay-app-guides/painting-contractor-billing.html):
   floors and coats, damage by other trades on signed tickets, back
   charges and punch lists.
+- [Millwork and finish carpentry](https://marisstella.app/pay-app-guides/finish-carpentry-contractor-billing.html):
+  casework built in your shop as stored materials, shop drawings billed
+  when approved, field dimensions as RFIs.
+- [Commercial flooring and tile](https://marisstella.app/pay-app-guides/flooring-contractor-billing.html):
+  slab moisture and floor prep as extras, material on site as stored,
+  attic stock.
+- [Glass, glazing and curtain wall](https://marisstella.app/pay-app-guides/glazing-contractor-billing.html):
+  units fabricated off site, the mockup and water tests, return trips
+  and broken glass.
+- [Structural steel and misc metals](https://marisstella.app/pay-app-guides/steel-contractor-billing.html):
+  detailing, fabrication and erection by sequence or ton, embeds
+  delivered early, rework after design changes.
 
 ## What exists now, free
 
