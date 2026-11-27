@@ -63,7 +63,7 @@ describe("payPageHtml with a token", () => {
     const sandbox = payPageHtml({ token: sandboxToken, successUrl: "s", cancelUrl: "c" });
     expect(sandbox).toContain('data-environment="sandbox"');
     // No inline script: the CSP allows only 'self' and cdn.paddle.com.
-    expect(live.match(/<script>/g)).toBeNull();
+    expect(live).not.toContain("<script>");
   });
 });
 
