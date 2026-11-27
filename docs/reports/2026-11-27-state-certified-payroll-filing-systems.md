@@ -93,3 +93,21 @@ NYSDOL's own sample validates against its XSD with xmllint, and so does PayApps'
 999.99 (the guide says 9,999.99); a deduction amount is at most four integer digits; `country` is
 required by the XSD though the guide marks it optional. njwages.nj.gov still answered 403 from this
 session, so New Jersey's CSV template is the next to fetch; lni.wa.gov answered 200.
+
+## Update, later on 2026-11-27: Illinois built (part 3c)
+
+labor.illinois.gov answered 200 through the proxy, and its Certified Transcript of Payroll page
+(`/laws-rules/conmed/certifiedtranscriptofpayroll.html`) links the Full Import template
+`/content/dam/soi/en/web/idol/laws-rules/conmed/documents/ctp/Full-CTP-Upload.xlsx` (one sheet: a
+102-column header row and two sample rows), the "2026 Prevailing Wage Certified Transcript of
+Payroll Training Slides" PDF in the same folder (`pdftotext -layout` reads it; it gives the date
+format MM/DD/YYYY, the required fields and the region, class type and class code options) and
+`/faqs/certifiedpayrollfaq.html` (17 answers; 3, 7, 13, 15 and 16 shape the file). PayApps now
+writes that CSV (`src/shared/il-ctp.ts`). What the sources leave open, for whoever gets a real
+upload: the race, ethnicity and gender values the portal accepts (the sample has "Chinese" with
+ethnicity "Y", and "Hispanic or Latino" as a race), whether the hour and money columns take more
+than two decimals, and what AddOT15/AddOT20 mean per hour versus per week (PayApps writes what is
+typed, 0 by default). The contractor's FEIN and the "Agency" dropdown are on the manual-entry
+screen but not in the template, so the file has neither. www.nj.gov's Wage Hub page answers 200,
+but it links nothing downloadable: the CSV template is behind njwages.nj.gov, which still answers
+403 from this session.
