@@ -139,9 +139,9 @@ export function htmlToMarkdown(input: string): string {
     .replace(/[<>]/g, "")
     .replace(/&#39;/g, "'")
     .replace(/&quot;/g, '"')
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
+    // &lt; and &gt; stay encoded (Markdown renders them as < and >): decoding them after the
+    // tags are gone could rebuild markup from escaped text (CodeQL js/incomplete-multi-character-sanitization).
+    .replace(/&amp;(?!lt;|gt;)/g, "&")
     .split("\n")
     .map((l) => l.replace(/\s+/g, " ").trim())
     .join("\n")
