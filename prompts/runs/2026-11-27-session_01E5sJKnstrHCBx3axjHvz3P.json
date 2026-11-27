@@ -39,6 +39,10 @@
     {
       "what": "two wrong hand expectations in my own tests (negative lengths that parseLength does not take; a mitre sign), corrected after checking the geometry, code unchanged",
       "fixed": true
+    },
+    {
+      "what": "main carried a broken link (docs/posts/2026-11-27-florida-notice-to-owner-45-days.md to the retired payapps workers.dev host) that failed the changed-ventures unwired check locally; fixed to payapps.marisstella.app in this PR",
+      "fixed": true
     }
   ],
   "integrity_issues": [],
@@ -75,7 +79,7 @@
     "docs/reports/2026-11-27-wall-framing-takeoff-angled-outline-roof-lines.md"
   ],
   "goal": "bet #6 (estimating module of the contractor suite): roof takeoff for real houses with bays and clipped corners",
-  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/487 merged (squash 7ca83b92). skeleton.mjs: general straight skeleton by wavefront steps plus geometric rebuild; matches hiproof.mjs on 300 random square-cornered outlines (also rotated and mirrored) to 5e-13; invariants on 600 random any-angle polygons and 200 clipped outlines. Local checks: node --test skeleton.test.mjs 7/7; node --test '*.test.mjs' 1317 pass 0 fail 2 skipped; eval-angled-roof-click.mjs 9/9; eval-roof-plan-click.mjs 29/29 (its slanted-side refusal check updated to the new behaviour). risk_review.py: nothing blocked in either repo; the private flags were the local Playwright harnesses and page.fill, no user input or personal data.",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/487 merged (squash 7ca83b92). skeleton.mjs: general straight skeleton by wavefront steps plus geometric rebuild; matches hiproof.mjs on 300 random square-cornered outlines (also rotated and mirrored) to 5e-13; invariants on 600 random any-angle polygons and 200 clipped outlines. Local checks: node --test skeleton.test.mjs 7/7; node --test '*.test.mjs' 1317 pass 0 fail 2 skipped; eval-angled-roof-click.mjs 9/9; eval-roof-plan-click.mjs 29/29 (its slanted-side refusal check updated to the new behaviour). risk_review.py: nothing blocked in either repo; the private flags were the local Playwright harnesses and page.fill, no user input or personal data. run_workflow_locally --for-changes: 5/6 workflows passed; the 6th (ventures-tests) failed only on that pre-existing broken post link, fixed here; check_post_links.py now 0 broken.",
   "corrections": [],
   "redteam": null,
   "usage": {
