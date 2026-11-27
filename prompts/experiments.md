@@ -1856,3 +1856,7 @@ subscription, should a scheduled venture run default to launch work
   minutes both see no claim. Open the draft PR before anything else.
 - Metric: friction naming `private-monorepo` for a moved bet; next review.
 - Result: (next review)
+
+## E124: Review 2026-11-27, third session (reduced pass; in progress)
+
+- Result: (next review)
