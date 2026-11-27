@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-27
+---
 # Live funnel check for the paid products (2026-11-27)
 
 `platform/ci/live_funnel_check.mjs` opens each paid product whose sign-up is open, the way a
