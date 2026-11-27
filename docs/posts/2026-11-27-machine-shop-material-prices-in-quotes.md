@@ -3,7 +3,7 @@ title: "Keeping material prices current in machine-shop quotes"
 seo_title: "Machine shop quoting: keep material prices current"
 date: 2026-11-27
 tags: [jobshop-quote, for-customers, cnc, quoting, materials, ventures]
-description: "Rate cards typed in once quote old metal prices. Date each material price, import the supplier's sheet and see the open quotes a new price touches."
+description: "Rate cards typed in once quote old metal prices. Date each price, import the supplier's sheet, keep cwt and metre prices exact, see the quotes it touches."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -109,8 +109,27 @@ After saving, the supplier and the sheet's date stay with each new price in its 
 > dated 2026-11-20)
 
 Six months later, that line answers "where did this price come from?" without anyone digging
-through email. A price per cwt or per metre is not converted by guess. The import flags it and
-gives the conversion to make.
+through email.
+
+## Prices per hundredweight or per metre
+
+Steel service centers often quote plate and structural shapes per hundredweight (cwt, 100 lb), and
+metric suppliers quote bar and tube per metre. Converting those to a price per pound or per foot
+rarely comes out to a whole cent: $412.50/cwt is $4.125/lb, and $10.00/m is $3.048/ft. Rounding
+to $4.13/lb looks harmless, but on 3,000 lb of plate it adds $15 that the supplier never charged.
+
+So a material can now keep its price in the supplier's unit. In the Materials form, **Price per**
+offers lb or cwt for material bought by weight, and foot or metre for material bought by length.
+The import reads "Price per cwt" and "Price per metre" columns directly. The quote prices from
+the exact figure and rounds only the line's material total, and the basis line shows both numbers
+(made-up figures):
+
+> Material: A36 plate, 10 lb per part at $412.50/cwt ($4.125/lb)
+
+History, **New price** and the list of open quotes a price touches all read in the card's unit,
+for example "$440.00/cwt, up 6.7% from $412.50/cwt". If a shop re-enters a $4.25/lb price as
+$425.00/cwt, the price is re-dated, but no open quote is flagged for Re-price, because nothing a
+quote charges has changed.
 
 ## What comes next
 
