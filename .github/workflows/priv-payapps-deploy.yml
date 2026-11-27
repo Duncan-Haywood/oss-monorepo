@@ -95,7 +95,9 @@ jobs:
           pnpm typecheck
           pnpm test:unit
           pnpm test:worker
-          node --test scripts/provision.test.mjs
+      - name: Deploy provisioning script tests
+        if: ${{ !inputs.skip_checks }}
+        run: node --test ./scripts/provision.test.mjs
 
       - name: Build
         run: pnpm build
@@ -107,9 +109,9 @@ jobs:
           CF_SECRET: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID || vars.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          token="$(printf '%s' "$CF_SECRET" | tr -d '[:space:]')"
-          account="$(printf '%s' "$CF_ACCOUNT" | tr -d '[:space:]')"
-          echo "::add-mask::$token"
+          # Used exactly as stored: a transformed secret would print unmasked (actions-secret-leak-check).
+          token="$CF_SECRET"
+          account="$CF_ACCOUNT"
           api=https://api.cloudflare.com/client/v4
           ok() { jq -e '.success == true' >/dev/null 2>&1; }
           if ! { curl -sS -H "Authorization: Bearer $token" "$api/user/tokens/verify" | ok ||
@@ -154,7 +156,7 @@ jobs:
         id: provision
         env:
           DOMAIN: ${{ steps.urls.outputs.domain }}
-        run: node scripts/provision.mjs --write-config dist/payapps/wrangler.deploy.json ${DOMAIN:+--domain "$DOMAIN"}
+        run: node ./scripts/provision.mjs --write-config dist/payapps/wrangler.deploy.json ${DOMAIN:+--domain "$DOMAIN"}
 
       # Migrations run BEFORE the new code goes live, so they must stay backward compatible.
       - name: Apply D1 migrations
@@ -266,7 +268,6 @@ jobs:
 
       - name: Summary
         if: always()
-        working-directory: .
         env:
           APP_URL: ${{ steps.urls.outputs.app_url }}
           VERSION: ${{ steps.deploy.outputs.version_id }}
