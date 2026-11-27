@@ -46,7 +46,7 @@
     "docs/reports/redteam-2026-11-27-tx-notice-required-fields.md"
   ],
   "goal": null,
-  "notes": "Security queue: 2 alerts, both claimed (exit 3). Ideas inbox empty. redteam.py open: 0 open, 1 blocked. Guard added: lien-waivers/test/required-fields.test.ts (snapshot of required/optional fields for 211 forms + blank-render checks); started green. Real defect: TX notice 'Weekends' note and README said dates were not rolled past legal holidays after PR #19750 added the roll. lien-waivers suite 268/268 pass.",
+  "notes": "Security queue: 2 alerts, both claimed (exit 3). Ideas inbox empty. redteam.py open: 0 open, 1 blocked. Guard added: lien-waivers/test/required-fields.test.ts (snapshot of required/optional fields for 211 forms + blank-render checks); started green. Real defect: TX notice 'Weekends' note and README said dates were not rolled past legal holidays after PR #19750 added the roll. lien-waivers suite 268/268 pass. Also fixed main's red payapps-site catalogue-export test (stale export after PR #19750); payapps-site pnpm test 11/11 pass after pnpm export:catalogue.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -301,7 +301,14 @@
       {
         "file": "ventures/payapps/packages/lien-waivers/src/tx-notice.ts",
         "issue": "The 'Weekends' note printed on both Texas notices of claim (and the package README) said PayApps moves a date past a weekend but not past a legal holiday, so dates could be a day early; texas-notices-of-claim part 2 (PR #19750) added Gov't Code \u00a7 662.021 holidays to the roll, so the printed note contradicted the dates the app shows.",
-        "patched": true
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19765"
+      },
+      {
+        "file": "ventures/payapps/apps/payapps-site/catalogue-export/features.html",
+        "issue": "Red on main: catalogue-export (features.html, llms.txt, llms-full.txt) was not regenerated after PR #19750 added the Texas notices feature text, so payapps-site's catalogue-export test failed and the served catalogue copy at marisstella.app/payapps/ omitted the Texas feature. Regenerated with pnpm export:catalogue.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19765"
       }
     ]
   },

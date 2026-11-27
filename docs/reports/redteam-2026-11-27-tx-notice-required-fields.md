@@ -53,3 +53,13 @@ describing the old behaviour. Product notes that describe what code does ("PayAp
 moves...") are worth grepping for whenever that code changes. `ROADMAP.md`'s part-1
 entry still says "not past a legal holiday". It is left as dated history, and the
 part-2 entry records the change.
+
+## Second defect: main was red on the catalogue export
+
+The `payapps-site` job failed on this PR because of main, not this change. PR #19750
+added the Texas feature text but did not rerun `pnpm export:catalogue`. As a result,
+`catalogue-export/` (features.html, llms.txt, llms-full.txt, the copy served at
+marisstella.app/payapps/) left the feature out, and `catalogue-export.test.ts` failed.
+This PR regenerates the export, and the site suite passes 11/11. When a PR edits
+`src/site/` feature copy, it needs to regenerate the export too. The test already
+catches a stale export, so the lesson is to read that red job before merging.
