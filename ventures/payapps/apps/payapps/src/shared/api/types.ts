@@ -1450,3 +1450,95 @@ export interface PriceMergeDto {
   conflicts: string[];
   list: PriceListDto;
 }
+
+// ---- Crew timesheets ----
+
+export interface CrewMemberDto {
+  id: string;
+  name: string;
+  trade: string | null;
+  rateCents: number | null;
+  active: boolean;
+  /** Has hours on a timesheet: deactivate instead of deleting. */
+  hasHours: boolean;
+}
+
+export interface CrewDto {
+  members: CrewMemberDto[];
+  weekStartDay: number;
+  /** The start day can change only while no hours are entered. */
+  weekStartLocked: boolean;
+  limit: number;
+}
+
+export interface TimesheetJobDto {
+  id: string;
+  name: string;
+  number: string | null;
+  status: "active" | "closed";
+  lines: { id: string; itemNumber: string; description: string }[];
+}
+
+export interface TimesheetRowDto {
+  workerId: string;
+  projectId: string;
+  sovLineId: string | null;
+  hours: number[];
+  regular: number;
+  overtime: number;
+  wagesCents: number | null;
+}
+
+export interface TimesheetWorkerDto {
+  workerId: string;
+  name: string;
+  trade: string | null;
+  rateCents: number | null;
+  byDay: number[];
+  total: number;
+  regular: number;
+  overtime: number;
+  regularPayCents: number | null;
+  overtimePayCents: number | null;
+  grossCents: number | null;
+  projectIds: string[];
+}
+
+/** One job and line's labor for the week, and whether it is on the job's costs already. */
+export interface TimesheetLaborDto {
+  projectId: string;
+  projectName: string;
+  sovLineId: string | null;
+  itemNumber: string | null;
+  hours: number;
+  overtime: number;
+  workers: number;
+  wagesCents: number;
+  reference: string;
+  /** The job-cost amount posted under this reference; null when not posted. */
+  postedCents: number | null;
+}
+
+export interface TimesheetWeekDto {
+  weekStart: string;
+  weekEnding: string;
+  days: string[];
+  weekStartDay: number;
+  crew: CrewMemberDto[];
+  jobs: TimesheetJobDto[];
+  rows: TimesheetRowDto[];
+  workers: TimesheetWorkerDto[];
+  totals: { hours: number; regular: number; overtime: number; grossCents: number };
+  unrated: string[];
+  problems: string[];
+  /** Wages per job and line (before burden), with what is posted. */
+  labor: TimesheetLaborDto[];
+  note: string;
+}
+
+export interface TimesheetPostDto {
+  added: number;
+  skipped: number;
+  jobs: { projectId: string; projectName: string; added: number; skipped: number }[];
+  week: TimesheetWeekDto;
+}

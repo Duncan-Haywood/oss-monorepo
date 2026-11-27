@@ -75,10 +75,12 @@ export function SubmittalImport({
   };
 
   const save = useMutation({
-    mutationFn: () =>
+    // The rows come in as the mutation's argument: a mutationFn closing over `rows` can be the one
+    // from an earlier render (React Query swaps options in an effect), and would send an empty list.
+    mutationFn: (kept: readonly Row[]) =>
       api<{ added: number; firstNumber: number; lastNumber: number }>(`${base}/import`, {
         method: "POST",
-        body: importBody(rows),
+        body: importBody(kept),
       }),
     onSuccess: async (r) => {
       setDone(`Added ${r.added} submittals, #${r.firstNumber} to #${r.lastNumber}.`);
@@ -204,7 +206,7 @@ export function SubmittalImport({
               type="button"
               className="btn"
               disabled={!kept || save.isPending || rows.some((r) => r.keep && !r.title.trim())}
-              onClick={() => save.mutate()}
+              onClick={() => save.mutate(rows)}
             >
               Add {kept} to the log
             </button>

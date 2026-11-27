@@ -60,7 +60,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Local checks: payapps unit tests 1309 passed / 1 skipped; payapps-site 22 passed; billing paddle.test 19 passed; pnpm -r typecheck passes; biome shows no errors. #1444 was left to the session that holds security-fix/code-scanning-1444. Also fixed main's red pay-app-guides suite: PRs #19626 and #19631 collided (state-forms.mjs rendered the old CTA sentence, cta.mjs needs its status block); state-forms.mjs now runs pages through cta.apply, 296/296 pass. The first CI 'validate' failure (test_promptctl shallow-edge lookup) did not reproduce locally (81/81 OK).",
+  "notes": "Local checks: payapps unit tests 1309 passed / 1 skipped; payapps-site 22 passed; billing paddle.test 19 passed; pnpm -r typecheck passes; biome shows no errors. #1444 was left to the session that holds security-fix/code-scanning-1444. I also fixed main's red pay-app-guides suite (PRs #19626 and #19631 collided), but redteam PR #19641 landed the same fix first, so main's version was kept in the merge. The first CI 'validate' failure (test_promptctl shallow-edge lookup) did not reproduce locally (81/81 OK).",
   "corrections": [],
   "redteam": null,
   "usage": {
