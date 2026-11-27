@@ -36,9 +36,12 @@ It also errors when either file has no licence at all (`no_license`,
 `plugin_header_no_license`). One detail is easy to get wrong: the readme
 test is about *shape*, not GPL compatibility. `License: Proprietary` in the
 readme alone passes `invalid_license`; it is caught by the header rule or by
-the mismatch. So the checker now follows the same three rules, with the same
-normalisation, rather than a simpler "GPL or fail" test that would disagree
-with Plugin Check on edge cases.
+the mismatch. So the checker now gives the same three outcomes, rather than
+a simpler "GPL or fail" test that would disagree with Plugin Check on edge
+cases. The code is our own, not a copy of Plugin Check's: Plugin Check is
+GPL-licensed and this tool is not, so we reduce each licence to a family and
+version and take the GPL-compatible families from the
+[FSF licence list](https://www.gnu.org/licenses/license-list.html).
 
 ## What changed
 
@@ -54,9 +57,9 @@ with Plugin Check on edge cases.
   `NonceVerification`) works per function; ours is a simpler file-level
   check, and the page now says so.
 
-Eight new tests pin the rules, including the cases above. Two seeded bugs,
-dropping the licence gate from the result and disabling the mismatch rule,
-both turned a test red.
+Nine new tests pin the rules, including the cases above. Three seeded bugs,
+dropping the licence gate from the result, disabling the mismatch rule and
+treating MPL 1.1 as compatible, each turned a test red.
 
 ## Still not at the bar
 

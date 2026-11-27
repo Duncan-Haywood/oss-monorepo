@@ -29,20 +29,33 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First version ported Plugin Check's GPL-licensed License_Utils normalisation line by line into an FSL-1.1-MIT venture; check_third_party.py flagged the GPL banner text in CI. Replaced with an independent implementation (family + major version, FSF compatibility list) that gives the same error outcomes."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "portfolio/quality/audits/2026-11-26-wordpress-plugin-review-check.json",
       "issue": "Defect 1 said Plugin Check raises invalid_license for 'License: Proprietary'; in Plugin Check's source the readme rule tests identifier shape only, and Proprietary is caught by plugin_header_invalid_license or license_mismatch. Reading the upstream source before fixing avoided porting the wrong rule."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Fix mode says nothing about licensing when a fix mirrors an upstream tool's code; porting GPL code into an FSL venture is an easy slip that only check_third_party.py (not run by default locally) catches. Worth a line: reimplement behaviour, don't translate code."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "PR CI's changed-ventures job failed on check_post_links.py for a retired payapps host in docs/posts/2026-11-27-florida-notice-to-owner-45-days.md, landed on main by PR #19674, outside my task.",
+      "did": "Fixed the one link to payapps.marisstella.app in this PR so CI could go green.",
+      "result": "check_post_links.py: 0 broken links"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-27-quality-fix-proprietary-licence-passed.md"
   ],
   "goal": null,
-  "notes": "Mode fix (date-seeded; 3 high defects open). Queue seed 2026-11-27-ed74. Subject ventures/wordpress-plugin-review-check, claimed. Fixed defects 1 (high), 4, 8 in PR #19701; marked fixed_by. No new score (a later reaudit re-scores). Tests: node --test '*.test.mjs' 79 pass 0 fail; 2 seeded mutants (licence gate removed, mismatch disabled) both caught; Playwright load of index.html worked example OK, no page errors. Not a sample round, so no share-meeting-bar figure. Remaining open highs: portable-restroom-event-quote (uncited people-per-unit table), uk-holiday-pay-calculator (irregular-hours accrual per pay period).",
+  "notes": "Mode fix (date-seeded; 3 high defects open). Queue seed 2026-11-27-ed74. Subject ventures/wordpress-plugin-review-check, claimed. Fixed defects 1 (high), 4, 8 in PR #19701; marked fixed_by. No new score (a later reaudit re-scores). Tests: node --test '*.test.mjs' 80 pass 0 fail; 3 seeded mutants (licence gate removed, mismatch disabled, MPL1 incompatibility dropped) all caught; Playwright load of index.html worked example OK, no page errors. Not a sample round, so no share-meeting-bar figure. Remaining open highs: portable-restroom-event-quote (uncited people-per-unit table), uk-holiday-pay-calculator (irregular-hours accrual per pay period).",
   "corrections": [],
   "redteam": null,
   "usage": {

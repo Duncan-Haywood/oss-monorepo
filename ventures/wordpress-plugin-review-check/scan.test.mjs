@@ -8,6 +8,7 @@ import {
   detectMissingNonceChecks,
   buildReport,
   normalizeLicense,
+  isGplCompatibleLicense,
   checkLicenses,
   REQUIRED_README_FIELDS,
   RECOMMENDED_README_FIELDS,
@@ -229,15 +230,25 @@ test('buildReport: unescaped output and missing nonce checks each independently 
   assert.equal(withNonce.ok, false);
 });
 
-// Licence rules, checked against Plugin Check's License_Utils trait and
-// Plugin_Readme_Check::check_license / Plugin_Header_Fields_Check (audit
+// Licence rules: the outcomes Plugin Check's licence errors give (audit
 // 2026-11-26-wordpress-plugin-review-check, defect 1: any License passed).
 test('normalizeLicense maps the common GPL spellings to one form, as Plugin Check does', () => {
-  for (const s of ['GPLv2 or later', 'GPL-2.0-or-later', 'GPLv2', 'GPL v2', 'GPL-2.0+', 'GNU General Public License v2 or later', 'GPL version 2']) {
+  for (const s of ['GPLv2 or later', 'GPL-2.0-or-later', 'GPLv2', 'GPL v2', 'GPL-2.0+', 'gnu general public license v2 or later', 'GPL version 2', 'GPLv2 https://www.gnu.org/licenses/gpl-2.0.html']) {
     assert.equal(normalizeLicense(s), 'GPL2', s);
   }
   assert.equal(normalizeLicense('GPL-3.0'), 'GPL3');
   assert.equal(normalizeLicense('Apache License 2.0'), 'Apache2');
+  assert.equal(normalizeLicense('BSD-3-Clause'), 'BSD3');
+  assert.equal(normalizeLicense('Proprietary'), 'Proprietary');
+});
+
+test('isGplCompatibleLicense follows the FSF list on common cases', () => {
+  for (const l of ['GPL-3.0-or-later', 'LGPL-2.1', 'MIT', 'Expat', 'BSD-3-Clause', 'Apache-2.0', 'MPL-2.0', 'ISC', 'CC0-1.0', 'Unlicense']) {
+    assert.equal(isGplCompatibleLicense(normalizeLicense(l)), true, l);
+  }
+  for (const l of ['Proprietary', 'MPL-1.1', 'Apache-1.1', 'All rights reserved', 'JSON']) {
+    assert.equal(isGplCompatibleLicense(normalizeLicense(l)), false, l);
+  }
 });
 
 test('checkLicenses: matching GPL-compatible licences pass', () => {

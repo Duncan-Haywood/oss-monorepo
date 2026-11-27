@@ -21,8 +21,9 @@ them for you:
   checked and reported as recommended-but-not-required (`License URI`,
   `Contributors`, `Tags`, `Requires at least`, `Tested up to`, header
   `Requires at least`, `Requires PHP`, `Text Domain`).
-- **Licence problems** -- the three errors Plugin Check's licence rules raise,
-  using its own normalisation (`License_Utils`): a readme `License` that is
+- **Licence problems** -- the three errors Plugin Check's licence rules raise
+  (our own implementation of the same outcomes; the GPL-compatible families
+  follow the FSF licence list): a readme `License` that is
   not an SPDX-style identifier (`invalid_license`), a header `License` that is
   not GPL-compatible (`plugin_header_invalid_license`, e.g. `Proprietary`),
   and readme and header naming different licences (`license_mismatch`, e.g.

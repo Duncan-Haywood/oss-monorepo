@@ -197,57 +197,82 @@ export function detectMissingNonceChecks(files) {
   return findings;
 }
 
-// Licence checks, following Plugin Check's License_Utils trait
-// (includes/Traits/License_Utils.php, WordPress/plugin-check trunk, read
-// 2026-11-27): the readme licence and the header licence are normalised the
-// same way, then
-//   - readme licence not an SPDX-like identifier  -> invalid_license (error)
-//   - header licence not GPL-compatible            -> plugin_header_invalid_license (error)
-//   - readme and header licences differ            -> license_mismatch (error)
-// Before this, any License value passed (quality audit
+// Licence checks. Plugin Check (WordPress/plugin-check, read 2026-11-27)
+// raises three licence errors once both licences are present:
+//   - readme licence not an SPDX-style identifier  -> invalid_license
+//   - header licence not GPL-compatible            -> plugin_header_invalid_license
+//   - readme and header name different licences    -> license_mismatch
+// This is our own implementation of those outcomes, not a copy of Plugin
+// Check's code (which is GPL; this venture is FSL-1.1-MIT): licences are
+// reduced to a family and major version, and the compatible families are
+// those the FSF lists as GPL-compatible
+// (https://www.gnu.org/licenses/license-list.html). Before this, any
+// License value passed (quality audit
 // 2026-11-26-wordpress-plugin-review-check, defect 1).
 
-const LICENSE_SUFFIXES = [
-  '.',
-  'http://www.gnu.org/licenses/old-licenses/gpl-2.0.html',
-  'https://www.gnu.org/licenses/old-licenses/gpl-2.0.html',
-  'https://www.gnu.org/licenses/gpl-3.0.html',
-  ' or later',
-  '-or-later',
-  '+',
+// [family key, pattern on the lowercased text, GPL-compatible]. Order
+// matters: the narrower families come before the ones they contain.
+const LICENSE_FAMILIES = [
+  ['AGPL', /\bagpl(?:v?\d|\b)|affero/, true],
+  ['LGPL', /\blgpl(?:v?\d|\b)|lesser general public|library general public/, true],
+  ['GPL', /\bgpl(?:v?\d|\b)|gnu general public|^gnu\b/, true],
+  ['EUPL', /\beupl(?:v?\d|\b)|european union public/, true],
+  ['MPL', /\bmpl(?:v?\d|\b)|mozilla public/, true],
+  ['Apache', /\bapache\b/, true],
+  ['MIT', /\bmit\b|\bexpat\b/, true],
+  ['BSD', /\bbsd\b/, true],
+  ['ISC', /\bisc\b/, true],
+  ['CC0', /\bcc0\b/, true],
+  ['Unlicense', /\bunlicense\b/, true],
+  ['WTFPL', /\bwtfpl\b|do what the f\S* you want/, true],
+  ['Zlib', /\bzlib\b/, true],
+  ['Artistic', /\bartistic\b/, true],
+  ['BlueOak', /blue\s*oak/, true],
+  ['OpenLDAP', /\bopenldap\b/, true],
 ];
 
-/** Plugin Check's get_normalized_license(), step for step. */
+/**
+ * Reduces a licence string to a comparable form: "GPL2", "GPL3", "MIT",
+ * "Apache2" ... for a known family, otherwise the trimmed text with spaces
+ * collapsed. "or later", "+", "-or-later", "-only" and licence URLs are
+ * ignored, so "GPLv2 or later" and "GPL-2.0-or-later" compare equal, as they
+ * do in Plugin Check.
+ */
 export function normalizeLicense(license) {
-  let l = String(license ?? '').trim();
-  l = l.split('  ').join(' '); // PHP str_replace replaces every occurrence
-  for (const suffix of LICENSE_SUFFIXES) {
-    if (l.endsWith(suffix)) l = l.slice(0, l.length - suffix.length).trim();
+  const raw = String(license ?? '').trim().replace(/\s+/g, ' ').replace(/\.$/, '');
+  const text = raw
+    .toLowerCase()
+    .replace(/https?:\/\/\S+/g, ' ')
+    .replace(/(?:\s+or\s+later|-or-later|-only|\+)\s*$/g, '')
+    .trim();
+  for (const [family, pattern] of LICENSE_FAMILIES) {
+    if (!pattern.test(text)) continue;
+    const version = text.match(/(\d+)(?:\.\d+)*/);
+    if (family === 'BSD') {
+      if (/\b3\b|3-clause|new|modified|revised/.test(text)) return 'BSD3';
+      if (/\b2\b|2-clause|simplified|freebsd/.test(text)) return 'BSD2';
+      return 'BSD';
+    }
+    const versioned = ['AGPL', 'LGPL', 'GPL', 'EUPL', 'MPL', 'Apache', 'Artistic'].includes(family);
+    return versioned && version ? `${family}${version[1]}` : family;
   }
-  l = l.split('-').join('');
-  l = l.split('GNU General Public License (GPL)').join('GPL');
-  l = l.split('GNU General Public License').join('GPL');
-  l = l.split(' version ').join('v');
-  l = l.replace(/GPL\s*[-|.]*\s*[v]?([0-9])(\.[0])?/i, 'GPL$1');
-  l = l.replace(/EUPL\s*[-|.]*\s*[v]?([0-9]+)(\.[0-9]+)?/gi, 'EUPL');
-  l = l.replace(/Apache.*?([0-9])(\.[0])?/gi, 'Apache$1');
-  l = l.replace(/(The\s+)?Unlicense/gi, 'Unlicense');
-  l = l.replace(/Blue\s*Oak(\s+Model\s+License)?(\s*[v]?[0-9.]+)?/gi, 'BlueOak');
-  l = l.replace(/Do\s+What\s+The\s+F[^\s]*\s+You\s+Want\s+To\s+Public\s+License/gi, 'WTFPL');
-  l = l.replace(/WTFPL\s*[v]?([0-9])/gi, 'WTFPL');
-  l = l.split('.').join('');
-  return l;
+  return raw;
 }
 
-/** Plugin Check's is_license_valid_identifier(), on a normalised licence. */
+/** SPDX-style shape: one token of letters, digits, ".", "-", "+", or several joined by " or ". */
 export function isValidLicenseIdentifier(normalized) {
-  return /^([a-z0-9\-+.]+)(\sor\s([a-z0-9\-+.]+))*$/i.test(normalized);
+  return /^[a-z0-9.+-]+(?: or [a-z0-9.+-]+)*$/i.test(normalized);
 }
 
-/** Plugin Check's is_license_gpl_compatible(), on a normalised licence. */
+const COMPATIBLE = new Set(LICENSE_FAMILIES.filter(([, , ok]) => ok).map(([f]) => f));
+// Versions the FSF lists as incompatible with every GPL version.
+const INCOMPATIBLE_VERSIONS = new Set(['MPL1', 'Apache1', 'Artistic1', 'EUPL1']);
+
+/** True for a normalised licence in a GPL-compatible family and version. */
 export function isGplCompatibleLicense(normalized) {
-  if (/Do\s+What\s+The\s+F[^\s]*\s+You\s+Want\s+To\s+Public\s+License/i.test(normalized)) return true;
-  return /GPL|EUPL|GNU|MIT|FreeBSD|New BSD|BSD-3-Clause|BSD 3 Clause|OpenLDAP|Expat|Apache2|MPL20|ISC|CC0|Unlicense|WTFPL|BlueOak/im.test(normalized);
+  if (INCOMPATIBLE_VERSIONS.has(normalized)) return false;
+  const family = normalized.replace(/\d+$/, '');
+  return COMPATIBLE.has(family) || COMPATIBLE.has(normalized);
 }
 
 /**
