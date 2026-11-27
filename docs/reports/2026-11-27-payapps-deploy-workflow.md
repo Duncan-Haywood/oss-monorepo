@@ -41,9 +41,27 @@ sync when the key exists, `wrangler deploy`, non-empty secret sync, `AUTH_SECRET
 4. If the health check warns `email: false`, sign-ups cannot finish (production requires a verified
    address). The fix is `apps/payapps/docs/EMAIL.md`, not a second deploy.
 
-**Token permissions are unverified from here.** The repository's Cloudflare token deploys the
-catalogue and the email Worker (D1, Workers); whether it also has R2 edit is unknown. Without R2 the
-deploy goes on with attachments off (provision step), so it does not block the first run.
+**First run (45947552522, 2026-11-27 05:44 UTC):** install, checks (biome, typecheck, unit, worker,
+provision tests), build, the token check and the URL (`payapps.<account subdomain>.workers.dev`) all
+passed. It stopped at provisioning: `wrangler r2 bucket create` answered `Authentication error
+[code: 10000]`, because the repository's token has Workers and D1 but not R2. `provision.mjs` only
+tolerated "R2 not enabled" (10042), so the deploy failed instead of going on without attachments as
+DEPLOY.md promises. Fixed by PR #19625 (another session, the same fix this run had open as #19628, which
+then kept only this report): an R2 authentication error warns ("Token has no R2 access") and deploys
+with attachments off. To turn attachments on, the owner adds Account, Workers R2 Storage, Edit to
+`CLOUDFLARE_API_TOKEN` and re-runs.
+
+**Second run (45949861746, 06:07 UTC, on 5f432ae09): success.** PayApps is live at
+<https://payapps.duncan-andrew-haywood.workers.dev>; `/api/health` answered
+`{"ok":true,"app":"payapps","email":true}` at 06:2x UTC, so sign-ups can finish (email verification
+works). Free plan only; checkout dark; attachments off until the token has R2.
+
+**Third run (45950799211, 06:16 UTC): failed in Checks**, before any credential was used:
+`test/unit/sov-import.test.tsx` "previews the sheet, shows what was left out, and posts only the contract
+lines" timed out waiting for a mocked call (3,087 ms; 137 of 138 test files passed). The same suite passed
+in payapps CI on PR #19628 and in run 2, so it reads as a timing flake in that test, not a regression; the
+live deploy from run 2 is untouched. Worth a look by the next PayApps run (`waitFor` timeout or a missing
+`await`).
 
 ## Verification
 
