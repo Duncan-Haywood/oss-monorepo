@@ -46,6 +46,7 @@ import {
   MAX_PRICE_LIST_BATCH,
   MAX_PRICE_NOTE_LENGTH,
 } from "../price-list";
+import { MILLER_TIERS, PUBLIC_OWNERS } from "../public-jobs";
 import { PUNCH_SOURCES } from "../punch-list";
 import { RFI_IMPACTS } from "../rfi";
 import {
@@ -150,6 +151,10 @@ const projectFields = z.object({
   workCompletedOn: isoDate.nullish(),
   /** Lien deadline (California, Arizona): the day the owner recorded a notice of completion. */
   noticeOfCompletionOn: isoDate.nullish(),
+  /** A public job: "federal" (Miller Act) or "state_local"; null makes it private again. */
+  publicOwner: z.enum(PUBLIC_OWNERS).nullish(),
+  /** Federal job: who the company contracted with; null when not said. */
+  millerTier: z.enum(MILLER_TIERS).nullish(),
 });
 /** A new job: retainage defaults to 10% on work and on stored materials. */
 export const projectSchema = projectFields.extend({

@@ -25,6 +25,7 @@ import { INSURANCE_KINDS } from "@shared/insurance";
 import { COMMITMENT_KINDS, COST_CATEGORIES } from "@shared/job-cost";
 import { JOB_EVENT_ACTIONS, type JobEventData } from "@shared/job-history";
 import { PAY_APP_EVENT_ACTIONS, type PayAppEventData } from "@shared/pay-app-history";
+import { MILLER_TIERS, PUBLIC_OWNERS } from "@shared/public-jobs";
 import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { cents, createdAt, json, ts, updatedAt } from "./_columns";
 import { organization, user } from "./auth";
@@ -160,6 +161,13 @@ export const projects = sqliteTable(
     lastFurnishedOn: text("last_furnished_on"),
     workCompletedOn: text("work_completed_on"),
     noticeOfCompletionOn: text("notice_of_completion_on"),
+    /**
+     * A public job (src/shared/public-jobs.ts): "federal" counts the Miller Act instead of a lien,
+     * "state_local" shows no lien date and checks the state's retainage cap; null: private (migration 0087).
+     */
+    publicOwner: text("public_owner", { enum: PUBLIC_OWNERS }),
+    /** Federal job: who the company contracted with (who must give the Miller Act 90-day notice). */
+    millerTier: text("miller_tier", { enum: MILLER_TIERS }),
     /** The one-click sample job (services/payapps/sample.ts): not counted toward the plan. */
     isSample: integer("is_sample", { mode: "boolean" }).notNull().default(false),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),

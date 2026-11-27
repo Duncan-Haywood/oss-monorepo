@@ -260,6 +260,7 @@ export function yearEndPackageFiles(year: number) {
   return {
     readme: "README.txt",
     worksheet: `schedule-c-worksheet-${year}.csv`,
+    worksheetPdf: `schedule-c-worksheet-${year}.pdf`,
     ledger: `sales-ledger-${year}-01-01-to-${year}-12-31.csv`,
     inventory: `closing-inventory-${year}.csv`,
     mileage: `mileage-log-${year}.csv`,
@@ -334,6 +335,8 @@ export function yearEndReadme(r: YearEndReadmeInput): string {
     "THE FILES",
     `  ${f.worksheet}`,
     "    The Schedule C worksheet, line by line, with each line's note and the warnings below.",
+    `  ${f.worksheetPdf}`,
+    "    The same worksheet as a PDF, laid out by Schedule C part, to print or keep with the return.",
     `  ${f.ledger}`,
     `    Every sale, refund and fee behind lines 1 to 7: ${c.ledgerRows} row(s), revenue ${usd(c.revenueCents)}.`,
     `  ${f.inventory}`,

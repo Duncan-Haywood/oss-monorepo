@@ -43,6 +43,7 @@ import type { LienDeadlineResult } from "../lien-deadline";
 import type { LowerTierPartyKind, LowerTierStatus, LowerTierSummary } from "../lower-tier-waivers";
 import type { PayAppEventAction, PayAppEventData } from "../pay-app-history";
 import type { ComputedApplication, Warning } from "../payapp-math";
+import type { MillerTier, PublicOwner } from "../public-jobs";
 import type { PunchListSummary, PunchSource, PunchStatus } from "../punch-list";
 import type { ReleasePlan } from "../retainage-release";
 import type { RfiImpact, RfiLogSummary, RfiStatus } from "../rfi";
@@ -142,6 +143,10 @@ export interface ProjectDto {
   lastFurnishedOn: string | null;
   workCompletedOn: string | null;
   noticeOfCompletionOn: string | null;
+  /** A public job (src/shared/public-jobs.ts): "federal", "state_local", or null (private). */
+  publicOwner: PublicOwner | null;
+  /** Federal job: who the company contracted with, or null when not said. */
+  millerTier: MillerTier | null;
   /** Where the job's lines sit under the GC's Procore SOV positions, or null when never saved. */
   procoreSsov: ProcoreSsovPlacement | null;
   status: "active" | "closed";

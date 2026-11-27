@@ -1,4 +1,4 @@
-// P&L by platform and month, the stock report, the Schedule C worksheet (JSON + CSV download), the
+// P&L by platform and month, the stock report, the Schedule C worksheet (JSON, CSV and PDF downloads), the
 // row-by-row sales ledger behind them (CSV download), the same rows as QuickBooks Online journal entries, the year-end records behind three worksheet figures
 // (closing inventory, mileage log, expenses; CSV downloads) and a Form 1099-K checked against the books.
 import { csvCell, toCsv } from "@shared/csv";
@@ -6,8 +6,10 @@ import { type ExpenseCategory, PLATFORM_LABELS, PLATFORMS, type Platform } from 
 import { estimate } from "@shared/estimated-tax";
 import { reconcile1099k } from "@shared/reconcile-1099k";
 import { reconcilePayouts } from "@shared/reconcile-payouts";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
+import { organization } from "../../db/schema";
 import { badRequest, notFound } from "../../lib/errors";
 import { validate } from "../../lib/validate";
 import { zip } from "../../lib/zip";
@@ -43,6 +45,7 @@ import {
   yearEndInventory,
   yearEndTrips,
 } from "../../services/books/service";
+import { mileageNote, scheduleCPdf } from "../../services/books/worksheet-pdf";
 import {
   type CsvRow,
   closingInventoryList,
@@ -440,15 +443,7 @@ function scheduleCCsvRows(
     ...ws.lines.map((l) => ["I/II", l.line, l.label, dollars(l.amountCents), l.note ?? ""]),
     ...ws.partIII.map((l) => ["III", l.line, l.label, dollars(l.amountCents), l.note ?? ""]),
     ...ws.otherExpenses.map((l) => ["V", l.line, l.label, dollars(l.amountCents), ""]),
-    [
-      "IV",
-      "44a",
-      "Business miles",
-      ws.businessMiles.toFixed(1),
-      mileageRate == null
-        ? "Line 9 at the IRS rate in force on each trip's date"
-        : `Line 9 at ${mileageRate} cents/mile, the rate you chose`,
-    ],
+    ["IV", "44a", "Business miles", ws.businessMiles.toFixed(1), mileageNote(mileageRate)],
     ...ws.warnings.map((w) => ["", "", "Warning", "", w]),
   ];
 }
@@ -460,6 +455,33 @@ routes.get("/schedule-c.csv", validate("query", scQuery), async (c) => {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": `attachment; filename=${csvCell(`schedule-c-worksheet-${ws.year}.csv`)}`,
+    },
+  });
+});
+
+// The same worksheet as a PDF (services/books/worksheet-pdf.ts), with the shop's name on it.
+async function shopName(c: { var: AppEnv["Variables"] }): Promise<string> {
+  const org = await c.var.ctx.db
+    .select({ name: organization.name })
+    .from(organization)
+    .where(eq(organization.id, c.var.tenant.orgId))
+    .get();
+  return org?.name ?? "";
+}
+
+routes.get("/schedule-c.pdf", validate("query", scQuery), async (c) => {
+  const q = c.req.valid("query");
+  const rate = q.mileageRate ?? null;
+  const [ws, name] = await Promise.all([
+    scheduleCWorksheet(c.var.ctx, c.var.tenant.orgId, q.year, rate),
+    shopName(c),
+  ]);
+  return new Response(scheduleCPdf({ worksheet: ws, shopName: name, mileageRate: rate }), {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename=${csvCell(`schedule-c-worksheet-${ws.year}.pdf`)}`,
+      "X-Content-Type-Options": "nosniff",
+      "Cache-Control": "no-store",
     },
   });
 });
@@ -514,12 +536,13 @@ routes.get("/year-end.zip", validate("query", scQuery), async (c) => {
   const from = `${q.year}-01-01`;
   const to = `${q.year}-12-31`;
   const platformLabel = (p: string) => PLATFORM_LABELS[p as Platform] ?? p;
-  const [ws, items, trips, expenseRows, ledger] = await Promise.all([
+  const [ws, items, trips, expenseRows, ledger, name] = await Promise.all([
     scheduleCWorksheet(ctx, orgId, q.year, rate),
     yearEndInventory(ctx, orgId, q.year),
     yearEndTrips(ctx, orgId, q.year),
     yearEndExpenses(ctx, orgId, q.year),
     salesLedger(ctx, orgId, from, to),
+    shopName(c),
   ]);
   const inventory = closingInventoryList(q.year, items);
   const log = mileageLog(q.year, trips, rate);
@@ -562,6 +585,10 @@ routes.get("/year-end.zip", validate("query", scQuery), async (c) => {
   const body = zip([
     { name: files.readme, data: readme },
     { name: files.worksheet, data: csv.worksheet },
+    {
+      name: files.worksheetPdf,
+      data: scheduleCPdf({ worksheet: ws, shopName: name, mileageRate: rate }),
+    },
     { name: files.ledger, data: csv.ledger },
     { name: files.inventory, data: csv.inventory },
     { name: files.mileage, data: csv.mileage },

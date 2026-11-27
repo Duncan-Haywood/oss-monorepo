@@ -39,6 +39,7 @@ Shop settings holds the shop's name, a download of every record the shop holds a
 and fees, charges, inventory, mileage, expenses, home office, filed inventory and the members; owner and admins),
 and deleting the shop (the owner, by typing its name; refused while a paid plan is still set to renew, so a
 deleted shop is never billed again).
+The worksheet also downloads as a PDF, laid out by Schedule C part with the shop's name on it, to print or hand over.
 One download, "Everything for your preparer", puts the worksheet, the year's sales ledger, the three year-end
 lists below and the QuickBooks journal in a single ZIP, with a README that says what each file is and which line it
 totals to. Three year-end lists sit beside the worksheet, each totalling to its own figure: the closing inventory on
