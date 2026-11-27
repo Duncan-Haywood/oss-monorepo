@@ -39,6 +39,7 @@ import reportRoutes from "./routes/org/reports";
 import rfiRoutes from "./routes/org/rfis";
 import scheduleRoutes from "./routes/org/schedule";
 import submittalRoutes from "./routes/org/submittals";
+import timesheetRoutes from "./routes/org/timesheets";
 import tmTicketRoutes from "./routes/org/tm-tickets";
 import orgRoutes from "./routes/orgs";
 import unsubscribeRoutes from "./routes/unsubscribe";
@@ -85,6 +86,7 @@ export function createApp() {
   org.route("/documents", companyDocumentRoutes);
   org.route("/estimates", estimateRoutes);
   org.route("/price-list", priceListRoutes);
+  org.route("/timesheets", timesheetRoutes);
   org.route("/quickbooks", quickbooksRoutes);
   org.route("/rfis", companyRfiRoutes);
   org.route("/schedule", companyScheduleRoutes);

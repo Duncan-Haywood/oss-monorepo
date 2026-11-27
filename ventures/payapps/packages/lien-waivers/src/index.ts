@@ -24,6 +24,13 @@ export {
 } from "./ca-proof.ts";
 export { fieldsFor } from "./fields.ts";
 export {
+  FL_NOTICE_DAYS,
+  FL_NOTICE_ID,
+  FL_NOTICE_MAIL_DAYS,
+  type FlNoticeDates,
+  flNoticeDates,
+} from "./fl-notice.ts";
+export {
   GA_AFFIDAVIT_COPY_DAYS,
   GA_AFFIDAVIT_ID,
   GA_WAIVER_DAYS,

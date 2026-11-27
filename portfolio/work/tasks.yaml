@@ -645,6 +645,23 @@ tasks:
       PR, deploy once, then remove the private copy and repoint models.yaml,
       bets.md and roadmap_claim.py. Until then private-monorepo is where runs
       build; refresh this copy with ventures/payapps/sync-from-private.sh.
+  - id: move-jobshop-quote-public
+    direction: paid-bets
+    title: Move Job Shop Quote and the packages it imports into this repository (step 4 of products-to-public-repo, bet #2)
+    done_when: >-
+      ventures/jobshop-quote/ holds the app and its site under the
+      all-rights-reserved notice, with the packages they import, CI ported
+      to this repository's workflows and passing, the audit's output in the
+      PR, and the deploy path written down; the private copy is removed in
+      a private-monorepo PR once the public one deploys.
+    hours: 10
+    status: open
+    added: 2026-11-27
+    notes: >-
+      Part 1 (copy, audit, CI) in PR 19594, from private 28895f0c
+      (docs/reports/2026-11-27-move-jobshop-quote-public.md). Next: the
+      Playwright job, priv-jobshop-quote-deploy.yml after PayApps' deploy
+      port shows the pattern, then the private copy removed.
   - id: move-seller-books-public
     direction: paid-bets
     title: Move Seller Books (bet #5) and the packages it imports into this repository (step 4 of products-to-public-repo)
@@ -664,9 +681,11 @@ tasks:
       .github/workflows/seller-books-ci.yml and the audit in
       docs/reports/2026-11-27-move-seller-books-public.md. Left
       (ventures/seller-books/DEPLOY.md, "Not yet"): an allowlist PR and then
-      priv-seller-books-deploy.yml, the legal pages confirmed (no launch
-      review yet, unlike PayApps), then remove the private copy and repoint
-      models.yaml, bets.md and roadmap_claim.py.
+      priv-seller-books-deploy.yml, then remove the private copy and repoint
+      models.yaml, bets.md and roadmap_claim.py. The launch review is done
+      (2026-11-27, private-monorepo PR 486, synced here:
+      apps/seller-books/docs/LAUNCH-REVIEW.md), so the first deploy may open
+      sign-ups.
   - id: inboxes-without-owner
     direction: paid-bets
     title: Turn the agent inboxes on with no owner-pasted secrets

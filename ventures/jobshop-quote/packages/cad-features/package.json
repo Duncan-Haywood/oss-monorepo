@@ -1,0 +1,15 @@
+{
+  "name": "@jobshop-quote/cad-features",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Part geometry from DXF flat patterns and STEP solids, for job-shop quoting. Zero dependencies; Worker-safe.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test test/*.test.ts",
+    "measure": "node scripts/measure.ts"
+  }
+}

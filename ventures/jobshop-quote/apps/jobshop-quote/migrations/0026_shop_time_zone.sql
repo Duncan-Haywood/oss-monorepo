@@ -1,0 +1,1 @@
+ALTER TABLE `shop_settings` ADD `time_zone` text;
