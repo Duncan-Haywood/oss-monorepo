@@ -378,6 +378,36 @@ def queue(audits: list[dict], severity: str = "medium", seed: str | None = None)
     return out
 
 
+def touched(audits: list[dict], paths, severity: str = "low") -> list[dict]:
+    """Open defects (as `queue` reads them) in the subjects that `paths` fall under, worst first.
+
+    Fixes that land outside a quality round rarely record `fixed_by`: product, red-team and round PRs fixed
+    queued defects in passing (PRs #18913, #18785, #17976, #18358, #18388) and fix sessions later found them
+    listed as open, the most repeated doc friction from 2026-11-25 to 27 (7 sessions, friction_rank.py). Asked
+    at PR time, the session that made the change is the one that knows whether it closed a defect."""
+    paths = [p for p in paths if not p.startswith("portfolio/quality/")]
+    if not paths:
+        return []
+    return [r for r in queue(audits, severity)
+            if any(p == r["subject"] or p.startswith(r["subject"] + "/") for p in paths)]
+
+
+def touched_lines(rows: list[dict], limit: int = 12) -> list[str]:
+    """Text for `touched`: each row with the mark-fixed command that records it."""
+    if not rows:
+        return []
+    subjects = sorted({r["subject"] for r in rows})
+    out = [f"Open quality defects in {len(subjects)} subject(s) this diff touches ({', '.join(subjects)}). "
+           "If your change fixed one, record it so the fix queue stops offering it:"]
+    for r in rows[:limit]:
+        out.append(f"  [{r['severity']}] {r['audit']}#{r['index']} ({r['category']}): {r['what'][:140]}")
+    if len(rows) > limit:
+        out.append(f"  ... and {len(rows) - limit} more (python3 platform/ci/quality_audit.py touched)")
+    out.append("  python3 platform/ci/quality_audit.py mark-fixed <audit> <index>... --pr <this PR's URL>"
+               " (none fixed: nothing to do)")
+    return out
+
+
 def unmarked_fixes(audits: list[dict], severity: str = "medium") -> list[dict]:
     """Latest audits whose `fix_prs` closes two or more defects at `severity` or worse with no `fixed_by` on any:
     the whole-audit reading hides them all, though a fix PR may have closed only some (PR #15848 closed one of

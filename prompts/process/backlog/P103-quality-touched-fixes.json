@@ -1,0 +1,30 @@
+{
+  "id": "P103",
+  "title": "Fixes landed outside quality rounds never set fixed_by, so the quality queue offered already-fixed defects",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Product, red-team and round PRs fixed queued quality defects in passing (PRs #18913, #18785, #17976, #18358, #18388) without recording fixed_by in the audit, so `quality_audit.py queue` kept listing them as open and fix sessions spent minutes rediscovering the fix (git log -S, PR reads, re-running cases). The earlier fixes (refresh_main, with_main_marks, the shallow-clone deepen) made 'changed since audit' answer, but a changed subject still does not say which defect closed; only the session that made the change knows.",
+  "evidence": [
+    "friction_rank.py --live --ungated --days 3 on 2026-11-27: cluster 1, platform/ci/quality_audit.py, 7 sessions 2026-11-25..27, 'reported again after a 2026-11-27 verdict ... the fix may not have held'",
+    "prompts/runs/2026-11-27-session_01XpHqydQbNcsBN9xhgFUjNr.json: 'einvoice-preflight defects 2-4 open although PRs #18913 and #18785 had fixed them; those PRs never set fixed_by'",
+    "prompts/runs/2026-11-27-session_01E5sJKjKAWspJsPcGGbTzPe.json: 'defects 2 and 4 open although PR #17976 (red team) had fixed them'"
+  ],
+  "change": "`quality_audit.py touched [BASE]` lists the open defects (every severity) in the subjects the working-tree diff touches, with the mark-fixed command; `run_workflow_locally.py --for-changes`, the one pre-merge command most runs already make, prints the same list at the end (informational, fail-soft). portfolio/quality/README.md 'Fix forward' says so in one sentence.",
+  "touches": [
+    "platform/ci/quality_audit.py",
+    "platform/ci/quality_metrics.py",
+    "platform/ci/run_workflow_locally.py",
+    "platform/ci/test_quality_metrics.py",
+    "platform/ci/test_run_workflow_locally.py",
+    "portfolio/quality/README.md"
+  ],
+  "metric": "run-record doc_friction naming quality_audit.py queue for listing a defect another (non-quality) PR had already fixed, in the 3 days after the merge",
+  "baseline": "7 sessions 2026-11-25..27 (friction_rank.py cluster 1)",
+  "opened": "2026-11-27",
+  "source": "process run (friction_rank.py --live --ungated --days 3)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19896",
+  "result": null,
+  "history": []
+}
