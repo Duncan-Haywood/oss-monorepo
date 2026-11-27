@@ -133,3 +133,28 @@ test("cost of money must be a plain decimal percent", () => {
   for (const rate of ["1e1", "0x8", "Infinity"]) assert.match(compute(sampleJobs(), { ...SAMPLE_SETTINGS, rate }).errors.join(" "), /Cost of money/, rate);
   assert.deepEqual(compute(sampleJobs(), { ...SAMPLE_SETTINGS, rate: "8.5%" }).errors, []);
 });
+
+// Red team 2026-11-27 (escaped mutants).
+test("a job completed on the as-of date counts as complete", () => {
+  const r = compute(`${H}\nA,G,100,0,2026-11-25,30`, { asOf: "2026-11-25" });
+  assert.equal(r.jobs[0].isComplete, true);
+  assert.equal(r.jobs[0].sinceComplete, 0);
+  assert.equal(r.totals.unbilledCount, 1);
+});
+test("with nothing overdue the summary says none, not 1 day", () => {
+  const r = compute(`${H}\nA,G,100,0,,`, { asOf: "2026-11-25" });
+  assert.equal(r.totals.oldestOverdue, 0);
+  assert.match(summaryText(r), /Oldest overdue\s+none/);
+});
+test("GC totals count each job once", () => {
+  const r = sample();
+  assert.deepEqual(Object.fromEntries(r.byGc.map((g) => [g.gc, g.jobs])), { "Harbor Construction": 2, "Northgate Builders": 2, "Summit General": 1 });
+  assert.match(summaryText(r), /Harbor Construction \(2\)/);
+});
+test("a completed job already paid in full is not on the chase list as 'bill the release'", () => {
+  const r = compute(`${H}\nA,G,100,100,2026-11-01,60\nB,G,100,0,2026-11-01,60`, { asOf: "2026-11-25" });
+  const list = chaseList(r);
+  assert.doesNotMatch(list, /\bA, G/);
+  assert.match(list, /^1\. B, G: .*bill the release/);
+  assert.equal(list.split("\n").length, 1);
+});

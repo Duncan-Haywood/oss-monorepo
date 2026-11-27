@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "changed-ventures failed on this PR from a red main: pay-app-guides page.test (12 state pages built by state-forms.mjs without cta.mjs's markers, PRs #19626 and #19631 crossed); fixed here"
+    "changed-ventures failed on this PR from a red main: pay-app-guides page.test (12 state pages built by state-forms.mjs without cta.mjs's markers, PRs #19626 and #19631 crossed); fixed here",
+    "Duplicate work: the red-team run's PR #19641 landed the same state-forms.mjs fix on main first; on merge this PR kept main's version, so its pay-app-guides diff is empty"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -65,7 +66,7 @@
     "ventures/payapps/apps/payapps/docs/DEPLOY.md (PAYAPPS_DOMAIN default)"
   ],
   "goal": null,
-  "notes": "Security queue empty (exit 3); ideas inbox empty; routed ventures/1 to bet #1 PayApps. Found deploy run 45949861746 live on payapps.<owner-name>.workers.dev and the guide CTA switch (PR #19631) waiting for a URL. Changed priv-payapps-deploy.yml so APP_DOMAIN defaults to payapps.marisstella.app (falls back to workers.dev with a warning if the token cannot read the zone) and the smoke test waits 300 s for a new certificate. validate_workflows: 142 valid; adversarial gate local: control-plane, 0 blocking, 0 warnings; risk_review: nothing blocked. Fixed main's red pay-app-guides suite: state-forms.mjs now runs each page through cta.mjs apply; node --test *.test.mjs 296 pass 0 fail.",
+  "notes": "Security queue empty (exit 3); ideas inbox empty; routed ventures/1 to bet #1 PayApps. Found deploy run 45949861746 live on payapps.<owner-name>.workers.dev and the guide CTA switch (PR #19631) waiting for a URL. Changed priv-payapps-deploy.yml so APP_DOMAIN defaults to payapps.marisstella.app (falls back to workers.dev with a warning if the token cannot read the zone) and the smoke test waits 300 s for a new certificate. validate_workflows: 142 valid; adversarial gate local: control-plane, 0 blocking, 0 warnings; risk_review: nothing blocked. Main's red pay-app-guides suite was fixed by PR #19641 before this PR merged (same change, main's kept): state-forms.mjs now runs each page through cta.mjs apply; node --test *.test.mjs 296 pass 0 fail.",
   "corrections": [],
   "redteam": null,
   "usage": {

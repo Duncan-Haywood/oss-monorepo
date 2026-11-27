@@ -83,7 +83,7 @@ export const HOME_FAQ: readonly Faq[] = [
   },
   {
     q: "Does it replace my GC's billing portal?",
-    a: "No. Your GC decides how pay apps are submitted. It keeps your numbers and backup in one place and gives you the PDF and CSV, so the portal step is copying finished figures, not redoing them. For Procore, Oracle Textura and GCPay it also fills the SOV and billing files those portals take; you still submit them in the portal yourself.",
+    a: "No. Your GC decides how pay apps are submitted. It keeps your numbers and backup in one place and gives you the PDF and CSV, so the portal step is copying finished figures, not redoing them. For Procore, Oracle Textura, GCPay and Trimble Pay it also fills the SOV and billing files those portals take; you still submit them in the portal yourself.",
   },
   {
     q: "Is it an AIA G702/G703 form?",
@@ -493,6 +493,7 @@ export const FEATURES: readonly Feature[] = [
       "Procore: the subcontractor SOV template filled from your lines, and each month's invoice amounts by line or totalled under the GC's own SOV positions",
       "Oracle Textura: the This Period or To Date billing upload template, downloaded from Textura and given back filled",
       "GCPay: the schedule of values as the Excel file its Upload button takes, lump-sum or unit-price",
+      "Trimble Pay: the Flashtract template from its Bulk upload, given back with your lines in columns A to C and its header rows untouched, checked against the contract value",
       'Each job\'s billing cutoff ("by the 25th"), with a reminder the week before when nothing has gone out',
       "Built from each portal's published help, not yet tried on a live project. Submitting into the portal stays your step: we prepare the numbers and files",
     ],
