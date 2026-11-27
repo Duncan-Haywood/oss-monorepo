@@ -1,0 +1,26 @@
+{
+  "id": "P096",
+  "title": "venture-preflight demands a launch date and catalogue section for a deployed app that has no catalogue page (payapps, jobshop-quote)",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Since payapps and jobshop-quote moved into ventures/ (2026-11-26/27), `node platform/pages/venture-preflight.mjs <slug>` failed on them for 'no launch date in launched.json' and 'lands in the catch-all More free tools section'. Neither has an entry index.html, so build.mjs's discoverSurfaces never lists them and the site publishes no page: both failures were meaningless, and runs had to read the script to see that.",
+  "evidence": [
+    "promptctl measure, 'Doc friction by file', platform/pages/venture-preflight.mjs: 6 reports in the 3 days to 2026-11-27, including 2026-11-27T06:18 (payapps) and 07:25 (jobshop-quote)",
+    "prompts/ventures/prompt-1.md friction 2026-11-27T07:17: 'venture-preflight treats payapps ... as a free-tools catalogue entry and fails on launched.json and CATEGORY_RULES'",
+    "discoverSurfaces('ventures') on 2026-11-27 main lists neither payapps nor jobshop-quote"
+  ],
+  "change": "When the slug is not a discovered surface, print that it is a separately deployed app, skip the launch-date, placement and build steps, keep the repository checks and site tests (front doors such as pay-app-guides import the app's packages), and name the app's own CI (`run_workflow_locally.py <slug>-ci`) or run_venture_tests.py.",
+  "touches": [
+    "platform/pages/venture-preflight.mjs",
+    "platform/pages/venture-preflight.test.mjs"
+  ],
+  "metric": "venture-preflight friction reports naming launch date or placement on an unlisted venture, 14 days after merge",
+  "baseline": "6 reports in 3 days (2026-11-25 to 27); `venture-preflight.mjs payapps` exit 1 before, exit 0 after (2026-11-27)",
+  "opened": "2026-11-27",
+  "source": "process run, promptctl measure doc friction",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19687",
+  "result": null,
+  "history": []
+}
