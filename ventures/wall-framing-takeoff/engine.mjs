@@ -1725,7 +1725,7 @@ function naiveCost(pieces, stock) {
 /** CSV of the order and the cut list, for a lumberyard or a spreadsheet. */
 export function toCsv(result) {
   if (!result.ok) return "";
-  const q = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  const q = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236): a cell starting = + - @ tab or CR runs as a formula in a spreadsheet
   const rows = [["section", "size", "length_in", "length", "qty", "detail"]];
   for (const o of result.orders) for (const l of o.lines) rows.push(["order", o.size, String(l.length), formatLength(l.length), String(l.qty), l.label || `price ${l.price}`]);
   for (const l of result.culls || []) rows.push(["cull", l.size, String(l.length), formatLength(l.length), String(l.qty), `spare for culls (${(100 * l.pct).toFixed(1)}%)`]);

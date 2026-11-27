@@ -109,7 +109,7 @@ export function buildReport(input) {
   return { header, workers, totals, advice, ready: totals.underpayment <= 0.005 && missing.length === 0 && flagged === 0 };
 }
 
-const csvCell = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236): a cell starting = + - @ tab or CR runs as a formula in a spreadsheet
 
 export function toCsv(report) {
   const head = ["name", "id_last4", "classification", ...DAYS.map((d) => d.toLowerCase()), "project_hours", "overtime_hours", "rate_paid", "gross", "fica", "withholding", "other_deductions", "total_deductions", "net", "underpayment", "flags"];
