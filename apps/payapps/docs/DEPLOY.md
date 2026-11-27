@@ -2,8 +2,8 @@
 
 One Cloudflare Worker (`payapps`) serves the SPA and the API, with a D1 database (`payapps`), an R2
 bucket for attachments (`payapps-files`) and Cloudflare Email Service for account mail. The workflow
-[`.github/workflows/payapps-deploy.yml`](../../../.github/workflows/payapps-deploy.yml) does the whole
-deploy; there are no dashboard steps beyond the secrets below.
+`payapps-deploy.yml` does the whole deploy (in the private repository; since the move to
+oss-monorepo on 2026-11-27 it is being ported here as a `priv-` workflow, `apps/README.md`); there are no dashboard steps beyond the secrets below.
 
 **It runs by hand only** (Actions -> payapps-deploy -> Run workflow). Agents may run it without the
 owner (the repository's [`docs/legal/OPERATOR.md`](../../../docs/legal/OPERATOR.md), "Who approves launch") once the plans clear the margin floor and a

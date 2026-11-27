@@ -54,7 +54,8 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install --frozen-lockfile --filter "{./apps/payapps-site}..."
+      - run: pnpm install --frozen-lockfile
+        working-directory: .
       - run: pnpm exec biome ci .
       - run: pnpm typecheck
       - run: pnpm test:unit
