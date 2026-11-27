@@ -56,6 +56,14 @@ export const headKey = (html) => String(html)
   .toLowerCase()
   .replace(/[^a-z0-9]+/g, '');
 
+/**
+ * Header text with the content of every element that has an `id` left out:
+ * the static part of a header a script rewrites after load (marketplace-fee-compare's
+ * `<th><span id="parityHead">`, polish 2026-11-27). Source and DOM reduce the same way.
+ */
+export const staticHeadKey = (html) => headKey(String(html)
+  .replace(/<([a-z][a-z0-9-]*)\b[^>]*\sid\s*=[^>]*>[\s\S]*?<\/\1\s*>/gi, ' '));
+
 /** Every `<table>` open tag outside comments, scripts, styles and textareas, with what the rules above need. */
 export function sourceTables(html) {
   const out = [];
@@ -73,6 +81,7 @@ export function sourceTables(html) {
       index: m.index,
       tag: m[0],
       head: head ? headKey(head[1]) : null,
+      staticHead: head ? staticHeadKey(head[1]) : null,
       nested: /<table\b/i.test(body),
       scripted: /\sid\s*=/i.test(m[0]) || /<tbody\b[^>]*\sid\s*=/i.test(body) || !/<td\b/i.test(body),
       stacked: /\sclass\s*=\s*["'][^"']*\bstack\b/i.test(m[0]),
@@ -89,21 +98,27 @@ export function withStack(tag) {
 }
 
 /**
- * Stack the source tables whose rendered header text is in `heads`.
- * Returns the new html and one note per head.
+ * Stack the source tables whose rendered header text is in `heads`: each a header's
+ * innerHTML, or `{ html, static }` where `static` is the same header with every `id`'d
+ * element emptied (overflowingHeads). A header that matches no source table by its full
+ * text is matched by its static text instead, so a label a script rewrote still finds
+ * its table. Returns the new html and one note per head.
  */
 export function stackTables(html, heads, { scripted = false } = {}) {
   const tables = sourceTables(html);
   const chosen = new Map();
   const notes = [];
   const want = new Map();
+  const statics = new Map();
   for (const h of heads) {
     if (!h) { notes.push('overflowing table has no thead: skipped'); continue; }
-    const key = headKey(h);
+    const key = headKey(typeof h === 'string' ? h : h.html);
     want.set(key, (want.get(key) || 0) + 1);
+    statics.set(key, staticHeadKey(typeof h === 'string' ? h : (h.static ?? h.html)));
   }
   for (const [key, n] of want) {
-    const hits = tables.filter((t) => t.head === key);
+    let hits = tables.filter((t) => t.head === key);
+    if (!hits.length && statics.get(key)) hits = tables.filter((t) => t.staticHead === statics.get(key));
     // Several tables may share a header (one results table per grouping);
     // stack them only when every one of them overflowed on the page.
     if (!hits.length || hits.length !== n) { notes.push(`${hits.length} source tables with header "${key.slice(0, 50)}" for ${n} overflowing: skipped`); continue; }
@@ -122,7 +137,7 @@ export function stackTables(html, heads, { scripted = false } = {}) {
   return { html: out, changed: chosen.size, notes };
 }
 
-/** Header html of every table in (or that is) a box scrolling sideways by 8 px or more; null for a headless one. */
+/** Header of every table in (or that is) a box scrolling sideways by 8 px or more, as `{ html, static }`; null for a headless one. */
 function overflowingHeads(page) {
   return page.evaluate(() => {
     const res = [];
@@ -133,7 +148,14 @@ function overflowingHeads(page) {
       if ((ox !== 'auto' && ox !== 'scroll') || el.clientWidth < 1) continue;
       if (el.scrollWidth - el.clientWidth < 8) continue;
       const tables = el.tagName === 'TABLE' ? [el] : el.querySelectorAll(':scope > table, :scope > * > table');
-      for (const t of tables) { if (seen.has(t)) continue; seen.add(t); res.push(t.tHead ? t.tHead.innerHTML : null); }
+      for (const t of tables) {
+        if (seen.has(t)) continue;
+        seen.add(t);
+        if (!t.tHead) { res.push(null); continue; }
+        const copy = t.tHead.cloneNode(true);
+        for (const e of copy.querySelectorAll('[id]')) e.textContent = '';
+        res.push({ html: t.tHead.innerHTML, static: copy.innerHTML });
+      }
     }
     return res;
   });
