@@ -2,8 +2,9 @@
 
 Every tool in this folder (1439 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
-self-hosted apps, runs entirely in your browser, and to its **source code** here, FSL-1.1-MIT licensed, so you
-can run, fork or self-host your own copy.
+self-hosted apps, runs entirely in your browser, and to its **source code** here. The free tools are FSL-1.1-MIT
+licensed, so you can run, fork or self-host your own copy; the paid products are source visible with all rights
+reserved (their own `LICENSE` says which).
 
 **Search and use them all at [https://marisstella.app/](https://marisstella.app/).**
 Looking for your trade or kind of business? The [repository front page](../README.md) links a page of
@@ -853,7 +854,7 @@ Produce a dated record of what you checked. Observations you act on — never a 
 - [Internal Link Planner — orphan pages and missing links, found for you](https://marisstella.app/internal-link-planner/) · [code](internal-link-planner/)
 - [Job Application Tracker — free, private, no sign-up](https://marisstella.app/job-application-tracker/) · [code](job-application-tracker/)
 - [MCP Supply-Chain Watch — compare MCP tool manifests for drift](https://marisstella.app/mcp-supply-chain-watch/) · [code](mcp-supply-chain-watch/)
-- [Mechanics Lien Deadline Calculator — free, 6 states](https://marisstella.app/mechanics-lien-deadline-calculator/) · [code](mechanics-lien-deadline-calculator/)
+- [Mechanics Lien Deadline Calculator — free, 10 states](https://marisstella.app/mechanics-lien-deadline-calculator/) · [code](mechanics-lien-deadline-calculator/)
 - [NIS2 scope checker: is your company an essential or important entity? Free, private](https://marisstella.app/nis2-scope-checker/) · [code](nis2-scope-checker/)
 - [npm Deployment Evidence](https://marisstella.app/npm-deployment-evidence/) · [code](npm-deployment-evidence/)
 - [NY LLC Transparency Act Tracker](https://marisstella.app/ny-llc-transparency-act-tracker/) · [code](ny-llc-transparency-act-tracker/)
@@ -1592,7 +1593,8 @@ Projects here without a page of their own on the site (servers, infrastructure, 
 ## How a tool folder is laid out
 
 Each `ventures/<name>/` is self-contained: an `index.html` that is the tool itself (open it in a browser,
-no build step), its own `README.md` and tests, a `VENTURE.yaml` the portfolio reads, and an FSL-1.1-MIT `LICENSE`.
+no build step), its own `README.md` and tests, a `VENTURE.yaml` the portfolio reads, and a `LICENSE`
+(FSL-1.1-MIT for a free tool, an all-rights-reserved notice for a paid product).
 Some also ship a command-line version or a server you can deploy. How to build one:
 [`PRODUCT_PLAYBOOK.md`](../PRODUCT_PLAYBOOK.md).
 

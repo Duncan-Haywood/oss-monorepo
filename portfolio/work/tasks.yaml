@@ -589,6 +589,12 @@ tasks:
     notes: >-
       Owner, 2026-11-26 (LICENSING_TRANSITION.md, "Superseded, 2026-11-26").
       Publishing private code cannot be undone: audit before every copy.
+      Progress: (1) done, PR 19538. (2) 16 of 21 products relicensed by
+      portfolio/monetization/relicense_arr.py (2026-11-27); left are the six
+      that offer self-hosting (shift-roster-builder, league-schedule-generator,
+      babysitting-business-kit, quick-pick-survey, einvoice-preflight,
+      changepoint-detector's repo watch): owner, 2026-11-27, drop those
+      offers, then relicense. `relicense_arr.py --residue <slug>` lists them.
       Watch: the payments account's OIDC trust is private-monorepo only, so
       a product's payments/webhook deploy either stays there or the trust is
       redesigned in its own reviewed PR; private apps use a pnpm workspace

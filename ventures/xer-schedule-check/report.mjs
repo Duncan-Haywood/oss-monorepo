@@ -373,7 +373,7 @@ ${changes}
 ${riskSec}
 ${winSec}
 ${appendix}
-<footer>Prepared with XER Schedule Check (FSL-1.1-MIT licence), https://marisstella.app/xer-schedule-check/. The checks are computed from the XER file alone; they are not engineering, legal, contractual or scheduling advice, and no warranty is given. Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency.</footer>
+<footer>Prepared with XER Schedule Check (all-rights-reserved notice), https://marisstella.app/xer-schedule-check/. The checks are computed from the XER file alone; they are not engineering, legal, contractual or scheduling advice, and no warranty is given. Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency.</footer>
 </body></html>
 `;
 }
