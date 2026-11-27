@@ -2091,6 +2091,188 @@ ${NOT_TAX_ADVICE}`;
   };
 }
 
+// The alternatives a reseller weighs, with each price from a page this repository already cites
+// (portfolio/monetization/bets.md, bet #5, read 2026-11-24) or a search excerpt read on COMPARE_CHECKED_ON.
+// Vendor pages did not answer from the session that wrote this, so every price says where it came from
+// and the page tells the reader to check the vendor's own page. Nothing here rates or ranks a rival.
+export const COMPARE_CHECKED_ON = "2026-11-27";
+export const ALTERNATIVES = [
+  {
+    name: "A spreadsheet",
+    kind: "Free; you type every sale, fee and cost",
+    price: "Free",
+    source: null,
+    fits: "A few sales a month on one platform, and you like spreadsheets.",
+    watch:
+      "Every fee and refund is typed or pasted by hand, and the Schedule C totals are only as right as the formulas.",
+  },
+  {
+    name: "Seller Ledger",
+    kind: "Bookkeeping app for online sellers",
+    price: "$10, $20 or $50 a month (250, 1,000 or 5,000 transactions a month)",
+    source: {
+      label: "its Shopify App Store listing",
+      url: "https://apps.shopify.com/seller-ledger",
+    },
+    fits: "Online sellers who want a bookkeeping app of their own rather than QuickBooks.",
+    watch:
+      "Check on its own pages which platforms it reads and how it handles cost per item and per lot.",
+  },
+  {
+    name: "A2X",
+    kind: "Connector that posts marketplace payouts into an accounting ledger",
+    price: "From $29 a month per sales channel",
+    source: { label: "G2's pricing page", url: "https://www.g2.com/products/a2x/pricing" },
+    fits: "Amazon, Shopify, eBay, Etsy or Walmart sellers who already keep books in QuickBooks Online, Xero or NetSuite.",
+    watch:
+      "It needs that ledger as well (a second subscription), and the price is per channel, so crosslisting to several platforms adds up.",
+  },
+  {
+    name: "Link My Books",
+    kind: "Connector that posts marketplace payouts into an accounting ledger",
+    price: "About $21 to $136 a month",
+    source: {
+      label: "Capterra's pricing page",
+      url: "https://www.capterra.com/p/184768/Link-My-Books/pricing/",
+    },
+    fits: "Sellers who already keep books in Xero or QuickBooks and want the payouts posted for them.",
+    watch: "Like A2X, it is a layer on top of an accounting ledger, not the ledger itself.",
+  },
+  {
+    name: "QuickBooks Solopreneur",
+    kind: "General bookkeeping for one-person businesses, from a bank feed",
+    price: "Not quoted here: see Intuit's own pricing",
+    source: {
+      label: "Intuit's QuickBooks Self-Employed to Solopreneur page",
+      url: "https://quickbooks.intuit.com/r/product-update/quickbooks-self-employed-vs-quickbooks-solopreneur",
+    },
+    fits: "Someone whose income is mostly services, or who wants one app for every kind of self-employment.",
+    watch:
+      "Intuit's replacement for QuickBooks Self-Employed. A bank feed sees net payouts, not the fees inside them or what each item cost; check how it handles inventory before you rely on it for reselling.",
+  },
+];
+
+function compare() {
+  const path = "/compare";
+  const title = "Bookkeeping software for resellers, compared";
+  const description =
+    "Seller Ledger, A2X, Link My Books, QuickBooks Solopreneur and a spreadsheet next to Seller Books: what each is built for, its price, and who it fits.";
+  const paid = TIERS.map((t) => `${t.name} $${t.monthly}`).join(", ");
+  const ours = {
+    price: `Free for 1 platform and ${FREE_INCLUDES.find((s) => /orders/.test(s)).replace(/^Up to /, "up to ")}; paid plans ${paid} a month${launch().paidOn ? "" : " (not on sale yet)"}`,
+    fits: "Resellers who source stock and sell it on one or more marketplaces, and want profit per item and a Schedule C worksheet without running QuickBooks or Xero.",
+    watch:
+      "It is not a general ledger: no bank feed, no invoicing, no payroll. If your accountant wants the books in QuickBooks Online, it hands them monthly journal entries to import.",
+  };
+  const sourceHtml = (s) => (s ? `<a href="${esc(s.url)}">${esc(s.label)}</a>` : "");
+  const rows = ALTERNATIVES.map(
+    (a) =>
+      `      <tr><th scope="row">${esc(a.name)}</th><td>${esc(a.kind)}</td><td>${esc(a.price)}${a.source ? `<br><span class="muted">per ${sourceHtml(a.source)}</span>` : ""}</td><td>${esc(a.fits)}</td><td>${esc(a.watch)}</td></tr>`,
+  ).join("\n");
+  const differences = [
+    [
+      "It reads each platform's own report",
+      `The sales, fees, shipping, refunds and the sales tax the platform collected come from the marketplace's export, not from a bank deposit, so the fees inside a payout are not lost. See <a href="${href("/platforms")}">the platforms it reads</a>.`,
+      "Sales, fees, shipping, refunds and collected sales tax come from the marketplace's export, not from a bank deposit.",
+    ],
+    [
+      "It keeps what each item cost",
+      `Cost per item, a bulk lot split across its items, and stock on hand at December 31 for <a href="${href("/cost-of-goods-sold")}">cost of goods sold</a>, so profit is per sale and closing inventory is at cost.`,
+      "Cost per item and per lot, and closing inventory at cost, for cost of goods sold.",
+    ],
+    [
+      "It ends in a Schedule C worksheet",
+      `Every figure lands on its line of the <a href="${href("/schedule-c-worksheet")}">Schedule C worksheet</a>, with the sourcing miles priced on line 9 and the lists behind each total, for you or your preparer. It is a worksheet, not a filing.`,
+      "Every figure lands on its Schedule C line, with the lists behind each total. A worksheet, not a filing.",
+    ],
+    [
+      "It needs no second subscription",
+      "No QuickBooks or Xero account is needed, and the price is by orders a month, not per channel, so crosslisting does not multiply it.",
+      "No QuickBooks or Xero account needed; priced by orders a month, not per channel.",
+    ],
+  ];
+  const faqs = [
+    {
+      q: "What is the best bookkeeping software for resellers?",
+      a: `It depends on where your books already live. If you or your accountant keep them in QuickBooks Online or Xero, a connector such as A2X or Link My Books posts the marketplace payouts into it. If you do not, and you sell secondhand stock on several marketplaces, an app built for resellers (Seller Ledger, or ${SITE_NAME}) does the fees, cost of goods and Schedule C without a ledger behind it. With only a few sales a month, a spreadsheet is enough.`,
+    },
+    {
+      q: "Is there an alternative to QuickBooks Self-Employed for resellers?",
+      a: `Intuit replaced QuickBooks Self-Employed with QuickBooks Solopreneur. For reselling, the question to ask of any replacement is whether it sees the fees inside each payout and what each item cost; a bank feed sees neither. ${SITE_NAME} reads the platforms' own reports and keeps cost per item, and it can hand QuickBooks Online monthly journal entries if you move to it later.`,
+    },
+    {
+      q: "Do I need A2X or Link My Books if I am not using QuickBooks or Xero?",
+      a: "They are built to post payouts into an accounting ledger, so on their own they do not give you a Schedule C. Without a ledger, you would need one as well, or an app that keeps the books itself.",
+    },
+    {
+      q: `How much does ${SITE_NAME} cost?`,
+      a: `Free for one platform and up to 25 orders a month, with every report. Paid plans are ${paid} a month (two months off when paid yearly)${launch().paidOn ? "" : "; they are not on sale yet"}. See the pricing page.`,
+    },
+  ];
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">Resellers end up choosing between four kinds of tool: a spreadsheet, a bookkeeping app for online sellers, a connector that posts payouts into QuickBooks or Xero, and general self-employed bookkeeping. Each is right for someone. Here is what each is built for, what it costs as listed, and where ${esc(SITE_NAME)} fits.</p>
+  <h2>The options</h2>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">Tool</th><th scope="col">What it is</th><th scope="col">Price as listed</th><th scope="col">Fits</th><th scope="col">Worth checking</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">${esc(SITE_NAME)}</th><td>Books for resellers, from the marketplaces' own reports</td><td>${esc(ours.price)}<br><span class="muted">per <a href="${href("/pricing")}">our pricing page</a></span></td><td>${esc(ours.fits)}</td><td>${esc(ours.watch)}</td></tr>
+${rows}
+    </tbody>
+  </table></div>
+  <p class="muted">Other tools' prices are as the linked pages showed them, read through search excerpts ${esc(COMPARE_CHECKED_ON)} or in our research of 2026-11-24 (the vendors' own pages did not load for us). Prices and plans change: check each vendor's own page before you choose. Names are their owners' trademarks; no tool here endorses ${esc(SITE_NAME)}.</p>
+  <h2>What ${esc(SITE_NAME)} does differently</h2>
+  <div class="table-scroll"><table>
+    <tbody>
+${differences.map(([a, b]) => `      <tr><th scope="row">${esc(a)}</th><td>${b}</td></tr>`).join("\n")}
+    </tbody>
+  </table></div>
+  <p>If you only sell a few things a month, start with the free <a href="${href("/reseller-inventory-spreadsheet")}">reseller inventory spreadsheet</a>: its columns are the ones ${esc(SITE_NAME)} imports, so nothing is retyped if you move over.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "compare" })}</div>`;
+  const text = `# ${title}
+
+## The options
+
+- ${SITE_NAME}: books for resellers from the marketplaces' own reports. ${ours.price}. Fits: ${ours.fits} Worth checking: ${ours.watch}
+${mdList(ALTERNATIVES.map((a) => `${a.name}: ${a.kind}. ${a.price}${a.source ? ` (per ${a.source.label}, ${a.source.url})` : ""}. Fits: ${a.fits} Worth checking: ${a.watch}`))}
+
+Other tools' prices read through search excerpts ${COMPARE_CHECKED_ON}; check each vendor's own page. No tool here endorses ${SITE_NAME}.
+
+## What ${SITE_NAME} does differently
+
+${mdList(differences.map(([a, , c]) => `${a}: ${c}`))}
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Compare", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
 function notFound() {
   return {
     path: "/404",
@@ -2119,6 +2301,7 @@ export function allPages() {
     homeOfficeAndEquipment(),
     taxDeductions(),
     estimatedTax(),
+    compare(),
     pricing(),
     faq(),
     earlyAccess(),
