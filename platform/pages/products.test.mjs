@@ -38,6 +38,9 @@ test('/products/ lists every line and the hardware, with disclaimer, counter and
   assert.match(html, /Nothing has been physically built/);
   // The live product links to itself; the rest ask for early access.
   assert.match(html, /<a class="pl-go" data-status="live" href="..\/grants\/"/);
+  // An app on its own origin keeps its https link and says what Free does (2026-11-27).
+  assert.match(html, /<a class="pl-go" data-status="live" href="https:\/\/seller-books\.marisstella\.app\/signup\?from=products" data-pf-to="seller-books">Start free in Seller Books<\/a>/);
+  assert.match(html, /<p class="pl-plan">Free on one job, no card/);
   assert.equal((html.match(/Ask for early access/g) ?? []).length, PRODUCT_LINES.filter((l) => l.status === 'early-access').length);
   assert.equal((html.match(/data-status="long-term"/g) ?? []).length, hardwareLines().length);
   assert.match(html, /For CNC machine shops/);
@@ -118,7 +121,7 @@ test('the hub leads with the finder and the products, then frames the tools as f
   const html = renderHub(surfaces, BASE);
   const hero = html.slice(html.indexOf('<header class="hero">'), html.indexOf('</header>', html.indexOf('<header class="hero">')));
   assert.match(hero, /Software for small businesses/);
-  assert.match(hero, /Grant Autopilot is live/);
+  assert.match(hero, /PayApps, Seller Books and Grant Autopilot are live/);
   assert.match(hero, /What kind of business do you run\?/);
   assert.match(hero, /href="industries\/construction\/#contractor-billing"/);
   assert.doesNotMatch(hero, /role="search"/, 'the search is not the front door any more');
@@ -128,6 +131,6 @@ test('the hub leads with the finder and the products, then frames the tools as f
   assert.match(html, /href="roofing-bid-calculator\/" data-pf-to="roofing-bid-calculator">Roofing bid</);
   assert.doesNotMatch(html.slice(at('id="products"'), at('id="free-tools"')), /href="wall-framing-takeoff\//);
   // Never "live" for anything else.
-  assert.doesNotMatch(html, /Job shop quoting is live|Contractor billing is live|Contractor billing · live/);
+  assert.doesNotMatch(html, /Job shop quoting (is|are) live|Job shop quoting · live|Takeoff and material lists · live/);
 });
 

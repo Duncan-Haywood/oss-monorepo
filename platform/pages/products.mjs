@@ -23,7 +23,9 @@ import {
   hardwareLines,
   industriesWithProducts,
   industriesWithoutProducts,
+  lineHref,
   linesForIndustry,
+  listNames,
   softwareLines,
 } from './business.mjs';
 
@@ -60,6 +62,7 @@ export const PRODUCT_CARD_CSS = `
     .pl-card ul { margin: 2px 0 0; padding-left: 1.15em; font-size: .92rem; line-height: 1.45; }
     .pl-card li { margin: 0 0 4px; }
     .pl-what { margin: 0; font-size: .92rem; line-height: 1.5; }
+    .pl-plan { margin: 0; font-size: .88rem; line-height: 1.45; }
     .pl-tools { margin: 0; font-size: .85rem; color: var(--muted); line-height: 1.5; }
     .pl-cta { margin: auto 0 0; padding-top: 6px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: .92rem; }
     .pl-cta .pl-go { display: inline-block; font-weight: 650; padding: 8px 14px; border-radius: 9px; text-decoration: none;
@@ -78,11 +81,11 @@ export function renderProductCard(l, { toRoot = '', published = null, heading = 
   const toolNames = (slug) => (published instanceof Map && published.get(slug)) || slug.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
   const status = STATUS[l.status];
   const title = l.href
-    ? `<a href="${esc(toRoot + l.href)}" data-pf-to="${esc(l.id)}">${esc(l.name)}</a>`
+    ? `<a href="${esc(lineHref(l, toRoot))}" data-pf-to="${esc(l.id)}">${esc(l.name)}</a>`
     : anchor ? `<a href="${esc(`${toRoot}${PRODUCTS_PATH}#${l.id}`)}">${esc(l.name)}</a>` : esc(l.name);
   const toolLabel = l.kind === 'hardware' ? 'The design' : 'Free tools that do part of it today';
   const cta = l.status === 'live'
-    ? `<a class="pl-go" data-status="live" href="${esc(toRoot + l.href)}" data-pf-to="${esc(l.id)}">Open ${esc(l.name)}</a>`
+    ? `<a class="pl-go" data-status="live" href="${esc(lineHref(l, toRoot))}" data-pf-to="${esc(l.id)}">${l.plan ? 'Start free in' : 'Open'} ${esc(l.name)}</a>`
     : l.status === 'early-access'
       ? `<a class="pl-go" href="${esc(earlyAccessHref(l))}">Ask for early access</a>`
       : '';
@@ -92,7 +95,7 @@ export function renderProductCard(l, { toRoot = '', published = null, heading = 
   <p class="pl-who">For ${esc(lowerFirst(l.customer))}</p>
   <ul>${l.problems.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
   <p class="pl-what">${esc(l.product)}</p>
-${tools.length ? `  <p class="pl-tools">${toolLabel}: ${tools.map((slug) => `<a href="${esc(`${toRoot}${slug}/`)}" data-pf-to="${esc(slug)}">${esc(toolNames(slug))}</a>`).join(', ')}</p>\n` : ''}${cta ? `  <p class="pl-cta">${cta}</p>\n` : ''}</li>`;
+${l.plan ? `  <p class="pl-plan">${esc(l.plan)}</p>\n` : ''}${tools.length ? `  <p class="pl-tools">${toolLabel}: ${tools.map((slug) => `<a href="${esc(`${toRoot}${slug}/`)}" data-pf-to="${esc(slug)}">${esc(toolNames(slug))}</a>`).join(', ')}</p>\n` : ''}${cta ? `  <p class="pl-cta">${cta}</p>\n` : ''}</li>`;
 }
 
 export function renderProductGrid(lines, opts = {}) {
@@ -194,7 +197,7 @@ export function renderProductsPage({ baseUrl = '', published = null, lines = PRO
   const body = `<header>
 <p class="eyebrow">Products</p>
 <h1>${esc(PRODUCTS_TITLE)}</h1>
-<p class="dek">Each product is built for one kind of business and the jobs it struggles with most. ${esc(lines.find((l) => l.status === 'live')?.name ?? 'None')} is live today;
+<p class="dek">Each product is built for one kind of business and the jobs it struggles with most. ${esc(listNames(lines.filter((l) => l.status === 'live').map((l) => l.name)))} ${lines.filter((l) => l.status === 'live').length === 1 ? 'is' : 'are'} live today;
 the others are in development, and the free tools beside each already do part of the job.</p>
 <ul class="jump">${INDUSTRIES.filter((i) => linesForIndustry(i.slug, lines).length).map((i) => `<li><a href="${esc(toRoot + industryPath(i.slug))}">${esc(i.name)}</a></li>`).join('')}<li><a href="#hardware">Hardware</a></li></ul>
 </header>

@@ -50,7 +50,7 @@ import { COOKIES_PATH, legalDocuments, legalFooterHtml, PRIVACY_PATH, TERMS_PATH
 import { injectDir as injectWebAnalytics, normaliseToken as normaliseAnalyticsToken, resolveToken as resolveAnalyticsToken } from '../analytics/web-analytics.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildProducts, productSitemapPaths, PRODUCT_CARD_CSS, renderProductGrid, PRODUCTS_PATH, INDUSTRIES_PATH, industryPath } from './products.mjs';
-import { PRODUCT_LINES, softwareLines, hardwareLines, INDUSTRIES as BUSINESS_INDUSTRIES, buildFirstHref } from './business.mjs';
+import { PRODUCT_LINES, softwareLines, hardwareLines, INDUSTRIES as BUSINESS_INDUSTRIES, buildFirstHref, listNames } from './business.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { buildQueue, clip, QUEUE_PATH } from './queue.mjs';
@@ -9559,7 +9559,7 @@ export function renderHub(
   // The product lines (business.mjs). Tools the build did not publish drop out of the cards.
   const publishedTools = new Map(surfaces.map((s) => [s.slug, cardName(s.title)]));
   const liveLines = PRODUCT_LINES.filter((l) => l.status === 'live');
-  const liveNames = liveLines.map((l) => l.name).join(' and ') || 'None';
+  const liveNames = listNames(liveLines.map((l) => l.name));
 
   return `<!doctype html>
 <html lang="en">
@@ -13077,7 +13077,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     `- [Privacy Policy](${baseUrl}${PRIVACY_PATH}): what the site collects (request data seen by the host, Cloudflare${analyticsOn() ? '; cookieless Cloudflare Web Analytics' : ''}${counterOn() ? '; aggregate daily page counts on a first-party counter' : ''}; email and feedback you send), why, and your rights. The [Terms of Use](${baseUrl}${TERMS_PATH}) and [Cookie Policy](${baseUrl}${COOKIES_PATH}) sit beside it.`,
     `- [Open hardware designs for businesses](${baseUrl}${HARDWARE_PATH}): robots for tennis clubs (ball collection), cleaning companies (floor cleaning) and grounds crews (a wire-free mower), open house plans for builders, and construction robotics research, each with its honest stage. Every design is FSL-1.1-MIT licensed (MIT two years after release) and at the CAD and simulation stage: nothing has been built, nothing is for sale, and there are no prices or dates. Each card links the site's feedback form so a business can say it would use one.`,
     // Full file only: the short index sits at its 50,000-byte cap (build.test.mjs).
-    ...(full ? [`- [Online sellers](${baseUrl}${ONLINE_SELLERS_PATH}): resellers on eBay, Etsy, Poshmark, Mercari, Whatnot, Depop: profit after fees, payouts, cost of goods, mileage, Schedule C; Seller Books (in development) and free tools.`] : []),
+    ...(full ? [`- [Online sellers](${baseUrl}${ONLINE_SELLERS_PATH}): resellers on eBay, Etsy, Poshmark, Mercari, Whatnot, Depop: profit after fees, payouts, cost of goods, mileage, Schedule C; Seller Books (open on a Free plan, paid plans not on sale yet) and free tools.`] : []),
     // Full file only, like the online sellers line (short index at its cap).
     ...(full ? [`- [E-invoicing deadlines and fixes for SMEs and accountants](${baseUrl}${INDUSTRY_E_INVOICING_PATH}): when businesses in Germany, France, Belgium and Poland must send structured e-invoices, each date linked to the official government page with the day it was read; the common problems (rejected invoices, unreadable validation errors, XRechnung vs ZUGFeRD vs Factur-X, accountants with many clients); the free E-invoice Preflight checker, and the paid fix-and-explain product, which is in development (early access only). Not tax advice.`] : []),
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
@@ -13972,7 +13972,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     }),
   ];
   // The online sellers industry page (industry-online-sellers.mjs): resellers'
-  // problems, Seller Books in development, and the best free seller tools.
+  // problems, Seller Books (open on its Free plan), and the best free seller tools.
   await fs.mkdir(path.join(outDir, ONLINE_SELLERS_PATH), { recursive: true });
   await fs.writeFile(path.join(outDir, ONLINE_SELLERS_PATH, 'index.html'), renderOnlineSellersIndustryPage({ surfaces, baseUrl: base }));
   industryPages.push(ONLINE_SELLERS_PATH);

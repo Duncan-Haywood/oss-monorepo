@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  CONTACT_EMAIL, INDUSTRIES, PRODUCT_LINES, STATUS, buildFirstHref, earlyAccessHref, hardwareLines, industriesWithProducts,
+  CONTACT_EMAIL, INDUSTRIES, PRODUCT_LINES, STATUS, buildFirstHref, earlyAccessHref, hardwareLines, industriesWithProducts, lineHref, listNames,
   industriesWithoutProducts, linesForIndustry, softwareLines,
 } from './business.mjs';
 
@@ -25,12 +25,32 @@ test('every line has the documented shape', () => {
   }
 });
 
-test('only Grant Autopilot is marked live, and only a live line links to a product', () => {
+test('only lines a visitor can open today are live, and only a live line links to a product', () => {
   // Honesty is a hard limit (prompts/goals.md). Mark another line live only
   // once a visitor can open and use it, and change this test in the same PR.
-  assert.deepEqual(PRODUCT_LINES.filter((l) => l.status === 'live').map((l) => l.id), ['grant-autopilot']);
+  // 2026-11-27: PayApps and Seller Books opened sign-ups on their Free plans
+  // (payapps-deploy run 45949861746, seller-books-deploy run 45973427499).
+  assert.deepEqual(PRODUCT_LINES.filter((l) => l.status === 'live').map((l) => l.id), ['contractor-billing', 'seller-books', 'grant-autopilot']);
   for (const l of PRODUCT_LINES) assert.equal(Boolean(l.href), l.status === 'live', l.id);
   assert.equal(PRODUCT_LINES.find((l) => l.id === 'grant-autopilot').href, 'grants/');
+  assert.equal(PRODUCT_LINES.find((l) => l.id === 'contractor-billing').href, 'https://payapps.marisstella.app/?signup&from=products');
+  assert.equal(PRODUCT_LINES.find((l) => l.id === 'seller-books').href, 'https://seller-books.marisstella.app/signup?from=products');
+  // An app on its own origin is https and says what its Free plan does, with paid plans not on sale.
+  for (const l of PRODUCT_LINES.filter((x) => /^https?:/.test(x.href ?? ''))) {
+    assert.match(l.href, /^https:\/\/[a-z-]+\.marisstella\.app\//, l.id);
+    assert.match(l.plan, /Free|free/, l.id);
+    assert.match(l.plan, /not on sale yet/, l.id);
+    assert.doesNotMatch(l.plan, /\$\d/, `${l.id}: no price while checkout is dark`);
+  }
+});
+
+test('lineHref keeps an app origin and roots a site path; listNames reads as prose', () => {
+  assert.equal(lineHref({ href: 'grants/' }, '../'), '../grants/');
+  assert.equal(lineHref({ href: 'https://a.marisstella.app/x' }, '../'), 'https://a.marisstella.app/x');
+  assert.equal(lineHref({ href: null }), null);
+  assert.equal(listNames([]), 'None');
+  assert.equal(listNames(['A']), 'A');
+  assert.equal(listNames(['A', 'B', 'C']), 'A, B and C');
 });
 
 test('hardware is long-term and says nothing has been built', () => {
@@ -93,7 +113,8 @@ test('asking what to build first goes to the agent-managed inbox with the indust
 
 test('software lines put live first and otherwise keep the bets order', () => {
   const ids = softwareLines().map((l) => l.id);
-  assert.equal(ids[0], 'grant-autopilot');
+  // Live lines first (in bets order: PayApps, Seller Books, then Grant Autopilot), then early access.
+  assert.deepEqual(ids.slice(0, 3), ['contractor-billing', 'seller-books', 'grant-autopilot']);
   assert.ok(ids.indexOf('contractor-billing') < ids.indexOf('jobshop-quoting'));
   assert.ok(!ids.some((id) => hardwareLines().some((h) => h.id === id)));
 });
