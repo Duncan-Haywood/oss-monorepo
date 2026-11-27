@@ -60,7 +60,15 @@ import { type LienDeadline, lienDeadlineText } from "./lien-deadline";
 import { formatCents } from "./money";
 import type { ApplicationSummary, Totals } from "./payapp-math";
 import { expectedCents, type PaymentInput, paymentPosition } from "./payments";
-import { type TxSendFacts, type TxUnpaidMonth, txNoticeTexts, txUnpaidMonths } from "./tx-notices";
+import {
+  type TxRetainageDates,
+  type TxSendFacts,
+  type TxUnpaidMonth,
+  txNoticeTexts,
+  txRetainageDeadlines,
+  txRetainageTexts,
+  txUnpaidMonths,
+} from "./tx-notices";
 import {
   type WaiverFollowUpInput,
   type WaiverToSend,
@@ -185,7 +193,12 @@ export interface CashReportProjectInput {
    * Texas notices of claim (src/shared/tx-notices.ts): set when the job is tracked (residential or
    * not), with the notices recorded so far. Each unpaid month's § 53.056 notice is read from `apps`.
    */
-  txNotice?: { residential: boolean; sends: TxSendFacts[] } | null;
+  txNotice?: {
+    residential: boolean;
+    sends: TxSendFacts[];
+    /** The saved contract end dates for the retainage notice and affidavit (§§ 53.057, 53.052(d)). */
+    retainage?: TxRetainageDates;
+  } | null;
   /** The GC's monthly billing cutoff, day of the month (src/shared/billing-cutoff.ts); null when not set. */
   billingDay?: number | null;
   /**
@@ -775,6 +788,15 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
   );
   if (lienText) actions.push(lienText);
   if (p.status === "active") actions.push(...txNoticeTexts(txUnpaidMonthsOf(p), asOf));
+  if (p.txNotice?.retainage) {
+    actions.push(
+      ...txRetainageTexts(
+        txRetainageDeadlines(p.txNotice.retainage, p.txNotice.sends),
+        retainageHeldCents,
+        asOf,
+      ),
+    );
+  }
   // The GC's billing cutoff: drafts count too (a draft dated before a passed cutoff is a missed one).
   if (p.billingDay && p.status === "active" && !workComplete) {
     const cutoff = billingCutoff(
