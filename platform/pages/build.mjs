@@ -9864,7 +9864,7 @@ ${HERO_BACKDROP_HTML}
       <p class="lede">
         Pick your business, then the problem costing you the most time.
         ${escapeHtml(usableSentence(PRODUCT_LINES))} The rest are in early access, with
-        free tools that already do part of each job.
+        free tools for part of each job.
       </p>
 ${renderFinder({
   industries: BUSINESS_INDUSTRIES,
