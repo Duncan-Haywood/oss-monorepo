@@ -1,12 +1,14 @@
 # PayApps — Roadmap
 
-Status: **launch-approved, waiting on a runner** (2026-11-27). The launch review is merged
-(#444, [docs/LAUNCH-REVIEW.md](docs/LAUNCH-REVIEW.md), under `docs/legal/OPERATOR.md`): agents may
-deploy and open sign-ups without asking. The first deploy (run 45921558751) got no runner, because
-this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runners are on
-([docs/ci-on-aws.md](../../docs/ci-on-aws.md)) or the app moves to oss-monorepo (task
-`products-to-public-repo`). Not deployed yet, no customers. Paid plans are dark
-(`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.
+Status: **launch-approved, moving to oss-monorepo to deploy** (2026-11-27). The launch review is
+merged (private #444, [docs/LAUNCH-REVIEW.md](docs/LAUNCH-REVIEW.md), under `docs/legal/OPERATOR.md`):
+agents may deploy and open sign-ups without asking. The private repository's Actions start no jobs,
+so the app moved here (oss-monorepo PR #19571, from private `0c4bf8e8`; task
+`products-to-public-repo`), where runners do. Build PayApps **here** from now on; a change merged in
+the private copy after `0c4bf8e8` is ported with `git diff 0c4bf8e8..<sha> -- apps/payapps` before
+that copy is removed. Next for launch: the deploy as a `priv-` workflow here (Cloudflare credentials,
+`apps/README.md`). Not deployed yet, no customers. Paid plans are dark (`BILLING_PROVIDER=none`)
+until the Paddle key and catalog sync are in place.
 
 ## Done (this MVP)
 

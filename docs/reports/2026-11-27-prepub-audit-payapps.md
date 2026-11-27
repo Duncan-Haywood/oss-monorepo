@@ -82,3 +82,14 @@ and the private copy removed. PR #19220 (opened 2026-11-26) tried all apps at
 once at `cded6ea` under FSL; it predates the all-rights-reserved decision and
 the private repo has moved on, so a fresh per-app copy is cleaner than
 reviving it.
+
+## Re-run at the copied commit (2026-11-27)
+
+Step 4 for PayApps copied private `0c4bf8e8` (PR #19571). Paths:
+`apps/payapps apps/payapps-site packages/{billing,lien-waivers,qbo-sync,admin-metrics}
+docs/legal/OPERATOR.md scripts/check-no-client-maps.mjs biome.json tsconfig.base.json`
+(`packages/cad-features` and `trust-page` are not used by PayApps and stayed;
+`docs/trust/` stayed, as it holds the owner checklist). 962 files, **block 0,
+review 47**: 27 emails (all switched to `*.example`, tests updated), 18
+`private-monorepo` names (package scope now `@paid-apps/`, the models.yaml
+path rewritten), 2 confidentiality promises in the terms (kept).

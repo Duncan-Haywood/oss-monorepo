@@ -50,7 +50,20 @@ from pathlib import Path
 
 PREFIX = "claim/"
 DEFAULT_REPO = "/home/user/private-monorepo"
-BETS_MD = Path(__file__).resolve().parents[2] / "portfolio" / "monetization" / "bets.md"
+HERE = Path(__file__).resolve().parents[2]
+BETS_MD = HERE / "portfolio" / "monetization" / "bets.md"
+
+
+def repo_for(app: str, repo: str, here: Path = HERE) -> str:
+    """This repository for an app moved here, else the given clone.
+
+    Task products-to-public-repo moves the paid apps out of private-monorepo one at a time
+    (PayApps first, 2026-11-27, apps/payapps). Once an app's ROADMAP.md is in this tree, its
+    items and claims live here, and a run must not build in the private copy.
+    """
+    if repo != DEFAULT_REPO:  # an explicit --repo wins
+        return repo
+    return str(here) if (here / "apps" / app / "ROADMAP.md").is_file() else repo
 CACHE = "refs/roadmap-claims/"
 GEN = re.compile(r"^(?P<base>.+?)--(?P<n>\d+)$")
 RUN = re.compile(r"\{run ([0-9a-f]{10})\}")
@@ -701,15 +714,20 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
     if not bets:
         print(f"no ranking rows with an app path in {bets_md}")
         return 2
-    ls = git(repo, "ls-remote", "origin", f"refs/heads/{PREFIX}*")
-    if ls.returncode != 0:
-        print(f"git ls-remote failed: {ls.stderr.strip()}")
-        return 2
+    default_repo, listed = repo, {}
+    for r in {repo_for(app, default_repo) for _, _, app in bets}:
+        ls = git(r, "ls-remote", "origin", f"refs/heads/{PREFIX}*")
+        if ls.returncode != 0:
+            print(f"git ls-remote failed in {r}: {ls.stderr.strip()}")
+            return 2
+        listed[r] = ls
     now = time.time()
     start = None
     present: list[tuple[int, int, str]] = []  # (live claims, rank, app) for apps in this clone
     print(f"Bets in bets.md order (claims older than {stale_s / 3600:g} h are stale):")
     for rank, name, app in bets:
+        repo = repo_for(app, default_repo)
+        ls = listed[repo]
         roadmap = Path(repo) / "apps" / app / "ROADMAP.md"
         if not (Path(repo) / "apps" / app).is_dir():
             print(f"{rank:>3}. {app}: not in this clone ({name})")
@@ -778,6 +796,8 @@ def main(argv: list[str] | None = None) -> int:
     if not a.bets and not a.app:
         ap.error("name an app, or pass --bets")
 
+    if a.app:
+        a.repo = repo_for(a.app, a.repo)
     if not (Path(a.repo) / ".git").exists():
         print(f"no git clone at {a.repo}: clone private-monorepo first (.github/prompts/cloud-session.md)")
         return 2

@@ -556,5 +556,19 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(self.main(self.b, "--claim", "3")[0], 0)
 
 
+
+class RepoForTest(unittest.TestCase):
+    """An app moved into this repository (products-to-public-repo) is read here, not in the clone."""
+
+    def test_moved_app_reads_this_repository(self):
+        with tempfile.TemporaryDirectory() as d:
+            here = Path(d)
+            (here / "apps" / "payapps").mkdir(parents=True)
+            (here / "apps" / "payapps" / "ROADMAP.md").write_text("# PayApps\n", encoding="utf-8")
+            self.assertEqual(rc.repo_for("payapps", rc.DEFAULT_REPO, here), str(here))
+            self.assertEqual(rc.repo_for("cmmc", rc.DEFAULT_REPO, here), rc.DEFAULT_REPO)
+            self.assertEqual(rc.repo_for("payapps", "/other/clone", here), "/other/clone")
+
+
 if __name__ == "__main__":
     unittest.main()
