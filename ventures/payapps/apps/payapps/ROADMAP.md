@@ -2072,7 +2072,10 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
 
 - Deploy sets `EMAIL_FROM` and checks `GET /api/health` answers `"email": true` (docs/EMAIL.md)
 - Run the deploy workflow once (`payapps-deploy`, by hand; [docs/DEPLOY.md](docs/DEPLOY.md)) and, at
-  launch, let it run on every merge (`push: branches: [main]`)
+  launch, let it run on every merge (`push: branches: [main]`). First run (45947552522, 2026-11-27) stopped
+  at `wrangler r2 bucket create`: the repository's Cloudflare token has no R2 permission. Provisioning
+  now deploys without attachments in that case; the owner can add "Workers R2 Storage: Edit" to the
+  token later and re-run to turn them on
 - Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
   agent-approved under `docs/legal/OPERATOR.md` (no attorney review; open checks listed there)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on"); the

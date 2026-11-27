@@ -9,6 +9,7 @@ import {
   parseJson,
   R2_NOT_ENABLED,
   RESOURCES,
+  r2Unavailable,
 } from "./provision.mjs";
 
 const build = {
@@ -80,4 +81,17 @@ test("wrangler output parsing", () => {
   assert.ok(
     R2_NOT_ENABLED.test("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
   );
+});
+
+test("R2 unavailable: not enabled or no permission goes on without attachments; others stop", () => {
+  assert.match(
+    r2Unavailable("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
+    /enabled/,
+  );
+  // Exactly what the first deploy (run 45947552522) printed for `wrangler r2 bucket create`.
+  const run1 =
+    "creating r2 bucket payapps-files failed:\n✘ [ERROR] A request to the Cloudflare API (/accounts/x/r2/buckets) failed.\n\n  Authentication error [code: 10000]\n";
+  assert.match(r2Unavailable(run1), /no R2 permission/);
+  assert.equal(r2Unavailable("fetch failed: ECONNRESET"), "");
+  assert.equal(r2Unavailable(undefined), "");
 });
