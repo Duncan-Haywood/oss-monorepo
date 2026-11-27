@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVKkQztrQttvRAhXoLW",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T14:56:16Z",
+  "ended": "2026-11-27T15:11:35Z",
+  "wall_minutes": 15.49,
+  "tokens_in": 7052866,
+  "tokens_out": 33896,
+  "cost_usd": 3.1114,
+  "tool_calls": 72,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19782",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First capture run raced the pay app's per-field onBlur date saves and showed a stale validation error; fixed by awaiting each save in the capture script."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps (biome ci .)",
+      "issue": "biome ci reports 1 error on main in apps/payapps/src/shared/heif.test.ts, so a whole-venture lint can't tell a PR's own errors apart; checked changed files only."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps-site/src/site/catalogue.ts",
+      "issue": "catalogueFiles() was text-only, so adding any image to the site meant changing the build, the export and the drift test; now string | Buffer."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Took item 2 of the last polish note (app screenshots) instead of item 1 (an anchor link): item 2 is the bigger gap on bet #1's front door.",
+      "did": "Built a repeatable stills capture and a home-page section.",
+      "result": "Merged with tests; item 1 carried in the new note."
+    },
+    {
+      "file": "prompts/goals.md (Write about the work)",
+      "why": "No docs/posts post: a screenshot section isn't worth a reader's time on its own; the agent doc in docs/reports carries the before/after.",
+      "did": "docs/reports/polish-2026-11-27-payapps-shots.md only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-27-payapps-shots.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: payapps-site unit 35/35, payapps unit 1398 pass, tsc both, biome on changed files, platform/pages/payapps-site.test.mjs 6/6, pnpm stills pass (asserts $39,330.00 due), scrollWidth 390/1280 unchanged.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "15e81de3-3676-52c6-8732-e1a8b04c3f2f",
+    "transcripts": 1,
+    "first": "2026-11-27T14:56:16Z",
+    "last": "2026-11-27T15:11:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 119,
+        "output": 33896,
+        "thinking": 6458,
+        "cache_read": 6921669,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131078,
+        "api_equivalent_usd": 3.1114,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 119,
+      "output": 33896,
+      "thinking": 6458,
+      "cache_read": 6921669,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131078,
+      "api_equivalent_usd": 3.1114,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 53,
+      "Read": 15,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.49,
+      "active_minutes": 15.49,
+      "model_minutes": 5.49,
+      "tool_minutes": 10.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "capture script, site section, build/test changes and screenshots by a front-end engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 192.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
