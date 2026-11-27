@@ -49,7 +49,7 @@ test('the worked-example figures match calc.mjs on the shipped starting example'
   const { calculateBid } = await import('./calc.mjs');
 
   const easy = {
-    surfaces: [{ name: 'Residential driveway', squareFeet: 800, coats: 2, firstCoatSqFtPerGal: 90, secondCoatSqFtPerGal: 120 }],
+    surfaces: [{ name: 'Residential driveway', squareFeet: 800, coats: 2, firstCoatSqFtPerGal: 90, secondCoatSqFtPerGal: 90 }],
     condition: 'oxidized', method: 'squeegee',
     oilSpots: 4, crackFeet: 40, stalls: 0, sand: false, addOns: [],
     hourlyWage: 24, burdenRate: 32, milesOneWay: 8, speedMph: 35,
@@ -63,33 +63,33 @@ test('the worked-example figures match calc.mjs on the shipped starting example'
   // to stripe than the easy driveway.
   const hard = {
     ...easy,
-    surfaces: [{ name: 'Commercial parking lot', squareFeet: 800, coats: 2, firstCoatSqFtPerGal: 80, secondCoatSqFtPerGal: 110 }],
+    surfaces: [{ name: 'Commercial parking lot', squareFeet: 800, coats: 2, firstCoatSqFtPerGal: 80, secondCoatSqFtPerGal: 80 }],
     condition: 'failing', method: 'squeegee',
     oilSpots: 20, crackFeet: 220, stalls: 24,
   };
 
   const easyResult = calculateBid(easy);
-  assert.equal(easyResult.price.toFixed(2), '371.93');
-  assert.equal(easyResult.totalCost.toFixed(2), '278.94');
-  assert.equal(easyResult.pricePerSqFt.toFixed(2), '0.46');
+  assert.equal(easyResult.price.toFixed(2), '386.41');
+  assert.equal(easyResult.totalCost.toFixed(2), '289.80');
+  assert.equal(easyResult.pricePerSqFt.toFixed(2), '0.48');
 
   const hardResult = calculateBid(hard);
-  assert.equal(hardResult.price.toFixed(2), '988.99');
-  assert.equal(hardResult.totalCost.toFixed(2), '741.74');
-  assert.equal(hardResult.pricePerSqFt.toFixed(2), '1.24');
+  assert.equal(hardResult.price.toFixed(2), '1006.77');
+  assert.equal(hardResult.totalCost.toFixed(2), '755.07');
+  assert.equal(hardResult.pricePerSqFt.toFixed(2), '1.26');
 
   const flatPriceForHard = easyResult.price;
   assert.ok(flatPriceForHard < hardResult.totalCost, 'the flat price should quote below the hard job\'s own break-even cost');
-  assert.equal((hardResult.totalCost - flatPriceForHard).toFixed(2), '369.82');
-  assert.equal((hardResult.price - flatPriceForHard).toFixed(2), '617.07');
+  assert.equal((hardResult.totalCost - flatPriceForHard).toFixed(2), '368.67');
+  assert.equal((hardResult.price - flatPriceForHard).toFixed(2), '620.36');
   assert.ok(hardResult.price / easyResult.price > 2.6);
 
-  assert.match(html, /\$371\.93/);
-  assert.match(html, /\$278\.94/);
-  assert.match(html, /\$741\.74/);
-  assert.match(html, /\$988\.99/);
-  assert.match(html, /\$369\.82/);
-  assert.match(html, /\$617\.07/);
+  assert.match(html, /\$386\.41/);
+  assert.match(html, /\$289\.80/);
+  assert.match(html, /\$755\.07/);
+  assert.match(html, /\$1,006\.77/);
+  assert.match(html, /\$368\.67/);
+  assert.match(html, /\$620\.36/);
 });
 
 test('the comparison page is linked from the tool page, not orphaned', () => {

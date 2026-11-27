@@ -41,8 +41,8 @@ minutes” still required the insurance, the blow-off, and the drive.
 
 1. **Per-surface gallons and coat hours.** Each row is a surface with square
    footage, coats, and first-coat coverage (sq ft per gallon). First-coat
-   gallons = area ÷ (coverage × condition factor). Extra coats use the thinner
-   second-coat coverage. Coat hours = area × coats ÷ crew sq ft per hour
+   gallons = area ÷ (coverage × condition factor). Later coats use their own
+   coverage field, which starts at the same figure as the first coat. Coat hours = area × coats ÷ crew sq ft per hour
    (squeegee vs spray).
 2. **Prep that is not “included.”** Oil spots add primer gallons and scrape
    time. Crack fill is linear feet. Stalls add striping paint and time. Sand
@@ -63,12 +63,14 @@ dependency. See [`calc.test.mjs`](calc.test.mjs).
 
 ## Coverage figures
 
-The surface types ship with common ballpark first- and second-coat coverage as
-a starting point. **They are not a manufacturer yield, a specification, or a
+The surface types ship with one ballpark coverage figure per surface (90 sq ft
+per gallon for a driveway, 80 for a parking lot, 85 for a court, 95 for a
+walkway), used for every coat, because manufacturer data sheets give one rate
+per coat (SealMaster's PMCTS and PMM sheets: about 70 to 82 sq ft per gallon of
+mixed material). That is a starting point. **They are not a manufacturer yield, a specification, or a
 guarantee.** Real yield depends on sealer, dilution, pavement texture, and
-weather. The first-coat coverage is editable on the page, and picking a surface
-type never overwrites a yield the contractor has already changed. The second-coat
-coverage comes from the surface type and has no field yet (see Known gaps).
+weather. First-coat and later-coat coverage are both editable on the page, and picking a
+surface type never overwrites a yield the contractor has already changed.
 
 This tool does not recommend coal-tar versus asphalt-emulsion sealer and does
 not check local VOC rules. That choice stays with the contractor.
@@ -78,15 +80,10 @@ not check local VOC rules. That choice stays with the contractor.
 From the quality audit of 2026-11-26
 ([`portfolio/quality/audits/2026-11-26-asphalt-sealcoat-bid-calculator.json`](../../portfolio/quality/audits/2026-11-26-asphalt-sealcoat-bid-calculator.json)):
 
-- **Second-coat coverage is fixed per surface type (110 to 125 sq ft/gal) and
-  has no field.** Manufacturer data sheets (for example SealMaster's PMCTS and
-  PMM sheets) give one rate for every coat, about 70 to 82 sq ft per gallon of
-  mixed material, so two-coat gallons here can come out 20 to 32% short. Set
-  the first-coat field from your own sealer's sheet and check the gallons line.
+- The starting coverage (80 to 95 sq ft/gal) is still above the 70 to 82 on
+  SealMaster's sheets; set both coat fields from your own sealer's sheet.
 - No concentrate-versus-mixed basis or dilution input; sand is loaded per gallon
   of total sealer, where data sheets load it per gallon of concentrate.
-- The handicap stencil add-on is added to any job with stalls and cannot be
-  switched off on the page.
 - Crack fill is a flat price per foot with no width or depth; the minimum is in
   hours, with no dollar minimum.
 
