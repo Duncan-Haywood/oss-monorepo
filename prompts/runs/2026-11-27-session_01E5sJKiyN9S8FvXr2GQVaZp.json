@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "first pnpm test:unit run in the container exited 1; two reruns with no change passed 149/149 (possible flaky test, not identified)"
+    "first pnpm test:unit run in the container exited 1; two reruns with no change passed 149/149 (possible flaky test, not identified)",
+    "changed-ventures went red on pay-app-guides, already red on main 0aa770357: #19690 and #19697 merged together without each other's nav link; fixed in this PR with node nav.mjs"
   ],
   "integrity_issues": [],
   "doc_friction": [
