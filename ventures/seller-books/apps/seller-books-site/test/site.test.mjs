@@ -190,6 +190,9 @@ describe("honesty rules", () => {
       assert.match(html, /not a tax adviser/, page.path);
       // The catalogue's check.mjs refuses a page without it (PRODUCT_PLAYBOOK.md §5b).
       assert.match(html, /no warranty/i, page.path);
+      // The catalogue's check.mjs budgets: a description a search result shows whole, a share card.
+      assert.ok(page.description.length <= 160, `${page.path}: description is ${page.description.length} characters`);
+      assert.match(html, /<meta property="og:image" content="https:\/\/marisstella\.app\/seller-books\/assets\/og\.png">/, page.path);
       assert.match(html, /href="https:\/\/seller-books\.marisstella\.app\/legal\/terms"/, page.path);
     }
   });

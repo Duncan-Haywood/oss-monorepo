@@ -24,8 +24,10 @@ export const SELLER_BOOKS_SITE_DIR = 'seller-books';
 export const SELLER_BOOKS_SITE_APP = path.join(ROOT, 'ventures', 'seller-books', 'apps', 'seller-books-site');
 const PRODUCTION = 'https://marisstella.app/';
 const TEXT = new Set(['.html', '.xml', '.txt', '.css', '.svg']);
-// The site's own build also writes these; the catalogue serves its own headers and 404.
-const SKIP = new Set(['404.html']);
+// The site's own build also writes these. The catalogue serves its own 404; the early-access
+// pages are noindex leftovers for old links, linked from nothing once the site is open, and their
+// list API needs the site's own Worker, which is not deployed.
+const SKIP = new Set(['404.html', 'early-access.html', 'early-access/thanks.html']);
 
 /** Rewrites `https://marisstella.app/seller-books...` to `<baseUrl>seller-books...`. */
 export function rebase(text, baseUrl) {

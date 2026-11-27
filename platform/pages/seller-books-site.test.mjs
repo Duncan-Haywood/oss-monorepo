@@ -16,6 +16,8 @@ test('builds Seller Books\' site into seller-books/: pages, platform pages, site
       assert.ok(existsSync(path.join(out, 'seller-books', f)), f);
     }
     assert.ok(!written.includes('seller-books/404.html'), 'the catalogue serves its own 404');
+    assert.ok(!written.some((f) => f.includes('early-access')), 'no early-access pages: their API is not deployed');
+    assert.ok(written.includes('seller-books/assets/og.png'));
     const pages = written.filter((f) => f.endsWith('.html'));
     for (const rel of pages) {
       const html = readFileSync(path.join(out, rel), 'utf8');

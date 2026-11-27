@@ -13987,6 +13987,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   ];
   // The online sellers industry page (industry-online-sellers.mjs): resellers'
   // problems, Seller Books in development, and the best free seller tools.
+  // Seller Books' marketing site (paid bet #5), built by its own dependency-free builder and
+  // copied in whole like PayApps' (`seller-books-site.mjs`). Before this page, which links it.
+  const sellerBooksSite = await buildSellerBooksSite(outDir, { baseUrl: base });
   await fs.mkdir(path.join(outDir, ONLINE_SELLERS_PATH), { recursive: true });
   await fs.writeFile(path.join(outDir, ONLINE_SELLERS_PATH, 'index.html'), renderOnlineSellersIndustryPage({ surfaces, baseUrl: base, productSite: sellerBooksSite.length > 0 }));
   industryPages.push(ONLINE_SELLERS_PATH);
@@ -14086,9 +14089,6 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // static export, without the catalogue chrome (`payapps-site.mjs`). Before the
   // construction page, which links it.
   const payappsSite = await buildPayappsSite(outDir, { baseUrl: base });
-  // Seller Books' marketing site (paid bet #5), built by its own dependency-free builder and
-  // copied in the same way (`seller-books-site.mjs`). Before the online sellers page, which links it.
-  const sellerBooksSite = await buildSellerBooksSite(outDir, { baseUrl: base });
   const extraSitemaps = [...payappsSite, ...sellerBooksSite]
     .filter((rel) => rel === 'payapps/sitemap.xml' || rel === 'seller-books/sitemap.xml');
 
