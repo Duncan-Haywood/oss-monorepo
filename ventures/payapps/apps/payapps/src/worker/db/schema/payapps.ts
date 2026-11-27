@@ -1,7 +1,12 @@
 // Pay-application domain. Every table carries org_id (tenant) with ON DELETE CASCADE from organization;
 // every query filters by it (see docs/ARCHITECTURE.md). Money: integer cents. Percent: basis points.
 
-import { CA_NOTICE_METHODS, CA_NOTICE_RECIPIENTS } from "@lien-waivers";
+import {
+  CA_NOTICE_METHODS,
+  CA_NOTICE_RECIPIENTS,
+  FL_NOTICE_RECIPIENTS,
+  FL_SERVICE_METHODS,
+} from "@lien-waivers";
 import { ATTACHMENT_CATEGORIES } from "@shared/attachments";
 import {
   GA_CONTRACTOR_COPY,
@@ -120,6 +125,12 @@ export const projects = sqliteTable(
      * date). Sets the § 8204(a) 20-day reminder; null when not entered (migration 0036).
      */
     caFirstFurnishedOn: text("ca_first_furnished_on"),
+    /**
+     * Florida Notice to Owner: the day this company first furnished labor, services or materials on
+     * the job (ISO date). Sets the § 713.06(2)(a) 45-day and § 713.18(2) 40-day dates and the
+     * reminder; null when not entered (migration 0082).
+     */
+    flFirstFurnishedOn: text("fl_first_furnished_on"),
     /**
      * Georgia: whether a notice of commencement (O.C.G.A. § 44-14-361.5) was filed for the job (true
      * filed, false not filed, null not known), and the contractor's name and address as that notice
@@ -537,6 +548,34 @@ export const lienNoticeSends = sqliteTable(
     createdAt: createdAt(),
   },
   (t) => [index("lien_notice_sends_project_idx").on(t.orgId, t.projectId)],
+);
+
+/**
+ * A Florida Notice to Owner (or a copy) the company recorded as served, one row per person
+ * (§ 713.06(2)(a), (b), (d)), with how it went (§ 713.18(1)) and, for a notice not served on mailing,
+ * the delivery date from the evidence of delivery (migration 0082).
+ */
+export const flNoticeSends = sqliteTable(
+  "fl_notice_sends",
+  {
+    id: text("id").primaryKey(),
+    orgId: orgId(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    recipient: text("recipient", { enum: FL_NOTICE_RECIPIENTS }).notNull(),
+    recipientNameAddress: text("recipient_name_address").notNull(),
+    method: text("method", { enum: FL_SERVICE_METHODS }).notNull(),
+    /** ISO date mailed, handed to the carrier, delivered by hand or posted. */
+    sentOn: text("sent_on").notNull(),
+    /** ISO date delivered, from the evidence of delivery; null when not entered. */
+    deliveredOn: text("delivered_on"),
+    /** The registered or certified mail number, or the carrier's tracking number. */
+    tracking: text("tracking"),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("fl_notice_sends_project_idx").on(t.orgId, t.projectId)],
 );
 
 /**

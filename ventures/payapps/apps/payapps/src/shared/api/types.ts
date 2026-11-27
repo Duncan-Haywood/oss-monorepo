@@ -1,5 +1,11 @@
 // Response DTOs. Timestamps are ISO strings; money integer cents; percentages basis points.
-import type { CaNoticeMethod, CaNoticeRecipient } from "@lien-waivers";
+import type {
+  CaNoticeMethod,
+  CaNoticeRecipient,
+  FlNoticeRecipient,
+  FlServedBasis,
+  FlServiceMethod,
+} from "@lien-waivers";
 import type {
   CloseoutKind,
   CloseoutReadiness,
@@ -661,6 +667,41 @@ export interface NoticeOverviewDto {
   ownerName: string | null;
   /** California only (state=CA): the notices recorded as given and the § 8204(a) timing. */
   ca: CaNoticeLogDto | null;
+  /** Florida only (state=FL): the notices recorded as served and the 45/40-day dates. */
+  fl: FlNoticeLogDto | null;
+}
+
+/** A Florida Notice to Owner, or a copy, recorded as served on one person. */
+export interface FlNoticeSendDto {
+  id: string;
+  recipient: FlNoticeRecipient;
+  recipientNameAddress: string;
+  method: FlServiceMethod;
+  sentOn: string;
+  deliveredOn: string | null;
+  tracking: string | null;
+  /** When it counts as served (§ 713.18); null without a first day, or when a delivery date is needed. */
+  servedOn: string | null;
+  basis: FlServedBasis | null;
+  /** Against the 45 days (§ 713.06(2)(a)); null when unknown. */
+  onTime: boolean | null;
+  /** One line on how it counts, from the package; null without a first day. */
+  timing: string | null;
+}
+
+export interface FlNoticeLogDto {
+  firstFurnishedOn: string | null;
+  /** First day plus 45 calendar days (§ 713.06(2)(a)), or null. */
+  serveBy: string | null;
+  /** First day plus 40 calendar days (§ 713.18(2)(b)), or null. */
+  mailBy: string | null;
+  sends: FlNoticeSendDto[];
+  /** Recipients the reminder waits on (the owner) with no notice recorded yet. */
+  missing: FlNoticeRecipient[];
+  methods: { id: FlServiceMethod; label: string }[];
+  recipients: { id: FlNoticeRecipient; label: string }[];
+  /** Name and address the job already holds for each recipient. */
+  recipientPrefill: Partial<Record<FlNoticeRecipient, string>>;
 }
 
 /** A California preliminary notice recorded as given to one person. */
