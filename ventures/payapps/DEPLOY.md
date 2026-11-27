@@ -42,3 +42,13 @@ payments-account infrastructure stays in `private-monorepo`, as `LICENSING_TRANS
    the router's Deepen task and `roadmap_claim.py` point at `ventures/payapps/apps/payapps`
    (claims are `claim/payapps/*` branches on this repository from now on; the old ones in
    `private-monorepo` were all past their six hours).
+
+## First run (2026-11-27, run 45947552522)
+
+Dispatched on `main` after PR #19617. It got a runner, passed install, checks and build, resolved
+`https://payapps.<account subdomain>.workers.dev`, then stopped in provisioning: the repository's
+Cloudflare token is refused on R2 (`Authentication error [code: 10000]`). `provision.mjs` now treats
+that like R2 not enabled (deploy without attachments, with a warning naming the missing permission),
+so the next run gets past it. Owner step to turn attachments on: add Account -> Workers R2 Storage ->
+Edit to `CLOUDFLARE_API_TOKEN`.
+
