@@ -1,6 +1,6 @@
 # Deploys ventures/cmmc/apps/cmmc (CMMC Workspace, paid bet #4) to Cloudflare Workers: one Worker
 # (`cmmc-workspace`) for the SPA and the API, a D1 database (`cmmc-workspace`), an R2 bucket for
-# evidence files (`cmmc-workspace-files`, required) and a daily cron for affirmation reminders.
+# evidence files (`cmmc-workspace-files`; without it evidence is kept in D1) and a daily cron for affirmation reminders.
 # Ported on 2026-11-27 from private-monorepo's cmmc-deploy.yml, which never ran (private-monorepo's
 # Actions start no jobs), following priv-seller-books-deploy.yml and the Job Shop Quote port (PR
 # #19682). What each step does and every setting: ventures/cmmc/apps/cmmc/docs/DEPLOY.md; why it
@@ -149,8 +149,8 @@ jobs:
           { echo "domain=$domain"; echo "app_url=$url"; } >>"$GITHUB_OUTPUT"
           echo "Deploying cmmc-workspace to $url"
 
-      # R2 is required (the evidence files behind every requirement): the script fails without it,
-      # before anything is deployed.
+      # Without R2 (not enabled, or the token refused on it) the script warns and leaves the bucket
+      # binding out; the app then keeps evidence files in D1 (src/worker/ports/file-store.ts).
       - name: Provision D1 + R2 and write the deploy config
         id: provision
         env:

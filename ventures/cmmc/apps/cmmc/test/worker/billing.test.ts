@@ -80,12 +80,14 @@ describe("plans", () => {
     expect(res.status).toBe(200);
     // The tests run on the signed fake provider, so checkout is on here; a deploy without the
     // Paddle secrets reports billing: false.
-    // Mail stays in memory in tests, so `email` is false (nothing leaves the Worker).
+    // Mail stays in memory in tests, so `email` is false (nothing leaves the Worker). The test
+    // config binds the R2 bucket, so `files` is "r2" (file-store.test.ts covers "d1").
     expect(await res.json()).toEqual({
       ok: true,
       app: "cmmc-workspace",
       billing: true,
       email: false,
+      files: "r2",
     });
   });
 

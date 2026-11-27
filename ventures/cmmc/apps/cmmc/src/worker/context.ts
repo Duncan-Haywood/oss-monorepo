@@ -9,6 +9,7 @@ import { type BillingProvider, createBillingProvider } from "./ports/billing";
 import { createEmailSender, type EmailSender, FakeEmailSender } from "./ports/email";
 import { FakeLlm } from "./ports/fake-llm";
 import { allFakeHandlers } from "./ports/fake-llm-handlers";
+import { fileStoreFor } from "./ports/file-store";
 import type { LlmClient } from "./ports/llm";
 
 /** Used when a real deployment has no ANTHROPIC_API_KEY: every call fails with a clear 503. */
@@ -33,7 +34,10 @@ export interface AppContext {
   env: Env;
   db: Db;
   llm: LlmClient;
-  /** R2 bucket for evidence. Keys MUST start with `orgs/{orgId}/` (services/evidence/keys.ts). */
+  /**
+   * Evidence storage: the R2 bucket when bound, else D1 (ports/file-store.ts). Keys MUST start with
+   * `orgs/{orgId}/` (services/evidence/keys.ts).
+   */
   files: R2Bucket;
   /** Paddle (or the signed fake in tests/demo); null until the owner turns billing on. */
   billing: BillingProvider | null;
@@ -68,7 +72,7 @@ export function createAppContext(env: Env, overrides: Partial<AppContext> = {}):
     env,
     db: overrides.db ?? createDb(env.DB),
     llm,
-    files: overrides.files ?? env.FILES,
+    files: overrides.files ?? fileStoreFor(env),
     billing: overrides.billing === undefined ? createBillingProvider(env) : overrides.billing,
     email:
       overrides.email ?? (usesFakeEmail(env) ? testFakes.email : createEmailSender(env, logger)),

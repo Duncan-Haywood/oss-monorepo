@@ -10,6 +10,7 @@ import {
   parseJson,
   R2_NOT_ENABLED,
   RESOURCES,
+  r2Unavailable,
 } from "./provision.mjs";
 
 // The shape the Cloudflare Vite plugin writes to dist/cmmc_workspace/wrangler.json (trimmed).
@@ -87,4 +88,31 @@ test("wrangler output parsing", () => {
   assert.ok(
     R2_NOT_ENABLED.test("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
   );
+});
+
+test("r2Unavailable: R2 off or refused deploys without the bucket, anything else fails", () => {
+  assert.equal(
+    r2Unavailable("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
+    "not-enabled",
+  );
+  // PayApps' first oss-monorepo deploy (run 45947552522): the token had no R2 permission.
+  assert.equal(
+    r2Unavailable(
+      "creating r2 bucket cmmc-workspace-files failed:\n✘ [ERROR] A request to the Cloudflare API (/accounts/x/r2/buckets) failed.\n\n  Authentication error [code: 10000]",
+    ),
+    "no-access",
+  );
+  assert.equal(
+    r2Unavailable("A request to the Cloudflare API failed. Internal error [code: 10001]"),
+    "",
+  );
+  assert.equal(r2Unavailable("spawnSync pnpm ENOENT"), "");
+});
+
+test("deploy config without R2: no bucket binding, so evidence goes to D1 (ports/file-store.ts)", () => {
+  const cfg = deployConfigFor(build, { r2Enabled: false, d1Id: "d1-id" });
+  assert.deepEqual(cfg.r2_buckets, []);
+  assert.equal(cfg.d1_databases[0].database_id, "d1-id");
+  // With R2 the binding is kept and renamed to ours.
+  assert.equal(deployConfigFor(build, { d1Id: "d1-id" }).r2_buckets[0].bucket_name, RESOURCES.r2);
 });
