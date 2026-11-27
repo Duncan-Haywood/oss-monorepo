@@ -26,13 +26,6 @@ python3 "$repo/platform/security/prepub_audit.py" "$src" "${paths[@]}" \
   exit 1
 }
 
-# Files edited here after the copy (CodeQL fixes, the deploy doc's link) that the rewrites below do
-# not reproduce: saved before the replace and put back after it. Drop an entry once private has it.
-keep_local=(packages/billing/src/paddle.test.ts packages/billing/src/paddle-key.test.ts
-  apps/cmmc/docs/DEPLOY.md)
-saved="$(mktemp -d)"
-for f in "${keep_local[@]}"; do mkdir -p "$saved/$(dirname "$f")"; cp "$here/$f" "$saved/$f"; done
-
 rm -rf "$here/apps" "$here/packages" "$here/scripts"
 git -C "$src" archive HEAD "${paths[@]}" package.json pnpm-workspace.yaml pnpm-lock.yaml \
   biome.json tsconfig.base.json | tar -x -C "$here"
@@ -45,9 +38,6 @@ grep -rlZ '@private-monorepo/\|@private/' "$here/packages" "$here/apps" |
 grep -rlZ --include='*.ts' --include='*.tsx' --include='*.mjs' --include='*.md' \
   'company\.com' "$here/apps" "$here/packages" |
   xargs -0 -r sed -i 's#@company\.com\b#@company.example#g'
-
-for f in "${keep_local[@]}"; do cp "$saved/$f" "$here/$f"; done
-rm -rf "$saved"
 
 (cd "$here" && pnpm install --lockfile-only >/dev/null && pnpm install --frozen-lockfile >/dev/null &&
   pnpm exec biome format --write apps packages >/dev/null)

@@ -1,0 +1,27 @@
+{
+  "id": "P097",
+  "title": "Workers cron triggers are over the free plan's 5 per account: a check that counts them before a deploy fails",
+  "status": "open",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "The Workers Free plan allows 5 cron triggers per account (developers.cloudflare.com/workers/platform/limits, 'Number of Cron Triggers per account | 5 | 1,000', read 2026-11-27). With the seller-books reminder cron (2026-11-27) the repository's Workers configure 6: ventures/payapps/apps/payapps, payapps-site, seller-books, seller-books-site, jobshop-quote and platform/email. Whichever deploys last fails its trigger update, and nothing in CI counts them, so a session adding a cron cannot see the budget.",
+  "evidence": [
+    "grep '\"crons\"' over wrangler*.jsonc plus platform/email/wrangler.toml on 2026-11-27 main + the seller-books estimate-reminders PR: 6 schedules",
+    "Cloudflare limits page, read 2026-11-27: 5 per account on Free"
+  ],
+  "change": "A test (platform/ci) that lists every cron schedule in the repository's Worker configs and fails above 5 unless portfolio/hosting names the account as Workers Paid; and fold the two daily site crons (payapps-site 04:41, seller-books-site 04:23: both purge unconfirmed sign-ups) into their apps' own scheduled handlers, or one scheduler Worker calling the others through service bindings, so the count fits.",
+  "touches": [
+    "platform/ci/",
+    "ventures/payapps/apps/payapps-site/wrangler.jsonc",
+    "ventures/seller-books/apps/seller-books-site/wrangler.jsonc",
+    "portfolio/hosting/README.md"
+  ],
+  "metric": "configured cron schedules on the account's Workers, and deploy runs failing on a trigger update",
+  "baseline": "6 configured, 5 allowed (2026-11-27)",
+  "opened": "2026-11-27",
+  "source": "ventures run (seller-books estimate-reminders)",
+  "pr": null,
+  "result": null,
+  "history": []
+}

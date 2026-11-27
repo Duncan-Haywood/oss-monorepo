@@ -273,6 +273,20 @@ the year's figures are in the shop's export and are deleted with the shop.
 The page is an estimate, not tax advice: it leaves out credits, itemised
 deductions and state tax, so check it with your tax preparer.
 
+**A reminder a week before each date** (added 2026-11-27). The penalty for
+a late or short estimated payment runs from the due date, and the dates
+shift: the 2025 June date was the 16th. On the same page an owner or admin can now tick
+"Email me a week before each due date". Seven days before each of the four
+dates, Seller Books reads your books and your saved figures as the page
+would that morning and emails you what is still to pay by that date. In the
+case above that is $0 in April, June and September under the annualized
+method, so those dates send nothing, and the January email carries the
+balance. Any date your payments and withholding already cover sends
+nothing. With no figures saved, the email names the date and asks for them
+instead of guessing an amount. Each email has a one-click link that turns
+the reminders off, no sign-in needed. State estimated payments are not in
+it.
+
 ## Sharing the books with your bookkeeper (added 2026-11-26)
 
 The Business plan's extra seats are meant for the people who touch a
