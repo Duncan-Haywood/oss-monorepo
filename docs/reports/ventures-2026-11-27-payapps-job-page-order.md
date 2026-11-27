@@ -1,3 +1,8 @@
+---
+kind: milestone
+date: 2026-11-27
+subjects: [payapps]
+---
 # PayApps: a stranger's first run at phone width (2026-11-27)
 
 What a later run needs to know from a visual walk of sign-up and the sample job.
