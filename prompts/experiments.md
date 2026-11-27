@@ -1857,6 +1857,32 @@ subscription, should a scheduled venture run default to launch work
 - Metric: friction naming `private-monorepo` for a moved bet; next review.
 - Result: (next review)
 
-## E124: Review 2026-11-27, third session (reduced pass; in progress)
+## E124: Review 2026-11-27, third session (reduced pass)
 
+- Routed by `review_when_due` (50 merged runs since E122/E123 this morning).
+- Decisions: candidates unchanged, all three "keep collecting: the intervals
+  overlap" (ventures/2 91% on 753 vs ventures/1 91% on 3144; process/2 82%
+  on 147 vs 85% on 841; review/2 100% on 23 vs review/1 93% on 101). Same
+  null result as E122; nothing new to promote or retire at these sizes.
+- Change (step 5, friction on `prompts/redteam/prompt-0.md`, two live
+  reports 2026-11-27 09:19 and 09:39): `redteam.py targets` listed no file of
+  the paid bets' TypeScript (payapps, jobshop-quote, seller-books moved into
+  `ventures/` today), so bet #1 could not be mutation-tested. `.ts` files now
+  take the JS operators, and a file is guarded by its nearest package.json
+  `test` script when that is a plain `node [--flags] --test <globs>.ts`
+  (run as argv, never a shell; anything else is refused, tested). Type-only
+  lines (`type X =`, `interface`, `declare`) are skipped. Targets: payapps
+  0 to 55 `.ts` files, jobshop-quote 36, seller-books 18. The vitest apps
+  need `pnpm install` and stay out. First campaigns: `billing/src/entitlement.ts`
+  6/6 caught; `lien-waivers/src/statutory.ts` 1/4 caught: the three escapes
+  turn the California Civil Code section numbers in the statute links
+  (8134, 8136, 8138) into wrong sections and no test notices. Left for the
+  next red-team run (the package syncs from `private-monorepo`).
+- Also: `prompts/redteam/prompt-0.md` says a new `platform/ci/test_*.py`
+  needs no workflow edit (`unwired_checks.py`), the other 09:19 report;
+  one example parenthetical cut so the file does not grow.
+- Not done (reduced pass): derive, audit, drift report, a new candidate.
+- Metric: friction naming TypeScript/payapps as unreachable on
+  `redteam/prompt-0.md` goes to zero; red-team campaigns under
+  `ventures/payapps` appear in records. Compare next review.
 - Result: (next review)
