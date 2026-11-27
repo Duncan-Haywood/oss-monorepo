@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-27
+---
 # Seller Books: PayPal Activity download import (2026-11-27)
 
 What landed: platform `paypal` (`src/shared/enums.ts`), importer
