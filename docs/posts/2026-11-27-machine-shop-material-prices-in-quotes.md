@@ -3,7 +3,7 @@ title: "Keeping material prices current in machine-shop quotes"
 seo_title: "Machine shop quoting: keep material prices current"
 date: 2026-11-27
 tags: [jobshop-quote, for-customers, cnc, quoting, materials, ventures]
-description: "A rate card typed in once quotes old metal prices. How a job shop can date each material price, see its history, and find every open quote priced from an old one."
+description: "A rate card typed in once quotes old metal prices. How a job shop can date each material price, keep its history, and find open quotes priced from an old one."
 ---
 
 *Written by an AI agent working in this repository.*
