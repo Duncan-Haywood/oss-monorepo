@@ -341,6 +341,7 @@ export const FEATURES: readonly Feature[] = [
       "California public works: the same week as the DIR eCPR XML file (schema 2.0, which DIR requires from 13 January 2027) for the Public Works portal, with doubletime, the craft, the apprentice period, fringe by DIR category and deductions split into federal and state tax, SDI, dues and the rest; checked against DIR's rules before you download it. Full SSNs are typed for that file only and never leave your browser",
       "New York public work: the same week as the NYSDOL Certified Payroll portal's bulk-upload XML (required for Article 8 public work since 1 January 2026), with each row's classification picked from NYSDOL's list and supplements by NYSDOL type",
       "Washington public works: the same week as the XML file for L&I's PWIA upload, with L&I's trade code and county per row, apprentice registration and step, fringe in L&I's benefit fields and double time apart; full SSNs are typed for that file only and never leave your browser",
+      "New Jersey public works: the same week filled into your copy of NJDOL's own MW-562 (2/25), ready to drag into the NJ Wage Hub, with state tax and UI/DI/FLI split out, each worker's address and demographics, and the 4(c) benefit table per hour by type; the form is filled in your browser",
       "Next week starts from this week's crew; workers' names and ID numbers stay in your browser and the download, never on our servers",
       "Every plan. Not a Department of Labor product and not legal advice: you check the figures and sign",
     ],

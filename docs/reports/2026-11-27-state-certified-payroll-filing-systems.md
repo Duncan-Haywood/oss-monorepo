@@ -93,3 +93,14 @@ NYSDOL's own sample validates against its XSD with xmllint, and so does PayApps'
 999.99 (the guide says 9,999.99); a deduction amount is at most four integer digits; `country` is
 required by the XSD though the guide marks it optional. njwages.nj.gov still answered 403 from this
 session, so New Jersey's CSV template is the next to fetch; lni.wa.gov answered 200.
+
+## Update, later on 2026-11-27: New Jersey built from the MW-562
+
+A ventures run (PR titled `certified-payroll-nj-mw562`) built New Jersey without the CSV template:
+`njwages.nj.gov` answers 403 from an Incapsula bot wall (the site's own, not the session proxy), so
+`assets/CSV_Template.zip` could not be read. But `www.nj.gov` serves both the NJWH Contractor User
+Guide (`/labor/wageandhour/assets/PDFs/wagehub/NJWH_Contractor_User_Guide.pdf`, 03/06/2026) and the
+fillable MW-562 (2/25), linked from `/labor/wageandhour/prevailing-rates/updates.shtml`. The guide's
+part 6 C says the Wage Hub takes an electronically filled MW-562 and fills steps 1-4 from it, so
+PayApps now fills that form (ROADMAP, certified payroll part 3d). For the next state: Illinois is
+claimed (`certified-payroll-il-ctp-upload`); check its host from the session before planning.

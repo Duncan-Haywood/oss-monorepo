@@ -1640,6 +1640,35 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   step 4 and 5 messages checked, several weeks in one file (the schema allows it), and an amendment
   flag.
 
+- Certified payroll, part 3d: New Jersey MW-562 for the NJ Wage Hub (2026-11-27,
+  certified-payroll-nj-mw562, every plan). A "New Jersey public works" section on the certified payroll
+  page writes the same week into the contractor's own copy of NJDOL's fillable form MW-562 (2/25), which
+  the Wage Hub takes by drag and drop ("Add Certified Payroll"; NJWH Contractor User Guide, 03/06/2026,
+  part 6 C: its values fill steps 1-4 for review). The Wage Hub's CSV template could not be read
+  (njwages.nj.gov sits behind a bot wall that answers 403 from this cloud), but the MW-562 is on
+  www.nj.gov. Read 2026-11-27: the form's 555 fields, mapped by where each box sits on the page
+  because the names are inconsistent ("1 SuS Hrs.0.0.0", "2 Su-S Hrs.1", "Sex Row6"), generated into
+  `src/shared/nj-mw562-fields.ts`. The blank NJDOL ships with sample entries ("Arthur R",
+  Subcontractor ticked), so every field is written, blank where there is nothing. New
+  `src/shared/pdf/form-fill.ts`: fills any AcroForm as an incremental update (new field and widget
+  objects, /NeedAppearances, an xref stream or table matching the file's own, /Prev to the old one),
+  with the original bytes untouched; refuses encrypted and damaged files, unknown fields and values of
+  the wrong kind. Adds what the MW-562 asks and the WH-347 does not: FEIN, NJ public works contractor
+  registration number, date wages paid, each worker's address, sex, race and ethnicity (the form's
+  keys), NJ state tax out of the withholding and UI/DI/FLI out of "other" (totals unchanged), and 4(c)
+  benefits per hour by type, one row per classification and credit set (up to 18). Days go in the
+  column of their weekday; more than ten rows make more sheets with "additional sheets attached"
+  ticked. The e-signature box is ticked only when the certifier asks. The blank form is NJDOL's file
+  and is not vendored: the contractor picks it once from NJDOL's page, it is checked for all 555
+  fields and kept in the browser. Verified against the real file (`MW562_PDF=<path> pnpm test:unit`:
+  every mapped name present, of the right kind, every value read back after filling) and by
+  rendering the filled form with poppler, which put each value in its box. Privacy Policy sentence
+  added (data stays on the device). `src/shared/nj-mw562.ts`, `src/client/components/nj-mw562-section.tsx`;
+  tests `src/shared/nj-mw562.test.ts`, `src/shared/pdf/form-fill.test.ts`,
+  `test/unit/certified-payroll-page.test.tsx`. Next, if New Jersey customers ask: a real Wage Hub
+  upload's "invalid inputs and missing fields" summary checked, the CSV template once it can be read
+  (NJDOL suggests CSV past ten employees), the older 6/23 form (NJDOL says it still works), and
+  fetching the blank from NJDOL instead of a file pick.
 - Getting started, part 5 (2026-11-26): where companies stall, in the owner's metrics.
   `GET /api/admin/metrics` now carries `activation`: for every company, and for those that signed
   up inside the window, how many reached each checklist step (job, schedule of values, pay
@@ -2327,7 +2356,7 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   CSV, if people ask (a by-day CSV fills the week since 2026-11-26), save the crew and rates with the job instead of the
   browser if people ask, other states' prevailing-wage formats once their official specs are read (California's DIR eCPR
   XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b;
-  Washington's L&I XML done 2026-11-27: part 3c; New Jersey's Wage Hub CSV next, once njwages.nj.gov answers), and the upload formats of the compliance
+  Washington's L&I XML done 2026-11-27: part 3c; New Jersey's MW-562 for the Wage Hub done 2026-11-27: part 3d, its CSV once njwages.nj.gov answers; Illinois next), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
 - Notice to Owner, Florida, part 3 (part 2, the notices served per person, the saved first day and

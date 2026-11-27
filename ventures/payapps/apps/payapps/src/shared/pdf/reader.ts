@@ -74,6 +74,8 @@ export class PdfReader {
   private crypt: PdfDecryptor | undefined;
   /** The encryption dictionary's object number, which is itself never encrypted. */
   private encryptNum = -1;
+  /** Offset of the newest cross-reference section (what startxref points at). */
+  private lastXref = -1;
 
   private async decode(s: PdfStream) {
     const data = await decodeStream(s, this.inflateLeft);
@@ -182,6 +184,19 @@ export class PdfReader {
     return walk(v, 0);
   }
 
+  /**
+   * What an incremental update appended to this file needs (form-fill.ts): the newest trailer, the
+   * offset of the newest cross-reference section (the new section's /Prev) and one past the highest
+   * object number in use (the new /Size). Undefined for a recovered or encrypted file, which an
+   * update could not extend safely.
+   */
+  updateBase(): { trailer: PdfDict; prev: number; size: number } | undefined {
+    if (this.recovered || this.crypt || this.lastXref < 0) return undefined;
+    let size = asNumber(this.trailer.get("Size")) ?? 0;
+    for (const num of this.xref.keys()) size = Math.max(size, num + 1);
+    return { trailer: this.trailer, prev: this.lastXref, size };
+  }
+
   /** True when the cross-reference had to be rebuilt by scanning the file. */
   get wasRecovered() {
     return this.recovered;
@@ -202,6 +217,7 @@ export class PdfReader {
       const trailer = await this.readXrefSection(offset);
       if (first) {
         this.trailer = trailer;
+        this.lastXref = offset;
         first = false;
       }
       const hybrid = asNumber(trailer.get("XRefStm"));

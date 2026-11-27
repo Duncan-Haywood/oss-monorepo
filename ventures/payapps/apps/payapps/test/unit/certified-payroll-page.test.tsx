@@ -3,6 +3,7 @@ import { certifiedPayrollSchema, weekDays } from "@shared/certified-payroll";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { CaEcprSection } from "../../src/client/components/ca-ecpr-section";
+import { NjMw562Section } from "../../src/client/components/nj-mw562-section";
 import { NyCprSection } from "../../src/client/components/ny-cpr-section";
 import { WaCprSection } from "../../src/client/components/wa-cpr-section";
 import { blankWorker, lastSaturday, nextWeek } from "../../src/client/pages/certified-payroll";
@@ -340,5 +341,82 @@ describe("certified payroll page helpers", () => {
     expect(screen.getByText(/requires all 9 digits/)).toBeTruthy();
     rerender(<WaCprSection {...props} ids={{ w1: { ssn: "123-45-6789" } }} />);
     expect(button()).toHaveProperty("disabled", false);
+  });
+  it("carries the New Jersey extras into next week with the tax split cleared, and never posts them", () => {
+    const w = blankWorker();
+    w.lastName = "Rivera";
+    w.firstName = "Luis";
+    if (w.rows[0]) w.rows[0].classification = "Electrician";
+    const nj = {
+      address: "9 Oak Ave, Trenton NJ",
+      sex: "M" as const,
+      race: "W" as const,
+      ethnicity: "H" as const,
+      stateTaxCents: 2_000,
+      njContribCents: 500,
+    };
+    const next = nextWeek({
+      projectName: "Trenton Library HVAC",
+      payrollNo: "2",
+      businessName: "Delaware Valley Electric LLC",
+      businessAddress: "Trenton",
+      projectLocation: "Mercer County, NJ",
+      wageDeterminations: "NJ rates",
+      weekEnding: "2026-08-01",
+      workers: [{ ...w, nj }],
+      nj: { on: true, fein: "12-3456789", registrationNo: "PW-1" },
+    });
+    expect(next.workers[0]?.nj).toEqual({ ...nj, stateTaxCents: 0, njContribCents: 0 });
+    expect(next.nj?.registrationNo).toBe("PW-1");
+    const parsed = certifiedPayrollSchema.parse(next);
+    expect(JSON.stringify(parsed)).not.toContain("Oak Ave");
+    expect(Object.keys(parsed)).not.toContain("nj");
+  });
+
+  it("the New Jersey section waits for the blank MW-562 before offering the download", () => {
+    const payroll = certifiedPayrollSchema.parse({
+      projectName: "Trenton Library HVAC",
+      payrollNo: "2",
+      businessName: "Delaware Valley Electric LLC",
+      businessAddress: "Trenton",
+      projectLocation: "Mercer County, NJ",
+      wageDeterminations: "NJ rates",
+      weekEnding: "2026-08-01",
+      workers: [
+        {
+          lastName: "Rivera",
+          firstName: "Luis",
+          rows: [
+            {
+              classification: "Electrician",
+              status: "J",
+              st: [0, 800, 800, 800, 800, 800, 0],
+              ot: [0, 0, 0, 0, 0, 0, 0],
+              stRateCents: 5_250,
+              otRateCents: 7_875,
+            },
+          ],
+          taxCents: 10_000,
+        },
+      ],
+    });
+    const props = {
+      job: { on: true, fein: "12-3456789", registrationNo: "PW-1" },
+      onJob: () => {},
+      workers: [
+        { uid: "w1", lastName: "Rivera", firstName: "Luis", nj: { stateTaxCents: 50_000 } },
+      ],
+      onWorker: () => {},
+      plans: [],
+      payroll,
+    };
+    render(<NjMw562Section {...props} />);
+    const button = screen.getByRole("button", { name: "Download filled MW-562" });
+    expect(button).toHaveProperty("disabled", true);
+    expect(screen.getByText(/Pick the blank form first/)).toBeTruthy();
+    // The split is checked against the WH-347 withholding.
+    expect(screen.getByText(/cannot be more than it/)).toBeTruthy();
+    expect(screen.getByText(/Sex, race and ethnicity are blank/)).toBeTruthy();
+    expect(screen.getByRole("link", { name: /NJDOL's prevailing wage updates page/ })).toBeTruthy();
   });
 });
