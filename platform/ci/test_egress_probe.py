@@ -14,6 +14,15 @@ class Classify(unittest.TestCase):
     def test_site_error_is_still_an_answer(self):
         self.assertEqual(ep.classify(0, "404", ""), ("ok", "404"))
 
+    def test_site_refusal_and_bot_check_are_not_ok(self):
+        # 2026-11-27: leginfo.legislature.ca.gov served Cloudflare's challenge (403,
+        # cf-mitigated: challenge) and was reported "ok", so a run planned on reading it.
+        self.assertEqual(ep.classify(0, "403 challenge", "")[0], "refused")
+        self.assertIn("bot check", ep.classify(0, "403 challenge", "")[1])
+        self.assertEqual(ep.classify(0, "403 ", ""), ("refused", "403 from the site"))
+        self.assertEqual(ep.classify(0, "429", "")[0], "refused")
+        self.assertEqual(ep.classify(0, "200 ", ""), ("ok", "200"))
+
     def test_proxy_refusal(self):
         state, _ = ep.classify(56, "000", "curl: (56) CONNECT tunnel failed, response 403\n")
         self.assertEqual(state, "blocked")

@@ -177,6 +177,9 @@ class ParseTest(unittest.TestCase):
         self.assertEqual(rc.gate_match(item, {"leginfo.legislature.ca.gov": "blocked"})[0],
                          "waits on a source")
         self.assertIsNone(rc.gate_match(item, {"leginfo.legislature.ca.gov": "ok"}))
+        # The site's own bot check gates it too (2026-11-27).
+        self.assertEqual(rc.gate_match(item, {"leginfo.legislature.ca.gov": "refused"})[0],
+                         "waits on a source")
         self.assertIsNone(rc.gate_match(item, {}))  # not probed: unknown, not refused
         both = "Read dir.ca.gov or downloads.leginfo.legislature.ca.gov for the form"
         self.assertIsNone(rc.gate_match(both, {"dir.ca.gov": "blocked",
