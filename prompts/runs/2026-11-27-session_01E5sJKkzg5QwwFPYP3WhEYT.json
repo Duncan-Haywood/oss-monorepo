@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "payapps-site CI failed on the first push: catalogue-export stale on main (not from this diff); fixed forward here."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -63,7 +65,7 @@
     "docs/reports/2026-11-27-cron-triggers-to-durable-object-alarms.md"
   ],
   "goal": null,
-  "notes": "Backlog: P097 already landed (#19732); took P098 (agent-owned, open). main_health.py 331/331 green before the change. Verification: seller-books-site node --test 63 pass, cmmc-site 42 pass; payapps-site typecheck clean, unit 31 pass, worker 11 pass; wrangler deploy --dry-run lists the PURGE_CLOCK Durable Object; wrangler dev --local of seller-books-site armed the clock and logged early_access.purge deleted:0 about 60 s later. cron_budget.py --strict exits 0 (5 configured, 4 deployed); test_cron_budget OK. Free-plan DO availability read from cloudflare-docs partials/durable-objects/do-plans-note.mdx via raw.githubusercontent.com (developers.cloudflare.com did not resolve). risk_review: nothing blocked.",
+  "notes": "Backlog: P097 already landed (#19732); took P098 (agent-owned, open). main_health.py 331/331 green before the change. Verification: seller-books-site node --test 63 pass, cmmc-site 42 pass; payapps-site typecheck clean, unit 31 pass, worker 11 pass; wrangler deploy --dry-run lists the PURGE_CLOCK Durable Object; wrangler dev --local of seller-books-site armed the clock and logged early_access.purge deleted:0 about 60 s later. cron_budget.py --strict exits 0 (5 configured, 4 deployed); test_cron_budget OK. Free-plan DO availability read from cloudflare-docs partials/durable-objects/do-plans-note.mdx via raw.githubusercontent.com (developers.cloudflare.com did not resolve). risk_review: nothing blocked. After merging main: payapps-site catalogue-export was stale on main (PR #19711's Texas notices and PR #19733's export landed in parallel, so main's payapps-site CI was red); regenerated with pnpm export:catalogue (features.html, llms-full.txt), unit 36/36, worker 11/11, typecheck clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
