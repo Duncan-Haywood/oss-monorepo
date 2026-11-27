@@ -43,6 +43,10 @@
     {
       "file": "ventures/CLAUDE.md",
       "issue": "Still states the 2026-10-15 self-deploy principle as the business model before the 2026-11-24 hosted-SaaS update below it; reads contradictory"
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "A docs-only payapps PR ran pay-app-guides (it reads the payapps lien-waivers package), so main's breakage showed up as a failure on this PR"
     }
   ],
   "deviations": [
@@ -58,7 +62,7 @@
     "ventures/payapps/apps/payapps/ROADMAP.md status"
   ],
   "goal": null,
-  "notes": "Security queue empty; ideas inbox empty; routed ventures/1 to bet #1 PayApps. Found deploy run 2 live (health ok, email true) and run 3 failing on sov-import. I first took it for a slow runner and raised async timeouts; while CI ran, PR #19639 merged the real fix (the mutationFn read stale state). I dropped my timeout change and merged only the live URL, version and email:true into DEPLOY.md and the ROADMAP status. pnpm test:unit locally passed with my change (1286/1 skipped), which shows nothing about the race.",
+  "notes": "Security queue empty; ideas inbox empty; routed ventures/1 to bet #1 PayApps. Found deploy run 2 live (health ok, email true) and run 3 failing on sov-import. I first took it for a slow runner and raised async timeouts; while CI ran, PR #19639 merged the real fix (the mutationFn read stale state). I dropped my timeout change and merged only the live URL, version and email:true into DEPLOY.md and the ROADMAP status. pnpm test:unit locally passed with my change (1286/1 skipped), which shows nothing about the race. changed-ventures went red on pay-app-guides: main has been red since PRs #19626 and #19631 collided (stale CTA on 12 state pages). Redteam PR #19641 fixes it, so I did not duplicate it. This PR touches no pay-app-guides file.",
   "corrections": [],
   "redteam": null,
   "usage": {
