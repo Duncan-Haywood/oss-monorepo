@@ -12,9 +12,9 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 - [This calculator vs. LCPtracker](https://marisstella.app/certified-payroll-calculator/vs-lcptracker.html)
 - [WH-347 certified payroll report builder](https://marisstella.app/certified-payroll-calculator/wh347-report.html)
 
-## Hosted product (early access)
+## Hosted product
 
-- [PayApps for specialty subcontractors](https://marisstella.app/industries/construction/): pay applications, retainage, change orders, lien waivers and a weekly WH-347 per job. In development; not for sale yet.
+- [PayApps for specialty subcontractors](https://payapps.marisstella.app/?signup&from=certified-payroll-calculator): pay applications, retainage, change orders and a weekly WH-347 per job. Open now, free on one job with no card; lien waivers, QuickBooks and job costing are in paid plans that are not on sale yet. More: https://marisstella.app/industries/construction/
 
 ## Source
 

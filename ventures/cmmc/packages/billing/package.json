@@ -1,0 +1,14 @@
+{
+  "name": "@cmmc/billing",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Paddle (merchant of record) billing port, signed fake provider, checkout tokens, plans, entitlements, grace and cost-plus pricing checks. Zero runtime dependencies (fetch + WebCrypto).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test \"src/**/*.test.ts\""
+  }
+}

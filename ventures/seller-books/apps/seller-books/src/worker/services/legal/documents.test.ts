@@ -60,5 +60,8 @@ describe("bundled legal documents", () => {
     // Account email goes through Cloudflare Email Service (ports/email.ts, docs/EMAIL.md); nothing else.
     expect(p).toContain("sending account emails");
     expect(p).toContain("We do not send marketing email from the app");
+    // The opt-in reminder email (services/books/estimate-reminders.ts) and what it stores.
+    expect(p).toContain("turns on estimated-tax reminders");
+    expect(p).toContain("the last due date they were reminded of");
   });
 });

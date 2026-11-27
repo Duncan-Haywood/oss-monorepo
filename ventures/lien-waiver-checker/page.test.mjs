@@ -46,5 +46,8 @@ test("page links the pay-app waiver guides it pairs with, and each one exists", 
     assert.match(html, new RegExp(`href="\\.\\./pay-app-guides/${guide}\\.html"`));
     readFileSync(new URL(`../pay-app-guides/${guide}.html`, import.meta.url));
   }
-  assert.match(html, /nothing is for sale yet/);
+  // PayApps opened 2026-11-27 (PR #19644): the CTA links the tracked sign-up and says waivers are a paid feature.
+  assert.match(html, /href="https:\/\/payapps\.marisstella\.app\/\?signup&amp;from=lien-waiver-checker"/);
+  assert.match(html, /Lien waivers \(the state forms tied to each pay app\), QuickBooks and job costing are in the paid plans, which are not on sale yet/);
+  assert.doesNotMatch(html, /in development, with early access/);
 });

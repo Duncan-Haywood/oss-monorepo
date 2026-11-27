@@ -1,0 +1,35 @@
+// CMMC Workspace — Cloudflare Worker configuration (same stack as apps/grants).
+// D1 and R2 are created by scripts/provision.mjs in the deploy workflow (cmmc-deploy). Not deployed yet: see
+// docs/DEPLOY.md. Use full-line comments only.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cmmc-workspace",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "preview_urls": false,
+  // Daily: the affirmation reminder email (src/worker/index.ts, services/affirmations/reminders.ts).
+  "triggers": { "crons": ["23 11 * * *"] },
+  "upload_source_maps": true,
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "cmmc-workspace", "migrations_dir": "migrations" }
+  ],
+  // Cloudflare Email Service (account mail; docs/EMAIL.md). Mail goes out only once EMAIL_FROM is set
+  // to an address on an onboarded sender domain; `wrangler dev` only simulates sends.
+  "send_email": [{ "name": "EMAIL" }],
+  // Evidence files. Keys always start with orgs/{orgId}/. R2 encrypts objects at rest by default.
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "cmmc-workspace-files" }],
+  // Defaults for local dev. A deploy must override APP_ENV ("production"; never "test", which enables
+  // the x-test-user-id identity header) and APP_URL. Secrets (ANTHROPIC_API_KEY, AUTH_SECRET) never go here.
+  "vars": {
+    "APP_ENV": "development",
+    "APP_URL": "http://localhost:5173",
+    "LLM_MODEL": "claude-haiku-5-5",
+    "FAKE_EXTERNALS": "false"
+  }
+}

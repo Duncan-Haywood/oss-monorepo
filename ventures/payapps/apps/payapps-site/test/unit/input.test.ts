@@ -53,9 +53,9 @@ describe("parseSignup", () => {
 
 describe("email helpers", () => {
   it("parses EMAIL_FROM", () => {
-    expect(parseFrom("PayPencil <no-reply@example.org>")).toEqual({
+    expect(parseFrom("PayApps <no-reply@example.org>")).toEqual({
       email: "no-reply@example.org",
-      name: "PayPencil",
+      name: "PayApps",
     });
     expect(parseFrom("no-reply@example.org")).toBe("no-reply@example.org");
     expect(() => parseFrom("nope")).toThrow();
