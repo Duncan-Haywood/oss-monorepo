@@ -21,7 +21,7 @@
   "baseline": "6 configured, 5 allowed (2026-11-27)",
   "opened": "2026-11-27",
   "source": "ventures run (seller-books estimate-reminders)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19732",
   "result": null,
   "history": [
     {
