@@ -1,0 +1,172 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKibK666RDzBYAnUxcv",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T02:18:27Z",
+  "ended": "2026-11-27T02:27:49Z",
+  "wall_minutes": 9.85,
+  "tokens_in": 10261124,
+  "tokens_out": 33221,
+  "cost_usd": 4.0248,
+  "tool_calls": 90,
+  "task": "products-to-public-repo step 4 for PayApps (bet #1); superseded mid-run by PR #19586/#19616/#19617, so this run lands the CodeQL fixes its CI found in the moved code",
+  "projects": [
+    "payapps",
+    "payapps-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19632",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 12,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [
+    "payapps-ci first run: pnpm install --filter ran in apps/payapps (the job's default working-directory), matched nothing, so biome was missing; fixed by installing from the root",
+    "4 tests matched escaped '\\.com' regexes after fixture emails moved to .example; fixed",
+    "2 dead links (docs/ci-on-aws.md, payapps-deploy.yml did not move) and the merge checklist lacked apps/payapps/scripts",
+    "adversarial-gate blocked: 9 literal U+FEFF in payapps CSV readers/tests (now \\ufeff escapes), and 'workflow now reads secret THE/NAME' from my comment 'no secrets. The deploy...'",
+    "agent-permission-harness R1: it ignores working-directory, so scripts/provision.test.mjs looked missing; paths made repo-rooted",
+    "check_code_refs: goals.md names private-monorepo's apps/grants path, checkable once apps/ existed here; the checker now skips a path named as private-monorepo's (with a test)",
+    "publish_surface: the two new workflows needed --write",
+    "check_third_party: the all-rights-reserved LICENSE files and wrangler's generated Cloudflare types; same ARR hunk as open PR #19560 applied here, plus a third_party.json entry and THIRD_PARTY.md",
+    "payapps-ci: one UI unit test failed once in CI (log host blocked here); passed locally 1279/1280 and on re-run of the failed job: a flake",
+    "CodeQL gate (JS, ~45 min): 4 findings in moved code, fixed: incomplete sanitization in ca-ecpr notes and payapps-site htmlToMarkdown (now repeat until stable and drop stray brackets), and a URL prefix check in paddle.test.ts (now compares the parsed host)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported every bet with nothing free and pointed at einvoice, while bet #1's real blocker (no runner, so no deploy) sat in the decision queue and docs/reports/2026-11-27-prepub-audit-payapps.md 'Next'; the tool cannot see that the highest-value work for a bet is outside its ROADMAP Next list"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "its pnpm filter note (cwd-relative filter) applies to CI workflows too: a job with defaults.run.working-directory set to the app must install with working-directory: ."
+    },
+    {
+      "file": "platform/ci/adversarial_gate/gate.py",
+      "issue": "SECRET_NAME matches prose: a workflow comment 'no secrets. The deploy' is read as secrets.THE and blocks; comments in workflows must avoid 'secrets.' followed by a word"
+    },
+    {
+      "file": "docs/reports/2026-11-27-prepub-audit-payapps.md",
+      "issue": "the audit's 'clear to copy' did not cover what this repo's gates add on top: CodeQL on the copied JS (4 findings), hidden-unicode BOMs, check_third_party, publish_surface; the next app's move should run those locally before the first push"
+    },
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "issue": "'run slug_dupe again before opening a PR' is not enough when a PR sits in CI for hours: the 45-min CodeQL JS analysis on a 960-file PR let a parallel session open and merge the same move (#19586 opened after #19571). A long-running PR should re-run slug_dupe (or check the work: tag) before each push"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "each CodeQL JS round on a PR touching ventures/payapps takes ~45 min, and js/incomplete-multi-character-sanitization moves to the next regex in a replace chain after each fix: rewrite such converters as a tokenizer on the first finding instead of patching one replace at a time"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "why": "I ran slug_dupe only at the start; a parallel session opened and merged the same move (#19586, ventures/payapps layout) while my PR #19571 (top-level apps/) sat in CI for ~2.5 h",
+      "did": "closed #19571 as superseded and re-landed the only unique part, 4 CodeQL fixes, against ventures/payapps",
+      "result": "the move work was duplicated; the security fixes land"
+    },
+    {
+      "file": "prompts/goals.md (Write about the work)",
+      "why": "no post: a security fix to moved code is not customer-facing and there is no data story",
+      "did": "the findings and fixes are in this record and the PR body",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": "$10k MRR: PayApps is launch-approved but could not deploy because the private repo's Actions start no jobs; this repo's do",
+  "notes": "PR #19571 moved PayApps to top-level apps/ (private 0c4bf8e8, prepub audit 0 block) and went green on everything but CodeQL after fixing BOMs, gate-tripping comment text, harness paths, publish-surface, third-party, check_code_refs; CodeQL JS then found 4 high alerts in the moved code. Meanwhile #19586 (ventures/payapps) merged, so #19571 was closed as superseded. This PR applies the fixes to ventures/payapps: ca-ecpr notes and payapps-site htmlToMarkdown strip in a fixpoint loop and drop stray brackets, htmlToMarkdown no longer decodes &lt;/&gt; after stripping (llms-full.txt had none, so output unchanged), paddle.test compares the parsed host. Local: payapps-site biome/tsc/unit 21/worker 10; payapps biome/tsc/ca-ecpr tests 9+1 skipped; billing node tests 86 pass. CodeQL still flagged the fixpoint-loop regex in htmlToMarkdown (it does not recognise that loop with a backreference), so blocks are now cut by an exec/indexOf scan (dropBlocks), with a test for a removed block joining the halves of a tag; site unit 22, worker 10. CodeQL then flagged the next regex in the chain, so htmlToMarkdown is now a single tag/text tokenizer with a small state machine (no regex replace on markup); the built llms-full.txt is byte-identical to main's (37,595 bytes).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "221457fa-21ea-578a-a432-5be84be8c525",
+    "transcripts": 1,
+    "first": "2026-11-27T02:18:27Z",
+    "last": "2026-11-27T02:28:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 158,
+        "output": 33221,
+        "thinking": 8983,
+        "cache_read": 10093336,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167630,
+        "api_equivalent_usd": 4.0248,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 158,
+      "output": 33221,
+      "thinking": 8983,
+      "cache_read": 10093336,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167630,
+      "api_equivalent_usd": 4.0248,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 77,
+      "mcp__github__get_job_logs": 4,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__actions_list": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.85,
+      "active_minutes": 9.85,
+      "model_minutes": 6.71,
+      "tool_minutes": 3.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer moving a 960-file pnpm app between repos, auditing it, porting CI and fixing the new repo's tree checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 248.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

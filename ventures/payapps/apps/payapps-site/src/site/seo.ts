@@ -128,24 +128,49 @@ function planPrices(): string {
   ).join("; ");
 }
 
-/** The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only. */
+const SKIP = new Set(["script", "style", "form", "nav"]);
+const HEADING: Record<string, string> = { h1: "# ", h2: "## ", h3: "### ", summary: "### " };
+const BLOCK_END = new Set(["p", "ul", "ol", "div", "section", "article", "details"]);
+
+/**
+ * The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only.
+ * One pass over tag and text tokens (no regex replace on markup, so no removal can join the
+ * halves of a tag); script, style, form and nav elements are dropped with their content, and a
+ * stray angle bracket never reaches the output. &lt; and &gt; stay encoded (Markdown shows them
+ * as < and >).
+ */
 export function htmlToMarkdown(input: string): string {
-  return input
-    .replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, "")
-    .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, "\n# $1\n\n")
-    .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, "\n## $1\n\n")
-    .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, "\n### $1\n\n")
-    .replace(/<summary[^>]*>([\s\S]*?)<\/summary>/gi, "\n### $1\n\n")
-    .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, "\n- $1")
-    .replace(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, "[$2]($1)")
-    .replace(/<(strong|b)>([\s\S]*?)<\/\1>/gi, "**$2**")
-    .replace(/<\/(p|ul|ol|div|section|article|details)>/gi, "\n\n")
-    .replace(/<[^>]+>/g, "")
+  let out = "";
+  let skip = "";
+  let href = "";
+  for (const [token] of input.matchAll(/<\/?[a-zA-Z][^<>]*>|[^<]+|</g)) {
+    const tag = /^<(\/?)([a-zA-Z][a-zA-Z0-9]*)/.exec(token);
+    if (!tag) {
+      if (!skip && token !== "<") out += token.replace(/>/g, "");
+      continue;
+    }
+    const closing = tag[1] === "/";
+    const name = (tag[2] ?? "").toLowerCase();
+    if (skip) {
+      if (closing && name === skip) skip = "";
+      continue;
+    }
+    if (!closing && SKIP.has(name)) skip = name;
+    else if (HEADING[name]) out += closing ? "\n\n" : `\n${HEADING[name]}`;
+    else if (name === "li" && !closing) out += "\n- ";
+    else if (name === "a") {
+      if (closing) out += href ? `](${href})` : "";
+      else {
+        href = /\shref="([^"]*)"/.exec(token)?.[1] ?? "";
+        if (href) out += "[";
+      }
+    } else if (name === "strong" || name === "b") out += "**";
+    else if (closing && BLOCK_END.has(name)) out += "\n\n";
+  }
+  return out
     .replace(/&#39;/g, "'")
     .replace(/&quot;/g, '"')
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
+    .replace(/&amp;(?!lt;|gt;)/g, "&")
     .split("\n")
     .map((l) => l.replace(/\s+/g, " ").trim())
     .join("\n")
