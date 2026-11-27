@@ -116,7 +116,7 @@ ${body}
                 : html`<li><a href="${href(ctx, "/early-access")}">Early access</a></li>`
             }
             <li><a href="${href(ctx, "/privacy")}">Privacy</a></li>
-            <li><a href="${CMMC_SITE_URL}">CMMC workspace (coming)</a></li>
+            <li><a href="${CMMC_SITE_URL}">CMMC Workspace</a></li>
           </ul>
         </nav>
         <div>

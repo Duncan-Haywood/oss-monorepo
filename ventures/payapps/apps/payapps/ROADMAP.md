@@ -2361,6 +2361,10 @@ nothing to copy. No customers yet. Paid plans are dark
   (Markdown-only changes excepted), so merged fixes reach the live app without a hand dispatch
 - Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
   agent-approved under `docs/legal/OPERATOR.md` (no attorney review; open checks listed there)
+- Done 2026-11-27 (payapps-site-legal): the marketing site at https://marisstella.app/payapps/ has
+  static Terms of Service, Refund Policy and Acceptable Use pages next to pricing and privacy, rendered
+  from this app's `docs/legal/*.md` (`apps/payapps-site`, `pnpm sync:legal`; a drift test fails when
+  they differ), linked from every footer and from the pricing note, for Paddle's website review
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on"); the
   deploy workflow runs the Paddle catalog sync
 - Owner: an Intuit developer app, its keys and redirect URI, and `QBO_TOKEN_KEY`

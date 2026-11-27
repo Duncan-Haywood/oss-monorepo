@@ -457,12 +457,12 @@ export function cmmcPage(ctx: RenderContext): Html {
     work are often the same small CNC and fabrication shops that ${SITE_NAME} is for, and they need the
     paperwork side handled too.</p>
 
-    <h2>Coming: a CMMC workspace for small shops</h2>
-    <p>Alongside ${SITE_NAME} we're building a separate workspace for CMMC Level 1 and Level 2
+    <h2>Also from us: a CMMC workspace for small shops</h2>
+    <p>Alongside ${SITE_NAME} we make a separate workspace for CMMC Level 1 and Level 2
     self-assessments: the System Security Plan, the plan of action and milestones, and the SPRS score
-    across the NIST SP 800-171 controls. It is not available yet, it will not certify anyone (only an
-    authorized assessor can), and its site isn't live yet.</p>
-    <p><a class="link" href="${CMMC_SITE_URL}">The CMMC workspace (coming)</a></p>
+    across the NIST SP 800-171 controls. It is open on a free Level 1 plan. It does not certify anyone
+    (only an authorized assessor can), and your assessment stays yours to make and sign.</p>
+    <p><a class="link" href="${CMMC_SITE_URL}">About CMMC Workspace</a></p>
     <p>Want to hear when either is ready for controlled work? ${
       open
         ? html`Email <a class="link" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.`
@@ -555,7 +555,7 @@ const CORE_FAQS = (launch: Launch): Faq[] => [
   },
   {
     q: "Can I send CUI or export-controlled (ITAR/EAR) drawings?",
-    a: "Not during early access: it isn't set up for controlled data. Use it only for commercial RFQs. The page for CMMC-conscious shops explains why and what's coming.",
+    a: "Not during early access: it isn't set up for controlled data. Use it only for commercial RFQs. The page for CMMC-conscious shops explains why.",
   },
 ];
 

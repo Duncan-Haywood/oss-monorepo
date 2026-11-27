@@ -49,10 +49,10 @@ test('rebase moves only the site origin, never the app host', () => {
 });
 
 test('every catalogue-origin link in the export points at a page this build serves', () => {
-  // The CMMC link goes to the manufacturing page's section, not an unserved /cmmc/.
+  // Its own pages and CMMC Workspace's site (cmmc-site.mjs), both written by this build.
   const home = readFileSync(path.join(JOBSHOP_EXPORT, 'index.html'), 'utf8');
   for (const [, url] of home.matchAll(/href="https:\/\/marisstella\.app\/([^"#]*)/g)) {
-    assert.ok(url === '' || url.startsWith('jobshop/') || url === 'industries/manufacturing/', url);
+    assert.ok(url === '' || url.startsWith('jobshop/') || url === 'cmmc/', url);
   }
 });
 

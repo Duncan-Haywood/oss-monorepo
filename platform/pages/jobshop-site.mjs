@@ -23,8 +23,8 @@ const PRODUCTION = 'https://marisstella.app/';
 const TEXT = new Set(['.html', '.xml', '.txt', '.css', '.svg']);
 
 /**
- * Rewrites every `https://marisstella.app/...` link (its own pages, and the manufacturing page it
- * links for the CMMC workspace) to `<baseUrl>...`. Other hosts, the app's subdomain included, are
+ * Rewrites every `https://marisstella.app/...` link (its own pages, and CMMC Workspace's site at
+ * /cmmc/) to `<baseUrl>...`. Other hosts, the app's subdomain included, are
  * untouched: `https://marisstella.app/` never occurs inside `https://jobshop-quote.marisstella.app/`.
  */
 export function rebase(text, baseUrl) {

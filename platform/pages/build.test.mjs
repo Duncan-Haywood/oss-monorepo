@@ -2344,7 +2344,9 @@ test('every published venture page routes back to the hub', async () => {
     // footer, copied in without the catalogue chrome on purpose.
     .filter((f) => !path.relative(outDir, f).startsWith(`payapps${path.sep}`))
     // Job Shop Quote's (jobshop-site.mjs), the same arrangement.
-    .filter((f) => !path.relative(outDir, f).startsWith(`jobshop${path.sep}`));
+    .filter((f) => !path.relative(outDir, f).startsWith(`jobshop${path.sep}`))
+    // CMMC Workspace's own marketing site (cmmc-site.mjs), likewise.
+    .filter((f) => !path.relative(outDir, f).startsWith(`cmmc${path.sep}`));
 
   assert.ok(pages.length > surfaces.length, 'deep SEO pages are included, not just landing pages');
 

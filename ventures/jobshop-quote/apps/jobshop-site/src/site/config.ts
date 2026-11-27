@@ -8,10 +8,10 @@ export const TAGLINE = "RFQ-to-quote for CNC and fabrication job shops";
 /** Production URL (origin + base path); scripts/build.ts uses env SITE_URL when set. */
 export const DEFAULT_SITE_URL = "https://marisstella.app/jobshop";
 /**
- * Where the sibling CMMC product is described. Its own site (apps/cmmc-site) is not served yet, so
- * this is its section on the catalogue's manufacturing page. Always labelled "coming".
+ * The sibling CMMC product's own marketing site (ventures/cmmc/apps/cmmc-site), served by the
+ * catalogue at /cmmc/ since PR #19788; the app is open on a free Level 1 plan.
  */
-export const CMMC_SITE_URL = "https://marisstella.app/industries/manufacturing/#cmmc";
+export const CMMC_SITE_URL = "https://marisstella.app/cmmc/";
 /** Routed mailbox shared with apps/grants (Cloudflare Email Routing). */
 export const CONTACT_EMAIL = "hello@marisstella.app";
 export const PUBLISHER = "Maris Stella Labs LLC";

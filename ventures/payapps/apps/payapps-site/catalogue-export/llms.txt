@@ -30,5 +30,8 @@ Facts an assistant can rely on:
 ## Optional
 
 - [Privacy](https://marisstella.app/payapps/privacy): The PayApps website has no forms, cookies or analytics. What the host sees when you load a page, and where your PayApps account's own privacy policy is.
+- [Terms](https://marisstella.app/payapps/terms): PayApps Terms of Service from Maris Stella Labs LLC: plans, billing through Paddle, your content, liability and Colorado law, as the app asks you to accept.
+- [Refunds](https://marisstella.app/payapps/refunds): PayApps refunds: free on one job first, a full refund within 30 days of your first paid payment, cancel any time, and how to ask through Paddle or by email.
+- [Acceptable use](https://marisstella.app/payapps/acceptable-use): What you agree not to do with PayApps: no false or inflated pay apps or waivers, no data you have no right to share, no probing or reselling the service.
 - [Full text](https://marisstella.app/payapps/llms-full.txt): every public page as plain Markdown.
 - [Updates feed](https://marisstella.app/payapps/feed.xml): Atom feed of site updates.

@@ -695,9 +695,49 @@ def bet_wedges(bets_md: str) -> dict[int, str]:
 
 
 def topic_words(text: str) -> set[str]:
-    """Content words of a growth topic or a claim slug, with -ing folded (costing -> cost)."""
+    """Content words of a growth topic or a claim slug, -ing and a final -e folded.
+
+    costing -> cost; "estimating" and "estimates" both -> estimat (2026-11-27: the topic
+    'estimating' read as untouched beside payapps' merged estimates-part-1 claim).
+    """
     words = slug_words("-".join(re.findall(r"[a-z0-9]+", text.lower())))
-    return {w[:-3] if len(w) > 5 and w.endswith("ing") else w for w in words}
+    words = {w[:-3] if len(w) > 5 and w.endswith("ing") else w for w in words}
+    return {w[:-1] if len(w) > 4 and w.endswith("e") else w for w in words}
+
+
+_SLUG_IN_TEXT = re.compile(r"\b[a-z0-9]+(?:-[a-z0-9]+)+\b")
+
+
+def roadmap_done(roadmap: str) -> list[str]:
+    """Top-level bullets of a ROADMAP outside `## Next` and the open questions, as their lead.
+
+    The lead is the bullet's text up to its first "(" or ":" plus any slug named in it
+    ("RFI log (2026-11-26, every plan, rfi-log)" -> "RFI log rfi-log"). Apps moved from
+    private-monorepo on 2026-11-27 left their claim branches behind, so the claims alone read
+    'RFIs' and 'estimating' as untouched in payapps while its Done list held five RFI parts
+    and two estimate parts (explore run, 2026-11-27). The Done list is the record that moved.
+    """
+    out, skip = [], False
+    for line in roadmap.splitlines():
+        if line.startswith("## "):
+            head = line[3:].strip().lower()
+            skip = head.startswith(("next", "open question"))
+            continue
+        if skip or not line.startswith(("- ", "* ")):
+            continue
+        text = line[2:].strip()
+        lead = re.split(r"\s\(|:", text, maxsplit=1)[0]
+        slugs = " ".join(_SLUG_IN_TEXT.findall(text.split(":", 1)[0]))
+        out.append(f"{lead} {slugs}".strip())
+    return out
+
+
+def topic_done(topic: str, done: list[str]) -> int:
+    """How many Done bullets (from roadmap_done) name the topic, by topic_claims' word rule."""
+    want = topic_words(topic)
+    if not want:
+        return 0
+    return sum(1 for d in done if len(want & topic_words(d)) >= min(len(want), 2))
 
 
 def topic_claims(topic: str, info: dict[str, tuple[int, str]], merged: dict[str, str], now: float,
@@ -716,7 +756,8 @@ def topic_claims(topic: str, info: dict[str, tuple[int, str]], merged: dict[str,
 
 
 def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, dict] | None,
-                  now: float, stale_s: float, tag: str | None = None) -> None:
+                  now: float, stale_s: float, tag: str | None = None,
+                  done: list[str] | None = None) -> None:
     """Print a bet's growth topics with the claims already on each, and the first untouched one.
 
     Picking the bet was not enough: inside it runs still invented the same item (three payapps
@@ -727,6 +768,8 @@ def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, di
     'PDF to ZUGFeRD conversion', 'job costing', 'evidence per control'). Now a topic is
     untouched only with no claim at all; failing that, the free topic with the fewest merged
     claims is named as the least-worked one, with its count, so the run reads what landed.
+    Bullets in the app's ROADMAP outside Next (`done`, from roadmap_done) count as merged
+    work too, since claims made before a move between repositories are not visible here.
     """
     if not topics:
         print(f"  (bets.md has no **Growth path:** line for bet #{rank}: add one in your PR)")
@@ -734,13 +777,15 @@ def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, di
     info, merged = claims or ({}, {})
     untouched, free, cells = [], [], []
     for t in topics:
-        live, done = topic_claims(t, info, merged, now, stale_s)
+        live, merged_t = topic_claims(t, info, merged, now, stale_s)
+        listed = topic_done(t, done or [])
         note = (f"{len(live)} live: {', '.join(live[:2])}" if live else "no live claim")
-        note += f"; {len(done)} merged" if done else ""
+        note += f"; {len(merged_t)} merged" if merged_t else ""
+        note += f"; {listed} in ROADMAP Done" if listed else ""
         cells.append(f"{t} ({note})")
         if not live:
-            free.append((len(done), t))
-            if not done:
+            free.append((max(len(merged_t), listed), t))
+            if not merged_t and not listed:
                 untouched.append(t)
     print("  Growth path (bets.md), claims whose slug names each topic: " + "; ".join(cells))
     if untouched:
@@ -748,12 +793,13 @@ def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, di
     elif free:
         fewest = min(n for n, _ in free)
         pick = spread([t for n, t in free if n == fewest], tag)[0]
-        label = (f"Least-worked topic ({fewest} merged claim(s): read them first, "
-                 "and build a part they do not cover)")
+        label = (f"Least-worked topic ({fewest} merged claim(s) or ROADMAP Done item(s): "
+                 "read them first, and build a part they do not cover)")
     else:
         pick = None
     if pick:
-        slug = "-".join(sorted(topic_words(pick), key=pick.lower().find))[:40] or "item"
+        raw = [w for w in re.findall(r"[a-z0-9]+", pick.lower()) if w not in FILLER and not w.isdigit()]
+        slug = "-".join(dict.fromkeys(raw))[:40].rstrip("-") or "item"
         print(f"  {label}: '{pick}': `roadmap_claim.py {app} --slug {slug}-<part> --note ...`")
     else:
         print(f"  Every topic has a live claim: take a part none names (`roadmap_claim.py {app} --all`).")
@@ -804,6 +850,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
     bets = bet_apps(text)
     paths = growth_paths(text)
     growth: dict[str, tuple[dict, dict]] = {}
+    done_lists: dict[str, list[str]] = {}
     if not bets:
         print(f"no ranking rows with an app path in {bets_md}")
         return 2
@@ -841,7 +888,9 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
             print(f"{rank:>3}. {app}: no ROADMAP.md, {live} live claim(s); claim with --slug ({name}{where})")
             growth[app] = (info, merged)
             continue
-        items = next_items(roadmap.read_text(encoding="utf-8"))
+        roadmap_text = roadmap.read_text(encoding="utf-8")
+        done_lists[app] = roadmap_done(roadmap_text)
+        items = next_items(roadmap_text)
         reach = probe_hosts(h for _, t in items for h in hosts_in(t)) if probe else None
         _, open_now = item_marks(app, items, claims, info, merged, now, stale_s, tag, reach)
         free = ", ".join(f"#{n}" for n in open_now) or "none"
@@ -867,7 +916,8 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
               f"<short-name> --note ...` (check its ROADMAP's Done list first).")
         print(f"  Wedge (bets.md): {wedge}" if wedge else
               f"  (bets.md has no **Wedge:** line for bet #{rank}: read its evidence section)")
-        growth_topics(rank, app, paths.get(rank, []), growth.get(app), now, stale_s, tag)
+        growth_topics(rank, app, paths.get(rank, []), growth.get(app), now, stale_s, tag,
+                      done_lists.get(app))
     else:
         print("Start here: no ranked bet's app is in this clone.")
     return 0

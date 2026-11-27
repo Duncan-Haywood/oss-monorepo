@@ -30,6 +30,9 @@
 //   POST   /v1/admin/accounts                {name, plan?} -> 201 {account, apiKey}   (ADMIN_TOKEN)
 //   POST   /v1/admin/usage/settle            {period: "YYYY-MM"} -> {period, results}   (ADMIN_TOKEN): bills a
 //                                            closed month's metered usage above the minimum (billing.mjs)
+//   POST   /v1/admin/digest/send             {frequency: "weekly"|"monthly", period?, limit?} -> {period, sent, more, results}
+//                                            (ADMIN_TOKEN; 503 without email): the client summary email to every
+//                                            account that turned it on, once per account and period (pro/digest.mjs)
 //   GET    /v1/admin/metrics?days=           -> ProductAdminMetrics (packages/admin-metrics)
 //   GET    /v1/admin/accounts?list=recent|trials|churn&limit=   -> AdminAccountsPage
 //                                            Both also at /api/admin/*, the other products' path. Owner console
@@ -79,6 +82,8 @@
 //   GET    /v1/signin/options                -> {email: boolean}                   (public)
 //   POST   /v1/account/email                 {email, lang?} -> 202: a verification link (24 h) goes to the address
 //   DELETE /v1/account/email                 -> 204: the account has no sign-in address any more
+//   PUT    /v1/account/digest                {digest: "off"|"weekly"|"monthly", lang?} -> {digest, lang}: the client
+//                                            summary email to the verified sign-in address (409 no_email without one)
 //   POST   /v1/email/verify                  {token} -> {email} (public: the link may open in another browser);
 //                                            409 email_in_use if another account verified it first
 //   POST   /v1/signin/email                  {email, lang?} -> 202 {sent: true} whatever the address (no account
@@ -99,7 +104,8 @@ import { AdminError, adminRead } from "./admin.mjs";
 import { readAppFile } from "./app-files.mjs";
 import { BillingError, createBilling } from "./billing.mjs";
 import { checkInvoice, sha256 } from "./check.mjs";
-import { buildDashboard, dashboardCsv, dashboardDays, runsSince } from "./dashboard.mjs";
+import { dashboardCsv, dashboardDays, dashboardFor } from "./dashboard.mjs";
+import { digestFrequency, digestLang, sendDigests, validPeriod } from "./digest.mjs";
 import { mailerFromEnv, message, normalizeEmail } from "./email.mjs";
 import { loadLegal } from "./legal.mjs";
 import { loadLlmFromEnv } from "./llm.mjs";
@@ -622,6 +628,28 @@ export function createProHandler(deps = {}) {
       return { status: 200, body: await billing.settleUsage(typeof body.period === "string" ? body.period : "") };
     }
 
+    if (method === "POST" && p === "/v1/admin/digest/send") {
+      const admin = env.ADMIN_TOKEN;
+      const given = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization ?? "")?.[1] ?? "";
+      if (!admin || !given || !sameSecret(given, admin)) throw new HttpError(401, "unauthorized", "Admin token required.");
+      requireEmail();
+      const body = json(await readBody(req, 4096));
+      const frequency = body.frequency === "weekly" || body.frequency === "monthly" ? body.frequency : null;
+      if (!frequency) throw new HttpError(400, "invalid", 'frequency must be "weekly" or "monthly".');
+      if (body.period !== undefined && !validPeriod(body.period, frequency))
+        throw new HttpError(400, "invalid", frequency === "weekly" ? "period must be YYYY-Www." : "period must be YYYY-MM.");
+      const result = await sendDigests({
+        store,
+        mailer: /** @type {import("./email.mjs").Mailer} */ (mailer),
+        appUrl,
+        now,
+        frequency,
+        period: body.period,
+        limit: typeof body.limit === "number" ? body.limit : undefined,
+      });
+      return { status: 200, body: result };
+    }
+
     const { account } = await authenticate(req);
     const ent = await billing.entitlement(account);
     const plan = ent.plan;
@@ -656,6 +684,19 @@ export function createProHandler(deps = {}) {
         await store.setAccountEmail(account.id, null);
         return { status: 204, body: null };
       }
+    }
+
+    if (method === "PUT" && p === "/v1/account/digest") {
+      const body = json(await readBody(req, 4096));
+      const digest = digestFrequency(body.digest);
+      if (!digest) throw new HttpError(400, "invalid", 'digest must be "off", "weekly" or "monthly".');
+      const lang = digestLang(body.lang ?? account.digestLang);
+      if (digest !== "off") {
+        requireEmail();
+        if (!account.email) throw new HttpError(409, "no_email", "Add and confirm a sign-in email first; the summary goes to that address.");
+      }
+      await store.setAccountDigest(account.id, digest, lang);
+      return { status: 200, body: { digest, lang } };
     }
 
     if (method === "POST" && p === "/v1/billing/checkout") {
@@ -771,16 +812,7 @@ export function createProHandler(deps = {}) {
     if (method === "GET" && p === "/v1/dashboard") {
       const days = dashboardDays(url.searchParams.get("days") ?? undefined);
       const at = now();
-      const since = new Date(at.getTime() - days * 86_400_000).toISOString();
-      const clients = await store.listClients(account.id);
-      const runsByClient = new Map();
-      const lastByClient = new Map();
-      for (const c of clients) {
-        const { runs, last } = await runsSince(store, account.id, c.id, since);
-        runsByClient.set(c.id, runs);
-        lastByClient.set(c.id, last);
-      }
-      const dash = buildDashboard({ clients, runsByClient, lastByClient, now: at, days });
+      const dash = await dashboardFor(store, account.id, days, at);
       if (url.searchParams.get("format") === "csv") {
         const lang = /** @type {"de" | "fr" | "en" | "nl" | "pl"} */ (["de", "fr", "nl", "pl"].includes(url.searchParams.get("lang") ?? "") ? url.searchParams.get("lang") : "en");
         return {

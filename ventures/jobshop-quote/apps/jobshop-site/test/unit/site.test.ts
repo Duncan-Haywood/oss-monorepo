@@ -171,13 +171,11 @@ describe("copy rules (README: honesty)", () => {
     expect(all).not.toMatch(/\bcertified\b|\bcompliant\b|fedramp authorized|itar[- ]registered/);
   });
 
-  it("labels the CMMC product as coming", () => {
+  it("links the CMMC product's own site and never says it certifies", () => {
     const cmmc = pages.find((p) => p.route.path === "/for-cmmc-shops")?.html ?? "";
-    expect(cmmc).toContain(`href="${CMMC_SITE_URL}">The CMMC workspace (coming)</a>`);
-    for (const p of pages) {
-      for (const m of p.html.matchAll(new RegExp(`href="${CMMC_SITE_URL}">([^<]*)<`, "g")))
-        expect(m[1]).toMatch(/coming/i);
-    }
+    expect(cmmc).toContain(`href="${CMMC_SITE_URL}">About CMMC Workspace</a>`);
+    expect(cmmc).toContain("does not certify anyone");
+    for (const p of pages) expect(p.html).toContain(`href="${CMMC_SITE_URL}">CMMC Workspace</a>`);
   });
 
   it("shows proposed prices as not on sale", () => {
