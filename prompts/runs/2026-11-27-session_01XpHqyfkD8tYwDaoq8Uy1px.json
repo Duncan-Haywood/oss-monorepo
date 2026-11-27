@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyfkD8tYwDaoq8Uy1px",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T15:39:23Z",
+  "ended": "2026-11-27T15:48:19Z",
+  "wall_minutes": 9.1,
+  "tokens_in": 7936721,
+  "tokens_out": 45739,
+  "cost_usd": 3.7791,
+  "tool_calls": 59,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19793",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_venture_tests einvoice-pro: 1 pre-existing failure (repair-facturx poppler test; the container's sandboxed pdfdetach refuses to save), also red without this change"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Marked the whole Next #4 item 'waits on demand' although 'if accountants ask' attached only to its second half (seller grouping); the email half was free work."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'require(\"playwright\") works from any directory' is not true for an ESM script in the scratchpad: import fails; createRequire plus NODE_PATH=$(npm root -g) works."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "why": "Every bet had no free, ungated item; I read item 4's gate as covering only the seller-grouping half",
+      "did": "built the summary email half and left the seller grouping gated",
+      "result": "shipped; the gate stays on the remaining part in ROADMAP"
+    },
+    {
+      "file": "prompts/goals.md (Write about the work)",
+      "why": "no blog post: a dark feature with no live host yet; a customer post about a feature nobody can use would oversell",
+      "did": "README and ROADMAP write-up in the PR",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/einvoice-pro/apps/einvoice-preflight/pro/README.md, 'The client summary email'"
+  ],
+  "goal": null,
+  "notes": "Bet #3 (einvoice-pro). Client names were left out of the email on purpose: the DPA lists Resend as receiving account data only. The Privacy Policy is bumped to 2026-11-27 in EN/DE/FR. Tests: digest + store contract + server + workspace NL/PL, 74 pass. The full venture run had 2583 pass and 1 pre-existing env failure. Checked in Chromium with a de-DE locale.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ce68301a-4ca9-56ed-985b-a9e97287648d",
+    "transcripts": 1,
+    "first": "2026-11-27T15:39:23Z",
+    "last": "2026-11-27T15:48:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 112,
+        "output": 45739,
+        "thinking": 6733,
+        "cache_read": 7772949,
+        "cache_write_5m": 0,
+        "cache_write_1h": 163660,
+        "api_equivalent_usd": 3.7791,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 112,
+      "output": 45739,
+      "thinking": 6733,
+      "cache_read": 7772949,
+      "cache_write_5m": 0,
+      "cache_write_1h": 163660,
+      "api_equivalent_usd": 3.7791,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 55,
+      "Write": 1,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.1,
+      "active_minutes": 9.1,
+      "model_minutes": 7.91,
+      "tool_minutes": 1.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "feature across 4 stores, API, UI, 5-language templates, legal text, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 211.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

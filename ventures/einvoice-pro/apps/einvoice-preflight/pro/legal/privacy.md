@@ -1,13 +1,13 @@
 # Privacy Policy
 
-**Version 2026-11-26** · Maris Stella Labs LLC
+**Version 2026-11-27** · Maris Stella Labs LLC
 
 This policy explains what information the e-invoice workspace and API (the "Service", operated by Maris Stella Labs LLC, "we") collects, why, who processes it, and the choices you have. The early-access list on the marketing website has its own privacy page.
 
 ## What we collect
 
 - **Account:** the firm or practice name you sign up with, your plan, the date the account was created, and which version of the Terms you accepted. There is no password on the account.
-- **Sign-in email (optional):** if you add one in the workspace, the email address and when you confirmed it, so you can sign in with a one-time link if you lose your API key. We use it only to send the confirmation and sign-in links you ask for, never for newsletters or marketing. For each link we keep the address it went to, when it was sent, when it expires and whether it was used (to limit how many links an address receives), and the link itself only as a SHA-256 hash; link records are deleted about a day after they expire. Removing the address in the workspace deletes it from the account and stops links already sent from working.
+- **Sign-in email (optional):** if you add one in the workspace, the email address and when you confirmed it, so you can sign in with a one-time link if you lose your API key. We use it only to send the confirmation and sign-in links you ask for and, if you turn it on in the workspace, a weekly or monthly client summary (counts of clients and invoices and the most frequent rule ids; never a client's name or identifiers, a file name or invoice contents), never for newsletters or marketing. If you turn the summary on we keep that setting, its language and the periods a summary was sent for, so none is sent twice; setting it to Off or removing the address stops it. For each link we keep the address it went to, when it was sent, when it expires and whether it was used (to limit how many links an address receives), and the link itself only as a SHA-256 hash; link records are deleted about a day after they expire. Removing the address in the workspace deletes it from the account and stops links already sent from working.
 - **API keys:** each key's name, its first 12 characters (so you can tell keys apart), when it was created, last used and revoked. The key itself is stored only as a SHA-256 hash.
 - **Client companies:** the name, country, VAT identifier and your own reference for each client you add.
 - **Check history:** for each batch, the time, the language and rule set chosen, and for each file its name, size, SHA-256 hash, pass or fail, the rule ids it failed and the ids of the fixes applied. **Invoice contents are not stored**: each invoice is read in memory, and the corrected file and diff are returned to you, not kept.
@@ -29,7 +29,7 @@ This policy explains what information the e-invoice workspace and API (the "Serv
 | Cloudflare, Inc. | Hosting: runs the Service on its Workers platform, holds its database (Cloudflare D1, stored in the European Union) and keeps its error logs |
 | Anthropic, PBC | AI model that writes some plain-language explanations |
 | Paddle (merchant of record) | Checkout, payments, invoicing and VAT or sales tax |
-| Resend, Inc. (only if email sign-in is turned on) | Delivers the confirmation and sign-in link emails; it receives the address and the message |
+| Resend, Inc. (only if email sign-in is turned on) | Delivers the confirmation and sign-in link emails and the client summary if you turned it on; it receives the address and the message |
 
 **What the AI model sees.** Most findings have a built-in explanation and nothing is sent. For a finding without one, we send Anthropic the rule id, the finding's message (which can quote the value the rule is about, such as a date, a code or an identifier from the invoice), the proposed fix text and the language, never the invoice file. The explanation is cached by rule, message and language. We do not use your data to train AI models.
 

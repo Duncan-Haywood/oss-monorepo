@@ -18,8 +18,14 @@ import path from "node:path";
 
 /**
  * @typedef {{ id: string, name: string, plan: string, createdAt: string, termsVersion: string | null,
- *   email: string | null, emailVerifiedAt: string | null }} Account
+ *   email: string | null, emailVerifiedAt: string | null, digest: DigestFrequency, digestLang: string | null }} Account
  *   `email` is the verified sign-in address (lower-cased), set only through a verification link.
+ *   `digest`: the client summary emailed to that address ("off" unless the account turned it on;
+ *   pro/digest.mjs), in `digestLang` (null: English).
+ * @typedef {"off" | "weekly" | "monthly"} DigestFrequency
+ * @typedef {{ accountId: string, period: string, createdAt: string }} DigestSend
+ *   One per account and digest period ("2026-W48", "2026-11"): claimed before the send, so a second
+ *   admin call for the same period sends nothing twice.
  * @typedef {{ id: string, accountId: string, kind: "verify" | "signin", email: string, hash: string,
  *   createdAt: string, expiresAt: string, consumedAt: string | null }} EmailToken
  *   One-time link token: only its SHA-256 is stored. "verify" proves an inbox for `email`;
@@ -61,7 +67,7 @@ import path from "node:path";
  * @typedef {{ accounts: Account[], apiKeys: ApiKey[], clients: Client[], runs: Run[], usage: Usage[],
  *   subscriptions: Subscription[], pendingCheckouts: PendingCheckout[], webhookEvents: WebhookEvent[],
  *   meteredDocuments: MeteredDocument[], adminAudit: AdminAuditEntry[], emailTokens: EmailToken[],
- *   usageCharges: UsageCharge[] }} Data
+ *   usageCharges: UsageCharge[], digestSends: DigestSend[] }} Data
  */
 
 /** @param {string} prefix */
@@ -81,6 +87,7 @@ const emptyData = () => ({
   adminAudit: [],
   emailTokens: [],
   usageCharges: [],
+  digestSends: [],
 });
 
 /** The recorded-price and lifecycle fields, null when absent. @returns {SubscriptionRecord} */
@@ -118,6 +125,8 @@ export class MemoryStore {
       termsVersion: input.termsVersion ?? null,
       email: null,
       emailVerifiedAt: null,
+      digest: /** @type {DigestFrequency} */ ("off"),
+      digestLang: null,
     };
     this.data.accounts.push(account);
     this.persist();
@@ -127,7 +136,43 @@ export class MemoryStore {
   /** @param {string} id */
   async getAccount(id) {
     const a = this.data.accounts.find((x) => x.id === id);
-    return a ? { ...a, email: a.email ?? null, emailVerifiedAt: a.emailVerifiedAt ?? null } : null;
+    return a ? { ...a, email: a.email ?? null, emailVerifiedAt: a.emailVerifiedAt ?? null, digest: a.digest ?? "off", digestLang: a.digestLang ?? null } : null;
+  }
+
+  // --- client summary email (pro/digest.mjs) ---
+  /** @param {string} accountId @param {DigestFrequency} digest @param {string | null} lang @returns {Promise<"ok" | "not_found">} */
+  async setAccountDigest(accountId, digest, lang) {
+    const a = this.data.accounts.find((x) => x.id === accountId);
+    if (!a) return "not_found";
+    a.digest = digest;
+    a.digestLang = lang;
+    this.persist();
+    return "ok";
+  }
+
+  /**
+   * Cross-tenant, for the admin-triggered send only: the accounts that asked for this digest and
+   * still have a verified address, oldest first.
+   * @param {"weekly" | "monthly"} frequency @returns {Promise<Account[]>}
+   */
+  async listDigestAccounts(frequency) {
+    const ids = this.data.accounts.filter((a) => (a.digest ?? "off") === frequency && a.email).map((a) => a.id);
+    return /** @type {Account[]} */ ((await Promise.all(ids.map((id) => this.getAccount(id)))).filter(Boolean));
+  }
+
+  /** True the first time for an account and period, false after. @param {string} accountId @param {string} period */
+  async claimDigest(accountId, period) {
+    this.data.digestSends ??= [];
+    if (this.data.digestSends.some((d) => d.accountId === accountId && d.period === period)) return false;
+    this.data.digestSends.push({ accountId, period, createdAt: this.now().toISOString() });
+    this.persist();
+    return true;
+  }
+
+  /** Undo a claim whose send failed, so the next call retries it. @param {string} accountId @param {string} period */
+  async releaseDigest(accountId, period) {
+    this.data.digestSends = (this.data.digestSends ?? []).filter((d) => !(d.accountId === accountId && d.period === period));
+    this.persist();
   }
 
   // --- sign-in email ---

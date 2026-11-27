@@ -36,6 +36,7 @@ meters an API.
 | `diff.mjs` | Exact text edits and a unified diff built from them. |
 | `check.mjs` | validate, explain, propose fixes, re-validate. |
 | `dashboard.mjs` | The cross-client overview: each client's status (needs attention, OK, not checked lately, never checked), pass rate, still-failing invoices and most frequent rules over a window, built from the run history only; and its CSV (formula cells neutralised, BOM for Excel). |
+| `digest.mjs` | The client summary email: the dashboard's counts and rule ids, weekly or monthly, to the account's confirmed sign-in address when it opted in; DE/FR/EN/NL/PL; sent by the admin call `POST /v1/admin/digest/send`, once per account and period. See "The client summary email" below. |
 | `store.mjs` | Accounts, hashed API keys, clients, runs, monthly usage. `MemoryStore`, `FileStore` (one JSON file). |
 | `sql-store.mjs` | `SqlStore`: the same methods on SQLite, through `node:sqlite` (`PRO_DB_FILE`) or a D1 binding (`d1Db`). The production store (`../docs/HOSTING.md`). |
 | `app-files.mjs` | The app's own files by path (the workspace page, legal texts, fonts, rule sets): the disk on Node, the embedded copy in the Worker. |
@@ -93,6 +94,8 @@ GET  /v1/dashboard?days=30         every client at a glance, attention first; &f
 GET  /v1/account | /v1/keys        usage, plan, subscription, keys
 GET  /v1/signin/options            {email: boolean}: whether this server sends sign-in links
 POST /v1/account/email             {email, lang?} -> a confirmation link (24 h); DELETE removes the address
+PUT  /v1/account/digest            {digest: off|weekly|monthly, lang?}: the client summary email (409 no_email without
+                                   a confirmed address); POST /v1/admin/digest/send {frequency, period?, limit?} sends it
 POST /v1/email/verify              {token} -> the address is the account's sign-in email
 POST /v1/signin/email              {email, lang?} -> 202 always; a one-time link (15 min) to a confirmed address
 POST /v1/signin/redeem             {token} -> {account, apiKey}: a new key named "email sign-in"
@@ -432,6 +435,41 @@ until a key is revoked.
 
 Tests: `pro/email-signin.test.mjs` (the whole flow on a socket, caps, expiry, the key limit, off
 without a sender) and the sign-in email case in `pro/store-contract.test.mjs` (all four stores).
+
+## The client summary email (2026-11-27, accountant client dashboard part 2)
+
+The "At a glance" dashboard, sent to the firm instead of waiting for someone to open the workspace.
+Off for every account until it is turned on: under the confirmed sign-in address in the
+"Sign-in email" panel, a select (Off, Weekly, Monthly) calls `PUT /v1/account/digest`; the page's
+language becomes the email's. No confirmed address, no summary (`409 no_email`), and removing the
+address stops it whatever the setting says.
+
+- **What it says:** how many clients need attention and how many invoices are still failing, how
+  many clients were not checked in the window or never, invoices checked, passed and passed after a
+  fix, the five most frequent rule ids, and a link to `/app`. Weekly covers 7 days, monthly 30.
+  Subject: "Kanzlei A: 1 von 3 Mandanten mit Handlungsbedarf" (or "no open errors").
+- **What it never says:** a client's name, VAT id or reference, a file name, invoice contents or
+  amounts. Client records are the customer's personal data under the DPA, where the mail provider
+  is listed as receiving account data only (Annex III, "Paddle ... and Resend ... receive only
+  account and billing data"); naming clients in the email would make Resend a sub-processor of
+  customer data and need the 30-day notice in DPA 4.2. Counts keep the email outside that, and the
+  Privacy Policy (version 2026-11-27, EN/DE/FR) says the address is now also used for the summary
+  and what it holds. `pro/digest.test.mjs` checks no client name, VAT id, reference or file name
+  reaches the text in any language.
+- **Sending:** `POST /v1/admin/digest/send {frequency: "weekly"|"monthly", period?, limit?}` with
+  `ADMIN_TOKEN`, as the month-end usage settlement: nothing runs on a timer. Each account and
+  period (`2026-W48`, ISO week in UTC; `2026-11`) is claimed in the store first (`digest_sends`,
+  all four stores), so a repeated call sends nothing twice; a failed send releases its claim and
+  the next call retries it. At most `limit` sends per call (default 40, a Worker request's
+  subrequest budget); `more: true` says to call again. An account with no clients is claimed and
+  skipped (`no_clients`). 503 `email_unavailable` until a mailer and `APP_URL` are set.
+- **Not done:** a schedule (a Worker cron calling the same function, once the deploy has run and the
+  owner agrees to an unattended send), per-client detail in the email (needs the DPA and Annex III
+  change above), and the native-speaker read of the four non-English texts.
+
+Tests: `pro/digest.test.mjs` (periods, the text in five languages, the opt-in and the send on a
+socket: once per period, retry after a failure, the limit, off without a mailer) and the client
+summary case in `pro/store-contract.test.mjs`.
 
 ## Paid path: dark
 
