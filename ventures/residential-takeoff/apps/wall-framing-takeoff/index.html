@@ -466,8 +466,8 @@
   </section>
   <section class="card" aria-labelledby="h-pkg" id="pkgCard" hidden>
     <h2 id="h-pkg">Branded bid package</h2>
-    <p class="note">The proposal above on your letterhead, plus a quantities appendix with no unit prices, as one page you print or save as PDF. Unlock it with a licence key. The code is source-visible, so the key is an honest-buyer convenience, not copy protection; the free proposal above is unchanged. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
-    <p id="buyRow" hidden><a id="buyLink" class="button" rel="noopener" target="_blank">Buy a licence key</a></p>
+    <p class="note">The proposal above on your letterhead, plus a quantities appendix with no unit prices, as one page you print or save as PDF. Unlock it with a licence key. The code is source-visible, so the key is an honest-buyer convenience, not copy protection; the free proposal above is unchanged. Refunds: within 30 days of purchase on request to the address on your receipt. The Buy button opens Paddle's checkout (Paddle is the seller of record and handles payment, tax and refunds; its script loads only when you click). The key is checked in your browser; nothing you type is uploaded.</p>
+    <p id="buyRow" hidden><a id="buyLink" class="button">Buy a Job report key ($29)</a></p>
     <p><label>Licence key <input id="pkgKey" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pkgCheck">Check key</button> <span id="pkgState" role="status"></span></p>
     <div id="pkgFields" hidden>
       <p><label>Company <input id="pkgCo" aria-label="Company" style="width:14em"></label> <label>Licence no. <input id="pkgLic" aria-label="Contractor licence number" style="width:8em"></label> <label>Accent <input id="pkgAccent" aria-label="Accent colour" type="color" value="#1f3a5f"></label></p>
@@ -627,8 +627,7 @@
     import { budget, budgetCsv, priceSheet } from "./budget.mjs";
     import { proposal, proposalText, proposalHtml } from "./bidletter.mjs";
     import { bidPackageHtml } from "./bidpackage.mjs";
-    import { buyLink, checkLicence } from "./licence.mjs";
-    import { CHECKOUT_URL, CHECKOUT_URLS, VALIDATE_URL, VARIANT_PLANS } from "./checkout.mjs";
+    import { PADDLE } from "./checkout.mjs";
     import { materialList, materialListCsv } from "./materiallist.mjs";
     import { entitlement, allowed } from "./plans.mjs";
     import { isDark, createBillingProvider } from "./billing.mjs";
@@ -1711,9 +1710,10 @@
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     };
-    // The supplier material list: free while no checkout is live (plans.mjs); once one is, the Job report key
-    // checked in the bid-package card unlocks it too.
-    const BILLING = { checkoutUrls: CHECKOUT_URLS, validateUrl: VALIDATE_URL, variantPlans: VARIANT_PLANS };
+    // The supplier material list: free while the Job report is not on sale (plans.mjs); once it is, the key
+    // checked in the bid-package card unlocks it too. Paddle checkout and an offline key check (billing.mjs).
+    const BILLING = PADDLE;
+    const provider = createBillingProvider(BILLING);
     let paidVerdict = null;
     $("#mlCsv").addEventListener("click", () => {
       if (!(run() && last)) return;
@@ -1758,16 +1758,16 @@
     $("#priceText").addEventListener("input", () => { renderBudget(); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } });
     $("#bidText").addEventListener("input", renderBids);
     {
-      const buy = buyLink(CHECKOUT_URL);
-      if (buy) { $("#buyLink").href = buy; $("#buyRow").hidden = false; }
+      const buy = provider ? provider.wireBuy($("#buyLink"), { onKey: (k) => { $("#pkgKey").value = k; $("#pkgCheck").click(); }, onStatus: (m) => { if (m) $("#pkgState").textContent = m; } }) : false;
+      if (buy) { $("#buyRow").hidden = false; }
       let logo = "";
       $("#pkgLogo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = String(r.result); }; r.readAsDataURL(f); });
       $("#pkgCheck").addEventListener("click", async () => {
         $("#pkgState").textContent = "Checking...";
-        const provider = createBillingProvider(BILLING);
-        const v = provider ? await provider.validate($("#pkgKey").value) : await checkLicence($("#pkgKey").value, { url: VALIDATE_URL });
+        const v = provider ? await provider.validate($("#pkgKey").value) : { valid: false, reason: "no licence is on sale yet", plan: null };
         paidVerdict = v;
-        $("#pkgState").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (no licence is on sale yet)");
+        if (v.renewed) $("#pkgKey").value = v.renewed;
+        $("#pkgState").textContent = v.renewed ? "Subscription renewed: the key above is your new one. Keep a copy; the old key has expired." : v.valid ? "Key accepted." : "Not unlocked: " + v.reason;
         $("#pkgFields").hidden = !v.valid;
         if (v.valid) record("bid_package_unlocked");
       });

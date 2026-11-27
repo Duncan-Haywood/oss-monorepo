@@ -495,11 +495,11 @@ From [`2026-11-19-wall-framing-takeoff-r5.json`](../../../../portfolio/quality/a
 
 ## Next
 
-1. Checkout on Paddle, part 1 (served dark 2026-11-27 at `/residential-takeoff/`): replace the
-   Lemon Squeezy licence-key design in `billing.mjs`/`licence.mjs` with Paddle (`prompts/goals.md`,
-   "Payments"): Paddle.js overlay with a public client-side token and price id, and a small Worker that
-   confirms a transaction id against Paddle's API with an owner-set key, so the page stays static.
-   Needs its own deploy workflow (allowlist PR first, as Seller Books did).
+1. Checkout on Paddle, part 2: the owner's steps in `docs/PRICING.md`, "To light it" (part 1,
+   2026-11-27, `checkout-on-paddle-part-1-served-dark-2026`: the Lemon Squeezy design replaced
+   by the shared `platform/billing/` path, catalogue row `residential-takeoff`, Paddle overlay
+   and offline key check, no worker of its own). Agent side, if buyers ask: bind a Job report
+   key to one plan (the plan's hash in the checkout's `customData`, signed into the key).
 2. Material lists from plan PDFs: the construction page names it as next; the free `pdf-plan-takeoff`
    measures lengths and areas on a scaled drawing PDF, so the first slice reads its wall runs into a plan.
 

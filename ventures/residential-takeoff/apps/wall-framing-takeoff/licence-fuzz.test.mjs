@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buyLink, cleanKey, interpret, checkLicence } from "./licence.mjs";
+import { cleanKey, checkLicence } from "./licence.mjs";
+import { signLicence } from "../../../../platform/billing/server.mjs";
 
-// Property test for the licence check that unlocks the branded bid package:
-// whatever is typed or answered, it never throws, only an explicit valid:true
-// on a live key unlocks, and nothing but a plain https URL or a short ASCII
-// token ever reaches the network.
+// Property test for the key check that unlocks the Job report: whatever is typed, it
+// never throws, never touches the network for a one-off key, and unlocks only a key
+// signed by the configured public key for this product.
 function rng(seed) {
   let t = seed >>> 0;
   return () => {
@@ -16,65 +16,40 @@ function rng(seed) {
   };
 }
 const pick = (r, a) => a[Math.floor(r() * a.length)];
-function junk(r, depth = 0) {
-  const leaves = [null, undefined, 0, 1, -1, NaN, true, false, "", "valid", "true", [], {}, () => 1, Symbol.iterator.toString(), "x".repeat(500)];
-  if (depth > 2 || r() < 0.5) return pick(r, leaves);
-  const o = {};
-  for (const k of ["valid", "license_key", "status", "error", "meta"]) if (r() < 0.6) o[k] = junk(r, depth + 1);
-  return o;
-}
+const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_. \n<>\"'";
+const junkText = (r) => Array.from({ length: Math.floor(r() * 200) }, () => ALPHA[Math.floor(r() * ALPHA.length)]).join("");
 
-test("interpret never throws and unlocks only on valid:true with a live key", () => {
-  const r = rng(11);
-  for (let i = 0; i < 3000; i++) {
-    const j = junk(r);
-    const v = interpret(j);
-    assert.equal(typeof v.valid, "boolean");
-    assert.equal(typeof v.reason, "string");
-    if (v.valid) {
-      assert.equal(j.valid, true);
-      const s = j.license_key && j.license_key.status;
-      assert.ok(s !== "expired" && s !== "disabled");
-    }
-    assert.ok(v.reason.length <= 120);
-  }
-});
-
-test("cleanKey and buyLink never throw and only pass safe shapes", () => {
+test("cleanKey never throws and passes only the ms1 key shape", () => {
   const r = rng(12);
-  const urls = ["https://api.example.com/v1/licenses/validate", "http://x.test", "javascript:alert(1)", "https://u:p@x.test/", "ftp://x", "//x", "", "not a url", "https://x.test/a b"];
   for (let i = 0; i < 3000; i++) {
-    const k = cleanKey(junk(r));
-    if (k !== null) assert.match(k, /^[A-Za-z0-9][A-Za-z0-9-]{7,99}$/);
-    const u = buyLink(r() < 0.5 ? pick(r, urls) : junk(r));
-    if (u !== null) {
-      const p = new URL(u);
-      assert.equal(p.protocol, "https:");
-      assert.equal(p.username + p.password, "");
-    }
+    const k = cleanKey(r() < 0.2 ? pick(r, [null, undefined, 0, {}, [], NaN]) : junkText(r));
+    if (k !== null) assert.match(k, /^ms1\.[A-Za-z0-9_-]{20,600}\.[A-Za-z0-9_-]{86}$/);
   }
 });
 
-test("checkLicence never throws and sends only a clean key to an https URL", async () => {
+test("one-character edits of a real key never unlock, and no check reaches the network", async () => {
+  const b64u = (buf) => Buffer.from(buf).toString("base64url");
+  const pair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
+  const publicKey = b64u(await crypto.subtle.exportKey("raw", pair.publicKey));
+  const priv = b64u(await crypto.subtle.exportKey("pkcs8", pair.privateKey));
+  const key = await signLicence({ v: 1, p: "residential-takeoff", t: "one-off", s: "txn_fuzz", iat: 1 }, priv);
+  let calls = 0;
+  const f = async () => { calls++; throw new Error("no network expected"); };
+  const cfg = { publicKey, edge: "https://billing.example" };
+  assert.equal((await checkLicence(key, { cfg, fetch: f })).valid, true);
   const r = rng(13);
-  const urls = ["https://api.example.com/validate", "http://x.test", "javascript:alert(1)", "", undefined];
-  for (let i = 0; i < 500; i++) {
-    const sent = [];
-    const mode = pick(r, ["ok", "throw", "badjson"]);
-    const f = async (url, init) => {
-      sent.push({ url, init });
-      if (mode === "throw") throw new Error("offline");
-      return { json: async () => { if (mode === "badjson") throw new Error("bad"); return junk(r); } };
-    };
-    const key = r() < 0.5 ? "ABCD-1234-EFGH" : junk(r);
-    const v = await checkLicence(key, { fetch: f, url: pick(r, urls) });
-    assert.equal(typeof v.valid, "boolean");
+  const B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  for (let i = 0; i < 300; i++) {
+    const at = 4 + Math.floor(r() * (key.length - 4));
+    if (key[at] === ".") continue;
+    let c = key[at];
+    while (c === key[at]) c = B64[Math.floor(r() * 64)];
+    const bad = key.slice(0, at) + c + key.slice(at + 1);
+    const v = await checkLicence(bad, { cfg, fetch: f });
     assert.equal(typeof v.reason, "string");
-    for (const s of sent) {
-      assert.match(s.url, /^https:\/\//);
-      assert.equal(s.init.method, "POST");
-      assert.match(s.init.body, /^license_key=[A-Za-z0-9%-]+$/);
-    }
-    if (mode !== "ok") assert.equal(v.valid, false);
+    // Base64url's last digit can carry padding bits a decoder ignores; only those edits may still verify.
+    if (v.valid) assert.equal(Buffer.from(bad.split(".")[2], "base64url").equals(Buffer.from(key.split(".")[2], "base64url")) || Buffer.from(bad.split(".")[1], "base64url").equals(Buffer.from(key.split(".")[1], "base64url")), true, bad);
   }
+  for (let i = 0; i < 300; i++) assert.equal((await checkLicence(junkText(r), { cfg, fetch: f })).valid, false);
+  assert.equal(calls, 0);
 });

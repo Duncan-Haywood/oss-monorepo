@@ -2,8 +2,6 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { proposal } from "./bidletter.mjs";
 import { bidPackageHtml, cleanLogo, cleanAccent } from "./bidpackage.mjs";
-import { buyLink, cleanKey, interpret, checkLicence } from "./licence.mjs";
-import { CHECKOUT_URL } from "./checkout.mjs";
 import { readFileSync } from "node:fs";
 
 const b = {
@@ -36,25 +34,11 @@ test("logo and accent are sanitised", () => {
   assert.match(cleanLogo("data:image/png;base64,iVBOR=="), /^data:image\/png/);
   assert.equal(cleanAccent("red;}</style>"), "#1f3a5f");
 });
-test("licence: link, key and answer handling", async () => {
-  assert.equal(buyLink("http://x.test"), null);
-  assert.equal(buyLink("https://u:p@x.test"), null);
-  assert.ok(buyLink("https://shop.test/checkout/abc"));
-  assert.equal(cleanKey("a b"), null);
-  assert.equal(cleanKey("ABCD-1234-EFGH"), "ABCD-1234-EFGH");
-  assert.equal(interpret({ valid: true, license_key: { status: "active" } }).valid, true);
-  assert.equal(interpret({ valid: true, license_key: { status: "disabled" } }).valid, false);
-  assert.equal(interpret({ valid: "true" }).valid, false);
-  assert.equal(interpret(null).valid, false);
-  const ok = async (url, init) => { assert.match(init.body, /^license_key=ABCD-1234-EFGH$/); return { json: async () => ({ valid: true, license_key: { status: "active" } }) }; };
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { fetch: ok, url: "https://v.test/validate" })).valid, true);
-  const down = async () => { throw new Error("net"); };
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { fetch: down, url: "https://v.test/validate" })).valid, false);
-  assert.equal((await checkLicence("bad key", { fetch: ok, url: "https://v.test/validate" })).valid, false);
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { fetch: ok, url: "" })).valid, false);
-});
-test("dark by default: no checkout link ships and the page gates the button on it", () => {
-  assert.match(CHECKOUT_URL, /^(https:\/\/\S+)?$/); // empty (dark) or an https link (live)
+test("the page gates the Buy button on the shared Paddle wiring, and checks keys offline", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(html, /buyLink\(CHECKOUT_URL\)/);
+  assert.match(html, /provider\.wireBuy\(\$\("#buyLink"\)/);
+  assert.match(html, /provider \? await provider\.validate\(/);
+  assert.doesNotMatch(html, /lemonsqueezy|VALIDATE_URL|CHECKOUT_URL|licence server/i);
+  // The overlay replaces navigation; a new-tab link to an empty href would open a blank tab.
+  assert.doesNotMatch(html, /id="buyLink"[^>]*target=/);
 });

@@ -153,7 +153,7 @@ test("CLI: --roof-pitch is refused on a plan JSON and out of range", () => {
 test("CLI: the export is open while dark, locked when lit without a key, open with a Job report key", () => {
   const p = JSON.stringify(samplePlan());
   assert.equal(main(["p.json", "--material-list"], () => p).code, 0);
-  const billing = { checkoutUrls: { report: "https://shop.example.com/report" }, validateUrl: "https://shop.example.com/validate", variantPlans: { 1: "report" } };
+  const billing = { product: "residential-takeoff", priceId: "pri_01testtesttest", clientToken: "test_0123456789abcdef", publicKey: "A".repeat(43), edge: "https://billing.example", environment: "sandbox" };
   const locked = main(["p.json", "--material-list"], () => p, { billing });
   assert.equal(locked.code, 3);
   assert.match(locked.out, /Job report \(\$29, one house\).*--licence=KEY/);

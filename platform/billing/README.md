@@ -9,6 +9,13 @@ endpoint, but the portfolio's merchant of record is **Paddle** (owner,
 2026-11-24), and Paddle has no public licence check. This directory replaces
 that path with one that works on Paddle and holds no Paddle API key.
 
+An eighth product, the **Job report** of bet #6 (residential takeoff, the paid
+edition of wall-framing-takeoff), joined on 2026-11-27. It lives under a bet's
+tree, so its catalogue row names its own `dir`
+(`ventures/residential-takeoff/apps/wall-framing-takeoff`); `ventureDir` in
+`catalogue.mjs` resolves every product's directory and refuses one outside
+`ventures/`.
+
 ## How a sale works
 
 ```

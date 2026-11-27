@@ -9,7 +9,7 @@ import { sheatheOutlineRoof, outlineSheathingText, outlineSheathingCuts } from "
 import { materialList, materialListCsv, materialListText } from "./materiallist.mjs";
 import { entitlement, allowed } from "./plans.mjs";
 import { isDark, createBillingProvider } from "./billing.mjs";
-import { CHECKOUT_URLS, VALIDATE_URL, VARIANT_PLANS } from "./checkout.mjs";
+import { PADDLE } from "./checkout.mjs";
 import { expandSteppedWalls } from "./stepwall.mjs";
 import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
 import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
@@ -112,7 +112,7 @@ Usage:
   node cli.mjs house.dxf --roof-pitch=6  roof from the drawing's exterior wall loop at that pitch (implies the roof)
   node cli.mjs house.dxf --roof-pitch=6 --roof-layer=ROOF  the eave line drawn on a roof layer instead (default layers matching roof|eave|fascia|drip are read when present): its overhang is measured against the exterior walls, or --eave-overhang=N in moves it in when the drawing has no wall loop; a ridge drawn square into the eave line marks a gable end (a rake, measured apart, or --rake-overhang=N in), and the roof is framed as that gable roof, or as a hip roof when ridges are drawn and none ends there
   node cli.mjs plan.json --material-list  one supplier list: boards by size and length, members, wall and roof sheathing, roofing, ridge/hip/valley/eave/rake lengths (add --csv or --json; --priced shows cost from your stock prices; --job=NAME heads it)
-  node cli.mjs plan.json --material-list --licence=KEY  the paid export, once a checkout is live (docs/PRICING.md); while it is not, the list is free
+  node cli.mjs plan.json --material-list --licence=KEY  the paid export, once the Job report is on sale (docs/PRICING.md); while it is not, the list is free
   node cli.mjs plan.json --fasteners   count nails by connection (plan fasteners: studEndNails, plateSpacing, edgeSpacing, nailsPerBox, price; add --sheathing for sheathing nails)
   node cli.mjs plan.json --ventilation  size attic vents (IRC R806 net free area, 1/150 or 1/300) and count the ridge vent and soffit vents (needs a roof; plan ventilation: ratio, atticSqFt, ridgeVent, upperShare, ridgeNfaPerFt, soffitUnitNfa, soffitUnitWidth, ridgePrice, soffitPrice)
   node cli.mjs plan.json --gutters    add gutters, downspouts, hangers, caps and elbows along the roof's eaves (needs a roof; plan gutters: gutterStock, downspoutStock, eaveHeight, hangerSpacing, maxRunFeet, sqFtPerDownspout, strapSpacing, waste, and a price for each part)
@@ -236,8 +236,8 @@ export function unknownFlag(argv) {
   return "";
 }
 
-/** The billing settings this build ships with (checkout.mjs); dark while every checkout link is empty. */
-export const BILLING = { checkoutUrls: CHECKOUT_URLS, validateUrl: VALIDATE_URL, variantPlans: VARIANT_PLANS };
+/** The billing settings this build ships with (checkout.mjs, from platform/billing/catalogue.mjs); dark while any public value is empty. */
+export const BILLING = PADDLE;
 
 /**
  * @param {string[]} argv
@@ -807,7 +807,8 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  // a licence key is checked with the merchant only when the paid path is lit (otherwise nothing is locked)
+  // a licence key is checked only when the paid path is lit (otherwise nothing is locked); the check is
+  // offline against the public key, and reaches the billing Worker only to renew a lapsed subscription key
   const key = process.argv.find((a) => a.startsWith("--licence="))?.slice(10);
   const provider = key ? createBillingProvider(BILLING) : null;
   const licence = provider && key ? await provider.validate(key) : undefined;

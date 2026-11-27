@@ -16,7 +16,7 @@ checkout link is set.
 | Plan | Kind | Price | Unlocks | On sale |
 | --- | --- | --- | --- | --- |
 | Free | | $0 | Everything that shipped free before 2026-11-24: layout, order, cut list, drawings, PDF, every calculator page, CSV | always |
-| Job report (`report`) | one-off | **$29** per house | supplier material-list export + branded bid package | when the owner sets `CHECKOUT_URLS.report` |
+| Job report (`report`) | one-off | **$29** per house | supplier material-list export + branded bid package | when the owner fills the `residential-takeoff` row of `platform/billing/catalogue.mjs` |
 | Contractor suite (`pro`) | subscription | **$149 / month** | the same, for every job, inside the suite (pay apps, estimating) | from `apps/payapps`, not from this page, once the estimating module ships |
 
 Plan keys, prices and features live in `plans.mjs`; `billing.test.mjs` fails the build if
@@ -51,42 +51,52 @@ Paddle as merchant of record).
 
 ## How the paid path is wired (dark)
 
-- `checkout.mjs`: `CHECKOUT_URLS.report` and `.pro` are empty strings; `VARIANT_PLANS` (merchant
-  variant id to plan) is empty. These are public links and ids, never secrets.
+Paddle is the merchant of record (owner, 2026-11-24). The page uses the portfolio's shared
+Paddle path, `platform/billing/` (its README has the whole flow); nothing here holds a secret.
+
+- `checkout.mjs` is **generated** by `node platform/billing/sync.mjs` from the
+  `residential-takeoff` row of `platform/billing/catalogue.mjs`: product, Paddle price id,
+  client-side token, Ed25519 public key, billing Worker origin, environment. All public; all
+  empty as committed. `paddle.mjs` is a byte-for-byte copy of `platform/billing/client.mjs`
+  (the sync writes it; `licence.test.mjs` fails if the copy drifts).
 - `billing.mjs`: the billing port, the grants `BillingProvider` cut down to what a static page
-  can do (`checkoutUrl(plan)`, `validate(key)`; no webhook, no portal, because there is no
-  server). `createBillingProvider` returns `null` while every link is empty: **dark**.
-  `fakeBillingProvider` backs the tests.
+  can do (`wireBuy(el)`, `validate(key)`). `createBillingProvider` returns `null` until every
+  public value is set (`paddle.mjs` `onSale`): **dark**. `fakeBillingProvider` backs the tests.
+- A sale: the Buy button opens Paddle's overlay with a random claim code; Paddle's
+  `transaction.completed` webhook reaches the shared billing Worker, which signs a licence key
+  (`ms1.<payload>.<signature>`) for the product the *price* sells; the page collects it by claim
+  code and checks it **offline** against the public key. The plan comes from the key: a one-off
+  key is a Job report, a subscription key the contractor suite (`billing.mjs` `planOf`).
 - `plans.mjs`: `entitlement({ dark, valid, plan })` and `allowed(feature, ent)` are the one plan
   check every paid feature goes through. **While dark, every feature is open**, so nobody
   meets a lock they cannot buy past.
-- Once lit, a key unlocks only if the merchant says it is valid **and** its variant maps to a
-  plan in `VARIANT_PLANS`; an expired, disabled, unknown-variant or malformed key unlocks
-  nothing (tests in `billing.test.mjs`), and a malformed key never reaches the network.
+- Once lit, a key unlocks only if its signature checks against the public key **and** it names
+  this product; a key for another tool, a forged or truncated key, or a malformed one unlocks
+  nothing (`billing.test.mjs`, `licence.test.mjs` through `platform/billing/testkit.mjs`).
 - Where the check runs: the page's "Download supplier material list (CSV)" button and its
-  bid-package card; the CLI's `--material-list`, which takes `--licence=KEY` (validated before
-  `main` runs, because the check needs the network). Exit code 3 means "needs a key".
+  bid-package card; the CLI's `--material-list`, which takes `--licence=KEY`. Exit code 3
+  means "needs a key".
 - The code is MIT-licensed in its public copy and source-available here; the key is an
   honest-buyer convenience, not copy protection, and the page says so.
 
 ## To light it (owner only)
 
-1. Create the "Job report" product with the merchant of record (Lemon Squeezy fits the
-   static page: hosted checkout and a public licence validate call). Activation limit 1.
-2. Confirm the validate call against a live test key; `VALIDATE_URL` and the `meta.variant_id`
-   field were written from memory of the provider's docs, not run against a product.
-3. Set `CHECKOUT_URLS.report` and `VARIANT_PLANS["<variant id>"] = "report"` in
-   `checkout.mjs`; `checkout.test.mjs` pins their shape.
-4. Run `node --test '*.test.mjs'` and `node eval-material-list-click.mjs`.
+1. Do `platform/billing/README.md`, "Going live", once for every pack (the billing Worker,
+   the client-side token, the key pair, the webhook).
+2. Create the "Job report" product in Paddle, a one-off $29 price, and put its `pri_...` id in
+   the `residential-takeoff` row of `platform/billing/catalogue.mjs`.
+3. Run `node platform/billing/sync.mjs`, then `node --test '*.test.mjs'` here (the
+   `sample-pack.test.mjs` "not on sale" check tells you to update the marketing copy) and
+   `node eval-material-list-click.mjs`.
 
-Leave `CHECKOUT_URLS.pro` empty: the suite sells it.
+The suite's `pro` plan is not sold from this page.
 
 ## Known limits
 
-- **One key, one house is on trust.** The validate call does not tie a key to a plan file,
-  so a Job report key keeps working on the next house. Binding it (an activation per
-  plan hash) needs the provider's activate call and is not built; decide after the first
-  ten sales whether it matters.
+- **One key, one house is on trust.** The key does not tie itself to a plan file, so a Job
+  report key keeps working on the next house. Binding it (the plan's hash in the key's
+  claims, sent with the checkout) is not built; decide after the first ten sales whether it
+  matters.
 - **Refunds and tax** are the merchant's. The bid-package card already states a 30-day
   refund on request.
 - **No usage data yet.** `usage.mjs` counts `material_list_downloaded` in the visitor's own

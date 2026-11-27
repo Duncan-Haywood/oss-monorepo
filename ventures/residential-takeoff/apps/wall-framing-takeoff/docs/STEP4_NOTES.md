@@ -39,7 +39,7 @@ wording before acting on them.
 
 ## Open questions for the owner
 
-1. Lemon Squeezy (fits the static page) or Paddle (what grants and the suite use)? Paddle
-   would need a small worker for webhooks; Lemon Squeezy needs none.
+1. ~~Lemon Squeezy or Paddle?~~ Answered: Paddle (owner, 2026-11-24). The page uses the shared
+   billing Worker in `platform/billing/` (2026-11-27), so it needs no worker of its own.
 2. Should a Job report key also work inside the suite for 30 days after it launches?
    Not promised anywhere yet.

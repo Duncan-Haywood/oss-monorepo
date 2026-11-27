@@ -12,7 +12,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CATALOGUE, productConfig } from "./catalogue.mjs";
+import { CATALOGUE, productConfig, ventureDir } from "./catalogue.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..");
@@ -36,7 +36,7 @@ export function plan(cat = CATALOGUE, root = ROOT) {
   const client = fs.readFileSync(path.join(HERE, "client.mjs"), "utf8");
   const out = [];
   for (const slug of Object.keys(cat.products)) {
-    const dir = path.join(root, "ventures", slug);
+    const dir = path.join(root, ventureDir(slug, cat));
     out.push({ file: path.join(dir, "paddle.mjs"), want: client });
     out.push({ file: path.join(dir, "checkout.mjs"), want: checkoutSource(slug, cat) });
   }

@@ -34,6 +34,10 @@ export const CATALOGUE = {
     "einvoice-preflight": { name: "Branded audit pack", billing: "one-off", priceId: "" },
     "changepoint-detector": { name: "Branded change report", billing: "one-off", priceId: "" },
     "ai-bookkeeper": { name: "Branded close pack", billing: "one-off", priceId: "" },
+    // Bet #6, the paid edition of wall-framing-takeoff: the supplier material list and the
+    // branded bid package for one house (its docs/PRICING.md). Lives under a bet's tree, so
+    // `dir` says where its page is served from (ventureDir below).
+    "residential-takeoff": { name: "Job report", billing: "one-off", priceId: "", dir: "ventures/residential-takeoff/apps/wall-framing-takeoff" },
   },
 };
 
@@ -49,6 +53,20 @@ export function productConfig(product, cat = CATALOGUE) {
     edge: cat.edge,
     environment: cat.environment,
   };
+}
+
+/**
+ * The directory (from the repository root) whose page sells this product:
+ * `ventures/<slug>` unless the entry names its own `dir` under `ventures/`.
+ * @param {string} product @param {typeof CATALOGUE} [cat]
+ */
+export function ventureDir(product, cat = CATALOGUE) {
+  const p = /** @type {{ dir?: string }} */ (cat.products[product]);
+  if (!p) throw new Error("not in the catalogue: " + product);
+  const dir = p.dir || "ventures/" + product;
+  // A catalogue edit must not make the sync write outside ventures/.
+  if (!/^ventures\/[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)*$/.test(dir)) throw new Error("bad dir for " + product + ": " + dir);
+  return dir;
 }
 
 /** Which catalogue product a Paddle price id sells. @param {string} priceId @param {typeof CATALOGUE} [cat] */

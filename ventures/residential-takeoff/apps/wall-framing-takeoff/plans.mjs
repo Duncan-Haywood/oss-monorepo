@@ -5,7 +5,7 @@
 // layout, order, cut list, drawings, every calculator page. The paid features are
 // the new depth: the supplier material-list export and the branded bid package.
 //
-// While the paid path is dark (no checkout link for a plan, see checkout.mjs) every
+// While the paid path is dark (checkout.mjs not filled in, see billing.mjs `isDark`) every
 // feature is open, so nobody meets a lock they cannot buy past.
 
 /** @typedef {"material-list-export" | "bid-package"} Feature */

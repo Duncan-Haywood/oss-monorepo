@@ -1,74 +1,75 @@
 // @ts-check
 // The billing port, the same shape as apps/grants' BillingProvider (src/worker/ports/billing-provider.ts)
-// cut down to what a static page with no server can do: open a hosted checkout and check a
-// licence key. There is no webhook here (no server to receive one) and no secret: the
-// merchant of record hosts checkout, tax and refunds, and its validate call is public.
+// cut down to what a static page can do: open Paddle's overlay checkout and check a licence key.
+// The page holds no secret: Paddle's webhook goes to the shared billing Worker
+// (platform/billing/worker.mjs), which signs an Ed25519 key the page checks offline.
 //
-//   createBillingProvider(config) -> null while every checkout link is empty (the paid path is dark)
-//                                 -> a Lemon Squeezy provider once the owner sets a link
+//   createBillingProvider(config) -> null while any public value in checkout.mjs is empty (dark)
+//                                 -> a Paddle provider once the owner fills platform/billing/catalogue.mjs
 //   fakeBillingProvider(keys)     -> for tests; no network
-import { buyLink, checkLicence, cleanKey } from "./licence.mjs";
+import { checkLicence } from "./licence.mjs";
+import { onSale, wireBuy } from "./paddle.mjs";
 import { isPlanKey } from "./plans.mjs";
 
 /**
- * @typedef {{ valid: boolean, reason: string, plan: import("./plans.mjs").PlanKey | null }} Verdict
+ * @typedef {{ valid: boolean, reason: string, plan: import("./plans.mjs").PlanKey | null, renewed?: string }} Verdict
  * @typedef {{
  *   readonly name: string,
- *   checkoutUrl(planKey: string): string | null,
+ *   wireBuy(el: HTMLElement | null, h: { onKey: (key: string) => void, onStatus?: (msg: string) => void }): boolean,
  *   validate(key: string): Promise<Verdict>,
  * }} BillingProvider
- * @typedef {{ checkoutUrls: Record<string, string>, validateUrl: string, variantPlans: Record<string, string> }} BillingConfig
+ * @typedef {{ product: string, priceId: string, clientToken: string, publicKey: string, edge: string, environment: string }} BillingConfig
  */
 
 /**
- * The plan a validator's answer stands for: Lemon Squeezy answers with `meta.variant_id`.
- * An unknown or missing variant is no plan, never a guess.
- * @param {any} j @param {Record<string, string>} variantPlans
+ * The plan a verified key stands for. The key's product is checked against this page's
+ * product before it gets here (paddle.mjs `verifyLicence`); its billing decides the plan:
+ * a one-off key is a Job report, a subscription key the contractor suite. Anything else is
+ * no plan, never a guess.
+ * @param {any} claims
  */
-export function planOf(j, variantPlans) {
-  const v = j && typeof j === "object" && j.meta && typeof j.meta === "object" ? j.meta.variant_id : undefined;
-  if (typeof v !== "number" && typeof v !== "string") return null;
-  const p = Object.hasOwn(variantPlans, String(v)) ? variantPlans[String(v)] : null;
-  return isPlanKey(p) && p !== "free" ? p : null;
+export function planOf(claims) {
+  const t = claims && typeof claims === "object" ? claims.t : undefined;
+  const p = t === "one-off" ? "report" : t === "subscription" ? "pro" : null;
+  return isPlanKey(p) ? p : null;
 }
 
-/** True while no plan has a checkout link: nothing is sold, so nothing is locked. @param {BillingConfig} c */
-export const isDark = (c) => !Object.values(c.checkoutUrls || {}).some((u) => buyLink(u));
+/** True while the report is not on sale: nothing is sold, so nothing is locked. @param {BillingConfig} c */
+export const isDark = (c) => !onSale(c);
 
 /**
  * @param {BillingConfig} c
- * @param {{ fetch?: typeof fetch }} [o]
+ * @param {{ fetch?: typeof fetch, now?: number }} [o]
  * @returns {BillingProvider | null}
  */
 export function createBillingProvider(c, o = {}) {
-  if (isDark(c) || !buyLink(c.validateUrl)) return null;
+  if (isDark(c)) return null;
   return {
-    name: "lemonsqueezy",
-    checkoutUrl: (planKey) => (Object.hasOwn(c.checkoutUrls, planKey) ? buyLink(c.checkoutUrls[planKey]) : null),
+    name: "paddle",
+    wireBuy: (el, h) => wireBuy(el, /** @type {any} */ (c), h),
     async validate(key) {
       /** @type {any} */
-      let answer = null;
-      const spy = o.fetch || (typeof fetch === "function" ? fetch : undefined);
-      const f = spy && /** @type {typeof fetch} */ (async (u, init) => { const r = await spy(u, init); const j = await r.json(); answer = j; return /** @type {any} */ ({ json: async () => j }); });
-      const v = await checkLicence(key, { fetch: f, url: c.validateUrl });
-      if (!v.valid) return { ...v, plan: null };
-      const plan = planOf(answer, c.variantPlans || {});
-      return plan ? { valid: true, reason: "", plan } : { valid: false, reason: "this key is for a product this page does not sell", plan: null };
+      let claims = null;
+      const v = await checkLicence(key, { cfg: c, fetch: o.fetch, now: o.now, claims: (x) => { claims = x; } });
+      if (!v.valid) return { valid: false, reason: v.reason, plan: null };
+      const plan = planOf(claims);
+      if (!plan) return { valid: false, reason: "this key is for a plan this page does not sell", plan: null };
+      return v.renewed ? { valid: true, reason: "", plan, renewed: v.renewed } : { valid: true, reason: "", plan };
     },
   };
 }
 
 /**
  * A provider for tests: `keys` maps a licence key to its plan.
- * @param {Record<string, string>} keys @param {Record<string, string>} [checkoutUrls]
+ * @param {Record<string, string>} keys
  * @returns {BillingProvider}
  */
-export function fakeBillingProvider(keys, checkoutUrls = { report: "https://checkout.example.com/report" }) {
+export function fakeBillingProvider(keys) {
   return {
     name: "fake",
-    checkoutUrl: (planKey) => (Object.hasOwn(checkoutUrls, planKey) ? buyLink(checkoutUrls[planKey]) : null),
+    wireBuy: (el) => { if (!el) return false; el.hidden = false; return true; },
     async validate(key) {
-      const k = cleanKey(key);
+      const k = String(key || "").trim();
       if (!k) return { valid: false, reason: "that does not look like a licence key", plan: null };
       const p = Object.hasOwn(keys, k) ? keys[k] : null;
       return isPlanKey(p) && p !== "free" ? { valid: true, reason: "", plan: p } : { valid: false, reason: "key not recognised", plan: null };

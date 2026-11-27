@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 import { cleanKey, verifyLicence, onSale, newClaim, fetchKey, checkKey, wireBuy } from "./client.mjs";
 import { verifyPaddleSignature, signLicence, licenceForTransaction, handleBilling, claimHash, d1Store, TOLERANCE_SEC } from "./server.mjs";
 import worker from "./worker.mjs";
-import { CATALOGUE, productConfig, productForPrice } from "./catalogue.mjs";
+import { CATALOGUE, productConfig, productForPrice, ventureDir } from "./catalogue.mjs";
 import { plan, checkoutSource } from "./sync.mjs";
 
 const b64u = (buf) => Buffer.from(buf).toString("base64url");
@@ -307,7 +307,7 @@ test("the committed catalogue holds no secret, and is dark as committed or fully
   for (const [slug, p] of Object.entries(CATALOGUE.products)) {
     assert.ok(["one-off", "subscription"].includes(p.billing), slug);
     assert.ok(p.priceId === "" || /^pri_/.test(p.priceId), slug);
-    assert.ok(fs.existsSync(new URL(`../../ventures/${slug}/`, import.meta.url)), `ventures/${slug} exists`);
+    assert.ok(fs.existsSync(new URL(`../../${ventureDir(slug)}/`, import.meta.url)), `${ventureDir(slug)} exists`);
   }
   assert.equal(productForPrice("", CAT), null);
 });
@@ -328,9 +328,9 @@ test("sync.mjs on the command line: --check reports stale copies and writes noth
     fs.mkdirSync(bin, { recursive: true });
     for (const f of ["sync.mjs", "catalogue.mjs", "client.mjs"]) fs.copyFileSync(new URL(`./${f}`, import.meta.url), path.join(bin, f));
     const slugs = Object.keys(CATALOGUE.products);
-    for (const slug of slugs) fs.mkdirSync(path.join(tmp, "ventures", slug), { recursive: true });
+    for (const slug of slugs) fs.mkdirSync(path.join(tmp, ventureDir(slug)), { recursive: true });
     const run = (...args) => spawnSync(process.execPath, [path.join(bin, "sync.mjs"), ...args], { cwd: tmp, encoding: "utf8" });
-    const files = slugs.flatMap((s) => [`ventures/${s}/paddle.mjs`, `ventures/${s}/checkout.mjs`]);
+    const files = slugs.flatMap((s) => [`${ventureDir(s)}/paddle.mjs`, `${ventureDir(s)}/checkout.mjs`]);
     const client = fs.readFileSync(new URL("./client.mjs", import.meta.url), "utf8");
 
     let r = run("--check");
@@ -343,8 +343,8 @@ test("sync.mjs on the command line: --check reports stale copies and writes noth
     assert.equal(r.status, 0, r.stderr);
     assert.equal(r.stdout, "wrote:\n  " + files.join("\n  ") + "\n");
     for (const s of slugs) {
-      assert.equal(fs.readFileSync(path.join(tmp, "ventures", s, "paddle.mjs"), "utf8"), client, s);
-      assert.equal(fs.readFileSync(path.join(tmp, "ventures", s, "checkout.mjs"), "utf8"), checkoutSource(s), s);
+      assert.equal(fs.readFileSync(path.join(tmp, ventureDir(s), "paddle.mjs"), "utf8"), client, s);
+      assert.equal(fs.readFileSync(path.join(tmp, ventureDir(s), "checkout.mjs"), "utf8"), checkoutSource(s), s);
     }
 
     r = run();
@@ -427,6 +427,16 @@ test("the billing Worker reflects only an allowed origin, and a store failure is
   assert.equal(res.status, 500);
   assert.deepEqual(await res.json(), { error: "internal" });
   assert.equal(res.headers.get("access-control-allow-origin"), "https://marisstella.app");
+});
+
+test("ventureDir: ventures/<slug> by default, an entry's own dir under ventures/, nothing outside it", () => {
+  assert.equal(ventureDir("shed-designer"), "ventures/shed-designer");
+  assert.equal(ventureDir("residential-takeoff"), "ventures/residential-takeoff/apps/wall-framing-takeoff");
+  for (const dir of ["../etc", "ventures/../platform", "platform/billing", "ventures/", "/ventures/x", "ventures/x/../../y"]) {
+    const cat = { ...CATALOGUE, products: { t: { name: "t", billing: "one-off", priceId: "", dir } } };
+    assert.throws(() => ventureDir("t", /** @type {any} */ (cat)), /^Error: bad dir for t/, dir);
+  }
+  assert.throws(() => ventureDir("no-such-tool"), /not in the catalogue/);
 });
 
 test("productConfig names the missing product in its error", () => {
