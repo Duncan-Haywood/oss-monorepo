@@ -15,6 +15,12 @@ from urllib.parse import unquote
 # Products are mounted at /<slug>/, never /ventures/<slug>/ (build.mjs, "A
 # venture's sitemap"): a post that links the latter hands readers a 404.
 WRONG_MOUNT = re.compile(r'https?://marisstella\.app/ventures/')
+# App addresses that stopped answering. provision.mjs turns workers.dev off once
+# a custom domain is attached, so a post still linking the old address sends a
+# reader who clicks "start free" to a 404 (red-team 2026-11-27: payapps moved to
+# payapps.marisstella.app, ventures/payapps/DEPLOY.md, "Custom domain").
+# Add a host here when its app moves.
+RETIRED_HOSTS = re.compile(r'https?://payapps\.duncan-andrew-haywood\.workers\.dev\S*')
 
 LINK = re.compile(r'!?\[[^\]]*\]\(([^)\s]+)')
 SKIP = re.compile(r'^(https?:|mailto:|tel:|#|/)')
@@ -38,6 +44,8 @@ def broken_in(paths):
             text = strip_code(fh.read())
         for m in WRONG_MOUNT.finditer(text):
             out.append((path, text[m.start():m.start() + 60].split(')')[0]))
+        for m in RETIRED_HOSTS.finditer(text):
+            out.append((path, m.group(0).split(')')[0] + ' (retired host)'))
         for m in LINK.finditer(text):
             url = m.group(1)
             if SKIP.match(url):
