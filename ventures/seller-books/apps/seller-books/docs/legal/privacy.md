@@ -13,7 +13,7 @@ This policy explains what information Seller Books (operated by Maris Stella Lab
 - **Records you enter or import from your own spreadsheets:** inventory items and bulk lots (descriptions, SKUs, costs and dates), mileage trips (date, purpose, start and end places, miles), and expenses (date, category, amount, vendor, memo and, if you pick one, the platform it belongs to). A spreadsheet you import these from is read for its rows and **is not kept**.
 - **Year-end figures you enter:** for each tax year, the square feet of your home office and of your home and the months it was used (for line 30), and the closing inventory value you record for the year.
 - **Quarterly estimated tax figures, if the shop's owner or an admin types them:** for each tax year, the filing status, W-2 wages, federal tax withheld, other taxable income, last year's total tax, whether last year's income was over $150,000, the mileage rate chosen for the page, and the estimated payments sent toward each due date. They are saved to the shop so the page shows the same figures on every device, and only the shop's owner and admins can read or change them. When an editor or viewer types figures on that page, they stay in that person's browser and are not sent to be stored. If an owner or admin turns on the estimated-tax reminder email, we keep that choice and the last due date they were reminded of, until they turn it off.
-- **Billing:** your plan, subscription status, and payment events from the merchant of record. We do not receive or store card numbers.
+- **Billing:** your plan, subscription status, and payment events from the merchant of record. We do not receive or store card numbers. When an owner or admin starts a checkout, we keep that they agreed to the automatic-renewal terms shown beside it, which version, and when, as consumer law asks us to; and for each renewal reminder we send, the renewal date it was for and how many people it went to.
 - **Technical data:** the IP address and browser user-agent of each sign-in session (used to secure your account), counters that limit repeated sign-in, sign-up and password-reset attempts (keyed by IP address, and for failed sign-ins by a one-way hash of the email address, kept for the length of the limit), and security logs.
 - **Form 1099-K figures you type to compare with your books** are used for that comparison and **not stored**.
 - **Acceptance records:** which version of these policies each user accepted, and when.
@@ -26,7 +26,7 @@ This policy explains what information Seller Books (operated by Maris Stella Lab
 - To support you when you ask us to.
 - To meet legal obligations.
 
-- To send account emails: confirming your address when you sign up, resetting your password when you ask, and telling you when someone tries to sign up with an address that already has an account. When a shop's admin invites someone, we email the invitation, with the shop's name, the inviter's name and the role, to the address the admin typed. If a shop's owner or admin turns on estimated-tax reminders, we email them a week before each federal estimated-tax due date, with the amount still to pay that the app works out from the shop's books and the figures they saved; each email has a one-click link that turns the reminders off. We do not send marketing email from the app.
+- To send account emails: confirming your address when you sign up, resetting your password when you ask, and telling you when someone tries to sign up with an address that already has an account. When a shop's admin invites someone, we email the invitation, with the shop's name, the inviter's name and the role, to the address the admin typed. If a shop's owner or admin turns on estimated-tax reminders, we email them a week before each federal estimated-tax due date, with the amount still to pay that the app works out from the shop's books and the figures they saved; each email has a one-click link that turns the reminders off. Before each yearly renewal of a paid plan (once a year on a monthly plan), we email the shop's owner and admins that the plan will renew, its price and how to cancel; this notice is required by law for automatic renewals and has no opt-out while the plan is set to renew. We do not send marketing email from the app.
 
 ## Subprocessors
 
@@ -34,7 +34,7 @@ We share data only with service providers that process it on our behalf to run t
 
 | Subprocessor | Purpose |
 | --- | --- |
-| Cloudflare, Inc. | Hosting, database, logs and sending account emails and estimated-tax reminders |
+| Cloudflare, Inc. | Hosting, database, logs and sending account emails, estimated-tax reminders and renewal notices |
 | Paddle (merchant of record) | Checkout, payments, invoicing and sales tax |
 
 **No AI model reads your books.** The Service does not send your reports or records to an AI provider. We do not use your data to train AI models.

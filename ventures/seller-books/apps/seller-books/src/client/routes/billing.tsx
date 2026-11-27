@@ -2,6 +2,7 @@
 // While paid plans are dark (no Paddle secrets on this deployment) it says so and sells nothing.
 import { PLATFORM_LABELS, type Platform } from "@shared/enums";
 import type { BillingDto, PlanDto } from "@shared/plans";
+import { RENEWAL_TERMS_VERSION, renewalTerms } from "@shared/renewal-notice";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, orgPath, usd } from "../lib/api";
@@ -32,6 +33,7 @@ function PlanCard({
   interval,
   onBuy,
   busy,
+  consented,
 }: {
   plan: PlanDto;
   current: boolean;
@@ -40,6 +42,7 @@ function PlanCard({
   interval: "month" | "year";
   onBuy: () => void;
   busy: boolean;
+  consented: boolean;
 }) {
   const price =
     plan.priceCents === 0
@@ -64,9 +67,16 @@ function PlanCard({
         ))}
       </ul>
       {plan.purchasable && !current && canBuy && (
-        <button className="btn" type="button" disabled={busy} onClick={onBuy}>
-          Choose {plan.name}
-        </button>
+        <>
+          <button className="btn" type="button" disabled={busy || !consented} onClick={onBuy}>
+            Choose {plan.name}, renews {interval === "year" ? "yearly" : "monthly"}
+          </button>
+          {plan.priceCents > 0 && (
+            <p className="text-xs text-stone-600">
+              {renewalTerms(price.replace(/ a (month|year)$/, ""), interval)}
+            </p>
+          )}
+        </>
       )}
     </div>
   );
@@ -78,6 +88,7 @@ export function BillingPage() {
   const role = me.data?.memberships.find((m) => m.orgId === orgId)?.role;
   const isAdmin = role === "owner" || role === "admin";
   const [interval, setInterval] = useState<"month" | "year">("month");
+  const [consented, setConsented] = useState(false);
   const billing = useQuery({
     queryKey: ["billing", orgId],
     queryFn: () => api<BillingDto>(orgPath(orgId, "/billing")),
@@ -89,13 +100,16 @@ export function BillingPage() {
     mutationFn: (plan: string) =>
       api<{ url: string }>(orgPath(orgId, "/billing/checkout"), {
         method: "POST",
-        body: { plan, interval },
+        body: { plan, interval, renewalConsent: true, renewalTermsVersion: RENEWAL_TERMS_VERSION },
       }),
     onSuccess: (r) => go(r.url),
   });
   const portal = useMutation({
-    mutationFn: () =>
-      api<{ url: string }>(orgPath(orgId, "/billing/portal"), { method: "POST", body: {} }),
+    mutationFn: (action: "manage" | "cancel") =>
+      api<{ url: string }>(orgPath(orgId, "/billing/portal"), {
+        method: "POST",
+        body: { action },
+      }),
     onSuccess: (r) => go(r.url),
   });
   const returned = new URLSearchParams(window.location.search).get("checkout");
@@ -177,15 +191,38 @@ export function BillingPage() {
           never blocks an import.
         </p>
         {b.portalAvailable && isAdmin && (
-          <button
-            className="btn-secondary"
-            type="button"
-            disabled={portal.isPending}
-            onClick={() => portal.mutate()}
-          >
-            Manage payment and invoices
-          </button>
+          <div className="flex flex-wrap gap-2">
+            {b.currentPeriodEnd && !b.lapsed && !b.cancelAtPeriodEnd && (
+              <button
+                className="btn-secondary"
+                type="button"
+                disabled={portal.isPending}
+                onClick={() => portal.mutate("cancel")}
+              >
+                Cancel subscription
+              </button>
+            )}
+            <button
+              className="btn-secondary"
+              type="button"
+              disabled={portal.isPending}
+              onClick={() => portal.mutate("manage")}
+            >
+              Manage payment and invoices
+            </button>
+          </div>
         )}
+        {b.portalAvailable &&
+          isAdmin &&
+          b.currentPeriodEnd &&
+          !b.lapsed &&
+          !b.cancelAtPeriodEnd && (
+            <p className="text-xs text-stone-500">
+              Cancelling opens the cancellation form at Paddle, our merchant of record: one step.
+              You keep the plan until {b.currentPeriodEnd.slice(0, 10)}, nothing more is charged,
+              and every record stays.
+            </p>
+          )}
         <ErrorText error={portal.error} />
       </section>
 
@@ -220,6 +257,21 @@ export function BillingPage() {
           Yearly (two months free)
         </label>
       </div>
+      {b.checkoutAvailable && isAdmin && (
+        <label className="card flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={consented}
+            onChange={(e) => setConsented(e.target.checked)}
+          />
+          <span>
+            I agree that a paid plan renews automatically every{" "}
+            {interval === "year" ? "year" : "month"} at the price shown until I cancel, and that I
+            can cancel any time on this page.
+          </span>
+        </label>
+      )}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {b.plans.map((p) => (
           <PlanCard
@@ -230,6 +282,7 @@ export function BillingPage() {
             canBuy={b.checkoutAvailable && isAdmin}
             interval={interval}
             busy={checkout.isPending}
+            consented={consented}
             onBuy={() => checkout.mutate(p.key)}
           />
         ))}
