@@ -92,6 +92,10 @@ def is_gate_path(path: str) -> bool:
 ALLOWED_LICENCES = [
     ("MIT", r"Permission is hereby granted, free of charge"),
     ("FSL-1.1-MIT", r"Functional Source License, Version 1\.1, MIT Future License"),
+    # All rights reserved, for the paid products (owner, 2026-11-26: "just all
+    # rights reserved license"; portfolio/monetization/LICENSING_TRANSITION.md).
+    # Template: portfolio/monetization/licences/ALL-RIGHTS-RESERVED.
+    ("LicenseRef-AllRightsReserved", r"All rights reserved\.[\s\S]*Publishing it\s+grants no licence\."),
 ]
 
 # Lines that must stay in the risk-review workflow: they are what make it
