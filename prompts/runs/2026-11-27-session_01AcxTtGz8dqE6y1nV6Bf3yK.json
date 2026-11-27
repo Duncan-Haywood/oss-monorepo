@@ -68,7 +68,7 @@
     "docs/reports/ventures-2026-11-27-grants-paid-path-adopted.md"
   ],
   "goal": null,
-  "notes": "Security queue empty; ideas inbox empty. Private CI starved (runner_id 0; payapps-deploy run 45921558751 also never got a runner). Verified locally in apps/grants: typecheck clean, biome clean on 23 TS files, build ok (22/22 prerendered), test:worker 624/624, test:unit 1659 passed + 1 failure in pages.smoke.test.tsx that also fails on origin/main with the change stashed (pre-existing). Closed private #25 as superseded by #469.",
+  "notes": "Security queue empty; ideas inbox empty. Private CI starved (runner_id 0; payapps-deploy run 45921558751 also never got a runner). Verified locally in apps/grants: typecheck clean, biome clean on 23 TS files, build ok (22/22 prerendered), test:worker 624/624, test:unit 1659 passed + 1 failure in pages.smoke.test.tsx that also fails on origin/main with the change stashed (pre-existing). Closed private #25 as superseded by #469. Record PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/19604.",
   "corrections": [],
   "redteam": null,
   "usage": {
