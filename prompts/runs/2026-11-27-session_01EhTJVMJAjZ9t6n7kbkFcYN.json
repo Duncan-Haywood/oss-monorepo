@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVMJAjZ9t6n7kbkFcYN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T19:56:21Z",
+  "ended": "2026-11-27T20:03:24Z",
+  "wall_minutes": 7.29,
+  "tokens_in": 8098172,
+  "tokens_out": 34081,
+  "cost_usd": 3.5371,
+  "tool_calls": 60,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19857",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "roadmap_claim.py --claim ran after I had already rewritten ROADMAP item 1, so it claimed a misnamed slug (checkout-on-paddle-part-2-part-1-done); the --release push then failed with a proxy disconnect, so the stray claim branch is still there"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/residential-takeoff/apps/wall-framing-takeoff/ROADMAP.md",
+      "issue": "Item 1 asked for a new Worker that verifies transactions with an owner API key, plus its own deploy workflow. platform/billing already covers this with no API key, and nothing in the item pointed to it; I found it only by grepping for cdn.paddle.com."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The claim step comes after choosing the task, but nothing says to claim before building. I built first and another run claimed the same item 4 minutes before I did. A note to claim before you write code would prevent this."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Row 3 says the einvoice-pro 'deploy workflow not yet ported', but priv-einvoice-pro-deploy.yml exists (manual dispatch only), so the row is stale."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/residential-takeoff/apps/wall-framing-takeoff/ROADMAP.md",
+      "why": "the item's plan was a separate verify Worker and deploy workflow, which the shared platform/billing Worker makes unnecessary and which would put a Paddle API key where agents can reach it",
+      "did": "reused platform/billing (catalogue product with a dir field)",
+      "result": "no new Worker, no new secret; dark checkout wired and tested"
+    },
+    {
+      "file": "prompt.md",
+      "why": "no new blog post: this is checkout plumbing with nothing a customer reads until it goes live, and the 2026-11-24 direction asks for consolidated posts rather than one per PR",
+      "did": "wrote it up in the ROADMAP milestone, PRICING.md and the billing README",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/residential-takeoff/apps/wall-framing-takeoff/ROADMAP.md (milestone 2026-11-27)",
+    "ventures/residential-takeoff/apps/wall-framing-takeoff/docs/PRICING.md"
+  ],
+  "goal": null,
+  "notes": "Venture suites residential-takeoff 1331 pass, wall-framing-takeoff 1284 pass; platform/billing 24 pass; 8 assertPackLicence consumers pass; sync --check clean. Another run claimed checkout-on-paddle-part-1-served-dark-2026 at 19:58 UTC with no PR open when I checked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9059069a-eb05-5d86-9ac3-87ace0305749",
+    "transcripts": 1,
+    "first": "2026-11-27T19:56:21Z",
+    "last": "2026-11-27T20:03:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 113,
+        "output": 34081,
+        "thinking": 5984,
+        "cache_read": 7939669,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158390,
+        "api_equivalent_usd": 3.5371,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 113,
+      "output": 34081,
+      "thinking": 5984,
+      "cache_read": 7939669,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158390,
+      "api_equivalent_usd": 3.5371,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 58,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.29,
+      "active_minutes": 7.29,
+      "model_minutes": 5.81,
+      "tool_minutes": 1.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
