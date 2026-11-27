@@ -54,8 +54,9 @@ cp .dev.vars.example .dev.vars && pnpm db:migrate:local && pnpm dev   # offline,
 node --test scripts/provision.test.mjs                                  # deploy provisioning
 ```
 
-Deploy: the `cmmc-deploy` workflow (`.github/workflows/priv-cmmc-deploy.yml`), by hand only from `main`, provisions D1 and R2, migrates, syncs the Paddle
-catalog and smoke-tests `/api/health` ([docs/DEPLOY.md](docs/DEPLOY.md)). It has not run yet.
+Deploy: the `cmmc-deploy` workflow (`.github/workflows/priv-cmmc-deploy.yml`), from `main` on every merge that touches `ventures/cmmc/` (and by hand), provisions D1 (R2 when the
+token allows), migrates, syncs the Paddle catalog and smoke-tests `/api/health`
+([docs/DEPLOY.md](docs/DEPLOY.md)). Live at https://cmmc.marisstella.app since 2026-11-27.
 
 ## API (all JSON; `/api/orgs/:orgId/*` is tenant-scoped)
 

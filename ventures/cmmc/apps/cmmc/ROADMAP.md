@@ -451,9 +451,8 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
 
 ## Must do before a public launch
 
-- Run `cmmc-deploy` once (by hand; [docs/DEPLOY.md](docs/DEPLOY.md); R2 no longer blocks it, and the
-  launch review is done, docs/LAUNCH-REVIEW.md, so an agent may dispatch it as Job Shop Quote's was) and, at launch, let it
-  run on every merge (`push: branches: [main]`)
+- Done 2026-11-27: `cmmc-deploy` ran by hand twice (46022366507, 46040310064; [docs/DEPLOY.md](docs/DEPLOY.md)),
+  and now runs on every merge that touches `ventures/cmmc/` (Markdown excepted; cmmc-deploy-on-merge)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on")
 - Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
   agent-approved under `docs/legal/OPERATOR.md`. No attorney review (open checks listed there)
