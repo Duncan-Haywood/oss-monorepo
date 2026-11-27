@@ -835,3 +835,33 @@ spreadsheet is fine for a few quotes a week. It gets slow when you have to
 look up the last revision you quoted, follow up on open quotes, or turn an
 emailed drawing into the inputs. That is the work the RFQ-to-quote product in
 development is for.
+
+## Update, 27 November 2026: a rate for each machine, not one for the shop
+
+Every quote tool here asks for a machine rate and none of them worked one
+out. The new [machine hour rate
+calculator](https://marisstella.app/machine-shop-guides/machine-hour-rate.html)
+does, per machine, from the shop's own numbers: ownership (a yearly lease,
+or straight-line depreciation plus the cost of money on the average
+investment), floor space at the building's cost per square foot,
+maintenance, and the shop's overhead shared by billable hours, all divided
+by scheduled hours times utilization; then power (kW times average load
+times price), tooling per spindle hour and, for an attended hour, the
+operator's loaded wage divided by the machines one person runs and by
+utilization.
+
+A hand-checked case from its tests: a machine bought for $100,000, sold
+for $20,000 after 8 years, money at 6%, 150 sq ft at $12, $4,000 of
+maintenance and 2,000 billable hours out of 4,000 carries $19,400 a year,
+$9.70 an hour. Add $1.50 of power and $5 of tooling and the machine hour is
+$16.20; an operator at $40 an hour running two of them at 50% utilization
+adds $40 more. At 60% utilization the same machine and operator cost
+$47.92; at 40%, $68.63. That spread, from one number most shops guess, is
+why the page shows each machine's rate at 10 points either side.
+
+Two things it will not do: ship a figure of its own (every field starts
+empty, and the example is labelled invented) or say what the market pays
+for an hour. The rate links straight into the [job-shop quote
+calculator](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html)
+(`?machineRate=`), and the paid quoting app keeps the same rate per
+machine on its rate card.
