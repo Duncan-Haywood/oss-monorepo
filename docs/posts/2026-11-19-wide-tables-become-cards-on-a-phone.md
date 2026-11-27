@@ -156,3 +156,23 @@ none of them tables the script could match: six command-line `pre` blocks, one
 1,223 px table that a script writes whole, and two tables that run over by 9 and 109 px.
 No card is taller than the screen. Desktop is unchanged. Run notes:
 `docs/reports/polish-2026-11-27-online-seller-tables-stack.md`.
+
+## Update, 2026-11-27: the job-shop quoting tools
+
+The same probe, pointed at the free tools that lead to the planned quoting
+product for machine and fabrication shops, found 9 results tables that hid
+columns behind a swipe at 390 px: the CNC quote calculator's cost breakdown and
+lot-size table, the DXF nester's parts and sheets, the laser and powder-coating
+price tables and the SPC signals list. The laser calculator's material table
+needed 710 px in a 288 px box, so a quote's price and price per piece were off
+screen. After the change the probe reports 0 at 390 px; desktop tables are
+unchanged.
+
+Two details made the cards read properly. A card's title is the row's first
+cell, and for the lot table that was a bare "25"; it now reads "Lot of 25", and
+the nester's sheet cards read "Sheet 1". The CNC breakdown's `<caption>`
+squeezed to a 50 px column once the table became a block, so it is now a note
+above the table, linked with `aria-describedby`. The SPC signals list was only
+34 px too wide, and turning 60 rows into 60 cards would have made the page 60%
+longer, so it keeps its table with tighter cell padding instead (page height
+5,260 to 4,972 px). Details: `docs/reports/polish-2026-11-27-manufacturing-swipes.md`.
