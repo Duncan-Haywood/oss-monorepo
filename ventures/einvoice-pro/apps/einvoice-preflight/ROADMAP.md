@@ -235,6 +235,15 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   sign-up email in Dutch, and a D1 migration so the form stores `nl`. Drafted by the agent, not yet read
   by a native speaker (einvoice-site README, "Dutch").
 
+- Accountant client dashboard, part 2 (2026-11-27, accountant-client-dashboard-part-2-email-digest):
+  the dashboard as an opt-in weekly or monthly email to the confirmed sign-in address
+  (`pro/digest.mjs`, DE/FR/EN/NL/PL): counts and rule ids only, never a client's name or ids, so the
+  mail provider stays outside the DPA's customer data; `PUT /v1/account/digest` and a select in the
+  workspace's sign-in email panel; sent by `POST /v1/admin/digest/send` (ADMIN_TOKEN), once per
+  account and ISO week or month, a failed send retried on the next call, 40 sends a call. Privacy
+  Policy 2026-11-27 (EN/DE/FR) names the new use. Off until the owner sets the mailer
+  (`RESEND_API_KEY`). pro/README.md "The client summary email".
+
 ## Next (by what stands between the bet and a paying accountant)
 
 1. Hosting, part 3 (part 2 done 2026-11-26: the Worker + D1 build, and the manual deploy workflow
@@ -274,11 +283,13 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
    `cii-extended-ctc-fr`, read by `build-facturx-schema.mjs`, picked by BT-24; 5 of 5 FNFE-MPE
    examples and 1,499 of 1,499 mutants agree with xmllint, same eval file). Next: the XRechnung
    extension's schema, if German files declaring it turn up.
-4. Accountant client dashboard, part 2 (part 1 done 2026-11-26): the dashboard in the monthly or
-   weekly email to the firm's sign-in address (needs email sign-in on: `RESEND_API_KEY`), and the
-   failing rules grouped by the invoice's seller once the run history stores a seller id (today it
-   keeps hashes and rule ids only; a seller VAT id would be personal data under the DPA, so it needs
-   the Annex I update in the same PR), if accountants ask.
+4. Accountant client dashboard, part 3 (part 2, the weekly or monthly summary email, done
+   2026-11-27, below): a Worker cron for the send once the deploy has run and the owner agrees to an
+   unattended send; client names in the email only with the DPA Annex III change and the 30-day
+   notice (pro/README.md "The client summary email"); and the failing rules grouped by the
+   invoice's seller once the run history stores a seller id (today it keeps hashes and rule ids
+   only; a seller VAT id would be personal data under the DPA, so it needs the Annex I update in the
+   same PR), if accountants ask.
 5. Polish KSeF, part 3 (part 1 done 2026-11-26: PL templates in four languages, `lang=pl`; part 2:
    the workspace in Polish and the einvoice-site Poland page, both done 2026-11-26): the
    native-speaker read of the Polish templates and workspace (Must do above), and a Polish-language

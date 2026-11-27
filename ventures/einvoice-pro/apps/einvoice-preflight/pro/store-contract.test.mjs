@@ -95,6 +95,31 @@ for (const [name, make] of Object.entries(BACKENDS)) {
       assert.deepEqual(await s.listApiKeys(a.id), []);
     });
 
+    test("client summary email: off by default, listed only with an address, one claim per period", async () => {
+      const s = await make(tickingClock());
+      const a = await s.createAccount({ name: "A" });
+      const b = await s.createAccount({ name: "B" });
+      assert.equal(a.digest, "off");
+      assert.equal((await s.getAccount(a.id)).digest, "off");
+      assert.equal((await s.getAccount(a.id)).digestLang, null);
+      assert.equal(await s.setAccountDigest(a.id, "weekly", "de"), "ok");
+      assert.equal(await s.setAccountDigest(b.id, "weekly", null), "ok");
+      assert.equal(await s.setAccountDigest("acct_missing", "weekly", null), "not_found");
+      assert.deepEqual(await s.listDigestAccounts("weekly"), [], "no verified address, nothing listed");
+      assert.equal(await s.setAccountEmail(a.id, "a@example.com"), "ok");
+      const listed = await s.listDigestAccounts("weekly");
+      assert.deepEqual(listed.map((x) => [x.id, x.digest, x.digestLang, x.email]), [[a.id, "weekly", "de", "a@example.com"]]);
+      assert.deepEqual(await s.listDigestAccounts("monthly"), []);
+      assert.equal(await s.claimDigest(a.id, "2026-W48"), true);
+      assert.equal(await s.claimDigest(a.id, "2026-W48"), false, "claimed once");
+      assert.equal(await s.claimDigest(b.id, "2026-W48"), true, "per account");
+      assert.equal(await s.claimDigest(a.id, "2026-W49"), true, "per period");
+      await s.releaseDigest(a.id, "2026-W48");
+      assert.equal(await s.claimDigest(a.id, "2026-W48"), true, "a released claim can be taken again");
+      assert.equal(await s.setAccountDigest(a.id, "off", "de"), "ok");
+      assert.deepEqual(await s.listDigestAccounts("weekly"), []);
+    });
+
     test("sign-in email: one address per account, one-time tokens that expire, per-address counts", async () => {
       let t = Date.parse("2026-11-26T10:00:00Z");
       const now = () => new Date((t += 1000));

@@ -1,6 +1,6 @@
 # Politique de confidentialité
 
-**Version 2026-11-26** · Maris Stella Labs LLC
+**Version 2026-11-27** · Maris Stella Labs LLC
 
 **Traduction non contractuelle.** Cette version française n'est fournie que pour faciliter la lecture. Seule la version anglaise de la Privacy Policy, à l'adresse /app/privacy, fait foi ; en cas de divergence, la version anglaise prévaut.
 
@@ -9,7 +9,7 @@ La présente politique explique quelles informations l'espace e-facture et l'API
 ## Ce que nous collectons
 
 - **Compte :** le nom du cabinet ou de l'entreprise avec lequel vous vous inscrivez, votre formule, la date de création du compte et la version des conditions d'utilisation que vous avez acceptée. Le compte n'a pas de mot de passe.
-- **E-mail de connexion (facultatif) :** si vous en ajoutez un dans l'espace de travail, l'adresse e-mail et la date à laquelle vous l'avez confirmée, afin que vous puissiez vous connecter avec un lien à usage unique si vous perdez votre clé d'API. Nous ne l'utilisons que pour envoyer les liens de confirmation et de connexion que vous demandez, jamais pour des lettres d'information ou de la prospection. Pour chaque lien, nous conservons l'adresse à laquelle il a été envoyé, sa date d'envoi, sa date d'expiration et s'il a été utilisé (pour limiter le nombre de liens qu'une adresse reçoit), et le lien lui-même uniquement sous forme d'empreinte SHA-256 ; les enregistrements de liens sont supprimés environ un jour après leur expiration. Supprimer l'adresse dans l'espace de travail l'efface du compte et rend inopérants les liens déjà envoyés.
+- **E-mail de connexion (facultatif) :** si vous en ajoutez un dans l'espace de travail, l'adresse e-mail et la date à laquelle vous l'avez confirmée, afin que vous puissiez vous connecter avec un lien à usage unique si vous perdez votre clé d'API. Nous ne l'utilisons que pour envoyer les liens de confirmation et de connexion que vous demandez et, si vous l'activez dans l'espace de travail, une synthèse clients hebdomadaire ou mensuelle (nombre de clients et de factures et identifiants des règles les plus fréquentes ; jamais le nom ou les identifiants d'un client, un nom de fichier ou le contenu d'une facture), jamais pour des lettres d'information ou de la prospection. Si vous activez la synthèse, nous conservons ce réglage, sa langue et les périodes pour lesquelles une synthèse a été envoyée, afin qu'aucune ne parte deux fois ; la régler sur Désactivée ou supprimer l'adresse l'arrête. Pour chaque lien, nous conservons l'adresse à laquelle il a été envoyé, sa date d'envoi, sa date d'expiration et s'il a été utilisé (pour limiter le nombre de liens qu'une adresse reçoit), et le lien lui-même uniquement sous forme d'empreinte SHA-256 ; les enregistrements de liens sont supprimés environ un jour après leur expiration. Supprimer l'adresse dans l'espace de travail l'efface du compte et rend inopérants les liens déjà envoyés.
 - **Clés d'API :** le nom de chaque clé, ses 12 premiers caractères (pour distinguer les clés), ses dates de création, de dernière utilisation et de révocation. La clé elle-même n'est conservée que sous forme d'empreinte SHA-256.
 - **Sociétés clientes :** le nom, le pays, le numéro de TVA et votre propre référence pour chaque client que vous ajoutez.
 - **Historique des contrôles :** pour chaque lot, l'heure, la langue et le jeu de règles choisis, et pour chaque fichier son nom, sa taille, son empreinte SHA-256, le résultat conforme ou non conforme, les identifiants des règles non respectées et ceux des corrections appliquées. **Le contenu des factures n'est pas conservé** : chaque facture est lue en mémoire, et le fichier corrigé et le diff vous sont renvoyés, sans être gardés.
@@ -31,7 +31,7 @@ La présente politique explique quelles informations l'espace e-facture et l'API
 | Cloudflare, Inc. | Hébergement : fait fonctionner le Service sur sa plateforme Workers, héberge sa base de données (Cloudflare D1, stockée dans l'Union européenne) et conserve ses journaux d'erreurs |
 | Anthropic, PBC | Modèle d'IA qui rédige certaines explications en langage clair |
 | Paddle (revendeur officiel) | Paiement, encaissement, facturation et TVA ou sales tax |
-| Resend, Inc. (uniquement si la connexion par e-mail est activée) | Achemine les e-mails de confirmation et de lien de connexion ; reçoit l'adresse et le message |
+| Resend, Inc. (uniquement si la connexion par e-mail est activée) | Achemine les e-mails de confirmation et de lien de connexion et, si vous l'avez activée, la synthèse clients ; reçoit l'adresse et le message |
 
 **Ce que voit le modèle d'IA.** La plupart des constats disposent d'une explication intégrée et rien n'est envoyé. Pour un constat qui n'en a pas, nous envoyons à Anthropic l'identifiant de la règle, le message du constat (qui peut citer la valeur concernée par la règle, comme une date, un code ou un identifiant tiré de la facture), le texte de la correction proposée et la langue, jamais le fichier de la facture. L'explication est mise en cache par règle, message et langue. Nous n'utilisons pas vos données pour entraîner des modèles d'IA.
 

@@ -1,6 +1,6 @@
 # Datenschutzerklärung
 
-**Version 2026-11-26** · Maris Stella Labs LLC
+**Version 2026-11-27** · Maris Stella Labs LLC
 
 **Unverbindliche Übersetzung.** Diese deutsche Fassung dient nur dem besseren Verständnis. Verbindlich ist allein die englische Fassung der Privacy Policy unter /app/privacy; weichen die Fassungen voneinander ab, gilt die englische.
 
@@ -9,7 +9,7 @@ Diese Erklärung beschreibt, welche Informationen der E-Rechnungs-Arbeitsbereich
 ## Was wir erheben
 
 - **Konto:** der Name der Kanzlei oder Firma, mit dem Sie sich registrieren, Ihr Tarif, das Erstellungsdatum des Kontos und welche Fassung der Nutzungsbedingungen Sie akzeptiert haben. Das Konto hat kein Passwort.
-- **Anmelde-E-Mail (optional):** wenn Sie im Arbeitsbereich eine hinzufügen, die E-Mail-Adresse und wann Sie sie bestätigt haben, damit Sie sich mit einem Einmal-Link anmelden können, falls Sie Ihren API-Schlüssel verlieren. Wir nutzen sie nur, um die Bestätigungs- und Anmeldelinks zu senden, die Sie anfordern, nie für Newsletter oder Werbung. Zu jedem Link speichern wir die Adresse, an die er ging, wann er gesendet wurde, wann er abläuft und ob er benutzt wurde (um zu begrenzen, wie viele Links eine Adresse erhält), und den Link selbst nur als SHA-256-Hash; Link-Einträge werden etwa einen Tag nach ihrem Ablauf gelöscht. Entfernen Sie die Adresse im Arbeitsbereich, wird sie aus dem Konto gelöscht, und bereits gesendete Links funktionieren nicht mehr.
+- **Anmelde-E-Mail (optional):** wenn Sie im Arbeitsbereich eine hinzufügen, die E-Mail-Adresse und wann Sie sie bestätigt haben, damit Sie sich mit einem Einmal-Link anmelden können, falls Sie Ihren API-Schlüssel verlieren. Wir nutzen sie nur, um die Bestätigungs- und Anmeldelinks zu senden, die Sie anfordern, und, wenn Sie sie im Arbeitsbereich einschalten, eine wöchentliche oder monatliche Mandantenübersicht (Anzahl der Mandanten und Rechnungen und die häufigsten Regel-IDs; nie den Namen oder Kennungen eines Mandanten, einen Dateinamen oder Rechnungsinhalte), nie für Newsletter oder Werbung. Schalten Sie die Übersicht ein, speichern wir diese Einstellung, ihre Sprache und die Zeiträume, für die eine Übersicht gesendet wurde, damit keine doppelt kommt; die Einstellung Aus oder das Entfernen der Adresse beendet sie. Zu jedem Link speichern wir die Adresse, an die er ging, wann er gesendet wurde, wann er abläuft und ob er benutzt wurde (um zu begrenzen, wie viele Links eine Adresse erhält), und den Link selbst nur als SHA-256-Hash; Link-Einträge werden etwa einen Tag nach ihrem Ablauf gelöscht. Entfernen Sie die Adresse im Arbeitsbereich, wird sie aus dem Konto gelöscht, und bereits gesendete Links funktionieren nicht mehr.
 - **API-Schlüssel:** der Name jedes Schlüssels, seine ersten 12 Zeichen (damit Sie Schlüssel unterscheiden können), wann er erstellt, zuletzt benutzt und widerrufen wurde. Der Schlüssel selbst wird nur als SHA-256-Hash gespeichert.
 - **Mandanten:** Name, Land, Umsatzsteuer-Identifikationsnummer und Ihr eigenes Kürzel für jeden Mandanten, den Sie anlegen.
 - **Prüfverlauf:** für jeden Stapel die Zeit, die gewählte Sprache und das gewählte Regelwerk, und für jede Datei ihr Name, ihre Größe, ihr SHA-256-Hash, bestanden oder nicht bestanden, die IDs der nicht erfüllten Regeln und die IDs der angewendeten Korrekturen. **Rechnungsinhalte werden nicht gespeichert**: Jede Rechnung wird im Arbeitsspeicher gelesen, und die korrigierte Datei und der Diff werden an Sie zurückgegeben, nicht aufbewahrt.
@@ -31,7 +31,7 @@ Diese Erklärung beschreibt, welche Informationen der E-Rechnungs-Arbeitsbereich
 | Cloudflare, Inc. | Hosting: betreibt den Dienst auf seiner Workers-Plattform, hält seine Datenbank (Cloudflare D1, gespeichert in der Europäischen Union) und bewahrt seine Fehlerprotokolle auf |
 | Anthropic, PBC | KI-Modell, das manche verständlichen Erklärungen schreibt |
 | Paddle (Merchant of Record) | Checkout, Zahlungen, Rechnungsstellung und Umsatzsteuer oder Sales Tax |
-| Resend, Inc. (nur wenn die E-Mail-Anmeldung eingeschaltet ist) | Stellt die E-Mails mit Bestätigungs- und Anmeldelinks zu; erhält die Adresse und die Nachricht |
+| Resend, Inc. (nur wenn die E-Mail-Anmeldung eingeschaltet ist) | Stellt die E-Mails mit Bestätigungs- und Anmeldelinks und, wenn eingeschaltet, die Mandantenübersicht zu; erhält die Adresse und die Nachricht |
 
 **Was das KI-Modell sieht.** Die meisten Befunde haben eine eingebaute Erklärung, und es wird nichts gesendet. Für einen Befund ohne eine solche senden wir Anthropic die Regel-ID, die Meldung des Befunds (die den Wert zitieren kann, um den es in der Regel geht, etwa ein Datum, einen Code oder eine Kennung aus der Rechnung), den Text der vorgeschlagenen Korrektur und die Sprache, nie die Rechnungsdatei. Die Erklärung wird nach Regel, Meldung und Sprache zwischengespeichert. Wir nutzen Ihre Daten nicht zum Training von KI-Modellen.
 
