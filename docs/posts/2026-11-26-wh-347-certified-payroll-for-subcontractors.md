@@ -201,6 +201,13 @@ It sits on the job, next to that job's pay applications:
 - "Hours from a time report" reads a by-day CSV in your browser, matches workers by name, refuses a
   pay-period date column with the reason, and lists every hour it left out (holiday, PTO, double
   time).
+- **Hours from PayApps timesheets (added 2026-11-27):** if your crew's hours are already on the
+  Timesheets page, one button fills the week for this job, with no export and import. Straight time
+  and overtime are what the timesheet counted (hours past 40 in your workweek, across every job),
+  each worker's trade becomes the classification, and the page names anyone who also worked other
+  jobs that week, since the WH-347's "gross amount earned" for all work has to include that pay.
+  If the payroll week ends on a different day than your workweek, both workweeks are read and each
+  day keeps its own overtime.
 - "Start next week" moves the payroll number and date on and clears hours and deductions, keeping
   the crew, rates and plans.
 - Workers' names and numbers are not stored on our servers: the draft stays in your browser and the
