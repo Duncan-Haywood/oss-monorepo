@@ -1,6 +1,6 @@
 # Depop's "0% selling fee" is not the same as free.
 
-> Free Depop seller fee calculator for the US and UK schedule (0% selling fee, 3.3%+$0.45 or 2.9%+£0.30 processing on item price + shipping) and the rest-of-world flat 10% schedule, plus Boosted Listings. Real profit, price for a target profit, and a region-by-region comparison. Nothing leaves your browser.
+> Free Depop seller fee calculator for the US, UK and Australia schedules (0% selling fee, 3.3%+$0.45, 2.9%+£0.30 or 2.6%+A$0.30 processing on item price + shipping) and the rest-of-world 10% selling fee (processing there not included), plus Boosted Listings (12% US/UK, 8% elsewhere). Real profit, price for a target profit, and a region-by-region comparison. Nothing leaves your browser.
 
 Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
