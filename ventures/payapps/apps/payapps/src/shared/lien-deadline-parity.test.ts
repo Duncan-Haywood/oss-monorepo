@@ -4,18 +4,21 @@
 // before the last day of work (California, Arizona, Utah), a date later than the free tool's, so
 // the paid product was the less safe of the two. This grid catches the next drift of either copy.
 import { describe, expect, it } from "vitest";
-// @ts-expect-error: plain .mjs with no types, from the sibling venture.
-import {
-  lienDeadlines,
-  STATE_RULES,
-} from "../../../../../mechanics-lien-deadline-calculator/calc.mjs";
 import { addDays, isLienDeadlineState, lienDeadline } from "./lien-deadline";
+
+// calc.mjs is plain JavaScript with no types; this is the slice of it the grid reads.
+interface FreeCalc {
+  STATE_RULES: Record<string, unknown>;
+  lienDeadlines(input: Record<string, string>): { lien: { date: Date; safeDate: Date } | null };
+}
+const CALC = new URL("../../../../../mechanics-lien-deadline-calculator/calc.mjs", import.meta.url);
+const { lienDeadlines, STATE_RULES } = (await import(/* @vite-ignore */ CALC.href)) as FreeCalc;
 
 const LAST = ["2026-01-31", "2026-02-28", "2026-05-15", "2026-08-30", "2026-12-31"];
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 
 describe("lien deadline parity with the free calculator", () => {
-  const shared = Object.keys(STATE_RULES as Record<string, unknown>).filter(isLienDeadlineState);
+  const shared = Object.keys(STATE_RULES).filter(isLienDeadlineState);
   it("shares at least the ten states the free calculator had", () => {
     expect(shared.length).toBeGreaterThanOrEqual(10);
   });
