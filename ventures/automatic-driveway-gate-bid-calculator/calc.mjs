@@ -43,6 +43,13 @@ export const POWER_PRESETS = Object.freeze([
   { id: 'solar', label: 'Solar kit' },
 ]);
 
+/**
+ * The leaf height the shipped per-lineal-foot leaf rates and hang hours
+ * are quoted at. A shop whose supplier quotes at another height enters it
+ * as rateHeightFt.
+ */
+export const RATE_HEIGHT_FT = 5;
+
 export const JOB_PRESETS = Object.freeze([
   {
     label: '12 ft single aluminum swing, existing posts, AC (the cheap special)',
@@ -264,6 +271,7 @@ export function suggestedPowerKit(power) {
 export function calculateBid(input) {
   const openingWidthFt = number(input.openingWidthFt ?? 0, 'Opening width', { allowZero: false });
   const leafHeightFt = number(input.leafHeightFt ?? 5, 'Leaf height', { allowZero: false });
+  const rateHeightFt = number(input.rateHeightFt ?? RATE_HEIGHT_FT, 'Leaf rates quoted at height', { allowZero: false });
   const loops = number(input.loops ?? 0, 'Vehicle loops');
   const extraRemotes = number(input.extraRemotes ?? 0, 'Extra remotes');
 
@@ -283,6 +291,10 @@ export function calculateBid(input) {
   const operators = operatorCount(style);
   const columns = columnCount(style, columnType);
   const gateLf = openingWidthFt;
+  // Leaf dollars and hang hours are quoted per lineal foot at rateHeightFt.
+  // A taller leaf has more face (pickets, panel, frame) and more weight to
+  // hang, so both scale with height: a 6 ft leaf on 5 ft rates is 1.2x.
+  const heightFactor = leafHeightFt / rateHeightFt;
 
   const hoursTrip = number(input.hoursTrip ?? 0, 'Hours for the trip / move-in');
   const hoursPerOperator = number(input.hoursPerOperator ?? 0, 'Hours per operator');
@@ -315,7 +327,7 @@ export function calculateBid(input) {
   if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
 
   const hoursOperators = operators * hoursPerOperator;
-  const hoursGate = gateLf * hoursPerLfGate * weight;
+  const hoursGate = gateLf * hoursPerLfGate * weight * heightFactor;
   const hoursColumns = columns * hoursPerColumn;
   const hoursLoops = loops * hoursPerLoop;
   const hoursPower = power === 'solar' ? hoursSolar : hoursTrench;
@@ -326,7 +338,7 @@ export function calculateBid(input) {
   const laborCost = totalHours * loadedWage;
 
   const operatorMaterial = operators * operatorEach;
-  const gateMaterial = gateLf * gatePerLf * weight;
+  const gateMaterial = gateLf * gatePerLf * weight * heightFactor;
   const columnMaterial = columns * columnEach;
   const loopMaterial = loops * loopEach;
   const keypadMaterial = keypad ? keypadKit : 0;
@@ -363,6 +375,8 @@ export function calculateBid(input) {
     power,
     openingWidthFt,
     leafHeightFt,
+    rateHeightFt,
+    heightFactor,
     loops,
     extraRemotes,
     keypad,
