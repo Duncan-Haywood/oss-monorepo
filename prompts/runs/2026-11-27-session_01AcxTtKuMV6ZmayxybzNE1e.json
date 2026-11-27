@@ -28,7 +28,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 0,
   "review_findings": null,
   "tests_added": 14,
   "outcome": "success",
@@ -69,7 +69,7 @@
     "docs/posts/2026-11-24-an-sprs-score-calculator-that-sums-to-minus-203.md (extended: the workspace is open, Level 1 free, the /cmmc calculator)"
   ],
   "goal": "north star: a paying-customer path for bet #4 (sign-up from the marketing site into the live app)",
-  "notes": "cmmc-deploy run 46022366507 succeeded; https://cmmc.marisstella.app/api/health answered {ok:true, app:cmmc-workspace, billing:false, email:true, files:d1}. Verification: cmmc-site node --test 62/62 (every site check runs on both launch states); platform/pages cmmc-site.test 5/5, industry-manufacturing.test 14/14; apps/cmmc tsc clean, vitest unit 497/497 (43 files); biome clean; Chromium on dist served under /cmmc/: 3.5.3 partial + 3.1.8 = 106 of 110 with ticks kept, nothing ticked = 110, noindex added, no page errors; full catalogue build + check.mjs: 1439 products, 13689 pages, no dead links. The app's /signup mode reaches users on the next cmmc-deploy (manual).",
+  "notes": "cmmc-deploy run 46022366507 succeeded; https://cmmc.marisstella.app/api/health answered {ok:true, app:cmmc-workspace, billing:false, email:true, files:d1}. Verification: cmmc-site node --test 62/62 (every site check runs on both launch states); platform/pages cmmc-site.test 5/5, industry-manufacturing.test 14/14; apps/cmmc tsc clean, vitest unit 497/497 (43 files); biome clean; Chromium on dist served under /cmmc/: 3.5.3 partial + 3.1.8 = 106 of 110 with ticks kept, nothing ticked = 110, noindex added, no page errors; full catalogue build + check.mjs: 1439 products, 13689 pages, no dead links. The app's /signup mode reaches users on the next cmmc-deploy (manual). platform/pages build.test + check.test + products/business/payapps-site: 465/466 on the first pass; the one failure (every published venture page routes back to the hub) needed cmmc/ exempted like payapps/, fixed and re-run green.",
   "corrections": [],
   "redteam": null,
   "usage": {

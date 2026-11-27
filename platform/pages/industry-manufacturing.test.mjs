@@ -177,3 +177,8 @@ test("links an open product's own site only when the build copied it in", () => 
   assert.ok(linked.includes('>Start free in CMMC Workspace</a>'));
   assert.ok(linked.includes('>Start free in Job Shop Quote</a>'));
 });
+
+test('the meta description fits the 160-character budget check.mjs enforces', () => {
+  const d = /<meta name="description" content="([^"]*)"/.exec(html)[1];
+  assert.ok(d.length <= 160, `${d.length} characters`);
+});
