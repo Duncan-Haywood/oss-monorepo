@@ -55,3 +55,22 @@ chain on first use. Starting it early hides that cost, and a longer cache
 lifetime would remove it. Nine other tools here start workers on press. The
 [run's notes](../history/changepoint-detector-page-perf-2026-11-23.md) list
 them for the next pass.
+
+## Follow-up, 2026-11-27: the build now fixes it for every worker
+
+Warming a worker early only moves the wait earlier. The site build now
+removes most of the wait for every module worker on the site. In the built
+copy of each worker's entry file, it lists the worker's whole import graph as
+plain `import "./x.mjs";` lines, so the browser asks for every module at once
+instead of one level at a time. The entry's own imports still run first and
+reach every module on that list, so the code runs in the same order as
+before. The source files don't change.
+
+It applies to 14 workers across eight tools, including the league scheduler
+and the shift roster builder. On the same 150 ms test server, the league
+scheduler's bowling worker now loads in 777 ms instead of 1,089 ms, and its
+practice worker in 621 ms instead of 1,085 ms. That server allows six
+connections at a time, so large graphs still need a few rounds there; the live
+site uses HTTP/2, which doesn't have that limit. The
+[run's notes](../history/worker-graph-perf-2026-11-27.md) have the full table
+and the checks.
