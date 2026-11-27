@@ -4,17 +4,17 @@
   "counts": {
     "mit-commons": 5,
     "mit-deployer-run": 1,
-    "mit-lead-magnet": 1418,
-    "proprietary": 24
+    "mit-lead-magnet": 1417,
+    "proprietary": 25
   },
   "models": {
     "subscription": 13,
-    "one-off": 11
+    "one-off": 12
   },
   "proprietary": [
     {
       "venture": "payapps",
-      "source_lines": 134174,
+      "source_lines": 141306,
       "track": "proprietary",
       "why": "flagship #1: the depth people pay for",
       "model": "subscription",
@@ -25,7 +25,7 @@
     },
     {
       "venture": "jobshop-quote",
-      "source_lines": 83544,
+      "source_lines": 83623,
       "track": "proprietary",
       "why": "flagship #2: the depth people pay for",
       "model": "subscription",
@@ -57,7 +57,7 @@
     },
     {
       "venture": "seller-books",
-      "source_lines": 44361,
+      "source_lines": 44389,
       "track": "proprietary",
       "why": "flagship #5: the depth people pay for",
       "model": "subscription",
@@ -277,7 +277,7 @@
     },
     {
       "venture": "machine-shop-guides",
-      "source_lines": 6721,
+      "source_lines": 6897,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -296,6 +296,17 @@
       "third_party_licences": [],
       "moved": null,
       "move_order": 24
+    },
+    {
+      "venture": "pay-app-guides",
+      "source_lines": 5068,
+      "track": "proprietary",
+      "why": "over 5000 lines of product code, more than a single-page tool",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "moved": null,
+      "move_order": 25
     }
   ],
   "stay_mit": {
@@ -310,5 +321,5 @@
       "sales-agent"
     ]
   },
-  "lead_magnets": 1418
+  "lead_magnets": 1417
 }
