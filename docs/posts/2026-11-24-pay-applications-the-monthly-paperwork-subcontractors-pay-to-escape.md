@@ -2,7 +2,7 @@
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
 updated: 2026-11-27
-tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, insurance-certificates, pay-app-guides, for-customers]
+tags: [construction, subcontractors, electrical-contractors, hvac-contractors, drywall-contractors, concrete-contractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, insurance-certificates, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and PayApps, now open free on one job."
 ---
 
@@ -621,6 +621,25 @@ guessed at:
 Rates, deductions and gross pay are not read from the file. They stay typed on
 the form, where the wage determination checks run. The CSV is read in the
 browser and never uploaded.
+
+## By trade
+
+Each trade bills the same monthly form differently, so the guides now have
+one page per trade (added 2026-11-27): what the GC checks, an example
+schedule of values, and where that trade usually loses money.
+
+- [Electrical contractors](https://marisstella.app/pay-app-guides/electrical-contractor-billing.html):
+  switchgear and fixtures as stored materials, rough-in and trim by area,
+  extras on signed tickets, certified payroll on public jobs.
+- [HVAC, plumbing and mechanical](https://marisstella.app/pay-app-guides/mechanical-contractor-billing.html):
+  equipment deliveries, start-up and balancing as their own lines, and the
+  close-out package retainage waits on.
+- [Drywall and framing](https://marisstella.app/pay-app-guides/drywall-contractor-billing.html):
+  lines by floor and phase, stocked board, extras from other trades, back
+  charges and punch lists.
+- [Concrete](https://marisstella.app/pay-app-guides/concrete-contractor-billing.html):
+  unit-price billing by cubic yard, square foot and linear foot, overruns,
+  and pump and standby tickets.
 
 ## What exists now, free
 
