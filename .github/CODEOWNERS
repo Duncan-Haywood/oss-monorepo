@@ -81,6 +81,8 @@
 # priv-email-deploy.yml deploys it with Cloudflare credentials.
 /platform/email/                  @Duncan-Haywood
 /ventures/payapps/                @Duncan-Haywood
+# Runs with the Cloudflare credentials in priv-jobshop-quote-deploy.yml (ci_policy_check: privileged code needs an owner).
+/ventures/jobshop-quote/          @Duncan-Haywood
 /platform/pages/cloudflare/email-routing.json     @Duncan-Haywood
 /platform/pages/cloudflare/email-routing.test.mjs @Duncan-Haywood
 /ventures/real-estate-agent-photo-app/docs-site/scripts/setup-cloudflare-access.sh @Duncan-Haywood
