@@ -76,7 +76,7 @@ resource "aws_guardduty_organization_configuration" "this" {
 # behind it could not apply (owner, same day: "yes go ahead").
 # While it is off: the security account stays Security Hub's delegated admin,
 # the finding aggregator stays, and the management account subscribes FSBP and
-# CIS directly (aws_securityhub_standards_subscription.direct below).
+# CIS directly (aws_securityhub_standards_subscription.single below).
 # Member accounts get standards only once central configuration is on.
 # To turn it on: set the variable to true in a PR once AWS stops answering
 # "still syncing" (platform/aws/status.sh shows the organization config).
@@ -194,12 +194,8 @@ resource "aws_accessanalyzer_analyzer" "org" {
 # off (central configuration manages them otherwise, and refuses accounts that
 # also subscribe locally).
 
-moved {
-  from = aws_securityhub_standards_subscription.single
-  to   = aws_securityhub_standards_subscription.direct
-}
-
-resource "aws_securityhub_standards_subscription" "direct" {
+# (Named "single" for history: it began as single-account mode's resource.)
+resource "aws_securityhub_standards_subscription" "single" {
   for_each      = local.securityhub_central ? toset([]) : toset([for s in var.security_hub_standards : format(s, var.region)])
   standards_arn = each.value
   depends_on    = [aws_securityhub_account.management]

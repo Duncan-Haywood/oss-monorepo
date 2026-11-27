@@ -915,7 +915,7 @@ run "baseline_shape" {
       && length(aws_securityhub_configuration_policy_association.root) == 0
       && length(aws_securityhub_organization_admin_account.this) == 1
       && length(aws_securityhub_finding_aggregator.this) == 1
-      && length(aws_securityhub_standards_subscription.direct) == 2
+      && length(aws_securityhub_standards_subscription.single) == 2
     )
     error_message = "central configuration off by default: delegated admin and aggregator kept, FSBP and CIS subscribed on the management account"
   }
@@ -941,7 +941,7 @@ run "security_hub_central" {
   }
 
   assert {
-    condition     = length(aws_securityhub_standards_subscription.direct) == 0
+    condition     = length(aws_securityhub_standards_subscription.single) == 0
     error_message = "no local standards subscriptions alongside central configuration"
   }
 }
@@ -987,7 +987,7 @@ run "single_account" {
   }
 
   assert {
-    condition     = aws_guardduty_detector.security[0].enable && length(aws_securityhub_standards_subscription.direct) == 2
+    condition     = aws_guardduty_detector.security[0].enable && length(aws_securityhub_standards_subscription.single) == 2
     error_message = "GuardDuty on, FSBP and CIS subscribed on the account"
   }
 
