@@ -18,6 +18,7 @@ import { ROLE_RANK } from "@shared/enums";
 import { activityDelayLabel } from "@shared/schedule-delays";
 import { and, asc, desc, eq, gte, inArray, min } from "drizzle-orm";
 import type { AppContext } from "../../context";
+import { allInChunks } from "../../db/in-chunks";
 import { dailyReports, organization, projects, scheduleActivities, user } from "../../db/schema";
 import { badRequest, conflict, notFound } from "../../lib/errors";
 import { newId } from "../../lib/ids";
@@ -126,11 +127,9 @@ async function userNames(ctx: AppContext, list: Row[]) {
     ...new Set(list.flatMap((r) => [r.createdBy, r.updatedBy]).filter((x): x is string => !!x)),
   ];
   if (ids.length === 0) return new Map<string, string>();
-  const found = await ctx.db
-    .select({ id: user.id, name: user.name })
-    .from(user)
-    .where(inArray(user.id, ids))
-    .all();
+  const found = await allInChunks(ids, (slice) =>
+    ctx.db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, slice)).all(),
+  );
   return new Map(found.map((u) => [u.id, u.name]));
 }
 
@@ -440,12 +439,14 @@ export async function companyDailyReportJobs(
     .all();
   if (recent.length === 0) return [];
   const ids = [...new Set(recent.map((r) => r.projectId))];
-  const firsts = await ctx.db
-    .select({ projectId: dailyReports.projectId, first: min(dailyReports.reportDate) })
-    .from(dailyReports)
-    .where(and(eq(dailyReports.orgId, orgId), inArray(dailyReports.projectId, ids)))
-    .groupBy(dailyReports.projectId)
-    .all();
+  const firsts = await allInChunks(ids, (slice) =>
+    ctx.db
+      .select({ projectId: dailyReports.projectId, first: min(dailyReports.reportDate) })
+      .from(dailyReports)
+      .where(and(eq(dailyReports.orgId, orgId), inArray(dailyReports.projectId, slice)))
+      .groupBy(dailyReports.projectId)
+      .all(),
+  );
   const firstOf = new Map(firsts.map((f) => [f.projectId, f.first]));
   const jobs = new Map<string, CompanyDailyReportJob>();
   for (const r of recent) {
