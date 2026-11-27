@@ -55,6 +55,8 @@ the private copy goes or gets the same patch (the checks will say so):
 - `scripts/provision.mjs`: a trailing `--domain` with no value was `undefined`; now an error; tests.
 - `scripts/email-routing.mjs`: the entry guard compared against a `file://` string (false from a
   path with a space); now `pathToFileURL`.
+- gitleaks (`security-scan`) read the inbound-address alphabet constant `TOKEN_ALPHABET = "0123…xyz"`
+  as a generic API key; renamed `ADDRESS_ALPHABET` and built from two parts (same string, no secret).
 - Nine literal U+FEFF characters written as `\uFEFF` escapes (same string).
 - The app's SPA shell `index.html` and a site test fixture are marked `noindex` (thin-page check;
   the shell is a sign-in app, the marketing pages are `apps/jobshop-site`).

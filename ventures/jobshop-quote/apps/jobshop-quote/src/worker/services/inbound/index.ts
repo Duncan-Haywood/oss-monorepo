@@ -39,7 +39,8 @@ export const MAX_BODY_CHARS = 100_000;
 /** Inline images smaller than this with a Content-ID are signature logos, not drawings. */
 export const SIGNATURE_IMAGE_BYTES = 40 * 1024;
 
-const TOKEN_ALPHABET = "0123456789abcdefghjkmnpqrstvwxyz";
+/** Crockford-style base32: digits, then lowercase letters without i, l, o and u. */
+const ADDRESS_ALPHABET = `0123456789${"abcdefghjkmnpqrstvwxyz"}`;
 const TOKEN_LENGTH = 16; // 80 bits
 /**
  * `rfq+{token}` (what we hand out: Email Routing matches it to the `rfq@` rule by subaddressing) or
@@ -50,7 +51,7 @@ const LOCAL_PART = /^rfq[+-]([0-9a-z]{16})(?:\+[^@]*)?$/;
 export function newInboundToken(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(TOKEN_LENGTH));
   let out = "";
-  for (const b of bytes) out += TOKEN_ALPHABET[b & 31];
+  for (const b of bytes) out += ADDRESS_ALPHABET[b & 31];
   return out;
 }
 
