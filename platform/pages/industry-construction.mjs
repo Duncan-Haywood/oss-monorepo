@@ -119,6 +119,7 @@ export const PROBLEMS = [
       ['pay-app-guides/pay-application-checker.html', 'Pay application checker', 'Paste last month’s approved SOV and this month’s draft; see the carry-forward and retainage errors a GC would send back.'],
       ['pay-app-guides/schedule-of-values-template.html', 'Schedule of values template (Excel)', 'A free continuation-sheet spreadsheet and a filled-in example.'],
       ['pay-app-guides/construction-invoice-template.html', 'Construction invoice template (Excel)', 'A free contractor invoice with retainage, deposit applied and due date.'],
+      ['pay-app-guides/change-order-template.html', 'Change order form template (Excel)', 'A free change order request: priced lines, overhead and profit, new contract sum and completion date, signatures.'],
       ['pay-app-guides/how-to-fill-out-a-pay-application.html', 'How to fill out a pay application', 'The continuation sheet column by column and the summary page line by line.'],
       ['pay-app-guides/es-como-llenar-una-solicitud-de-pago.html', 'Cómo llenar una solicitud de pago (en español)', 'The same pay application guide in Spanish, with each line’s English name as it appears on the form.'],
       ['pay-app-guides/electrical-contractor-billing.html', 'Pay apps for electrical contractors', 'An SOV by area and phase, switchgear and fixtures as stored materials, extras on signed tickets, certified payroll on public jobs.'],
