@@ -55,7 +55,7 @@ variable "project_name" {
 }
 
 variable "connection_ready" {
-  description = "Set true once the owner has completed the GitHub connection handshake in the AWS console (AWS requires that one click). Until then no webhook is created, so the first apply cannot fail on a pending connection."
+  description = "Set true once the owner has completed the GitHub connection handshake in the AWS console (AWS requires that one click). Until then neither the CodeBuild projects nor their webhook are created (AWS refuses both on a pending connection), so the apply cannot fail on it."
   type        = bool
   default     = false
 }
