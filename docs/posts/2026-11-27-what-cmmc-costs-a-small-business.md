@@ -3,7 +3,7 @@ title: "What CMMC costs a small business, from DoD's own line-by-line estimate"
 date: 2026-11-27
 tags: [for-customers, machine-shop-guides, cmmc, defense-contractors, compliance, lead-magnets]
 seo_title: "CMMC cost for a small business: DoD's estimate, line by line"
-description: "DoD priced every CMMC assessment in the final rule: $5,977 a year at Level 1, $37,196 and $104,670 over three years at Level 2. What those numbers include, what they leave out, and how to redo them with your own rates."
+description: "DoD priced every CMMC assessment in the final rule: $5,977 a year at Level 1, $104,670 over 3 years for certification. What it leaves out, and your own rates."
 ---
 
 Ask what CMMC costs and you get vendor answers: a range, a call to book, a figure that happens to match what the vendor sells. There is a better first source. When the Department of Defense published the CMMC rule (32 CFR part 170, [89 FR 83092](https://www.govinfo.gov/content/pkg/FR-2024-10-15/html/2024-22905.htm), 15 October 2024), it had to estimate the cost to the businesses it regulates, and it showed the working: for each level, who does the work, how many hours each person spends, at what hourly rate, and how long the assessor's team is on site.
