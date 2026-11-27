@@ -59,17 +59,19 @@ test('every tool the front doors send here is listed, so the door leads somewher
   }
 });
 
-test('products are open only with a sign-up, otherwise in development; unpriced; never claim certification or endorsement', () => {
+test('products are in development or open free, unpriced, and never claim certification or endorsement', () => {
   for (const p of PRODUCTS) {
     if (p.appUrl) {
-      assert.match(p.status, /^Open/);
+      // An open product: its own host on the catalogue's domain, never workers.dev, and the paid plans unsold.
       assert.match(p.appUrl, /^https:\/\/[a-z-]+\.marisstella\.app\//);
-      assert.ok(html.includes(`href="${p.appUrl}"`), `${p.id}: no Start free link`);
+      assert.match(p.status, /^Open: free/);
+      assert.ok(html.includes(`href="${p.appUrl}"`), p.appUrl);
       assert.match(p.note ?? '', /not switched on/, `${p.id}: an open product says what is still off`);
     } else {
       assert.match(p.status, /in development/i);
     }
   }
+  assert.match(text, /Paid plans are not on sale yet/);
   assert.match(text, /early access/i);
   assert.match(text, /Pricing is not set yet/);
   assert.doesNotMatch(text, /\$\d+\s*(?:\/|a |per )mo/i);
@@ -147,4 +149,14 @@ test('links an open product\'s own site only when the build copied it in', () =>
   const linked = renderManufacturingPage({ baseUrl: base, productSites: new Set(['jobshop']) });
   assert.ok(linked.includes('href="../../jobshop/">Features and pricing</a>'));
   assert.ok(!html.includes('jobshop/">Features and pricing'), 'no link to a site the build did not write');
+});
+
+test("the free plan line matches Job Shop Quote's own FREE_PLAN", () => {
+  const src = readFileSync(new URL('../../ventures/jobshop-quote/apps/jobshop-quote/src/shared/plans.ts', import.meta.url), 'utf8');
+  const free = src.slice(src.indexOf('key: "free"'), src.indexOf('key: "shop"'));
+  const rfqs = Number(/rfqsPerMonth: (\d+)/.exec(free)[1]);
+  const members = Number(/maxMembers: (\d+)/.exec(free)[1]);
+  assert.match(free, /priceCents: 0,/);
+  const jq = PRODUCTS.find((p) => p.id === 'jobshop-quote');
+  assert.equal(jq.freePlan, `${rfqs} RFQs a month, ${members} users, no card`);
 });

@@ -11,8 +11,9 @@ Two numbers:
   `wrangler deploy` with `working-directory:` the config's folder). Over the limit is a failure:
   those deploys will collide on the account.
 - *configured*: every schedule in every `wrangler*.jsonc|json|toml` (not `*.test.*`). Over the
-  limit is a warning (exit 0) until `--strict`: those Workers are deployed by hand or not at all
-  yet, and the warning is what the session wiring up their deploy needs to see.
+  limit is a warning (exit 0) until `--strict`, which CI passes since P098 brought the count to
+  the limit: a schedule a Worker configures gets deployed sooner or later, so the PR adding it is
+  where it should fail. The fix it names: a Durable Object alarm, which is not a cron trigger.
 
 The limit comes from `portfolio/hosting/cloudflare-plan.json`.
 
@@ -163,13 +164,16 @@ def main(argv=None):
     if len(deployed) > limit:
         print(f"::error title=Cron triggers over the account limit::{len(deployed)} schedules on "
               f"workflow-deployed Workers, {limit} allowed: the last deploy's trigger update will fail. "
-              "Fold a schedule into another Worker's scheduled handler, or the owner moves the account "
-              f"to Workers Paid and {PLAN} says so.")
+              "Run the job on a Durable Object alarm instead (alarms are not cron triggers; "
+              "ventures/payapps/apps/payapps-site/src/worker/purge-clock.ts is the pattern), fold it "
+              f"into another Worker's scheduled handler, or the owner moves the account to Workers Paid "
+              f"and {PLAN} says so.")
         fail = True
     if len(crons) > limit:
         print(f"::warning title=Cron triggers configured over the account limit::{len(crons)} schedules "
-              f"configured, {limit} allowed. Fine while the extra Workers are not deployed; the PR that "
-              "adds their deploy workflow fails this check.")
+              f"configured, {limit} allowed. CI runs --strict, so this fails: move one to a Durable Object "
+              "alarm (ventures/*/apps/*-site/src/purge-clock.mjs is the pattern) or fold it into "
+              "another Worker's scheduled handler.")
         fail = fail or a.strict
     return 1 if fail else 0
 

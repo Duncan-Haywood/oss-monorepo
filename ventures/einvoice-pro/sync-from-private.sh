@@ -25,8 +25,19 @@ python3 "$repo/platform/security/prepub_audit.py" "$src" "${paths[@]}" \
   exit 1
 }
 
+# Files edited here after the copy that private does not have: saved before the replace and put
+# back after it. Drop an entry once private has it. (P098, 2026-11-27: the site's daily purge
+# moved from a cron trigger to a Durable Object alarm here.)
+keep_local=(apps/einvoice-site/entry.mjs apps/einvoice-site/purge-clock.mjs
+  apps/einvoice-site/test/purge-clock.test.mjs apps/einvoice-site/wrangler.jsonc
+  apps/einvoice-site/README.md)
+saved="$(mktemp -d)"
+for f in "${keep_local[@]}"; do mkdir -p "$saved/$(dirname "$f")"; cp "$here/$f" "$saved/$f"; done
+
 rm -rf "$here/apps" "$here/packages"
 git -C "$src" archive HEAD "${paths[@]}" | tar -x -C "$here"
+for f in "${keep_local[@]}"; do mkdir -p "$here/$(dirname "$f")"; cp "$saved/$f" "$here/$f"; done
+rm -rf "$saved"
 
 # Public-repo rewrites (docs/reports/2026-11-27-move-einvoice-pro-public.md).
 grep -rlZ '@private-monorepo/' "$here/packages" | xargs -0 -r sed -i 's#@private-monorepo/#@einvoice-pro/#g'

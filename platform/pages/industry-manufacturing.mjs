@@ -10,10 +10,11 @@
  * `build.mjs` calls `buildManufacturingPage` on every site build.
  *
  * Honesty rules this page keeps (tested in industry-manufacturing.test.mjs):
- *   - a product is "open" only when its app takes sign-ups (`appUrl`; Job Shop Quote since
- *     2026-11-27, jobshop-quote-deploy run 46018975911), and then says what is still switched off;
- *     the others are in development: "early access", never "available";
- *     no price is shown on this page (an open product's own site carries its pricing);
+ *   - a product is "in development (early access)" until its app is deployed;
+ *     an open one (`appUrl`, Job Shop Quote since jobshop-quote-deploy run
+ *     46013246899, 2026-11-27) links to its free plan and says the paid plans
+ *     are not on sale yet; no price is shown until checkout is live;
+ *     its own marketing site (`site`, jobshop-site.mjs) is linked when the build copied it in;
  *   - no claim of CMMC certification, C3PAO status or DoD endorsement;
  *   - every market fact carries the source `bets.md` cites for it.
  *
@@ -46,7 +47,11 @@ export const PRODUCTS = Object.freeze([
   Object.freeze({
     id: 'jobshop-quote',
     name: 'Job Shop Quote: RFQ to priced quote',
-    status: 'Open: free to start',
+    status: 'Open: free Early access plan',
+    // The deployed app's sign-up page; `from` says which page sent the visitor.
+    appUrl: 'https://jobshop-quote.marisstella.app/sign-up?from=industries/manufacturing',
+    // What the free plan gives (apps/jobshop-quote/src/shared/plans.ts, FREE_PLAN), tested against it.
+    freePlan: '40 RFQs a month, 3 users, no card',
     for: 'CNC machine shops and fabricators who quote from drawings, CAD files and emails.',
     does: [
       'Prices each part from your own shop rates, setup times and material costs, not a generic table.',
@@ -54,8 +59,7 @@ export const PRODUCTS = Object.freeze([
       'Builds the quote PDF, emails it when your estimator sends it, and keeps every quote and its assumptions in a won/lost log.',
     ],
     note: 'Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet; until it is, you enter the parts yourself.',
-    // The app's sign-up (apps/jobshop-quote) and its own marketing site at /jobshop/ (jobshop-site.mjs).
-    appUrl: 'https://jobshop-quote.marisstella.app/sign-up',
+    // Its own marketing site at /jobshop/ (jobshop-site.mjs).
     site: 'jobshop',
     problems: ['rfq-backlog', 'own-rates'],
     // The free tool whose real still (showcase/capture.mjs) shows under this card.
@@ -174,7 +178,7 @@ export function esc(value) {
 }
 
 const TITLE = 'Software for machine shops and engineering firms';
-const DESCRIPTION = 'Quoting and CMMC/ISO 9001 software in development for CNC and fabrication job shops, plus free tools for shop rates, part costs, nesting and SPC.';
+const DESCRIPTION = 'RFQ-to-quote software (free to start) and a CMMC/ISO 9001 workspace in development for CNC and fabrication job shops, plus free tools for shop rates, part costs, nesting and SPC.';
 
 export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, published = null, footer = '', tail = '', shots = [], productSites = new Set() } = {}) {
   const liveTools = FREE_TOOLS.filter((t) => !published || published.has(t.slug));
@@ -226,7 +230,7 @@ export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, publi
   ${p.note ? `<p class="note">${esc(p.note)}</p>` : ''}
   ${p.still && still.has(p.still) ? figure(still.get(p.still), 'still', true, '(max-width: 52rem) calc(100vw - 66px), 600px') : ''}
   ${p.appUrl
-    ? `<p><a class="go" href="${esc(p.appUrl)}">Start free</a> (no card)${p.site && productSites.has(p.site) ? ` · <a href="${esc(`${toRoot}${p.site}/`)}">Features and pricing</a>` : ''}</p>`
+    ? `<p>Free to use now: ${esc(p.freePlan)}. Paid plans are not on sale yet. <a class="go" href="${esc(p.appUrl)}">Start free in Job Shop Quote</a>${p.site && productSites.has(p.site) ? ` · <a href="${esc(`${toRoot}${p.site}/`)}">Features and pricing</a>` : ''}</p>`
     : `<p>Pricing is not set yet. <a class="go" href="${esc(`${toRoot}${EARLY_ACCESS_HREF}`)}">Ask for early access</a></p>`}
 </section>`).join('\n');
 
@@ -265,14 +269,14 @@ body{margin:0;background:#f6f7f9;color:var(--pfs-ink,#1d2530);font:16px/1.55 sys
 <body>
 <main class="mfg">
 <h1>${esc(TITLE)}</h1>
-<p class="lede">For CNC and fabrication job shops and small engineering firms: quote faster from your own rates, and keep your CMMC and ISO 9001 paperwork in one place. Two products are in development and open for early access; the free tools below work today.</p>
+<p class="lede">For CNC and fabrication job shops and small engineering firms: quote faster from your own rates, and keep your CMMC and ISO 9001 paperwork in one place. Job Shop Quote is open on a free plan; the CMMC workspace is in development and open for early access; the free tools below work today.</p>
 ${leadShot ? `${figure(leadShot, 'still lead-still', false, '(max-width: 52rem) calc(100vw - 32px), 720px')}\n` : ''}
 <h2>Common problems, and what solves them</h2>
 <ol class="problems">
 ${problems}
 </ol>
 
-<h2>Products in development</h2>
+<h2>Products</h2>
 ${products}
 
 <h2>Free tools you can use today</h2>
@@ -287,7 +291,7 @@ ${facts}
 </ul>
 
 <footer>
-<p>No warranty. These products are in development and the free tools give estimates from the figures you enter; they are not legal, compliance, tax or engineering advice. CMMC requirements and their timing are set by the Department of Defense and change; check the current rules before you rely on any date here.</p>
+<p>No warranty. These products are early versions and the free tools give estimates from the figures you enter; they are not legal, compliance, tax or engineering advice. CMMC requirements and their timing are set by the Department of Defense and change; check the current rules before you rely on any date here.</p>
 ${footer}
 </footer>
 </main>

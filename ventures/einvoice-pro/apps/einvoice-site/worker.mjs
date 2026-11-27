@@ -20,10 +20,11 @@ import { CONSENT_VERSION, esc, ROLES } from "./content/format.mjs";
 import de from "./content/i18n/de.mjs";
 import en from "./content/i18n/en.mjs";
 import fr from "./content/i18n/fr.mjs";
+import nl from "./content/i18n/nl.mjs";
 import { pathOf } from "./content/routes.mjs";
 import { LANGS, SITE_NAME } from "./site.config.mjs";
 
-const I18N = { de, fr, en };
+const I18N = { de, fr, en, nl };
 const DAY = 86_400_000;
 export const LIMITS = {
   tokenTtlMs: 7 * DAY,

@@ -24,6 +24,7 @@ import {
 } from "./early-access.mjs";
 import { SECURITY_HEADERS } from "./headers.mjs";
 import { API, esc, href, layout } from "./html.mjs";
+import { purgeClockClass, withPurgeClock } from "./purge-clock.mjs";
 
 const NO_STORE = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" };
 const MAX_BODY_BYTES = 8 * 1024;
@@ -347,14 +348,9 @@ export async function handleRequest(req, env, ctx) {
   return env.ASSETS.fetch(req);
 }
 
-export default {
-  fetch: handleRequest,
-  async scheduled(_event, env, ctx) {
-    if (!env.DB) return;
-    ctx.waitUntil(
-      purgePending({ db: env.DB, now: () => new Date() }).then((deleted) =>
-        logger.info("early_access.purge", { deleted }),
-      ),
-    );
-  },
-};
+// The daily purge runs on a Durable Object alarm, not a cron trigger (purge-clock.mjs).
+export const PurgeClock = purgeClockClass(async (env) =>
+  env.DB ? purgePending({ db: env.DB, now: () => new Date() }) : 0,
+);
+
+export default withPurgeClock({ fetch: handleRequest });

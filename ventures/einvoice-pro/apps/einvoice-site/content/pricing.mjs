@@ -35,7 +35,7 @@ export const PLANS = [
     clients: 10,
     invoices: 500,
     explanations: 300,
-    name: { de: "Kanzlei S", fr: "Cabinet S", en: "Firm S" },
+    name: { de: "Kanzlei S", fr: "Cabinet S", en: "Firm S", nl: "Kantoor S" },
   },
   {
     key: "standard",
@@ -43,7 +43,7 @@ export const PLANS = [
     clients: 30,
     invoices: 1500,
     explanations: 500,
-    name: { de: "Kanzlei M", fr: "Cabinet M", en: "Firm M" },
+    name: { de: "Kanzlei M", fr: "Cabinet M", en: "Firm M", nl: "Kantoor M" },
   },
   {
     key: "plus",
@@ -51,7 +51,7 @@ export const PLANS = [
     clients: 100,
     invoices: 4000,
     explanations: 850,
-    name: { de: "Kanzlei L", fr: "Cabinet L", en: "Firm L" },
+    name: { de: "Kanzlei L", fr: "Cabinet L", en: "Firm L", nl: "Kantoor L" },
   },
 ];
 
@@ -89,10 +89,11 @@ export const meterMarkup = (kind) =>
   (kind === "explanation" ? API_METER.explanationCents : API_METER.validationCents) /
   meterUnitCost(kind);
 
-/** "19 €" / "€19" style formatting per language. */
+/** "19 €" / "€19" / "€ 19,50" style formatting per language (Dutch: sign first, a space, comma). */
 export function euro(cents, lang) {
   const n = cents / 100;
   const s = Number.isInteger(n) ? String(n) : n.toFixed(2);
   if (lang === "en") return `€${s}`;
+  if (lang === "nl") return `€\u00a0${s.replace(".", ",")}`;
   return `${s.replace(".", ",")} €`;
 }
