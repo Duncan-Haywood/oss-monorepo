@@ -3,6 +3,7 @@
 // Copy rules: see the header of site.mjs and docs/CLAIMS.md.
 
 import { appLegalUrl, launchState, signinUrl, signupUrl } from "./launch.mjs";
+import { level1RequirementsPage } from "./level1-requirements.mjs";
 import { publicPlans } from "./plans.mjs";
 import { poamRulesPage } from "./poam-rules.mjs";
 import {
@@ -172,7 +173,7 @@ ${statusBox()}
   <p>Shops of roughly 5 to 100 people that machine or fabricate parts for defense or aerospace primes, have no full-time
   security staff, and need to post a Level 1 or Level 2 self-assessment. DoD estimates ${cite("venable-size", "229,818 small entities")}
   among the 337,968 contractors the CMMC rule affects.</p>
-  <p>Not sure which level applies? Read <a href="/cmmc-level-1-vs-level-2">CMMC Level 1 vs Level 2</a>. Want a number first? Try the free <a href="/sprs-score-calculator">SPRS score calculator</a>.</p>
+  <p>Not sure which level applies? Read <a href="/cmmc-level-1-vs-level-2">CMMC Level 1 vs Level 2</a>, or go straight to the <a href="/cmmc-level-1-requirements">15 Level 1 requirements</a>. Want a number first? Try the free <a href="/sprs-score-calculator">SPRS score calculator</a>.</p>
 </section>
 <section>
   <h2>What it is not</h2>
@@ -204,7 +205,7 @@ ${statusBox()}
   <thead><tr><th scope="col"></th><th scope="col">Level 1</th><th scope="col">Level 2</th></tr></thead>
   <tbody>
     <tr><th scope="row">Protects</th><td>Federal Contract Information (FCI)</td><td>Controlled Unclassified Information (CUI)</td></tr>
-    <tr><th scope="row">Requirements</th><td>15 safeguarding requirements, ${cite("far-52-204-21", "FAR 52.204-21")}</td><td>110 requirements, ${cite("nist-800-171r2", "NIST SP 800-171 Rev. 2")}</td></tr>
+    <tr><th scope="row">Requirements</th><td><a href="/cmmc-level-1-requirements">15 safeguarding requirements</a>, ${cite("far-52-204-21", "FAR 52.204-21")}</td><td>110 requirements, ${cite("nist-800-171r2", "NIST SP 800-171 Rev. 2")}</td></tr>
     <tr><th scope="row">Assessment</th><td>Self-assessment every year</td><td>Self-assessment or third-party (C3PAO) assessment every three years, as the contract states</td></tr>
     <tr><th scope="row">Affirmation</th><td>Annual, by a senior official, in SPRS</td><td>After each assessment and annually, in SPRS</td></tr>
     <tr><th scope="row">POA&amp;M allowed?</th><td>No: every requirement must be met</td><td>Yes, for a conditional status: score of at least 88/110, only eligible items open, closed within 180 days (${cite("cfr-170-21", "32 CFR 170.21")})</td></tr>
@@ -214,6 +215,7 @@ ${statusBox()}
 <h2>Which level does my shop need?</h2>
 <p>Look at what you receive. Purchase orders, delivery schedules and ordinary contract paperwork are FCI, which means Level 1.
 Drawings, specifications or data marked CUI (often with a distribution statement and a CUI banner) mean Level 2.
+All 15 Level 1 requirements, with the objectives an assessment checks, are on the <a href="/cmmc-level-1-requirements">Level 1 requirements</a> page.
 The solicitation names the level; when in doubt, ask your prime or the contracting officer in writing.</p>
 <h2>What is an SPRS score?</h2>
 <p>It is the number you post in the Supplier Performance Risk System for a Level 2 self-assessment. Start at 110 and subtract
@@ -359,6 +361,7 @@ ${sourcesList(["dod-methodology", "cfr-170", "cfr-170-21", "nist-800-171r2", "df
 ${cta}`,
     },
     poamRulesPage({ cite, statusBox, sourcesList, cta }),
+    level1RequirementsPage({ cite, statusBox, sourcesList, cta }),
     open
       ? pricingPage(launch)
       : {
