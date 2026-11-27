@@ -761,7 +761,7 @@ function staticPrivacy(ctx: SiteContext, appUrl: string): BuiltPage {
   const page = {
     ...PAGES.privacy,
     description:
-      "This PayApps website stores nothing about you: no form, no cookies, no analytics. The app's own privacy policy covers your account.",
+      "These PayApps pages have no form and set no cookies; page loads are counted anonymously. The app's own privacy policy covers your account.",
   };
   const policy = `${appUrl}/legal/privacy`;
   const main = html`
@@ -774,7 +774,7 @@ function staticPrivacy(ctx: SiteContext, appUrl: string): BuiltPage {
 </section>
 <div class="wrap narrow section prose">
   <h2>What this site stores</h2>
-  <p>Nothing about you. These pages are plain files: there is no form on them, they set no cookies and they run no analytics or advertising scripts. Like any web host, the server that delivers them (Cloudflare, in the United States) handles your IP address to send the page.</p>
+  <p>Nothing that identifies you. There is no form on these pages, and they set no cookies and run no advertising scripts. They are served from the catalogue at marisstella.app, whose script counts page loads without cookies: one number per page per day, and, when you arrive from another site, which kind of site it was (a search engine, an AI assistant, a forum), worked out in your browser. It stores no IP address, browser details, referring address or identifier. The host that delivers the pages (Cloudflare, in the United States) handles your IP address to send them, as every web host does.</p>
   <h2>The ${PRODUCT_NAME} app</h2>
   <p>The sign-up and sign-in links go to the app at <a href="${`${appUrl}/`}">${new URL(appUrl).host}</a>. What the app stores when you create an account and use it is in its own <a href="${policy}">privacy policy</a>.</p>
 </div>`;

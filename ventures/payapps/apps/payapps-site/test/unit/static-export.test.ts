@@ -50,18 +50,20 @@ describe("static export", () => {
     expect(worker.has(PAGES.earlyAccess.file)).toBe(true);
   });
 
-  it("links only to its own pages under /payapps/ and to the app", () => {
+  it("links its own pages relatively (no root-absolute link) and every link resolves", () => {
     const pages = new Set(
       [...files.keys()].filter((f) => f.endsWith(".html")).map((f) => f.replace(/\.html$/, "")),
     );
     for (const [rel, doc] of files) {
       if (!rel.endsWith(".html")) continue;
-      for (const [, url] of doc.matchAll(/href="(\/[^"#]*)"/g)) {
-        const path = (url ?? "").replace(/^\/payapps\/?/, "");
-        if (path === "") continue;
-        expect(pages.has(path) || files.has(path), `${rel} links ${url}`).toBe(true);
+      expect(doc, rel).not.toMatch(/(href|src|action)="\//);
+      for (const [, url] of doc.matchAll(/href="([^"#:]*)"/g)) {
+        if (url === "" || url === "./") continue;
+        expect(pages.has(url ?? "") || files.has(url ?? ""), `${rel} links ${url}`).toBe(true);
       }
+      expect(doc, rel).toContain("No warranty");
     }
+    expect(files.has("404.html")).toBe(false);
   });
 
   it("says the pages store nothing and points to the app's own privacy policy", () => {
@@ -69,6 +71,8 @@ describe("static export", () => {
     expect(privacy).toContain("Privacy notice for this website");
     expect(privacy).toContain(`href="${APP}/legal/privacy"`);
     expect(privacy).not.toMatch(/join early access|early-access list/i);
+    // The catalogue's counter (platform/counter) runs on these pages, so the notice names it.
+    expect(privacy).toContain("counts page loads without cookies");
     expect(files.get("sitemap.xml")).not.toContain("early-access");
     expect(files.get("llms.txt")).not.toContain("early-access");
     expect(files.get("feed.xml")).not.toContain("early-access");

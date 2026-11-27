@@ -4,6 +4,7 @@
 import {
   absoluteUrl,
   basePathOf,
+  NO_WARRANTY_NOTE,
   NOT_AIA_NOTE,
   PAGES,
   PRODUCT_NAME,
@@ -57,6 +58,9 @@ function render(v: unknown): string {
 
 /** Site-relative href with the base path, e.g. href(ctx, "/pricing") → "/payapps/pricing". */
 export function href(ctx: SiteContext, path: string): string {
+  // The catalogue may serve its tree under another base (check.mjs refuses root-absolute links), and
+  // every static page sits in the base directory itself, so links there are relative.
+  if (ctx.staticHost) return path === "/" ? "./" : path.slice(1);
   const base = basePathOf(ctx.siteUrl);
   if (path === "/") return `${base}/`;
   return `${base}${path}`;
@@ -150,6 +154,7 @@ ${main}
   <div class="wrap">
     <p>${statusLine(ctx)}</p>
     <p class="fine">${NOT_AIA_NOTE}</p>
+    <p class="fine">${NO_WARRANTY_NOTE}</p>
     <p class="footer-links">
       <a href="${href(ctx, PAGES.features.path)}">Features</a>
       <a href="${href(ctx, PAGES.pricing.path)}">Pricing</a>

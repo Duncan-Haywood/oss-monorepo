@@ -9,7 +9,7 @@ Open now · free on one job
 
 PayApps is a hosted pay-application tool for subcontractors: your schedule of values, retainage, change orders and lien waivers in one place, so each month's pay app is a review instead of a rebuild.
 
-[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site) [See what it does](https://marisstella.app/payapps/features)
+[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site) [See what it does](features)
 
 ## What billing day looks like for a lot of subs
 
@@ -49,7 +49,7 @@ Then the same amounts go into your accounting system as invoices, with retainage
 
 - **Get paid and keep the books straight.** Record each check, see what is past due across every job, send the invoice and payment to QuickBooks Online, and bill the retainage when the work is done, with the punch items and close-out documents it still waits on named job by job.
 
-All four steps work in the app today. The [features page](https://marisstella.app/payapps/features) marks what is built and what comes next.
+All four steps work in the app today. The [features page](features) marks what is built and what comes next.
 
 ## Questions
 
@@ -446,7 +446,7 @@ For a subcontractor with project managers and a billing team.
 - Everything in Crew
 - 50 GB of attachments
 
-Prices in US dollars, before any sales tax. No setup fee; cancel any time. The [features page](https://marisstella.app/payapps/features) marks what is built and what comes next.
+Prices in US dollars, before any sales tax. No setup fee; cancel any time. The [features page](features) marks what is built and what comes next.
 
 ## Questions about pricing
 
@@ -487,7 +487,7 @@ Last updated 2026-11-27. This covers these marketing pages only.
 
 ## What this site stores
 
-Nothing about you. These pages are plain files: there is no form on them, they set no cookies and they run no analytics or advertising scripts. Like any web host, the server that delivers them (Cloudflare, in the United States) handles your IP address to send the page.
+Nothing that identifies you. There is no form on these pages, and they set no cookies and run no advertising scripts. They are served from the catalogue at marisstella.app, whose script counts page loads without cookies: one number per page per day, and, when you arrive from another site, which kind of site it was (a search engine, an AI assistant, a forum), worked out in your browser. It stores no IP address, browser details, referring address or identifier. The host that delivers the pages (Cloudflare, in the United States) handles your IP address to send them, as every web host does.
 
 ## The PayApps app
 
