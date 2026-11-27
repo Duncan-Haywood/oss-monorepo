@@ -3,7 +3,7 @@
 // is entered, estimated from the billing (src/shared/lien-deadline.ts). Saved through the job's PATCH;
 // the cash page and the weekly email name the date once money is owed and it is near. A public job
 // (src/shared/public-jobs.ts) has no lien: a federal one shows the Miller Act bond-claim dates in its
-// place, and a state or local one shows the state's payment bond claim steps (the eight states in
+// place, and a state or local one shows the state's payment bond claim steps (the states in
 // STATE_BOND_RULES) and its retainage cap on public work instead.
 import type { ProjectDetailDto } from "@shared/api/types";
 import {

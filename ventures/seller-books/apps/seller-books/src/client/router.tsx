@@ -3,23 +3,19 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   Navigate,
   Outlet,
 } from "@tanstack/react-router";
 import { BASE_PATH } from "./lib/base-path";
 import { ForgotPasswordPage, ResetPasswordPage, VerifyEmailPage } from "./routes/account";
-import { BillingPage } from "./routes/billing";
-import { EstimatedTaxPage } from "./routes/estimated-tax";
-import { ImportsPage, SalesPage } from "./routes/imports";
-import { InventoryPage } from "./routes/inventory";
 import { LegalPage } from "./routes/legal";
-import { ExpensesPage, MileagePage } from "./routes/logs";
-import { OrgLayout, PnlPage } from "./routes/org";
 import { InvitePage, LoginPage, OrgsPage, SignupPage } from "./routes/public";
-import { SettingsPage } from "./routes/settings";
-import { StockPage } from "./routes/stock";
-import { Form1099kPage, MembersPage, ScheduleCPage } from "./routes/tax";
 import { UnsubscribePage } from "./routes/unsubscribe";
+
+// The signed-in pages (everything under /o/$orgId) load on demand: a visitor's first page is the
+// sign-up or sign-in screen, which should not download the books, imports and tax views first
+// (docs/history/seller-books-app-first-load-perf-2026-11-27.md). Public pages stay static.
 
 const rootRoute = createRootRoute({
   component: Outlet,
@@ -79,62 +75,74 @@ const invite = createRoute({
 const org = createRoute({
   getParentRoute: () => rootRoute,
   path: "/o/$orgId",
-  component: OrgLayout,
+  component: lazyRouteComponent(() => import("./routes/org"), "OrgLayout"),
 });
-const pnl = createRoute({ getParentRoute: () => org, path: "/", component: PnlPage });
+const pnl = createRoute({
+  getParentRoute: () => org,
+  path: "/",
+  component: lazyRouteComponent(() => import("./routes/org"), "PnlPage"),
+});
 const imports = createRoute({
   getParentRoute: () => org,
   path: "/imports",
-  component: ImportsPage,
+  component: lazyRouteComponent(() => import("./routes/imports"), "ImportsPage"),
 });
-const sales = createRoute({ getParentRoute: () => org, path: "/sales", component: SalesPage });
+const sales = createRoute({
+  getParentRoute: () => org,
+  path: "/sales",
+  component: lazyRouteComponent(() => import("./routes/imports"), "SalesPage"),
+});
 const inventory = createRoute({
   getParentRoute: () => org,
   path: "/inventory",
-  component: InventoryPage,
+  component: lazyRouteComponent(() => import("./routes/inventory"), "InventoryPage"),
 });
-const stock = createRoute({ getParentRoute: () => org, path: "/stock", component: StockPage });
+const stock = createRoute({
+  getParentRoute: () => org,
+  path: "/stock",
+  component: lazyRouteComponent(() => import("./routes/stock"), "StockPage"),
+});
 const mileage = createRoute({
   getParentRoute: () => org,
   path: "/mileage",
-  component: MileagePage,
+  component: lazyRouteComponent(() => import("./routes/logs"), "MileagePage"),
 });
 const expenses = createRoute({
   getParentRoute: () => org,
   path: "/expenses",
-  component: ExpensesPage,
+  component: lazyRouteComponent(() => import("./routes/logs"), "ExpensesPage"),
 });
 const scheduleC = createRoute({
   getParentRoute: () => org,
   path: "/schedule-c",
-  component: ScheduleCPage,
+  component: lazyRouteComponent(() => import("./routes/tax"), "ScheduleCPage"),
 });
 const estimatedTax = createRoute({
   getParentRoute: () => org,
   path: "/estimated-tax",
-  component: EstimatedTaxPage,
+  component: lazyRouteComponent(() => import("./routes/estimated-tax"), "EstimatedTaxPage"),
 });
 const form1099k = createRoute({
   getParentRoute: () => org,
   path: "/1099k",
-  component: Form1099kPage,
+  component: lazyRouteComponent(() => import("./routes/tax"), "Form1099kPage"),
 });
 const members = createRoute({
   getParentRoute: () => org,
   path: "/members",
-  component: MembersPage,
+  component: lazyRouteComponent(() => import("./routes/tax"), "MembersPage"),
 });
 
 const settings = createRoute({
   getParentRoute: () => org,
   path: "/settings",
-  component: SettingsPage,
+  component: lazyRouteComponent(() => import("./routes/settings"), "SettingsPage"),
 });
 
 const billing = createRoute({
   getParentRoute: () => org,
   path: "/billing",
-  component: BillingPage,
+  component: lazyRouteComponent(() => import("./routes/billing"), "BillingPage"),
 });
 
 const routeTree = rootRoute.addChildren([
