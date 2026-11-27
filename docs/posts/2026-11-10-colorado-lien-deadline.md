@@ -3,7 +3,7 @@ title: "Mechanics lien deadlines in ten states, now with North Carolina, New Yor
 seo_title: "Mechanics lien deadlines by state: NC, NY, OH, CA, TX, FL and 4 more"
 date: 2026-11-10
 tags: [construction, subcontractors, mechanics-lien, lien-waivers, pay-app-guides, payapps, for-customers]
-description: "Preliminary notice and lien filing deadlines for subcontractors in ten states, with the statute for each, and since 2026-11-27 kept on every job in PayApps with a warning 45 days ahead while money is owed."
+description: "Preliminary notice and lien filing deadlines for subcontractors in ten states, with the statute for each, now tracked on every job in PayApps."
 ---
 
 The free [mechanics lien deadline calculator](https://marisstella.app/mechanics-lien-deadline-calculator/) takes your first and last day on a job and shows the two dates that keep a lien alive: the early notice and the lien filing. It covers ten states.
