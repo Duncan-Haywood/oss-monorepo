@@ -127,3 +127,51 @@ it("checks a state public job's retainage against the cap and saves the owner", 
     millerTier: "first",
   });
 });
+
+it("lists a state public job's bond claim steps, dated from the last day", () => {
+  const last = addDays(today, -30);
+  show(
+    project({
+      publicOwner: "state_local",
+      lienState: "VA",
+      lastFurnishedOn: last,
+      millerTier: "second",
+    }),
+  );
+  expect(screen.getByText(/Payment bond claim: Va\. Code § 2\.2-4341/)).toBeTruthy();
+  expect(screen.getByText(/Give the contractor written notice of your claim by/)).toBeTruthy();
+  expect(screen.getByText(/Bring suit on the payment bond by/)).toBeTruthy();
+  // No lien date on a public job.
+  expect(screen.queryByText(/record a claim of lien/)).toBeNull();
+});
+
+it("leaves an acceptance-based step undated until the acceptance day is entered, and saves it", async () => {
+  const fetchMock = vi
+    .spyOn(globalThis, "fetch")
+    .mockResolvedValue(
+      new Response("{}", { status: 200, headers: { "content-type": "application/json" } }),
+    );
+  show(project({ publicOwner: "state_local", lienState: "WA" }));
+  expect(
+    screen.getByText(/Not dated: PayApps needs the day the public body accepted the work/),
+  ).toBeTruthy();
+  fireEvent.change(screen.getByLabelText("Day the public body accepted the work"), {
+    target: { value: "2026-12-14" },
+  });
+  fireEvent.change(screen.getByLabelText("Who you contracted with"), {
+    target: { value: "first" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Save" }));
+  await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+  const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+  expect(JSON.parse(String(init.body))).toMatchObject({
+    publicOwner: "state_local",
+    workCompletedOn: "2026-12-14",
+    millerTier: "first",
+  });
+});
+
+it("names the states it covers for a state it does not", () => {
+  show(project({ publicOwner: "state_local", lienState: "CO" }));
+  expect(screen.getByText(/does not list CO's bond claim steps yet/)).toBeTruthy();
+});

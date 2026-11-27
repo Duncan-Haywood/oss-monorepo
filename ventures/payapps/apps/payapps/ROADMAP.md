@@ -2445,6 +2445,29 @@ nothing to copy. No customers yet. Paid plans are dark
   second-tier sub most often misses, and the job already holds every fact it needs but the prime's
   address. Not done: a log of notices sent (as Texas and Florida keep), state bond-claim dates.
 
+- Public jobs, part 2b (2026-11-27, every plan, state-bond-claims-part-1): state "little Miller Act"
+  bond claim steps on a state or local public job, in Texas (Gov't Code ch. 2253), Florida (§ 255.05),
+  New York (State Fin. Law § 137), Virginia (§ 2.2-4341), Washington (RCW 39.08.030, .065), Arizona
+  (§ 34-223), North Carolina (§§ 44A-27, 44A-28) and Ohio (§ 153.56), each read on the legislature's
+  own site on 2026-11-27 (excerpts in `ventures/pay-app-guides/sources/state-bond-claims.txt`).
+  `stateBondClaim` in `src/shared/public-jobs.ts` lists each statute's steps in order: who takes it
+  (everyone, or only a claimant not in contract with the prime), what to do, the rule in words, the
+  citation, and a date where the statute counts from a day PayApps has: the saved last day, or the
+  public body's acceptance (a new date field on a state or local job, kept in `work_completed_on`, the
+  column California and Arizona use for completion, so no migration). Texas counts the 15th of the
+  2nd and 3rd months after the last month; New York's suit, Washington's notice and Ohio's statement
+  and suit count from acceptance; steps that run from the first day of work or the day a notice is
+  mailed (Florida's 45-day notice, Arizona's twenty-day notice, North Carolina's notice of public
+  subcontract, Ohio's notice of furnishing, Texas's suit) are listed undated with what they wait
+  for. Weekends move back to the Friday before. The "who you contracted with" choice the Miller Act
+  uses is now saved on state and local jobs too; not said shows the notices (the safe side), and
+  below the second tier a note says coverage turns on how the state reads "subcontractor". The
+  panel's summary line shows the next bond date. Tests: `src/shared/state-bond.test.ts` (dates worked
+  by hand from each statute) and `test/unit/lien-deadline-panel.test.tsx` (steps shown, acceptance
+  saved, unsupported state). The public guide `ventures/pay-app-guides/state-payment-bond-claims.html`
+  carries the same table. Not done: the cash page and weekly email naming a state bond date (as they
+  do the Miller Act's), California (its site refuses the proxy), and the other states.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2590,6 +2613,8 @@ nothing to copy. No customers yet. Paid plans are dark
   started as a ticket and a remote signature by email link, if contractors ask
 - Public jobs, part 2 (part 1 done 2026-11-27: the owner on the job, Miller Act dates, the 16-state
   retainage cap check; part 2a, the Miller Act notice drafted from the job, done 2026-11-27): a log of
-  Miller notices sent with the proof of delivery, if contractors use the draft; then state "little Miller Act" notice and suit dates for the states the lien deadline
-  covers (California's stop payment notice and bond claim, Florida § 255.05, Texas Gov't Code
-  ch. 2253 first), each read from the statute page, if contractors mark public jobs
+  Miller notices sent with the proof of delivery, if contractors use the draft; state bond claims
+  part 2 (part 1, eight states on the job page, done 2026-11-27): the next state bond date on the
+  cash page and weekly email 45 days ahead, as the Miller Act's is; California's stop payment notice
+  and bond claim once leginfo.legislature.ca.gov answers; more states, each read from the statute
+  page, if contractors mark public jobs
