@@ -142,3 +142,13 @@ test("index links one hop to the overtime-pay-calculator sibling", () => {
   );
   assert.match(html, /overtime pay calculator/i);
 });
+
+test('PayApps CTAs link the open sign-up with their source and no longer say early access', () => {
+  // PayApps opened 2026-11-27 (PR #19644). The WH-347 is on every plan, Free included; waivers are not.
+  const report = readFileSync(new URL('./wh347-report.html', import.meta.url), 'utf8');
+  const llms = readFileSync(new URL('./llms.txt', import.meta.url), 'utf8');
+  assert.match(html, /href="https:\/\/payapps\.marisstella\.app\/\?signup&amp;from=certified-payroll-calculator"/);
+  assert.match(report, /href="https:\/\/payapps\.marisstella\.app\/\?signup&amp;from=certified-payroll-calculator%2Fwh347-report"/);
+  assert.match(html, /Lien waivers, QuickBooks and job costing are in the paid plans, which are not on sale yet/);
+  for (const text of [html, report, llms]) assert.doesNotMatch(text, /early access|nothing is for sale yet/i);
+});
