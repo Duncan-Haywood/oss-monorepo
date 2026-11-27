@@ -1841,7 +1841,7 @@ subscription, should a scheduled venture run default to launch work
   is 1625 lines while `prompt.md` calls it ~870.
 - Metric: `runs_since_review` stays under ~80 (reviews resume); the
   workctl/roadmap_claim path reports go to zero. Compare next review.
-- Result: (next review)
+- Result: too few runs at E125 (same day); next review.
 
 ## E123: Review 2026-11-27, second session (drift fix only)
 
@@ -1855,7 +1855,7 @@ subscription, should a scheduled venture run default to launch work
 - Lesson: the review claim is a PR, so two sessions that route within
   minutes both see no claim. Open the draft PR before anything else.
 - Metric: friction naming `private-monorepo` for a moved bet; next review.
-- Result: (next review)
+- Result: too few runs at E125 (same day); next review.
 
 ## E124: Review 2026-11-27, third session (reduced pass)
 
@@ -1885,8 +1885,22 @@ subscription, should a scheduled venture run default to launch work
 - Metric: friction naming TypeScript/payapps as unreachable on
   `redteam/prompt-0.md` goes to zero; red-team campaigns under
   `ventures/payapps` appear in records. Compare next review.
-- Result: (next review)
+- Result: too few runs at E125 (same day); next review.
 
 ## E125: Review 2026-11-27, fourth session (reduced pass)
 
-- Routed by `review_when_due` (42 merged runs since E124). In progress.
+- Routed by `review_when_due` (42 merged runs since E124, the fourth
+  review today; reviews are now gated by run count, not by day).
+- Decisions: candidates unchanged, all three "keep collecting: the intervals
+  overlap" (same as E122 and E124 hours ago).
+- Change (step 5, `platform/ci/slug_dupe.py`, 19 reports, 8 live; the
+  2026-11-27 16:11 one): a run that claims an item with `roadmap_claim.py`
+  and then checks for duplicates saw its own `claim/...` branch listed as a
+  rival. `check()` now leaves out a branch whose tip is a claim commit
+  carrying this session's `{run <tag>}` (the commit is local, so no fetch);
+  a rival's claim is unreadable locally and stays listed. Tested.
+- Results for E122 to E124: too few runs (all landed today, under 50 runs
+  after them). Carry to the next review.
+- Not done (reduced pass): audit, drift report, a new candidate.
+- Metric: slug_dupe friction about the run's own claim branch goes to zero.
+- Result: (next review)
