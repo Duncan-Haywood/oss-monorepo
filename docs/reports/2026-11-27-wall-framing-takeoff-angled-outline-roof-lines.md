@@ -1,5 +1,5 @@
 ---
-kind: agent
+kind: note
 date: 2026-11-27
 ---
 # wall-framing-takeoff (bet #6): roof lines over outlines with angled sides
