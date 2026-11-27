@@ -454,6 +454,34 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("nowhere: not in this clone", out)
         self.assertRegex(out, r"Start here: bet #3 jobshop-quote, item #[34] ")
 
+    def test_unblock_tasks_lists_open_unblocked_paid_bet_tasks(self):
+        try:
+            import yaml  # noqa: F401
+        except ImportError:
+            self.skipTest("PyYAML not installed")
+        text = ("tasks:\n"
+                "  - {id: a, direction: paid-bets, title: Move it, status: open}\n"
+                "  - {id: b, direction: paid-bets, title: Wait, status: open, blocked_on: x}\n"
+                "  - {id: c, direction: paid-bets, title: Done, status: done}\n"
+                "  - {id: d, direction: other, title: Elsewhere, status: open}\n"
+                "  - {id: e, direction: paid-bets, title: Check key, status: open}\n")
+        self.assertEqual(rc.unblock_tasks(text), [("a", "Move it"), ("e", "Check key")])
+        self.assertEqual(rc.unblock_tasks(": not yaml: ["), [])
+        self.assertEqual(rc.unblock_tasks(""), [])
+        tasks = Path(self.tmp.name) / "tasks.yaml"
+        tasks.write_text(text)
+        with mock.patch.object(rc, "TASKS_YAML", tasks):
+            bets = Path(self.tmp.name) / "bets.md"
+            bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                            "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n")
+            code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertEqual(code, 0, out)
+        self.assertIn("First look: work that unblocks every bet", out)
+        self.assertIn("  - a: Move it", out)
+        self.assertNotIn("Wait", out)
+        self.assertLess(out.index("First look"), out.index("Bets in bets.md order"))
+        self.assertRegex(out, r"Start here: bet #1 payapps, item #[123] ")
+
     def test_spread_rotates_the_top_choices_per_session(self):
         # 2026-11-26 friction (4 runs): every run got the same "Start here" item and lost the
         # claim race by seconds.

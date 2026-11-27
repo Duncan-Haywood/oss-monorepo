@@ -25,17 +25,46 @@
 #             (`workctl.py coverage`); areas only
 #
 # Agents may add directions the owner sets, adjust weights and paths, and
-# retire a direction only when the owner says so.
+# pause a direction the owner's later words leave behind (reversible: set it
+# back to active with a reason). Retire one only when the owner says so.
+# Owner, 2026-11-27: "these sort of meta analyses need to happen and be
+# carried out by agents without me generally", and "redirect don't block as
+# general principle": steer runs by weight and by what the pickers show
+# first, not by forbidding work.
 
 directions:
   # --- areas ---------------------------------------------------------------
+  - id: paid-bets
+    title: The ranked paid bets, toward $10k MRR (bets.md), and what unblocks them
+    kind: area
+    set: 2026-11-24
+    source: portfolio/monetization/bets.md
+    status: active
+    # Weight 4, the highest: the North star ("this is the new overarching goal
+    # in the repo hit 10k mrr", owner, 2026-11-24). Product code is in
+    # private-monorepo until products-to-public-repo lands; its tasks here are
+    # the cross-bet ones (CI, deploys, the move, checkout), and each app's
+    # ROADMAP holds its own items (`roadmap_claim.py --bets`).
+    weight: 4
+    # Paths are the cross-bet work only. The bets' customer posts
+    # (pay-app-guides, machine-shop-guides, ...) land many commits a day and
+    # would make this look covered while CI, the move and checkout sat open.
+    paths:
+      - platform/billing/**
+      - platform/security/prepublish_audit*
+      - ventures/payapps/**
+      - ventures/jobshop-quote/**
+      - ventures/cmmc/**
+      - ventures/seller-books/**
+
   - id: agent-org-tooling
     title: Tooling for running orgs of agents (this repo first)
     kind: area
     set: 2026-11-03
     source: portfolio/opinions/2026-11-03-requests-for-startups.md
     status: active
-    weight: 3
+    # Weight 2 (2026-11-27): runs' own tooling still multiplies agent hours, but it is not a bet; 3 -> 2.
+    weight: 2
     paths:
       - portfolio/work/**
       - platform/agents/**
@@ -70,7 +99,8 @@ directions:
     set: 2026-10-24
     source: prompts/goals.md
     section: "Direction: open construction, mining and heavy equipment"
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): long-term hardware track (CLAUDE.md), not a ranked bet.
+    status: paused
     weight: 1
     paths:
       - research/heavy-*/**
@@ -80,7 +110,8 @@ directions:
     kind: area
     set: 2026-11-03
     source: portfolio/opinions/2026-11-03-requests-for-startups.md
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): long-term hardware track (CLAUDE.md), not a ranked bet.
+    status: paused
     weight: 1
     paths:
       - ventures/open-floor-robots/**
@@ -92,7 +123,8 @@ directions:
     kind: area
     set: 2026-11-03
     source: portfolio/opinions/2026-11-03-requests-for-startups.md
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): no paid bet serves it (bets.md).
+    status: paused
     weight: 1
     paths:
       - ventures/equipment-lease-vs-buy-calculator/**
@@ -103,7 +135,8 @@ directions:
     kind: area
     set: 2026-11-03
     source: portfolio/opinions/2026-11-03-requests-for-startups.md
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): no paid bet serves it (bets.md).
+    status: paused
     weight: 1
     paths:
       - ventures/datacenter-*/**
@@ -113,7 +146,8 @@ directions:
     kind: area
     set: 2026-11-03
     source: portfolio/opinions/2026-11-03-requests-for-startups.md
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): standalone research, dropped 2026-11-25 (goals.md, pivot point 11).
+    status: paused
     weight: 1
     paths:
       - research/vfm-*/**
@@ -123,7 +157,8 @@ directions:
     kind: area
     set: 2026-11-03
     source: portfolio/opinions/2026-11-03-requests-for-startups.md
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): not a ranked bet; its paths are bets #3 and #5 or demoted tools.
+    status: paused
     weight: 1
     paths:
       - ventures/ai-bookkeeper/**
@@ -137,7 +172,8 @@ directions:
     kind: area
     set: 2026-11-03
     source: portfolio/opinions/2026-11-03-requests-for-startups.md
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): consumer, not SMB; no paid bet serves it.
+    status: paused
     weight: 1
     paths:
       - ventures/household-money-model/**
@@ -147,6 +183,7 @@ directions:
     kind: area
     set: 2026-11-03
     source: portfolio/opinions/2026-11-03-requests-for-startups.md
+    # Active 2026-11-27 only as part of jobshop-quote (bet #2), whose buyers are the same shops.
     status: active
     weight: 1
     paths:
@@ -157,7 +194,8 @@ directions:
     kind: area
     set: 2026-11-03
     source: portfolio/opinions/2026-11-03-requests-for-startups.md
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): no paid bet serves it (bets.md).
+    status: paused
     weight: 1
     paths:
       - ventures/3d-print-price-calculator/**
@@ -167,7 +205,8 @@ directions:
     kind: area
     set: 2026-11-03
     source: portfolio/opinions/2026-11-03-requests-for-startups.md
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): no paid bet serves it (bets.md).
+    status: paused
     weight: 1
     paths:
       - ventures/ai-engineering-academy/**
@@ -178,6 +217,7 @@ directions:
     set: 2026-10-21
     source: prompts/goals.md
     section: "Direction: AI accounting systems"
+    # Active 2026-11-27 only as part of seller-books (bet #5) and the bets' QuickBooks links.
     status: active
     weight: 1
     paths:
@@ -190,7 +230,8 @@ directions:
     source: prompts/goals.md
     section: "Direction: sales, marketing and business tools"
     status: active
-    weight: 1
+    # Weight 2 (2026-11-27): the sales and marketing machine is pivot point 7; 1 -> 2.
+    weight: 2
     paths:
       - ventures/sales-agent/**
       - ventures/sales-*/**
@@ -201,7 +242,8 @@ directions:
     set: 2026-10-24
     source: prompts/goals.md
     section: "Direction: autonomous water vehicles"
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): long-term hardware/research, not a ranked bet.
+    status: paused
     weight: 1
     paths:
       - research/marine-*/**
@@ -212,7 +254,8 @@ directions:
     set: 2026-11-01
     source: prompts/goals.md
     section: "Direction: research at PhD+ level, aimed at deep tech"
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): standalone research, dropped 2026-11-25: R&D only inside a paid product (goals.md, pivot point 11).
+    status: paused
     weight: 1
     paths:
       - research/**
@@ -223,7 +266,8 @@ directions:
     set: 2026-10-29
     source: prompts/goals.md
     section: "Direction: dev tools in Rust, common and niche"
-    status: active
+    # Paused 2026-11-27 (agent trim, owner "go for it"): developer buyers, not SMBs; no paid bet serves it.
+    status: paused
     weight: 1
     paths:
       - ventures/dupehound/**
@@ -234,7 +278,8 @@ directions:
     set: 2026-11-02
     source: portfolio/requests/README.md
     status: active
-    weight: 2
+    # Weight 1 (2026-11-27): after the bets, only where it serves one (CLAUDE.md); 2 -> 1.
+    weight: 1
     paths:
       - portfolio/requests/**
 
@@ -267,9 +312,8 @@ directions:
     source: docs/reports/2026-11-06-site-performance-baseline.md
     section: "Site performance: baseline and leads (2026-11-06)"
     status: active
-    # Weight 2: the owner raised it as a live problem ("lots of downtimes and
-    # painfully slow load speeds"), and it affects every product on the site.
-    weight: 2
+    # Weight 1 (2026-11-27): the site moves to CloudFront (aws-site-cloudfront); 2 -> 1.
+    weight: 1
     paths:
       - platform/pages/cloudflare/**
       - platform/pages/page-weight*.mjs
