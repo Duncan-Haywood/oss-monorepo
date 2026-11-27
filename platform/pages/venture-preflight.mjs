@@ -63,6 +63,8 @@
 // wrong, or a site test fails (CI runs the same tests on the PR, so a red
 // one fails it whoever caused it; the message says whether it names the slug).
 // Problems check.mjs finds on other slugs are printed as notes and do not fail you.
+// A venture with no catalogue entry (a deployed app such as ventures/payapps)
+// skips the launch date, placement and build, and runs the rest.
 // `--skip-build` runs steps 1, 3 and 4 only (98 s on an idle 4-core container, 2026-11-18).
 
 import { spawnSync } from 'node:child_process';
@@ -386,6 +388,25 @@ export function siteTestProblem(r, slug) {
   return `site tests failed (${who}); rerun with \`${rerun}\`:\n${list}`;
 }
 
+/**
+ * What to print for a venture the catalogue does not list: a separately
+ * deployed app (ventures/payapps, ventures/jobshop-quote, moved in from
+ * private-monorepo on 2026-11-26/27) has no entry index.html, so build.mjs
+ * publishes no page for it. Its launch date and section placement mean
+ * nothing, and demanding them failed every preflight on those apps (six run
+ * records, 2026-11-25 to 27). The repository checks and site tests still run:
+ * front-door pages such as pay-app-guides read packages from the app.
+ */
+export function notListedNote(slug, root = ROOT) {
+  const workflow = `${slug}-ci`;
+  const own = fs.existsSync(path.join(root, '.github', 'workflows', `${workflow}.yml`))
+    ? `\`python3 platform/ci/run_workflow_locally.py ${workflow}\` (CI's ${workflow}.yml)`
+    : `\`python3 platform/ci/run_venture_tests.py ${slug}\`, or the commands in ventures/${slug}/README.md`;
+  return `ventures/${slug} has no catalogue entry (no index.html build.mjs picks up), so it is a separately deployed app: `
+    + 'the launch date, section placement and site build do not apply and are skipped. '
+    + `Its own tests do: ${own}.`;
+}
+
 async function main(argv) {
   const slug = argv.find((a) => !a.startsWith('--'));
   if (!slug) {
@@ -398,9 +419,17 @@ async function main(argv) {
   }
   const failures = [];
   let localFiles = [];
+  const site = await import('./build.mjs');
+  const surfaces = await site.discoverSurfaces(path.join(ROOT, 'ventures'));
+  const listed = surfaces.some((s) => s.slug === slug);
+  if (!listed) console.log(notListedNote(slug));
 
-  console.log('1/3 launched.json');
-  failures.push(...(await launchedProblems(slug)));
+  if (listed) {
+    console.log('1/3 launched.json');
+    failures.push(...(await launchedProblems(slug)));
+  } else {
+    console.log('1/3 launched.json skipped (not a catalogue entry)');
+  }
 
   // The count checks take seconds and the build takes minutes, so answer
   // them first and stop early.
@@ -414,13 +443,13 @@ async function main(argv) {
     const r = spawnSync('python3', ['platform/ci/inherited_keys.py', slug], { cwd: ROOT, encoding: 'utf8' });
     const problem = inheritedKeysProblem(r.status, (r.stdout || '') + (r.stderr || ''));
     if (problem) failures.push(problem);
-    const site = await import('./build.mjs');
-    const surfaces = await site.discoverSurfaces(path.join(ROOT, 'ventures'));
-    const catchAll = site.groupByCategory(surfaces).find((g) => g.category.id === 'more')?.items.map((s) => s.slug) ?? [];
-    const placed = placementProblems(slug, site, catchAll);
-    console.log(`   filed under ${placed.category}${placed.subcategory ? ` / ${placed.subcategory}` : ''}`);
-    for (const note of placed.notes) console.log(`   note: ${note}`);
-    failures.push(...placed.failures);
+    if (listed) {
+      const catchAll = site.groupByCategory(surfaces).find((g) => g.category.id === 'more')?.items.map((s) => s.slug) ?? [];
+      const placed = placementProblems(slug, site, catchAll);
+      console.log(`   filed under ${placed.category}${placed.subcategory ? ` / ${placed.subcategory}` : ''}`);
+      for (const note of placed.notes) console.log(`   note: ${note}`);
+      failures.push(...placed.failures);
+    }
     localFiles = gitLocalOnlyFiles(slug, site);
     if (localFiles.length) {
       console.log(`   note (no action needed): ${localFiles.length} git-ignored file(s) under ventures/${slug}, `
@@ -468,7 +497,9 @@ async function main(argv) {
     return 1;
   }
 
-  if (!argv.includes('--skip-build')) {
+  if (!listed) {
+    console.log('2/3 build + check.mjs skipped (not a catalogue entry: the site build publishes no page for it)');
+  } else if (!argv.includes('--skip-build')) {
     console.log('2/3 build + check.mjs (about 5 minutes)');
     const out = fs.mkdtempSync(path.join(os.tmpdir(), 'preflight-'));
     try {
