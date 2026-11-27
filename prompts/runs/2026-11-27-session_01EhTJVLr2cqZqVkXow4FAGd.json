@@ -49,7 +49,7 @@
     "docs/history/payapps-worker-tests-perf-2026-11-27.md (extended, 'Second pass')"
   ],
   "goal": null,
-  "notes": "Metric: cold `pnpm test:worker` wall time for ventures/payapps/apps/payapps (rm -rf node_modules/.vite, 4-core container, date before and after). Before 156.2 s (88 files, 559 tests) on origin/main 1931c58db; after 31.5 s (88 files, 560 tests, all pass). Six --sequence.shuffle.files seeds pass. Found and fixed a production 500 in GET /api/admin/accounts once there are ~100 orgs (D1's 100-bound-parameter cap), with a regression test that fails on the old code. biome ci and typecheck pass.",
+  "notes": "Metric: cold `pnpm test:worker` wall time for ventures/payapps/apps/payapps (rm -rf node_modules/.vite, 4-core container, date before and after). Before 156.2 s (88 files, 559 tests) on origin/main 1931c58db; after 31.5 s (88 files, 560 tests, all pass). Six --sequence.shuffle.files seeds pass. Found and fixed a production 500 in GET /api/admin/accounts once there are ~100 orgs (D1's 100-bound-parameter cap), with a regression test that fails on the old code. biome ci and typecheck pass. Also fixed main red: pay-app-guides page.test.mjs failed after PRs #19696 and #19697 merged concurrently (each page missing the other in its all-guides list); ran `node nav.mjs`, the suite passes 32/32.",
   "corrections": [],
   "redteam": null,
   "usage": {
