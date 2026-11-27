@@ -5,6 +5,8 @@
 //
 //   d1r2Store(db, bucket)   Cloudflare: D1 for rows, R2 for raw MIME
 //                           (or d1Bucket(db), raw in D1, until R2 is enabled).
+//   dynamoS3Store(...)      AWS: DynamoDB for rows, S3 for raw MIME
+//                           (aws/dynamo-store.mjs; the codec below is shared).
 //
 // store.test.mjs runs one contract against this implementation over a real
 // SQLite (node:sqlite behind a D1-shaped shim) and an in-memory bucket; an
@@ -56,21 +58,21 @@ export function d1Bucket(db) {
     },
   };
 }
-const MSG_COLS = ['thread_id', 'inbox', 'direction', 'at', 'message_id', 'in_reply_to', 'refs', 'env_from', 'mail_from', 'from_name',
+export const MSG_COLS = ['thread_id', 'inbox', 'direction', 'at', 'message_id', 'in_reply_to', 'refs', 'env_from', 'mail_from', 'from_name',
   'reply_to', 'rcpt_to', 'cc', 'subject', 'text_body', 'html_present', 'attachments', 'size', 'raw_key', 'automated',
   'auth_results', 'category', 'labels', 'why', 'read'];
-const THREAD_COLS = ['inbox', 'subject', 'base_subject', 'contact', 'category', 'labels', 'status', 'first_at', 'last_at', 'unread'];
-const DRAFT_COLS = ['thread_id', 'kind', 'inbox', 'to_addr', 'subject', 'text_body', 'author', 'status', 'reason', 'created_at', 'updated_at'];
-const SEND_COLS = ['at', 'day', 'kind', 'thread_id', 'draft_id', 'from_addr', 'to_addr', 'subject', 'provider', 'provider_id', 'result', 'reason'];
-const PATCHABLE = {
+export const THREAD_COLS = ['inbox', 'subject', 'base_subject', 'contact', 'category', 'labels', 'status', 'first_at', 'last_at', 'unread'];
+export const DRAFT_COLS = ['thread_id', 'kind', 'inbox', 'to_addr', 'subject', 'text_body', 'author', 'status', 'reason', 'created_at', 'updated_at'];
+export const SEND_COLS = ['at', 'day', 'kind', 'thread_id', 'draft_id', 'from_addr', 'to_addr', 'subject', 'provider', 'provider_id', 'result', 'reason'];
+export const PATCHABLE = {
   messages: new Set(['category', 'labels', 'read', 'why']),
   threads: new Set(['category', 'labels', 'status', 'last_at', 'unread', 'subject']),
   drafts: new Set(['status', 'reason', 'updated_at', 'subject', 'text_body', 'to_addr']),
 };
-const ENCODE = { refs: J, cc: J, attachments: J, labels: J, why: J, html_present: Number, automated: Number, read: Number };
+export const ENCODE = { refs: J, cc: J, attachments: J, labels: J, why: J, html_present: Number, automated: Number, read: Number };
 const DECODE_JSON = ['refs', 'cc', 'attachments', 'labels', 'why'];
 
-function encodeRow(cols, row) {
+export function encodeRow(cols, row) {
   return cols.map((c) => {
     const v = row[c];
     if (ENCODE[c]) return ENCODE[c](v ?? (DECODE_JSON.includes(c) ? [] : 0));
@@ -78,7 +80,7 @@ function encodeRow(cols, row) {
   });
 }
 
-function decode(row) {
+export function decode(row) {
   if (!row) return null;
   const out = { ...row };
   for (const c of DECODE_JSON) if (typeof out[c] === 'string') {

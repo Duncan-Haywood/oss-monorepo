@@ -622,8 +622,9 @@ tasks:
       exit on any finding; tests with planted examples; its output on
       apps/payapps and the packages PayApps imports, in the PR.
     hours: 6
-    status: open
+    status: done
     added: 2026-11-27
+    pr: 19563
   - id: move-payapps-public
     direction: paid-bets
     title: Move PayApps and the packages it imports into this repository (step 4 of products-to-public-repo)
@@ -660,7 +661,12 @@ tasks:
       permissions only the owner can grant, so the SES route (aws-ses-email)
       is the one with no owner step, and the owner chose it the same day
       ("all iac stuff instead we will do on aws instead once we fully move";
-      asks.yaml, aws-turnover).
+      asks.yaml, aws-turnover). Progress 2026-11-27: the SES route's store,
+      platform/email/aws/dynamo-store.mjs (DynamoDB rows + S3 raw MIME),
+      passes the store contract and runs the service end to end. Left: the
+      table, bucket and generated tokens (random_password into Secrets
+      Manager) in platform/aws/stacks/email-ops, and the Lambda API entry
+      (README.md, "Portability", step 4).
   - id: paddle-key-check
     direction: paid-bets
     title: Report whether each Paddle key is the right kind, without printing it

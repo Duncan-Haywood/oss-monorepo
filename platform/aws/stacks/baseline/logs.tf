@@ -38,19 +38,23 @@ data "aws_iam_policy_document" "log_key" {
     }
   }
 
-  # Config delivers with each account's AWSServiceRoleForConfig.
+  # With the service-linked role, Config delivers as the config.amazonaws.com
+  # service principal, not as the role (AWS Config guide, "Permissions for the
+  # KMS Key for the AWS Config Delivery Channel"). Naming the role here made
+  # PutDeliveryChannel fail with InsufficientDeliveryPolicyException in every
+  # account (apply run 45929949287). aws:SourceAccount keeps it to our accounts.
   statement {
     sid       = "ConfigEncrypt"
-    actions   = ["kms:GenerateDataKey*", "kms:Encrypt", "kms:DescribeKey"]
+    actions   = ["kms:Decrypt", "kms:GenerateDataKey"]
     resources = ["*"]
     principals {
-      type        = "AWS"
-      identifiers = [for id in local.all_ids : "arn:aws:iam::${id}:root"]
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
     }
     condition {
-      test     = "ArnLike"
-      variable = "aws:PrincipalArn"
-      values   = ["arn:aws:iam::*:role/aws-service-role/config.amazonaws.com/AWSServiceRoleForConfig"]
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = local.all_ids
     }
   }
 }
@@ -213,13 +217,13 @@ data "aws_iam_policy_document" "log_bucket" {
     actions   = ["s3:GetBucketAcl", "s3:ListBucket"]
     resources = [aws_s3_bucket.logs.arn]
     principals {
-      type        = "AWS"
-      identifiers = [for id in local.all_ids : "arn:aws:iam::${id}:root"]
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
     }
     condition {
-      test     = "ArnLike"
-      variable = "aws:PrincipalArn"
-      values   = ["arn:aws:iam::*:role/aws-service-role/config.amazonaws.com/AWSServiceRoleForConfig"]
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = local.all_ids
     }
   }
 
@@ -228,13 +232,13 @@ data "aws_iam_policy_document" "log_bucket" {
     actions   = ["s3:PutObject"]
     resources = [for id in local.all_ids : "${aws_s3_bucket.logs.arn}/config/AWSLogs/${id}/Config/*"]
     principals {
-      type        = "AWS"
-      identifiers = [for id in local.all_ids : "arn:aws:iam::${id}:root"]
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
     }
     condition {
-      test     = "ArnLike"
-      variable = "aws:PrincipalArn"
-      values   = ["arn:aws:iam::*:role/aws-service-role/config.amazonaws.com/AWSServiceRoleForConfig"]
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = local.all_ids
     }
   }
 }
