@@ -57,22 +57,63 @@ MAP_DECL = re.compile(r"^(?:export\s+)?const\s+([A-Z][A-Z0-9_]+)\s*=\s*(?:Object
 LOOKUP = re.compile(r"\b([A-Z][A-Z0-9_]+)\[([A-Za-z_$][\w$]*\.[A-Za-z_$][\w$]*)\]")
 
 
+# The same two patterns, searched faster (perf 2026-11-27: 0.96 s to 0.18 s over
+# the 57 MB of venture engine code, on every venture CI run and its unit tests).
+# Python's `re` skips quickly only to a literal prefix, and `^` or `\b` first
+# made it try every position. So MAP_DECL's `const` comes first and the line
+# start is checked by hand (_map_names), and a lookup is found with str.find for
+# each of the file's own map names: LOOKUP's other matches were all discarded,
+# and no two matches can overlap (a lookup's brackets hold no `[`).
+# test_inherited_keys.py pins both against the plain patterns.
+_DECL_TAIL = re.compile(r"const\s+([A-Z][A-Z0-9_]+)\s*=\s*(?:Object\.freeze\(\s*)?\{")
+_KEY_TAIL = re.compile(r"[A-Za-z_$][\w$]*\.[A-Za-z_$][\w$]*\]")
+_WORD = re.compile(r"\w")
+
+
+def _map_names(text: str) -> set[str]:
+    """set(MAP_DECL.findall(text))."""
+    names = set()
+    for m in _DECL_TAIL.finditer(text):
+        j = m.start()
+        if j and text[j - 1] != "\n":
+            k = j
+            while k and text[k - 1].isspace():
+                k -= 1
+            if k == j or text[k - 6:k] != "export" or (k > 6 and text[k - 7] != "\n"):
+                continue
+        names.add(m.group(1))
+    return names
+
+
+def _lookups(text: str, maps) -> list[tuple[int, str, str]]:
+    """(start, name, match) per LOOKUP match whose name is in `maps`, in order."""
+    found = []
+    for name in maps:
+        key = name + "["
+        i = text.find(key)
+        while i != -1:
+            if not (i and _WORD.match(text, i - 1)):
+                m = _KEY_TAIL.match(text, i + len(key))
+                if m:
+                    found.append((i, name, text[i:m.end()]))
+            i = text.find(key, i + 1)
+    found.sort()
+    return found
+
+
 def scan_text(text: str) -> list[tuple[int, str]]:
     """(line, lookup) for each unguarded lookup of `ident.key` in a same-file object map."""
-    maps = set(MAP_DECL.findall(text))
+    maps = _map_names(text)
     if not maps:
         return []
     out = []
     lines = text.split("\n")
-    for m in LOOKUP.finditer(text):
-        name = m.group(1)
-        if name not in maps:
-            continue
-        lineno = text.count("\n", 0, m.start()) + 1
+    for start, name, lookup in _lookups(text, maps):
+        lineno = text.count("\n", 0, start) + 1
         line = lines[lineno - 1]
         if f"Object.hasOwn({name}" in line or "hasOwnProperty" in line:
             continue
-        out.append((lineno, m.group(0)))
+        out.append((lineno, lookup))
     return out
 
 
