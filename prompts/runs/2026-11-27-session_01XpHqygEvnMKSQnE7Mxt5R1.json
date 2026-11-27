@@ -42,6 +42,10 @@
     {
       "file": "ventures/payapps/apps/payapps/ROADMAP.md",
       "issue": "21 of 22 Next items wait on demand while the product has no customers, so the Next list gives a run almost nothing to take; the useful work was in 'Must do before a public launch'"
+    },
+    {
+      "file": "portfolio/monetization/transition.py",
+      "issue": "transition.json stores source line counts, so nearly any product PR makes it stale for others, and the 5,000-line rule silently re-tracks a free front door as proprietary; validate went red on an unrelated PR"
     }
   ],
   "deviations": [
@@ -60,7 +64,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue empty (12 claimed). Ideas empty. Custom-domain link swap was taken by PR #19665 and the marketing site by #19659, so both were skipped. Local adversarial gate: 0 blocking, 1 warning (an existing || true). risk_review: nothing blocked. Main was red on pay-app-guides (punch-list.html and florida-notice-to-owner.html built before #19665's domain switch and nav additions); fixed here with node cta.mjs and node nav.mjs, 325 pass. validate hit P095 once; merging main cleared it (the documented workaround).",
+  "notes": "Security queue empty (12 claimed). Ideas empty. Custom-domain link swap was taken by PR #19665 and the marketing site by #19659, so both were skipped. Local adversarial gate: 0 blocking, 1 warning (an existing || true). risk_review: nothing blocked. Main was red on pay-app-guides (punch-list.html and florida-notice-to-owner.html built before #19665's domain switch and nav additions); fixed here with node cta.mjs and node nav.mjs, 325 pass. validate hit P095 once; merging main cleared it (the documented workaround). transition.json went stale on main: the punch list page took pay-app-guides past the 5,000-line rule, which would have tracked the free front door as proprietary. Added an OVERRIDES row in portfolio/monetization/transition.py keeping it mit-lead-magnet, with its reason.",
   "corrections": [],
   "redteam": null,
   "usage": {
