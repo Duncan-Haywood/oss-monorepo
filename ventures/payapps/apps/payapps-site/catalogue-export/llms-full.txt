@@ -41,6 +41,15 @@ Current payment due$39,330.00
 
 Figures computed by the same pay-app math the app runs. Line 3's fixtures are stored on site, not yet installed: they count toward the total and carry retainage.
 
+## What it looks like in the app
+
+Screenshots of PayApps itself, with the same made-up electrical job as the worked example, so the figures match. Nothing here is a customer's job.
+
+[](https://marisstella.app/payapps/shots/pay-app-2-desktop.webp)
+The continuation sheet (open it for full size). Type this month's work and stored materials on each line; completed to date, percent complete, balance to finish and retainage are worked out as you type.
+
+The summary on a phone, for checking the numbers from the truck before you send it.
+
 ## What billing day looks like for a lot of subs
 
 If you bill general contractors on a schedule of values, this list will be familiar. Every item is a place for a number to go wrong, and a wrong number can mean the pay app comes back and payment slips to the next cycle.
