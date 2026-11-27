@@ -32,7 +32,7 @@
   "errors": [
     "Site test capped titles at 70 chars including ' \u00b7 Seller Books'; first two titles failed, fixed.",
     "biome not installed in the clone; ran npx @biomejs/biome@2.6.8.",
-    "priv-portfolio-pages build: dead link from the post to marisstella.app/seller-books/personal-items-or-business, because the seller-books marketing site is not served yet (DEPLOY.md: 404); the post now names the path without linking."
+    "priv-portfolio-pages build: dead link from the post to marisstella.app/seller-books/personal-items-or-business, because the seller-books marketing site is not served yet (DEPLOY.md: 404); the post now names the path without linking. Then main started serving the site (merged mid-run), so the link was restored after merging main; the catalogue's 160-character description budget then failed (173), shortened to 151."
   ],
   "integrity_issues": [],
   "doc_friction": [

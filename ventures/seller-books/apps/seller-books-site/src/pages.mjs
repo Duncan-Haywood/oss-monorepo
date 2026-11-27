@@ -462,7 +462,7 @@ function personalItems() {
   const path = "/personal-items-or-business";
   const title = "Sold your own things? Personal items or a business";
   const description =
-    "A 1099-K for clothes or furniture you sold at a loss is not income: where it goes on the 2025 return, when a personal sale is a capital gain, and when selling is a business.";
+    "A 1099-K for things you sold at a loss is not income: where it goes on the 2025 return, when a personal sale is a gain, and when selling is a business.";
   const ex = PERSONAL_ITEM_EXAMPLE;
   const cases = [
     [
