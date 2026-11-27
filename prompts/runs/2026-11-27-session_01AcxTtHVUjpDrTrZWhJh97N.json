@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Merged another session's private-monorepo PR #476 (seller-books estimates-saved-payments) by mistake: a merge call was sent in the same batch as create_pull_request with a guessed number; the new PR was #477. Not reverted (the author's verification had passed; the full Playwright suite was still running); a comment on #476 tells the author session to check it and fix forward."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,14 @@
     {
       "file": "portfolio/work/tasks.yaml",
       "issue": "products-to-public-repo had a subtask only for PayApps (move-payapps-public); the jobshop and cmmc moves had to add their own task entries, and two PRs each for payapps and einvoice show runs are not seeing each other's moves."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "Nothing warns against sending merge_pull_request in parallel with create_pull_request: the number is not known until create returns, and a guess merged another session's PR (private #476). Merge only with the number create returned."
+    },
+    {
+      "file": "private-monorepo (moved apps)",
+      "issue": "The public repo's checks (tree checks, gitleaks, CodeQL, adversarial gate's disclaimer rule) never ran on private code, so a move surfaces dozens of findings at once; seven fix rounds here, each ported back (private #470, #471, #473, #474, #477)."
     }
   ],
   "deviations": [
@@ -59,7 +69,7 @@
     "docs/reports/2026-11-27-move-cmmc-public.md"
   ],
   "goal": null,
-  "notes": "Local verification: cmmc unit 490 passed, worker 156 passed, site 37 passed, build/no-maps/drizzle drift clean, billing/admin-metrics/scripts pass; prepub audit block 0 (source and copy).",
+  "notes": "Local verification: cmmc unit 490 passed, worker 156 passed, site 37 passed, build/no-maps/drizzle drift clean, billing/admin-metrics/scripts pass; prepub audit block 0 (source and copy). CI rounds on PR 19601: harness R1 path, dead links, stale-closure race in four import panels, four tree checks, publish surface, verticals.json, two gitleaks false positives, shell disclaimer, 28 CodeQL alerts (18 xss-through-dom from the org picker's DOM value, 5 Markdown cell escapes, 3 tag-strip/decoding, 2 test host checks). Each fix ported to private-monorepo.",
   "corrections": [],
   "redteam": null,
   "usage": {
