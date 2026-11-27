@@ -112,5 +112,5 @@ pnpm db:migrate:local
 pnpm dev   # http://localhost:5173
 ```
 
-Status: v0.1, not deployed; the by-hand deploy workflow is in [docs/DEPLOY.md](docs/DEPLOY.md). Paid plans are built and dark until the owner sets the Paddle secrets
+Status: v0.1, live on the Free plan since 2026-11-27, deployed on every merge to `main` that touches the venture ([docs/DEPLOY.md](docs/DEPLOY.md)). Paid plans are built and dark until the owner sets the Paddle secrets
 ([docs/BILLING.md](docs/BILLING.md)). Account email (verification, password reset) and its setup: [docs/EMAIL.md](docs/EMAIL.md). See "Gaps / next" in the architecture doc before launch.
