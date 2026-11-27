@@ -71,6 +71,39 @@ export const pendingCheckouts = sqliteTable(
 );
 
 /**
+ * Proof of each automatic-renewal consent that became a subscription, kept apart from the shop so
+ * it outlives it. California asks for that proof to be kept three years, or one year after the
+ * contract ends, whichever is longer (Bus. & Prof. Code 17602 as amended by AB 2863); a pending
+ * checkout row is deleted with its shop. No foreign keys on purpose, and no name or email address:
+ * the provider's subscription and customer ids tie it to the merchant of record's own records.
+ * `keep_until` is null while the subscription runs and is set when it ends
+ * (services/billing/renewal-consents.ts); the daily cron deletes rows past it.
+ */
+export const renewalConsents = sqliteTable(
+  "renewal_consent",
+  {
+    /** The pending checkout's id (pco_…), so a retried webhook records once. */
+    checkoutId: text("checkout_id").primaryKey(),
+    /** The shop's id at the time, as plain text: the shop may be deleted since. */
+    orgId: text("org_id").notNull(),
+    providerSubscriptionId: text("provider_subscription_id").notNull(),
+    providerCustomerId: text("provider_customer_id"),
+    planKey: text("plan_key").notNull(),
+    interval: text("interval", { enum: ["month", "year"] }).notNull(),
+    termsVersion: text("terms_version").notNull(),
+    consentedAt: ts("consented_at").notNull(),
+    subscribedAt: ts("subscribed_at").notNull(),
+    endedAt: ts("ended_at"),
+    keepUntil: ts("keep_until"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("renewal_consent_sub_idx").on(t.providerSubscriptionId),
+    index("renewal_consent_org_idx").on(t.orgId),
+  ],
+);
+
+/**
  * One row per automatic-renewal notice sent (services/billing/renewal-notices.ts): the renewal it
  * was for (`renews_on`, YYYY-MM-DD) per org. The unique index is the claim, so a retried or doubled
  * cron run never sends the same notice twice; a send that fails everywhere deletes its row.
