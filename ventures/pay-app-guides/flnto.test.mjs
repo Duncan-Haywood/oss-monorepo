@@ -90,6 +90,7 @@ test("draft fills the blanks and names what is missing", () => {
   const d = draftNotice({ owner: "Gulf Point LLC, 1 Bay St, Tampa, FL 33602", work: "Drywall, labor and materials", site: "400 Harbor Blvd, Tampa", hiredBy: "Coastline Builders Inc.", lienorName: "Ridge Drywall LLC", lienorAddress: "" });
   assert.ok(d.text.includes("Drywall, labor and materials for the improvement of the real property identified as 400 Harbor Blvd, Tampa under an order given by Coastline Builders Inc."));
   assert.deepEqual(d.missing, ["your company's address"]);
+  assert.ok(!d.text.includes("Inc.."), "the form's own period must not double a name's");
   assert.ok(d.text.includes("(Lienor’s Address)"));
   assert.ok(d.text.includes("Copies to: (Those persons listed"));
 });
