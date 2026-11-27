@@ -320,6 +320,6 @@ contractors ask for them.
 
 Certified payroll is on every plan, and PayApps is open: free on one active job, with no card.
 [Start free](https://marisstella.app/industries/construction/). The paid plans (more jobs and users, lien waivers, QuickBooks and job costing) are not on sale yet.
-Not affiliated with the Department of Labor, California DIR or LCPtracker. This is general information, not legal,
+Not affiliated with the Department of Labor, California DIR, NYSDOL, Washington L&I, NJDOL or LCPtracker. This is general information, not legal,
 payroll or compliance advice; which wage determination applies and whether your contract is covered
 come from your contract and the contracting officer.
