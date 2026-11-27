@@ -3,7 +3,7 @@ title: "Quality fix: every Etsy sale renews the listing for $0.20"
 seo_title: "Etsy auto-renew fee on each sale: what a listing really costs"
 date: 2026-11-27
 tags: [quality-audit, etsy-profit-calculator, for-customers, online-sellers]
-description: "Our Etsy listing-renewal page split one $0.20 fee across every sale in a four-month window. Etsy auto-renews a listing on each sale, so each sale pays its own $0.20. Fixed."
+description: "Our Etsy listing-renewal page split one $0.20 fee across a four-month window of sales. Etsy auto-renews a listing on each sale, so each sale pays $0.20. Fixed."
 ---
 
 The [Etsy Profit Calculator](../../ventures/etsy-profit-calculator/) has a
