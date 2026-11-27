@@ -1,0 +1,20 @@
+// Test-only Worker config used by vitest.worker.config.ts. Mirrors wrangler.jsonc minus
+// bindings Miniflare cannot run locally (Workers AI) and static assets.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jobshop-quote",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    { "binding": "DB", "database_name": "jobshop-quote", "database_id": "local-test" }
+  ],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "jobshop-quote-files" }],
+  "vars": {
+    "APP_ENV": "test",
+    "APP_URL": "http://localhost:5173",
+    "LLM_MODEL": "claude-haiku-5-5",
+    "FAKE_EXTERNALS": "true",
+    "INBOUND_EMAIL_DOMAIN": "rfq.example.test"
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `materials` ADD `sheet_thickness_in` real;
