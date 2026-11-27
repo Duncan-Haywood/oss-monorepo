@@ -249,3 +249,18 @@ went from 898 to 627 px.
 The one left lists 51 allowed status codes in English and French; that wants a
 collapsible list, not a layout change. Run notes:
 `docs/reports/polish-2026-11-27-stack-prose.md`.
+
+## Update, 2026-11-27 (later): the 51-code list folds away
+
+That last row, BR-FR-CDV-CL-09/MDT-113, now shows its sentence and a "Show the 51 allowed
+codes" toggle (`<details>`) in each language; opened, the codes sit as small chips. Five
+shorter lists of 12 to 26 codes on the same page fold the same way. The codes stay in the page,
+so a browser's find and a search engine still see them.
+
+| `br-fr-error-codes.html`, 390 px | before | after |
+|---|---|---|
+| rows taller than the screen | 1 | 0 |
+| that row | 1,118 px | 324 px |
+| tallest row on the page | 1,118 px | 693 px |
+
+Run notes: `docs/reports/polish-2026-11-27-code-list-details.md`.
