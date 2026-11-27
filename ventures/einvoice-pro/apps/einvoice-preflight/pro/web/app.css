@@ -14,7 +14,7 @@ main { max-width: 960px; margin: 0 auto; padding: 16px; }
 .brand { flex: 1; font-size: 1.15rem; }
 .langs { display: flex; gap: 4px; }
 .tagline { color: var(--muted); }
-.two { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.two { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 12px 0; }
 .card h2 { margin-top: 0; font-size: 1.1rem; }
 label { display: block; margin: 8px 0 4px; }

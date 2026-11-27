@@ -531,7 +531,7 @@ h2{margin-top:40px;font-size:24px}
 table{width:100%;border-collapse:collapse;margin:16px 0;display:block;overflow-x:auto}
 th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
 @media (max-width:640px){table.deadlines thead{display:none}table.deadlines tr{display:block;border-bottom:1px solid var(--line);padding:8px 0}table.deadlines td{display:inline;border:0;padding:0 8px 0 0}table.deadlines td:last-child{display:block;padding-top:4px}}
-.checks{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.checks{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(260px, 100%),1fr))}
 pre{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto;font-size:14px}
 form.signup{display:grid;gap:12px;max-width:520px;margin-top:16px}
 form.signup input[type=email]{font:inherit;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}

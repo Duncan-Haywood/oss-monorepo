@@ -24,9 +24,15 @@ const MAX_RUNS = 20_000;
 const MAX_OBJECT_STREAMS = 400;
 const MAX_INFLATED_BYTES = 16 * 1024 * 1024;
 
-const LATIN1 = new TextDecoder("latin1");
+// One character per byte, code = byte value. Not TextDecoder("latin1"): the Encoding standard maps
+// that label to windows-1252, so bytes 0x80-0x9F would come back as U+20AC, U+2019 ... and a glyph
+// code read with charCodeAt would be wrong (platform/ci/test_no_cp1252_byte_reads.py).
 /** @param {Uint8Array} b */
-const latin1 = (b) => LATIN1.decode(b);
+export const latin1 = (b) => {
+  let s = "";
+  for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, Array.from(b.subarray(i, i + 0x8000)));
+  return s;
+};
 
 /** @param {Uint8Array} data @returns {Promise<Uint8Array | null>} */
 async function inflate(data) {

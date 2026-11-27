@@ -9,7 +9,7 @@ const countryPages = fs.readdirSync(new URL("./", import.meta.url)).filter((f) =
 test("carries the no-warranty disclaimer and licence line", () => {
   assert.match(html, /<strong>No warranty\.<\/strong>/);
   assert.match(html, /not legal, tax, financial, or accounting advice/i);
-  assert.match(html, /Free and open source/);
+  assert.match(html, /Free to use and source visible/);
 });
 
 test("has one row per country page and links each of them", () => {

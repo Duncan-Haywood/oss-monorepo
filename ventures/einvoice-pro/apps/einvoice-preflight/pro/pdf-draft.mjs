@@ -19,7 +19,7 @@
 
 import { buildInvoice } from "../generate.mjs";
 import { looksLikeCompleteVat, normalizeVat } from "../vat.mjs";
-import { extractPdfLines } from "./pdf-text.mjs";
+import { extractPdfLines, latin1 } from "./pdf-text.mjs";
 
 /** @typedef {import("./pdf-text.mjs").Line} Line */
 /** @typedef {{ path: string, value: unknown, page: number, line: string, check?: boolean, note?: string }} Field */
@@ -1197,7 +1197,7 @@ export function readRow(cells0, locale, opts = {}) {
 export async function draftFromPdf(bytes, opts = {}) {
   const read = await extractPdfLines(bytes);
   if (!read) return { readable: false, reason: "not_pdf" };
-  if (/\/AF\s*\[|factur-x\.xml|zugferd-invoice\.xml|xrechnung\.xml/i.test(new TextDecoder("latin1").decode(bytes.subarray(0, Math.min(bytes.length, 8 * 1024 * 1024))))) {
+  if (/\/AF\s*\[|factur-x\.xml|zugferd-invoice\.xml|xrechnung\.xml/i.test(latin1(bytes.subarray(0, Math.min(bytes.length, 8 * 1024 * 1024))))) {
     // Already a hybrid invoice: the XML inside is the invoice, so check that instead.
     return { readable: true, reason: "already_einvoice", pages: read.pages, ...draftFromLines(read.lines, opts) };
   }

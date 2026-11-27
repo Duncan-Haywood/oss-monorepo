@@ -79,7 +79,7 @@ export function render() {
   const style = hub.match(/<style>[\s\S]*?<\/style>/)[0];
   const icon = hub.match(/<link rel="icon"[^>]*>/)[0];
   const title = "Which e-invoicing deadline applies to my business? Check by country and size";
-  const desc = "Type your country and yearly turnover and see the date your e-invoicing duty starts in Germany, Spain, the UAE, Poland, Oman, Malaysia or France. Runs in your browser; nothing is sent.";
+  const desc = "Enter your country and yearly turnover to see when your e-invoicing duty starts: Germany, Spain, UAE, Poland, Oman, Malaysia, France. Nothing is sent.";
   const data = Object.fromEntries(Object.entries(COUNTRIES).map(([k, c]) => [k, {
     name: c.name, input: c.input, prompt: c.prompt, always: c.always, note: c.note ?? null, page: c.page,
     waves: c.waves.map((w) => ({ date: w.date, what: w.what, test: w.when.toString() })) }]));
@@ -128,7 +128,7 @@ ${rows}
 <footer>
 <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before you rely on it.</strong> A rule can be defined by headcount, a related group, or a different year's figure than the one you type; confirm with your tax authority.</p>
 <p><strong>Nothing leaves your browser.</strong> No tracking, no cookies.</p>
-<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p class="support">Free to use and source visible. The <a href="LICENSE" rel="noopener">licence</a> says which parts are MIT and which are all rights reserved; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
 </footer>
 </main>
 <script>

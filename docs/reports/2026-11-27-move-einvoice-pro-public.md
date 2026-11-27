@@ -53,13 +53,40 @@ private repo's docs.
   finding (`cli.py` printing the user's own report, triaged #34 on the free edition) is the product
   working; if the gate still flags it, the PR records what it said.
 
+- **A false licence line.** The checker's 106 HTML pages (the country mandate pages, the error-code
+  pages, the tool pages) and the four page generators said "Free and open source. The code is under
+  an MIT licence" inside a directory that is now all rights reserved. They now say "Free to use and
+  source visible. The licence says which parts are MIT and which are all rights reserved", linking
+  the app's LICENSE, which does say that; the 95 page tests that pinned the old phrase pin the new one.
+  The paid Worker serves none of these pages (`worker/build.mjs` embeds only `pro/web`, the legal
+  texts, fonts and rule JSON), and the catalogue publishes a venture only from a root `index.html`,
+  so nothing here appears on marisstella.app; the free edition stays the public copy of those pages.
+- **Descriptions over the site limits** (`platform/pages/description-length`, `og-description-length`).
+  The pro pages were older copies of the free edition's; the free edition's shortened meta and
+  og:description texts were ported to all 103, and to the three generators that write pages
+  (`build-sdi-codes-page.mjs`, `deadlines-page.mjs`, `whichapplies.mjs`), whose pages were rewritten
+  from them.
+- **Auto-fit grid minimums** in `pro/web/app.css` and `apps/einvoice-site/build.mjs` now
+  `minmax(min(Npx, 100%), 1fr)`, so one column fits a 320 px phone.
+- **Viewport meta** on the ten invoice HTML sources in `pro/testdata/` (print layout, so the committed
+  PDFs are unaffected; the PDF-draft tests pass unchanged).
+- **A real decoding bug.** `pro/pdf-text.mjs` decoded PDF content streams with
+  `TextDecoder("latin1")`, which the Encoding standard maps to windows-1252, then read glyph codes
+  back with `charCodeAt`, so codes 0x80-0x9F in a subset font came back as U+20AC, U+2019 and so on
+  (the red-team check `platform/ci/test_no_cp1252_byte_reads.py`, the same defect it found in
+  ai-bookkeeper). It now builds a byte-exact string; `pro/pdf-draft.mjs` uses the same helper;
+  `pro/pdf-text-bytes.test.mjs` checks all 256 bytes and a multi-chunk input.
+- **A relative link** in `NEXT.md` made two levels deeper by the move.
+- **Regenerated:** `portfolio/monetization/transition.json` and `verticals.json` (the new venture,
+  classified as PayApps is), `THIRD_PARTY.md`.
+
 Whatever the CodeQL gate still reports after these is in the PR and the run record.
 
 ## Verification (this session, Node 22.23.5, Python 3)
 
 | suite | result |
 | --- | --- |
-| `pro/*.test.mjs` (paid layer) | 278 pass |
+| `pro/*.test.mjs` (paid layer) | 280 pass (278 + the two byte tests) |
 | `worker/*.test.mjs` | 9 pass |
 | checker suite `*.test.mjs` | 2,390 tests: 2,240 pass, 149 skipped, 1 fail (`repair-facturx.test.mjs`: this container's `pdfdetach` refuses to save attachments, by policy; the older PRs saw the same) |
 | Python CLI `unittest discover -s tests` | 445 OK (after the stdin change) |

@@ -5,16 +5,16 @@
     "mit-commons": 5,
     "mit-deployer-run": 1,
     "mit-lead-magnet": 1418,
-    "proprietary": 22
+    "proprietary": 23
   },
   "models": {
-    "subscription": 11,
+    "subscription": 12,
     "one-off": 11
   },
   "proprietary": [
     {
       "venture": "payapps",
-      "source_lines": 134157,
+      "source_lines": 134174,
       "track": "proprietary",
       "why": "flagship #1: the depth people pay for",
       "model": "subscription",
@@ -25,7 +25,7 @@
     },
     {
       "venture": "einvoice-preflight",
-      "source_lines": 36709,
+      "source_lines": 36722,
       "track": "proprietary",
       "why": "flagship #3: the depth people pay for",
       "model": "subscription",
@@ -171,6 +171,21 @@
       "move_order": 13
     },
     {
+      "venture": "einvoice-pro",
+      "source_lines": 54581,
+      "track": "proprietary",
+      "why": "over 5000 lines of product code, more than a single-page tool",
+      "model": "subscription",
+      "model_why": "runs a server-side part (sync-from-private.sh): a monthly cost per user",
+      "third_party_licences": [
+        "ventures/einvoice-pro/apps/einvoice-preflight/LICENSE",
+        "ventures/einvoice-pro/apps/einvoice-preflight/eval/nfe-corpus/nfelib/LICENSE-nfelib",
+        "ventures/einvoice-pro/apps/einvoice-preflight/fixtures/hungary-nav/LICENCE-NAV.md"
+      ],
+      "moved": null,
+      "move_order": 14
+    },
+    {
       "venture": "ig-media-pipeline",
       "source_lines": 22479,
       "track": "proprietary",
@@ -179,7 +194,7 @@
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 14
+      "move_order": 15
     },
     {
       "venture": "shed-designer",
@@ -190,7 +205,7 @@
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 15
+      "move_order": 16
     },
     {
       "venture": "print-atelier",
@@ -203,7 +218,7 @@
         "ventures/print-atelier/site/LICENSE"
       ],
       "moved": null,
-      "move_order": 16
+      "move_order": 17
     },
     {
       "venture": "clothing-design-studio",
@@ -214,7 +229,7 @@
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 17
+      "move_order": 18
     },
     {
       "venture": "babysitting-business-kit",
@@ -225,7 +240,7 @@
       "model_why": "runs a server-side part (automations-server.mjs): a monthly cost per user",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 18
+      "move_order": 19
     },
     {
       "venture": "retail-pilot-intel",
@@ -236,7 +251,7 @@
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 19
+      "move_order": 20
     },
     {
       "venture": "real-estate-agent-photo-app",
@@ -249,7 +264,7 @@
         "ventures/real-estate-agent-photo-app/site/LICENSE"
       ],
       "moved": null,
-      "move_order": 20
+      "move_order": 21
     },
     {
       "venture": "machine-shop-guides",
@@ -260,7 +275,7 @@
       "model_why": "runs a server-side part (pdf-parser-sync.test.mjs): a monthly cost per user",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 21
+      "move_order": 22
     },
     {
       "venture": "sales-export-to-journal",
@@ -271,7 +286,7 @@
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 22
+      "move_order": 23
     }
   ],
   "stay_mit": {
