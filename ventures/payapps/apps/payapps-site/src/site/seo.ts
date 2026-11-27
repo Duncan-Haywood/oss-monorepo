@@ -116,27 +116,36 @@ function planPrices(): string {
 
 /** The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only. */
 export function htmlToMarkdown(input: string): string {
-  return input
-    .replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, "")
-    .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, "\n# $1\n\n")
-    .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, "\n## $1\n\n")
-    .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, "\n### $1\n\n")
-    .replace(/<summary[^>]*>([\s\S]*?)<\/summary>/gi, "\n### $1\n\n")
-    .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, "\n- $1")
-    .replace(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, "[$2]($1)")
-    .replace(/<(strong|b)>([\s\S]*?)<\/\1>/gi, "**$2**")
-    .replace(/<\/(p|ul|ol|div|section|article|details)>/gi, "\n\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&#39;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .split("\n")
-    .map((l) => l.replace(/\s+/g, " ").trim())
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+  // Repeated until nothing changes: one pass can join the halves of a tag it removed.
+  let text = input;
+  let prev: string;
+  do {
+    prev = text;
+    text = text.replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, "");
+  } while (text !== prev);
+  return (
+    text
+      .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, "\n# $1\n\n")
+      .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, "\n## $1\n\n")
+      .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, "\n### $1\n\n")
+      .replace(/<summary[^>]*>([\s\S]*?)<\/summary>/gi, "\n### $1\n\n")
+      .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, "\n- $1")
+      .replace(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, "[$2]($1)")
+      .replace(/<(strong|b)>([\s\S]*?)<\/\1>/gi, "**$2**")
+      .replace(/<\/(p|ul|ol|div|section|article|details)>/gi, "\n\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/[<>]/g, "")
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      // &lt; and &gt; stay encoded (Markdown renders them as < and >): decoding them after the
+      // tags are gone could rebuild markup from escaped text (CodeQL js/incomplete-multi-character-sanitization).
+      .replace(/&amp;(?!lt;|gt;)/g, "&")
+      .split("\n")
+      .map((l) => l.replace(/\s+/g, " ").trim())
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+  );
 }
 
 /** Root-relative links (/payapps/pricing) become absolute in the Markdown copies. */
