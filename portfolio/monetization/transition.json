@@ -14,7 +14,7 @@
   "proprietary": [
     {
       "venture": "payapps",
-      "source_lines": 134994,
+      "source_lines": 137733,
       "track": "proprietary",
       "why": "flagship #1: the depth people pay for",
       "model": "subscription",
@@ -57,7 +57,7 @@
     },
     {
       "venture": "seller-books",
-      "source_lines": 44361,
+      "source_lines": 44366,
       "track": "proprietary",
       "why": "flagship #5: the depth people pay for",
       "model": "subscription",
@@ -196,7 +196,7 @@
     },
     {
       "venture": "einvoice-pro",
-      "source_lines": 54581,
+      "source_lines": 54591,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
