@@ -9,7 +9,7 @@
 // "the latest version", https://www.nj.gov/labor/wageandhour/prevailing-rates/wagehubfaq.shtml),
 // its field list (src/shared/nj-mw562-fields.ts, generated from the form), each field's length
 // limit and its own format scripts (dates mm/dd/yyyy, day dates m/d, amounts as plain two-decimal
-// numbers), and the User Guide. NJDOL's CSV template could not be fetched (njwages.nj.gov answers
+// numbers), and the User Guide. NJDOL's CSV template could not be downloaded (njwages.nj.gov answers
 // 403 from our build machines), which is why this fills the PDF instead.
 //
 // The PDF is NJDOL's, not ours, and is not kept in PayApps: the contractor downloads the blank form
