@@ -50,6 +50,7 @@ page (Unlock) verifies the key offline against the public key in checkout.mjs
 | `catalogue.mjs` | everywhere | what is sold: product, billing, Paddle price id; the shared public values. |
 | `sync.mjs` | Node | copies `client.mjs` to `ventures/<slug>/paddle.mjs` and writes each `checkout.mjs` from the catalogue (`--check` for CI). |
 | `keygen.mjs` | Node, once | the Ed25519 key pair. |
+| `paddle-catalogue.mjs`, `prices.mjs` | the owner's machine | the Paddle products and prices as code (Going live, step 4); the amounts with their basis. |
 | `testkit.mjs` | tests | the contract each venture's `licence.mjs` test asserts in one line. |
 | `billing.test.mjs` | tests | signature, signing, the webhook-to-unlock path, renewals, refusals, sync. |
 
@@ -101,10 +102,16 @@ secret, so they are the owner's. Do them in the **sandbox** first.
    New destination: URL `<edge>/billing/paddle` (the billing Worker's origin
    from step 0), event `transaction.completed`. Copy its secret key into
    `npx wrangler secret put PADDLE_WEBHOOK_SECRET` (billing account).
-4. **Products and prices.** One product per pack, priced as
-   `portfolio/monetization/models.yaml` says (wall-framing-takeoff is a yearly
-   subscription; the rest are one-off). Paste each `pri_...` id into its row in
-   `catalogue.mjs`. (An agent can turn this step into a script; see "Next".)
+4. **Products and prices, as code.** On your own machine, with an API key for the
+   catalogue's environment (Paddle > Developer tools > Authentication > API keys;
+   product and price read and write):
+   `PADDLE_API_KEY=... node platform/billing/paddle-catalogue.mjs` prints what it
+   would create (one product and one price per pack, amounts from `prices.mjs`,
+   each chosen inside the `portfolio/monetization/models.yaml` band it quotes);
+   add `--apply` to create them and write each `pri_...` id into `catalogue.mjs`.
+   Re-running is safe: it finds its own items by `custom_data`, creates nothing
+   twice, and a changed amount makes a new price and archives the old. The key
+   stays in that shell; never paste it into a session, a workflow or this repo.
 5. **Approve the domain.** Paddle > Checkout > Website approval:
    `marisstella.app`, where the tool pages are served.
 6. `node platform/billing/sync.mjs`, run the venture tests, merge. Redeploy
@@ -139,10 +146,6 @@ and their tests.
 
 ## Next
 
-- The Paddle catalogue as code: a script that, given the owner's API key in an
-  environment variable on the owner's machine, creates the products and prices
-  from `catalogue.mjs` and `models.yaml` idempotently and writes the price ids
-  back (goals.md, "Minimise click ops").
 - `quick-pick-survey`'s results report is the eighth dark pack. It is a Next.js
   server app with its own `reportAccess.ts`, so it can call `verifyLicence`
   from `client.mjs` server-side; not done here.

@@ -2,7 +2,7 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, ebay, amazon, paypal, venmo, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+tags: [resellers, ebay, amazon, paypal, venmo, grailed, stockx, vinted, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
 description: "Resellers: bridge a payout back to sales, cost a mixed lot by resale value, map the year onto Schedule C. Seller Books, the hosted books, is open free."
 ---
 
@@ -704,6 +704,38 @@ business profile's statement. We read "Amount (total)" as what the buyer
 sent, before Venmo's fee, which is how Venmo describes its business fees.
 The import says so whenever a fee is present: open one of those sales in
 the Venmo app and check the figure matches.
+
+## Grailed, StockX, Vinted, or a marketplace nobody supports (added 2026-11-27)
+
+Most bookkeeping tools for resellers read a fixed list of marketplaces. Sell
+somewhere off that list and your sales get typed in one at a time, or not at
+all. None of Grailed, StockX and Vinted publishes the layout of a sales
+export. StockX Pro can export two years of sales history as CSV ("Export
+History", above the sales table), but StockX doesn't document the columns.
+An importer written against guessed headers would import the wrong numbers
+and look sure of them.
+
+So Seller Books asks you instead. On the Imports page, "Another platform:
+match the columns yourself" reads your file in the browser and shows its own
+header row. You pick which column is the sale date and the item price, and,
+if the file has them, the order number, shipping the buyer paid, sales tax,
+the label you paid for, refunds and your net payout. You also mark up to six
+columns as the platform's fees, each filed as a commission, payment
+processing, advertising and so on. Suggestions come from the column names,
+and you check each one against a preview of the first rows. Once a file
+imports, your choices are saved for that platform, so next month's file is
+one click. Importing the same file twice adds nothing.
+
+Two rules keep the numbers honest. Fees come only from the columns you mark,
+never from a published rate. A row with a negative price counts as a refund,
+which is how many exports list returns. Sales tax depends on who collected
+it. Vinted says it collects and sends the tax itself where marketplace
+facilitator laws require it, and StockX and Grailed are reported to do the
+same. So their tax stays out of your income and off the tax you collected
+yourself. For "another marketplace", Seller Books can't know who collected
+it. It lists that tax on your sales tax report with a note: if the
+marketplace collected it, take it out. Showing tax that isn't yours to file
+is the safer mistake than hiding tax that is.
 
 ## Marketplace sales into QuickBooks Online, one entry a month (added 2026-11-26)
 
