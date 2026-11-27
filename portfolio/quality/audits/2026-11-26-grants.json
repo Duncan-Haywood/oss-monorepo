@@ -209,7 +209,8 @@
       "what": "A lapsed subscription keeps the paid LLM features: after the subscription is canceled (or past_due beyond grace), POST /applications/:id/regenerate still returns 200 and runs a full redraft or a section redraft, because assertCanDraft is only called for round 0 (steps.ts:300) and not at all on the section-redraft path. Unlimited, unmetered LLM spend for non-paying orgs; exactly the case flagship milestone (1) asks a test for.",
       "where": "private-monorepo/apps/grants/src/worker/services/pipeline/index.ts:663",
       "category": "logic-error",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/private-monorepo/pull/451"
     },
     {
       "severity": "medium",
@@ -275,6 +276,6 @@
       "origin": "maintenance"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/private-monorepo/pull/451"],
   "verdict": "Misses the bar on verification (correctness 3, claims 3, verification 2, domain 2, fitness 2, median 3); finished (completeness 3). The arithmetic it does is right: a six-line budget's SF-424A totals, match share, cost-share shortfall and ceiling warnings match hand arithmetic to the cent, Grants.gov dates in all four formats parse correctly with impossible dates rejected, and annual prices and the Starter cost model match a recomputation from Paddle's 5% + $0.50. Worker tests (611) pass and 9 of 11 seeded mutants are caught, but the unit suite is red on main and a scratch probe shows the billing gap the suites miss: a canceled org gets 402 on a new application yet 200 on full and section regeneration, so a lapsed subscription keeps unlimited LLM redrafting. Regenerations are unmetered even for paying orgs, and autopilot submission advertised for Standard and Pro is not gated by plan. For the accountant, indirect costs are free entry with no 2 CFR 200.414 rate x MTDC computation or 15% de minimis check. No page promises awards; terms disclaim funding. The live page (marisstella.app/grants) could not be loaded (proxy 403)."
 }
