@@ -1,3 +1,7 @@
+---
+kind: analysis
+date: 2026-11-27
+---
 # The paid e-invoice checker had drifted from the free one (2026-11-27)
 
 For the next run on bet #3 (`ventures/einvoice-pro`). Claim: `free-fixes-to-paid-repair`.
