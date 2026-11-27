@@ -33,6 +33,13 @@ export const FUNNELS = [
     signupPath: '/signup',
     frontDoors: [],
   },
+  {
+    // Live since jobshop-quote-deploy run 46013246899 (2026-11-27), free Early access plan.
+    app: 'jobshop-quote',
+    base: 'https://jobshop-quote.marisstella.app',
+    signupPath: '/sign-up',
+    frontDoors: ['https://marisstella.app/industries/manufacturing/'],
+  },
 ];
 
 /** Responses a signed-out visitor is expected to get: the session probe answers 401. */

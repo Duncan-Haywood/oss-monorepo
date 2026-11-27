@@ -6,9 +6,10 @@ fabrication job shops. Pricing and the paid path stay dark until the items marke
 Status: **live on the free Early access plan** (2026-11-27). First production deploy: jobshop-quote-deploy
 run 46013246899 (manual, main at e8be3de0f), on the account's workers.dev address; the smoke test answered
 `{"ok":true,"app":"jobshop-quote","email":true,"files":"d1"}`, so sign-up email works and files are kept
-in D1 (no R2 yet). AI extraction is off (no `JOBSHOP_ANTHROPIC_API_KEY`; the owner's choice, LAUNCH-REVIEW.md
-section 1), inbound RFQ email is off, paid plans are dark. The workflow now defaults to
-`jobshop-quote.marisstella.app` (PR #19764); the next run moves the app there. No customers yet.
+in D1 (no R2 yet). Live at **https://jobshop-quote.marisstella.app** since run 46018975911 (PR #19764's
+default host; same health answer). AI extraction is off (no `JOBSHOP_ANTHROPIC_API_KEY`; the owner's choice,
+LAUNCH-REVIEW.md section 1), inbound RFQ email is off, paid plans are dark. The manufacturing industry page
+links to `/sign-up`, and `platform/ci/live_funnel_check.mjs` checks the pair. No customers yet.
 
 ## Done (v0.1, this core)
 
@@ -707,8 +708,8 @@ section 1), inbound RFQ email is off, paid plans are dark. The workflow now defa
 
 ## Next
 
-3. **launch** (first deploy done 2026-11-27, run 46013246899, see Status; still open: the run on
-   `jobshop-quote.marisstella.app`, then `push: branches: [main]`) Operator and contact email are filled in and launch is agent-approved
+3. **launch** (first deploy done 2026-11-27, run 46013246899; on `jobshop-quote.marisstella.app` since run
+   46018975911; still open: `push: branches: [main]` with a paths filter, as payapps-deploy) Operator and contact email are filled in and launch is agent-approved
    (`docs/legal/OPERATOR.md`, 2026-11-26); the deploy workflow is ported to oss-monorepo
    (`.github/workflows/priv-jobshop-quote-deploy.yml`, 2026-11-27, manual and main-only; its first run
    has its launch review, `docs/LAUNCH-REVIEW.md`, 2026-11-27; R2 no longer blocks it, since without the
