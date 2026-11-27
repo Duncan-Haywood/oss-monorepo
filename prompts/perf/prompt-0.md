@@ -60,7 +60,9 @@ day before.
    (league and shift-roster were dead ends), an untouched one is the cheaper win.
 4. **What visitors wait on.** Weight first, without a full build:
    `node platform/perf/module-weight.mjs ventures/<slug>` and
-   `module-exclusive.mjs ventures/<slug>/index.html` answer in seconds.
+   `module-exclusive.mjs ventures/<slug>/index.html` (or an `<entry>.mjs`)
+   answer in seconds. A bet's Vite app (`ventures/<bet>`) is read from its
+   built `dist/`: run its `vite build` first (payapps' app page: 113 kB gz).
    Weight is often not the lever, so measure the wait itself: a CPU profile
    of load and of the first action on a realistic large input (a tool whose
    first click runs every engine is compute-bound; count calls before

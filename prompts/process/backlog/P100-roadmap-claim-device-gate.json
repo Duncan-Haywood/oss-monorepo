@@ -1,5 +1,5 @@
 {
-  "id": "P098",
+  "id": "P100",
   "title": "roadmap_claim: a device-only Next ask read as free, and a Next number used twice was claimed silently",
   "status": "done",
   "owner": "agent",
@@ -22,5 +22,10 @@
   "source": "process run (doc friction by file, roadmap_claim.py)",
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19738 (duplicate numbers); https://github.com/Duncan-Haywood/oss-monorepo/pull/19713 (device gate)",
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-11-27",
+      "note": "renumbered from P098 (duplicate id with P098-fold-site-purge-crons; PR #19738 titled it P098)"
+    }
+  ]
 }
