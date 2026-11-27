@@ -1,0 +1,393 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKm4PKzkdFcwUa6CYsW",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T21:18:22Z",
+  "ended": "2026-11-27T21:19:53Z",
+  "wall_minutes": 5.44,
+  "tokens_in": 2670990,
+  "tokens_out": 15160,
+  "cost_usd": 1.3752,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19881",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "none this run: security queue empty, ideas inbox empty, redteam open list empty, all commands worked as documented"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-a-pdf-takeoff-that-checks-its-own-scale.md (section \"Site plans at 1:1,000\")"
+  ],
+  "goal": null,
+  "notes": "Targets: ventures/pdf-plan-takeoff/measure.mjs (7/8 caught) and scale.mjs (3/8 caught). Catch rate 0.625 -> 1.0 after guards. 4 real defects in scale.mjs patched. Guard added: property test in engine.test.mjs asserting every accepted scale is finite and positive and every length finite or null; it found defect 4 (1\" = 0' gave ratio 0) on its first run. Verification: node --test in ventures/pdf-plan-takeoff 41/41 pass; residential-takeoff pdf-takeoff-walls.test.mjs 2/2 pass; risk_review.py nothing blocked.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pdf-plan-takeoff/measure.mjs",
+        "test": "node --test ventures/pdf-plan-takeoff/**/*.test.mjs  (in .)",
+        "seed": 587947361,
+        "commit": "11d15158b",
+        "sites": 228,
+        "baseline_seconds": 2.9,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/pdf-plan-takeoff/measure.mjs",
+            "line": 14,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "const x1 = segs[k], y1 = segs[k + 1], x2 = segs[k + 2], y2 = segs[k + 3];",
+            "after": "const x1 = segs[k], y1 = segs[k + 1], x2 = segs[k + 3], y2 = segs[k + 3];",
+            "line_text": "      const x1 = segs[k], y1 = segs[k + 1], x2 = segs[k + 2], y2 = segs[k + 3];",
+            "caught": true,
+            "seconds": 2.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/measure.mjs",
+            "line": 17,
+            "col": 40,
+            "operator": "gt-to-ge",
+            "before": "if ((i1 - i0 + 1) * (j1 - j0 + 1) > 2500) continue; // a sheet border: not worth snapping",
+            "after": "if ((i1 - i0 + 1) * (j1 - j0 + 1) >= 2500) continue; // a sheet border: not worth snapping",
+            "line_text": "      if ((i1 - i0 + 1) * (j1 - j0 + 1) > 2500) continue; // a sheet border: not worth snapping",
+            "caught": false,
+            "seconds": 2.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: test \"a segment spanning exactly 2500 snap cells is still snapped to\" pins the border cut-off"
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/measure.mjs",
+            "line": 72,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "if (m.type === 'count') return { value: m.pts.length, unit: 'ea', text: `${m.pts.length} ea` };",
+            "after": "if (m.type !== 'count') return { value: m.pts.length, unit: 'ea', text: `${m.pts.length} ea` };",
+            "line_text": "  if (m.type === 'count') return { value: m.pts.length, unit: 'ea', text: `${m.pts.length} ea` };",
+            "caught": true,
+            "seconds": 2.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/measure.mjs",
+            "line": 82,
+            "col": 19,
+            "operator": "times-to-div",
+            "before": "const area = pt2 * lin * lin; // sq in or sq mm",
+            "after": "const area = pt2 / lin * lin; // sq in or sq mm",
+            "line_text": "  const area = pt2 * lin * lin; // sq in or sq mm",
+            "caught": true,
+            "seconds": 2.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/measure.mjs",
+            "line": 132,
+            "col": 128,
+            "operator": "ge-to-gt",
+            "before": "const runs = (Array.isArray(list) ? list : []).filter((m) => m && m.type === 'length' && Array.isArray(m.pts) && m.pts.length >= 2 && layerOf(m));",
+            "after": "const runs = (Array.isArray(list) ? list : []).filter((m) => m && m.type === 'length' && Array.isArray(m.pts) && m.pts.length > 2 && layerOf(m));",
+            "line_text": "  const runs = (Array.isArray(list) ? list : []).filter((m) => m && m.type === 'length' && Array.isArray(m.pts) && m.pts.length >= 2 && layerOf(m));",
+            "caught": true,
+            "seconds": 2.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/measure.mjs",
+            "line": 153,
+            "col": 22,
+            "operator": "minus-to-plus",
+            "before": "const a = pts[i - 1], b = pts[i];",
+            "after": "const a = pts[i + 1], b = pts[i];",
+            "line_text": "      const a = pts[i - 1], b = pts[i];",
+            "caught": true,
+            "seconds": 3.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/measure.mjs",
+            "line": 155,
+            "col": 130,
+            "operator": "plus-to-minus",
+            "before": "body += g(0, 'LINE') + g(8, layer) + g(10, inch(a.x)) + g(20, -inch(a.y)) + g(30, 0) + g(11, inch(b.x)) + g(21, -inch(b.y)) + g(31, 0);",
+            "after": "body += g(0, 'LINE') + g(8, layer) + g(10, inch(a.x)) + g(20, -inch(a.y)) + g(30, 0) + g(11, inch(b.x)) + g(21, -inch(b.y)) - g(31, 0);",
+            "line_text": "      body += g(0, 'LINE') + g(8, layer) + g(10, inch(a.x)) + g(20, -inch(a.y)) + g(30, 0) + g(11, inch(b.x)) + g(21, -inch(b.y)) + g(31, 0);",
+            "caught": true,
+            "seconds": 3.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/measure.mjs",
+            "line": 159,
+            "col": 95,
+            "operator": "plus-to-minus",
+            "before": "const dxf = g(0, 'SECTION') + g(2, 'HEADER') + g(9, '$INSUNITS') + g(70, 1) + g(0, 'ENDSEC') + g(0, 'SECTION') + g(2, 'ENTITIES') + body + g(0, 'ENDSEC') + g(0, 'EOF');",
+            "after": "const dxf = g(0, 'SECTION') + g(2, 'HEADER') + g(9, '$INSUNITS') + g(70, 1) + g(0, 'ENDSEC') - g(0, 'SECTION') + g(2, 'ENTITIES') + body + g(0, 'ENDSEC') + g(0, 'EOF');",
+            "line_text": "  const dxf = g(0, 'SECTION') + g(2, 'HEADER') + g(9, '$INSUNITS') + g(70, 1) + g(0, 'ENDSEC') + g(0, 'SECTION') + g(2, 'ENTITIES') + body + g(0, 'ENDSEC') + g(0, 'EOF');",
+            "caught": true,
+            "seconds": 2.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/pdf-plan-takeoff/scale.mjs",
+        "test": "node --test ventures/pdf-plan-takeoff/**/*.test.mjs  (in .)",
+        "seed": 458829376,
+        "commit": "11d15158b",
+        "sites": 510,
+        "baseline_seconds": 2.8,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/pdf-plan-takeoff/scale.mjs",
+            "line": 29,
+            "col": 80,
+            "operator": "gt-to-ge",
+            "before": "if (m) { const a = inchesNumber(m[1]), b = inchesNumber(m[2]); if (a > 0 && b > 0) return { ratio: b / a, system: 'imperial', label: body }; }",
+            "after": "if (m) { const a = inchesNumber(m[1]), b = inchesNumber(m[2]); if (a > 0 && b >= 0) return { ratio: b / a, system: 'imperial', label: body }; }",
+            "line_text": "  if (m) { const a = inchesNumber(m[1]), b = inchesNumber(m[2]); if (a > 0 && b > 0) return { ratio: b / a, system: 'imperial', label: body }; }",
+            "caught": false,
+            "seconds": 3.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: inch-to-inch scale tests (3\" = 1\" reads 1/3, 1\" = 0\" refused)"
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/scale.mjs",
+            "line": 29,
+            "col": 82,
+            "operator": "const-plus-one",
+            "before": "if (m) { const a = inchesNumber(m[1]), b = inchesNumber(m[2]); if (a > 0 && b > 0) return { ratio: b / a, system: 'imperial', label: body }; }",
+            "after": "if (m) { const a = inchesNumber(m[1]), b = inchesNumber(m[2]); if (a > 0 && b > 1) return { ratio: b / a, system: 'imperial', label: body }; }",
+            "line_text": "  if (m) { const a = inchesNumber(m[1]), b = inchesNumber(m[2]); if (a > 0 && b > 0) return { ratio: b / a, system: 'imperial', label: body }; }",
+            "caught": false,
+            "seconds": 2.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: inch-to-inch scale tests (3\" = 1\" reads 1/3, 1\" = 0\" refused)"
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/scale.mjs",
+            "line": 75,
+            "col": 45,
+            "operator": "and-to-or",
+            "before": "&& it.along >= cur.end - it.size * 0.6 && it.along - cur.end <= it.size * 0.6) {",
+            "after": "&& it.along >= cur.end - it.size * 0.6 || it.along - cur.end <= it.size * 0.6) {",
+            "line_text": "      && it.along >= cur.end - it.size * 0.6 && it.along - cur.end <= it.size * 0.6) {",
+            "caught": true,
+            "seconds": 2.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/scale.mjs",
+            "line": 153,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "if (frac) { let n = frac, d = 8; while (n % 2 === 0) { n /= 2; d /= 2; } f = ` ${n}/${d}`; }",
+            "after": "if (frac) { let n = frac, d = 8; while (n % 2 === 0) { n /= 3; d /= 2; } f = ` ${n}/${d}`; }",
+            "line_text": "  if (frac) { let n = frac, d = 8; while (n % 2 === 0) { n /= 2; d /= 2; } f = ` ${n}/${d}`; }",
+            "caught": true,
+            "seconds": 3.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/scale.mjs",
+            "line": 178,
+            "col": 54,
+            "operator": "le-to-lt",
+            "before": "for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) { const kk = key(i, j); let a = grid.get(kk); if (!a) grid.set(kk, (a = [])); a.push(k); }",
+            "after": "for (let i = i0; i <= i1; i++) for (let j = j0; j < j1; j++) { const kk = key(i, j); let a = grid.get(kk); if (!a) grid.set(kk, (a = [])); a.push(k); }",
+            "line_text": "    for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) { const kk = key(i, j); let a = grid.get(kk); if (!a) grid.set(kk, (a = [])); a.push(k); }",
+            "caught": true,
+            "seconds": 2.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/scale.mjs",
+            "line": 272,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "...[1 / 32, 1 / 16, 3 / 32, 1 / 8, 3 / 16, 1 / 4, 3 / 8, 1 / 2, 3 / 4, 1, 1.5, 3, 6, 12].map((x) => ({ ratio: 12 / x, label: `${fracLabel(x)}\" = 1'-0\"` })),",
+            "after": "...[1 / 32, 1 / 16, 3 / 32, 1 / 8, 3 / 17, 1 / 4, 3 / 8, 1 / 2, 3 / 4, 1, 1.5, 3, 6, 12].map((x) => ({ ratio: 12 / x, label: `${fracLabel(x)}\" = 1'-0\"` })),",
+            "line_text": "  ...[1 / 32, 1 / 16, 3 / 32, 1 / 8, 3 / 16, 1 / 4, 3 / 8, 1 / 2, 3 / 4, 1, 1.5, 3, 6, 12].map((x) => ({ ratio: 12 / x, label: `${fracLabel(x)}\" = 1'-0\"` })),",
+            "caught": false,
+            "seconds": 2.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: STANDARD_IMPERIAL pinned label by label (a wrong 3/16 or 1/2 entry would make inferScale name a scale no sheet prints)"
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/scale.mjs",
+            "line": 272,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "...[1 / 32, 1 / 16, 3 / 32, 1 / 8, 3 / 16, 1 / 4, 3 / 8, 1 / 2, 3 / 4, 1, 1.5, 3, 6, 12].map((x) => ({ ratio: 12 / x, label: `${fracLabel(x)}\" = 1'-0\"` })),",
+            "after": "...[1 / 32, 1 / 16, 3 / 32, 1 / 8, 3 / 16, 1 / 4, 3 / 8, 1 / 3, 3 / 4, 1, 1.5, 3, 6, 12].map((x) => ({ ratio: 12 / x, label: `${fracLabel(x)}\" = 1'-0\"` })),",
+            "line_text": "  ...[1 / 32, 1 / 16, 3 / 32, 1 / 8, 3 / 16, 1 / 4, 3 / 8, 1 / 2, 3 / 4, 1, 1.5, 3, 6, 12].map((x) => ({ ratio: 12 / x, label: `${fracLabel(x)}\" = 1'-0\"` })),",
+            "caught": false,
+            "seconds": 2.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: STANDARD_IMPERIAL pinned label by label (a wrong 3/16 or 1/2 entry would make inferScale name a scale no sheet prints)"
+          },
+          {
+            "file": "ventures/pdf-plan-takeoff/scale.mjs",
+            "line": 311,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const ok = (n) => n >= 3 && n >= dims.length / 4;",
+            "after": "const ok = (n) => n >= 4 && n >= dims.length / 4;",
+            "line_text": "  const ok = (n) => n >= 3 && n >= dims.length / 4;",
+            "caught": false,
+            "seconds": 2.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: a page with exactly three agreeing dimensions must be confirmed"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pdf-plan-takeoff/scale.mjs",
+        "issue": "parseScale read a metric scale with a thousands separator (1:1,000, 1:2,500, 1:1.000) as 1, 2.5 and 1: a site plan measured 1000x short",
+        "patched": true
+      },
+      {
+        "file": "ventures/pdf-plan-takeoff/scale.mjs",
+        "issue": "parseFeetInches applied a negative sign to the feet only: -3' 6\" read as -30 in, not -42",
+        "patched": true
+      },
+      {
+        "file": "ventures/pdf-plan-takeoff/scale.mjs",
+        "issue": "a zero denominator gave a zero or infinite value: parseScale('1 1/0\" = 1\\'-0\"') ratio 0, parseFeetInches('1/0\"') Infinity",
+        "patched": true
+      },
+      {
+        "file": "ventures/pdf-plan-takeoff/scale.mjs",
+        "issue": "parseScale('1\" = 0\\'') returned ratio 0 (an engineering scale of zero feet), found by the new property test",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c457530f-f509-56df-933c-63b1fb5aa1d6",
+    "transcripts": 1,
+    "first": "2026-11-27T21:18:22Z",
+    "last": "2026-11-27T21:23:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 66,
+        "output": 15160,
+        "thinking": 3087,
+        "cache_read": 2602004,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68920,
+        "api_equivalent_usd": 1.3752,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 66,
+      "output": 15160,
+      "thinking": 3087,
+      "cache_read": 2602004,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68920,
+      "api_equivalent_usd": 1.3752,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.44,
+      "active_minutes": 5.44,
+      "model_minutes": 2.95,
+      "tool_minutes": 2.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: read a scale parser, seed and triage 16 mutants, fix 4 parsing bugs with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 218.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -43,4 +43,8 @@ On a 36' x 24' box with a partition across it at 16', a door in the front and a 
 
 Two limits. The lengths are the lines you click, so on a wall drawn as two face lines, click one face all the way round. And opening heights and headers start as defaults to set from your plans and span table. Finding the wall runs without clicking them, from the face-line pairs the DXF reader already recognises, is the next step if people use this.
 
+## Site plans at 1:1,000 (fixed 2026-11-27)
+
+A test pass over the scale reader found four notes it read wrong. The one that mattered: a metric site plan labelled `1:1,000` or `1:2,500`, with a comma between the thousands, was read as 1:1 and 1:2.5, so every length on it came out a thousand times short. It now reads the comma or dot as a thousands separator when three digits follow it, and as a decimal point otherwise, so `1:12.5` still means twelve and a half. A below-grade dimension such as `-3' 6"` now reads as minus 42 inches, not minus 30, and notes with a zero in them (`1" = 0'`, `1 1/0"`) are refused instead of giving a zero or infinite scale. Each case is now a test, along with a check that any scale the reader accepts is a positive, finite number.
+
 The code is MIT licensed and has no dependencies. `node cli.mjs set.pdf` prints the scale verdict for every page of a set, which is a quick way to check a bid set before anyone measures it. Like any measuring tool, it doesn't replace the written dimensions, which govern over anything scaled.
