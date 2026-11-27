@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqycNtQQRrb7oS4pySLj",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T10:39:17Z",
+  "ended": "2026-11-27T10:44:58Z",
+  "wall_minutes": 5.82,
+  "tokens_in": 3009935,
+  "tokens_out": 20358,
+  "cost_usd": 1.7013,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19710",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "fix mode has no seed/subject list like sample mode; the record's notes field shape for fix sessions (seed, subjects, share meeting bar) only half applies"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-27-quality-fix-how-many-porta-potties-psai-chart.md"
+  ],
+  "goal": null,
+  "notes": "Quality mode: fix (queue seed 2026-11-27-cf19). Subject ventures/portable-restroom-event-quote, high defect #0 (uncited people-per-unit table 2-4x PSAI). Replaced with PSAI Special Event Chart transcribed from the henniker.org PDF (fetched and pdftotext'd this session); alcohol +20% from PSAI public brochure. 144 tests pass; 3 seeded mutants caught (one after adding a 4.2 h test). No scores changed; a later round re-audits. Fix PR #19710, marked fixed_by on defect 0. Share meeting the bar: n/a (fix mode).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "82cee054-a68c-5f5a-84cf-7cdae8353d2a",
+    "transcripts": 1,
+    "first": "2026-11-27T10:39:17Z",
+    "last": "2026-11-27T10:45:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 67,
+        "output": 20358,
+        "thinking": 2592,
+        "cache_read": 2921169,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88699,
+        "api_equivalent_usd": 1.7013,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 67,
+      "output": 20358,
+      "thinking": 2592,
+      "cache_read": 2921169,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88699,
+      "api_equivalent_usd": 1.7013,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 30,
+      "ToolSearch": 2,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.82,
+      "active_minutes": 5.82,
+      "model_minutes": 4.16,
+      "tool_minutes": 1.65,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "find and transcribe the PSAI chart, rewrite sizing, tests and two pages",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 176.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

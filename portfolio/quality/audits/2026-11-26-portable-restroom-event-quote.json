@@ -150,7 +150,8 @@
       "what": "The people-per-unit table (50/40/30/25/20/16 by event hours) is uncited and suggests 2x to 4x the units of the PSAI Special Event Chart (500 people x 4 h: 10 vs 5; 1,000 x 8 h: 34 vs 12; 10,000 x 8 h: 334 vs 100), even though the PSAI chart is the no-pumping case. The light-fleet flag therefore tells an operator whose fleet is sized to the PSAI chart that it is below the starting estimate, and the 'How many porta potties for 200 people?' SEO page headlines these figures as 'a common planning starting point'.",
       "where": "ventures/portable-restroom-event-quote/calc.mjs:29",
       "category": "source-data",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19710"
     },
     {
       "severity": "medium",
@@ -211,6 +212,6 @@
       "origin": "maintenance"
     }
   ],
-  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19247"],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19247", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19710"],
   "verdict": "Does not meet the bar (correctness 2, claims 2, median 2); finished (completeness 3). The pricing engine is exact: the shipped weekend example, recomputed by hand, matches calculateQuote to the cent ($1,061.76 cost, $1,415.68 price, $750 flat quote $311.76 under water), margin is taken on price, the proposal's deposit split and held-until date are right, and 140 tests pass with 5 of 6 non-equivalent seeded mutants caught. What fails a portable sanitation estimator is the sizing: the uncited people-per-unit table suggests 2-4x the units in the PSAI Special Event Chart, so the light-fleet flag misfires on a correctly sized fleet and the 'how many for 200 people' SEO page leads with inflated counts. Service visits also carry no truck mileage while the FAQ says they should. Citing and adopting the PSAI chart (and pricing a round trip per service visit) would likely lift correctness, claims and domain to 3."
 }
