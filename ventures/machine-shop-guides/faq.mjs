@@ -90,6 +90,14 @@ export const FAQ = {
     ["When is the next CMMC assessment due?",
       "A year after the CMMC Status Date for Level 1 (Self), and three years after it for Level 2, by yourself or by a C3PAO. A POA&M closeout does not restart the three years: they count from the original status date."],
   ],
+  "cmmc-cost.html": [
+    ["How much does CMMC certification cost a small business?",
+      "DoD's own estimate in the CMMC final rule (89 FR 83092) is $104,670 over three years for a small business at Level 2 (C3PAO): $101,752 for the assessment and its affirmation, of which $31,234 is the C3PAO, plus two annual affirmations of $1,459. Level 2 (Self) is $37,196 over three years and Level 1 (Self) $5,977 a year. This page recomputes those lines with your own rates."],
+    ["Does DoD's CMMC cost estimate include implementing the controls?",
+      "No. The rule says its estimates do not include the cost to implement the Level 1 or Level 2 security requirements, maintain them, or remediate a plan of action, because FAR 52.204-21 and DFARS 252.204-7012 already required them. If your shop is not yet compliant, that cost is on top; enter your own figure for it here."],
+    ["What hourly rates did DoD assume for CMMC?",
+      "$190.52 an hour for a director, $86.24 for a small business's staff IT specialist, and $260.28 for an outside service provider (ESP) or C3PAO assessor, which the rule says includes overhead, G&A and profit. For small businesses DoD assumed most of the work goes to an ESP."],
+  ],
   "dfars-7012-incident-reporting.html": [
     ["How long do I have to report a cyber incident under DFARS 252.204-7012?",
       "72 hours from discovery. The clause defines \"rapidly report\" as within 72 hours of discovery of any cyber incident, and the report is filed at dibnet.dod.mil. The clock starts at discovery, not when your review ends."],

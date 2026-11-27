@@ -1,0 +1,536 @@
+# 89 FR 83092 (15 Oct 2024), CMMC Program final rule, 32 CFR part 170: regulatory impact analysis, cost
+# assumptions and the Level 1 and Level 2 per-entity estimates (Federal Register pages 83179-83187).
+# Source: https://www.govinfo.gov/content/pkg/FR-2024-10-15/html/2024-22905.htm, read 27 Nov 2026,
+# tags stripped, lines 10260-10790 of the plain text. A U.S. Government work. cost.test.mjs and
+# page.test.mjs check every figure in cost.mjs and every quote on the page against this file.
+protection requirements.
+---------------------------------------------------------------------------
+
+    \41\ The terms nonrecurring engineering costs and recurring 
+engineering costs are terms of art and do not only encompass actual 
+engineering costs.
+---------------------------------------------------------------------------
+
+    In estimating the public cost for a defense contractor small entity 
+to comply with CMMC Program requirements for each CMMC level, DoD 
+considered non-recurring engineering costs, recurring engineering 
+costs, assessment costs, and affirmation costs for each CMMC Level. 
+These costs include labor and consulting.
+    Estimates include size and complexity assumptions to account for 
+typical organizational differences between small entities and other 
+than small entities with respect to the handling of Information 
+Technology (IT) and cybersecurity:
+     small entities are likely to have a less complex, less 
+expansive operating environment and IT/Cybersecurity infrastructure 
+compared to larger defense contractors
+     small entities are likely to outsource IT and 
+cybersecurity to an External Service Provider (ESP)
+     entities (small and other than small) pursuing Level 2 
+self-assessment are likely to seek consulting or implementation 
+assistance from an ESP to either help them prepare for the assessment 
+technically or participate in the assessment with the C3PAOs.
+    Estimates do not include the cost to implement (Non-recurring 
+Engineering Costs (NRE)) or maintenance costs (Recurring Engineering 
+(RE)) associated with the security requirements prescribed in current 
+regulations.
+    For CMMC Levels 1 and 2, cost estimates are based upon assessment, 
+reporting, and affirmation activities that a contractor or 
+subcontractor will need to take to verify implementation of existing 
+security requirements set forth in FAR clause 52.204-21, effective June 
+15, 2016, to protect FCI, and DFARS clause 252.204-7012 which required 
+implementation of NIST SP 800-171 requirements not later than December 
+31, 2017, to protect CUI. As such, cost estimates are not included for 
+an entity to implement the CMMC Level 1 or 2 security requirements, 
+maintain implementation of these existing security requirements, or 
+remediate a plan of action for unimplemented requirements.
+    For CMMC Level 3, the cost estimates factor in the assessment, 
+reporting, and affirmation activities in addition to estimates for NRE 
+and RE to implement and maintain CMMC Level 3 security requirements. In 
+addition to implementing the CMMC Level 2 security requirements, CMMC 
+Level 3 requires implementing selected security requirement set forth 
+in NIST SP 800-172 Feb2021 as described in Sec.  170.14(c)(4) which are 
+not currently required through other regulations. CMMC Level 3 is 
+expected to apply only to a small subset of defense contractors and 
+subcontractors.
+    The Cost Categories used for each CMMC Level are described:
+    1. Nonrecurring Engineering Costs: Estimates consist of hardware, 
+software, and the associated labor to implement the same. Costs 
+associated with implementing the requirements set forth in FAR clause 
+52.204-21 and NIST SP 800-171 R2 are assumed to have been already 
+implemented and, therefore, are not accounted for in this cost 
+estimate. As such, these costs only appear in CMMC Level 3. If 
+nonrecurring engineering costs are referenced, they are only accounted 
+for as a one-time occurrence and are reflected in the year of the 
+initial assessment.
+    2. Recurring Engineering Costs: Estimates consist of annually 
+recurring fees and associated labor for technology refresh. Costs 
+associated with implementing the requirements set forth in FAR clause 
+52.204-21 and NIST SP 800-171 R2 are assumed to have been already 
+implemented and, therefore, are not accounted for in this cost 
+estimate. As such, these costs only appear in CMMC Level 3.
+    3. Assessment Costs: Estimates consist of activities for pre-
+assessment preparations (which includes gathering and/or developing 
+evidence that the assessment objectives for each requirement have been 
+satisfied), conducting and/or participating in the actual assessment, 
+and completion of any post-assessment work. Assessment costs are 
+represented by notional phases. Assessment costs assume the OSA passes 
+the assessment on the first attempt (conditional--with an allowable 
+POA&M or final). Each phase includes an estimate of hours to conduct 
+the assessment activities including:
+
+(a) Labor hour estimates for a company (and any ESP support) to prepare 
+for and participate in the assessment.
+
+[[Page 83180]]
+
+(b) C3PAO cost estimates for companies pursuing a certification
+ labor hour estimates for authorized or certified assessors to 
+work with the business to conduct the actual assessment
+ Assessment Costs broken down into phases
+     Phase 1: Planning and preparing for the assessment
+     Phase 2: Conducting the assessment (self or C3PAO)
+     Phase 3: Reporting of Assessment Results
+     Phase 4: POA&M Closeout (for CMMC Level 3 only, if 
+applicable and allowed)
+     CMMC allows a limited open Plan of Action and Milestones 
+(POA&M) for a period of 180 days to remediate the POA&M, see Sec.  
+170.21.
+
+    4. Affirmations: Estimates consist of costs for an OSA to submit to 
+SPRS an initial and, as applicable, any subsequent affirmations of 
+compliance that the contractor information system is compliant with and 
+will maintain compliance with the security requirements of the 
+applicable CMMC Level. If POA&Ms are allowed, an affirmation must be 
+submitted with the POA&M closeout. With the exception of Small Entities 
+for Level 1 and Level 2, it is assumed the task requires the same labor 
+categories and estimated hours as the final reporting phase of the 
+assessment.
+---------------------------------------------------------------------------
+
+    \42\ IT = Information Technology, MGMT = Management.
+    \43\ IT and MGMT rates represent an estimate for in-house labor 
+and includes the labor rate plus fringe and employee-related 
+expenses.
+    \44\ Background assumes a Bachelor's degree as the minimum 
+education level, additional requirements are noted including 
+required years of experience. A Master's degree may reduce the 
+required years of experience as noted.
+    \45\ The ESP/C3PAO rate represents an estimate for outsourced 
+labor and includes the labor rate, overhead expense, G&A expense, 
+and profit.
+---------------------------------------------------------------------------
+
+    The categories and rates used for estimating purposes were compiled 
+by subject matter experts based on current data available from within 
+the DoD contractor database for comparable labor categories. A factor 
+estimate of 30 percent was added to the labor rate per hour to include 
+but are not limited to company-sponsored benefits (fringe) and limited 
+employee-related expenses such as training and certifications. This 
+estimate is based on labor performed by indirect personnel (i.e., 
+personnel who are part of overhead expense); therefore, the 30 percent 
+factor represents an estimate for fringe expense and G&A expenses 
+versus full overhead expense. The categories and rates inclusive of the 
+labor cost plus the additional factor are defined in the table.
+[GRAPHIC] [TIFF OMITTED] TR15OC24.010
+
+[GRAPHIC] [TIFF OMITTED] TR15OC24.011
+
+
+[[Page 83181]]
+
+
+
+CMMC Level 1 Self-Assessment and Affirmation Costs
+
+Other Than Small Entities
+
+     Nonrecurring and recurring engineering costs: There are no 
+nonrecurring or recurring engineering costs associated with CMMC Level 
+1, since it is assumed that the contractor or subcontractor has already 
+implemented the applicable security requirements.\46\
+---------------------------------------------------------------------------
+
+    \46\ CMMC Level 1 consists of the same 15 basic safeguarding 
+requirements specified in FAR clause 52.204-21. This cost analysis 
+assumes that defense contractors and subcontractors already have 
+contracts with FAR clause 52.204-21 and, therefore, have already 
+implemented the 15 basic safeguarding requirements.
+---------------------------------------------------------------------------
+
+     Assessments Costs: It is estimated that the cost to 
+support a CMMC Level 1 self-assessment and affirmation is *$4,042 (as 
+summarized in 4.1.2, table 9). A Level 1 self-assessment is conducted 
+annually, and is based on the assumptions detailed:
+
+ Phase 1: Planning and preparing for the self-assessment: 
+$1,146
+     A director (MGMT5) for 4 hours ($190.52/hr x 4hrs = $762)
+     A manager (MGMT2) for 4 hours ($95.96/hr x 4hrs = $384)
+ Phase 2: Conducting the self-assessment: $1,728
+     A director (MGMT5) for 6 hours ($190.52/hr x 6hrs = 
+$1,143)
+     A staff IT specialist (IT4) for 6 hours ($97.49/hrs x 6hrs 
+= $585)
+ Phase 3: Reporting of self-assessment results into SPRS: $584
+     A director (MGMT5) for 2 hours ($190.52/hr x 2hrs = $381)
+     A staff IT specialist (IT4) for 2.08 hours ($97.49/hrs x 
+2.08hrs = $203)
+ Affirmations: It is estimated that the costs to perform an 
+initial and annual affirmation of compliance with CMMC Level 1 for an 
+``other than small'' entity is $584
+     A director (MGMT5) for 2 hours ($190.52/hr x 2hrs = $381)
+     A staff IT specialist (IT4) for 2.08 hours ($97.49/hrs x 
+2.08hrs = $203)
+
+     The Level 1 self-assessment and affirmations cost burden 
+will be addressed as part of the 48 CFR part 204 CMMC Acquisition rule.
+     Summary: The following is the annual other than small 
+entities total cost summary for Level 1 self-assessments and 
+affirmations over a ten-year period: (Example calculation, Year 1: 
+*$4,042 per entity x 246 entities (cumulative) = $994,233)
+[GRAPHIC] [TIFF OMITTED] TR15OC24.012
+
+Small Entities
+
+     Nonrecurring and recurring engineering costs: There are no 
+nonrecurring or recurring engineering costs associated with CMMC Level 
+1 since it is assumed the contractor or subcontractor has implemented 
+the applicable security requirements.\47\
+---------------------------------------------------------------------------
+
+    \47\ Again, it is assumed that that defense contractors and 
+subcontractors have already implemented the 15 basic safeguarding 
+requirements in FAR clause 52.204-21.
+---------------------------------------------------------------------------
+
+     Assessment Costs and Initial Affirmation Costs: It is 
+estimated that the cost to support a CMMC Level 1 self-assessment and 
+affirmation is *$5,977 (as summarized in 4.1.2, table 10). A Level 1 
+self-assessment is conducted annually, and is based on the assumptions 
+detailed:
+
+ Phase 1: Planning and preparing for the self-assessment: 
+$1,803
+     A director (MGMT5) for 4 hours ($190.52/hr x 4hrs = $762)
+     An external service provider (ESP) for 4 hours ($260.28 x 
+4hrs = $1,041)
+ Phase 2: Conducting the self-assessment: $2,705
+     A director (MGMT5) for 6 hours ($190.52/hr x 6hrs = 
+$1,143)
+     An external service provider (ESP) for 6 hours ($260.28 x 
+6hrs = $1,562)
+ Phase 3: Reporting of assessment results into SPRS: $909
+     A director (MGMT5) for 2 hours ($190.52/hr x 2hrs = $381)
+     An external service provider (ESP) for 2 hours ($260.28/hr 
+* 2hrs = $521)
+     A staff IT specialist (IT4-SB) for 0.08 hours \48\ 
+($86.24/hr x 0.08hrs = $7)
+ Affirmation: initial affirmation post assessment: $ 560
+ Reaffirmations: It is estimated that the costs to reaffirm a 
+CMMC Level 1 annually for a small entity is $560
+     A director (MGMT5) for 2 hours ($190.52/hr x 2hrs = $381)
+     A staff IT specialist (IT4-SB) for 2.08 hours ($86.24/hr x 
+2.08hrs = $179)
+     The Level 1 self-assessment and affirmations cost burden 
+will be addressed as part of the 48 CFR part 204 CMMC Acquisition rule.
+---------------------------------------------------------------------------
+
+    \48\ A person needs to enter the information into SPRS, which 
+should only take five minutes.
+---------------------------------------------------------------------------
+
+     Summary: The following is the annual small entities total 
+cost summary
+
+[[Page 83182]]
+
+for Level 1 self-assessments and affirmations over a ten-year period: 
+(Example calculation, Year 1: *$5,977 per entity x 699 entities 
+(cumulative) = $4,177,845)
+[GRAPHIC] [TIFF OMITTED] TR15OC24.013
+
+All Entities Summary
+
+    The following is a summary of the combined costs for both small and 
+other than small entities for Level 1 self-assessments and affirmations 
+over a ten-year period:
+[GRAPHIC] [TIFF OMITTED] TR15OC24.014
+
+CMMC Level 2 Self-Assessment and Affirmation Costs
+
+Other Than Small Entities
+
+     Nonrecurring and Recurring Engineering Costs: There are no 
+nonrecurring or recurring engineering costs associated with Level 2 
+self-assessment since it is assumed the contractor or subcontractor has 
+implemented the NIST SP 800-171 R2 security requirements.
+     Self-Assessment Costs and Initial Affirmation Costs: It is 
+estimated that the cost to support a Level 2 self-assessment and 
+affirmation is *$43,403. The three-year cost is $48,827 (as summarized 
+in 4.1.2, table 9), which includes the triennial assessment + 
+affirmation, and two additional annual affirmations ($43,403 + $2,712 + 
+$2,712).
+
+ Phase 1: Planning and preparing for the self-assessment: 
+$18,015
+     A director (MGMT5) for 30 hours
+
+[[Page 83183]]
+
+($190.52/hr x 30hrs = $5,716)
+     A manager (MGMT2) for 40 hours ($95.96/hr x 40hrs = 
+$3,838)
+     A staff IT specialist (IT4) for 46 hours ($97.49/hr x 
+46hrs = $4,485)
+     A senior IT specialist (IT3) for 26 hours ($81.96/hr x 
+26hrs = $2,131)
+     An IT specialist (IT2) for 34 hours ($54.27/hr x 34hrs = 
+$1,845)
+ Phase 2: Conducting the self-assessment: $19,964
+     A director (MGMT5) for 24 hours ($190.52/hr x 24hrs = 
+$4,572)
+     A manager (MGMT2) for 24 hours ($95.96/hr x 24hrs = 
+$2,303)
+     A staff IT specialist (IT4) for 56 hours ($97.49/hr x 
+56hrs = $5,460)
+     A senior IT specialist (IT3) for 56 hours ($81.96/hr x 
+56hrs = $4,590)
+     An IT specialist (IT2) for 56 hours ($54.27/hr x 56hrs = 
+$3,039)
+ Phase 3: Reporting of self-assessment results into SPRS: 
+$2,712
+     A director (MGMT5) for 4 hours ($190.52/hr x 4hrs = $762)
+     A manager (MGMT2) for 4 hours ($95.96/hr x 4hrs = $384)
+     A staff IT specialist (IT4) for 16 hours ($97.49/hr x 
+16hrs = $1,560)
+     A senior IT specialist (IT3) for 0.08 hours ($81.96/hr x 
+0.08hrs = $7)
+ Affirmation: initial affirmation post assessment: $ 2,712
+ Reaffirmations: It is estimated that the cost to perform an 
+annual affirmation for CMMC Level 2 self-assessment is $2,712 (three-
+year cost is $8,136, or $2,712 x 3):
+     A director (MGMT5) for 4 hours ($190.52/hr x 4hrs = $762)
+     A manager (MGMT2) for 4 hours ($95.96/hr x 4hrs = $384)
+     A staff IT specialist (IT4) for 16 hours ($97.49/hr x 
+16hrs = $1,560)
+     A senior IT specialist (IT3) for 0.08 hours ($81.96/hr x 
+0.08hrs = $7)
+     The Level 2 self-assessment and affirmations cost burden 
+will be addressed as part of the 48 CFR part 204 CMMC Acquisition rule.
+     Summary: The following is the annual other than small 
+entities total cost summary for CMMC Level 2 self-assessments and 
+affirmations over a ten-year period: (Example calculation, Year 2: 
+(*$43,403 assessment per entity x 35 entities) + ($2,712 annual 
+affirmation per entity x 7 entities) = $1,538,092
+[GRAPHIC] [TIFF OMITTED] TR15OC24.015
+
+Small Entities
+
+     Nonrecurring and recurring engineering costs: There are no 
+nonrecurring or recurring engineering costs associated with Level 2 
+self-assessment since it is assumed the contractor or subcontractor has 
+implemented the NIST SP 800-171 R2 security requirements.
+     Self-Assessment Costs and Initial Affirmation Costs: It is 
+estimated that the cost to support a Level 2 self-assessment and 
+affirmation for a small entity is *$34,277. The three-year cost is 
+$37,196 (as summarized in 4.1.2, table 10), which includes the 
+triennial assessment + affirmation, plus two additional annual 
+affirmations ($34,277 + $1,459 + $1,459).
+ Phase 1: Planning and preparing for the self-assessment: 
+$14,426
+     A director (MGMT5) for 32 hours ($190.52/hr x* 32hrs = 
+$6,097)
+     An external service provider (ESP) for 32 hours ($260.28/
+hr x 32hrs = $8,329)
+ Phase 2: Conducting the self-assessment: $15,542
+     A director (MGMT5) for 16 hours ($190.52/hr x 16hrs = 
+$3,048)
+     An external service provider (ESP) for 48 hours ($260.28/
+hr x 48hrs = $12,493)
+ Phase 3: Reporting of self-assessment results into SPRS: 
+$2,851
+     A director (MGMT5) for 4 hours ($190.52/hr x 4hrs = $762)
+     An external service provider (ESP) for 8 hours ($260.28/hr 
+x 8hrs = $2,082)
+     A staff IT specialist (IT4-SB) for 0.08 hours ($86.24/hr x 
+0.08hrs = $7)
+ Affirmation: initial affirmation post assessment: $ 1,459
+ Reaffirmations: It is estimated that the costs to reaffirm a 
+Level 2 self-assessment annually is $1,459 (three-year costs to 
+reaffirm a Level 2 self-assessment annually is $4,377, or $1,459 x 3):
+     A director (MGMT5) for 4 hours ($190.52/hr x 4hrs = $762)
+     A staff IT specialist (IT4-SB) for 8.08 hours ($86.24/hr x 
+8.08hrs =
+
+[[Page 83184]]
+
+$697)
+     The Level 2 self-assessment and affirmations cost burden 
+will be addressed as part of the 48 CFR part 204 CMMC Acquisition rule.
+     Summary: The following is the annual small entities total 
+cost summary for Level 2 self-assessments and affirmations over a ten-
+year period: (Example calculation, Year 2: (*$34,277 self-assessment 
+per entity x 101 entities) + ($1,459 annual affirmation per entity x 20 
+entities) = $3,491,193)
+[GRAPHIC] [TIFF OMITTED] TR15OC24.016
+
+All Entities Summary
+
+    The following is a summary of the cost to all entities regardless 
+of size for Level 2 self-assessments and affirmations over a ten-year 
+period:
+[GRAPHIC] [TIFF OMITTED] TR15OC24.017
+
+
+[[Page 83185]]
+
+
+
+CMMC Level 2 Certification Assessment and Affirmation Costs
+
+Other Than Small Entities
+
+     Nonrecurring and recurring engineering costs: There are no 
+nonrecurring or recurring engineering costs associated with Level 2 
+certification assessment since it is assumed the contractor or 
+subcontractor has implemented the NIST SP 800-171 R2 security 
+requirements.
+     Assessment and Initial Affirmation Costs: It is estimated 
+that the cost to support a Level 2 certification assessment and annual 
+affirmation for an ``other than small'' entity is *$112,345. The three-
+year cost is $117,768 (as summarized in 4.1.2, table 9), and includes a 
+triennial assessment + affirmation, plus two additional annual 
+affirmations ($112,345 + $2,712 + $2,712, with a minor rounding 
+difference.)
+
+ Phase 1: Planning and preparing for the certification 
+assessment: $26,264
+     A director (MGMT5) for 32 hours ($190.52/hr x 32hrs = 
+$6,097)
+     A manager (MGMT2) for 64 hours ($95.96/hr x 64hrs = 
+$6,141)
+     A staff IT specialist (IT4) for 72 hours ($97.49/hr x 
+72hrs = $7,019)
+     A senior IT specialist (IT3) for 40 hours ($81.96/hr x 
+40hrs = $3,278)
+     An IT specialist (IT2) for 58 hours ($54.27/hr x 58hrs = 
+$3,148)
+     An associate IT specialist (IT1) for 16 hours ($36.32/hr x 
+16hrs = $581)
+ Phase 2: Conducting the certification assessment: $28,600
+     A director (MGMT5) for 32 hours ($190.52/hr x 32hrs = 
+$6,097)
+     A manager (MGMT2) for 32 hours ($95.96/hr x 32hrs = 
+$3,071)
+     A staff IT specialist (IT4) for 72 hours ($97.49/hr x 
+72hrs = $7,019)
+     A senior IT specialist (IT3) for 72 hours ($81.96/hr x 
+72hrs = $5,901)
+     An IT specialist (IT2) for 120 hours ($54.27/hr x 120hrs = 
+$6,512)
+ Phase 3: Reporting of certification assessment results: $2,712
+     A director (MGMT5) for 4 hours ($190.52/hr x 4hrs = $762)
+     A manager (MGMT2) for 4 hours ($95.96/hr x 4hrs = $384)
+     A staff IT specialist (IT4) for 16 hours ($97.49/hr x 
+16hrs = $1,560)
+     A senior IT specialist (IT3) for 0.08 hours ($81.96/hr x 
+0.08hrs = $7)
+ Affirmations: initial affirmation post assessment: $2,712
+ C3PAO Costs: C3PAO engagement inclusive of Phases 1, 2, and 3 
+(5-person team) for 200 hours ($260.28/hr x 200hrs = $52,056)
+ Reaffirmations: It is estimated that the costs to reaffirm a 
+Level 2 certification assessment annually is $2,712 (three-year cost is 
+$8,136 or $2,712 x 3)
+     A director (MGMT5) for 4 hours ($190.52/hr x 4hrs = $762)
+     A manager (MGMT2) for 4 hours ($95.96/hr x 4hrs = $384)
+     A staff IT specialist (IT4) for 8 hours ($97.49/hr x 8hrs 
+= $1,560)
+     A senior IT specialist (IT3) for 0.08 hours ($81.96/hr x 
+0.08hrs = $7)
+
+     The Level 2 affirmations cost burden will be addressed as 
+part of the 48 CFR part 204 CMMC Acquisition rule.
+     Summary: The following is the annual other than small 
+entities total cost summary for Level 2 certification assessments and 
+affirmations over a ten-year period: (Example calculation, Year 2: 
+(*$112,345 assessment per entity x 673 entities) + ($2,712 annual 
+affirmation per entity x 135 entities) = $75,974,425)
+[GRAPHIC] [TIFF OMITTED] TR15OC24.018
+
+Small Entities
+
+     Nonrecurring or recurring engineering costs: There are no 
+nonrecurring or recurring engineering costs associated with Level 2 
+certification assessment since it is assumed the contractor or 
+subcontractor has implemented the NIST SP 800-171 R2 security 
+requirements.
+     Assessment Costs and Initial Affirmation Costs: It is 
+estimated that the cost to support a Level 2 certification assessment 
+and affirmation for a small entity is *$101,752. The three-year cost is 
+$104,670 (as summarized in 4.1.2, table 10), and includes the triennial 
+assessment + affirmation plus two additional annual affirmations 
+($101,752 + $1,459 + $1,459).
+
+ Phase 1: Planning and preparing for the certification 
+assessment: $20,699
+     A director (MGMT5) for 54 hours ($190.52/hr x 54hrs = 
+$10,288)
+     An external service provider (ESP) for 40 hours ($260.28/
+hr x 40hrs =
+
+[[Page 83186]]
+
+$10,411)
+ Phase 2: Conducting the certification assessment: $45,509
+ A director (MGMT5) for 64 hours ($190.52/hr x 64hrs = $12,193)
+ An external service provider (ESP) for 128 hours ($260.28/hr x 
+128hrs = $33,316)
+     Phase 3: Reporting of certification assessment results: 
+$2,851
+     A director (MGMT5) for 4 hours ($190.52/hr x 4hrs = $762)
+     An ESP for 8 hours ($260.28/hr x 8hrs = $2,082)
+     A staff IT specialist (IT4-SB) for 0.08 hours ($86.24/hr x 
+0.08hrs = $7)
+     Affirmations: cost to post initial affirmation $1,459
+     C3PAO Costs: C3PAO engagement inclusive of Phases 1, 2, 
+and 3 (3-person team) for 120 hours ($260.28/hr x 120hrs = $31,234)
+ Reaffirmations: It is estimated that the costs to reaffirm a 
+Level 2 certification assessment annually is $1,459 (three-year cost is 
+$4,377, or $1,459 x 3)
+     A director (MGMT5) for 4 hours ($190.52/hr x 4hrs = $762)
+     A staff IT specialist (IT4-SB) for 8.08 hours ($86.24/hr x 
+8.08hrs = $697)
+
+     The Level 2 affirmations cost burden will be addressed as 
+part of the 48 CFR part 204 CMMC Acquisition rule.
+     Summary: The following is the annual small entities total 
+cost summary for Level 2 certification assessments and affirmations 
+over a ten-year period: (Example calculation, Year 2: (*$101,752 
+assessment per entity x 1,926 entities) + ($1,459 annual affirmation 
+per entity x 382 entities) = $196,531,451)
+[GRAPHIC] [TIFF OMITTED] TR15OC24.019
+
+All Entities Summary
+
+    The following is a summary of the cost to all entities regardless 
+of size for Level 2 certification assessment and affirmation costs over 
+a ten-year period:
+
+[[Page 83187]]
+
+[GRAPHIC] [TIFF OMITTED] TR15OC24.020
+
+CMMC Level 3 Certification Assessment and Affirmation Costs
+
+    An OSC pursuing Level 3 certification assessment must have a CMMC 
+Status of Final Level 2 (C3PAO), and also must demonstrate compliance 
+with CMMC Level 3, which includes implementation of selected security 
+requirements from NIST SP 800-172 Feb2021 not required in prior rules. 
+Therefore, the Nonrecurring Engineering and Recurring Engineering cost 
+estimates have been included for the initial implementation and 
+maintenance of the required selected NIST SP 800-172 Feb2021 security 
+requirements. The cost estimates account for time for an OSC to 
+implement these security requirements and prepare for, support, 
+participate in, and closeout a Level 3 certification assessment 
+conducted by DCMA DIBCAC. The OSC should keep in mind that the total 
+cost of a Level 3 certification assessment includes the cost of a Level 

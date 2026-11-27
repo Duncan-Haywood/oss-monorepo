@@ -156,3 +156,24 @@ page is not found word for word in them.
 - The machine-shop examples (outside processes, overflow machining, labs,
   material) are our reading of how the rule applies, not quotes; the page tells
   the reader that the marking and the prime's guidance decide what is CUI.
+
+## CMMC cost (`cmmc-cost.html`, `cost.mjs`), 27 Nov 2026
+
+- **Source:** the CMMC Program final rule, 89 FR 83092 (15 Oct 2024), regulatory impact analysis,
+  "Small Entities" and "Other Than Small Entities" estimates for Level 1 (Self), Level 2 (Self) and
+  Level 2 (C3PAO), pages 83179-83187. **Read directly** on 27 Nov 2026 from govinfo
+  (`https://www.govinfo.gov/content/pkg/FR-2024-10-15/html/2024-22905.htm`; federalregister.gov's
+  full-text URL answered with a bot check). The relevant lines are saved, tags stripped, in
+  `fixtures/cost/89-fr-83092-cost.txt`; `cost.test.mjs` finds every hour, rate, stated total and
+  quoted sentence in that file.
+- **Totals (small business):** Level 1 (Self) $5,977 a year; Level 2 (Self) $34,277 plus two
+  affirmations of $1,459, $37,196 over three years; Level 2 (C3PAO) $101,752 (C3PAO $31,234, 3
+  people for 120 hours) plus two affirmations, $104,670. Recomputing the rule's lines gives these to
+  within a few dollars of rounding.
+- **One inconsistency in the rule:** the other-than-small Level 2 (C3PAO) reaffirmation lists the
+  IT4 line as 8 hours but prices it at $1,560 (16 hours) and totals $2,712; `cost.mjs` uses 16.
+- **What it leaves out, quoted:** implementation, maintenance and POA&M remediation of the Level 1
+  and 2 requirements; the estimate assumes a first-attempt pass.
+- The rate tables (TR15OC24.010, .011) are images in the rule; the rates used are the ones printed
+  inline on each line.
+- The Cyber AB marketplace link (`https://cyberab.org/Catalog`) answered 200 on 27 Nov 2026.
