@@ -8,8 +8,8 @@ import {
   parseArgs,
   parseJson,
   R2_NOT_ENABLED,
-  R2_NOT_PERMITTED,
   RESOURCES,
+  r2Unavailable,
 } from "./provision.mjs";
 
 const build = {
@@ -83,13 +83,21 @@ test("wrangler output parsing", () => {
   );
 });
 
-test("an R2 authentication error means the token lacks R2, not that the deploy must stop", () => {
-  const wranglerOut =
-    "wrangler r2 bucket create payapps-files failed:\n\u2718 [ERROR] A request to the Cloudflare API (/accounts/x/r2/buckets) failed.\n  Authentication error [code: 10000]";
-  assert.ok(R2_NOT_PERMITTED.test(wranglerOut));
-  assert.ok(!R2_NOT_ENABLED.test(wranglerOut));
-  assert.ok(
-    !R2_NOT_PERMITTED.test("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
+test("r2Unavailable: R2 off or refused degrades, anything else fails the deploy", () => {
+  assert.equal(
+    r2Unavailable("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
+    "not-enabled",
   );
-  assert.ok(!R2_NOT_PERMITTED.test("A request to the Cloudflare API failed. [code: 7003]"));
+  // The first oss-monorepo deploy (run 45947552522): the token had no R2 permission.
+  assert.equal(
+    r2Unavailable(
+      "creating r2 bucket payapps-files failed:\n✘ [ERROR] A request to the Cloudflare API (/accounts/x/r2/buckets) failed.\n\n  Authentication error [code: 10000]",
+    ),
+    "no-access",
+  );
+  assert.equal(
+    r2Unavailable("A request to the Cloudflare API failed. Internal error [code: 10001]"),
+    "",
+  );
+  assert.equal(r2Unavailable("spawnSync pnpm ENOENT"), "");
 });

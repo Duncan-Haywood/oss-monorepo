@@ -418,3 +418,36 @@ to another company.
 The draft still opens in your own mail app, and you press send. PayApps sends nothing to your
 suppliers itself. It is still in development, with nothing for sale yet, and this is not legal
 advice.
+
+## Update, 2026-11-27: every statutory form, blank and ready to print
+
+The guide said which states write the waiver for you, but it never showed you the waiver. Each
+state now has its own page with every statutory form printed in full, word for word, a blank line
+wherever the statute leaves one (with a small grey caption under it saying what goes there), and a
+"Print this form" button that prints that form alone:
+
+[Arizona](https://marisstella.app/pay-app-guides/arizona-lien-waiver-forms.html) (4 forms),
+[California](https://marisstella.app/pay-app-guides/california-lien-waiver-forms.html) (4),
+[Florida](https://marisstella.app/pay-app-guides/florida-lien-waiver-forms.html) (2),
+[Georgia](https://marisstella.app/pay-app-guides/georgia-lien-waiver-forms.html) (2, printed at
+the 12 point minimum its statute sets),
+[Massachusetts](https://marisstella.app/pay-app-guides/massachusetts-lien-waiver-forms.html) (1),
+[Michigan](https://marisstella.app/pay-app-guides/michigan-lien-waiver-forms.html) (4),
+[Mississippi](https://marisstella.app/pay-app-guides/mississippi-lien-waiver-forms.html) (2),
+[Missouri](https://marisstella.app/pay-app-guides/missouri-lien-waiver-forms.html) (1, residential),
+[Nevada](https://marisstella.app/pay-app-guides/nevada-lien-waiver-forms.html) (4),
+[Texas](https://marisstella.app/pay-app-guides/texas-lien-waiver-forms.html) (4),
+[Utah](https://marisstella.app/pay-app-guides/utah-lien-waiver-forms.html) (2) and
+[Wyoming](https://marisstella.app/pay-app-guides/wyoming-lien-waiver-forms.html) (1).
+
+Each page also says, in a table at the top, which kinds of waiver the state prints **no** form for.
+Utah has no unconditional form, Florida and Wyoming no conditional one, Massachusetts no final or
+unconditional one. A GC's form that fills one of those gaps is not the statute's wording, so read
+it before you sign it.
+
+**How we kept the text honest.** The forms are not retyped. The pages are generated from the
+same encoded statute text that PayApps' waiver printer uses, which has tests comparing every form
+with the statute as a whole, sentence by sentence. A second test checks that every sentence of
+every form appears on its state's page, so the page cannot drift from the statute's text as we
+read it (2026-11-25 for most states, 2026-11-26 for Georgia, Mississippi and Massachusetts).
+Statutes change, so each form links the official section to check before relying on it.

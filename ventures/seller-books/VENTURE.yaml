@@ -1,0 +1,30 @@
+name: seller-books
+description: >-
+  Hosted profit and Schedule C books for resellers on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy,
+  Shopify, Amazon, TikTok Shop and Square: report imports, cost of goods per item and lot, mileage,
+  expenses, a Schedule C worksheet (not a filing, not tax advice), quarterly estimates and a QuickBooks
+  journal export, sold by subscription ($0/$15/$35/$69 a month by orders; apps/seller-books/src/shared/plans.ts).
+stage: prototype
+owner: duncan
+
+# Bet #5 in portfolio/monetization/bets.md. Moved from private-monorepo on 2026-11-27 (task
+# move-seller-books-public); not deployed yet (DEPLOY.md). Free front door: ventures/reseller-books.
+hypotheses:
+  - claim: Multi-platform resellers will pay $15-69 a month for books that follow cost of goods per item and hand a preparer a Schedule C worksheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+budget:
+  monthly_cap: 50
+  protected: true
+kill_criteria:
+  - No paying customer after 90 days post-launch.
+  - Monthly cost exceeds MRR for 3 consecutive months past `revenue` stage.
+links:
+  production: null
+  analytics: null

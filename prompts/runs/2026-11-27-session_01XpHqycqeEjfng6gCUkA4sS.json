@@ -19,7 +19,7 @@
   "tool_calls": 75,
   "task": null,
   "projects": [],
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19617",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19628",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -31,7 +31,9 @@
   "outcome": "success",
   "errors": [
     "First allowlist draft broke YAML: a reason containing ': ' was unquoted; fixed by writing reasons as JSON-quoted strings.",
-    "First PayApps deploy from this repo (run 45947552522) failed at R2 provisioning: the repository's Cloudflare token has no R2 permission and provision.mjs treated the auth error as fatal; fixed in a follow-up PR."
+    "First PayApps deploy from this repo (run 45947552522) failed at R2 provisioning: the repository's Cloudflare token has no R2 permission and provision.mjs treated the auth error as fatal; fixed in a follow-up PR.",
+    "Triggered the deploy in the same step as a merge that was then refused for conflicts; the run went to main without this run's change (harmless: main already had #19625) and failed on a flaky unit test. Trigger deploys only after the merge result is known.",
+    "Duplicate work: PR #19625 (another session) landed the same R2 fix 15 minutes before PR #19628; both sessions had ported the deploy workflow too (#19625 dropped its port for #19617's)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -66,7 +68,7 @@
     "docs/reports/2026-11-27-payapps-deploy-workflow.md"
   ],
   "goal": null,
-  "notes": "Security queue empty (security_next exit 3); ideas inbox empty; route drew ventures/1. private-monorepo clone worked first time via add_repo. PayApps launch review is merged (private#444), deploy run 45921558751 starved (ci_starvation exit 1). Ported payapps-deploy.yml as .github/workflows/priv-payapps-deploy.yml with hardening: main-only job guard, SHA-pinned actions, persist-credentials false, sparse checkout, a fail-fast step until ventures/payapps exists, PAYAPPS_DOMAIN host validation, continue-on-error replaced by an in-script warning. validate_workflows.py: all 140 valid. gate.py analyze: 12 blocking (secret reads) without the allowlist entries, 0 with them; allowlist PR itself 0/0. risk_review: nothing blocked. Deploy not run: needs PR #19586 on main. Allowlist PR #19610 merged first (all required checks green; codeql js still running on a YAML-only change); workflow PR #19617. PR #19617 merged. Ran priv-payapps-deploy from main (run 45947552522): got a runner, checks and build passed, failed at R2 provisioning with Cloudflare auth error 10000 (token lacks R2); provision.mjs now treats that like R2-not-enabled (warn, deploy without attachments), with a test; biome 2.6.8 ci clean, provision tests 6/6.",
+  "notes": "Security queue empty (security_next exit 3); ideas inbox empty; route drew ventures/1. private-monorepo clone worked first time via add_repo. PayApps launch review is merged (private#444), deploy run 45921558751 starved (ci_starvation exit 1). Ported payapps-deploy.yml as .github/workflows/priv-payapps-deploy.yml with hardening: main-only job guard, SHA-pinned actions, persist-credentials false, sparse checkout, a fail-fast step until ventures/payapps exists, PAYAPPS_DOMAIN host validation, continue-on-error replaced by an in-script warning. validate_workflows.py: all 140 valid. gate.py analyze: 12 blocking (secret reads) without the allowlist entries, 0 with them; allowlist PR itself 0/0. risk_review: nothing blocked. Deploy not run: needs PR #19586 on main. Allowlist PR #19610 merged first (all required checks green; codeql js still running on a YAML-only change); workflow PR #19617. PR #19617 merged. Ran priv-payapps-deploy from main (run 45947552522): got a runner, checks and build passed, failed at R2 provisioning with Cloudflare auth error 10000 (token lacks R2); provision.mjs now treats that like R2-not-enabled (warn, deploy without attachments), with a test; biome 2.6.8 ci clean, provision tests 6/6. The R2 fix was landed first by PR #19625 (another session); this run dropped its duplicate code and kept the report. Deploy run 45949861746 (by that session) succeeded: PayApps live at https://payapps.duncan-andrew-haywood.workers.dev, /api/health ok with email true. This run's re-trigger (45950799211) failed in Checks on a flaky sov-import UI test before using any credential; triggered in parallel with a merge that was refused for conflicts, which it should not have been.",
   "corrections": [],
   "redteam": null,
   "usage": {

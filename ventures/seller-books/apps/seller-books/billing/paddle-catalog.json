@@ -1,0 +1,29 @@
+{
+  "app": "seller-books",
+  "productName": "Seller Books",
+  "currency": "USD",
+  "taxCategory": "saas",
+  "plans": [
+    {
+      "key": "side",
+      "name": "Side hustle",
+      "description": "Selling part time on one or two platforms.",
+      "monthlyCents": 1500,
+      "annualCents": 15000
+    },
+    {
+      "key": "fulltime",
+      "name": "Full time",
+      "description": "Reselling is your main work and you crosslist on every platform.",
+      "monthlyCents": 3500,
+      "annualCents": 35000
+    },
+    {
+      "key": "business",
+      "name": "Business",
+      "description": "A reselling business with a helper, a bookkeeper or a tax preparer.",
+      "monthlyCents": 6900,
+      "annualCents": 69000
+    }
+  ]
+}

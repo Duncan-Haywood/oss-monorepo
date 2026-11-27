@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqycFRCWNJNZRWvqaR4y",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T05:39:02Z",
+  "ended": "2026-11-27T05:48:03Z",
+  "wall_minutes": 9.2,
+  "tokens_in": 11375808,
+  "tokens_out": 42510,
+  "cost_usd": 4.5637,
+  "tool_calls": 84,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19626",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "19 of 20 Next items wait on demand ('if people ask') with no customers, and the only free one (HEIC decoding) carries LGPL/HEVC-patent questions, so the roadmap gave no buildable product slice; the bet's real gap (deploy, site deploy, jobshop move) was already taken by three open PRs (#19617, #19594, #19571)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The routing default ('advance the top bet') sent this run into the same deploy and move work other sessions held; there is no single place that lists which bet tasks are in flight, so finding that out took slug_dupe runs on several keywords plus reading the PRs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is a working slice of the bet's product. Every product-side step that would unlock customers was claimed by an open PR from another session, and the free roadmap item was not worth the legal risk, so this run did the bet's front-door SEO instead.",
+      "did": "Generated 12 per-state printable statutory lien waiver form pages from PayApps' verified package text",
+      "result": "merged with tests; search traffic still unmeasured"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md (new 2026-11-27 section)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); ideas inbox empty. Local: run_venture_tests pay-app-guides 0 failed (291 node tests); platform/pages industry-construction, llms-answers and phone-probe 33 pass; Playwright check at 390 and 1200 px and in print emulation. private-monorepo was attached read-only but not cloned (not needed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4d151072-adf7-5dfb-8bb4-134185d88e00",
+    "transcripts": 1,
+    "first": "2026-11-27T05:39:02Z",
+    "last": "2026-11-27T05:48:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 162,
+        "output": 42510,
+        "thinking": 12070,
+        "cache_read": 11191319,
+        "cache_write_5m": 0,
+        "cache_write_1h": 184327,
+        "api_equivalent_usd": 4.5637,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 162,
+      "output": 42510,
+      "thinking": 12070,
+      "cache_read": 11191319,
+      "cache_write_5m": 0,
+      "cache_write_1h": 184327,
+      "api_equivalent_usd": 4.5637,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 72,
+      "Read": 4,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__get_file_contents": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.2,
+      "active_minutes": 9.2,
+      "model_minutes": 8.0,
+      "tool_minutes": 1.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "generator, 12 pages, tests and post for a web dev familiar with the repo",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 131.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

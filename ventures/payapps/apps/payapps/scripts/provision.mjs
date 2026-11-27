@@ -107,9 +107,20 @@ export function d1IdFrom(list, name) {
 export const ALREADY_EXISTS =
   /already exists|already taken|already in use|duplicate|\[code: (10004|11009)\]/i;
 export const R2_NOT_ENABLED = /enable R2|10042/i;
-// The token was verified before provisioning, so an authentication error on the R2 call alone means the
-// token lacks R2 edit (Workers and D1 still work). Same outcome as R2 off: deploy without attachments.
-export const R2_NOT_PERMITTED = /Authentication error \[code: 10000\]/i;
+/**
+ * The token cannot use R2 (no "Workers R2 Storage: Edit" on it): Cloudflare answers the bucket call with
+ * "Authentication error [code: 10000]", as on the first deploy from oss-monorepo (run 45947552522,
+ * 2026-11-27). Like R2 not enabled, the deploy goes on without attachments rather than not at all.
+ * Only the R2 call's error is tested against this, so it never hides a D1 or deploy failure.
+ */
+export const R2_NO_ACCESS = /Authentication error|\[code: 10000\]/i;
+
+/** Why the bucket is unavailable, or "" when the error is something else (which must fail the deploy). */
+export function r2Unavailable(message) {
+  if (R2_NOT_ENABLED.test(message)) return "not-enabled";
+  if (R2_NO_ACCESS.test(message)) return "no-access";
+  return "";
+}
 
 function wrangler(args, { allowFailure = false } = {}) {
   const res = spawnSync("pnpm", ["exec", "wrangler", ...args], {
@@ -156,17 +167,14 @@ function main() {
       args.dryRun,
     );
   } catch (e) {
-    const message = String(e?.message ?? e);
-    if (R2_NOT_ENABLED.test(message)) {
-      console.log(
-        "::warning title=R2 not enabled::Attachments are off until R2 is enabled (Cloudflare dashboard -> R2 Object Storage). Re-run the deploy afterwards.",
-      );
-    } else if (R2_NOT_PERMITTED.test(message)) {
-      console.log(
-        "::warning title=Token has no R2 permission::Attachments are off until CLOUDFLARE_API_TOKEN gets Account R2 Storage edit. Re-run the deploy afterwards.",
-      );
-    } else throw e;
+    const why = r2Unavailable(String(e?.message ?? e));
+    if (!why) throw e;
     r2Enabled = false;
+    console.log(
+      why === "not-enabled"
+        ? "::warning title=R2 not enabled::Attachments are off until R2 is enabled (Cloudflare dashboard -> R2 Object Storage). Re-run the deploy afterwards."
+        : "::warning title=Token has no R2 access::Attachments are off: the Cloudflare token was refused on R2 (Authentication error, code 10000). Add Account -> Workers R2 Storage -> Edit to CLOUDFLARE_API_TOKEN and re-run the deploy.",
+    );
   }
 
   const list = () => (args.dryRun ? [] : parseJson(wrangler(["d1", "list", "--json"]).stdout));
