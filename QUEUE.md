@@ -7,22 +7,20 @@ do not edit by hand. Take the first one whose claim branch
 
 Triaged already: alerts in `platform/security/codeql-triage.json` are listed apart, at the end; `docs/reports/*security-queue*.md` on main has earlier runs' notes. A false positive you find goes in the JSON file with its reason (only the owner can dismiss alerts).
 
-Scanned commit: `9db53ee586e9` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 9db53ee586e9 origin/main -- <path>` before fixing (each alert file says how).
-
-- [high] #1434 `py/clear-text-logging-sensitive-data` in `portfolio/smb/cbp_counts.py:150`: alerts/1434.md
+Empty: no open alerts awaiting a fix.
 
 ## Triaged, awaiting dismissal
 
 Read and judged false positives (`platform/security/codeql-triage.json`): not work
 for a session. The owner dismisses each on its alert page.
 
-- [high] #7 `py/clear-text-storage-sensitive-data` in `platform/security/risk_review.py:542`: alerts/7.md
+- [high] #7 `py/clear-text-storage-sensitive-data` in `platform/security/risk_review.py:546`: alerts/7.md
 - [high] #12 `py/clear-text-logging-sensitive-data` in `platform/ci/secrets_inventory.py:261`: alerts/12.md
 - [high] #34 `py/clear-text-logging-sensitive-data` in `ventures/einvoice-preflight/src/einvoice_preflight/cli.py:853`: alerts/34.md
 - [high] #38 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:323`: alerts/38.md
 - [high] #39 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:331`: alerts/39.md
-- [high] #42 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:536`: alerts/42.md
-- [high] #43 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:543`: alerts/43.md
+- [high] #42 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:540`: alerts/42.md
+- [high] #43 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:547`: alerts/43.md
 - [high] #104 `js/regex-injection` in `platform/ci/copy_drift.mjs:189`: alerts/104.md
 - [high] #105 `js/regex-injection` in `platform/ci/copy_drift.mjs:190`: alerts/105.md
 - [high] #106 `js/regex-injection` in `ventures/dxf-nesting/dxf.mjs:174`: alerts/106.md
@@ -57,3 +55,4 @@ for a session. The owner dismisses each on its alert page.
 - [high] #1202 `js/redos` in `ventures/regex-redos-check/engine.test.mjs:167`: alerts/1202.md
 - [high] #1203 `js/redos` in `ventures/regex-redos-check/engine.test.mjs:181`: alerts/1203.md
 - [high] #1208 `js/redos` in `ventures/devsec-toolkit/tests/fixtures/vulnerable-repo/src/validate.js:1`: alerts/1208.md
+- [high] #1434 `py/clear-text-logging-sensitive-data` in `portfolio/smb/cbp_counts.py:150`: alerts/1434.md
