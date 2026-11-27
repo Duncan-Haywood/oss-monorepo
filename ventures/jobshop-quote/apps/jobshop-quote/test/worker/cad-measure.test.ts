@@ -4,7 +4,12 @@
 import type { QuoteDetailDto, RfqDetailDto } from "@shared/api";
 import type { GeometryFeatures } from "@shared/geometry";
 import { testFakes } from "@worker/context";
-import { INLINE_GEOMETRY_MAX_BYTES, MEASURE_FAILED } from "@worker/services/rfq";
+import {
+  INLINE_GEOMETRY_MAX_BYTES,
+  MAX_MEASURE_BYTES,
+  MEASURE_FAILED,
+  TOO_LARGE_TO_MEASURE,
+} from "@worker/services/rfq";
 import { describe, expect, it } from "vitest";
 import { RFQ_EMAIL } from "../fixtures/rfq";
 import { addMember, api, json, seedRateCard, setupTenant } from "./helpers";
@@ -110,6 +115,33 @@ describe("measuring large CAD files on request", () => {
     // IGES is measured now: a large one waits for "Measure" like STEP.
     const iges = await upload(t, big("PLATE-2.igs"));
     expect(iges.files[0]?.geometryPending).toBe(true);
+  });
+
+  it("stores a CAD file over the measure limit with the reason, and never offers Measure", async () => {
+    const t = await setupTenant();
+    // Registered, so only the size keeps it from being measured.
+    testFakes.geometry.set("ASSY-1.step", SOLID);
+    const rfq = await upload(t, new File([new Uint8Array(MAX_MEASURE_BYTES + 1)], "ASSY-1.step"));
+    const file = rfq.files[0];
+    expect(file?.geometry).toBeNull();
+    expect(file?.geometryPending).toBe(false);
+    expect(file?.conversionError).toBe(TOO_LARGE_TO_MEASURE);
+    const res = await api(t.path(`/rfqs/${rfq.id}/files/${file?.id}/measure`), {
+      method: "POST",
+      as: t.userId,
+    });
+    expect(res.status).toBe(409);
+    // Exactly at the limit still waits for Measure.
+    testFakes.geometry.set("ASSY-2.step", SOLID);
+    const edge = await upload(t, new File([new Uint8Array(MAX_MEASURE_BYTES)], "ASSY-2.step"));
+    expect(edge.files[0]?.geometryPending).toBe(true);
+    expect(edge.files[0]?.conversionError).toBeNull();
+    // A large non-CAD-measured file (native SolidWorks) gets no such note.
+    const native = await upload(
+      t,
+      new File([new Uint8Array(MAX_MEASURE_BYTES + 1)], "ASSY-3.sldprt"),
+    );
+    expect(native.files[0]?.conversionError).toBeNull();
   });
 
   it("is for estimators of the same shop only", async () => {

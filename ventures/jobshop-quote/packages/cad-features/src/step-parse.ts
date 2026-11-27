@@ -45,6 +45,8 @@ export const isTyped = (v: Value | undefined): v is Typed =>
 class Cursor {
   i = 0;
   readonly s: string;
+  /** One copy of each entity name and enum value (a large file repeats a few hundred of them). */
+  private readonly names = new Map<string, string>();
   constructor(s: string) {
     this.s = s;
   }
@@ -76,7 +78,16 @@ class Cursor {
     this.skip();
     const start = this.i;
     while (this.i < this.s.length && /[A-Za-z0-9_!]/.test(this.s[this.i] as string)) this.i++;
-    return this.s.slice(start, this.i).toUpperCase();
+    return this.name(this.s.slice(start, this.i));
+  }
+
+  private name(raw: string): string {
+    let v = this.names.get(raw);
+    if (v === undefined) {
+      v = raw.toUpperCase();
+      this.names.set(raw, v);
+    }
+    return v;
   }
 
   value(): Value {
@@ -119,7 +130,7 @@ class Cursor {
     }
     if (c === ".") {
       const end = s.indexOf(".", this.i + 1);
-      const v = s.slice(this.i + 1, end).toUpperCase();
+      const v = this.name(s.slice(this.i + 1, end));
       this.i = end + 1;
       return { enum: v };
     }
@@ -149,7 +160,9 @@ class Cursor {
       out.push(this.value());
       const c = this.peek();
       this.i++;
-      if (c === ")") return out;
+      // An array grown by push keeps spare slots (17 after the first push), several times what a
+      // three-number point needs; the exact-size copy is what a 15 MB file's ~200k lists can afford.
+      if (c === ")") return out.slice();
       if (c !== ",") throw new Error(`expected , or ) at ${this.i - 1}`);
     }
   }
@@ -184,18 +197,20 @@ export function parseStep(text: string): StepFile {
       while (/[0-9]/.test(text[cur.i] ?? "")) cur.i++;
       const id = Number(text.slice(idStart, cur.i));
       cur.expect("=");
-      const parts: Part[] = [];
+      let parts: Part[];
       if (cur.peek() === "(") {
         cur.i++;
+        parts = [];
         while (cur.peek() !== ")") {
           const type = cur.keyword();
           if (!type) throw new Error("empty keyword");
           parts.push({ type, args: cur.list() });
         }
         cur.i++;
+        parts = parts.slice();
       } else {
         const type = cur.keyword();
-        parts.push({ type, args: cur.list() });
+        parts = [{ type, args: cur.list() }];
       }
       cur.expect(";");
       const first = parts[0] as Part;
