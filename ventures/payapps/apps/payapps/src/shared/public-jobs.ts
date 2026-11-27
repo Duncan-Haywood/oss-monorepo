@@ -5,7 +5,7 @@
 //    dates PayApps counts here: the 90-day notice a second-tier claimant gives the prime, and the
 //    one-year limit on the suit. They take the lien deadline's place on the job page, the cash page
 //    and the weekly email. State and local jobs have each state's own bond law ("little Miller
-//    Act"): there it shows no lien date, and lists the bond claim steps in the eight states of
+//    Act"): there it shows no lien date, and lists the bond claim steps in the thirteen states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
 //    checked against the cap in the 16 states the public guide lists.
@@ -449,6 +449,61 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "The contractor can shorten the time to sue to 60 days by recording and serving a notice of contest of your claim (§ 255.05(2)(a)1).",
     ],
   },
+  MA: {
+    name: "Massachusetts",
+    law: "Mass. Gen. Laws ch. 149, § 29",
+    url: "https://malegislature.gov/Laws/GeneralLaws/PartI/TitleXXI/Chapter149/Section29",
+    checkedOn: "2026-11-27",
+    notes: [
+      "The claim is enforced by a petition in equity in the superior court. A claimant in contract with the prime may file once unpaid 65 days after the amount was due; no decree is entered before the 70th day after your last day (§ 29, second and fifth paragraphs).",
+      "The 65-day notice goes by registered or certified mail to the contractor's office, place of business or residence, or as civil process may be served, and states the amount claimed and who you worked for.",
+      "Specially fabricated material is covered only if the sub's supplier tells the contractor of the order and its amount within 20 days after the written final approval to use it.",
+      "The bond is required on public works contracts over $25,000. A decree for a claimant includes reasonable legal fees.",
+    ],
+  },
+  MI: {
+    name: "Michigan",
+    law: "MCL 129.207, 129.209",
+    url: "https://www.legislature.mi.gov/Laws/MCL?objectName=mcl-129-207",
+    checkedOn: "2026-11-27",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day (MCL 129.207).",
+      "Both notices go by certified mail to the principal contractor (and the 90-day notice to the governmental unit too), at any place where it keeps a business or residence.",
+      "The suit limit runs from the day final payment was made to the principal contractor (MCL 129.209), a day PayApps does not know: ask the public body when it paid the prime.",
+    ],
+  },
+  MN: {
+    name: "Minnesota",
+    law: "Minn. Stat. § 574.31",
+    url: "https://www.revisor.mn.gov/statutes/cite/574.31",
+    checkedOn: "2026-11-27",
+    notes: [
+      "Everyone furnishing labor and materials gives the notice, first-tier subs included, personally or by certified mail to the surety and the contractor at the addresses stated in the bond. The statute sets out a sworn form for it (§ 574.31, subd. 2(a)).",
+      "If the contractor's bond fails to state both its and the surety's addresses (§ 574.28), no notice is needed (subd. 2(b)).",
+      "The one-year suit limit can be extended by a written stipulation with the surety, or by a certified-mail notice to the surety 90 days before the limit that it does not object to within 30 days (subd. 2(d)).",
+    ],
+  },
+  NV: {
+    name: "Nevada",
+    law: "NRS 339.035, 339.055",
+    url: "https://www.leg.state.nv.us/NRS/NRS-339.html",
+    checkedOn: "2026-11-27",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day (NRS 339.035(1)).",
+      "Both notices go by registered or certified mail to the contractor's office, place of business or residence, and state the amount claimed and who you worked for (NRS 339.035(2)).",
+      "Payment bonds are required on public work contracts over $100,000, other than the highway contracts of NRS chapter 408 (NRS 339.025).",
+    ],
+  },
+  OR: {
+    name: "Oregon",
+    law: "ORS 279C.600-279C.610",
+    url: "https://www.oregonlegislature.gov/bills_laws/ors/ors279C.html",
+    checkedOn: "2026-11-27",
+    notes: [
+      "Everyone gives the notice of claim, first-tier subs included, to the contractor and the contracting agency, by registered or certified mail or by hand, in the form ORS 279C.605(3) sets out, signed.",
+      "A claim for an employee benefit fund contribution has 200 days instead of 180 (ORS 279C.605(2)).",
+    ],
+  },
   NC: {
     name: "North Carolina",
     law: "N.C. Gen. Stat. §§ 44A-27, 44A-28",
@@ -593,6 +648,153 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
           },
           L,
           addOneYear,
+          LAST,
+        ),
+      ];
+    case "MA":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of your claim",
+            citation: "Mass. Gen. Laws ch. 149, § 29, par. 3",
+            rule: `within 65 days after ${LAST}`,
+          },
+          L,
+          days(65),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "File a petition in equity to enforce the claim on the bond",
+            citation: "Mass. Gen. Laws ch. 149, § 29, par. 2(a)",
+            rule: `within one year after ${LAST}`,
+          },
+          L,
+          addOneYear,
+          LAST,
+        ),
+      ];
+    case "MI":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Serve the principal contractor a notice of what you furnish, for whom, and where",
+            citation: "MCL 129.207(a)",
+            rule: "within 30 days after you first furnished",
+          },
+          null,
+          null,
+          "the day you first furnished",
+        ),
+        step(
+          {
+            who: "not-prime",
+            act: "Give the principal contractor and the governmental unit written notice of your claim",
+            citation: "MCL 129.207(b)",
+            rule: `within 90 days from ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "MCL 129.209",
+            rule: "within one year from the day final payment was made to the principal contractor",
+          },
+          null,
+          null,
+          "the day the public body made final payment to the prime",
+        ),
+      ];
+    case "MN":
+      return [
+        step(
+          {
+            who: "all",
+            act: "Serve the surety and the contractor a written notice of claim on the payment bond",
+            citation: "Minn. Stat. § 574.31, subd. 2(a)",
+            rule: `within 120 days after ${LAST}`,
+          },
+          L,
+          days(120),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit against the surety on the bond",
+            citation: "Minn. Stat. § 574.31, subd. 2(c)",
+            rule: `within one year from ${LAST}`,
+          },
+          L,
+          addOneYear,
+          LAST,
+        ),
+      ];
+    case "NV":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Serve the contractor a notice of what you furnish, for whom, and where",
+            citation: "NRS 339.035(2)(a)",
+            rule: "within 30 days after you first furnished",
+          },
+          null,
+          null,
+          "the day you first furnished",
+        ),
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of your claim",
+            citation: "NRS 339.035(2)(b)",
+            rule: `within 90 days from ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "NRS 339.055(2)",
+            rule: `within one year from ${LAST}`,
+          },
+          L,
+          addOneYear,
+          LAST,
+        ),
+      ];
+    case "OR":
+      return [
+        step(
+          {
+            who: "all",
+            act: "Give the contractor and the contracting agency written notice of claim",
+            citation: "ORS 279C.600(1)(b), 279C.605(1)",
+            rule: `no later than 180 days after ${LAST}`,
+          },
+          L,
+          days(180),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "ORS 279C.610(3)",
+            rule: `no later than two years after ${LAST}`,
+          },
+          L,
+          (from) => addOneYear(addOneYear(from)),
           LAST,
         ),
       ];
