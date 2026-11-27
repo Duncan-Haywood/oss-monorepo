@@ -9,7 +9,8 @@
 // headings on entry pages (faqEntries() in platform/pages/build.mjs), so a hand-written block there
 // would ship the questions twice.
 //
-// Edit a question: change it here, then run `node faq.mjs` to rewrite the pages.
+// Edit a question: change it here, then run `node faq.mjs` to rewrite the pages and
+// `node platform/pages/llms-answers.mjs ventures/machine-shop-guides` (from the repo root) to rewrite llms.txt Answers.
 // page.test.mjs fails if a page has no entry here or its block is out of date.
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
