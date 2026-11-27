@@ -13,7 +13,7 @@ const SKIP_DIRS = new Set(['node_modules', 'test', 'tests', '.git', 'fixtures', 
 
 // Pages that are fine without a static link from their index, each with its reason.
 export const ALLOW = {
-  'babysitting-business-kit/admin.html': 'noindex status page of a self-hosted server, opened by its operator',
+  'babysitting-business-kit/admin.html': 'noindex status page of a kit server, opened by its operator',
   'error-keeper/dashboard.html': 'the app dashboard, reached after setup rather than from the landing page',
   'shed-designer/hoa-packet.html': "opened by the 'HOA packet' button with the design in the URL hash; a bare link shows an empty packet",
 };

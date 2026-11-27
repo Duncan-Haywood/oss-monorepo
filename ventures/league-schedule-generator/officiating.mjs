@@ -1,4 +1,4 @@
-// Referees on the self-hosted league page (server.mjs). The organiser lists officials in the same
+// Referees on the league page (server.mjs). The organiser lists officials in the same
 // format as the browser page (parseOfficials in calc.mjs: name, own team in brackets, weekdays, max N).
 // Every game gets one official, and each official gets a private link (the league link plus a key, an
 // HMAC of their name like a captain's) where they see their own games, add them to a calendar, give a

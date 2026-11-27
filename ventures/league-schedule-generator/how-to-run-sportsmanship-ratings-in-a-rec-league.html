@@ -6,7 +6,7 @@
   <title>How To Run Sportsmanship Ratings In A Rec League, Free</title>
   <meta name="description" content="Run spirit or sportsmanship ratings in a rec league: captains rate opponents after each game, you see averages, low ratings and who has not rated.">
   <meta property="og:title" content="How To Run Sportsmanship Ratings In A Rec League, Free">
-  <meta property="og:description" content="Captains rate the other team after each game from their own link; the organiser sees averages, hard markers and low ratings. Self-hosted and free.">
+  <meta property="og:description" content="Captains rate the other team after each game from their own link; the organiser sees averages, hard markers and low ratings.">
   <link rel="canonical" href="./how-to-run-sportsmanship-ratings-in-a-rec-league.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a spirit score in a rec league?", "acceptedAnswer": {"@type": "Answer", "text": "After each game, each team's captain rates the other team's sportsmanship. In ultimate the usual sheet has five categories (rules knowledge and use, fouls and body contact, fair-mindedness, positive attitude and self-control, communication) scored 0 to 4, where 2 is a normal good game, so a total of 10 is ordinary. Many kickball, soccer and social leagues use one score from 1 to 5 instead."}}, {"@type": "Question", "name": "Can teams see the comments other teams write about them?", "acceptedAnswer": {"@type": "Answer", "text": "No. Comments go to the organiser only. Players see nothing unless the organiser ticks Show the sportsmanship table, and then they see each team's number of games rated and its average, never the individual ratings or comments."}}, {"@type": "Question", "name": "How do I spot a team that marks everyone low?", "acceptedAnswer": {"@type": "Answer", "text": "The organiser table lists, next to each team's average received, how many ratings it gave and the average it gives. A team whose average given sits well below everyone else's may be marking hard rather than meeting poor sports, and its low ratings are worth reading with that in mind."}}, {"@type": "Question", "name": "Does this decide a spirit award for me?", "acceptedAnswer": {"@type": "Answer", "text": "It ranks teams by the average their opponents gave them. Whether that names your spirit award, and what minimum number of rated games counts, is your league's rule. Ties and close calls are yours to settle."}}]}</script>
   <style>
@@ -27,8 +27,7 @@
   <p><a href="./">&larr; League schedule generator</a></p>
   <h1>How to run sportsmanship ratings in a rec league</h1>
   <p>Ultimate leagues have long asked each captain to score the other team's spirit after every game, and plenty of kickball, soccer and social leagues run a sportsmanship award the same way. The scoring is the easy part. The work is collecting a sheet from every captain every week, typing it into a spreadsheet, and noticing the one rating that says something went wrong on the field.</p>
-  <p>The free, self-hosted league page now collects the ratings for you. Each captain rates the other team from the captain link they already use to report scores. You see each team's average, the categories behind it, the low ratings with their comments, and which captains have not rated yet.</p>
-  <p><a class="cta" href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#run-your-own-league-page-self-hosted" rel="noopener">Run your own league page</a> (FSL-1.1-MIT licensed, one small Node server, your own disk)</p>
+  <p>This guide describes the league page in this tool's source code (<code>server.mjs</code>). It is no longer offered for you to run on your own server, and no hosted version is live yet, so read the steps below as how the feature works rather than something you can switch on today.</p>
   <h2>How it works</h2>
   <ol>
     <li><strong>Pick a scale.</strong> In the organiser page, under Sportsmanship ratings, choose five categories scored 0 to 4 (the shape of the spirit sheet ultimate uses; 2 in every category, a total of 10, is a normal good game) or one score from 1 to 5. It is off until you choose.</li>
@@ -65,7 +64,7 @@
 </main>
 <footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. An organising aid: how ratings are used, and any award or sanction, are your league's decisions. Not affiliated with WFDF, USA Ultimate or any governing body. The example teams and ratings are invented.</p>
-    <p>The schedule tool runs in your browser. Ratings live on the league page you host yourself, in one state file on your own server; nothing is sent to us. Free to use and source available: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+    <p>The schedule tool runs in your browser. Free to use and source visible: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
   </footer>
 </body>
 </html>

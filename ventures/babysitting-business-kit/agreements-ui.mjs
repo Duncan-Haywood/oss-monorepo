@@ -1,6 +1,6 @@
 // Babysitting Business Kit: the Agreements tab. Edits the agreement settings, shows each
 // family's status (signed, needs re-signing, unsigned) and photo choice, makes signing
-// links for the sitter's own server, records paper signatures and opens printable copies.
+// links for the sitter's server, records paper signatures and opens printable copies.
 // The logic lives in agreements.mjs; this file only draws and wires the panel.
 
 import * as AG from "./agreements.mjs";

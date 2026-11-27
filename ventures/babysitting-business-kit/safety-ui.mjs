@@ -1,5 +1,5 @@
 // Babysitting Business Kit: the Safety tab. The late-sit check-in is started here and
-// lives on the sitter's own server (safety-server.mjs), which is the only thing that
+// lives on the sitter's server (safety-server.mjs), which is the only thing that
 // can send an alert; the emergency card and house checklist work offline in the browser.
 
 import { newCheckin, checkinAction, safetyState, upsertCheckin, sharedPlace, safetyToken, GRACE_DEFAULT, GRACE_MIN, GRACE_MAX, checklistState, setChecklistItem, emergencyCard, emergencyCardData, deadline } from "./safety.mjs";
@@ -14,7 +14,7 @@ export function mountSafety(root, { getDesk, save, esc, record = () => {}, today
 
   async function push(c) {
     const { url, key } = server();
-    if (!/^https?:\/\//.test(url) || !key) throw new Error("Add your server address and admin key in Settings (Sync) first: only your own server can send the alert.");
+    if (!/^https?:\/\//.test(url) || !key) throw new Error("Add your server address and admin key in Settings (Sync) first: only your server can send the alert.");
     const r = await fetch(`${url}/api/safety/checkin`, { method: "PUT", headers: { authorization: `Bearer ${key}`, "content-type": "application/json" }, body: JSON.stringify(c) });
     let out = {};
     try { out = await r.json(); } catch { /* not JSON */ }
@@ -115,7 +115,7 @@ export function mountSafety(root, { getDesk, save, esc, record = () => {}, today
     }
     root.innerHTML = `
       <h3>Late-sit check-in</h3>
-      <p class="note">Before a late sit, name someone you trust and when you expect to be home. If you have not tapped "I'm home safe" by then plus the grace period, your own server texts or emails them, at any hour (quiet hours do not apply to this). They are told only your name, your phone, the time and the place you choose below, never anything about the children. It needs your server with texts (Twilio) or email (Resend) set up; see <a href="self-host.html">self-hosting</a>.</p>
+      <p class="note">Before a late sit, name someone you trust and when you expect to be home. If you have not tapped "I'm home safe" by then plus the grace period, your server texts or emails them, at any hour (quiet hours do not apply to this). They are told only your name, your phone, the time and the place you choose below, never anything about the children. It needs your server with texts (Twilio) or email (Resend) set up on the server.</p>
       ${message ? `<p class="msg">${esc(message)}</p>` : ""}
       ${openRows}
       <form id="sf_form">

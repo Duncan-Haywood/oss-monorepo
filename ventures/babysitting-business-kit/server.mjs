@@ -1,4 +1,4 @@
-// Babysitting Business Kit: the optional self-hosted server. One Node 22 process, no
+// Babysitting Business Kit: the optional server. One Node 22 process, no
 // dependencies, state in one JSON file. Run it on your own account (Render, Fly, a VPS):
 //
 //   ADMIN_KEY=... CAL_TOKEN=... STATE=/data/desk.json PORT=8080 node server.mjs
@@ -66,8 +66,8 @@ const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
 const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/agreements.mjs": "agreements.mjs", "/agreements-ui.mjs": "agreements-ui.mjs", "/admin": "admin.html", "/safety.mjs": "safety.mjs", "/safety-ui.mjs": "safety-ui.mjs", "/sitreport.mjs": "sitreport.mjs", "/sitreport-ui.mjs": "sitreport-ui.mjs", "/packages.mjs": "packages.mjs", "/packages-ui.mjs": "packages-ui.mjs", "/waitlist.mjs": "waitlist.mjs", "/waitlist-ui.mjs": "waitlist-ui.mjs" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
-// The installable app (PWA) and the guide pages, so a self-hosted copy works offline and links resolve.
-for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html", "network.mjs", "network-ui.mjs", "credentials.mjs", "credentials-ui.mjs", "babysitting-business-setup.html", "insights.mjs", "insights-ui.mjs", "invoices.mjs", "invoices-ui.mjs", "activities.mjs", "activities-ui.mjs"]) FILES[`/${f}`] = f;
+// The installable app (PWA) and the guide pages, so the server's copy works offline and links resolve.
+for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "network.mjs", "network-ui.mjs", "credentials.mjs", "credentials-ui.mjs", "babysitting-business-setup.html", "insights.mjs", "insights-ui.mjs", "invoices.mjs", "invoices-ui.mjs", "activities.mjs", "activities-ui.mjs"]) FILES[`/${f}`] = f;
 Object.assign(TYPES, { js: "text/javascript; charset=utf-8", webmanifest: "application/manifest+json", svg: "image/svg+xml", png: "image/png" });
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);

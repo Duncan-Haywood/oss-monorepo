@@ -1,4 +1,4 @@
-// Player availability for the self-hosted league page: each player says In, Maybe or Out for their
+// Player availability for the league page: each player says In, Maybe or Out for their
 // team's next games, the page shows the count beside every fixture, and the organiser sees which teams
 // are short of players before the night, not when a forfeit is already happening.
 // Pure functions: server.mjs keeps the store in its state file and passes `today` in.

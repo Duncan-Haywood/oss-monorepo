@@ -1,4 +1,4 @@
-// Schedule-change emails for the self-hosted league page (server.mjs). When the organiser saves a
+// Schedule-change emails for the league page (server.mjs). When the organiser saves a
 // published league, the season before and after the save are compared fixture by fixture (every match
 // keeps its `fixture` id across rainouts, withdrawals and late teams), and each team whose own games
 // moved, were cancelled or were added gets one email listing only those games. Past games are ignored.

@@ -5,7 +5,7 @@ description: >-
   feed, unpaid-sit reminders, self-employment tax set-aside with quarterly due
   dates, year-end child care statements for families, reference and testimonial
   tracking with consent, a generated website and a content calendar. Browser
-  app plus an optional zero-dependency self-hosted server that turns the
+  app plus an optional zero-dependency server that turns the
   website form into scored leads with auto-reply email and alerts.
 stage: prototype
 owner: duncan
@@ -29,8 +29,9 @@ owner: duncan
 # charge for babysitting", "babysitting business tracker", "babysitter
 # website"; teen and college sitters, church-nursery workers. Volume not measured.
 #
-# Path to revenue (payments stay off): free and FSL-1.1-MIT; done-for-you setup and
-# hosting for sitters are the paid steps, owner-gated.
+# Path to revenue (payments stay off): free to use, source visible, all rights
+# reserved (2026-11-26); hosting for sitters is the paid step, owner-gated. Self-host
+# offers dropped 2026-11-27 (owner: hosted-only).
 
 hypotheses:
   - claim: >-

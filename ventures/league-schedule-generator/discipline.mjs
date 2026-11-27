@@ -1,4 +1,4 @@
-// Cards, suspensions and top scorers for the self-hosted league page (server.mjs).
+// Cards, suspensions and top scorers for the league page (server.mjs).
 //
 // The organiser keeps one plain-text log in /admin, a line per event, the same way results are kept:
 //

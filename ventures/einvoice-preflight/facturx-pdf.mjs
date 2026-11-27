@@ -419,7 +419,7 @@ class Pages {
 }
 
 function drawInvoice(doc, regular, bold, level, filename) {
-  const footer = `Factur-X ${level} invoice: the legally relevant data is the embedded ${filename}. Made with einvoice-preflight (open source).`;
+  const footer = `Factur-X ${level} invoice: the legally relevant data is the embedded ${filename}. Made with einvoice-preflight.`;
   const pg = new Pages(regular, bold, footer);
   const W = A4[0] - 2 * MARGIN;
   const cur = doc.currency;

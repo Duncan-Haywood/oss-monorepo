@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Self-hosted team schedule: you build and publish the week, your staff open one link to see their
-// shifts, add them to their calendar and send availability. Zero dependencies; run it on a box you own.
+// Team hub server: you build and publish the week, your staff open one link to see their shifts, add them
+// to their calendar and send availability. Zero dependencies. Offered only as the hosted team hub (README).
 //   ADMIN_KEY=... TEAM_TOKEN=... STATE=/data/state.json PORT=8080 node server.mjs
 // ADMIN_KEY unlocks /admin. TEAM_TOKEN is the secret in the link you share with staff (/team?t=...).
 // Wages never reach the staff page. State is one JSON file: put STATE on a persistent disk.

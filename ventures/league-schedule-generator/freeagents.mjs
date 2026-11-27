@@ -1,4 +1,4 @@
-// Free agents for the self-hosted league page (server.mjs): a player with no team opens /join, types their
+// Free agents for the league page (server.mjs): a player with no team opens /join, types their
 // name, email, how much they have played and (optionally) a friend to be placed with. The organiser sees
 // them in /admin with a suggested team for each, chosen by the same search the balanced-teams page uses for
 // late sign-ups (teams.mjs addLateSignups): rosters pinned, the smallest filled first, any tags the

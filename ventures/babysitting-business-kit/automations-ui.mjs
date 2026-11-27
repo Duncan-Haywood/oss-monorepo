@@ -1,6 +1,6 @@
 // Babysitting Business Kit: the Automations box in Settings and the "sent automatically"
 // list on the Today tab. The browser never sends; it edits the rules and previews what
-// the sitter's own server would send (automations-server.mjs).
+// the sitter's server would send (automations-server.mjs).
 
 import { RULES, automationSettings, planAutomations, automationState, contactsOf, isOptedOut, recentSends, maskAddress } from "./automations.mjs";
 
@@ -44,7 +44,7 @@ export function mountAutomations({ getDesk, save, esc, record = () => {} }) {
     const held = plan.held.length ? `<p class="note">Held back: ${plan.held.map((h) => `${esc(h.family)} (${esc(RULES[h.rule])}): ${esc(h.reason)}`).join("; ")}</p>` : "";
     const log = automationState(desk).log.slice(-15).reverse();
     box.innerHTML = `
-      <p class="note">Your own server (see the README) sends these with your Resend and Twilio keys; this page never sends anything. Nothing goes out between ${esc(a.quietStart)} and ${esc(a.quietEnd)}, nothing is sent twice, and every email has an unsubscribe line and every text says "Reply STOP to opt out". Only message families who gave you their number or email and are happy to hear from you.</p>
+      <p class="note">Your server sends these with your Resend and Twilio keys; this page never sends anything. Nothing goes out between ${esc(a.quietStart)} and ${esc(a.quietEnd)}, nothing is sent twice, and every email has an unsubscribe line and every text says "Reply STOP to opt out". Only message families who gave you their number or email and are happy to hear from you.</p>
       ${rules}
       <div class="grid">
         <div><label for="a_rebook">Invite back after (quiet days)</label><input id="a_rebook" type="number" min="1" data-setting="rebookDays" value="${esc(a.rebookDays)}"></div>

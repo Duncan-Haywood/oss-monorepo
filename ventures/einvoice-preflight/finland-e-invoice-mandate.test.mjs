@@ -9,7 +9,7 @@ const sitemap = fs.readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8
 test("carries the no-warranty disclaimer and licence line", () => {
   assert.match(html, /<strong>No warranty\.<\/strong>/);
   assert.match(html, /not legal, tax, financial, or accounting advice/i);
-  assert.match(html, /Free to use and source available/);
+  assert.match(html, /Free to use and source visible/);
 });
 
 test("states the position, flags the sources and names the format", () => {

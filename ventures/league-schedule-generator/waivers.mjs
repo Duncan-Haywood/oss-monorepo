@@ -1,4 +1,4 @@
-// Player waivers for the self-hosted league page (server.mjs). The organiser pastes their own waiver or
+// Player waivers for the league page (server.mjs). The organiser pastes their own waiver or
 // code-of-conduct text in /admin; every distinct text is kept as a version (a SHA-256 of the text), so a
 // signature always points at the exact words that person agreed to. Players sign from the league link
 // (/league/waiver?t=...): their team, full name, a typed signature that must match the name, a tick, and

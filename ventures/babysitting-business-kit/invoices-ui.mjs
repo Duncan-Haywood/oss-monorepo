@@ -20,7 +20,7 @@ function openPage(html) {
 
 /**
  * mountInvoices(root, { getDesk, save, record, today, serverUrl })
- * `serverUrl()` is the sitter's own server address from Settings, Sync (or "").
+ * `serverUrl()` is the sitter's server address from Settings, Sync (or "").
  */
 export function mountInvoices(root, { getDesk, save, record = () => {}, today, serverUrl = () => "" }) {
   if (!root) return () => {};
@@ -61,7 +61,7 @@ export function mountInvoices(root, { getDesk, save, record = () => {}, today, s
           <div><label for="iv_note">A line for the bottom</label><input id="iv_note" name="note"></div>
         </div>
         <label style="display:inline"><input type="checkbox" id="iv_tips" name="tips"> Offer an optional tip on card payments</label>
-        <p class="note">Card payments are optional and need your own server with your own Stripe keys (<code>STRIPE_SECRET_KEY</code>, <code>STRIPE_WEBHOOK_SECRET</code>; see the self-host guide). The money goes to your Stripe account and Stripe charges you a fee per payment: check their current pricing. Without them, the pay link shows the invoice and the ways above.</p>
+        <p class="note">Card payments are optional and need a connected server with your own Stripe keys (<code>STRIPE_SECRET_KEY</code>, <code>STRIPE_WEBHOOK_SECRET</code>). The money goes to your Stripe account and Stripe charges you a fee per payment: check their current pricing. Without them, the pay link shows the invoice and the ways above.</p>
         <button type="submit">Save</button>
       </form>
     </details>`;

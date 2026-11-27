@@ -666,7 +666,7 @@ export function draftPost(topic, channel, profile = DEFAULT_PROFILE) {
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 // A one-file marketing site for the sitter. Testimonials appear only when the person
-// gave consent; the inquiry form posts to the sitter's own server (or opens email).
+// gave consent; the inquiry form posts to the sitter's server (or opens email).
 // The website lives in site.mjs (themes, several pages, local SEO, zip download);
 // this keeps the one-page call working and returns the home page.
 export function buildSite(desk, opts = {}) {

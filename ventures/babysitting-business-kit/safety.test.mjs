@@ -224,9 +224,9 @@ test("the app wires the Safety tab, and the server serves and ships the modules"
   assert.match(html, /safety: \{ box: "\w+", load: \(\) => import\("\.\/safety-ui\.mjs"\), mount: \(m\) => \{[^\n]*m\.mountSafety\(/);
   const docker = readFileSync(new URL("./Dockerfile", import.meta.url), "utf8");
   for (const f of ["safety.mjs", "safety-server.mjs", "safety-ui.mjs"]) assert.match(docker, new RegExp(` ${f.replace(".", "\\.")} `));
-  const guide = readFileSync(new URL("./self-host.html", import.meta.url), "utf8");
+  const guide = readFileSync(new URL("./README.md", import.meta.url), "utf8");
   const code = readFileSync(new URL("./safety-server.mjs", import.meta.url), "utf8");
-  for (const m of code.matchAll(/env\.([A-Z][A-Z0-9_]+)/g)) assert.ok(guide.includes(`<code>${m[1]}</code>`), m[1]);
+  for (const m of code.matchAll(/env\.([A-Z][A-Z0-9_]+)/g)) assert.ok(guide.includes(`\`${m[1]}\``), m[1]);
   assert.match(guide, /safe\//, "the guide explains the check-in link");
 });
 

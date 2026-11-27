@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Quick Pick | Pairwise preference survey engine</title>
-  <meta name="description" content="Open-source pairwise survey engine: pick one of two options, repeat, and get a ranked preference order with confidence intervals.">
+  <meta name="description" content="Pairwise survey engine: pick one of two options, repeat, and get a ranked preference order with confidence intervals.">
   <meta name="robots" content="index,follow">
   <meta property="og:title" content="Quick Pick | Pairwise preference survey engine">
   <meta property="og:description" content="Show two options, pick one. Glicko-2 and Bradley-Terry models turn the picks into a ranked preference ordering with confidence intervals.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Quick Pick","applicationCategory":"BusinessApplication","operatingSystem":"Web (self-hosted)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"An open-source pairwise-comparison survey engine that infers a ranked preference ordering from repeated either-or picks."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Quick Pick","applicationCategory":"BusinessApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A pairwise-comparison survey engine that infers a ranked preference ordering from repeated either-or picks."}</script>
   <style>
     :root{font:16px/1.5 system-ui,sans-serif;color:#20252b;background:#f5f1e8;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--panel:#fffdf8}
     *{box-sizing:border-box}body{margin:0;color:var(--ink)}
@@ -44,7 +44,7 @@
   </section>
   <section>
     <h2>Status</h2>
-    <p>Prototype. The full survey app (many respondents, admin view, demographic splits) is a Next.js and Postgres app that you run yourself, and no hosted instance of it is promised. The <a href="rank.html">list ranker</a> is the same model running in your browser, for one person or a small team. No outside user has run a real survey with it yet, and nothing here is a measured result.</p>
+    <p>Prototype. The full survey app (many respondents, admin view, demographic splits) is a Next.js and Postgres app that is not offered as a hosted service yet. The <a href="rank.html">list ranker</a> is the same model running in your browser, for one person or a small team. No outside user has run a real survey with it yet, and nothing here is a measured result.</p>
   </section>
   <section>
     <h2>For handing results on</h2>
@@ -59,34 +59,20 @@
     <h3>Does the order of the options bias the result?</h3>
     <p>The adaptive question selection randomises which option appears on top, so screen position does not bias the result on average.</p>
     <h3>Is there a hosted version I can try?</h3>
-    <p>No hosted instance is promised. It is a Next.js and Postgres app you run yourself, for example with the Deploy with Vercel link on this page.</p>
+    <p>Not yet. The full survey app (many respondents, demographic splits, an admin view) is not offered as a hosted service yet. The <a href="rank.html">list ranker</a> and the <a href="decide.html">decision page</a> run in your browser today.</p>
     <h3>Has it been tested with real surveys?</h3>
     <p>Not by an outside user yet, and nothing here is a measured result.</p>
   </section>
   <section>
-    <h2>Deploy your own copy</h2>
-    <p><a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo&amp;root-directory=ventures%2Fquick-pick-survey&amp;env=ADMIN_KEY%2CADMIN_SESSION_SECRET&amp;envDescription=Two%20long%20random%20strings%20you%20make%20up%3A%20ADMIN_KEY%20is%20your%20admin%20password%2C%20ADMIN_SESSION_SECRET%20signs%20admin%20cookies.%20Generate%20each%20with%20%60openssl%20rand%20-hex%2032%60.&amp;envLink=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo%2Ftree%2Fmain%2Fventures%2Fquick-pick-survey%23deploy-your-own-copy&amp;project-name=quick-pick-survey&amp;stores=%5B%7B%22type%22%3A%22postgres%22%7D%5D">Deploy with Vercel</a> to run your own copy in your own account, with your own database. Nothing passes through the author, and you become the operator of your copy.</p>
-  </section>
-  <section>
-    <h2>Run it yourself</h2>
-    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo
-cd oss-monorepo/ventures/quick-pick-survey
-npm install
-npx prisma migrate deploy
-npx prisma db seed
-npm run dev</pre>
-    <p>It needs a Postgres database and two environment variables (<code>ADMIN_KEY</code>, <code>ADMIN_SESSION_SECRET</code>). The README in that folder has the full steps and the design documents (architecture, data collection, accessibility).</p>
-  </section>
-  <section>
     <h2>Privacy and usage</h2>
-    <p>This page has no scripts, cookies or analytics, and records nothing about you (the list ranker's own privacy note says what it counts). When you self-host the app, what it stores about a respondent is documented in <code>docs/DATA-COLLECTION.md</code>.</p>
+    <p>This page has no scripts, cookies or analytics, and records nothing about you (the list ranker's own privacy note says what it counts). What the full survey app stores about a respondent is documented in <code>docs/DATA-COLLECTION.md</code>.</p>
   </section>
   <section>
     <h2>Disclaimer</h2>
     <p>A ranking inferred from a small number of picks is a statistical estimate with uncertainty, not a fact about a person. Do not use it as the sole basis for a hiring, financial, medical or relationship decision.</p>
     <p><strong>No warranty.</strong> This software is provided free and as-is, without warranty of any kind, express or implied. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   </section>
-  <footer>Related: <a href="../event-seating-chart-optimizer/">Event seating chart optimizer</a>, another tool that turns people's constraints into an ordering, and <a href="../ranked-ballot-counter/">Ranked-choice ballot counter</a>, for counting an election once people have ranked the candidates. Open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the creator</a>. Part of the tool catalogue.</footer>
+  <footer>Related: <a href="../event-seating-chart-optimizer/">Event seating chart optimizer</a>, another tool that turns people's constraints into an ordering, and <a href="../ranked-ballot-counter/">Ranked-choice ballot counter</a>, for counting an election once people have ranked the candidates. All rights reserved. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the creator</a>. Part of the tool catalogue.</footer>
 </main>
 </body>
 </html>

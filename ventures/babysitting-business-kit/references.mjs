@@ -1,6 +1,6 @@
 // Babysitting Business Kit: references and testimonials with recorded consent.
 //
-// The sitter makes a private link per reference (/ref/<token> on their own server) and
+// The sitter makes a private link per reference (/ref/<token> on their server) and
 // texts it. The referee writes their own words and ticks two separate boxes: whether new
 // families may contact them, and whether their words may appear on the sitter's website
 // as first name and last initial. Each answer is stored as a consent-log entry with the

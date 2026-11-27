@@ -1,4 +1,4 @@
-// Team sign-ups for the self-hosted league page (server.mjs). A captain opens /register, enters the team,
+// Team sign-ups for the league page (server.mjs). A captain opens /register, enters the team,
 // their own name and email, and the players; the sign-up waits in /admin until the organiser approves it,
 // which adds the team to Teams, its players to Rosters and the captain's email to Contacts. When the league
 // is full (a team cap), sign-ups go on a waitlist instead. A fee is optional and is paid on the organiser's

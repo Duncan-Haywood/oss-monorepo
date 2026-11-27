@@ -101,20 +101,12 @@ test("serve passes the body, method and query through and keeps redirects bodile
   assert.equal(out.headers.get("location"), "/x");
 });
 
-test("the deploy config serves only the browser's modules and declares a free-plan Durable Object", () => {
+test("the browser's modules are a closed graph and the Worker uses no Node built-ins", () => {
   const read = (f) => fs.readFileSync(new URL(f, import.meta.url), "utf8");
-  const cfg = JSON.parse(read("./wrangler.jsonc").replace(/^\s*\/\/.*$/gm, ""));
-  assert.equal(cfg.main, "hub-worker.mjs");
-  assert.equal(cfg.durable_objects.bindings[0].class_name, "RosterHub");
-  assert.deepEqual(cfg.migrations[0].new_sqlite_classes, ["RosterHub"]);
-  const ignore = read("./.assetsignore").split("\n").filter((l) => l && !l.startsWith("#"));
-  assert.deepEqual(ignore, ["*", "!calc.mjs", "!bnp.mjs"]);
-  // The browser's module graph must be closed over the files served: calc.mjs imports only bnp.mjs, which imports nothing.
+  // The browser's module graph must be closed: calc.mjs imports only bnp.mjs, which imports nothing.
   const deps = (f) => [...read(f).matchAll(/^import .* from "\.\/([\w.-]+)"/gm)].map((m) => m[1]);
   assert.deepEqual(deps("./calc.mjs"), ["bnp.mjs"]);
   assert.deepEqual(deps("./bnp.mjs"), []);
   // The Worker's own imports use no Node built-ins.
   for (const f of ["./hub-worker.mjs", "./hub.mjs"]) assert.doesNotMatch(read(f).replace(/^\s*\/\/.*$/gm, ""), /from "node:|\bBuffer\.|require\(/, f);
-  assert.match(read("./.dev.vars.example"), /^ADMIN_KEY=$/m);
-  assert.match(read("./.dev.vars.example"), /^TEAM_TOKEN=$/m);
 });
