@@ -63,6 +63,13 @@ test("args: domain must be a bare hostname", () => {
   assert.throws(() => parseArgs(["--nope"]), /unknown argument/);
 });
 
+test("args: a flag with no value is an error, not a silent default", () => {
+  assert.throws(() => parseArgs(["--from"]), /--from needs a value/);
+  assert.throws(() => parseArgs(["--write-config"]), /--write-config needs a value/);
+  assert.throws(() => parseArgs(["--domain"]), /--domain needs a value/);
+  assert.equal(parseArgs(["--from", "a.json", "--dry-run"]).from, "a.json");
+});
+
 test("wrangler output parsing", () => {
   const list = parseJson(
     '▲ [WARNING] something\n[note] also a log line\n[{"uuid":"u-1","name":"payapps"},{"uuid":"u-2","name":"other"}]',

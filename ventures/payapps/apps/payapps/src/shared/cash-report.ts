@@ -281,7 +281,13 @@ const DAY_MS = 86_400_000;
 export function daysBetween(from: string, to: string): number {
   const a = Date.parse(`${from}T00:00:00Z`);
   const b = Date.parse(`${to}T00:00:00Z`);
+  // Date.parse rolls 30 February over to 2 March: an impossible day counts as no days.
   if (Number.isNaN(a) || Number.isNaN(b)) return 0;
+  if (
+    new Date(a).toISOString().slice(0, 10) !== from ||
+    new Date(b).toISOString().slice(0, 10) !== to
+  )
+    return 0;
   return Math.max(0, Math.round((b - a) / DAY_MS));
 }
 

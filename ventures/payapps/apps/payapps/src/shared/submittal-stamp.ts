@@ -217,7 +217,7 @@ const iso = (y: number, m: number, d: number): string | null => {
   if (y < 100) y += 2000;
   if (m < 1 || m > 12 || d < 1 || d > 31 || y < 1990 || y > 2100) return null;
   const s = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-  return new Date(`${s}T00:00:00Z`).toISOString().slice(0, 10) === s ? s : null;
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDate() === d ? s : null;
 };
 
 /**

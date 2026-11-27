@@ -9,7 +9,9 @@ import { type ApplicationDocumentData, NOT_AIA_NOTICE, SAMPLE_APPLICATION_MARK }
 export function csvCell(value: string | number | null): string {
   if (value === null) return "";
   let s = String(value);
-  if (typeof value === "string" && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  // A plain number such as "-12.50" stays a number; anything else a spreadsheet could run is text.
+  if (typeof value === "string" && /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s))
+    s = `'${s}`;
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 

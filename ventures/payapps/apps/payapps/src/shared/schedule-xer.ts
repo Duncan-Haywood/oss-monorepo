@@ -80,7 +80,9 @@ export function xerDay(v: string | undefined): string | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec((v ?? "").trim());
   if (!m) return null;
   const iso = `${m[1]}-${m[2]}-${m[3]}`;
-  return Number.isNaN(Date.parse(`${iso}T00:00:00Z`)) ? null : iso;
+  // Date.parse rolls 30 February over to 2 March, so round-trip it.
+  const t = Date.parse(`${iso}T00:00:00Z`);
+  return Number.isNaN(t) || new Date(t).toISOString().slice(0, 10) !== iso ? null : iso;
 }
 
 function num(v: string | undefined): number | null {

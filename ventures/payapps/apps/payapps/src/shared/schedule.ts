@@ -120,6 +120,12 @@ export function workdaysBetween(
   const start = Date.parse(`${from}T00:00:00Z`);
   const end = Date.parse(`${to}T00:00:00Z`);
   if (Number.isNaN(start) || Number.isNaN(end)) return 0;
+  // An impossible day (30 February rolls over to 2 March) counts as no workdays.
+  if (
+    new Date(start).toISOString().slice(0, 10) !== from ||
+    new Date(end).toISOString().slice(0, 10) !== to
+  )
+    return 0;
   const days = Math.round((end - start) / 86_400_000) + 1;
   const weeks = Math.floor(days / 7);
   let count = weeks * 5;

@@ -48,7 +48,7 @@ export interface SsovLine {
 
 const norm = (s: string) =>
   s
-    .replace(/^﻿/, "")
+    .replace(/^\uFEFF/, "")
     .trim()
     .toLowerCase()
     .replace(/[_\s]+/g, " ");
@@ -61,7 +61,7 @@ const isGcDescription = (h: string) => /^(sov )?description$/.test(norm(h));
 
 /** Reads the CSV template the GC's Procore commitment produced. Never throws. */
 export function readSsovTemplate(text: string): SsovTemplateResult {
-  const src = text.replace(/^﻿/, "");
+  const src = text.replace(/^\uFEFF/, "");
   if (src.trim() === "") return { ok: false, error: "The file is empty." };
   const grid = parseCsv(src);
   const at = grid.findIndex((r) => r.some(isPosition) && r.some(isSubAmount));

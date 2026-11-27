@@ -432,7 +432,7 @@ export const addHolidaysSchema = z
           .object({
             on: isoDate.refine((d) => {
               const t = Date.parse(`${d}T00:00:00Z`);
-              return !Number.isNaN(t) && new Date(t).toISOString().startsWith(d);
+              return !Number.isNaN(t) && new Date(t).toISOString().slice(0, 10) === d;
             }, "Not a calendar date"),
             name: z.string().trim().min(1, "Name the holiday").max(80),
           })

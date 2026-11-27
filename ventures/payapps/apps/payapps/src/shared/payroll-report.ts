@@ -129,7 +129,7 @@ export const normalizeHeader = (s: string) =>
  * breaks. The delimiter is a tab when the first line has one, else a comma.
  */
 export function parseCsv(text: string): string[][] {
-  const body = text.replace(/^﻿/, "");
+  const body = text.replace(/^\uFEFF/, "");
   const firstLine = body.split(/\r?\n/, 1)[0] ?? "";
   const delim = firstLine.includes("\t") ? "\t" : ",";
   const rows: string[][] = [];

@@ -93,7 +93,7 @@ export interface TexturaLine {
 
 const norm = (s: string) =>
   s
-    .replace(/^﻿/, "")
+    .replace(/^\uFEFF/, "")
     .trim()
     .toLowerCase()
     .replace(/[_\s]+/g, " ");
@@ -166,7 +166,7 @@ export function readTexturaGrid(grid: string[][], delimiter = ","): TexturaTempl
       error:
         "No row of this file has a “Description” heading, so it does not look like Textura's billing template. In Textura, open the billing workflow's Progress tab, choose More → Upload Billing Amounts → This Period (or To Date) Billing Amounts → Download Template, and choose that file.",
     };
-  const header = (grid[at] ?? []).map((h) => h.replace(/^﻿/, ""));
+  const header = (grid[at] ?? []).map((h) => h.replace(/^\uFEFF/, ""));
   const width = Math.max(header.length, ...grid.slice(at + 1).map((r) => r.length));
   while (header.length < width) header.push("");
   const body = grid.slice(at + 1).map((r) => header.map((_, i) => r[i] ?? ""));
@@ -212,7 +212,7 @@ export function texturaRows(body: string[][], col: TexturaColumns): TexturaRow[]
 
 /** Reads the GC's template saved as CSV (comma, semicolon or tab). Never throws. */
 export function readTexturaTemplate(text: string): TexturaTemplateResult {
-  const src = text.replace(/^﻿/, "");
+  const src = text.replace(/^\uFEFF/, "");
   if (src.trim() === "") return { ok: false, error: "The file is empty." };
   const first =
     src
