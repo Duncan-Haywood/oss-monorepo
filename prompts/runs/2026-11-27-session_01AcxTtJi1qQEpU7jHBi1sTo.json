@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 0,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "portfolio/monetization/transition.json was stale on origin/main (pre-existing, not from this change); fixed here."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -51,7 +53,7 @@
     "ventures/hearth-and-horizon/stories/the-seed-that-came-out-on-top.md"
   ],
   "goal": null,
-  "notes": "Project: hearth-and-horizon. Piece: the-seed-that-came-out-on-top (5,368 words incl. notes; Ghent 2054; text only, audio cap 581/400 MB). Checks: every weekday and the Lent/Easter 2054 dates computed in code (Easter 29 March, Ash Wednesday 11 February); mass balance (jam jar 5.5% fines vs label 30%), \u0393 = A(2\u03c0f)\u00b2/g for cobbles, tub volumes and scoop weights re-derived against the closing note. node --test in ventures/hearth-and-horizon: 22/22 pass; bible_done.mjs moved the proposal to DONE.md. risk_review: nothing blocked; tracking on the new page identical to the previous story page.",
+  "notes": "Project: hearth-and-horizon. Piece: the-seed-that-came-out-on-top (5,368 words incl. notes; Ghent 2054; text only, audio cap 581/400 MB). Checks: every weekday and the Lent/Easter 2054 dates computed in code (Easter 29 March, Ash Wednesday 11 February); mass balance (jam jar 5.5% fines vs label 30%), Γ = A(2πf)²/g for cobbles, tub volumes and scoop weights re-derived against the closing note. node --test in ventures/hearth-and-horizon: 22/22 pass; bible_done.mjs moved the proposal to DONE.md. risk_review: nothing blocked; tracking on the new page identical to the previous story page. run_workflow_locally --for-changes: 10/11 workflows passed; ventures-tests failed only on portfolio/monetization test_transition.py::test_committed_json_is_current, stale on main before this PR (machine-shop-guides and sales-export-to-journal swapped move_order after a line-count change); regenerated with transition.py --write in this PR, 17/17 pass.",
   "corrections": [],
   "redteam": null,
   "usage": {
