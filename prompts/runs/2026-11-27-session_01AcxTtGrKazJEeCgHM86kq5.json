@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "git fetch of a PR branch followed by git fetch --deepen of main overwrote FETCH_HEAD, so the first 'checkout FETCH_HEAD' took main, not the PR branch; redone from origin/<branch>",
-    "jobshop-quote.marisstella.app/api/health answered 502 then 000 through the proxy before answering 200 on the third try"
+    "jobshop-quote.marisstella.app/api/health answered 502 then 000 through the proxy before answering 200 on the third try",
+    "CI after the first push failed on checks that run_venture_tests.py <slug> does not run locally for a new venture: check_md_links (4 relative links one level too shallow), check_csv_formula_guard (3 exporters that lacked the free edition's later CWE-1236 guard), check_third_party, check_doc_counts, test_verticals and test_transition (generated JSON), typecheck.mjs (4 ts-check diagnostics), description-length (44 pages), and the privacy opt-out list; four push rounds to green"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,6 +47,10 @@
     {
       "file": "platform/ci/inherited_keys.py",
       "issue": "its baseline is keyed by path, so copying a venture into a new directory (the move-*-public tasks) reports every baselined line as new. This run fixed the 16 instead"
+    },
+    {
+      "file": "docs/reports/2026-11-27-move-payapps-public.md",
+      "issue": "the move pattern lists copy, audit and CI, but not the repo-wide registries a new ventures/<slug> must join (verticals.json, transition.json, third_party.json, optout-switches.txt, PRODUCT_PLAYBOOK count) or the ratchets keyed by path (inherited_keys, description-length). A `--new-venture` mode for run_workflow_locally.py, or one list in the move doc, would have saved three CI rounds"
     }
   ],
   "deviations": [
@@ -66,7 +71,7 @@
     "docs/reports/2026-11-27-move-wall-framing-takeoff-public.md"
   ],
   "goal": null,
-  "notes": "Security queue empty; ideas inbox empty. Checked and left: jobshop-quote is live and healthy at jobshop-quote.marisstella.app (deploy run 46018975911); push-deploy is PR #19779; einvoice deploy port is #19773; cmmc first deploy and site claimed. #19721 (payapps perf) is superseded by #19722: TanStack's lazyRouteComponent already reloads once on a missing chunk, so its preloadError handler adds nothing. Verified: run_venture_tests.py residential-takeoff 1,329 tests / 0 fail; inherited_keys 0 new; prepub audit block 0 on source and copy.",
+  "notes": "Security queue empty; ideas inbox empty. Checked and left: jobshop-quote is live and healthy at jobshop-quote.marisstella.app (deploy run 46018975911); push-deploy is PR #19779; einvoice deploy port is #19773; cmmc first deploy and site claimed. #19721 (payapps perf) is superseded by #19722: TanStack's lazyRouteComponent already reloads once on a missing chunk, so its preloadError handler adds nothing. Verified: run_venture_tests.py residential-takeoff 1,329 tests / 0 fail; inherited_keys 0 new; prepub audit block 0 on source and copy. Also fixed in the copy: CSV formula-injection guard ported from the free edition (real gap: the paid copy forked before it landed), 4 ts-check diagnostics, 44 page descriptions. Local: pages suite 2,203 pass; privacy 123 pass; unwired_checks 305/308 pass (3 skipped).",
   "corrections": [],
   "redteam": null,
   "usage": {
