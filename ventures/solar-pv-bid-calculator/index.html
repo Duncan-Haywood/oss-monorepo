@@ -389,10 +389,10 @@
       el('overhead').textContent = money(result.overhead);
       el('cost').textContent = money(result.totalCost);
       el('profit').textContent = money(result.profit);
-      el('perWatt').textContent = result.pricePerWatt === null ? 'n/a' : `$${result.pricePerWatt.toFixed(2)}/W`;
+      el('perWatt').textContent = result.pricePerWatt === null ? 'n/a' : `$${result.pricePerWatt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/W`;
       el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
       el('breakEven').textContent = money(result.breakEvenPrice);
-      el('breakEvenWatt').textContent = result.breakEvenPerWatt === null ? 'n/a' : `$${result.breakEvenPerWatt.toFixed(2)}/W`;
+      el('breakEvenWatt').textContent = result.breakEvenPerWatt === null ? 'n/a' : `$${result.breakEvenPerWatt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/W`;
 
       const parts = [
         ['Labor', result.shares.labor],
@@ -412,7 +412,7 @@
       } else {
         verdict.hidden = false;
         verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
-        const perWatt = result.proposed.perWatt === null ? 'n/a' : `$${result.proposed.perWatt.toFixed(2)}/W`;
+        const perWatt = result.proposed.perWatt === null ? 'n/a' : `$${result.proposed.perWatt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/W`;
         verdict.innerHTML = result.proposed.belowBreakEven
           ? `At ${money(result.proposed.price)} (${perWatt}) this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
           : `At ${money(result.proposed.price)} (${perWatt}) you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin.`;

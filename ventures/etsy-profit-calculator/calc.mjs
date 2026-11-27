@@ -125,7 +125,7 @@ export function offsiteAdsNote(rows, maxRate) {
   }
   const money = (value) => {
     const sign = value < 0 ? '−' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const organic = rows.find((row) => row.offsiteAdRate === 0);
   if (!organic) throw new Error('Offsite Ads comparison is missing the organic row');
@@ -443,7 +443,7 @@ export function personalizationNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '−' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const extras = [];
   if (comparison.extraMaterialCost > 0) extras.push(`${money(comparison.extraMaterialCost)} extra materials`);
@@ -560,7 +560,7 @@ export function etsyAdsNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '−' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const pct = (value) => `${Number(value).toFixed(2)}%`;
   const gap = money(Math.abs(comparison.extraKept));
@@ -967,7 +967,7 @@ export function starSellerNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '−' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const pct = (value) => `${Number(value).toFixed(1)}%`;
   const extras = [];
@@ -1142,7 +1142,7 @@ export function compareShopSale(input = {}) {
   };
   const dollar = {
     id: 'dollar',
-    label: `$${roundMoney(saleDollar).toFixed(2)} off`,
+    label: `$${roundMoney(saleDollar).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} off`,
     price: roundMoney(dollarPrice),
     discount: roundMoney(listPrice - dollarPrice),
     fees: dollarFees,
@@ -1185,7 +1185,7 @@ export function shopSaleNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '−' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const pct = (value) => `${Number(value).toFixed(1)}%`;
   const listed = `A packed full-price sale leaves ${money(comparison.asListed.profit)}.`;
@@ -1330,11 +1330,11 @@ export function freeShippingNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '−' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const signed = (value) => {
     if (Math.abs(value) <= 1e-9) return '$0.00';
-    return `${value < 0 && Math.abs(value).toFixed(2) !== '0.00' ? '−' : '+'}$${Math.abs(value).toFixed(2)}`;
+    return `${value < 0 && Math.abs(value).toFixed(2) !== '0.00' ? '−' : '+'}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const charged = `Charging ${money(comparison.charged.shippingCharged)} shipping on a ${money(comparison.charged.price)} item leaves ${money(comparison.charged.profit)} per order.`;
   const eat = ` Free shipping at the same item price leaves ${money(comparison.eatLabel.profit)} (${signed(comparison.eatLabelDelta)}).`;
@@ -1359,7 +1359,7 @@ export function productionPartnerNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '−' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const perUnitGap = money(Math.abs(comparison.perUnitDelta));
   const ahead = comparison.perUnitDelta >= 0 ? 'more' : 'less';
@@ -1438,7 +1438,7 @@ export function listingRenewalNote(result) {
   }
   const money = (value) => {
     const sign = value < 0 ? '−' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   if (result.unpaidRenewal) {
     return `Auto-renew still charges ${money(result.listingFee)} even if nothing sells. Treating the listing fee as a per-order cost hides that ${money(result.listingFee)} until an order is calculated. Annual listing cost at a ${result.renewalMonths}-month window is ${money(result.annualListingCost)}.`;
@@ -1746,7 +1746,7 @@ export function etsyLabelsNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '−' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { etsy, third, postageOnly } = comparison;
   const etsyLine = `The ${money(etsy.labelCost)} Etsy label at a ${etsy.claimRatePercent}% item-not-received claim rate expects ${money(etsy.expectedProfit)} after the typed claim mix — a claim on that path leaves ${money(etsy.claimProfit)}.`;

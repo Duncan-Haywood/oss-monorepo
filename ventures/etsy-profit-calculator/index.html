@@ -252,7 +252,7 @@
     const INPUTS_KEY = 'etsy-profit-inputs';
     const field = id => document.getElementById(id);
     const money = (value) => {
-      const format = (value) => `$${value.toFixed(2)}`;
+      const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(value));
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };
@@ -466,7 +466,7 @@
       const comparison = compareShopSale(input);
       const verdict = document.getElementById('saleVerdict');
       if (comparison.winner === 'dollar') {
-        verdict.textContent = `$${comparison.saleDollar.toFixed(2)} off expects ${money(comparison.dollarExtraExpected)} more per listing — ${money(comparison.dollarExtraAcrossListings)} across ${comparison.saleListings} listings.`;
+        verdict.textContent = `$${comparison.saleDollar.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} off expects ${money(comparison.dollarExtraExpected)} more per listing — ${money(comparison.dollarExtraAcrossListings)} across ${comparison.saleListings} listings.`;
       } else if (comparison.winner === 'percent') {
         verdict.textContent = `${comparison.salePercent}% off expects ${money(comparison.percentExtraExpected)} more per listing — ${money(comparison.percentExtraAcrossListings)} across ${comparison.saleListings} listings.`;
       } else if (comparison.winner === 'as_listed') {
@@ -656,7 +656,7 @@
       const target = field('targetMargin').value;
       document.getElementById('targetPrice').textContent = `Charge ${money(priceForMargin(input, target))} to target a ${target}% margin.`;
       const targetProfit = field('targetProfit').value;
-      document.getElementById('targetProfitPrice').textContent = `Charge ${money(priceForProfit(input, targetProfit))} to keep $${Number(targetProfit).toFixed(2)} after fees.`;
+      document.getElementById('targetProfitPrice').textContent = `Charge ${money(priceForProfit(input, targetProfit))} to keep $${Number(targetProfit).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} after fees.`;
       document.getElementById('scenarios').replaceChildren(...[-10, 0, 10].map(delta => {
         const price = Math.max(0, Number(input.price) + delta);
         const scenario = calculateOrder({ ...input, price });

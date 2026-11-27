@@ -621,7 +621,7 @@ Top: 31.5 x 11.25 x 2</textarea>
       const comparison = compareSheetSizes({ panels, kerf, trim, allowRotation, unit, candidates });
       const money = (value) => {
         if (value == null) return 'add a price';
-        const text = `$${Math.abs(value).toFixed(2)}`;
+        const text = `$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
       };
       const rows = comparison.rows.map((row) => {
@@ -638,7 +638,7 @@ Top: 31.5 x 11.25 x 2</textarea>
       }).join('');
       let why = 'Ranked by sheets to buy. Add a price on every size to rank by cash.';
       if (comparison.savings && comparison.savings.kind === 'cost' && comparison.savings.amount > 0) {
-        why = `${escapeHtml(comparison.winner.label)} costs $${comparison.savings.amount.toFixed(2)} less than ${escapeHtml(comparison.runnerUp.label)}. Confirm the yard's prices before you buy.`;
+        why = `${escapeHtml(comparison.winner.label)} costs $${comparison.savings.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} less than ${escapeHtml(comparison.runnerUp.label)}. Confirm the yard's prices before you buy.`;
       } else if (comparison.savings && comparison.savings.kind === 'sheets' && comparison.savings.amount > 0) {
         why = `${escapeHtml(comparison.winner.label)} uses ${comparison.savings.amount} fewer sheet${comparison.savings.amount === 1 ? '' : 's'} than ${escapeHtml(comparison.runnerUp.label)}.`;
       } else if (comparison.winner && !comparison.winner.fitsAll) {

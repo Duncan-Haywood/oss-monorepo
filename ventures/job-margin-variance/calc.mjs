@@ -90,7 +90,7 @@ export function calculate(input) {
 export function reportText(result) {
   const lines = ['JOB MARGIN VARIANCE REVIEW', '', `Estimated materials and other costs: ${money(result.estimatedCost)}`, `Actual materials and other costs: ${money(result.actualCost)}`, `Cost variance: ${signedMoney(result.costVariance)}`, `Labor-hour variance: ${signed(result.laborVariance)} hours`];
   if (result.hourlyRate != null) {
-    lines.push(`Labor-cost variance at $${result.hourlyRate.toFixed(2)}/hr: ${signedMoney(result.laborCostVariance)}`);
+    lines.push(`Labor-cost variance at $${result.hourlyRate.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/hr: ${signedMoney(result.laborCostVariance)}`);
     lines.push(`Total estimated cost (labor + materials + other): ${money(result.totalEstimatedCost)}`);
     lines.push(`Total actual cost (labor + materials + other): ${money(result.totalActualCost)}`);
     lines.push(`Total cost variance: ${signedMoney(result.totalCostVariance)}`);
@@ -109,9 +109,9 @@ export function reportText(result) {
   return lines.join('\n');
 }
 const money = (value) => {
-  const format = (value) => `$${value.toFixed(2)}`;
+  const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const text = format(Math.abs(value));
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
-const signedMoney = value => `${value >= 0 ? '+' : '-'}$${Math.abs(value).toFixed(2)}`;
+const signedMoney = value => `${value >= 0 ? '+' : '-'}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const signed = value => `${value >= 0 ? '+' : ''}${value.toFixed(2)}`;

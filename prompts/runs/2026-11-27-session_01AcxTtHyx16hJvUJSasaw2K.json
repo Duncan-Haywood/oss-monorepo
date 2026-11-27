@@ -31,7 +31,7 @@
   "outcome": "success",
   "errors": [
     "A first test fixture used the word PART, which LABELISH treats as a label, so the continuation stopped. Reworded the fixture.",
-    "CI validate went red on test_promptctl's shallow-edge lookup test, which my diff did not touch. Cause: CI's PR merge checkout has two shallow roots (the main head at 17:10-07:00 and the PR head at 00:11+00:00, so the date strings fall on different days). The one-pass index dated root-only paths by the newest root, while `git log -1 -- path` follows first parents to main's root. Fixed in promptctl._last_change_indexes. Reproduced in a depth-2 fetch of refs/pull/19530/merge: red before the fix, green after, and 0 of 200 sampled edge paths mismatch git."
+    "CI validate went red on test_promptctl's shallow-edge lookup test, which my diff did not touch. Cause: CI's PR merge checkout has two shallow roots (the main head at 17:10-07:00 and the PR head at 00:11+00:00, so the date strings fall on different days). The one-pass index dated root-only paths by the newest root, while `git log -1 -- path` follows first parents to main's root. Fixed in promptctl._last_change_indexes. Reproduced in a depth-2 fetch of refs/pull/19530/merge: red before the fix, green after, and 0 of 200 sampled edge paths mismatch git. While CI ran, main landed an equivalent fix (_first_parent_root, P094). The merge took main's version and dropped this PR's copy."
   ],
   "integrity_issues": [],
   "doc_friction": [

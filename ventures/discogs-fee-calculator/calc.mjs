@@ -156,14 +156,14 @@ export function calculateSale(input) {
   if (buyerShipping > 0) {
     const onShipping = buyerShipping * ((SELLING_FEE_RATE + processingRate) / 100);
     notes.push(
-      `Your $${buyerShipping.toFixed(2)} buyer-paid shipping is inside the fee base: it costs $${onShipping.toFixed(2)} in selling and processing fees on its own. Whether you charge it as shipping or fold it into the item price, Discogs takes the same cut of the total.`,
+      `Your $${buyerShipping.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} buyer-paid shipping is inside the fee base: it costs $${onShipping.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in selling and processing fees on its own. Whether you charge it as shipping or fold it into the item price, Discogs takes the same cut of the total.`,
     );
   }
   if (sellingFee >= SELLING_FEE_MAX) {
     notes.push(`The selling fee is at Discogs' $${SELLING_FEE_MAX} per-order maximum, so every further dollar of this order carries no selling fee (processing still applies).`);
   }
   if (combined > 0 && combined < 5 && processingFixed > 0) {
-    notes.push(`On an order this small the flat $${processingFixed.toFixed(2)} processing amount is a large share of the take (${effectiveRate.toFixed(1)}% in all). Combining records into one order spreads it.`);
+    notes.push(`On an order this small the flat $${processingFixed.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} processing amount is a large share of the take (${effectiveRate.toFixed(1)}% in all). Combining records into one order spreads it.`);
   }
   if (profit < 0) {
     notes.push('This sale loses money after Discogs’ fees, your postage, what you paid for the item, and packaging.');

@@ -206,7 +206,7 @@ export function formatBidSummary(result) {
     '',
     `Proposed install price: ${money(result.price)}`,
     `System size: ${result.dcKw.toFixed(2)} kW DC (${result.moduleCount} modules × ${result.wattsPerModule} W)`,
-    `Price per watt: ${result.pricePerWatt === null ? 'n/a' : `$${result.pricePerWatt.toFixed(2)}/W`}`,
+    `Price per watt: ${result.pricePerWatt === null ? 'n/a' : `$${result.pricePerWatt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/W`}`,
     `Install labor: ${result.totalHours.toFixed(1)} crew-hours`,
     '',
     'SCOPE BASIS',
