@@ -170,6 +170,22 @@ def claim(n: int) -> str | None:
     return sha if r.returncode == 0 else None
 
 
+def current_branch() -> str:
+    return git("rev-parse", "--abbrev-ref", "HEAD", check=False).stdout.strip()
+
+
+def work_hint(n: int, sha: str, branch: str) -> str:
+    """Where to do the fix. A cloud session may push only its own `claude/*` branch
+    (three sessions, 2026-11-25..27, were told to work on the claim branch and could not
+    push it), so there the claim branch stays a marker and the fix goes on the session's."""
+    if branch.startswith("claude/"):
+        return (f"fix it on your session branch `{branch}` (the harness lets a cloud session "
+                f"push only that one); the claim branch is just the marker, so leave it for "
+                "branch_cleanup.py and put the alert number in the PR title.")
+    return (f"work on it with `git checkout -B {BRANCH_PREFIX}{n} {sha[:12]}` "
+            "(the branch holds one empty claim commit, so start from it, not origin/main).")
+
+
 def claim_batch(top: dict, todo: list[dict]) -> list[int]:
     """Claim `top`'s batch; print and return the numbers won. A lost one is another run's."""
     batch = batch_of(top, todo)
@@ -180,7 +196,7 @@ def claim_batch(top: dict, todo: list[dict]) -> list[int]:
     if won:
         print("Batch (same file, or same rule beside it): also claimed "
               + ", ".join(f"#{n}" for n in won)
-              + f". Fix them in the same PR, on the #{top['number']} branch; their own claim "
+              + f". Fix them in the same PR as #{top['number']}; their own claim "
               "branches only hold the claim, so leave them for branch_cleanup.py.")
         for a in batch:
             if a["number"] in won:
@@ -238,8 +254,7 @@ def main(argv: list[str] | None = None) -> int:
             if sha:
                 print(f"Claimed: pushed {BRANCH_PREFIX}{a['number']}. "
                       f"Read `git show origin/{QUEUE_BRANCH}:alerts/{a['number']}.md`; "
-                      f"work on it with `git checkout -B {BRANCH_PREFIX}{a['number']} {sha[:12]}` "
-                      "(the branch holds one empty claim commit, so start from it, not origin/main).")
+                      + work_hint(a["number"], sha, current_branch()))
                 if not args.no_batch:
                     claim_batch(a, todo)
                 return 0
