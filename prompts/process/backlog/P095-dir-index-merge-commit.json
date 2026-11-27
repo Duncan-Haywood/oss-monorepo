@@ -19,7 +19,7 @@
   "baseline": "1 PR seen (PR #19644, 2026-11-27), deterministic for its merge ref",
   "opened": "2026-11-27",
   "source": "ventures run, PR #19644 CI",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19681",
   "result": null,
   "history": [
     {
