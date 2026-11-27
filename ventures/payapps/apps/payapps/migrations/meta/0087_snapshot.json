@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "73ba0682-1583-4e2a-a800-3f5249947e58",
+  "id": "00682908-83f3-441f-be92-061b55d2b030",
   "prevId": "7342e0c4-43cc-424a-af9f-1f5824deecd5",
   "tables": {
     "account": {
@@ -6627,36 +6627,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "late_interest_bps": {
-          "name": "late_interest_bps",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "late_interest_per": {
-          "name": "late_interest_per",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'month'"
-        },
-        "late_interest_method": {
-          "name": "late_interest_method",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'prorata'"
-        },
-        "late_interest_source": {
-          "name": "late_interest_source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "status": {
           "name": "status",
           "type": "text",
@@ -6837,6 +6807,20 @@
         },
         "notice_of_completion_on": {
           "name": "notice_of_completion_on",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "public_owner": {
+          "name": "public_owner",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "miller_tier": {
+          "name": "miller_tier",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

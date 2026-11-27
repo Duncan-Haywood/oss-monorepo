@@ -2357,7 +2357,7 @@ nothing to copy. No customers yet. Paid plans are dark
   "Late-payment interest" setting takes a rate a month or a year, whether a part month counts as a
   whole one ("per month or a fraction thereof"), and where the rate comes from in the contractor's
   words (`projects.late_interest_bps`, `late_interest_per`, `late_interest_method`,
-  `late_interest_source`, migration 0087, saved through the job's PATCH; a monthly rate above 5% or a
+  `late_interest_source`, migration 0088, saved through the job's PATCH; a monthly rate above 5% or a
   yearly one above 60% is refused as a typo). "Fill from a statute" offers the four prompt payment
   statutes whose rate the free guide read from the legislature's text (Tex. Prop. Code § 28.004 1.5% a
   month; 815 ILCS 603/10 10% a year; N.C. Gen. Stat. § 22C-5 1% a month or part; Va. Code § 2.2-4354
@@ -2367,6 +2367,28 @@ nothing to copy. No customers yet. Paid plans are dark
   each payment from the day it came in (30-day months, 365-day years), per job and in total; the
   second follow-up request and a past-due balance request state the rate, its source and the amount
   (the first reminder stays friendly and leaves it out).
+- Public jobs, part 1 (2026-11-27, every plan, public-jobs-part-1): the lien deadline panel asks who
+  owns the job (a private owner, a state or local public body, the federal government). Public
+  property cannot be liened, so a public job no longer shows or reminds about a lien date that does
+  not apply. A federal job counts the Miller Act payment bond instead (40 U.S.C. § 3133(b), rules
+  ported from pay-app-guides' `millerbond.mjs`): the 90-day written notice to the prime when the
+  company contracted with one of the prime's subcontractors (or did not say: sending it never hurts),
+  the first day to sue (day 91) and the one-year limit; a first-tier sub gets the suit limit as its
+  date, and a claimant below the second tier is told the bond does not cover it (J.W. Bateson, 1978).
+  The date is estimated from billing until the last day is entered, moves back to the Friday on a
+  weekend, and reaches the cash page, its CSV and the weekly email 45 days ahead like a lien date.
+  A state or local job checks the job's retainage (the latest application's work and stored rates,
+  and any line's own rate) against the state's cap on public work in the 16 states of the
+  retainage-explained guide's table, each with its statute linked: over, above the cap but allowed
+  in a stated case (New York without bonds), within the cap but above a lower stage (after 50%
+  complete, a $5M+ Texas prime), or within; it says whether the statute also limits what the prime
+  holds from its subs. Migration 0087 (`public_owner`, `miller_tier`). Rules
+  `src/shared/public-jobs.ts`; tests `src/shared/public-jobs.test.ts` (dates by hand), the Miller
+  Act case in `test/worker/lien-deadline.test.ts` and `test/unit/lien-deadline-panel.test.tsx`.
+  Why: public work is where retainage caps and bond claims decide whether a sub gets paid, and the
+  cap check names money the GC may be holding without a right to. Not done: state bond-claim
+  ("little Miller Act") notice and suit dates, the Miller Act notice drafted from the job, prompt
+  payment interest on public jobs.
 
 ## Must do before a public launch
 
@@ -2511,3 +2533,9 @@ nothing to copy. No customers yet. Paid plans are dark
   files per ticket with the "PDF + photos" and "CO backup + photos" packets, and ticket rows in the
   job history): a rate sheet copied from another job or a company default, a daily report's crew
   started as a ticket and a remote signature by email link, if contractors ask
+- Public jobs, part 2 (part 1 done 2026-11-27: the owner on the job, Miller Act dates, the 16-state
+  retainage cap check): the Miller Act notice drafted from the job (claimant, prime, the sub it
+  worked for, the unpaid amount from the cash report; pay-app-guides' `noticeLetter` is the
+  template), then state "little Miller Act" notice and suit dates for the states the lien deadline
+  covers (California's stop payment notice and bond claim, Florida § 255.05, Texas Gov't Code
+  ch. 2253 first), each read from the statute page, if contractors mark public jobs

@@ -17,6 +17,14 @@
 // liens), third-tier claimants, Texas retainage claims and contracts before 2022, laborers' special
 // rules, contract terms, and the service or suit deadlines that follow a recorded lien.
 
+import {
+  MILLER_CITATION,
+  type MillerTier,
+  millerDates,
+  millerNotes,
+  type PublicOwner,
+} from "./public-jobs";
+
 const DAY_MS = 86_400_000;
 
 /** `iso` (YYYY-MM-DD) plus `days` calendar days, UTC. */
@@ -219,10 +227,19 @@ export interface LienDeadlineInput {
   /** The day the owner recorded a notice of completion (California, Arizona). */
   noticeOfCompletionOn?: string | null;
   apps?: readonly LienBillingApp[];
+  /** A public job (src/shared/public-jobs.ts): no lien; a federal job counts the Miller Act instead. */
+  publicOwner?: PublicOwner | null;
+  /** Federal job: who the company contracted with (null: not said, the notice is shown). */
+  millerTier?: MillerTier | null;
 }
 
 export interface LienDeadline {
-  state: LienDeadlineState;
+  /** The lien state, or "US" for a federal job's Miller Act bond claim. */
+  state: LienDeadlineState | "US";
+  /** What the date is called: "lien deadline", "Miller Act notice deadline" or "Miller Act suit deadline". */
+  label: string;
+  /** Federal jobs: the Miller Act's one-year suit limit (weekend-adjusted); null on a lien. */
+  bondSuitDueOn: string | null;
   stateName: string;
   citation: string;
   act: string;
@@ -249,12 +266,56 @@ export type LienDeadlineResult =
   | { kind: "deadline"; deadline: LienDeadline }
   | { kind: "no-state" }
   | { kind: "unsupported"; state: string }
-  | { kind: "no-dates"; state: LienDeadlineState; stateName: string };
+  | { kind: "no-dates"; state: LienDeadlineState | "US"; stateName: string }
+  /** A state or local public job: no lien, and the state's bond-claim dates are not counted. */
+  | { kind: "public"; state: string | null }
+  /** A federal job and a claimant below the second tier: the Miller Act bond does not cover it. */
+  | { kind: "not-covered" };
 
 const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
 const ORD: Record<number, string> = { 3: "3rd", 4: "4th" };
 
+/** A federal job: the Miller Act's 90-day notice (second tier) or one-year suit limit (first tier). */
+function millerDeadline(input: LienDeadlineInput): LienDeadlineResult {
+  const tier = input.millerTier ?? null;
+  if (tier === "remote") return { kind: "not-covered" };
+  const floor = input.lastFurnishedOn ? null : lastFurnishedFloor(input.apps ?? []);
+  const fromOn = input.lastFurnishedOn ?? floor?.on ?? null;
+  if (!fromOn) return { kind: "no-dates", state: "US", stateName: "Federal" };
+  const dates = millerDates(fromOn, tier);
+  const from = input.lastFurnishedOn
+    ? "your last furnishing of labor or materials"
+    : "your last day of work";
+  const notice = dates.noticeOn !== null && dates.noticeDueOn !== null;
+  return {
+    kind: "deadline",
+    deadline: {
+      state: "US",
+      label: notice ? "Miller Act notice deadline" : "Miller Act suit deadline",
+      stateName: "Federal",
+      citation: notice ? `${MILLER_CITATION}(2)` : `${MILLER_CITATION}(4)`,
+      act: notice
+        ? "give the prime contractor written notice of your payment bond claim"
+        : "bring suit on the payment bond",
+      statutoryOn: notice ? (dates.noticeOn as string) : dates.suitByOn,
+      dueOn: notice ? (dates.noticeDueOn as string) : dates.suitDueOn,
+      rule: notice ? `90 days after ${from}` : `one year after ${from}`,
+      basis: input.lastFurnishedOn ? "entered" : "estimated",
+      fromOn,
+      fromPayAppNumber: floor?.payAppNumber ?? null,
+      usedLastFurnishingAsCompletion: false,
+      residentialRule: false,
+      bondSuitDueOn: dates.suitDueOn,
+      notes: millerNotes(tier, dates),
+    },
+  };
+}
+
 export function lienDeadline(input: LienDeadlineInput): LienDeadlineResult {
+  if (input.publicOwner === "federal") return millerDeadline(input);
+  if (input.publicOwner === "state_local") {
+    return { kind: "public", state: input.state?.trim().toUpperCase() || null };
+  }
   const state = input.state?.trim().toUpperCase() || null;
   if (!state) return { kind: "no-state" };
   if (!isLienDeadlineState(state)) return { kind: "unsupported", state };
@@ -316,6 +377,8 @@ export function lienDeadline(input: LienDeadlineInput): LienDeadlineResult {
     kind: "deadline",
     deadline: {
       state,
+      label: "lien deadline",
+      bondSuitDueOn: null,
       stateName: info.name,
       citation: info.citation,
       act: info.act,
@@ -368,6 +431,13 @@ export function lienDeadlineText(
     d.basis === "entered"
       ? ""
       : ` PayApps dated it from the start of Pay App #${d.fromPayAppNumber}'s period (${d.fromOn}), the earliest your last day of work can be; enter your last day on the job for the exact date.`;
+  if (d.state === "US") {
+    if (left < 0) {
+      return `Federal ${d.label} passed on ${d.dueOn} (${d.rule}, ${d.citation}) and ${what}. ${d.bondSuitDueOn && d.bondSuitDueOn !== d.dueOn ? `A suit on the payment bond must still be brought by ${d.bondSuitDueOn}; a late notice can still count if the prime had written notice of the claim earlier. ` : ""}Ask a construction attorney what is left.${basis}`;
+    }
+    const soon = left === 0 ? "today" : left === 1 ? "tomorrow" : `in ${left} days`;
+    return `Federal ${d.label} ${soon}: ${d.act} by ${d.dueOn} (${d.rule}, ${d.citation}) and ${what}. Send it by a method with proof of delivery (certified mail, return receipt) and ask a construction attorney if payment is not certain.${basis}`;
+  }
   if (left < 0) {
     return `${d.stateName} lien deadline passed on ${d.dueOn} (${d.rule}, ${d.citation}) and ${what}. Ask a construction attorney what is left (a late lien, a payment bond claim, or suing on the contract); if a lien was recorded, mark the last-furnished date or clear the state on the job.${basis}`;
   }

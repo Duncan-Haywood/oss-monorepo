@@ -235,6 +235,8 @@ export function projectDto(p: ProjectRow): ProjectDto {
     lastFurnishedOn: p.lastFurnishedOn,
     workCompletedOn: p.workCompletedOn,
     noticeOfCompletionOn: p.noticeOfCompletionOn,
+    publicOwner: p.publicOwner,
+    millerTier: p.millerTier,
     procoreSsov: parsePlacement(p.procoreSsov),
     status: p.status,
     opening: openingOf(p),
@@ -446,6 +448,8 @@ export function projectLienDeadline(
     lastFurnishedOn: p.lastFurnishedOn,
     completedOn: p.workCompletedOn,
     noticeOfCompletionOn: p.noticeOfCompletionOn,
+    publicOwner: p.publicOwner,
+    millerTier: p.millerTier,
     apps: lienBillingApps(b),
   });
 }

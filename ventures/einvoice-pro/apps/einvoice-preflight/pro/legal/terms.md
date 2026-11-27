@@ -8,13 +8,14 @@ The e-invoice workspace and API (the "Service") is operated by **Maris Stella La
 
 ## 2. The Service
 
-The Service checks electronic invoices (UBL and UN/CEFACT CII XML, and the XML inside a Factur-X or ZUGFeRD PDF) against the rules listed on our website, explains each finding in plain German, French or English, and, where the correction needs no new facts, proposes a corrected file with a diff. It keeps a history of checks per client company. It is used through the workspace page or the API.
+The Service checks electronic invoices (UBL and UN/CEFACT CII XML, and the XML inside a Factur-X or ZUGFeRD PDF) against the rules listed on our website, explains each finding in plain German, French, Dutch, Polish or English, and, where the correction needs no new facts, proposes a corrected file with a diff. It can also read a plain PDF invoice into a draft that you review and turn into an e-invoice file (the converter). It keeps a history of checks per client company and a dashboard across them. It is used through the workspace page or the API.
 
 ## 3. You decide what to send
 
 - **Results come only from the listed rules.** Pass or fail comes from deterministic checks. A pass means the file met the rules that ran, as each result lists them; it does not mean a tax authority, a receiving platform or your client's customer will accept the invoice, or that the invoice is correct in substance (the VAT treatment, the amounts agreed, whether the goods or services were supplied).
 - **Explanations are aids.** Some explanations are written by an AI model. They never change a result, and they can be incomplete or wrong. Read the rule and the official text when it matters.
 - **Proposed fixes are proposals.** A fix is offered only for a short list of formal corrections and only when the corrected file passes the rule it targets without a new finding. Check the diff before you send a corrected file to anyone. Totals, identifiers and missing business data are never changed.
+- **A converted invoice is your draft.** The converter reads values from a PDF and shows where each came from; it can misread a value or miss one, and it does not know whether the values are right. Check every value, the parties and the VAT treatment before you send or archive the file; you are its issuer, not us.
 - **No tax, legal or accounting advice.** Nothing in the Service is tax, legal, accounting or financial advice. You and your clients remain responsible for the invoices you issue, receive and archive.
 
 ## 4. Accounts and API keys

@@ -7,7 +7,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createServer } from "node:http";
 import { after, before, test } from "node:test";
 import { provideAppFiles, readAppFile, readAppText } from "./app-files.mjs";
-import { collect, render } from "../worker/build.mjs";
+import { EXCLUDED, collect, render } from "../worker/build.mjs";
 import { fetchHandlerFor, nodeResponseCollector, toNodeRequest } from "./fetch-adapter.mjs";
 import { FREE_API_PATHS as SERVE_FREE_API_PATHS } from "./serve.mjs";
 import { createProHandler } from "./server.mjs";
@@ -155,7 +155,13 @@ test("the build embeds every file the Worker reads", () => {
   // A set marked sameAs is read from the set it names.
   const named = new Set(Object.entries(manifest.sets).map(([name, set]) => `${set.sameAs ?? name}.json`));
   assert.ok(named.size > 10);
-  for (const f of named) assert.ok(files.text[`plain/${f}`], f);
+  for (const f of named) {
+    if (EXCLUDED.has(`plain/${f}`)) assert.equal(files.text[`plain/${f}`], undefined, `${f} is left out of the hosted build`);
+    else assert.ok(files.text[`plain/${f}`], f);
+  }
+  // The licence-unchecked sets stay out (PROVENANCE.md); the notices the licences ask for go in.
+  assert.deepEqual([...EXCLUDED].sort(), ["plain/cius-hr-ubl.json", "plain/zatca-en16931-ubl.json", "plain/zatca-ksa-ubl.json"]);
+  for (const f of ["plain/NOTICE.txt", "plain/fontoxpath.LICENSE.txt", "plain/xspattern.LICENSE.txt", "plain/prsc.LICENSE.txt", "fonts/OFL.txt"]) assert.ok(files.text[f], f);
   // Nothing outside the listed folders, and no test or secret-looking file.
   for (const k of [...Object.keys(files.text), ...Object.keys(files.base64)]) assert.match(k, /^(pro\/web|pro\/legal(\/de|\/fr)?|fonts|plain)\/[\w.-]+$/, k);
   const out = render({ text: { "a/b.md": "x" }, base64: {} });

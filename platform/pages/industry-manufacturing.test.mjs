@@ -66,6 +66,7 @@ test('products are in development or open free, unpriced, and never claim certif
       assert.match(p.appUrl, /^https:\/\/[a-z-]+\.marisstella\.app\//);
       assert.match(p.status, /^Open: free/);
       assert.ok(html.includes(`href="${p.appUrl}"`), p.appUrl);
+      assert.match(p.note ?? '', /not switched on/, `${p.id}: an open product says what is still off`);
     } else {
       assert.match(p.status, /in development/i);
     }
@@ -147,6 +148,12 @@ test('the stills the page asks for are captured in the showcase', () => {
     assert.ok(shot, `${slug} has no still in showcase/manifest.json`);
     for (const f of [shot.file, shot.hero, shot.heroWide].filter(Boolean)) assert.ok(existsSync(path.join(HERE, 'showcase', f)), f);
   }
+});
+
+test('links an open product\'s own site only when the build copied it in', () => {
+  const linked = renderManufacturingPage({ baseUrl: base, productSites: new Set(['jobshop']) });
+  assert.ok(linked.includes('href="../../jobshop/">Features and pricing</a>'));
+  assert.ok(!html.includes('jobshop/">Features and pricing'), 'no link to a site the build did not write');
 });
 
 test("the free plan line matches Job Shop Quote's own FREE_PLAN", () => {

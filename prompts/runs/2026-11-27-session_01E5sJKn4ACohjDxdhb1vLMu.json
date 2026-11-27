@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKn4ACohjDxdhb1vLMu",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T16:18:50Z",
+  "ended": "2026-11-27T16:30:23Z",
+  "wall_minutes": 11.77,
+  "tokens_in": 9900113,
+  "tokens_out": 47010,
+  "cost_usd": 4.1826,
+  "tool_calls": 79,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19804",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets pointed at einvoice #4 as 'free and not gated', but every part of that item waits on owner consent, a DPA change or demand; it cost a read to find nothing was actually free."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "All 23 Next items wait on demand, so the bet's 'not done' notes (public jobs at the lien-deadline entry) were the real source of work; a 'gaps noted in Done entries' list would surface them faster."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new or extended blog post: the pay-app-guides already have Miller Act and retainage-cap pages, which are the front door for this feature, and the product's features page and llms.txt were updated instead.",
+      "did": "Updated the marketing site features and llms.txt; no post",
+      "result": "feature shipped with marketing copy; no thin post added"
+    }
+  ],
+  "writeups": [
+    "ventures/payapps/apps/payapps/ROADMAP.md (Public jobs, part 1; part 2 in Next)",
+    "ventures/payapps/apps/payapps-site features page and llms.txt"
+  ],
+  "goal": null,
+  "notes": "Ventures track, bet #1 PayApps. Shipped public-jobs-part-1: an owner type on the job (private / state-local / federal). Federal jobs get the Miller Act 90-day notice and one-year suit dates in place of the lien date, and those reach the cash page and weekly email. State and local jobs have no lien date and get their retainage checked against the cap in 16 states. Verified locally: typecheck clean; payapps unit 157 files / 1444 tests pass; worker 93 files / 589 tests pass; payapps-site unit 8 files pass; biome no errors. Merged origin/main before the final push, with no migration-number clash (main ends at 0086).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4c47e25b-3b6d-5410-85ba-6e172aa2a5a1",
+    "transcripts": 1,
+    "first": "2026-11-27T16:18:50Z",
+    "last": "2026-11-27T16:30:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 146,
+        "output": 47010,
+        "thinking": 11545,
+        "cache_read": 9738193,
+        "cache_write_5m": 0,
+        "cache_write_1h": 161774,
+        "api_equivalent_usd": 4.1826,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 146,
+      "output": 47010,
+      "thinking": 11545,
+      "cache_read": 9738193,
+      "cache_write_5m": 0,
+      "cache_write_1h": 161774,
+      "api_equivalent_usd": 4.1826,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 75,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.77,
+      "active_minutes": 11.77,
+      "model_minutes": 9.39,
+      "tool_minutes": 2.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "schema+API+UI+rules port with tests for two legal rule sets, as a mid-level full-stack dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 239.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

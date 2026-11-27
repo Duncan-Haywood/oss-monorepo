@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtLuSELS4Yzv5SFyMr8",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T16:06:50Z",
+  "ended": "2026-11-27T16:12:41Z",
+  "wall_minutes": 6.32,
+  "tokens_in": 3725686,
+  "tokens_out": 16373,
+  "cost_usd": 1.6858,
+  "tool_calls": 50,
+  "task": "jobshop-quote (bet #2) app first load: lazy-load signed-in pages",
+  "projects": [
+    "jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19799",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First full e2e run: spec 05 failed because its one-shot isVisible() check for the legal gate raced the now-lazy org layout chunk",
+      "fix": "spec waits for the gate or the Quote log heading before deciding; spec passes, full suite re-run"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/jobshop-quote/README.md",
+      "issue": "'Where the work happens' still says private-monorepo is the build source and this tree a snapshot, while DEPLOY.md says the deploy runs from here on every merge; unclear whether a sync would overwrite public-side edits."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Playwright is not resolvable from a scratchpad .mjs by bare import; needed createRequire against `npm root -g`. Worth one line next to page-bench."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new post: a lazy-route split repeats PayApps' same-day finding and would not tell a reader anything new; the history doc carries the numbers.",
+      "did": "history doc only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/jobshop-quote-app-first-load-perf-2026-11-27.md"
+  ],
+  "goal": null,
+  "notes": "Metric: entry JS of apps/jobshop-quote client build. Before 718,016 B raw / 209,688 B gzip -9; after 362,282 / 114,186 (-46% gz), from `pnpm build` + gzip -9c on main bf5b1610b vs branch. Wait: static gzip server, /api 401, Chromium 150 ms RTT, 1.6 Mbit/s, 4x CPU, goto /sign-up -> 'Create your account', 7 interleaved runs: median 1,691 ms before (1,675-1,724), 1,126 ms after (1,105-1,198). Verification: typecheck clean, biome clean, check-no-client-maps passes, test:unit 49 files/643 passed, e2e: first run 15/16 (spec-05 race on the legal gate, fixed in the test), second run 16/16 passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7206c7f0-d085-58e5-a096-bad23abcc56a",
+    "transcripts": 1,
+    "first": "2026-11-27T16:06:50Z",
+    "last": "2026-11-27T16:13:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 88,
+        "output": 16373,
+        "thinking": 1924,
+        "cache_read": 3647020,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78578,
+        "api_equivalent_usd": 1.6858,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 88,
+      "output": 16373,
+      "thinking": 1924,
+      "cache_read": 3647020,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78578,
+      "api_equivalent_usd": 1.6858,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 45,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.32,
+      "active_minutes": 6.32,
+      "model_minutes": 3.95,
+      "tool_minutes": 2.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "route split, build measurements, browser bench and e2e triage by a frontend engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 178.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

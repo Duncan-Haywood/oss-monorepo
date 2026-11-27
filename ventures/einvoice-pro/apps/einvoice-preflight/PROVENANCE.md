@@ -38,13 +38,18 @@ Shipped with the checker (each keeps its notice; `plain/NOTICE.txt` is the recor
       (weak copyleft, network use counts as distribution). Ship unmodified, as separate
       data files, with the notice and a link to the source; changes to these files must
       be published under EUPL. Owner to confirm before the first paid release.
+      The hosted build serves the notice at `/app/notices` (2026-11-27).
 - [ ] `plain/peppol-*.json`, `plain/pint*.json`: OpenPeppol, **MPL-2.0** (file-level
       copyleft): ship unmodified with the notice; publish any change to these files.
 - [ ] `plain/zatca-*.json`: ZATCA rules, **LGPL-3.0** data. Keep out of the paid build
       until checked (not needed for the DE/FR product).
+      Kept out of the hosted (Worker) build since 2026-11-27: `worker/build.mjs` EXCLUDED,
+      tested in `pro/worker.test.mjs` (docs/LAUNCH-REVIEW.md).
 - [ ] `plain/cius-hr-ubl.json`: Croatian tax authority rules, **no licence stated** (the
       site allows reproduction with the source named). Keep out of the paid build until
       checked (not needed for the DE/FR product).
+      Kept out of the hosted (Worker) build since 2026-11-27: `worker/build.mjs` EXCLUDED,
+      tested in `pro/worker.test.mjs` (docs/LAUNCH-REVIEW.md).
 
 The paid layer (`pro/`) itself uses no third-party code at runtime. The optional
 `@anthropic-ai/sdk` (MIT) is loaded only when a deployment installs it.
