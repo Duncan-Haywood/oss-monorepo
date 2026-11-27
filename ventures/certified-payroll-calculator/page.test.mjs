@@ -162,6 +162,7 @@ const STATE_PAGES = [
   'new-jersey-certified-payroll-wage-hub-mw562',
   'washington-prevailing-wage-xml-upload',
   'illinois-certified-transcript-of-payroll-csv',
+  'oregon-certified-payroll-wh38-due-dates',
 ];
 test('state certified payroll pages are linked, listed, disclaimed and tagged', () => {
   const llms = readFileSync(new URL('./llms.txt', import.meta.url), 'utf8');
