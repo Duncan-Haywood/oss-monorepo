@@ -110,6 +110,15 @@ marks each row "Yes" or "No" with the reason, and the
 [SSP template](https://marisstella.app/machine-shop-guides/nist-800-171-ssp-template.html)
 flags these rows in its review.
 
+All 110 requirements are now listed one by one, each with its points and
+its POA&M verdict, on the workspace site's
+[POA&M eligibility page](https://marisstella.app/cmmc/cmmc-poam-eligible-requirements)
+(added 27 November 2026). Counted from the same point values the calculator
+uses: 46 requirements may sit on a POA&M if open, 3.13.11 may only on its
+3-point partial credit, 57 worth 3 or 5 points must be met first, and the six
+above never may. With the 88-point floor, at most 22 requirements can be open
+at once (20 if one of them is 3.13.11).
+
 The list was first read through search excerpts of the eCFR page, then
 read directly on 25 November 2026; it matches. Re-read the section before an
 assessment, since rules change.
