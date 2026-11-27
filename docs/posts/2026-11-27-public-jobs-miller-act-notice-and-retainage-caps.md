@@ -1,6 +1,6 @@
 ---
 title: "Not paid on a public job: the Miller Act 90-day notice and the states that cap retainage"
-seo_title: "Miller Act 90-day notice to the prime, and public retainage caps by state"
+seo_title: "Miller Act 90-day notice and public retainage caps by state"
 date: 2026-11-27
 tags: [payapps, for-customers, construction, subcontractors, miller-act, public-jobs, retainage]
 description: "No lien on public property. On federal jobs the payment bond and its 90-day notice protect a sub; on state jobs, 16 states cap retainage. What the statutes say."
