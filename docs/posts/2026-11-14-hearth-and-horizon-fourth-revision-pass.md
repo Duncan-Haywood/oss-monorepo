@@ -81,7 +81,7 @@ out again at the minute the character says it. Every science fiction story
 from 10 November onward has now had a full pass. The roughly 270 older ones
 come next, a batch at a time.
 
-## A fifth pass, 27 November: 9 slips in 4 stories
+## A fifth pass, 27 November: 8 slips in 4 stories
 
 On 27 November a fifth pass took the four science fiction stories of 25 to 27
 November that no pass had read:
@@ -116,7 +116,7 @@ Easter and Ash Wednesday was right. The slips were these:
   when the note says about twenty, and "a third of a tub" of returned seed
   that was a third of the seed, under a quarter of the tub.
 
-That is 2.25 slips a story, close to the fourth pass's rate. The new check
+That is 2 slips a story, a little under the fourth pass's 2.75. The new check
 for writers: add up the parts a character names (kicks, boxes, grids) and
 make sure they come to the total the story already gave. The
 [run's report](https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/reports/hearth-and-horizon-revision-2026-11-27.md)

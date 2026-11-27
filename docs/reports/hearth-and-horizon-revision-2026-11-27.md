@@ -22,7 +22,7 @@ re-derived in Python. So were every weekday, Easter and Ash Wednesday, and
 each birth year against the events dated from it. Then the dialogue was read
 against the note, and each scene's visible counts were checked.
 
-**Result: 9 fixes in 4 stories (2.25 a story).** All four models held.
+**Result: 8 slips in 4 stories (2 a story), fixed in 10 edited lines; the plate thickness accounts for three of them.** All four models held.
 
 | Story | Slip | Fix |
 |---|---|---|
