@@ -145,3 +145,45 @@ test("a byte-order mark at the start of the embedded XML is kept (ZUGFeRD corpus
   assert.deepEqual([...back.subarray(0, 3)], [0xef, 0xbb, 0xbf]);
   assert.equal(new TextDecoder().decode(back), clean);
 });
+
+// Red team 2026-11-27: the new trailer / xref stream must carry the old /Info and /ID
+// through unswapped, and each appended xref-stream row must be type 1 (in use, at an
+// offset); a type 2 row would point readers into an object stream that does not exist.
+// Byte-exact text round trip: TextDecoder("latin1") is really windows-1252 and maps
+// 0x80-0x9F (the second byte of UTF-8 "ß") above 0xFF, so it cannot be inverted.
+const asText = (b) => Array.from(b, (x) => String.fromCharCode(x)).join("");
+const latin1Bytes = (s) => Uint8Array.from(s, (c) => c.charCodeAt(0));
+const badXml = () => new TextEncoder().encode(dec(ex("xrechnung-cii-invoice.xml")).replace("<ram:GrandTotalAmount>1190.00", "<ram:GrandTotalAmount>1100.00"));
+
+test("a classic trailer's /Info and /ID are copied into the new trailer", async () => {
+  const pdf = buildPdfWithAttachment(badXml(), "factur-x.xml");
+  const withMeta = latin1Bytes(asText(pdf).replace(/(trailer\n<< [^>]*\/Root 1 0 R)/, "$1 /Info 2 0 R /ID [<aa> <bb>]"));
+  const r = await repairFacturX(withMeta);
+  assert.equal(r.pdfRewritten, true);
+  const added = new TextDecoder("latin1").decode(r.pdf.subarray(withMeta.length));
+  assert.match(added, /trailer\n<< [^>]*\/Info 2 0 R \/ID \[<aa> <bb>\] \/Prev \d+ >>/);
+});
+
+test("an xref stream's /Info and /ID are copied and its rows are type 1", async () => {
+  const pdf = latin1Bytes(asText(xrefStreamPdf(badXml())).replace("/Root 1 0 R /ID", "/Root 1 0 R /Info 2 0 R /ID"));
+  const r = await repairFacturX(pdf);
+  assert.equal(r.pdfRewritten, true);
+  const tail = new TextDecoder("latin1").decode(r.pdf);
+  const start = Number(tail.match(/startxref\s+(\d+)\s+%%EOF\s*$/)[1]);
+  assert.match(tail.slice(start), /\/Root 1 0 R \/Info 2 0 R \/ID \[<aa> <bb>\] \/Prev \d+/);
+  const rows = r.pdf.subarray(tail.indexOf("stream\n", start) + 7);
+  assert.equal(rows[0], 1, "attachment row is type 1");
+  assert.equal(rows[7], 1, "xref stream's own row is type 1");
+});
+
+test("an xref stream whose dictionary is longer than 4 KB is still extended", async () => {
+  // A long /Index array (many sparse subsections, as incremental saves write) pushed the
+  // "stream" keyword past a fixed 4096-byte window, so the file was read as a classic
+  // table and the repair gave up with "trailer could not be read" (real defect, 2026-11-27).
+  const pad = Array.from({ length: 700 }, (_, i) => `${1000 + i * 2} 0`).join(" ");
+  const pdf = latin1Bytes(asText(xrefStreamPdf(badXml())).replace("/Length 0 >>", `/Length 0 /Comment [${pad}] >>`));
+  const r = await repairFacturX(pdf);
+  assert.deepEqual(r.skipped.filter((s) => /trailer|cross-reference/.test(s)), []);
+  assert.equal(r.pdfRewritten, true);
+  assert.equal(dec(await extractEmbeddedInvoiceXml(r.pdf)), dec(ex("xrechnung-cii-invoice.xml")));
+});
