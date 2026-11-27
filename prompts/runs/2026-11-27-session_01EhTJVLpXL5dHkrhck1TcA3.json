@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push failed cmmc-ci's `biome ci` (two long lines in the new tests); run_workflow_locally.py --for-changes caught it, fixed with biome format in a follow-up commit. run_venture_tests.py does not run biome, so its pass was not the whole CI."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -47,7 +49,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Targets: cmmc-site sprs.mjs and poam-rules.mjs (bet #4 front door; payapps already had ~12 red-team runs today). Catch rate 14/20 -> 20/20. Real defect: any query string was scored as nothing-ticked, showing 110/110 all met for ?utm_source= links; fixed with isCalcQuery in Worker, applyToPage and static sprs-page.js. Guard (4b): the tests run in ventures-tests on every PR; a repo-wide lint was not added because a grep found no other venture with the same trigger. Verification: run_venture_tests.py cmmc 88 tests 0 failed.",
+  "notes": "Targets: cmmc-site sprs.mjs and poam-rules.mjs (bet #4 front door; payapps already had ~12 red-team runs today). Catch rate 14/20 -> 20/20. Real defect: any query string was scored as nothing-ticked, showing 110/110 all met for ?utm_source= links; fixed with isCalcQuery in Worker, applyToPage and static sprs-page.js. Guard (4b): the tests run in ventures-tests on every PR; a repo-wide lint was not added because a grep found no other venture with the same trigger. Verification: run_venture_tests.py cmmc 88 tests 0 failed. Local CI: run_workflow_locally.py --for-changes: cmmc-ci 15/15 after the biome fix; ventures-tests 6/6; priv-* gates not runnable locally.",
   "corrections": [],
   "redteam": {
     "campaigns": [
