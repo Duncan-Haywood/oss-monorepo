@@ -10,7 +10,7 @@
   <meta property="og:type" content="website">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "DXF Nesting", "applicationCategory": "DesignApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free true-shape nesting of DXF parts on rectangular sheets for laser, plasma, waterjet and CNC router shops. Reads LINE, ARC, CIRCLE, polylines with bulges, ELLIPSE, SPLINE and blocks; writes the nested sheets as R12 DXF; checks every gap independently."}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I nest DXF parts for free?", "acceptedAnswer": {"@type": "Answer", "text": "Open this page, drop in one or more ASCII DXF files, give each part a quantity, enter the sheet size, the gap between parts and the edge margin, and press Nest. You get each sheet as a picture and as a DXF file for your CAM, with utilisation, cut length and pierces per sheet. Nothing is uploaded."}}, {"@type": "Question", "name": "Will it put small parts inside the holes of big ones?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Holes in a part stay free, so washers, slugs and small brackets are placed inside large cut-outs when they fit with the gap you set."}}, {"@type": "Question", "name": "How is the gap between parts guaranteed?", "acceptedAnswer": {"@type": "Answer", "text": "Parts are placed on a fine grid that always covers the whole shape, and each placed part reserves extra cells for the gap plus the arc flattening error. After nesting, a separate check measures the distance between every pair of placed outlines from their edges and reports any pair closer than the gap."}}, {"@type": "Question", "name": "Is it as good as SigmaNEST, ProNest or Deepnest?", "acceptedAnswer": {"@type": "Answer", "text": "No. On 13 standard nesting benchmarks its layouts come out about 20% longer than the best published ones with the default search (24% with it off, 17% with the search at 100 orders and the last sheet squeezed), and the gap is widest on interlocking, concave parts; a commercial true-shape nester with a long search gets closer to those. It is free, quick, private and its sheets come out as plain DXF; the page also shows the area bound, the fewest sheets any nester could use."}}, {"@type": "Question", "name": "Which DXF entities are read?", "acceptedAnswer": {"@type": "Answer", "text": "LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE and INSERT of blocks (with scale, rotation, mirroring and arrays). Text, dimensions and hatches are skipped and counted. Binary DXF is not read; save as ASCII DXF."}}, {"@type": "Question", "name": "Are my drawings uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The files are read and nested in your browser tab and never leave your computer."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I nest DXF parts for free?", "acceptedAnswer": {"@type": "Answer", "text": "Open this page, drop in one or more ASCII DXF files, give each part a quantity, enter the sheet size, the gap between parts and the edge margin, and press Nest. You get each sheet as a picture and as a DXF file for your CAM, with utilisation, cut length and pierces per sheet. Nothing is uploaded."}}, {"@type": "Question", "name": "Will it put small parts inside the holes of big ones?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Holes in a part stay free, so washers, slugs and small brackets are placed inside large cut-outs when they fit with the gap you set."}}, {"@type": "Question", "name": "How is the gap between parts guaranteed?", "acceptedAnswer": {"@type": "Answer", "text": "Parts are placed on a fine grid that always covers the whole shape, and each placed part reserves extra cells for the gap plus the arc flattening error. After nesting, a separate check measures the distance between every pair of placed outlines from their edges and reports any pair closer than the gap."}}, {"@type": "Question", "name": "Is it as good as SigmaNEST, ProNest or Deepnest?", "acceptedAnswer": {"@type": "Answer", "text": "No. On 13 standard nesting benchmarks its layouts come out about 20% longer than the best published ones with the default search (24% with it off, 17% with the search at 100 orders and the last sheet squeezed), and the gap is widest on interlocking, concave parts; a commercial true-shape nester with a long search gets closer to those. It is free, quick, private and its sheets come out as plain DXF; the page also shows the area bound, the fewest sheets any nester could use."}}, {"@type": "Question", "name": "How do I price a laser or plasma cutting job from a DXF?", "acceptedAnswer": {"@type": "Answer", "text": "Nest the parts here, then open “Price this nest” and enter your machine rate, cutting speed for the material and thickness, pierce time, sheet price, setup and handling minutes, markup and minimum charge. The page adds cutting, pierce and marking time from the nest's own cut length and pierce count, charges whole sheets, the length used or the parts' area, and splits the total into a price for each part. Every rate is yours; nothing is built in."}}, {"@type": "Question", "name": "Which DXF entities are read?", "acceptedAnswer": {"@type": "Answer", "text": "LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE and INSERT of blocks (with scale, rotation, mirroring and arrays). Text, dimensions and hatches are skipped and counted. Binary DXF is not read; save as ASCII DXF."}}, {"@type": "Question", "name": "Are my drawings uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The files are read and nested in your browser tab and never leave your computer."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f2f5f9; }
     body { max-width: 1100px; margin: auto; padding: 24px; }
@@ -133,6 +133,36 @@
     <p class="note">Layers in the DXF: <code>CUT_OUTER</code> (part outlines), <code>CUT_INNER</code> (holes, cut first), <code>MARK</code> (open lines inside a part, such as engraving), <code>SHEET</code> (the sheet or remnant outline). The green strip is the offcut past the last part. A remnant's DXF is drawn with its bounding box at (0, 0): line the real offcut up the same way on the bed.</p>
   </section>
 
+  <section class="card" id="quoteCard" hidden>
+    <h2>4. Price this nest (optional)</h2>
+    <p class="note">Laser, plasma and waterjet jobs are priced on cut length, pierces and sheets. Enter your own rates; nothing here is a built-in speed or price, and the speeds are in the drawing's units per minute. <span id="quoteUnits"></span></p>
+    <div class="grid">
+      <div><label for="machineRate">Machine rate ($ per hour)</label><input type="number" id="machineRate" min="0" step="any" placeholder="your shop rate"></div>
+      <div><label for="cutSpeed">Cutting speed (units per minute)</label><input type="number" id="cutSpeed" min="0" step="any" placeholder="for this material and thickness"></div>
+      <div><label for="pierceSeconds">Pierce time (seconds each)</label><input type="number" id="pierceSeconds" min="0" step="any" placeholder="0"></div>
+      <div><label for="markSpeed">Marking speed (blank = cutting speed)</label><input type="number" id="markSpeed" min="0" step="any" placeholder="same as cutting"></div>
+      <div><label for="sheetPrice">Price of one sheet of the size above ($)</label><input type="number" id="sheetPrice" min="0" step="any" placeholder="0"></div>
+      <div><label for="materialBasis">Charge material for</label>
+        <select id="materialBasis">
+          <option value="sheet" selected>Whole sheets used</option>
+          <option value="used">Length of sheet used (offcut back to stock)</option>
+          <option value="parts">The parts' own area only</option>
+        </select></div>
+      <div><label for="handlingMinutes">Load and unload (minutes per sheet)</label><input type="number" id="handlingMinutes" min="0" step="any" placeholder="0"></div>
+      <div><label for="setupMinutes">Setup and programming (minutes per job)</label><input type="number" id="setupMinutes" min="0" step="any" placeholder="0"></div>
+      <div><label for="markupPct">Markup (%)</label><input type="number" id="markupPct" min="0" step="any" placeholder="0"></div>
+      <div><label for="minimumCharge">Minimum charge ($)</label><input type="number" id="minimumCharge" min="0" step="any" placeholder="0"></div>
+    </div>
+    <p><button type="button" id="price">Price the nest</button><button type="button" class="secondary" id="dl-quote" disabled>Download quote (CSV)</button></p>
+    <p id="quoteSummary" role="status" aria-live="polite"></p>
+    <div class="scroll"><table id="quoteTable" hidden>
+      <thead><tr><th scope="col">Part</th><th scope="col">Quantity</th><th scope="col">Machine minutes each</th><th scope="col">Material each</th><th scope="col">Price each</th><th scope="col">Line</th></tr></thead>
+      <tbody id="quoteRows"></tbody>
+    </table></div>
+    <p class="note">Each part pays for its own cutting, pierces and marking; material (scrap included) is shared by part area; setup and sheet handling are shared by machine time. Rates are kept in this browser only. Not modelled here: lead-ins, rapid moves between cuts, gas and consumables apart from what your hourly rate covers, finishing and bending.</p>
+    <p class="note"><strong>In development — early access:</strong> we are building an RFQ-to-quote assistant for job shops that turns a drawing and an email into a priced quote from your own rates, sheet metal included. It is not released yet; see the <a href="https://marisstella.app/industries/manufacturing/">manufacturing page</a>.</p>
+  </section>
+
   <section class="card">
     <h2>Worked example</h2>
     <p>The example job is 72 mild steel parts in millimetres: 12 square flanges (200 mm, 110 mm bore, four bolt holes), 16 gussets, 10 L brackets, 30 washers (80 mm) and 4 base plates (600 × 140), on a 2500 × 1250 sheet with a 5 mm gap and a 10 mm margin. It nests on one sheet using about 1,912 mm of its length (about 80% of that length is parts), with washers placed inside the flange bores and gussets turned to pair up. Cut length is about 59.5 m and there are 206 pierces, which is what a laser or plasma quote is priced on.</p>
@@ -140,7 +170,7 @@
 
   <section class="card" id="limits">
     <h2>What it does and does not do</h2>
-    <p><strong>Does:</strong> true-shape nesting of closed outlines with their holes on rectangular sheets, parts inside holes, rotation in steps you choose, a minimum gap and edge margin, several sheets, offcuts of any shape (with cut-outs) and a list of mixed sheet sizes used first, the remnant left at the far end, an independent gap check, DXF out on separate cut and mark layers, utilisation, cut length and pierce counts, and the area bound (no nester can use fewer sheets than the parts' area divided by a sheet's usable area).</p>
+    <p><strong>Does:</strong> true-shape nesting of closed outlines with their holes on rectangular sheets, parts inside holes, rotation in steps you choose, a minimum gap and edge margin, several sheets, offcuts of any shape (with cut-outs) and a list of mixed sheet sizes used first, the remnant left at the far end, an independent gap check, DXF out on separate cut and mark layers, utilisation, cut length and pierce counts, a price for the nest and each part from your own rates, and the area bound (no nester can use fewer sheets than the parts' area divided by a sheet's usable area).</p>
     <p><strong>Not modelled:</strong> common-line cutting, lead-ins and lead-outs, kerf compensation (your CAM does that; set the gap at least to the kerf plus what your material needs), cut order and heat, micro-joints and tabs, grain beyond 0/180° turns, mirroring parts, choosing which stock is cheapest (sheets are used in the order you list them), saving the new offcut back to a remnant list, and the squeeze on a remnant's outline (it runs on rectangular last sheets only). Placement is greedy on a grid with a short search and an optional squeeze of the last sheet: on 13 standard benchmarks its layouts are about 17 to 20% longer than the best published ones, so treat the sheet count as a cautious estimate.</p>
     <p><strong>When to use something else:</strong> production runs where the material a stronger nester saves is worth a licence (SigmaNEST, ProNest, Lantek, your machine's own software), or when you need lead-ins and cut order in the same step.</p>
   </section>
@@ -157,6 +187,8 @@
     <p>No. On 13 standard nesting benchmarks its layouts come out about 20% longer than the best published ones with the default search (24% with it off, 17% with the search at 100 orders and the last sheet squeezed), and the gap is widest on interlocking, concave parts; a commercial true-shape nester with a long search gets closer to those. It is free, quick, private and its sheets come out as plain DXF; the page also shows the area bound, the fewest sheets any nester could use.</p>
     <h3>Can it nest into my offcuts and remnants first?</h3>
     <p>Yes. Under "Remnants and other sheets on hand", load a DXF of each offcut (any closed outline, with holes where parts were already cut) or type the sizes of rectangular sheets you have, with quantities. They are filled in the order listed before a new sheet is opened, and the gap check measures every part's distance from the offcut's real edge and its cut-outs. On the worked example, an L-shaped offcut takes 35 of the 72 parts and the new sheet's used length falls from 1,912 to 1,124 mm.</p>
+    <h3>How do I price a laser or plasma cutting job from a DXF?</h3>
+    <p>Nest the parts here, then open “Price this nest” and enter your machine rate, cutting speed for the material and thickness, pierce time, sheet price, setup and handling minutes, markup and minimum charge. The page adds cutting, pierce and marking time from the nest's own cut length and pierce count, charges whole sheets, the length used or the parts' area, and splits the total into a price for each part. Every rate is yours; nothing is built in.</p>
     <h3>Which DXF entities are read?</h3>
     <p>LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE and INSERT of blocks (with scale, rotation, mirroring and arrays). Text, dimensions and hatches are skipped and counted. Binary DXF is not read; save as ASCII DXF.</p>
     <h3>Are my drawings uploaded?</h3>
@@ -167,7 +199,7 @@
 <footer>
   <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, fabrication or financial advice, and it does not replace your CAM software's checks or a qualified operator. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every nest before you cut it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you load is saved anywhere by this tool.</p>
-  <p>Everything runs in your browser. Your drawings are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>dxf_loaded</code>, <code>example_loaded</code>, <code>remnant_loaded</code>, <code>sheets_nested</code>, <code>dxf_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
+  <p>Everything runs in your browser. Your drawings are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>dxf_loaded</code>, <code>example_loaded</code>, <code>remnant_loaded</code>, <code>sheets_nested</code>, <code>dxf_downloaded</code>, <code>csv_downloaded</code>, <code>nest_priced</code>, <code>quote_downloaded</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
   <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
   <p>Related: <a href="../laser-cutting-engraving-job-price-calculator/">laser job price</a>, <a href="../cnc-machining-quote-calculator/">CNC machining quote</a>, <a href="../cut-list-optimizer/">cut list for sheet goods (saw cuts)</a>.</p>
   <p class="support">Free to use and source available. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -177,12 +209,13 @@
   import { partsFromDxf, exampleParts, runJob, sheetSvg, sheetDxf, allSheetsDxf, reportCsv, remnantsFromDxf, exampleRemnantDxf, parseStock } from "./job.mjs";
   import { previewPoints } from "./dxf.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { quoteNest, quoteCsv, money } from "./quote.mjs";
 
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const n = (x, d = 1) => Number(x).toLocaleString("en-US", { maximumFractionDigits: d });
   const keys = ["sheetW", "sheetH", "gap", "margin", "rotations", "res", "maxSheets", "search", "compact", "skipLayers", "defaultQty"];
-  let items = [], remnants = [], units = "unitless", insunits = 0, job = null;
+  let items = [], remnants = [], units = "unitless", insunits = 0, job = null, jobItems = [];
 
   function addRemnants(text, name) {
     const r = remnantsFromDxf(text, name);
@@ -251,7 +284,7 @@
     record("example_loaded");
     run();
   });
-  $("#clear").addEventListener("click", () => { items = []; job = null; $("#report").hidden = true; $("#readNotes").textContent = ""; drawParts(); });
+  $("#clear").addEventListener("click", () => { items = []; job = null; $("#report").hidden = true; $("#quoteCard").hidden = true; lastQuote = null; $("#readNotes").textContent = ""; drawParts(); });
 
   function rotationsOf(v) {
     const m = /^every (\d+)$/.exec(v);
@@ -279,12 +312,35 @@
           timeLimitMs: 60000,
         });
         if (!job.ok) { $("#status").textContent = job.error; $("#report").hidden = true; return; }
+        jobItems = items.map((x) => ({ name: x.name, qty: x.qty }));
         show();
         record("sheets_nested");
       } finally { $("#nest").disabled = false; }
     }, 30);
   }
   $("#nest").addEventListener("click", run);
+  const RATE_KEYS = ["machineRate", "cutSpeed", "pierceSeconds", "markSpeed", "sheetPrice", "materialBasis", "handlingMinutes", "setupMinutes", "markupPct", "minimumCharge"];
+  const RATE_STORE = "dxf-nesting-rates";
+  let lastQuote = null;
+  try {
+    const saved = JSON.parse(localStorage.getItem(RATE_STORE) || "{}");
+    for (const k of RATE_KEYS) if (typeof saved[k] === "string" && saved[k] !== "") $("#" + k).value = saved[k];
+  } catch { /* storage blocked: start blank */ }
+  function price(count = true) {
+    const rates = Object.fromEntries(RATE_KEYS.map((k) => [k, $("#" + k).value.trim()]));
+    try { localStorage.setItem(RATE_STORE, JSON.stringify(rates)); } catch { /* storage blocked: not kept */ }
+    const q = quoteNest(job, jobItems, rates);
+    lastQuote = q.ok ? q : null;
+    $("#dl-quote").disabled = !q.ok;
+    $("#quoteTable").hidden = !q.ok;
+    if (!q.ok) { $("#quoteSummary").textContent = q.errors.join(" "); $("#quoteRows").textContent = ""; return; }
+    const m = q.minutes;
+    $("#quoteSummary").textContent = `Job total ${money(q.cost.total)}: machine ${money(q.cost.machine)} for ${n(m.total, 1)} minutes (cutting ${n(m.cut, 1)}, pierces ${n(m.pierce, 1)}, marking ${n(m.mark, 1)}, sheet handling ${n(m.handling, 1)}, setup ${n(m.setup, 1)}), material ${money(q.cost.material)}, markup ${money(q.cost.markup)}. ${q.warnings.join(" ")}`;
+    $("#quoteRows").innerHTML = q.lines.map((l) => `<tr><th scope="row">${esc(l.name)}</th><td>${l.qty}</td><td>${n(l.unitMinutes, 2)}</td><td>${esc(money(l.unitMaterial))}</td><td>${esc(money(l.unitPrice))}</td><td>${esc(money(l.linePrice))}</td></tr>`).join("");
+    if (count) record("nest_priced");
+  }
+  $("#price").addEventListener("click", () => price());
+  $("#dl-quote").addEventListener("click", () => { if (lastQuote) { save(quoteCsv(lastQuote), "nest-quote.csv", "text/csv"); record("quote_downloaded"); } });
 
   function show() {
     const r = job.report, u = units !== "unitless" ? " " + units : "";
@@ -296,6 +352,9 @@
     $("#unplaced").textContent = job.result.unplaced.map((x) => `Not placed: ${x.count} × ${x.name} (${x.reason}).`).join(" ");
     $("#sheets").innerHTML = r.sheets.map((s, i) => `<div class="sheet card"><h3>Sheet ${s.sheet}${job.result.stock.length > 1 ? ` (${esc(s.stock)})` : ""}: ${Object.entries(s.counts).map(([k, v]) => `${v} × ${esc(k)}`).join(", ")}</h3>${sheetSvg(job, i)}<button type="button" class="secondary" data-sheet="${i}">Download sheet ${s.sheet} (DXF)</button></div>`).join("");
     $("#report").hidden = false;
+    $("#quoteCard").hidden = false;
+    $("#quoteUnits").textContent = units !== "unitless" ? `Your drawings are in ${units}, so enter ${units} per minute.` : "";
+    if (lastQuote) price(false);
     $("#status").textContent = `${r.totalParts} parts on ${r.totalSheets} sheet${r.totalSheets === 1 ? "" : "s"}.`;
     $("#report").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   }
