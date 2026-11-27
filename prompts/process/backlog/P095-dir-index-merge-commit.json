@@ -1,7 +1,7 @@
 {
   "id": "P095",
   "title": "promptctl's directory and glob lookups miss a PR merge commit that changes a directory through different files from each parent",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -21,5 +21,10 @@
   "source": "ventures run, PR #19644 CI",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-11-27",
+      "note": "promptctl._merge_hit: _dir_hit/_glob_hit date a directory or glob by the newest merge whose every parent differs somewhere under it (one memoised `git diff --name-only` per parent; main squashes, so only a PR merge ref holds merges). Test: temp repo at depth 2 and 5, merge adding d/m.txt via main and d/p.txt via the PR."
+    }
+  ]
 }
