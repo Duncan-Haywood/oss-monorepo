@@ -13954,6 +13954,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     path.join(aboutDir, 'index.html'),
     renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
   );
+  // CMMC Workspace's own marketing site (paid bet #4), built from the app's zero-dependency
+  // source in its open state, without the catalogue chrome (`cmmc-site.mjs`). Before the
+  // manufacturing page, which links it.
+  const cmmcSite = await buildCmmcSite(outDir, { baseUrl: base });
   const feedbackDir = path.join(outDir, FEEDBACK_PATH);
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
@@ -13977,6 +13981,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     // Job shops and small engineering firms: quoting and CMMC/ISO 9001
     // products in development, and the free tools (`industry-manufacturing.mjs`).
     await buildManufacturingPage(outDir, base, {
+      productSites: new Set(cmmcSite.length ? ['cmmc'] : []),
       published: new Set(surfaces.map((s) => s.slug)),
       footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
       tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-manufacturing" defer></script>`,
@@ -14080,10 +14085,6 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // spent and is blocked on, read from the committed run records and history.
   // `noindex` and in no sitemap; see `engineering.mjs`.
   await buildEngineeringPage(outDir, base);
-
-  // CMMC Workspace's own marketing site (paid bet #4), built from the app's zero-dependency
-  // source in its open state, without the catalogue chrome (`cmmc-site.mjs`).
-  const cmmcSite = await buildCmmcSite(outDir, { baseUrl: base });
 
   // PayApps' own marketing site (paid bet #1), copied in whole from the app's committed
   // static export, without the catalogue chrome (`payapps-site.mjs`). Before the

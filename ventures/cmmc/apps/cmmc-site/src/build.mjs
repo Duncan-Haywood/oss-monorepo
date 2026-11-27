@@ -194,7 +194,8 @@ ${indexable ? `<link rel="canonical" href="${url}">` : '<meta name="robots" cont
 <meta property="og:title" content="${escapeHtml(page.title)}">
 <meta property="og:description" content="${escapeHtml(page.description)}">
 <meta property="og:url" content="${url}">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="${siteUrl}/og.svg">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="color-scheme" content="light dark">
 <link rel="stylesheet" href="/styles.css">
 <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt">
@@ -363,6 +364,7 @@ export function build({
   }
   files["llms-full.txt"] = `${full.join("\n").trim()}\n`;
   files["styles.css"] = readFileSync(join(HERE, "styles.css"), "utf8");
+  files["og.svg"] = readFileSync(join(HERE, "og.svg"), "utf8");
   for (const [name, content] of Object.entries(files)) {
     const target = join(outDir, name);
     mkdirSync(dirname(target), { recursive: true });

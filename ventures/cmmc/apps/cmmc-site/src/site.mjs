@@ -11,10 +11,13 @@ export const SHORT_NAME = "Compliance Workspace";
 export const DEFAULT_SITE_URL = "https://marisstella.app/cmmc";
 export const DEFAULT_BASE_PATH = "/cmmc";
 
-/** Sibling product for the same shops (apps/jobshop-site). */
+/**
+ * Sibling product for the same shops. Linked at the catalogue's manufacturing page, which lists it,
+ * until its own site (apps/jobshop-site, PR #19780) is served at /jobshop/.
+ */
 export const JOBSHOP = {
-  name: "Job-shop quoting",
-  url: "https://marisstella.app/jobshop",
+  name: "Job Shop Quote",
+  url: "https://marisstella.app/industries/manufacturing/",
   pitch:
     "Turn an RFQ package (drawings, quantities, material) into a priced quote you check before it goes out.",
 };

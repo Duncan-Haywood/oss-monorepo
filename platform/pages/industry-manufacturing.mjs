@@ -12,8 +12,10 @@
  * Honesty rules this page keeps (tested in industry-manufacturing.test.mjs):
  *   - a product is "in development (early access)" until its app is deployed;
  *     an open one (`appUrl`, Job Shop Quote since jobshop-quote-deploy run
- *     46013246899, 2026-11-27) links to its free plan and says the paid plans
- *     are not on sale yet; no price is shown until checkout is live;
+ *     46013246899, CMMC Workspace since cmmc-deploy run 46022366507, both
+ *     2026-11-27) links to its free plan and says the paid plans are not on
+ *     sale yet; no price is shown until checkout is live; a product whose own
+ *     marketing site this build copied in (`site`, `productSites`) links it;
  *   - no claim of CMMC certification, C3PAO status or DoD endorsement;
  *   - every market fact carries the source `bets.md` cites for it.
  *
@@ -60,11 +62,19 @@ export const PRODUCTS = Object.freeze([
     problems: ['rfq-backlog', 'own-rates'],
     // The free tool whose real still (showcase/capture.mjs) shows under this card.
     still: 'cnc-machining-quote-calculator',
+    appName: 'Job Shop Quote',
   }),
   Object.freeze({
     id: 'cmmc',
     name: 'CMMC Level 1/2 and ISO 9001 workspace',
-    status: 'In development (early access)',
+    status: 'Open: free Level 1 plan',
+    // The deployed app's sign-up (apps/cmmc opens "Create account" at /signup).
+    appUrl: 'https://cmmc.marisstella.app/signup?from=industries/manufacturing',
+    appName: 'CMMC Workspace',
+    // apps/cmmc/src/shared/plans.ts, the free plan; tested against it.
+    freePlan: 'Level 1 (the 15 FAR 52.204-21 safeguards), 1 user, no card',
+    // Its own marketing site, built in at /cmmc/ by cmmc-site.mjs.
+    site: 'cmmc',
     for: 'Small defense and aerospace suppliers that handle contract information for the DoD.',
     does: [
       'Walks through the 110 NIST SP 800-171 controls and records how each one is met.',
@@ -72,7 +82,7 @@ export const PRODUCTS = Object.freeze([
       'Works out the SPRS score your self-assessment supports, with the controls that cost you points.',
       'Keeps ISO 9001 / AS9100 documents (procedures, records, corrective actions) beside the security work.',
     ],
-    note: 'A tool for preparing your own self-assessment and documents. It is not a certification, we are not a C3PAO, and nothing here is endorsed by the Department of Defense. Your assessment is yours to make and sign.',
+    note: 'A tool for preparing your own self-assessment and documents. It is not a certification, we are not a C3PAO, and nothing here is endorsed by the Department of Defense. Your assessment is yours to make and sign. AI drafting of implementation statements is built but not switched on yet.',
     problems: ['cmmc', 'iso'],
   }),
 ]);
@@ -174,9 +184,9 @@ export function esc(value) {
 }
 
 const TITLE = 'Software for machine shops and engineering firms';
-const DESCRIPTION = 'RFQ-to-quote software (free to start) and a CMMC/ISO 9001 workspace in development for CNC and fabrication job shops, plus free tools for shop rates, part costs, nesting and SPC.';
+const DESCRIPTION = 'RFQ-to-quote software and a CMMC/ISO 9001 workspace for CNC and fabrication job shops, both free to start, plus free tools for shop rates, part costs and SPC.';
 
-export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, published = null, footer = '', tail = '', shots = [] } = {}) {
+export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, published = null, footer = '', tail = '', shots = [], productSites = new Set() } = {}) {
   const liveTools = FREE_TOOLS.filter((t) => !published || published.has(t.slug));
   const toRoot = '../../';
   // Real stills of the free tools (showcase/manifest.json via loadShowcase,
@@ -226,7 +236,7 @@ export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, publi
   ${p.note ? `<p class="note">${esc(p.note)}</p>` : ''}
   ${p.still && still.has(p.still) ? figure(still.get(p.still), 'still', true, '(max-width: 52rem) calc(100vw - 66px), 600px') : ''}
   ${p.appUrl
-    ? `<p>Free to use now: ${esc(p.freePlan)}. Paid plans are not on sale yet. <a class="go" href="${esc(p.appUrl)}">Start free in Job Shop Quote</a></p>`
+    ? `<p>Free to use now: ${esc(p.freePlan)}. Paid plans are not on sale yet. <a class="go" href="${esc(p.appUrl)}">Start free in ${esc(p.appName)}</a>${p.site && productSites.has(p.site) ? ` · <a href="${esc(`${toRoot}${p.site}/`)}">Features and pricing</a>` : ''}</p>`
     : `<p>Pricing is not set yet. <a class="go" href="${esc(`${toRoot}${EARLY_ACCESS_HREF}`)}">Ask for early access</a></p>`}
 </section>`).join('\n');
 
