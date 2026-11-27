@@ -39,6 +39,10 @@
     {
       "file": "platform/pages/venture-preflight.mjs",
       "issue": "Failed paid apps moved into ventures/ (payapps, jobshop-quote) on launch date and catalogue placement although the site lists neither; fixed in this PR (P096)."
+    },
+    {
+      "file": "ventures/pay-app-guides",
+      "issue": "A new guide page needs node cta.mjs, node nav.mjs and portfolio/monetization/transition.py --write; PR #19674 merged without them and main went red for every PR touching platform/ or pay-app-guides."
     }
   ],
   "deviations": [
@@ -51,7 +55,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue: 12 alerts, all claimed. Ideas inbox empty. Routed process/2. P095 taken by open PR #19681, so Critique mode on measure's Doc friction by file: venture-preflight.mjs (6 live reports). Fix: unlisted ventures skip launched/placement/build. Verified: venture-preflight.test.mjs 25/25; `venture-preflight.mjs payapps` exit 0 (was 1); main_health 329/329; promptctl validate ok. Backlog ids: P096 (new, done), P095 (seen, owned by #19681).",
+  "notes": "Security queue: 12 alerts, all claimed. Ideas inbox empty. Routed process/2. P095 taken by open PR #19681, so Critique mode on measure's Doc friction by file: venture-preflight.mjs (6 live reports). Fix: unlisted ventures skip launched/placement/build. Verified: venture-preflight.test.mjs 25/25; `venture-preflight.mjs payapps` exit 0 (was 1); main_health 329/329; promptctl validate ok. Backlog ids: P096 (new, done), P095 (seen, owned by #19681). CI on the PR then went red on validate (portfolio/monetization/test_transition.py) and changed-ventures (pay-app-guides page.test.mjs CTA + nav): both red on main too, from PR #19674's Florida page landing without node cta.mjs / node nav.mjs / transition.py --write. Regenerated all three in this PR; pay-app-guides 325/325, portfolio/monetization 54/54.",
   "corrections": [],
   "redteam": null,
   "usage": {
