@@ -4,8 +4,11 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+import { pathToFileURL } from 'node:url';
+
 import {
-  addModulePreloads, injectPreloads, moduleGraph, pageEntries, resolveSpecifier, staticImports,
+  WORKER_FLAT_MARKER, addModulePreloads, flattenWorkerGraphs, injectPreloads, moduleGraph, pageEntries,
+  resolveSpecifier, staticImports, strictStaticImports, workerEntries,
 } from './preload.mjs';
 import { listFiles } from './build.mjs';
 
@@ -132,5 +135,86 @@ test('addModulePreloads gives the same bytes and totals as one page at a time', 
     for (const [file, out] of expected) assert.equal(await fs.readFile(file, 'utf8'), out, file);
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('strictStaticImports skips specifiers in comments and strings', () => {
+  const src = `import { a } from './a.mjs';
+    // import './in-line-comment.mjs';
+    /* import './in-block.mjs';
+       export * from './in-block-too.mjs'; */
+    const url = "https://example.com/x"; import b from "./b.mjs";
+    const s = "import './in-string.mjs'";
+    import {
+      c,
+      d as e,
+    } from './c.mjs';
+    export * from './d.mjs';
+    const lazy = import('./lazy.mjs');`;
+  assert.deepEqual(strictStaticImports(src), ['./a.mjs', './b.mjs', './c.mjs', './d.mjs']);
+});
+
+test('workerEntries finds module workers in the forms pages use, not classic ones', () => {
+  const src = `
+    new Worker("./a-worker.mjs", { type: "module" });
+    new Worker(new URL('./b-worker.mjs', import.meta.url), { type: 'module' });
+    new Worker(new URL("c-worker.mjs", location.href), { type: "module", name: "c" });
+    new Worker("./classic.js");
+    new Worker("https://cdn.example/x.mjs", { type: "module" });
+    new SharedWorker("../d-worker.mjs", { type: "module" });`;
+  assert.deepEqual(workerEntries(src, '/s/t/index.html', '/s'),
+    ['/s/t/a-worker.mjs', '/s/t/b-worker.mjs', '/s/t/c-worker.mjs', '/s/d-worker.mjs']);
+});
+
+test('flattenWorkerGraphs lists a deep worker graph at depth 1 without changing evaluation order', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'worker-flat-'));
+  const orig = await fs.mkdtemp(path.join(os.tmpdir(), 'worker-orig-'));
+  try {
+    // Each module logs when it evaluates, so the order can be compared.
+    const mods = {
+      'deep-worker.mjs': "import './a.mjs'; import { z } from './z.mjs'; (globalThis.order ||= []).push('deep-worker');",
+      'a.mjs': "import './b.mjs'; // import './not-loaded.mjs';\n(globalThis.order ||= []).push('a');",
+      'b.mjs': "import './c.mjs'; import './z.mjs'; (globalThis.order ||= []).push('b');",
+      'c.mjs': "import './a.mjs'; (globalThis.order ||= []).push('c');", // a cycle back to a
+      'z.mjs': "export const z = 1; (globalThis.order ||= []).push('z');",
+      'not-loaded.mjs': "(globalThis.order ||= []).push('not-loaded');",
+      'flat-worker.mjs': "import './z.mjs';",
+    };
+    for (const [name, src] of Object.entries(mods)) {
+      await fs.writeFile(path.join(dir, name), src);
+      await fs.writeFile(path.join(orig, name), src);
+    }
+    await fs.writeFile(path.join(dir, 'index.html'), `<script type="module">
+      const w = new Worker("./deep-worker.mjs", { type: "module" });
+      const f = new Worker("./flat-worker.mjs", { type: "module" });
+      const c = new Worker("./a.mjs");
+    </script>`);
+
+    const r = await flattenWorkerGraphs(dir, { listFiles });
+    assert.deepEqual(r, { workers: 1, imports: 2, deepest: 4 });
+    const flat = await fs.readFile(path.join(dir, 'deep-worker.mjs'), 'utf8');
+    assert.ok(flat.startsWith(mods['deep-worker.mjs']));
+    assert.equal(flat.slice(flat.indexOf(WORKER_FLAT_MARKER)).split('\n').slice(1).filter(Boolean).join('\n'),
+      'import "./b.mjs";\nimport "./c.mjs";');
+    // Shallow and classic workers, and modules no worker names, keep their bytes.
+    for (const name of ['flat-worker.mjs', 'a.mjs', 'b.mjs']) {
+      assert.equal(await fs.readFile(path.join(dir, name), 'utf8'), mods[name], name);
+    }
+
+    const run = async (file) => {
+      globalThis.order = [];
+      await import(pathToFileURL(file).href);
+      return globalThis.order;
+    };
+    const before = await run(path.join(orig, 'deep-worker.mjs'));
+    assert.deepEqual(before, ['c', 'z', 'b', 'a', 'deep-worker']);
+    assert.deepEqual(await run(path.join(dir, 'deep-worker.mjs')), before);
+
+    // A second pass is a no-op.
+    assert.deepEqual(await flattenWorkerGraphs(dir, { listFiles }), { workers: 0, imports: 0, deepest: 0 });
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+    await fs.rm(orig, { recursive: true, force: true });
+    delete globalThis.order;
   }
 });

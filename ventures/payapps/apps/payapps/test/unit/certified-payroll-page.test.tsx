@@ -4,6 +4,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { CaEcprSection } from "../../src/client/components/ca-ecpr-section";
 import { NyCprSection } from "../../src/client/components/ny-cpr-section";
+import { WaCprSection } from "../../src/client/components/wa-cpr-section";
 import { blankWorker, lastSaturday, nextWeek } from "../../src/client/pages/certified-payroll";
 
 describe("certified payroll page helpers", () => {
@@ -251,6 +252,93 @@ describe("certified payroll page helpers", () => {
     expect(screen.getByText(/or the date of birth if none/)).toBeTruthy();
     expect(screen.getByText(/In the file as "Laborer – Building"/)).toBeTruthy();
     rerender(<NyCprSection {...props} ids={{ w1: { dob: "1990-01-31" } }} />);
+    expect(button()).toHaveProperty("disabled", false);
+  });
+
+  it("carries the Washington extras into next week, clears no-work, and never posts them", () => {
+    const w = blankWorker();
+    w.lastName = "Ortiz";
+    w.firstName = "Ana";
+    if (w.rows[0]) w.rows[0].classification = "Journey Level";
+    const wa = {
+      address1: "88 S 9th St",
+      city: "Tacoma",
+      state: "WA",
+      zip: "98402",
+      rows: [{ trade: "ELEC" }],
+    };
+    const next = nextWeek({
+      projectName: "Lincoln Elementary",
+      payrollNo: "4",
+      businessName: "Narrows Electric LLC",
+      businessAddress: "Tacoma",
+      projectLocation: "Pierce County, WA",
+      wageDeterminations: "L&I rates",
+      weekEnding: "2026-08-01",
+      workers: [{ ...w, wa }],
+      wa: { on: true, intentId: "1234567", county: "Pierce", noWork: true },
+    });
+    expect(next.workers[0]?.wa?.rows?.[0]?.trade).toBe("ELEC");
+    expect(next.wa?.intentId).toBe("1234567");
+    expect(next.wa?.noWork).toBe(false);
+    const parsed = certifiedPayrollSchema.parse(next);
+    expect(JSON.stringify(parsed)).not.toContain("88 S 9th");
+    expect(Object.keys(parsed)).not.toContain("wa");
+  });
+
+  it("the Washington section offers the download once the full SSN is typed", () => {
+    const payroll = certifiedPayrollSchema.parse({
+      projectName: "Lincoln Elementary",
+      payrollNo: "4",
+      businessName: "Narrows Electric LLC",
+      businessAddress: "Tacoma",
+      projectLocation: "Pierce County, WA",
+      wageDeterminations: "L&I rates",
+      weekEnding: "2026-08-01",
+      workers: [
+        {
+          lastName: "Ortiz",
+          firstName: "Ana",
+          rows: [
+            {
+              classification: "Journey Level",
+              status: "J",
+              st: [0, 800, 800, 800, 800, 800, 0],
+              ot: [0, 0, 0, 0, 0, 0, 0],
+              stRateCents: 6_512,
+              otRateCents: 9_768,
+            },
+          ],
+        },
+      ],
+    });
+    const worker = {
+      uid: "w1",
+      lastName: "Ortiz",
+      firstName: "Ana",
+      rows: [{ classification: "Journey Level", status: "J" as const }],
+      wa: {
+        address1: "88 S 9th St",
+        city: "Tacoma",
+        state: "WA",
+        zip: "98402",
+        rows: [{ trade: "ELEC" }],
+      },
+    };
+    const props = {
+      job: { on: true, intentId: "1234567", county: "Pierce" },
+      onJob: () => {},
+      workers: [worker],
+      onWorker: () => {},
+      plans: [],
+      payroll,
+      onId: () => {},
+    };
+    const { rerender } = render(<WaCprSection {...props} ids={{}} />);
+    const button = () => screen.getByRole("button", { name: "Download L&I XML" });
+    expect(button()).toHaveProperty("disabled", true);
+    expect(screen.getByText(/requires all 9 digits/)).toBeTruthy();
+    rerender(<WaCprSection {...props} ids={{ w1: { ssn: "123-45-6789" } }} />);
     expect(button()).toHaveProperty("disabled", false);
   });
 });
