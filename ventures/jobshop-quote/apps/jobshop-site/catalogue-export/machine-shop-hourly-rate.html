@@ -58,7 +58,11 @@
     <ol>
       <li><strong>What the machine costs you each year.</strong> Take the installed price, subtract what you
       expect to sell it for, and divide by the years you will run it. Add a year of maintenance, tooling,
-      coolant and power for that machine. If you financed it, the interest belongs here too.</li>
+      coolant and power for that machine. If you financed it, the interest belongs here too. Power is
+      hours run × average draw in kW (well under the nameplate) × your price per kWh; the US average
+      commercial price was 14.27¢ in September 2026
+      (<a class="link" href="https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a" rel="nofollow">EIA Electric Power Monthly, Table 5.6.A</a>,
+      read 2026-11-27), and states differ a lot, so use your own bill.</li>
       <li><strong>Its share of overhead.</strong> Rent, insurance, utilities, the office, the estimator, software
       and everything else that does not belong to one machine, split across your machines. Splitting by
       floor space or by the hours each runs is fairer than an even split when machines differ a lot.</li>
@@ -67,7 +71,9 @@
       remakes and idle time all come out. Your job records are the best source; a guess here moves the
       rate more than any other number.</li>
       <li><strong>The operator.</strong> Wage plus payroll taxes, workers' comp, insurance and benefits gives
-      the cost of a paid hour. The operator is paid for more hours than the machine bills, so spread the
+      the cost of a paid hour. The employer's Social Security and Medicare alone are
+      7.65% of wages (<a class="link" href="https://www.irs.gov/taxtopics/tc751" rel="nofollow">IRS Topic no. 751</a>,
+      read 2026-11-27); your payroll reports give the rest as a percentage. The operator is paid for more hours than the machine bills, so spread the
       whole paid year over the billable hours. One operator tending two machines splits that cost between them.</li>
       <li><strong>Add the profit.</strong> Divide the cost of a billable hour by one minus your margin. A 20%
       margin means dividing by 0.8, which is not the same as adding 20%.</li>
@@ -92,6 +98,21 @@
       <li>Divide by every paid hour instead of billable hours (the common shortcut of about 2,000 hours a
       year) and the cost comes out at $64.40 an hour: $34.68 an hour short, on every hour you bill.</li>
     </ul>
+
+    <h2>Utilization moves the rate most</h2>
+    <p>The same made-up mill and costs, billing more or fewer of the operator's 2,000 paid hours:</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">Only billable hours change; the margin stays 20%.</caption>
+        <thead><tr><th scope="col">Billable hours</th><th scope="col">Utilization</th><th scope="col">Cost an hour</th><th scope="col">Rate at 20% margin</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">1,800</th><td>90%</td><td>$71.56</td><td>$89.44</td></tr><tr><th scope="row">1,600</th><td>80%</td><td>$80.50</td><td>$100.63</td></tr><tr><th scope="row">1,300 (the example)</th><td>65%</td><td>$99.08</td><td>$123.85</td></tr><tr><th scope="row">1,000</th><td>50%</td><td>$128.80</td><td>$161.00</td></tr><tr><th scope="row">800</th><td>40%</td><td>$161.00</td><td>$201.25</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Almost every cost is fixed for the year, so each hour you cannot bill is paid for by the hours you
+    can. A rate set for a busy year loses money in a slow one; set it on the utilization your job records
+    show, and rework it when the backlog changes.</p>
 
     <h2>Mistakes that make a rate too low</h2>
     <ul>

@@ -1,7 +1,14 @@
 // The /machine-shop-hourly-rate guide: its arithmetic, checked by hand, and the page that prints it.
 import { buildSite, fileFor } from "@site/build";
 import type { Launch } from "@site/config";
-import { EXAMPLE, shopRate, usd } from "@site/shop-rate";
+import {
+  EMPLOYER_FICA,
+  EXAMPLE,
+  shopRate,
+  US_COMMERCIAL_POWER_CENTS,
+  UTILISATION_HOURS,
+  usd,
+} from "@site/shop-rate";
 import { describe, expect, it } from "vitest";
 
 const SITE = "https://example.test/jobshop";
@@ -58,5 +65,27 @@ describe("/machine-shop-hourly-rate", () => {
     expect(page).toContain("$123.85");
     expect(page).toContain("Every number here is made up");
     expect(page).toContain("not accounting, tax or financial");
+  });
+  it("shows a utilization table that rises as billable hours fall", () => {
+    const rates = UTILISATION_HOURS.map(
+      (h) => shopRate({ ...EXAMPLE, billableHoursPerYear: h }).costPerBillableHour,
+    );
+    for (let i = 1; i < rates.length; i++) expect(rates[i]).toBeGreaterThan(rates[i - 1] ?? 0);
+    for (const v of rates) expect(page).toContain(usd(v));
+    expect(UTILISATION_HOURS).toContain(EXAMPLE.billableHoursPerYear);
+    expect(page).toContain("(the example)");
+  });
+  it("cites the public figures it quotes, with read dates", () => {
+    for (const f of [EMPLOYER_FICA, US_COMMERCIAL_POWER_CENTS]) {
+      expect(f.read).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(page).toContain(f.url.replace(/&/g, "&amp;"));
+    }
+    expect(page).toContain("7.65%");
+    expect(page).toContain("14.27¢");
+  });
+  it("is linked from how it works", () => {
+    expect(files.get(fileFor("/how-it-works"))).toContain(
+      'href="/jobshop/machine-shop-hourly-rate"',
+    );
   });
 });

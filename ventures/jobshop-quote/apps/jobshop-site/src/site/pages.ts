@@ -15,7 +15,14 @@ import {
 import { ANNUAL_DISCOUNT, EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/plans";
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAME } from "./config";
 import { type Html, html } from "./html";
-import { EXAMPLE, shopRate, usd } from "./shop-rate";
+import {
+  EMPLOYER_FICA,
+  EXAMPLE,
+  shopRate,
+  US_COMMERCIAL_POWER_CENTS,
+  UTILISATION_HOURS,
+  usd,
+} from "./shop-rate";
 
 export interface RenderContext {
   /** "" or a path like "/jobshop": prefixed to every internal link. */
@@ -361,7 +368,8 @@ export function howItWorksPage(ctx: RenderContext): Html {
       body: html`<p>You enter how your shop prices work: each machine or work center and its hourly rate,
       setup charges, material costs or markups, outside processes such as anodizing, plating or heat treat
       with what your vendors charge, minimum order values, quantity breaks and how you round. This rate
-      table is the only place prices come from.</p>
+      table is the only place prices come from. Not sure what an hour on a machine costs you?
+      <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">Work out a machine's hourly rate</a>.</p>
       ${shotFigure(ctx, SHOTS.rateCard, "The rate card: each machine's hourly rate, each material's price, density, scrap and minimum, and the date every price was set. Made-up shop.")}`,
     },
     {
@@ -738,6 +746,11 @@ export function shopRatePage(ctx: RenderContext): Html {
   const tended = shopRate({ ...e, machinesPerOperator: 2 });
   const naive = shopRate({ ...e, billableHoursPerYear: e.paidHoursPerYear });
   const pct = (f: number) => `${Math.round(f * 100)}%`;
+  const pct1 = (f: number) => `${Math.round(f * 10000) / 100}%`;
+  const byHours = UTILISATION_HOURS.map((h) => ({
+    h,
+    r: shopRate({ ...e, billableHoursPerYear: h }),
+  }));
   const rows: [string, string, string][] = [
     [
       "Machine ownership",
@@ -795,7 +808,11 @@ export function shopRatePage(ctx: RenderContext): Html {
     <ol>
       <li><strong>What the machine costs you each year.</strong> Take the installed price, subtract what you
       expect to sell it for, and divide by the years you will run it. Add a year of maintenance, tooling,
-      coolant and power for that machine. If you financed it, the interest belongs here too.</li>
+      coolant and power for that machine. If you financed it, the interest belongs here too. Power is
+      hours run × average draw in kW (well under the nameplate) × your price per kWh; the US average
+      commercial price was ${US_COMMERCIAL_POWER_CENTS.value}¢ in September 2026
+      (<a class="link" href="${US_COMMERCIAL_POWER_CENTS.url}" rel="nofollow">${US_COMMERCIAL_POWER_CENTS.label}</a>,
+      read ${US_COMMERCIAL_POWER_CENTS.read}), and states differ a lot, so use your own bill.</li>
       <li><strong>Its share of overhead.</strong> Rent, insurance, utilities, the office, the estimator, software
       and everything else that does not belong to one machine, split across your machines. Splitting by
       floor space or by the hours each runs is fairer than an even split when machines differ a lot.</li>
@@ -804,7 +821,9 @@ export function shopRatePage(ctx: RenderContext): Html {
       remakes and idle time all come out. Your job records are the best source; a guess here moves the
       rate more than any other number.</li>
       <li><strong>The operator.</strong> Wage plus payroll taxes, workers' comp, insurance and benefits gives
-      the cost of a paid hour. The operator is paid for more hours than the machine bills, so spread the
+      the cost of a paid hour. The employer's Social Security and Medicare alone are
+      ${pct1(EMPLOYER_FICA.value)} of wages (<a class="link" href="${EMPLOYER_FICA.url}" rel="nofollow">${EMPLOYER_FICA.label}</a>,
+      read ${EMPLOYER_FICA.read}); your payroll reports give the rest as a percentage. The operator is paid for more hours than the machine bills, so spread the
       whole paid year over the billable hours. One operator tending two machines splits that cost between them.</li>
       <li><strong>Add the profit.</strong> Divide the cost of a billable hour by one minus your margin. A 20%
       margin means dividing by 0.8, which is not the same as adding 20%.</li>
@@ -829,6 +848,24 @@ export function shopRatePage(ctx: RenderContext): Html {
       <li>Divide by every paid hour instead of billable hours (the common shortcut of about 2,000 hours a
       year) and the cost comes out at ${usd(naive.costPerBillableHour)} an hour: ${usd(r.costPerBillableHour - naive.costPerBillableHour)} an hour short, on every hour you bill.</li>
     </ul>
+
+    <h2>Utilization moves the rate most</h2>
+    <p>The same made-up mill and costs, billing more or fewer of the operator's ${e.paidHoursPerYear.toLocaleString("en-US")} paid hours:</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">Only billable hours change; the margin stays ${pct(e.margin)}.</caption>
+        <thead><tr><th scope="col">Billable hours</th><th scope="col">Utilization</th><th scope="col">Cost an hour</th><th scope="col">Rate at ${pct(e.margin)} margin</th></tr></thead>
+        <tbody>
+          ${byHours.map(
+            ({ h, r: v }) =>
+              html`<tr><th scope="row">${h.toLocaleString("en-US")}${h === e.billableHoursPerYear ? " (the example)" : ""}</th><td>${pct(v.utilisation)}</td><td>${usd(v.costPerBillableHour)}</td><td>${usd(v.rateAtMargin)}</td></tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>Almost every cost is fixed for the year, so each hour you cannot bill is paid for by the hours you
+    can. A rate set for a busy year loses money in a slow one; set it on the utilization your job records
+    show, and rework it when the backlog changes.</p>
 
     <h2>Mistakes that make a rate too low</h2>
     <ul>

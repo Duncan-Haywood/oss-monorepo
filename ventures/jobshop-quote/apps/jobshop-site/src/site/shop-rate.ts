@@ -92,3 +92,30 @@ export function usd(n: number, cents = true): string {
     maximumFractionDigits: cents ? 2 : 0,
   })}`;
 }
+
+/** A public figure the guide quotes, with where and when it was read. */
+export interface CitedFigure {
+  value: number;
+  label: string;
+  url: string;
+  read: string;
+}
+
+/** Employer Social Security (6.2%) + Medicare (1.45%): the floor of any labor burden. */
+export const EMPLOYER_FICA: CitedFigure = {
+  value: 0.0765,
+  label: "IRS Topic no. 751",
+  url: "https://www.irs.gov/taxtopics/tc751",
+  read: "2026-11-27",
+};
+
+/** US average commercial electricity price, cents per kWh, September 2026 (preliminary). */
+export const US_COMMERCIAL_POWER_CENTS: CitedFigure = {
+  value: 14.27,
+  label: "EIA Electric Power Monthly, Table 5.6.A",
+  url: "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a",
+  read: "2026-11-27",
+};
+
+/** Billable hours (out of the example's 2,000 paid) for the utilization table on the page. */
+export const UTILISATION_HOURS: readonly number[] = [1_800, 1_600, 1_300, 1_000, 800];
