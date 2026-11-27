@@ -77,6 +77,7 @@ on:
       - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
       - "portfolio/usage/**"
+      - "portfolio/monetization/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -119,6 +120,7 @@ on:
       - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
       - "portfolio/usage/**"
+      - "portfolio/monetization/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -182,6 +184,16 @@ jobs:
 
       - name: Validate VENTURE.yaml schema
         run: python3 portfolio/router/validate.py
+
+      # verticals.json maps every venture to a vertical and the paid bet it
+      # feeds. A venture added or moved without `verticals.py --write` left
+      # main red here (jobshop-quote's move, 2026-11-27) because no PR
+      # workflow ran this suite; a new VENTURE.yaml already triggers this job.
+      # The rest of portfolio/monetization's suites (go-live, relicensing,
+      # transition) were unwired too; all of them take about 2 s.
+      - name: Monetization suites (verticals.json is current, go-live, relicensing)
+        working-directory: portfolio/monetization
+        run: python3 -m pytest -q
 
       - name: IndexNow submitter tests
         run: node --test "platform/marketing/*.test.mjs"
