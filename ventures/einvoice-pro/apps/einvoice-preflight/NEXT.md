@@ -30,8 +30,9 @@
 
 [`portfolio/quality/audits/2026-11-19-einvoice-preflight.json`](../../../../portfolio/quality/audits/2026-11-19-einvoice-preflight.json). The large-amount rounding defect is fixed (PR #17724); open:
 
-- BR-CO-17: a VAT subtotal 0.01 off taxable x rate is a blocking INV-038/INV-018 here, while CEN's Schematron accepts it within one unit (151 of 600 random invoices). Downgrade to a warning or match CEN, and say so on the page.
+- BR-CO-17: done 2026-11-27 (ROADMAP, br-co-17-rounding-tolerance).
 - The page and the Python CLI do not run the same rules (Norway and Switzerland VAT, profiles, PDF checks are JS only; fix texts differ), though `checks.mjs` and the page say they do. Fourth audit to report it.
-- CI runs `node --test` without slimdom and fontoxpath, so the 139 tests of the official route are skipped there.
-- No test has a remainder-10 Bulgarian or Czech VAT number.
+- CI skipping the official route: done 2026-11-27 (`einvoice-pro-ci.yml` installs slimdom and fontoxpath).
+- Remainder-10 Bulgarian and Czech VAT numbers: tested 2026-11-27 (`vat.test.mjs`).
+- Free-tree fixes not yet in this copy: docs/reports/2026-11-27-einvoice-free-paid-drift.md, "What is still open".
 - The cent-rounding idiom is copied in seven files; one integer-cents helper would remove the class of bug.

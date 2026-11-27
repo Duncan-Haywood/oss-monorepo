@@ -59,13 +59,14 @@ export function repairCii(source) {
   }
   const lines = [];
   let computable = lineBlocks.length > 0;
+  let notNumber = null;
   lineBlocks.forEach((b, i) => {
     const inner = b[3];
     const kept = num(firstChild(inner, "LineTotalAmount")?.value);
     if (new RegExp(`<${P}(?:SpecifiedTradeAllowanceCharge|AppliedTradeAllowanceCharge)[\\s>]`).test(inner) || new RegExp(`<${P}IncludedSubordinateTradeLineItem[\\s>]`).test(inner)) {
       skipped.push(`Line ${i + 1} has its own allowance, charge or sub-line; its total is left as written.`);
       lines.push({ net: kept, fixed: false, inner });
-      if (kept === null) computable = false;
+      if (kept === null || Number.isNaN(kept)) computable = false;
       return;
     }
     const price = firstChild(inner, "NetPriceProductTradePrice");
@@ -73,11 +74,17 @@ export function repairCii(source) {
     const p = num(firstChild(priceBlock, "ChargeAmount")?.value);
     const base = num(firstChild(priceBlock, "BasisQuantity")?.value) ?? 1;
     const q = num(firstChild(inner, "BilledQuantity")?.value);
+    // "1,5" or "120,00" (a decimal comma, as a German seller may type it) is not an XML
+    // decimal; it crashed the repair with a TypeError before 2026-11-26 (red-team run).
+    if ([q, p, base].some((v) => Number.isNaN(v))) {
+      if (!notNumber) notNumber = `Line ${i + 1}'s quantity, net price or base quantity is not a plain number (XML decimals use a dot, as in 1.5); nothing was recomputed.`;
+      computable = false; lines.push({ net: null, fixed: false, inner }); return;
+    }
     if (!price || q === null || p === null || !(base > 0)) { computable = false; lines.push({ net: null, fixed: false, inner }); return; }
     lines.push({ net: roundHalfUpToCents((q * p) / base), written: kept, fixed: true, inner });
   });
   if (!computable) {
-    skipped.push("Some line has no quantity or net price to compute from; nothing was recomputed.");
+    skipped.push(notNumber || "Some line has no quantity or net price to compute from; nothing was recomputed.");
     return unchanged();
   }
 
@@ -246,7 +253,8 @@ export function repairCii(source) {
         const block = [...xml.matchAll(tagRe("SpecifiedTradeSettlementHeaderMonetarySummation"))][0][3];
         const pre = num(firstChild(block, "TotalPrepaidAmount")?.value) ?? 0;
         const rnd = num(firstChild(block, "RoundingAmount")?.value) ?? 0;
-        sm("DuePayableAmount", fmt(roundHalfUpToCents(gross - pre + rnd)), "/totals/due", "Amount due is gross minus prepaid plus rounding.");
+        if (Number.isNaN(pre) || Number.isNaN(rnd)) skipped.push("The amount due was not recomputed: TotalPrepaidAmount or RoundingAmount is not a plain number (XML decimals use a dot).");
+        else sm("DuePayableAmount", fmt(roundHalfUpToCents(gross - pre + rnd)), "/totals/due", "Amount due is gross minus prepaid plus rounding.");
       }
     }
   }
