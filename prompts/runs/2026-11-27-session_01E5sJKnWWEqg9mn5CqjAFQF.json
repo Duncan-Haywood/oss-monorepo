@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKnWWEqg9mn5CqjAFQF",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T11:10:08Z",
+  "ended": "2026-11-27T11:35:58Z",
+  "wall_minutes": 26.37,
+  "tokens_in": 6508922,
+  "tokens_out": 27198,
+  "cost_usd": 2.7261,
+  "tool_calls": 70,
+  "task": "perf: Portfolio validate checkout without audio/video (tried, measured, reverted)",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19723",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 2 says take the largest pool consumer; for checkout-heavy jobs it does not say that bytes are not the cost (file count and server pack build are), which earlier sparse passes knew implicitly. Cost this run one real-runner experiment."
+    },
+    {
+      "file": "platform/ci/check_venture_regression.py",
+      "issue": "_read_at_ref returns None on any git show failure, so a failed lazy fetch in a blob:none clone would read the base's launched list as empty and pass vacuously. Not changed (no blob:none checkout landed), noted for whoever narrows this job's checkout."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "The change did not speed anything up on a real runner (checkout 54 s vs 47 s median before, within noise), so per 'same answers, faster' it is not a speed-up and was reverted.",
+      "did": "Landed only the negative-result write-up with a ranked next-step list; no workflow change, no post (a non-result is not reader-interesting).",
+      "result": "Next perf run is steered to cone-mode narrowing by file count instead of repeating the media exclusion."
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-27-validate-media-sparse.md"
+  ],
+  "goal": null,
+  "notes": "Metric: Portfolio validate checkout seconds on GitHub runners. Before: median 47 s over 11 jobs (37-156), from ci_profile.py --runs 300 --save step timings. After (one sample, PR #19723 run 45990702206 with blob:none + sparse !*.mp3 !*.mp4): 54 s, job 222 s vs median 228 s. Local (this container, depth-1 fetch of one SHA + checkout): .git 1.2 GB -> 628 MB, wall 73.8 s -> 73.6 s. Local checkout from pack alone: 23.8 s for 83.8k files. Equivalence: run_workflow_locally.py portfolio-validate.yml 107/107 both states; stdout of 33 tree checks + venture regression byte-identical. Change reverted; only the write-up and this record land. Security queue empty (security_next exit 3); ideas inbox empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "78c64f85-ceb9-5ceb-82eb-87e3b9140dfe",
+    "transcripts": 1,
+    "first": "2026-11-27T11:10:08Z",
+    "last": "2026-11-27T11:36:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 124,
+        "output": 27198,
+        "thinking": 7938,
+        "cache_read": 6395998,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112800,
+        "api_equivalent_usd": 2.7261,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 124,
+      "output": 27198,
+      "thinking": 7938,
+      "cache_read": 6395998,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112800,
+      "api_equivalent_usd": 2.7261,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 64,
+      "mcp__github__actions_list": 2,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.37,
+      "active_minutes": 26.37,
+      "model_minutes": 6.86,
+      "tool_minutes": 19.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile CI pool, two local workflow runs, two clone experiments, one runner sample, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 110.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
