@@ -7,7 +7,11 @@
 # ventures/jobshop-quote/apps/jobshop-quote/docs/DEPLOY.md; why it lives here:
 # ventures/jobshop-quote/DEPLOY.md.
 #
-# Manual only (workflow_dispatch), from main only. Before its first run, the launch review
+# Runs on every merge to main that touches the venture (push, paths below) and by hand
+# (workflow_dispatch), from main only. The push trigger was added 2026-11-27 after two good manual
+# runs (46013246899, 46018975911): merges such as PR #19778 were reaching main but not the live app
+# until someone dispatched it. Markdown-only changes (ROADMAP, docs) do not deploy, and a push run
+# always runs the full checks (skip_checks is a dispatch input). Before its first run, the launch review
 # ventures/jobshop-quote/docs/legal/OPERATOR.md asks for (margins at full allowance, every legal page
 # read against the product) is recorded in apps/jobshop-quote/docs/LAUNCH-REVIEW.md. Paid plans stay
 # dark: checkout turns on only when the owner sets JOBSHOP_BILLING_PROVIDER=paddle and the two Paddle
@@ -15,13 +19,18 @@
 # until the owner sets the app's own JOBSHOP_ANTHROPIC_API_KEY: unlike the private workflow, this one
 # does not fall back to the shared ANTHROPIC_API_KEY, so no LLM spend starts without that choice. The
 # plan ceilings and GLOBAL_DAILY_LLM_CAP_USD in wrangler.jsonc bound the spend once it does.
-# After a first good run, a separate PR may add `push: branches: [main]` with a paths filter.
 #
 # Hardening, as in priv-payapps-deploy.yml: actions pinned by SHA, checkout without persisted
 # credentials and sparse to the venture, a job-level guard that refuses any ref but main, secrets used
 # exactly as stored, and Cloudflare credentials exported only after install, tests and build.
 name: jobshop-quote-deploy
 on:
+  push:
+    branches: [main]
+    paths:
+      - "ventures/jobshop-quote/**"
+      - "!ventures/jobshop-quote/**/*.md"
+      - ".github/workflows/priv-jobshop-quote-deploy.yml"
   workflow_dispatch:
     inputs:
       skip_checks:

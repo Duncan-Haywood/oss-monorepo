@@ -8,10 +8,12 @@ quote expiry and Cloudflare Email Service for account and quote mail. The workfl
 does the whole deploy; there are no dashboard steps beyond the settings below. It is a port of
 payapps' deploy (`apps/payapps/docs/DEPLOY.md`), with the differences listed at the end.
 
-**It runs by hand only** (Actions -> jobshop-quote-deploy -> Run workflow, from `main`), so a merge never puts the
-app in front of strangers before the items in "Before strangers sign up" are done. After launch, add
-`push: branches: [main]` to the workflow so every merge ships. To gate each run, add required
-reviewers to the `jobshop-quote-production` environment (Settings -> Environments).
+**It runs on every merge to `main` that touches `ventures/jobshop-quote/`** (Markdown-only changes
+excepted) and by hand (Actions -> jobshop-quote-deploy -> Run workflow, from `main`). It was manual
+only until two good runs (46013246899, 46018975911, 2026-11-27) put the app live; the push trigger
+was added the same day, as payapps' deploy has, so merged fixes reach the live app without a dispatch.
+A push run always runs the full checks. To gate each run, add required reviewers to the
+`jobshop-quote-production` environment (Settings -> Environments).
 
 ## What a run does
 

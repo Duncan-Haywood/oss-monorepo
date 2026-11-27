@@ -709,14 +709,14 @@ links to `/sign-up`, and `platform/ci/live_funnel_check.mjs` checks the pair. No
 ## Next
 
 3. **launch** (first deploy done 2026-11-27, run 46013246899; on `jobshop-quote.marisstella.app` since run
-   46018975911; still open: `push: branches: [main]` with a paths filter, as payapps-deploy) Operator and contact email are filled in and launch is agent-approved
+   46018975911; `push: branches: [main]` with a paths filter, as payapps-deploy, done 2026-11-27,
+   jobshop-quote-deploy-on-merge, so every merge that touches `ventures/jobshop-quote/` ships) Operator and contact email are filled in and launch is agent-approved
    (`docs/legal/OPERATOR.md`, 2026-11-26); the deploy workflow is ported to oss-monorepo
    (`.github/workflows/priv-jobshop-quote-deploy.yml`, 2026-11-27, manual and main-only; its first run
    has its launch review, `docs/LAUNCH-REVIEW.md`, 2026-11-27; R2 no longer blocks it, since without the
    bucket files are kept in D1's `file_blobs`, `src/worker/ports/file-store.ts`, 2026-11-27, and on a
    free D1 that is 500 MB per database, so add R2 edit to the token before shops fill it); run `jobshop-quote-deploy` once, onboard the sender domain,
-   pick `JOBSHOP_DOMAIN`, and add `push: branches: [main]` (docs/DEPLOY.md, "Before strangers sign
-   up"). Inbound RFQs: set `JOBSHOP_INBOUND_EMAIL=on` and `CLOUDFLARE_EMAIL_ROUTING_TOKEN` (item 8).
+   pick `JOBSHOP_DOMAIN` (docs/DEPLOY.md, "Before strangers sign up"). Inbound RFQs: set `JOBSHOP_INBOUND_EMAIL=on` and `CLOUDFLARE_EMAIL_ROUTING_TOKEN` (item 8).
 4. Billing, part 4 (the RFQ page's 80%/100% banner for every member done 2026-11-25; the deploy
    workflow's Paddle catalog sync was already in `jobshop-quote-deploy.yml`; the "you are at 100%"
    note on the New RFQ form itself done 2026-11-26; the per-RFQ "this package needs N reads and M
