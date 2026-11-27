@@ -28,6 +28,35 @@ class ScanText(unittest.TestCase):
                       'PROPERTY_TYPES.hasOwnProperty(input.propertyType) && PROPERTY_TYPES[input.propertyType]'):
             self.assertEqual(ik.scan_text(MAP + f'const t = {guard};\n'), [], guard)
 
+    def test_the_fast_search_finds_what_the_plain_patterns_find(self):
+        # scan_text searches with str.find and a `const`-first pattern
+        # (perf 2026-11-27); MAP_DECL and LOOKUP are the definition.
+        def plain(text):
+            maps = set(ik.MAP_DECL.findall(text))
+            lines = text.split("\n")
+            out = []
+            for m in ik.LOOKUP.finditer(text) if maps else ():
+                n = text.count("\n", 0, m.start()) + 1
+                if m.group(1) in maps and f"Object.hasOwn({m.group(1)}" not in lines[n - 1] \
+                        and "hasOwnProperty" not in lines[n - 1]:
+                    out.append((n, m.group(0)))
+            return out
+        texts = [
+            'const FOO = {};\nXFOO[a.b] FOO_X[a.b] $FOO[a.b] FOO[a.b] aFOO[c.d] FOOx[a.b] BAR[FOO.x]'
+            ' FOO[FOO.y]\nconst FOO_X = {}; FOO_X[q.r] FOO[ a.b] FOO[a.b.c] FOO[a.b]',
+            'const AB = {}\nconst ABC = {}\nABC[x.y] AB[x.y] ABCD[x.y] _AB[x.y] 1AB[x.y] \u00e9AB[x.y]',
+            '  const IND = {};\nIND[a.b]\nxexport const XE = {};\nXE[a.b]\nfooconst FC = {};\nFC[a.b]',
+            'export\n  const EX = {};\nEX[a.b]\nexport const E2 = {};E2[c.d]\n',
+            'export\tconst T = Object.freeze( {});\r\nT[a.b]\n\texport const NO = {};\nNO[a.b]',
+            'exportconst EC = {};\nEC[a.b]\n',
+            'const A = {}; const B = {};\nconst C = 1;\nA[x.y]B[z.w]C[q.r]',
+        ]
+        for path in ik.engine_files("shed-designer")[:40]:
+            texts.append(path.read_text(encoding="utf-8"))
+        for text in texts:
+            self.assertEqual(ik.scan_text(text), plain(text), text[:80])
+            self.assertEqual(ik._map_names(text), set(ik.MAP_DECL.findall(text)), text[:80])
+
     def test_a_guard_for_another_map_does_not_excuse_this_one(self):
         text = MAP + 'const OTHER = { a: 1 };\nconst t = Object.hasOwn(OTHER, k) && PROPERTY_TYPES[input.propertyType];\n'
         self.assertEqual(len(ik.scan_text(text)), 1)
