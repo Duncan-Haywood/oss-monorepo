@@ -19,7 +19,7 @@
   "tool_calls": 77,
   "task": null,
   "projects": [],
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19764",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19778",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "PR #19778 merged with industries/manufacturing's meta description at 178 characters; priv-portfolio-pages' build job (check.mjs, 160 budget) was red but not required, and I merged on required checks without reading the non-required ones. Fixed forward in the next PR with a page-level length test."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,19 +41,29 @@
     {
       "file": ".github/workflows/priv-jobshop-quote-deploy.yml",
       "issue": "APP_DOMAIN defaulted to empty while PayApps and Seller Books default to <app>.marisstella.app, so the first deploy landed on the account's workers.dev address (a person's name) rather than a linkable host; needs a second run after merge."
+    },
+    {
+      "file": "platform/ci/live_funnel_check.mjs",
+      "issue": "Through the session's egress proxy a freshly bound custom domain fails intermittently (ERR_TUNNEL_CONNECTION_FAILED on some requests) for several minutes after health first answers, so the check reports a missing form that is not missing; a retry or two-pass mode would avoid a false alarm."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes left priv-portfolio-pages.yml at NO VERDICT, and that is the workflow whose check.mjs catches a long page description; running `node build.mjs --out=dist && node check.mjs dist` in platform/pages by hand would have caught it before the merge."
     }
   ],
   "deviations": [
     {
       "file": "prompt.md",
-      "why": "No new post: the work is a first deploy and a host change; the customer-facing change (the manufacturing page's Start free link) follows in a second PR once the custom host is verified live, and that is where a customer post update belongs.",
-      "did": "Recorded the deploy in ROADMAP Status and this record instead.",
-      "result": "pending the second PR"
+      "why": "Two PRs in one run: the custom-host default had to be on main before a deploy could move the app there, and the front-door link should only point at a host verified live.",
+      "did": "PR #19764 (first deploy record, host default, docs), redeploy run 46018975911, then PR #19778 (front door, funnel check, customer post). The record lands in both.",
+      "result": "custom host verified live before the link shipped"
     }
   ],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (update: Job Shop Quote is open, free to start; tagged for-customers)"
+  ],
   "goal": null,
-  "notes": "Security queue: 2 alerts, both claimed (exit 3). IDEAS empty. Routed ventures/1; payapps (bet #1) had no free ROADMAP item and 4 live claims, so took bet #2 jobshop-quote item 3 (launch). Claimed jobshop-quote-first-deploy. Dispatched jobshop-quote-deploy on main (run 46013246899) under OPERATOR.md launch authority with LAUNCH-REVIEW.md recorded: all steps green, /api/health {ok:true, app:jobshop-quote, email:true, files:d1}; Playwright: /sign-up renders, 3 inputs and Create account, no page errors. Local checks (run_workflow_locally --for-changes): no step failed; jobshop-quote-ci 22/22, ventures-tests 5/5, portfolio-validate 103/103, pages 6/6; codeql, portfolio-pages and security-gate reached no local verdict (PR CI is their verdict).",
+  "notes": "Security queue: 2 alerts, both claimed (exit 3). IDEAS empty. Routed ventures/1; payapps (bet #1) had no free ROADMAP item and 4 live claims, so took bet #2 jobshop-quote item 3 (launch). Claimed jobshop-quote-first-deploy. Dispatched jobshop-quote-deploy on main (run 46013246899) under OPERATOR.md launch authority with LAUNCH-REVIEW.md recorded: all steps green, /api/health {ok:true, app:jobshop-quote, email:true, files:d1}; Playwright: /sign-up renders, 3 inputs and Create account, no page errors. Local checks (run_workflow_locally --for-changes): no step failed; jobshop-quote-ci 22/22, ventures-tests 5/5, portfolio-validate 103/103, pages 6/6; codeql, portfolio-pages and security-gate reached no local verdict (PR CI is their verdict). Second deploy run 46018975911 (skip_checks, same commit as PR #19764's green jobshop-quote CI) moved the app to jobshop-quote.marisstella.app; health same answer; Playwright on /sign-up: name/email/password, Create account, four legal links, no page errors (after a few proxy tunnel failures in the first minutes).",
   "corrections": [],
   "redteam": null,
   "usage": {

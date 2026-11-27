@@ -2,8 +2,8 @@
 title: "One page for machine shops: quoting, CMMC and the free tools already here"
 seo_title: "Software for CNC job shops: quoting, CMMC, ISO 9001"
 date: 2026-11-24
-tags: [manufacturing, machine-shops, cmmc, quoting, iso-9001]
-description: "Eight free tools for CNC and fabrication shops were scattered across categories. One page now maps them, and two products in development, to four shop problems."
+tags: [manufacturing, machine-shops, cmmc, quoting, iso-9001, for-customers]
+description: "Quoting software (Job Shop Quote, free to start), a CMMC workspace in development and free tools for CNC shops, mapped to four shop problems."
 ---
 
 A CNC or fabrication job shop has a short list of problems that cost it money
@@ -917,3 +917,28 @@ and those are entered in different places.
 What it does not do: it does not learn the figure from the shop's own jobs.
 The figure is whatever the shop types, and the free guide says to take it
 from your history on similar parts, not from a rule of thumb.
+
+## Update, 27 November 2026: Job Shop Quote is open, free to start
+
+Every update above calls the RFQ-to-quote app "not yet on sale". It now has
+a name and an address: **Job Shop Quote**, at
+[jobshop-quote.marisstella.app](https://jobshop-quote.marisstella.app/sign-up?from=docs/posts/machine-shops).
+A shop can sign up today on the free **Early access** plan: 40 RFQs a month
+and 3 users, no card. That is enough to put a month of real RFQs through it:
+the rate card from your spreadsheet, routings per part family, quote PDFs and
+revisions, the quote email and the customer's one-click acceptance, the
+traveler, and the won/lost report. The
+[manufacturing page](https://marisstella.app/industries/manufacturing/) now
+links there instead of to the early-access form.
+
+What is not switched on yet, so you know before you sign up:
+
+- **"Extract with AI" is off.** You enter the part details on the quote
+  form yourself, with the drawings beside them. The AI reading of an RFQ comes
+  on once its spending cap is set.
+- **RFQs by email are off.** Each shop's own inbound address waits on the
+  email routing being set up; upload the drawings instead.
+- **The paid plans are not on sale.** Nothing asks for a card.
+
+The CMMC and ISO 9001 workspace is still in development and still on the
+early-access form.
