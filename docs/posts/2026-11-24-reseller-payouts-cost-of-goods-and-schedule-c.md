@@ -853,8 +853,9 @@ $700 in box 1a is entered at the top of Schedule 1 and the $300 loss goes
 nowhere. Returns for 2022 to 2024 used two offsetting lines, 8z and 24z,
 instead, so check the instructions for the year you file.
 
-The new page, [personal items, a hobby or a
-business](https://marisstella.app/seller-books/personal-items-or-business),
+A new page on the Seller Books marketing site, "Sold your own things?
+Personal items or a business" (`/seller-books/personal-items-or-business`,
+live once the site is served at marisstella.app, which is in progress),
 lays this out with the IRS's hobby-or-business factors and links to each IRS
 page. It also says plainly who does not need Seller Books: someone who only
 cleared out a closet at a loss needs a note of what they sold, not

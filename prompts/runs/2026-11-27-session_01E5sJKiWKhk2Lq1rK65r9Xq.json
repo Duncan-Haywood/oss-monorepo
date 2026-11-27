@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "Site test capped titles at 70 chars including ' \u00b7 Seller Books'; first two titles failed, fixed.",
-    "biome not installed in the clone; ran npx @biomejs/biome@2.6.8."
+    "biome not installed in the clone; ran npx @biomejs/biome@2.6.8.",
+    "priv-portfolio-pages build: dead link from the post to marisstella.app/seller-books/personal-items-or-business, because the seller-books marketing site is not served yet (DEPLOY.md: 404); the post now names the path without linking."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,6 +43,10 @@
     {
       "file": "portfolio/monetization/bets.md",
       "issue": "Every bet's Next list in this clone is gated (waits on demand/owner/source); the router gives no pointer to distribution work, which is what the north star's 'then traffic' step needs when product work is gated."
+    },
+    {
+      "file": "ventures/seller-books/apps/seller-books-site/README.md",
+      "issue": "Nothing near the page list says the site is not served yet; only ventures/seller-books/DEPLOY.md does, so a post linking a site page fails the catalogue's dead-link check."
     }
   ],
   "deviations": [
