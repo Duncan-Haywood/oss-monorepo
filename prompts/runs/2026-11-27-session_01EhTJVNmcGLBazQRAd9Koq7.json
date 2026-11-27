@@ -32,7 +32,8 @@
   "errors": [
     "a scanner-test fixture with an AWS-key-shaped literal tripped risk_review's secret check; replaced with a key built at run time",
     "the first scanner install died silently when backgrounded with '&' inside a foreground Bash call; rerunning with run_in_background worked",
-    "checkov 3.4.3's lock (numpy==2.5.4) does not install on this container's Python, so the local full-repo reading covers gitleaks and semgrep only"
+    "checkov 3.4.3's lock (numpy==2.5.4) does not install on this container's Python, so the local full-repo reading covers gitleaks and semgrep only",
+    "CI validate failed on publish_surface.py --check (new workflow not in publish-surface.yaml); fixed with --write, classification 'none'"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -51,6 +52,10 @@
     {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "--for-changes takes the base as a positional value; I guessed --base first (exit 2)"
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes reported portfolio-validate's publish_surface step as passing locally, but CI failed it for the new workflow; the local run missed it"
     }
   ],
   "deviations": [
