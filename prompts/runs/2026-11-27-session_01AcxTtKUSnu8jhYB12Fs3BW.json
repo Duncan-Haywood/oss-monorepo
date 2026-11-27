@@ -34,7 +34,9 @@
   "review_findings": null,
   "tests_added": 12,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "full platform/pages suite: 1 of 2171 failed (build.test.mjs 'the sponsor ask is optional': the hub's no-paywall guard matched 'paid plans' in PayApps' new plan sentence); reworded to 'the larger plans', then build/business/products/home tests 369 pass 0 fail"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -70,7 +72,7 @@
     "ventures/seller-books/DEPLOY.md (sign-ups open section)"
   ],
   "goal": "bet #5 toward a first sign-up: the live free seller pages and catalogue pages now link to the open Free plan instead of saying 'in development'",
-  "notes": "Security queue empty (security_next exit 3); IDEAS and requests empty; routed ventures/1 by draw. Verified seller-books.marisstella.app/api/health ok with email true and /signup 200 before switching. Venture tests: 11 suites 0 failed (reseller-books 107, ebay-fee-calculator 524). platform/pages touched suites: 106 pass 0 fail; full pages suite result in the PR body/CI. Copy claims checked against apps/seller-books README, docs/BILLING.md and src/shared/plans.ts; problem lines the README does not confirm (payout reconciliation, profit withheld until costed) stay 'will'.",
+  "notes": "Security queue empty (security_next exit 3); IDEAS and requests empty; routed ventures/1 by draw. Verified seller-books.marisstella.app/api/health ok with email true and /signup 200 before switching. Venture tests: 11 suites 0 failed (reseller-books 107, ebay-fee-calculator 524). platform/pages touched suites: 106 pass 0 fail; full pages suite 2170/2171 before the fix above, then the affected files 369/369. Copy claims checked against apps/seller-books README, docs/BILLING.md and src/shared/plans.ts; problem lines the README does not confirm (payout reconciliation, profit withheld until costed) stay 'will'.",
   "corrections": [],
   "redteam": null,
   "usage": {

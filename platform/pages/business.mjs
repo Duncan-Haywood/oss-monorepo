@@ -14,7 +14,8 @@
 //     On 2026-11-24 that was Grant Autopilot alone (served at /grants/ by the
 //     site Worker). On 2026-11-27 PayApps (payapps-deploy run 45949861746)
 //     and Seller Books (seller-books-deploy run 45973427499) opened sign-ups
-//     on their Free plans; their paid plans are dark, which `plan` says. Everything else is 'early-access' (software being built,
+//     on their Free plans; their paid plans are dark, which `plan` says.
+//     Everything else is 'early-access' (software being built,
 //     the free tools beside it are live) or 'long-term' (hardware designs;
 //     nothing has been physically built).
 //   * Problems are the customer's jobs in plain words. No percentages, no
@@ -259,8 +260,9 @@ export const PRODUCT_LINES = Object.freeze([
     product: 'Pay applications, retainage, lien waivers and change orders in one place, growing into a suite for running the whole job.',
     status: 'live',
     href: 'https://payapps.marisstella.app/?signup&from=products',
-    // apps/payapps/src/shared/plans.ts; the same words as ventures/pay-app-guides/cta.mjs.
-    plan: 'Free on one job, no card: pay applications with retainage and change orders. Lien waivers, QuickBooks and job costing are in the paid plans, which are not on sale yet.',
+    // apps/payapps/src/shared/plans.ts (cta.mjs says the same). The home page's no-paywall guard
+    // (build.test.mjs) refuses "paid plan", so the larger plans are named that way.
+    plan: 'Free on one job, no card: pay applications with retainage and change orders. Lien waivers, QuickBooks and job costing come with the larger plans, which are not on sale yet.',
     industry: 'construction',
     kind: 'software',
     tools: ['pay-application-generator', 'retainage-cashflow-calculator', 'lien-waiver-checker', 'mechanics-lien-deadline-calculator'],
