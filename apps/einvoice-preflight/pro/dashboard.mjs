@@ -244,5 +244,5 @@ export function dashboardCsv(d, lang) {
     c.passRate === null ? "" : Math.round(c.passRate * 1000) / 10,
     c.topRules.map((r) => `${r.rule} (${r.files})`).join(", "),
   ]);
-  return `﻿${[head, ...rows].map((r) => r.map(csvCell).join(",")).join("\r\n")}\r\n`;
+  return `\ufeff${[head, ...rows].map((r) => r.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }

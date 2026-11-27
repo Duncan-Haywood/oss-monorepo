@@ -1,6 +1,6 @@
 # PR checks for apps/einvoice-site (the E-invoice fix-and-explain marketing site: zero-dependency
 # static site + worker; moved from the private repository, task products-to-public-repo).
-# Read-only, no secrets.
+# Read-only; reads no secret values.
 name: einvoice-site-ci
 on:
   pull_request:

@@ -2,7 +2,7 @@
 # einvoice-preflight-ci.yml) (E-invoice fix-and-explain, bet #3; moved from the private
 # repository, task products-to-public-repo). The imported checker's suite and the paid layer (pro/).
 # No npm dependencies, so no install step: pro/ imports packages/billing's and
-# packages/admin-metrics' TypeScript through Node 22's type stripping. Read-only, no secrets.
+# packages/admin-metrics' TypeScript through Node 22's type stripping. Read-only; reads no secret values.
 name: einvoice-pro-ci
 on:
   pull_request:
