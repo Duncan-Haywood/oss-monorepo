@@ -1366,6 +1366,11 @@ def _index_hit(path: str) -> tuple[str, str] | None:
         return hit
     full = ROOT.parent / path
     if _WILDCARDS.search(path):
+        # With several shallow roots (a PR merge checkout), which root git dates a glob by depends
+        # on whether the merge matches the base for every file under it; a PR that adds a run
+        # record under prompts/runs/ sends git to the PR side (P096). Globs are few: git answers.
+        if len(_shallow_boundary()) > 1:
+            return None
         return _glob_hit(path) or _NO_COMMIT
     if full.is_dir():
         return _dir_hit(path)
