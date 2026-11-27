@@ -103,3 +103,43 @@ test("California cites a separate section per kind", () => {
     "Cal. Civ. Code § 8138",
   ]);
 });
+
+/**
+ * The official link must open the section the citation names: a user who follows it to check the
+ * form should land on that statute, not a neighbour (a typo in California's per-kind links, 8133
+ * for 8132, passed every other test; redteam 2026-11-27). Every number in the cited section must
+ * appear in the URL. Sources that are a whole act or title rather than one section are exempt.
+ */
+const WHOLE_DOCUMENT_SOURCES: Record<string, string> = {
+  GA: "the Act as passed (SB 315); the Code itself is published only through LexisNexis",
+  MS: "the bill as sent to the Governor (SB 2622, 2014)",
+  WY: "the whole of Title 29 as one PDF",
+};
+
+const numbersIn = (s: string) => (s.match(/\d+/g) ?? []).map((n) => String(Number(n)));
+
+test("each official link names the section its citation cites", () => {
+  for (const s of STATUTORY_STATES) {
+    if (s.state in WHOLE_DOCUMENT_SOURCES) continue;
+    for (const kind of WAIVER_KINDS) {
+      const url = s.officialUrls[kind];
+      if (!url) continue;
+      const section = (s.citations[kind].split("§")[1] ?? "").replace(/\(.*$/, "");
+      const want = numbersIn(section);
+      assert.ok(want.length > 0, `${s.state} ${kind}: no section number in "${s.citations[kind]}"`);
+      const got = new Set(numbersIn(url));
+      for (const n of want) {
+        assert.ok(got.has(n), `${s.state} ${kind}: ${url} does not name § ${section.trim()}`);
+      }
+    }
+  }
+});
+
+test("the whole-document exemptions are still whole documents", () => {
+  for (const state of Object.keys(WHOLE_DOCUMENT_SOURCES)) {
+    const s = STATUTORY_STATES.find((x) => x.state === state);
+    assert.ok(s, `${state} is no longer a statutory state; drop its exemption`);
+    const urls = new Set(WAIVER_KINDS.map((k) => s.officialUrls[k]));
+    assert.equal(urls.size, 1, `${state} now links per kind; check its links instead of exempting`);
+  }
+});
