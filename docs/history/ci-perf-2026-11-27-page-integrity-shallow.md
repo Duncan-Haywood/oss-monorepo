@@ -60,8 +60,12 @@ The sparse blob checkout after the fetch is the same in both.
   id matches again.
 - `node platform/webcheck/check_pages.mjs`: 4,527 pages checked, all sound
   (the sweep reads `ventures/**/*.html` only).
-- After number: the PR's own Page integrity run (checkout step), recorded in
-  the run record.
+- **After (CI):** this PR's Page integrity run 45937892505, one sample:
+  checkout **27 s**, job **44 s**, green (before: medians 39 s and 60 s over 7
+  jobs). The 27 s left is the sparse blob checkout of the ~500 MB working
+  tree, paid in both configurations; the next lever there is a narrower
+  sparse list (only `ventures/**/*.html`, the `.mjs` they import, and
+  `platform/webcheck`, `portfolio/requests`), not history.
 
 ## Not changed, ranked for the next run
 

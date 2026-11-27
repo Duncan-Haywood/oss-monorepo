@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVPQwLD8FNRDiaoWJ1U",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T04:05:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: Page integrity workflow drops full-history checkout; history blobs become pinned fixtures",
+  "projects": [
+    "platform/webcheck",
+    ".github/workflows/page-integrity-ci.yml"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19599",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "run_workflow_locally.py --for-changes ran past a 300 s timeout (it reached unrelated suites that hit 403 hosts)",
+      "fix": "relied on the targeted local checks plus PR CI"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 4 (front door weight) is mostly exhausted for bet #1: pay-app-guides pages are all under 23 kB gzip and its suite runs in 5 s; the runner pool reading (item 2) found the real target. Worth noting so later runs skip straight to item 2."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`run_workflow_locally.py --for-changes` on a diff touching platform/webcheck plus a workflow ran well past 120 s and into unrelated suites with blocked hosts; the doc does not warn that it can be that broad."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "No short post in docs/posts/: a CI checkout setting is not of interest to a reader of the customer-first blog (CLAUDE.md, 2026-11-24/25 consolidation).",
+      "did": "docs/history write-up only",
+      "result": "history doc carries the reading, change, verification and next-run list"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-27-page-integrity-shallow.md"
+  ],
+  "goal": "CI runner-pool throughput (perf track)",
+  "notes": "Metric: Page integrity checkout. Before: ci_profile.py --runs 300 (2026-11-27 03:35-03:56Z) checkout median 39 s of a 60 s median job (65%), fetch-depth 0 blob-less sparse. Local fetch benchmark (fresh repo, git fetch of main through proxy, no checkout): full blob-less 18.5 s / 131 MB vs depth=1 blob-less 1.2 s / 3.6 MB. After: this PR's page-integrity job (run 45937892505, one sample): checkout 27 s, job 44 s (vs medians 39 s / 60 s). The remaining 27 s is the sparse blob checkout of ~500 MB of working tree, which both configurations pay. Verification: node --test platform/webcheck/*.test.mjs 66/66, 0 skipped (with history fetched; was 65/65); one-byte fixture mutation fails 2 tests; check_pages.mjs 4527 pages sound. Security queue empty (exit 3); IDEAS empty.",
+  "corrections": [],
+  "redteam": null
+}
