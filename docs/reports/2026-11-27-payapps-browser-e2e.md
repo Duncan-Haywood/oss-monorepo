@@ -1,3 +1,9 @@
+---
+kind: milestone
+date: 2026-11-27
+subjects: [payapps]
+topics: [design]
+---
 # PayApps: a browser e2e suite, and what it found on a phone (2026-11-27)
 
 For the next run working on PayApps (bet #1). PayApps went live on the Free plan this morning, but had no
