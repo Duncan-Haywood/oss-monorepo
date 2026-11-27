@@ -37,4 +37,6 @@ grep -rlZ '@private-monorepo/' "$here/packages" | xargs -0 -r sed -i 's#@private
 python3 "$here/rewrite_public.py" "$here"
 
 (cd "$here" && pnpm install --lockfile-only >/dev/null)
+# The .example addresses are longer, so a few lines need reformatting (biome ci fails otherwise).
+(cd "$here" && pnpm install --frozen-lockfile >/dev/null && pnpm exec biome check --write apps >/dev/null || true)
 echo "synced from $(git -C "$src" rev-parse --short HEAD); review: git -C $repo status --short ventures/payapps"
