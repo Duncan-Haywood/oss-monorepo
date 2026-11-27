@@ -20,7 +20,7 @@ Etsy — fees, cost of goods, mileage, a Schedule C worksheet. The product is bu
 | `src/early-access.mjs`, `migrations/` | Double opt-in list on D1 (docs/EARLY_ACCESS.md) |
 | `docs/PRICING.md` | Proposed tiers and the reasoning |
 
-Pages: `/` · `/platforms` + one per platform · `/schedule-c-worksheet` · `/1099-k` · `/cost-of-goods-sold` · `/mileage-deduction` · `/home-office-and-equipment` · `/quarterly-estimated-tax` · `/pricing` · `/faq` ·
+Pages: `/` · `/platforms` + one per platform · `/schedule-c-worksheet` · `/1099-k` · `/cost-of-goods-sold` · `/mileage-deduction` · `/home-office-and-equipment` · `/reseller-tax-deductions` · `/quarterly-estimated-tax` · `/pricing` · `/faq` ·
 `/early-access` · `/privacy` (all under `/seller-books`).
 
 Conventions follow apps/grants' marketing site (`apps/grants/docs/SEO.md`, `EMAIL_MARKETING.md`):

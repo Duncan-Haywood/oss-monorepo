@@ -244,6 +244,8 @@ ${rows}
   <p>Driving to source inventory or to drop off packages can be business mileage. You can deduct either the IRS standard mileage rate for business miles or your actual car expenses, under the IRS rules for choosing between them. The IRS sets the rate and can change it during a year (it did in 2026), so the worksheet uses the rate in effect on each trip's date. The rates, a worked 2026 example and the log to keep: <a href="${href("/mileage-deduction")}">mileage deduction for resellers</a>; and <a href="${IRS_MILEAGE}">the IRS standard mileage rates</a>.</p>
   <h2>Home office and equipment</h2>
   <p>Stock kept at home can put line 30 on the worksheet by the simplified method, and equipment you keep (a camera, a label printer, shelving) is split at the de minimis safe harbor: line 27a, or Form 4562 for larger purchases. The rules and a worked example: <a href="${href("/home-office-and-equipment")}">home office and equipment deductions for resellers</a>.</p>
+  <h2>Every expense line</h2>
+  <p>Fees, promoted listings, mailers, labels, a storage unit, software: which line each one goes on, and the mistakes that count a cost twice, in <a href="${href("/reseller-tax-deductions")}">reseller tax deductions by Schedule C line</a>.</p>
   <h2>Quarterly estimated tax</h2>
   <p>The same profit, read to the end of each payment period, sizes the four federal estimated payments: equal amounts against the 90% / 100% / 110% safe harbours, or the annualized method for a year whose sales come late. The 2026 dates and a worked example: <a href="${href("/quarterly-estimated-tax")}">quarterly estimated taxes for resellers</a>.</p>
   <h2>Form 1099-K</h2>
@@ -1497,6 +1499,275 @@ ${NOT_TAX_ADVICE}`;
   };
 }
 
+/**
+ * Every expense category the app offers, in its order, with the Schedule C line it lands on (the app's
+ * `EXPENSE_LINE` in schedule-c.ts, line number only; test/site.test.mjs holds the two equal) and what a
+ * reseller usually files there. The examples are ordinary reseller costs, not a list of what is allowed.
+ */
+export const DEDUCTION_LINES = [
+  {
+    category: "advertising",
+    line: "8",
+    name: "Advertising",
+    examples:
+      "Promoted or boosted listings, Etsy Ads and offsite ads, paid social posts. Advertising fees read from a marketplace report land here too.",
+  },
+  {
+    category: "commissions_fees",
+    line: "10",
+    name: "Commissions and fees",
+    examples:
+      "Marketplace selling fees, commissions, final value and per-order fees, payment processing. The fees in your imported reports land here on their own.",
+  },
+  {
+    category: "insurance",
+    line: "15",
+    name: "Insurance (other than health)",
+    examples: "Business insurance, or coverage for stock in storage.",
+  },
+  {
+    category: "legal_professional",
+    line: "17",
+    name: "Legal and professional services",
+    examples: "A tax preparer's fee for the business part of the return, a bookkeeper.",
+  },
+  {
+    category: "office",
+    line: "18",
+    name: "Office expense",
+    examples: "Printer ink, paper, small office items used up in the year.",
+  },
+  {
+    category: "rent",
+    line: "20b",
+    name: "Rent or lease: other business property",
+    examples: "A storage unit for stock, a booth or table fee at a flea market.",
+  },
+  {
+    category: "repairs",
+    line: "21",
+    name: "Repairs and maintenance",
+    examples: "Fixing a label printer or a clothes steamer you use for the business.",
+  },
+  {
+    category: "supplies",
+    line: "22",
+    name: "Supplies",
+    examples: "Poly mailers, boxes, tape, bubble wrap, hangers, cleaning supplies for stock.",
+  },
+  {
+    category: "taxes_licenses",
+    line: "23",
+    name: "Taxes and licenses",
+    examples:
+      "A business licence or a seller's permit fee. Not income tax, and not the sales tax a marketplace collected for you.",
+  },
+  {
+    category: "travel",
+    line: "24a",
+    name: "Travel",
+    examples: "An overnight sourcing trip: the hotel and fares, not the miles (those are line 9).",
+  },
+  {
+    category: "meals",
+    line: "24b",
+    name: "Deductible meals",
+    examples:
+      "Business meals, generally 50% deductible. The worksheet takes half of what you enter.",
+  },
+  {
+    category: "utilities",
+    line: "25",
+    name: "Utilities",
+    examples: "A separate business phone line or internet service, where it is a business cost.",
+  },
+  {
+    category: "shipping_postage",
+    line: "27a",
+    name: "Other expenses: postage and labels",
+    examples:
+      "Shipping labels you paid for and postage. Labels bought through a marketplace and shown in its report land here on their own.",
+  },
+  {
+    category: "software_subscriptions",
+    line: "27a",
+    name: "Other expenses: software and subscriptions",
+    examples:
+      "Crosslisting and inventory tools, a store or seller subscription on a platform, bookkeeping software.",
+  },
+  {
+    category: "equipment",
+    line: "27a",
+    name: "Other expenses: equipment under the de minimis limit",
+    examples:
+      "A camera, label printer, scale or shelving at $2,500 or less an item, with the election statement. Over that: Form 4562 and line 13.",
+  },
+  {
+    category: "other",
+    line: "27a",
+    name: "Other expenses: other",
+    examples: "A business cost that fits none of the lines above.",
+  },
+];
+
+function taxDeductions() {
+  const path = "/reseller-tax-deductions";
+  const title = "Reseller tax deductions by Schedule C line";
+  const description =
+    "Where resellers deduct each cost on Schedule C: marketplace fees on line 10, promoted listings on 8, mileage on 9, mailers on 22, labels on 27a, stock through cost of goods sold.";
+  const outside = [
+    [
+      "Stock you buy to resell",
+      `Not an expense line. Inventory goes through cost of goods sold (Part III, line 42, then line 4): its cost counts when the item sells, and what is left on December 31 waits for next year. See <a href="${href("/cost-of-goods-sold")}">cost of goods sold for resellers</a>.`,
+      "Inventory goes through cost of goods sold (Part III, line 42, then line 4): its cost counts when the item sells.",
+    ],
+    [
+      "Miles driven to source and ship",
+      `Line 9, at the IRS standard mileage rate for the day each trip was driven, from a log of date, purpose and miles. See <a href="${href("/mileage-deduction")}">the mileage deduction for resellers</a>.`,
+      "Line 9, at the IRS standard mileage rate, from a log of date, purpose and miles.",
+    ],
+    [
+      "Stock stored at home",
+      `Line 30, the business use of your home (the simplified method is $5 a square foot, up to 300). See <a href="${href("/home-office-and-equipment")}">home office and equipment deductions</a>.`,
+      "Line 30, the business use of your home (simplified method: $5 a square foot, up to 300).",
+    ],
+    [
+      "Equipment over $2,500 an item",
+      "Depreciated, or expensed by election, on Form 4562; the result is line 13.",
+      "Form 4562, then line 13.",
+    ],
+  ];
+  const mistakes = [
+    [
+      "Reporting net payouts and deducting the fees too",
+      "If the income you report is what landed in the bank, the fees are already out of it; deducting them again counts them twice. If you report gross sales (what the 1099-K shows), the fees are a deduction on line 10 and leaving them out overpays. Pick one; line 1 asks for gross receipts, so gross sales with the fees deducted is the usual way.",
+    ],
+    [
+      "Deducting stock as supplies",
+      "A haul from the bins is inventory, not supplies. It reaches the return through cost of goods sold as items sell, not all in the month you bought it.",
+    ],
+    [
+      "Deducting fuel and the standard mileage rate",
+      "The standard mileage rate stands in for fuel, repairs and the other running costs of the car. A seller who takes it does not also deduct the gas receipts.",
+    ],
+    [
+      "Counting marketplace-collected sales tax as income",
+      "Most states with a sales tax make the marketplace collect and pay it on your sales there. It is not your income and not your deduction; it should be out of gross receipts on both sides.",
+    ],
+    [
+      "Putting promoted listing fees in with selling fees",
+      "Both are deductible, but on different lines: promoted and boosted listings are advertising (line 8), commissions and processing are line 10. The total is the same; the return reads truer.",
+    ],
+    [
+      "Deducting a laptop as office expense",
+      "Equipment you keep is not a supply. At $2,500 or less an item it can go on line 27a under the de minimis safe harbor, with its election statement; over that it is Form 4562.",
+    ],
+  ];
+  const faqs = [
+    {
+      q: "What can resellers write off on their taxes?",
+      a: "The ordinary and necessary costs of the business: marketplace fees, promoted listings, shipping labels and mailers, sourcing miles, a storage unit, the space at home where stock is kept, software, equipment, and the cost of the items that sold. Each has a Schedule C line; the cost of stock is not an expense but goes through cost of goods sold as items sell. Whether a particular cost qualifies is for you or your tax preparer to decide.",
+    },
+    {
+      q: "Are eBay, Poshmark and Mercari fees tax deductible?",
+      a: "Selling fees, commissions and payment processing are a cost of selling and go on Schedule C line 10 (commissions and fees) when you report gross sales; promoted listing fees are advertising on line 8. If you report only the net payout, the fees are already out of it and are not deducted again.",
+    },
+    {
+      q: "Can I deduct the clothes or items I buy to resell?",
+      a: "Not as an expense when you buy them. Items bought to resell are inventory: their cost is deducted through cost of goods sold in the year each one sells, and what is still unsold at year end is closing inventory, carried to next year.",
+    },
+    {
+      q: "Can I deduct shipping supplies and labels?",
+      a: "Mailers, boxes and tape are supplies (line 22). Postage and shipping labels you pay for are usually listed under other expenses (line 27a). A label the buyer paid for still counts: the shipping they paid is in your gross receipts, and the label you bought is the expense.",
+    },
+    {
+      q: `How does ${SITE_NAME} decide the line?`,
+      a: `Each expense you type in, or read from a bank or card statement, has a category, and each category has one Schedule C line (equipment over $2,500 goes to Form 4562 instead). Fees from your imported marketplace reports go to line 10, or line 8 for advertising, without being typed in. Purchases that look like inventory, marketplace fees or fuel are left unticked on a statement, with the reason, so nothing is deducted twice. You can change any category.`,
+    },
+  ];
+  const lineRows = DEDUCTION_LINES.map(
+    (d) =>
+      `      <tr><th scope="row">${esc(d.line)}</th><td>${esc(d.name)}</td><td>${esc(d.examples)}</td></tr>`,
+  ).join("\n");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">A reseller's deductions are mostly small and many: a fee on every sale, a label on every parcel, a box of mailers a month, the drive to the bins. Each one belongs on a particular line of <a href="${IRS_SCHEDULE_C}">Schedule C</a>, and the biggest cost of all, the stock itself, is not an expense line in the first place.</p>
+  <h2>Expense lines, and what resellers file on each</h2>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">Line</th><th scope="col">Schedule C line</th><th scope="col">Usual reseller costs</th></tr></thead>
+    <tbody>
+${lineRows}
+    </tbody>
+  </table></div>
+  <p class="muted">Line names from Schedule C (Form 1040); where a cost goes is the usual placement in the <a href="${IRS_SC_INSTRUCTIONS}">Schedule C instructions</a> and <a href="${IRS_PUB_334}">Publication 334</a>, not a ruling on your return. Lines 11 to 14, 16, 19, 20a and 26 (contract labour, depletion, interest, pensions, a vehicle lease, wages and so on) are rare for a one-person resale business and not shown.</p>
+  <h2>What is not on an expense line</h2>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">Cost</th><th scope="col">Where it goes</th></tr></thead>
+    <tbody>
+${outside.map(([a, b]) => `      <tr><th scope="row">${esc(a)}</th><td>${b}</td></tr>`).join("\n")}
+    </tbody>
+  </table></div>
+  <h2>Mistakes that cost resellers money, or count it twice</h2>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">Mistake</th><th scope="col">Why it matters</th></tr></thead>
+    <tbody>
+${mistakes.map(([a, b]) => `      <tr><th scope="row">${esc(a)}</th><td>${esc(b)}</td></tr>`).join("\n")}
+    </tbody>
+  </table></div>
+  <h2>Deductions in ${esc(SITE_NAME)}</h2>
+  <p>The fees come from the reports you import, not from a typed-in total: each marketplace's own fee columns are read and filed on line 10, with promoted listings on line 8 and the labels bought through the platform on line 27a. Everything else is an expense with a category, typed in or read from a bank or card statement CSV, and each category above lands on its line on the <a href="${href("/schedule-c-worksheet")}">Schedule C worksheet</a>, with meals halved and equipment split at the de minimis limit. On a statement, purchases that look like inventory, marketplace fees or fuel are left unticked with the reason, so a cost already counted elsewhere is not deducted twice. A year-end expense list gives every expense with the line it landed on, for you or your preparer.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "deductions" })}</div>`;
+  const text = `# ${title}
+
+## Expense lines
+
+${mdList(DEDUCTION_LINES.map((d) => `Line ${d.line}, ${d.name}: ${d.examples}`))}
+
+Line names from Schedule C; placement as usual in the Schedule C instructions (${IRS_SC_INSTRUCTIONS}) and Publication 334 (${IRS_PUB_334}).
+
+## Not on an expense line
+
+${mdList(outside.map(([a, , c]) => `${a}: ${c}`))}
+
+## Mistakes
+
+${mdList(mistakes.map(([a, b]) => `${a}: ${b}`))}
+
+## Deductions in ${SITE_NAME}
+
+Fees read from imported marketplace reports go to line 10 (advertising to line 8, platform labels to 27a). Other expenses have a category, typed in or read from a bank or card statement; each category lands on its line; meals halved; equipment split at the de minimis limit. Statement lines that look like inventory, fees or fuel are left unticked with the reason. A year-end expense list names each expense's line.
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Reseller tax deductions", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
 function notFound() {
   return {
     path: "/404",
@@ -1521,6 +1792,7 @@ export function allPages() {
     costOfGoodsSold(),
     mileageDeduction(),
     homeOfficeAndEquipment(),
+    taxDeductions(),
     estimatedTax(),
     pricing(),
     faq(),

@@ -11,6 +11,7 @@ import {
   cogsLines,
   DE_MINIMIS_ELECTION_TITLE,
   DE_MINIMIS_LIMIT_CENTS,
+  DEDUCTION_LINES,
   EQUIPMENT_EXAMPLE,
   ESTIMATE_DUE_DATES_2026,
   ESTIMATE_EXAMPLE,
@@ -561,5 +562,58 @@ describe("pricing tiers", () => {
     assert.match(html, /not on sale yet/);
     assert.match(html, /nothing is charged/);
     assert.ok(!/[Pp]roposed/.test(html), "no 'proposed' once the prices are the app's");
+  });
+});
+
+describe("the reseller tax deductions page", () => {
+  const page = () => pages.find((p) => p.path === "/reseller-tax-deductions");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("every expense category the app has, in its order, on the worksheet's own line", () => {
+    const enums = appFile("src/shared/enums.ts");
+    const cats = enums
+      .match(/export const EXPENSE_CATEGORIES = \[([^\]]+)\]/)[1]
+      .match(/"([a-z_]+)"/g)
+      .map((c) => c.slice(1, -1));
+    assert.deepEqual(
+      DEDUCTION_LINES.map((d) => d.category),
+      cats,
+    );
+    const sc = appFile("src/worker/services/books/schedule-c.ts");
+    const map = sc.match(/export const EXPENSE_LINE[^{]*\{([^}]+)\}/)[1];
+    for (const d of DEDUCTION_LINES) {
+      const m = map.match(new RegExp(`\\b${d.category}: "([^"]+)"`));
+      assert.ok(m, d.category);
+      assert.equal(m[1].split(":")[0], d.line, d.category);
+    }
+    // What the page says about fees, meals and equipment is what the worksheet does.
+    assert.match(sc, /f\.kind === "advertising" \? "8" : "10"/);
+    assert.match(sc, /Math\.round\(mealsFull \/ 2\)/);
+    assert.match(sc, /DE_MINIMIS_LIMIT_CENTS = 250_000/);
+  });
+
+  test("names the lines, the cost of goods route and the IRS sources, with FAQ markup", () => {
+    const html = htmlOf(page());
+    for (const s of [
+      "Commissions and fees",
+      "Promoted or boosted listings",
+      "Poly mailers",
+      `href="${BASE_PATH}/cost-of-goods-sold"`,
+      `href="${BASE_PATH}/mileage-deduction"`,
+      "https://www.irs.gov/instructions/i1040sc",
+      "https://www.irs.gov/publications/p334",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+    assert.doesNotMatch(html, /\d+(\.\d+)?% (fee|commission)/, "no fee percentages");
+  });
+
+  test("linked from the Schedule C page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/reseller-tax-deductions"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/schedule-c-worksheet")).includes(link));
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/reseller-tax-deductions)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/reseller-tax-deductions`));
   });
 });
