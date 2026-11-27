@@ -18,6 +18,7 @@ import {
   weekDays,
 } from "@shared/certified-payroll";
 import { centsToDecimal, formatCents, parseDollarsToCents } from "@shared/money";
+import { type NyId, type NyWorkerInput, nyNextWeek } from "@shared/ny-cpr";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
@@ -26,18 +27,27 @@ import { ErrorText } from "../components/error";
 import { HoursCell } from "../components/hours-cell";
 import { meQuery } from "../components/layout";
 import { MoneyInput } from "../components/money-input";
+import { NyCprSection, type NyDraftJob } from "../components/ny-cpr-section";
 import { TimesheetImport } from "../components/timesheet-import";
 import { api, downloadPost, projectPath } from "../lib/api";
 
 /** Client-only `uid`s keep React's keys stable when a worker or row is removed (zod strips them). */
 type DraftRow = CertifiedPayrollRow & { uid?: string };
-/** `ca`: the California eCPR extras (src/shared/ca-ecpr.ts), saved with the draft; never SSNs. */
+/**
+ * `ca`: the California eCPR extras (src/shared/ca-ecpr.ts), saved with the draft; never SSNs.
+ * `ny`: the New York NYSDOL extras (src/shared/ny-cpr.ts), saved with the draft; never birth dates.
+ */
 type DraftWorker = Omit<CertifiedPayrollWorker, "rows"> & {
   uid?: string;
   rows: DraftRow[];
   ca?: EcprWorkerInput;
+  ny?: NyWorkerInput;
 };
-type Draft = Omit<CertifiedPayrollInput, "workers"> & { workers: DraftWorker[]; ca?: EcprDraftJob };
+type Draft = Omit<CertifiedPayrollInput, "workers"> & {
+  workers: DraftWorker[];
+  ca?: EcprDraftJob;
+  ny?: NyDraftJob;
+};
 
 let uidCounter = 0;
 const uid = () => `u${Date.now().toString(36)}${(uidCounter++).toString(36)}`;
@@ -114,6 +124,7 @@ export function nextWeek(d: Draft): Draft {
       otherNote: "",
       rows: w.rows.map((r) => ({ ...r, st: zeros(), ot: zeros(), grossProjectCents: null })),
       ...(w.ca ? { ca: ecprNextWeek(w.ca) } : {}),
+      ...(w.ny ? { ny: nyNextWeek(w.ny) } : {}),
     })),
     ...(d.ca ? { ca: { ...d.ca, nonPerformance: false } } : {}),
   };
@@ -196,6 +207,8 @@ export function CertifiedPayrollPage() {
   const [draft, setDraft] = useState<Draft | null>(null);
   /** Full SSNs and ITINs for the California file: this page's memory only, never saved. */
   const [ecprIds, setEcprIds] = useState<Record<string, EcprId>>({});
+  /** Dates of birth for the New York file: this page's memory only, never saved. */
+  const [nyIds, setNyIds] = useState<Record<string, NyId>>({});
 
   useEffect(() => {
     if (draft || !q.data) return;
@@ -894,6 +907,17 @@ export function CertifiedPayrollPage() {
         onId={(k, id) => setEcprIds((m) => ({ ...m, [k]: id }))}
       />
 
+      <NyCprSection
+        job={draft.ny}
+        onJob={(ny) => set({ ny })}
+        workers={draft.workers}
+        onWorker={(wi, ny) => setWorker(wi, { ny })}
+        plans={plans}
+        payroll={parsed?.success ? parsed.data : null}
+        ids={nyIds}
+        onId={(k, id) => setNyIds((m) => ({ ...m, [k]: id }))}
+      />
+
       <section className="card grid gap-2">
         {computed && (
           <p className="text-sm">
@@ -939,6 +963,7 @@ export function CertifiedPayrollPage() {
               if (window.confirm("Clear this payroll and the crew saved in this browser?")) {
                 saveDraft(key, null);
                 setEcprIds({});
+                setNyIds({});
                 setDraft(null);
               }
             }}

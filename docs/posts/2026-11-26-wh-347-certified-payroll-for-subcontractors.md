@@ -124,6 +124,37 @@ upload. What changed, from DIR's XSD and "eCPR XML Guidelines V2" (read 2026-11-
 The one thing the WH-347 can't give you is the full Social Security number. DOL says never put it on
 the federal form; DIR's file requires it. Keep the two apart.
 
+## New York public work: the NYSDOL bulk upload file
+
+On New York public work under Labor Law Article 8, the payroll goes into NYSDOL's Certified Payroll
+portal, required since 1 January 2026. You can type each worker in, or upload one XML file per
+project per week. NYSDOL publishes an XSD ("XML SCHEMA for electronic New York Certified Payroll
+Records Version 2.0"), a sample file, a Bulk Upload Formatting Guide and the list of classification
+names the file must use (all read on dol.ny.gov on 2026-11-27). What the file wants that the WH-347
+does not give you:
+
+- **The project's PRC number** (prevailing rate case number, 10 characters), from your portal
+  dashboard. A PRC that doesn't match the project you picked, or a week ending date that doesn't
+  match the week you picked, fails the upload.
+- **The worker's home address, with the state spelled out.** "NY" is rejected ("State is
+  invalid"); write "New York".
+- **The last four digits of the SSN, or else the date of birth.** One or the other, never both:
+  the guide lists "both" as a common error.
+- **Whether the worker is a New York registered apprentice** (true or false).
+- **A classification from NYSDOL's list, spelled exactly as printed.** "Electrician" alone is not
+  on it; "Electrician – Building/Wireman" is, with its en dash. A name that doesn't match is
+  rejected ("Work Category is invalid"). A worker with two classifications is one employee with two
+  work weeks. Listing the same worker twice is rejected as a duplicate.
+- **Deductions by type** (up to 10, each under $10,000) and **supplements by type**: Health/Welfare,
+  Vacation/Holiday, Apprenticeship/Training, Pension or "Other Benefit (Type)". Each supplement is
+  tied to a classification and has its own straight-time and overtime hourly rate. An "Other" one
+  needs an explanation, and the other types must leave the explanation empty.
+- **Limits:** 500 employees per file, one project and one week per file, wage rates up to $999.99
+  in the XSD (the guide's table says $9,999.99; the portal validates against the XSD).
+
+NYSDOL suggests a small test upload first. Whatever you upload goes into its system of record,
+so test with a real week you're ready to file, not dummy data.
+
 ## Other states where certified payroll is filed online
 
 California is no longer the only state that wants the payroll in its own system. On a **state or
@@ -181,9 +212,18 @@ It sits on the job, next to that job's pay applications:
   rules before you download, and the output validates against DIR's published XSD. The file is
   built in your browser. Full SSNs and ITINs are held only while the page is open: they are not
   saved with the draft and never sent to us.
+- **New York public work (added 2026-11-27):** tick the New York box and the same week downloads
+  as NYSDOL's bulk upload XML. You add the PRC number, addresses, and each row's classification,
+  picked from NYSDOL's own list of 261 names (a near miss like "Laborer - Building" with a hyphen
+  is matched to the list's spelling). The SSN's last four come from the WH-347 ID number when it is
+  four digits. Otherwise you enter the date of birth, which is held only while the page is open.
+  Fringe plans become supplements of the type you pick, at time and a half on overtime where your
+  rate schedule says so. Cash in lieu is reported as "Other Benefit (Type)" with an explanation.
+  State and local tax are split out of the withholding, and disability/PFL and dues out of
+  "other", so the PDF and the XML agree. The output validates against NYSDOL's XSD.
 
 Not yet: hours straight from a QuickBooks Time or payroll connection, the crew saved with the job
-instead of the browser, the other states' files in the table above (New York's XML is the likeliest next, since NYSDOL publishes an XSD to check a file against), and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
+instead of the browser, the other states' files in the table above (New Jersey's Wage Hub CSV and Washington's XML next, once their templates are read), and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
 contractors ask for them.
 
 PayApps is in early access and not yet offered for sale:

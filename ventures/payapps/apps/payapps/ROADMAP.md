@@ -1563,6 +1563,31 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   draft-upload errors checked against a real upload (DIR's classification names are not published:
   an unrecognized one becomes "Other").
 
+- Certified payroll, part 3b: New York NYSDOL bulk-upload XML (2026-11-27, certified-payroll-ny-nysdol-xml,
+  every plan). A "New York public work" section on the certified payroll page makes the same week
+  as the XML file the NYSDOL Certified Payroll portal takes by bulk upload (electronic filing required
+  for Article 8 public work since 1 January 2026). Read from dol.ny.gov on 2026-11-27: the XSD
+  ("Version 2.0", NYDOL_CertPayroll UPDATED.xsd), the sample, the Bulk Upload Formatting Guide and its
+  XML Work Classification List (261 names, vendored as `src/shared/ny-classifications.ts`; the portal
+  rejects any other name). Adds what NYSDOL asks and the WH-347 does not: the PRC number (10
+  characters), the worker's address with the state spelled out (two letters are expanded), the SSN's
+  last four (from the WH-347 ID no. when it is four digits) or else the date of birth, never both, the
+  New York registered-apprentice flag (from RA, changeable), a classification from the list per row
+  (hyphen/en-dash and case near misses matched to the list's spelling), deductions by type (state and
+  local tax out of the withholding, disability/PFL and dues out of "other", the rest under the
+  WH-347's description) and supplements per classification by NYSDOL type (guessed from the plan,
+  changeable; overtime rate the same or time and a half per plan; cash in lieu as "Other Benefit
+  (Type)" with an explanation). Checks the XSD's limits (lengths, 999.99 wage rates, 9,999.99 per
+  deduction, 10 deductions, 50 supplements, 500 employees) and the guide's common errors (duplicate
+  employee, both identifiers). Gross in the file is the WH-347's 7B and net its column 9, so they
+  agree with the PDF. Dates of birth are held in the page's memory only; the other extras are saved
+  with the draft in the browser (Privacy Policy sentence added; data stays on the device, so no
+  POLICY_VERSION bump). Output validates against NYSDOL's XSD with xmllint (`NY_CPR_XSD=<path> pnpm
+  test:unit`; the XSD is NYSDOL's file and not vendored). `src/shared/ny-cpr.ts`,
+  `src/client/components/ny-cpr-section.tsx`; tests `src/shared/ny-cpr.test.ts`,
+  `test/unit/certified-payroll-page.test.tsx`. Next, if New York customers ask: a real test upload's
+  errors checked, and the classification list refreshed when NYSDOL republishes it.
+
 - Getting started, part 5 (2026-11-26): where companies stall, in the owner's metrics.
   `GET /api/admin/metrics` now carries `activation`: for every company, and for those that signed
   up inside the window, how many reached each checklist step (job, schedule of values, pay
@@ -2238,7 +2263,8 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
 - Certified payroll, part 3: the hours from a QuickBooks Time or payroll connection instead of a
   CSV, if people ask (a by-day CSV fills the week since 2026-11-26), save the crew and rates with the job instead of the
   browser if people ask, other states' prevailing-wage formats once their official specs are read (California's DIR eCPR
-  XML, schema 2.0, done 2026-11-26: part 3a), and the upload formats of the compliance
+  XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b; New
+  Jersey's Wage Hub CSV next, then Washington's XML), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
 - Notice to Owner, Florida, part 2 (part 1, the § 713.06(2)(c) form and the 45/40-day dates, done
