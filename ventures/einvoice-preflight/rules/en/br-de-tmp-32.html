@@ -12,7 +12,7 @@
 <meta property="og:title" content="BR-DE-TMP-32: No delivery date or service period given">
 <meta property="og:description" content="BR-DE-TMP-32: An XRechnung should state when the goods were delivered or the service was performed: either an actual delivery date (BT-72), an invoicing…">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does BR-DE-TMP-32 mean?","acceptedAnswer":{"@type":"Answer","text":"An XRechnung should state when the goods were delivered or the service was performed: either an actual delivery date (BT-72), an invoicing period for the whole invoice (BG-14), or an invoice line period (BG-26) on every line. This is an information message only; it does not reject the file, but a German invoice normally has to show the date of supply."}},{"@type":"Question","name":"How do I fix BR-DE-TMP-32?","acceptedAnswer":{"@type":"Answer","text":"For a one-off delivery, add cbc:ActualDeliveryDate in cac:Delivery (UBL) or ram:OccurrenceDateTime in ram:ActualDeliverySupplyChainEvent (CII). For a service over time, add cac:InvoicePeriod with start and end date (UBL) or ram:BillingSpecifiedPeriod in ram:ApplicableHeaderTradeSettlement (CII). If you prefer per-line periods, give one on every line, not only on some."}}]}</script>
-<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
 </head><body><main>
 <header>
 <p class="eyebrow">E-invoice rule explained · XRechnung</p>
@@ -47,21 +47,9 @@
 </ol>
 <h2>Corrected XML (minimal example we wrote)</h2>
 <p><strong>UBL</strong></p>
-<pre><code>&lt;cac:InvoicePeriod&gt;
-  &lt;cbc:StartDate&gt;2026-10-01&lt;/cbc:StartDate&gt;
-  &lt;cbc:EndDate&gt;2026-10-31&lt;/cbc:EndDate&gt;
-&lt;/cac:InvoicePeriod&gt;
-&lt;cac:Delivery&gt;
-  &lt;cbc:ActualDeliveryDate&gt;2026-10-15&lt;/cbc:ActualDeliveryDate&gt;
-&lt;/cac:Delivery&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;cac:InvoicePeriod&gt;</span><span class="ln" style="--i:2">  &lt;cbc:StartDate&gt;2026-10-01<wbr>&lt;/cbc:StartDate&gt;</span><span class="ln" style="--i:2">  &lt;cbc:EndDate&gt;2026-10-31<wbr>&lt;/cbc:EndDate&gt;</span><span class="ln" style="--i:0">&lt;/cac:InvoicePeriod&gt;</span><span class="ln" style="--i:0">&lt;cac:Delivery&gt;</span><span class="ln" style="--i:2">  &lt;cbc:ActualDeliveryDate&gt;2026-10-15<wbr>&lt;/cbc:ActualDeliveryDate&gt;</span><span class="ln" style="--i:0">&lt;/cac:Delivery&gt;</span></code></pre>
 <p><strong>CII</strong></p>
-<pre><code>&lt;ram:ApplicableHeaderTradeDelivery&gt;
-  &lt;ram:ActualDeliverySupplyChainEvent&gt;
-    &lt;ram:OccurrenceDateTime&gt;
-      &lt;udt:DateTimeString format=&quot;102&quot;&gt;20261015&lt;/udt:DateTimeString&gt;
-    &lt;/ram:OccurrenceDateTime&gt;
-  &lt;/ram:ActualDeliverySupplyChainEvent&gt;
-&lt;/ram:ApplicableHeaderTradeDelivery&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;ram:ApplicableHeaderTradeDelivery&gt;</span><span class="ln" style="--i:2">  &lt;ram:ActualDeliverySupplyChainEvent&gt;</span><span class="ln" style="--i:4">    &lt;ram:OccurrenceDateTime&gt;</span><span class="ln" style="--i:6">      &lt;udt:DateTimeString format=&quot;102&quot;&gt;20261015<wbr>&lt;/udt:DateTimeString&gt;</span><span class="ln" style="--i:4">    &lt;/ram:OccurrenceDateTime&gt;</span><span class="ln" style="--i:2">  &lt;/ram:ActualDeliverySupplyChainEvent&gt;</span><span class="ln" style="--i:0">&lt;/ram:ApplicableHeaderTradeDelivery&gt;</span></code></pre>
 <p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
 </section>
 <section>

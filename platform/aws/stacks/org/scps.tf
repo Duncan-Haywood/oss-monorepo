@@ -152,6 +152,10 @@ resource "aws_organizations_policy" "scp" {
   description = each.value.description
   type        = "SERVICE_CONTROL_POLICY"
   content     = jsonencode(each.value.doc)
+
+  # Without this the policies are created alongside the Organization and AWS
+  # answers AWSOrganizationsNotInUseException (first apply, run 45922964617).
+  depends_on = [aws_organizations_organization.this]
 }
 
 resource "aws_organizations_policy_attachment" "scp" {

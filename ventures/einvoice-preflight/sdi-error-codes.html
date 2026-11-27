@@ -18,7 +18,7 @@
 </header>
 <section>
 <h2>File name, size and signature (00001-00107)</h2>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Code</th><th>What SdI refused</th><th>How to fix it</th><th>Caught offline?</th></tr></thead>
 <tbody>
 <tr id="e00001"><td><strong>00001</strong></td><td>The file name is not valid.</td><td>Name the file country code + sender's tax id + _ + a 5-character progressive, e.g. IT01234567890_00001.xml (specification 1.9, section 1.2.2).</td><td>No</td></tr>
@@ -36,7 +36,7 @@
 </section>
 <section>
 <h2>Format: the XSD schema (00200-00201)</h2>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Code</th><th>What SdI refused</th><th>How to fix it</th><th>Caught offline?</th></tr></thead>
 <tbody>
 <tr id="e00200"><td><strong>00200</strong></td><td>The file does not conform to the format (SdI's description names the exact point).</td><td>Correct the element SdI names; this tool's schema rules IT-018 to IT-022 check the same XSD 1.2.3.</td><td>Yes (IT-018, IT-019, IT-020, IT-021, IT-022)</td></tr>
@@ -45,7 +45,7 @@
 </section>
 <section>
 <h2>Tax ids, destination code and the register (00300-00330)</h2>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Code</th><th>What SdI refused</th><th>How to fix it</th><th>Caught offline?</th></tr></thead>
 <tbody>
 <tr id="e00300"><td><strong>00300</strong></td><td>The transmitter's tax id (1.1.1.2 IdTrasmittente/IdCodice) is not valid.</td><td>Use the transmitter's partita IVA or codice fiscale exactly as registered.</td><td>In part (IT-034)</td></tr>
@@ -68,7 +68,7 @@
 </section>
 <section>
 <h2>Content and arithmetic (00400-00477)</h2>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Code</th><th>What SdI refused</th><th>How to fix it</th><th>Caught offline?</th></tr></thead>
 <tbody>
 <tr id="e00400"><td><strong>00400</strong></td><td>A line at 0% VAT has no Natura (2.2.1.14).</td><td>Add the Natura code that explains why the line is not taxed.</td><td>Yes (IT-011)</td></tr>

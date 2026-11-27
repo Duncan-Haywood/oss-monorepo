@@ -40,7 +40,7 @@ export function auditPackHtml(result, o = {}) {
 
   const rules = Object.keys(sum.ruleCounts).sort();
   const byRule = rules.length
-    ? `<table><thead><tr><th>Rule</th><th class="n">Files</th><th class="n">Times</th><th>What the check found</th><th>Recommended fix</th></tr></thead><tbody>` +
+    ? `<table class="stack"><thead><tr><th>Rule</th><th class="n">Files</th><th class="n">Times</th><th>What the check found</th><th>Recommended fix</th></tr></thead><tbody>` +
       rules.map((rule) => {
         const inFiles = reports.filter((r) => r.errors.some((e) => e.rule === rule)).length;
         return `<tr><td><code>${esc(rule)}</code></td><td class="n">${inFiles}</td><td class="n">${sum.ruleCounts[rule]}</td><td>${esc(sum.ruleMessages[rule])}</td><td>${esc(sum.ruleFixes[rule])}</td></tr>`;

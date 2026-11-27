@@ -595,6 +595,9 @@ tasks:
       babysitting-business-kit, quick-pick-survey, einvoice-preflight,
       changepoint-detector's repo watch): owner, 2026-11-27, drop those
       offers, then relicense. `relicense_arr.py --residue <slug>` lists them.
+      Step 3 done 2026-11-27: platform/security/prepub_audit.py; PayApps,
+      payapps-site and packages/ audited with 0 block findings
+      (docs/reports/2026-11-27-prepub-audit-payapps.md).
       Watch: the payments account's OIDC trust is private-monorepo only, so
       a product's payments/webhook deploy either stays there or the trust is
       redesigned in its own reviewed PR; private apps use a pnpm workspace

@@ -129,6 +129,11 @@ a product has its own domain.
 
 ## Owner steps
 
+> **Parked (owner, 2026-11-27):** the inboxes will be set up on AWS (SES)
+> after the move, not on Cloudflare; see `aws-turnover` in
+> `portfolio/ledger/asks.yaml`. The steps below are kept for reference and are
+> not being asked of the owner.
+
 1. **Secrets** (Settings → Environments → `cloudflare` → add environment
    secret; that environment is limited to `main`). Generate each token with `openssl rand -hex 32`:
    - `MAIL_AGENT_TOKEN`, `MAIL_READ_TOKEN`, `MAIL_OWNER_TOKEN`, `MAIL_UNSUBSCRIBE_SECRET`

@@ -15,12 +15,15 @@
 locals {
   accounts = {
     log-archive  = { ou = "security", purpose = "write-once CloudTrail and Config logs" }
-    security     = { ou = "security", purpose = "delegated admin for GuardDuty, Security Hub, Config, Access Analyzer" }
-    shared-infra = { ou = "infrastructure", purpose = "DNS, the static site, shared networking" }
-    apps         = { ou = "workloads", purpose = "products, Claude Platform on AWS, SES" }
-    payments     = { ou = "payments", purpose = "Paddle webhook receiver and entitlements; no deploy role reachable from the public repository" }
-    sandbox      = { ou = "sandbox", purpose = "experiments, tight budget" }
+    security     = { ou = "security", purpose = "delegated admin for GuardDuty Security Hub Config and Access Analyzer" }
+    shared-infra = { ou = "infrastructure", purpose = "DNS and the static site and shared networking" }
+    apps         = { ou = "workloads", purpose = "products and Claude Platform on AWS and SES" }
+    payments     = { ou = "payments", purpose = "Paddle webhook receiver and entitlements - no deploy role reachable from the public repository" }
+    sandbox      = { ou = "sandbox", purpose = "experiments with a tight budget" }
   }
+  # Tag values allow only letters, digits, spaces and _ . : / = + - @ (AWS
+  # Organizations CreateAccount refuses anything else with "does not match the
+  # required pattern": first apply, run 45922964617, every purpose with a comma).
   ous = toset(["security", "infrastructure", "workloads", "payments", "sandbox"])
 
   org = var.account_mode == "organization"
