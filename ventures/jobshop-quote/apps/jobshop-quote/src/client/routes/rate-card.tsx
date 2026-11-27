@@ -12,6 +12,7 @@ import type {
   RemovalRateDto,
   ShopSettingsDto,
 } from "@shared/api";
+import { defaultFalloutBpsFromText } from "@shared/costing";
 import { CURRENCY_NAMES, SHOP_CURRENCIES } from "@shared/currency";
 import { isCuttingMachine } from "@shared/cut-speed-import";
 import { isDrillingMachine, MACHINE_KINDS, ROUGHING_MACHINE_KINDS } from "@shared/enums";
@@ -141,6 +142,7 @@ function SettingsCard({
     outside: String(settings.outsideServiceMarkupBps / 100),
     minimum: fromCents(settings.minimumLineCents),
     quantities: settings.defaultQuantities.join(", "),
+    fallout: settings.defaultFalloutBps ? String(settings.defaultFalloutBps / 100) : "",
     validDays: String(settings.quoteValidDays),
     lead: settings.defaultLeadTimeText ?? "",
     terms: settings.quoteTerms ?? "",
@@ -175,6 +177,12 @@ function SettingsCard({
         outsideServiceMarkupBps: Math.round(Number(f.outside) * 100),
         minimumLineCents: toCents(f.minimum) ?? 0,
         defaultQuantities: parseQuantities(f.quantities),
+        // Blank or 0 is no default; text the box cannot read is sent as typed, so the save is
+        // refused (400) instead of silently clearing the default.
+        defaultFalloutBps:
+          defaultFalloutBpsFromText(f.fallout) === "invalid"
+            ? f.fallout
+            : defaultFalloutBpsFromText(f.fallout),
         quoteValidDays: Number(f.validDays),
         defaultLeadTimeText: f.lead.trim() || null,
         quoteTerms: f.terms.trim() || null,
@@ -227,6 +235,17 @@ function SettingsCard({
         </Field>
         <Field label="Default quantity breaks">
           <Input value={f.quantities} onChange={set("quantities")} />
+        </Field>
+        <Field
+          label="Default fallout %"
+          hint="Parts expected to scrap in process. Every new quote line starts with it (change it per line); run time, finishing and material are priced on the starts. Blank is none."
+        >
+          <Input
+            inputMode="decimal"
+            placeholder="e.g. 3"
+            value={f.fallout}
+            onChange={set("fallout")}
+          />
         </Field>
         <Field label="Quote valid (days)">
           <Input inputMode="numeric" value={f.validDays} onChange={set("validDays")} />

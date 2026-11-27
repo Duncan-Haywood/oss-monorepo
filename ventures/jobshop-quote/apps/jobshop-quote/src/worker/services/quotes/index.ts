@@ -425,6 +425,8 @@ export async function createQuote(
       operations: [rough, drill, tap, cut, bend].filter(
         (o): o is NonNullable<typeof o> => o !== null,
       ),
+      // The shop's default fallout (rate card settings); the estimator changes it per line.
+      ...(settings.defaultFalloutBps ? { falloutBps: settings.defaultFalloutBps } : {}),
       finishing: p.finishingOpIds.map((opId) => ({ opId })),
       extras: [],
     };
