@@ -117,7 +117,7 @@ test("CSV: formula cells neutralised, quotes escaped, BOM, localised headers", (
     days: 30,
   });
   const csv = dashboardCsv(d, "de");
-  assert.ok(csv.startsWith("﻿Mandant,Land,"));
+  assert.ok(csv.startsWith("\uFEFFMandant,Land,"));
   const [, row] = csv.slice(1).trim().split("\r\n");
   assert.ok(row.startsWith(`"'=cmd|`), row);
   assert.match(row, /,Handlungsbedarf,2026-11-20,1,2,1,1,0,1,50,BR-01 \(1\)$/);
@@ -195,7 +195,7 @@ test("GET /v1/dashboard: needs a key, lists only the caller's clients, costs no 
   assert.equal(csv.status, 200);
   assert.match(csv.headers.get("content-type") ?? "", /^text\/csv/);
   assert.match(csv.headers.get("content-disposition") ?? "", /^attachment; filename="clients-2026-11-24\.csv"$/);
-  const lines = csv.text.replace(/^﻿/, "").trim().split("\r\n");
+  const lines = csv.text.replace(/^\uFEFF/, "").trim().split("\r\n");
   assert.equal(lines.length, 3);
   assert.ok(lines[0].startsWith("Client,Pays,"));
   assert.ok(lines[1].startsWith("Bäckerei Schmidt,DE,"));

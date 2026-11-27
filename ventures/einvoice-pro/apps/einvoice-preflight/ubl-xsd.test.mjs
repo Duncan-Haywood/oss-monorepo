@@ -116,10 +116,10 @@ test("credit notes are checked against CreditNote's own model", () => {
 });
 
 test("messages never echo the value", () => {
-  const secret = "DE987654321SECRET";
-  const f = checkAgainstUblSchema(base.replace(/<cbc:IssueDate>[^<]*</, `<cbc:IssueDate>${secret}<`));
+  const marker = "DE987654321SECRET";
+  const f = checkAgainstUblSchema(base.replace(/<cbc:IssueDate>[^<]*</, `<cbc:IssueDate>${marker}<`));
   assert.equal(f.length, 1);
-  assert.ok(!JSON.stringify(f).includes(secret));
+  assert.ok(!JSON.stringify(f).includes(marker));
 });
 
 test("a file that is not UBL gets nothing from this pass", () => {

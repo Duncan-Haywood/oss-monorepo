@@ -7,6 +7,10 @@ COPY build-schematron.mjs ./
 RUN npm init -y >/dev/null && npm i saxon-js xslt3 slimdom fontoxpath && node build-schematron.mjs
 
 FROM node:22-alpine
+# The runtime needs only node: drop the package managers the base image ships, and their bundled
+# dependencies with them (trivy flags several; platform/security/baseline.yaml).
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+    /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg /opt/yarn-*
 WORKDIR /app
 COPY *.mjs index.html create.html ./
 RUN rm -f *.test.mjs

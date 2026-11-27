@@ -15,7 +15,7 @@ export const VERSIONS = Object.keys(data.versions);
 export const SOURCE = data.source;
 const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
 
-// Elements some providers add to the ABRASF model, as seen in their published sample files
+// Elements some providers add to the ABRASF model, which appear in their published sample files
 // (README, "ABRASF 2.00 to 2.02"). The schema finding stands, since the ABRASF schema does
 // not allow them; the note says whose extension it is, so a file meant for that provider's
 // city is not "fixed" by deleting a field its web service wants.
