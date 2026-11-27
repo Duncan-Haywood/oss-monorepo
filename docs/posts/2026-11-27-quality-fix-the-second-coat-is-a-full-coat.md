@@ -3,7 +3,7 @@ title: "Quality fix: our sealcoat bid treated the second coat as a light one"
 seo_title: "Sealcoat coverage per gallon: the second coat is a full coat"
 date: 2026-11-27
 tags: [quality-audit, asphalt-sealcoat-bid-calculator, for-customers, contractors, bidding]
-description: "Our sealcoating bid priced the second coat at 110 to 125 sq ft per gallon, with no field to change it. Manufacturer sheets give one rate for every coat. Now both coats start at the same figure and both can be edited."
+description: "Our sealcoat bid priced the second coat at 110-125 sq ft per gallon with no field to change it. Manufacturer sheets use one rate per coat. Fixed."
 ---
 
 How far a gallon of sealcoat goes decides how many gallons you order and
