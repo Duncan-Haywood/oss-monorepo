@@ -178,7 +178,7 @@ export function esc(value) {
 }
 
 const TITLE = 'Software for machine shops and engineering firms';
-const DESCRIPTION = 'RFQ-to-quote software (free to start) and a CMMC/ISO 9001 workspace in development for CNC and fabrication job shops, plus free tools for shop rates, part costs, nesting and SPC.';
+const DESCRIPTION = 'RFQ-to-quote software (free to start) and a CMMC/ISO 9001 workspace in development for CNC and fabrication shops, plus free shop-rate, costing and SPC tools.';
 
 export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, published = null, footer = '', tail = '', shots = [], productSites = new Set() } = {}) {
   const liveTools = FREE_TOOLS.filter((t) => !published || published.has(t.slug));
