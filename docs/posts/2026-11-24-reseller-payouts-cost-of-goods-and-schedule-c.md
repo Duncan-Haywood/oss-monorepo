@@ -2,7 +2,7 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, ebay, amazon, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+tags: [resellers, ebay, amazon, paypal, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
 description: "Three new guides for multi-platform resellers: bridge a payout back to sales, cost a mixed lot by resale value, and map the year onto Schedule C."
 ---
 
@@ -580,6 +580,37 @@ collected yourself. Whether you owe sales tax on a direct sale depends on
 your state, and that is a question for your state or your tax professional.
 On the free plan, direct sales count toward the 25 orders a month. They do
 not use up the plan's one marketplace.
+
+## Sales paid through PayPal, from one download (added 2026-11-27)
+
+Typing in direct sales one at a time works for a few a month. If buyers pay
+you in PayPal for local pickups, Facebook Marketplace or Instagram sales,
+there is a faster way. PayPal's own Activity download (Activity >
+Statements > Activity download, CSV) lists every payment, and Seller Books
+now imports it as its own platform.
+
+The file holds more than sales, so the importer sorts every row and says why
+it left each one out. A completed payment you received is a sale. Payments
+you sent, withdrawals to your bank, holds, currency conversions and pending
+payments are not sales. Refunds you gave back are imported as refunds, with
+the part of the fee PayPal returned. A payment from eBay, Poshmark, Mercari,
+Etsy or another marketplace Seller Books imports is skipped, with a note to
+import that marketplace's own report instead, so the same sale is never
+counted twice.
+
+Here is a worked row from the test file. A buyer paid $63.50 for a wool coat,
+and PayPal kept a $2.71 fee. That $63.50 is PayPal's Gross. It includes
+$8.00 of shipping and $3.50 of sales tax. Seller Books books $52.00 as the
+item, $8.00 as shipping charged and $2.71 as a payment processing fee. The
+$3.50 of tax stays out of gross receipts.
+
+PayPal's file cannot tell a sale from money a friend sent you, a loan paid
+back or a personal item you sold at a loss. Seller Books imports every
+payment you received as a sale and says so on the import. Delete any that
+were not sales. Every column is read by the name in PayPal's published field
+reference for the report, but we have not yet run a real download through
+it. If a column is missing, the import stops and names it rather than
+guessing.
 
 ## Marketplace sales into QuickBooks Online, one entry a month (added 2026-11-26)
 

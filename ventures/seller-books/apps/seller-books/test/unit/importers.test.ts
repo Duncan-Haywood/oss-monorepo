@@ -5,6 +5,7 @@ import { parseEbayTransactionReport } from "@worker/services/importers/ebay";
 import { parseEtsySoldOrders, parseEtsyStatement } from "@worker/services/importers/etsy";
 import { parseMercariSalesReport } from "@worker/services/importers/mercari";
 import { ImportFormatError, sumFees } from "@worker/services/importers/parse";
+import { parsePaypalActivity } from "@worker/services/importers/paypal";
 import { parsePoshmarkSalesReport } from "@worker/services/importers/poshmark";
 import {
   parseShopifyOrders,
@@ -703,5 +704,101 @@ describe("Square Transactions CSV", () => {
       /1 payments \(lines 2\) do not add up/,
     );
     expect(() => parseSquareTransactions("Date,Amount\n2026-01-01,5")).toThrow(ImportFormatError);
+  });
+});
+
+describe("PayPal Activity Download", () => {
+  const r = parsePaypalActivity(fixture("paypal-activity-download.csv"));
+  const orders = r.sales.filter((s) => s.kind === "order");
+  const refunds = r.sales.filter((s) => s.kind === "refund");
+
+  it("imports completed payments received, refunds and fee rows; skips everything else with a reason", () => {
+    expect(r.platform).toBe("paypal");
+    expect(r.rowCount).toBe(14);
+    expect(orders.map((o) => o.externalId)).toEqual([
+      "3GP00000000000005",
+      "5EC00000000000006",
+      "4SA00000000000002",
+    ]);
+    expect(refunds).toHaveLength(1);
+    expect(r.charges).toHaveLength(1);
+    expect(r.skipped.map((s) => s.line)).toEqual([3, 4, 7, 9, 10, 11, 13, 14, 15]);
+    const reason = (line: number) => r.skipped.find((s) => s.line === line)?.reason ?? "";
+    expect(reason(3)).toMatch(/between your own accounts/);
+    expect(reason(4)).toMatch(/payment from eBay: import eBay's own report/);
+    expect(reason(7)).toMatch(/a hold/);
+    expect(reason(9)).toMatch(/you sent/);
+    expect(reason(10)).toMatch(/Status "Pending"/);
+    expect(reason(11)).toMatch(/In EUR/);
+    expect(reason(13)).toMatch(/credited to you: not a sale/);
+    expect(reason(14)).toMatch(/between your own accounts/);
+    expect(reason(15)).toMatch(/you sent/);
+  });
+
+  it("splits shipping and sales tax out of Gross and keeps PayPal's fee", () => {
+    expect(orders[1]).toMatchObject({
+      title: "Wool coat",
+      date: "2026-03-14",
+      itemCents: 5200,
+      shippingChargedCents: 800,
+      salesTaxCents: 350,
+      netCents: null,
+    });
+    expect(orders[1]?.fees).toEqual([
+      { kind: "payment_processing", amountCents: 271, sourceColumn: "Fee" },
+    ]);
+    // No Item Title: the payer's subject names the sale.
+    expect(orders[0]).toMatchObject({ title: "Vintage lamp, local pickup", itemCents: 2500 });
+  });
+
+  it("reads a refund as money back to the buyer with the fee PayPal gave back", () => {
+    expect(refunds[0]).toMatchObject({
+      date: "2026-03-20",
+      orderId: "4SA00000000000002",
+      refundCents: 2000,
+      itemCents: 0,
+    });
+    expect(refunds[0]?.fees.map((f) => f.amountCents)).toEqual([-40]);
+    expect(r.charges[0]).toMatchObject({ kind: "other", amountCents: 2000, date: "2026-03-12" });
+  });
+
+  it("warns about what it left out and that every payment received counts as a sale", () => {
+    const w = r.warnings.join(" ");
+    expect(w).toMatch(/Every payment received in this file is imported as a sale/);
+    expect(w).toMatch(/1 payments from eBay left out/);
+    expect(w).toMatch(/2 payments you sent \(\$39\.99 in all\)/);
+    expect(w).toMatch(/1 rows in EUR left out/);
+    expect(w).not.toMatch(/outside this file/);
+  });
+
+  it("is stable on re-import, and drops refunds of payments it left out", () => {
+    expect(
+      parsePaypalActivity(fixture("paypal-activity-download.csv")).sales.map((s) => s.externalId),
+    ).toEqual(r.sales.map((s) => s.externalId));
+    const csv = [
+      "Date,Name,Type,Status,Currency,Gross,Fee,Transaction ID,Reference Txn ID,Balance Impact",
+      "01/02/2026,Buyer,General Payment,Reversed,USD,10.00,-0.50,A1,,Credit",
+      "01/03/2026,Buyer,Payment Reversal,Completed,USD,-10.00,0.00,A2,A1,Debit",
+      "01/04/2026,Buyer,Payment Refund,Completed,USD,-5.00,0.00,A3,OLD1,Debit",
+      "01/05/2026,PayPal,Fee Reversal,Completed,USD,3.00,0.00,A4,,Credit",
+    ].join("\n");
+    const p = parsePaypalActivity(csv);
+    expect(p.sales.map((s) => s.externalId)).toEqual(["A3"]);
+    expect(p.skipped.map((s) => s.line)).toEqual([2, 3]);
+    expect(p.charges[0]).toMatchObject({ kind: "payment_processing", amountCents: -300 });
+    expect(p.warnings.join(" ")).toMatch(/1 refunds are for payments outside this file/);
+  });
+
+  it("does not count a fee twice when a fee row follows a payment that carries it", () => {
+    const csv = [
+      "Date,Type,Status,Gross,Fee,Transaction ID,Reference Txn ID",
+      "01/02/2026,General Payment,Completed,10.00,-0.50,B1,",
+      "01/02/2026,Payment Fee,Completed,-0.50,0.00,B2,B1",
+    ].join("\n");
+    const p = parsePaypalActivity(csv);
+    expect(p.sales).toHaveLength(1);
+    expect(p.charges).toHaveLength(0);
+    expect(p.skipped[0]?.reason).toMatch(/already on its own row/);
+    expect(() => parsePaypalActivity("Date,Amount\n2026-01-01,5")).toThrow(ImportFormatError);
   });
 });

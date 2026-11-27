@@ -22,6 +22,7 @@ describe("fee sources", () => {
       amazon: /^https:\/\/(sell|sellercentral)\.amazon\.com\//,
       tiktok: /^https:\/\/seller-us\.tiktok\.com\//,
       square: /^https:\/\/squareup\.com\/help\//,
+      paypal: /^https:\/\/www\.paypal\.com\//,
     };
     for (const f of FEE_SOURCES) {
       expect(f.officialPages.length).toBeGreaterThan(0);
