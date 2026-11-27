@@ -22,14 +22,14 @@ export const R = { subtotal: SUB, retainage: SUB + 1, tax: SUB + 2, deposit: SUB
 
 // Two date styles added after template.mjs's 13 (ids 13 and 14).
 export const S = { ...BASE, inputDate: 13, date: 14 };
-const STYLES = BASE_STYLES
+export const STYLES = BASE_STYLES
   .replace('<numFmts count="2">', '<numFmts count="3">')
   .replace("</numFmts>", '<numFmt numFmtId="166" formatCode="yyyy-mm-dd"/></numFmts>')
   .replace('<cellXfs count="13">', '<cellXfs count="15">')
   .replace("</cellXfs>", '<xf numFmtId="166" fontId="0" fillId="2" borderId="1" xfId="0" applyNumberFormat="1" applyFill="1" applyBorder="1"/><xf numFmtId="166" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1"/></cellXfs>');
 
 // Plain decimals only (Number() alone would read "1e1" or "0x7"); the inputs here are fixed, so a bad one is a bug.
-const num = (s) => {
+export const num = (s) => {
   if (s === "" || s == null) return "";
   if (!/^-?\d+(\.\d+)?$/.test(String(s))) throw new Error(`not a plain number: ${s}`);
   return Number(s);
