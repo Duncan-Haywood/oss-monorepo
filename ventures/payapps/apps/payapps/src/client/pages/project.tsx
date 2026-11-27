@@ -28,6 +28,7 @@ import { HistoryPanel } from "../components/history";
 import { JobInsuranceRequirements } from "../components/insurance-requirements";
 import { JobSchedule } from "../components/job-schedule";
 import { meQuery } from "../components/layout";
+import { LienDeadlinePanel } from "../components/lien-deadline";
 import { LienNoticesPanel } from "../components/lien-notices";
 import { NotaryBlockSwitch } from "../components/notary-block";
 import { OpeningBalance } from "../components/opening-balance";
@@ -976,6 +977,14 @@ export function ProjectPage() {
         orgId={orgId}
         projectId={projectId}
         contractSumCents={p.originalContractSumCents}
+      />
+      <LienDeadlinePanel
+        path={projectPath(orgId, projectId)}
+        project={p}
+        onSaved={async () => {
+          await qc.invalidateQueries({ queryKey: key });
+          await qc.invalidateQueries({ queryKey: ["cash", orgId] });
+        }}
       />
       <LienNoticesPanel orgId={orgId} base={projectPath(orgId, projectId)} />
 

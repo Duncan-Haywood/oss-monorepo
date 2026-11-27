@@ -64,7 +64,7 @@ src/site/pages.ts       every page's <main>, FAQ data, JSON-LD
 src/site/seo.ts         sitemap, robots, llms.txt, llms-full.txt, feed
 src/site/build.ts       all files in memory (tested); scripts/build.ts writes them to dist/
 src/site/styles.css     hand-written CSS with tokens and checked contrast
-src/worker/             early-access API (app.ts), D1 logic (signups.ts), email, tokens, cron purge
+src/worker/             early-access API (app.ts), D1 logic (signups.ts), email, tokens, daily purge (purge-clock.ts)
 ```
 
 ## Early access: double opt-in
@@ -78,7 +78,7 @@ src/worker/             early-access API (app.ts), D1 logic (signups.ts), email,
 3. `GET /api/early-access/confirm?token=` shows a button. Only the `POST` confirms, so link scanners
    can't.
 4. `GET|POST /api/early-access/remove?token=` deletes the row.
-5. A daily cron deletes sign-ups never confirmed within 30 days. No IP address is stored.
+5. A daily Durable Object alarm (`src/worker/purge-clock.ts`, not a cron trigger: the account has 5) deletes sign-ups never confirmed within 30 days. No IP address is stored.
 
 The site sends only this confirmation email. A later "early access is open" announcement is marketing
 mail. Cloudflare Email Service refuses marketing mail, so send it through the provider grants uses for

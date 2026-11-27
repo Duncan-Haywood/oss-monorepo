@@ -87,4 +87,31 @@ E-invoice Preflight with its broken example checked, two arithmetic errors
 found, each with the fix it suggests ("Set gross total to 238.00"). It is the
 real tool on a local build of the site, not a mock-up.
 
+## Update, 27 November: the checker's own site in Dutch, for Belgian accountants
+
+Of the four countries, Belgium is the only one where the B2B rule is already
+fully in force: since 1 January 2026, Belgian VAT-registered businesses must
+send each other structured e-invoices over Peppol, and the general tolerance
+ended with March. So the firms that need help reading a refused Peppol invoice
+today are Belgian, and most Belgian bookkeeping offices work in Dutch. The
+early-access site for the paid checker (separate from the page above, and not
+public yet) was in German, French and English.
+
+It now has a full Dutch version: home, accountants (*boekhouders*), API,
+pricing, the four deadline pages, the early-access form and the privacy
+notice. Each deadline sentence has a Dutch line written next to the German,
+French and English ones in the same data file, so the date and the wording
+cannot drift apart; the site's tests still refuse any date on a page that is
+not in that sourced table. The Dutch home page starts with Belgium, and the
+Belgium page explains why a Peppol invoice is refused: the EN 16931 rules
+(BR-CO-15 when the total with VAT is not the total without VAT plus the VAT),
+the Peppol BIS rules, the schema, and the check on a Belgian enterprise number
+(scheme 0208: 10 digits and a mod-97 check). Prices read the Flemish way,
+"€ 19,50".
+
+Two limits, stated on the pages. The Dutch was drafted by our agent from the
+English text and has not been read by a native speaker yet; that review comes
+before the site goes public. And the Polish KSeF rules have no Dutch
+explanations, so the Dutch Poland page does not promise any.
+
 This is not tax advice.

@@ -31,7 +31,9 @@
     "BASE_PATH": "/cmmc",
     "EMAIL_FROM": "Shop Compliance Workspace <no-reply@marisstella.app>"
   },
-  // Daily purge of never-confirmed sign-ups (30 days).
-  "triggers": { "crons": ["17 4 * * *"] },
+  // The daily purge of never-confirmed sign-ups runs on PurgeClock's alarm (src/purge-clock.mjs),
+  // not a cron trigger: the Free plan allows 5 cron triggers per account (platform/ci/cron_budget.py).
+  "durable_objects": { "bindings": [{ "name": "PURGE_CLOCK", "class_name": "PurgeClock" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PurgeClock"] }],
   "routes": [{ "pattern": "marisstella.app/cmmc*", "zone_name": "marisstella.app" }]
 }

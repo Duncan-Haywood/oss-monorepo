@@ -8,9 +8,10 @@ export const esc = (s) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
-const LOCALE = { de: "de-DE", fr: "fr-FR", en: "en-GB" };
+// Dutch is written for Belgian (Flemish) readers first, hence nl-BE.
+const LOCALE = { de: "de-DE", fr: "fr-FR", en: "en-GB", nl: "nl-BE" };
 
-/** "1. Januar 2025" / "1er janvier 2025" / "1 January 2025" (UTC, so no off-by-one). */
+/** "1. Januar 2025" / "1er janvier 2025" / "1 January 2025" / "1 januari 2025" (UTC, so no off-by-one). */
 export function longDate(iso, lang) {
   const d = new Date(`${iso}T00:00:00Z`);
   const s = new Intl.DateTimeFormat(LOCALE[lang], {
