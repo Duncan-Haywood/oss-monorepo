@@ -1,13 +1,26 @@
 // The SEO/AEO contract (same checks as apps/grants' scripts/check-seo.mjs) plus the copy rules.
 import { AI_CRAWLERS, buildSite, fileFor, mainText, resolveBuildOptions } from "@site/build";
-import { CMMC_SITE_URL } from "@site/config";
+import { CMMC_SITE_URL, LAUNCH, type Launch } from "@site/config";
 import { esc } from "@site/html";
-import { PUBLIC_ROUTES } from "@site/routes";
+import { statusLine } from "@site/layout";
+import { AI_OFF } from "@site/pages";
+import { PUBLIC_ROUTES, publicRoutes } from "@site/routes";
 import { describe, expect, it } from "vitest";
 
 const SITE = "https://example.test/jobshop";
-const files = buildSite({ siteUrl: SITE, basePath: "/jobshop" });
-const pages = PUBLIC_ROUTES.map((r) => ({ route: r, html: files.get(fileFor(r.path)) ?? "" }));
+const APP = "https://app.example.test";
+/** The state the tests pin: open, nothing optional switched on (the launch state on 2026-11-27). */
+const OPEN: Launch = {
+  appUrl: APP,
+  open: true,
+  aiReading: false,
+  inboundEmail: false,
+  paidPlans: false,
+};
+const CLOSED: Launch = { ...OPEN, appUrl: null, open: false };
+const files = buildSite({ siteUrl: SITE, basePath: "/jobshop", launch: OPEN });
+const PUBLIC_ROUTES_OPEN = publicRoutes(OPEN);
+const pages = PUBLIC_ROUTES_OPEN.map((r) => ({ route: r, html: files.get(fileFor(r.path)) ?? "" }));
 
 function jsonLd(html: string): { "@graph": Record<string, unknown>[] } {
   const m = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(html);
@@ -30,8 +43,10 @@ describe("prerendered pages", () => {
   });
 
   it("uses unique titles and descriptions", () => {
-    expect(new Set(PUBLIC_ROUTES.map((r) => r.title)).size).toBe(PUBLIC_ROUTES.length);
-    expect(new Set(PUBLIC_ROUTES.map((r) => r.description)).size).toBe(PUBLIC_ROUTES.length);
+    for (const routes of [publicRoutes(OPEN), publicRoutes(CLOSED)]) {
+      expect(new Set(routes.map((r) => r.title)).size).toBe(routes.length);
+      expect(new Set(routes.map((r) => r.description)).size).toBe(routes.length);
+    }
   });
 
   it("adds the structured data each route asks for", () => {
@@ -70,10 +85,9 @@ describe("prerendered pages", () => {
 
   it("links only to pages that exist", () => {
     const known = new Set([
-      ...PUBLIC_ROUTES.map((r) => `/jobshop${r.path === "/" ? "/" : r.path}`),
+      ...PUBLIC_ROUTES_OPEN.map((r) => `/jobshop${r.path === "/" ? "/" : r.path}`),
       "/jobshop/styles.css",
       "/jobshop/favicon.svg",
-      "/jobshop/api/early-access",
     ]);
     for (const p of pages) {
       for (const [, href] of p.html.matchAll(/(?:href|action)="(\/[^"#]*)/g)) {
@@ -82,11 +96,48 @@ describe("prerendered pages", () => {
     }
   });
 
+  it("has no early-access pages, form or API once open: sign-up is in the app", () => {
+    for (const [rel, contents] of files) {
+      expect(rel).not.toMatch(/early-access/);
+      expect(contents, rel).not.toMatch(
+        /(?:href|action)="[^"]*early-access|<form|Request early access/,
+      );
+    }
+    for (const p of pages) {
+      expect(p.html, p.route.path).toContain(`href="${APP}/sign-up"`);
+      expect(p.html, p.route.path).toContain(`href="${APP}/sign-in"`);
+    }
+  });
+
+  it("refuses an open site with no app to sign up in", () => {
+    expect(() => publicRoutes({ ...OPEN, appUrl: null })).toThrow(/appUrl/);
+  });
+
+  it("builds the current launch switch", () => {
+    expect(PUBLIC_ROUTES).toEqual(publicRoutes(LAUNCH));
+  });
+});
+
+describe("closed site (before launch)", () => {
+  const closed = buildSite({ siteUrl: SITE, basePath: "/jobshop", launch: CLOSED });
+  const closedPages = publicRoutes(CLOSED).map((r) => ({
+    route: r,
+    html: closed.get(fileFor(r.path)) ?? "",
+  }));
+
+  it("says it's in development on every page and offers the early-access list", () => {
+    for (const p of closedPages) {
+      expect(p.html).toContain("In development");
+      expect(p.html).toContain('href="/jobshop/early-access"');
+      expect(p.html).not.toContain(APP);
+    }
+  });
+
   it("keeps the noindex thank-you page out of the sitemap and llms.txt", () => {
-    const thanks = pages.find((p) => p.route.path === "/early-access/thanks")?.html ?? "";
+    const thanks = closed.get("early-access/thanks.html") ?? "";
     expect(thanks).toContain('<meta name="robots" content="noindex">');
-    expect(files.get("sitemap.xml")).not.toContain("/early-access/thanks");
-    expect(files.get("llms.txt")).not.toContain("/early-access/thanks");
+    expect(closed.get("sitemap.xml")).not.toContain("/early-access/thanks");
+    expect(closed.get("llms.txt")).not.toContain("/early-access/thanks");
   });
 });
 
@@ -96,8 +147,21 @@ describe("copy rules (README: honesty)", () => {
     .join("\n")
     .toLowerCase();
 
-  it("says it's in development on every page", () => {
-    for (const p of pages) expect(p.html).toContain("In development");
+  it("states what is open on every page", () => {
+    const line = statusLine({ basePath: "/jobshop", launch: OPEN });
+    expect(line).toContain("paid plans not on sale yet");
+    for (const p of pages) expect(p.html).toContain(line);
+    for (const p of pages) expect(p.html).not.toContain("In development");
+  });
+
+  it("says AI reading is off wherever it describes it, while it is off", () => {
+    for (const path of ["/how-it-works", "/faq"]) {
+      expect(pages.find((p) => p.route.path === path)?.html).toContain(esc(AI_OFF));
+    }
+    const home = mainText(pages.find((p) => p.route.path === "/")?.html ?? "");
+    expect(home).toContain("Not switched on yet: reading RFQ emails and drawings with AI");
+    expect(home).not.toMatch(/Forward an RFQ email or drop in a PDF drawing/);
+    expect(files.get("llms.txt")).toContain("not switched on in the hosted app yet");
   });
 
   it("makes no customer, testimonial, rating or time-saved claims", () => {
@@ -119,8 +183,12 @@ describe("copy rules (README: honesty)", () => {
   it("shows proposed prices as not on sale", () => {
     const pricing = pages.find((p) => p.route.path === "/pricing")?.html ?? "";
     expect(pricing).toContain("$199");
-    expect(pricing).toContain("Nothing is for sale yet");
+    expect(pricing).toContain("they are not on sale yet");
     expect((pricing.match(/Not on sale yet\./g) ?? []).length).toBeGreaterThanOrEqual(2);
+    const closedPricing = buildSite({ siteUrl: SITE, basePath: "", launch: CLOSED }).get(
+      "pricing.html",
+    );
+    expect(closedPricing).toContain("Nothing is for sale yet");
   });
 });
 
@@ -134,13 +202,14 @@ describe("answer-engine files", () => {
 
   it("sitemap lists every indexable page", () => {
     const sm = files.get("sitemap.xml") ?? "";
-    for (const r of PUBLIC_ROUTES.filter((x) => !x.noindex))
+    for (const r of PUBLIC_ROUTES_OPEN.filter((x) => !x.noindex))
       expect(sm).toContain(`<loc>${SITE}${r.path === "/" ? "/" : r.path}</loc>`);
   });
 
   it("llms.txt follows llmstxt.org: H1, blockquote summary, linked sections", () => {
     const llms = files.get("llms.txt") ?? "";
-    expect(llms).toMatch(/^# RFQ Desk\n\n> /);
+    expect(llms).toMatch(/^# Job Shop Quote\n\n> /);
+    expect(llms).toContain(`- [Sign up](${APP}/sign-up)`);
     expect(llms).toContain(`- [Pricing](${SITE}/pricing): `);
     expect(llms).toContain("no customers yet");
   });

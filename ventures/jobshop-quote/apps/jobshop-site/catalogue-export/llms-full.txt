@@ -1,0 +1,414 @@
+# Job Shop Quote: full text
+
+Job Shop Quote is a hosted web app for CNC machine shops and metal fabrication job shops, open for sign-up at https://jobshop-quote.marisstella.app/sign-up. A shop sets up its rate card (machine and setup rates, material priced by weight, piece or length, outside processing, markups, minimums and quantity breaks), adds an RFQ's parts and files, and gets each line priced only from those rates, with setup and cycle times from its routings and from STEP and DXF measurements that the estimator can correct. It builds the quote PDF, emails it when the estimator sends it, gives the customer a link to accept or decline, reminds about follow-ups and expiring quotes, prints job travelers and keeps a won/lost log. An estimator at the shop reviews and sends every quote; the product never sends quotes itself. The Early access plan is free (up to 40 RFQs a month, 3 people, no card). Built but not switched on in the hosted app yet: reading RFQ emails and PDF drawings with AI, RFQs forwarded by email, paid plans, the QuickBooks Online connection. It has no customers yet. It is not set up for CUI or export-controlled (ITAR/EAR) drawings.
+
+## Home
+
+Source: https://marisstella.app/jobshop/
+
+For CNC and fabrication job shops · Free to start
+
+## Work through the RFQ backlog without hiring another estimator.
+
+Set your machine rates, setup charges, material prices and markups once. Add an RFQ's parts,
+attach its STEP or DXF files, and Job Shop Quote prices every line from your rates, measures what the
+CAD files can tell it, and builds the quote PDF for your estimator to check and send. Nothing goes
+to a customer until you send it.
+
+- Prices come from your rate table, never from a guess
+- Every line shows which of your rates it used
+- Quantity breaks, minimums and markups applied the same way every time
+
+Start free
+See how it works
+
+Free Early access plan: up to 40 RFQs a month, no card. Paid plans from $199 a month, not on sale yet.
+
+### The quoting pile is the bottleneck nobody hired for
+
+In a job shop, quoting usually lands on the owner or one estimator. Every RFQ means opening the
+email, reading each drawing, working out stock, setups and cycle times, looking up material and outside
+processing, and applying your rates. That work happens between running the floor and answering the
+phone, and while RFQs wait, the customers who sent them wait too.
+
+Job Shop Quote does the arithmetic and the paperwork, so your estimator's time goes on the judgment calls: the tricky features, the quantity breaks, and whether you want the job.
+
+### What it does, and what stays yours
+
+#### Job Shop Quote does the legwork
+
+- Reads RFQ emails and PDF drawings: parts, quantities, material, finish, tolerances and notes (AI reading: not switched on yet)
+
+- Checks what it read a second time against the drawing and flags anything it can't confirm (AI reading: not switched on yet)
+
+- Measures STEP and DXF files: blank size, holes, cut length, pierces and bends, for roughing, drilling, cutting and bending times you can correct
+
+- Applies your rates, minimums and markups with plain arithmetic: same inputs, same price
+
+- Lists the sent quotes due for a follow-up each morning and keeps a log of every call, so no quote goes quiet
+
+- Dates every material price, warns when one is past your limit, and lists the open quotes priced before your supplier's price moved
+
+- Imports your supplier's price sheet showing each price change and the open quotes it touches before you save, and keeps the supplier and date in each price's history
+
+#### Your shop keeps control
+
+- Your rate table sets every price; corrections your estimator makes become shop rules
+
+- Your estimator reviews every line and decides what gets quoted
+
+- Quotes are never sent automatically
+
+- Your drawings and rates are never used to train AI models
+
+### From RFQ to quote
+
+-
+
+#### Set your rates once
+
+Machines and hourly rates, setup charges, material, outside processing, minimums.
+
+-
+
+#### Add the RFQ
+
+Enter the parts and quantities; attach the drawings and any STEP or DXF files.
+
+-
+
+#### Priced by your rules
+
+Setups, cycle times you can correct, material and outside processing, all from your rates.
+
+-
+
+#### Review and send
+
+Your estimator fixes what needs fixing and sends the quote themselves.
+
+The full walkthrough →
+
+### Where it stands
+
+Job Shop Quote is open: any shop can sign up and use it on the free Early access plan. It is
+new. There are no customers yet and no results to quote, so you won't find testimonials or
+time-saved figures here. The first shops on it tell us where it gets things wrong, and that decides
+what gets built next.
+
+Working today: the rate card (imported from your spreadsheet or entered by hand), parts and
+routings, STEP and DXF measurements, quantity breaks, quote PDFs and quote email, customer links to
+accept or decline, follow-up and expiry reminders, job travelers, and the won/lost log.
+
+Not switched on yet: reading RFQ emails and drawings with AI, RFQs forwarded by email, the paid plans, the QuickBooks Online connection. Each is built; the hosted app turns it on when it is ready to run safely.
+
+Shops that handle defense work: read what early access means for CUI and export-controlled drawings first.
+
+### Try it on your own RFQs
+
+Sign up and set up your rate card. The Early access plan is free, up to 40 RFQs a month, no card.
+
+Start free
+
+## How it works
+
+Source: https://marisstella.app/jobshop/how-it-works
+
+How it works
+
+## From an RFQ in your inbox to a quote your estimator trusts
+
+This is how Job Shop Quote works. It is new, and the first shops on it shape what it does next, so details may change; this page will change with them. Steps marked as not switched on yet are built but off in the hosted app.
+
+-
+
+### 1Set up your rates once
+
+You enter how your shop prices work: each machine or work center and its hourly rate,
+setup charges, material costs or markups, outside processes such as anodizing, plating or heat treat
+with what your vendors charge, minimum order values, quantity breaks and how you round. This rate
+table is the only place prices come from.
+
+-
+
+### 2Send in the RFQ
+
+Forward the customer's email to your shop's intake address, or upload the PDF drawings
+directly. It reads email text and PDF drawings, including scans, and CAD files: a STEP solid's size,
+volume and holes, and a DXF flat pattern's cut length, pierces and bend lines. From those it suggests
+the blank, the parts per sheet and, where you have entered the rate, a roughing, drilling, tapping, cutting or bending time, each labelled with
+how it was worked out. IGES, STL and native SolidWorks files are stored but not measured yet.
+
+RFQs by email to a shop address are not switched on in the hosted app yet: upload the files instead.
+
+Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet; until it is, you enter those values yourself.
+
+-
+
+### 3It reads the drawing, then checks itself
+
+For each part it pulls out material, stock size, features, tolerances, finish, quantity
+and due date. A second, separate pass checks every extracted value against the drawing. A value it
+can't confirm, like a smudged tolerance or a missing material callout, is flagged for your estimator
+with the page it came from. It is never filled in with a guess.
+
+Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet; until it is, you enter those values yourself.
+
+-
+
+### 4Priced by your rules
+
+Setup and cycle-time estimates are the hard part of quoting, so Job Shop Quote proposes them
+with its reasoning written out (operations, tools, approximate times) for your estimator to accept
+or correct. The dollar figures are then plain arithmetic on your rate table: the same inputs always
+give the same price, and every line shows which rate it used. Corrections your estimator makes are
+saved as rules for your shop, so the next similar part starts closer.
+
+-
+
+### 5Your estimator reviews and sends
+
+The draft quote lists every part, its price build-up and anything flagged. Your
+estimator edits what needs editing and approves it. You then download it as a PDF on your letterhead
+or have Job Shop Quote email it from your estimator's send button. It never sends a quote on its own.
+
+### What it will not do
+
+- Make up a dimension, tolerance, material or quantity that isn't on the drawing or in the email
+- Price anything with a rate you didn't set
+- Send anything to your customers
+- Use your drawings, rates or quotes to train AI models
+- Share one shop's rates or drawings with another shop
+
+Defense work: see CUI and export-controlled drawings before sending any.
+
+### Set up your rate card and quote a real RFQ
+
+Free to start, no card. Tell us what it gets wrong and that is what gets fixed first.
+
+Start free
+
+## Pricing
+
+Source: https://marisstella.app/jobshop/pricing
+
+Pricing
+
+## Free to start. Simple when you grow.
+
+Start on the free Early access plan. The paid plans below are what we will charge; they are not on sale yet, and nobody is moved onto one without choosing it.
+
+Open now
+
+### Early access
+
+$0 no card
+
+- Up to 40 RFQs a month
+
+- 3 people from your shop
+
+- Direct line to the person building it
+
+- No card, no commitment; leave any time
+
+Start free
+
+Coming
+
+### Shop
+
+$199 a month
+
+or $2,149 a year (10% off)
+
+For a shop where the owner or one estimator does the quoting.
+
+- Up to 125 RFQs a month
+
+- 3 people from your shop
+
+- Your rate table, shop rules and quote history
+
+Not on sale yet.
+
+Coming
+
+### Shop Plus
+
+$399 a month
+
+or $4,309 a year (10% off)
+
+For shops with a quoting team or a steady stream of multi-part RFQs.
+
+- Up to 300 RFQs a month
+
+- 10 people from your shop
+
+- Your rate table, shop rules and quote history
+
+Not on sale yet.
+
+### How these prices were set
+
+Each plan is priced from what it costs us to run: the AI reading each drawing and checking
+itself, hosting and storing drawings, payment fees, a refund reserve and support time, for a shop
+that uses its whole allowance. The price is that cost plus a margin of roughly one and a half to two
+and a half times, and RFQ allowances are set so no plan sells below that.
+
+#### What counts as an RFQ
+
+One customer request, with any number of parts, up to 10 drawing pages. Bigger packages count once
+per 10 pages. Re-reading, editing and re-pricing the same RFQ doesn't count again.
+
+#### Shops on the free plan
+
+We'll tell you about any price change before anything is charged, and nobody is moved
+onto a paid plan without choosing it.
+
+### Start free on your own RFQs
+
+The Early access plan costs nothing and needs no card.
+
+Start free
+
+## For CMMC-conscious shops
+
+Source: https://marisstella.app/jobshop/for-cmmc-shops
+
+For defense and CMMC-conscious shops
+
+## Quoting help, without putting controlled drawings at risk
+
+Many machine shops quote for defense primes and their suppliers. If some of your RFQs
+carry Controlled Unclassified Information (CUI) or export-controlled technical data, here is exactly
+where Job Shop Quote stands.
+
+### During early access: don't send CUI or ITAR/EAR drawings
+
+Job Shop Quote early access is not set up to hold CUI or export-controlled technical data. Contractors
+that store covered defense information with a cloud service are expected to use one that meets
+security requirements equivalent to the FedRAMP Moderate baseline
+(DFARS 252.204-7012),
+and export-controlled drawings have their own rules. We don't claim either, so please use early
+access only for commercial RFQs and drawings with no CUI or export-control markings.
+
+If you're not sure whether a drawing is controlled, treat it as controlled and leave it out. Signing up asks for your name, email and shop, never for drawings.
+
+### Why we're building for these shops anyway
+
+CMMC requirements started appearing in Department of Defense contracts on 10 November 2025
+(MeriTalk);
+check the current rollout schedule for what applies to your contracts. The shops that quote defense
+work are often the same small CNC and fabrication shops that Job Shop Quote is for, and they need the
+paperwork side handled too.
+
+### Coming: a CMMC workspace for small shops
+
+Alongside Job Shop Quote we're building a separate workspace for CMMC Level 1 and Level 2
+self-assessments: the System Security Plan, the plan of action and milestones, and the SPRS score
+across the NIST SP 800-171 controls. It is not available yet, it will not certify anyone (only an
+authorized assessor can), and its site isn't live yet.
+
+The CMMC workspace (coming)
+
+Want to hear when either is ready for controlled work? Email hello@marisstella.app.
+
+### Start with your commercial RFQs
+
+The Early access plan is free and needs no card.
+
+Start free
+
+## FAQ
+
+Source: https://marisstella.app/jobshop/faq
+
+FAQ
+
+## Frequently asked questions
+
+### Can I use Job Shop Quote today?
+
+Yes. Sign up free at https://jobshop-quote.marisstella.app/sign-up. The Early access plan covers up to 40 RFQs a month for 3 people, with no card. It prices the parts you enter, and what it measures from STEP and DXF files, from your rate card, builds the quote PDF, emails it when your estimator sends it, and keeps the won/lost log. Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet; until it is, you enter those values yourself.
+
+### Does the AI decide my prices?
+
+No. Prices come only from the rates, minimums and markups you set. The AI reads the RFQ and drawings and proposes setups and cycle times with its reasoning shown; your estimator accepts or corrects them, and the dollar math is plain arithmetic on your rate table.
+
+### How does it price material: by weight, by the bar or by the foot?
+
+Whichever way you buy it. Each material on your rate table is priced by weight (your price per lb or per cwt and density, plus scrap), by the stock piece (a sheet or a cut blank), or by length for bar, tube and extrusion: your price per foot or per metre, a cut allowance for kerf and facing, and, if you buy in fixed bars, the bar length and remnant, so a line is charged the whole bars its parts need. You can import these from your supplier's price list as a spreadsheet: before you save, each row shows its price change and the open quotes priced at the old price, and the supplier and the list's date are kept in each price's history. A price per cwt or per metre is kept exactly as your supplier quotes it, so $412.50/cwt prices at $4.125/lb, not a rounded $4.13.
+
+### What does it read?
+
+The STEP and DXF measurements work today; reading email text and PDF drawings with AI is not switched on in the hosted app yet. RFQ email text and PDF drawings, including scans, plus STEP and DXF files. A STEP solid gives the blank size and, with your machine's measured removal rate, a roughing time; with your seconds per hole and, if you enter one, your drill feed for each hole's depth, a drilling time that counts a counterbored hole once, flags holes deeper than 3× their diameter and leaves bores over 1 in to you; tick which hole sizes are threaded and, with your seconds per tapped hole, it adds a tapping time. A DXF flat pattern gives a laser, waterjet or plasma cutting time from its cut length and pierces at your cut speed (one per machine, or your own speed for each material and thickness from your cut charts), and a press-brake time from its bend lines; on a material sold by the sheet, with your sheet size and nest gap, it counts how many flat blanks fit on one sheet (a rectangular nest, so a nesting program may fit more, never fewer). IGES, STL and native SolidWorks files are not measured yet.
+
+### What happens when a drawing is unclear?
+
+The value is flagged for your estimator with the drawing page it came from. It is never filled in with a guess.
+
+### Will it send quotes to my customers?
+
+No. Your estimator reviews and approves every quote and sends it themselves: by email from the app, as a PDF, or copied into your own email or ERP.
+
+### Will you use my drawings to train AI models?
+
+No. Your drawings, rates and quotes are used only to quote for your shop. They are never used to train AI models and never shared with another shop.
+
+### Can I send CUI or export-controlled (ITAR/EAR) drawings?
+
+Not during early access: it isn't set up for controlled data. Use it only for commercial RFQs. The page for CMMC-conscious shops explains why and what's coming.
+
+### Does it connect to my ERP or quoting system?
+
+Not yet in the hosted app: download the quote PDF or copy it across. A QuickBooks Online connection, which turns a won quote into an invoice, is built and switches on once Intuit approves it. Tell us which system you use at hello@marisstella.app; that decides what gets connected next.
+
+### What does it cost?
+
+The Early access plan is free, with no card. Paid plans start at $199 a month, priced from what it costs to run; they are not on sale yet. Nobody is moved onto a paid plan without choosing it.
+
+### Who is building it?
+
+Maris Stella Labs LLC, a small software company that also makes Grant Autopilot for nonprofits.
+
+Something else? Email hello@marisstella.app.
+
+### Try it on your own RFQs
+
+The Early access plan is free and needs no card.
+
+Start free
+
+## Privacy
+
+Source: https://marisstella.app/jobshop/privacy
+
+Privacy
+
+## Site privacy notice
+
+These pages have no forms, set no cookies and load no analytics or third-party
+scripts, so they store nothing about you.
+
+### The app has its own policy
+
+When you sign up, Job Shop Quote stores your account, your shop's rates, RFQs, files and quotes. What
+it keeps, why and for how long is in its
+privacy policy, alongside the
+terms of service.
+
+### Hosting
+
+The site is served by Cloudflare, which, like any web host, sees the requests your browser
+makes to it.
+
+### Earlier early-access requests
+
+If you asked for early access through an earlier form and want your request deleted, email
+hello@marisstella.app from the address you used.
+
+### Who we are
+
+Maris Stella Labs LLC.

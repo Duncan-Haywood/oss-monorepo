@@ -40,6 +40,7 @@ import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.
 import { buildManufacturingPage } from './industry-manufacturing.mjs';
 import { buildConstructionPage, CONSTRUCTION_PATH } from './industry-construction.mjs';
 import { buildPayappsSite } from './payapps-site.mjs';
+import { buildJobshopSite } from './jobshop-site.mjs';
 import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
@@ -12770,7 +12771,7 @@ export function renderSitemapIndex(surfaces, baseUrl, extraSitemaps = []) {
     surfaces.map(
       (surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`,
     ),
-    // Sites this build copies in whole, with a sitemap of their own (payapps-site.mjs).
+    // Sites this build copies in whole, with a sitemap of their own (payapps-site.mjs, jobshop-site.mjs).
     extraSitemaps.map((rel) => `  <sitemap><loc>${baseUrl}${rel}</loc></sitemap>`),
   );
 
@@ -13964,6 +13965,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     await fs.mkdir(path.join(outDir, doc.path), { recursive: true });
     await fs.writeFile(path.join(outDir, doc.path, 'index.html'), renderLegalPage({ doc, surfaces, baseUrl: base }));
   }
+  // Job Shop Quote's own marketing site (paid bet #2), copied in whole from the app's committed
+  // static export, without the catalogue chrome (`jobshop-site.mjs`). Before the manufacturing
+  // page, which links it.
+  const jobshopSite = await buildJobshopSite(outDir, { baseUrl: base });
   // The nonprofits industry page (2026-11-24 pivot): small nonprofits'
   // common problems, Grant Autopilot, and the free nonprofit tools. See
   // `industry-nonprofits.mjs`.
@@ -13973,9 +13978,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
       tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-nonprofits" defer></script>`,
     }),
-    // Job shops and small engineering firms: quoting and CMMC/ISO 9001
-    // products in development, and the free tools (`industry-manufacturing.mjs`).
+    // Job shops and small engineering firms: Job Shop Quote (open), the CMMC/ISO 9001
+    // product in development, and the free tools (`industry-manufacturing.mjs`).
     await buildManufacturingPage(outDir, base, {
+      productSites: new Set(jobshopSite.length ? ['jobshop'] : []),
       published: new Set(surfaces.map((s) => s.slug)),
       footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
       tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-manufacturing" defer></script>`,
@@ -14084,7 +14090,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // static export, without the catalogue chrome (`payapps-site.mjs`). Before the
   // construction page, which links it.
   const payappsSite = await buildPayappsSite(outDir, { baseUrl: base });
-  const extraSitemaps = payappsSite.filter((rel) => rel === 'payapps/sitemap.xml');
+  const extraSitemaps = [...payappsSite, ...jobshopSite].filter((rel) =>
+    rel === 'payapps/sitemap.xml' || rel === 'jobshop/sitemap.xml');
 
   // The construction industry landing page (`industry-construction.mjs`):
   // links only tools and research this build published.

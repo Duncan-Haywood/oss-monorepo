@@ -13,6 +13,7 @@
 
 import { type FormValues, parseEarlyAccess } from "@shared/early-access";
 import { jsonLdFor } from "@site/build";
+import { LAUNCH } from "@site/config";
 import { type DocumentContext, renderDocument } from "@site/layout";
 import { earlyAccessPage } from "@site/pages";
 import { getRoute } from "@site/routes";
@@ -99,8 +100,10 @@ export async function handleEarlyAccess(
 
   const parsed = parseEarlyAccess(formValues(form));
   if (!parsed.ok) {
-    const ctx: DocumentContext = { basePath: base, siteUrl: siteUrl(env) };
-    const route = getRoute("/early-access");
+    // The form exists only on the closed (pre-launch) site, so it renders in that state.
+    const launch = { ...LAUNCH, open: false };
+    const ctx: DocumentContext = { basePath: base, siteUrl: siteUrl(env), launch };
+    const route = getRoute("/early-access", launch);
     const page = renderDocument(
       ctx,
       { ...route, title: `Check your details · ${route.title}`, noindex: true },

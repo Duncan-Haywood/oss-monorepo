@@ -12,6 +12,15 @@ section 1), inbound RFQ email is off, paid plans are dark. The workflow now defa
 
 ## Done (v0.1, this core)
 
+- Marketing site served (2026-11-27, `jobshop-site-served`): `apps/jobshop-site` opened (launch switch
+  `LAUNCH` in its `src/site/config.ts`: Start free / Sign in to `https://jobshop-quote.marisstella.app`,
+  early-access list retired, AI reading and inbound email labelled "not switched on yet", paid plans
+  "not on sale yet"), renamed from the placeholder "RFQ Desk" to this app's name, and served at
+  `https://marisstella.app/jobshop/` from its committed `catalogue-export/`
+  (`platform/pages/jobshop-site.mjs`). The manufacturing industry page and the products page now list
+  Job Shop Quote as open with a Start free link. When the owner sets `JOBSHOP_ANTHROPIC_API_KEY`, flip
+  `LAUNCH.aiReading` and run `pnpm export:catalogue` there.
+
 - Shops, members, roles (owner/admin/estimator/viewer), invitation links.
 - Rate card: machines (hourly + optional setup rate, default setup, measured removal rate),
   materials ($/lb with density and scrap, or $/stock piece; minimum charge), finishing/outside

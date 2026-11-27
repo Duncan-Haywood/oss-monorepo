@@ -189,7 +189,9 @@ export const LEGAL_DIRS = ['privacy', 'terms', 'cookies'];
 
 // PayApps' own marketing site, copied in whole by payapps-site.mjs: a site page, not a free tool.
 export const PAYAPPS_SITE_DIR = 'payapps';
-export const SITE_OWN_DIRS = new Set([PAYAPPS_SITE_DIR, ...LEGAL_DIRS, HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR, PRODUCTS_DIR]);
+// Job Shop Quote's own marketing site, copied in whole by jobshop-site.mjs: the same kind.
+export const JOBSHOP_SITE_DIR = 'jobshop';
+export const SITE_OWN_DIRS = new Set([PAYAPPS_SITE_DIR, JOBSHOP_SITE_DIR, ...LEGAL_DIRS, HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR, PRODUCTS_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -895,11 +897,14 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
 
   // PayApps' marketing site: every page carries the disclaimer (its footer); reachability comes
   // from the construction page's link and the sitemap index, checked by the walk below.
-  for (const name of await fs.readdir(path.join(site, PAYAPPS_SITE_DIR)).catch(() => [])) {
-    if (!name.endsWith('.html')) continue;
-    const relative = path.join(PAYAPPS_SITE_DIR, name);
-    const html = await fs.readFile(path.join(site, relative), 'utf8');
-    if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+  // Job Shop Quote's (jobshop-site.mjs) likewise, linked from the manufacturing page.
+  for (const dir of [PAYAPPS_SITE_DIR, JOBSHOP_SITE_DIR]) {
+    for (const name of await fs.readdir(path.join(site, dir)).catch(() => [])) {
+      if (!name.endsWith('.html')) continue;
+      const relative = path.join(dir, name);
+      const html = await fs.readFile(path.join(site, relative), 'utf8');
+      if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+    }
   }
 
   for (const dir of [UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, STORIES_DIR, HARDWARE_DIR, PRODUCTS_DIR, INDUSTRIES_DIR]) {

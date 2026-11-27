@@ -4,13 +4,29 @@ The public site for bet #2 in `portfolio/monetization/bets.md` (oss-monorepo): A
 and fabrication job shops. The product itself is built in the sibling app `apps/jobshop-quote`; this
 app is only the marketing pages and the early-access form.
 
-> **The product name "RFQ Desk" is provisional.** It is a descriptive placeholder, not cleared as a
-> trademark and not checked for domain or name conflicts. Change `SITE_NAME` in `src/site/config.ts`
-> (and the text in `public/favicon.svg` and `public/og.png`) when a name is chosen.
+> **Name.** The site uses the app's own name, "Job Shop Quote" (`SITE_NAME` in `src/site/config.ts`),
+> so the pages and the sign-up a visitor lands in agree. It is descriptive and not cleared as a
+> trademark. ("RFQ Desk" was the placeholder before 2026-11-27.)
 
-> **The production URL is provisional too:** `https://marisstella.app/jobshop` (`DEFAULT_SITE_URL`), and
-> the sibling CMMC product is linked at `https://marisstella.app/cmmc` (`CMMC_SITE_URL`, apps/cmmc-site)
-> and labelled "coming" everywhere. Update both when hosting is decided.
+> **Served at `https://marisstella.app/jobshop/`** by the catalogue build, from the committed static copy
+> in `catalogue-export/` (`pnpm export:catalogue`; `platform/pages/jobshop-site.mjs` copies it in; a unit
+> test fails when the copy drifts). The sibling CMMC product is linked at `https://marisstella.app/cmmc`
+> (`CMMC_SITE_URL`, apps/cmmc-site) and labelled "coming" everywhere.
+
+## The launch switch
+
+`LAUNCH` in `src/site/config.ts` says what the hosted app does today, and the copy follows it:
+
+| Field | Now | What it changes |
+| --- | --- | --- |
+| `appUrl` | `https://jobshop-quote.marisstella.app` | Sign in / Start free links, the privacy and terms links |
+| `open` | `true` | Early-access pages, form and thank-you page gone; "Start free" everywhere; site privacy notice says the site stores nothing |
+| `aiReading` | `false` | Every description of AI reading says it is not switched on yet (owner sets `JOBSHOP_ANTHROPIC_API_KEY`) |
+| `inboundEmail` | `false` | The "forward the RFQ" step says to upload instead |
+| `paidPlans` | `false` | Paid plans read "Coming" / "Not on sale yet." |
+
+Flip a field when the app changes, then `pnpm export:catalogue` and commit `catalogue-export/`. With
+`open: false` the site is the pre-launch early-access site below (the Worker in `src/worker/`).
 
 ## Pages
 
@@ -18,12 +34,12 @@ app is only the marketing pages and the early-access form.
 | --- | --- |
 | `/` | The estimator's RFQ backlog; quote from email or drawing using your own rates |
 | `/how-it-works` | Rate table → RFQ in → read and self-check → priced by your rules → estimator sends |
-| `/pricing` | Free early access + proposed plans from $199/mo, cost-plus (see `docs/PRICING.md`) |
+| `/pricing` | Free Early access plan + paid plans from $199/mo (not on sale yet), cost-plus (see `docs/PRICING.md`) |
 | `/for-cmmc-shops` | No CUI / ITAR / EAR drawings during early access; CMMC workspace "coming" |
 | `/faq` | FAQ (FAQPage JSON-LD built from the same list) |
-| `/early-access` | The form (posts to `/api/early-access`, stored in D1) |
-| `/early-access/thanks` | After a successful post (noindex, not in the sitemap) |
-| `/privacy` | Privacy notice for the form |
+| `/early-access` | Closed site only: the form (posts to `/api/early-access`, stored in D1) |
+| `/early-access/thanks` | Closed site only: after a successful post (noindex, not in the sitemap) |
+| `/privacy` | Open: the site stores nothing, links the app's policy. Closed: privacy notice for the form |
 
 ## How it's built
 
@@ -39,9 +55,9 @@ is plain HTML generated at build time, ships no JavaScript and works as a plain 
   ([llmstxt.org](https://llmstxt.org)) and `llms-full.txt`. `scripts/build.ts` writes it to `dist/`
   with `public/` (styles, favicon, og.png, `_headers`).
 - JSON-LD: `WebPage` everywhere, `BreadcrumbList` below home; home adds `Organization`, `WebSite` and
-  `SoftwareApplication` (`creativeWorkStatus: "In development"`, no offers, no ratings); pricing adds a
-  `Product` with only the free early-access offer (proposed prices aren't for sale, so they aren't
-  marked up as offers); FAQ adds `FAQPage`.
+  `SoftwareApplication` (open: only the free plan as an offer, pointing at sign-up; closed:
+  `creativeWorkStatus: "In development"`; never ratings); pricing adds a `Product` with only the free
+  offer (paid prices aren't on sale, so they aren't marked up as offers); FAQ adds `FAQPage`.
 - Styling: `public/styles.css`, grants' "Juniper & Sandstone" palette (`apps/grants/docs/DESIGN.md`),
   system fonts, no inline styles; CSP `script-src 'none'`.
 - `src/worker/` is the Worker: static assets for everything, except `/api/*` (`run_worker_first`).
@@ -79,7 +95,10 @@ Service like grants' transactional mail.
 
 ## Copy rules
 
-- It's in development: every page says so (status strip), nothing is for sale, prices are "proposed".
+- Every page states what is open in the status strip (`statusLine`): open, the free plan, paid plans
+  not on sale yet. Say only what the hosted app does today; anything built but switched off
+  (`LAUNCH`) is called "not switched on yet" wherever it is described. Before launch: "in
+  development", prices "proposed".
 - No testimonials, customer counts, logos, ratings, results or time-saved figures. There are none.
   `test/unit/site.test.ts` fails on the usual phrases.
 - Never claim certification, CMMC/ITAR/FedRAMP compliance, or that controlled drawings may be sent.

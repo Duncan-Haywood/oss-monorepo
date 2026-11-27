@@ -281,8 +281,11 @@ export const PRODUCT_LINES = Object.freeze([
       'Fitting new work around the jobs already on the floor',
     ],
     product: 'RFQ in, priced quote out, using your shop’s own rates and setup times.',
-    status: 'early-access',
+    status: 'open-free',
     href: null,
+    appName: 'Job Shop Quote',
+    // Deployed from ventures/jobshop-quote (ventures/jobshop-quote/DEPLOY.md, run 46018975911).
+    appUrl: 'https://jobshop-quote.marisstella.app/sign-up',
     industry: 'manufacturing',
     kind: 'software',
     tools: ['cnc-machining-quote-calculator', 'job-shop-scheduler'],
@@ -432,7 +435,7 @@ export function joinNames(names) {
 
 /**
  * One sentence on what a visitor can use today, from the statuses alone:
- * "Grant Autopilot is live, and PayApps and Seller Books are open on a free plan."
+ * "Grant Autopilot is live, and PayApps, Job Shop Quote and Seller Books are open on a free plan."
  */
 export function usableSentence(lines = PRODUCT_LINES) {
   const name = (l) => l.appName || l.name;

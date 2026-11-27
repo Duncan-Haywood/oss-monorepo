@@ -10,8 +10,10 @@
  * `build.mjs` calls `buildManufacturingPage` on every site build.
  *
  * Honesty rules this page keeps (tested in industry-manufacturing.test.mjs):
- *   - both products are in development: "early access", never "available";
- *     no price is shown until one is set;
+ *   - a product is "open" only when its app takes sign-ups (`appUrl`; Job Shop Quote since
+ *     2026-11-27, jobshop-quote-deploy run 46018975911), and then says what is still switched off;
+ *     the others are in development: "early access", never "available";
+ *     no price is shown on this page (an open product's own site carries its pricing);
  *   - no claim of CMMC certification, C3PAO status or DoD endorsement;
  *   - every market fact carries the source `bets.md` cites for it.
  *
@@ -43,14 +45,18 @@ export const EARLY_ACCESS_HREF = 'custom-development/?kind=new#request';
 export const PRODUCTS = Object.freeze([
   Object.freeze({
     id: 'jobshop-quote',
-    name: 'Job-shop quoting: RFQ to priced quote',
-    status: 'In development (early access)',
+    name: 'Job Shop Quote: RFQ to priced quote',
+    status: 'Open: free to start',
     for: 'CNC machine shops and fabricators who quote from drawings, CAD files and emails.',
     does: [
-      'Reads an RFQ (the email, the text of PDF drawings, STEP and DXF files) and drafts a priced quote.',
-      'Prices from your own shop rates, setup times and material costs, not a generic table.',
-      'Keeps every quote and its assumptions, so you can see why a job was priced the way it was.',
+      'Prices each part from your own shop rates, setup times and material costs, not a generic table.',
+      'Measures STEP and DXF files for blank size, cutting, drilling and bending times you can correct.',
+      'Builds the quote PDF, emails it when your estimator sends it, and keeps every quote and its assumptions in a won/lost log.',
     ],
+    note: 'Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet; until it is, you enter the parts yourself.',
+    // The app's sign-up (apps/jobshop-quote) and its own marketing site at /jobshop/ (jobshop-site.mjs).
+    appUrl: 'https://jobshop-quote.marisstella.app/sign-up',
+    site: 'jobshop',
     problems: ['rfq-backlog', 'own-rates'],
     // The free tool whose real still (showcase/capture.mjs) shows under this card.
     still: 'cnc-machining-quote-calculator',
@@ -170,7 +176,7 @@ export function esc(value) {
 const TITLE = 'Software for machine shops and engineering firms';
 const DESCRIPTION = 'Quoting and CMMC/ISO 9001 software in development for CNC and fabrication job shops, plus free tools for shop rates, part costs, nesting and SPC.';
 
-export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, published = null, footer = '', tail = '', shots = [] } = {}) {
+export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, published = null, footer = '', tail = '', shots = [], productSites = new Set() } = {}) {
   const liveTools = FREE_TOOLS.filter((t) => !published || published.has(t.slug));
   const toRoot = '../../';
   // Real stills of the free tools (showcase/manifest.json via loadShowcase,
@@ -219,7 +225,9 @@ export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, publi
   <p class="solves">Solves: ${p.problems.map((id) => `<a href="#${esc(id)}">${esc(problemTitle.get(id))}</a>`).join('; ')}</p>
   ${p.note ? `<p class="note">${esc(p.note)}</p>` : ''}
   ${p.still && still.has(p.still) ? figure(still.get(p.still), 'still', true, '(max-width: 52rem) calc(100vw - 66px), 600px') : ''}
-  <p>Pricing is not set yet. <a class="go" href="${esc(`${toRoot}${EARLY_ACCESS_HREF}`)}">Ask for early access</a></p>
+  ${p.appUrl
+    ? `<p><a class="go" href="${esc(p.appUrl)}">Start free</a> (no card)${p.site && productSites.has(p.site) ? ` · <a href="${esc(`${toRoot}${p.site}/`)}">Features and pricing</a>` : ''}</p>`
+    : `<p>Pricing is not set yet. <a class="go" href="${esc(`${toRoot}${EARLY_ACCESS_HREF}`)}">Ask for early access</a></p>`}
 </section>`).join('\n');
 
   const tools = liveTools.map((t) => `<li><a href="${esc(`${toRoot}${t.slug}/`)}">${esc(t.name)}</a>: ${esc(t.why)}</li>`).join('\n');

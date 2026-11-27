@@ -3,10 +3,19 @@
 // per-page HTML with JSON-LD, sitemap.xml, robots.txt (named AI crawlers), llms.txt, llms-full.txt.
 
 import { EARLY_ACCESS_PLAN, PLANS } from "@shared/plans";
-import { CONTACT_EMAIL, DEFAULT_SITE_URL, PUBLISHER, SITE_NAME, TAGLINE } from "./config";
+import {
+  appLink,
+  CONTACT_EMAIL,
+  DEFAULT_SITE_URL,
+  LAUNCH,
+  type Launch,
+  PUBLISHER,
+  SITE_NAME,
+  TAGLINE,
+} from "./config";
 import { canonical, type DocumentContext, renderDocument } from "./layout";
-import { FAQS, PAGE_BODIES } from "./pages";
-import { PUBLIC_ROUTES, type PublicRoute } from "./routes";
+import { faqs, PAGE_BODIES } from "./pages";
+import { type PublicRoute, publicRoutes } from "./routes";
 
 /** Same list as apps/grants: named so the policy is explicit; each group repeats the "*" rules. */
 export const AI_CRAWLERS = [
@@ -25,6 +34,7 @@ export const AI_CRAWLERS = [
   "CCBot",
 ] as const;
 const DISALLOWED = ["/api", "/early-access/thanks"];
+const OPEN_DISALLOWED = ["/api"];
 
 export function jsonLdFor(ctx: DocumentContext, route: PublicRoute): unknown {
   const orgId = `${ctx.siteUrl}/#organization`;
@@ -46,7 +56,9 @@ export function jsonLdFor(ctx: DocumentContext, route: PublicRoute): unknown {
   if (route.path !== "/") {
     const crumbs: { name: string; path: string }[] = [{ name: "Home", path: "/" }];
     const parent = route.path.replace(/\/[^/]+$/, "");
-    const parentRoute = parent ? PUBLIC_ROUTES.find((r) => r.path === parent) : undefined;
+    const parentRoute = parent
+      ? publicRoutes(ctx.launch).find((r) => r.path === parent)
+      : undefined;
     if (parentRoute) crumbs.push({ name: parentRoute.label, path: parentRoute.path });
     crumbs.push({ name: route.label, path: route.path });
     (graph[0] as Record<string, unknown>).breadcrumb = { "@id": `${url}#breadcrumb` };
@@ -83,7 +95,8 @@ export function jsonLdFor(ctx: DocumentContext, route: PublicRoute): unknown {
     });
   }
   if (kinds.includes("software")) {
-    // No offers: nothing is for sale yet. No ratings: there are no reviews.
+    // Open: the free plan is the only offer (paid plans are not on sale). Closed: no offers at all.
+    // Never ratings: there are no reviews.
     graph.push({
       "@type": "SoftwareApplication",
       "@id": `${ctx.siteUrl}/#software`,
@@ -94,7 +107,19 @@ export function jsonLdFor(ctx: DocumentContext, route: PublicRoute): unknown {
       applicationSubCategory: "Manufacturing quoting",
       operatingSystem: "Web browser",
       publisher: { "@id": orgId },
-      creativeWorkStatus: "In development",
+      ...(ctx.launch.open
+        ? {
+            offers: [
+              {
+                "@type": "Offer",
+                name: EARLY_ACCESS_PLAN.name,
+                price: "0",
+                priceCurrency: "USD",
+                url: appLink(ctx.launch, "/sign-up"),
+              },
+            ],
+          }
+        : { creativeWorkStatus: "In development" }),
       audience: {
         "@type": "BusinessAudience",
         audienceType: "CNC machine shops and metal fabrication job shops",
@@ -108,18 +133,30 @@ export function jsonLdFor(ctx: DocumentContext, route: PublicRoute): unknown {
       "@type": "Product",
       "@id": `${url}#product`,
       name: SITE_NAME,
-      description: `${TAGLINE}. In development; early access is free.`,
+      description: ctx.launch.open
+        ? `${TAGLINE}. Free to start on the Early access plan.`
+        : `${TAGLINE}. In development; early access is free.`,
       brand: { "@type": "Brand", name: SITE_NAME },
       offers: [
-        {
-          "@type": "Offer",
-          name: EARLY_ACCESS_PLAN.name,
-          price: "0",
-          priceCurrency: "USD",
-          url: canonical(ctx, "/early-access"),
-          availability: "https://schema.org/LimitedAvailability",
-          description: `Free while in development, up to ${EARLY_ACCESS_PLAN.rfqsPerMonth} RFQs a month.`,
-        },
+        ctx.launch.open
+          ? {
+              "@type": "Offer",
+              name: EARLY_ACCESS_PLAN.name,
+              price: "0",
+              priceCurrency: "USD",
+              url: appLink(ctx.launch, "/sign-up"),
+              availability: "https://schema.org/InStock",
+              description: `Free, up to ${EARLY_ACCESS_PLAN.rfqsPerMonth} RFQs a month, no card.`,
+            }
+          : {
+              "@type": "Offer",
+              name: EARLY_ACCESS_PLAN.name,
+              price: "0",
+              priceCurrency: "USD",
+              url: canonical(ctx, "/early-access"),
+              availability: "https://schema.org/LimitedAvailability",
+              description: `Free while in development, up to ${EARLY_ACCESS_PLAN.rfqsPerMonth} RFQs a month.`,
+            },
       ],
     });
   }
@@ -127,7 +164,7 @@ export function jsonLdFor(ctx: DocumentContext, route: PublicRoute): unknown {
     graph.push({
       "@type": "FAQPage",
       "@id": `${url}#faq`,
-      mainEntity: FAQS.map((f) => ({
+      mainEntity: faqs(ctx.launch).map((f) => ({
         "@type": "Question",
         name: f.q,
         acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -189,7 +226,8 @@ export function mainText(page: string): string {
 }
 
 export function sitemap(ctx: DocumentContext): string {
-  const urls = PUBLIC_ROUTES.filter((r) => !r.noindex)
+  const urls = publicRoutes(ctx.launch)
+    .filter((r) => !r.noindex)
     .map((r) =>
       [
         "  <url>",
@@ -211,7 +249,7 @@ export function sitemap(ctx: DocumentContext): string {
 export function robots(ctx: DocumentContext): string {
   const rules = [
     `Allow: ${ctx.basePath}/`,
-    ...DISALLOWED.map((d) => `Disallow: ${ctx.basePath}${d}`),
+    ...(ctx.launch.open ? OPEN_DISALLOWED : DISALLOWED).map((d) => `Disallow: ${ctx.basePath}${d}`),
   ];
   return [
     "# Generated by scripts/build.ts.",
@@ -231,19 +269,31 @@ export function robots(ctx: DocumentContext): string {
   ].join("\n");
 }
 
-const SUMMARY = `${SITE_NAME} is a web app in development for CNC machine shops and metal fabrication job shops. It reads request-for-quote (RFQ) emails and PDF drawings, extracts parts, quantities, materials, tolerances and finishes, checks each extracted value against the drawing and flags anything it cannot confirm, and drafts a quote priced only from the shop's own rate table (machine rates, setup charges, material, outside processing, minimums). An estimator at the shop reviews and sends every quote; the product never sends quotes itself. It has no customers yet; early access is free and nothing is for sale. It is not set up for CUI or export-controlled (ITAR/EAR) drawings during early access.`;
+function summary(launch: Launch): string {
+  if (!launch.open) return CLOSED_SUMMARY;
+  const off = [
+    launch.aiReading ? "" : "reading RFQ emails and PDF drawings with AI",
+    launch.inboundEmail ? "" : "RFQs forwarded by email",
+    launch.paidPlans ? "" : "paid plans",
+    "the QuickBooks Online connection",
+  ].filter(Boolean);
+  return `${SITE_NAME} is a hosted web app for CNC machine shops and metal fabrication job shops, open for sign-up at ${appLink(launch, "/sign-up")}. A shop sets up its rate card (machine and setup rates, material priced by weight, piece or length, outside processing, markups, minimums and quantity breaks), adds an RFQ's parts and files, and gets each line priced only from those rates, with setup and cycle times from its routings and from STEP and DXF measurements that the estimator can correct. It builds the quote PDF, emails it when the estimator sends it, gives the customer a link to accept or decline, reminds about follow-ups and expiring quotes, prints job travelers and keeps a won/lost log. An estimator at the shop reviews and sends every quote; the product never sends quotes itself. The Early access plan is free (up to ${EARLY_ACCESS_PLAN.rfqsPerMonth} RFQs a month, ${EARLY_ACCESS_PLAN.seats} people, no card). Built but not switched on in the hosted app yet: ${off.join(", ")}. It has no customers yet. It is not set up for CUI or export-controlled (ITAR/EAR) drawings.`;
+}
+
+const CLOSED_SUMMARY = `${SITE_NAME} is a web app in development for CNC machine shops and metal fabrication job shops. It reads request-for-quote (RFQ) emails and PDF drawings, extracts parts, quantities, materials, tolerances and finishes, checks each extracted value against the drawing and flags anything it cannot confirm, and drafts a quote priced only from the shop's own rate table (machine rates, setup charges, material, outside processing, minimums). An estimator at the shop reviews and sends every quote; the product never sends quotes itself. It has no customers yet; early access is free and nothing is for sale. It is not set up for CUI or export-controlled (ITAR/EAR) drawings during early access.`;
 
 export function llmsTxt(ctx: DocumentContext): string {
-  const listed = PUBLIC_ROUTES.filter((r) => !r.noindex);
-  const home = PUBLIC_ROUTES.find((r) => r.path === "/");
+  const routes = publicRoutes(ctx.launch);
+  const listed = routes.filter((r) => !r.noindex);
+  const home = routes.find((r) => r.path === "/");
   return [
     `# ${SITE_NAME}`,
     "",
     `> ${home?.description ?? TAGLINE}`,
     "",
-    SUMMARY,
+    summary(ctx.launch),
     "",
-    `Proposed plans (not on sale): ${PLANS.map((p) => `${p.name} $${p.monthlyPrice}/month for up to ${p.rfqsPerMonth} RFQs`).join("; ")}. When citing pricing or status, link the pages below rather than restating figures, since they can change.`,
+    `${ctx.launch.paidPlans ? "Paid plans" : ctx.launch.open ? "Paid plans (not on sale yet)" : "Proposed plans (not on sale)"}: ${PLANS.map((p) => `${p.name} $${p.monthlyPrice}/month for up to ${p.rfqsPerMonth} RFQs`).join("; ")}. When citing pricing or status, link the pages below rather than restating figures, since they can change.`,
     "",
     "## Pages",
     "",
@@ -252,14 +302,17 @@ export function llmsTxt(ctx: DocumentContext): string {
     "## Optional",
     "",
     `- [Full text of every page](${ctx.siteUrl}/llms-full.txt): the pages above as plain text.`,
+    ...(ctx.launch.open
+      ? [`- [Sign up](${appLink(ctx.launch, "/sign-up")}): the app itself.`]
+      : []),
     `- Contact: ${CONTACT_EMAIL} (${PUBLISHER})`,
     "",
   ].join("\n");
 }
 
 export function llmsFullTxt(ctx: DocumentContext, pages: Map<string, string>): string {
-  const parts = [`# ${SITE_NAME}: full text`, "", SUMMARY, ""];
-  for (const r of PUBLIC_ROUTES.filter((x) => !x.noindex)) {
+  const parts = [`# ${SITE_NAME}: full text`, "", summary(ctx.launch), ""];
+  for (const r of publicRoutes(ctx.launch).filter((x) => !x.noindex)) {
     const page = pages.get(r.path);
     if (!page) continue;
     parts.push(`## ${r.label}`, "", `Source: ${canonical(ctx, r.path)}`, "", mainText(page), "");
@@ -270,15 +323,18 @@ export function llmsFullTxt(ctx: DocumentContext, pages: Map<string, string>): s
 export interface BuildOptions {
   siteUrl: string;
   basePath: string;
+  /** What the hosted app does today; LAUNCH (./config) when left out. */
+  launch?: Launch;
 }
 
 /** Every generated file, keyed by its path inside dist/. Static files in public/ are copied separately. */
 export function buildSite(opts: BuildOptions): Map<string, string> {
-  const ctx: DocumentContext = { siteUrl: opts.siteUrl, basePath: opts.basePath };
+  const launch = opts.launch ?? LAUNCH;
+  const ctx: DocumentContext = { siteUrl: opts.siteUrl, basePath: opts.basePath, launch };
   const files = new Map<string, string>();
   const pages = new Map<string, string>();
   const titles = new Set<string>();
-  for (const route of PUBLIC_ROUTES) {
+  for (const route of publicRoutes(launch)) {
     if (titles.has(route.title)) throw new Error(`Duplicate title: ${route.title}`);
     titles.add(route.title);
     const page = renderPage(ctx, route);

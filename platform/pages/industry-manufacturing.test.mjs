@@ -59,8 +59,17 @@ test('every tool the front doors send here is listed, so the door leads somewher
   }
 });
 
-test('products are in development, unpriced, and never claim certification or endorsement', () => {
-  for (const p of PRODUCTS) assert.match(p.status, /in development/i);
+test('products are open only with a sign-up, otherwise in development; unpriced; never claim certification or endorsement', () => {
+  for (const p of PRODUCTS) {
+    if (p.appUrl) {
+      assert.match(p.status, /^Open/);
+      assert.match(p.appUrl, /^https:\/\/[a-z-]+\.marisstella\.app\//);
+      assert.ok(html.includes(`href="${p.appUrl}"`), `${p.id}: no Start free link`);
+      assert.match(p.note ?? '', /not switched on/, `${p.id}: an open product says what is still off`);
+    } else {
+      assert.match(p.status, /in development/i);
+    }
+  }
   assert.match(text, /early access/i);
   assert.match(text, /Pricing is not set yet/);
   assert.doesNotMatch(text, /\$\d+\s*(?:\/|a |per )mo/i);
@@ -132,4 +141,10 @@ test('the stills the page asks for are captured in the showcase', () => {
     assert.ok(shot, `${slug} has no still in showcase/manifest.json`);
     for (const f of [shot.file, shot.hero, shot.heroWide].filter(Boolean)) assert.ok(existsSync(path.join(HERE, 'showcase', f)), f);
   }
+});
+
+test('links an open product\'s own site only when the build copied it in', () => {
+  const linked = renderManufacturingPage({ baseUrl: base, productSites: new Set(['jobshop']) });
+  assert.ok(linked.includes('href="../../jobshop/">Features and pricing</a>'));
+  assert.ok(!html.includes('jobshop/">Features and pricing'), 'no link to a site the build did not write');
 });
