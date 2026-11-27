@@ -217,3 +217,10 @@ test('the hero leads with the open product; the waitlist form sits below the pro
   assert.ok(form > html.indexOf('id="product-pay-apps"'), 'early-access form after the product cards');
   assert.ok(html.includes('id="early-access"'), 'the form has its own heading');
 });
+
+test('the PayApps card links the product site only when the build copied it in', () => {
+  const without = renderConstructionPage({});
+  assert.doesNotMatch(without, /href="\.\.\/\.\.\/payapps\/"/);
+  const withSite = renderConstructionPage({ productSites: new Set(['payapps']) });
+  assert.match(withSite, /<a href="\.\.\/\.\.\/payapps\/">PayApps features and pricing<\/a>/);
+});
