@@ -28,6 +28,7 @@ import reportRoutes from "./routes/org/reports";
 import saleRoutes from "./routes/org/sales";
 import orgRoutes from "./routes/orgs";
 import referenceRoutes from "./routes/reference";
+import unsubscribeRoutes from "./routes/unsubscribe";
 import type { AppEnv } from "./types";
 
 export function createApp() {
@@ -40,6 +41,8 @@ export function createApp() {
   // Paddle posts server to server with no Origin and no session: mounted before both
   // (services/billing/service.ts verifies the signature). GET /plans is public.
   app.route("/api/billing", billingRoutes);
+  // The reminder email's signed stop link: no session, and mail apps POST it from their own servers.
+  app.route("/api/unsubscribe", unsubscribeRoutes);
 
   app.use("/api/*", originCheck);
   // Durable per-IP and per-account limits in front of Better Auth (middleware/auth-rate-limit.ts).
