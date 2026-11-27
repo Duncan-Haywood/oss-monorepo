@@ -23,6 +23,11 @@ date: 2026-11-19
   are named skips, not runs. `pip install pytest pyyaml` in that workflow is a
   control-plane edit (`.github/`), so it needs its own PR and the owner's approval.
   Until then `main_health.py` in a cloud session (which has pytest) is what runs them.
+- Closed 2026-11-27: the gap had grown to 30 suites (29 Python, 13 of them under
+  `portfolio/`, plus one npm-dependent node suite), skipped on every run (job
+  140742180981: "200/230 ... pass, 30 skipped"). ventures-tests.yml now runs
+  `pip install pytest pyyaml` before the runner, and all 29 pass with only those
+  two; `test_unwired_checks.py` (Triggers) fails if the install goes missing.
 - Seeded check: re-adding one duplicate `basis` key made the suite FAIL with the
   line number, and the report printed `cd portfolio/ledger && python3 -m pytest -q
   test_no_duplicate_yaml_keys.py` as the reproduce line.
