@@ -701,7 +701,10 @@ fabrication job shops. Pricing and the paid path stay dark until the items marke
 ## Next
 
 3. **launch** Operator and contact email are filled in and launch is agent-approved
-   (`docs/legal/OPERATOR.md`, 2026-11-26); run `jobshop-quote-deploy` once, onboard the sender domain,
+   (`docs/legal/OPERATOR.md`, 2026-11-26); the deploy workflow is ported to oss-monorepo
+   (`.github/workflows/priv-jobshop-quote-deploy.yml`, 2026-11-27, manual and main-only; its first run
+   has its launch review, `docs/LAUNCH-REVIEW.md`, 2026-11-27, and waits on R2 edit for the Cloudflare token,
+   `ventures/jobshop-quote/DEPLOY.md`, "Then"); run `jobshop-quote-deploy` once, onboard the sender domain,
    pick `JOBSHOP_DOMAIN`, and add `push: branches: [main]` (docs/DEPLOY.md, "Before strangers sign
    up"). Inbound RFQs: set `JOBSHOP_INBOUND_EMAIL=on` and `CLOUDFLARE_EMAIL_ROUTING_TOKEN` (item 8).
 4. Billing, part 4 (the RFQ page's 80%/100% banner for every member done 2026-11-25; the deploy
