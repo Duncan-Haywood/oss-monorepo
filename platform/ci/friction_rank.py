@@ -195,15 +195,15 @@ def cluster(entries):
             if s > score:
                 best, score = c, s
         if best is not None and score >= SIMILAR:
-            best["items"].append((date, session, issue))
+            best["items"].append((date, session, issue, when))
             best["members"].append(w)
             best["last_at"] = max(best["last_at"], when)
         else:
-            clusters.append({"file": f, "members": [w], "items": [(date, session, issue)], "last_at": when})
+            clusters.append({"file": f, "members": [w], "items": [(date, session, issue, when)], "last_at": when})
     out = []
     for c in clusters:
-        sessions = {s for _, s, _ in c["items"]}
-        dates = sorted(d for d, _, _ in c["items"])
+        sessions = {s for _, s, _, _ in c["items"]}
+        dates = sorted(d for d, _, _, _ in c["items"])
         out.append({
             "file": c["file"],
             "sessions": len(sessions),
@@ -211,9 +211,10 @@ def cluster(entries):
             "first": dates[0],
             "last": dates[-1],
             "last_at": c["last_at"],
-            "names": sorted(named(c["file"], [i for _, _, i in c["items"]])),
-            "example": max((i for _, _, i in c["items"]), key=len)[:240],
-            "issues": [i for _, _, i in c["items"]],
+            "names": sorted(named(c["file"], [i for _, _, i, _ in c["items"]])),
+            "example": max((i for _, _, i, _ in c["items"]), key=len)[:240],
+            "issues": [i for _, _, i, _ in c["items"]],
+            "dated": [(w, i) for _, _, i, w in c["items"]],
         })
     out.sort(key=lambda c: (c["sessions"], c["last"]), reverse=True)
     return out
@@ -426,13 +427,21 @@ def load_verdicts(path=VERDICTS):
 def apply_verdicts(ranked, verdicts):
     """Set c["verdict"] to the newest verdict that answers the cluster (same file,
     the regex matches one of its reports, recorded no earlier than its last
-    report), else c["reopened"] to a matching verdict a later report outdated."""
+    report), else c["reopened"] to a matching verdict a later report outdated.
+
+    A by-design verdict also holds while every later report matches its regex:
+    its cause sits outside the repo, so the same report keeps coming. On
+    2026-11-27 add_repo's text naming a missing register_repo_root tool, settled
+    by-design on 11-25, was the top two live clusters (22 sessions, every one
+    restating it); a later report the regex misses still reopens."""
     for c in ranked:
         c["verdict"] = c["reopened"] = None
         hits = [v for v in verdicts if v["file"] == c["file"]
                 and any(v["re"].search(i) for i in c.get("issues") or [])]
         for v in sorted(hits, key=lambda v: v["at"], reverse=True):
-            if v["at"] >= utc(c["last_at"]):
+            later = [i for w, i in c.get("dated") or [] if utc(w) > v["at"]]
+            if v["at"] >= utc(c["last_at"]) or (
+                    v.get("verdict") == "by-design" and later and all(v["re"].search(i) for i in later)):
                 c["verdict"] = v
                 break
             c["reopened"] = c["reopened"] or v
@@ -636,6 +645,7 @@ def main(argv=None):
     ranked = ranked[: a.top]
     for c in ranked:
         c.pop("issues", None)
+        c.pop("dated", None)
         for k in ("verdict", "reopened"):
             if c.get(k):
                 c[k] = {x: y for x, y in c[k].items() if x != "re"}
