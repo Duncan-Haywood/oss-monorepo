@@ -32,6 +32,8 @@ export const healthRoutes = new Hono<AppEnv>().get("/", (c) =>
     ok: true,
     app: "jobshop-quote",
     email: c.var.ctx.email.delivers,
+    // "ai" with an Anthropic key, else "rules" (src/shared/rule-reader.ts).
+    rfqReader: c.var.ctx.rfqReader,
     // Where new files go: "r2", or "d1" until the bucket is bound (ports/file-store.ts).
     files: fileStoreKind({ FILES: (c.var.ctx.env as { FILES_R2?: R2Bucket }).FILES_R2 }),
   }),

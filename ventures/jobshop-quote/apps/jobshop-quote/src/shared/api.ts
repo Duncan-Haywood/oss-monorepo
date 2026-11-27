@@ -780,6 +780,8 @@ export type RfqDetailDto = RfqDto & {
    * already counted. `units > counted` means the next AI read counts the difference.
    */
   allowance: { pages: number; units: number; counted: number };
+  /** Who reads it on "Extract": the AI model, or the rule reader when AI is not switched on. */
+  reader: "ai" | "rules";
   parts: RfqPartDto[];
   quoteIds: string[];
 };

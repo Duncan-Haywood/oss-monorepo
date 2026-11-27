@@ -9,7 +9,8 @@ run 46013246899 (manual, main at e8be3de0f), on the account's workers.dev addres
 in D1 (no R2 yet). Live at **https://jobshop-quote.marisstella.app** since run 46018975911 (PR #19764's
 default host; same health answer), and since 2026-11-27 every merge to main touching
 `ventures/jobshop-quote/` deploys (push trigger, full checks on every push run). AI extraction is off (no
-`JOBSHOP_ANTHROPIC_API_KEY`; the owner's choice, LAUNCH-REVIEW.md section 1), inbound RFQ email is off, paid
+`JOBSHOP_ANTHROPIC_API_KEY`; the owner's choice, LAUNCH-REVIEW.md section 1), so "Extract" uses the rule
+reader (2026-11-27, below), inbound RFQ email is off, paid
 plans are dark. The manufacturing industry page links to `/sign-up`, and `platform/ci/live_funnel_check.mjs`
 checks the pair. No customers yet.
 
@@ -38,6 +39,17 @@ checks the pair. No customers yet.
 - Quote PDF (own writer), send freezes the quote and stores the exact PDF + SHA-256, won/lost/expired
   log with PO number and win rate.
 - Cover note: LLM explains customer-safe facts only; number-grounding check with template fallback.
+- Rule reader (2026-11-27, `rfq-rule-reader`): with no Anthropic key (the hosted app today) "Extract"
+  no longer answers 503. `src/shared/rule-reader.ts` reads labelled lines (Part number / P/N / DWG NO,
+  Rev, Description, Qty, Material, Finish, Tolerances, due dates with a year), tables with a header row
+  (tab-separated from Excel, Markdown pipe tables, space-aligned columns only when every cell is
+  there) and lines like "25 pcs of BRK-1001 Rev B"; a drawing fills the blanks of the part whose
+  number it carries, and a material stated above the list applies to every part (never one part's to
+  the next). Its answer goes through the same `verifyExtraction`, with each RFQ line as the quote;
+  the read is labelled (first warning, `RULES_NOTE`; the button reads "Extract (rules)";
+  `/api/health` and the RFQ answer `rfqReader`), uses none of the plan's RFQ allowance and calls no
+  model. Next, if shops send RFQs it misses: their layouts as fixtures, and "10/25/50" quantity lists
+  (the verifier reads slash-joined numbers as one token today, for AI reads too).
 - Offline demo (`pnpm demo`), unit + worker tests incl. cross-tenant isolation.
 - AI cost guards (2026-11-25): per-shop monthly LLM spend cap and global daily kill switch
   (`BudgetedLlm` + `services/guards/llm-budget`, copied from grants), 30/min per-user limit on AI

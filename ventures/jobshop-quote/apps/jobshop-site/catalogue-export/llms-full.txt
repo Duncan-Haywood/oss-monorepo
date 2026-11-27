@@ -151,7 +151,7 @@ how it was worked out. Native SolidWorks files are stored but not measured yet.
 
 RFQs by email to a shop address are not switched on in the hosted app yet: upload the files instead.
 
-Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet; until it is, you enter those values yourself.
+Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet. Until it is, the app reads them by fixed rules: labelled lines (Part number, Qty, Material, Finish, Due) and parts tables with a header row, each value shown with the line it came from. You check those and enter the rest yourself.
 
 -
 
@@ -162,7 +162,7 @@ and due date. A second, separate pass checks every extracted value against the d
 can't confirm, like a smudged tolerance or a missing material callout, is flagged for your estimator
 with the page it came from. It is never filled in with a guess.
 
-Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet; until it is, you enter those values yourself.
+Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet. Until it is, the app reads them by fixed rules: labelled lines (Part number, Qty, Material, Finish, Due) and parts tables with a header row, each value shown with the line it came from. You check those and enter the rest yourself.
 
 -
 
@@ -403,7 +403,7 @@ quote as won or lost so you can see your win rate by estimator, routing, part fa
 - It is not an ERP: no scheduling, work orders, inventory, shop-floor tracking or quality records.
 If you need those, JobBOSS² or ProShop are built for it.
 
-- Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet; until it is, you enter those values yourself.
+- Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet. Until it is, the app reads them by fixed rules: labelled lines (Part number, Qty, Material, Finish, Due) and parts tables with a header row, each value shown with the line it came from. You check those and enter the rest yourself.
 
 - No connection to an ERP yet. A QuickBooks Online connection is built and switches on once Intuit
 approves it.
@@ -680,7 +680,7 @@ FAQ
 
 ### Can I use Job Shop Quote today?
 
-Yes. Sign up free at https://jobshop-quote.marisstella.app/sign-up. The Early access plan covers up to 40 RFQs a month for 3 people, with no card. It prices the parts you enter, and what it measures from STEP, IGES, STL and DXF files, from your rate card, builds the quote PDF, emails it when your estimator sends it, and keeps the won/lost log. Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet; until it is, you enter those values yourself.
+Yes. Sign up free at https://jobshop-quote.marisstella.app/sign-up. The Early access plan covers up to 40 RFQs a month for 3 people, with no card. It prices the parts you enter, and what it measures from STEP, IGES, STL and DXF files, from your rate card, builds the quote PDF, emails it when your estimator sends it, and keeps the won/lost log. Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet. Until it is, the app reads them by fixed rules: labelled lines (Part number, Qty, Material, Finish, Due) and parts tables with a header row, each value shown with the line it came from. You check those and enter the rest yourself.
 
 ### Does the AI decide my prices?
 

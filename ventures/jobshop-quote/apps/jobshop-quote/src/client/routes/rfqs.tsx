@@ -139,7 +139,7 @@ function InboundAddress({ orgId, admin }: { orgId: string; admin: boolean }) {
         <div className="flex flex-col gap-2 text-sm">
           <p className="text-stone-600">
             Forward RFQs here, or give it to customers. Each email becomes an RFQ below with its
-            drawings attached; press "Extract with AI" to read it.
+            drawings attached; press "Extract" on it to read it.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <code className="rounded bg-stone-100 px-2 py-1 text-stone-900">{d.address}</code>

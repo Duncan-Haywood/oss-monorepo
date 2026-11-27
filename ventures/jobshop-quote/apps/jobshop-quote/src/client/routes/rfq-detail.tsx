@@ -121,12 +121,19 @@ export function RfqDetailPage() {
                 variant="secondary"
                 onClick={() => extract.mutate()}
                 disabled={extract.isPending}
+                title={
+                  r.reader === "rules"
+                    ? "AI reading is not switched on: labelled lines and tables are read by rules"
+                    : undefined
+                }
               >
                 {extract.isPending
                   ? "Extracting…"
                   : r.extractedAt
                     ? "Re-extract"
-                    : "Extract with AI"}
+                    : r.reader === "rules"
+                      ? "Extract (rules)"
+                      : "Extract with AI"}
               </Button>
               <Button
                 onClick={() => createQuote.mutate()}
@@ -252,7 +259,8 @@ export function RfqDetailPage() {
           ))}
           {r.parts.length === 0 && (
             <p className="text-sm text-stone-600">
-              No parts yet. Extract with AI or add one by hand.
+              No parts yet. {r.reader === "rules" ? "Extract" : "Extract with AI"} or add one by
+              hand.
             </p>
           )}
           {editable && (

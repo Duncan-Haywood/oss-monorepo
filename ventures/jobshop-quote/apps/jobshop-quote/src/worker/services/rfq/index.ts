@@ -10,6 +10,7 @@ import {
 } from "@shared/extraction";
 import type { CadUnit } from "@shared/geometry";
 import { countPdfPages, filePages, rfqUnitsForPages } from "@shared/pdf-pages";
+import { readRfqByRules } from "@shared/rule-reader";
 import { uploadMimeType } from "@shared/upload-pages";
 import { and, asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { AppContext } from "../../context";
@@ -22,6 +23,12 @@ import { notifyAllowanceUsage } from "../allowance-notice";
 import { claimRfqRead, orgPlan, usage } from "../billing";
 import { getRateCardDto, loadRateCard } from "../ratecard";
 import { RFQ_EXTRACT_SYSTEM, rfqExtractPrompt } from "./prompts";
+
+/** The first warning on an RFQ the rule reader read, so nobody takes it for an AI read. */
+export const RULES_NOTE =
+  "Read by rules, not AI (AI reading is not switched on): only labelled lines such as " +
+  '"Part number:", "Qty:" and "Material:", tables with a header row, and lines like ' +
+  '"25 pcs of BRK-1001" are read. Check every field against the RFQ and fill in the rest.';
 
 export const MAX_FILE_BYTES = 15 * 1024 * 1024;
 export const MAX_FILES = 10;
@@ -298,6 +305,7 @@ export async function getRfq(ctx: AppContext, orgId: string, rfqId: string): Pro
       createdAt: f.createdAt.toISOString(),
     })),
     allowance: { pages, units: rfqUnitsForPages(pages), counted: Number(counted?.n ?? 0) },
+    reader: ctx.rfqReader,
     parts: parts.map(partDto),
     quoteIds: qs.map((q) => q.id),
   };
@@ -334,24 +342,32 @@ export async function extractRfq(ctx: AppContext, orgId: string, rfqId: string) 
   if (!source.trim()) {
     throw new AppError(422, "no_text", "This RFQ has no readable text to extract from");
   }
-  // The first AI read counts against the plan's monthly RFQ allowance; a failed read gives it back.
-  const count = await claimRfqRead(ctx, orgId, rfqId);
-  const { data } = await ctx.llm
-    .generateStructured({
-      purpose: "rfq.extract",
-      orgId,
-      system: RFQ_EXTRACT_SYSTEM,
-      context: source,
-      prompt: rfqExtractPrompt(),
-      schema: llmExtractionSchema,
-      effort: "medium",
-      maxTokens: 8000,
-    })
-    .catch(async (e: unknown) => {
-      await count.release();
-      throw e;
-    });
+  // Without an AI key the rule reader reads the RFQ (src/shared/rule-reader.ts): no model, no cost,
+  // so it uses none of the plan's allowance. The first AI read counts against the plan's monthly RFQ
+  // allowance; a failed read gives it back.
+  const byRules = ctx.rfqReader === "rules";
+  const count = byRules
+    ? { release: async () => {}, units: 0, pages: 0 }
+    : await claimRfqRead(ctx, orgId, rfqId);
+  const { data } = byRules
+    ? { data: readRfqByRules(source) }
+    : await ctx.llm
+        .generateStructured({
+          purpose: "rfq.extract",
+          orgId,
+          system: RFQ_EXTRACT_SYSTEM,
+          context: source,
+          prompt: rfqExtractPrompt(),
+          schema: llmExtractionSchema,
+          effort: "medium",
+          maxTokens: 8000,
+        })
+        .catch(async (e: unknown) => {
+          await count.release();
+          throw e;
+        });
   const verified = verifyExtraction(data, source);
+  if (byRules) verified.warnings.unshift(RULES_NOTE);
   // Suggestions only from active rate-card rows; the estimator confirms each choice.
   const card = await getRateCardDto(ctx, orgId);
   const activeMaterials = card.materials.filter((m) => m.active);
