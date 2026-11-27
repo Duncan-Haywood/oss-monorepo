@@ -55,7 +55,7 @@ export async function armPurgeClock(env: PurgeClockEnv): Promise<void> {
   if (!ns || armedNamespaces.has(ns)) return;
   armedNamespaces.add(ns);
   try {
-    await ns.get(ns.idFromName(PURGE_CLOCK_NAME)).fetch("https://purge-clock.internal/arm");
+    await ns.get(ns.idFromName(PURGE_CLOCK_NAME)).fetch("https://purge-clock.localhost/arm");
   } catch (err) {
     armedNamespaces.delete(ns);
     console.warn(

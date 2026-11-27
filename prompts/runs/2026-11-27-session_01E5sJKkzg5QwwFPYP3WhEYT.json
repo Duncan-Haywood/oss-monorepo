@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "payapps-site CI failed on the first push: catalogue-export stale on main (not from this diff); fixed forward here."
+    "payapps-site CI failed on the first push: catalogue-export stale on main (not from this diff); fixed forward here.",
+    "adversarial-gate blocked new-outbound-host `purge-clock.internal` (the made-up URL given to a Durable Object stub's fetch); renamed to purge-clock.localhost, which known_hosts covers; gate analyze locally: 0 blocking."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,6 +46,10 @@
     {
       "file": "ventures/cmmc/sync-from-private.sh",
       "issue": "cmmc is still synced from private-monorepo, so every edit to cmmc-site here has to be added to keep_local by hand or a sync silently reverts it; nothing checks that the files edited since the last sync appear there."
+    },
+    {
+      "file": "platform/ci/adversarial_gate/gate.py",
+      "issue": "new-outbound-host reads a Durable Object stub's fetch URL (never resolved) as an outbound host; risk_review.py flagged the same line only as a checklist item, so the block arrived ~60 min later via the queued gate job. Using a *.localhost name avoids it."
     }
   ],
   "deviations": [
