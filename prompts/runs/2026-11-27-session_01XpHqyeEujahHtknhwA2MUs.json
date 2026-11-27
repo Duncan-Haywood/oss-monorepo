@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyeEujahHtknhwA2MUs",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T17:45:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "bet #3 einvoice-preflight launch item: re-check each official deadline source directly",
+  "projects": [
+    "einvoice-pro"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19824",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "file": "ventures/einvoice-pro/apps/einvoice-site/content/deadlines.mjs",
+      "issue": "Found on main: the French new-mentions rule cited fiche-1_f_ps.pdf, which does not state it, and listed three of the four mentions; two French rows cited a guide that did not contain their wording. Corrected here and in PR #19823."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets recommended a launch item another session had claimed 4 minutes earlier; I only learned it when my own claim failed after the work was done. Claiming before working (the prompt says so) would have avoided it. --bets could re-check live claims, or say 'claim now' louder."
+    },
+    {
+      "file": "ventures/einvoice-pro/sync-from-private.sh",
+      "issue": "A future refresh from private-monorepo could overwrite these einvoice-site corrections; this session could not reach private-monorepo to apply them there."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "Another session's PR #19823 did the same re-check. Instead of closing my work, I rebased my extra findings onto its commit and opened a stacked PR.",
+      "did": "Stacked PR #19824 on #19823's head commit, crediting it. It adds the FAQ citations, dated mentions, the llms.txt fix, a quotes doc and a customer-post section.",
+      "result": "No conflict. Merging #19824 also lands #19823's commit."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-france-e-invoicing-started-hub-was-stale.md (extended)",
+    "ventures/einvoice-pro/apps/einvoice-site/docs/SOURCE-RECHECK-2026-11-27.md (agent doc)"
+  ],
+  "goal": null,
+  "notes": "Fetched 7 DE/FR sources directly: BMF FAQ and both letters 200; impots.gouv.fr page, guide and FAQ PDF 200; economie.gouv.fr 403 (Cloudflare challenge). einvoice-site node --test: 46 pass, 0 fail. run_workflow_locally --for-changes: 7/9 workflows pass; einvoice-pro checker suite 2241 pass, 1 fail (repair-facturx.test.mjs: this container's pdfdetach wrapper refuses to save; environment, code untouched by this PR); codeql and security gate have no local verdict (need the PR as data).",
+  "corrections": [],
+  "redteam": null
+}

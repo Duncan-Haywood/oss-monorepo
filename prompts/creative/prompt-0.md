@@ -100,9 +100,10 @@ Any of these counts as the run's deliverable:
 
 ## Audio size: check before you commit an MP3
 
-Audio is committed and served from GitHub Pages, which publishes at most
-1 GB per site, and every MP3 also lives in git history forever. At about 29
-creative runs a day this fills fast, so before adding audio run
+Audio is committed to git, where every MP3 lives in history forever (and in
+every full clone); the site links it from jsDelivr, which serves a GitHub file
+only up to 20 MB (`platform/pages/audio-cdn.mjs`). At about 29 creative runs a
+day this fills fast, so before adding audio run
 
 ```
 du -cm ventures/hearth-and-horizon/audio ventures/saints-by-candlelight/audio docs/podcast/audio | tail -1

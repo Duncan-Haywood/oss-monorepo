@@ -1,0 +1,513 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtKfoAMPWrULmw4WQL4",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T18:06:30Z",
+  "ended": "2026-11-27T18:07:21Z",
+  "wall_minutes": 5.09,
+  "tokens_in": 4221842,
+  "tokens_out": 17316,
+  "cost_usd": 1.8086,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19830",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "einvoice-pro repair-facturx poppler test fails in cloud containers because the image's pdfdetach wrapper disables -save; the test only skips when pdfdetach is absent, so run_venture_tests reports a red that is environmental."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "No new post: a security hardening fix to internal billing code has no customer-facing story worth an SEO post",
+      "did": "wrote the findings into the PR body and this record",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Campaigns on payapps billing paddle-webhook.ts (6/8 -> 8/8), grace.ts (8/8), subscription-events.ts (8/8). Real defect: blank webhook secret forgeable, fixed in 5 billing copies + webhook-relay. Guard: existing check_billing_copies.py enforces the sweep. Local venture tests green apart from environmental poppler test.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 649503782,
+        "commit": "fdc0d380b",
+        "sites": 47,
+        "baseline_seconds": 0.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 79,
+            "col": 17,
+            "operator": "or-to-and",
+            "before": "if (u.username || u.password || u.search || u.hash)",
+            "after": "if (u.username && u.password || u.search || u.hash)",
+            "line_text": "  if (u.username || u.password || u.search || u.hash)",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "webhookUrl refused only user:pw together in tests; username-only and password-only URLs now tested (paddle-webhook.test.ts)."
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 111,
+            "col": 34,
+            "operator": "false-to-true",
+            "before": "include_sensitive_fields: false,",
+            "after": "include_sensitive_fields: true,",
+            "line_text": "        include_sensitive_fields: false,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 130,
+            "col": 26,
+            "operator": "neq-flip",
+            "before": "if (current.api_version !== 1) {",
+            "after": "if (current.api_version === 1) {",
+            "line_text": "  if (current.api_version !== 1) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 130,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "if (current.api_version !== 1) {",
+            "after": "if (current.api_version !== 2) {",
+            "line_text": "  if (current.api_version !== 1) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 155,
+            "col": 43,
+            "operator": "gt-to-ge",
+            "before": "return typeof v === \"string\" && v.length > 20 && v.startsWith(\"pdl_ntfset_\") && !/\\s/.test(v);",
+            "after": "return typeof v === \"string\" && v.length >= 20 && v.startsWith(\"pdl_ntfset_\") && !/\\s/.test(v);",
+            "line_text": "  return typeof v === \"string\" && v.length > 20 && v.startsWith(\"pdl_ntfset_\") && !/\\s/.test(v);",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "isEndpointSecret length floor had no boundary test; 20 vs 21 characters now pinned."
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 205,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "for (let page = 0; next && page < 20; page++) {",
+            "after": "for (let page = 0; next && page < 21; page++) {",
+            "line_text": "    for (let page = 0; next && page < 20; page++) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 248,
+            "col": 31,
+            "operator": "eq-flip",
+            "before": "const existing = action.kind === \"create\" ? null : settings.find((s) => s.id === action.id);",
+            "after": "const existing = action.kind !== \"create\" ? null : settings.find((s) => s.id === action.id);",
+            "line_text": "  const existing = action.kind === \"create\" ? null : settings.find((s) => s.id === action.id);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-webhook.ts",
+            "line": 250,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (opts.apply && action.kind === \"create\") after = await client.create(action.body);",
+            "after": "if (opts.apply || action.kind === \"create\") after = await client.create(action.body);",
+            "line_text": "  if (opts.apply && action.kind === \"create\") after = await client.create(action.body);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/billing/src/grace.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 324352682,
+        "commit": "fdc0d380b",
+        "sites": 20,
+        "baseline_seconds": 0.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 7,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "export const PAST_DUE_GRACE_DAYS = 7;",
+            "after": "export const PAST_DUE_GRACE_DAYS = 8;",
+            "line_text": "export const PAST_DUE_GRACE_DAYS = 7;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 25 * 60 * 60 * 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 * 60 * 61 * 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 28,
+            "operator": "times-to-div",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 * 60 * 60 / 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 * 60 * 60 * 1001;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 21,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "return new Date(pastDueSince.getTime() + graceDays * DAY_MS);",
+            "after": "return new Date(pastDueSince.getTime() - graceDays * DAY_MS);",
+            "line_text": "  return new Date(pastDueSince.getTime() + graceDays * DAY_MS);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 44,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (nextStatus !== \"past_due\") return null;",
+            "after": "if (nextStatus === \"past_due\") return null;",
+            "line_text": "  if (nextStatus !== \"past_due\") return null;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 45,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (sameSubscription && current?.status === \"past_due\" && current.pastDueSince) {",
+            "after": "if (sameSubscription || current?.status === \"past_due\" && current.pastDueSince) {",
+            "line_text": "  if (sameSubscription && current?.status === \"past_due\" && current.pastDueSince) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/billing/src/subscription-events.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 1041646203,
+        "commit": "fdc0d380b",
+        "sites": 33,
+        "baseline_seconds": 0.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 54,
+            "col": 59,
+            "operator": "and-to-or",
+            "before": "const otherSub = Boolean(current.providerSubscriptionId) && !sameSub;",
+            "after": "const otherSub = Boolean(current.providerSubscriptionId) || !sameSub;",
+            "line_text": "  const otherSub = Boolean(current.providerSubscriptionId) && !sameSub;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 57,
+            "col": 11,
+            "operator": "and-to-or",
+            "before": "if (last && occurredAt && occurredAt.getTime() < last.getTime()) {",
+            "after": "if (last || occurredAt && occurredAt.getTime() < last.getTime()) {",
+            "line_text": "  if (last && occurredAt && occurredAt.getTime() < last.getTime()) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 57,
+            "col": 25,
+            "operator": "and-to-or",
+            "before": "if (last && occurredAt && occurredAt.getTime() < last.getTime()) {",
+            "after": "if (last && occurredAt || occurredAt.getTime() < last.getTime()) {",
+            "line_text": "  if (last && occurredAt && occurredAt.getTime() < last.getTime()) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 61,
+            "col": 60,
+            "operator": "or-to-and",
+            "before": "if (s.status === \"canceled\" && (current.status === \"comp\" || otherSub)) {",
+            "after": "if (s.status === \"canceled\" && (current.status === \"comp\" && otherSub)) {",
+            "line_text": "  if (s.status === \"canceled\" && (current.status === \"comp\" || otherSub)) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 108,
+            "col": 22,
+            "operator": "or-to-and",
+            "before": "status === \"active\" || status === \"past_due\";",
+            "after": "status === \"active\" && status === \"past_due\";",
+            "line_text": "  status === \"active\" || status === \"past_due\";",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 132,
+            "col": 11,
+            "operator": "eq-flip",
+            "before": "status === \"canceled\"",
+            "after": "status !== \"canceled\"",
+            "line_text": "    status === \"canceled\"",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 134,
+            "col": 28,
+            "operator": "or-to-and",
+            "before": ": status === \"active\" || status === \"trialing\"",
+            "after": ": status === \"active\" && status === \"trialing\"",
+            "line_text": "      : status === \"active\" || status === \"trialing\"",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/subscription-events.ts",
+            "line": 150,
+            "col": 23,
+            "operator": "true-to-false",
+            "before": "if (!current) return true;",
+            "after": "if (!current) return false;",
+            "line_text": "  if (!current) return true;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/payapps/packages/billing/src/paddle.ts",
+        "issue": "verifyPaddleSignature and createBillingProvider accepted a whitespace-only webhook secret (e.g. BILLING_WEBHOOK_SECRET set to a newline by a blank paste). Anyone can compute an HMAC with that key, so forged subscription.activated events would verify and grant paid plans. Reproduced with a forged event under secret '\\n' (accepted). A zero-length secret was already refused by WebCrypto, but as a generic error rather than a signature failure. Same identical code in cmmc, seller-books, einvoice-pro and jobshop-quote copies; all five fixed and tested.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19830"
+      },
+      {
+        "file": "ventures/webhook-relay/verify.mjs",
+        "issue": "verify() and parseRoutes() only refused a falsy secret, so a route configured with a whitespace (or non-string) secret accepted forged signatures for every HMAC scheme. Now refused at config load and at verify time.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19830"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "36f0d8cf-4990-5823-9b2f-3b1d53e42a0f",
+    "transcripts": 1,
+    "first": "2026-11-27T18:06:30Z",
+    "last": "2026-11-27T18:11:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 98,
+        "output": 17316,
+        "thinking": 3245,
+        "cache_read": 4142575,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79169,
+        "api_equivalent_usd": 1.8086,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 98,
+      "output": 17316,
+      "thinking": 3245,
+      "cache_read": 4142575,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79169,
+      "api_equivalent_usd": 1.8086,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.09,
+      "active_minutes": 5.09,
+      "model_minutes": 3.42,
+      "tool_minutes": 1.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "security engineer: repro, fix and test across 6 products",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 165.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

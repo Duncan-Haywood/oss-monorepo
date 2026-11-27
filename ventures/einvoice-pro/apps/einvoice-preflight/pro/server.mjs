@@ -51,6 +51,9 @@
 //                                            explain=0: plain validation, the checker's own English text,
 //                                            `explained: false`, never the `api` plan's explained unit;
 //                                            with fix=1 it is 400 invalid (also on batches)
+//   POST   /v1/view?lang=&profile=&schematron=1&name=   raw body = one invoice -> text/html, the readable
+//                                            view (pro/view.mjs): every finding on its field; metered as /v1/check
+//                                            (1 unit, free for a file already checked this month)
 //   POST   /v1/convert?profile=          raw body = one plain PDF invoice -> the creator's draft, each value
 //                                            with its source line (pro/pdf-draft.mjs; unmetered)
 //   POST   /v1/convert/build?lang=        {draft, format: facturx|cii|ubl, profile: en16931|xrechnung|peppol}
@@ -100,7 +103,7 @@ import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import { generateFacturX } from "../facturx-pdf.mjs";
 import { generateInvoice } from "../generate.mjs";
-import { isBlocking } from "../report.mjs";
+import { inspectInvoiceSource, isBlocking } from "../report.mjs";
 import { AdminError, adminRead } from "./admin.mjs";
 import { readAppFile, readAppText } from "./app-files.mjs";
 import { BillingError, createBilling } from "./billing.mjs";
@@ -114,6 +117,7 @@ import { draftFromPdf } from "./pdf-draft.mjs";
 import { meterStatement, periodOf, PLANS } from "./plans.mjs";
 import { openSqliteStore } from "./sql-store.mjs";
 import { FileStore, MemoryStore } from "./store.mjs";
+import { renderInvoiceView, VIEW_CSP } from "./view.mjs";
 
 const MAX_BODY = 30 * 1024 * 1024;
 const MAX_BATCH = 50;
@@ -775,6 +779,44 @@ export function createProHandler(deps = {}) {
       );
       await markErrors(account, [[hash, result]]);
       return { status: 200, body: result, headers: await usageHeaders(account, plan, charged) };
+    }
+
+    if (method === "POST" && p === "/v1/view") {
+      // The readable view (pro/view.mjs): the invoice as a printable HTML page with each finding
+      // on the field it is about. It runs the same check as POST /v1/check (no fixes), metered the
+      // same way: one unit per file and month by SHA-256, so viewing a file already checked this
+      // month is free. The page is text only, script-free and carries its own CSP.
+      const bytes = await readBody(req);
+      if (!bytes.length) throw new HttpError(400, "invalid", "Send one invoice as the request body.");
+      if (bytes.length > MAX_FILE) throw new HttpError(413, "too_large", `An invoice may be at most ${MAX_FILE} bytes.`);
+      const name = text(url.searchParams.get("name"), 200) || (/pdf/i.test(req.headers["content-type"] ?? "") ? "invoice.pdf" : "invoice.xml");
+      const source = invoiceSource(name, bytes);
+      const hash = sha256(source);
+      const opts = { ...checkOptionsFor(url), fix: false };
+      const { value: result, charged } = await metered(account, plan, [hash], () =>
+        checkInvoice({ name, source }, { ...opts, ...llmFor(account, plan)(hash), cache: boundedCache }),
+      );
+      await markErrors(account, [[hash, result]]);
+      let invoice = null;
+      try {
+        invoice = (await inspectInvoiceSource(name, source)).invoice ?? null;
+      } catch {
+        invoice = null;
+      }
+      const page = renderInvoiceView(invoice, result, { lang: opts.lang, now: now() });
+      const base = name.replace(/\.[^.]*$/, "").replace(/[^\w.-]+/g, "_").slice(0, 80) || "invoice";
+      return {
+        status: 200,
+        raw: Buffer.from(page, "utf8"),
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "content-security-policy": VIEW_CSP,
+          "content-disposition": `attachment; filename="${base}-view.html"`,
+          "referrer-policy": "no-referrer",
+          "x-check-status": result.status,
+          ...(await usageHeaders(account, plan, charged)),
+        },
+      };
     }
 
     if (method === "POST" && p === "/v1/convert") {

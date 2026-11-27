@@ -173,6 +173,12 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   for 2028 but not yet law), each read directly from efacture.belgium.be on 2026-11-27. The page says
   we are not a Peppol access point. `test/build.test.mjs` (+1).
 
+- Readable view (2026-11-27, einvoice-readable-view): `POST /v1/view` and a button on each workspace
+  result give the checked invoice as a printable HTML page, every field with its BT number and every
+  finding marked on its field and explained in the reader's language (`pro/view.mjs`, pro/README.md
+  "The readable view"); metered as a check, so free for a file already checked that month. einvoice-site's
+  "What fix-and-explain does" lists it in all four languages, and its llms.txt names it.
+
 ## Must do before a public launch
 
 - Owner: the licence decision on the third-party rule sets in `plain/` (EUPL-1.2, MPL-2.0,
@@ -195,7 +201,8 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
 - ~~Re-check each official deadline source directly~~ done 2026-11-27
   (launch-re-check-each-official-deadline): every German and French statement re-read against the
   BMF and impots.gouv.fr text itself, two wordings corrected, all sources `checkedVia: "direct"`
-  (einvoice-site README, "Germany and France, read directly on 2026-11-27").
+  (einvoice-site README, "Germany and France, read directly on 2026-11-27"; the quote behind every
+  statement in `apps/einvoice-site/docs/SOURCE-RECHECK-2026-11-27.md`).
 
 - Dutch explanations, part 1 (2026-11-27, dutch-explanations-part-1): the wedge in bets.md promises
   "plain German, French or Dutch", and the app had no Dutch. Every rule except the KSeF ones (111 ids)
