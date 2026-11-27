@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, mobile]
+topics: [design]
 date: 2026-11-27
 ---
 # Polish 2026-11-27: the manufacturing front doors' results tables on a phone
@@ -50,7 +50,7 @@ powder-coating 728 and 331 in 288; spc-control-charts 358 in 324.
 
 - `run_venture_tests.py` on the 5 slugs: 254 tests, 0 failed, plus site page checks.
 - Probe at 390 px: 0 failures; Playwright 1280 px: every table fits its box.
-- `node --test 'platform/pages/*.test.mjs'`: see the run record's notes.
+- `node --test 'platform/pages/*.test.mjs'`: 2,150 pass, 0 fail.
 
 ## Still weakest, next
 
