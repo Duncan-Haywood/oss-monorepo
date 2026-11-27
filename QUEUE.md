@@ -7,7 +7,13 @@ do not edit by hand. Take the first one whose claim branch
 
 Triaged already: alerts in `platform/security/codeql-triage.json` are listed apart, at the end; `docs/reports/*security-queue*.md` on main has earlier runs' notes. A false positive you find goes in the JSON file with its reason (only the owner can dismiss alerts).
 
-Empty: no open alerts awaiting a fix.
+Scanned commit: `079ba2c011b5` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 079ba2c011b5 origin/main -- <path>` before fixing (each alert file says how).
+
+- [high] #1444 `js/incomplete-url-substring-sanitization` in `ventures/payapps/packages/billing/src/paddle-key.test.ts:101`: alerts/1444.md
+- [high] #1445 `js/incomplete-url-substring-sanitization` in `ventures/payapps/packages/billing/src/paddle.test.ts:252`: alerts/1445.md
+- [high] #1446 `js/incomplete-multi-character-sanitization` in `ventures/payapps/apps/payapps/src/shared/ca-ecpr.ts:446`: alerts/1446.md
+- [high] #1447 `js/incomplete-multi-character-sanitization` in `ventures/payapps/apps/payapps-site/src/site/seo.ts:119`: alerts/1447.md
+- [high] #1448 `js/incomplete-multi-character-sanitization` in `ventures/payapps/apps/payapps-site/src/site/seo.ts:119`: alerts/1448.md
 
 ## Triaged, awaiting dismissal
 
@@ -17,8 +23,8 @@ for a session. The owner dismisses each on its alert page.
 - [high] #7 `py/clear-text-storage-sensitive-data` in `platform/security/risk_review.py:546`: alerts/7.md
 - [high] #12 `py/clear-text-logging-sensitive-data` in `platform/ci/secrets_inventory.py:261`: alerts/12.md
 - [high] #34 `py/clear-text-logging-sensitive-data` in `ventures/einvoice-preflight/src/einvoice_preflight/cli.py:853`: alerts/34.md
-- [high] #38 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:323`: alerts/38.md
-- [high] #39 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:331`: alerts/39.md
+- [high] #38 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:325`: alerts/38.md
+- [high] #39 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:333`: alerts/39.md
 - [high] #42 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:540`: alerts/42.md
 - [high] #43 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:547`: alerts/43.md
 - [high] #104 `js/regex-injection` in `platform/ci/copy_drift.mjs:189`: alerts/104.md
@@ -28,7 +34,7 @@ for a session. The owner dismisses each on its alert page.
 - [high] #960 `js/xss-through-dom` in `ventures/quick-pick-survey/site/rank.html:461`: alerts/960.md
 - [high] #968 `js/xss-through-dom` in `ventures/shed-designer/hoa-page.mjs:59`: alerts/968.md
 - [high] #969 `js/xss-through-dom` in `ventures/silence-cutter/index.html:258`: alerts/969.md
-- [high] #1049 `js/incomplete-url-substring-sanitization` in `platform/pages/check.mjs:1485`: alerts/1049.md
+- [high] #1049 `js/incomplete-url-substring-sanitization` in `platform/pages/check.mjs:1499`: alerts/1049.md
 - [high] #1050 `js/incomplete-url-substring-sanitization` in `platform/pages/custom-domain.test.mjs:161`: alerts/1050.md
 - [high] #1086 `js/disabling-certificate-validation` in `ventures/status-keeper/certs.mjs:12`: alerts/1086.md
 - [high] #1181 `js/redos` in `ventures/regex-redos-check/cli.test.mjs:81`: alerts/1181.md
