@@ -31,7 +31,7 @@ behind every check, and keeps CMMC and ISO 9001 evidence in one place for the sa
 AI drafts implementation statements only from the shop's own notes, marks unknowns
 `[CONFIRM: …]`, and nothing reaches the SSP until a person accepts it. Free front doors: the CMMC
 pages in [`machine-shop-guides`](../machine-shop-guides/) and the site's SPRS score calculator
-(`apps/cmmc-site`). Same buyers as bet #2, [`jobshop-quote`](../jobshop-quote/).
+(`apps/cmmc-site`). Same buyers as bet #2, Job Shop Quote (`ventures/jobshop-quote` once its move PR lands).
 
 ## Layout
 
