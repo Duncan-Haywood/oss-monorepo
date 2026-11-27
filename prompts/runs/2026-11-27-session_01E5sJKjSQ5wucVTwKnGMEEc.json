@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjSQ5wucVTwKnGMEEc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T15:10:50Z",
+  "ended": "2026-11-27T15:19:08Z",
+  "wall_minutes": 8.6,
+  "tokens_in": 10639674,
+  "tokens_out": 34268,
+  "cost_usd": 4.0383,
+  "tool_calls": 81,
+  "task": "Bet #2 front doors: Job Shop Quote went live on its custom domain (run 46018975911), so every machine-shop front door that still said 'not released' now links the free sign-up [jobshop-signups-open]",
+  "projects": [
+    "machine-shop-guides",
+    "cnc-machining-quote-calculator",
+    "dxf-nesting",
+    "jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19785",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git checkout -B onto fresh origin/main aborted on a dirty tree, so the commit landed on the stale base; merged main in afterwards and took main's copy of the three files PR #19778 had just changed",
+      "cost_minutes": 5
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets pointed at jobshop-quote item #3 (launch) as free although open PR #19779 already does it; only slug_dupe showed the PR"
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "PR #19778 (manufacturing page and post for the same launch) was titled with slug jobshop-quote-first-deploy, so a search for signups-open style slugs missed it and two sessions edited the same files within the hour"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Every free item on bets #1 and #2's Next lists waits on customer demand, and #2's launch item was taken by PR #19779, so I worked on bet #2's front doors (linking sign-up) rather than a product feature",
+      "did": "21 guide CTAs via a cta.mjs launch switch, /products/ line, two tools, the quoting-software page",
+      "result": "Every Job Shop Quote front door links the live free plan"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new post: PR #19778 had already extended the machine-shop customer post with the 'open now' note an hour earlier, so I took its copy rather than duplicating",
+      "did": "kept main's post",
+      "result": "one post, no duplicate"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (already extended by PR #19778; not changed here)"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test machine-shop-guides, cnc-machining-quote-calculator, dxf-nesting: 477 pass 0 fail; platform/pages business/home/products/industry-manufacturing/writing: 107 pass 0 fail. Live health from deploy log (proxy 403s the host from this container). Left for later: CMMC_APP_URL in machine-shop-guides/cta.mjs once cmmc-deploy (running at 15:09 UTC) answers healthy; PAID_PLANS_ON / AI_EXTRACTION_ON when the owner turns those on; jobshop-site (provisional 'RFQ Desk' marketing app) is not served and still says early access.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "71d90445-3213-5f05-a8f0-2705bd299f7c",
+    "transcripts": 1,
+    "first": "2026-11-27T15:10:50Z",
+    "last": "2026-11-27T15:19:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 152,
+        "output": 34268,
+        "thinking": 6927,
+        "cache_read": 10482548,
+        "cache_write_5m": 0,
+        "cache_write_1h": 156974,
+        "api_equivalent_usd": 4.0383,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 152,
+      "output": 34268,
+      "thinking": 6927,
+      "cache_read": 10482548,
+      "cache_write_5m": 0,
+      "cache_write_1h": 156974,
+      "api_equivalent_usd": 4.0383,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 73,
+      "mcp__github__actions_list": 3,
+      "ToolSearch": 2,
+      "mcp__github__get_job_logs": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.6,
+      "active_minutes": 8.6,
+      "model_minutes": 6.62,
+      "tool_minutes": 1.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a web developer updating 24 marketing pages with a generated CTA switch and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 99.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
