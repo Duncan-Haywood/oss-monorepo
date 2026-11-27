@@ -25,6 +25,7 @@ export interface SheetItem {
   sku: string | null;
   acquiredDate: string;
   costCents: number;
+  source: string | null;
   status: "in_stock" | "written_off" | "personal_use";
   disposedDate: string | null;
 }
@@ -47,7 +48,8 @@ type Field =
   | "bought"
   | "status"
   | "removed"
-  | "sold";
+  | "sold"
+  | "source";
 
 const SPEC: ColumnSpec<Field> = {
   bought: {
@@ -118,6 +120,25 @@ const SPEC: ColumnSpec<Field> = {
     ],
   },
   sold: { names: ["date sold", "sold date", "sold on", "sale date"] },
+  // Where it was bought. "Location" is left out: in sellers' sheets it is usually the storage bin.
+  source: {
+    names: [
+      "source",
+      "sourced from",
+      "sourced at",
+      "sourcing location",
+      "where bought",
+      "where purchased",
+      "where sourced",
+      "bought from",
+      "bought at",
+      "purchased from",
+      "purchased at",
+      "store",
+      "vendor",
+      "supplier",
+    ],
+  },
 };
 
 const PERSONAL = /^(personal|kept|keep|withdrawn)/i;
@@ -162,6 +183,7 @@ export function parseInventorySheet(text: string): SheetParseResult {
     const skip = (reason: string) => skipped.push({ line: row.line, reason });
     const title = (row.get("title") ?? "").slice(0, 300);
     const sku = (row.get("sku") ?? "").slice(0, 100) || null;
+    const source = (row.get("source") ?? "").trim().slice(0, 200) || null;
     if (!title && !sku) {
       skip("No item name or SKU.");
       continue;
@@ -236,6 +258,7 @@ export function parseInventorySheet(text: string): SheetParseResult {
         sku,
         acquiredDate,
         costCents,
+        source,
         status,
         disposedDate,
       });

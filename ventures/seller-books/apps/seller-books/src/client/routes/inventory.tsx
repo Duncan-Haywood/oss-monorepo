@@ -21,6 +21,7 @@ interface Item {
   id: string;
   title: string;
   sku: string | null;
+  source: string | null;
   acquiredDate: string;
   costCents: number;
   costIsManual: boolean;
@@ -77,6 +78,7 @@ export function InventoryPage() {
   const [item, setItem] = useState({
     title: "",
     sku: "",
+    source: "",
     acquiredDate: today(),
     cost: "",
     lotId: "",
@@ -88,13 +90,14 @@ export function InventoryPage() {
         body: {
           title: item.title,
           sku: item.sku || null,
+          source: item.source || null,
           acquiredDate: item.acquiredDate,
           costCents: item.cost ? dollarsToCents(item.cost) : null,
           lotId: item.lotId || null,
         },
       }),
     onSuccess: () => {
-      setItem({ title: "", sku: "", acquiredDate: today(), cost: "", lotId: "" });
+      setItem({ title: "", sku: "", source: "", acquiredDate: today(), cost: "", lotId: "" });
       return qc.invalidateQueries();
     },
   });
@@ -110,6 +113,16 @@ export function InventoryPage() {
   });
 
   const lotName = (id: string | null) => lots.data?.items.find((l) => l.id === id)?.name ?? "";
+  // Sources already in the books, offered as suggestions so one store keeps one spelling (the stock
+  // report groups by it, ignoring case and spacing).
+  const knownSources = [
+    ...new Set(
+      [
+        ...(items.data?.items.map((i) => i.source) ?? []),
+        ...(lots.data?.items.map((l) => l.vendor) ?? []),
+      ].flatMap((v) => (v?.trim() ? [v.trim()] : [])),
+    ),
+  ].sort((a, b) => a.localeCompare(b));
 
   return (
     <div className="space-y-6">
@@ -209,6 +222,24 @@ export function InventoryPage() {
               value={item.cost}
               onChange={(e) => setItem({ ...item, cost: e.target.value })}
             />
+            <input
+              className="input col-span-2"
+              placeholder={
+                item.lotId
+                  ? "Where bought (optional; else the lot's vendor)"
+                  : "Where bought (optional)"
+              }
+              aria-label="Where bought"
+              list="item-sources"
+              maxLength={200}
+              value={item.source}
+              onChange={(e) => setItem({ ...item, source: e.target.value })}
+            />
+            <datalist id="item-sources">
+              {knownSources.map((s) => (
+                <option key={s} value={s} />
+              ))}
+            </datalist>
             <select
               className="input col-span-2"
               value={item.lotId}
@@ -281,6 +312,9 @@ export function InventoryPage() {
                 <td>
                   {i.title}
                   {i.sku && <span className="ml-1 text-xs text-stone-500">{i.sku}</span>}
+                  {i.source && (
+                    <span className="ml-1 text-xs text-stone-500">· from {i.source}</span>
+                  )}
                   {i.lotId && (
                     <span className="ml-1 text-xs text-stone-500">· {lotName(i.lotId)}</span>
                   )}

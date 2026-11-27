@@ -67,6 +67,7 @@ describe("inventory spreadsheet", () => {
       "status",
       "removed",
       "sold",
+      "source",
     ]) {
       assert.ok(fields[f]?.length, `importer field ${f} read from the source`);
     }
@@ -80,6 +81,7 @@ describe("inventory spreadsheet", () => {
       bought: "bought",
       status: "status",
       removed: "removed",
+      source: "source",
     };
     for (const c of COLUMNS) {
       if (c.imported)

@@ -11,6 +11,10 @@
 //   proceeds of a sale = item price + shipping charged − refunds − fees − postage on that row, all from the
 //                        imported report (never a fee computed from a rate); sales tax is excluded
 //   lot payback        = proceeds of every sale linked to the lot's items, up to `asOf`, − the lot's cost
+//   source of an item  = where it was bought as typed on the item, else its lot's vendor; spellings that
+//                        differ only in case and spacing are one source
+//   profit by source   = proceeds of the source's items sold in [from, to] − those items' cost of goods
+//   return on cost     = that profit ÷ that cost, as a whole percent
 // Proceeds are before cost of goods and before expenses not tied to a sale (ads bought separately,
 // subscriptions, supplies), so a lot that "paid back" may still have lost money once those are counted.
 
@@ -23,6 +27,8 @@ export interface StockItemInput {
   costCents: number;
   status: string; // InventoryStatus
   disposedDate: string | null;
+  /** Where it was bought, as typed on the item; null takes the lot's vendor. */
+  source?: string | null;
 }
 
 export interface StockSaleInput {
@@ -43,6 +49,7 @@ export interface StockLotInput {
   name: string;
   acquiredDate: string;
   totalCostCents: number;
+  vendor?: string | null;
 }
 
 export interface AgingBucket {
@@ -94,6 +101,24 @@ export interface LotRow {
   inStockCostCents: number;
 }
 
+export interface SourceRow {
+  /** The source as first spelled in the books; null for items with no source and no lot vendor. */
+  source: string | null;
+  /** Items from this source sold in [from, to]. */
+  sold: number;
+  proceedsCents: number;
+  /** Cost of goods of those sold items. */
+  costCents: number;
+  /** proceeds − cost of the items sold in the period. */
+  profitCents: number;
+  /** profit ÷ cost as a whole percent, null when the sold items cost nothing. */
+  returnPercent: number | null;
+  medianDays: number | null;
+  /** Items from this source still in stock on asOf, and their cost. */
+  inStock: number;
+  inStockCostCents: number;
+}
+
 export interface StockReport {
   asOf: string;
   from: string;
@@ -111,6 +136,7 @@ export interface StockReport {
   speed: SpeedRow[];
   speedTotal: SpeedRow;
   lots: LotRow[];
+  sources: SourceRow[];
   warnings: string[];
 }
 
@@ -153,6 +179,12 @@ export function median(values: number[]): number | null {
 function mean(values: number[]): number | null {
   if (values.length === 0) return null;
   return Math.round((values.reduce((s, v) => s + v, 0) / values.length) * 10) / 10;
+}
+
+/** One key per source: case and spacing do not split "Goodwill" from "goodwill ". */
+export function sourceKey(source: string | null | undefined): string {
+  const s = (source ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+  return s ? `s:${s}` : "none";
 }
 
 const percent = (num: number, den: number) => (den > 0 ? Math.round((num / den) * 100) : null);
@@ -332,6 +364,71 @@ export function buildStockReport(input: {
     })
     .sort((a, b) => b.acquiredDate.localeCompare(a.acquiredDate) || a.name.localeCompare(b.name));
 
+  // ---- sources ------------------------------------------------------------------------------------
+  const vendorOf = new Map(input.lots.map((l) => [l.id, l.vendor?.trim() || null]));
+  const sourceOf = (i: StockItemInput) =>
+    i.source?.trim() || (i.lotId ? (vendorOf.get(i.lotId) ?? null) : null);
+  const sourceMap = new Map<
+    string,
+    {
+      label: string | null;
+      days: number[];
+      sold: number;
+      proceeds: number;
+      cost: number;
+      stock: number;
+      stockCost: number;
+    }
+  >();
+  const sourceRow = (i: StockItemInput) => {
+    const label = sourceOf(i);
+    const key = sourceKey(label);
+    let row = sourceMap.get(key);
+    if (!row) {
+      row = { label, days: [], sold: 0, proceeds: 0, cost: 0, stock: 0, stockCost: 0 };
+      sourceMap.set(key, row);
+    }
+    return row;
+  };
+  // Oldest purchase first, so a source is labelled with its first spelling.
+  const byBought = [...items].sort(
+    (a, b) => a.acquiredDate.localeCompare(b.acquiredDate) || a.id.localeCompare(b.id),
+  );
+  const soldIds = new Set(soldInWindow.map((i) => i.id));
+  for (const i of byBought) {
+    if (soldIds.has(i.id)) {
+      const row = sourceRow(i);
+      row.sold++;
+      row.proceeds += proceedsOf(i.id);
+      row.cost += i.costCents;
+      const d = daysBetween(i.acquiredDate, i.disposedDate as string);
+      if (d >= 0) row.days.push(d);
+    } else if (inStockOn(i, asOf)) {
+      const row = sourceRow(i);
+      row.stock++;
+      row.stockCost += i.costCents;
+    }
+  }
+  const sources: SourceRow[] = [...sourceMap.values()]
+    .map((r) => ({
+      source: r.label,
+      sold: r.sold,
+      proceedsCents: r.proceeds,
+      costCents: r.cost,
+      profitCents: r.proceeds - r.cost,
+      returnPercent: percent(r.proceeds - r.cost, r.cost),
+      medianDays: median(r.days),
+      inStock: r.stock,
+      inStockCostCents: r.stockCost,
+    }))
+    .sort(
+      (a, b) =>
+        Number(a.source == null) - Number(b.source == null) ||
+        b.profitCents - a.profitCents ||
+        b.sold - a.sold ||
+        (a.source ?? "").localeCompare(b.source ?? ""),
+    );
+
   return {
     asOf,
     from,
@@ -355,6 +452,7 @@ export function buildStockReport(input: {
       costCents: allCost,
     },
     lots,
+    sources,
     warnings,
   };
 }
