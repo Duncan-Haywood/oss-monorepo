@@ -46,6 +46,10 @@
     {
       "file": "ventures/payapps/apps/payapps/ROADMAP.md",
       "issue": "Item #25 is the only free payapps item, and --bets rotation still sent two sessions to the same 'more states' slice within a minute; a claim only protects you if you take it before reading sources."
+    },
+    {
+      "file": "ventures/residential-takeoff/apps/wall-framing-takeoff/pdfsync.test.mjs",
+      "issue": "A redteam fix to pdf-plan-takeoff/scale.mjs merged without the synced copy, so every PR touching ventures went red on an unrelated venture; the redteam track's checklist doesn't mention synced copies."
     }
   ],
   "deviations": [
@@ -64,7 +68,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "platform/ci: python3 -m unittest test_egress_probe test_roadmap_claim -> 52 OK. egress_probe.py leginfo justia pypi marisstella -> leginfo/justia refused (403 bot check), pypi ok 206, marisstella ok 200.",
+  "notes": "platform/ci: python3 -m unittest test_egress_probe test_roadmap_claim -> 52 OK. egress_probe.py leginfo justia pypi marisstella -> leginfo/justia refused (403 bot check), pypi ok 206, marisstella ok 200. Main was red: redteam PR #19881 fixed ventures/pdf-plan-takeoff/scale.mjs and left wall-framing-takeoff's synced copy stale (pdfsync.test.mjs failed on CI). Copied it across here; run_venture_tests.py residential-takeoff pdf-plan-takeoff -> 2 suites, 0 failed.",
   "corrections": [],
   "redteam": null,
   "usage": {
