@@ -6,6 +6,7 @@ import {
   basePathOf,
   NO_WARRANTY_NOTE,
   NOT_AIA_NOTE,
+  PAGE_LIST,
   PAGES,
   PRODUCT_NAME,
   type PublicPage,
@@ -60,7 +61,13 @@ function render(v: unknown): string {
 export function href(ctx: SiteContext, path: string): string {
   // The catalogue may serve its tree under another base (check.mjs refuses root-absolute links), and
   // every static page sits in the base directory itself, so links there are relative.
-  if (ctx.staticHost) return path === "/" ? "./" : path.slice(1);
+  // A page is linked by its file (features.html), as the catalogue's other ventures link theirs:
+  // platform/ci/check_pages_links.py resolves no extensionless link, and Cloudflare serves the file at
+  // the canonical extensionless URL.
+  if (ctx.staticHost) {
+    if (path === "/") return "./";
+    return PAGE_LIST.find((p) => p.path === path)?.file ?? path.slice(1);
+  }
   const base = basePathOf(ctx.siteUrl);
   if (path === "/") return `${base}/`;
   return `${base}${path}`;

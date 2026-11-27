@@ -51,9 +51,8 @@ describe("static export", () => {
   });
 
   it("links its own pages relatively (no root-absolute link) and every link resolves", () => {
-    const pages = new Set(
-      [...files.keys()].filter((f) => f.endsWith(".html")).map((f) => f.replace(/\.html$/, "")),
-    );
+    // Links name the file (features.html): check_pages_links.py resolves no extensionless link.
+    const pages = new Set([...files.keys()]);
     for (const [rel, doc] of files) {
       if (!rel.endsWith(".html")) continue;
       expect(doc, rel).not.toMatch(/(href|src|action)="\//);

@@ -9,7 +9,7 @@ Open now · free on one job
 
 PayApps is a hosted pay-application tool for subcontractors: your schedule of values, retainage, change orders and lien waivers in one place, so each month's pay app is a review instead of a rebuild.
 
-[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site) [See what it does](features)
+[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site) [See what it does](features.html)
 
 ## What billing day looks like for a lot of subs
 
@@ -49,7 +49,7 @@ Then the same amounts go into your accounting system as invoices, with retainage
 
 - **Get paid and keep the books straight.** Record each check, see what is past due across every job, send the invoice and payment to QuickBooks Online, and bill the retainage when the work is done, with the punch items and close-out documents it still waits on named job by job.
 
-All four steps work in the app today. The [features page](features) marks what is built and what comes next.
+All four steps work in the app today. The [features page](features.html) marks what is built and what comes next.
 
 ## Questions
 
@@ -446,7 +446,7 @@ For a subcontractor with project managers and a billing team.
 - Everything in Crew
 - 50 GB of attachments
 
-Prices in US dollars, before any sales tax. No setup fee; cancel any time. The [features page](features) marks what is built and what comes next.
+Prices in US dollars, before any sales tax. No setup fee; cancel any time. The [features page](features.html) marks what is built and what comes next.
 
 ## Questions about pricing
 
