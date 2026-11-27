@@ -4,12 +4,14 @@ One Cloudflare Worker (`payapps`) serves the SPA and the API, with a D1 database
 bucket for attachments (`payapps-files`) and Cloudflare Email Service for account mail. The workflow
 `payapps-deploy.yml` does the whole deploy (in `private-monorepo` until it is ported here: [ventures/payapps/DEPLOY.md](../../../DEPLOY.md)); there are no dashboard steps beyond the secrets below.
 
-**It runs by hand only** (Actions -> payapps-deploy -> Run workflow). Agents may run it without the
+**It runs on every merge to `main` that touches `ventures/payapps/`** (Markdown-only changes excepted;
+added 2026-11-27 after seven good manual runs) **and by hand** (Actions -> payapps-deploy -> Run
+workflow). A push run always runs the full checks. Agents may run it without the
 owner (the repository's [`docs/legal/OPERATOR.md`](../../../docs/legal/OPERATOR.md), "Who approves launch") once the plans clear the margin floor and a
 recorded review has read every legal page against the product: the first one is
-[LAUNCH-REVIEW.md](LAUNCH-REVIEW.md). After launch, add `push: branches: [main]` to the workflow so
-every merge ships. To gate each run, add required reviewers to the `payapps-production` environment
-(Settings -> Environments).
+[LAUNCH-REVIEW.md](LAUNCH-REVIEW.md). Because every merge ships, a migration must stay backward
+compatible with the code before it (migrations apply before the new Worker goes live). To gate each
+run, add required reviewers to the `payapps-production` environment (Settings -> Environments).
 
 ## What a run does
 

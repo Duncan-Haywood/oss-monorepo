@@ -2206,7 +2206,8 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
   `"email": true` (docs/EMAIL.md); the deploy workflow ran once by hand (`priv-payapps-deploy.yml` in
-  oss-monorepo). Next: let it run on every merge (`push: branches: [main]`, a control-plane PR)
+  oss-monorepo). Done 2026-11-27: it runs on every merge to main that touches `ventures/payapps/`
+  (Markdown-only changes excepted), so merged fixes reach the live app without a hand dispatch
 - Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
   agent-approved under `docs/legal/OPERATOR.md` (no attorney review; open checks listed there)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on"); the
