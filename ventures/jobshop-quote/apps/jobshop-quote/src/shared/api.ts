@@ -1105,3 +1105,23 @@ export interface BillingDto {
   portalAvailable: boolean;
   plans: PlanDto[];
 }
+
+// ---- Shop load and lead time (shared/shop-load.ts) ----
+
+/** PUT /quotes/:id/job: a won quote's due date, quantities ordered per line, and shipped day. */
+export const shopJobSchema = z
+  .object({
+    dueOn: calendarDaySchema.nullable().default(null),
+    quantities: z
+      .record(z.string().min(1).max(64), z.number().int().min(1).max(1_000_000))
+      .default({})
+      .refine((r) => Object.keys(r).length <= 200, "too many lines"),
+    shippedOn: calendarDaySchema.nullable().default(null),
+  })
+  .strict();
+export type ShopJobInput = z.infer<typeof shopJobSchema>;
+
+/** PUT /shop-load/machines/:machineId: hours a day the machine runs, Monday to Friday; null clears. */
+export const machineHoursSchema = z
+  .object({ hoursPerDay: z.number().min(0.5).max(24).nullable() })
+  .strict();

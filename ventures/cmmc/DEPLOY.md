@@ -11,7 +11,8 @@ README, "Deploy (owner)", lists the wrangler steps.
 private-monorepo's `cmmc-deploy.yml`, which never ran because that repository's Actions start no jobs.
 It follows `priv-seller-books-deploy.yml` and the Job Shop Quote port (R2 optional since 2026-11-27: evidence goes to D1 without it), after an
 allowlist PR for its secrets (PR #19741, the pattern Seller Books followed in PRs #19653 and #19662).
-It runs by hand only (`workflow_dispatch`), refuses any ref but `main`, and uses the
+It runs on every merge to `main` that touches `ventures/cmmc/` (Markdown-only changes excepted) and by
+hand (`workflow_dispatch`), refuses any ref but `main`, and uses the
 `cmmc-production` environment. `/ventures/cmmc/` now has a code owner, because the deploy job runs
 the venture's code with Cloudflare credentials (`ci_policy_check.py`).
 
@@ -59,7 +60,7 @@ cancelled by the workflow's concurrency group before it started.
 Front doors since then: the 21 machine-shop guides (`ventures/machine-shop-guides/cta.mjs`), the
 products page and the manufacturing tool doors link to `/signup?from=<page>`, which opens "Create
 account" (`apps/cmmc/src/client/lib/auth-mode.ts`). That change reaches the live app on the next
-deploy: the workflow is manual, so dispatch it once more after the PR that carries it merges.
+deploy; it was dispatched once more after that PR merged (run 46040310064, success, main at 4ed2931b1).
 
 ## Then
 
@@ -67,8 +68,11 @@ The product side of launch is reviewed: [`apps/cmmc/docs/LAUNCH-REVIEW.md`](apps
 (2026-11-27, PR #19734), the record `docs/legal/OPERATOR.md` asks for before an agent deploys and
 opens sign-ups.
 
-1. Done 2026-11-27 ("First deploy" above). Next: add `push: branches: [main]` with a paths filter
-   after a second good run, as `priv-payapps-deploy.yml` does.
+1. Done 2026-11-27 ("First deploy" above). Deploy on merge done 2026-11-27 (cmmc-deploy-on-merge),
+   after the second good run (46040310064): `push: branches: [main]` with a paths filter on
+   `ventures/cmmc/**` (Markdown excepted) and the workflow itself, as `priv-payapps-deploy.yml` and
+   `priv-jobshop-quote-deploy.yml` do. Push runs always run the full checks; the deploy message
+   names the event (`push` or `workflow_dispatch`).
 2. Remove `private-monorepo/apps/cmmc` and `apps/cmmc-site` in a private PR, repoint
    `portfolio/monetization/bets.md` ("Where it is built") and the `private-monorepo/apps/cmmc` row
    key in `portfolio/monetization/models.yaml`.

@@ -33,6 +33,7 @@ You sign in with email and password. Keep your credentials secure and tell us pr
 
 - **Plans.** A free plan (one platform, one user and a monthly order limit) lets you see your own numbers before you pay. Paid plans, their prices and their limits (platforms, users and a monthly order guide) are shown in the app before you buy. On a paid plan, going over the monthly order guide never locks your books.
 - **Merchant of record.** Payments are processed by a third-party merchant of record (Paddle). The merchant of record is the seller of record for your purchase, handles payment, invoicing and applicable sales tax, and its own terms apply to the payment transaction.
+- **Automatic renewal.** A paid plan renews automatically at the end of each month or year (the cycle you chose at checkout) at the price then in effect, until you cancel. Before each yearly renewal, and once a year on a monthly plan, we email the shop's owner and admins 26 to 39 days ahead with the price and how to cancel. Cancelling from the billing page is one step; you keep the plan to the end of the period you paid for.
 - **Plan changes.** You can upgrade, downgrade or cancel at any time from the billing page. Changes take effect as described in the app. If we change prices, we will tell you in advance and the change applies from your next billing period.
 - **After a downgrade** your records stay in your account and readable; importing more than the free plan allows needs a paid plan.
 - **Refunds** are covered by the Refund Policy.

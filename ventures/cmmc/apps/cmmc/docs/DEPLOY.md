@@ -8,9 +8,11 @@ deploy; there are no dashboard steps beyond the settings below. It is a port of 
 deploy (`apps/jobshop-quote/docs/DEPLOY.md`, itself ported from payapps), with the differences listed
 at the end.
 
-**It runs by hand only** (Actions -> cmmc-deploy -> Run workflow, on `main`), so a merge never puts the app in
-front of strangers before the items in "Before strangers sign up" are done. After launch, add
-`push: branches: [main]` to the workflow so every merge ships. To gate each run, add required
+**It runs on every merge to `main` that touches `ventures/cmmc/`** (Markdown-only changes excepted,
+and the workflow file itself), and by hand (Actions -> cmmc-deploy -> Run workflow, on `main`). It was
+manual until two good runs on 2026-11-27 (46022366507 and 46040310064); the app is open on the free
+Level 1 plan, so a merged fix should reach it without anyone remembering to dispatch. A push run
+always runs the full checks (`skip_checks` exists only on a dispatch). To gate each run, add required
 reviewers to the `cmmc-production` environment (Settings -> Environments).
 
 ## What a run does

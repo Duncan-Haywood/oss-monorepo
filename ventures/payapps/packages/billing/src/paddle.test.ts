@@ -395,6 +395,7 @@ describe("PaddleBillingProvider.createCheckout", () => {
     };
     assert.deepEqual(await provider(fetchFn).createPortalSession("ctm_1", "https://app/r"), {
       url: "https://portal/x",
+      cancelUrl: null,
     });
   });
 
