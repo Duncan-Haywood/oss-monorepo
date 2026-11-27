@@ -6,7 +6,7 @@ hypotheses:
   - claim: Estimators and subcontractors at small firms who take off quantities from PDF plans without a Bluebeam or PlanSwift seat will search "free PDF takeoff" or "measure PDF plans online" and use a free in-browser takeoff, measured as the share of pdf_read events followed by csv_downloaded.
     status: untested
     checked: null
-    evidence: customer-contact  # usage counters pdf_read, length_measured, area_measured, count_measured, fill_measured, calibrated, scale_confirmed, half_size_found, csv_downloaded (local only)
+    evidence: customer-contact  # usage counters pdf_read, length_measured, area_measured, count_measured, fill_measured, calibrated, scale_confirmed, half_size_found, csv_downloaded, walls_dxf_downloaded (local only)
   - claim: The half-size check matters to users, measured as the share of pdf_read events with a half_size_found event.
     status: untested
     checked: null
