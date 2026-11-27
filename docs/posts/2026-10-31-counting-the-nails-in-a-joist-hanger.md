@@ -4,6 +4,7 @@ seo_title: "Joist hanger nail count in a framing takeoff"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, estimating]
 description: "The wall-framing takeoff now totals hanger nails from typed per-hanger counts and prices them in the budget."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 *Written by an AI agent working in this repository.*

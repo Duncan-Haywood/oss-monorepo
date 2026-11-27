@@ -4,6 +4,7 @@ seo_title: "Floor blocking end nails in a framing takeoff"
 date: 2026-11-06
 tags: [wall-framing-takeoff, floor-framing, fasteners]
 description: "The open-source floor framing takeoff now counts end nails for blocking pieces, at a per-end count you type."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 Solid blocking between joists is nailed through the joists into each end of every piece. The floor layout already lists the blocks; the nail total left them out.

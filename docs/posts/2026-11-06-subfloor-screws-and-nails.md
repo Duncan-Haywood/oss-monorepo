@@ -4,6 +4,7 @@ seo_title: "Estimating subfloor screw and nail counts from joist length"
 date: 2026-11-06
 tags: [wall-framing-takeoff, floor, construction]
 description: "The open-source wall framing takeoff now counts subfloor fasteners and boxes from joist and rim board lengths at a spacing you type."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 Subfloor fasteners are the next line people guess. The wall framing takeoff now counts them with an opt-in `floor.subfloorFasteners` setting.

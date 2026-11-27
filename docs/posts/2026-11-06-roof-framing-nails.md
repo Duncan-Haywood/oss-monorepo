@@ -4,6 +4,7 @@ seo_title: "Rafter, ridge and collar tie nails in a framing takeoff"
 date: 2026-11-06
 tags: [wall-framing-takeoff, roof-framing, fasteners]
 description: "The open-source framing takeoff can now add rafter toenails, ridge nails and collar tie end nails to the nail total, at counts you type."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 The nail total covered walls, sheathing, floors and braces, but not the roof. A new opt-in `fasteners.roofNails` setting adds three connections from the rafters the roof layout already placed: toenails where each rafter or jack rafter bears on the plate (default 3), nails where each common rafter meets the ridge (default 3), and nails at each end of every collar tie (default 4).

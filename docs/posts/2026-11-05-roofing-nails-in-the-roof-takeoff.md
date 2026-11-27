@@ -4,6 +4,7 @@ seo_title: "Roofing nails per square: pounds and boxes to order for a roof"
 date: 2026-11-05
 tags: [wall-framing-takeoff, roofing, construction]
 description: "The roof takeoff now counts roofing nails in pounds and boxes, for gable, hip and cross-wing roofs, and prices them in the budget."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 A roof order that lists shingles, felt, drip edge, starter and ridge cap but not nails is a trip back to the supplier. The roof takeoff in wall-framing-takeoff now counts the nails for the shingle field.

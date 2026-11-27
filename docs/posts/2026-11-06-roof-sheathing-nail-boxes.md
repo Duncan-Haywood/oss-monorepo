@@ -4,6 +4,7 @@ seo_title: "Roof sheathing nail boxes: turn a nail count into a purchase"
 date: 2026-11-06
 tags: [wall-framing-takeoff, roofing, estimating]
 description: "The free framing takeoff already counted roof sheathing nails; type the box size from the label and it now gives whole boxes and a budget line."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 The takeoff counted roof sheathing nails (edges every 6 in, field nails along each rafter or truss line, 10% waste) but left you to divide by the box size. Type `roof.sheet.nailBox` (nails per box, from the label) and it now rounds up to whole boxes and adds a "Roof sheathing nail boxes" line to the budget, priced if you type `sheathingNailBox`.

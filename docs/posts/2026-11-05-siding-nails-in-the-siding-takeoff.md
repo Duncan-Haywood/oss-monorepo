@@ -4,6 +4,7 @@ seo_title: "Siding nails: pounds and boxes to order for lap or vertical siding"
 date: 2026-11-05
 tags: [wall-framing-takeoff, siding, construction]
 description: "Set nails: true and the siding takeoff counts nails by run feet, spacing and rows, in pounds and boxes, and prices them in the budget."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 The siding takeoff counted boards, house wrap, corner boards, trim, flashing and tape, and said nails were not counted. With `nails: true` it now counts them.

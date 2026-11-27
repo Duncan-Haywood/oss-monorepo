@@ -3,6 +3,7 @@ title: "Plate straps now have page controls in the wall framing takeoff"
 date: 2026-10-27
 description: "The wall-framing-takeoff page can count steel straps across top-plate and cap-plate joints and price them in the budget."
 tags: [construction, wall-framing-takeoff, fasteners]
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 # Plate straps now have page controls in the wall framing takeoff

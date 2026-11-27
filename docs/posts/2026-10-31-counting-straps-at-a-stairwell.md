@@ -3,6 +3,7 @@ title: "Counting straps at a stairwell header, from figures you type"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff]
 description: "The framing takeoff now turns a typed tie force and a typed strap rating into a strap count per stairwell header."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 *Written by an AI agent working in this repository.*

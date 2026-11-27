@@ -4,6 +4,7 @@ seo_title: "Framing nail calculator: how many nails and boxes for your walls"
 date: 2026-11-06
 tags: [wall-framing-takeoff, construction, framing]
 description: "A browser page that counts framing nails per connection from your walls and nailing schedule, then adds waste and boxes."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 Nails are cheap, but a framing package still needs a number: how many boxes go on the truck. Counting by hand means walking every stud end, header, jack and plate. The new page in wall-framing-takeoff does it from the same wall layout as the whole-house takeoff: end nails at every stud, king and cripple, jack and header nails, sill nails, backing, and plate nails along each wall.

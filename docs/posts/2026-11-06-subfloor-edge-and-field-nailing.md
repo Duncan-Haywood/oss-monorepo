@@ -4,6 +4,7 @@ seo_title: "Subfloor nailing schedule calculator: edge and field fastener counts
 date: 2026-11-06
 tags: [wall-framing-takeoff, floor, construction]
 description: "The open-source wall framing takeoff can now split subfloor fasteners into edge and field spacing instead of one flat spacing."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 A flat 8 in spacing was a placeholder. Nailing schedules for subfloor sheets usually name two numbers: a tighter spacing on the supported edges and a wider one in the field.
