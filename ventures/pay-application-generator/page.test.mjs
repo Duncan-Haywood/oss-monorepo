@@ -67,18 +67,22 @@ test("index links one hop to the pay-app-guides sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/pay-app-guides\/"/);
 });
 
-test("next-month carry-forward is on the page and the suite pitch claims no sale or price", () => {
+test("next-month carry-forward is on the page and the suite pitch says PayApps is open, free on one job, paid plans not on sale", () => {
   const html = page("index.html");
   assert.match(html, /id="next-start"/);
   assert.match(html, /id="next-dl"/);
   assert.match(html, /next_period_started/);
-  const suite = /<section class="card" id="suite">([\s\S]*?)<\/section>/.exec(html)[1];
-  assert.match(suite, /in development/);
-  assert.match(suite, /not on sale yet/);
-  assert.doesNotMatch(suite, /\$\s?\d/);
-  // Early access goes to the private list on the construction page, never the public feedback form.
-  assert.match(suite, /href="https:\/\/marisstella\.app\/industries\/construction\/"/);
-  assert.doesNotMatch(suite, /feedback\/\?type=idea/);
+  for (const [file, from] of [["index.html", "pay-application-generator"], ["pay-application-template.html", "pay-application-generator%2Ftemplate"]]) {
+    const suite = /<section class="card" id="suite">([\s\S]*?)<\/section>/.exec(page(file))[1];
+    assert.match(suite, /open now/, file);
+    assert.match(suite, /free on one active job, with no card/, file);
+    // The Free plan has no lien waivers, QuickBooks or job costing (ventures/payapps/apps/payapps/src/shared/plans.ts).
+    assert.match(suite, /Lien waivers, QuickBooks and job costing are in the paid plans, which are not on sale yet/, file);
+    assert.doesNotMatch(suite, /\$\s?\d/, `${file}: no price until checkout is live`);
+    assert.doesNotMatch(suite, /in development|early access/i, `${file}: stale pre-launch copy`);
+    assert.ok(suite.includes(`href="https://payapps.marisstella.app/?signup&amp;from=${from}"`), `${file}: tracked sign-up link`);
+    assert.doesNotMatch(suite, /feedback\/\?type=idea/);
+  }
 });
 
 test("an Excel workbook can be chosen and the import is explained on the page", () => {
@@ -118,10 +122,4 @@ test("the template's own page is linked, honest about the AIA, sends nothing and
   assert.match(suite, /not on sale yet/);
   assert.doesNotMatch(suite, /\$\s?\d/);
   assert.match(page("sitemap.xml"), /pay-application-template\.html/);
-});
-
-test("the template page's early-access link is the private list, not the public feedback form", () => {
-  const suite = /<section class="card" id="suite">([\s\S]*?)<\/section>/.exec(page("pay-application-template.html"))[1];
-  assert.match(suite, /href="https:\/\/marisstella\.app\/industries\/construction\/"/);
-  assert.doesNotMatch(suite, /feedback\/\?type=idea/);
 });

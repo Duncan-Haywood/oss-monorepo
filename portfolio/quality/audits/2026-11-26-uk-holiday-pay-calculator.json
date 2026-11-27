@@ -150,7 +150,8 @@
       "what": "Irregular-hours accrual is 12.07% of an annual hours total with no pay period: WTR reg 15B and GOV.UK accrue per pay period and round to the nearest hour at 0.5, so GOV.UK's own example (30 h in a weekly period = 4 h) comes out 3.62 h, and a year of 30-hour weeks is 188.29 h instead of 208 h",
       "where": "ventures/uk-holiday-pay-calculator/calc.mjs:114",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19709"
     },
     {
       "severity": "medium",
@@ -211,6 +212,6 @@
       "origin": "claims"
     }
   ],
-  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19371"],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19371", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19709"],
   "verdict": "A small, private, honest-looking GB holiday calculator whose regular-hours path recomputes cleanly against GOV.UK (28-day cap, 16.8 days for 3 days, 30 June leaver 14 days and GBP 1,080, 14 April starter 20.5 days) and whose page works end to end in Chromium with 28 passing tests and 4 of 6 seeded mutants caught. It does not meet the bar: correctness, claims, fitness and domain are 2. The irregular-hours path, the one it markets as its edge, takes 12.07% of an annual total instead of per-pay-period accrual rounded to the hour (GOV.UK's 30-hour example is 4 h; the tool says 3.62), applies 12.07% and rolled-up pay to pre-April-2024 leave years, and the worked example tells a '25 days plus bank holidays' worker their contract is unlawful. Finished (completeness 3), not payroll-specialist grade until the reg 15B accrual and the 2024 transition gate are modelled."
 }

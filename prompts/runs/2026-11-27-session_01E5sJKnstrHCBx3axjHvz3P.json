@@ -1,0 +1,164 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKnstrHCBx3axjHvz3P",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T10:18:13Z",
+  "ended": "2026-11-27T10:36:15Z",
+  "wall_minutes": 18.43,
+  "tokens_in": 17454315,
+  "tokens_out": 81741,
+  "cost_usd": 6.8473,
+  "tool_calls": 103,
+  "task": "bet #6 residential takeoff: all-hip roof lines over outlines with angled sides (bays, 45-degree corners), angled-outline-roof-lines",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19708",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first fuzz generator produced self-crossing star polygons (angular gap over 180 degrees); 92 false failures before the generator was fixed",
+      "fixed": true
+    },
+    {
+      "what": "two wrong hand expectations in my own tests (negative lengths that parseLength does not take; a mitre sign), corrected after checking the geometry, code unchanged",
+      "fixed": true
+    },
+    {
+      "what": "main carried a broken link (docs/posts/2026-11-27-florida-notice-to-owner-45-days.md to the retired payapps workers.dev host) that failed the changed-ventures unwired check locally; fixed to payapps.marisstella.app in this PR",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "bets #1-#5 each had 2-10 open PRs from parallel sessions at 10:00 UTC; slug_dupe and roadmap_claim showed every payapps Next item waiting on demand, so finding untaken work cost about 15 tool calls before falling through to bet #6"
+    },
+    {
+      "file": "private-monorepo biome.json",
+      "issue": "apps/wall-framing-takeoff is outside biome's includes, so the CLAUDE.md lint step (`pnpm exec biome check`) checks nothing for this app; there is also no CI workflow for it in private-monorepo"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "payapps.marisstella.app is refused by the session's egress proxy (403), so a run cannot smoke-test the live bet #1 app from a cloud session"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "the default is the top ranked bet; bets #1-#5 were saturated by concurrent sessions (marketing site, deploy workflows, e2e, guides all claimed) and payapps' free roadmap items all wait on demand",
+      "did": "took bet #6 (residential takeoff, the estimating module of bet #1) and its open ROADMAP item 'outlines with angled sides, refused today'",
+      "result": "landed private PR #487 with no overlap"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "private PR #487 has no CI for this app",
+      "did": "merged on local verification: full suite 1,317 pass, Chromium checks 9/9 and 29/29",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-hip-and-valley-length-on-an-l-shaped-hip-roof.md (extended: bay window section)",
+    "docs/reports/2026-11-27-wall-framing-takeoff-angled-outline-roof-lines.md"
+  ],
+  "goal": "bet #6 (estimating module of the contractor suite): roof takeoff for real houses with bays and clipped corners",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/487 merged (squash 7ca83b92). skeleton.mjs: general straight skeleton by wavefront steps plus geometric rebuild; matches hiproof.mjs on 300 random square-cornered outlines (also rotated and mirrored) to 5e-13; invariants on 600 random any-angle polygons and 200 clipped outlines. Local checks: node --test skeleton.test.mjs 7/7; node --test '*.test.mjs' 1317 pass 0 fail 2 skipped; eval-angled-roof-click.mjs 9/9; eval-roof-plan-click.mjs 29/29 (its slanted-side refusal check updated to the new behaviour). risk_review.py: nothing blocked in either repo; the private flags were the local Playwright harnesses and page.fill, no user input or personal data. run_workflow_locally --for-changes: 5/6 workflows passed; the 6th (ventures-tests) failed only on that pre-existing broken post link, fixed here; check_post_links.py now 0 broken.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dd1ead08-8ee2-5c98-9846-4a6b871a92de",
+    "transcripts": 1,
+    "first": "2026-11-27T10:18:13Z",
+    "last": "2026-11-27T10:36:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 101,
+        "input": 192,
+        "output": 81741,
+        "thinking": 27672,
+        "cache_read": 17233490,
+        "cache_write_5m": 0,
+        "cache_write_1h": 220633,
+        "api_equivalent_usd": 6.8473,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 101,
+      "input": 192,
+      "output": 81741,
+      "thinking": 27672,
+      "cache_read": 17233490,
+      "cache_write_5m": 0,
+      "cache_write_1h": 220633,
+      "api_equivalent_usd": 6.8473,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 103,
+    "tools": {
+      "Bash": 94,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.43,
+      "active_minutes": 18.43,
+      "model_minutes": 16.18,
+      "tool_minutes": 2.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a straight-skeleton roof solver with fuzz tests and page wiring, estimated at about 1.5 days for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 146.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

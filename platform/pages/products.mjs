@@ -20,6 +20,7 @@ import {
   STATUS,
   buildFirstHref,
   earlyAccessHref,
+  usableSentence,
   hardwareLines,
   industriesWithProducts,
   industriesWithoutProducts,
@@ -56,7 +57,7 @@ export const PRODUCT_CARD_CSS = `
     .pl-who { margin: 0; color: var(--muted); font-size: .9rem; }
     .pl-status { align-self: flex-start; font-size: .75rem; font-weight: 650; letter-spacing: .02em; padding: 3px 9px;
                  border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
-    .pl-status[data-status="live"] { border-color: var(--accent); color: var(--accent); }
+    .pl-status[data-status="live"], .pl-status[data-status="open-free"] { border-color: var(--accent); color: var(--accent); }
     .pl-card ul { margin: 2px 0 0; padding-left: 1.15em; font-size: .92rem; line-height: 1.45; }
     .pl-card li { margin: 0 0 4px; }
     .pl-what { margin: 0; font-size: .92rem; line-height: 1.5; }
@@ -64,7 +65,7 @@ export const PRODUCT_CARD_CSS = `
     .pl-cta { margin: auto 0 0; padding-top: 6px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: .92rem; }
     .pl-cta .pl-go { display: inline-block; font-weight: 650; padding: 8px 14px; border-radius: 9px; text-decoration: none;
                      border: 1px solid var(--accent); color: var(--accent); }
-    .pl-cta .pl-go[data-status="live"] { background: var(--accent); color: var(--accent-ink, #fff); }
+    .pl-cta .pl-go[data-status="live"], .pl-cta .pl-go[data-status="open-free"] { background: var(--accent); color: var(--accent-ink, #fff); }
 `;
 
 /**
@@ -77,15 +78,15 @@ export function renderProductCard(l, { toRoot = '', published = null, heading = 
   // `published` may be a Map of slug to the tool's short name; a Set or nothing falls back to the slug.
   const toolNames = (slug) => (published instanceof Map && published.get(slug)) || slug.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
   const status = STATUS[l.status];
-  // An app on its own subdomain has an absolute href; a page on this site a relative one.
-  const hrefOf = (h) => (/^https:\/\//.test(h) ? h : toRoot + h);
   const title = l.href
-    ? `<a href="${esc(hrefOf(l.href))}" data-pf-to="${esc(l.id)}">${esc(l.name)}</a>`
+    ? `<a href="${esc(toRoot + l.href)}" data-pf-to="${esc(l.id)}">${esc(l.name)}</a>`
     : anchor ? `<a href="${esc(`${toRoot}${PRODUCTS_PATH}#${l.id}`)}">${esc(l.name)}</a>` : esc(l.name);
   const toolLabel = l.kind === 'hardware' ? 'The design' : 'Free tools that do part of it today';
   const cta = l.status === 'live'
-    ? `<a class="pl-go" data-status="live" href="${esc(hrefOf(l.href))}" data-pf-to="${esc(l.id)}">Open ${esc(l.name)}</a>`
-    : l.status === 'early-access'
+    ? `<a class="pl-go" data-status="live" href="${esc(toRoot + l.href)}" data-pf-to="${esc(l.id)}">Open ${esc(l.name)}</a>`
+    : l.status === 'open-free' && l.appUrl
+      ? `<a class="pl-go" data-status="open-free" href="${esc(l.appUrl)}" data-pf-to="${esc(l.id)}">Start free in ${esc(l.appName || l.name)}</a> <span class="pl-note">${esc(STATUS['open-free'].note)}</span>`
+      : l.status === 'early-access'
       ? `<a class="pl-go" href="${esc(earlyAccessHref(l))}">Ask for early access</a>`
       : '';
   return `<li class="pl-card" id="${esc(l.id)}">
@@ -196,8 +197,8 @@ export function renderProductsPage({ baseUrl = '', published = null, lines = PRO
   const body = `<header>
 <p class="eyebrow">Products</p>
 <h1>${esc(PRODUCTS_TITLE)}</h1>
-<p class="dek">Each product is built for one kind of business and the jobs it struggles with most. ${esc(lines.find((l) => l.status === 'live')?.name ?? 'None')} is live today;
-the others are in development, and the free tools beside each already do part of the job.</p>
+<p class="dek">Each product is built for one kind of business and the jobs it struggles with most. ${esc(usableSentence(lines))}
+The others are in development, and the free tools beside each already do part of the job.</p>
 <ul class="jump">${INDUSTRIES.filter((i) => linesForIndustry(i.slug, lines).length).map((i) => `<li><a href="${esc(toRoot + industryPath(i.slug))}">${esc(i.name)}</a></li>`).join('')}<li><a href="#hardware">Hardware</a></li></ul>
 </header>
 <section class="band" id="software" aria-labelledby="software-h">

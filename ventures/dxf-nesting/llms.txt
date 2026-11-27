@@ -6,13 +6,15 @@ Free to use and source available (FSL-1.1-MIT). For laser, plasma, waterjet and 
 
 ## Pages
 
-- [The tool](https://marisstella.app/dxf-nesting/): load DXF, nest, download sheets and a CSV report.
+- [The tool](https://marisstella.app/dxf-nesting/): load DXF, nest, download sheets and a CSV report, then price the nest from your own rates.
+- [Early access: RFQ-to-quote for job shops](https://marisstella.app/industries/manufacturing/): the paid product in development this pricing step feeds.
 
 ## What it reads and writes
 
 - Reads ASCII DXF: LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE, INSERT/MINSERT of blocks (scale, rotation, mirroring, arrays), arbitrary-axis (0,0,-1) extrusion. Skips and counts text, dimensions and hatches. Binary DXF is refused.
 - Writes R12 DXF with layers CUT_OUTER, CUT_INNER, MARK and SHEET, and $INSUNITS carried over.
 - Command line: `node cli.mjs part.dxf:20 --sheet 2500x1250 --gap 5 --margin 10 --rot 0,90,180,270 --search 100 --compact 5000 --out nest.dxf` (`--compact N` squeezes the last sheet shorter); offcuts first: `--remnant offcut.dxf --stock "1200x800x2" --sheet 2500x1250`
+- Price the nest (optional): machine rate, cutting speed, pierce seconds, marking speed, sheet price (whole sheets, length used or parts' area), load/unload minutes per sheet, setup minutes, markup and minimum charge, all the user's own; gives a job total and a price per part (own cut and pierce time; material by area; setup and handling by machine time) and a CSV. No built-in rates (`quote.mjs`, `quote.test.mjs`).
 - Offcuts first, measured: on the worked example an L-shaped offcut takes 35 of 72 parts and cuts the new sheet's used length from 1,912 to 1,124 mm (eval/remnant-first-2026-11-23.md).
 
 ## Source

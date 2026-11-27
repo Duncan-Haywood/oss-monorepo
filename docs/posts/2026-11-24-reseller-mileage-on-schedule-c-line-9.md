@@ -101,8 +101,9 @@ What it rests on: none of these apps publishes its CSV header row on a page
 we could reach, so the reader matches columns by name, accepts several
 spellings for each field, and shows on the page which of your columns it read
 for each one. A file it cannot place is refused with the column names it
-expected, never guessed at. Seller Books is in early access and not yet open
-for sign-up.
+expected, never guessed at. Seller Books, the hosted version, is open on a
+free plan since 2026-11-27 ([sign up](https://seller-books.marisstella.app/signup);
+paid plans not on sale yet).
 
 
 ## Update, 2026-11-26: the hosted books price every trip by its date too

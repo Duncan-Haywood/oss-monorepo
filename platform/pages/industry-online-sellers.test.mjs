@@ -27,6 +27,16 @@ const shell = {
 };
 const all = [...ONLINE_SELLERS_TOOLS.map((t) => ({ slug: t.slug })), { slug: ONLINE_SELLERS_PRODUCT.freeSlug }];
 
+test('the free plan stated here is the one the app enforces', async () => {
+  const plans = (await import('node:fs')).readFileSync(path.join(repo, 'ventures/seller-books/apps/seller-books/src/shared/plans.ts'), 'utf8');
+  const free = plans.slice(plans.indexOf('key: "free"'), plans.indexOf('key: "side"'));
+  assert.match(free, /maxPlatforms: 1,/);
+  assert.match(free, /ordersPerMonth: 25,/);
+  assert.match(free, /maxMembers: 1,/);
+  assert.match(free, /priceCents: 0,/);
+  assert.match(ONLINE_SELLERS_PRODUCT.freePlan, /one platform and up to 25 orders a month, one user/);
+});
+
 test('every tool, problem link and the free product are real ventures', () => {
   for (const t of ONLINE_SELLERS_TOOLS) assert.ok(existsSync(path.join(repo, 'ventures', t.slug, 'index.html')), t.slug);
   assert.ok(existsSync(path.join(repo, 'ventures', ONLINE_SELLERS_PRODUCT.freeSlug, 'index.html')));
@@ -49,13 +59,14 @@ test('covers the problems the brief names', () => {
   for (const id of ['true-profit', 'payouts', 'cogs', 'mileage', 'schedule-c', 'thresholds']) assert.ok(ids.includes(id), id);
 });
 
-test('open on the Free plan, links the sign-up, takes no money, and is not tax advice', () => {
+test('says open on the free plan, paid plans not on sale, takes no money, and is not tax advice', () => {
   const html = renderOnlineSellersPage({ baseUrl: base, surfaces: all, shell });
-  assert.match(html, /Open · free on one platform/);
-  assert.match(html, /href="https:\/\/seller-books\.marisstella\.app\/signup\?from=industries\/online-sellers"/);
-  assert.match(html, /Paid plans for more platforms and orders are not on sale yet/);
-  assert.doesNotMatch(html, /workers\.dev/, 'link the custom domain; workers.dev is off');
-  assert.doesNotMatch(html, /will be built|is being built|early access/i);
+  assert.match(html, /Open · free plan/);
+  assert.match(html, /one platform and up to 25 orders a month/);
+  assert.match(html, /Paid plans (for more platforms and orders )?are not on sale yet/);
+  assert.ok(html.includes(`href="${ONLINE_SELLERS_PRODUCT.appUrl}"`), 'links the deployed app');
+  assert.doesNotMatch(html, /not open for sign-up|in development/i, 'the app is open; do not say otherwise');
+  for (const p of ONLINE_SELLERS_PROBLEMS) assert.doesNotMatch(p.product, /\bwill\b/, `${p.id}: what the app does is stated in the present tense`);
   assert.match(html, /Not tax advice/);
   assert.doesNotMatch(html, /\$\d+(\.\d\d)?\s*(\/|per )\s*mo/i, 'no price is set, so none is shown');
   assert.match(html, /No warranty/);
@@ -74,7 +85,7 @@ test('tools the build did not publish are left out, never linked dead', () => {
   assert.deepEqual(onlineSellersTools(some).map((t) => t.slug), ['ebay-fee-calculator']);
   const html = renderOnlineSellersPage({ baseUrl: base, surfaces: some, shell });
   assert.ok(!html.includes('href="../../poshmark-fee-calculator/"'));
-  assert.ok(!html.includes('Try the free version now'));
+  assert.ok(!html.includes('Try the no-account version'));
 });
 
 test('FAQ data matches the page, escaped and parseable', () => {

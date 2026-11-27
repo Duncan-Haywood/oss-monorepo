@@ -118,9 +118,9 @@ test('the hub leads with the finder and the products, then frames the tools as f
   const html = renderHub(surfaces, BASE);
   const hero = html.slice(html.indexOf('<header class="hero">'), html.indexOf('</header>', html.indexOf('<header class="hero">')));
   assert.match(hero, /Software for small businesses/);
-  assert.match(hero, /Contractor billing, Reseller profit and books and Grant Autopilot are live/);
+  assert.match(hero, /Grant Autopilot is live/);
   assert.match(hero, /What kind of business do you run\?/);
-  assert.match(hero, /href="https:\/\/payapps\.marisstella\.app\/\?signup&amp;from=products" data-funnel-product="contractor-billing"/);
+  assert.match(hero, /href="industries\/construction\/#contractor-billing"/);
   assert.doesNotMatch(hero, /role="search"/, 'the search is not the front door any more');
   const at = (needle) => html.indexOf(needle);
   assert.ok(at('id="products"') > 0 && at('id="products"') < at('id="free-tools"'), 'products before the free tools');
@@ -128,6 +128,6 @@ test('the hub leads with the finder and the products, then frames the tools as f
   assert.match(html, /href="roofing-bid-calculator\/" data-pf-to="roofing-bid-calculator">Roofing bid</);
   assert.doesNotMatch(html.slice(at('id="products"'), at('id="free-tools"')), /href="wall-framing-takeoff\//);
   // Never "live" for anything else.
-  assert.doesNotMatch(html, /Job shop quoting is live|Job shop quoting · live/);
+  assert.doesNotMatch(html, /Job shop quoting is live|Contractor billing is live|Contractor billing · live/);
 });
 

@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  CONTACT_EMAIL, INDUSTRIES, PRODUCT_LINES, STATUS, buildFirstHref, earlyAccessHref, hardwareLines, industriesWithProducts,
+  CONTACT_EMAIL, INDUSTRIES, PRODUCT_LINES, STATUS, usableSentence, buildFirstHref, earlyAccessHref, hardwareLines, industriesWithProducts,
   industriesWithoutProducts, linesForIndustry, softwareLines,
 } from './business.mjs';
 
@@ -25,18 +25,22 @@ test('every line has the documented shape', () => {
   }
 });
 
-test('only the products a visitor can open today are live, and only a live line links to a product', () => {
+test('only Grant Autopilot is marked live, and only a live line links to a product', () => {
   // Honesty is a hard limit (prompts/goals.md). Mark another line live only
   // once a visitor can open and use it, and change this test in the same PR.
-  // PayApps and Seller Books: deployed 2026-11-27, open on their Free plans.
-  assert.deepEqual(PRODUCT_LINES.filter((l) => l.status === 'live').map((l) => l.id), ['contractor-billing', 'seller-books', 'grant-autopilot']);
-  for (const id of ['contractor-billing', 'seller-books']) {
-    const l = PRODUCT_LINES.find((x) => x.id === id);
-    assert.match(l.href, /^https:\/\/[a-z-]+\.marisstella\.app\//, `${id}: the custom domain, not workers.dev`);
-    assert.match(l.product, /not on sale yet/, `${id}: says the paid plans are not on sale`);
-  }
+  assert.deepEqual(PRODUCT_LINES.filter((l) => l.status === 'live').map((l) => l.id), ['grant-autopilot']);
   for (const l of PRODUCT_LINES) assert.equal(Boolean(l.href), l.status === 'live', l.id);
   assert.equal(PRODUCT_LINES.find((l) => l.id === 'grant-autopilot').href, 'grants/');
+});
+
+test('open-free lines are the deployed apps, with a sign-up URL and no claim of a sale', () => {
+  const open = PRODUCT_LINES.filter((l) => l.status === 'open-free');
+  assert.deepEqual(open.map((l) => l.id), ['contractor-billing', 'seller-books']);
+  for (const l of PRODUCT_LINES) assert.equal(Boolean(l.appUrl), l.status === 'open-free', `${l.id}: appUrl only on an open-free line`);
+  assert.equal(open[0].appUrl.startsWith('https://payapps.marisstella.app/'), true);
+  assert.equal(open[1].appUrl.startsWith('https://seller-books.marisstella.app/'), true);
+  assert.match(STATUS['open-free'].note, /Nothing is sold yet/);
+  assert.equal(usableSentence(), 'Grant Autopilot is live, and PayApps and Seller Books are open on a free plan.');
 });
 
 test('hardware is long-term and says nothing has been built', () => {
@@ -99,8 +103,7 @@ test('asking what to build first goes to the agent-managed inbox with the indust
 
 test('software lines put live first and otherwise keep the bets order', () => {
   const ids = softwareLines().map((l) => l.id);
-  const live = PRODUCT_LINES.filter((l) => l.status === 'live' && l.kind === 'software').length;
-  assert.ok(ids.slice(0, live).every((id) => PRODUCT_LINES.find((l) => l.id === id).status === 'live'), 'live lines first');
+  assert.equal(ids[0], 'grant-autopilot');
   assert.ok(ids.indexOf('contractor-billing') < ids.indexOf('jobshop-quoting'));
   assert.ok(!ids.some((id) => hardwareLines().some((h) => h.id === id)));
 });

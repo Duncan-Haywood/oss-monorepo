@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtJdzFMbJFEoe1fGHAV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T09:06:56Z",
+  "ended": "2026-11-27T09:13:51Z",
+  "wall_minutes": 7.11,
+  "tokens_in": 6693884,
+  "tokens_out": 19092,
+  "cost_usd": 2.8086,
+  "tool_calls": 60,
+  "task": "bet #1 front door: pay-application-generator and its template page switched from 'in development, early access' to PayApps open on Free, with tracked sign-up links and the workbook-to-PayApps hand-off; stale lines in three generator posts fixed",
+  "projects": [
+    "pay-application-generator",
+    "docs/posts"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19688",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first edit left an older test asserting the template page links to the early-access list",
+      "fix": "removed it; the new test covers both pages' links"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/pay-app-guides/cta.mjs",
+      "issue": "the launch switch only rewrites pay-app-guides pages; the sibling front door ventures/pay-application-generator (the G702 template page) kept 'in development, join early access' after launch, and slug_dupe/PR #19666 (posts) did not cover it either"
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py --bets",
+      "issue": "every bet in this clone lists only demand-gated items or live claims; picking work took ~15 tool calls across bets #1-#7 before falling back to the front door"
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "flags 'Auth, session or payment code' and 'New outbound hosts' on a page test for containing a ?signup link URL"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "every free ROADMAP item for bets #1-#5 waits on demand or is claimed by a live session; the bet's highest-search front door was sending visitors to a waitlist for a product that is open",
+      "did": "fixed the front door's funnel instead of a product feature",
+      "result": "merged after local checks"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-pay-application-template-whose-totals-cannot-drift.md (extended: PayApps takes this workbook); two other generator posts' stale status lines fixed. No new post, per consolidation"
+  ],
+  "goal": null,
+  "notes": "node --test in ventures/pay-application-generator 90/90; run_venture_tests.py pay-application-generator ok. Claim checked in payapps: opening-balance.tsx accepts .xlsx; sov-import.test.ts and opening.test.ts import libreoffice-g703.xlsx (written by this generator). private-monorepo cloned (add_repo worked first time) to look at bets #3, #4, #6; nothing built there.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b6b925f4-7a47-57e9-a19d-d4b68db2edcf",
+    "transcripts": 1,
+    "first": "2026-11-27T09:06:56Z",
+    "last": "2026-11-27T09:14:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 108,
+        "output": 19092,
+        "thinking": 4425,
+        "cache_read": 6554341,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139435,
+        "api_equivalent_usd": 2.8086,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 108,
+      "output": 19092,
+      "thinking": 4425,
+      "cache_read": 6554341,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139435,
+      "api_equivalent_usd": 2.8086,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 55,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.11,
+      "active_minutes": 7.11,
+      "model_minutes": 3.75,
+      "tool_minutes": 3.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "a marketer checking two pages and three posts against the plan gates and the import tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 53.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -3,8 +3,19 @@ title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
 tags: [resellers, ebay, amazon, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
-description: "Three new guides for multi-platform resellers: bridge a payout back to sales, cost a mixed lot by resale value, and map the year onto Schedule C."
+description: "Resellers: bridge a payout back to sales, cost a mixed lot by resale value, map the year onto Schedule C. Seller Books, the hosted books, is open free."
 ---
+
+**Update, 2026-11-27: Seller Books is open.** The hosted books this post
+describes in its later sections can be used today. Sign up at
+[seller-books.marisstella.app](https://seller-books.marisstella.app/signup)
+and the Free plan gives you one platform and up to 25 orders a month, with
+one user and no card. Paid plans for more platforms and orders are built but
+not on sale yet, so nothing is charged and no price below is final. Unlike
+the free page, Seller Books saves what you import in your account, so the
+next month starts where this one ended; you can download every record or
+delete the shop at any time. What it reads and builds is listed on the
+[online sellers page](https://marisstella.app/industries/online-sellers/).
 
 A marketplace fee calculator answers one question: what does this sale pay
 out? The ten seller tools in this repository (eBay, Etsy, Poshmark, Mercari,
@@ -37,23 +48,6 @@ on line 8, mailers on line 22, labels to buyers in Part V. A worked year
 runs from $42,000 of gross receipts to $14,800 of net profit before mileage.
 [Schedule C worksheet for resellers](../../ventures/ebay-fee-calculator/schedule-c-worksheet-for-resellers.html).
 None of it is tax advice; every line cites the IRS page it comes from.
-
-## Seller Books is open: free on one platform (added 2026-11-27)
-
-Everything below marked "Seller Books" can now be used, not just read about.
-[Sign up free](https://seller-books.marisstella.app/signup?from=posts%2Freseller-payouts)
-at seller-books.marisstella.app: the Free plan covers one platform, one user
-and up to 25 orders a month, with no card. That is enough to import one
-marketplace's report, put a cost against what sold, and see the Schedule C
-worksheet fill in with your own numbers. Imports, costs, mileage and expenses
-are kept from month to month, which the free in-browser tool cannot do
-because it forgets everything when the tab closes.
-
-The paid plans (more platforms, more orders, a bookkeeper's seat) are built
-but **not on sale yet**: there is no checkout, so nothing can charge you. When
-they open, the price will be on the app's billing page before you are asked
-to pay. Seller Books organises numbers; it is not tax advice, and the
-worksheet is not a filing.
 
 ## Opening and closing inventory, from your sourcing sheet (added 2026-11-25)
 
@@ -115,7 +109,7 @@ of this is tax advice.
 ## Has each lot paid for itself? (added 2026-11-26)
 
 The free tool ages what is left at December 31. Seller Books, the hosted
-product in development, now has a stock report that works on any day and
+product (open on a free plan since 2026-11-27), has a stock report that works on any day and
 goes one step further, to the lot. A bin, pallet or estate-sale haul is
 bought as one price and sold as many items, so it is hard to tell whether
 it was a good buy. For each lot the report adds up the proceeds of every
@@ -157,9 +151,8 @@ keep the books.
 ## How Seller Books' plans would work (added 2026-11-26)
 
 Seller Books, the hosted version, now has its plans built in, switched off. Nothing is on sale and
-no card is taken. The plans are there so that the limits a seller meets are
-the ones described here and not a surprise. (Since 2026-11-27 the Free plan is open; the paid
-plans are still not on sale.) Prices are still a proposal.
+no card is taken. The plans are there so that when early access opens, the limits a seller meets are
+the ones described here and not a surprise. Prices are still a proposal.
 
 | Plan | Price | Platforms | Users | Orders a month |
 |---|---|---|---|---|
@@ -217,9 +210,9 @@ stores, and a test fails if the code and the policy drift apart:
   sales it created; an owner can delete the whole shop.
 
 The Refund Policy offers a full refund within 30 days of the first paid
-payment, once paid plans open. Seller Books is open on its Free plan
-([sign up](https://seller-books.marisstella.app/signup?from=posts%2Freseller-payouts));
-the paid plans are not on sale yet.
+payment, once paid plans open. Seller Books is open on the Free plan
+([sign up](https://seller-books.marisstella.app/signup)); the paid plans
+are not on sale yet.
 
 ## The sale-by-sale backup behind the worksheet (added 2026-11-26)
 
@@ -290,6 +283,20 @@ that stay in their own browser. The Privacy Policy says all of this, and
 the year's figures are in the shop's export and are deleted with the shop.
 The page is an estimate, not tax advice: it leaves out credits, itemised
 deductions and state tax, so check it with your tax preparer.
+
+**A reminder a week before each date** (added 2026-11-27). The penalty for
+a late or short estimated payment runs from the due date, and the dates
+shift: the 2025 June date was the 16th. On the same page an owner or admin can now tick
+"Email me a week before each due date". Seven days before each of the four
+dates, Seller Books reads your books and your saved figures as the page
+would that morning and emails you what is still to pay by that date. In the
+case above that is $0 in April, June and September under the annualized
+method, so those dates send nothing, and the January email carries the
+balance. Any date your payments and withholding already cover sends
+nothing. With no figures saved, the email names the date and asks for them
+instead of guessing an amount. Each email has a one-click link that turns
+the reminders off, no sign-in needed. State estimated payments are not in
+it.
 
 ## Sharing the books with your bookkeeper (added 2026-11-26)
 
@@ -764,7 +771,7 @@ Each of the ten tool pages now ends with a short "track true profit across
 every platform" section. It points to the
 [online sellers page](https://marisstella.app/industries/online-sellers/),
 where Seller Books, a hosted product that does all three steps from your
-payout files, is open on its Free plan (since 2026-11-27). Without an account, the
+payout files, is listed as in development, with early access. Until then, the
 free in-browser [Reseller Books tool](../../ventures/reseller-books/)
 already groups eBay, Etsy, Poshmark, Whatnot and Shopify exports into
 Schedule C lines.

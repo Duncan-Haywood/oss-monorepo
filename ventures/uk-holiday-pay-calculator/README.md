@@ -14,6 +14,6 @@ Open `index.html`. Tests: `node --test 'ventures/uk-holiday-pay-calculator/**/*.
 
 From quality audit round 114 ([`2026-11-26-uk-holiday-pay-calculator.json`](../../portfolio/quality/audits/2026-11-26-uk-holiday-pay-calculator.json)):
 
-- Irregular hours take 12.07% of a yearly total. The rules (WTR reg 15B, GOV.UK) accrue it per pay period, rounded to the nearest hour from 0.5: 30 hours in a weekly period earns 4 hours, where this tool shows 3.62. A year of 30-hour weeks is 208 hours, not 188.29. Fixing it needs a pay-period input.
+- Irregular hours now accrue per pay period with each period rounded to the nearest hour (WTR reg 15B(3)(b) and (5)); a yearly total with no per-period hours is spread evenly over the chosen pay periods, which is exact only for even hours. The 28-day yearly cap (reg 15B(4)) is not applied.
 - The contract field does not say whether bank holidays are included, so "25 days plus bank holidays" can be reported as below the statutory minimum.
 - No first-year monthly accrual (reg 15A), and bank holidays are not limited to the employed part of the year.

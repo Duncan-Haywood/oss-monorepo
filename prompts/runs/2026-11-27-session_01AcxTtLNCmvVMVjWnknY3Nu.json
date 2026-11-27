@@ -17,7 +17,7 @@
   "tokens_out": 30735,
   "cost_usd": 3.9915,
   "tool_calls": 83,
-  "task": "seller-books (bet #5) signups-open: point the online-sellers page, products/home and reseller tool CTAs at the live Free plan",
+  "task": "seller-books (bet #5) signups-open: the eBay fee calculator, its three reseller guides, its llms.txt and four report analyzers link the live Free plan (the industry page, business.mjs and the post landed first in PR #19716)",
   "projects": [
     "seller-books",
     "payapps"
@@ -31,7 +31,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,6 +46,10 @@
     {
       "file": "platform/pages/build.test.mjs",
       "issue": "The hub's no-paywall guard rejects the words 'paid plan' anywhere in visible copy, including the honest 'paid plans are not on sale yet'. I reworded the product lines rather than loosen the guard."
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "Searching 'seller-books' at pick time showed no sign-up PR. A parallel session opened PR #19716 ('site (bets #1, #5): PayApps and Seller Books shown as open') about the same time, and its title has neither the 'seller-books' slug nor a claim branch, so neither run could see the other. The overlap cost a merge conflict on six files, and half my work was dropped in favour of the PR that merged first."
     }
   ],
   "deviations": [
@@ -60,13 +64,17 @@
       "why": "Marking Seller Books live meant PayApps had to change too, otherwise the home page would say the older open app was early access.",
       "did": "Marked both live, with links to their subdomains.",
       "result": "Tests updated in the same PR, as the test comment asks."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new post: PR #19716 had already updated the same customer post for the launch.",
+      "did": "Kept main's post and dropped mine in the merge.",
+      "result": "Avoided duplicating the post section."
     }
   ],
-  "writeups": [
-    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (new section: Seller Books is open, free on one platform; stale early-access lines fixed)"
-  ],
+  "writeups": [],
   "goal": "bet #5 first customer: sign-up links from every seller front door now the app is live",
-  "notes": "Health checked this run: seller-books.marisstella.app/api/health {ok, billing:false, email:true}; payapps.marisstella.app/api/health ok. Tests: platform/pages full suite 2169/2170 before the paywall-word fix (build.test sponsor-ask guard; fixed by rewording), then build+business+products+home 368/368; run_venture_tests.py for 6 venture slugs: 0 failed (ebay-fee-calculator 524, reseller-books 79). Features stated on the online-sellers page come from apps/seller-books/README.md; payout reconciliation is not claimed because the app does not do it.",
+  "notes": "Health checked this run: seller-books.marisstella.app/api/health {ok, billing:false, email:true}; payapps.marisstella.app/api/health ok. Tests: platform/pages full suite 2169/2170 before the paywall-word fix (build.test sponsor-ask guard; fixed by rewording), then build+business+products+home 368/368; run_venture_tests.py for 6 venture slugs: 0 failed (ebay-fee-calculator 524, reseller-books 79). Features stated on the online-sellers page come from apps/seller-books/README.md; payout reconciliation is not claimed because the app does not do it. MERGE: PR #19716 landed the same industry-page, business.mjs, products and post changes first. I kept main's copy of all six conflicted files and my edits to the tests and to reseller-books. The surviving diff is the ebay-fee-calculator index, its 3 guides and llms.txt (still 'early access' on main) and the 4 analyzer CTAs. Rerun after the merge: 6 venture suites 0 failed; business/products/home/online-sellers/front-doors tests 54/54.",
   "corrections": [],
   "redteam": null,
   "usage": {

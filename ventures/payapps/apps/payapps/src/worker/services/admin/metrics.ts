@@ -19,6 +19,7 @@ import { and, count, desc, eq, gte, inArray, isNotNull, like, or, sql } from "dr
 import type { AppContext } from "../../context";
 import { billingEvents, member, organization, session, subscriptions, user } from "../../db/schema";
 import { activationFunnel } from "./activation";
+import { signupSourceCounts } from "./sources";
 
 export const PRODUCT = { key: "payapps", name: "PayApps" } as const;
 
@@ -50,6 +51,7 @@ export async function productMetrics(
     failed,
     anyTransactionEvent,
     activation,
+    sources,
   ] = await Promise.all([
     db.select({ n: count() }).from(user).get(),
     db.select({ n: count() }).from(user).where(eq(user.emailVerified, true)).get(),
@@ -119,6 +121,7 @@ export async function productMetrics(
       .limit(1)
       .get(),
     activationFunnel(ctx, since, windowDays),
+    signupSourceCounts(ctx, since),
   ]);
 
   const byPlan = new Map<string, { planKey: string; status: string; count: number }>();
@@ -180,6 +183,7 @@ export async function productMetrics(
     // PayApps makes no LLM calls.
     llmSpend: null,
     activation,
+    sources,
   };
 }
 

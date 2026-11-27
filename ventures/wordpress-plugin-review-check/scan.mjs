@@ -21,18 +21,21 @@
 // picked).
 
 // readme.txt fields the Plugin Directory's own readme parser reads. License
-// and License URI are treated as required: a GPL-compatible license
-// declaration is a hard directory-submission requirement, not a courtesy.
-// The other four are what every accepted plugin in the directory carries and
-// their absence is a common first-review note, but their absence alone does
-// not block a submission -- so they are reported, not counted toward `ok`.
+// is required: Plugin Check errors with no_license when it is missing
+// (Plugin_Readme_Check::check_license), and a GPL-compatible licence is the
+// directory's first guideline. Stable tag is what the directory serves.
+// License URI is optional in the readme docs and Plugin Check does not check
+// it, so it is reported as recommended (quality audit
+// 2026-11-26-wordpress-plugin-review-check, defect 4). The other recommended
+// fields are what every accepted plugin carries; their absence is a common
+// first-review note, not a block, so they do not count toward `ok`.
 export const REQUIRED_README_FIELDS = [
   { key: 'stableTag', label: 'Stable tag', pattern: /^Stable tag:\s*(.+)$/im },
   { key: 'license', label: 'License', pattern: /^License:\s*(.+)$/im },
-  { key: 'licenseUri', label: 'License URI', pattern: /^License URI:\s*(.+)$/im },
 ];
 
 export const RECOMMENDED_README_FIELDS = [
+  { key: 'licenseUri', label: 'License URI', pattern: /^License URI:\s*(.+)$/im },
   { key: 'contributors', label: 'Contributors', pattern: /^Contributors:\s*(.+)$/im },
   { key: 'tags', label: 'Tags', pattern: /^Tags:\s*(.+)$/im },
   { key: 'requiresAtLeast', label: 'Requires at least', pattern: /^Requires at least:\s*(.+)$/im },
@@ -76,10 +79,12 @@ export function parseReadme(text) {
 export const REQUIRED_PLUGIN_HEADER_FIELDS = [
   { key: 'pluginName', label: 'Plugin Name', pattern: /^(?:[ \t]*[*/]*[ \t]*)Plugin Name:\s*(.+)$/im },
   { key: 'version', label: 'Version', pattern: /^(?:[ \t]*[*/]*[ \t]*)Version:\s*(.+)$/im },
+  // Plugin Check errors with plugin_header_no_license when this is missing
+  // (Plugin_Header_Fields_Check).
+  { key: 'license', label: 'License', pattern: /^(?:[ \t]*[*/]*[ \t]*)License:\s*(.+)$/im },
 ];
 
 export const RECOMMENDED_PLUGIN_HEADER_FIELDS = [
-  { key: 'license', label: 'License', pattern: /^(?:[ \t]*[*/]*[ \t]*)License:\s*(.+)$/im },
   { key: 'requiresAtLeast', label: 'Requires at least', pattern: /^(?:[ \t]*[*/]*[ \t]*)Requires at least:\s*(.+)$/im },
   { key: 'requiresPHP', label: 'Requires PHP', pattern: /^(?:[ \t]*[*/]*[ \t]*)Requires PHP:\s*(.+)$/im },
   { key: 'textDomain', label: 'Text Domain', pattern: /^(?:[ \t]*[*/]*[ \t]*)Text Domain:\s*(.+)$/im },
@@ -192,6 +197,108 @@ export function detectMissingNonceChecks(files) {
   return findings;
 }
 
+// Licence checks. Plugin Check (WordPress/plugin-check, read 2026-11-27)
+// raises three licence errors once both licences are present:
+//   - readme licence not an SPDX-style identifier  -> invalid_license
+//   - header licence not GPL-compatible            -> plugin_header_invalid_license
+//   - readme and header name different licences    -> license_mismatch
+// This is our own implementation of those outcomes, not a copy of Plugin
+// Check's code (which is GPL; this venture is FSL-1.1-MIT): licences are
+// reduced to a family and major version, and the compatible families are
+// those the FSF lists as GPL-compatible
+// (https://www.gnu.org/licenses/license-list.html). Before this, any
+// License value passed (quality audit
+// 2026-11-26-wordpress-plugin-review-check, defect 1).
+
+// [family key, pattern on the lowercased text, GPL-compatible]. Order
+// matters: the narrower families come before the ones they contain.
+const LICENSE_FAMILIES = [
+  ['AGPL', /\bagpl(?:v?\d|\b)|affero/, true],
+  ['LGPL', /\blgpl(?:v?\d|\b)|lesser general public|library general public/, true],
+  ['GPL', /\bgpl(?:v?\d|\b)|gnu general public|^gnu\b/, true],
+  ['EUPL', /\beupl(?:v?\d|\b)|european union public/, true],
+  ['MPL', /\bmpl(?:v?\d|\b)|mozilla public/, true],
+  ['Apache', /\bapache\b/, true],
+  ['MIT', /\bmit\b|\bexpat\b/, true],
+  ['BSD', /\bbsd\b/, true],
+  ['ISC', /\bisc\b/, true],
+  ['CC0', /\bcc0\b/, true],
+  ['Unlicense', /\bunlicense\b/, true],
+  ['WTFPL', /\bwtfpl\b|do what the f\S* you want/, true],
+  ['Zlib', /\bzlib\b/, true],
+  ['Artistic', /\bartistic\b/, true],
+  ['BlueOak', /blue\s*oak/, true],
+  ['OpenLDAP', /\bopenldap\b/, true],
+];
+
+/**
+ * Reduces a licence string to a comparable form: "GPL2", "GPL3", "MIT",
+ * "Apache2" ... for a known family, otherwise the trimmed text with spaces
+ * collapsed. "or later", "+", "-or-later", "-only" and licence URLs are
+ * ignored, so "GPLv2 or later" and "GPL-2.0-or-later" compare equal, as they
+ * do in Plugin Check.
+ */
+export function normalizeLicense(license) {
+  const raw = String(license ?? '').trim().replace(/\s+/g, ' ').replace(/\.$/, '');
+  const text = raw
+    .toLowerCase()
+    .replace(/https?:\/\/\S+/g, ' ')
+    .replace(/(?:\s+or\s+later|-or-later|-only|\+)\s*$/g, '')
+    .trim();
+  for (const [family, pattern] of LICENSE_FAMILIES) {
+    if (!pattern.test(text)) continue;
+    const version = text.match(/(\d+)(?:\.\d+)*/);
+    if (family === 'BSD') {
+      if (/\b3\b|3-clause|new|modified|revised/.test(text)) return 'BSD3';
+      if (/\b2\b|2-clause|simplified|freebsd/.test(text)) return 'BSD2';
+      return 'BSD';
+    }
+    const versioned = ['AGPL', 'LGPL', 'GPL', 'EUPL', 'MPL', 'Apache', 'Artistic'].includes(family);
+    return versioned && version ? `${family}${version[1]}` : family;
+  }
+  return raw;
+}
+
+/** SPDX-style shape: one token of letters, digits, ".", "-", "+", or several joined by " or ". */
+export function isValidLicenseIdentifier(normalized) {
+  return /^[a-z0-9.+-]+(?: or [a-z0-9.+-]+)*$/i.test(normalized);
+}
+
+const COMPATIBLE = new Set(LICENSE_FAMILIES.filter(([, , ok]) => ok).map(([f]) => f));
+// Versions the FSF lists as incompatible with every GPL version.
+const INCOMPATIBLE_VERSIONS = new Set(['MPL1', 'Apache1', 'Artistic1', 'EUPL1']);
+
+/** True for a normalised licence in a GPL-compatible family and version. */
+export function isGplCompatibleLicense(normalized) {
+  if (INCOMPATIBLE_VERSIONS.has(normalized)) return false;
+  const family = normalized.replace(/\d+$/, '');
+  return COMPATIBLE.has(family) || COMPATIBLE.has(normalized);
+}
+
+/**
+ * The licence problems Plugin Check would report, as codes in its own names.
+ * Missing fields are reported by the required-field lists, not here.
+ */
+export function checkLicenses(readmeLicense, headerLicense) {
+  const issues = [];
+  const readme = readmeLicense ? normalizeLicense(readmeLicense) : '';
+  const header = headerLicense ? normalizeLicense(headerLicense) : '';
+  if (readmeLicense && !isValidLicenseIdentifier(readme)) {
+    issues.push({ code: 'invalid_license', where: 'readme.txt', value: String(readmeLicense).trim() });
+  }
+  if (headerLicense && !isGplCompatibleLicense(header)) {
+    issues.push({ code: 'plugin_header_invalid_license', where: 'plugin header', value: String(headerLicense).trim() });
+  }
+  if (readme && header && readme !== header) {
+    issues.push({
+      code: 'license_mismatch',
+      where: 'readme.txt and plugin header',
+      value: `${String(readmeLicense).trim()} vs ${String(headerLicense).trim()}`,
+    });
+  }
+  return issues;
+}
+
 const README_FIELD_LABEL = new Map(
   [...REQUIRED_README_FIELDS, ...RECOMMENDED_README_FIELDS].map((f) => [f.key, f.label]),
 );
@@ -243,6 +350,11 @@ export function buildReport({ readme, pluginHeader, unescapedOutput, missingNonc
     ? pluginHeader.missingRecommended.map((k) => HEADER_FIELD_LABEL.get(k))
     : [];
 
+  const licenseIssues = checkLicenses(
+    readme.found ? readme.headers.license : null,
+    pluginHeader.found ? pluginHeader.headers.license : null,
+  );
+
   const ok =
     readme.found &&
     pluginHeader.found &&
@@ -250,6 +362,7 @@ export function buildReport({ readme, pluginHeader, unescapedOutput, missingNonc
     stableTagStatus !== 'trunk' &&
     missingRequiredReadme.length === 0 &&
     missingRequiredHeader.length === 0 &&
+    licenseIssues.length === 0 &&
     unescapedOutput.length === 0 &&
     missingNonceChecks.length === 0;
 
@@ -263,6 +376,7 @@ export function buildReport({ readme, pluginHeader, unescapedOutput, missingNonc
     missingRecommendedReadme,
     missingRequiredHeader,
     missingRecommendedHeader,
+    licenseIssues,
     unescapedOutput,
     missingNonceChecks,
     ok,
