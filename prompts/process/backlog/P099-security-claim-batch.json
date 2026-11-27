@@ -1,0 +1,26 @@
+{
+  "id": "P099",
+  "title": "security_next.py --claim takes only the top alert, while each alert file asks a run to fix and claim its whole same-file batch",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "alerts/<n>.md (security_alerts.py) says: fix every queued alert in the same file (and the same rule in sibling files) in one PR, claiming each one's branch too. security_next.py --claim claimed one alert, so runs claimed the rest by hand with the alert file's `git checkout -b ... origin/main && git push`. That push is not race-safe: a second run pushing the same origin/main sha gets 'Everything up-to-date', exit 0, and both think they won (the bug PR #18851 fixed inside claim()).",
+  "evidence": [
+    "promptctl measure, 'Doc friction by file', platform/ci/security_next.py: 9 reports, 5 in the 3 days to 2026-11-27; 2026-11-27T06:58: '--claim takes only the top alert, but alerts/<n>.md asks a run to batch every queued alert in the same file and rule and claim each; there is no flag to claim a list'",
+    "origin/security-alerts:alerts/1489.md on 2026-11-27: step 1 names the hand push; step 2 names the batch"
+  ],
+  "change": "--claim also claims the top alert's batch (batch_of: same file, or same rule in the same directory) with the race-safe claim(), naming each number won or lost; --no-batch takes one. The alert files' step 1 now names security_next.py --claim instead of the hand push.",
+  "touches": [
+    "platform/ci/security_next.py",
+    "platform/ci/test_security_next.py",
+    "platform/ci/security_alerts.py"
+  ],
+  "metric": "security_next.py friction reports about claiming a batch or a list, 14 days after merge",
+  "baseline": "5 reports in 3 days to 2026-11-27 (1 naming the batch directly)",
+  "opened": "2026-11-27",
+  "source": "process run, promptctl measure doc friction",
+  "pr": "this",
+  "result": null,
+  "history": []
+}
