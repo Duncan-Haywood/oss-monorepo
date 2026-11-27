@@ -1,5 +1,5 @@
 ---
-kind: research
+kind: analysis
 date: 2026-11-27
 ---
 # Which state's certified payroll file PayApps should build next (bet #1)
