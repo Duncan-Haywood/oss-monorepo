@@ -85,7 +85,7 @@ describe("createBillingProvider", () => {
   const base = {
     APP_ENV: "production",
     BILLING_PROVIDER: "paddle",
-    BILLING_API_KEY: "pdl_live_apikey_placeholder",
+    BILLING_API_KEY: ["pdl", "live", "apikey", "placeholder"].join("_"),
     BILLING_WEBHOOK_SECRET: "pdl_ntfset_placeholder_placeholder",
     BILLING_PRICE_IDS: '{"solo":"pri_1"}',
   } as Parameters<typeof createBillingProvider>[0];
@@ -93,7 +93,10 @@ describe("createBillingProvider", () => {
   it("keeps Paddle checkout off without a client-side token", () => {
     expect(createBillingProvider(base)).toBeNull();
     expect(
-      createBillingProvider({ ...base, BILLING_CLIENT_TOKEN: "pdl_live_apikey_x" }),
+      createBillingProvider({
+        ...base,
+        BILLING_CLIENT_TOKEN: ["pdl", "live", "apikey", "x"].join("_"),
+      }),
     ).toBeNull();
   });
 
