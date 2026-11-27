@@ -4,6 +4,7 @@ seo_title: "einvoice-preflight checks BR, AR, PE, CL and CO tax ids"
 date: 2026-11-08
 tags: [einvoice, validation, einvoice-preflight]
 description: "A BR, AR, PE, CL or CO party identifier is now run through the check-digit code the country pages already had, offline."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 The Brazil, Argentina, Peru, Chile and Colombia pages of einvoice-preflight each had a check-digit helper (CNPJ and CPF, CUIT, RUC, RUT, NIT), but the invoice check ignored a party `vat_id` with those prefixes. Now `vat_id: "AR33693450239"` or `"BR 11.222.333/0001-81"` goes through the same code: a wrong shape is INV-022, a wrong check digit INV-023. Alphanumeric CNPJs are accepted.

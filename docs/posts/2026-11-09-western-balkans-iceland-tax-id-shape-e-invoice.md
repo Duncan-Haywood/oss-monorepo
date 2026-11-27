@@ -4,6 +4,7 @@ seo_title: "Balkans and Iceland tax ID validator for e-invoices"
 date: 2026-11-09
 tags: [einvoice-preflight, tax-id, balkans, iceland]
 description: "einvoice-preflight now flags malformed tax numbers for five more countries before an invoice is sent."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 einvoice-preflight had no rule for supplier or buyer tax numbers from Albania,

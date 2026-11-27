@@ -4,6 +4,7 @@ seo_title: "Which tax ID check digits einvoice-preflight does not test yet"
 date: 2026-11-10
 tags: [einvoice-preflight, tax-id, measurement]
 description: "A sweep of python-stdnum 2.2 against einvoice-preflight's party tax-ID checks: no country with a published check-digit rule is left untested."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 einvoice-preflight tests the check digit of a party's tax ID for about sixty

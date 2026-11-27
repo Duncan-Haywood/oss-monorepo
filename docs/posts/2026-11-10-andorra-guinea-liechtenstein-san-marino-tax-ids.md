@@ -4,6 +4,7 @@ seo_title: "Andorra, Guinea, Liechtenstein, San Marino tax ID check for e-invoic
 date: 2026-11-10
 tags: [einvoice-preflight, tax-id, andorra, guinea, liechtenstein, san-marino]
 description: "einvoice-preflight now checks an Andorra NRT, a Guinea NIFp (Luhn), a Liechtenstein PEID and a San Marino COE on a party's tax ID."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 These four countries were unknown to the party tax-ID check, so a mistyped ID

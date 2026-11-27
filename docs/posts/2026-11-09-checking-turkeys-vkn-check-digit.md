@@ -4,6 +4,7 @@ seo_title: "Turkey VKN check digit algorithm, verified"
 date: 2026-11-09
 tags: [e-invoicing, turkey, validation]
 description: "einvoice-preflight's Turkish VKN check was written from memory; on 2026-11-09 its weights were compared with a public implementation and pinned by a test."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 einvoice-preflight tests the last digit of a Turkish VKN (the 10-digit company tax number) before an invoice goes to GIB. The rule was written from memory, so this run compared it with a public JavaScript implementation (`vergikimlik`, a GitHub gist).

@@ -3,6 +3,7 @@ title: "einvoice-preflight now checks Turkish tax numbers inside an invoice"
 date: 2026-11-08
 tags: [einvoice, validation, einvoice-preflight]
 description: "A TR tax number on an invoice party is now checked against the Turkish VKN/TCKN check digits, offline."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 einvoice-preflight already had a Turkish VKN/TCKN checker on its Turkey page, but the invoice check ignored a `TR` party identifier. Now `vat_id: "TR10000000146"` goes through the same check digits: 10 digits is a VKN, 11 a TCKN. A wrong length is a shape error (INV-022), a wrong check digit a checksum error (INV-023).

@@ -4,6 +4,7 @@ seo_title: "Azerbaijan VOEN check digit validator for e-invoices (e-qaime)"
 date: 2026-11-09
 tags: [einvoice-preflight, tax-id, azerbaijan]
 description: "einvoice-preflight now checks the check digit and status digit of an Azerbaijani VOEN, pinned on python-stdnum's published examples."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 Azerbaijan's e-qaime invoices identify a taxpayer by its 10-digit VOEN.

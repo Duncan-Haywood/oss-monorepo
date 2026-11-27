@@ -4,6 +4,7 @@ seo_title: "China USCC (social credit code) validator for e-invoices and fapiao"
 date: 2026-11-09
 tags: [einvoice-preflight, tax-id, china, fapiao]
 description: "einvoice-preflight now checks the 18-character unified social credit code of a Chinese party, not only its length."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 A Chinese company's tax number is its 18-character unified social credit code.

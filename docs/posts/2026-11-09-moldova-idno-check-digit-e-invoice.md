@@ -4,6 +4,7 @@ seo_title: "Moldova IDNO check digit validator for e-invoices (e-Factura)"
 date: 2026-11-09
 tags: [einvoice-preflight, tax-id, moldova]
 description: "einvoice-preflight now checks the check digit of a Moldovan IDNO, tested against python-stdnum on 500 random numbers."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 Moldova's e-Factura system identifies a company by its 13-digit IDNO. Until now

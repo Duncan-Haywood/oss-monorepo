@@ -4,6 +4,7 @@ seo_title: "Cyprus, Malta and Northern Ireland VAT number check digits"
 date: 2026-11-08
 tags: [einvoice-preflight, vat, e-invoicing]
 description: "Our open-source e-invoice checker now catches a mistyped Cyprus, Malta or XI VAT number before the invoice goes out, instead of only checking its length."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 A VAT number with one wrong digit is rejected by the buyer's system or the tax authority, and the invoice comes back days later. `einvoice-preflight` already checked the check digit for 25 countries. Cyprus, Malta and Northern Ireland (prefix XI) were still length-only, so a typo passed.

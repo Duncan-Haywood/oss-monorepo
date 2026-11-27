@@ -4,6 +4,7 @@ seo_title: "Check Norwegian and Swiss VAT numbers offline"
 date: 2026-11-08
 description: "The e-invoice preflight checker now catches typos in Norway's organisation number (MVA) and Switzerland's UID (MWST) with the published mod-11 check digit."
 tags: [einvoice-preflight, vat, peppol, norway, switzerland]
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 Norway is one of the biggest Peppol users and Switzerland is a common trading partner of EU suppliers, yet `einvoice-preflight` treated `NO` and `CH` prefixes as unknown. It now checks both offline.

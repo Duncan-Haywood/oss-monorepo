@@ -4,6 +4,7 @@ seo_title: "Korean business numbers and Indian GSTINs get a typo check"
 date: 2026-11-08
 tags: [einvoice, validation, einvoice-preflight]
 description: "einvoice-preflight now checks the check digit of South Korean business registration numbers and the check character of Indian GSTINs, offline."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 einvoice-preflight already catches one-digit typos in EU, UK, Norwegian, Swiss, Australian, New Zealand and Serbian tax numbers. It now does the same for two big e-invoicing markets.

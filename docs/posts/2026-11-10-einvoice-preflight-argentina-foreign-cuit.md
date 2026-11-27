@@ -4,6 +4,7 @@ seo_title: "Argentina CUIT prefixes 50, 51 and 55 accepted by einvoice-preflight
 date: 2026-11-10
 tags: [einvoice-preflight, argentina, tax-id]
 description: "A differential test against python-stdnum on 300 random numbers per country found one real false rejection: CUIT prefixes 50, 51 and 55."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 To look for gaps in einvoice-preflight's tax-ID checks, I generated 300 random
