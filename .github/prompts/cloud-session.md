@@ -31,8 +31,9 @@ background it, only if you need it all.
 
 ## Reaching `private-monorepo` (the bets' code)
 
-**PayApps (bet #1) is not there any more:** it moved to `ventures/payapps` on 2026-11-27
-(`ventures/payapps/DEPLOY.md`). Build it in this clone; `roadmap_claim.py payapps` reads
+**Bets #1, #2 and #5 are not there any more:** PayApps, Job Shop Quote and Seller Books moved
+to `ventures/payapps`, `ventures/jobshop-quote` and `ventures/seller-books` on 2026-11-27 (each
+has a `DEPLOY.md`; the bets table names where every bet lives). Build them in this clone; `roadmap_claim.py payapps` reads
 `ventures/payapps/apps/payapps/ROADMAP.md` and claims on this repository's origin, with no
 private clone. The steps below are for the bets still in `private-monorepo`.
 

@@ -52,7 +52,7 @@ export const PRODUCTS = [
     name: 'Pay-app suite (PayApps)',
     status: 'open-free',
     // The deployed app (ventures/pay-app-guides/cta.mjs holds the same origin for the guides' CTAs).
-    appUrl: 'https://payapps.duncan-andrew-haywood.workers.dev/?signup&from=industries/construction',
+    appUrl: 'https://payapps.marisstella.app/?signup&from=industries/construction',
     for: 'Specialty subcontractors and small general contractors',
     summary:
       'Monthly pay applications in the G702/G703 format from your schedule of values, retainage tracked line by line until release, lien waivers collected and checked against each payment, and change orders logged so approved work reaches the next bill.',
@@ -186,6 +186,7 @@ export const PROBLEMS = [
     tools: [
       ['pay-app-guides/change-order-log.html', 'Change order log', 'Approved, pending and rejected totals, the revised contract sum, billing on unsigned changes flagged, approved changes written as SOV lines.'],
       ['pay-app-guides/tm-tickets.html', 'T&M ticket log', 'Price time-and-material tickets at your own markups, flag unsigned ones and signed ones with no change order, and draft the change order request.'],
+      ['pay-app-guides/punch-list.html', 'Punch list tracker', 'Paste the punch list from the walk-through: open, overdue, done and accepted items, the retainage still waiting on it, and one back-check email to the GC.'],
       ['pay-app-guides/change-orders-schedule-of-values.html', 'Change orders and the schedule of values', 'How approved and deductive changes enter the SOV and the summary page.'],
       ['change-order-margin-calculator', 'Change order margin calculator', 'Price added work and see what a markup cap actually leaves you.'],
       ['scope-creep-change-order-calculator', 'Scope creep change order calculator', 'Price the small extra requests before they add up.'],
@@ -285,7 +286,7 @@ const jsonLd = (value) =>
 
 /** Plain-text answers, shown on the page and repeated as FAQPage data. */
 export const FAQ = [
-  ['Can I buy the pay-app suite today?', 'You can use it today: PayApps is open on the Free plan, one active job with no card (https://payapps.duncan-andrew-haywood.workers.dev/?signup). Paid plans for more jobs are not on sale yet. The free pay application generator, pay application checker, retainage tracker, change order log and lien waiver log work too, with no account.'],
+  ['Can I buy the pay-app suite today?', 'You can use it today: PayApps is open on the Free plan, one active job with no card (https://payapps.marisstella.app/?signup). Paid plans for more jobs are not on sale yet. The free pay application generator, pay application checker, retainage tracker, change order log and lien waiver log work too, with no account.'],
   ['Are the free tools really free?', 'Yes. They run in your browser on this site with no account and no card, and their code is published (source available, FSL-1.1-MIT).'],
   ['Do the free tools replace an accountant, a lawyer or a scheduler?', 'No. They help you check numbers and documents before you send or sign them. Lien rights, contract terms and retainage rules depend on your state and your contract; check with a qualified professional.'],
   ['Is the construction research a product?', 'No. It is open research with code and results you can check. It may inform products later; nothing here sells it.'],

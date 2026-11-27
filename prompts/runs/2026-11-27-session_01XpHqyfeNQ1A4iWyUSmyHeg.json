@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "changed-ventures failed on this PR from a red main: pay-app-guides page.test (12 state pages built by state-forms.mjs without cta.mjs's markers, PRs #19626 and #19631 crossed); fixed here",
-    "Duplicate work: the red-team run's PR #19641 landed the same state-forms.mjs fix on main first; on merge this PR kept main's version, so its pay-app-guides diff is empty"
+    "Duplicate work: the red-team run's PR #19641 landed the same state-forms.mjs fix on main first; on merge this PR kept main's version, so its pay-app-guides diff is empty",
+    "Ordering: deployed the custom domain (which turns workers.dev off) without first checking whether a concurrent PR had already linked public pages to workers.dev; PR #19644 had, so its 42 links were dead until the follow-up PR merged"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -66,7 +67,7 @@
     "ventures/payapps/apps/payapps/docs/DEPLOY.md (PAYAPPS_DOMAIN default)"
   ],
   "goal": null,
-  "notes": "Security queue empty (exit 3); ideas inbox empty; routed ventures/1 to bet #1 PayApps. Found deploy run 45949861746 live on payapps.<owner-name>.workers.dev and the guide CTA switch (PR #19631) waiting for a URL. Changed priv-payapps-deploy.yml so APP_DOMAIN defaults to payapps.marisstella.app (falls back to workers.dev with a warning if the token cannot read the zone) and the smoke test waits 300 s for a new certificate. validate_workflows: 142 valid; adversarial gate local: control-plane, 0 blocking, 0 warnings; risk_review: nothing blocked. Main's red pay-app-guides suite was fixed by PR #19641 before this PR merged (same change, main's kept): state-forms.mjs now runs each page through cta.mjs apply; node --test *.test.mjs 296 pass 0 fail.",
+  "notes": "Security queue empty (exit 3); ideas inbox empty; routed ventures/1 to bet #1 PayApps. Found deploy run 45949861746 live on payapps.<owner-name>.workers.dev and the guide CTA switch (PR #19631) waiting for a URL. Changed priv-payapps-deploy.yml so APP_DOMAIN defaults to payapps.marisstella.app (falls back to workers.dev with a warning if the token cannot read the zone) and the smoke test waits 300 s for a new certificate. validate_workflows: 142 valid; adversarial gate local: control-plane, 0 blocking, 0 warnings; risk_review: nothing blocked. Main's red pay-app-guides suite was fixed by PR #19641 before this PR merged (same change, main's kept): state-forms.mjs now runs each page through cta.mjs apply; node --test *.test.mjs 296 pass 0 fail. PR #19642 merged; deploy run 45963162134 attached payapps.marisstella.app (health ok, email true) and turned workers.dev off, while PR #19644 (another session, merged meanwhile) had pointed 42 guide CTAs at workers.dev. Follow-up PR repoints every public link to the custom domain; pay-app-guides 303 pass, industry-construction 17 pass.",
   "corrections": [],
   "redteam": null,
   "usage": {
