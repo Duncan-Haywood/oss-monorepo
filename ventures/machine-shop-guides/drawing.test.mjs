@@ -121,6 +121,21 @@ test("notes: a stray numbered line outside the notes column is not a note; numbe
   assert.deepEqual(n.notes[1].tags, ["heat"]);
 });
 
+test("notes: a long continuation reads the same as cleaning after every line (the old quadratic path)", () => {
+  // Pins the 2026-11-27 perf change: continuation lines are joined raw and
+  // cleaned once. Odd spacing on purpose, so a missed collapse would show.
+  const rows = [[5000, [10, "NOTES:"]], [4990, [10, "1.  FIRST  NOTE "]]];
+  const parts = [];
+  for (let i = 0; i < 200; i++) { const t = `  PLATE  ${i}   THICK  AREAS ${i % 3 ? "" : " "}`; parts.push(t); rows.push([4980 - i * 10, [24, t]]); }
+  rows.push([4980 - 200 * 10, [10, "2. LAST."]]);
+  const clean = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
+  const lineText = (t) => t.replace(/\s+$/, "");
+  let expected = clean("FIRST  NOTE ");
+  for (const t of parts) expected = clean(`${expected} ${lineText(t)}`);
+  const n = readNotes(flatten([page(...rows)]));
+  assert.deepEqual(n.notes.map((x) => x.text), [expected, "LAST."]);
+});
+
 test("revision ranking: letters, double letters and numbers", () => {
   assert.ok(revRank("D") > revRank("C"));
   assert.ok(revRank("AA") > revRank("Z"));

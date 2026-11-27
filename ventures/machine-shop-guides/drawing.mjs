@@ -256,13 +256,17 @@ export function readNotes(lines) {
         continue;
       }
       if (cur && items[0].x > cur.x + 2 && gap < 30 && !LABELISH.test(clean(text))) {
-        cur.text = clean(`${cur.text} ${text}`); items.forEach((it) => used.add(it)); lastKey = l.key;
+        // Joined raw and cleaned once below: cleaning the growing text on
+        // every line was quadratic in a note's length (same result, since
+        // clean(clean(a) + " " + b) === clean(a + " " + b)).
+        cur.text += ` ${text}`; items.forEach((it) => used.add(it)); lastKey = l.key;
         continue;
       }
       if (cur && h && gap > 40) break;
     }
     if (notes.length) break;
   }
+  for (const n of notes) n.text = clean(n.text);
   // Keep one run of numbering: a stray "1." elsewhere is not a second note 1.
   const seen = new Set();
   const kept = notes.filter((n) => (seen.has(n.n) ? false : (seen.add(n.n), true)));
