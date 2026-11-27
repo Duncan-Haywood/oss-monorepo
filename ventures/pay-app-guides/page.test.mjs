@@ -331,7 +331,7 @@ const FAQ_PAGES = [
   "finish-carpentry-contractor-billing.html", "flooring-contractor-billing.html", "glazing-contractor-billing.html", "steel-contractor-billing.html",
   "front-loading-schedule-of-values.html", "how-to-fill-out-a-pay-application.html", "progress-billing.html",
   "how-to-write-an-rfi.html", "index.html", "joint-checks.html", "lien-waiver-forms-by-state.html",
-  "lien-waiver-log.html", "miller-act-payment-bond-claims.html",
+  "lien-waiver-log.html", "lien-waiver-form.html", "miller-act-payment-bond-claims.html",
   "overbilling-underbilling.html", "paid-short.html", "pay-app-cash-forecast.html",
   "pay-application-checker.html", "pay-application-software-compared.html", "coconstruct-alternatives.html",
   "pay-if-paid-clauses.html", "prompt-payment-laws.html", "retainage-explained.html",
