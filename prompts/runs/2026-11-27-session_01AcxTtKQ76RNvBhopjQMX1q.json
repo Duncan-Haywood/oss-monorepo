@@ -1,0 +1,159 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtKQ76RNvBhopjQMX1q",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T10:06:52Z",
+  "ended": "2026-11-27T10:18:52Z",
+  "wall_minutes": 13.28,
+  "tokens_in": 16494525,
+  "tokens_out": 55522,
+  "cost_usd": 6.0748,
+  "tool_calls": 101,
+  "task": "seller-books (bet #5): estimated-tax reminder email a week before each 1040-ES due date",
+  "projects": [
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19703",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First worker test run failed: my POST /estimated-tax body passed mileageRate: null, which the route's schema refuses (optional number); the vitest error pointed one line late.",
+      "fix": "dropped the field from that body"
+    },
+    {
+      "what": "documents.test.ts pins the Cloudflare subprocessor wording 'sending account emails'; my Privacy edit reworded it.",
+      "fix": "kept the phrase, added the reminder after it, and pinned the new lines in the test"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Bet #1 (payapps) and #2 (jobshop-quote) had every Next item 'waits on demand' or an owner step, and ~15 open PRs already on payapps; the tool's 'Start here' pointed at payapps #11, which needs a real Windows PC and Android phone, not something a cloud session can do."
+    },
+    {
+      "file": "ventures/seller-books/apps/seller-books",
+      "issue": "Seller Books has no ROADMAP.md, so roadmap_claim.py cannot list or claim its items; the open work lives in docs/ARCHITECTURE.md 'Gaps / next', which I had to read whole."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Nothing in the hosting or venture docs mentions the Workers Free plan's 5 cron triggers per account; the repo was already at 5 before this PR (backlog P097)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is the top bet's top free item. Bets #1 and #2 were saturated (all items wait on demand, many parallel PRs), so I took bet #5's one 'Next' item that is not 'if sellers ask'.",
+      "did": "Built the Seller Books 1040-ES reminder email",
+      "result": "shipped with tests; no overlap with the open seller-books PRs"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Did not run venture-preflight.mjs (over 5 min): this change is inside a separately deployed app (seller-books), not a catalogue page, so I ran the app's own typecheck, unit, worker, build and Playwright e2e suites instead.",
+      "did": "app suites",
+      "result": "all green (see notes)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (section 'A reminder a week before each date', extended, not a new post)",
+    "prompts/process/backlog/P097-cron-trigger-budget.json"
+  ],
+  "goal": "North star: retention feature for a paid bet (Seller Books, bet #5)",
+  "notes": "Local verification (ventures/seller-books/apps/seller-books): pnpm typecheck clean; test:unit 32 files / 315 tests passed; test:worker 26 files / 138 tests passed; vite build ok; after the Privacy fix, legal unit tests 10/10 and worker legal + estimate-reminders 16/16. Cloudflare limits page read 2026-11-27: 'Number of Cron Triggers per account | 5 | 1,000'. With this PR the repo configures 6 cron schedules (payapps, payapps-site, seller-books, seller-books-site, jobshop-quote, platform/email). Playwright e2e (pnpm test:e2e): 18 passed (1.2m), including 15-estimates-saved.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9413afd6-4737-5da8-b29a-dfe1577b01e7",
+    "transcripts": 1,
+    "first": "2026-11-27T10:06:52Z",
+    "last": "2026-11-27T10:20:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 97,
+        "input": 189,
+        "output": 55522,
+        "thinking": 12543,
+        "cache_read": 16280913,
+        "cache_write_5m": 0,
+        "cache_write_1h": 213423,
+        "api_equivalent_usd": 6.0748,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 97,
+      "input": 189,
+      "output": 55522,
+      "thinking": 12543,
+      "cache_read": 16280913,
+      "cache_write_5m": 0,
+      "cache_write_1h": 213423,
+      "api_equivalent_usd": 6.0748,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 92,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Edit": 2,
+      "mcp__github__list_pull_requests": 1,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.28,
+      "active_minutes": 13.28,
+      "model_minutes": 9.73,
+      "tool_minutes": 3.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior full-stack engineer: opt-in table+migration, cron sender with claim/dedupe, signed one-click unsubscribe, UI toggle and page, privacy update, unit+worker tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 164.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
