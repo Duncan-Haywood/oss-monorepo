@@ -172,12 +172,18 @@ class T(unittest.TestCase):
 
     def test_long_title_only_for_new_posts(self):
         t = GOOD.replace('title: "T"', 'title: "' + "x" * 111 + '"')
-        self.assertEqual(problems("2026-11-05-x.md", t.replace("2026-10-24", "2026-11-05"), datetime.date(2026, 11, 5)), ["title is 111 characters; keep it to 110", "title is 111 characters with no clean cut to 70; add `seo_title:` (70 max)"])
+        self.assertEqual(problems("2026-11-05-x.md", t.replace("2026-10-24", "2026-11-05"), datetime.date(2026, 11, 5)), ['title is 111 characters, 1 over; keep it to 110 (past the cap: "x")', "title is 111 characters with no clean cut to 70; add `seo_title:` (70 max)"])
         self.assertEqual(problems("2026-10-24-x.md", t), ["title is 111 characters with no clean cut to 70; add `seo_title:` (70 max)"])
 
     def test_long_description(self):
         t = GOOD.replace('"' + 'D' * 60 + '"', '"' + "x" * 161 + '"')
-        self.assertEqual(problems("2026-10-24-x.md", t), ["description is 161 characters; keep it to 160"])
+        self.assertEqual(problems("2026-10-24-x.md", t), ['description is 161 characters, 1 over; keep it to 160 (past the cap: "x")'])
+
+    def test_long_description_quotes_the_words_past_the_cap(self):
+        desc = "w" * 155 + " and then some"
+        t = GOOD.replace('"' + 'D' * 60 + '"', '"' + desc + '"')
+        self.assertEqual(problems("2026-10-24-x.md", t),
+                         ['description is 169 characters, 9 over; keep it to 160 (past the cap: "then some")'])
 
     def test_description_of_exactly_160_is_fine(self):
         t = GOOD.replace('"' + 'D' * 60 + '"', '"' + "x" * 160 + '"')
@@ -189,7 +195,7 @@ class T(unittest.TestCase):
 
     def test_long_seo_title(self):
         t = GOOD.replace('title: "T"\n', 'title: "T"\nseo_title: "' + "x" * 71 + '"\n')
-        self.assertEqual(problems("2026-10-24-x.md", t), ["seo_title is 71 characters; keep it to 70"])
+        self.assertEqual(problems("2026-10-24-x.md", t), ['seo_title is 71 characters, 1 over; keep it to 70 (past the cap: "x")'])
         self.assertEqual(problems("2026-10-24-x.md", t.replace("x" * 71, "x" * 70)), [])
 
     def test_title_over_70_with_no_clean_cut(self):
