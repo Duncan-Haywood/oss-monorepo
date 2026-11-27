@@ -864,6 +864,38 @@ limit applies per item, so one row for a shelving unit and a camera bought
 together can hide which side of $2,500 each one is on. This is a worksheet,
 not tax advice.
 
+## Sold some of your own things too? (added 2026-11-27)
+
+A Form 1099-K counts payments. It cannot tell the coat you wore for five
+years from the coat you bought at the bins to flip, and many sellers have
+both in one account. They are taxed differently:
+
+| What you sold | Where it goes |
+| --- | --- |
+| Your own things, for less than you paid | Not income; the loss is not deductible. A 1099-K amount for them goes in the entry space at the top of Schedule 1 (2025 Form 1040 instructions) |
+| Your own things, for more than you paid | A capital gain, Form 8949 and Schedule D |
+| Selling as a hobby | Schedule 1, line 8j; the expenses are not deductible |
+| Buying to resell, as a business | Schedule C, with the fees and cost of goods deducted |
+
+The IRS's own example is a couch bought for $1,000 and sold for $700: the
+$700 in box 1a is entered at the top of Schedule 1 and the $300 loss goes
+nowhere. Returns for 2022 to 2024 used two offsetting lines, 8z and 24z,
+instead, so check the instructions for the year you file.
+
+The new page, [personal items or a
+business](https://marisstella.app/seller-books/personal-items-or-business),
+lays this out with the IRS's hobby-or-business factors and links to each IRS
+page. It also says plainly who does not need Seller Books: someone who only
+cleared out a closet at a loss needs a note of what they sold, not
+bookkeeping software. For an account with both, delete the imported sales
+that were your own things (an item pulled from stock to keep can be marked
+as taken for personal use, which takes its cost off line 36), and the 1099-K
+check shows the gap between box 1a and the business books.
+
+irs.gov does not answer from the environment these pages are built in, so
+the rules were read through search-engine excerpts of the IRS pages on
+2026-11-27, and the page says so.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
