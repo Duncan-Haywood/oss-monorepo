@@ -146,6 +146,16 @@ page cannot read puts the reason in the strip and hides the old result, so
 a stale figure is never on screen. A chosen Excel file still waits for the
 button, and the live preview counts no usage.
 
+Also updated 2026-11-27, for anyone billing from a phone. The paste box no
+longer scrolls sideways inside itself on a narrow screen: at 390 px it used
+to show 322 px of a 542 px line, so you saw the middle of each row; it now
+wraps, and a note under it says how many lines it holds (11 for the worked
+example). Both the generator and the template guide now follow the phone's
+dark setting, from one set of colour tokens; a printed application stays
+dark ink on white either way. An automated accessibility check (axe, WCAG A
+and AA) passes on the filled-in result in both colour schemes, at phone and
+desktop widths.
+
 ## Why a spreadsheet, for a product we mean to sell
 
 The paid product is PayApps, a hosted pay-app suite: schedules

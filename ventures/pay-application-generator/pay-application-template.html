@@ -10,36 +10,49 @@
   <link rel="canonical" href="./pay-application-template.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is in the pay application template?", "acceptedAnswer": {"@type": "Answer", "text": "Two sheets. The Application sheet has the project details and the nine summary lines: original contract sum, net change by change orders, contract sum to date, total completed and stored, retainage, total earned less retainage, previous certificates, current payment due, and balance to finish including retainage. The Continuation sheet has the retainage rates and one row per line of the schedule of values, in lettered columns A to L: item, description, type, scheduled value, from previous applications, this period, materials presently stored, completed and stored to date, percent complete, balance to finish, the line's own retainage rate, and retainage. The blank template has 30 lines."}}, {"@type": "Question", "name": "Is this the AIA G702 and G703 form?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is our own layout covering the same kind of summary and continuation sheet. The AIA documents are copyrighted and this template is not affiliated with the American Institute of Architects. If your owner or general contractor requires the AIA form or their own portal, use the numbers from this workbook to fill it in."}}, {"@type": "Question", "name": "How is retainage worked out in the spreadsheet?", "acceptedAnswer": {"@type": "Answer", "text": "Each line's retainage is the work rate times previous plus this period, plus the stored-materials rate times materials presently stored, each rounded to the cent. The two rates are typed once at the top of the Continuation sheet. A line with a different rate takes it in column K, which then applies to both its work and its stored materials."}}, {"@type": "Question", "name": "How do I add change orders?", "acceptedAnswer": {"@type": "Answer", "text": "Add each approved change order as its own row with CO in the Type column (C) and its scheduled value, negative for a deductive change order. The Application sheet sums CO rows into line 2 and everything else into line 1."}}, {"@type": "Question", "name": "How do I start next month's application?", "acceptedAnswer": {"@type": "Answer", "text": "Save a copy of the file. On each line add This period into Previous applications and clear This period. Leave stored materials where they are until they are installed. Type last month's line 6 (total earned less retainage) into line 7, previous certificates, unless the owner certified a different amount. The free pay application generator can do this for you: work out this month there, use Next month, enter the new period's work, and download the result as Excel."}}, {"@type": "Question", "name": "Does it work in Excel, Google Sheets or LibreOffice?", "acceptedAnswer": {"@type": "Answer", "text": "It should. It is a standard .xlsx file with ordinary formulas (SUM, SUMIF, ROUND, IF). A test opens it in LibreOffice with every cached value stripped, so the formulas have to be worked out from scratch, and checks the summary and each line's retainage against the generator's own arithmetic to the cent. It has not been tested in Excel or Google Sheets by us; both read standard .xlsx formulas."}}]}</script>
   <style>
-    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    /* Colour tokens (2026-11-27): one palette for light, one for dark. The dark set is screen-only, so a
+       printed application stays dark ink on white whatever the reader's setting. */
+    :root { color-scheme: light dark; --bg: #f3f4f1; --ink: #1b1f2a; --head: #3b2a14; --muted: #54503f; --link: #7a3e0a;
+      --card: #fff; --line: #dad6c8; --rule: #e8e4d6; --field: #fff; --field-line: #b9b39c; --btn: #7a3e0a; --btn-ink: #fff;
+      --soft: #efe8d8; --pre: #fbfaf5; --strip: #3b2a14; --shadow: #3b2a1410;
+      --high-bg: #fde8e8; --high: #9a3412; --med-bg: #fdf0d5; --med: #7c5e10; --chip: #e8e4d6; }
+    @media screen and (prefers-color-scheme: dark) {
+      :root { --bg: #15130f; --ink: #e9e4d8; --head: #f1dfc0; --muted: #b8af9b; --link: #f2ad6f;
+        --card: #1f1c16; --line: #3a352b; --rule: #2f2b23; --field: #14120e; --field-line: #6d6553; --btn: #e9a263; --btn-ink: #1d1206;
+        --soft: #332d23; --pre: #191712; --strip: #5b3c15; --shadow: #00000040;
+        --high-bg: #4a1d14; --high: #ffb59f; --med-bg: #3d3011; --med: #f1cf73; --chip: #332d23; }
+    }
+    @media print { :root { color-scheme: light; } }
+    :root { font: 16px system-ui, sans-serif; color: var(--ink); background: var(--bg); }
     body { max-width: 1040px; margin: auto; padding: 28px; }
-    a { color: #7a3e0a; }
-    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b2a14; }
-    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b2a14; }
+    a { color: var(--link); }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: var(--head); }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: var(--head); }
     h3 { font-size: 1rem; margin: 18px 0 4px; }
     p, li { line-height: 1.55; }
-    .note, footer { font-size: .86rem; color: #54503f; }
-    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b2a1410; margin: 18px 0; }
+    .note, footer { font-size: .86rem; color: var(--muted); }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px var(--shadow); margin: 18px 0; }
     label { display: block; font-weight: 600; margin: 12px 0 4px; }
-    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid var(--field-line); border-radius: 7px; font: 15px system-ui, sans-serif; background: var(--field); color: inherit; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
     @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
-    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a3e0a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
-    button.secondary { background: #efe8d8; color: #3b2a14; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: var(--btn); color: var(--btn-ink); font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: var(--soft); color: var(--head); }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
-    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--rule); }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
-    tr.total td { font-weight: 700; border-top: 2px solid #3b2a14; }
-    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    tr.total td { font-weight: 700; border-top: 2px solid var(--head); }
+    .finding { border-bottom: 1px solid var(--rule); padding: 10px 0; }
     .finding:last-child { border-bottom: 0; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
-    .pill.high { background: #fde8e8; color: #9a3412; }
-    .pill.medium { background: #fdf0d5; color: #7c5e10; }
-    .pill.info { background: #e8e4d6; color: #3b2a14; }
-    .due { font-size: 1.6rem; font-weight: 800; color: #3b2a14; }
-    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
-    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
-    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .pill.high { background: var(--high-bg); color: var(--high); }
+    .pill.medium { background: var(--med-bg); color: var(--med); }
+    .pill.info { background: var(--chip); color: var(--head); }
+    .due { font-size: 1.6rem; font-weight: 800; color: var(--head); }
+    footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid var(--field-line); border-radius: 7px; font: 13px ui-monospace, monospace; background: var(--field); color: inherit; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: var(--pre); border: 1px solid var(--line); border-radius: 8px; padding: 16px; overflow-x: auto; }
     .scroll { overflow-x: auto; }
     @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, #suite, #template, #next, header { display: none; } }
   </style>
