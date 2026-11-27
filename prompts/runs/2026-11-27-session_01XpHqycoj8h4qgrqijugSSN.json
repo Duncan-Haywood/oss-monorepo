@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqycoj8h4qgrqijugSSN",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T11:39:22Z",
+  "ended": "2026-11-27T11:44:11Z",
+  "wall_minutes": 4.98,
+  "tokens_in": 2874068,
+  "tokens_out": 12037,
+  "cost_usd": 1.433,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19724",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo clone refused (no credentials); final for the session",
+    "Capterra and Business Wire answered 403 to WebFetch"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets 'Start here' points at payapps #11, whose only open ask needs a real iPhone photo on a Windows PC and an Android phone, which a cloud session cannot do; it is not really free."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "eCFR's versioner API answers 406 unless the request allows compression (curl --compressed); worth a line under Outbound hosts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No post written: the deliverable is a bet screening in bets.md; a customer post on a bet we are not pursuing would not serve the paid products.",
+      "did": "recorded the screening with sources in bets.md instead",
+      "result": "one consolidated reference; no thin post"
+    }
+  ],
+  "writeups": [
+    "portfolio/monetization/bets.md (FSMA 204 screening, Evidence for not now)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: screen FSMA 204 food traceability (small food manufacturers and distributors) as a new paid bet. Sourced: FDA proposed rule (20 Jul 2028), the 2026 Act's non-enforcement directive, Kroger's 2025 supplier mandate, Census CBP 2022 (311: 30,503; 4244: 34,852), 21 CFR 1.1305 exemptions, prices anchored by ReposiTrak at $49/mo. Scored 15, not ranked. Verification: risk_review.py blocked nothing (markdown only).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d8b246d0-cdf8-5680-a1c8-206dd0a616a3",
+    "transcripts": 1,
+    "first": "2026-11-27T11:39:22Z",
+    "last": "2026-11-27T11:44:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 66,
+        "output": 12037,
+        "thinking": 2907,
+        "cache_read": 2794872,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79130,
+        "api_equivalent_usd": 1.433,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 66,
+      "output": 12037,
+      "thinking": 2907,
+      "cache_read": 2794872,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79130,
+      "api_equivalent_usd": 1.433,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 23,
+      "WebFetch": 10,
+      "WebSearch": 6,
+      "ToolSearch": 2,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.98,
+      "active_minutes": 4.98,
+      "model_minutes": 3.14,
+      "tool_minutes": 1.83,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "an analyst screening one market with sources and Census counts",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 209.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
