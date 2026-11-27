@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqycLNbKTusMWTYQUgHW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T00:39:22Z",
+  "ended": "2026-11-27T00:55:46Z",
+  "wall_minutes": 16.76,
+  "tokens_in": 14267823,
+  "tokens_out": 66611,
+  "cost_usd": 5.5702,
+  "tool_calls": 100,
+  "task": "Bet #1 payapps: job schedule part 1 (job-schedule-part-1) - activities with predecessors, sequence check, shift with what follows, three-week lookahead PDF/CSV",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19539",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 20,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says every bet has no free, ungated item: all payapps Next items are gated 'if people ask', which with no customers yet gates them forever; the growth-path hint ('job costing' untouched) named a topic with 10 merged claims while scheduling, a core suite feature, was not on the list at all."
+    },
+    {
+      "file": "private-monorepo apps/payapps (no e2e harness)",
+      "issue": "payapps has no Playwright e2e like seller-books, so a new job-page section cannot be screenshotted without hand-building auth; verified the PDF with pdftoppm instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No ROADMAP Next item was free and ungated, so I opened a new item (job schedule) that was not in bets.md's growth path, judging it the most-compared missing suite feature (Buildertrend, JobTread, Contractor Foreman all schedule).",
+      "did": "Claimed job-schedule-part-1 with roadmap_claim --slug and built it in private-monorepo",
+      "result": "Merged as private PR 441 with unit + worker tests; Part 2 added to the ROADMAP Next list"
+    },
+    {
+      "file": "CLAUDE.md (Before merging: CI green)",
+      "why": "private-monorepo CI got no runner (ci_starvation.py exit 0, runner_id 0)",
+      "did": "Ran typecheck, full unit, full worker (530/530), build and biome locally and recorded them in the PR body",
+      "result": "Merged on local verification"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-subcontractor-three-week-lookahead.md",
+    "docs/reports/2026-11-27-payapps-job-schedule.md"
+  ],
+  "goal": "$10k MRR: deepen bet #1 (PayApps contractor suite) with the scheduling feature buyers compare suites on",
+  "notes": "Security queue empty (security_next exit 3); IDEAS.md and requests empty. Routed ventures/1. private-monorepo clone worked via add_repo first time. Private PR 441: src/shared/schedule.ts (workday math, status, sequence check, loop check, planShift, lookahead window), migration 0077 schedule_activities, routes /projects/:id/schedule (CRUD, /:id/shift, lookahead.pdf, schedule.csv), components/job-schedule.tsx, privacy policy 2026-11-27.1. Local: pnpm typecheck clean; pnpm test:unit exit 0 (16 new tests); pnpm test:worker 82 files/530 tests passed (4 new); pnpm build OK; biome 1 pre-existing warning (services/billing.ts:165). PR 441 CI runs 45919431968/45919407490 starved (no runner). Lookahead PDF rendered via pdftoppm and reviewed; fixed today-highlight covering its label, full-height week rules, and a truncated sequence note. check_posts.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2c7a9979-07bb-55ee-90c5-4ea330247e31",
+    "transcripts": 1,
+    "first": "2026-11-27T00:39:22Z",
+    "last": "2026-11-27T00:56:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 98,
+        "input": 184,
+        "output": 66611,
+        "thinking": 6619,
+        "cache_read": 14090241,
+        "cache_write_5m": 0,
+        "cache_write_1h": 177398,
+        "api_equivalent_usd": 5.5702,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 98,
+      "input": 184,
+      "output": 66611,
+      "thinking": 6619,
+      "cache_read": 14090241,
+      "cache_write_5m": 0,
+      "cache_write_1h": 177398,
+      "api_equivalent_usd": 5.5702,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 100,
+    "tools": {
+      "Bash": 84,
+      "Write": 6,
+      "Read": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.76,
+      "active_minutes": 16.76,
+      "model_minutes": 10.24,
+      "tool_minutes": 6.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "senior full-stack dev: schema+migration, workday/sequence/shift engine with tests, API with tenant tests, React section, Gantt-style PDF, customer post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 251.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
