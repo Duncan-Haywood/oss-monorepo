@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Idempotent provisioning for a Seller Books deploy (docs/DEPLOY.md). Safe to run on every deploy; the
-// deploy workflow (.github/workflows/seller-books-deploy.yml) runs it after `pnpm build` and before
+// deploy workflow (.github/workflows/priv-seller-books-deploy.yml) runs it after `pnpm build` and before
 // `wrangler deploy`. Ported from apps/payapps/scripts/provision.mjs (2026-11-26) without the R2 part:
 // Seller Books stores no files (imports are parsed in the request and only the rows are kept).
 //
