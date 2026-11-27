@@ -129,4 +129,4 @@ close-out checklist on every job, on every plan:
 PayApps is open now: pay applications with retainage and change orders are free on one job,
 with no card. The punch list and close-out checklist are on every plan. Lien waivers, QuickBooks and
 job costing are in the paid plans, which are not on sale yet:
-[start free in PayApps](https://payapps.duncan-andrew-haywood.workers.dev/?signup&from=post%2Fcloseout-documents).
+[start free in PayApps](https://payapps.marisstella.app/?signup&from=post%2Fcloseout-documents).
