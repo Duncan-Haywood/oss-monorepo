@@ -1,6 +1,6 @@
 ---
 kind: brief
-topics: [monetization, bets, smb]
+topics: [niche, product-build, money]
 date: 2026-11-27
 title: SMB owner-profile sweep, 29 profiles and the suites they point to
 description: Four web-research passes over 29 small-business owner profiles (home services, health and personal services, professional services, food, retail, logistics and small manufacturing), with the candidates worth adding to bets.md.
