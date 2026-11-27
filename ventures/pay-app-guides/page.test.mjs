@@ -328,6 +328,8 @@ const FAQ_PAGES = [
   "retainage-in-quickbooks.html", "retainage-release.html", "retainage-tracker.html",
   "schedule-of-values-template.html", "stored-materials-billing.html",
   "sworn-statement.html", "tm-tickets.html",
+  // state-forms.mjs: one page per state with statutory waiver forms
+  ...["arizona", "california", "florida", "georgia", "massachusetts", "michigan", "mississippi", "missouri", "nevada", "texas", "utah", "wyoming"].map((s) => `${s}-lien-waiver-forms.html`),
 ];
 
 test("guides with an FAQ keep FAQPage markup that matches visible questions", () => {
