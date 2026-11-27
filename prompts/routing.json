@@ -2,7 +2,7 @@
   "review_every": 120,
   "review_when_due": 0.25,
   "tracks": {
-    "ventures": {"weight": 0.61, "champion": 1, "candidate": 2, "candidate_share": 0.2},
+    "ventures": {"weight": 0.61, "champion": 1, "candidate": null, "candidate_share": 0},
     "research": {"weight": 0, "champion": 0, "candidate": null, "candidate_share": 0},
     "process": {"weight": 0.09, "champion": 1, "candidate": 2, "candidate_share": 0.2},
     "explore": {"weight": 0.05, "champion": 0, "candidate": null, "candidate_share": 0},

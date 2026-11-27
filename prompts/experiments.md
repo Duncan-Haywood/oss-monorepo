@@ -1943,6 +1943,16 @@ subscription, should a scheduled venture run default to launch work
   40 gives a review every 3 hours; 120 gives about three a day, each with
   enough runs since the last to grade its predecessor. Also renumbered the
   second E125 heading (two sessions both wrote E125) to E126.
+- Decision (step 3): ventures candidate 2 retired (`candidate: null`,
+  `candidate_share: 0`). `measure` says "retire: more integrity issues per
+  run": 28 in 768 runs (0.036) vs champion 1's 107 in 3,217 (0.033); success
+  91% for both (89%-93% vs 90%-92%). The gap is within noise, but after 768
+  runs it shows no gain either, and its one change (a near-copy check for
+  `*-calculator` name suffixes) targets free single-purpose tools, which the
+  2026-11-24 pivot stopped building. A new ventures candidate is left for a
+  full review. process 2 and review 2: keep collecting (intervals overlap).
+- Not done (reduced pass): derive (`fetch` had 5,323 PRs to read, not the
+  2 to 5 minutes `review/prompt-1.md` says; stopped), audit, drift report.
 - Metric: reviews per day (target about 3, from 6 on 2026-11-27) and the
   share of review entries whose "Result" for the previous entry is "too few
   runs" (from 5 of 5 today). Compare over 2026-11-28 to 2026-11-30.
