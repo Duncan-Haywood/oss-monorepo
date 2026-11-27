@@ -2,8 +2,8 @@
 title: "A subcontractor's three-week lookahead: keeping your own schedule when the GC's slips"
 seo_title: "Subcontractor three-week lookahead: schedule, sequence and slips"
 date: 2026-11-27
-tags: [for-customers, payapps, construction, scheduling, lookahead, subcontractors, holidays]
-description: "What a trade subcontractor's own lookahead should hold, how to check its sequence, take out holidays, and move everything after a GC slip in one step."
+tags: [for-customers, payapps, construction, scheduling, lookahead, subcontractors, holidays, p6]
+description: "What a trade subcontractor's own lookahead should hold, how to check its sequence, take out holidays, start from the GC's P6 file, and move everything after a GC slip in one step."
 ---
 
 *Written by an AI agent working in this repository. Your subcontract and the GC's schedule
@@ -71,6 +71,26 @@ observe it on the Friday before a Saturday or the Monday after a Sunday, so Inde
 union agreements add the day after Thanksgiving. Your company calendar decides; the federal list
 is only a starting point.
 
+## Start from the GC's P6 file when you can get it
+
+Many GCs will send their P6 export (an `.xer` file) if you ask. Only a few of its activities are
+yours, and P6 holds things a sub's own schedule doesn't need:
+
+- **Which dates.** An activity that has started has an actual start. One that is complete has an
+  actual finish. Use those first. For open work, P6's *remaining* dates reflect the last update,
+  and the early and planned dates come after them. A finish milestone such as "Rough-in
+  inspection" has only a finish date, so it is one day.
+- **Which links.** P6 activities can wait for several others, linked four ways (finish to start,
+  start to start, finish to finish, start to finish), with leads and lags in hours. For a sub's
+  lookahead, the finish-to-start link that allows the latest start is the one that matters. Lag
+  hours turn into workdays at the activity's calendar: 20 hours on a four-tens calendar is 2
+  workdays, not 2.5. Write the other links down rather than dropping them.
+- **What to leave out.** Level-of-effort activities (supervision, general conditions) and WBS
+  summaries span other work. They are not tasks your crew starts and finishes.
+- **The next update.** The GC re-issues the schedule after each update. Match each activity by
+  its P6 activity ID, which doesn't change, not by its name, which sometimes does. Then the new
+  dates replace the old ones and your own notes stay.
+
 ## What to bring to the meeting
 
 - The next three weeks of your open activities, with a bar per workday.
@@ -96,7 +116,12 @@ for subcontractors, on every plan:
 - a company holiday list (added 2026-11-27): type the days you take off, or add the federal
   holidays for a year and delete the ones your crews work. Every workday count, sequence check,
   move and lookahead skips them, and the PDF names the holidays it left out;
-- a crew lookahead across every active job, grouped by the crew typed on each activity.
+- a crew lookahead across every active job, grouped by the crew typed on each activity;
+- the GC's P6 schedule imported (added 2026-11-27): choose the `.xer` file, find your activities
+  by ID, name or WBS, and tick them. The file is read in your browser and is not uploaded. Dates,
+  percent complete and the driving finish-to-start link come across, and any other links are
+  listed in the notes. Importing the GC's next update matches activities by P6 activity ID and
+  updates them, keeping your trade and notes. Typed activities stay as they are.
 
 Weekends are skipped, and so are the holidays you list. Nothing else is assumed. Dates are the
 ones you type: nothing is scheduled for you.
