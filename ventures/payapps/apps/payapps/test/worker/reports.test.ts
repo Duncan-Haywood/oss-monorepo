@@ -320,7 +320,7 @@ describe("cash report", () => {
 
     const text = await (await api(`/api/orgs/${orgId}/reports/cash.csv`, { as })).text();
     expect(text.split("\r\n")[0]).toMatch(
-      /,Pending change orders \(additions\),Pending change orders,Backcharged,Disputed \(closed short\),Written off,Waiting on the owner's payment \(pay-when-paid\),Pay-when-paid outer limit \(days from the application date\)$/,
+      /,Pending change orders \(additions\),Pending change orders,Backcharged,Disputed \(closed short\),Written off,Waiting on the owner's payment \(pay-when-paid\),Pay-when-paid outer limit \(days from the application date\),Retainage waiting on close-out$/,
     );
   });
 

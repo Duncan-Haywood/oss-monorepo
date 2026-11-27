@@ -11,10 +11,10 @@ export interface LegalDocumentSource {
 export const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocumentSource> = {
   terms: {
     title: "Terms of Service",
-    updatedAt: "2026-11-26",
+    updatedAt: "2026-11-27",
     markdown: `# Terms of Service
 
-**Version 2026-11-26** · Maris Stella Labs LLC
+**Version 2026-11-27** · Maris Stella Labs LLC
 
 ## 1. Who we are
 
@@ -22,9 +22,9 @@ Seller Books (the "Service") is operated by **Maris Stella Labs LLC**, a Colorad
 
 ## 2. The Service
 
-The Service helps resellers keep their books: it imports the sales, fee and payout reports you download from the marketplaces you sell on, matches sales to the cost of goods **you enter** (per item or spread across a bulk lot), keeps your mileage and expense logs, shows profit by platform and month, and builds a Schedule C **worksheet** from those numbers.
+The Service helps resellers keep their books: it imports the sales, fee and payout reports you download from the marketplaces you sell on, matches sales to the cost of goods **you enter** (per item or spread across a bulk lot), keeps your mileage and expense logs (including purchases you pick from a bank or card statement), shows profit by platform and month, and builds a Schedule C **worksheet** from those numbers. It also works out figures from what you enter: business use of your home (line 30, simplified method), the closing inventory you record for a year, quarterly federal estimated tax payments, a comparison of your books with a Form 1099-K you type in, and files you can take elsewhere (CSV exports, a journal for QuickBooks Online, and one ZIP of the year-end files for your tax preparer).
 
-Seller Books is not affiliated with, endorsed by or sponsored by eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok or the IRS. Their names are used only to say which reports the Service reads.
+Seller Books is not affiliated with, endorsed by or sponsored by eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok, Square, Intuit (QuickBooks) or the IRS. Their names are used only to say which reports the Service reads or which software its exports are laid out for.
 
 ## 3. Your books are yours to check
 
@@ -33,6 +33,9 @@ The Service does arithmetic on the records you give it. It does not see your mar
 - **Fees come from your reports.** Every fee is taken from a column of the report you import; the Service never estimates a fee from a published rate. Marketplaces change their report layouts without notice. The Service refuses a file whose required columns it cannot find, but it can still misread a report it has not seen before. Check the totals against your marketplace statements.
 - **Cost of goods is what you enter.** Profit is only as accurate as the costs, lots and allocations you record.
 - **The Schedule C worksheet is not a tax return.** It is a summary of your records arranged by Schedule C line, to help you or your tax preparer fill in your own return. It is not a filing, and the Service does not file anything with the IRS or any state. The standard mileage rate is the one you choose.
+- **Quarterly estimated tax figures are estimates.** They come from your books and the figures you type, using the federal rules named on the page. They leave out credits, itemized deductions, state tax and other income sources the page lists, and they do not compute any underpayment penalty. You decide what to pay; the Service does not pay or file anything.
+- **Deduction choices are yours.** Whether your home office space qualifies, whether a purchase may be deducted at once under the de minimis safe harbor (which needs an election with your return), and the inventory value you record are your or your tax preparer's decisions. The Service applies the arithmetic you choose.
+- **Exports are for you to check.** A QuickBooks journal or other export uses the account names you set and is not posted anywhere by the Service; review it before importing it into other software.
 - **Form 1099-K notes are general information.** The reporting thresholds shown come from the sources named beside each note, may be out of date, and do not decide whether your income is taxable.
 - **No tax, legal, accounting or financial advice.** Nothing in the Service is tax, legal, accounting or financial advice. Ask a qualified tax professional about your own situation.
 
@@ -68,7 +71,7 @@ We work to keep the Service available, but it may be interrupted for maintenance
 
 ## 10. Termination
 
-You may stop using the Service and cancel at any time. We may suspend or terminate accounts that violate these Terms or the Acceptable Use Policy, or for non-payment, with notice where practical. Before your account closes, you can download your Schedule C worksheets.
+You may stop using the Service and cancel at any time. We may suspend or terminate accounts that violate these Terms or the Acceptable Use Policy, or for non-payment, with notice where practical. Before your account closes, you can download your Schedule C worksheets, your year-end files and all of your shop's data.
 
 ## 11. Disclaimers
 
@@ -106,10 +109,12 @@ This policy explains what information Seller Books (operated by Maris Stella Lab
 - **Your shop's name.** (The standard mileage rate you choose for a worksheet is used for that worksheet and not stored.)
 - **Imported reports:** for each file you import, its file name, a checksum (SHA-256) used to spot the same file imported twice, row counts and any warnings. **The file itself is not kept.** From each row we keep what your books need: the platform, date, order and transaction ids, item title, SKU, quantity, item price, shipping charged, sales tax the marketplace collected, refunds, postage, each fee as the report itemised it (with the column it came from), the net amount, and the description of account-level charges. Buyer names and addresses are not stored; where a report has no order id, the buyer's username is used only inside a one-way hash to recognise a row imported twice.
 - **Bank or card statements:** a statement file you choose on the Expenses page is read to show you its purchases and **is not kept**, nor are its account numbers, balances or the lines you leave unticked. Only the lines you tick and save are stored, as expenses (date, category, amount, the description as the vendor, and the file name as the memo). If you tick **Remember** when you untick a line, we keep only that merchant's short name as the page reads it (for example "NETFLIX COM"), how many lines from it you left out and the latest one's date, so the next statement starts it unticked; never its amount or description. The Expenses page lists these merchants, and **Forget** deletes one.
-- **Records you enter:** inventory items and bulk lots (descriptions, SKUs, costs and dates), mileage trips (date, purpose, start and end places, miles), and expenses (date, category, amount, vendor and memo).
+- **Records you enter or import from your own spreadsheets:** inventory items and bulk lots (descriptions, SKUs, costs and dates), mileage trips (date, purpose, start and end places, miles), and expenses (date, category, amount, vendor, memo and, if you pick one, the platform it belongs to). A spreadsheet you import these from is read for its rows and **is not kept**.
+- **Year-end figures you enter:** for each tax year, the square feet of your home office and of your home and the months it was used (for line 30), and the closing inventory value you record for the year.
 - **Quarterly estimated tax figures, if the shop's owner or an admin types them:** for each tax year, the filing status, W-2 wages, federal tax withheld, other taxable income, last year's total tax, whether last year's income was over $150,000, the mileage rate chosen for the page, and the estimated payments sent toward each due date. They are saved to the shop so the page shows the same figures on every device, and only the shop's owner and admins can read or change them. When an editor or viewer types figures on that page, they stay in that person's browser and are not sent to be stored.
 - **Billing:** your plan, subscription status, and payment events from the merchant of record. We do not receive or store card numbers.
-- **Technical data:** the IP address and browser user-agent of each sign-in session (used to secure your account), and security logs.
+- **Technical data:** the IP address and browser user-agent of each sign-in session (used to secure your account), counters that limit repeated sign-in, sign-up and password-reset attempts (keyed by IP address, and for failed sign-ins by a one-way hash of the email address, kept for the length of the limit), and security logs.
+- **Form 1099-K figures you type to compare with your books** are used for that comparison and **not stored**.
 - **Acceptance records:** which version of these policies each user accepted, and when.
 
 ## Why we use it
@@ -153,7 +158,7 @@ We will update this list before adding a new subprocessor.
 - Encryption in transit (HTTPS) and at rest (provider-managed storage encryption).
 - Tenant isolation: every record belongs to one shop and is checked against your membership on every request.
 - Role-based access within each shop (owner, admin, editor, viewer).
-- Operator access: our platform administrators (the people who run the service) can see account data across shops: shop names, account owners' names and email addresses, sign-up dates, plan, subscription status and the price billed. Each such view is logged. These operator tools do not show your sales, fees, inventory, mileage or expenses.
+- Operator access: our platform administrators (the people who run the service) can see account data across shops: shop names, account owners' names and email addresses, sign-up dates, plan, subscription status and the price billed. Each such view is logged. When a shop starts a paid plan, the operator is emailed the shop's name, the plan and price, and the account owner's name and email address. These operator tools and emails do not show your sales, fees, inventory, mileage or expenses.
 
 No system is perfectly secure. We will notify affected customers of a security incident involving their data as required by law.
 

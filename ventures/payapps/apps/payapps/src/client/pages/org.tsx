@@ -138,6 +138,9 @@ export function OrgPage() {
               <Link to="/orgs/$orgId/crews" params={{ orgId }} className="underline">
                 Crew lookahead
               </Link>
+              <Link to="/orgs/$orgId/timesheets" params={{ orgId }} className="underline">
+                Timesheets
+              </Link>
               <Link to="/orgs/$orgId/insurance" params={{ orgId }} className="underline">
                 Insurance
               </Link>

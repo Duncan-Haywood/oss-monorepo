@@ -1,0 +1,13 @@
+{
+  "Account": {
+    "Id": "92",
+    "SyncToken": "0",
+    "Name": "Retainage Receivable",
+    "AccountType": "Other Current Asset",
+    "AccountSubType": "OtherCurrentAssets",
+    "Classification": "Asset",
+    "Active": true,
+    "CurrentBalance": 0
+  },
+  "time": "2026-11-24T10:00:03.000-08:00"
+}

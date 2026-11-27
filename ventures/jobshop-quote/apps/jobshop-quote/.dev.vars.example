@@ -1,0 +1,7 @@
+# Copy to .dev.vars for `pnpm dev`. Never commit real values.
+AUTH_SECRET=change-me-to-32-plus-random-characters
+# Leave ANTHROPIC_API_KEY unset and set FAKE_EXTERNALS=true for the offline demo.
+ANTHROPIC_API_KEY=
+FAKE_EXTERNALS=true
+# FAKE_EXTERNALS=true also selects the signed fake billing provider (checkout without charging).
+# Real billing: BILLING_PROVIDER=paddle plus the owner-only BILLING_* secrets (docs/BILLING.md).

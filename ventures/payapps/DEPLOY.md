@@ -53,10 +53,20 @@ so the next run gets past it. Owner step to turn attachments on: add Account -> 
 Edit to `CLOUDFLARE_API_TOKEN`.
 
 
-## Live (2026-11-27, run 45949861746)
+## Runs 2 and 3 (2026-11-27)
+
+- Run 45949861746 (after PR #19625) **deployed**: provisioning, D1 migrations, the deploy and the
+  `/api/health` smoke test all passed, with no attachments (R2) and paid plans dark.
+- Run 45950799211 (on `6e69be0e`) stopped in Checks: `test/unit/sov-import.test.tsx` timed out
+  waiting for the import to post. Cause: `useMutation` takes new options in an effect, so a click
+  landing between the render that shows the preview and that effect ran the earlier render's
+  `mutationFn`, which saw no result. The SOV import and the P6 schedule import now pass what they
+  post to `mutate()` instead of reading component state inside `mutationFn`. Write new
+  `mutationFn`s the same way when the button appears in the render that an async read (a file, OCR)
+  sets.
+
+## Live
 
 The second run, after PR #19625, deployed `https://payapps.duncan-andrew-haywood.workers.dev`
-(version `e9f3df29-1349-4b1e-8656-4d67ffc12631`, R2 off, `email: true`). Run 45950799211 (on
-`6e69be0`) then failed in its Checks step and deployed nothing; on current main the same checks
-pass locally. The guides and the construction page link to the app from PR "payapps: open the
+(version `e9f3df29-1349-4b1e-8656-4d67ffc12631`, R2 off, `email: true`). The guides and the construction page link to the app from PR "payapps: open the
 funnel" ([docs/reports/2026-11-27-payapps-open-the-funnel.md](../../docs/reports/2026-11-27-payapps-open-the-funnel.md)).

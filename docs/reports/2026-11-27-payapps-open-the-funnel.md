@@ -15,8 +15,8 @@ date: 2026-11-27
   yet", and the app's own banner said "PayApps is in development. It is not yet offered for sale."
 - The deployed build is from `5f432ae`, before PR #19631, so `/?signup` still opens on "Sign in"
   (with "New here? Create an account" one click away). A redeploy from main fixes it.
-- Run 45950799211 (on `6e69be0`) failed in Checks. The same checks (biome, typecheck, 1,309 unit
-  and 546 worker tests) pass on current main plus this change, run here.
+- Run 45950799211 (on `6e69be0`) failed in Checks (a stale-state race in the SOV import test,
+  fixed by PR #19639). biome, typecheck, unit and worker tests pass on main plus this change, run here.
 
 ## What landed
 

@@ -1004,6 +1004,28 @@ would replace the workers.dev address: when it is set, workers.dev turns off, so
   `services/payapps/notice-files.ts`; worker test `test/worker/ca-notice-files.test.ts`. Not done:
   listing the attached receipts on the § 8118 proof PDF, and the § 2015.5 perjury sentence.
 
+- Notice to Owner: Florida (2026-11-27, Crew and up, with lien waivers; florida-notice-to-owner).
+  The job page's "Preliminary notice of right to lien" panel prints Fla. Stat. § 713.06(2)(c)'s
+  Notice to Owner, the notice a sub, sub-sub or supplier not in privity with the owner must serve
+  before it can perfect a lien ("the failure to serve the notice, or to timely serve it, is a complete
+  defense"). The statute's whole form, word for word: the three capital warnings (bold), "To", the
+  services, the property, "under an order given by", the "IMPORTANT INFORMATION FOR YOUR PROTECTION"
+  text, the lienor's signature, name and address, and "Copies to". Prefilled from the job: the owner,
+  the site, the GC as who gave the order and as the first copy (§ 713.06(2)(a) requires the copy from
+  a sub-sub or a supplier to a sub), and the company name. Enter the first day of work and the panel
+  shows the last day to serve it (45 calendar days, § 713.06(2)(a)) and the last day to mail it so
+  service counts on mailing (40 days, by registered, Global Express Guaranteed or certified mail with
+  a mail log or USPS tracking, § 713.18(2)); not moved for weekends or holidays, and not saved. The
+  notes quote §§ 713.06(2) and 713.18 (how to serve; who gets copies; the building permit when there
+  is no notice of commencement). Text from the Florida Senate's 2026 Florida Statutes, read
+  2026-11-27 (snapshot `packages/lien-waivers/sources/fl-713-06.txt`); `test/fl-notice.test.ts`
+  compares the whole printed form and every quoted phrase with it (four one-phrase edits each fail
+  it). `packages/lien-waivers/src/fl-notice.ts`, worker case in `test/worker/notices.test.ts`. Why:
+  Florida has the second most specialty-trade establishments (44,445, bets.md), and a late Notice to
+  Owner loses the lien outright. Not done: a record of each notice served (as California's log), the
+  45-day reminder in the cash page and the weekly email, the combined notice to contractor on bonded
+  and public jobs (§ 255.05, § 713.23), and the notice of nonpayment and claim of lien (§ 713.08).
+
 - GC portal exports, part 1: Procore's subcontractor SOV template (2026-11-25). On the job page, under
   the schedule of values, "Procore subcontractor SOV": choose the CSV template the GC's Procore
   commitment gives (Subcontractor Schedule of Values tab, Edit SSOV, Import CSV, Download CSV
@@ -1106,6 +1128,25 @@ would replace the workers.dev address: when it is set, workers.dev turns off, so
   into its "$ This Period" column; the guide describes no billing upload, so none is built. The unit
   price SOV (five columns) is not built. Not checked against a live GCPay project or the GC's own
   template: if GCPay refuses the file, the panel says to paste the rows into the template GCPay offers.
+- GC portal exports, part 4: Trimble Pay's (Flashtract's) SOV bulk upload (2026-11-27, every plan). An
+  invited sub builds the SOV under the GC's contract by hand or with Bulk upload, which takes the
+  Flashtract template downloaded from the Upload Spreadsheet window: "Fill out columns A, B, and C
+  completely", rows 1 and 2 unchanged, no blank rows, no section header rows, no current period values;
+  lines must sum to the current contract value and every line needs a description; with accounting lines
+  each group sums to its value (Trimble help, "SOV - Upload a Template" and "Set up a Schedule of
+  Values", invited subcontractors, read 2026-11-27). The page does not name the three columns, so on the
+  job page "Trimble Pay SOV" takes the template itself (.xlsx, or .csv saved from it), keeps rows 1 and 2
+  cell for cell, reads which of A to C is item number, description and value from the header (row 2
+  decides, row 1 where row 2 is blank; a reading two columns share is dropped; the last role is
+  inferred when two are known), lets the person change each, and writes the lines from row 3 in the
+  same format. Checks: total against the current contract (original sum plus approved change orders,
+  change order lines included) or the original only, lines with no description or item number,
+  repeated numbers, and example rows the download replaces. Pure code
+  `src/shared/gc-export/trimble-pay-sov.ts` (tests beside it), UI
+  `src/client/components/trimble-pay-sov.tsx` (`test/unit/trimble-pay-sov.test.tsx`). Not checked
+  against a live Trimble Pay contract or a real Flashtract template; no billing upload is built (the
+  help describes none for subs). Not built: uploading into accounting-line groups one at a time (one
+  file per group) if a customer's GC uses them.
 - Lien waivers: Massachusetts (2026-11-26, Crew and up). Mass. Gen. Laws c. 254, § 32, read on the
   General Court's site (snapshot `packages/lien-waivers/sources/ma-254-32.txt`), voids agreements that
   bar filing a notice of contract or enforcing a lien, except four; the fourth is its "Partial Waiver
@@ -1727,6 +1768,19 @@ would replace the workers.dev address: when it is set, workers.dev turns off, so
   retainage waits on getting all of them to the GC in one delivery it can check off; Procore and
   Buildertrend keep close-out documents with files, and part 1 tracked only their dates
   (portfolio bets.md, #1).
+- **Close-out, part 3: retainage waiting on close-out** (2026-11-27, every plan,
+  closeout-part-3-cash-report): on the cash report, a finished job with retainage held now reads its
+  close-out checklist with its punch list (the job page's `closeoutReadiness`). While punch items or
+  documents are open, its next step says "waiting on close-out" and names them (2 punch list items
+  not accepted, 1 document still to send); once nothing is, it says the checklist is in and points
+  to the release request drafted there. A new total, `retainageWaitingOnCloseoutCents`, splits the
+  "Retainage on finished jobs" tile and the weekly email's retainage line into what can be asked for
+  now and what waits on close-out; the CSV gets a "Retainage waiting on close-out" column. A job
+  with neither list started keeps the plain "bill the retainage" step, so a company that does not
+  keep the checklist is not told its money waits on one. Two queries per company
+  (`closeoutReadinessByJob` in `services/payapps/cash.ts`); nothing stored. Why: retainage on
+  finished work is a sub's last and slowest money, and the cash report said "bill it now" on jobs
+  the job page knew were not ready (portfolio bets.md, #1).
 - Daily reports, part 1 (2026-11-26, every plan, daily-reports-part-1): one field log per job and day
   (`/orgs/:orgId/projects/:projectId/daily-reports`, linked from the job page): weather and high/low °F
   as typed (no weather service), hours lost to weather or a delay, crew lines (company, trade, workers,
@@ -2090,6 +2144,19 @@ would replace the workers.dev address: when it is set, workers.dev turns off, so
   delete keeps the report, filters, PDF text, attach, viewer read-only, another company's activity
   refused, cross-tenant 404s).
 
+- Crew timesheets, part 1 (2026-11-27, hours on every plan, posting with job costing,
+  job-cost-timesheets-part-1): the company's crew list (name, trade, hourly rate; inactive rather than
+  deleted once a worker has hours), each worker's hours by day on a job and schedule-of-values line
+  for a workweek starting on the day the company picks (fixed once hours exist), overtime past 40
+  hours at 1.5 times the rate falling on the hours after the 40th (federal FLSA only; the page says
+  state rules are not applied), wages split to the cent across rows, and "Post to job costs": one
+  labor cost per job and line, wages plus a typed burden percent, posted once per week by reference
+  through `addEntries`. Payroll CSV and a time detail CSV that the certified payroll import reads
+  back. Tables `crew_members`, `time_entries`, `timesheet_settings` (migration 0081),
+  docs/TIMESHEETS.md, privacy policy 2026-11-27.4, marketing site features page and llms.txt. Why:
+  payroll reports and QuickBooks bring labor in weeks after it is worked, and time tracking is a
+  standard module of the suites the bet compares against (JobTread, Contractor Foreman, Knowify).
+
 ## Must do before a public launch
 
 - Deploy sets `EMAIL_FROM` and checks `GET /api/health` answers `"email": true` (docs/EMAIL.md)
@@ -2110,6 +2177,10 @@ would replace the workers.dev address: when it is set, workers.dev turns off, so
 
 ## Next (suite, by promise)
 
+- Crew timesheets, part 2: the week's hours filling the certified payroll page directly (today
+  through the time detail CSV), a foreman entering hours from a phone for the crew on one job, an
+  approval step before posting, and state daily overtime (California first) as an opt-in rule, if
+  contractors ask
 - Job schedule, part 2 (part 1, activities, the sequence check, the shift and the lookahead PDF,
   done 2026-11-27; the crew lookahead across every job and the company's holidays left out of
   workdays, done 2026-11-27; the daily reports' missing days skipping the company's holidays, done
@@ -2175,13 +2246,17 @@ would replace the workers.dev address: when it is set, workers.dev turns off, so
   XML, schema 2.0, done 2026-11-26: part 3a), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
+- Notice to Owner, Florida, part 2 (part 1, the § 713.06(2)(c) form and the 45/40-day dates, done
+  2026-11-27): the notices served recorded per person (owner, contractor, the notice of
+  commencement's designee) with how and when, the first-day date saved with the job, and the 45-day
+  reminder on the cash page and in the weekly email, as California's log does; then the notice of
+  nonpayment (§ 713.08) if contractors use it
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask
-- Close-out, part 3: (part 2 is done 2026-11-26: files per document and the binder PDF) close-out
-  events beyond files in the job history (sent, accepted, not required), documents overdue across
-  jobs in the weekly email, and a "retainage waiting on close-out" line on the cash report, if
-  contractors use the checklist.
+- Close-out, part 4: (part 3, retainage waiting on close-out on the cash report and in the weekly
+  email, done 2026-11-27) close-out events beyond files in the job history (sent, accepted, not
+  required) and documents overdue across jobs in the weekly email, if contractors use the checklist.
 - Punch list, part 2: photos per item (before and after, the attachments rules the RFIs use),
   punch events in the job history, items overdue across jobs in the weekly email, and a line on the
   retainage-release pay application naming the punch list's state, if people ask; a GC's punch list
