@@ -47,6 +47,10 @@
     {
       "file": "platform/pages/hub-lede.test.mjs",
       "issue": "usableSentence() in business.mjs feeds the hub lede, whose 45-word budget is only checked in the 5-minute site-builder suite; adding two open apps broke it. business.test.mjs could check the rendered lede's length so the fast test catches it."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "PR #19785 (jobshop-signups-open) built a machine-shop-guides/cta.mjs in parallel with this run's; slug_dupe.py was run on 'jobshop-quote' and 'cmmc', not on the guides venture both edited, so neither run saw the other. Running slug_dupe.py on every venture slug the diff touches (not only the bet's) before opening the PR would have caught it."
     }
   ],
   "deviations": [
@@ -61,6 +65,12 @@
       "why": "The manufacturing industry page and live_funnel_check.mjs are being changed by open PR #19778 (Job Shop Quote); editing them here would conflict.",
       "did": "Waited; #19778 merged mid-run (with main's description fix, PR #19786), so main was merged in and the manufacturing page's CMMC card (open, free Level 1, Start free in CMMC Workspace), its lede and description, the live funnel check entry and #19778's post line were updated in this PR.",
       "result": "done in PR #19783"
+    },
+    {
+      "file": "(merge with PR #19785)",
+      "why": "Main gained an independent cta.mjs for the same 21 pages while this PR was open.",
+      "did": "Took main's cta.mjs, pages, tests and business.mjs, then layered CMMC on them (CMMC_APP_URL set, free Level 1 wording, ?signup link, manufacturing-page link kept, CMMC line on /products/) instead of keeping this PR's duplicate generator.",
+      "result": "one generator; cta.test.mjs + page.test.mjs 69/69"
     }
   ],
   "writeups": [
@@ -68,7 +78,7 @@
     "docs/posts/2026-11-24-one-page-for-machine-shops.md (its 27 Nov update: CMMC Workspace opened later the same day)"
   ],
   "goal": null,
-  "notes": "Security queue empty (exit 3). IDEAS empty. Routed ventures/1. payapps: 23 Next items all waiting on demand; jobshop-quote launch and einvoice deploy port held by open PRs #19779/#19778/#19773. cmmc: deploy workflow ported (PR #19756), files without R2 (PR #19771) and launch review (PR #19734) merged, 0 runs. Dispatched cmmc-deploy on main: run 46022366507 success, all steps green; /api/health {ok:true, app:cmmc-workspace, billing:false, email:true, files:d1} on cmmc.marisstella.app. Playwright (with request retries for the proxy): auth screen renders, Sign in / Create an account, no page errors. Code: apps/cmmc auth-mode.ts (+test, vitest 3/3); machine-shop-guides cta.mjs rewrote the card on 21 pages (node --test cta.test.mjs page.test.mjs: 69/69); platform/pages business/front-doors (node --test on the 9 related test files: 71/71). After merge: dispatch cmmc-deploy again (skip_checks) so /?signup opens Create an account; then a follow-up for the manufacturing page CMMC card and live_funnel_check once #19778 merges. Main merged after #19778/#19786; manufacturing page, funnel check and post updated; node --test on industry-manufacturing, industry-base-type, front-doors, business, hub-lede 48/48, live_funnel_check 12/12; priv-portfolio-pages locally 10/10 run steps (before the main merge).",
+  "notes": "Security queue empty (exit 3). IDEAS empty. Routed ventures/1. payapps: 23 Next items all waiting on demand; jobshop-quote launch and einvoice deploy port held by open PRs #19779/#19778/#19773. cmmc: deploy workflow ported (PR #19756), files without R2 (PR #19771) and launch review (PR #19734) merged, 0 runs. Dispatched cmmc-deploy on main: run 46022366507 success, all steps green; /api/health {ok:true, app:cmmc-workspace, billing:false, email:true, files:d1} on cmmc.marisstella.app. Playwright (with request retries for the proxy): auth screen renders, Sign in / Create an account, no page errors. Code: apps/cmmc auth-mode.ts (+test, vitest 3/3); machine-shop-guides cta.mjs rewrote the card on 21 pages (node --test cta.test.mjs page.test.mjs: 69/69); platform/pages business/front-doors (node --test on the 9 related test files: 71/71). After merge: dispatch cmmc-deploy again (skip_checks) so /?signup opens Create an account; then a follow-up for the manufacturing page CMMC card and live_funnel_check once #19778 merges. Main merged after #19778/#19786; manufacturing page, funnel check and post updated; node --test on industry-manufacturing, industry-base-type, front-doors, business, hub-lede 48/48, live_funnel_check 12/12; priv-portfolio-pages locally 10/10 run steps (before the main merge). Second main merge: PR #19785 had landed its own machine-shop-guides cta.mjs; resolved by extending it for CMMC (see deviations).",
   "corrections": [],
   "redteam": null,
   "usage": {
