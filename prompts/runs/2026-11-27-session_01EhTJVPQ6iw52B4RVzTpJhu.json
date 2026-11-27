@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVPQ6iw52B4RVzTpJhu",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T08:56:15Z",
+  "ended": "2026-11-27T09:00:06Z",
+  "wall_minutes": 4.04,
+  "tokens_in": 2376980,
+  "tokens_out": 15457,
+  "cost_usd": 1.3679,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19680",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "plato.stanford.edu blocked by the egress proxy (403 / ENOTFOUND), so the Legenda maior prologue wording could not be checked verbatim"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Bonaventure proposal asks to quote the Legenda maior prologue; with SEP and text hosts blocked no translation could be checked, so the note paraphrases. Proposals that require a quotation should name a reachable source (e.g. a Gutenberg text) or say paraphrase is acceptable."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "A Little Lamps story page triggers the 'personal data/forms' and 'email sending' legal checks; both are false positives for a static story page and its Markdown."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: since the 2026-11-24 consolidation direction no Little Lamps story has had its own post, and a ~1,500-word bedtime story adds nothing a per-story post would carry beyond the page itself.",
+      "did": "Shipped the story, regenerated pages/feeds/llms.txt, and added a fresh Little Lamps proposal (Romuald) so the next run has one.",
+      "result": "Tests 22/22 pass."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (581 MB of 400 MB).",
+      "did": "Text only, no audio.",
+      "result": "As intended."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon, shelf little-lamps. Piece: bonaventure-and-the-name-at-the-bedside (1,485 words, BIBLE proposal claimed with a Drafting commit first). Facts checked against the proposal's own checklist and web search snippets (SEP entry citing Legenda maior prol. 3 and Legenda minor lec. 8; Bosco ai Frati convent page for the hat tradition). The 'O buona ventura' naming legend left out; hat on the tree told as 'an old story'. node --test in ventures/hearth-and-horizon: 22 pass, 0 fail.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "707cfb5f-0dae-5342-8807-920e561f4dae",
+    "transcripts": 1,
+    "first": "2026-11-27T08:56:15Z",
+    "last": "2026-11-27T09:00:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 55,
+        "output": 15457,
+        "thinking": 4150,
+        "cache_read": 2302156,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74769,
+        "api_equivalent_usd": 1.3679,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 55,
+      "output": 15457,
+      "thinking": 4150,
+      "cache_read": 2302156,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74769,
+      "api_equivalent_usd": 1.3679,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 23,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebFetch": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.04,
+      "active_minutes": 4.04,
+      "model_minutes": 3.07,
+      "tool_minutes": 0.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "children's author drafting a 1,500-word saint story with a sourced grown-ups note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 219.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
