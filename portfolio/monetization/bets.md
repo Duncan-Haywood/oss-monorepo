@@ -24,7 +24,7 @@ without a sales team, Margin, Time = time to first dollar.
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | **Pay-app billing → contractor suite** | specialty subcontractors, small GCs | 4 | 5 | 4 | 5 | 4 | 22 | new `private-monorepo/apps/payapps` |
 | 2 | **AI RFQ-to-quote for job shops** | CNC and fabrication shops | 5 | 3 | 3 | 4 | 4 | 19 | new `private-monorepo/apps/jobshop-quote` |
-| 3 | **E-invoice fix-and-explain** | DE/FR SMEs, their accountants, small invoicing vendors | 3 | 5 | 4 | 5 | 4 | 21 | `einvoice-preflight` imported to private |
+| 3 | **E-invoice fix-and-explain** | DE/FR SMEs, their accountants, small invoicing vendors | 3 | 5 | 4 | 5 | 4 | 21 | `apps/einvoice-preflight` (moved here 2026-11-27) |
 | 4 | **CMMC L1/L2 + ISO 9001 workspace** | small defense/aerospace shops | 4 | 5 | 3 | 4 | 3 | 19 | new `private-monorepo/apps/cmmc` |
 | 5 | **Reseller profit and Schedule C books** | multi-platform resellers | 4 | 4 | 5 | 4 | 4 | 21 | new `private-monorepo/apps/seller-books` |
 | 6 | **Residential takeoff (roof, siding, framing lists from PDFs)** | remodelers, roofers, framers | 4 | 4 | 3 | 3 | 4 | 18 | `private-monorepo/apps/wall-framing-takeoff` |

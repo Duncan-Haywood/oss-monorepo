@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Current PINT Japan release (JP 1.1.3): BT-24 urn:peppol:pint:billing-1@jp-1, so the JP
+  rules run instead of the EU base. A made-up invoice with made-up parties; the corporate
+  numbers (scheme 0188) and the T registration number are invented, not anyone's.
+  Line 1   4 x 12,000 = 48,000 JPY   S 10% consumption tax
+  Line 2   10 x 180   =  1,800 JPY   E (exempt), 0%
+  Tax 10%               4,800
+  Total                54,600
+-->
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:CustomizationID>urn:peppol:pint:billing-1@jp-1</cbc:CustomizationID>
+  <cbc:ProfileID>urn:peppol:bis:billing</cbc:ProfileID>
+  <cbc:ID>INV-JP-0001</cbc:ID>
+  <cbc:IssueDate>2026-09-30</cbc:IssueDate>
+  <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
+  <cbc:DocumentCurrencyCode>JPY</cbc:DocumentCurrencyCode>
+  <cac:InvoicePeriod>
+    <cbc:StartDate>2026-09-01</cbc:StartDate>
+    <cbc:EndDate>2026-09-30</cbc:EndDate>
+  </cac:InvoicePeriod>
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cbc:EndpointID schemeID="0188">9000000000001</cbc:EndpointID>
+      <cac:PostalAddress>
+        <cac:Country><cbc:IdentificationCode>JP</cbc:IdentificationCode></cac:Country>
+      </cac:PostalAddress>
+      <cac:PartyTaxScheme>
+        <cbc:CompanyID>T9000000000001</cbc:CompanyID>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:PartyTaxScheme>
+      <cac:PartyLegalEntity><cbc:RegistrationName>Sample Office Supply KK</cbc:RegistrationName></cac:PartyLegalEntity>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cbc:EndpointID schemeID="0188">9000000000002</cbc:EndpointID>
+      <cac:PostalAddress>
+        <cac:Country><cbc:IdentificationCode>JP</cbc:IdentificationCode></cac:Country>
+      </cac:PostalAddress>
+      <cac:PartyLegalEntity><cbc:RegistrationName>Example Trading GK</cbc:RegistrationName></cac:PartyLegalEntity>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="JPY">4800</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="JPY">48000</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="JPY">4800</cbc:TaxAmount>
+      <cac:TaxCategory>
+        <cbc:ID>S</cbc:ID>
+        <cbc:Percent>10</cbc:Percent>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="JPY">1800</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="JPY">0</cbc:TaxAmount>
+      <cac:TaxCategory>
+        <cbc:ID>E</cbc:ID>
+        <cbc:Percent>0</cbc:Percent>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="JPY">49800</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="JPY">49800</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="JPY">54600</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="JPY">54600</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+  <cac:InvoiceLine>
+    <cbc:ID>1</cbc:ID>
+    <cbc:InvoicedQuantity unitCode="H87">4</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="JPY">48000</cbc:LineExtensionAmount>
+    <cac:Item>
+      <cbc:Name>Desk lamp</cbc:Name>
+      <cac:ClassifiedTaxCategory>
+        <cbc:ID>S</cbc:ID>
+        <cbc:Percent>10</cbc:Percent>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:ClassifiedTaxCategory>
+    </cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="JPY">12000</cbc:PriceAmount></cac:Price>
+  </cac:InvoiceLine>
+  <cac:InvoiceLine>
+    <cbc:ID>2</cbc:ID>
+    <cbc:InvoicedQuantity unitCode="H87">10</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="JPY">1800</cbc:LineExtensionAmount>
+    <cac:Item>
+      <cbc:Name>Postage stamp</cbc:Name>
+      <cac:ClassifiedTaxCategory>
+        <cbc:ID>E</cbc:ID>
+        <cbc:Percent>0</cbc:Percent>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:ClassifiedTaxCategory>
+    </cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="JPY">180</cbc:PriceAmount></cac:Price>
+  </cac:InvoiceLine>
+</Invoice>

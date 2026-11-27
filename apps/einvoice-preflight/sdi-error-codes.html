@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
+<title>SdI error codes: every FatturaPA rejection code (00001-00477)</title>
+<meta name="description" content="All 64 error codes in an Italian SdI rejection receipt (ricevuta di scarto), from the Agenzia delle Entrate's specification 1.9, in English: what each means, how to fix it, and whether a file-only check can catch it first.">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/sdi-error-codes.html">
+<meta property="og:title" content="SdI error codes explained: every FatturaPA rejection code">
+<meta property="og:description" content="What each SdI rejection code means, how to fix it, and which ones a free offline checker catches before you send.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is an SdI ricevuta di scarto?","acceptedAnswer":{"@type":"Answer","text":"It is the rejection receipt Italy's Sistema di Interscambio sends back when a FatturaPA file fails one of its checks. Its file name ends in _NS_ and a number, and its ListaErrori gives one five-digit code per fault. Under the Agenzia delle Entrate's technical specification 1.9 (section 1.6) a rejected invoice counts as not issued."}},{"@type":"Question","name":"Which SdI errors can I catch before sending?","acceptedAnswer":{"@type":"Answer","text":"The format errors (00200) and most content errors (00400 to 00476) can be seen in the file itself, and this checker raises them offline. Errors that depend on the tax register (00300 to 00326), SdI's archive (00404) or the signature (00100 to 00107) cannot be seen in a file; for tax ids the checker catches only numbers that fail their check digit."}},{"@type":"Question","name":"Can I check an SdI receipt with this tool?","acceptedAnswer":{"@type":"Answer","text":"Yes. Drop the receipt (NS, RC, MC, NE, DT or AT) into the checker, together with the invoice if you have it. Each error code is explained in English, the receipt is paired with the invoice by file name or SHA-256 hash, and each code is marked as reproduced or not by the checker on that file. Nothing is uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:1000px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:28ch}.lede{font-size:1.05rem;max-width:66ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:.6rem 0;font-size:.9rem}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}tr:target{background:#fff6d6}.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice Preflight · Italy</p>
+<h1>SdI error codes explained</h1>
+<p class="lede">The 64 codes Italy's Sistema di Interscambio can put in a rejection receipt (<em>ricevuta di scarto</em>, a file ending in <code>_NS_001.xml</code>), read from the Agenzia delle Entrate's technical specification 1.9 (Allegato A, Appendix 1) and put in plain English. For each: what SdI refused, how to fix it, and whether a file-only check can catch it before you send. Have a receipt? Drop it into the <a href="./">checker</a> with the invoice and it explains every code and says whether the checker reproduces it on that file.</p>
+</header>
+<section>
+<h2>File name, size and signature (00001-00107)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Code</th><th>What SdI refused</th><th>How to fix it</th><th>Caught offline?</th></tr></thead>
+<tbody>
+<tr id="e00001"><td><strong>00001</strong></td><td>The file name is not valid.</td><td>Name the file country code + sender's tax id + _ + a 5-character progressive, e.g. IT01234567890_00001.xml (specification 1.9, section 1.2.2).</td><td>No</td></tr>
+<tr id="e00002"><td><strong>00002</strong></td><td>A file with this name was already sent.</td><td>Every file sent to SdI needs a name it has never seen: change the progressive part of the name and send it again.</td><td>No</td></tr>
+<tr id="e00003"><td><strong>00003</strong></td><td>The file is larger than the channel allows.</td><td>Split the batch or reduce attachments (Allegati) and send again.</td><td>No</td></tr>
+<tr id="e00100"><td><strong>00100</strong></td><td>The signing certificate has expired.</td><td>Sign again with a valid qualified certificate.</td><td>No</td></tr>
+<tr id="e00101"><td><strong>00101</strong></td><td>The signing certificate is revoked.</td><td>Sign again with a valid qualified certificate.</td><td>No</td></tr>
+<tr id="e00102"><td><strong>00102</strong></td><td>The file's electronic signature is not valid: the file was changed after it was signed, or the signature is broken.</td><td>Sign the final file again and send it without touching it afterwards (no re-saving, re-encoding or line-end changes).</td><td>No</td></tr>
+<tr id="e00103"><td><strong>00103</strong></td><td>The qualified signature has no time reference.</td><td>Sign with a time reference.</td><td>No</td></tr>
+<tr id="e00104"><td><strong>00104</strong></td><td>The certificate's issuing CA is not on the list of trusted CAs.</td><td>Sign with a certificate from a trusted (AgID-listed) CA.</td><td>No</td></tr>
+<tr id="e00105"><td><strong>00105</strong></td><td>The signature's time reference is later than the time SdI received the file.</td><td>Check the signing device's clock and sign again.</td><td>No</td></tr>
+<tr id="e00106"><td><strong>00106</strong></td><td>The compressed file is empty or cannot be read.</td><td>Rebuild the ZIP and check it opens before sending.</td><td>No</td></tr>
+<tr id="e00107"><td><strong>00107</strong></td><td>The signing certificate is not valid.</td><td>Sign again with a valid qualified certificate.</td><td>No</td></tr>
+</tbody></table></div>
+</section>
+<section>
+<h2>Format: the XSD schema (00200-00201)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Code</th><th>What SdI refused</th><th>How to fix it</th><th>Caught offline?</th></tr></thead>
+<tbody>
+<tr id="e00200"><td><strong>00200</strong></td><td>The file does not conform to the format (SdI's description names the exact point).</td><td>Correct the element SdI names; this tool's schema rules IT-018 to IT-022 check the same XSD 1.2.3.</td><td>Yes (IT-018, IT-019, IT-020, IT-021, IT-022)</td></tr>
+<tr id="e00201"><td><strong>00201</strong></td><td>More than 50 format errors: SdI stopped checking and lists only the first ones.</td><td>Fix the listed errors, then check the whole file again; more will follow.</td><td>Yes (IT-018, IT-019, IT-020, IT-021, IT-022)</td></tr>
+</tbody></table></div>
+</section>
+<section>
+<h2>Tax ids, destination code and the register (00300-00330)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Code</th><th>What SdI refused</th><th>How to fix it</th><th>Caught offline?</th></tr></thead>
+<tbody>
+<tr id="e00300"><td><strong>00300</strong></td><td>The transmitter's tax id (1.1.1.2 IdTrasmittente/IdCodice) is not valid.</td><td>Use the transmitter's partita IVA or codice fiscale exactly as registered.</td><td>In part (IT-034)</td></tr>
+<tr id="e00301"><td><strong>00301</strong></td><td>The seller's VAT number (1.2.1.1.2 IdCodice) is not valid.</td><td>Use the seller's partita IVA exactly as registered.</td><td>In part (IT-003, INV-023)</td></tr>
+<tr id="e00303"><td><strong>00303</strong></td><td>The tax representative's or third-party issuer's VAT number (1.3.1.1.2 or 1.4.4.1.2 IdCodice) is not valid.</td><td>Use that party's partita IVA exactly as registered.</td><td>No</td></tr>
+<tr id="e00305"><td><strong>00305</strong></td><td>The buyer's VAT number (1.4.1.1.2 IdCodice) is not valid.</td><td>Use the buyer's partita IVA exactly as registered; ask the buyer for it if in doubt.</td><td>In part (IT-003, INV-023)</td></tr>
+<tr id="e00306"><td><strong>00306</strong></td><td>The buyer's codice fiscale (1.4.1.2) is not valid (checked only when the buyer has no VAT number).</td><td>Use the buyer's codice fiscale from their tessera sanitaria or company record.</td><td>In part (IT-004)</td></tr>
+<tr id="e00311"><td><strong>00311</strong></td><td>The CodiceDestinatario (1.1.4) is not valid.</td><td>Re-key the buyer's 7-character code (6 for a public body), or use 0000000.</td><td>In part (IT-002)</td></tr>
+<tr id="e00312"><td><strong>00312</strong></td><td>The CodiceDestinatario (1.1.4) is not active.</td><td>Ask the buyer for their current code, or use 0000000 and let SdI place the invoice in their reserved area.</td><td>No</td></tr>
+<tr id="e00313"><td><strong>00313</strong></td><td>CodiceDestinatario XXXXXXX is only for buyers not resident in Italy (the buyer's IdFiscaleIVA must be present with an IdPaese other than IT).</td><td>Use the buyer's real code, or 0000000, for an Italian buyer.</td><td>Yes (IT-002)</td></tr>
+<tr id="e00320"><td><strong>00320</strong></td><td>The seller's VAT number and codice fiscale do not match each other.</td><td>Check both against the seller's registration.</td><td>No</td></tr>
+<tr id="e00321"><td><strong>00321</strong></td><td>The seller's codice fiscale belongs to someone not in the VAT group.</td><td>Use the codice fiscale of the group member issuing the invoice.</td><td>No</td></tr>
+<tr id="e00322"><td><strong>00322</strong></td><td>The seller's codice fiscale is missing with a VAT-group IdFiscaleIVA.</td><td>Add the issuing member's codice fiscale (1.2.1.2).</td><td>No</td></tr>
+<tr id="e00323"><td><strong>00323</strong></td><td>The seller's VAT number was closed more than 5 years ago.</td><td>Use the seller's current partita IVA.</td><td>No</td></tr>
+<tr id="e00324"><td><strong>00324</strong></td><td>The buyer's VAT number and codice fiscale do not match each other.</td><td>Check both with the buyer.</td><td>No</td></tr>
+<tr id="e00325"><td><strong>00325</strong></td><td>The buyer's codice fiscale belongs to someone not in the VAT group.</td><td>Use the codice fiscale of the group member being invoiced.</td><td>No</td></tr>
+<tr id="e00326"><td><strong>00326</strong></td><td>The buyer's codice fiscale is missing with a VAT-group IdFiscaleIVA.</td><td>Add the member's codice fiscale (1.4.1.2).</td><td>No</td></tr>
+<tr id="e00330"><td><strong>00330</strong></td><td>PECDestinatario holds a value that is not allowed (SdI's own address).</td><td>Put the buyer's own PEC address, or leave it out.</td><td>Yes (IT-002)</td></tr>
+</tbody></table></div>
+</section>
+<section>
+<h2>Content and arithmetic (00400-00477)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Code</th><th>What SdI refused</th><th>How to fix it</th><th>Caught offline?</th></tr></thead>
+<tbody>
+<tr id="e00400"><td><strong>00400</strong></td><td>A line at 0% VAT has no Natura (2.2.1.14).</td><td>Add the Natura code that explains why the line is not taxed.</td><td>Yes (IT-011)</td></tr>
+<tr id="e00401"><td><strong>00401</strong></td><td>A line with a VAT rate above zero has a Natura (allowed only for TD16).</td><td>Remove Natura from taxed lines.</td><td>Yes (IT-011)</td></tr>
+<tr id="e00403"><td><strong>00403</strong></td><td>The invoice date (2.1.1.3) is after the day SdI received the file.</td><td>Date the invoice no later than the day it is sent.</td><td>Yes (IT-009)</td></tr>
+<tr id="e00404"><td><strong>00404</strong></td><td>Duplicate invoice: SdI already has one from this seller with the same year and number.</td><td>If the earlier one was accepted, do not resend it; a new invoice needs a new number.</td><td>No</td></tr>
+<tr id="e00409"><td><strong>00409</strong></td><td>Duplicate invoice within the batch.</td><td>Give each invoice in the batch its own number.</td><td>No</td></tr>
+<tr id="e00411"><td><strong>00411</strong></td><td>A line has Ritenuta SI but there is no DatiRitenuta block.</td><td>Add DatiRitenuta (2.1.1.5) or remove Ritenuta from the line.</td><td>Yes (IT-027)</td></tr>
+<tr id="e00413"><td><strong>00413</strong></td><td>A pension-fund contribution at 0% has no Natura.</td><td>Add Natura to DatiCassaPrevidenziale.</td><td>Yes (IT-011)</td></tr>
+<tr id="e00414"><td><strong>00414</strong></td><td>A taxed pension-fund contribution has a Natura.</td><td>Remove Natura from the taxed contribution.</td><td>Yes (IT-011)</td></tr>
+<tr id="e00415"><td><strong>00415</strong></td><td>A pension-fund contribution has Ritenuta SI but there is no DatiRitenuta block.</td><td>Add DatiRitenuta (2.1.1.5).</td><td>Yes (IT-027)</td></tr>
+<tr id="e00417"><td><strong>00417</strong></td><td>The buyer has neither IdFiscaleIVA nor CodiceFiscale.</td><td>Add at least one of the buyer's partita IVA or codice fiscale.</td><td>Yes (IT-005)</td></tr>
+<tr id="e00418"><td><strong>00418</strong></td><td>The invoice date is before the date of the document it links to (2.1.6.3).</td><td>Check the linked document's date or the invoice date.</td><td>Yes (IT-033)</td></tr>
+<tr id="e00419"><td><strong>00419</strong></td><td>A VAT rate used on a line or contribution has no DatiRiepilogo.</td><td>Add a DatiRiepilogo for every rate used.</td><td>Yes (IT-024)</td></tr>
+<tr id="e00420"><td><strong>00420</strong></td><td>Natura N6.x (reverse charge) with EsigibilitaIVA S (split payment): the two regimes do not mix.</td><td>Use EsigibilitaIVA I or D for reverse-charge summaries.</td><td>Yes (IT-026)</td></tr>
+<tr id="e00421"><td><strong>00421</strong></td><td>Imposta (2.2.2.6) is not AliquotaIVA × ImponibileImporto / 100, rounded half up to the cent, ±1 cent.</td><td>Recompute the VAT for that summary.</td><td>Yes (IT-014)</td></tr>
+<tr id="e00422"><td><strong>00422</strong></td><td>ImponibileImporto (2.2.2.5) is not, per rate, the lines plus pension-fund contributions plus Arrotondamento, ±1 euro.</td><td>Recompute each rate's taxable base from the lines.</td><td>Yes (IT-015)</td></tr>
+<tr id="e00423"><td><strong>00423</strong></td><td>PrezzoTotale (2.2.1.11) is not (PrezzoUnitario ± discount) × Quantita, ±1 cent.</td><td>Recompute the line total.</td><td>Yes (IT-012)</td></tr>
+<tr id="e00424"><td><strong>00424</strong></td><td>A VAT rate is not written as a percentage (10% is 10.00, not 0.10).</td><td>Write rates as percentages.</td><td>In part (IT-021)</td></tr>
+<tr id="e00425"><td><strong>00425</strong></td><td>The invoice number (2.1.1.4) has no digit.</td><td>Give the invoice number at least one digit.</td><td>Yes (IT-009)</td></tr>
+<tr id="e00427"><td><strong>00427</strong></td><td>A 7-character CodiceDestinatario with FPA12, or a 6-character one with FPR12.</td><td>Public bodies have 6-character codes (FPA12); businesses 7 (FPR12).</td><td>Yes (IT-002)</td></tr>
+<tr id="e00428"><td><strong>00428</strong></td><td>FormatoTrasmissione does not match the versione attribute.</td><td>Make both FPR12 or both FPA12.</td><td>Yes (IT-001)</td></tr>
+<tr id="e00429"><td><strong>00429</strong></td><td>A DatiRiepilogo at 0% has no Natura.</td><td>Add Natura to the 0% summary.</td><td>Yes (IT-011)</td></tr>
+<tr id="e00430"><td><strong>00430</strong></td><td>A DatiRiepilogo above 0% has a Natura (allowed only for TD16).</td><td>Remove Natura from taxed summaries.</td><td>Yes (IT-011)</td></tr>
+<tr id="e00437"><td><strong>00437</strong></td><td>A document discount or surcharge has Tipo but neither Percentuale nor Importo.</td><td>Add Percentuale or Importo, or remove the block.</td><td>Yes (IT-028)</td></tr>
+<tr id="e00438"><td><strong>00438</strong></td><td>A line discount or surcharge has Tipo but neither Percentuale nor Importo.</td><td>Add Percentuale or Importo, or remove the block.</td><td>Yes (IT-028)</td></tr>
+<tr id="e00443"><td><strong>00443</strong></td><td>A VAT rate on a line or contribution is not among the DatiRiepilogo rates.</td><td>Add a summary for that rate.</td><td>Yes (IT-024)</td></tr>
+<tr id="e00444"><td><strong>00444</strong></td><td>A Natura on a line or contribution is not among the DatiRiepilogo Natura codes.</td><td>Add a summary for that Natura.</td><td>Yes (IT-024)</td></tr>
+<tr id="e00445"><td><strong>00445</strong></td><td>The bare Natura N2, N3 or N6 is no longer allowed (from 1 January 2021); use the detailed codes.</td><td>Use N2.1/N2.2, N3.1-N3.6 or N6.1-N6.9.</td><td>Yes (IT-011)</td></tr>
+<tr id="e00460"><td><strong>00460</strong></td><td>A simplified invoice is over the EUR 400 limit.</td><td>Issue an ordinary invoice (FPR12).</td><td>No</td></tr>
+<tr id="e00471"><td><strong>00471</strong></td><td>For this TipoDocumento the seller and the buyer must not be the same.</td><td>Check the parties, or the document type.</td><td>Yes (IT-031)</td></tr>
+<tr id="e00472"><td><strong>00472</strong></td><td>For TD21 and TD27 the seller and the buyer must be the same.</td><td>Put the issuer in both parties.</td><td>Yes (IT-031)</td></tr>
+<tr id="e00473"><td><strong>00473</strong></td><td>The seller's IdPaese is not allowed for this TipoDocumento (TD17/18/19/28 need a foreign seller; TD29 an Italian one).</td><td>Check the document type against the seller.</td><td>Yes (IT-023)</td></tr>
+<tr id="e00474"><td><strong>00474</strong></td><td>A TD21 (self-invoice for exceeding the plafond) has a line at 0%.</td><td>Every TD21 line needs a VAT rate above zero.</td><td>Yes (IT-032)</td></tr>
+<tr id="e00475"><td><strong>00475</strong></td><td>This TipoDocumento needs the buyer's IdFiscaleIVA.</td><td>Add the buyer's VAT number.</td><td>Yes (IT-029)</td></tr>
+<tr id="e00476"><td><strong>00476</strong></td><td>Seller and buyer both have a non-Italian IdPaese.</td><td>SdI takes no invoice with no Italian party.</td><td>Yes (IT-030)</td></tr>
+<tr id="e00477"><td><strong>00477</strong></td><td>A non-taxable sale under art. 8(1)(c) cites a declaration of intent that has been invalidated.</td><td>Check the declaration of intent with the buyer; tax the sale if it is no longer valid.</td><td>No</td></tr>
+</tbody></table></div>
+</section>
+<section>
+<h2>Reading a receipt</h2>
+<p>SdI answers every file it receives. A <strong>rejection</strong> (NS) means the invoice counts as not issued; fix it and send it under a new file name, because SdI refuses a name it has already seen (00002). A <strong>delivery receipt</strong> (RC) means the invoice passed SdI's checks and reached the buyer. A <strong>could-not-deliver receipt</strong> (MC) means it passed but SdI could not reach the buyer's channel and put it in the buyer's reserved area. For public bodies there are also the buyer's outcome (NE: EC01 accepted, EC02 refused, with the buyer's reason), the deadline notice (DT) and the transmission attestation (AT).</p>
+<p>A receipt's <code>Hash</code> is the SHA-256 of the file SdI received. The checker compares it with the invoice you drop beside it, so you know whether you are looking at exactly the file SdI saw.</p>
+<p class="note">Rule ids such as IT-003 are this tool's own, listed in the <a href="italy-sdi-e-invoice-mandate.html">Italy page</a> and the <a href="what-does-this-e-invoice-error-code-mean.html">rule reference</a>. Tested on 33 public SdI receipts and notices: the Agenzia's example messages and the receipts AgID's EeISI project received in 2019, including a real 00305 rejection that the checker reproduces on the rejected file.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is an SdI ricevuta di scarto?</h3>
+<p>It is the rejection receipt Italy's Sistema di Interscambio sends back when a FatturaPA file fails one of its checks. Its file name ends in _NS_ and a number, and its ListaErrori gives one five-digit code per fault. Under the Agenzia delle Entrate's technical specification 1.9 (section 1.6) a rejected invoice counts as not issued.</p>
+<h3>Which SdI errors can I catch before sending?</h3>
+<p>The format errors (00200) and most content errors (00400 to 00476) can be seen in the file itself, and this checker raises them offline. Errors that depend on the tax register (00300 to 00326), SdI's archive (00404) or the signature (00100 to 00107) cannot be seen in a file; for tax ids the checker catches only numbers that fail their check digit.</p>
+<h3>Can I check an SdI receipt with this tool?</h3>
+<p>Yes. Drop the receipt (NS, RC, MC, NE, DT or AT) into the checker, together with the invoice if you have it. Each error code is explained in English, the receipt is paired with the invoice by file name or SHA-256 hash, and each code is marked as reproduced or not by the checker on that file. Nothing is uploaded.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The explanations paraphrase the Italian text of specification 1.9; the Agenzia delle Entrate's own documents (agenziaentrate.gov.it) are the authority, and SdI alone decides whether a file is accepted.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main></body></html>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made-up cancellation (110001) of the immobilisation event in
+     fixtures/nfe-event-211130-proc.xml: same author, cOrgaoAutor, key and nSeqEvento, and the
+     protocol SEFAZ gave it. Test values only. -->
+<envEvento xmlns="http://www.portalfiscal.inf.br/nfe" versao="1.00">
+  <idLote>2</idLote>
+  <evento versao="1.00">
+    <infEvento Id="ID1100013526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>98765432000198</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-25T10:00:00-03:00</dhEvento>
+      <tpEvento>110001</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Cancelamento de Evento</descEvento>
+        <cOrgaoAutor>33</cOrgaoAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <tpEventoAut>211130</tpEventoAut>
+        <nProtEvento>135270000012345</nProtEvento>
+      </detEvento>
+    </infEvento>
+  </evento>
+</envEvento>

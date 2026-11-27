@@ -1,0 +1,27 @@
+Copyright (c) 2026 Duncan Haywood. All rights reserved.
+
+Proprietary notice (all rights reserved; SPDX: LicenseRef-AllRightsReserved)
+
+This directory is published so that its source can be read. Publishing it
+grants no licence. No right to use, copy, modify, merge, publish, distribute,
+sublicense, sell, host, or offer as a service the software in this directory,
+or to make works based on it, is granted, except by a written agreement with
+the copyright holder or, for a hosted product, by that product's terms of
+service. The only exception is what GitHub's Terms of Service give users for
+public repositories (viewing and forking on GitHub).
+
+Earlier versions: any part of this directory that was published earlier
+under the MIT licence or the Functional Source License, Version 1.1, MIT
+Future License, stays available under that licence, as published, at those
+earlier commits. This notice covers the versions from its own commit on.
+
+Third-party code keeps its own licence, named in the file or directory that
+holds it.
+
+The imported baseline: this app started as a copy of this repository's
+ventures/einvoice-preflight at commit 8e9e26d5e5e80f688e819ac76947283dc41fa24b
+(2026-11-24), which was published under the MIT licence. That baseline stays
+available under MIT at that commit, and ventures/einvoice-preflight remains
+the free edition under its own licence file. Everything changed or added in
+this directory after that import is covered by the notice above.
+PROVENANCE.md lists the third-party files and their licences.
