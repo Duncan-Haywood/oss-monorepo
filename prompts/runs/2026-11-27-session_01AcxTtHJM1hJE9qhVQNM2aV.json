@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtHJM1hJE9qhVQNM2aV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T20:06:17Z",
+  "ended": "2026-11-27T20:13:43Z",
+  "wall_minutes": 7.66,
+  "tokens_in": 6809781,
+  "tokens_out": 35104,
+  "cost_usd": 3.2537,
+  "tool_calls": 54,
+  "task": "wall-framing-takeoff ROADMAP Next #2 (bet #6): material lists from plan PDFs, part 1",
+  "projects": [
+    "residential-takeoff",
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19862",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets pointed at wall-framing-takeoff #2 as free; another session claimed it under a different slug minutes earlier, and --claim only reported the clash after I had built the slice. Running --claim before building would have shown it."
+    },
+    {
+      "file": "ventures/residential-takeoff/apps/wall-framing-takeoff/index.html",
+      "issue": "the picture-upload note was overwritten by draw() straight after it was set, so the user never saw 'set its scale'; fixed in this PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no new blog post: the slice is a feature in the paid app and has only been run on an invented sheet, so a customer post would claim more than the evidence supports",
+      "did": "documented it in README, ROADMAP, llms.txt and the construction page line instead",
+      "result": "post left for part 2, once it has run on a real permit set"
+    }
+  ],
+  "writeups": [
+    "ventures/residential-takeoff/apps/wall-framing-takeoff/README.md (Plan PDF underlay)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); ideas inbox empty. Local checks: venture suite residential-takeoff 1352 tests 0 failed; planpdf.test.mjs 9 pass; eval-plan-pdf-click.mjs 10/10 in Chromium; platform/pages industry-construction + residential-takeoff-app tests 23 pass; venture-preflight run in background. Vendored the pdf-plan-takeoff reader byte for byte (FSL-1.1-MIT, same owner) with pdfsync.test.mjs as the drift guard.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "955d954a-5b9b-5fac-a6c0-a872b9fdd9b5",
+    "transcripts": 1,
+    "first": "2026-11-27T20:06:17Z",
+    "last": "2026-11-27T20:13:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 106,
+        "output": 35104,
+        "thinking": 8783,
+        "cache_read": 6657205,
+        "cache_write_5m": 0,
+        "cache_write_1h": 152470,
+        "api_equivalent_usd": 3.2537,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 106,
+      "output": 35104,
+      "thinking": 8783,
+      "cache_read": 6657205,
+      "cache_write_5m": 0,
+      "cache_write_1h": 152470,
+      "api_equivalent_usd": 3.2537,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.66,
+      "active_minutes": 7.66,
+      "model_minutes": 5.95,
+      "tool_minutes": 1.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior front-end dev wiring an existing PDF reader into a canvas editor with scale logic and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 307.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
