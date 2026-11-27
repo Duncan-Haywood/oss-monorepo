@@ -38,11 +38,11 @@
     }
   },
   "counts": {
-    "ventures": 1445,
+    "ventures": 1447,
     "by_vertical": {
       "construction": 166,
-      "manufacturing-engineering": 8,
-      "online-sellers": 105,
+      "manufacturing-engineering": 9,
+      "online-sellers": 106,
       "eu-einvoicing-accounting": 13,
       "nonprofits": 10,
       "freelancers": 156,
@@ -56,15 +56,15 @@
     },
     "front_doors_by_bet": {
       "payapps": 155,
-      "jobshop-quote": 10,
+      "jobshop-quote": 11,
       "einvoice": 13,
       "cmmc": 2,
-      "seller-books": 105,
+      "seller-books": 106,
       "residential-takeoff": 11,
       "grants": 9
     },
     "by_status": {
-      "front-door": 305,
+      "front-door": 307,
       "frozen": 1140
     }
   },
@@ -5323,6 +5323,14 @@
       "why": "a job shop's scheduling problem; its users are the quoting bet's buyers"
     },
     {
+      "venture": "jobshop-quote",
+      "vertical": "manufacturing-engineering",
+      "rule": "description",
+      "site_category": "more",
+      "front_door_for": "jobshop-quote",
+      "status": "front-door"
+    },
+    {
       "venture": "json-ld-rich-result-validator",
       "vertical": "other",
       "rule": "category:ci",
@@ -8738,6 +8746,14 @@
       "site_category": "logistics",
       "front_door_for": null,
       "status": "frozen"
+    },
+    {
+      "venture": "seller-books",
+      "vertical": "online-sellers",
+      "rule": "description",
+      "site_category": "more",
+      "front_door_for": "seller-books",
+      "status": "front-door"
     },
     {
       "venture": "seller-net-sheet",

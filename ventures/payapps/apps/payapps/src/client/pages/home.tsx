@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ErrorText } from "../components/error";
 import { meQuery } from "../components/layout";
 import { ApiError, api } from "../lib/api";
+import { initialAuthMode } from "../lib/auth-mode";
 import { ResendVerification } from "./account";
 import { LegalLinks } from "./legal";
 
@@ -73,7 +74,10 @@ function MyInvitations() {
 
 function AuthForm() {
   const qc = useQueryClient();
-  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+  // `/?signup` (the "Start free" links on the marketing site and the free guides) opens sign-up.
+  const [mode, setMode] = useState<"sign-in" | "sign-up">(() =>
+    initialAuthMode(typeof window === "undefined" ? "" : window.location.search),
+  );
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   // Set after a sign-up that needs the emailed confirmation link before the first sign-in.
   const [checkInbox, setCheckInbox] = useState<string | null>(null);

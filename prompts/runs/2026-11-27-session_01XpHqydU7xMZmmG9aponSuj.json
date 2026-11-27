@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqydU7xMZmmG9aponSuj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T05:39:04Z",
+  "ended": "2026-11-27T05:51:12Z",
+  "wall_minutes": 12.31,
+  "tokens_in": 7765587,
+  "tokens_out": 60581,
+  "cost_usd": 4.0402,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19627",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/DEPLOY.md",
+      "issue": "'Then' step 1 (port the deploy workflow) was the obvious top task for bet #1 but PR #19617 had already taken it without a claim/payapps/* branch; only listing open PRs showed it, slug_dupe payapps-deploy said no duplicate."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "The Next item suggested a WebAssembly HEIC decoder; that would bring LGPL and HEVC patent exposure into a paid, all-rights-reserved product. Reworded the item now that the browser's own decoder is used."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "why": "Used the browser's own HEVC decoder through WebCodecs instead of the suggested WebAssembly decoder (licensing and patent liability).",
+      "did": "Wrote a HEIF parser and a WebCodecs tile compositor",
+      "result": "Matches libheif's decode in Chromium at 40.9 to 48.1 dB PSNR; not yet run on real hardware"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No customer post: the product is not deployed yet and this is a fix inside the upload form, so a post would bring no traffic. The agent doc covers it.",
+      "did": "Wrote docs/reports/ventures-2026-11-27-payapps-heic-webcodecs.md only",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-27-payapps-heic-webcodecs.md"
+  ],
+  "goal": null,
+  "notes": "Bet #1 PayApps, ROADMAP Next #10 (the only free item not waiting on demand). Unit suite 140 files 1302 passed 1 skipped; tsc, biome ci, vite build ok. heic-webcodecs-check.cjs output: 5 fixtures ok, control 8.42 dB. Playwright Chromium 158 reports no HEVC support, so ffmpeg stood in for the decoder only.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0cf990ac-6c8e-534a-84ff-6c5b0fe70330",
+    "transcripts": 1,
+    "first": "2026-11-27T05:39:04Z",
+    "last": "2026-11-27T05:51:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 112,
+        "output": 60581,
+        "thinking": 16469,
+        "cache_read": 7602012,
+        "cache_write_5m": 0,
+        "cache_write_1h": 163463,
+        "api_equivalent_usd": 4.0402,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 112,
+      "output": 60581,
+      "thinking": 16469,
+      "cache_read": 7602012,
+      "cache_write_5m": 0,
+      "cache_write_1h": 163463,
+      "api_equivalent_usd": 4.0402,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 53,
+      "Write": 6,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.31,
+      "active_minutes": 12.31,
+      "model_minutes": 10.52,
+      "tool_minutes": 1.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "HEIF container parser, WebCodecs compositor, fixtures and a Chromium-vs-libheif check, for a senior web engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 247.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

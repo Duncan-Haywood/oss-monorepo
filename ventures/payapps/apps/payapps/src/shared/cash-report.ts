@@ -42,7 +42,12 @@
 // - billing cutoff: with the job's cutoff day set (the day of the month the GC must receive the
 //   application), a next step within a week of a cutoff with nothing sent this cycle, or after a
 //   missed one (src/shared/billing-cutoff.ts). Drafts are read here only for this.
+// - closeout: on a job whose work is complete with retainage held, what still stands between it and
+//   the release (punch items not accepted, close-out documents still to send), as the job's close-out
+//   checklist reads it (closeoutReadiness in src/shared/closeout.ts, computed by the Worker). Its
+//   retainage is counted again under retainageWaitingOnCloseoutCents until nothing does.
 import { billingCutoff, billingCutoffText } from "./billing-cutoff";
+import type { CloseoutReadiness } from "./closeout";
 import type { PayAppStatus, PayTermsBasis, ShortCloseReason } from "./enums";
 import {
   type GaWaiverClock,
@@ -160,6 +165,12 @@ export interface CashReportProjectInput {
   caNotice?: { dueOn: string; missing: string[] } | null;
   /** The GC's monthly billing cutoff, day of the month (src/shared/billing-cutoff.ts); null when not set. */
   billingDay?: number | null;
+  /**
+   * The job's close-out checklist read with its punch list and retainage (closeoutReadiness in
+   * src/shared/closeout.ts). Absent when the Worker did not read it; used only on a job whose work
+   * is complete with retainage held.
+   */
+  closeout?: CloseoutReadiness | null;
 }
 
 export interface OutstandingApp {
@@ -220,6 +231,12 @@ export interface CashReportProject {
   /** Days since the first application here that held retainage, while retainage is held. */
   retainageAgeDays: number | null;
   workComplete: boolean;
+  /**
+   * Work complete with retainage held: whether the close-out checklist is in (ready) and, if not,
+   * what still stands between the job and the release, in words. Null on any other job, or when the
+   * close-out checklist was not read.
+   */
+  closeout: CloseoutReadiness | null;
   /** Unconditional lien waivers owed on paid applications, oldest application first. */
   waiversToSend: WaiverToSend[];
   /**
@@ -253,6 +270,8 @@ export interface CashReport {
     retainageHeldCents: number;
     /** Retainage held on jobs whose work is complete: money that should be billed now. */
     retainageOnCompleteJobsCents: number;
+    /** Of that, retainage on jobs whose close-out checklist still has punch items or documents open. */
+    retainageWaitingOnCloseoutCents: number;
     pastDueCents: number;
     dueNext30Cents: number;
     /** Owed on jobs with no pay terms set: left out of past due and the 30-day forecast. */
@@ -494,6 +513,23 @@ export function caNoticeText(
   return `California preliminary notice was due ${n.dueOn} and none is recorded for ${who}. A notice given now still covers work from 20 days before it is given (Civ. Code § 8204(a)); if you do not owe one, clear the first-furnished date on the job.`;
 }
 
+/**
+ * The next step on a finished job with retainage held. Without the close-out checklist it is the
+ * generic one; with it, it names what still stands between the job and the release, or, once
+ * nothing does, points to the release request the checklist drafts. It never says the
+ * subcontract's conditions are met: only what the lists show.
+ */
+export function retainageActionText(heldCents: number, closeout: CloseoutReadiness | null): string {
+  const held = formatCents(heldCents);
+  if (!closeout) {
+    return "Work is complete and retainage is still held: bill the retainage (a final application releasing it) and send the final waivers your GC asks for.";
+  }
+  if (closeout.ready) {
+    return `Work is complete and the close-out checklist is in: ask for the ${held} retainage (the release request is drafted on the job's close-out checklist), bill it on a final application and send the final waivers your GC asks for.`;
+  }
+  return `Work is complete and ${held} retainage is still held, waiting on close-out: ${closeout.blockers.join(" ")} Clear these on the job's close-out checklist, then ask for the release.`;
+}
+
 export function projectCash(p: CashReportProjectInput, asOf: string): CashReportProject {
   const sent = p.apps.filter((a) => isSent(a.status)).sort((x, y) => x.number - y.number);
   const latest = sent.at(-1) ?? null;
@@ -559,10 +595,9 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
     latest !== null && contractSumToDateCents > 0 && latest.totals.balanceToFinishCents <= 0;
 
   const actions: string[] = [];
+  const closeout = workComplete && retainageHeldCents > 0 ? (p.closeout ?? null) : null;
   if (workComplete && retainageHeldCents > 0) {
-    actions.push(
-      "Work is complete and retainage is still held: bill the retainage (a final application releasing it) and send the final waivers your GC asks for.",
-    );
+    actions.push(retainageActionText(retainageHeldCents, closeout));
   }
   if (terms === null) {
     const oldest = outstanding.reduce<OutstandingApp | null>(
@@ -693,6 +728,7 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
     retainageHeldCents,
     retainageAgeDays,
     workComplete,
+    closeout,
     waiversToSend: toSend,
     gaWaiverDeadlines: gaDeadlines,
     pendingChanges: pending,
@@ -729,6 +765,9 @@ export function cashReport(projects: CashReportProjectInput[], asOf: string): Ca
       outstandingCents: sum((r) => r.outstandingCents),
       retainageHeldCents: sum((r) => r.retainageHeldCents),
       retainageOnCompleteJobsCents: sum((r) => (r.workComplete ? r.retainageHeldCents : 0)),
+      retainageWaitingOnCloseoutCents: sum((r) =>
+        r.closeout && !r.closeout.ready ? r.retainageHeldCents : 0,
+      ),
       pastDueCents: sum((r) => r.pastDueCents),
       dueNext30Cents: sum((r) => r.dueNext30Cents),
       noTermsOutstandingCents: sum((r) => (r.payTermsDays === null ? r.outstandingCents : 0)),

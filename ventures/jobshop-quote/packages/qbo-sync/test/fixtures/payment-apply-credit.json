@@ -1,0 +1,16 @@
+{
+  "Payment": {
+    "Id": "2302",
+    "SyncToken": "0",
+    "domain": "QBO",
+    "CustomerRef": { "value": "58", "name": "Mesa Ridge Builders" },
+    "TxnDate": "2026-12-20",
+    "TotalAmt": 0,
+    "UnappliedAmt": 0,
+    "Line": [
+      { "Amount": 5000.0, "LinkedTxn": [{ "TxnId": "1047", "TxnType": "Invoice" }] },
+      { "Amount": 5000.0, "LinkedTxn": [{ "TxnId": "2301", "TxnType": "CreditMemo" }] }
+    ]
+  },
+  "time": "2026-12-20T10:00:01.000-08:00"
+}

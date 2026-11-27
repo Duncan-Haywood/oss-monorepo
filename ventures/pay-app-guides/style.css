@@ -115,3 +115,20 @@ footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px;
 /* The calculator's header keeps four picks; the full list is the all-guides block at the bottom. */
 nav.guides a.all { font-weight: 700; }
 #all-guides { display: block; scroll-margin-top: 12px; }
+/* Statutory waiver forms (state-forms.mjs): the form as a printed page, each blank a rule with its caption under it. */
+.statutory-form { background: #fff; color: #000; border: 1px solid var(--line); border-radius: 8px; padding: 22px 26px; font: 15px/1.9 Georgia, "Times New Roman", serif; overflow-wrap: anywhere; }
+.statutory-form .form-title { text-align: center; font-size: 1.05em; margin: 0 0 12px; color: #000; }
+.statutory-form p { margin: 0 0 10px; }
+.statutory-form .form-notice { font-weight: 700; border: 1px solid #000; padding: 8px 10px; }
+.statutory-form .form-space { height: 10px; }
+.statutory-form .form-sign p { margin: 0 0 6px; }
+.blank { display: inline-flex; flex-direction: column; vertical-align: top; min-width: 9em; margin: 0 2px; }
+.blank .line { display: block; border-bottom: 1px solid #000; height: 1.35em; }
+.blank .cap { font: 10px/1.2 system-ui, sans-serif; color: #666; text-transform: none; }
+@media print {
+  body[data-print] main > *, body[data-print] header, body[data-print] nav.all-guides, body[data-print] footer { display: none !important; }
+  body[data-print] main > section.printing { display: block !important; }
+  body[data-print] main > section.printing > h2, body[data-print] main > section.printing > .note { display: none; }
+  .statutory-form { border: 0; padding: 0; }
+  .statutory-form ~ button, .statutory-form + button { display: none; }
+}

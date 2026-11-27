@@ -2,13 +2,21 @@
 // applications are recomputed from their entries, as everywhere else: nothing derived is stored.
 import { type CaNoticeRecipient, caNoticeDueOn } from "@lien-waivers";
 import { type CashReport, type CashReportProjectInput, cashReport } from "@shared/cash-report";
+import {
+  type CloseoutItemFacts,
+  type CloseoutReadiness,
+  closeoutReadiness,
+  summarizeCloseout,
+} from "@shared/closeout";
 import { centsToDecimal } from "@shared/money";
+import { type PunchItemFacts, summarizePunchList } from "@shared/punch-list";
 import type { WaiverFollowUpInput } from "@shared/waiver-followup";
 import { and, asc, eq } from "drizzle-orm";
 import type { AppContext } from "../../context";
-import { lienNoticeSends, lienWaivers, projects } from "../../db/schema";
+import { closeoutItems, lienNoticeSends, lienWaivers, projects, punchItems } from "../../db/schema";
 import { csvCell } from "../export/csv";
 import { loadBundle, type ProjectBundle, paymentsOf } from "./bundle";
+import { retainagePosition } from "./closeout";
 import { missingRecipients } from "./notices";
 import { followUpInput } from "./waivers";
 
@@ -19,6 +27,7 @@ export function toCashInput(
   b: ProjectBundle,
   waivers: ReadonlyMap<string, WaiverFollowUpInput[]> = new Map(),
   noticeSends: ReadonlyMap<string, { recipient: CaNoticeRecipient }[]> = new Map(),
+  closeouts: ReadonlyMap<string, CloseoutReadiness> = new Map(),
 ): CashReportProjectInput {
   const p = b.project;
   const missing = p.caFirstFurnishedOn ? missingRecipients(noticeSends.get(p.id) ?? []) : [];
@@ -40,6 +49,7 @@ export function toCashInput(
     payTermsBasis: p.payTermsBasis,
     payTermsOuterDays: p.payTermsOuterDays,
     billingDay: p.billingDay,
+    closeout: closeouts.get(p.id) ?? null,
     caNotice:
       p.caFirstFurnishedOn && missing.length > 0
         ? {
@@ -144,10 +154,59 @@ export async function orgCashReport(
     list.push(r);
     noticeSends.set(r.projectId, list);
   }
+  const asOf = isoDay(ctx.now());
+  const closeouts = await closeoutReadinessByJob(ctx, orgId, bundles, asOf);
   return cashReport(
-    bundles.map((b) => toCashInput(b, waivers, noticeSends)),
-    isoDay(ctx.now()),
+    bundles.map((b) => toCashInput(b, waivers, noticeSends, closeouts)),
+    asOf,
   );
+}
+
+/**
+ * Each finished job's close-out checklist read with its punch list and retainage, as the job page
+ * reads it (services/payapps/closeout.ts, listCloseout), so the cash report can say what the
+ * retainage on finished work still waits on. Two queries for the whole company, grouped by job;
+ * only jobs whose work is complete with retainage held, and that have a close-out document or a
+ * punch item entered, are read.
+ */
+export async function closeoutReadinessByJob(
+  ctx: AppContext,
+  orgId: string,
+  bundles: ProjectBundle[],
+  asOf: string,
+): Promise<Map<string, CloseoutReadiness>> {
+  const out = new Map<string, CloseoutReadiness>();
+  const finished = bundles
+    .map((b) => ({ id: b.project.id, retainage: retainagePosition(b) }))
+    .filter((j) => j.retainage.workComplete && j.retainage.heldCents > 0);
+  if (finished.length === 0) return out;
+  const [docs, punch] = await Promise.all([
+    ctx.db.select().from(closeoutItems).where(eq(closeoutItems.orgId, orgId)).all(),
+    ctx.db.select().from(punchItems).where(eq(punchItems.orgId, orgId)).all(),
+  ]);
+  const group = <T extends { projectId: string }>(rows: T[]) => {
+    const m = new Map<string, T[]>();
+    for (const r of rows) m.set(r.projectId, [...(m.get(r.projectId) ?? []), r]);
+    return m;
+  };
+  const docsByJob = group(docs);
+  const punchByJob = group(punch);
+  for (const j of finished) {
+    const items: CloseoutItemFacts[] = docsByJob.get(j.id) ?? [];
+    const punchList: PunchItemFacts[] = punchByJob.get(j.id) ?? [];
+    // A job with neither list started does not use them: its retainage keeps the plain "bill it"
+    // step rather than being reported as waiting on a checklist nobody keeps.
+    if (items.length === 0 && punchList.length === 0) continue;
+    out.set(
+      j.id,
+      closeoutReadiness(
+        summarizeCloseout(items, asOf),
+        summarizePunchList(punchList, asOf),
+        j.retainage,
+      ),
+    );
+  }
+  return out;
 }
 
 const amt = (cents: number) => Number(centsToDecimal(cents));
@@ -183,6 +242,7 @@ export function cashReportCsv(r: CashReport): string {
     "Written off",
     "Waiting on the owner's payment (pay-when-paid)",
     "Pay-when-paid outer limit (days from the application date)",
+    "Retainage waiting on close-out",
   ];
   const rows = r.projects.map((p) => [
     p.name,
@@ -226,6 +286,11 @@ export function cashReportCsv(r: CashReport): string {
     amt(p.writtenOffCents),
     p.payTermsBasis === "owner_paid" && p.payTermsDays !== null ? amt(p.awaitingOwnerCents) : null,
     p.payTermsDays === null ? null : p.payTermsOuterDays,
+    p.closeout
+      ? p.closeout.ready
+        ? "none: the close-out checklist is in"
+        : p.closeout.blockers.join(" ")
+      : null,
   ]);
   const t = r.totals;
   const total = [
@@ -256,6 +321,7 @@ export function cashReportCsv(r: CashReport): string {
     amt(t.writtenOffCents),
     amt(t.awaitingOwnerCents),
     null,
+    amt(t.retainageWaitingOnCloseoutCents),
   ];
   const lines = [
     header,

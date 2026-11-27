@@ -306,7 +306,11 @@ export function CashReportView({
             <Tile
               label="Retainage on finished jobs"
               cents={r.totals.retainageOnCompleteJobsCents}
-              note="work complete: bill it now"
+              note={
+                r.totals.retainageWaitingOnCloseoutCents > 0
+                  ? `work complete; ${formatCents(r.totals.retainageWaitingOnCloseoutCents)} of it waits on close-out (punch list or documents)`
+                  : "work complete: bill it now"
+              }
             />
             <Tile
               label="Paid"
