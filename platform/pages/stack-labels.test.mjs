@@ -56,12 +56,25 @@ test('label text drops markup and stays attribute-safe', () => {
   assert.equal(labelText('A & B'), 'A &amp; B');
 });
 
+const topLevel = (list) => {
+  const out = [''];
+  let depth = 0;
+  for (const ch of list) {
+    if (ch === ',' && depth === 0) { out.push(''); continue; }
+    if (ch === '(') depth++;
+    if (ch === ')') depth--;
+    out[out.length - 1] += ch;
+  }
+  return out;
+};
+
 test('pf-chrome.css copy: every rule scoped to table.stack, inside :where(), in the same order', () => {
   assert.match(STACK_TABLE_CHROME_CSS, /^\s*@media \(max-width:600px\)\{/);
   for (const rule of STACK_TABLE_CHROME_CSS.match(/[^{}]+\{/g).slice(1)) {
-    for (const sel of rule.trim().slice(0, -1).split(',')) assert.match(sel.trim(), /^:where\(table\.stack(\.compact)?\)/, `unscoped: ${sel}`);
+    // Split on top-level commas only: `td:is(:first-child,:has(select))` is one selector.
+    for (const sel of topLevel(rule.trim().slice(0, -1))) assert.match(sel.trim(), /^:where\(table\.stack(\.compact|\.fields)?\)/, `unscoped: ${sel}`);
   }
-  assert.equal(STACK_TABLE_CHROME_CSS.replace(/:where\((table\.stack(?:\.compact)?)\)/g, '$1'), STACK_TABLE_CSS);
+  assert.equal(STACK_TABLE_CHROME_CSS.replace(/:where\((table\.stack(?:\.compact|\.fields)?)\)/g, '$1'), STACK_TABLE_CSS);
   assert.match(STACK_TABLE_CSS, /table\.stack th\[scope=row\]\{display:block/);
 });
 
