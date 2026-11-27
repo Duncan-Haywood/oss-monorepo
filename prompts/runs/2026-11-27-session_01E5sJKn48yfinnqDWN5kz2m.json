@@ -28,7 +28,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 0,
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
@@ -55,6 +55,10 @@
     {
       "file": "ventures/pay-app-guides/cta.mjs",
       "issue": "the launch switch rewrote the 42 guides but nothing covers docs/posts, so 13 customer posts kept saying 'nothing is for sale yet' after the Free plan opened"
+    },
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "issue": "slug_dupe.py lists PRs by slug in the title, so a parallel run editing the same post closings under a different slug (#19669, pay-app-guides) was invisible until the merge conflict"
     }
   ],
   "deviations": [
@@ -69,7 +73,7 @@
     "docs/posts/2026-11-27-subcontractor-three-week-lookahead.md (extended: crew lookahead across jobs, folded from three-week-lookahead-for-subcontractors); no new post, per the consolidation direction"
   ],
   "goal": null,
-  "notes": "Skipped docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md: open PR #19665 edits it (app domain). Links point at marisstella.app/industries/construction/ (its Start free button) so the domain change in #19665/#19663 needs no edit here. Plan gates checked in src/shared/plans.ts and ROADMAP: Free has no lien waivers, QuickBooks, job costing or Florida NTO. Local: run_workflow_locally --for-changes all ok; pages build and security gates deferred to PR CI; writing-fold/style/writing tests 73/73 pass.",
+  "notes": "Skipped docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md: open PR #19665 edits it (app domain). Links point at marisstella.app/industries/construction/ (its Start free button) so the domain change in #19665/#19663 needs no edit here. Plan gates checked in src/shared/plans.ts and ROADMAP: Free has no lien waivers, QuickBooks, job costing or Florida NTO. Local: run_workflow_locally --for-changes all ok; pages build and security gates deferred to PR CI; writing-fold/style/writing tests 73/73 pass. First merge attempt 405: PR #19669 (punch list tracker) had rewritten the closeout post's closing with a direct sign-up link while CI ran; kept main's wording, so 12 posts carry this PR's change.",
   "corrections": [],
   "redteam": null,
   "usage": {
