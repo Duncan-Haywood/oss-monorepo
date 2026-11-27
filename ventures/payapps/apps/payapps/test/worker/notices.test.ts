@@ -1,7 +1,8 @@
 // Preliminary notices of right to lien through the HTTP API: the plan gate, Wyoming's
 // § 29-10-101(a) notice prefilled from the job and printed with the blank waiver it says is
 // attached, California's §§ 8102/8202 notice prefilled from the job (estimate = contract sum with
-// approved change orders), field errors, states with no notice, and tenant isolation.
+// approved change orders), Florida's § 713.06(2)(c) Notice to Owner prefilled with the contractor
+// as the first copy, field errors, states with no notice, and tenant isolation.
 
 import type { NoticeOverviewDto, ProjectDetailDto, ProjectDto } from "@shared/api/types";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -45,7 +46,7 @@ describe("preliminary notices", () => {
   it("on Free: the overview loads, printing needs Crew (402)", async () => {
     const o = await call<NoticeOverviewDto>(`${base}/notices?state=WY`, { as });
     expect(o.enabled).toBe(false);
-    expect(o.states).toEqual(["CA", "WY"]);
+    expect(o.states).toEqual(["CA", "FL", "WY"]);
     const res = await print({
       state: "WY",
       formId: "WY/preliminary-notice/statutory",
@@ -185,6 +186,64 @@ describe("preliminary notices", () => {
     );
     expect(missing.status).toBe(400);
     expect(await missing.text()).toContain("General description of the work is required");
+  });
+
+  it("Florida: the § 713.06(2)(c) Notice to Owner, the contractor prefilled as the first copy", async () => {
+    const p = await call<ProjectDto>(`/api/orgs/${orgId}/projects`, {
+      method: "POST",
+      as,
+      expect: 201,
+      json: {
+        name: "Bayshore Dental",
+        location: "410 S Howard Ave, Tampa FL 33606",
+        gcName: "Gulf Coast Builders Inc.",
+        gcAddress: "1 Harbour Pl, Tampa FL 33602",
+        ownerName: "Bayshore Dental Holdings LLC",
+        originalContractSumCents: 9_000_000,
+      },
+    });
+    const flBase = `/api/orgs/${orgId}/projects/${p.id}`;
+    const o = await call<NoticeOverviewDto>(`${flBase}/notices?state=fl`, { as });
+    const n = o.notices[0];
+    expect(n?.id).toBe("FL/notice-to-owner/statutory");
+    expect(n?.citation).toBe("Fla. Stat. § 713.06(2)");
+    expect(n?.notes.join(" ")).toMatch(/45 days/);
+    expect(o.ca).toBeNull();
+    expect(o.prefill).toMatchObject({
+      ownerNameAddress: "Bayshore Dental Holdings LLC",
+      hiredBy: "Gulf Coast Builders Inc.",
+      siteDescription: "Bayshore Dental, 410 S Howard Ave, Tampa FL 33606",
+      copiesTo: "Gulf Coast Builders Inc.\n1 Harbour Pl, Tampa FL 33602",
+    });
+    expect(o.prefill.lienorName).toBeTruthy();
+
+    const fields = Object.fromEntries(
+      (n?.fields ?? []).map((f) => [f.key, o.prefill[f.key] ?? ""]).filter(([, v]) => v),
+    );
+    const missing = await print({ state: "FL", formId: n?.id, fields }, as, flBase);
+    expect(missing.status).toBe(400);
+    expect(await missing.text()).toContain("General description of services or materials is required");
+
+    const res = await print(
+      {
+        state: "FL",
+        formId: n?.id,
+        fields: {
+          ...fields,
+          workDescription: "Electrical, labor and materials",
+          lienorAddress: "77 N Franklin St, Tampa FL 33602",
+        },
+      },
+      as,
+      flBase,
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Disposition")).toContain("preliminary-notice-FL.pdf");
+    const body = await res.text();
+    expect(body).toContain("NOTICE TO OWNER");
+    expect(body).toContain("TO AVOID A LIEN AND PAYING TWICE");
+    expect(body).toContain("Gulf Coast Builders Inc.");
+    expect(body).toContain("1 Harbour Pl");
   });
 
   it("a state with no encoded notice lists none", async () => {
