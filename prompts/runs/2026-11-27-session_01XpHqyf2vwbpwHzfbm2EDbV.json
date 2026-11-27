@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 4,
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
@@ -43,6 +43,10 @@
     {
       "what": "changed-ventures tree checks (calendar dates, CSV guard, trailing flag, CLI entry, hidden unicode, thin pages), publish-surface and harness snapshot failed in CI on the first push",
       "fix": "fixed in the copy with tests; listed in the report"
+    },
+    {
+      "what": "required gates found more in the moved code: gitleaks generic-api-key (an alphabet constant), six CodeQL findings on new lines, and page-without-disclaimer on the SPA shell",
+      "fix": "each fixed in the copy with tests where they fit, and in private-monorepo PRs 467, 468, 475, 480"
     }
   ],
   "integrity_issues": [],
@@ -70,6 +74,10 @@
     {
       "file": "portfolio/pipeline/probes/agent-permission-harness/check_results_current.py",
       "issue": "--write counts untracked files (node_modules from a pnpm install), so a local regenerate (56,126) never matches CI's (12,100); I copied CI's lines from the job log"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "a code move should run the required gates' scanners (gitleaks, CodeQL gate, adversarial rules) before the first push; each found a new class only after a 10-30 min CI queue, four rounds in all"
     }
   ],
   "deviations": [
@@ -90,7 +98,7 @@
     "docs/reports/2026-11-27-move-jobshop-quote-public.md"
   ],
   "goal": "$10k MRR: bet #2 gets runners that start, so it can deploy",
-  "notes": "Local: app unit 631, worker 281, scripts 19, site unit 42 + worker 13, packages 86/92/73/16/4, all passed; drizzle no schema changes. run_workflow_locally --for-changes: 12/14 passed; doc-refs dead link fixed after; codeql/security-gate/portfolio-validate had steps needing GitHub artifacts. Audit block 0 before and after.",
+  "notes": "Local: app unit 631, worker 281, scripts 19, site unit 42 + worker 13, packages 86/92/73/16/4, all passed; drizzle no schema changes. run_workflow_locally --for-changes: 12/14 passed; doc-refs dead link fixed after; codeql/security-gate/portfolio-validate had steps needing GitHub artifacts. Audit block 0 before and after. Gate rounds: tree checks, gitleaks, CodeQL, adversarial gate; each fixed and mirrored to private (PRs 467, 468, 475, 480). prompts-ci validate fails on test_promptctl's shallow-clone edge (not required; doc_friction).",
   "corrections": [],
   "redteam": null,
   "usage": {
