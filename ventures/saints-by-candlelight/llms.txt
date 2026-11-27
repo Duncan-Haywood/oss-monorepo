@@ -18,10 +18,11 @@
 - Every episode is written by an AI (Claude) and read by a synthetic voice, and says so at the start.
 - Each script ends with spoken "notes for the curious" naming its sources and what was invented; each page front matter also carries `history`, `legend` and `fiction` lines.
 - Catholic and Orthodox in scope; it stays off ground where the two traditions differ. It is not catechesis and has not been reviewed by any Church authority.
-- 181 episodes; audio for episodes 1 to 29, the rest text only for now.
+- 182 episodes; audio for episodes 1 to 29, the rest text only for now.
 
 ## Episodes, newest first
 
+- [182. Deborah Under Her Palm Tree Between Ramah and Bethel](https://example.invalid/saints-by-candlelight/deborah-under-her-palm-tree-between-ramah-and-bethel.html): Deborah settles cases under a palm tree in the hills, sends for Barak, and goes with him to Mount Tabor; then she sings about it.
 - [181. The Voice from the Whirlwind and the Storehouses of the Snow](https://example.invalid/saints-by-candlelight/the-voice-from-the-whirlwind-and-the-storehouses-of-the-snow.html): God answers Job from the storm with questions: the snow, the stars, the raven's chicks, the wild ass and the horse. Job 38 to 40.
 - [180. Othniel and Achsah and the Upper and Lower Springs](https://example.invalid/saints-by-candlelight/othniel-and-achsah-and-the-upper-and-lower-springs.html): Caleb's daughter Achsah gets down from her donkey and asks for springs of water; her husband Othniel becomes Israel's first judge.
 - [179. Job's Three Daughters, Jemimah, Keziah and Keren-happuch](https://example.invalid/saints-by-candlelight/jobs-three-daughters-jemimah-keziah-and-keren-happuch.html): After the whirlwind, Job prays for his friends and names three daughters for a dove, a spice and a horn of eye paint. Job 42.

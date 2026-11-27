@@ -135,6 +135,17 @@ print is the same padded text as before; only the on-screen view changed.
 Input boxes are 16 px on a phone, so iPhone Safari no longer zooms the
 page when you tap one.
 
+Updated 2026-11-27. Once a schedule is pasted, the page works it out as
+you edit, with no button press. A dark strip pinned to the bottom of the
+form shows the payment due, the retainage held and how many findings there
+are, so you can change the retainage rate at the top of the form and watch
+the answer move without scrolling down to the result. On the worked
+example's schedule at the default 10%, the strip reads $84,870.00 due and
+$24,530.00 held; at 5% it reads $89,585.00 and $12,265.00. A paste the
+page cannot read puts the reason in the strip and hides the old result, so
+a stale figure is never on screen. A chosen Excel file still waits for the
+button, and the live preview counts no usage.
+
 ## Why a spreadsheet, for a product we mean to sell
 
 The paid product is PayApps, a hosted pay-app suite: schedules

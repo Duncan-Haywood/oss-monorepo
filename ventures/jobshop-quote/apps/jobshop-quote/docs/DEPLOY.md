@@ -4,11 +4,11 @@ One Cloudflare Worker (`jobshop-quote`) serves the SPA and the API, with a D1 da
 (`jobshop-quote`), an R2 bucket for drawings, CAD files and sent quote PDFs (`jobshop-quote-files`),
 Workers AI for drawing text, two Workers Rate Limiting namespaces (1201-1202), a daily cron for
 quote expiry and Cloudflare Email Service for account and quote mail. The workflow
-`.github/workflows/jobshop-quote-deploy.yml` (in `private-monorepo` until it is ported here: [the workspace's DEPLOY.md](../../../DEPLOY.md))
+[`priv-jobshop-quote-deploy.yml`](../../../../../.github/workflows/priv-jobshop-quote-deploy.yml) (ported from `private-monorepo` on 2026-11-27, see [the workspace's DEPLOY.md](../../../DEPLOY.md))
 does the whole deploy; there are no dashboard steps beyond the settings below. It is a port of
 payapps' deploy (`apps/payapps/docs/DEPLOY.md`), with the differences listed at the end.
 
-**It runs by hand only** (Actions -> jobshop-quote-deploy -> Run workflow), so a merge never puts the
+**It runs by hand only** (Actions -> jobshop-quote-deploy -> Run workflow, from `main`), so a merge never puts the
 app in front of strangers before the items in "Before strangers sign up" are done. After launch, add
 `push: branches: [main]` to the workflow so every merge ships. To gate each run, add required
 reviewers to the `jobshop-quote-production` environment (Settings -> Environments).
@@ -52,7 +52,7 @@ binding above. The workflow itself has not run yet.
 | `CLOUDFLARE_ACCOUNT_ID` | secret or variable | every run |
 | `JOBSHOP_DOMAIN` | variable | optional custom host, e.g. `quote.marisstella.app` |
 | `JOBSHOP_EMAIL_FROM` | variable | sender; default `Job Shop Quote <no-reply@marisstella.app>`, domain onboarded to Email Service ([EMAIL.md](EMAIL.md)) |
-| `JOBSHOP_ANTHROPIC_API_KEY` | secret | AI extraction of RFQs; falls back to the shared `ANTHROPIC_API_KEY`. Without either, "Extract with AI" answers 503 and the rest of the app works. |
+| `JOBSHOP_ANTHROPIC_API_KEY` | secret | AI extraction of RFQs. The workflow in this repository reads only this name (no fallback to the shared `ANTHROPIC_API_KEY`, so the spend is an explicit choice). Without it, "Extract with AI" answers 503 and the rest of the app works. |
 | `JOBSHOP_AUTH_SECRET` | secret | optional; overrides the generated one |
 | `JOBSHOP_BILLING_PROVIDER` | variable | `paddle` turns checkout on once the two Paddle secrets are set; default `none` ([BILLING.md](BILLING.md)) |
 | `JOBSHOP_BILLING_API_KEY`, `JOBSHOP_BILLING_WEBHOOK_SECRET` | secrets | paid plans |

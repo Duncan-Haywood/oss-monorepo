@@ -343,6 +343,13 @@ workflows:
     step: runs 'wrangler deploy'
     gates:
     - ${{ needs.gate.outputs.ready == 'true' }}
+- workflow: priv-jobshop-quote-deploy.yml
+  classification: dispatch
+  publishes:
+  - job: deploy
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ github.ref == 'refs/heads/main' }}
 - workflow: priv-opencode-high-throughput.yml
   classification: none
   publishes: []

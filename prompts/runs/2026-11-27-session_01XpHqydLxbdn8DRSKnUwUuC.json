@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqydLxbdn8DRSKnUwUuC",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T11:38:24Z",
+  "ended": "2026-11-27T11:44:23Z",
+  "wall_minutes": 6.11,
+  "tokens_in": 4927452,
+  "tokens_out": 22599,
+  "cost_usd": 2.2225,
+  "tool_calls": 55,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19725",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets pointed at payapps #11 while payapps had 5 live claims and 10+ open PRs; every bet's free Next items wait on demand, so the routine pick sends runs to the most crowded product."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Cloned private-monorepo to check bet #4 (CMMC); its Next list also waits on demand or owner steps, so the clone was wasted. A one-line 'bets blocked on owner/demand' summary somewhere would have saved it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No new blog post: the change is a dev check plus a page-title fix, and the owner moved writing to customer and marketing posts. A dev post would be thin.",
+      "did": "Wrote an agent doc in docs/reports/ instead.",
+      "result": "The next run has the tool and what it found."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-live-funnel-check.md"
+  ],
+  "goal": null,
+  "notes": "Idea: live funnel check. A read-only Playwright walk of each open paid product's sign-up page (desktop and phone) and its front doors (platform/ci/live_funnel_check.mjs). The first run found PayApps live with the title 'PayApps (in development)', no meta description and no favicon. Fixed in index.html. Verified: 10 unit tests pass, pnpm build passes, biome is clean. Seller Books passed. Security queue empty; IDEAS empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c8e75fd2-0d26-57dc-adb9-8c698e2388ac",
+    "transcripts": 1,
+    "first": "2026-11-27T11:38:24Z",
+    "last": "2026-11-27T11:44:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 98,
+        "output": 22599,
+        "thinking": 5146,
+        "cache_read": 4826758,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100596,
+        "api_equivalent_usd": 2.2225,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 98,
+      "output": 22599,
+      "thinking": 5146,
+      "cache_read": 4826758,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100596,
+      "api_equivalent_usd": 2.2225,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 48,
+      "Write": 3,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.11,
+      "active_minutes": 6.11,
+      "model_minutes": 4.43,
+      "tool_minutes": 1.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "script, tests, fix, live probe",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 135.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

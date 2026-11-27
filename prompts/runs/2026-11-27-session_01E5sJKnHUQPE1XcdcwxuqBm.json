@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKnHUQPE1XcdcwxuqBm",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T12:18:30Z",
+  "ended": "2026-11-27T12:25:59Z",
+  "wall_minutes": 7.69,
+  "tokens_in": 3326956,
+  "tokens_out": 15669,
+  "cost_usd": 1.5816,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19738",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/backlog/P097-workers-cron-budget.json",
+      "issue": "The only agent-owned unblocked backlog row (P097) was already taken by open PR #19732 the same day; slug_dupe found it, so Critique mode via measure's 'Doc friction by file' was the fallback."
+    },
+    {
+      "file": "ventures/jobshop-quote/apps/jobshop-quote/ROADMAP.md",
+      "issue": "Next numbers two items 15, but the file is a snapshot that sync-from-private.sh overwrites, so it can't be renumbered here; the tool now refuses an ambiguous --claim instead."
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "I checked for duplicates of P097 and 'cron', not 'roadmap_claim' or 'device'. PR #19713 shipped the same device gate (keyword 'device-gate') from the same friction while this run worked, so most of my first commit turned into a merge conflict. A lens taken from 'Doc friction by file' has no backlog id to search, so two critique runs reading the same top row collide."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No customer post written: the change is internal tooling (roadmap_claim gates) with nothing for a product's readers.",
+      "did": "Wrote backlog item P098 with evidence and a metric instead, as the agent-facing record.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "prompts/process/backlog/P098-roadmap-claim-device-gate.json"
+  ],
+  "goal": null,
+  "notes": "Backlog: P097 skipped (open PR #19732), P098 filed and done. roadmap_claim.py: the 'waits on a device' gate this run wrote was also merged first by PR #19713 (parallel process run). On merging main this run kept #19713's regex and added two test cases. The new behaviour in this PR is that the tool (payapps #11: 'check it on a Windows PC and an Android phone with a real iPhone photo', mentioned by 16 run records on 2026-11-27) refuses --claim N when the Next list uses N twice (jobshop-quote #15). Checked across the payapps, jobshop-quote, cmmc and seller-books Next lists: only payapps #11 changes from free to gated; --bets 'Start here' now names an untouched jobshop-quote growth topic. Verification: python3 -m unittest test_roadmap_claim (37 OK), promptctl validate ok, unittest discover -s prompts (169 OK), main_health.py 330/330 before the change. risk_review: nothing blocked; flagged checks are false positives (no auth, payment, personal data or guardrail text touched).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5e606d8a-cd6d-5415-b4a1-478c5cc8cf25",
+    "transcripts": 1,
+    "first": "2026-11-27T12:18:30Z",
+    "last": "2026-11-27T12:26:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 75,
+        "output": 15669,
+        "thinking": 3188,
+        "cache_read": 3249627,
+        "cache_write_5m": 0,
+        "cache_write_1h": 77254,
+        "api_equivalent_usd": 1.5816,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 75,
+      "output": 15669,
+      "thinking": 3188,
+      "cache_read": 3249627,
+      "cache_write_5m": 0,
+      "cache_write_1h": 77254,
+      "api_equivalent_usd": 1.5816,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.69,
+      "active_minutes": 7.69,
+      "model_minutes": 3.45,
+      "tool_minutes": 4.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "an engineer reading friction reports, writing a regex gate with tests and a CLI guard",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 94.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

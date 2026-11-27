@@ -109,6 +109,13 @@ Worker of its own (`ventures/retail-pilot-intel/apps/docs/wrangler.toml`;
 `local-site-studio` keeps Convex for its backend; replacing it would be a
 rewrite.
 
+**Cron triggers.** Cloudflare allows 5 cron triggers per account on the free
+plan (1,000 on Workers Paid), and every schedule on every Worker counts.
+`python3 platform/ci/cron_budget.py` lists them (on 2026-11-27: 3 on
+workflow-deployed Workers, 8 configured) and fails CI when the deployed ones
+exceed [`cloudflare-plan.json`](cloudflare-plan.json); it only warns about
+Workers not deployed yet, until a PR adds their deploy workflow.
+
 **Terms users see.** Hosted surfaces carry the no-warranty and no-SLA copy
 in [`PRODUCT_PLAYBOOK.md`](../../PRODUCT_PLAYBOOK.md) §5b; the Pages build
 injects it. That copy covers uptime and "the URL went away". It does not

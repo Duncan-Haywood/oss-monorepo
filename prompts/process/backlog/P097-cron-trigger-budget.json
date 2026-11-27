@@ -1,7 +1,7 @@
 {
   "id": "P097",
   "title": "Workers cron triggers are over the free plan's 5 per account: a check that counts them before a deploy fails",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -21,7 +21,12 @@
   "baseline": "6 configured, 5 allowed (2026-11-27)",
   "opened": "2026-11-27",
   "source": "ventures run (seller-books estimate-reminders)",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19732",
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-11-27",
+      "note": "Shipped the check (platform/ci/cron_budget.py, run by Portfolio validate). Recount found 8 configured, not 6 (cmmc and cmmc-site added crons), but only 3 on workflow-deployed Workers, so nothing is failing on the account today. The fold is split out as P098."
+    }
+  ]
 }
