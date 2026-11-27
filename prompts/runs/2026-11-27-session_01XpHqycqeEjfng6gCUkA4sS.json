@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqycqeEjfng6gCUkA4sS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T04:38:20Z",
+  "ended": "2026-11-27T04:46:33Z",
+  "wall_minutes": 8.76,
+  "tokens_in": 9569590,
+  "tokens_out": 34647,
+  "cost_usd": 4.0335,
+  "tool_calls": 75,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19610",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First allowlist draft broke YAML: a reason containing ': ' was unquoted; fixed by writing reasons as JSON-quoted strings."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets said no bet has a free ungated item and pointed at einvoice 'metered validation API' as untouched, but the einvoice ROADMAP Done list shows a metered API with hashed keys and quotas already landed; the topic match is by claim slug, not by what shipped."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says build bets in private-monorepo, but on 2026-11-27 every bet but #6 and #7 has an open PR moving it into this repo (#19586, #19594, #19601, #19574/#19575); building in private now creates drift the move PRs must re-sync. The prompt does not mention the migration."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Bet 1's 'none on pay-application-generator, lien-waiver-checker, mechanics-lien-deadline-calculator' suggests those front doors lack work, but all three already link to the guides and early access; 'none on' counts open PRs, not missing value."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No bet had a free roadmap item, and the product code is mid-migration; the highest-leverage gap to a first sign-up was the PayApps deploy path (its only run never got a runner).",
+      "did": "Ported the deploy workflow to this repo in two PRs (allowlist first, per the gate's rule) instead of building a feature in private-monorepo.",
+      "result": "PR 1 (allowlist) opened; PR 2 (workflow) follows once it merges. The deploy itself waits on PR #19586."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No customer-facing post: the change is CI plumbing with nothing a contractor would search for.",
+      "did": "Wrote an agent doc in docs/reports instead.",
+      "result": "docs/reports/2026-11-27-payapps-deploy-workflow.md"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-payapps-deploy-workflow.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (security_next exit 3); ideas inbox empty; route drew ventures/1. private-monorepo clone worked first time via add_repo. PayApps launch review is merged (private#444), deploy run 45921558751 starved (ci_starvation exit 1). Ported payapps-deploy.yml as .github/workflows/priv-payapps-deploy.yml with hardening: main-only job guard, SHA-pinned actions, persist-credentials false, sparse checkout, a fail-fast step until ventures/payapps exists, PAYAPPS_DOMAIN host validation, continue-on-error replaced by an in-script warning. validate_workflows.py: all 140 valid. gate.py analyze: 12 blocking (secret reads) without the allowlist entries, 0 with them; allowlist PR itself 0/0. risk_review: nothing blocked. Deploy not run: needs PR #19586 on main.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ea83f95e-ea1d-5407-acb2-bc373404b2d7",
+    "transcripts": 1,
+    "first": "2026-11-27T04:38:20Z",
+    "last": "2026-11-27T04:47:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 136,
+        "output": 34647,
+        "thinking": 7490,
+        "cache_read": 9386616,
+        "cache_write_5m": 0,
+        "cache_write_1h": 182838,
+        "api_equivalent_usd": 4.0335,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 136,
+      "output": 34647,
+      "thinking": 7490,
+      "cache_read": 9386616,
+      "cache_write_5m": 0,
+      "cache_write_1h": 182838,
+      "api_equivalent_usd": 4.0335,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 64,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__actions_list": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.76,
+      "active_minutes": 8.76,
+      "model_minutes": 6.3,
+      "tool_minutes": 2.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "read two repos' deploy paths, port and harden a secrets workflow, satisfy the adversarial gate in two PRs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 99.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

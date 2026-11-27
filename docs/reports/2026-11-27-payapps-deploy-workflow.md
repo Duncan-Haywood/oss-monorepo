@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-27
+---
 # PayApps deploy workflow ported to this repository (2026-11-27)
 
 **What:** `.github/workflows/priv-payapps-deploy.yml`, the deploy for PayApps (paid bet #1), ported
