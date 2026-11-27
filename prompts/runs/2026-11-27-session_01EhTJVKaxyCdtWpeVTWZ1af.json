@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVKaxyCdtWpeVTWZ1af",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T18:56:34Z",
+  "ended": "2026-11-27T19:06:40Z",
+  "wall_minutes": 10.33,
+  "tokens_in": 9833286,
+  "tokens_out": 54149,
+  "cost_usd": 4.5419,
+  "tool_calls": 73,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19842",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "build.mjs edit script dropped the French block's closing brace once (SyntaxError); fixed before tests",
+    "first fact-check test version matched the 'id' key as a language; fixed"
+  ],
+  "integrity_issues": [
+    "German and French rule pages claimed the code and explanations were MIT; the venture LICENSE is FSL-1.1-MIT. Fixed, and every page is now tested for the right licence"
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The clone's origin/main was hours stale: seller-books-site served, the takeoff import into estimates and the lookahead post fold had all landed already. slug_dupe.py refreshes main, but the bets/roadmap readers ran on stale files first. Run slug_dupe before reading the roadmaps, not after."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named einvoice-preflight #4 as free and not gated, but its text says 'if accountants ask' and it needs DPA changes, so it effectively waits on demand. The classifier missed the trailing 'if accountants ask'."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Every Next item on bets #1, #2, #4 and #6 waits on demand, the owner or an existing claim. With no customers there is no demand signal, so 'waits on demand' blocks almost all product work; the free slices left are front-door and SEO."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "No free item on any bet's roadmap; took bet #3's front door (the free rule library) instead of a product slice, since the paid product's Dutch shipped today but its search-facing pages had none",
+      "did": "Dutch rule pages for 35 EN 16931/Peppol rules plus a customer post",
+      "result": "merged with tests; traffic unmeasured"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-peppol-invoice-rejected-belgium-error-codes-in-dutch.md (new customer post)",
+    "docs/posts/2026-11-24-74-e-invoice-errors-explained-in-three-languages.md (dated update)"
+  ],
+  "goal": null,
+  "notes": "security queue empty (exit 3); ideas inbox empty; private-monorepo clone refused. Verification: rules.test.mjs 8/8 (2 skipped, need the optional engine); run_venture_tests einvoice-preflight ok 2839 tests; platform/pages heading-order, post-table-phone, updates, devlog, sitemap-coverage pass; risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9535d3fa-98a4-5d27-833d-81cc1fe0c3b4",
+    "transcripts": 1,
+    "first": "2026-11-27T18:56:34Z",
+    "last": "2026-11-27T19:06:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 131,
+        "output": 54149,
+        "thinking": 8881,
+        "cache_read": 9641909,
+        "cache_write_5m": 0,
+        "cache_write_1h": 191246,
+        "api_equivalent_usd": 4.5419,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 131,
+      "output": 54149,
+      "thinking": 8881,
+      "cache_read": 9641909,
+      "cache_write_5m": 0,
+      "cache_write_1h": 191246,
+      "api_equivalent_usd": 4.5419,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 68,
+      "Write": 2,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.33,
+      "active_minutes": 10.33,
+      "model_minutes": 8.75,
+      "tool_minutes": 1.58,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "translator plus developer: ~4 h to translate 35 rule entries into Dutch, 2 h for builder, tests and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 132.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
