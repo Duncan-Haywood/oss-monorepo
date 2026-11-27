@@ -17,6 +17,8 @@ import {
   procoreSsovSchema,
   projectSchema,
   sovLineSchema,
+  txNoticeSendSchema,
+  txProjectKindSchema,
   updateProjectSchema,
   updateSovLineSchema,
 } from "@shared/api/schemas";
@@ -26,6 +28,7 @@ import type {
   FlNoticeSendDto,
   ProjectDetailDto,
   SovLineDto,
+  TxNoticeSendDto,
 } from "@shared/api/types";
 import { ATTACHMENT_CATEGORIES, type AttachmentCategory } from "@shared/attachments";
 import {
@@ -117,6 +120,11 @@ import { getRfi, updateRfi } from "../../services/payapps/rfis";
 import { createSampleProject } from "../../services/payapps/sample";
 import { loadDelayLogDocument } from "../../services/payapps/schedule-delays";
 import { certifiedPayrollHours } from "../../services/payapps/timesheets";
+import {
+  deleteTxNoticeSend,
+  recordTxNoticeSend,
+  setTxProjectKind,
+} from "../../services/payapps/tx-notices";
 import type { AppEnv } from "../../types";
 
 const routes = new Hono<AppEnv>();
@@ -668,6 +676,74 @@ routes.delete("/:projectId/notices/fl/sends/:sendId", editor, async (c) => {
   );
   await log(c, { id: projectId, isSample }, [
     { action: "fl_notice_deleted", subjectId: send.id, data: flNoticeData(send) },
+  ]);
+  return c.json({ ok: true });
+});
+
+// Texas notices of claim sent: residential or not (it turns on the reminder) and each notice
+// recorded per recipient and month (Crew and up; editors record).
+routes.put(
+  "/:projectId/notices/tx/project-kind",
+  editor,
+  validate("json", txProjectKindSchema),
+  async (c) => {
+    const projectId = c.req.param("projectId");
+    const r = await setTxProjectKind(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      projectId,
+      c.req.valid("json").projectKind,
+    );
+    if (r.changed) {
+      await log(c, { id: projectId, isSample: r.isSample }, [
+        { action: "tx_project_kind_set", data: { txProjectKind: r.projectKind } },
+      ]);
+    }
+    return c.json({ projectKind: r.projectKind });
+  },
+);
+
+const txNoticeData = (
+  s: Pick<TxNoticeSendDto, "kind" | "workMonth" | "recipient" | "method" | "sentOn" | "tracking">,
+): JobEventData => ({
+  txKind: s.kind,
+  txWorkMonth: s.workMonth,
+  txRecipient: s.recipient,
+  txMethod: s.method,
+  date: s.sentOn,
+  tracking: s.tracking,
+});
+
+routes.post(
+  "/:projectId/notices/tx/sends",
+  editor,
+  validate("json", txNoticeSendSchema),
+  async (c) => {
+    const projectId = c.req.param("projectId");
+    const { send, isSample } = await recordTxNoticeSend(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      projectId,
+      c.var.tenant.userId,
+      c.req.valid("json"),
+    );
+    await log(c, { id: projectId, isSample }, [
+      { action: "tx_notice_recorded", subjectId: send.id, data: txNoticeData(send) },
+    ]);
+    return c.json(send, 201);
+  },
+);
+
+routes.delete("/:projectId/notices/tx/sends/:sendId", editor, async (c) => {
+  const projectId = c.req.param("projectId");
+  const { send, isSample } = await deleteTxNoticeSend(
+    c.var.ctx,
+    c.var.tenant.orgId,
+    projectId,
+    c.req.param("sendId"),
+  );
+  await log(c, { id: projectId, isSample }, [
+    { action: "tx_notice_deleted", subjectId: send.id, data: txNoticeData(send) },
   ]);
   return c.json({ ok: true });
 });

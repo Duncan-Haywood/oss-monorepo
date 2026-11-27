@@ -14,10 +14,15 @@
 //   day of the third month after the month the original contract was completed, terminated or
 //   abandoned.
 // - § 53.003(e): a deadline on "a Saturday, Sunday, or legal holiday" is extended to the next day that
-//   is none of them. PayApps moves a date past a Saturday or Sunday only; it does not know Texas'
-//   legal holidays, so a date it shows may be a day earlier than the law's, never later.
+//   is none of them. A legal holiday is one of Tex. Gov't Code § 662.021's days: the national holidays
+//   of § 662.003(a) and the state holidays of § 662.003(b)(1) through (6) (not 24 or 26 December,
+//   and not the optional holidays of § 662.003(c)). Each falls on the day the statute names; Texas
+//   law moves none of them to a Friday or Monday.
+// - § 53.003(b), (c): delivery in person, by certified mail, or by a traceable private service that
+//   confirms receipt; for certified mail, depositing it in the mail complies.
 //
-// Checked against sources/tx-53-notices.txt in test/tx-notice.test.ts. Not legal advice.
+// Checked against sources/tx-53-notices.txt and sources/tx-gv-662.txt in test/tx-notice.test.ts.
+// Not legal advice.
 
 const DAY_MS = 86_400_000;
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -31,10 +36,12 @@ export const TX_RETAINAGE_NOTICE_DAYS = 30;
 export interface TxDeadline {
   /** The day the statute names, before § 53.003(e). */
   statutory: string;
-  /** That day, moved past a Saturday or Sunday (§ 53.003(e)); legal holidays are not moved. */
+  /** That day, moved past Saturdays, Sundays and legal holidays (§ 53.003(e), Gov't Code § 662.021). */
   due: string;
   /** Whether `due` differs from `statutory`. */
-  movedForWeekend: boolean;
+  moved: boolean;
+  /** The legal holidays skipped on the way to `due`, by name; empty when only a weekend was. */
+  holidays: string[];
 }
 
 function parseDate(iso: string): number {
@@ -55,18 +62,77 @@ function parseMonth(month: string): { y: number; m: number } {
 
 const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
 
-/** `day`, or the Monday after it when it is a Saturday or Sunday (§ 53.003(e), holidays aside). */
-export function txNextWeekday(day: string): string {
+/** The `nth` (1-based) `weekday` (0 Sunday) of month `m` (1-12), as a UTC day number of the month. */
+function nthWeekday(y: number, m: number, weekday: number, nth: number): number {
+  const first = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+  return 1 + ((weekday - first + 7) % 7) + (nth - 1) * 7;
+}
+
+/** The last `weekday` of month `m`. */
+function lastWeekday(y: number, m: number, weekday: number): number {
+  const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const last = new Date(Date.UTC(y, m - 1, days)).getUTCDay();
+  return days - ((last - weekday + 7) % 7);
+}
+
+/**
+ * Tex. Gov't Code § 662.021: the name of the legal holiday on `day` (YYYY-MM-DD), or null. National
+ * holidays (§ 662.003(a)) and the state holidays of § 662.003(b)(1)-(6), on the day the statute names.
+ */
+export function txLegalHoliday(day: string): string | null {
+  const t = parseDate(day);
+  const d = new Date(t);
+  const y = d.getUTCFullYear();
+  const m = d.getUTCMonth() + 1;
+  const n = d.getUTCDate();
+  const thanksgiving = nthWeekday(y, 11, 4, 4);
+  const fixed: Record<string, string> = {
+    "1-1": "New Year's Day",
+    "7-4": "Independence Day",
+    "11-11": "Veterans Day",
+    "12-25": "Christmas Day",
+    "1-19": "Confederate Heroes Day",
+    "3-2": "Texas Independence Day",
+    "4-21": "San Jacinto Day",
+    "6-19": "Emancipation Day in Texas",
+    "8-27": "Lyndon Baines Johnson Day",
+  };
+  const floating: [number, number, string][] = [
+    [1, nthWeekday(y, 1, 1, 3), "Martin Luther King, Jr., Day"],
+    [2, nthWeekday(y, 2, 1, 3), "Presidents' Day"],
+    [5, lastWeekday(y, 5, 1), "Memorial Day"],
+    [9, nthWeekday(y, 9, 1, 1), "Labor Day"],
+    [11, thanksgiving, "Thanksgiving Day"],
+    [11, thanksgiving + 1, "the Friday after Thanksgiving Day"],
+  ];
+  const names = [
+    fixed[`${m}-${n}`],
+    ...floating.filter(([fm, fd]) => fm === m && fd === n).map((f) => f[2]),
+  ];
+  const found = names.filter((x): x is string => Boolean(x));
+  return found.length ? found.join(" and ") : null;
+}
+
+/** `day`, or the next day that is not a Saturday, Sunday or legal holiday (§ 53.003(e)). */
+export function txNextBusinessDay(day: string): string {
+  return roll(day).due;
+}
+
+function roll(day: string): { due: string; holidays: string[] } {
   let t = parseDate(day);
-  for (let w = new Date(t).getUTCDay(); w === 0 || w === 6; w = new Date(t).getUTCDay()) {
+  const holidays: string[] = [];
+  for (;;) {
+    const w = new Date(t).getUTCDay();
+    const h = txLegalHoliday(iso(t));
+    if (h) holidays.push(h);
+    if (w !== 0 && w !== 6 && !h) return { due: iso(t), holidays };
     t += DAY_MS;
   }
-  return iso(t);
 }
 
 function deadline(statutory: string): TxDeadline {
-  const due = txNextWeekday(statutory);
-  return { statutory, due, movedForWeekend: due !== statutory };
+  const { due, holidays } = roll(statutory);
+  return { statutory, due, moved: due !== statutory, holidays };
 }
 
 /** The 15th day of the `n`th month after `month` (YYYY-MM). */
@@ -142,4 +208,72 @@ export function txNoticeSchedule(
     out.push({ workMonth, ...txMonthlyNoticeDue(workMonth, residential) });
   }
   return out;
+}
+
+/** Who the notices of claim go to (§§ 53.056(a-1), 53.057(a-1)). */
+export const TX_NOTICE_RECIPIENTS = ["owner", "original-contractor"] as const;
+export type TxNoticeRecipient = (typeof TX_NOTICE_RECIPIENTS)[number];
+export const TX_NOTICE_RECIPIENT_LABELS: Record<TxNoticeRecipient, string> = {
+  owner: "Owner or reputed owner",
+  "original-contractor": "Original contractor",
+};
+
+/** § 53.003(b): the three ways a notice under chapter 53 may be delivered. */
+export const TX_DELIVERY_METHODS = ["certified-mail", "in-person", "traceable-private"] as const;
+export type TxDeliveryMethod = (typeof TX_DELIVERY_METHODS)[number];
+export const TX_DELIVERY_METHOD_LABELS: Record<TxDeliveryMethod, string> = {
+  "certified-mail": "Certified mail",
+  "in-person": "In person (to the party or its agent)",
+  "traceable-private": "Traceable private delivery with proof of receipt",
+};
+
+/** The two notices of claim: § 53.056 for a month's unpaid labor or materials, § 53.057 for retainage. */
+export const TX_NOTICE_KINDS = ["labor-materials", "retainage"] as const;
+export type TxNoticeKind = (typeof TX_NOTICE_KINDS)[number];
+
+export interface TxSendTiming {
+  /** The § 53.056 deadline for the record's work month; null for a retainage notice. */
+  due: TxDeadline | null;
+  /** Sent by the deadline; null when there is none to compare with. */
+  onTime: boolean | null;
+  /** One line on how the record counts. */
+  text: string;
+}
+
+/**
+ * How a recorded notice of claim counts against its deadline. A certified-mail notice complies when
+ * deposited in the mail (§ 53.003(c)); a notice handed over in person counts that day; for a private
+ * service § 53.003(c)'s mailing rule does not speak, so the carrier's proof of receipt matters.
+ */
+export function txSendTiming(input: {
+  kind: TxNoticeKind;
+  /** YYYY-MM, for a § 53.056 notice. */
+  workMonth: string | null;
+  residential: boolean;
+  method: TxDeliveryMethod;
+  sentOn: string;
+}): TxSendTiming {
+  parseDate(input.sentOn);
+  if (input.kind === "retainage" || !input.workMonth) {
+    return {
+      due: null,
+      onTime: null,
+      text: "Retainage notice: due 30 days after your contract (or, if sooner, the original contract) ends, § 53.057(a-1).",
+    };
+  }
+  const due = txMonthlyNoticeDue(input.workMonth, input.residential);
+  const onTime = input.sentOn <= due.due;
+  const how =
+    input.method === "certified-mail"
+      ? "deposited in the mail, which complies (§ 53.003(c))"
+      : input.method === "in-person"
+        ? "delivered in person"
+        : "handed to a private service; keep its proof of receipt (§ 53.003(b)(3))";
+  return {
+    due,
+    onTime,
+    text: onTime
+      ? `On time: ${how} on ${input.sentOn}, by ${due.due}.`
+      : `Late: ${how} on ${input.sentOn}, after ${due.due} (§ 53.056(a-1)).`,
+  };
 }

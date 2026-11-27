@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKipDyS9f965n83DYtF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T10:18:15Z",
+  "ended": "2026-11-27T10:25:09Z",
+  "wall_minutes": 7.38,
+  "tokens_in": 6786851,
+  "tokens_out": 18621,
+  "cost_usd": 2.9314,
+  "tool_calls": 59,
+  "task": "Land the einvoice-pro move (bet #3): PR #19635's branch with main merged in",
+  "projects": [
+    "einvoice-pro"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19707",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets recommends bet #1's free item #11 while bets #1, #2 and #5 each have several live claims and open PRs; it does not count open PRs (e.g. three open einvoice move PRs, five seller-books PRs), so the 'least crowded' pick took several minutes of slug_dupe runs to disprove."
+    },
+    {
+      "file": "prompts/process/backlog/",
+      "issue": "Two runs took P096 the same day (PR #19687 and PR #19635); nothing reserves a backlog id, so a long-lived PR collides with one merged later. Renumbered three times, ending at P099, as main took P096-P098 while this PR waited on queued gates."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "'Ready PRs that stalled' assumes you can merge the stalled PR itself, but the harness's git rules forbid pushing to another session's branch, so a stalled PR that needs a main merge (a conflict) has to be re-landed from your own branch; the doc could say so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is the top bet's free roadmap item; bets #1, #2 and #5 were saturated by parallel runs, and bet #3's finished paid layer was stuck one conflict away from landing in this repo (its only path to a deploy).",
+      "did": "Re-landed PR #19635 from my own branch with main merged in, instead of a new feature slice.",
+      "result": "PR #19707 opened; see merged."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: moving code between repositories tells a customer nothing new; the move report docs/reports/2026-11-27-move-einvoice-pro-public.md (from #19635) is the agent doc.",
+      "did": "No post.",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-move-einvoice-pro-public.md (from PR #19635, landed here)"
+  ],
+  "goal": null,
+  "notes": "Security queue: 7 alerts, all claimed (exit 3). Ideas inbox empty. Routed ventures/1 (draw). Seller Books' first deploy (run 45973427499) is healthy with email on, but recording it and the custom domain are already in open PR #19692. Cloned private-monorepo (worked first time). Bet #3: three open move PRs (#19574, #19575, #19635); #19635 supersedes the other two, all checks green on head e41beb40, branch idle since 08:32 UTC, conflict with main only in transition.json. Merged main into its head on my branch, regenerated transition.json, renumbered its backlog item P096->P097, pointed bets.md row 3 and DEPLOY.md at ventures/einvoice-pro. Private has only 18d35b5 (back-port of #19635's fixes) after source a1531806, so the copy is current. promptctl validate ok; transition/verticals current; risk_review blocked on nothing.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "22faf978-1895-5968-a10b-0e6999536b93",
+    "transcripts": 1,
+    "first": "2026-11-27T10:18:15Z",
+    "last": "2026-11-27T10:25:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 104,
+        "output": 18621,
+        "thinking": 5346,
+        "cache_read": 6632740,
+        "cache_write_5m": 0,
+        "cache_write_1h": 154007,
+        "api_equivalent_usd": 2.9314,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 104,
+      "output": 18621,
+      "thinking": 5346,
+      "cache_read": 6632740,
+      "cache_write_5m": 0,
+      "cache_write_1h": 154007,
+      "api_equivalent_usd": 2.9314,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 48,
+      "mcp__github__pull_request_read": 5,
+      "mcp__github__actions_list": 2,
+      "ToolSearch": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.38,
+      "active_minutes": 7.38,
+      "model_minutes": 5.26,
+      "tool_minutes": 2.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "merge main into a 1,130-file move, regenerate generated files, renumber a backlog id, verify and land",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 51.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

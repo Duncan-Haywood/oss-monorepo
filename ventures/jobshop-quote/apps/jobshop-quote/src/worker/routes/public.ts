@@ -10,6 +10,7 @@ import { z } from "zod";
 import { badRequest } from "../lib/errors";
 import { validate } from "../lib/validate";
 import { requireUser } from "../middleware/session";
+import { fileStoreKind } from "../ports/file-store";
 import {
   authOptionsForRequest,
   createAuth,
@@ -27,7 +28,13 @@ import type { AppEnv } from "../types";
 // `email` says whether account mail leaves the Worker: a deploy's smoke test checks it, because
 // without it nobody can verify an address and so nobody can sign in.
 export const healthRoutes = new Hono<AppEnv>().get("/", (c) =>
-  c.json({ ok: true, app: "jobshop-quote", email: c.var.ctx.email.delivers }),
+  c.json({
+    ok: true,
+    app: "jobshop-quote",
+    email: c.var.ctx.email.delivers,
+    // Where new files go: "r2", or "d1" until the bucket is bound (ports/file-store.ts).
+    files: fileStoreKind({ FILES: (c.var.ctx.env as { FILES_R2?: R2Bucket }).FILES_R2 }),
+  }),
 );
 
 export const authRoutes = new Hono<AppEnv>().on(["GET", "POST"], "/*", (c) =>

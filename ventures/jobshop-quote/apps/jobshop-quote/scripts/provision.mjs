@@ -10,9 +10,10 @@
 // `wrangler deploy` does not create the D1 database or the R2 bucket on the account (apps/grants learned
 // this the hard way), so this script creates them, tolerating "already exists":
 //   - D1 `jobshop-quote`, whose id goes into the deploy config so migrations run before the new code is live;
-//   - R2 `jobshop-quote-files` (private; no public URL). Unlike payapps, R2 is required: drawings, CAD
-//     files and the exact PDF of every sent quote live there, so without R2 the script fails and nothing
-//     is deployed.
+//   - R2 `jobshop-quote-files` (private; no public URL). If R2 is not enabled on the account, or the token
+//     is refused on R2, the deploy goes on without the bucket binding and the app keeps drawings, CAD
+//     files, logos and sent quote PDFs in D1 (`file_blobs`, src/worker/ports/file-store.ts) until a later
+//     deploy binds the bucket; files already in D1 stay readable after that (2026-11-27).
 //
 // --write-config <out> derives the deploy config from the Vite build output
 // (dist/jobshop_quote/wrangler.json, the Cloudflare Vite plugin's name for the worker; override with --from). <out> must sit next to it, since paths in it are relative. --domain <host> adds a
@@ -58,9 +59,9 @@ export function parseArgs(argv) {
 
 /**
  * The deploy config, derived from the build output: our resource names, the D1 id when known, the R2
- * bucket, and either a custom domain or workers.dev. Pure, for tests.
+ * binding only when the bucket exists, and either a custom domain or workers.dev. Pure, for tests.
  */
-export function deployConfigFor(base, { d1Id = "", domain = "" } = {}) {
+export function deployConfigFor(base, { d1Id = "", r2Enabled = true, domain = "" } = {}) {
   const cfg = structuredClone(base);
   cfg.name = RESOURCES.worker;
   cfg.topLevelName = RESOURCES.worker;
@@ -71,7 +72,9 @@ export function deployConfigFor(base, { d1Id = "", domain = "" } = {}) {
     else delete db.database_id;
     return db;
   });
-  cfg.r2_buckets = (cfg.r2_buckets ?? []).map((b) => ({ ...b, bucket_name: RESOURCES.r2 }));
+  cfg.r2_buckets = r2Enabled
+    ? (cfg.r2_buckets ?? []).map((b) => ({ ...b, bucket_name: RESOURCES.r2 }))
+    : [];
   if (domain) {
     cfg.routes = [{ pattern: domain, custom_domain: true }];
     cfg.workers_dev = false;
@@ -111,6 +114,19 @@ export function d1IdFrom(list, name) {
 export const ALREADY_EXISTS =
   /already exists|already taken|already in use|duplicate|\[code: (10004|11009)\]/i;
 export const R2_NOT_ENABLED = /enable R2|10042/i;
+/**
+ * The token cannot use R2 (no "Workers R2 Storage: Edit" on it): Cloudflare answers the bucket call with
+ * "Authentication error [code: 10000]", as on PayApps' first deploy (run 45947552522, 2026-11-27). Only
+ * the R2 call's error is tested against this, so it never hides a D1 or deploy failure.
+ */
+export const R2_NO_ACCESS = /Authentication error|\[code: 10000\]/i;
+
+/** Why the bucket is unavailable, or "" when the error is something else (which must fail the deploy). */
+export function r2Unavailable(message) {
+  if (R2_NOT_ENABLED.test(message)) return "not-enabled";
+  if (R2_NO_ACCESS.test(message)) return "no-access";
+  return "";
+}
 
 function wrangler(args, { allowFailure = false } = {}) {
   const res = spawnSync("pnpm", ["exec", "wrangler", ...args], {
@@ -149,6 +165,7 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
   console.log(`provisioning jobshop-quote${args.dryRun ? " (dry run)" : ""}`);
 
+  let r2Enabled = true;
   try {
     createTolerant(
       `r2 bucket ${RESOURCES.r2}`,
@@ -156,9 +173,13 @@ function main() {
       args.dryRun,
     );
   } catch (e) {
-    if (!R2_NOT_ENABLED.test(String(e?.message ?? e))) throw e;
-    throw new Error(
-      "::error title=R2 not enabled::Job Shop Quote stores drawings, CAD files and sent quote PDFs in R2. Enable R2 (Cloudflare dashboard -> R2 Object Storage) and re-run. Nothing was deployed.",
+    const why = r2Unavailable(String(e?.message ?? e));
+    if (!why) throw e;
+    r2Enabled = false;
+    console.log(
+      why === "not-enabled"
+        ? "::warning title=R2 not enabled::Files are kept in D1 until R2 is enabled (Cloudflare dashboard -> R2 Object Storage). Re-run the deploy afterwards; files already in D1 stay readable."
+        : "::warning title=Token has no R2 access::Files are kept in D1: the Cloudflare token was refused on R2 (Authentication error, code 10000). Add Account -> Workers R2 Storage -> Edit to CLOUDFLARE_API_TOKEN and re-run the deploy; files already in D1 stay readable.",
     );
   }
 
@@ -178,7 +199,7 @@ function main() {
       throw new Error(`--write-config must sit next to ${args.from} (its paths are relative)`);
     }
     const base = JSON.parse(readFileSync(src, "utf8"));
-    const cfg = deployConfigFor(base, { d1Id, domain: args.domain });
+    const cfg = deployConfigFor(base, { d1Id, r2Enabled, domain: args.domain });
     writeFileSync(dst, `${JSON.stringify(cfg, null, 2)}\n`);
     config = relative(APP_DIR, dst);
     console.log(

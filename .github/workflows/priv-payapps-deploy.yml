@@ -5,17 +5,26 @@
 # every setting: ventures/payapps/apps/payapps/docs/DEPLOY.md; why it lives here:
 # ventures/payapps/DEPLOY.md and docs/reports/2026-11-27-payapps-deploy-workflow.md.
 #
-# Manual only (workflow_dispatch), from main only. The launch review is recorded
+# Runs on every merge to main that touches the app (push, paths below) and by hand
+# (workflow_dispatch), from main only. The launch review is recorded
 # (apps/payapps/docs/LAUNCH-REVIEW.md, under private-monorepo docs/legal/OPERATOR.md), so an agent
 # may run it and open sign-ups on the Free plan. Paid plans stay dark: checkout turns on only when
 # the owner sets PAYAPPS_BILLING_PROVIDER=paddle and the two Paddle secrets (apps/payapps/docs/BILLING.md).
-# After a first good run, a separate PR may add `push: branches: [main]` with a paths filter.
+# The push trigger was added 2026-11-27 after seven good manual runs (45949861746 to 45964339988):
+# merges were reaching main but not the live app until someone dispatched it. Markdown-only changes
+# (ROADMAP, docs) do not deploy. A push run always runs the full checks (skip_checks is a dispatch input).
 #
 # Differences from the private workflow, all hardening: actions pinned by SHA, checkout without
 # persisted credentials and sparse to the venture, a job-level guard that refuses any ref but main,
 # this repository's Cloudflare secret names, and a step that fails clearly until the code has moved.
 name: payapps-deploy
 on:
+  push:
+    branches: [main]
+    paths:
+      - "ventures/payapps/**"
+      - "!ventures/payapps/**/*.md"
+      - ".github/workflows/priv-payapps-deploy.yml"
   workflow_dispatch:
     inputs:
       skip_checks:
@@ -202,7 +211,7 @@ jobs:
             --var "APP_ENV:production" --var "APP_URL:${APP_URL%/}" --var "EMAIL_FROM:$EMAIL_FROM" \
             --var "BILLING_PROVIDER:$BILLING_PROVIDER" --var "QBO_ENVIRONMENT:$QBO_ENVIRONMENT" \
             --var "QBO_REDIRECT_URI:${APP_URL%/}/api/integrations/quickbooks/callback" \
-            --message "${GITHUB_SHA::12} via workflow_dispatch (run ${GITHUB_RUN_ID})"
+            --message "${GITHUB_SHA::12} via ${GITHUB_EVENT_NAME} (run ${GITHUB_RUN_ID})"
           version="$(jq -r 'select(.type=="deploy") | .version_id // empty' "$WRANGLER_OUTPUT_FILE_PATH" 2>/dev/null | tail -1 || true)"
           echo "version_id=$version" >>"$GITHUB_OUTPUT"
 

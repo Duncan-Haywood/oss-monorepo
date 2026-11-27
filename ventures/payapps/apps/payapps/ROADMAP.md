@@ -1006,7 +1006,7 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   clock for a home), the day this company last furnished labor or materials and, for California and
   Arizona, the project's completion and a recorded notice of completion (`projects.lien_state`,
   `lien_residential`, `last_furnished_on`, `work_completed_on`, `notice_of_completion_on`, migration
-  0084, saved through the job's PATCH and listed in the job history). It shows the last day to record
+  0085, saved through the job's PATCH and listed in the job history). It shows the last day to record
   or file the lien in ten states (AZ § 33-993, CA § 8414, CO § 38-22-109, FL § 713.08(5), GA
   § 44-14-361.1, NC § 44A-12(b), NY Lien Law § 10, OH § 1311.06(B), TX § 53.052, WA § 60.04.091),
   rules ported from the free mechanics-lien-deadline-calculator, whose timing was checked against the
@@ -1023,6 +1023,29 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   the cash CSV's Total row was one column short since "Pay terms count from" was added, so its past
   due total sat under that header. Not done: holidays, public jobs (bond claims), states beyond the
   ten, the notice of intent dates (Colorado) as their own reminder, and a lien recorded on the job.
+
+- Notices of claim: Texas, part 2 (2026-11-27, Crew and up; texas-notices-of-claim-part-2). Under
+  the Texas notices, "Notices of claim sent (Texas)": the job is tracked as a residential construction
+  project or not (`projects.tx_project_kind`, migration 0084), which turns on the rest. The months
+  the job's sent pay apps leave unpaid are listed (a period spanning two months lists both; the
+  balance is not split), each with its § 53.056(a-1) date and who has no notice recorded for it
+  (`src/shared/tx-notices.ts`). Each notice is recorded per recipient (owner or reputed owner,
+  original contractor) and, for § 53.056, per month (`tx_notice_sends`): how it went (certified mail,
+  in person, traceable private delivery, § 53.003(b)), the day sent, the mail or tracking number and
+  the claim amount; `txSendTiming` says on time or late (certified mail complies on deposit,
+  § 53.003(c)). The cash page and weekly email remind from 30 days before each unpaid month's date
+  until both recipients have one, and for 30 days after a missed one, at most three a job. Texas
+  legal holidays: `txLegalHoliday` follows Gov't Code § 662.021 (the national holidays of
+  § 662.003(a) and the state holidays of (b)(1)-(6), not 24 or 26 December), so every Texas date now
+  rolls past a holiday as § 53.003(e) says; part 1's dates could be a day early (15 February 2027,
+  Presidents' Day, is now 16 February). Snapshot `packages/lien-waivers/sources/tx-gv-662.txt`.
+  Job history: tracking set or stopped, recorded, deleted. Tests: `packages/lien-waivers/test/
+  tx-notice.test.ts` (every 2027 legal holiday against the snapshot, exactly 15 that year, the roll,
+  the timing), `src/shared/tx-notices.test.ts` (months, windows, cap) and
+  `test/worker/tx-notice-log.test.ts` (unpaid month from a real pay app, reminder narrowing and
+  stopping, residential, history, plan and role gates, tenant isolation). Not done: the retainage
+  notice's 30 days from a saved completion date, files per record (the green card), and a notice
+  date by work month that the pay app's lines rather than its period say.
 
 - Notices of claim: Texas (2026-11-27, Crew and up, with lien waivers; texas-notice-of-claim). The
   job page's "Preliminary notice of right to lien" panel, for a Texas job, offers both of the notices a
@@ -2312,7 +2335,8 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
   `"email": true` (docs/EMAIL.md); the deploy workflow ran once by hand (`priv-payapps-deploy.yml` in
-  oss-monorepo). Next: let it run on every merge (`push: branches: [main]`, a control-plane PR)
+  oss-monorepo). Done 2026-11-27: it runs on every merge to main that touches `ventures/payapps/`
+  (Markdown-only changes excepted), so merged fixes reach the live app without a hand dispatch
 - Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
   agent-approved under `docs/legal/OPERATOR.md` (no attorney review; open checks listed there)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on"); the
@@ -2415,11 +2439,10 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   the reminder, done 2026-11-27): files per record (the mail log or USPS tracking printout
   § 713.18(2)(c) says to keep), the company's tier so the contractor's copy joins the reminder, and
   § 713.18(3)'s returned-mail rule, if contractors use the log
-- Texas notices of claim, part 2 (part 1, both statutory forms and the deadlines, done 2026-11-27):
-  a log of the notices sent per month and per recipient (owner and GC, § 53.056(a-1)) with the
-  delivery method and tracking (§ 53.003(b)), the unpaid months read from the job's pay apps, and a
-  reminder on the cash page and in the weekly email before each 15th; Texas legal holidays for
-  § 53.003(e)
+- Texas notices of claim, part 3 (part 2, the log, unpaid months from pay apps, the reminder and
+  legal holidays, done 2026-11-27): the retainage notice's 30 days from a saved completion date with
+  its own reminder, files per record (the certified mail receipt or proof of receipt), if
+  contractors use the log
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask

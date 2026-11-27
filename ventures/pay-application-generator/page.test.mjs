@@ -137,3 +137,26 @@ test("the live preview fills a strip, does not scroll or announce, and counts no
   assert.match(preview, /if \(\$\("#file"\)\.files\[0\]\) return;/);
   assert.match(script, /\$\("#inputs"\)\.addEventListener\("input"/);
 });
+
+// docs/reports/polish-2026-11-27-payapp-dark-paste.md: dark mode from one token set, print stays light,
+// and the paste box wraps on a phone with a line count beside it.
+test("both pages take their colours from tokens, with a screen-only dark palette", () => {
+  for (const name of ["index.html", "pay-application-template.html"]) {
+    const css = /<style>([\s\S]*?)<\/style>/.exec(page(name))[1];
+    assert.match(css, /color-scheme: light dark/, name);
+    assert.match(css, /@media screen and \(prefers-color-scheme: dark\)/, name);
+    assert.match(css, /@media print \{ :root \{ color-scheme: light; \} \}/, name);
+    // Outside the token blocks, the only literal colour left is #fff (the strip's text, print paper).
+    const rules = css.replace(/:root \{ color-scheme: light dark;[\s\S]*?\n    @media print \{ :root \{ color-scheme: light; \} \}/, "");
+    assert.deepEqual([...new Set(rules.match(/#[0-9a-fA-F]{3,8}\b/g) || [])], ["#fff"], name);
+  }
+});
+
+test("the paste box wraps on a phone and says how many lines it holds", () => {
+  const html = page("index.html");
+  assert.match(html, /@media \(max-width: 600px\) \{[\s\S]*?textarea#paste \{ white-space: pre-wrap;/);
+  assert.match(html, /<textarea id="paste"[^>]*aria-describedby="paste-count"><\/textarea>\s*<p class="note" id="paste-count"><\/p>/);
+  const script = /<script type="module">([\s\S]*?)<\/script>/.exec(html)[1];
+  const calls = script.match(/countLines\(\)/g).length;
+  assert.ok(calls >= 5, `countLines() called ${calls} times`); // load, run, typing, clear, next month
+});

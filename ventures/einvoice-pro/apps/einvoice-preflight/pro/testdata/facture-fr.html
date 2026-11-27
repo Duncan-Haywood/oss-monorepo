@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Facture</title>
+<style>
+@page { size: A4; margin: 18mm 20mm; }
+body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 10pt; }
+.cols { display: flex; justify-content: space-between; margin-top: 8mm; }
+.cols div { width: 45%; line-height: 1.35; }
+table.items { width: 100%; border-collapse: collapse; margin-top: 8mm; }
+table.items th, table.items td { padding: 4px 6px; border-bottom: 1px solid #999; text-align: left; }
+.r { text-align: right; }
+table.sum { margin-left: auto; margin-top: 4mm; }
+table.sum td { padding: 2px 6px; }
+table.sum .r { padding-left: 20mm; }
+</style></head><body>
+<h1>Facture</h1>
+<p>Facture n° F-2026-0142<br>Date de facture : 3 novembre 2026<br>Date d'échéance : 03/12/2026</p>
+<div class="cols">
+<div><b>Vendeur</b><br>Menuiserie Exemple SARL<br>14 rue des Artisans<br>69003 Lyon<br>N° TVA intracommunautaire : FR68900000001</div>
+<div><b>Client</b><br>Atelier Dupont SAS<br>2 avenue de la Gare<br>38000 Grenoble</div>
+</div>
+<table class="items">
+<tr><th>Désignation</th><th class="r">Quantité</th><th class="r">Prix unitaire HT</th><th class="r">TVA</th><th class="r">Montant HT</th></tr>
+<tr><td>Fabrication escalier chêne</td><td class="r">1</td><td class="r">4 200,00 €</td><td class="r">20 %</td><td class="r">4 200,00 €</td></tr>
+<tr><td>Pose sur site</td><td class="r">2 jours</td><td class="r">540,00 €</td><td class="r">20 %</td><td class="r">1 080,00 €</td></tr>
+</table>
+<table class="sum">
+<tr><td>Total HT</td><td class="r">5 280,00 €</td></tr>
+<tr><td>TVA 20 %</td><td class="r">1 056,00 €</td></tr>
+<tr><td>Total TTC</td><td class="r">6 336,00 €</td></tr>
+</table>
+<p>Conditions de paiement : virement à 30 jours<br>IBAN : FR14 2004 1010 0505 0001 3M02 606 · BIC : PSSTFRPPLIL</p>
+</body></html>

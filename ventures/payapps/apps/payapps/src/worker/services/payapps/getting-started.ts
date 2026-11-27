@@ -3,6 +3,7 @@
 import { type GettingStartedJob, gettingStarted } from "@shared/getting-started";
 import { and, asc, count, eq, inArray } from "drizzle-orm";
 import type { AppContext } from "../../context";
+import { allInChunks } from "../../db/in-chunks";
 import { payAppPayments, payApps, projects, qboConnections, sovLines } from "../../db/schema";
 import { orgPlan, usage } from "../billing";
 import { pendingCount } from "../invitations";
@@ -27,40 +28,46 @@ export async function orgGettingStarted(ctx: AppContext, orgId: string) {
   const real = rows.filter((r) => !r.isSample);
   const ids = real.map((r) => r.id);
 
-  const [lines, apps, pays] = ids.length
-    ? await Promise.all([
-        ctx.db
-          .select({ projectId: sovLines.projectId, n: count() })
-          .from(sovLines)
-          .where(and(eq(sovLines.orgId, orgId), inArray(sovLines.projectId, ids)))
-          .groupBy(sovLines.projectId)
-          .all(),
-        ctx.db
-          .select({
-            id: payApps.id,
-            projectId: payApps.projectId,
-            number: payApps.number,
-            status: payApps.status,
-          })
-          .from(payApps)
-          .where(and(eq(payApps.orgId, orgId), inArray(payApps.projectId, ids)))
-          .orderBy(asc(payApps.number))
-          .all(),
-        ctx.db
-          .select({ payAppId: payAppPayments.payAppId, n: count() })
-          .from(payAppPayments)
-          .innerJoin(payApps, eq(payApps.id, payAppPayments.payAppId))
-          .where(
-            and(
-              eq(payAppPayments.orgId, orgId),
-              eq(payApps.orgId, orgId),
-              inArray(payApps.projectId, ids),
-            ),
-          )
-          .groupBy(payAppPayments.payAppId)
-          .all(),
-      ])
-    : [[], [], []];
+  // Per job, in slices of job ids (D1's 100-parameter cap; a company past ~98 jobs broke the
+  // checklist). Grouping and the pay-app order are per job, and a job sits in one slice.
+  const [lines, apps, pays] = await Promise.all([
+    allInChunks(ids, (slice) =>
+      ctx.db
+        .select({ projectId: sovLines.projectId, n: count() })
+        .from(sovLines)
+        .where(and(eq(sovLines.orgId, orgId), inArray(sovLines.projectId, slice)))
+        .groupBy(sovLines.projectId)
+        .all(),
+    ),
+    allInChunks(ids, (slice) =>
+      ctx.db
+        .select({
+          id: payApps.id,
+          projectId: payApps.projectId,
+          number: payApps.number,
+          status: payApps.status,
+        })
+        .from(payApps)
+        .where(and(eq(payApps.orgId, orgId), inArray(payApps.projectId, slice)))
+        .orderBy(asc(payApps.number))
+        .all(),
+    ),
+    allInChunks(ids, (slice) =>
+      ctx.db
+        .select({ payAppId: payAppPayments.payAppId, n: count() })
+        .from(payAppPayments)
+        .innerJoin(payApps, eq(payApps.id, payAppPayments.payAppId))
+        .where(
+          and(
+            eq(payAppPayments.orgId, orgId),
+            eq(payApps.orgId, orgId),
+            inArray(payApps.projectId, slice),
+          ),
+        )
+        .groupBy(payAppPayments.payAppId)
+        .all(),
+    ),
+  ]);
 
   const lineCount = new Map(lines.map((l) => [l.projectId, l.n]));
   const payCount = new Map(pays.map((p) => [p.payAppId, p.n]));

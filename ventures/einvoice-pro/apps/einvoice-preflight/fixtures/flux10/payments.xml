@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made up for testing: France's e-reporting of payments (Flux 10.2 and 10.4) for a service provider
+     that pays VAT on receipt: one B2B invoice paid in two rates and a day's B2C takings. SIREN is
+     FNFE-MPE's test number; nothing here is a real business. -->
+<Report>
+  <ReportDocument>
+    <Id>EREP-200000008-20261101-PAY</Id>
+    <IssueDateTime>
+      <DateTimeString>20261102081500</DateTimeString>
+    </IssueDateTime>
+    <TypeCode>IN</TypeCode>
+    <Sender>
+      <Id schemeId="0238">0003</Id>
+      <Name>Example Approved Platform</Name>
+      <RoleCode>WK</RoleCode>
+    </Sender>
+    <Issuer>
+      <Id schemeId="0002">200000008</Id>
+      <Name>Example Services SAS</Name>
+      <RoleCode>SE</RoleCode>
+    </Issuer>
+  </ReportDocument>
+  <PaymentsReport>
+    <ReportPeriod>
+      <StartDate>20261001</StartDate>
+      <EndDate>20261031</EndDate>
+    </ReportPeriod>
+    <Invoice>
+      <InvoiceID>S2026-0915</InvoiceID>
+      <IssueDate>20260928</IssueDate>
+      <Payment>
+        <Date>20261014</Date>
+        <SubTotals>
+          <TaxPercent>20</TaxPercent>
+          <CurrencyCode>EUR</CurrencyCode>
+          <Amount>1800.00</Amount>
+        </SubTotals>
+        <SubTotals>
+          <TaxPercent>10</TaxPercent>
+          <CurrencyCode>EUR</CurrencyCode>
+          <Amount>330.00</Amount>
+        </SubTotals>
+      </Payment>
+    </Invoice>
+    <Transactions>
+      <Payment>
+        <Date>20261015</Date>
+        <SubTotals>
+          <TaxPercent>20</TaxPercent>
+          <CurrencyCode>EUR</CurrencyCode>
+          <Amount>612.00</Amount>
+        </SubTotals>
+      </Payment>
+    </Transactions>
+  </PaymentsReport>
+</Report>
