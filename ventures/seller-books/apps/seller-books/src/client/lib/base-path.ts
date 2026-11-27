@@ -16,3 +16,23 @@ export const apiUrl = (path: string): string =>
 
 /** The router-relative part of a browser pathname ("/seller-books/app/orgs/x" -> "/orgs/x"). */
 export const routerPath = (pathname: string): string => stripBase(BASE_PATH, pathname) ?? pathname;
+
+const PROBE_ORIGIN = "https://seller-books.invalid";
+
+/**
+ * A `?next=` destination made safe to navigate to: a root-relative path on this origin, or null.
+ * A plain startsWith("/") check is not enough: browsers read "/\evil.example" as
+ * "//evil.example" and drop tabs and newlines, so the value is resolved by the URL parser
+ * against a fixed origin and rejected if it lands anywhere else.
+ */
+export function safeNextPath(next: string | null | undefined): string | null {
+  if (!next?.startsWith("/")) return null;
+  let url: URL;
+  try {
+    url = new URL(next, PROBE_ORIGIN);
+  } catch {
+    return null;
+  }
+  if (url.origin !== PROBE_ORIGIN) return null;
+  return `${url.pathname}${url.search}${url.hash}`;
+}
