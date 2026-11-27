@@ -223,7 +223,7 @@ your subcontract, or what markup you are owed. The request it writes reserves no
 makes no claim. If a change is disputed, read the changes and claims clauses and talk to a
 construction attorney before the deadline in them passes.
 
-Everything runs in the browser; nothing is uploaded. We are building hosted pay-app billing for
-specialty subcontractors that keeps change orders, pay applications, retainage and lien waivers
-per job, with the RFI and submittal logs above. It is in development, with early access; nothing is for sale yet:
-[construction tools and early access](https://marisstella.app/industries/construction/).
+Everything runs in the browser; nothing is uploaded. PayApps, our hosted pay-app billing for
+specialty subcontractors, keeps change orders, T&M tickets, RFIs, pay applications and retainage
+per job. It is open and free on one active job, with no card:
+[start free](https://marisstella.app/industries/construction/). The paid plans (more jobs and users, lien waivers, QuickBooks and job costing) are not on sale yet.

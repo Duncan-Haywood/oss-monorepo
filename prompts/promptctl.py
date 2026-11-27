@@ -1322,18 +1322,22 @@ def _edge_change_index() -> dict[str, tuple[str, str]]:
     return _memo("indexes", _last_change_indexes)[1]
 
 
-def _last_change_indexes() -> tuple[dict[str, tuple[str, str]], dict[str, tuple[str, str]]]:
+def _last_change_indexes() -> tuple[dict[str, tuple[str, str]], dict[str, tuple[str, str]],
+                                     dict[str, int], list[tuple[str, str, list[str]]]]:
+    """(index, edge index, sha -> log position, merges as (sha, date, parents) newest first)."""
     idx: dict[str, tuple[str, str]] = {}
     edge_idx: dict[str, tuple[str, str]] = {}
+    order: dict[str, int] = {}
+    merges: list[tuple[str, str, list[str]]] = []
     try:
         # As `git log -1 -- path` sees it (2026-11-26: 5 of 1822 friction paths were dated by an
         # older commit): `--diff-merges=c` lists the files a merge changed against every parent,
         # which a plain log lists for no merge, and `--no-renames` lists a rename's old name too.
-        out = subprocess.run(["git", "log", "--format=@%H %cI", "--name-only", "--diff-merges=c",
+        out = subprocess.run(["git", "log", "--format=@%H %cI %P", "--name-only", "--diff-merges=c",
                               "--no-renames"],
                              cwd=ROOT.parent, capture_output=True, text=True, timeout=120).stdout
     except (OSError, subprocess.SubprocessError):
-        return {}, {}
+        return {}, {}, {}, []
     into: dict[str, tuple[str, str]] = idx
     cur: tuple[str, str] | None = None
     edge = _shallow_boundary()
@@ -1343,7 +1347,10 @@ def _last_change_indexes() -> tuple[dict[str, tuple[str, str]], dict[str, tuple[
     first_root = _first_parent_root() if len(edge) > 1 else None
     for line in out.splitlines():
         if line.startswith("@"):
-            sha, _, when = line[1:].partition(" ")
+            sha, when, *parents = line[1:].split(" ")
+            order[sha] = len(order)
+            if len(parents) > 1 and sha not in edge:
+                merges.append((sha, when, parents))
             # A shallow root "adds" every file: it dates a path only when no real commit does.
             cur = (sha, when)
             into = edge_idx if sha in edge else idx
@@ -1352,7 +1359,34 @@ def _last_change_indexes() -> tuple[dict[str, tuple[str, str]], dict[str, tuple[
                 into[line] = cur
             else:
                 into.setdefault(line, cur)
-    return idx, edge_idx
+    return idx, edge_idx, order, merges
+
+
+def _merge_hit(matches, older: tuple[str, str] | None) -> tuple[str, str] | None:
+    """The newest merge, newer than `older`, that differs from EVERY parent somewhere `matches`
+    accepts: git's directory or glob TREESAME, which `--diff-merges=c` (a file differing from
+    every parent) cannot see. P095, 2026-11-27 (PR #19644): main and the PR each added a different
+    run record, so CI's merge ref changed prompts/ through neither parent alone. Main squashes, so
+    only a PR's merge ref holds merges: one `git diff` per parent, memoised."""
+    _, _, order, merges = _memo("indexes", _last_change_indexes)
+    limit = order.get(older[0], len(order)) if older else len(order)
+    for sha, when, parents in merges:
+        if order[sha] >= limit:
+            break
+        if all(any(matches(name) for name in _parent_diff(parent, sha)) for parent in parents):
+            return sha, when
+    return None
+
+
+def _parent_diff(parent: str, sha: str) -> list[str]:
+    def run() -> list[str]:
+        try:
+            return subprocess.run(["git", "diff", "--name-only", "--no-renames", parent, sha],
+                                  cwd=ROOT.parent, capture_output=True, text=True,
+                                  timeout=60).stdout.split("\n")
+        except (OSError, subprocess.SubprocessError):
+            return []
+    return _memo(("parent-diff", parent, sha), run)
 
 
 def _first_parent_root() -> str | None:
@@ -1405,11 +1439,12 @@ def _glob_hit(path: str) -> tuple[str, str] | None:
     never get here)."""
     def build() -> tuple[str, str] | None:
         pattern = re.compile(fnmatch.translate(path))
+        hit = None
         for index in (_last_change_index(), _edge_change_index()):
-            for name, hit in index.items():
-                if pattern.match(name):
-                    return hit
-        return None
+            hit = next((h for name, h in index.items() if pattern.match(name)), None)
+            if hit:
+                break
+        return _merge_hit(pattern.match, hit) or hit
     return _memo(("glob", path), build)
 
 
@@ -1418,11 +1453,12 @@ def _dir_hit(path: str) -> tuple[str, str] | None:
     The indexes keep git's log order (a path is inserted at the first commit naming it), so the
     first entry under the prefix is the newest; a real commit is preferred over a shallow root."""
     prefix = path.rstrip("/") + "/"
+    hit = None
     for index in (_last_change_index(), _edge_change_index()):
-        for name, hit in index.items():
-            if name.startswith(prefix):
-                return hit
-    return None
+        hit = next((h for name, h in index.items() if name.startswith(prefix)), None)
+        if hit:
+            break
+    return _merge_hit(lambda name: name.startswith(prefix), hit) or hit
 
 
 def _changed_note_uncached(path: str, hit: tuple[str, str] | None = None) -> tuple[str, str]:

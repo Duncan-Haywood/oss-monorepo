@@ -115,7 +115,7 @@ suggest asking the GC whether it can still go in this month's draw. A month with
 drafted is never called missed, since there may have been no work to bill. A day like the 31st
 falls on the last day of shorter months.
 
-**Where this goes.** We are building hosted pay-app billing for specialty subcontractors that
-keeps every pay application, retainage balance and lien waiver per job, so it can show what is
-owed and how long it has been outstanding. It is in development with early access, and nothing
-is for sale yet: [construction tools and early access](https://marisstella.app/industries/construction/).
+**Where this goes.** PayApps, our hosted pay-app billing for specialty subcontractors, keeps
+every pay application, payment and retainage balance per job and shows what is owed, when it was
+due under the job's pay terms and how late it is. It is open and free on one active job, with no
+card: [start free](https://marisstella.app/industries/construction/). The paid plans (more jobs and users, lien waivers, QuickBooks and job costing) are not on sale yet.

@@ -278,8 +278,8 @@ Not yet: hours straight from a QuickBooks Time or payroll connection, the crew s
 instead of the browser, the other states' files in the table above (New Jersey's Wage Hub CSV next, once its template can be read), and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
 contractors ask for them.
 
-PayApps is in early access and not yet offered for sale:
-[see the construction tools and join early access](https://marisstella.app/industries/construction/).
+Certified payroll is on every plan, and PayApps is open: free on one active job, with no card.
+[Start free](https://marisstella.app/industries/construction/). The paid plans (more jobs and users, lien waivers, QuickBooks and job costing) are not on sale yet.
 Not affiliated with the Department of Labor, California DIR or LCPtracker. This is general information, not legal,
 payroll or compliance advice; which wage determination applies and whether your contract is covered
 come from your contract and the contracting officer.
