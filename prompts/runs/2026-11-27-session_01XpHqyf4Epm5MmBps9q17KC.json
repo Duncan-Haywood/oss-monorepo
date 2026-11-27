@@ -30,7 +30,9 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "platform/pages build.test.mjs run together with the construction tests outlasted the 120 s foreground timeout; moved to background"
+    "platform/pages build.test.mjs run together with the construction tests outlasted the 120 s foreground timeout; moved to background",
+    "validate (test_promptctl LastChangeIndexTest) red twice on PR #19644; rerun did not help; root cause filed as P095",
+    "payapps CI job and changed-ventures failed on tests outside this diff (a sov/opening-balance UI waitFor timeout, the flake open PR #19638 fixes; test_check_code_point_range temp-dir race); the same suites pass locally"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,6 +47,10 @@
     {
       "file": "ventures/payapps/apps/payapps/src/client/components/layout.tsx",
       "issue": "The in-app 'not yet offered for sale' strip was on no launch checklist; found only by opening the live app"
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "prompts-ci validate failed deterministically on this PR: a depth-2 merge checkout where main and the PR changed different files under prompts/ makes git date the directory by the merge commit, which the combined-diff index never lists (backlog P095); worked around by merging main into the branch"
     }
   ],
   "deviations": [
