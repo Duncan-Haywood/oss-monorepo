@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVNupscVgEVM4XeWcF4",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T08:55:56Z",
+  "ended": "2026-11-27T08:59:00Z",
+  "wall_minutes": 3.26,
+  "tokens_in": 1978344,
+  "tokens_out": 13817,
+  "cost_usd": 1.1218,
+  "tool_calls": 27,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19681",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first unittest invocation from repo root errored (module path); reran from prompts/"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/backlog/P095-dir-index-merge-commit.json",
+      "issue": "evidence says 'reproduced: git fetch refs/pull/19644/merge' but the ref vanishes once the PR merges; a backlog item fixed later needs a self-contained repro (the synthetic test now is one)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no blog post or agent doc: a promptctl bug fix with its explanation in the commit, test and backlog history; a post would be thin",
+      "did": "documented in backlog item history and PR body",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Backlog: P095 solved (done). Security queue: 12 claimed, 0 workable. Checks: unittest discover -s prompts 169 OK; promptctl validate ok; new test failed 8 subtests before the fix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "63fc8b5b-98f0-5279-b1f9-74781dc41ffd",
+    "transcripts": 1,
+    "first": "2026-11-27T08:55:56Z",
+    "last": "2026-11-27T08:59:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 53,
+        "output": 13817,
+        "thinking": 3696,
+        "cache_read": 1920651,
+        "cache_write_5m": 0,
+        "cache_write_1h": 57640,
+        "api_equivalent_usd": 1.1218,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 53,
+      "output": 13817,
+      "thinking": 3696,
+      "cache_read": 1920651,
+      "cache_write_5m": 0,
+      "cache_write_1h": 57640,
+      "api_equivalent_usd": 1.1218,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 27,
+    "tools": {
+      "Bash": 25,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.26,
+      "active_minutes": 3.26,
+      "model_minutes": 2.55,
+      "tool_minutes": 0.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "debug git TREESAME semantics, write temp-repo test and fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 178.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
