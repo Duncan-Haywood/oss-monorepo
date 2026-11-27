@@ -153,6 +153,9 @@
      "triaged": "2026-11-25"},
     {"number": 1208, "rule": "js/redos", "path": "ventures/devsec-toolkit/tests/fixtures/vulnerable-repo/src/validate.js",
      "reason": "Intended behaviour. A deliberately vulnerable regex in devsec-toolkit's vulnerable-repo test fixture, which the toolkit's scanner tests must detect; the fixture is never imported by shipped code.",
-     "triaged": "2026-11-25"}
+     "triaged": "2026-11-25"},
+    {"number": 1434, "rule": "py/clear-text-logging-sensitive-data", "path": "portfolio/smb/cbp_counts.py",
+     "reason": "The printed rows are public Census County Business Patterns aggregates (establishment and employee counts per NAICS code and state) read from the Bureau's published flat file; the 'private' source is CodeQL's name heuristic matching the 'state' key and the zip-file path, and no personal or secret data reaches the print.",
+     "triaged": "2026-11-27"}
   ]
 }
