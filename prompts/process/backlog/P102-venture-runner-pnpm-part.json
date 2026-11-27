@@ -19,7 +19,7 @@
   "baseline": "4 records on 2026-11-27; `run_venture_tests.py payapps` -> 'ok payapps (0.3s, 10 tests)'",
   "opened": "2026-11-27",
   "source": "process run (friction_rank.py --live --ungated --days 3)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19768",
   "result": null,
   "history": []
 }
