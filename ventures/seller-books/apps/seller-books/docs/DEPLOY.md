@@ -8,10 +8,10 @@ request and only the rows are kept. The workflow
 the whole deploy; there are no dashboard steps beyond the settings below. It was ported from
 `jobshop-quote-deploy.yml` on 2026-11-26 and has not run yet.
 
-**It runs by hand only** (Actions -> seller-books-deploy -> Run workflow). The legal pages are drafts
-until the owner confirms the operator name and contact email and counsel reviews them
-([BILLING.md](BILLING.md), "Turning it on"), so a merge never puts the app in front of strangers. After
-launch, add `push: branches: [main]` to the workflow so every merge ships. To gate each run, add
+**It runs by hand only** (Actions -> seller-books-deploy -> Run workflow). The operator and contact
+email are filled in and launch is agent-approved under `docs/legal/OPERATOR.md` (no attorney review);
+the review it asks for is [LAUNCH-REVIEW.md](LAUNCH-REVIEW.md) (2026-11-27), so an agent may run the
+first deploy and open sign-ups. After launch, add `push: branches: [main]` to the workflow so every merge ships. To gate each run, add
 required reviewers to the `seller-books-production` environment (Settings -> Environments).
 
 ## What a run does

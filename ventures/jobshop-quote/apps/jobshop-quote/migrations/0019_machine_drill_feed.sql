@@ -1,0 +1,1 @@
+ALTER TABLE `machines` ADD `drill_feed_in_per_min` real;

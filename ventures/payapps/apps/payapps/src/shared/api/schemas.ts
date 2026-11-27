@@ -55,6 +55,12 @@ import {
   TRANSMITTAL_REQUESTS,
 } from "../submittals";
 import {
+  MAX_BURDEN_BPS as TIMESHEET_MAX_BURDEN_BPS,
+  MAX_DAY_HUNDREDTHS as TIMESHEET_MAX_DAY,
+  MAX_RATE_CENTS as TIMESHEET_MAX_RATE_CENTS,
+  MAX_ROWS_PER_WORKER_WEEK as TIMESHEET_MAX_ROWS,
+} from "../timesheets";
+import {
   MAX_RATE_SHEET_LINES,
   MAX_SIGNATURE_BASE64,
   MAX_TM_HOURS,
@@ -1252,3 +1258,51 @@ export const submittalTransmittalQuerySchema = z.object({
   today: isoDate.optional(),
   requested: z.enum(TRANSMITTAL_REQUESTS).optional(),
 });
+
+// ---- Crew timesheets (src/shared/timesheets.ts) ----
+
+const crewFields = {
+  name: z.string().trim().min(1, "Name the worker").max(120),
+  trade: optText(80),
+  rateCents: z.number().int().min(0).max(TIMESHEET_MAX_RATE_CENTS).nullish(),
+};
+
+/** POST /timesheets/crew */
+export const crewMemberSchema = z.object(crewFields).strict();
+
+/** PATCH /timesheets/crew/:workerId */
+export const updateCrewMemberSchema = z
+  .object({
+    name: crewFields.name.optional(),
+    trade: crewFields.trade,
+    rateCents: crewFields.rateCents,
+    active: z.boolean().optional(),
+  })
+  .strict();
+
+/** PUT /timesheets/settings */
+export const timesheetSettingsSchema = z
+  .object({ weekStartDay: z.number().int().min(0).max(6) })
+  .strict();
+
+/** PUT /timesheets/weeks/:weekStart/workers/:workerId: the worker's rows for the week, replaced whole. */
+export const workerWeekSchema = z
+  .object({
+    rows: z
+      .array(
+        z
+          .object({
+            projectId: z.string().min(1).max(64),
+            sovLineId: z.string().min(1).max(64).nullish(),
+            hours: z.array(z.number().int().min(0).max(TIMESHEET_MAX_DAY)).length(7),
+          })
+          .strict(),
+      )
+      .max(TIMESHEET_MAX_ROWS),
+  })
+  .strict();
+
+/** POST /timesheets/weeks/:weekStart/post: the week's labor onto each job's costs. */
+export const postTimesheetWeekSchema = z
+  .object({ burdenBps: z.number().int().min(0).max(TIMESHEET_MAX_BURDEN_BPS).default(0) })
+  .strict();

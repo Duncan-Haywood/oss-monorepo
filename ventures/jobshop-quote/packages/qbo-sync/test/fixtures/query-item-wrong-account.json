@@ -1,0 +1,16 @@
+{
+  "QueryResponse": {
+    "Item": [
+      {
+        "Id": "31",
+        "SyncToken": "4",
+        "Name": "Retainage",
+        "Type": "Service",
+        "IncomeAccountRef": { "value": "1", "name": "Services" }
+      }
+    ],
+    "startPosition": 1,
+    "maxResults": 1
+  },
+  "time": "2026-11-24T10:00:04.000-08:00"
+}

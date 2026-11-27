@@ -149,6 +149,9 @@ workflows:
 - workflow: ig-media-pipeline-ci.yml
   classification: none
   publishes: []
+- workflow: jobshop-quote-ci.yml
+  classification: none
+  publishes: []
 - workflow: jwt-verification-misuse-check-ci.yml
   classification: none
   publishes: []

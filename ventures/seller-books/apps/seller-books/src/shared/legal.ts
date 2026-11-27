@@ -2,7 +2,7 @@
 // changes in substance: every user is asked to accept the new version on their next visit.
 // The documents live in docs/legal/*.md and are bundled by docs/legal/sync-documents.mjs.
 // Same shape as apps/jobshop-quote/src/shared/legal.ts, apps/payapps and apps/cmmc.
-export const POLICY_VERSION = "2026-11-27.1";
+export const POLICY_VERSION = "2026-11-27.2";
 
 export const LEGAL_DOC_KEYS = ["terms", "privacy", "refunds", "acceptable-use"] as const;
 export type LegalDocKey = (typeof LEGAL_DOC_KEYS)[number];
