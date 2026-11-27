@@ -75,10 +75,31 @@ def refs_in(text: str):
                 yield n, c
 
 
+# `other-repo`'s `apps/x/y.ts`: a path written as belonging to another repository,
+# possibly across a line break. Its owner is the code span just before it.
+OWNED_RE = re.compile(r"`([A-Za-z0-9_.\-]+)`'s\s+`([^`\n]+)`")
+
+
+def other_repo_paths(text: str, tops: set[str]) -> set[tuple[int, str]]:
+    """(line, path) pairs named as another repository's file, so not checked here."""
+    out = set()
+    for m in OWNED_RE.finditer(text):
+        if m.group(1) in tops:
+            continue
+        c = candidate(m.group(2))
+        if c:
+            out.add((text.count("\n", 0, m.start(2)) + 1, c))
+    return out
+
+
 def missing_refs(path: Path, root: Path, tops: set[str], known: set[str] = frozenset()):
-    for n, c in refs_in(path.read_text(encoding="utf-8", errors="replace")):
+    text = path.read_text(encoding="utf-8", errors="replace")
+    elsewhere = other_repo_paths(text, tops)
+    for n, c in refs_in(text):
         if c.split("/", 1)[0] not in tops:
             continue  # not rooted at a repo top-level name (e.g. `owner/repo`)
+        if (n, c) in elsewhere:
+            continue  # another repository's path (`private-monorepo`'s `apps/grants/...`)
         if not (root / c.rstrip("/")).exists() and c.rstrip("/") not in known:
             yield n, c
 

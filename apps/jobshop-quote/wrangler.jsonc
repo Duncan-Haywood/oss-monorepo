@@ -1,0 +1,53 @@
+// Job Shop Quote: Cloudflare Worker configuration (infrastructure as code). Deployed by
+// .github/workflows/jobshop-quote-deploy.yml, whose scripts/provision.mjs creates D1 and R2 and adds the
+// database id to the deploy config (docs/DEPLOY.md).
+// Use full-line comments only.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jobshop-quote",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "preview_urls": false,
+  "upload_source_maps": true,
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  // Cloudflare Email Service (account mail; docs/EMAIL.md). Mail goes out only once EMAIL_FROM is set
+  // to an address on an onboarded sender domain; `wrangler dev` only simulates sends.
+  "send_email": [{ "name": "EMAIL" }],
+  // Daily at 11:17 UTC (after midnight in every US time zone, Hawaii included): the quote expiry job
+  // (src/worker/index.ts).
+  "triggers": { "crons": ["17 11 * * *"] },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "jobshop-quote", "migrations_dir": "migrations" }
+  ],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "jobshop-quote-files" }],
+  // Workers AI: PDF drawing / attachment text extraction (toMarkdown).
+  "ai": { "binding": "AI" },
+  // Workers Rate Limiting (middleware/rate-limit.ts RATE_LIMITS must match). namespace_id is unique
+  // per Cloudflare account: grants uses 1001-1005 and the marketing sites 2001, so this app takes 1201-1202.
+  "ratelimits": [
+    { "name": "LLM_LIMITER", "namespace_id": "1201", "simple": { "limit": 30, "period": 60 } },
+    { "name": "UPLOAD_LIMITER", "namespace_id": "1202", "simple": { "limit": 20, "period": 60 } }
+  ],
+  "vars": {
+    "APP_ENV": "development",
+    "APP_URL": "http://localhost:5173",
+    "LLM_MODEL": "claude-haiku-5-5",
+    "FAKE_EXTERNALS": "false",
+    // Empty: checkout turns on by itself once BILLING_API_KEY and BILLING_WEBHOOK_SECRET exist
+    // (owner, 2026-11-26; packages/billing billingProviderName). "none" is the kill switch.
+    "BILLING_PROVIDER": "",
+    // Inbound RFQ email (services/inbound, docs/EMAIL.md): the domain whose catch-all Email Routing
+    // rule sends mail to this worker. Empty keeps the feature off.
+    "INBOUND_EMAIL_DOMAIN": "",
+    // LLM spend caps (services/guards/llm-budget.ts): "off" disables, GLOBAL "0" is the kill switch.
+    // The shop's plan sets its own monthly ceiling (src/shared/plans.ts llmMonthlyCapUsd); this
+    // default applies only where no plan is resolved.
+    "ORG_MONTHLY_LLM_CAP_USD": "25",
+    "GLOBAL_DAILY_LLM_CAP_USD": "200"
+  }
+}

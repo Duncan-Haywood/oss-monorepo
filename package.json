@@ -1,0 +1,20 @@
+{
+  "name": "paid-apps-workspace",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "biome check apps packages",
+    "lint:fix": "biome check --write apps packages",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "build": "pnpm -r build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.8",
+    "typescript": "5.9.3"
+  },
+  "description": "pnpm workspace for the paid apps in apps/ and their packages in packages/ (moved from the private repo 2026-11-26). Ventures in ventures/ are not part of it."
+}

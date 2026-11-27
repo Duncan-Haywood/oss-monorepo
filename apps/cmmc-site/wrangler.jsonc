@@ -1,0 +1,37 @@
+// apps/cmmc-site: static marketing site + early-access list (Cloudflare Worker).
+// Build first (`node src/build.mjs`), then `wrangler deploy` (see README.md "Deploy").
+// Secrets (never in this file): TOKEN_SECRET (leave-link HMAC), IP_HASH_SALT.
+{
+  "$schema": "../grants/node_modules/wrangler/config-schema.json",
+  "name": "cmmc-site",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-11-01",
+  "preview_urls": false,
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  // The Worker runs first for every request: it strips BASE_PATH, answers /api/*, and serves the
+  // rest from ASSETS. Pages are file-layout (pricing.html), so /pricing is served without a redirect.
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "none"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "cmmc-site",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Cloudflare Email Service, transactional only: the one confirmation email per sign-up.
+  "send_email": [{ "name": "EMAIL" }],
+  "vars": {
+    "SITE_URL": "https://marisstella.app/cmmc",
+    "BASE_PATH": "/cmmc",
+    "EMAIL_FROM": "Shop Compliance Workspace <no-reply@marisstella.app>"
+  },
+  // Daily purge of never-confirmed sign-ups (30 days).
+  "triggers": { "crons": ["17 4 * * *"] },
+  "routes": [{ "pattern": "marisstella.app/cmmc*", "zone_name": "marisstella.app" }]
+}

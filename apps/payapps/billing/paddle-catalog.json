@@ -1,0 +1,29 @@
+{
+  "app": "payapps",
+  "productName": "PayApps",
+  "currency": "USD",
+  "taxCategory": "saas",
+  "plans": [
+    {
+      "key": "solo",
+      "name": "Solo",
+      "description": "Up to 5 active jobs for a small subcontractor billing monthly pay applications.",
+      "monthlyCents": 9900,
+      "annualCents": 106900
+    },
+    {
+      "key": "crew",
+      "name": "Crew",
+      "description": "Up to 20 active jobs and 3 users for a growing specialty contractor.",
+      "monthlyCents": 17900,
+      "annualCents": 193300
+    },
+    {
+      "key": "company",
+      "name": "Company",
+      "description": "Unlimited active jobs and users.",
+      "monthlyCents": 24900,
+      "annualCents": 268900
+    }
+  ]
+}

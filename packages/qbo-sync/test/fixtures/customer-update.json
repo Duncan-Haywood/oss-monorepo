@@ -1,0 +1,11 @@
+{
+  "Customer": {
+    "Id": "58",
+    "SyncToken": "3",
+    "DisplayName": "Mesa Ridge Builders",
+    "CompanyName": "Mesa Ridge Builders LLC",
+    "PrimaryEmailAddr": { "Address": "billing@mesaridge.example" },
+    "Active": true
+  },
+  "time": "2026-11-24T10:00:02.000-08:00"
+}

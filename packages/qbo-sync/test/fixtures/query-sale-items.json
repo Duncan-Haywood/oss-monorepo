@@ -1,0 +1,29 @@
+{
+  "QueryResponse": {
+    "Item": [
+      {
+        "Id": "12",
+        "SyncToken": "0",
+        "Name": "Electrical Labor",
+        "Type": "Service",
+        "IncomeAccountRef": { "value": "79", "name": "Construction Income" }
+      },
+      {
+        "Id": "13",
+        "SyncToken": "2",
+        "Name": "Conduit and wire",
+        "Type": "NonInventory",
+        "IncomeAccountRef": { "value": "80", "name": "Materials Income" }
+      },
+      {
+        "Id": "14",
+        "SyncToken": "0",
+        "Name": "Bundle with no account",
+        "Type": "Service"
+      }
+    ],
+    "startPosition": 1,
+    "maxResults": 3
+  },
+  "time": "2026-11-25T10:00:04.000-08:00"
+}

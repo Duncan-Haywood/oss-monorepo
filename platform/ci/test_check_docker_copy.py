@@ -50,6 +50,17 @@ class DockerCopyTest(unittest.TestCase):
                                       "CMD node server.mjs\n")
         self.assertEqual(c.check(df), [])
 
+    def test_directory_reference_needs_a_file_under_it(self):
+        # pro/serve.mjs in apps/einvoice-preflight reads new URL("../fonts/", ...): satisfied
+        # once the image copies the fonts folder, a hit while it does not.
+        self.write("pro/serve.mjs", 'const FONTS = new URL("../fonts/", import.meta.url);\n')
+        self.write("fonts/A.ttf", "x")
+        base = 'FROM node:22\nWORKDIR /app\nCOPY pro ./pro\n'
+        missing = self.write("Dockerfile", base + 'CMD ["node", "pro/serve.mjs"]\n')
+        self.assertEqual(len(c.check(missing)), 1)
+        ok = self.write("Dockerfile", base + 'COPY fonts ./fonts\nCMD ["node", "pro/serve.mjs"]\n')
+        self.assertEqual(c.check(ok), [])
+
     def test_entry_not_copied_and_non_node_image_skipped(self):
         df = self.write("Dockerfile", 'FROM node:22\nWORKDIR /app\nCOPY \\\n  LICENSE ./\nCMD ["node", "server.mjs"]\n')
         self.write("LICENSE", "MIT\n")

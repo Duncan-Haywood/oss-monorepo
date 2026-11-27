@@ -1,0 +1,47 @@
+# Moved from Duncan-Haywood/private-monorepo .github/workflows/einvoice-site-ci.yml at cded6eaf5d8a (2026-11-26);
+# actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials,
+# the AWS CodeBuild runner switch replaced by this repository's vars.CI_RUNNER.
+# PR checks for apps/einvoice-site (zero-dependency static site + worker). Never needs a secret;
+name: apps-einvoice-site-ci
+on:
+  pull_request:
+    paths:
+      - "apps/einvoice-site/**"
+      - ".github/workflows/apps-einvoice-site-ci.yml"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "apps/einvoice-site/**"
+      - ".github/workflows/apps-einvoice-site-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: einvoice-site-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: lint, build, tests
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --filter paid-apps-workspace
+      - name: Biome
+        run: pnpm exec biome ci apps/einvoice-site
+      - name: Build (dev)
+        working-directory: apps/einvoice-site
+        run: node build.mjs
+      - name: Tests
+        working-directory: apps/einvoice-site
+        run: node --test test/*.test.mjs

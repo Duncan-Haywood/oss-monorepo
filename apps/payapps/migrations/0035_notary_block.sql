@@ -1,0 +1,1 @@
+ALTER TABLE `projects` ADD `notary_block` integer DEFAULT false NOT NULL;

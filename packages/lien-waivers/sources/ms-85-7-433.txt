@@ -1,0 +1,231 @@
+# Miss. Code Ann. §§ 85-7-419 and 85-7-433(1)-(3) (Mississippi), as enacted by the Legislature.
+# The official Code is published through LexisNexis, which this build environment cannot reach
+# (Justia and FindLaw answer 403), so the text is copied from the Act that wrote both sections:
+# - SB 2622 (2014 Regular Session), "As Sent to Governor", Sections 10 and 17; approved by the
+#   Governor 11 Apr 2014 (bill history:
+#   https://billstatus.ls.state.ms.us/2014/pdf/history/SB/SB2622.xml).
+#   https://billstatus.ls.state.ms.us/documents/2014/html/SB/2600-2699/SB2622SG.htm
+#   (sha256 68b469e3b04327622840e205c5dfc7f43d8bbaeafd00ef78f0fd02f3e6932040); the same bill as PDF,
+#   https://billstatus.ls.state.ms.us/documents/2014/pdf/SB/2600-2699/SB2622SG.pdf
+#   (sha256 bf47f267e363f36c048258b8c207b413e6335786c3f0d19eac6275111193274e), was compared word for
+#   word with this text and agrees.
+# Fetched: 2026-11-26. The bill creates both sections new (no struck or underlined words). HTML tags,
+# the bill's section headings, line numbers, page headers and footers removed; a printed rule is
+# "____" (any length); wording otherwise unchanged. Subsections 85-7-433(4) (notice of contest of
+# lien) and (5) (pre-lien notice) are left out (not used by the waiver forms).
+# No later amendment was found: the short titles of every measure in the Legislature's
+# "All Measures" lists for the 2015-2026 sessions were searched for construction-lien and waiver
+# bills, and each one found died in committee (2026-11-26). Check the current Code before relying
+# on it. The final payment form (85-7-433(2)) prints its signature and notary lines both above and
+# below the NOTICE, in the HTML and the PDF alike; both are kept.
+# Public law. Used by test/ms.test.ts and test/whole-form.test.ts to check the encoded forms.
+85-7-419. (1) A
+right to claim a lien or to claim upon a bond may not be waived in advance of
+furnishing of labor, services or materials. Any purported waiver or release of
+lien, bond claim or this article executed or made in advance of furnishing
+labor, services or materials is null, void and unenforceable.
+(2) When a claimant is
+requested to execute a waiver and release in exchange for or in order to induce
+payment other than final payment, the waiver and release shall substantially
+follow the Interim Waiver and Release upon Payment form set forth in Section 85-7-433(1).
+The failure to correctly complete any of the blank spaces in the referenced
+form does not invalidate the form if the subject matter of the release
+reasonably may be determined.
+(3) When a claimant is
+requested to execute a waiver and release in exchange for or in order to induce
+making of final payment, the waiver and release shall substantially follow the
+Waiver and Release upon Final Payment form set forth in Section 85-7-433(2).
+The failure to correctly complete any of the blank spaces in the referenced
+form does not invalidate the form if the subject matter of the release
+reasonably may be determined.
+(4) Nothing contained in
+this section shall affect:
+(a) The enforceability
+of any subordination of lien rights by a potential lien claimant to the rights
+of any other party which may have or acquire an interest in all or any part of
+the real estate or other property for which the potential lien claimant has
+furnished labor, services or material, even though the subordination is entered
+into in advance of furnishing labor, services or material, and even though the
+claimant has not actually received payment in full for its claim;
+(b) The enforceability
+of any waiver of lien rights given in connection with the settlement of a bona
+fide dispute concerning the amount due the lien claimant for labor, services or
+material which have already been furnished; or
+(c) The validity of a
+cancellation or release of a recorded claim of lien.
+(5) (a) When a waiver and
+release provided for in this section is executed by the claimant, it shall be
+binding against the claimant for all purposes, subject only to payment in full
+of the amount set forth in the waiver and release.
+(b) Amounts shall
+conclusively be deemed paid in full upon the earliest to occur of:
+(i) Actual receipt
+of funds;
+(ii) Execution by
+the claimant of a separate written acknowledgment of payment in full; or
+(iii) Sixty (60)
+days after the date of the execution of the waiver and release, unless before
+the expiration of the sixty-day period the claimant files in the county in
+which the property is located an affidavit of nonpayment, using substantially
+the affidavit of nonpayment form set forth in Section 85-7-433(3), and sends a
+true and accurate copy of the affidavit of nonpayment to the owner of the
+property in the manner provided in Section 85-7-405 for sending a notice of a
+claim of lien to the owner.
+(c) A claimant who is
+paid, in full, the amount set forth in the waiver and release form after filing
+an affidavit of nonpayment shall upon request execute in recordable form an
+affidavit swearing that payment in full has been received. Upon recordation
+thereof in the county in which the affidavit of nonpayment was recorded, the
+affidavit of nonpayment to which it relates shall be deemed void.
+(d) Nothing in this
+section shall shorten the time within which to file a claim of lien.
+(e) Except as provided
+in Section 85-7-413, a waiver and release provided in accordance with this
+section shall be suspended upon the filing of an affidavit of nonpayment until
+payment in full has been received. However, an affidavit of nonpayment shall
+not affect dissolution of the claimant's lien or the availability or
+enforceability of any owner's defenses pursuant to Section 85-7-413, if
+applicable.
+(f) The claimant may
+rely upon the information contained in the waiver and release form when
+completing for filing the affidavit of nonpayment.
+
+85-7-433. (1) The
+following form is the Interim Waiver and Release Upon Payment form referred to
+in Section 85-7-419:
+INTERIM
+WAIVER AND RELEASE UPON PAYMENT
+STATE OF MISSISSIPPI
+COUNTY OF __________
+THE UNDERSIGNED MECHANIC
+AND/OR MATERIALMAN HAS BEEN EMPLOYED BY __________ (NAME OF CONTRACTOR) TO
+FURNISH __________ (DESCRIBE MATERIALS AND/OR LABOR) FOR THE CONSTRUCTION OF
+IMPROVEMENTS KNOWN AS __________ (TITLE OF THE PROJECT OR BUILDING) WHICH IS
+LOCATED IN THE CITY OF __________, COUNTY OF __________, AND IS OWNED BY
+__________ (NAME OF OWNER) AND MORE PARTICULARLY DESCRIBED AS FOLLOWS:
+(DESCRIBE THE PROPERTY UPON
+WHICH THE IMPROVEMENTS WERE MADE BY USING EITHER A METES AND BOUNDS
+DESCRIPTION, THE LAND LOT DISTRICT, BLOCK AND LOT NUMBER, OR STREET ADDRESS OF
+THE PROJECT.)
+UPON THE RECEIPT OF THE SUM
+OF $__________, THE MECHANIC AND/OR MATERIALMAN WAIVES AND RELEASES ANY AND ALL
+LIENS OR CLAIMS OF LIENS IT HAS UPON THE FOREGOING DESCRIBED PROPERTY OR ANY
+RIGHTS AGAINST ANY LABOR AND/OR MATERIAL BOND THROUGH THE DATE OF __________
+(DATE) AND EXCEPTING THOSE RIGHTS AND LIENS THAT THE MECHANIC AND/OR
+MATERIALMAN MIGHT HAVE IN ANY RETAINED AMOUNTS, ON ACCOUNT OF LABOR OR
+MATERIALS, OR BOTH, FURNISHED BY THE UNDERSIGNED TO OR ON ACCOUNT OF SAID
+CONTRACTOR FOR SAID BUILDING OR PREMISES.
+__________________________________
+SIGNATURE
+BY:
+______________________________
+(PRINT NAME)
+ITS: _____________________________
+(PRINT TITLE)
+SWORN TO AND SUBSCRIBED
+BEFORE ME, THIS THE ____ DAY OF _________, 20__.
+___________________________________
+NOTARY PUBLIC
+NOTICE: WHEN YOU EXECUTE
+AND SUBMIT THIS DOCUMENT, YOU SHALL BE CONCLUSIVELY DEEMED TO HAVE BEEN PAID IN
+FULL THE AMOUNT STATED ABOVE, EVEN IF YOU HAVE NOT ACTUALLY RECEIVED THE
+PAYMENT, SIXTY (60) DAYS AFTER THE DATE STATED ABOVE UNLESS YOU FILE EITHER AN
+AFFIDAVIT OF NONPAYMENT OR A CLAIM OF LIEN BEFORE THE EXPIRATION OF THE SIXTY-DAY
+PERIOD. THE FAILURE TO INCLUDE THIS NOTICE LANGUAGE ON THE FACE OF THE FORM
+SHALL RENDER THE FORM UNENFORCEABLE AND INVALID AS A WAIVER AND RELEASE UNDER
+SECTION 85-7-419, MISSISSIPPI CODE OF 1972.
+(2) The following form is
+the Waiver and Release Upon Final Payment form referred to in Section 85-7-419:
+WAIVER
+AND RELEASE UPON FINAL PAYMENT
+STATE OF MISSISSIPPI
+COUNTY OF __________
+THE UNDERSIGNED MECHANIC
+AND/OR MATERIALMAN HAS BEEN EMPLOYED BY __________ (NAME OF CONTRACTOR) TO
+FURNISH __________ (DESCRIBE MATERIALS AND/OR LABOR) FOR THE CONSTRUCTION OF
+IMPROVEMENTS KNOWN AS __________ (TITLE OF THE PROJECT OR BUILDING) WHICH IS
+LOCATED IN THE CITY OF __________, COUNTY OF __________, AND IS OWNED BY
+__________ (NAME OF OWNER) AND MORE PARTICULARLY DESCRIBED AS FOLLOWS:
+(DESCRIBE THE PROPERTY UPON
+WHICH THE IMPROVEMENTS WERE MADE BY USING EITHER A METES AND BOUNDS
+DESCRIPTION, THE LAND LOT DISTRICT, BLOCK AND LOT NUMBER, OR STREET ADDRESS OF
+THE PROJECT.)
+UPON THE RECEIPT OF THE SUM
+OF $__________, THE MECHANIC AND/OR MATERIALMAN WAIVES AND RELEASES ANY AND ALL
+LIENS OR CLAIMS OF LIENS IT HAS UPON THE FOREGOING DESCRIBED PROPERTY OR ANY
+RIGHTS AGAINST ANY LABOR AND/OR MATERIAL BOND ON ACCOUNT OF LABOR OR MATERIALS,
+OR BOTH, FURNISHED BY THE UNDERSIGNED TO OR ON ACCOUNT OF SAID CONTRACTOR FOR
+SAID PROPERTY.
+__________________________________
+SIGNATURE
+BY:
+______________________________
+(PRINT NAME)
+ITS:
+_____________________________
+(PRINT TITLE)
+SWORN TO AND SUBSCRIBED
+BEFORE ME, THIS THE ____ DAY OF _________, 20__.
+___________________________________
+NOTARY PUBLIC
+NOTICE: WHEN YOU EXECUTE
+AND SUBMIT THIS DOCUMENT, YOU SHALL BE CONCLUSIVELY DEEMED TO HAVE BEEN PAID IN
+FULL THE AMOUNT STATED ABOVE, EVEN IF YOU HAVE NOT ACTUALLY RECEIVED THE
+PAYMENT, SIXTY (60) DAYS AFTER THE DATE STATED ABOVE UNLESS YOU FILE EITHER AN
+AFFIDAVIT OF NONPAYMENT OR A CLAIM OF LIEN BEFORE THE EXPIRATION OF THE SIXTY-DAY
+PERIOD. THE FAILURE TO INCLUDE THIS NOTICE LANGUAGE ON THE FACE OF THE FORM
+SHALL RENDER THE FORM UNENFORCEABLE AND INVALID AS A WAIVER AND RELEASE UNDER
+SECTION 85-7-419, MISSISSIPPI CODE OF 1972.
+__________________________________
+SIGNATURE
+BY:
+______________________________
+(PRINT NAME)
+ITS:
+_____________________________
+(PRINT TITLE)
+SWORN TO AND SUBSCRIBED
+BEFORE ME, THIS THE ____ DAY OF _________, 20__.
+___________________________________
+NOTARY PUBLIC
+(3) The following form is
+the Affidavit of Nonpayment referred to in Section 85-7-419:
+AFFIDAVIT
+OF NONPAYMENT
+STATE OF MISSISSIPPI
+COUNTY OF __________
+THE UNDERSIGNED MECHANIC
+AND/OR MATERIALMAN HAS BEEN EMPLOYED BY __________ (NAME OF CONTRACTOR) TO
+FURNISH __________ (DESCRIBE MATERIALS AND/OR LABOR) FOR THE CONSTRUCTION OF
+IMPROVEMENTS KNOWN AS __________ (TITLE OF THE PROJECT OR BUILDING) WHICH IS
+LOCATED IN THE CITY OF __________, COUNTY OF __________, AND IS OWNED BY
+__________ (NAME OF OWNER) AND MORE PARTICULARLY DESCRIBED AS FOLLOWS:
+(DESCRIBE THE PROPERTY UPON
+WHICH THE IMPROVEMENTS WERE MADE BY USING EITHER A METES AND BOUNDS
+DESCRIPTION, THE LAND LOT DISTRICT, BLOCK AND LOT NUMBER, OR STREET ADDRESS OF
+THE PROJECT.)
+PURSUANT TO SECTION 85-7-419
+THE UNDERSIGNED EXECUTED A LIEN WAIVER AND RELEASE WITH RESPECT TO THIS
+PROPERTY DATED __________, ___. THE AMOUNT SET FORTH IN THE WAIVER AND RELEASE
+($__________) HAS NOT BEEN PAID, AND THE UNDERSIGNED HEREBY GIVES NOTICE OF THE
+NONPAYMENT.
+THE ABOVE FACTS ARE SWORN
+TRUE AND CORRECT BY THE UNDERSIGNED.
+__________________________________
+SIGNATURE
+BY:
+______________________________
+(PRINT NAME)
+ITS: _____________________________
+(PRINT TITLE)
+SWORN TO AND SUBSCRIBED
+BEFORE ME, THIS THE ____ DAY OF _________, 20__.
+___________________________________
+NOTARY PUBLIC
+WITHIN TWO (2) DAYS OF
+FILING THIS AFFIDAVIT OF NONPAYMENT, THE FILING PARTY SHALL SEND A COPY OF THE
+AFFIDAVIT BY REGISTERED OR CERTIFIED MAIL OR STATUTORY OVERNIGHT DELIVERY TO
+THE OWNER OF THE PROPERTY. WHENEVER THE OWNER OF THE PROPERTY IS AN ENTITY ON
+FILE WITH THE SECRETARY OF STATE'S OFFICE, SENDING A COPY OF THE AFFIDAVIT TO
+THE COMPANY'S ADDRESS OR THE REGISTERED AGENT'S ADDRESS ON FILE WITH THE
+SECRETARY OF STATE SHALL BE DEEMED SUFFICIENT.

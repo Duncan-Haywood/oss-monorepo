@@ -1,0 +1,12 @@
+# Headers for the static pages. The early-access route (Worker) sets the same set in
+# src/worker/index.ts (SECURITY_HEADERS); keep the two in sync.
+# The site ships no JavaScript: the only <script> is a JSON-LD data block, which CSP doesn't execute.
+# No external fonts, images or analytics, so everything is 'self'.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'none'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin

@@ -1,0 +1,106 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import fs from "node:fs";
+
+const html = fs.readFileSync(new URL("./brazil-nfe-e-invoice-mandate.html", import.meta.url), "utf8");
+const indexHtml = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
+const sitemap = fs.readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+
+test("carries the no-warranty disclaimer and licence line", () => {
+  assert.match(html, /<strong>No warranty\.<\/strong>/);
+  assert.match(html, /not legal, tax, financial, or accounting advice/i);
+  assert.match(html, /Free and open source/);
+});
+
+test("states the NF-e model, the SEFAZ and the sources' limits", () => {
+  assert.match(html, /NF-e/);
+  assert.match(html, /SEFAZ/);
+  assert.match(html, /CNPJ/);
+  assert.match(html, /differ/);
+  assert.match(html, /import\{checkBrazilId\}from"\.\/brazil\.mjs"/);
+});
+
+test("makes no price or fine claim", () => {
+  assert.doesNotMatch(html, /\$\d/);
+  assert.doesNotMatch(html, /R\$ \d/);
+});
+
+test("canonical names this file", () => {
+  assert.match(html, /<link rel="canonical" href="https:\/\/example\.invalid\/einvoice-preflight\/brazil-nfe-e-invoice-mandate\.html">/);
+});
+
+test("FAQPage schema is valid JSON and matches visible h3 headings", () => {
+  const match = html.match(/<script type="application\/ld\+json">(\{"@context".*?\})<\/script>/s);
+  assert.ok(match, "no schema");
+  const schema = JSON.parse(match[1]);
+  assert.equal(schema["@type"], "FAQPage");
+  for (const q of schema.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(q.acceptedAnswer.text));
+  }
+});
+
+test("linked from the tool page and listed in the sitemap", () => {
+  assert.match(indexHtml, /href="brazil-nfe-e-invoice-mandate\.html"/);
+  assert.match(sitemap, /brazil-nfe-e-invoice-mandate\.html/);
+});
+
+test("links to the checker, creator and rule reference", () => {
+  assert.match(html, /<a href="\.\/">/);
+  assert.match(html, /href="create\.html"/);
+  assert.match(html, /href="what-does-this-e-invoice-error-code-mean\.html"/);
+});
+
+test("links to Mexico and the hub and the sitemap entry is its own url block", () => {
+  assert.match(html, /href="mexico-cfdi-e-invoice-mandate\.html"/);
+  assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
+  assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*brazil-nfe-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
+});
+
+test("the NF-e file check is on the page and its sample draws exactly the three planted findings", async () => {
+  assert.match(html, /import\("\.\/nfe\.mjs"\)/);
+  assert.match(html, /\(\{checkNfe\}=a\)/);
+  assert.match(html, /id="nfe-file"/);
+  const { checkNfe } = await import("./nfe.mjs");
+  const sample = html.match(/const SAMPLE=`([\s\S]*?)`;/)[1];
+  assert.deepEqual(checkNfe(sample).findings.map((f) => f.rule).sort(), ["BR-013", "BR-030", "BR-042"]);
+});
+
+test("the national NFS-e check is on the page and its sample draws exactly the three planted findings", async () => {
+  assert.match(html, /import\("\.\/nfse\.mjs"\)/);
+  assert.match(html, /\(\{checkNfse\}=b\)/);
+  assert.match(html, /id="nfse-file"/);
+  const { checkNfse } = await import("./nfse.mjs");
+  const sample = html.match(/const SAMPLE_NFSE=`([\s\S]*?)`;/)[1];
+  assert.deepEqual(checkNfse(sample).findings.map((f) => f.rule).sort(), ["NFSE-013", "NFSE-021", "NFSE-032"]);
+  assert.doesNotMatch(html, /do not read NFS-e/);
+});
+
+test("the ABRASF municipal NFS-e check is on the page and its sample draws exactly the three planted findings", async () => {
+  assert.match(html, /import\("\.\/abrasf\.mjs"\)/);
+  assert.match(html, /\(\{checkAbrasf\}=d\)/);
+  assert.match(html, /id="abrasf-file"/);
+  const { checkAbrasf } = await import("./abrasf.mjs");
+  const sample = html.match(/const SAMPLE_ABRASF=`([\s\S]*?)`;/)[1];
+  assert.deepEqual(checkAbrasf(sample).findings.map((f) => f.rule).sort(), ["ABR-010", "ABR-011", "ABR-022"]);
+  assert.doesNotMatch(html, /does not read municipal/);
+});
+
+test("the DSF municipal NFS-e check is on the page and its sample draws exactly the three planted findings", async () => {
+  assert.match(html, /import\("\.\/dsf\.mjs"\)/);
+  assert.match(html, /\(\{checkDsf\}=e\)/);
+  assert.match(html, /id="dsf-file"/);
+  const { checkDsf } = await import("./dsf.mjs");
+  const sample = html.match(/const SAMPLE_DSF=`([\s\S]*?)`;/)[1];
+  assert.deepEqual(checkDsf(sample).findings.map((f) => f.rule).sort(), ["DSF-010", "DSF-011", "DSF-020"]);
+});
+
+// 2026-11-22: the five format checkers are about 230 kB compressed; a static import held every handler on the page
+// (and the CNPJ/CPF check) until they had all arrived. They load with import() on first use; the ID check stays static.
+test("the heavy checkers load on demand, not in the page's static imports", () => {
+  const mod = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  const statics = [...mod.matchAll(/import\s*\{[^}]*\}\s*from\s*"([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(statics, ["./brazil.mjs"]);
+  for (const f of ["nfe", "nfse", "nfe-event", "abrasf", "dsf"]) assert.match(mod, new RegExp(`import\\("\\./${f}\\.mjs"\\)`), f);
+  for (const fn of ["show", "showE", "showS", "showA", "showD"]) assert.match(mod, new RegExp(`async function ${fn}\\([^)]*\\)\\{if\\(!await ready\\(`), fn);
+});

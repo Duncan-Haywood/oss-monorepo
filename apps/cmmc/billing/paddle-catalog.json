@@ -1,0 +1,22 @@
+{
+  "app": "cmmc",
+  "productName": "CMMC Workspace",
+  "currency": "USD",
+  "taxCategory": "saas",
+  "plans": [
+    {
+      "key": "level2",
+      "name": "Level 2",
+      "description": "The 110 NIST SP 800-171 Rev. 2 requirements with objectives, SPRS score, SSP and POA&M for a small shop.",
+      "monthlyCents": 24900,
+      "annualCents": 268900
+    },
+    {
+      "key": "team",
+      "name": "Level 2 + Quality",
+      "description": "Level 2 plus the ISO 9001:2015 clause checklist on the same evidence, for a shop where IT, quality and the owner all work in it.",
+      "monthlyCents": 39900,
+      "annualCents": 430900
+    }
+  ]
+}

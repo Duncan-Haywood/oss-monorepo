@@ -1,0 +1,18 @@
+// Test-only Worker config used by vitest.worker.config.ts: wrangler.jsonc minus static assets and
+// the rate limiter (tests call the app directly with injected fakes).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "payapps-site",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    { "binding": "DB", "database_name": "payapps-site", "database_id": "local-test" }
+  ],
+  "vars": {
+    "APP_ENV": "test",
+    "SITE_URL": "https://example.test/payapps",
+    "EMAIL_FROM": "PayPencil <no-reply@example.org>",
+    "EMAIL_MODE": "log"
+  }
+}

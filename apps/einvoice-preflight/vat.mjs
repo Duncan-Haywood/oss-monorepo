@@ -1,0 +1,1055 @@
+// Offline VAT identifier shape and checksum observations.
+// Typo catch only — not a VIES lookup and not a claim a party may charge tax.
+
+import { checkCuit } from "./argentina.mjs";
+import { checkBrazilId } from "./brazil.mjs";
+import { checkRut } from "./chile.mjs";
+import { checkNit } from "./colombia.mjs";
+import { checkRuc } from "./peru.mjs";
+import { checkTurkishTaxId } from "./turkey.mjs";
+import { checkRfc } from "./mexico.mjs";
+import { checkRut as checkUruguayRut } from "./uruguay.mjs";
+import { checkMst } from "./vietnam.mjs";
+import { checkRuc as checkEcuadorRuc } from "./ecuador.mjs";
+import { checkRuc as checkParaguayRuc } from "./paraguay.mjs";
+import { checkIsraeliId } from "./israel.mjs";
+import { checkNpwp } from "./indonesia.mjs";
+import { checkRegistrationNumber as checkJapanRegistration } from "./japan.mjs";
+import { checkEgyptTrn } from "./egypt.mjs";
+import { checkKraPin } from "./kenya.mjs";
+import { checkKoreanBrn } from "./korea.mjs";
+
+const FORMAT_ONLY = {
+  BG: [9, 10],
+  CY: [9],
+  CZ: [8, 9, 10],
+  EE: [9],
+  EL: [9],
+  GR: [9],
+  HR: [11],
+  HU: [8],
+  LT: [9, 12],
+  LV: [11],
+  MT: [8],
+  RO: Array.from({ length: 9 }, (_, i) => i + 2),
+  SI: [8],
+  SK: [10],
+  XI: [9, 12],
+};
+
+function finding(rule, message, fix, path) {
+  return { rule, message, fix, path };
+}
+
+export function normalizeVat(value) {
+  if (typeof value !== "string") return null;
+  const upper = value.toUpperCase();
+  // Mexican RFCs may contain & and Ñ (company names like "Ñandú & Hijos"), so
+  // keep them for an MX prefix; every other country strips them as before.
+  const keep = upper.replace(/[^A-Z0-9]/g, "").startsWith("MX") ? /[^A-Z0-9&Ñ]/g : /[^A-Z0-9]/g;
+  const compact = upper.replace(keep, "");
+  return compact || null;
+}
+
+function esShape(body) {
+  if (body.length !== 9) return false;
+  if (/^\d/.test(body[0]) && /[A-Z]/.test(body[8]) && /^\d{7}$/.test(body.slice(1, 8))) return true;
+  if (/[A-Z]/.test(body[0]) && /^\d{7}$/.test(body.slice(1, 8)) && /[A-Z0-9]/.test(body[8])) return true;
+  return false;
+}
+
+function ieShape(body) {
+  if (body.length === 8 && /^\d/.test(body[0]) && /[A-Z]/.test(body[7]) && /^[A-Z0-9]{6}$/.test(body.slice(1, 7))) {
+    return true;
+  }
+  if (body.length === 9 && /^\d/.test(body[0]) && /[A-Z]/.test(body[7]) && /[A-Z]/.test(body[8]) && /^\d{6}$/.test(body.slice(1, 7))) {
+    return true;
+  }
+  return false;
+}
+
+const digitsOf = (text) => [...text].map(Number);
+const weighted = (text, weights) => digitsOf(text).reduce((sum, digit, i) => sum + digit * weights[i], 0);
+
+// Checksums for countries that were shape-only. Each entry is tried only when
+// `applies` matches the body, so a variant not implemented here (for example a
+// 10-digit Bulgarian or 12-digit Lithuanian number) stays a shape check.
+// Algorithms are the public ones (as in python-stdnum); each is exercised in
+// vat.test.mjs on a published example number plus a one-digit mutation.
+const MOD11_WEIGHTS = [1, 2, 3, 4, 5, 6, 7, 8];
+const MOD11_RETRY = { LT: [3, 4, 5, 6, 7, 8, 9, 1], BG: [3, 4, 5, 6, 7, 8, 9, 10] };
+
+function mod11Retry(body, retry) {
+  let sum = weighted(body.slice(0, 8), MOD11_WEIGHTS) % 11;
+  if (sum === 10) sum = weighted(body.slice(0, 8), retry) % 11;
+  if (sum === 10) sum = 0;
+  return sum === Number(body[8]);
+}
+
+const EXTRA_CHECKS = {
+  EE: { applies: (b) => /^\d{9}$/.test(b), ok: (b) => b[0] === "1" && weighted(b, [3, 7, 1, 3, 7, 1, 3, 7, 1]) % 10 === 0 },
+  HU: { applies: (b) => /^\d{8}$/.test(b), ok: (b) => weighted(b, [9, 7, 3, 1, 9, 7, 3, 1]) % 10 === 0 },
+  SI: {
+    applies: (b) => /^\d{8}$/.test(b),
+    ok: (b) => {
+      if (b[0] === "0") return false;
+      let check = 11 - (weighted(b.slice(0, 7), [8, 7, 6, 5, 4, 3, 2]) % 11);
+      if (check === 10) check = 0;
+      return check === Number(b[7]);
+    },
+  },
+  SK: { applies: (b) => /^\d{10}$/.test(b), ok: (b) => b[0] !== "0" && "234789".includes(b[2]) && Number(b) % 11 === 0 },
+  HR: { applies: (b) => /^\d{11}$/.test(b), ok: (b) => deOkIso7064(b.slice(0, 10), Number(b[10])) },
+  // Legal entities only (first digit 4-9); natural persons use a birth date.
+  // First digit above 3: legal entity. 32...: personal code without a birth date. Otherwise a natural person
+  // with ddmmyy and a century digit (python-stdnum lv.pvn; the personal-code check digit is unconfirmed there).
+  LV: { applies: (b) => /^\d{11}$/.test(b), ok: lvOk },
+  LT: {
+    applies: (b) => /^\d{9}$|^\d{12}$/.test(b),
+    ok: (b) => {
+      if (b.length === 9) return b[7] === "1" && mod11Retry(b, MOD11_RETRY.LT);
+      // 12 digits (temporarily registered payers): 11th digit 1, mod 11 over 11 digits, second weight set on 10, then 10 -> 0.
+      let sum = weighted(b.slice(0, 11), [1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2]) % 11;
+      if (sum === 10) sum = weighted(b.slice(0, 11), [3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4]) % 11;
+      if (sum === 10) sum = 0;
+      return b[10] === "1" && sum === Number(b[11]);
+    },
+  },
+  // 9 digits: legal entity. 10 digits: a natural person's EGN, a foreigner's number or the
+  // "other" form; valid when any of the three public check-digit rules holds.
+  BG: {
+    applies: (b) => /^\d{9,10}$/.test(b),
+    ok: (b) => (b.length === 9 ? mod11Retry(b, MOD11_RETRY.BG) : bgTenDigitOk(b)),
+  },
+  RO: {
+    applies: (b) => /^\d{2,10}$/.test(b),
+    ok: (b) => {
+      if (b[0] === "0") return false;
+      const padded = b.padStart(10, "0");
+      let check = (weighted(padded.slice(0, 9), [7, 5, 3, 2, 1, 7, 5, 3, 2]) * 10) % 11;
+      if (check === 10) check = 0;
+      return check === Number(padded[9]);
+    },
+  },
+  EL: {
+    applies: (b) => /^\d{9}$/.test(b),
+    ok: (b) => {
+      let total = 0;
+      for (let i = 0; i < 8; i += 1) total += Number(b[i]) * 2 ** (8 - i);
+      return (total % 11) % 10 === Number(b[8]);
+    },
+  },
+  // 8-digit legal entities (not starting 9), 9-digit specials starting 6, and 10-digit birth numbers
+  // (born 1954 on); another 9-digit birth number (before 1954) has no check digit and stays shape-only.
+  CZ: {
+    applies: (b) => /^\d{8,10}$/.test(b),
+    ok: (b) => {
+      if (b.length === 10) return czBirthNumberOk(b);
+      if (b.length === 9 && b[0] !== "6") return czBirth9Ok(b);
+      // Special 9-digit numbers starting 6 (individuals without a birth number): the first digit
+      // is skipped. The rule is python-stdnum's; the Czech tax authority's text was not read.
+      if (b.length === 9) {
+        const check = weighted(b.slice(1, 8), [8, 7, 6, 5, 4, 3, 2]) % 11;
+        return (((8 - ((10 - check) % 11)) % 10) + 10) % 10 === Number(b[8]);
+      }
+      // Legal-entity numbers never start 9.
+      if (b[0] === "9") return false;
+      let check = 11 - (weighted(b.slice(0, 7), [8, 7, 6, 5, 4, 3, 2]) % 11);
+      if (check === 10) check = 0;
+      if (check === 11) check = 1;
+      return check === Number(b[7]);
+    },
+  },
+  // Cyprus: 8 digits and a check letter; a number cannot start 12.
+  CY: {
+    applies: (b) => /^\d{8}[A-Z]$/.test(b),
+    ok: (b) => {
+      if (b.startsWith("12")) return false;
+      const odd = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21];
+      let total = 0;
+      for (let i = 0; i < 8; i += 1) total += i % 2 === 0 ? odd[Number(b[i])] : Number(b[i]);
+      return String.fromCharCode(65 + (total % 26)) === b[8];
+    },
+  },
+  // Malta: 8 digits; the last two are 37 minus the weighted first six, mod 37.
+  MT: {
+    applies: (b) => /^[1-9]\d{7}$/.test(b),
+    // Sum of all eight digits weighted 3,4,6,7,8,9,10,1 is divisible by 37 (python-stdnum mt.vat), so
+    // the last two digits may be 37 - s, 74 - s or, when s is 0, 00 as well as 37.
+    ok: (b) => weighted(b, [3, 4, 6, 7, 8, 9, 10, 1]) % 37 === 0,
+  },
+};
+EXTRA_CHECKS.GR = EXTRA_CHECKS.EL;
+
+function lvOk(b) {
+  if (b[0] > "3") return weighted(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 === 3;
+  if (!b.startsWith("32") && !realDate(1800 + Number(b[6]) * 100 + Number(b.slice(4, 6)), Number(b.slice(2, 4)), Number(b.slice(0, 2)))) return false;
+  return (1 + weighted(b.slice(0, 10), [10, 5, 8, 4, 2, 1, 6, 3, 7, 9])) % 11 % 10 === Number(b[10]);
+}
+
+function bgTenDigitOk(b) {
+  const last = Number(b[9]);
+  let egn = weighted(b.slice(0, 9), [2, 4, 8, 5, 10, 9, 7, 3, 6]) % 11;
+  if (egn === 10) egn = 0;
+  if (egn === last) return true;
+  if (weighted(b.slice(0, 9), [21, 19, 17, 13, 11, 9, 7, 3, 1]) % 10 === last) return true;
+  const other = (11 - (weighted(b.slice(0, 9), [4, 3, 2, 7, 6, 5, 4, 3, 2]) % 11)) % 11;
+  return other < 10 && other === last;
+}
+
+// Czech and Slovak birth number (rodne cislo), 10 digits: first nine mod 11 (10 counts as 0),
+// month 01-12 (+20 when the serial runs out, +50 women, +70 both), day 01-31.
+// 9-digit birth number (before 1954, no check digit): year 54-79 is invalid, 80-99 is 18xx/19xx read as 1980-1999
+// minus a century, and the date must exist (python-stdnum cz.rc). Month +50 for women, +20 on serial overflow.
+function realDate(y, m, d) {
+  const t = new Date(Date.UTC(2000, m - 1, d));
+  t.setUTCFullYear(y);
+  return m >= 1 && m <= 12 && t.getUTCFullYear() === y && t.getUTCMonth() === m - 1 && t.getUTCDate() === d;
+}
+function czBirth9Ok(b) {
+  let year = 1900 + Number(b.slice(0, 2));
+  if (year >= 1980) year -= 100;
+  if (year > 1953) return false;
+  return realDate(year, (Number(b.slice(2, 4)) % 50) % 20, Number(b.slice(4, 6)));
+}
+
+function czBirthNumberOk(b) {
+  const month = Number(b.slice(2, 4));
+  const day = Number(b.slice(4, 6));
+  const base = [71, 51, 21, 1].find((b) => month >= b && month <= b + 11);
+  if (base === undefined) return false;
+  // 10 digits means born 1954 or later: yy 54-99 is 19yy, 00-53 is 20yy. The day must exist (no 31 February).
+  const yy = Number(b.slice(0, 2));
+  if (!realDate(yy >= 54 ? 1900 + yy : 2000 + yy, month - base + 1, day)) return false;
+  return (Number(b.slice(0, 9)) % 11) % 10 === Number(b[9]);
+}
+
+function deOkIso7064(first, check) {
+  let product = 10;
+  for (const char of first) {
+    let step = (Number(char) + product) % 10;
+    if (step === 0) step = 10;
+    product = (2 * step) % 11;
+  }
+  return (11 - product) % 10 === check;
+}
+
+function classify(country, body) {
+  if (country === "DE") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "FR") return body.length === 11 && /^\d+$/.test(body.slice(2)) ? "checksum" : "bad-format";
+  if (country === "BE") {
+    const digits = body[0] === "0" && body.length === 11 ? body.slice(1) : body;
+    return /^\d+$/.test(digits) && (digits.length === 9 || digits.length === 10) ? "checksum" : "bad-format";
+  }
+  if (country === "NL") {
+    return body.length === 12 && body[9] === "B" && /^\d{9}$/.test(body.slice(0, 9)) && /^\d{2}$/.test(body.slice(10))
+      ? "checksum"
+      : "bad-format";
+  }
+  if (country === "AT") return body.startsWith("U") && body.length === 9 && /^\d{8}$/.test(body.slice(1)) ? "checksum" : "bad-format";
+  if (country === "IT") return /^\d{11}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "ES") return esShape(body) ? "checksum" : "bad-format";
+  if (country === "PL") return /^\d{10}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "SE") return /^\d+$/.test(body) && (body.length === 10 || body.length === 12) ? "checksum" : "bad-format";
+  if (country === "DK") return /^[1-9]\d{7}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "FI") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "PT") return /^[1-9]\d{8}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "LU") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "IE") return ieShape(body) ? "checksum" : "bad-format";
+  if (country === "GB" || country === "UK") return /^\d+$/.test(body) && (body.length === 9 || body.length === 12) ? "checksum" : "bad-format";
+  if (country === "NO") return /^\d{9}(MVA)?$/.test(body) ? "checksum" : "bad-format";
+  if (country === "CH") return /^E\d{9}(MWST|TVA|IVA)?$/.test(body) ? "checksum" : "bad-format";
+  if (country === "AU") return /^\d{11}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "NZ") return /^\d{8,9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "RS") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "TR") return /^\d{10,11}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "KR") return /^\d{10}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "BR") return /^(\d{11}|[0-9A-Z]{12}\d{2})$/.test(body) ? "checksum" : "bad-format";
+  if (country === "AR") return /^\d{11}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "PE") return /^\d{11}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "CL") return /^\d{7,8}[0-9K]$/.test(body) ? "checksum" : "bad-format";
+  if (country === "CO") return /^\d{9,11}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "MX") return /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{2}[0-9A]$/.test(body) || body === "XAXX010101000" || body === "XEXX010101000" ? "checksum" : "bad-format";
+
+  if (country === "UY") return /^\d{12}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "VN") return /^\d{10}(\d{3})?$|^\d{12}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "EC") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "PY") return /^\d{6,10}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "KZ") return /^\d{12}$/.test(body) ? "checksum" : "bad-format";
+  // IL has a check digit (python-stdnum rule, ITA text unread). JP, EG and KE are shape only:
+  // Japan's invoice number is T plus 13 digits (the "T" may be left off after the JP prefix);
+  // a corporate number's first digit is checked, an individual's is not, so no checksum verdict.
+  if (country === "IL") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "JP") return /^T?\d{13}$/.test(body) ? "format" : "bad-format";
+  if (country === "EG") return /^\d{9}$/.test(body) && checkEgyptTrn(body).ok ? "format" : "bad-format";
+  if (country === "ID") return checkNpwp(body).ok ? "format" : "bad-format";
+  if (country === "KE") return checkKraPin(body).ok ? "format" : "bad-format";
+  // Shape only: a Saudi VAT registration number is 15 digits, starting and ending with 3 (ZATCA's
+  // published rule); a South African VAT number is 10 digits starting with 4 (SARS). No check digit.
+  if (country === "SA") return /^3\d{13}3$/.test(body) ? "format" : "bad-format";
+  if (country === "ZA") return /^4\d{9}$/.test(body) ? "format" : "bad-format";
+  // UAE: a Tax Registration Number is 15 digits (FTA). No public check digit; shape only.
+  if (country === "AE") return /^\d{15}$/.test(body) ? "format" : "bad-format";
+  // Singapore: a GST number is M + letter/digit + 7 digits + a character, or the UEN (8 or 9 digits
+  // and a letter, or T/S/R + 2 digits + 2 letters + 4 digits + a letter). Philippines: a TIN is 9
+  // digits plus a 3-digit branch code. Shape only; IRAS and BIR text unread.
+  // The UEN forms (8 or 9 digits and a letter, or R/S/T form) also carry a check letter (sgUenOk below).
+  if (country === "SG") return /^(M[0-9A-Z]\d{7}[A-Z0-9])$/.test(body) ? "format" : /^(\d{8}[A-Z]|\d{9}[A-Z]|[RST]\d{2}[A-Z]{2}\d{4}[A-Z])$/.test(body) ? "checksum" : "bad-format";
+  // Malaysia: an LHDN income tax number (TIN) is a prefix (C company, IG individual, OG, SG, D, F, PT,
+  // TA, TC, TN, TR, TP, J, LE, CS) and 8 to 11 digits. Shape only; LHDN text unread.
+  if (country === "MY") return /^(C|IG|OG|SG|D|F|PT|TA|TC|TN|TR|TP|J|LE|CS)\d{8,11}$/.test(body) ? "format" : "bad-format";
+  // Shape only, tax authority texts unread: Morocco ICE 15 digits; Azerbaijan VOEN 10 digits; Uzbekistan
+  // INN 9 digits; Moldova IDNO 13 digits; Georgia 9 digits (company) or 11 (individual); Armenia TIN 8
+  // digits; Tanzania TIN 9 digits; Uganda TIN 10 digits; Zambia TPIN 10 digits; Rwanda TIN 9 digits.
+  if (country === "MA") return /^\d{15}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "AZ") return /^\d{10}$/.test(body) ? "checksum" : "bad-format";
+  // Tunisia MF (matricule fiscal): 7 digits and a control letter (never I, O or U), then optionally a
+  // VAT code (A, P, B, D, N), a category code (M, P, C, N, E) and a 3-digit branch number that is 000
+  // unless the category is E. Structure from python-stdnum tn.mf; the control letter's own rule is not
+  // published there, so it is not checked, and the Tunisian tax text is unread.
+  if (country === "TN") return tnMfShapeOk(body) ? "format" : "bad-format";
+  // Belarus UNP: 9 digits (the digit rule below), or two letters and 7 digits for some individuals (shape only).
+  if (country === "BY") return /^\d{9}$/.test(body) ? "checksum" : /^[A-Z]{2}\d{7}$/.test(body) ? "format" : "bad-format";
+  // Western Balkans and Iceland, shape only (python-stdnum structures; tax authority texts unread):
+  // Albania NIPT = letter (J,K,L), 8 digits, letter; Bosnia JIB 12 digits; Montenegro PIB 8 digits;
+  // North Macedonia EDB 13 digits; Iceland VSK number 5 or 6 digits.
+  if (country === "AL") return /^[A-M]\d{8}[A-Z]$/.test(body) ? "format" : "bad-format";
+  if (country === "BA") return /^\d{12}$/.test(body) ? "format" : "bad-format";
+  if (country === "ME") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "MK") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "IS") return /^\d{5,6}$/.test(body) ? "format" : "bad-format";
+  // Senegal NINEA (7 or 9 digits, then an optional 3-character COFI), Ghana GRA TIN (11 characters, prefix
+  // P00, C00, G00, Q00 or V00), El Salvador NIT (14 digits) and Algeria NIF (15 or 20 digits, shape only).
+  // Structures from python-stdnum sn.ninea, gh.tin, sv.nit, dz.nif; the authority texts are unread.
+  if (country === "SN") return /^(\d{7}|\d{9})([012][ABCDEFGHJKLMNPQRSTUVWZ]\d)?$/.test(body) ? "checksum" : "bad-format";
+  if (country === "GH") return /^[PCGQV]00[A-Z0-9]{8}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "SV") return /^[019]\d{13}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "DZ") return /^(\d{15}|\d{20})$/.test(body) ? "format" : "bad-format";
+  // Andorra NRT (letter, 6 digits, letter; first letter one of ACDEFGLOPU, F up to 699999, A and L between 700000
+  // and 799999; the control letter is not checked), Guinea NIFp (9 digits, Luhn), Liechtenstein PEID (4 to 12
+  // digits) and San Marino COE (up to 5 digits, shape only). Structures from python-stdnum ad.nrt, gn.nifp,
+  // li.peid, sm.coe; the authorities' texts are unread.
+  if (country === "AD") return adNrtShapeOk(body) ? "format" : "bad-format";
+  // Faroe Islands V-number: 6 digits, shape only (python-stdnum fo.vn; authority text unread).
+  if (country === "FO") return /^\d{6}$/.test(body) ? "format" : "bad-format";
+  if (country === "GN") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "LI") return /^\d{4,12}$/.test(body) ? "format" : "bad-format";
+  if (country === "SM") return /^\d{1,5}$/.test(body) ? "format" : "bad-format";
+  // Mozambique NUIT (9 digits, last is a check digit; python-stdnum mz.nuit). Costa Rica: cedula fisica 9 digits,
+  // cedula juridica or NITE 10, DIMEX 11 or 12 (shape only; the Hacienda text is unread).
+  if (country === "MZ") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "CR") return /^\d{9,12}$/.test(body) ? "format" : "bad-format";
+  // China unified social credit code (GB 32100-2015): 18 characters, 0-9 and A-Y without I, O, S, V, Z.
+  if (country === "CN") return /^[0-9A-HJ-NP-RT-UW-Y]{18}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "UZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
+  if (country === "MD") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "GE") return /^(\d{9}|\d{11})$/.test(body) ? "format" : "bad-format";
+  if (country === "AM") return /^\d{8}$/.test(body) ? "format" : "bad-format";
+  if (country === "TZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
+  if (country === "UG") return /^\d{10}$/.test(body) ? "format" : "bad-format";
+  if (country === "ZM") return /^\d{10}$/.test(body) ? "format" : "bad-format";
+  if (country === "RW") return /^\d{9}$/.test(body) ? "format" : "bad-format";
+  if (country === "PH") return /^\d{9}(\d{3})?$/.test(body) ? "format" : "bad-format";
+  if (country === "GT") return /^\d{2,12}[0-9K]$/.test(body) ? "checksum" : "bad-format";
+  if (country === "DO") return /^(\d{9}|\d{11})$/.test(body) ? "checksum" : "bad-format";
+  if (country === "VE") return /^[VEJPG]\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "TW") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "TH") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "UA") return /^\d{8}$/.test(body) || /^\d{10}$/.test(body) ? "checksum" : "bad-format";
+  // Russia INN (10 digits company, 12 individual), Canada BN / GST-HST (9 digits, optional RT0001-style
+  // program account) and Dominican Republic RNC (9 digits). Tax authority texts unread.
+  if (country === "RU") return /^(\d{10}|\d{12})$/.test(body) ? "checksum" : "bad-format";
+  if (country === "CA") return /^\d{9}(R[A-Z]\d{4})?$/.test(body) ? "checksum" : "bad-format";
+  if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
+  const lengths = FORMAT_ONLY[country];
+  if (lengths === undefined) return "unknown";
+  if (EXTRA_CHECKS[country]?.applies(body)) return "checksum";
+  if (country === "XI" && /^\d+$/.test(body) && (body.length === 9 || body.length === 12)) return "checksum";
+  // Cyprus is eight digits and a letter; every other country here is digits only (python-stdnum
+  // differential, 2026-11-11: letters used to pass, e.g. CZA97957793, EEU93038463).
+  const shapeOk = country === "CY" ? /^\d{8}[A-Z]$/.test(body) : /^\d+$/.test(body);
+  if (shapeOk && lengths.includes(body.length)) return "format";
+  return "bad-format";
+}
+
+function deOk(digits) {
+  let product = 10;
+  for (const char of digits.slice(0, 8)) {
+    let step = (Number(char) + product) % 10;
+    if (step === 0) step = 10;
+    product = (2 * step) % 11;
+  }
+  return (11 - product) % 10 === Number(digits[8]);
+}
+
+const FR_ALPHABET = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+
+// French TVA number: two key characters then a nine-digit SIREN. The key is two
+// digits ((SIREN * 100 + 12) mod 97, i.e. 12 + 3 * (SIREN mod 97)) or, for the
+// newer numbers, a letter in either place (alphabet without I and O). A SIREN
+// starting 000 is a Monaco number and has no Luhn digit. Rule from python-stdnum
+// 2.2 `fr.tva` and checked against it (README, "French letter keys"); the French
+// tax text was not read.
+function frOk(body) {
+  if (body.length !== 11) return false;
+  const siren = body.slice(2);
+  if (!/^\d+$/.test(siren)) return false;
+  const key = body.slice(0, 2);
+  if (![...key].every((c) => FR_ALPHABET.includes(c))) return false;
+  if (siren.slice(0, 3) !== "000" && !luhnOk(siren)) return false;
+  if (/^\d+$/.test(key)) {
+    const expected = (12 + 3 * (Number(siren) % 97)) % 97;
+    return Number(key) === expected;
+  }
+  const check = /\d/.test(key[0])
+    ? FR_ALPHABET.indexOf(key[0]) * 24 + FR_ALPHABET.indexOf(key[1]) - 10
+    : FR_ALPHABET.indexOf(key[0]) * 34 + FR_ALPHABET.indexOf(key[1]) - 100;
+  return (Number(siren) + 1 + Math.floor(check / 11)) % 11 === check % 11;
+}
+
+function beOk(body) {
+  let digits = body.startsWith("0") && body.length === 11 ? body.slice(1) : body;
+  if (digits.length === 9) digits = `0${digits}`;
+  if (digits.length !== 10 || !/^\d+$/.test(digits)) return false;
+  if (!"01".includes(digits[0])) return false;
+  return (Number(digits.slice(0, 8)) % 97 + Number(digits.slice(8))) % 97 === 0;
+}
+
+// Elfproef (11-proof): the same mod-11 checksum the Dutch government uses
+// for a BSN/RSIN, which is where the 9 digits of a legacy company VAT
+// number come from. Weights 9..2 on the first eight digits, then the ninth
+// (check) digit at weight -1 — not +1. The prior version added the check
+// digit instead of subtracting it, which is off by 2x the check digit from
+// the real elfproef: it fails real valid Dutch VAT numbers (e.g. the
+// standard NL123456782B01 test number) and, just as quietly, calls some
+// typo'd numbers valid. A preflight tool whose one job is catching a typo'd
+// VAT number before the invoice goes out cannot get its own arithmetic
+// backwards on the most common EU country in this list.
+//
+// Since 1 January 2020 a sole trader's btw-identificatienummer no longer
+// carries the BSN, and its check is ISO 7064 mod 97-10 over the whole number,
+// country code and B included (N=23, L=21, B=11), as an IBAN's is
+// (python-stdnum nl.btw: valid if either check passes; NL002455799B11 is its
+// example). Elfproef alone flagged every such number as a checksum typo, an
+// error on hundreds of thousands of Dutch sole traders' invoices (2026-11-17).
+// A suffix of 00 or a body of nine zeros is never issued (python-stdnum nl.btw
+// refuses both; Peppol's R056 pattern lets them through).
+function nlOk(body) {
+  if (body.slice(10) === "00" || body.slice(0, 9) === "000000000") return false;
+  let total = 0;
+  for (let i = 0; i < 8; i += 1) total += Number(body[i]) * (9 - i);
+  total -= Number(body[8]);
+  return total % 11 === 0 || nlMod97Ok(body);
+}
+
+function nlMod97Ok(body) {
+  if (!/^\d{9}B\d{2}$/.test(body)) return false;
+  const digits = `2321${body.slice(0, 9)}11${body.slice(10)}`;
+  let rest = 0;
+  for (const char of digits) rest = (rest * 10 + Number(char)) % 97;
+  return rest === 1;
+}
+
+function atOk(body) {
+  const digits = [...body.slice(1)].map(Number);
+  let total = 0;
+  for (let index = 0; index < 7; index += 1) {
+    const value = index % 2 === 0 ? digits[index] : digits[index] * 2;
+    total += value < 10 ? value : value - 9;
+  }
+  const check = (10 - ((total + 4) % 10)) % 10;
+  return check === digits[7];
+}
+
+function itOk(digits) {
+  // Office code (digits 8-10): 001-100, 120, 121, 888, 999; first seven digits not all zero (python-stdnum).
+  const office = digits.slice(7, 10);
+  if (/^0+$/.test(digits.slice(0, 7)) || !((office >= "001" && office <= "100") || ["120", "121", "888", "999"].includes(office))) return false;
+  let total = 0;
+  for (let index = 0; index < 10; index += 1) {
+    let value = Number(digits[index]);
+    if (index % 2 === 1) {
+      value *= 2;
+      value = Math.floor(value / 10) + (value % 10);
+    }
+    total += value;
+  }
+  return (10 - (total % 10)) % 10 === Number(digits[10]);
+}
+
+export function esOk(body) {
+  const letters = "TRWAGMYFPDXBNJZSQVHLCKE";
+  if (/^\d/.test(body[0]) && /[A-Z]/.test(body[8])) {
+    return body[8] === letters[Number(body.slice(0, 8)) % 23];
+  }
+  // NIE (foreign residents): X, Y, Z stand for 0, 1, 2 ahead of the DNI letter test.
+  if (/^[XYZ]\d{7}[A-Z]$/.test(body)) return body[8] === letters[Number("XYZ".indexOf(body[0]) + body.slice(1, 8)) % 23];
+  // K, L and M NIFs (under-14s, non-residents, foreigners without a NIE) use the DNI letter on their seven digits.
+  if (/^[KLM]\d{7}[A-Z]$/.test(body)) return body[8] === letters[Number(body.slice(1, 8)) % 23];
+  if (!/^[A-Z]/.test(body[0]) || !/^\d{7}$/.test(body.slice(1, 8))) return false;
+  let total = 0;
+  for (let index = 0; index < 7; index += 1) {
+    const value = Number(body[index + 1]) * (index % 2 === 0 ? 2 : 1);
+    total += Math.floor(value / 10) + (value % 10);
+  }
+  const check = (10 - (total % 10)) % 10;
+  const control = body[8];
+  const letterControls = "JABCDEFGHI";
+  if ("KLMNPQRSW".includes(body[0])) return control === letterControls[check];
+  if ("ABEH".includes(body[0])) return control === String(check);
+  return control === String(check) || control === letterControls[check];
+}
+
+function plOk(digits) {
+  const weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+  let total = 0;
+  for (let i = 0; i < 9; i += 1) total += Number(digits[i]) * weights[i];
+  const check = total % 11;
+  return check !== 10 && check === Number(digits[9]);
+}
+
+function luhnOk(digits) {
+  let total = 0;
+  const reverse = [...digits].reverse();
+  reverse.forEach((char, index) => {
+    let value = Number(char);
+    if (index % 2 === 1) {
+      value *= 2;
+      if (value > 9) value -= 9;
+    }
+    total += value;
+  });
+  return total % 10 === 0;
+}
+
+function seOk(digits) {
+  const org = digits.slice(0, 10);
+  return luhnOk(org) && (digits.length === 10 || digits.slice(10) === "01");
+}
+
+function dkOk(digits) {
+  const weights = [2, 7, 6, 5, 4, 3, 2, 1];
+  let total = 0;
+  for (let i = 0; i < 8; i += 1) total += Number(digits[i]) * weights[i];
+  return total % 11 === 0;
+}
+
+function fiOk(digits) {
+  const weights = [7, 9, 10, 5, 8, 4, 2];
+  let total = 0;
+  for (let i = 0; i < 7; i += 1) total += Number(digits[i]) * weights[i];
+  const remainder = total % 11;
+  if (remainder === 1) return false;
+  const check = remainder === 0 ? 0 : 11 - remainder;
+  return check === Number(digits[7]);
+}
+
+function ptOk(digits) {
+  const weights = [9, 8, 7, 6, 5, 4, 3, 2];
+  let total = 0;
+  for (let i = 0; i < 8; i += 1) total += Number(digits[i]) * weights[i];
+  const remainder = 11 - (total % 11);
+  const check = remainder >= 10 ? 0 : remainder;
+  return check === Number(digits[8]);
+}
+
+function luOk(digits) {
+  return Number(digits.slice(0, 6)) % 89 === Number(digits.slice(6));
+}
+
+function ieOk(body) {
+  const alphabet = "WABCDEFGHIJKLMNOPQRSTUV";
+  if (body.length === 8) {
+    // Two 8-character shapes share this branch. The common one is 7 digits
+    // plus a check letter, weighed as-is. The older one (digit, letter,
+    // 5 digits, check letter -- e.g. the legacy "8Z49289F" shape) cannot be
+    // weighed as typed: Revenue's own check-digit definition first
+    // rearranges it to "0" + the middle 5 digits + the leading digit before
+    // applying the same mod-23 weights. The prior version instead spliced a
+    // literal "7" in for the letter and left the leading digit in place --
+    // it never moved anything, so it was computing a checksum for a number
+    // that was not the one on the invoice. Every valid legacy-format Irish
+    // VAT number failed this check, silently: it read as a typo the same
+    // way a correctly-typed one would.
+    const source = /^\d$/.test(body[1]) ? body.slice(0, 7) : `0${body.slice(2, 7)}${body[0]}`;
+    if (!/^\d{7}$/.test(source)) return false;
+    let total = 0;
+    for (let index = 0; index < 7; index += 1) {
+      total += Number(source[index]) * (8 - index);
+    }
+    return body[7] === alphabet[total % 23];
+  }
+  if (body.length === 9 && /^\d{7}$/.test(body.slice(0, 7))) {
+    const extra = alphabet.indexOf(body[8]);
+    if (extra < 0) return false;
+    let total = extra * 9;
+    for (let i = 0; i < 7; i += 1) total += Number(body[i]) * (8 - i);
+    return body[7] === alphabet[total % 23];
+  }
+  return false;
+}
+
+function gbOk(digits) {
+  if (digits.length !== 9 && digits.length !== 12) return false;
+  // A 12-digit number is a branch trader: the last three digits are the branch and are not checked.
+  const weights = [8, 7, 6, 5, 4, 3, 2];
+  let total = 0;
+  for (let i = 0; i < 7; i += 1) total += Number(digits[i]) * weights[i];
+  const check = Number(digits.slice(7, 9));
+  const sum = (total + check) % 97;
+  // From 100 on (the numbers HMRC issues after 2010) a remainder of 42 or 55 is also valid; below 100 only 0.
+  return sum === 0 || (Number(digits.slice(0, 3)) >= 100 && (sum === 42 || sum === 55));
+}
+
+// Norway (organisasjonsnummer, brreg) and Switzerland (UID, BFS) share one
+// shape: weighted mod-11 over eight digits; check = 11 - remainder, 11 -> 0,
+// 10 -> the number is never issued.
+function mod11Check(nine, weights) {
+  const check = 11 - (weighted(nine.slice(0, 8), weights) % 11);
+  return check !== 10 && (check === 11 ? 0 : check) === Number(nine[8]);
+}
+
+// Australian Business Number: first digit minus one, weighted sum divisible by 89.
+function auAbnOk(body) {
+  if (body[0] === "0") return false;
+  const d = digitsOf(body);
+  d[0] -= 1;
+  return d.reduce((sum, digit, i) => sum + digit * [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19][i], 0) % 89 === 0;
+}
+
+// New Zealand IRD / GST number: 8 digits padded to 9, range 10,000,000 to 150,000,000,
+// mod-11 with a second weight set when the first gives 10.
+function nzIrdOk(body) {
+  const nine = body.padStart(9, "0");
+  const n = Number(nine);
+  if (n < 10000000 || n > 150000000) return false;
+  const check = Number(nine[8]);
+  const rem = (weights) => 11 - (weighted(nine.slice(0, 8), weights) % 11);
+  let c = rem([3, 2, 7, 6, 5, 4, 3, 2]);
+  if (c === 11) c = 0;
+  if (c === 10) {
+    c = rem([7, 4, 3, 2, 5, 2, 7, 6]);
+    if (c === 11) c = 0;
+    if (c === 10) return false;
+  }
+  return c === check;
+}
+
+// Serbian PIB: ISO 7064 mod 11,10 over the first eight digits.
+function rsPibOk(body) {
+  let product = 10;
+  for (const char of body.slice(0, 8)) {
+    let step = (Number(char) + product) % 10;
+    if (step === 0) step = 10;
+    product = (2 * step) % 11;
+  }
+  return (11 - product) % 10 === Number(body[8]);
+}
+
+// Indian GSTIN: the fifteenth character is a base-36 check over the first fourteen,
+// with factors 1 and 2 alternating.
+function inGstinOk(body) {
+  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let sum = 0;
+  for (let i = 0; i < 14; i += 1) {
+    const product = chars.indexOf(body[i]) * (i % 2 === 0 ? 1 : 2);
+    sum += Math.floor(product / 36) + (product % 36);
+  }
+  return chars[(36 - (sum % 36)) % 36] === body[14];
+}
+
+// Kazakhstan BIN/IIN (12 digits): weights 1..11 mod 11; a remainder of 10 retries with
+// weights 3..11,1,2; a second 10 is invalid. The 12th digit is the check. The rule is the
+// widely published one, not the state revenue committee's text; pinned on a hand-computed number.
+function kzBinOk(body) {
+  const d = digitsOf(body);
+  const run = (w) => d.slice(0, 11).reduce((sum, x, i) => sum + x * w[i], 0) % 11;
+  let r = run([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+  if (r === 10) r = run([3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 2]);
+  return r !== 10 && r === d[11];
+}
+
+// Ukrainian EDRPOU (8 digits, legal entities): weights 1..7 (7,1..6 for 30000000-60000000)
+// mod 11; a remainder of 10 retries with each weight plus 2, and a second 10 means check 0.
+// The ten-digit RNOKPP of sole traders is shape-checked only. Pinned on five well-known
+// published EDRPOUs; the tax service's own text is unread.
+function uaEdrpouOk(body) {
+  const d = digitsOf(body);
+  const n = Number(body);
+  const base = n > 30000000 && n < 60000000 ? [7, 1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5, 6, 7];
+  const run = (w) => d.slice(0, 7).reduce((sum, x, i) => sum + x * w[i], 0) % 11;
+  let r = run(base);
+  if (r === 10) {
+    r = run(base.map((x) => x + 2));
+    if (r === 10) r = 0;
+  }
+  return r === d[7];
+}
+
+// Ukrainian RNOKPP (RNTRC), the 10-digit number of an individual or sole trader: weights
+// -1,5,7,9,4,6,10,5,7 on the first nine digits, check = (sum mod 11) mod 10. Rule as in
+// python-stdnum ua.rntrc (its docs pin 1759013776 and 2530414071); the tax service's own text is unread.
+function uaRnokppOk(body) {
+  const w = [-1, 5, 7, 9, 4, 6, 10, 5, 7];
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return String((((sum % 11) + 11) % 11) % 10) === body[9];
+}
+
+// Guatemalan NIT (SAT taxpayer number): digits then one check character, 0-9 or K.
+// The base digits are weighted from n+1 down to 2 (rightmost base digit by 2); with
+// s the sum the check is (11 - s mod 11) mod 11, written K for 10. The rule is the
+// one open-source validators describe; the SAT's own text is unread.
+function gtNitOk(body) {
+  const base = body.slice(0, -1);
+  const s = [...base].reduce((a, ch, i) => a + Number(ch) * (base.length + 1 - i), 0);
+  const c = (11 - (s % 11)) % 11;
+  return body[body.length - 1] === (c === 10 ? "K" : String(c));
+}
+
+// Dominican Republic (DGII): a 9-digit RNC, weights 7,9,8,6,5,4,3,2, check (10 - s mod 11) mod 9 + 1;
+// an 11-digit cedula passes the Luhn test. A few real RNCs predate the rule and fail it (python-stdnum
+// keeps a list; so do we). Rule from python-stdnum do.rnc and do.cedula; the DGII text is unread.
+const DO_RNC_EXCEPTIONS = new Set(["101581601", "101582245", "101595422", "101595785", "131188691", "401007374",
+  "501341601", "501378067", "501620371", "501651319", "501651823", "501651845", "501651926", "501656006",
+  "501658167", "501670785", "501676936", "501680158", "504654542", "504680029", "504681442", "505038691"]);
+function doTaxIdOk(body) {
+  if (body.length === 11) return luhnOk(body);
+  if (DO_RNC_EXCEPTIONS.has(body)) return true;
+  const w = [7, 9, 8, 6, 5, 4, 3, 2];
+  const s = w.reduce((a, x, i) => a + x * Number(body[i]), 0) % 11;
+  return body[8] === String(((10 - s) % 9 + 9) % 9 + 1);
+}
+
+// Venezuela RIF (SENIAT): a type letter (V, E, J, P, G), 8 digits and a check digit. Weights 3,2,7,6,5,4,3,2
+// plus 4, 8, 12, 16 or 20 for the letter; check is "00987654321"[total mod 11]. Rule from python-stdnum
+// ve.rif; the SENIAT text is unread.
+function veRifOk(body) {
+  const base = { V: 4, E: 8, J: 12, P: 16, G: 20 }[body[0]];
+  const w = [3, 2, 7, 6, 5, 4, 3, 2];
+  const t = w.reduce((a, x, i) => a + x * Number(body[i + 1]), base);
+  return body[9] === "00987654321"[t % 11];
+}
+
+// Moldova IDNO (13 digits): the first 12 weighted 7,3,1 repeating; the sum mod 10 is the 13th digit.
+// Rule from python-stdnum md.idno; the State Tax Service text is unread.
+function mdIdnoOk(body) {
+  const w = [7, 3, 1];
+  return body.slice(0, 12).split("").reduce((a, c, i) => a + w[i % 3] * Number(c), 0) % 10 === Number(body[12]);
+}
+
+// Morocco ICE (15 digits): ISO 7064 mod 97-10, so the whole number mod 97 is 0 (python-stdnum ma.ice; the last two digits
+// are the control). Montenegro PIB (8 digits): weights 8..2, check = (-sum mod 11) mod 10. North
+// Macedonia EDB (13 digits): weights 7,6,5,4,3,2 twice, check = (-sum mod 11) mod 10. Rules from
+// python-stdnum ma.ice, me.pib, mk.edb; the authorities' own texts are unread.
+function maIceOk(body) {
+  let r = 0;
+  for (const c of body) r = (r * 10 + Number(c)) % 97;
+  return r === 0;
+}
+function negMod11Ok(body, w) {
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return String(((-sum % 11) + 11) % 11 % 10) === body[w.length];
+}
+const mePibOk = (body) => negMod11Ok(body, [8, 7, 6, 5, 4, 3, 2]);
+const mkEdbOk = (body) => negMod11Ok(body, [7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2]);
+
+// Senegal NINEA: the 7 or 9 digits, zero-padded to 9, weighted 1,2 repeating; the sum is a multiple of 10 (the COFI
+// suffix is shape only). Ghana TIN: check character = sum of i times character i for i = 1..9, mod 11, 10 = X.
+// El Salvador NIT: old numbers (sequence <= 100) weights 14..2, check = (sum mod 11) mod 10; newer ones weights
+// 2,7,6,5,4,3 repeating, check = (-sum mod 11) mod 10. Rules from python-stdnum; the authorities' texts are unread.
+function snNineaOk(body) {
+  const digits = body.length > 9 ? body.slice(0, -3) : body;
+  const w = [1, 2, 1, 2, 1, 2, 1, 2, 1];
+  const n = digits.padStart(9, "0");
+  return w.reduce((a, x, i) => a + x * Number(n[i]), 0) % 10 === 0;
+}
+function adNrtShapeOk(body) {
+  if (!/^[A-Z]\d{6}[A-Z]$/.test(body) || !"ACDEFGLOPU".includes(body[0])) return false;
+  const n = body.slice(1, 7);
+  if (body[0] === "F" && n > "699999") return false;
+  if ((body[0] === "A" || body[0] === "L") && !(n > "699999" && n < "800000")) return false;
+  return true;
+}
+function mzNuitOk(body) {
+  const w = [8, 9, 4, 5, 6, 7, 8, 9];
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return "01234567891"[sum % 11] === body[8];
+}
+function ghTinOk(body) {
+  let sum = 0;
+  for (let i = 1; i <= 9; i++) {
+    if (!/\d/.test(body[i])) return false;
+    sum += i * Number(body[i]);
+  }
+  const check = sum % 11;
+  return body[10] === (check === 10 ? "X" : String(check));
+}
+function svNitOk(body) {
+  const old = body.slice(10, 13) <= "100";
+  const w = old ? [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2] : [2, 7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return String(old ? (sum % 11) % 10 : (((-sum % 11) + 11) % 11) % 10) === body[13];
+}
+
+// Singapore UEN check letter (python-stdnum sg.uen; ACRA text unread): business (8 digits + letter, weights
+// 10,4,9,3,8,2,7,1 mod 11 into "XMKECAWLJDB"), local company (9 digits + letter, weights 10,8,6,4,9,7,5,3,1 into
+// "ZKCMDNERGWH"), other entities (R/S/T + 2 digits + 2 letters + 4 digits + letter; alphabet index sum - 5 mod 11).
+function sgUenOk(body) {
+  const last = body[body.length - 1];
+  if (/^\d{8}[A-Z]$/.test(body)) {
+    const sum = [10, 4, 9, 3, 8, 2, 7, 1].reduce((a, x, i) => a + x * Number(body[i]), 0);
+    return "XMKECAWLJDB"[sum % 11] === last;
+  }
+  if (/^\d{9}[A-Z]$/.test(body)) {
+    const sum = [10, 8, 6, 4, 9, 7, 5, 3, 1].reduce((a, x, i) => a + x * Number(body[i]), 0);
+    return "ZKCMDNERGWH"[sum % 11] === last;
+  }
+  const alpha = "ABCDEFGHJKLMNPQRSTUVWX0123456789";
+  let sum = 0;
+  const w = [4, 3, 5, 3, 10, 2, 2, 5, 7];
+  for (let i = 0; i < 9; i++) {
+    const k = alpha.indexOf(body[i]);
+    if (k < 0) return false;
+    sum += k * w[i];
+  }
+  return alpha[(((sum - 5) % 11) + 11) % 11] === last;
+}
+
+function tnMfShapeOk(body) {
+  const m = /^\d{7}[A-HJ-NP-TV-Z]([ABDNP])([MPCNE])(\d{3})$/.exec(body);
+  if (m) return m[3] === "000" || m[2] === "E";
+  return /^\d{7}[A-HJ-NP-TV-Z]$/.test(body);
+}
+
+// Azerbaijan VOEN (10 digits): the ninth digit is the weighted sum of the first eight (weights
+// 4,1,8,6,2,7,5,3) mod 11, so a remainder of 10 fits no digit and the number is refused; the tenth
+// digit is the taxpayer status, 1 (legal person) or 2 (natural person). Rule from python-stdnum
+// az.voen and its three doctest numbers; the Ministry of Taxes text is unread.
+function azVoenOk(body) {
+  const w = [4, 1, 8, 6, 2, 7, 5, 3];
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return (body[9] === "1" || body[9] === "2") && String(sum % 11) === body[8];
+}
+
+// Belarus UNP (9 digits): the ninth digit is the weighted sum of the first eight (weights
+// 29,23,19,17,13,7,5,3) mod 11; a remainder of 10 fits no digit and is refused. Rule from
+// python-stdnum by.unp and its doctest number 200988541; the Ministry of Taxes text is unread.
+function byUnpOk(body) {
+  const w = [29, 23, 19, 17, 13, 7, 5, 3];
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return String(sum % 11) === body[8];
+}
+
+// China unified social credit code, 18 characters: the last is a check character. Each of the first 17
+// maps to its index in 0-9A-Y (no I, O, S, V, Z); weights 1,3,9,27,19,26,16,17,20,29,25,13,8,24,10,30,28;
+// check = (31 - sum mod 31) mod 31. Rule from the national standard GB 32100-2015 as reproduced by
+// python-stdnum cn.uscc; the standard's own text is unread.
+const CN_USCC = "0123456789ABCDEFGHJKLMNPQRTUWXY";
+function cnUsccOk(body) {
+  const w = [1, 3, 9, 27, 19, 26, 16, 17, 20, 29, 25, 13, 8, 24, 10, 30, 28];
+  const sum = w.reduce((a, x, i) => a + x * CN_USCC.indexOf(body[i]), 0);
+  return CN_USCC[(31 - (sum % 31)) % 31] === body[17];
+}
+
+// Taiwan GUI (統一編號), 8 digits: weights 1,2,1,2,1,2,4,1, each product's digits added;
+// valid when the total is a multiple of 5 (the divisor since 2023; it was 10), and a 7 in
+// the seventh place also accepts total + 1. Open-source rule (python-stdnum tw.ubn); the
+// Ministry of Finance text was not read.
+function twGuiOk(body) {
+  const weights = [1, 2, 1, 2, 1, 2, 4, 1];
+  const total = digitsOf(body).reduce((sum, d, i) => {
+    const product = d * weights[i];
+    return sum + Math.floor(product / 10) + (product % 10);
+  }, 0);
+  return total % 5 === 0 || (body[6] === "7" && (total + 1) % 5 === 0);
+}
+
+// Thailand TIN / juristic id, 13 digits: first 12 weighted 13..2, check = (11 - sum mod 11) mod 10.
+function thTinOk(body) {
+  const sum = digitsOf(body.slice(0, 12)).reduce((acc, d, i) => acc + d * (13 - i), 0);
+  return (11 - (sum % 11)) % 10 === Number(body[12]);
+}
+
+// Russia INN: 10 digits, one control digit; 12 digits, two. Each is sum(weights*digits) mod 11 mod 10.
+function ruInnOk(body) {
+  const ctl = (n, w) => (w.reduce((a, x, i) => a + x * Number(body[i]), 0) % 11) % 10 === Number(body[n]);
+  if (body.length === 10) return ctl(9, [2, 4, 10, 3, 5, 9, 4, 6, 8]);
+  return ctl(10, [7, 2, 4, 10, 3, 5, 9, 4, 6, 8]) && ctl(11, [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8]);
+}
+
+function checksumOk(country, body) {
+  if (country === "RU") return ruInnOk(body);
+  if (country === "CA") return luhnOk(body.slice(0, 9));
+  if (country === "TW") return twGuiOk(body);
+  if (country === "TH") return thTinOk(body);
+  if (country === "DE") return deOk(body);
+  if (country === "FR") return frOk(body);
+  if (country === "BE") return beOk(body);
+  if (country === "NL") return nlOk(body);
+  if (country === "AT") return atOk(body);
+  if (country === "IT") return itOk(body);
+  if (country === "ES") return esOk(body);
+  if (country === "PL") return plOk(body);
+  if (country === "SE") return seOk(body);
+  if (country === "DK") return dkOk(body);
+  if (country === "FI") return fiOk(body);
+  if (country === "PT") return ptOk(body);
+  if (country === "LU") return luOk(body);
+  if (country === "IE") return ieOk(body);
+  if (country === "GB" || country === "UK") return gbOk(body);
+  if (country === "NO") return mod11Check(body.slice(0, 9), [3, 2, 7, 6, 5, 4, 3, 2]);
+  if (country === "CH") return mod11Check(body.slice(1, 10), [5, 4, 3, 2, 7, 6, 5, 4]);
+  if (country === "AU") return auAbnOk(body);
+  if (country === "NZ") return nzIrdOk(body);
+  if (country === "RS") return rsPibOk(body);
+  if (country === "TR") return checkTurkishTaxId(body).ok;
+  if (country === "KR") return checkKoreanBrn(body).ok;
+  if (country === "BR") return checkBrazilId(body).ok;
+  if (country === "AR") return checkCuit(body).ok;
+  if (country === "PE") return checkRuc(body).ok;
+  if (country === "CL") return checkRut(body).ok;
+  if (country === "CO") return checkNit(`${body.slice(0, -1)}-${body.slice(-1)}`).ok;
+  if (country === "MX") return checkRfc(body).ok;
+  if (country === "IN") return inGstinOk(body);
+  if (country === "UY") return checkUruguayRut(body).ok;
+  if (country === "VN") return checkMst(body).ok;
+  if (country === "EC") return checkEcuadorRuc(body).ok;
+  if (country === "PY") return checkParaguayRuc(body).ok;
+  if (country === "IL") return checkIsraeliId(body).ok;
+  if (country === "KZ") return kzBinOk(body);
+  if (country === "UA") return body.length === 10 ? uaRnokppOk(body) : uaEdrpouOk(body);
+  if (country === "GT") return gtNitOk(body);
+  if (country === "DO") return doTaxIdOk(body);
+  if (country === "VE") return veRifOk(body);
+  if (country === "MD") return mdIdnoOk(body);
+  if (country === "SG") return sgUenOk(body);
+  if (country === "MA") return maIceOk(body);
+  if (country === "SN") return snNineaOk(body);
+  if (country === "GH") return ghTinOk(body);
+  if (country === "SV") return svNitOk(body);
+  if (country === "MZ") return mzNuitOk(body);
+  if (country === "GN") return luhnOk(body);
+  if (country === "ME") return mePibOk(body);
+  if (country === "MK") return mkEdbOk(body);
+  if (country === "AZ") return azVoenOk(body);
+  if (country === "BY") return byUnpOk(body);
+  if (country === "CN") return cnUsccOk(body);
+  if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
+  if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
+  return false;
+}
+
+export function looksLikeCompleteVat(value) {
+  const compact = normalizeVat(value);
+  if (compact === null || compact.length < 4) return false;
+  const country = compact.slice(0, 2);
+  const body = compact.slice(2);
+  if (!/^[A-Z]{2}$/.test(country)) return false;
+  const kind = classify(country, body);
+  return kind === "checksum" || kind === "format";
+}
+
+const labelOf = (partyName) => partyName.charAt(0).toUpperCase() + partyName.slice(1);
+
+function evaluate(country, body, path, partyName, requireKnown, label = labelOf(partyName)) {
+  const kind = classify(country, body);
+  if (kind === "unknown") {
+    if (!requireKnown) return [];
+    return [finding(
+      "INV-022",
+      `${label} VAT identifier uses an unrecognized country prefix.`,
+      "Use an EU, UK, or other published VAT country prefix, or omit vat_id for an internal id.",
+      path,
+    )];
+  }
+  if (kind === "bad-format") {
+    return [finding(
+      "INV-022",
+      `${label} VAT identifier does not match the published ${country} shape.`,
+      `Correct the ${country} VAT identifier length and characters, or use an internal id without a country prefix.`,
+      path,
+    )];
+  }
+  if (kind === "checksum" && !checksumOk(country, body)) {
+    return [finding(
+      "INV-023",
+      `${label} VAT identifier fails the published ${country} checksum.`,
+      `Correct the ${country} VAT identifier digits. This is a checksum typo check, not a registration lookup.`,
+      path,
+    )];
+  }
+  return [];
+}
+
+function checkExplicit(value, path, partyName, label = labelOf(partyName)) {
+  if (typeof value !== "string" || !value.trim()) {
+    return [finding(
+      "INV-022",
+      `${label} VAT identifier is empty or not text.`,
+      "Provide the VAT identifier as text, or omit vat_id.",
+      path,
+    )];
+  }
+  const compact = normalizeVat(value);
+  if (compact === null || compact.length < 4 || !/^[A-Z]{2}/.test(compact)) {
+    return [finding(
+      "INV-022",
+      `${label} VAT identifier is not a country-prefixed VAT number.`,
+      "Use a two-letter country prefix plus the national number, for example DE and nine digits.",
+      path,
+    )];
+  }
+  return evaluate(compact.slice(0, 2), compact.slice(2), path, partyName, true, label);
+}
+
+function checkComplete(value, path, partyName) {
+  const compact = normalizeVat(value);
+  if (compact === null) return [];
+  return evaluate(compact.slice(0, 2), compact.slice(2), path, partyName, false);
+}
+
+// `label` names the party in messages when its JSON key does not read as words
+// ("Tax representative" for tax_representative, BG-11).
+export function inspectPartyVat(party, partyName, label = labelOf(partyName)) {
+  if (!party || typeof party !== "object" || Array.isArray(party)) return [];
+  const findings = [];
+  const checked = new Set();
+  const vatId = party.vat_id;
+  if (vatId !== undefined && vatId !== null && vatId !== "") {
+    findings.push(...checkExplicit(vatId, `/${partyName}/vat_id`, partyName, label));
+    const compact = normalizeVat(vatId);
+    if (compact) checked.add(compact);
+  }
+  const identifier = party.id;
+  const compactId = normalizeVat(identifier);
+  if (compactId && !checked.has(compactId) && looksLikeCompleteVat(identifier)) {
+    findings.push(...checkComplete(identifier, `/${partyName}/id`, partyName));
+  }
+  return findings;
+}
+
+// INV-064: OpenPeppol's PEPPOL-COMMON-R056-2 (BIS 3.0.22, a warning) reads every
+// VAT number (UBL PartyTaxScheme/CompanyID under TaxScheme VAT, CII
+// SpecifiedTaxRegistration/ID schemeID VA) that starts with "NL" after
+// normalize-space and asks for exactly NL, nine digits, B and two digits.
+// normalizeVat strips spaces, dots and hyphens before INV-022/023, so
+// "NL 123456782 B01" or "NL123456782.B01" passed here and drew Peppol's warning
+// at the network. Only XML whitespace is trimmed, as normalize-space does; a
+// value INV-022/023 already reports is left to them. A warning, as Peppol's is.
+// eval/nl-vat-r056-2-differential.mjs runs Peppol's own assertion on the same files.
+const XML_SPACE = /^[ \t\r\n]+|[ \t\r\n]+$/g;
+
+export function inspectNlVatShape(party, partyName, label = labelOf(partyName)) {
+  if (!party || typeof party !== "object" || Array.isArray(party)) return [];
+  const value = party.vat_id;
+  if (typeof value !== "string") return [];
+  const text = value.replace(XML_SPACE, "");
+  if (!text.startsWith("NL") || /^NL[0-9]{9}B[0-9]{2}$/.test(text)) return [];
+  return [{
+    rule: "INV-064",
+    message: `${label} Dutch VAT number is not written as NL, nine digits, B and two digits; Peppol warns on it (PEPPOL-COMMON-R056-2).`,
+    fix: "Write the Dutch VAT number with no spaces, dots or hyphens, for example NL123456789B12.",
+    path: `/${partyName}/vat_id`,
+    severity: "warning",
+  }];
+}

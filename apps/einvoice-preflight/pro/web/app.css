@@ -1,0 +1,62 @@
+:root {
+  --bg: #f7f7f5; --card: #ffffff; --text: #1d1f21; --muted: #5b6168; --line: #d9dcdf;
+  --accent: #1f5fae; --accent-text: #ffffff; --ok: #1d7a3e; --bad: #b3261e; --warn: #8a5a00;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #15171a; --card: #1e2125; --text: #e8eaed; --muted: #a3a9b0; --line: #343a40;
+    --accent: #7fb0ff; --accent-text: #0d1b2e; --ok: #6fcf8f; --bad: #ff8a80; --warn: #f3c46b; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 960px; margin: 0 auto; padding: 16px; }
+.top { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.brand { flex: 1; font-size: 1.15rem; }
+.langs { display: flex; gap: 4px; }
+.tagline { color: var(--muted); }
+.two { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 12px 0; }
+.card h2 { margin-top: 0; font-size: 1.1rem; }
+label { display: block; margin: 8px 0 4px; }
+label.check { display: flex; gap: 8px; align-items: flex-start; }
+input:not([type=checkbox]), select { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--text); font: inherit; }
+select { width: auto; }
+button, .button { display: inline-block; padding: 8px 14px; border: 1px solid var(--accent); border-radius: 6px; background: var(--accent); color: var(--accent-text); font: inherit; cursor: pointer; margin-top: 8px; }
+button.secondary { background: transparent; color: var(--accent); }
+button.link { background: none; border: none; color: var(--accent); padding: 0; margin: 0; text-decoration: underline; }
+button.lang { background: transparent; color: var(--text); border-color: var(--line); padding: 2px 8px; margin: 0; }
+button.lang.on { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.options label { margin: 0; }
+.grid { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.clients { list-style: none; padding: 0; margin: 0; }
+.clients li { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.clients li:first-child { border-top: 0; }
+.drop { display: flex; flex-direction: column; gap: 8px; align-items: center; justify-content: center; text-align: center; border: 2px dashed var(--line); border-radius: 8px; padding: 24px 12px; margin-top: 12px; cursor: pointer; }
+.drop.over { border-color: var(--accent); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.meter { display: grid; gap: 2px; margin: 6px 0; }
+progress { width: 100%; height: 8px; }
+.badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.85rem; color: #fff; }
+.badge.ok { background: var(--ok); } .badge.bad { background: var(--bad); }
+.result h3 { margin: 0 0 8px; font-size: 1rem; overflow-wrap: anywhere; }
+.findings { list-style: none; padding: 0; margin: 0; }
+.finding { border-left: 3px solid var(--warn); padding: 4px 10px; margin: 8px 0; }
+.finding.blocking { border-left-color: var(--bad); }
+.finding p { margin: 2px 0; }
+.small { font-size: 0.88rem; color: var(--muted); }
+.notice { font-style: italic; }
+.ok { color: var(--ok); } .warn { color: var(--warn); } .error { color: var(--bad); }
+pre.diff { overflow-x: auto; font-size: 0.85rem; background: var(--bg); padding: 8px; border-radius: 6px; }
+code.key { overflow-wrap: anywhere; font-size: 1rem; padding: 4px 6px; background: var(--bg); border-radius: 4px; user-select: all; }
+.history { padding-left: 18px; }
+footer { margin-top: 24px; }
+.badge.ok, .badge.bad { color: #fff; }
+.keys .badge { margin-left: 6px; }
+.keys form label { flex: 1; min-width: 200px; margin: 0; }
+a { color: var(--accent); }
+main.legal { max-width: 760px; }
+main.legal h1 { font-size: 1.5rem; }
+main.legal h2 { font-size: 1.1rem; margin-top: 1.5em; }
+main.legal table { border-collapse: collapse; width: 100%; display: block; overflow-x: auto; }
+main.legal th, main.legal td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
