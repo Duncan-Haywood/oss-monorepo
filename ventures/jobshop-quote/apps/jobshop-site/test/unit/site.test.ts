@@ -3,7 +3,7 @@ import { AI_CRAWLERS, buildSite, fileFor, mainText, resolveBuildOptions } from "
 import { CMMC_SITE_URL, LAUNCH, type Launch } from "@site/config";
 import { esc } from "@site/html";
 import { statusLine } from "@site/layout";
-import { AI_OFF, SHOTS } from "@site/pages";
+import { AI_OFF, ALTERNATIVES, SHOTS } from "@site/pages";
 import { PUBLIC_ROUTES, publicRoutes } from "@site/routes";
 import { describe, expect, it } from "vitest";
 
@@ -232,5 +232,28 @@ describe("resolveBuildOptions", () => {
     expect(resolveBuildOptions({ BASE_PATH: "jobshop/" }).basePath).toBe("/jobshop");
     expect(() => resolveBuildOptions({ BASE_PATH: "/../x" })).toThrow();
     expect(() => resolveBuildOptions({ SITE_URL: "ftp://x" })).toThrow();
+  });
+});
+
+describe("/compare", () => {
+  const page = pages.find((p) => p.route.path === "/compare")?.html ?? "";
+  it("is built, in the nav, and in the sitemap", () => {
+    expect(page).toContain("<h1>Machine shop quoting software, compared honestly</h1>");
+    expect(files.get("sitemap.xml")).toContain(`${SITE}/compare`);
+    expect(pages.find((p) => p.route.path === "/")?.html).toContain('href="/jobshop/compare"');
+  });
+  it("cites a source and a read date for every price figure", () => {
+    for (const a of ALTERNATIVES) {
+      if (/\$\d/.test(a.price)) {
+        expect(a.source, a.name).toBeDefined();
+        expect(a.source?.read).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        expect(page).toContain(esc(a.source?.url ?? ""));
+      }
+    }
+  });
+  it("says what the app does not do, AI reading included while it is off", () => {
+    expect(page).toContain("What it does not do");
+    expect(page).toContain(esc(AI_OFF));
+    expect(page).toContain("not on sale yet");
   });
 });
