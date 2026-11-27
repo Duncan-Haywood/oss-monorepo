@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: our contract checker read an expense limit as a cap on indemnity"
-seo_title: "Does my freelance contract cap my liability and indemnity? What to look for"
+seo_title: "Does my freelance contract cap liability and indemnity?"
 date: 2026-11-27
 tags: [quality-audit, freelance-contract-checker, freelancers, contracts]
-description: "The freelance contract checker cleared an uncapped indemnity whenever 'limited to' appeared anywhere, and cleared the liability check whenever the word 'liable' did. Both rules now read one sentence at a time."
+description: "Our contract checker cleared an uncapped indemnity whenever 'limited to' appeared anywhere. Liability and indemnity caps are now read per sentence."
 ---
 
 The [Freelance Contract Checker](../../ventures/freelance-contract-checker/)
