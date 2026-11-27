@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtLPBK8kZ6i1nEJKx5f",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T19:07:01Z",
+  "ended": "2026-11-27T19:14:34Z",
+  "wall_minutes": 7.74,
+  "tokens_in": 7335870,
+  "tokens_out": 27503,
+  "cost_usd": 3.0939,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19846",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "The table says CMMC is built in a new private-monorepo/apps/cmmc and that einvoice's deploy workflow is not yet ported, and says '#3 has none yet' for a launch review. ventures/cmmc, priv-einvoice-pro-deploy.yml and einvoice-preflight/docs/LAUNCH-REVIEW.md all exist, so the table is stale."
+    },
+    {
+      "file": "portfolio/work/tasks.yaml",
+      "issue": "move-cmmc-public is still status: open, but roadmap_claim.py says cmmc lives in this repository."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Every ROADMAP item on all six bets in this repository is 'waits on demand/owner/source', so the bets queue gives a run nothing free. About 15 minutes went to walking every bet before falling back to front-door SEO."
+    },
+    {
+      "file": "platform/pages/writing.mjs",
+      "issue": "folded_into's writing/<post-slug>/ slug is the filename without its date prefix. Neither the doc comment nor the writing guide says so; I wrote the dated slug first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No bet had a free, ungated roadmap item. Seller-books, wall-framing-takeoff and payapps were already claimed, and einvoice #4 needs a DPA change with 30-day notice. The run did front-door SEO consolidation for bet #6 instead of product code.",
+      "did": "Folded 32 thin wall-framing-takeoff posts into one customer guide",
+      "result": "merged-pending; 494 thin posts identified, 32 consolidated"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-framing-nails-hangers-and-ties-for-a-house.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test platform/pages/writing*.test.mjs 79 pass 0 fail; fold targets resolve 32/32 via foldTargetProblem; guide topic business. No agent doc: the method (cluster by title, fold with folded_into) is in the PR body's Next section.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0034f884-ea95-5fcb-ba67-b562992268dc",
+    "transcripts": 1,
+    "first": "2026-11-27T19:07:01Z",
+    "last": "2026-11-27T19:14:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 128,
+        "output": 27503,
+        "thinking": 8366,
+        "cache_read": 7197766,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137976,
+        "api_equivalent_usd": 3.0939,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 128,
+      "output": 27503,
+      "thinking": 8366,
+      "cache_read": 7197766,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137976,
+      "api_equivalent_usd": 3.0939,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__actions_list": 1,
+      "Read": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.74,
+      "active_minutes": 7.74,
+      "model_minutes": 5.35,
+      "tool_minutes": 2.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reading 32 posts and writing a 2,100-word consolidated guide",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 97.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
