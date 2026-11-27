@@ -1,0 +1,34 @@
+// Cloudflare Worker for the e-invoice marketing site. Deploy from apps/einvoice-site after
+// `node build.mjs --prod` (README "Deploy"). Not deployed by CI yet.
+{
+  "$schema": "../grants/node_modules/wrangler/config-schema.json",
+  "name": "einvoice-site",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-01",
+  // Static pages from build.mjs. /api/* runs the worker first; everything else is a static file.
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+  // The privacy pages say request logging is off: keep it that way, or update them first.
+  "observability": { "enabled": false },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "einvoice-site",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Cloudflare Email Service (transactional). The confirmation email is transactional; launch news
+  // to confirmed addresses must go through a provider that allows marketing mail (README).
+  "send_email": [{ "name": "EMAIL" }],
+  "triggers": { "crons": ["17 3 * * *"] },
+  "vars": {
+    // Set both before launch (README "Before launch"). SIGNING_SECRET is a secret:
+    //   wrangler secret put SIGNING_SECRET
+    "SITE_URL": "",
+    "EMAIL_FROM": ""
+  }
+}

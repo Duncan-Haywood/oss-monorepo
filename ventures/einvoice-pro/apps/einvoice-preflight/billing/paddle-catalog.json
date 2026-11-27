@@ -1,0 +1,36 @@
+{
+  "app": "einvoice-preflight",
+  "productName": "E-invoice Fix & Explain",
+  "currency": "EUR",
+  "taxCategory": "saas",
+  "plans": [
+    {
+      "key": "starter",
+      "name": "Firm S",
+      "description": "For a sole practitioner: up to 10 client companies and 500 invoices checked a month.",
+      "monthlyCents": 1900,
+      "annualCents": null
+    },
+    {
+      "key": "standard",
+      "name": "Firm M",
+      "description": "For a small firm: up to 30 client companies and 1,500 invoices checked a month.",
+      "monthlyCents": 2900,
+      "annualCents": null
+    },
+    {
+      "key": "plus",
+      "name": "Firm L",
+      "description": "For a larger firm: up to 100 client companies and 4,000 invoices checked a month.",
+      "monthlyCents": 4900,
+      "annualCents": null
+    },
+    {
+      "key": "api",
+      "name": "API, metered",
+      "description": "For invoicing software vendors: €1.40 per 1,000 invoices validated, €0.04 per invoice with errors explained; €19 a month minimum, credited against usage.",
+      "monthlyCents": 1900,
+      "annualCents": null
+    }
+  ]
+}

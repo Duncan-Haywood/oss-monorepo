@@ -1,0 +1,77 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import fs from "node:fs";
+
+const html = fs.readFileSync(new URL("./mexico-cfdi-e-invoice-mandate.html", import.meta.url), "utf8");
+const indexHtml = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
+const sitemap = fs.readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+
+test("carries the no-warranty disclaimer and licence line", () => {
+  assert.match(html, /<strong>No warranty\.<\/strong>/);
+  assert.match(html, /not legal, tax, financial, or accounting advice/i);
+  assert.match(html, /Free to use and source visible/);
+});
+
+test("states the CFDI model, the PAC and the sources' limits", () => {
+  assert.match(html, /CFDI/);
+  assert.match(html, /PAC/);
+  assert.match(html, /RFC/);
+  assert.match(html, /disagree/);
+  assert.match(html, /import\{checkRfc\}from"\.\/mexico\.mjs"/);
+});
+
+test("makes no price or fine claim", () => {
+  assert.doesNotMatch(html, /\$\d/);
+  assert.doesNotMatch(html, /MXN \d/);
+});
+
+test("canonical names this file", () => {
+  assert.match(html, /<link rel="canonical" href="https:\/\/example\.invalid\/einvoice-preflight\/mexico-cfdi-e-invoice-mandate\.html">/);
+});
+
+test("FAQPage schema is valid JSON and matches visible h3 headings", () => {
+  const match = html.match(/<script type="application\/ld\+json">(\{"@context".*?\})<\/script>/s);
+  assert.ok(match, "no schema");
+  const schema = JSON.parse(match[1]);
+  assert.equal(schema["@type"], "FAQPage");
+  for (const q of schema.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(q.acceptedAnswer.text));
+  }
+});
+
+test("linked from the tool page and listed in the sitemap", () => {
+  assert.match(indexHtml, /href="mexico-cfdi-e-invoice-mandate\.html"/);
+  assert.match(sitemap, /mexico-cfdi-e-invoice-mandate\.html/);
+});
+
+test("links to the checker, creator and rule reference", () => {
+  assert.match(html, /<a href="\.\/">/);
+  assert.match(html, /href="create\.html"/);
+  assert.match(html, /href="what-does-this-e-invoice-error-code-mean\.html"/);
+});
+
+test("links to Germany and the hub and the sitemap entry is its own url block", () => {
+  assert.match(html, /href="japan-invoice-system-e-invoice-mandate\.html"/);
+  assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
+  assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*mexico-cfdi-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
+});
+
+test("the waybill sample draws the five Carta Porte rules it plants", async () => {
+  const { checkCfdi } = await import("./cfdi.mjs");
+  const sample = /const CP_SAMPLE=`([^`]*)`/.exec(html)[1];
+  const r = checkCfdi(sample);
+  assert.deepEqual([...new Set(r.findings.map((f) => f.rule))], ["MX-071", "MX-072", "MX-073", "MX-075", "MX-076"]);
+  assert.equal(r.meta.waybills, 1);
+  assert.match(html, /id="cp-sample"/);
+});
+
+// 2026-11-22: cfdi.mjs and its SAT catalogues are about 340 kB compressed; a static import held every handler on the
+// page (and the RFC check) until they had arrived. It loads with import() on first use; the RFC check stays static.
+test("the CFDI checker loads on demand, not in the page's static imports", () => {
+  const mod = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  const statics = [...mod.matchAll(/import\s*\{[^}]*\}\s*from\s*"([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(statics, ["./mexico.mjs"]);
+  assert.match(mod, /import\("\.\/cfdi\.mjs"\)/);
+  assert.match(mod, /async function show\(text\)\{let checkCfdi;try\{\(\{checkCfdi\}=await loadCfdi\(\)\)/);
+});

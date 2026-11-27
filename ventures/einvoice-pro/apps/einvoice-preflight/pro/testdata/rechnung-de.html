@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Rechnung</title>
+<style>
+@page { size: A4; margin: 18mm 20mm; }
+body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 10pt; color: #000; }
+.sender { font-size: 7pt; text-decoration: underline; margin-top: 30mm; }
+.addr { margin-top: 3mm; line-height: 1.35; }
+.info { position: absolute; top: 40mm; right: 0; }
+.info td { padding: 1px 0 1px 12mm; }
+h1 { font-size: 14pt; margin-top: 18mm; }
+table.items { width: 100%; border-collapse: collapse; margin-top: 6mm; }
+table.items th, table.items td { padding: 4px 6px; border-bottom: 1px solid #999; text-align: left; }
+table.items .r { text-align: right; }
+table.sum { margin-left: auto; margin-top: 4mm; }
+table.sum td { padding: 2px 6px; }
+table.sum .r { text-align: right; padding-left: 20mm; }
+.foot { position: absolute; bottom: 0; left: 0; right: 0; font-size: 7pt; display: flex; justify-content: space-between; }
+</style></head><body>
+<div class="sender">Elektro Beispiel GmbH · Industriestraße 12 · 70565 Stuttgart</div>
+<div class="addr">Bauunternehmung Muster KG<br>Herrn Thomas Beispiel<br>Am Hafen 7<br>28217 Bremen</div>
+<table class="info">
+<tr><td>Rechnungsnummer:</td><td>2026-0815</td></tr>
+<tr><td>Rechnungsdatum:</td><td>12.11.2026</td></tr>
+<tr><td>Leistungsdatum:</td><td>06.11.2026</td></tr>
+<tr><td>Ihre Bestellung:</td><td>BV-4711</td></tr>
+<tr><td>Kundennummer:</td><td>10042</td></tr>
+</table>
+<h1>Rechnung</h1>
+<p>Sehr geehrter Herr Beispiel,<br>für die ausgeführten Elektroarbeiten am Bauvorhaben Hafenstraße berechnen wir:</p>
+<table class="items">
+<tr><th>Pos.</th><th>Bezeichnung</th><th class="r">Menge</th><th>Einheit</th><th class="r">Einzelpreis</th><th class="r">Gesamt</th></tr>
+<tr><td>1</td><td>Elektroinstallation Unterverteilung</td><td class="r">1</td><td>psch</td><td class="r">1.850,00 €</td><td class="r">1.850,00 €</td></tr>
+<tr><td>2</td><td>Arbeitszeit Elektromeister</td><td class="r">12,5</td><td>Std.</td><td class="r">68,00 €</td><td class="r">850,00 €</td></tr>
+<tr><td>3</td><td>NYM-J 3x1,5 mm² Mantelleitung</td><td class="r">150</td><td>m</td><td class="r">1,12 €</td><td class="r">168,00 €</td></tr>
+</table>
+<table class="sum">
+<tr><td>Nettobetrag</td><td class="r">2.868,00 €</td></tr>
+<tr><td>zzgl. 19 % USt</td><td class="r">544,92 €</td></tr>
+<tr><td><b>Rechnungsbetrag</b></td><td class="r"><b>3.412,92 €</b></td></tr>
+</table>
+<p>Zahlbar bis 12.12.2026 ohne Abzug.</p>
+<div class="foot">
+<div>Elektro Beispiel GmbH<br>Industriestraße 12<br>70565 Stuttgart<br>Tel. 0711 123456</div>
+<div>Geschäftsführer: Max Beispiel<br>Amtsgericht Stuttgart HRB 123456<br>USt-IdNr.: DE136695976<br>Steuernummer: 99/815/08150</div>
+<div>Volksbank Beispiel eG<br>IBAN: DE02 1203 0000 0000 2020 51<br>BIC: BYLADEM1001<br>rechnung@elektro-beispiel.example</div>
+</div>
+</body></html>
