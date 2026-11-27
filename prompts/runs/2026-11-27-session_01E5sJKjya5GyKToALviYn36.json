@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "changed-ventures CI red on pay-app-guides, pre-existing on main (nav.mjs not rerun after two new pages); fixed in this PR"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -47,7 +49,7 @@
     "docs/posts/2026-10-20-we-almost-rewrote-it-in-rust.md (new section)"
   ],
   "goal": null,
-  "notes": "Metric: PayApps app entry script at first load (sign-in page). Before 1,400,560 B raw / 398,798 B gzip -9; after 363,594 B / 113,864 B (from pnpm build, gzip -9 of dist/client/assets/index-*.js). Time until 'Sign in' text: median 2,982 ms before, 1,407 ms after (both dist/client builds served by one static gzip server with /api 401, Chromium with 150 ms RTT, 1.6 Mbit/s and 4x CPU, 7 runs interleaved). Verification: tsc clean, biome clean, test:unit 1368 passed 3 skipped, Playwright on vite preview: lazy routes load on direct visits and client-side navigation with no page errors.",
+  "notes": "Metric: PayApps app entry script at first load (sign-in page). Before 1,400,560 B raw / 398,798 B gzip -9; after 363,594 B / 113,864 B (from pnpm build, gzip -9 of dist/client/assets/index-*.js). Time until 'Sign in' text: median 2,982 ms before, 1,407 ms after (both dist/client builds served by one static gzip server with /api 401, Chromium with 150 ms RTT, 1.6 Mbit/s and 4x CPU, 7 runs interleaved). Verification: tsc clean, biome clean, test:unit 1368 passed 3 skipped, Playwright on vite preview: lazy routes load on direct visits and client-side navigation with no page errors. Also fixed forward a red main: pay-app-guides page.test 'every page is in the all-guides list' failed because coconstruct-alternatives.html and texas-lien-notice.html (merged earlier today) skipped node nav.mjs; reran it, suite 344/344.",
   "corrections": [],
   "redteam": null,
   "usage": {
