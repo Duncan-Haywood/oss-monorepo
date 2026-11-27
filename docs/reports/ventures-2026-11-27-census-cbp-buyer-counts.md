@@ -10,7 +10,7 @@ claimed or waiting on demand, so this run fixed the evidence the ranking stands 
 **What landed.** `portfolio/smb/cbp_counts.py` prints official Census County Business Patterns
 (CBP) counts for any NAICS code: employer establishments, those under 20 and under 100
 employees, and paid employees, nationally or by state (`--by-state --top N`). Tests:
-`portfolio/smb/test_cbp_counts.py` (no network). With it:
+`portfolio/ledger/test_smb_cbp_counts.py` (no network). With it:
 
 - `portfolio/monetization/bets.md`, bet #1: the "estimate of about 500k" specialty-trade
   employer establishments is now the official **510,803** (NAICS 238, 2022), 461,711 under 20

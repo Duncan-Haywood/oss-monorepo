@@ -1,11 +1,15 @@
-"""Tests for cbp_counts.py on a tiny CBP-shaped file (no network)."""
+"""Tests for portfolio/smb/cbp_counts.py on a tiny CBP-shaped file (no network).
+
+Kept in portfolio/ledger/ like test_smb_cost_plus.py, so the merge checklist's
+existing portfolio/ledger line runs them.
+"""
 import io
 import json
 import sys
 import zipfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "smb"))
 import cbp_counts  # noqa: E402
 
 HEAD = '"fipstate","naics","lfo","emp_nf","emp","est","n<5","n5_9","n10_19","n20_49","n50_99","n100_249"\n'

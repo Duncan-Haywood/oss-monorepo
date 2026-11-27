@@ -61,7 +61,7 @@
     "docs/reports/ventures-2026-11-27-census-cbp-buyer-counts.md"
   ],
   "goal": null,
-  "notes": "Tests: pytest portfolio/smb/test_cbp_counts.py portfolio/ledger/test_smb_cost_plus.py 17 passed; cost_plus.py --check ok. Risk review: one check (new outbound host www2.census.gov), answered in the PR.",
+  "notes": "Tests: pytest portfolio/ledger/test_smb_cbp_counts.py portfolio/ledger/test_smb_cost_plus.py 17 passed; cost_plus.py --check ok. Risk review: one check (new outbound host www2.census.gov), answered in the PR.",
   "corrections": [],
   "redteam": null,
   "usage": {
