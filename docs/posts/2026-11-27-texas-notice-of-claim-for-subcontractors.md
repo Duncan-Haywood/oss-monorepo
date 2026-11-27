@@ -1,6 +1,6 @@
 ---
-title: "Texas lien notices for subcontractors: the monthly notice of claim, the retainage notice and their 15th-of-the-month deadlines"
-seo_title: "Texas notice of claim for unpaid labor or materials: deadlines and form"
+title: "Texas lien notices for subcontractors: the monthly notice of claim, retainage and the 15th-day deadlines"
+seo_title: "Texas notice of claim for unpaid labor or materials: deadlines, form"
 date: 2026-11-27
 tags: [payapps, for-customers, construction, subcontractors, lien-waivers, texas, notice-of-claim, retainage]
 description: "Tex. Prop. Code §§ 53.056 and 53.057 for subs and suppliers: the two statutory notice forms, the 15th-day deadlines, retainage, weekends and how to send them."
