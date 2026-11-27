@@ -96,9 +96,30 @@ your company. You add the work and your address and print a PDF. Enter the first
 work and the panel shows both dates above. A test compares every word of the printed form with the
 statute's text, and four one-phrase edits to the form each fail it.
 
-Not built yet: a log of each notice served with its tracking number, and a reminder in the weekly
-email before day 40. California's preliminary notice already has both, and Florida's are next. The
-combined notice to contractor on bonded and public jobs (§ 255.05, § 713.23) is not covered.
+Then record each notice as it goes out: to whom (the owner, the contractor, the subcontractor above
+you, the notice of commencement's designee, the lender), how (certified, registered or Global
+Express Guaranteed mail, hand delivery, a common carrier, posting), the day sent and the mail or
+tracking number. PayApps says when each one counts as served under § 713.18:
+
+| How it went | Counts as served | Notes |
+|---|---|---|
+| Certified, registered or Global Express Guaranteed mail, mailed by day 40 | The day mailed | Keep the mail log or USPS tracking records (§ 713.18(2)(c)) |
+| Same mail, mailed after day 40 | The day delivered | Enter the date from the green card or tracking when it comes back |
+| Common carrier | The day delivered | Same: from the carrier's proof of delivery |
+| Hand delivery | The day handed over | To an officer, partner, member or manager, or an authorised agent (§ 713.18(1)(a)) |
+| Posting on the site | The day posted | Only "if service as provided by paragraph (a) or paragraph (b) cannot be accomplished" |
+
+The first day of work is saved with the job, so the dates don't change when someone else opens it,
+and until a notice to the owner is recorded the cash page and the weekly "money to chase" email
+carry a reminder. It changes as the dates pass: before day 40 it says mail it certified; between
+day 40 and day 45 it says hand delivery or a carrier is safer, because mail now counts only once it
+arrives; after day 45 it says plainly that a late notice is "a complete defense to enforcement of a
+lien". The contractor's copy doesn't keep the reminder open, since only a sub-subcontractor or a
+supplier to a subcontractor owes it, but the reminder names it.
+
+Not covered yet: attaching the mail log or tracking printout to each record (California's records
+already take files), § 713.18(3)'s rule for a notice returned "refused" or "unclaimed", and the
+combined notice to contractor on bonded and public jobs (§ 255.05, § 713.23).
 
 PayApps is in early access: pay applications, retainage, change orders, lien waivers, preliminary
 notices and QuickBooks for subcontractors. [See what is built and join the early access

@@ -750,7 +750,7 @@ def print_unblockers(tasks_yaml: Path, tag: str | None) -> None:
     if not tasks:
         return
     print(f"First look: work that unblocks every bet (portfolio/work/{tasks_yaml.name}, "
-          f"direction {UNBLOCK_DIRECTION}; `workctl.py next` ranks it, `[work:<id>]` in the PR title):")
+          f"direction {UNBLOCK_DIRECTION}; `python3 portfolio/work/workctl.py next` ranks it, `[work:<id>]` in the PR title):")
     for tid, title in spread(tasks, tag):
         print(f"  - {tid}: {title}")
     print("  Product items below are fine too; take one of these when it fits your session.")

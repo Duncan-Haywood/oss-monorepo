@@ -3,11 +3,14 @@
 // `job_events`, written by the route after the change succeeds (the same rules as the pay
 // application history in ./pay-app-history.ts). A record for the people involved (a dispute over
 // when a change order went to the GC, who changed the contract sum, when a California preliminary
-// notice was given and what proof of it was kept), never an input to the math.
+// notice was given and what proof of it was kept, when a Florida Notice to Owner was served), never an input to the math.
 import {
   CA_NOTICE_METHOD_LABELS,
   type CaNoticeMethod,
   type CaNoticeRecipient,
+  FL_SERVICE_METHOD_LABELS,
+  type FlNoticeRecipient,
+  type FlServiceMethod,
 } from "@lien-waivers";
 import { formatCents } from "./money";
 import { type RfiFacts, rfiLabel } from "./rfi";
@@ -35,6 +38,10 @@ export const JOB_EVENT_ACTIONS = [
   "ca_notice_deleted",
   "ca_notice_file_added",
   "ca_notice_file_deleted",
+  "fl_first_furnished_set",
+  "fl_notice_recorded",
+  "fl_notice_delivered_set",
+  "fl_notice_deleted",
   "rfi_created",
   "rfi_sent_changed",
   "rfi_answered",
@@ -94,6 +101,11 @@ export interface JobEventData {
   /** California preliminary notice: who it went to and how (ids from packages/lien-waivers). */
   recipient?: CaNoticeRecipient;
   method?: CaNoticeMethod;
+  /** Florida Notice to Owner: who it went to and how (ids from packages/lien-waivers). */
+  flRecipient?: FlNoticeRecipient;
+  flMethod?: FlServiceMethod;
+  /** Florida: the delivery date from the evidence of delivery; null: not entered or cleared. */
+  deliveredOn?: string | null;
   /** Tracking or receipt number of a mailed notice. */
   tracking?: string | null;
   /** RFI number on the job (printed "RFI 003"). */
@@ -227,6 +239,23 @@ const caManner = (d: JobEventData) => {
   return `${how} on ${d.date ?? ""}${tracking}`;
 };
 
+/** Short names for the Florida recipients, as a sentence uses them. */
+const FL_RECIPIENT_NAMES: Record<FlNoticeRecipient, string> = {
+  owner: "the owner",
+  contractor: "the contractor",
+  subcontractor: "the subcontractor",
+  designee: "the notice of commencement's designee",
+  lender: "the lender",
+};
+const flNotice = (d: JobEventData) =>
+  `Florida Notice to Owner to ${d.flRecipient ? FL_RECIPIENT_NAMES[d.flRecipient] : "a recipient"}`;
+const flManner = (d: JobEventData) => {
+  const how = d.flMethod ? ` by ${FL_SERVICE_METHOD_LABELS[d.flMethod].toLowerCase()}` : "";
+  const delivered = d.deliveredOn ? `, delivered ${d.deliveredOn}` : "";
+  const tracking = d.tracking ? `, tracking number ${d.tracking}` : "";
+  return `${how} on ${d.date ?? ""}${delivered}${tracking}`;
+};
+
 /** One sentence for an event, as the job history and its CSV show it. */
 export function describeJobEvent(action: JobEventAction, d: JobEventData = {}): string {
   switch (action) {
@@ -293,6 +322,18 @@ export function describeJobEvent(action: JobEventAction, d: JobEventData = {}): 
       return `${caNotice(d)}: file attached, ${d.fileName ?? ""}`;
     case "ca_notice_file_deleted":
       return `${caNotice(d)}: file removed, ${d.fileName ?? ""}`;
+    case "fl_first_furnished_set":
+      return d.date
+        ? `Day first furnished work (Florida § 713.06(2)(a)) set to ${d.date}`
+        : "Day first furnished work (Florida § 713.06(2)(a)) cleared";
+    case "fl_notice_recorded":
+      return `${flNotice(d)} recorded as served${flManner(d)}`;
+    case "fl_notice_delivered_set":
+      return d.deliveredOn
+        ? `${flNotice(d)}: delivery date set to ${d.deliveredOn}`
+        : `${flNotice(d)}: delivery date cleared`;
+    case "fl_notice_deleted":
+      return `${flNotice(d)} sent${flManner(d)}: record deleted`;
     case "rfi_created": {
       const sent = d.date ? `, sent to the GC ${d.date}` : ", not sent yet";
       return `${rfi(d)} entered${d.description ? `: ${d.description}` : ""}${sent}`;

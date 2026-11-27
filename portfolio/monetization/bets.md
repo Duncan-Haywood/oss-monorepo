@@ -49,7 +49,7 @@ SMBs; revisit as a research-derived product).
 ## The evidence
 
 Each bet's **Growth path** is a plan, not evidence: the topics a run opens
-with `roadmap_claim.py <app> --slug` when the ROADMAP's Next list has nothing
+with `python3 platform/ci/roadmap_claim.py <app> --slug` when the ROADMAP's Next list has nothing
 free. `roadmap_claim.py --bets` lists them with the claims already on each.
 
 ### 1. Pay-app billing for subcontractors, the wedge into a contractor suite

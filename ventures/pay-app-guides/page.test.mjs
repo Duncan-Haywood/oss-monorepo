@@ -121,7 +121,7 @@ test("the waiver-forms table links each state to its official legislature site, 
 
 test("the QuickBooks guide cites Intuit's own pages, says it is not Intuit, and its calculator is labelled", () => {
   const html = page("retainage-in-quickbooks.html");
-  const links = [...html.matchAll(/href="(https:[^"]+)"/g)].map((m) => m[1]).filter((h) => !/marisstella|github\.com\/sponsors/.test(h));
+  const links = [...html.matchAll(/href="(https:[^"]+)"/g)].map((m) => m[1]).filter((h) => !/marisstella|github\.com\/sponsors/.test(h) && !h.startsWith(APP_URL ?? "\0"));
   assert.ok(links.length >= 5, `only ${links.length} sources`);
   for (const h of links) assert.match(h, /^https:\/\/quickbooks\.intuit\.com\//, h);
   assert.match(html, /Not affiliated with Intuit\./);
@@ -365,7 +365,7 @@ test("certificate of insurance guide: says the certificate is not the coverage, 
   for (const form of ["CG 20 10", "CG 20 37", "CG 24 04", "CG 20 01"]) assert.match(html, new RegExp(form), form);
   assert.match(html, /read 2026-11-27/);
   assert.match(html, /secondary sources/);
-  const links = [...html.matchAll(/href="(https:[^"]+)"/g)].map((m) => m[1]).filter((h) => !/marisstella|github\.com\/sponsors/.test(h));
+  const links = [...html.matchAll(/href="(https:[^"]+)"/g)].map((m) => m[1]).filter((h) => !/marisstella|github\.com\/sponsors/.test(h) && !h.startsWith(APP_URL ?? "\0"));
   assert.ok(links.length >= 5, `only ${links.length} sources`);
   assert.match(page("index.html"), /href="certificate-of-insurance-for-subcontractors\.html"/);
 });

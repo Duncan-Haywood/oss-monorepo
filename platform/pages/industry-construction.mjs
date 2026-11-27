@@ -10,7 +10,9 @@
  *
  * Honesty rules this page keeps (prompts/goals.md, "Guardrails"):
  * - every paid product is shown as in development (early access) until it is
- *   verified live; no price is quoted because none is set;
+ *   verified live; `open-free` (PayApps, deployed 2026-11-27, payapps-deploy run
+ *   45949861746) says only what the Free plan does, and names what is in the
+ *   paid plans, which are not on sale; no price is quoted while checkout is dark;
  * - no invented statistics or testimonials: the two market facts carry their
  *   source link (both from portfolio/monetization/bets.md);
  * - a free tool is linked only when the build published it (`liveSlugs`), so a
@@ -39,6 +41,7 @@ export const EARLY_ACCESS_MAILTO = 'mailto:hello@marisstella.app?subject=Early%2
 /** Product status words, and what each promises. Only `live` claims a sale. */
 export const STATUS_LABELS = {
   'early-access': 'In development · early access',
+  'open-free': 'Open · free on one job',
   planned: 'Planned module',
   live: 'Available',
 };
@@ -46,14 +49,18 @@ export const STATUS_LABELS = {
 export const PRODUCTS = [
   {
     id: 'pay-apps',
-    name: 'Pay-app suite',
-    status: 'early-access',
+    name: 'Pay-app suite (PayApps)',
+    status: 'open-free',
+    // The deployed app (ventures/pay-app-guides/cta.mjs holds the same origin for the guides' CTAs).
+    appUrl: 'https://payapps.duncan-andrew-haywood.workers.dev/?signup&from=industries/construction',
     for: 'Specialty subcontractors and small general contractors',
     summary:
       'Monthly pay applications in the G702/G703 format from your schedule of values, retainage tracked line by line until release, lien waivers collected and checked against each payment, and change orders logged so approved work reaches the next bill.',
-    // `built`: modules in the app's ROADMAP "Done" list (ventures/payapps/apps/payapps/ROADMAP.md),
-    // written but not yet deployed, so shown as "built, in testing", never as available.
-    built: ['QuickBooks Online sync', 'job costing and the WIP schedule', 'RFI and submittal logs', 'estimates', 'daily reports', 'insurance certificates'],
+    // `included`: in the deployed app on the Free plan; `paidOnly`: behind a plan flag in
+    // ventures/payapps/apps/payapps/src/shared/plans.ts (lienWaivers, quickbooks, jobCosting), so
+    // shown as not on sale until checkout is live.
+    included: ['pay applications (summary and continuation sheet, PDF and CSV)', 'retainage', 'change orders', 'schedule of values import from Excel, CSV or PDF', 'the cash and retainage report', 'RFI and submittal logs', 'estimates', 'daily reports', 'insurance certificates'],
+    paidOnly: ['lien waivers', 'QuickBooks Online sync', 'job costing and the WIP schedule'],
     planned: [],
     freeToday: ['pay-application-generator', 'pay-app-guides', 'retainage-cashflow-calculator', 'lien-waiver-checker'],
   },
@@ -278,7 +285,7 @@ const jsonLd = (value) =>
 
 /** Plain-text answers, shown on the page and repeated as FAQPage data. */
 export const FAQ = [
-  ['Can I buy the pay-app suite today?', 'Not yet. It is in development and taking early-access interest; no price is set. The free pay application generator, pay application checker, retainage tracker, change order log and lien waiver log work today.'],
+  ['Can I buy the pay-app suite today?', 'You can use it today: PayApps is open on the Free plan, one active job with no card (https://payapps.duncan-andrew-haywood.workers.dev/?signup). Paid plans for more jobs are not on sale yet. The free pay application generator, pay application checker, retainage tracker, change order log and lien waiver log work too, with no account.'],
   ['Are the free tools really free?', 'Yes. They run in your browser on this site with no account and no card, and their code is published (source available, FSL-1.1-MIT).'],
   ['Do the free tools replace an accountant, a lawyer or a scheduler?', 'No. They help you check numbers and documents before you send or sign them. Lien rights, contract terms and retainage rules depend on your state and your contract; check with a qualified professional.'],
   ['Is the construction research a product?', 'No. It is open research with code and results you can check. It may inform products later; nothing here sells it.'],
@@ -304,7 +311,7 @@ export function renderConstructionPage({
   const url = `${baseUrl}${CONSTRUCTION_PATH}`;
   const title = 'Software for construction subcontractors and small builders';
   const description =
-    'Pay apps, retainage, lien waivers, change orders and takeoff for subcontractors, small GCs, remodelers and roofers. Free tools today; paid suite in development.';
+    'Pay apps, retainage, lien waivers, change orders and takeoff for subcontractors, small GCs, remodelers and roofers. Free tools, and PayApps free on one job.';
   // Early access goes somewhere private: the edge Worker's list, or the inbox
   // by email. Before 2026-11-26 it went to the public feedback form.
   const earlyAccess = renderEarlyAccessForm({
@@ -342,7 +349,7 @@ export function renderConstructionPage({
         <h3>${escapeHtml(p.title)}</h3>
         <p class="ic-who">${escapeHtml(p.who)}</p>
         <p>${escapeHtml(p.pain)}</p>
-        <p class="ic-answer"><strong>Being built:</strong> <a href="#product-${escapeHtml(product.id)}">${escapeHtml(product.name)}</a> <span class="ic-status ic-${escapeHtml(product.status)}">${escapeHtml(STATUS_LABELS[product.status])}</span></p>${tools.length ? `
+        <p class="ic-answer"><strong>${product.appUrl ? 'Use it now' : 'Being built'}:</strong> <a href="#product-${escapeHtml(product.id)}">${escapeHtml(product.name)}</a> <span class="ic-status ic-${escapeHtml(product.status)}">${escapeHtml(STATUS_LABELS[product.status])}</span></p>${tools.length ? `
         <p class="ic-free"><strong>Free today:</strong></p>
         <ul class="ic-tools">${tools.map(([slug, name, what]) => `
           <li><a href="${escapeHtml(toolHref(toRoot, slug))}">${escapeHtml(name)}</a>: ${escapeHtml(what)}</li>`).join('')}
@@ -358,7 +365,10 @@ export function renderConstructionPage({
         <h3>${escapeHtml(p.name)}</h3>
         <p><span class="ic-status ic-${escapeHtml(p.status)}">${escapeHtml(STATUS_LABELS[p.status])}</span></p>
         <p class="ic-who">${escapeHtml(p.for)}</p>
-        <p>${escapeHtml(p.summary)}</p>${p.built?.length ? `
+        <p>${escapeHtml(p.summary)}</p>${p.included?.length ? `
+        <p class="ic-included">On the Free plan: ${escapeHtml(p.included.join(', '))}.</p>` : ''}${p.paidOnly?.length ? `
+        <p class="ic-planned">In the paid plans, not on sale yet: ${escapeHtml(p.paidOnly.join(', '))}.</p>` : ''}${p.appUrl ? `
+        <p><a class="ic-start" href="${escapeHtml(p.appUrl)}">Start free in PayApps</a> (no card)</p>` : ''}${p.built?.length ? `
         <p class="ic-built">Built, in testing (not open yet): ${escapeHtml(p.built.join(', '))}.</p>` : ''}${p.planned.length ? `
         <p class="ic-planned">Planned: ${escapeHtml(p.planned.join(', '))}.</p>` : ''}${free.length ? `
         <p class="ic-free">Try the free version of part of it now: ${free.map(toolLink).join(', ')}.</p>` : ''}${shot && shot !== leadShot ? figure(shot, 'ic-still', true, '(max-width: 640px) calc(100vw - 66px), 440px') : ''}
@@ -434,7 +444,7 @@ body{margin:0;background:var(--ic-bg);color:var(--ic-ink);font:16px/1.55 system-
     <main>
       <h1>${escapeHtml(title)}</h1>
       <p class="ic-lede">For specialty subcontractors, small general contractors, remodelers, roofers, framers, estimators and schedulers: software for the paperwork that decides whether a job gets paid on time.</p>
-      <p class="ic-note">The paid products on this page are <strong>in development</strong>, taking early-access interest; none is on sale yet and no price is set. The free tools linked below work today, in your browser.</p>
+      <p class="ic-note"><strong>PayApps, the pay-app suite, is open</strong> on its Free plan: one active job, no card. Its paid plans, and the other products on this page, are <strong>in development</strong>; none is on sale yet. The free tools linked below work today, in your browser, with no account.</p>
       ${earlyAccess}${leadShot ? figure(leadShot, 'ic-still ic-lead-still', false, '(max-width: 752px) calc(100vw - 32px), 720px') : ''}
 
       <h2>The jobs that eat the week</h2>
