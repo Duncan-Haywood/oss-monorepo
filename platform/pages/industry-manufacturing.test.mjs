@@ -59,20 +59,18 @@ test('every tool the front doors send here is listed, so the door leads somewher
   }
 });
 
-test('products are open free or in development, unpriced, and never claim certification or endorsement', () => {
+test('products are in development or open free, unpriced, and never claim certification or endorsement', () => {
   for (const p of PRODUCTS) {
     if (p.appUrl) {
-      // Open: free plan only, a sign-up link on the app's own domain, and what is off said on the card.
-      assert.match(p.status, /^Open · free/);
-      assert.match(p.appUrl, /^https:\/\/[a-z-]+\.marisstella\.app\/sign-up\?from=/);
-      assert.match(p.freePlan, /Paid plans are not on sale yet/);
-      assert.match(p.note, /not switched on yet/);
+      // An open product: its own host on the catalogue's domain, never workers.dev, and the paid plans unsold.
+      assert.match(p.appUrl, /^https:\/\/[a-z-]+\.marisstella\.app\//);
+      assert.match(p.status, /^Open: free/);
       assert.ok(html.includes(`href="${p.appUrl}"`), p.appUrl);
     } else {
       assert.match(p.status, /in development/i);
     }
   }
-  assert.ok(PRODUCTS.some((p) => !p.appUrl), 'the CMMC workspace is not open yet');
+  assert.match(text, /Paid plans are not on sale yet/);
   assert.match(text, /early access/i);
   assert.match(text, /Pricing is not set yet/);
   assert.doesNotMatch(text, /\$\d+\s*(?:\/|a |per )mo/i);
@@ -144,4 +142,14 @@ test('the stills the page asks for are captured in the showcase', () => {
     assert.ok(shot, `${slug} has no still in showcase/manifest.json`);
     for (const f of [shot.file, shot.hero, shot.heroWide].filter(Boolean)) assert.ok(existsSync(path.join(HERE, 'showcase', f)), f);
   }
+});
+
+test("the free plan line matches Job Shop Quote's own FREE_PLAN", () => {
+  const src = readFileSync(new URL('../../ventures/jobshop-quote/apps/jobshop-quote/src/shared/plans.ts', import.meta.url), 'utf8');
+  const free = src.slice(src.indexOf('key: "free"'), src.indexOf('key: "shop"'));
+  const rfqs = Number(/rfqsPerMonth: (\d+)/.exec(free)[1]);
+  const members = Number(/maxMembers: (\d+)/.exec(free)[1]);
+  assert.match(free, /priceCents: 0,/);
+  const jq = PRODUCTS.find((p) => p.id === 'jobshop-quote');
+  assert.equal(jq.freePlan, `${rfqs} RFQs a month, ${members} users, no card`);
 });
