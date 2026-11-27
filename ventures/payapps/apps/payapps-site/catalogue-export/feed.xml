@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>PayApps updates</title>
+  <id>https://marisstella.app/payapps/</id>
+  <link href="https://marisstella.app/payapps/"/>
+  <link rel="self" href="https://marisstella.app/payapps/feed.xml"/>
+  <updated>2026-11-27T00:00:00Z</updated>
+  <author><name>PayApps</name></author>
+  <entry>
+    <id>tag:marisstella.app,2026-11-27:app-open</id>
+    <title>PayApps is open on the Free plan</title>
+    <updated>2026-11-27T00:00:00Z</updated>
+    <link href="https://marisstella.app/payapps/pricing"/>
+    <summary>Subcontractors can sign up and run one job&#39;s pay applications free, with no card. Free on one job with no card. Paid plans for more jobs are not on sale yet.</summary>
+  </entry>
+</feed>

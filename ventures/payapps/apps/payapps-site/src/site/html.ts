@@ -14,6 +14,23 @@ import { type LaunchInput, launchOf, plansSentence, signupUrl } from "./launch";
 export interface SiteContext extends LaunchInput {
   /** Origin + base path, e.g. "https://marisstella.app/payapps". */
   siteUrl: string;
+  /**
+   * Whether the early-access list (the Worker's API) is behind the pages. Default true. The static
+   * catalogue copy passes false: no early-access pages, and a privacy notice for a site that stores
+   * nothing. Only an open site can drop it (before launch the list is the page's one action).
+   */
+  earlyAccess?: boolean;
+}
+
+/** True unless the build was asked to leave the early-access list out. */
+export function hasEarlyAccess(ctx: SiteContext): boolean {
+  if (ctx.earlyAccess !== false) return true;
+  if (!launchOf(ctx).open) {
+    throw new Error(
+      "A build without the early-access list needs APP_URL: before launch the list is the site's only action",
+    );
+  }
+  return false;
 }
 
 /** A string that is already safe HTML. */
