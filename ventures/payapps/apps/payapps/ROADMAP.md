@@ -1,12 +1,15 @@
 # PayApps — Roadmap
 
-Status: **launch-approved, waiting on a runner** (2026-11-27). The launch review is merged
-(#444, [docs/LAUNCH-REVIEW.md](docs/LAUNCH-REVIEW.md), under `docs/legal/OPERATOR.md`): agents may
-deploy and open sign-ups without asking. The first deploy (run 45921558751) got no runner, because
-this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runners are on
-(`private-monorepo` `docs/ci-on-aws.md`) or the app moves to oss-monorepo (task
-`products-to-public-repo`). Not deployed yet, no customers. Paid plans are dark
-(`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.
+Status: **live, sign-ups open** (2026-11-27). `payapps-deploy` run 45949861746 (this repository)
+deployed `https://payapps.duncan-andrew-haywood.workers.dev`; `/api/health` answered
+`{"ok":true,"app":"payapps","email":true}`, so account mail is on and a stranger can finish signing
+up. The 30+ free pay-app guides and the construction industry page link to `/?signup` from
+2026-11-27 ([docs/reports/2026-11-27-payapps-open-the-funnel.md](../../../../docs/reports/2026-11-27-payapps-open-the-funnel.md)).
+No customers yet. Paid plans are dark (`BILLING_PROVIDER=none`) until the Paddle key and catalog
+sync are in place; the page banner reads `/api/health` `checkout` and says so. Attachments (R2) are
+off until the token gets R2 edit; QuickBooks is not configured. A custom domain (`PAYAPPS_DOMAIN`)
+would replace the workers.dev address: when it is set, workers.dev turns off, so change
+`ventures/pay-app-guides/cta.mjs` `APP_URL` in the same change.
 
 ## Done (this MVP)
 

@@ -4,8 +4,8 @@ Free front door for paid bet #1, pay-app billing for specialty subcontractors
 (`portfolio/monetization/bets.md` on the bets branch). Search intent such as
 "how to fill out a pay application", "retainage", "schedule of values" and
 "lien waiver" lands here; every page ends with an honest CTA to the hosted
-product, which is **in development, with early access**, at
-https://marisstella.app/industries/construction/ (PR #18693 builds that page; the link is absolute so it is not a dead internal link before that lands).
+product, PayApps, which is **open** (since 2026-11-27: free on one job, paid
+plans not on sale yet) at the `APP_URL` in `cta.mjs`.
 
 Live: <https://marisstella.app/pay-app-guides/>
 

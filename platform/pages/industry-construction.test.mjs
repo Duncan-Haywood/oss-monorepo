@@ -8,9 +8,11 @@ import {
   buildConstructionPage,
   CONSTRUCTION_PATH,
   FACTS,
+  FAQ,
   PROBLEMS,
   PRODUCTS,
   renderConstructionPage,
+  startHref,
   RESEARCH,
   STATUS_LABELS,
   toolHref,
@@ -64,6 +66,19 @@ test('no product claims to be on sale, and no price is quoted', () => {
   const html = renderConstructionPage({ baseUrl: BASE });
   assert.doesNotMatch(html, /\$\s?\d/, 'a price appears on the page');
   assert.match(html, /in development/i);
+});
+
+test('an open product links to its sign-up, says what is free and what is not on sale', () => {
+  for (const p of PRODUCTS.filter((x) => x.status === 'open')) {
+    assert.match(p.appUrl, /^https:\/\//, `${p.id}: open needs a deployed https origin`);
+    const html = renderConstructionPage({ baseUrl: BASE });
+    assert.ok(html.includes(`href="${startHref(p.appUrl).replace(/&/g, '&amp;')}"`), `${p.id}: Start free link`);
+    assert.match(startHref(p.appUrl), /\/\?signup&from=industries%2Fconstruction$/);
+    assert.match(p.openNote, /not on sale yet/);
+    assert.match(html, /Open now/);
+    const faq = FAQ.find(([q]) => /buy the pay-app suite/.test(q));
+    assert.match(faq[1], /not on sale yet/);
+  }
 });
 
 test('every market fact carries an https source', () => {
@@ -160,8 +175,14 @@ test('early access goes somewhere private: the edge form, or the inbox by email;
   assert.match(on, /<form class="ea-form"/);
   assert.ok(on.includes('"https://edge.example/early-access"'), 'posts to the Worker route');
   assert.ok(on.includes(CONSENT_TEXT.replace(/'/g, '&#39;')), 'shows the consent words the Worker stores');
-  assert.match(on, /<option value="payapps">Pay-app suite<\/option>/);
-  assert.match(on, /<option value="takeoff">Residential takeoff<\/option>/);
+  // An open product takes sign-ups in the app, so it leaves the early-access list.
+  if (PRODUCTS.find((p) => p.id === 'pay-apps').status === 'open') {
+    assert.doesNotMatch(on, /value="payapps"/);
+    assert.match(on, /<input type="hidden" name="product" value="takeoff">/);
+  } else {
+    assert.match(on, /<option value="payapps">Pay-app suite<\/option>/);
+    assert.match(on, /<option value="takeoff">Residential takeoff<\/option>/);
+  }
   assert.match(on, /name="website"[^>]*tabindex="-1"/, 'honeypot field');
   assert.match(on, /<noscript>.*mailto:hello@marisstella\.app/s, 'no-script fallback');
   const off = renderConstructionPage({ baseUrl: BASE });
@@ -176,9 +197,17 @@ test('early access goes somewhere private: the edge form, or the inbox by email;
 test('built pay-app modules show as built and in testing, never as planned or available', () => {
   const html = renderConstructionPage({ baseUrl: BASE });
   const card = /<article class="ic-product" id="product-pay-apps">([\s\S]*?)<\/article>/.exec(html)[1];
-  assert.match(card, /Built, in testing \(not open yet\): QuickBooks Online sync/);
   assert.doesNotMatch(card, /Planned: QuickBooks/);
-  assert.match(card, /In development · early access/);
+  if (PRODUCTS.find((p) => p.id === 'pay-apps').status === 'open') {
+    // Deployed: the modules are in the app, but QuickBooks has no connection configured yet.
+    assert.match(card, /Also in the app \(some on paid plans that are not on sale yet\): job costing/);
+    assert.doesNotMatch(card, /Also in the app[^<]*QuickBooks/);
+    assert.match(card, /QuickBooks Online sync is not connected yet/);
+    assert.match(card, /Open now · free on one job/);
+  } else {
+    assert.match(card, /Built, in testing \(not open yet\): QuickBooks Online sync/);
+    assert.match(card, /In development · early access/);
+  }
   // Each built module must be in the app's ROADMAP "Done" list.
   const roadmap = readFileSync(path.join(ROOT, 'ventures/payapps/apps/payapps/ROADMAP.md'), 'utf8');
   const done = roadmap.slice(roadmap.indexOf('## Done'), roadmap.indexOf('## Next'));

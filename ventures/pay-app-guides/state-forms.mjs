@@ -22,6 +22,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { apply } from "./nav.mjs";
+import { apply as applyCta } from "./cta.mjs";
 
 const here = (name) => new URL(`./${name}`, import.meta.url);
 const PACKAGE = new URL("../payapps/packages/lien-waivers/src/index.ts", import.meta.url);
@@ -289,7 +290,7 @@ export async function build() {
   const hub = readFileSync(here(HUB), "utf8");
   const counts = Object.fromEntries(STATES.map(([code, name]) => [name, statutoryForms(pkg, code).forms.length]));
   const files = { [HUB]: linkHub(hub, counts) };
-  for (const [code, name] of STATES) files[slugOf(name)] = apply(renderPage(pkg, hub, code, name), slugOf(name));
+  for (const [code, name] of STATES) files[slugOf(name)] = applyCta(apply(renderPage(pkg, hub, code, name), slugOf(name)), slugOf(name));
   return files;
 }
 

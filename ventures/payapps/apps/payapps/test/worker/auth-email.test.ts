@@ -215,6 +215,7 @@ describe("existing account", () => {
 describe("health", () => {
   it("reports that tests keep mail in memory (nothing is delivered)", async () => {
     const res = await api("/api/health");
-    expect(await res.json()).toEqual({ ok: true, app: "payapps", email: false });
+    // The test Worker runs a fake billing provider, so checkout reads as on (production: off until Paddle).
+    expect(await res.json()).toEqual({ ok: true, app: "payapps", email: false, checkout: true });
   });
 });

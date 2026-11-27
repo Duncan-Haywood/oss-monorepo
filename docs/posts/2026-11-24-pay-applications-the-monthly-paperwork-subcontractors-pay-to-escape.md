@@ -3,14 +3,19 @@ title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
 updated: 2026-11-27
 tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, insurance-certificates, pay-app-guides, for-customers]
-description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and the product we are building. In development."
+description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and PayApps, open since 2026-11-27 and free on one job."
 ---
 
 Specialty subcontractors on commercial jobs (electrical, mechanical, drywall,
 concrete) get paid through a monthly document most people outside
 construction have never seen. This post is about that paperwork, what people already pay to make it easier, and the
-product this portfolio is building for it. That product is **in development**.
-It is not for sale and has no customers yet.
+product this portfolio is building for it. That product, PayApps, **opened on
+2026-11-27**: anyone can [create an account](https://payapps.duncan-andrew-haywood.workers.dev/?signup&from=posts%2Fpay-applications)
+and use it free on one active job, with no card. Paid plans for more jobs are
+not on sale yet, QuickBooks Online sync is not connected yet, and it has no
+customers yet. The notes below that say "in development, not for sale" were
+written before it opened; the features they describe are in the app now, some
+on the paid plans that are not on sale yet.
 
 ## The problem
 

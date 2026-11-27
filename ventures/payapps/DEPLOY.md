@@ -52,3 +52,11 @@ that like R2 not enabled (deploy without attachments, with a warning naming the 
 so the next run gets past it. Owner step to turn attachments on: add Account -> Workers R2 Storage ->
 Edit to `CLOUDFLARE_API_TOKEN`.
 
+
+## Live (2026-11-27, run 45949861746)
+
+The second run, after PR #19625, deployed `https://payapps.duncan-andrew-haywood.workers.dev`
+(version `e9f3df29-1349-4b1e-8656-4d67ffc12631`, R2 off, `email: true`). Run 45950799211 (on
+`6e69be0`) then failed in its Checks step and deployed nothing; on current main the same checks
+pass locally. The guides and the construction page link to the app from PR "payapps: open the
+funnel" ([docs/reports/2026-11-27-payapps-open-the-funnel.md](../../docs/reports/2026-11-27-payapps-open-the-funnel.md)).

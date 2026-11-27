@@ -20,8 +20,8 @@
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-/** The deployed app's origin, e.g. "https://payapps.example.com". null until the first deploy. */
-export const APP_URL = null;
+/** The deployed app's origin (payapps-deploy run 45949861746, 2026-11-27; /api/health ok). null before the first deploy. */
+export const APP_URL = "https://payapps.duncan-andrew-haywood.workers.dev";
 /** True once Paddle checkout is live in the app (apps/payapps/docs/BILLING.md). */
 export const PAID_PLANS_ON = false;
 

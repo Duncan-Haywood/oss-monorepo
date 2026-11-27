@@ -50,9 +50,15 @@ export function createApp() {
   app.use("*", securityHeaders);
 
   // `email` says whether account mail leaves the Worker: a deploy's smoke test checks it, because with
-  // verification required (production/HTTPS) nobody can finish signing up without it.
+  // verification required (production/HTTPS) nobody can finish signing up without it. `checkout`
+  // says whether paid plans can be bought (a billing provider is configured); the page banner reads it.
   app.get("/api/health", (c) =>
-    c.json({ ok: true, app: "payapps", email: c.var.ctx.email.delivers }),
+    c.json({
+      ok: true,
+      app: "payapps",
+      email: c.var.ctx.email.delivers,
+      checkout: c.var.ctx.billing !== null,
+    }),
   );
 
   app.use("/api/*", originCheck);

@@ -121,7 +121,7 @@ test("the waiver-forms table links each state to its official legislature site, 
 
 test("the QuickBooks guide cites Intuit's own pages, says it is not Intuit, and its calculator is labelled", () => {
   const html = page("retainage-in-quickbooks.html");
-  const links = [...html.matchAll(/href="(https:[^"]+)"/g)].map((m) => m[1]).filter((h) => !/marisstella|github\.com\/sponsors/.test(h));
+  const links = [...html.matchAll(/href="(https:[^"]+)"/g)].map((m) => m[1]).filter((h) => !/marisstella|github\.com\/sponsors/.test(h) && !(APP_URL && h.startsWith(APP_URL)));
   assert.ok(links.length >= 5, `only ${links.length} sources`);
   for (const h of links) assert.match(h, /^https:\/\/quickbooks\.intuit\.com\//, h);
   assert.match(html, /Not affiliated with Intuit\./);

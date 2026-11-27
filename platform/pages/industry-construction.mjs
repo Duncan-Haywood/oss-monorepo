@@ -10,7 +10,9 @@
  *
  * Honesty rules this page keeps (prompts/goals.md, "Guardrails"):
  * - every paid product is shown as in development (early access) until it is
- *   verified live; no price is quoted because none is set;
+ *   verified deployed; `open` means anyone can sign up and use the free plan
+ *   (checked against the deploy's /api/health), and is not `live`, which
+ *   claims a sale; no price is quoted while no checkout is on;
  * - no invented statistics or testimonials: the two market facts carry their
  *   source link (both from portfolio/monetization/bets.md);
  * - a free tool is linked only when the build published it (`liveSlugs`), so a
@@ -28,6 +30,8 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { REPO_URL, withSiteHeader } from './site-nav.mjs';
 import { renderEarlyAccessForm, EARLY_ACCESS_CSS } from './early-access-form.mjs';
+// One source for the deployed PayApps origin: the same constant switches the 30 pay-app guides.
+import { APP_URL as PAYAPPS_URL } from '../../ventures/pay-app-guides/cta.mjs';
 
 export const CONSTRUCTION_PATH = 'industries/construction/';
 
@@ -39,20 +43,31 @@ export const EARLY_ACCESS_MAILTO = 'mailto:hello@marisstella.app?subject=Early%2
 /** Product status words, and what each promises. Only `live` claims a sale. */
 export const STATUS_LABELS = {
   'early-access': 'In development · early access',
+  open: 'Open now · free on one job',
   planned: 'Planned module',
   live: 'Available',
 };
+
+/** The app's sign-up link, tagged with this page as the source (apps/payapps/src/client/lib/auth-mode.ts). */
+export function startHref(appUrl) {
+  return `${appUrl.replace(/\/+$/, '')}/?signup&from=${encodeURIComponent('industries/construction')}`;
+}
 
 export const PRODUCTS = [
   {
     id: 'pay-apps',
     name: 'Pay-app suite',
-    status: 'early-access',
+    status: PAYAPPS_URL ? 'open' : 'early-access',
+    // Where "Start free" goes once the app is deployed (ventures/pay-app-guides/cta.mjs).
+    appUrl: PAYAPPS_URL,
+    // Said next to "Start free": what the free plan gives and what is not on sale yet.
+    openNote: 'Free on one active job, no card. Paid plans for more jobs are not on sale yet, and QuickBooks Online sync is not connected yet.',
     for: 'Specialty subcontractors and small general contractors',
     summary:
       'Monthly pay applications in the G702/G703 format from your schedule of values, retainage tracked line by line until release, lien waivers collected and checked against each payment, and change orders logged so approved work reaches the next bill.',
-    // `built`: modules in the app's ROADMAP "Done" list (ventures/payapps/apps/payapps/ROADMAP.md),
-    // written but not yet deployed, so shown as "built, in testing", never as available.
+    // `built`: modules in the app's ROADMAP "Done" list (ventures/payapps/apps/payapps/ROADMAP.md).
+    // Before the deploy they show as "built, in testing"; once `open`, as in the app, with the
+    // paid-plan caveat (some need a plan that is not on sale yet).
     built: ['QuickBooks Online sync', 'job costing and the WIP schedule', 'RFI and submittal logs', 'estimates', 'daily reports', 'insurance certificates'],
     planned: [],
     freeToday: ['pay-application-generator', 'pay-app-guides', 'retainage-cashflow-calculator', 'lien-waiver-checker'],
@@ -278,7 +293,9 @@ const jsonLd = (value) =>
 
 /** Plain-text answers, shown on the page and repeated as FAQPage data. */
 export const FAQ = [
-  ['Can I buy the pay-app suite today?', 'Not yet. It is in development and taking early-access interest; no price is set. The free pay application generator, pay application checker, retainage tracker, change order log and lien waiver log work today.'],
+  PAYAPPS_URL
+    ? ['Can I buy the pay-app suite today?', 'You can use it today: PayApps is open, free on one active job with no card. Paid plans for more jobs are not on sale yet. The free pay application generator, pay application checker, retainage tracker, change order log and lien waiver log also work today, with no account.']
+    : ['Can I buy the pay-app suite today?', 'Not yet. It is in development and taking early-access interest; no price is set. The free pay application generator, pay application checker, retainage tracker, change order log and lien waiver log work today.'],
   ['Are the free tools really free?', 'Yes. They run in your browser on this site with no account and no card, and their code is published (source available, FSL-1.1-MIT).'],
   ['Do the free tools replace an accountant, a lawyer or a scheduler?', 'No. They help you check numbers and documents before you send or sign them. Lien rights, contract terms and retainage rules depend on your state and your contract; check with a qualified professional.'],
   ['Is the construction research a product?', 'No. It is open research with code and results you can check. It may inform products later; nothing here sells it.'],
@@ -304,7 +321,9 @@ export function renderConstructionPage({
   const url = `${baseUrl}${CONSTRUCTION_PATH}`;
   const title = 'Software for construction subcontractors and small builders';
   const description =
-    'Pay apps, retainage, lien waivers, change orders and takeoff for subcontractors, small GCs, remodelers and roofers. Free tools today; paid suite in development.';
+    PAYAPPS_URL
+      ? 'Pay apps, retainage, lien waivers and change orders for subcontractors and small GCs: the pay-app suite is open, free on one job. Takeoff and free tools too.'
+      : 'Pay apps, retainage, lien waivers, change orders and takeoff for subcontractors, small GCs, remodelers and roofers. Free tools today; paid suite in development.';
   // Early access goes somewhere private: the edge Worker's list, or the inbox
   // by email. Before 2026-11-26 it went to the public feedback form.
   const earlyAccess = renderEarlyAccessForm({
@@ -342,7 +361,7 @@ export function renderConstructionPage({
         <h3>${escapeHtml(p.title)}</h3>
         <p class="ic-who">${escapeHtml(p.who)}</p>
         <p>${escapeHtml(p.pain)}</p>
-        <p class="ic-answer"><strong>Being built:</strong> <a href="#product-${escapeHtml(product.id)}">${escapeHtml(product.name)}</a> <span class="ic-status ic-${escapeHtml(product.status)}">${escapeHtml(STATUS_LABELS[product.status])}</span></p>${tools.length ? `
+        <p class="ic-answer"><strong>${product.status === 'open' ? 'Open now' : 'Being built'}:</strong> <a href="#product-${escapeHtml(product.id)}">${escapeHtml(product.name)}</a> <span class="ic-status ic-${escapeHtml(product.status)}">${escapeHtml(STATUS_LABELS[product.status])}</span></p>${tools.length ? `
         <p class="ic-free"><strong>Free today:</strong></p>
         <ul class="ic-tools">${tools.map(([slug, name, what]) => `
           <li><a href="${escapeHtml(toolHref(toRoot, slug))}">${escapeHtml(name)}</a>: ${escapeHtml(what)}</li>`).join('')}
@@ -358,8 +377,9 @@ export function renderConstructionPage({
         <h3>${escapeHtml(p.name)}</h3>
         <p><span class="ic-status ic-${escapeHtml(p.status)}">${escapeHtml(STATUS_LABELS[p.status])}</span></p>
         <p class="ic-who">${escapeHtml(p.for)}</p>
-        <p>${escapeHtml(p.summary)}</p>${p.built?.length ? `
-        <p class="ic-built">Built, in testing (not open yet): ${escapeHtml(p.built.join(', '))}.</p>` : ''}${p.planned.length ? `
+        <p>${escapeHtml(p.summary)}</p>${p.status === 'open' && p.appUrl ? `
+        <p class="ic-open"><a class="ic-start" href="${escapeHtml(startHref(p.appUrl))}">Start free in PayApps</a> ${escapeHtml(p.openNote || '')}</p>` : ''}${p.built?.length ? `
+        <p class="ic-built">${p.status === 'open' ? 'Also in the app (some on paid plans that are not on sale yet)' : 'Built, in testing (not open yet)'}: ${escapeHtml(p.built.filter((m) => p.status !== 'open' || !/QuickBooks/.test(m)).join(', '))}.</p>` : ''}${p.planned.length ? `
         <p class="ic-planned">Planned: ${escapeHtml(p.planned.join(', '))}.</p>` : ''}${free.length ? `
         <p class="ic-free">Try the free version of part of it now: ${free.map(toolLink).join(', ')}.</p>` : ''}${shot && shot !== leadShot ? figure(shot, 'ic-still', true, '(max-width: 640px) calc(100vw - 66px), 440px') : ''}
       </article>`;
@@ -426,6 +446,7 @@ body{margin:0;background:var(--ic-bg);color:var(--ic-ink);font:16px/1.55 system-
 .ic-wrap{--ea-panel:var(--ic-panel);--ea-line:var(--ic-line);--ea-muted:var(--ic-muted);--ea-accent:var(--ic-accent)}${EARLY_ACCESS_CSS}
 .ic-lead-still img{box-shadow:0 6px 24px rgba(20,30,45,.12)}
 .ic-faq dt{font-weight:600;margin-top:1em}
+.ic-start{display:inline-block;font-weight:700;padding:.35em .8em;border:2px solid var(--ic-accent);border-radius:6px;margin-right:.4em}
 .ic-faq dd{margin:.3em 0 0}
 </style>
 </head>
@@ -434,7 +455,7 @@ body{margin:0;background:var(--ic-bg);color:var(--ic-ink);font:16px/1.55 system-
     <main>
       <h1>${escapeHtml(title)}</h1>
       <p class="ic-lede">For specialty subcontractors, small general contractors, remodelers, roofers, framers, estimators and schedulers: software for the paperwork that decides whether a job gets paid on time.</p>
-      <p class="ic-note">The paid products on this page are <strong>in development</strong>, taking early-access interest; none is on sale yet and no price is set. The free tools linked below work today, in your browser.</p>
+      <p class="ic-note">${PRODUCTS.some((p) => p.status === 'open') ? `The <a href="#product-pay-apps">pay-app suite</a> is <strong>open now</strong>, free on one job; its paid plans are not on sale yet. The other paid products on this page are <strong>in development</strong>, taking early-access interest. The free tools linked below work today, in your browser.` : 'The paid products on this page are <strong>in development</strong>, taking early-access interest; none is on sale yet and no price is set. The free tools linked below work today, in your browser.'}</p>
       ${earlyAccess}${leadShot ? figure(leadShot, 'ic-still ic-lead-still', false, '(max-width: 752px) calc(100vw - 32px), 720px') : ''}
 
       <h2>The jobs that eat the week</h2>

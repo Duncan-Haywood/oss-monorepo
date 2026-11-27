@@ -2,6 +2,7 @@ import type { MeDto } from "@shared/api/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { api } from "../lib/api";
+import { statusBanner } from "../lib/status-banner";
 import { AcceptLegal, LegalLinks } from "../pages/legal";
 
 export const meQuery = {
@@ -15,8 +16,21 @@ export const meQuery = {
   },
 };
 
+export const healthQuery = {
+  queryKey: ["health"],
+  queryFn: async () => {
+    try {
+      return await api<{ checkout?: boolean }>("/api/health");
+    } catch {
+      return null;
+    }
+  },
+  staleTime: 5 * 60_000,
+};
+
 export function Layout() {
   const me = useQuery(meQuery);
+  const health = useQuery(healthQuery);
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   // A signed-in user who has not accepted the current documents sees the notice instead of the app;
@@ -33,8 +47,7 @@ export function Layout() {
   return (
     <div className="min-h-screen">
       <div className="bg-amber-100 px-4 py-1 text-center text-xs text-amber-900">
-        PayApps is in development. It is not yet offered for sale; check every figure before you
-        send it.
+        {statusBanner(health.data?.checkout)}
       </div>
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
