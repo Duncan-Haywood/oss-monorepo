@@ -46,6 +46,12 @@ rights on GitHub. Everything else is done by agents through pull requests.
      `platform/aws/stacks/spend/variables.tf`. If it is not offered, skip
      it: `stacks/spend` (anomaly alerts, budgets, the freeze SCP, the kill
      switch) does not depend on it.
+   - Billing → *Cost Explorer* → *Launch Cost Explorer* (free; root or your
+     Identity Center login). AWS refuses Cost Anomaly Detection until this is
+     done once, so `stacks/spend` leaves its anomaly monitors off until an
+     agent sets `cost_explorer_enabled = true` in a PR (the budgets, freeze
+     and kill switch do not wait for it). Cost Explorer's data can take up to
+     a day to appear.
 2. **Open AWS CloudShell** in that account (us-east-2) and paste (with
    `AccountMode=single` instead for a single-account mode account):
    ```sh
