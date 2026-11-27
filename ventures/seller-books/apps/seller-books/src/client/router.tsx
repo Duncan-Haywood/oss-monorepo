@@ -19,6 +19,7 @@ import { InvitePage, LoginPage, OrgsPage, SignupPage } from "./routes/public";
 import { SettingsPage } from "./routes/settings";
 import { StockPage } from "./routes/stock";
 import { Form1099kPage, MembersPage, ScheduleCPage } from "./routes/tax";
+import { UnsubscribePage } from "./routes/unsubscribe";
 
 const rootRoute = createRootRoute({
   component: Outlet,
@@ -55,6 +56,12 @@ const verifyEmail = createRoute({
   getParentRoute: () => rootRoute,
   path: "/verify-email",
   component: VerifyEmailPage,
+});
+// Public: the reminder email's signed stop link (routes/unsubscribe.tsx); no sign-in.
+const unsubscribe = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/unsubscribe",
+  component: UnsubscribePage,
 });
 // Public: the Terms, Privacy, Refund and Acceptable Use documents, readable before signing up.
 const legal = createRoute({
@@ -137,6 +144,7 @@ const routeTree = rootRoute.addChildren([
   forgotPassword,
   resetPassword,
   verifyEmail,
+  unsubscribe,
   legal,
   orgs,
   invite,

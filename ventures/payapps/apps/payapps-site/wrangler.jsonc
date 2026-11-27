@@ -1,4 +1,4 @@
-// PayPencil marketing site: one Cloudflare Worker serving the static pages from dist/ (built by
+// PayApps marketing site: one Cloudflare Worker serving the static pages from dist/ (built by
 // scripts/build.ts) plus the early-access API. D1 is auto-provisioned by `wrangler deploy` when no
 // database_id is given. Use full-line comments only.
 {
@@ -39,7 +39,7 @@
   "vars": {
     "APP_ENV": "development",
     "SITE_URL": "http://localhost:8787",
-    "EMAIL_FROM": "PayPencil <no-reply@example.org>",
+    "EMAIL_FROM": "PayApps <no-reply@example.org>",
     "EMAIL_MODE": "log"
   }
 }

@@ -255,6 +255,8 @@ export function EstimatedTaxPage() {
         </section>
       )}
 
+      {savesToShop && <ReminderCard orgId={orgId} />}
+
       <section className="card space-y-3">
         <div className="flex flex-wrap items-baseline gap-2">
           <h2 className="font-medium">Your other figures</h2>
@@ -442,5 +444,78 @@ export function EstimatedTaxPage() {
         </>
       )}
     </div>
+  );
+}
+
+interface ReminderSetting {
+  enabled: boolean;
+  lastSentDue: string | null;
+  next: { due: string; year: number; quarter: number; sendsOn: string };
+  delivers: boolean;
+  emailVerified: boolean;
+}
+
+/**
+ * The 1040-ES reminder email for the signed-in owner or admin (services/books/estimate-reminders.ts on
+ * the worker): one email a week before each due date, with what is still to pay from the figures saved
+ * here. Per member: each owner or admin turns their own on.
+ */
+function ReminderCard({ orgId }: { orgId: string }) {
+  const qc = useQueryClient();
+  const path = orgPath(orgId, "/reports/estimated-tax/reminder");
+  const q = useQuery({
+    queryKey: ["estimate-reminder", orgId],
+    queryFn: () => api<ReminderSetting>(path),
+  });
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const toggle = async (enabled: boolean) => {
+    setPending(true);
+    setError(null);
+    try {
+      qc.setQueryData(
+        ["estimate-reminder", orgId],
+        await api<ReminderSetting>(path, { method: "PUT", body: { enabled } }),
+      );
+    } catch {
+      setError("Not saved: try again.");
+    } finally {
+      setPending(false);
+    }
+  };
+  const r = q.data;
+  return (
+    <section className="card space-y-2">
+      <label className="flex items-center gap-2 font-medium">
+        <input
+          type="checkbox"
+          disabled={!r || pending}
+          checked={r?.enabled ?? false}
+          onChange={(ev) => toggle(ev.target.checked)}
+        />
+        Email me a week before each due date
+      </label>
+      <p className="text-sm text-stone-600">
+        One email per due date (April, June, September and January), with what is still to pay by
+        then from your books and the figures saved on this page. A date your payments and
+        withholding already cover sends nothing. Each owner or admin turns on their own.
+      </p>
+      {r?.enabled && (
+        <p className="text-sm text-stone-700">
+          Next: the {r.next.due} payment, reminded on {r.next.sendsOn}.
+        </p>
+      )}
+      {r?.enabled && !r.emailVerified && (
+        <p className="text-sm text-amber-700">
+          Confirm your email address first: reminders only go to a confirmed address.
+        </p>
+      )}
+      {r?.enabled && !r.delivers && (
+        <p className="text-xs text-stone-500">
+          This copy of Seller Books has no mail sender set up yet, so nothing is sent.
+        </p>
+      )}
+      {(error || q.error) && <ErrorText error={error ?? q.error} />}
+    </section>
   );
 }

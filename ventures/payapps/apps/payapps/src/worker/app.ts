@@ -51,9 +51,15 @@ export function createApp() {
   app.use("*", securityHeaders);
 
   // `email` says whether account mail leaves the Worker: a deploy's smoke test checks it, because with
-  // verification required (production/HTTPS) nobody can finish signing up without it.
+  // verification required (production/HTTPS) nobody can finish signing up without it. `files` says
+  // whether the R2 bucket is bound: without it every attachment upload answers 503 (docs/DEPLOY.md).
   app.get("/api/health", (c) =>
-    c.json({ ok: true, app: "payapps", email: c.var.ctx.email.delivers }),
+    c.json({
+      ok: true,
+      app: "payapps",
+      email: c.var.ctx.email.delivers,
+      files: Boolean(c.var.ctx.env.FILES),
+    }),
   );
 
   app.use("/api/*", originCheck);

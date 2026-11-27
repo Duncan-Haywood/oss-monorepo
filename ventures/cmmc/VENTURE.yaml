@@ -1,0 +1,33 @@
+name: cmmc
+description: >-
+  Hosted CMMC Level 1 and Level 2 self-assessment workspace with an ISO 9001 checklist for small
+  defense and aerospace shops: per-requirement status and evidence, SSP, POA&M, SPRS score,
+  affirmation dates, asset and provider scoping, personnel and training, supplier flow-down,
+  security policies, document control and internal audits. Sold by subscription (Level 1 free,
+  Level 2 $249, Level 2 + Quality $399 a month; apps/cmmc/src/shared/plans.ts). Not a
+  certification; never submits to SPRS.
+stage: prototype
+owner: duncan
+
+# Bet #4 in portfolio/monetization/bets.md. Moved from private-monorepo on 2026-11-27 (task
+# move-cmmc-public); not deployed yet (DEPLOY.md). Free front doors: ventures/machine-shop-guides
+# (CMMC pages) and apps/cmmc-site's SPRS score calculator.
+hypotheses:
+  - claim: Small defense and aerospace shops will pay about $249 a month to prepare their CMMC Level 2 SSP, POA&M and SPRS score in-house instead of hiring a consultant.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+budget:
+  monthly_cap: 50
+  protected: true
+kill_criteria:
+  - No paying customer after 90 days post-launch.
+  - Monthly cost exceeds MRR for 3 consecutive months past `revenue` stage.
+links:
+  production: null
+  analytics: null

@@ -10,7 +10,7 @@ Rolls an application forward to next month: previous takes this period, this per
 
 Downloads the application as an Excel workbook with live formulas (summary sheet linked to a lettered continuation sheet), and offers a free blank pay application template (.xlsx, 30 lines). Own layout; not the AIA G702/G703 form.
 
-A hosted pay-app suite (saved jobs, retainage until release, lien waivers, change orders) is in development; not on sale and no price yet.
+PayApps, the hosted pay-app suite (saved jobs, retainage until release, change orders), is open: free on one active job, no card, at https://payapps.marisstella.app/. It imports this tool's Excel workbook as a job's schedule of values or opening balance. Lien waivers, QuickBooks and job costing are in paid plans, not on sale yet.
 
 Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
