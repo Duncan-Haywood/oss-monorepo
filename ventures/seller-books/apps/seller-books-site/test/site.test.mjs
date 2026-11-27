@@ -79,6 +79,9 @@ describe("pages", () => {
         "Square",
         "PayPal",
         "Venmo",
+        "Grailed",
+        "StockX",
+        "Vinted",
       ],
     );
     for (const f of ["llms.txt", "llms-full.txt", "sitemap.xml", "robots.txt", "404.html"]) {

@@ -10,10 +10,10 @@ import {
   TX_NOTICE_RECIPIENTS,
   txSendTiming,
 } from "@lien-waivers";
-import type { TxNoticeSendBody } from "@shared/api/schemas";
-import type { TxNoticeLogDto, TxNoticeSendDto } from "@shared/api/types";
+import type { TxNoticeSendBody, TxRetainageDatesBody } from "@shared/api/schemas";
+import type { TxNoticeLogDto, TxNoticeSendDto, TxRetainageDto } from "@shared/api/types";
 import { expectedCents, paymentPosition } from "@shared/payments";
-import { txUnpaidMonths } from "@shared/tx-notices";
+import { type TxRetainageDates, txRetainageDeadlines, txUnpaidMonths } from "@shared/tx-notices";
 import { and, asc, eq } from "drizzle-orm";
 import type { AppContext } from "../../context";
 import { projects, txNoticeSends } from "../../db/schema";
@@ -26,7 +26,13 @@ type ProjectKind = "commercial" | "residential";
 
 async function loadProject(ctx: AppContext, orgId: string, projectId: string) {
   const p = await ctx.db
-    .select({ txProjectKind: projects.txProjectKind, isSample: projects.isSample })
+    .select({
+      txProjectKind: projects.txProjectKind,
+      txContractEndedOn: projects.txContractEndedOn,
+      txOriginalEndedOn: projects.txOriginalEndedOn,
+      txOriginalEndedHow: projects.txOriginalEndedHow,
+      isSample: projects.isSample,
+    })
     .from(projects)
     .where(and(eq(projects.id, projectId), eq(projects.orgId, orgId)))
     .get();
@@ -66,11 +72,23 @@ export function txSendDto(r: SendRow, kind: ProjectKind | null): TxNoticeSendDto
   };
 }
 
-/** Each pay app's balance, read the way the cash report reads it (src/shared/cash-report.ts). */
+/**
+ * Each pay app's balance, read the way the cash report reads it (src/shared/cash-report.ts), and the
+ * retainage held: line 5 of the latest sent application, as the cash report counts it.
+ */
 async function appBalances(ctx: AppContext, orgId: string, projectId: string) {
   const b = await loadBundle(ctx, orgId, projectId);
   const computed = new Map(b.computed.map((c) => [c.periodId, c]));
-  return b.payApps.flatMap((a) => {
+  let retainageHeldCents = 0;
+  let latest = 0;
+  for (const a of b.payApps) {
+    const c = computed.get(a.id);
+    if (c && a.status !== "draft" && a.number > latest) {
+      latest = a.number;
+      retainageHeldCents = c.summary.totalRetainageCents;
+    }
+  }
+  const balances = b.payApps.flatMap((a) => {
     const c = computed.get(a.id);
     if (!c) return [];
     const pos = paymentPosition(
@@ -89,7 +107,18 @@ async function appBalances(ctx: AppContext, orgId: string, projectId: string) {
       },
     ];
   });
+  return { balances, retainageHeldCents };
 }
+
+const retainageDatesOf = (p: {
+  txContractEndedOn: string | null;
+  txOriginalEndedOn: string | null;
+  txOriginalEndedHow: TxRetainageDates["originalEndedHow"];
+}): TxRetainageDates => ({
+  contractEndedOn: p.txContractEndedOn,
+  originalEndedOn: p.txOriginalEndedOn,
+  originalEndedHow: p.txOriginalEndedHow,
+});
 
 export async function txNoticeLog(
   ctx: AppContext,
@@ -107,9 +136,30 @@ export async function txNoticeLog(
       .all(),
   ]);
   const kind = p.txProjectKind ?? null;
-  const unpaidMonths = kind
-    ? txUnpaidMonths(await appBalances(ctx, orgId, projectId), rows, kind === "residential")
-    : [];
+  const { balances, retainageHeldCents } = await appBalances(ctx, orgId, projectId);
+  const unpaidMonths = kind ? txUnpaidMonths(balances, rows, kind === "residential") : [];
+  const dates = retainageDatesOf(p);
+  const deadlines = txRetainageDeadlines(dates, rows);
+  const retainage: TxRetainageDto = {
+    ...dates,
+    retainageHeldCents,
+    notice: deadlines.notice
+      ? {
+          statutory: deadlines.notice.statutory,
+          due: deadlines.notice.due,
+          holidays: deadlines.notice.holidays,
+          basis: deadlines.notice.basis,
+          missing: deadlines.notice.missing,
+        }
+      : null,
+    affidavit: deadlines.affidavit
+      ? {
+          statutory: deadlines.affidavit.statutory,
+          due: deadlines.affidavit.due,
+          holidays: deadlines.affidavit.holidays,
+        }
+      : null,
+  };
   return {
     projectKind: kind,
     sends: rows.map((r) => txSendDto(r, kind)),
@@ -117,6 +167,7 @@ export async function txNoticeLog(
     methods: TX_DELIVERY_METHODS.map((id) => ({ id, label: TX_DELIVERY_METHOD_LABELS[id] })),
     recipients: TX_NOTICE_RECIPIENTS.map((id) => ({ id, label: TX_NOTICE_RECIPIENT_LABELS[id] })),
     recipientPrefill,
+    retainage,
   };
 }
 
@@ -134,6 +185,38 @@ export async function setTxProjectKind(
     .set({ txProjectKind: projectKind })
     .where(and(eq(projects.id, projectId), eq(projects.orgId, orgId)));
   return { projectKind, changed: (p.txProjectKind ?? null) !== projectKind, isSample: p.isSample };
+}
+
+/**
+ * When this company's contract and the original contract ended (§§ 53.057(a-1), 53.052(d)). A date
+ * after today is refused: these record what happened, and a planned date would start the clock early.
+ */
+export async function setTxRetainageDates(
+  ctx: AppContext,
+  orgId: string,
+  projectId: string,
+  input: TxRetainageDatesBody,
+) {
+  await assertLienWaivers(ctx, orgId);
+  const p = await loadProject(ctx, orgId, projectId);
+  const today = ctx.now().toISOString().slice(0, 10);
+  for (const d of [input.contractEndedOn, input.originalEndedOn]) {
+    if (d && d > today) throw badRequest("Enter a date that has passed, not a planned one");
+  }
+  const next = {
+    txContractEndedOn: input.contractEndedOn,
+    txOriginalEndedOn: input.originalEndedOn,
+    txOriginalEndedHow: input.originalEndedOn ? input.originalEndedHow : null,
+  };
+  await ctx.db
+    .update(projects)
+    .set(next)
+    .where(and(eq(projects.id, projectId), eq(projects.orgId, orgId)));
+  const changed =
+    p.txContractEndedOn !== next.txContractEndedOn ||
+    p.txOriginalEndedOn !== next.txOriginalEndedOn ||
+    p.txOriginalEndedHow !== next.txOriginalEndedHow;
+  return { ...next, changed, isSample: p.isSample };
 }
 
 /** Record a Texas notice of claim as sent to one recipient. */

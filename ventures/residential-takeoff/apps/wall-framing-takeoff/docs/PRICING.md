@@ -16,7 +16,7 @@ checkout link is set.
 | Plan | Kind | Price | Unlocks | On sale |
 | --- | --- | --- | --- | --- |
 | Free | | $0 | Everything that shipped free before 2026-11-24: layout, order, cut list, drawings, PDF, every calculator page, CSV | always |
-| Job report (`report`) | one-off | **$29** per house | supplier material-list export + branded bid package | when the owner sets `CHECKOUT_URLS.report` |
+| Job report (`report`) | one-off | **$29** per house | supplier material-list export + branded bid package | when the owner fills the `residential-takeoff` row of `platform/billing/catalogue.mjs` |
 | Contractor suite (`pro`) | subscription | **$149 / month** | the same, for every job, inside the suite (pay apps, estimating) | from `apps/payapps`, not from this page, once the estimating module ships |
 
 Plan keys, prices and features live in `plans.mjs`; `billing.test.mjs` fails the build if
@@ -51,43 +51,43 @@ Paddle as merchant of record).
 
 ## How the paid path is wired (dark)
 
-- `checkout.mjs`: `CHECKOUT_URLS.report` and `.pro` are empty strings; `VARIANT_PLANS` (merchant
-  variant id to plan) is empty. These are public links and ids, never secrets.
-- `billing.mjs`: the billing port, the grants `BillingProvider` cut down to what a static page
-  can do (`checkoutUrl(plan)`, `validate(key)`; no webhook, no portal, because there is no
-  server). `createBillingProvider` returns `null` while every link is empty: **dark**.
-  `fakeBillingProvider` backs the tests.
+Moved to Paddle on 2026-11-27 (ROADMAP, "Checkout on Paddle, part 1"). The first design called
+Lemon Squeezy's public licence-validate endpoint; the portfolio's merchant of record is Paddle,
+which has no public licence check, so the page now uses the shared path in `platform/billing/`
+(its README has the whole flow and why the billing Worker lives on the owner's own account).
+
+- `checkout.mjs` is **generated** by `node platform/billing/sync.mjs` from the catalogue's
+  `residential-takeoff` product: client-side token, price id, Ed25519 public key, the billing
+  Worker's origin, sandbox or production. All public; `checkout.test.mjs` fails on a hand edit.
+- `paddle.mjs` is a byte-for-byte copy of `platform/billing/client.mjs` (the shared testkit
+  fails on drift): Paddle.js overlay checkout with a random claim code, key pickup from the
+  billing Worker, offline Ed25519 verification.
+- `licence.mjs`: `wireBuyButton`, `checkLicence`, `onSaleNow` over the generated config.
+- `billing.mjs`: the billing port (`wireBuy(el)`, `validate(key)`), the grants `BillingProvider`
+  cut down to a static page. `createBillingProvider()` returns `null` while any public value is
+  empty: **dark**. A valid key maps to the Job report plan (`PRODUCT_PLAN`); the billing Worker
+  signs only for the product whose price was paid, and a key for another product (the free
+  edition's bid-package key included) unlocks nothing. `fakeBillingProvider` backs the tests.
 - `plans.mjs`: `entitlement({ dark, valid, plan })` and `allowed(feature, ent)` are the one plan
   check every paid feature goes through. **While dark, every feature is open**, so nobody
   meets a lock they cannot buy past.
-- Once lit, a key unlocks only if the merchant says it is valid **and** its variant maps to a
-  plan in `VARIANT_PLANS`; an expired, disabled, unknown-variant or malformed key unlocks
-  nothing (tests in `billing.test.mjs`), and a malformed key never reaches the network.
 - Where the check runs: the page's "Download supplier material list (CSV)" button and its
-  bid-package card; the CLI's `--material-list`, which takes `--licence=KEY` (validated before
-  `main` runs, because the check needs the network). Exit code 3 means "needs a key".
-- The code is MIT-licensed in its public copy and source-available here; the key is an
-  honest-buyer convenience, not copy protection, and the page says so.
+  bid-package card (an accepted key is kept in that browser's storage); the CLI's
+  `--material-list`, which takes `--licence=KEY`. Exit code 3 means "needs a key".
+- A one-off key never expires and cannot be revoked after a refund (`platform/billing/README.md`).
+  It is not tied to one house: "$29 per house" is the price on trust, and the key is an
+  honest-buyer convenience, not copy protection; the page says so.
 
 ## To light it (owner only)
 
-1. Create the "Job report" product with the merchant of record (Lemon Squeezy fits the
-   static page: hosted checkout and a public licence validate call). Activation limit 1.
-2. Confirm the validate call against a live test key; `VALIDATE_URL` and the `meta.variant_id`
-   field were written from memory of the provider's docs, not run against a product.
-3. Set `CHECKOUT_URLS.report` and `VARIANT_PLANS["<variant id>"] = "report"` in
-   `checkout.mjs`; `checkout.test.mjs` pins their shape.
-4. Run `node --test '*.test.mjs'` and `node eval-material-list-click.mjs`.
+1. Do `platform/billing/README.md`, "Going live", steps 0 to 3 once for every pack (billing
+   Worker, key pair, client-side token, notification destination).
+2. In Paddle, create the "Job report" product, one-off, $29. Put its `pri_...` id in the
+   `residential-takeoff` row of `platform/billing/catalogue.mjs`, run
+   `node platform/billing/sync.mjs`, and redeploy the billing Worker with that catalogue.
+3. Run `node --test '*.test.mjs'` here and `node --test platform/billing/billing.test.mjs`.
+4. Buy once in the sandbox; check the key fills in, the material list downloads, and the key
+   survives a reload. Then update the paid page's "Checkout is not open yet" note and
+   `sample-pack.test.mjs`.
 
-Leave `CHECKOUT_URLS.pro` empty: the suite sells it.
-
-## Known limits
-
-- **One key, one house is on trust.** The validate call does not tie a key to a plan file,
-  so a Job report key keeps working on the next house. Binding it (an activation per
-  plan hash) needs the provider's activate call and is not built; decide after the first
-  ten sales whether it matters.
-- **Refunds and tax** are the merchant's. The bid-package card already states a 30-day
-  refund on request.
-- **No usage data yet.** `usage.mjs` counts `material_list_downloaded` in the visitor's own
-  browser only; nothing is sent anywhere.
+The Contractor suite plan (`pro`) is not sold from this page: the suite sells it.

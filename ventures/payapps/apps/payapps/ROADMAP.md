@@ -1052,6 +1052,26 @@ nothing to copy. No customers yet. Paid plans are dark
   (Illinois and Pennsylvania's statute hosts did not answer from the session), and the free
   calculator, which still has ten.
 
+- Notices of claim: Texas, part 3, retainage (2026-11-27, Crew and up;
+  texas-notices-of-claim-part-3-retainage). Under the Texas log, "Retainage (§ 53.057)" saves the day
+  this company's contract was completed, terminated or abandoned and the day the original contract
+  (the GC's) ended, with which of the three (`projects.tx_contract_ended_on`, `tx_original_ended_on`,
+  `tx_original_ended_how`, migration 0089, `PUT .../notices/tx/retainage-dates`; a future date is
+  refused, since a planned date would start the clock early). From them `txRetainageDeadlines`
+  (`src/shared/tx-notices.ts`) gives the notice of claim for unpaid retainage, 30 days after the
+  company's contract ended or, if sooner, after the original contract was terminated or abandoned (a
+  completed original contract does not start it, § 53.057(a-1)(2)), and the lien affidavit for
+  retainage, the 15th day of the third month after the month the original contract ended
+  (§ 53.052(d)); both roll past weekends and Texas legal holidays (§ 53.003(e)). While the latest
+  sent pay app holds retainage, the cash page and weekly email remind about the notice from the day
+  its start is saved until both recipients have a retainage notice recorded (and for 30 days after a
+  missed date), and about the affidavit in the 30 days before its date; closed jobs included, since a
+  finished job holding retainage is when it matters. The text says the notice is not needed for
+  retainage already claimed in a monthly notice (§ 53.057(a)). Job history: dates set and cleared.
+  Tests: `src/shared/tx-notices.test.ts` (dates by hand from 1 January 2027, a Friday; the Memorial
+  Day and Sunday rolls; the windows) and `test/worker/tx-notice-log.test.ts` (the HTTP API, the
+  reminder stopping per recipient, refusals, history, role and tenant gates).
+
 - Notices of claim: Texas, part 2 (2026-11-27, Crew and up; texas-notices-of-claim-part-2). Under
   the Texas notices, "Notices of claim sent (Texas)": the job is tracked as a residential construction
   project or not (`projects.tx_project_kind`, migration 0084), which turns on the rest. The months
@@ -2642,10 +2662,10 @@ nothing to copy. No customers yet. Paid plans are dark
   the reminder, done 2026-11-27): files per record (the mail log or USPS tracking printout
   § 713.18(2)(c) says to keep), the company's tier so the contractor's copy joins the reminder, and
   § 713.18(3)'s returned-mail rule, if contractors use the log
-- Texas notices of claim, part 3 (part 2, the log, unpaid months from pay apps, the reminder and
-  legal holidays, done 2026-11-27): the retainage notice's 30 days from a saved completion date with
-  its own reminder, files per record (the certified mail receipt or proof of receipt), if
-  contractors use the log
+- Texas notices of claim, part 4 (part 3, the retainage notice and the retainage lien affidavit from
+  saved contract end dates with their reminder, done 2026-11-27): files per record (the certified mail
+  receipt or proof of receipt), a record that the retainage affidavit was filed (it stops that
+  reminder) and the § 53.055 notice of it, if contractors use the log
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask

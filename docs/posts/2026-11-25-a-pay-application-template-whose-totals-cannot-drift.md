@@ -2,6 +2,7 @@
 title: "A free pay application template in Excel whose totals cannot drift"
 seo_title: "Free pay application template (Excel) with live formulas"
 date: 2026-11-25
+updated: 2026-11-27
 tags: [construction, subcontractors, pay-applications, retainage, excel, pay-application-generator, for-customers]
 description: "The pay application generator now downloads a blank .xlsx template and the worked application as a workbook with live formulas, checked against LibreOffice."
 ---
@@ -184,3 +185,29 @@ are not on sale yet. The template and the generator stay free.
 Source: [`ventures/pay-application-generator/workbook.mjs`](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pay-application-generator).
 The numbers are arithmetic on what you enter; your contract decides the
 retainage terms. Not legal, tax or accounting advice.
+
+## Update, 2026-11-27: an invoice template for the jobs with no pay application
+
+Not every job gets a pay application. Service calls, small commercial
+work, residential remodels and time-and-materials work are billed by
+invoice, and the free invoice templates people find first rarely have a
+retainage line. The
+[construction invoice template](https://marisstella.app/pay-app-guides/construction-invoice-template.html)
+is a one-sheet .xlsx built by the same code as this workbook (the same
+zip writer and cell styles, in `ventures/pay-app-guides/invoice-template.mjs`).
+It has lump-sum and unit-price lines, signed change orders on their own
+lines, retainage at your contract's rate as a negative line, a deposit
+applied, the amount due, and a due date worked out from the invoice date
+and your payment terms. A second figure keeps the retainage held on the job
+to date, so the closing retainage bill is not a hunt through old invoices.
+
+Sales tax is a cell you type in. Whether construction labor or materials
+are taxed depends on the state and the kind of contract, and a template
+that guessed a rate would be wrong for most of its readers.
+
+The check is the same as here: a test recalculates the filled-in example
+(a drywall sub's first invoice, $21,120.00 of work, $2,112.00 retainage and
+a $3,000.00 deposit off, $16,008.00 due) in LibreOffice and compares it
+with the page. The page also says when a GC will want a pay application
+instead, and how to move invoice lines onto a schedule of values when that
+happens.
