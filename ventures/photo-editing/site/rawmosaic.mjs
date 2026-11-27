@@ -24,7 +24,7 @@
 // sRGB-encoded. A culling preview, not a development: no demosaic, tone
 // curve, sharpening or highlight recovery. Checked against shootflow's own
 // reader and developer: eval/cull-raw-data-previews-2026-11-24.md.
-// FSL-1.1-MIT licence, part of ShootFlow.
+// All rights reserved, part of ShootFlow.
 
 const TAG = {
   NewSubfileType: 254, Width: 256, Height: 257, Bits: 258, Compression: 259, Photometric: 262,

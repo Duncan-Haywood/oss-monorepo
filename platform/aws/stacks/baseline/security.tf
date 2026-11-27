@@ -4,7 +4,7 @@
 #
 # Single-account mode: no delegated administrator and no organisation
 # configuration (count = 0 below). The one account runs its own GuardDuty
-# detector (aws_guardduty_detector.security, whose alias is this account),
+# detector (aws_guardduty_detector.security[0], whose alias is this account),
 # Security Hub with FSBP and CIS subscribed directly, its own Config recorder
 # (modules/account-baseline) and an account-scoped Access Analyzer.
 
@@ -37,15 +37,30 @@ resource "aws_organizations_delegated_administrator" "this" {
 
 # --- GuardDuty: on in every current and future account ----------------------
 
+# Single-account mode creates the account's detector. In organization mode
+# AWS creates the security account's detector itself when that account is
+# made GuardDuty's delegated administrator, so creating one fails ("a detector
+# already exists", apply run 45929949287); read it instead.
 resource "aws_guardduty_detector" "security" {
+  count    = local.single ? 1 : 0
   provider = aws.security
   enable   = true
+}
+
+data "aws_guardduty_detector" "security" {
+  count      = local.single ? 0 : 1
+  provider   = aws.security
+  depends_on = [aws_guardduty_organization_admin_account.this]
+}
+
+locals {
+  guardduty_detector_id = local.single ? aws_guardduty_detector.security[0].id : data.aws_guardduty_detector.security[0].id
 }
 
 resource "aws_guardduty_organization_configuration" "this" {
   count                            = local.single ? 0 : 1
   provider                         = aws.security
-  detector_id                      = aws_guardduty_detector.security.id
+  detector_id                      = local.guardduty_detector_id
   auto_enable_organization_members = "ALL"
   depends_on                       = [aws_guardduty_organization_admin_account.this]
 }
@@ -142,11 +157,19 @@ resource "aws_config_configuration_aggregator" "org" {
 
 # --- IAM Access Analyzer: external access across the organisation ----------
 
+# An organization analyzer needs Access Analyzer's service-linked role in the
+# management account, even though the analyzer lives in the delegated admin
+# (ConflictException on the first apply, run 45925800126).
+resource "aws_iam_service_linked_role" "access_analyzer" {
+  count            = local.single ? 0 : 1
+  aws_service_name = "access-analyzer.amazonaws.com"
+}
+
 resource "aws_accessanalyzer_analyzer" "org" {
   provider      = aws.security
   analyzer_name = local.single ? "account" : "organization"
   type          = local.single ? "ACCOUNT" : "ORGANIZATION"
-  depends_on    = [aws_organizations_delegated_administrator.this]
+  depends_on    = [aws_organizations_delegated_administrator.this, aws_iam_service_linked_role.access_analyzer]
 }
 
 # --- Single-account mode: Security Hub standards on the account itself -----

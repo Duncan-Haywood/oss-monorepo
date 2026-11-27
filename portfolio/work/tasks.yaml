@@ -568,7 +568,7 @@ tasks:
       the wrangler/workflow removal PRs.
 
   - id: products-to-public-repo
-    direction: promote-or-demote
+    direction: paid-bets
     title: Keep paid products in this repository under an all-rights-reserved licence and move the private apps here
     done_when: >-
       (1) a PR adds the all-rights-reserved notice to ALLOWED_LICENCES in
@@ -589,6 +589,12 @@ tasks:
     notes: >-
       Owner, 2026-11-26 (LICENSING_TRANSITION.md, "Superseded, 2026-11-26").
       Publishing private code cannot be undone: audit before every copy.
+      Progress: (1) done, PR 19538. (2) 16 of 21 products relicensed by
+      portfolio/monetization/relicense_arr.py (2026-11-27); left are the six
+      that offer self-hosting (shift-roster-builder, league-schedule-generator,
+      babysitting-business-kit, quick-pick-survey, einvoice-preflight,
+      changepoint-detector's repo watch): owner, 2026-11-27, drop those
+      offers, then relicense. `relicense_arr.py --residue <slug>` lists them.
       Step 3 done 2026-11-27: platform/security/prepub_audit.py; PayApps,
       payapps-site and packages/ audited with 0 block findings
       (docs/reports/2026-11-27-prepub-audit-payapps.md).
@@ -597,6 +603,105 @@ tasks:
       redesigned in its own reviewed PR; private apps use a pnpm workspace
       and packages/ (billing, admin-metrics, trust-page, lien-waivers,
       qbo-sync, cad-features) that move with them.
+      Step (1) landed in PR 19538. Moved under paid-bets 2026-11-27: the
+      owner chose this over fixing private-monorepo ("migrate this to public
+      oss one instead", 2026-11-27), and it gives every bet free Actions
+      minutes and a clone no scheduled run is refused. Subtasks:
+      public-repo-audit, then move-payapps-public.
+  - id: public-repo-audit
+    direction: paid-bets
+    title: Pre-publication audit script for a private app (step 3 of products-to-public-repo)
+    done_when: >-
+      platform/security/prepublish_audit.py, run against a directory of a
+      private-monorepo clone, reports likely secrets, personal data (emails,
+      phone numbers, names outside the operator's), client or customer data,
+      internal hostnames and account ids, and security notes, with a nonzero
+      exit on any finding; tests with planted examples; its output on
+      apps/payapps and the packages PayApps imports, in the PR.
+    hours: 6
+    status: done
+    added: 2026-11-27
+    pr: 19563
+  - id: move-payapps-public
+    direction: paid-bets
+    title: Move PayApps and the packages it imports into this repository (step 4 of products-to-public-repo)
+    done_when: >-
+      ventures/payapps/ holds the app under the all-rights-reserved notice,
+      with the packages it imports, its CI ported to this repository's
+      workflows and passing, the audit's clean output in the PR, and the
+      deploy path written down (which secrets the public repository's
+      environment needs, and whether payments stay behind in private-monorepo,
+      per this task's parent notes). The private copy is removed in a
+      private-monorepo PR once the public one deploys.
+    hours: 12
+    status: open
+    added: 2026-11-27
+    blocked_on: public-repo-audit
+  - id: inboxes-without-owner
+    direction: paid-bets
+    title: Turn the agent inboxes on with no owner-pasted secrets
+    done_when: >-
+      The email deploy generates MAIL_AGENT_TOKEN, MAIL_READ_TOKEN,
+      MAIL_OWNER_TOKEN and MAIL_UNSUBSCRIBE_SECRET itself and stores them where
+      the worker and agent sessions read them (AWS Secrets Manager under the
+      email stack, or Worker secrets on the first deploy), and takes the
+      forward address from the variable the AWS bootstrap already asks for
+      (AWS_BUDGET_ALERT_EMAIL), so platform/email/README.md "Owner steps"
+      lists nothing but what a provider forces. Paddle's domain review needs
+      working support and privacy addresses.
+    hours: 8
+    status: open
+    added: 2026-11-27
+    notes: >-
+      Owner, 2026-11-27: "i shouldn't be in the loop for this". Replaces the
+      ledger row agent-inboxes-secrets. The Cloudflare route also needs token
+      permissions only the owner can grant, so the SES route (aws-ses-email)
+      is the one with no owner step, and the owner chose it the same day
+      ("all iac stuff instead we will do on aws instead once we fully move";
+      asks.yaml, aws-turnover). Progress 2026-11-27: the SES route's store,
+      platform/email/aws/dynamo-store.mjs (DynamoDB rows + S3 raw MIME),
+      passes the store contract and runs the service end to end. Left: the
+      table, bucket and generated tokens (random_password into Secrets
+      Manager) in platform/aws/stacks/email-ops, and the Lambda API entry
+      (README.md, "Portability", step 4).
+  - id: paddle-key-check
+    direction: paid-bets
+    title: Report whether each Paddle key is the right kind, without printing it
+    done_when: >-
+      A step in every deploy that syncs a catalog prints, for the key it was
+      given: live, sandbox or legacy-format (a key without the pdl_ prefix,
+      which cannot carry permissions or an expiry), and which of the
+      catalog's calls (list and create products and prices) answer 403, with
+      a tested pure classifier in packages/billing. Nothing of the key past
+      its public prefix is printed.
+    hours: 4
+    status: done
+    pr: https://github.com/Duncan-Haywood/private-monorepo/pull/458
+    added: 2026-11-27
+    notes: >-
+      Done 2026-11-27 (private PR #458): packages/billing/src/paddle-key.ts
+      classifies the key's shape and probes the four catalog calls without
+      writing; scripts/paddle-catalog.ts prints the report first, so all six
+      catalog-syncing deploys show it on their next run. Private PR 459: no
+      answer from Paddle is no longer reported as "accepted", and the manual
+      paddle-key-check workflow checks all six apps' secrets in one run.
+      The answer for the recorded key arrives in the next run that gets a
+      runner (private-ci-codebuild-cutover). Owner, 2026-11-27: "there is a key is it the right type or no?" No run
+      has been able to tell: the catalog sync landed 2026-11-25, after
+      private-monorepo Actions stopped starting jobs. The recorded key is
+      grants' BILLING_API_KEY; payapps-deploy reads PAYAPPS_BILLING_API_KEY.
+  - id: private-ci-codebuild-cutover
+    direction: paid-bets
+    title: Point private-monorepo CI at the CodeBuild runners and redeploy PayApps
+    done_when: >-
+      `platform/aws/github/configure.sh --private-ci` has set CODEBUILD_RUNNER,
+      a private-monorepo CI run gets a runner, payapps-deploy has run to the
+      end and GET /api/health answers on the deployed URL, with the run ids
+      in the PR's run record.
+    hours: 2
+    status: open
+    added: 2026-11-27
+    blocked_on: aws-turnover steps 1-4 (owner, in progress 2026-11-27)
   - id: aws-client-accounts
     direction: aws-consolidation
     title: Vend one AWS account per client project and report its cost for cost-plus billing

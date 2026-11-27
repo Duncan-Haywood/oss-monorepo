@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVLLrBgaUKqJ5YAm6Bk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T02:56:00Z",
+  "ended": "2026-11-27T03:01:54Z",
+  "wall_minutes": 6.06,
+  "tokens_in": 4646188,
+  "tokens_out": 24979,
+  "cost_usd": 2.201,
+  "tool_calls": 47,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19578",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First test fixture (a pdl_live_apikey_ shaped fake) tripped risk_review's secret detector; fixed by joining the fake from parts."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported no free ungated item on any bet (all Next items wait on demand), so the useful pick came from the 'First look' cross-bet tasks list instead; that list is easy to skim past."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "private-monorepo CI still starves (jobs red in 2-12 s, runner_id 0); verified locally per ci_starvation.py and merged."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: the change is internal billing tooling with no reader-facing finding yet.",
+      "did": "Documented in packages/billing/README.md and the task note instead.",
+      "result": "n/a"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bets' ROADMAP items were all demand-gated; took cross-bet task paddle-key-check (owner asked directly) since checkout readiness gates every bet's first dollar.",
+      "did": "Built and merged private PR #458.",
+      "result": "merged"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/458 merged (bf0e24d). Local checks: packages/billing pnpm test 85 pass 0 fail, tsc clean, biome ci clean; einvoice-preflight pro tests 277 pass (imports billing index). CI run 45931621343 starved (ci_starvation exit 1). Paddle API unreachable from this sandbox, so the 'permission checked before validation' ordering for write probes is an assumption, stated in the README.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "68793055-4328-5442-a034-14df866bb400",
+    "transcripts": 1,
+    "first": "2026-11-27T02:56:00Z",
+    "last": "2026-11-27T03:02:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 91,
+        "output": 24979,
+        "thinking": 4494,
+        "cache_read": 4547149,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98948,
+        "api_equivalent_usd": 2.201,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 91,
+      "output": 24979,
+      "thinking": 4494,
+      "cache_read": 4547149,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98948,
+      "api_equivalent_usd": 2.201,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 40,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.06,
+      "active_minutes": 6.07,
+      "model_minutes": 4.46,
+      "tool_minutes": 1.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "task estimate in tasks.yaml",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 181.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

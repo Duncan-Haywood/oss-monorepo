@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   calculateBid,
+  SURFACE_PRESETS,
   CONDITION_COVERAGE,
   METHOD_PRESETS,
   HOURS_PER_OIL_SPOT,
@@ -19,7 +20,7 @@ const driveway = () => ({
       squareFeet: 800,
       coats: 2,
       firstCoatSqFtPerGal: 90,
-      secondCoatSqFtPerGal: 120,
+      secondCoatSqFtPerGal: 90,
     },
   ],
   condition: 'oxidized',
@@ -57,12 +58,14 @@ test('hours come from coats and crew rate, not square feet alone', () => {
   assert.ok(result.applyHours > oneCoat.applyHours * 1.9);
 });
 
-test('first coat drinks more sealer than the second, and failing pavement drinks more still', () => {
+test('condition scales only the first coat, and failing pavement drinks more still', () => {
   const oxidized = calculateBid(driveway());
   const first = 800 / (90 * CONDITION_COVERAGE.oxidized);
-  const second = 800 / 120;
+  const second = 800 / 90;
   assert.ok(Math.abs(oxidized.totalGallons - (first + second)) < 1e-9);
-  assert.ok(oxidized.surfaces[0].firstGallons > oxidized.surfaces[0].extraCoatGallons);
+  const failingFirst = calculateBid({ ...driveway(), condition: 'failing' }).surfaces[0];
+  assert.ok(failingFirst.firstGallons > failingFirst.extraCoatGallons);
+  assert.ok(Math.abs(failingFirst.extraCoatGallons - oxidized.surfaces[0].extraCoatGallons) < 1e-9);
 
   const failing = calculateBid({ ...driveway(), condition: 'failing' });
   const good = calculateBid({ ...driveway(), condition: 'good' });
@@ -149,7 +152,7 @@ test('a parking lot with striping is not priced like a driveway of the same area
       squareFeet: 800,
       coats: 2,
       firstCoatSqFtPerGal: 80,
-      secondCoatSqFtPerGal: 110,
+      secondCoatSqFtPerGal: 80,
     }],
     stalls: 16,
   });
@@ -214,5 +217,22 @@ test('the minimum on-site hours apply only below the minimum, not at it', () => 
 test('sand mixing adds a fixed 0.15 h plus 0.01 h per gallon', () => {
   const result = calculateBid({ ...driveway(), sand: true });
   assert.ok(Math.abs(result.sandHours - (0.15 + result.totalGallons * 0.01)) < 1e-9);
-  assert.ok(Math.abs(result.sandHours - 0.305556) < 1e-5);
+  assert.ok(Math.abs(result.sandHours - 0.327778) < 1e-5);
+});
+
+// Quality audit 2026-11-26 (high): second-coat coverage was 110-125 sq ft/gal
+// while manufacturer data sheets (SealMaster PMCTS / PMM) give one rate for
+// every coat, about 70-82 sq ft per gallon of mixed material, so two-coat
+// gallons came out 20-32% short.
+test('surface presets use the same coverage on every coat, as manufacturer sheets do', () => {
+  for (const preset of SURFACE_PRESETS) {
+    assert.equal(preset.secondCoatSqFtPerGal, preset.firstCoatSqFtPerGal, preset.label);
+    assert.ok(preset.secondCoatSqFtPerGal <= 100, `${preset.label}: later-coat coverage above 100 sq ft/gal`);
+  }
+});
+
+test('the default two-coat driveway orders sealer at the first-coat rate for both coats', () => {
+  const result = calculateBid(driveway());
+  assert.equal(result.totalGallons.toFixed(2), '17.78');
+  assert.equal(result.price.toFixed(2), '386.41');
 });

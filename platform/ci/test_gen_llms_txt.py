@@ -20,6 +20,18 @@ class GenLlms(unittest.TestCase):
             self.assertTrue(out.startswith("# Hello\n\n> A & B."))
             self.assertIn("/x/faq.html", out)
 
+    def test_licence_line_follows_the_venture_licence(self):
+        notice = (Path(__file__).resolve().parents[2] / "portfolio/monetization/licences/ALL-RIGHTS-RESERVED").read_text()
+        with tempfile.TemporaryDirectory() as r:
+            page = '<title>T</title><meta name="description" content="D."><h1>H</h1>'
+            free = self._venture(r, "free", page)
+            self.assertIn("source available (FSL-1.1-MIT)", g.build(free))
+            paid = self._venture(r, "paid", page)
+            (paid / "LICENSE").write_text(notice)
+            out = g.build(paid)
+            self.assertIn("source visible (all rights reserved)", out)
+            self.assertNotIn("FSL", out)
+
     def test_no_description_means_no_file(self):
         with tempfile.TemporaryDirectory() as r:
             self.assertIsNone(g.build(self._venture(r, "y", "<h1>Only a heading</h1>")))

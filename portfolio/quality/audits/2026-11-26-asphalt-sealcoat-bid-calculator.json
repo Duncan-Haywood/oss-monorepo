@@ -197,7 +197,8 @@
       "what": "Second-coat coverage is hard-coded at 110-125 sq ft/gal and has no input, against SealMaster's single 70-82 sq ft/gal rate for every coat; two-coat gallons come out 20-32% short (15.56 vs 19.51-22.86 gal on the default driveway) and the contractor cannot correct it",
       "where": "ventures/asphalt-sealcoat-bid-calculator/calc.mjs:15",
       "category": "source-data",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19564"
     },
     {
       "severity": "medium",
@@ -220,14 +221,16 @@
       "what": "The page silently adds the 0.3 h + $18 handicap stencil add-on to every job with stalls > 0; the user cannot choose or see it, though the FAQ says 'a chosen add-on kit'",
       "where": "ventures/asphalt-sealcoat-bid-calculator/index.html:445",
       "category": "logic-error",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19564"
     },
     {
       "severity": "medium",
       "what": "vs-a-flat page publishes $988.99 / cost $741.74 / $1.24 per sq ft / 2.66x for the striped lot, computed with addOns: []; the tool shows $1,031.17 / $773.37 for the same lot because of the auto add-on, and the test pins the copy, not the UI input",
       "where": "ventures/asphalt-sealcoat-bid-calculator/vs-a-flat-per-square-foot-price.html:97",
       "category": "tests-check-a-copy",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19564"
     },
     {
       "severity": "medium",
@@ -249,7 +252,8 @@
       "what": "Second-coat coverage not reset when the surface type changes after the first-coat field was edited: a row labelled Residential driveway keeps the parking lot's 110 sq ft/gal ($383.12 instead of $371.93)",
       "where": "ventures/asphalt-sealcoat-bid-calculator/index.html:403",
       "category": "logic-error",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19564"
     },
     {
       "severity": "low",
@@ -282,6 +286,6 @@
       "origin": "implementation"
     }
   ],
-  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19417", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19564"],
   "verdict": "The arithmetic is exact: the default driveway reproduces by hand to the cent ($371.93, walk-away $278.94), margin is correctly margin on price, and the page works at 375 px with a clean customer proposal, share link, disclaimer and local usage tally. It does not meet the bar. The second-coat yield is hard-coded 35-40% thinner than SealMaster's published per-coat rate and cannot be edited, so two-coat gallons run 20-32% short; a zero-coat surface still bills a coat; a hidden stencil add-on makes the striped-lot example on the comparison page ($988.99) disagree with the tool ($1,031.17); and the Bitumio page states competitor features and a free tier with no cited source while third-party listings disagree. Two of six seeded mutants survived. Fix the second-coat input and the coats-0 gallons with tests, cite or cut the Bitumio claims, and make the add-on explicit before this is a number a sealcoating estimator would send."
 }

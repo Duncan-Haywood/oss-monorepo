@@ -398,6 +398,32 @@ methods and spending limits, identity and bank verification, and accounts
 that need a card or ID. Operator record and open legal checks:
 docs/legal/OPERATOR.md in private-monorepo (private-monorepo#240).
 
+### 2026-11-27: agents steer the work; redirect, don't block
+
+The owner, 2026-11-27, on trimming the stale directions: "go for it. i think
+these sort of meta analyses need to happen and be carried out by agents
+without me generally. cause i mean 1000-10000x hours of agents for each hour
+of my review." And on steering ventures runs: "we can keep building out
+products. no harm in that. but i think we want to direct work to most
+vaulable goals and tasks rather than just killing runs. redirect don't block
+as general principle." So:
+
+- Agents audit and re-steer the portfolio themselves: pause directions the
+  owner's later words leave behind, reweight, add tasks, drop ledger rows
+  the owner has answered. The PR records why. Retiring a direction, and the
+  hard limits, stay the owner's.
+- Steering works by what the pickers (`workctl.py next`,
+  `roadmap_claim.py --bets`) show first and by weight, not by forbidding
+  work. A run building a product feature is not wrong; a run that never
+  sees the higher-value task is a steering bug to fix in the picker.
+- Owner steps shrink toward what a provider forces (a card, an identity
+  check). Random secrets a deploy can generate, and settings a script can
+  apply, are agent work: "i shouldn't be in the loop for this" (same day,
+  on the inbox tokens). Private-monorepo's apps move into this repository
+  (`products-to-public-repo`) instead of the owner fixing its Actions
+  billing or the scheduled routine's sources ("migrate this to public oss
+  one instead").
+
 ## Mission
 
 One public repository for the owner's open-source work, with two portfolios

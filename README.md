@@ -36,8 +36,9 @@ here. This repository links to a paid product only through its public product
 page; it does not link to or mirror the private code. Code already published
 here under MIT stays MIT
 ([`LICENSING_TRANSITION.md`](portfolio/monetization/LICENSING_TRANSITION.md)
-explains what moves and what cannot). New work in this repository is
-source available under FSL-1.1-MIT (see [License](#license)).
+explains what moves and what cannot). New work on the free tools is
+source available under FSL-1.1-MIT; the paid products are source visible with
+all rights reserved (see [License](#license)).
 
 ## What the free tools are for now
 
@@ -294,8 +295,12 @@ and were not deleted.
 
 Since 2026-11-24, new work here is under the
 [Functional Source License 1.1, MIT future licence](LICENSE) (FSL-1.1-MIT),
-and every venture under `ventures/` carries the same text in its own
-`LICENSE`. In plain terms:
+and every free tool under `ventures/` carries the same text in its own
+`LICENSE`. The paid products are the exception (since 2026-11-26): their
+`LICENSE` is an [all-rights-reserved notice](portfolio/monetization/licences/ALL-RIGHTS-RESERVED),
+so their source can be read here but grants no right to use, copy, host or
+redistribute it beyond what the product's own terms allow; versions published
+earlier keep the licence they shipped under. For the FSL tools, in plain terms:
 
 - You may read, run, change and share the code, and use it inside your
   business, for teaching, for research and for client work.

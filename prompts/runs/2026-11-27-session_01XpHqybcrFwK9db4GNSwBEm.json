@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqybcrFwK9db4GNSwBEm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T02:38:10Z",
+  "ended": "2026-11-27T02:52:59Z",
+  "wall_minutes": 15.04,
+  "tokens_in": 19060981,
+  "tokens_out": 64560,
+  "cost_usd": 6.7468,
+  "tool_calls": 114,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19576",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "python3 platform/ci/wait_for.py --until 'curl -sf http://127.0.0.1:PORT/...' hung past 90 s although the server answered 200 at once; checking the port by hand was faster."
+    },
+    {
+      "file": "apps/einvoice-preflight (private-monorepo) einvoice-preflight-ci",
+      "issue": "run_workflow_locally.py on the imported checker suite fails repair-facturx.test.mjs in cloud containers: the image's pdfdetach wrapper refuses saving. It is environmental, but nothing marks it as known, so every run has to rediagnose it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "private-monorepo CI was starved (ci_starvation.py: no runner assigned), so PR #457 was merged on local verification as documented",
+      "did": "ran the pro, worker and packages/billing suites, typecheck, biome ci and run_workflow_locally.py for einvoice-preflight-ci and billing-ci",
+      "result": "all green except one environmental pdfdetach test in a file the change does not touch"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-e-invoice-validation-api-priced-per-invoice.md",
+    "private-monorepo apps/einvoice-preflight/pro/README.md 'The metered API plan'",
+    "private-monorepo apps/einvoice-preflight/docs/BILLING.md 'Usage above the minimum'"
+  ],
+  "goal": null,
+  "notes": "Bet #3 einvoice-preflight, claim metered-validation-api-part-1-vendor-plan (bets #1-#4 had no free ungated ROADMAP item). Shipped in private-monorepo PR #457 (merged, cdd06b76): plan api matching the site's API_METER, errorDocuments metering on all stores, statements, POST /v1/admin/usage/settle billing usage above the \u20ac19 minimum as a Paddle one-time charge (packages/billing chargeUsage; API shape checked against developer.paddle.com create-subscription-charge), Terms \u00a75 metered clause EN/DE/FR. Verification: pro 277/277, worker 9/9, billing 72/72 + tsc + biome ci; einvoice root suite 2231 pass / 1 environmental fail (pdfdetach save disabled). Chromium: the workspace shows the api plan and the running amount. Private CI starved (run 45930662810, runner_id 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8c370276-d019-5b73-b23a-ec831a503789",
+    "transcripts": 1,
+    "first": "2026-11-27T02:38:10Z",
+    "last": "2026-11-27T02:53:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 110,
+        "input": 210,
+        "output": 64560,
+        "thinking": 14957,
+        "cache_read": 18850175,
+        "cache_write_5m": 0,
+        "cache_write_1h": 210596,
+        "api_equivalent_usd": 6.7468,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 110,
+      "input": 210,
+      "output": 64560,
+      "thinking": 14957,
+      "cache_read": 18850175,
+      "cache_write_5m": 0,
+      "cache_write_1h": 210596,
+      "api_equivalent_usd": 6.7468,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 114,
+    "tools": {
+      "Bash": 103,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "TaskStop": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.04,
+      "active_minutes": 15.04,
+      "model_minutes": 11.51,
+      "tool_minutes": 3.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior engineer: metered plan, store migrations on two backends, Paddle one-time charge integration with tests, terms in 3 languages, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 355.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

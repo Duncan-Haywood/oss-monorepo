@@ -13,7 +13,11 @@
 // to bottom, left to right, with a space where the gap is wider than a
 // quarter of the font size. The output goes to readStatementText.
 
-const dec = new TextDecoder("latin1");
+// TextDecoder("latin1") is really windows-1252: it turns bytes 0x80-0x9F into
+// U+20AC, U+2019 and so on, which then miss a font's ToUnicode map. toStr below
+// maps every byte to the code unit of the same value; cp1252 is used only to show
+// an unmapped single-byte code as WinAnsi would (red team 2026-11-27).
+const cp1252 = new TextDecoder("windows-1252");
 
 // ---- a small PDF object parser (also used for content streams) -------------
 const WS = " \t\r\n\f\0";
@@ -122,7 +126,11 @@ async function inflate(bytes) {
   for (const c of chunks) { out.set(c, o); o += c.length; }
   return out;
 }
-const toStr = (u8) => dec.decode(u8);
+const toStr = (u8) => {
+  let s = "";
+  for (let i = 0; i < u8.length; i += 8192) s += String.fromCharCode.apply(null, u8.subarray(i, i + 8192));
+  return s;
+};
 
 function asciiHex(b) {
   const out = []; let hi = -1;
@@ -379,7 +387,7 @@ function decodeShown(font, str) {
   } else for (let k = 0; k < str.length; k++) codes.push(str.charCodeAt(k));
   for (const c of codes) {
     let ch = font.map?.get(c);
-    if (ch === undefined) ch = font.twoByte ? "" : (c === 0xA0 ? " " : String.fromCharCode(c));
+    if (ch === undefined) ch = font.twoByte ? "" : (c === 0xA0 ? " " : c >= 0x80 && c <= 0x9F ? cp1252.decode(Uint8Array.of(c)) : String.fromCharCode(c));
     out.push({ ch, w: ((font.widths?.get(c) ?? font.dw) || 0) / 1000 });
   }
   return out;
