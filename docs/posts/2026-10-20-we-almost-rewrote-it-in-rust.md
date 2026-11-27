@@ -311,6 +311,23 @@ reads in 18 ms instead of 45 ms, 16,000 in 66 ms instead of 158 ms, every
 field identical. Notes:
 [`docs/history/drawing-review-perf-2026-11-27-notes-cleaned-once.md`](/docs/history/drawing-review-perf-2026-11-27-notes-cleaned-once.md).
 
+## Same day: a regular expression that tried every letter
+
+Every venture pull request runs a lint that looks for a choice looked up in
+an object by the user's own text (`MAP[input.key]`, where "constructor"
+finds the object's prototype instead of nothing). It read 57 MB of tool code
+with a pattern that began "a word boundary, then a capital letter", and
+Python's regular-expression engine has no shortcut for that: it tried every
+one of the 57 million positions. Starting the search from text that is
+always there, the word `const` and each file's own map names found with a
+plain string search, gives the same 413 findings in 0.18 s instead of 0.96 s,
+and the whole command takes 0.73 s instead of 1.6. In the same job, the test
+runner checked its child process on a fixed 0.2 s tick, so every suite
+waited up to a fifth of a second after it had finished. Waiting on the
+process itself took the runner's own unit tests from 17.0 s to 12.5 s.
+Notes:
+[`docs/history/ci-perf-2026-11-27-runner-poll-and-lookup-scan.md`](/docs/history/ci-perf-2026-11-27-runner-poll-and-lookup-scan.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running

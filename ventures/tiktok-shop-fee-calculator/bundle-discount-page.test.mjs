@@ -74,7 +74,7 @@ test("the landing copy names the mechanism and the disclaimers", () => {
 });
 
 test("the comparison table has one row per path and shows the winner", () => {
-  const table = markup.match(/<table>[\s\S]*?<\/table>/);
+  const table = markup.match(/<table(?: class="stack")?>[\s\S]*?<\/table>/);
   assert.ok(table, "comparison table missing");
   assert.match(scriptSource, /comparison\.separateTotal/);
   assert.match(scriptSource, /comparison\.bundle\.expectedProfit/);

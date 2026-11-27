@@ -736,6 +736,14 @@ html{overflow-x:clip}
  *
  * The label is pinned left (polish, 2026-11-26): a venture's figure cell (`td.n{text-align:right}`)
  * otherwise hands its alignment to the `::before`, and the labels of a card ragged to the right.
+ *
+ * `class="stack fields"` is for a calculator's editable rows (polish, 2026-11-27): each row is
+ * a card whose cells form a grid of label-above-field pairs, about three short fields to a line
+ * at 390 px; the first cell, selects, textareas and `input.wide` take a whole line, a lone
+ * button (Remove) sits right on its own line, and a checkbox sits before its label. Before it,
+ * the seven widest phone swipes on the construction front doors were input grids (463 to
+ * 1,642 px of fields in a 288 to 324 px box). Labels come from the `<thead>` at build time or,
+ * for rows a script adds, at run time (stack-labels.mjs), as for read-only tables.
  */
 export const STACK_TABLE_CSS = `
 @media (max-width:600px){
@@ -755,6 +763,18 @@ export const STACK_TABLE_CSS = `
   table.stack.compact td{flex:1 1 9.5em;width:auto;text-align:right}
   table.stack.compact td::before{width:auto;text-align:left;vertical-align:baseline}
   table.stack.compact td:first-child,table.stack.compact th[scope=row]{flex-basis:100%;text-align:left}
+  table.stack.fields tr{display:grid;grid-template-columns:repeat(auto-fill,minmax(5em,1fr));gap:8px 10px;padding:10px 12px 12px}
+  table.stack.fields td,table.stack.fields td:first-child{display:flex;flex-direction:column;justify-content:flex-end;
+    width:auto;min-width:0;border:0;padding:0;font-weight:inherit}
+  table.stack.fields td::before,table.stack.fields td:first-child::before{content:attr(data-label);display:block;width:auto;min-width:0;
+    padding:0 0 3px;font-size:12px;line-height:1.3}
+  table.stack.fields td:is(:first-child,:has(select,textarea,input.wide)){grid-column:1/-1}
+  table.stack.fields td:is(:not([data-label]),[data-label=""],:has(> button:only-child))::before{content:none}
+  table.stack.fields td:has(> button:only-child){grid-column:1/-1;align-items:flex-end}
+  table.stack.fields td button{overflow-wrap:normal;white-space:nowrap}
+  table.stack.fields td:has(> input:is([type=checkbox],[type=radio]):last-child){flex-direction:row-reverse;justify-content:flex-end;align-items:center;gap:8px}
+  table.stack.fields td:has(> input:is([type=checkbox],[type=radio]):last-child)::before{padding:0}
+  table.stack.fields td :is(input:not([type=checkbox]):not([type=radio]),select,textarea){max-width:100%;min-width:0;box-sizing:border-box}
 }
 `;
 
@@ -768,7 +788,7 @@ export const STACK_TABLE_CSS = `
  * class alone. Polish, 2026-11-25: measured at 390 px, 98 read-only tables on the paid
  * products' pages ran past their scroll box, and none could use the site's cards.
  */
-export const STACK_TABLE_CHROME_CSS = STACK_TABLE_CSS.replace(/table\.stack(\.compact)?/g, ':where(table.stack$1)');
+export const STACK_TABLE_CHROME_CSS = STACK_TABLE_CSS.replace(/table\.stack((?:\.(?:compact|fields))*)/g, ':where(table.stack$1)');
 
 /**
  * Columns of figures in Markdown tables (`th.num`, `td.num`, marked by `numericColumns` in

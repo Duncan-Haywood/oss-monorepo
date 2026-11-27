@@ -493,7 +493,12 @@ def run_one(argv, cwd, timeout, env=None):
             os.killpg(p.pid, signal.SIGKILL)
             p.wait()
             break
-        time.sleep(0.2)
+        # Wake as soon as the suite exits, not on the next 0.2 s tick: a
+        # plain sleep added up to 0.2 s to every suite (perf 2026-11-27).
+        try:
+            p.wait(timeout=0.2)
+        except subprocess.TimeoutExpired:
+            pass
     reader.join()
     out = "".join(lines) + note
     if note:
