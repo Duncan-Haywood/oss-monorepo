@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtKERvnbDv9Enf64P2o",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T22:06:25Z",
+  "ended": "2026-11-27T22:18:35Z",
+  "wall_minutes": 12.38,
+  "tokens_in": 3602747,
+  "tokens_out": 16804,
+  "cost_usd": 1.7256,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19894",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "`queue --severity medium` prints only the first ~40 rows with no hint how to see more; with --limit the full run took over 120 s, so it needed run_in_background, and filtering for the for-profit rows the track prompt asks to prefer had to be done by hand with a grep over the transition.py names. A --for-profit flag would save the step."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "claim of ventures/cmmc returned TAKEN (claimed 1 min earlier by another session): working as designed, but it cost a round trip because queue output had been generated before that claim existed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Fix mode names a new docs/posts/<date>-quality-fix-<slug>.md; CLAUDE.md (2026-11-24) asks to extend existing posts for SEO",
+      "did": "Extended the existing customer post on daily overtime (2026-11-15-the-40-hour-line-is-not-california-overtime.md) with a dated update section and tagged it for-customers",
+      "result": "one consolidated customer page on overtime instead of a thin fix post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-40-hour-line-is-not-california-overtime.md (update section 2026-11-27)"
+  ],
+  "goal": null,
+  "notes": "Quality mode: fix (seed 2026-11-27-ac6e). Security queue: none workable (exit 3). Ideas inbox empty. Picked the first for-profit row not claimed: ventures/shift-roster-builder audit r4 defect 0 (medium, domain-rule). cmmc was claimed by another session. Fix: calc.mjs payParts/payPartsMap split paid hours at midnight (slotDays). Verification: node --test '*.test.mjs' in ventures/shift-roster-builder 788/788 pass (220 s); quality_mutate reverting the split caught by the new test; quality_audit.py validate 705 files 0 problems. Fix PRs: #19894. Share meeting bar: n/a (fix mode, no new audit).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "aee22552-8d2e-59ca-95fc-265e76257a13",
+    "transcripts": 1,
+    "first": "2026-11-27T22:06:25Z",
+    "last": "2026-11-27T22:18:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 78,
+        "output": 16804,
+        "thinking": 3468,
+        "cache_read": 3516942,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85727,
+        "api_equivalent_usd": 1.7256,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 78,
+      "output": 16804,
+      "thinking": 3468,
+      "cache_read": 3516942,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85727,
+      "api_equivalent_usd": 1.7256,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.38,
+      "active_minutes": 12.38,
+      "model_minutes": 3.07,
+      "tool_minutes": 9.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a developer tracing the pay engine, writing the split, hand-working five weeks and updating docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 173.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

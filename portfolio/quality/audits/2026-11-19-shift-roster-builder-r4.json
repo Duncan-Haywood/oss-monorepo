@@ -195,7 +195,8 @@
    "what": "Planner daily overtime buckets an overnight shift on the day it starts: Sat 8pm-6am at $20, daily OT after 8, prices $220 with 2 OT hours, where a calendar-day workday (and the product's own timesheet, payrules.mjs byDay) gives 4 h + 6 h, 0 OT h. README says only that a shift counts on the day it starts. Round 3 defect, still present.",
    "where": "ventures/shift-roster-builder/calc.mjs:846",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19894"
   },
   {
    "severity": "medium",
@@ -236,6 +237,6 @@
    "origin": "audit"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19113"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19113", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19894"],
  "verdict": "A deep, working scheduler and timesheet: 11 of 11 recomputed pay figures match statute-based hand or independent-script results (FLSA weekly OT $1,040, California daily/double time $480, meal plus burden $132, a California seven-day week $1,500, meal premiums $160 and $340, a two-rate regular rate $870.83, Nevada $165/$200, Kentucky $535, 15-minute rounding), 232 of 232 tests pass in the six core files, and 7 of 7 seeded pay-rule bugs are caught, including round 3's thinly guarded weekly-OT line. It meets the bar. Still open from round 3: overnight shifts priced on their start day in the planner (now inconsistent with the product's own timesheet), the silently dropped comma-less shift line, and a module and README that keep growing (6,076 lines, 541 KB). New: the youth rule refuses weekend shifts over 3 h in a school week that federal law allows. Not run: the browser page, the server end to end, --prove, and 76 of 82 test files. Draw note: an `--offline` replay of the seed names ventures/changepoint-detector, but the online draw skips subjects open round PRs claimed (round 82 holds changepoint-detector), so this subject is the round's flagship as drawn."
 }
