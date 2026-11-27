@@ -208,6 +208,8 @@ export async function startCheckout(
       cancelUrl: back("checkout=cancel"),
       promoCode: input.promoCode,
       providerCustomerId: current?.providerCustomerId ?? null,
+      // Paddle opens the payment link on our own page that loads Paddle.js (routes/pay.ts).
+      checkoutPageUrl: new URL(`/pay/${tenant.orgId}`, base).toString(),
     });
   } catch (e) {
     if (e instanceof PromoCodeError) throw badRequest("That promo code is not valid");
