@@ -55,6 +55,7 @@ import { AppError, badRequest, paymentRequired } from "../../lib/errors";
 import { newId } from "../../lib/ids";
 import type { Tenant } from "../../types";
 import { notifyOwnerNewPaid } from "../owner-notify";
+import { endRenewalConsents, recordRenewalConsent } from "./renewal-consents";
 
 type SubscriptionRow = typeof subscriptions.$inferSelect;
 
@@ -454,6 +455,7 @@ export async function handleWebhook(ctx: AppContext, request: Request): Promise<
     .get();
   let orgId = owner?.orgId ?? null;
   let checkoutId: string | null = null;
+  let pendingRow: typeof pendingCheckouts.$inferSelect | null = null;
   if (!orgId) {
     if (!event.checkoutToken) return ignore("unknown org");
     const parsed = parseCheckoutToken(event.checkoutToken);
@@ -474,6 +476,7 @@ export async function handleWebhook(ctx: AppContext, request: Request): Promise<
     if (!r.ok) return ignore(r.reason);
     orgId = r.orgId;
     checkoutId = r.checkoutId;
+    pendingRow = row ?? null;
   }
 
   // 3. Decide (customer mismatch, ordering, staff-only plans).
@@ -535,6 +538,15 @@ export async function handleWebhook(ctx: AppContext, request: Request): Promise<
     .values({ orgId, ...values })
     .onConflictDoUpdate({ target: subscriptions.orgId, set: { ...values, updatedAt: ctx.now() } });
   ctx.logger.info("billing.subscription_applied", { orgId, plan: s.planKey, status: s.status });
+  // Proof of the renewal consent outlives the shop (renewal-consents.ts); its clock starts at the end.
+  if (pendingRow) await recordRenewalConsent(ctx, pendingRow, s);
+  if (s.status === "canceled") {
+    await endRenewalConsents(
+      ctx,
+      { providerSubscriptionId: s.providerSubscriptionId },
+      values.canceledAt ?? event.occurredAt ?? ctx.now(),
+    );
+  }
   if (isNewPaidSubscription(current, s)) await notifyOwnerNewPaid(ctx, orgId);
   return finish({ outcome: "applied" }, orgId);
 }

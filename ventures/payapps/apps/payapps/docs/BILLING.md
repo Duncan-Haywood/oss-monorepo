@@ -88,6 +88,32 @@ threw is retried on redelivery. `test/worker/billing.test.ts` covers each of the
    alone. By hand: `BILLING_API_KEY=… node packages/billing/scripts/paddle-webhook.ts --app payapps
    --app-url https://payapps.marisstella.app --active false` prints the plan; `--apply` makes it.
 
+5. The checkout page is code too (2026-11-27, `packages/billing/src/paddle-checkout-page.ts`, the
+   deploy's "Paddle checkout page" step, `src/worker/routes/pay.ts`). A Paddle Billing checkout is a
+   payment link, `<page>?_ptxn=<transaction>`, and the page must load Paddle.js with a client-side
+   token; Paddle refuses to create any transaction while the account has no default payment link. So
+   the deploy finds the active client-side token named `payapps checkout` or creates it (the key needs
+   `client_token.read` and `client_token.write`) and pushes it to the Worker as
+   `BILLING_CLIENT_TOKEN` (public by design, still not printed); it sets the account's default payment
+   link to `https://<payapps host>/pay` only when the account has none (`checkout_settings.read` and
+   `.write`; a link another app set is kept). Every PayApps transaction carries its own
+   `checkout.url`, `https://<payapps host>/pay/<org id>`, so the buyer comes back to that org's
+   Billing page (`?checkout=success`, or `?checkout=cancel` when the overlay is closed). `/pay` has its
+   own CSP (Paddle's hosts only, no inline script) and `Cross-Origin-Opener-Policy:
+   same-origin-allow-popups` for wallet and 3-D Secure popups. Without a valid token the Worker keeps
+   Paddle checkout off even with `PAYAPPS_BILLING_PROVIDER=paddle` (`src/worker/ports/billing.ts`).
+6. **Owner, in Paddle:** approve the exact host `payapps.marisstella.app` under Paddle > Settings >
+   Website approval. Paddle wants each subdomain approved on its own (an approved `marisstella.app`
+   does not cover it), and there is no API for it. Until then a live transaction with that
+   `checkout.url` is refused, and the deploy log says `checkout_url_domain_not_approved` when it tries
+   to set the default link.
+
+Checked 2026-11-27 in Chromium against the live `cdn.paddle.com/paddle/v2/paddle.js` (2.13.0): the
+page loads Paddle.js under its CSP, Paddle.js opens the checkout frame for the `_ptxn` transaction by
+itself, and with a made-up token and transaction Paddle's checkout service answers 403, which the page
+reports as "Nothing was charged". A real purchase has not been made: that needs steps 1 and 6 and
+`PAYAPPS_BILLING_PROVIDER=paddle`.
+
 ## Operators
 
 Grant a pilot or partner unlimited use with a `comp` row:

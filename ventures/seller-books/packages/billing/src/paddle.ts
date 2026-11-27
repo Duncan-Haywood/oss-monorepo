@@ -227,6 +227,7 @@ export class PaddleBillingProvider implements BillingProvider {
       customer_id: customerId,
       ...(discountId ? { discount_id: discountId } : {}),
       collection_mode: "automatic",
+      ...(req.checkoutPageUrl ? { checkout: { url: req.checkoutPageUrl } } : {}),
       // Only the opaque signed token: the org is bound server-side (pending checkouts), and the
       // plan comes from the billed price. Anything else here could be forged by a crafted checkout.
       custom_data: { [CHECKOUT_TOKEN_KEY]: req.checkoutToken },

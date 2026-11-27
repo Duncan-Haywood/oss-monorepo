@@ -2,6 +2,7 @@ import { createApp } from "./app";
 import { createAppContext } from "./context";
 import type { Env } from "./env";
 import { createFetchHandler } from "./http";
+import { purgeRenewalConsents } from "./services/billing/renewal-consents";
 import { sendRenewalNotices } from "./services/billing/renewal-notices";
 import { sendEstimateReminders } from "./services/books/estimate-reminders";
 
@@ -14,20 +15,23 @@ export default {
   //   turned it on (services/books/estimate-reminders.ts);
   // - the automatic-renewal notice 26 to 39 days before each yearly renewal and each twelve-month
   //   mark of a monthly plan, to owners and admins (services/billing/renewal-notices.ts).
-  // Each runs on its own: one failing never stops the other.
+  // It also deletes the renewal-consent records past their retention date (renewal-consents.ts).
+  // Each runs on its own: one failing never stops the others.
   scheduled: (controller, env, ctx) => {
     const now = new Date(controller.scheduledTime);
     const appCtx = createAppContext(env, { now: () => now });
     ctx.waitUntil(
-      Promise.allSettled([sendEstimateReminders(appCtx), sendRenewalNotices(appCtx)]).then(
-        (results) => {
-          for (const r of results) {
-            if (r.status === "rejected") {
-              appCtx.logger.error("cron.job_failed", { error: String(r.reason) });
-            }
+      Promise.allSettled([
+        sendEstimateReminders(appCtx),
+        sendRenewalNotices(appCtx),
+        purgeRenewalConsents(appCtx),
+      ]).then((results) => {
+        for (const r of results) {
+          if (r.status === "rejected") {
+            appCtx.logger.error("cron.job_failed", { error: String(r.reason) });
           }
-        },
-      ),
+        }
+      }),
     );
   },
 } satisfies ExportedHandler<Env>;

@@ -22,6 +22,13 @@ export interface Secrets {
   /** JSON {"solo":"pri_…","solo:annual":"pri_…",…}; the deploy reads it back from Paddle. */
   BILLING_PRICE_IDS?: string;
   /**
+   * Paddle's public client-side token (`live_…`/`test_…`) for Paddle.js on /pay (routes/pay.ts). Set
+   * by the deploy from packages/billing/scripts/paddle-checkout-page.ts. Public by design; without it
+   * Paddle checkout stays off (ports/billing.ts), because a payment link would open a page that
+   * cannot show the checkout.
+   */
+  BILLING_CLIENT_TOKEN?: string;
+  /**
    * QuickBooks Online (ports/accounting.ts, docs/QUICKBOOKS.md). Owner-only secrets from the
    * owner's Intuit developer app; with all five set the integration is live, otherwise dark.
    */

@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKo8xDBXDdRyrVtBuT2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T18:18:09Z",
+  "ended": "2026-11-27T18:29:06Z",
+  "wall_minutes": 11.15,
+  "tokens_in": 16124169,
+  "tokens_out": 41680,
+  "cost_usd": 5.5453,
+  "tool_calls": 115,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19835",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported einvoice-preflight #4 as 'free and not gated', but the item ends 'if accountants ask' and its two parts need a DPA Annex change and a 30-day notice; the qualifier at the end of a long item is missed by the gate parser."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Row 3 still says 'deploy workflow not yet ported' though priv-einvoice-pro-deploy.yml landed (PR #19773); the real blocker is the two owner items in the ROADMAP's launch list (Impressum address, Art. 27 representative)."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Every bet's Next list (payapps 25, jobshop 13, cmmc 9) is gated 'waits on demand'; about 40 minutes went to surveying before finding unblocked work. The prompt could name 'open items in a bet's own docs (BILLING.md 'Still open', LAUNCH-REVIEW)' as the next place to look."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new customer post: the change is a compliance fix with nothing new for a reseller to read, and the Seller Books site already has the quarterly-estimates page a post would have duplicated (I checked and dropped that idea).",
+      "did": "Recorded the change in BILLING.md and the Privacy Policy instead.",
+      "result": "n/a"
+    },
+    {
+      "file": "prompt.md",
+      "why": "Bets #1-#4 had no ungated item; #3's first deploy waits on owner legal items; outbound list-building hosts (api.usaspending.gov) and marketplace help pages were unreachable.",
+      "did": "Took bet #5's own open launch-review item (BILLING.md 'Still open': consent rows cascade with the shop) under slug renewal-consent-retention.",
+      "result": "closed a California ARL retention gap before checkout goes live"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Verification: seller-books pnpm typecheck clean; pnpm test 346 unit + 156 worker tests pass (35 + 29 files), including 7 new in test/worker/renewal-consents.test.ts. biome check: 4 warnings, none new errors. risk_review.py: nothing blocked; answers in PR body. private-monorepo cloned this session (add_repo + shallow clone worked).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5ba3a153-7240-5b50-acb1-26f292b179b2",
+    "transcripts": 1,
+    "first": "2026-11-27T18:18:09Z",
+    "last": "2026-11-27T18:29:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 113,
+        "input": 218,
+        "output": 41680,
+        "thinking": 12647,
+        "cache_read": 15933438,
+        "cache_write_5m": 0,
+        "cache_write_1h": 190513,
+        "api_equivalent_usd": 5.5453,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 113,
+      "input": 218,
+      "output": 41680,
+      "thinking": 12647,
+      "cache_read": 15933438,
+      "cache_write_5m": 0,
+      "cache_write_1h": 190513,
+      "api_equivalent_usd": 5.5453,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 115,
+    "tools": {
+      "Bash": 105,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "Write": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebSearch": 1,
+      "mcp__github__actions_list": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.15,
+      "active_minutes": 11.15,
+      "model_minutes": 8.78,
+      "tool_minutes": 2.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "schema, migration with backfill, webhook and delete hooks, purge, tests and policy text for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 90.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -247,6 +247,36 @@ jobs:
             echo "state=failed" >>"$GITHUB_OUTPUT"
           fi
 
+      # Paddle Checkout's page as code (packages/billing/src/paddle-checkout-page.ts): the public
+      # client-side token Paddle.js needs on <APP_URL>/pay (found by name or created), and the account's
+      # default payment link set to <APP_URL>/pay only when the account has none. Without the token the
+      # Worker keeps Paddle checkout off (ports/billing.ts). The token goes to the Worker as
+      # BILLING_CLIENT_TOKEN through a 0600 file the next step deletes. A default-link problem (the
+      # key's checkout_settings permission, or the host not yet approved in Paddle) is printed and the
+      # step still passes; a token failure warns and the deploy goes on with checkout off.
+      - name: Paddle checkout page
+        id: paddle_checkout
+        env:
+          BILLING_API_KEY: ${{ secrets.PAYAPPS_BILLING_API_KEY || secrets.BILLING_API_KEY || secrets.PADDLE_API_KEY }}
+          APP_URL: ${{ steps.urls.outputs.app_url }}
+        run: |
+          if [[ -z "$BILLING_API_KEY" ]]; then
+            echo "No Paddle key: no checkout page"
+            echo "state=no key" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [[ "$APP_URL" == *.workers.dev* ]]; then echo "::warning title=No checkout page::$APP_URL is a workers.dev address; the checkout page waits for the custom domain."; echo "state=skipped (workers.dev)" >>"$GITHUB_OUTPUT"; exit 0; fi
+          umask 077
+          out="$RUNNER_TEMP/paddle-client-token.json"
+          if node ../../packages/billing/scripts/paddle-checkout-page.ts --app payapps --app-url "$APP_URL" --apply --token-out "$out" \
+             && [[ -s "$out" ]]; then
+            { echo "token_file=$out"; echo "state=token set"; } >>"$GITHUB_OUTPUT"
+          else
+            rm -f "$out"
+            echo "::warning title=Paddle checkout page failed::The app still deploys; Paddle checkout stays off until the client-side token is set (see the log above for the permission the key needs)."
+            echo "state=failed" >>"$GITHUB_OUTPUT"
+          fi
+
       - name: Sync secrets from GitHub (non-empty only)
         env:
           CONFIG: ${{ steps.provision.outputs.config }}
@@ -259,10 +289,12 @@ jobs:
           S_QBO_TOKEN_KEY: ${{ secrets.PAYAPPS_QBO_TOKEN_KEY }}
           # Written by the step above (0600), only when no owner-set webhook secret exists.
           WEBHOOK_FILE: ${{ steps.paddle_webhook.outputs.secret_file }}
+          # Written by the "Paddle checkout page" step (0600): the public client-side token.
+          CLIENT_TOKEN_FILE: ${{ steps.paddle_checkout.outputs.token_file }}
         run: |
           umask 077
           file="$RUNNER_TEMP/worker-env.json"
-          trap 'rm -f "$file" ${WEBHOOK_FILE:+"$WEBHOOK_FILE"}' EXIT
+          trap 'rm -f "$file" ${WEBHOOK_FILE:+"$WEBHOOK_FILE"} ${CLIENT_TOKEN_FILE:+"$CLIENT_TOKEN_FILE"}' EXIT
           node -e '
             const fs = require("node:fs");
             const out = {};
@@ -273,6 +305,11 @@ jobs:
             if (!out.BILLING_WEBHOOK_SECRET && hook && fs.existsSync(hook)) {
               const v = JSON.parse(fs.readFileSync(hook, "utf8")).BILLING_WEBHOOK_SECRET;
               if (typeof v === "string" && v.startsWith("pdl_ntfset_")) out.BILLING_WEBHOOK_SECRET = v;
+            }
+            const tok = process.env.CLIENT_TOKEN_FILE;
+            if (tok && fs.existsSync(tok)) {
+              const v = JSON.parse(fs.readFileSync(tok, "utf8")).BILLING_CLIENT_TOKEN;
+              if (typeof v === "string" && /^(live|test)_[A-Za-z0-9]{10,}$/.test(v)) out.BILLING_CLIENT_TOKEN = v;
             }
             fs.writeFileSync(process.argv[1], JSON.stringify(out));
             console.log(`syncing ${Object.keys(out).length} secret(s): ${Object.keys(out).sort().join(", ") || "none"}`);
@@ -326,12 +363,14 @@ jobs:
           VERSION: ${{ steps.deploy.outputs.version_id }}
           R2: ${{ steps.provision.outputs.r2_enabled }}
           HOOK_STATE: ${{ steps.paddle_webhook.outputs.state }}
+          CHECKOUT_STATE: ${{ steps.paddle_checkout.outputs.state }}
         run: |
           {
             echo "### payapps-deploy"
             echo "- url: ${APP_URL:-n/a}"
             echo "- attachments (R2): ${R2:-n/a}"
             echo "- Paddle notification destination: ${HOOK_STATE:-n/a}"
+          echo "- Paddle checkout page (client-side token): ${CHECKOUT_STATE:-n/a}"
             echo "- version: \`${VERSION:-n/a}\` (rollback: \`pnpm exec wrangler rollback <version-id> --name payapps\`)"
             echo "- commit: \`$GITHUB_SHA\`"
           } >>"$GITHUB_STEP_SUMMARY"

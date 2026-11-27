@@ -28,6 +28,12 @@ export interface CheckoutRequest {
   interval?: BillingInterval;
   /** The org's existing provider customer, reused so a re-subscription keeps the same customer. */
   providerCustomerId?: string | null;
+  /**
+   * The app's own page that loads Paddle.js (`<APP_URL>/pay/<org>`, ./paddle-checkout-page.ts), sent
+   * as the transaction's `checkout.url` so the payment link opens there rather than at the account's
+   * default link, which another app on the same Paddle account may have set.
+   */
+  checkoutPageUrl?: string;
 }
 
 export interface ProviderSubscription {

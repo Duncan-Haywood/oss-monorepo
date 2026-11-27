@@ -10,7 +10,10 @@ export const securityHeaders = createMiddleware<AppEnv>(async (c, next) => {
   c.header("X-Content-Type-Options", "nosniff");
   c.header("X-Frame-Options", "DENY");
   c.header("Referrer-Policy", "strict-origin-when-cross-origin");
-  c.header("Cross-Origin-Opener-Policy", "same-origin");
+  // routes/pay.ts relaxes this to same-origin-allow-popups for Paddle's checkout; nothing else does.
+  if (!c.res.headers.has("Cross-Origin-Opener-Policy")) {
+    c.header("Cross-Origin-Opener-Policy", "same-origin");
+  }
   c.header("Cross-Origin-Resource-Policy", "same-origin");
   if (!c.res.headers.has("Content-Security-Policy")) c.header("Content-Security-Policy", API_CSP);
   c.header("Cache-Control", c.res.headers.get("Cache-Control") ?? "no-store");
