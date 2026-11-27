@@ -1,4 +1,4 @@
-import { PLAN_LIST, PUBLIC_PLANS, planFeatures, STORAGE_FEATURE } from "@shared/plans";
+import { FREE_PLAN, PLAN_LIST, PUBLIC_PLANS, planFeatures, STORAGE_FEATURE } from "@shared/plans";
 import { describe, expect, it } from "vitest";
 
 describe("planFeatures", () => {
@@ -18,7 +18,7 @@ describe("planFeatures", () => {
         p.features.filter((f) => !STORAGE_FEATURE.test(f)),
       );
     }
-    expect(planFeatures(PUBLIC_PLANS[0], false)).toContain(
+    expect(planFeatures(FREE_PLAN, false)).toContain(
       "250 MB of attached backup and photos (not switched on yet)",
     );
   });
@@ -26,6 +26,8 @@ describe("planFeatures", () => {
   it("does not mistake other lines for storage", () => {
     expect(STORAGE_FEATURE.test("5 active jobs")).toBe(false);
     expect(STORAGE_FEATURE.test("PDF + CSV")).toBe(false);
-    expect(STORAGE_FEATURE.test("Send pay apps to QuickBooks Online as invoices, with retainage")).toBe(false);
+    expect(
+      STORAGE_FEATURE.test("Send pay apps to QuickBooks Online as invoices, with retainage"),
+    ).toBe(false);
   });
 });

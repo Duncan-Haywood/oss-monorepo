@@ -122,7 +122,8 @@ export function BillingPage() {
           )}
           {b.checkoutAvailable && !b.attachmentsAvailable && (
             <p className="text-sm text-slate-600">
-              Attached files are not switched on yet on this site; the storage below applies once they are.
+              Attached files are not switched on yet on this site; the storage below applies once
+              they are.
             </p>
           )}
           <div className="grid gap-4 md:grid-cols-4">

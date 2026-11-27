@@ -71,7 +71,9 @@ describe("plans and limits", () => {
     expect(checkoutAvailable).toBe(true);
     // The test worker binds FILES, so storage lines are the catalog's own.
     expect(attachmentsAvailable).toBe(true);
-    expect(items.find((p) => p.key === "free")?.features).toContain("250 MB of attached backup and photos");
+    expect(items.find((p) => p.key === "free")?.features).toContain(
+      "250 MB of attached backup and photos",
+    );
     expect(items.find((p) => p.key === "solo")?.priceCents).toBe(9_900);
   });
 
