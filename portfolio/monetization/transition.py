@@ -66,6 +66,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "track": "mit-deployer-run",
         "why": "whoever sends the email is the sender of record; it stays on the deployer's own keys (models.yaml)",
     },
+    "pay-app-guides": {
+        "track": "mit-lead-magnet",
+        "why": "the free front door to PayApps (bet #1): its guides and checkers grew past the depth line, but the paid depth is ventures/payapps (2026-11-27, keeps the committed track)",
+    },
     "chant-forge": {
         "track": "mit-commons",
         "why": "devotional music tooling; its value is being freely usable by parishes",
