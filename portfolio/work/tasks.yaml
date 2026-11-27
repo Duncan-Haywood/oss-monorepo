@@ -681,9 +681,11 @@ tasks:
       .github/workflows/seller-books-ci.yml and the audit in
       docs/reports/2026-11-27-move-seller-books-public.md. Left
       (ventures/seller-books/DEPLOY.md, "Not yet"): an allowlist PR and then
-      priv-seller-books-deploy.yml, the legal pages confirmed (no launch
-      review yet, unlike PayApps), then remove the private copy and repoint
-      models.yaml, bets.md and roadmap_claim.py.
+      priv-seller-books-deploy.yml, then remove the private copy and repoint
+      models.yaml, bets.md and roadmap_claim.py. The launch review is done
+      (2026-11-27, private-monorepo PR 486, synced here:
+      apps/seller-books/docs/LAUNCH-REVIEW.md), so the first deploy may open
+      sign-ups.
   - id: inboxes-without-owner
     direction: paid-bets
     title: Turn the agent inboxes on with no owner-pasted secrets
