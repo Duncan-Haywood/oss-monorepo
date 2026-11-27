@@ -22,6 +22,7 @@ import {
 import { lateInterestTermsOf, rateLabel } from "@shared/late-interest";
 import type { LienDeadline, LienDeadlineResult } from "@shared/lien-deadline";
 import { centsToDecimal } from "@shared/money";
+import { stateBondClaim } from "@shared/public-jobs";
 import { type PunchItemFacts, summarizePunchList } from "@shared/punch-list";
 import type { TxSendFacts } from "@shared/tx-notices";
 import type { WaiverFollowUpInput } from "@shared/waiver-followup";
@@ -90,6 +91,17 @@ export function toCashInput(
     flNotice:
       p.flFirstFurnishedOn && flMissing.length > 0 ? flNoticeDates(p.flFirstFurnishedOn) : null,
     lienDeadline: lienOf(projectLienDeadline(b)),
+    stateBond:
+      p.publicOwner === "state_local" && p.lienState
+        ? {
+            check: stateBondClaim(p.lienState, {
+              tier: p.millerTier ?? null,
+              lastFurnishedOn: p.lastFurnishedOn ?? null,
+              acceptedOn: p.workCompletedOn ?? null,
+            }),
+            tier: p.millerTier ?? null,
+          }
+        : null,
     txNotice: p.txProjectKind
       ? {
           residential: p.txProjectKind === "residential",
