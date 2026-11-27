@@ -78,9 +78,12 @@ export function SovImport({
     enabled: open && source === "copy",
   });
   const others = (jobs.data?.items ?? []).filter((x) => x.id !== project.id);
+  // Each mutation takes what it acts on as its argument, never from a closure: useMutation hands
+  // new options to its observer in an effect, so a click right after a state change would run the
+  // previous render's mutationFn (a deploy run's unit test hit exactly that, "Nothing to import").
   const copy = useMutation({
-    mutationFn: async () =>
-      copyFromJob(await api<ProjectDetailDto>(projectPath(orgId, copyFrom)), withAmounts),
+    mutationFn: async ({ jobId, amounts }: { jobId: string; amounts: boolean }) =>
+      copyFromJob(await api<ProjectDetailDto>(projectPath(orgId, jobId)), amounts),
     onSuccess: setResult,
   });
   const [fileName, setFileName] = useState("");
@@ -89,12 +92,12 @@ export function SovImport({
   const [ocrPage, setOcrPage] = useState<[number, number] | null>(null);
 
   const save = useMutation({
-    mutationFn: () => {
-      if (!result?.ok) throw new Error("Nothing to import");
+    mutationFn: (preview: SovImportResult | null) => {
+      if (!preview?.ok) throw new Error("Nothing to import");
       return api<ProjectDetailDto>(bulkPath, {
         method: "POST",
         body: {
-          lines: result.lines.map(({ itemNumber, description, originalCents }) => ({
+          lines: preview.lines.map(({ itemNumber, description, originalCents }) => ({
             itemNumber,
             description,
             originalCents,
@@ -227,7 +230,7 @@ export function SovImport({
           onSubmit={(e) => {
             e.preventDefault();
             save.reset();
-            copy.mutate();
+            copy.mutate({ jobId: copyFrom, amounts: withAmounts });
           }}
         >
           <label>
@@ -363,7 +366,7 @@ export function SovImport({
             type="button"
             className="btn"
             disabled={save.isPending}
-            onClick={() => save.mutate()}
+            onClick={() => save.mutate(result)}
           >
             Add {result.lines.length} line{result.lines.length === 1 ? "" : "s"} to the schedule
           </button>
