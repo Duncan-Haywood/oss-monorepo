@@ -179,6 +179,12 @@ const directSaleInput = z
     itemCents: positiveCents.default(0),
     /** Shipping the buyer paid on top, if it was shipped. Orders only. */
     shippingChargedCents: positiveCents.default(0),
+    /**
+     * Sales tax the seller charged the buyer on top (at a market booth, say), or on a refund the tax
+     * handed back. It is the state's money, not income: it shows in the sales tax report
+     * (shared/sales-tax.ts), not in revenue.
+     */
+    salesTaxCents: positiveCents.default(0),
     /** Money handed back to the buyer. Refunds only. */
     refundCents: positiveCents.default(0),
     /** What the payment app kept (PayPal, Venmo for business, Square, a card reader). */
@@ -210,7 +216,7 @@ const directSaleInput = z
         ctx.addIssue({
           code: "custom",
           path: ["itemCents"],
-          message: "A refund has only the amount returned, fees and postage.",
+          message: "A refund has only the amount returned, its sales tax, fees and postage.",
         });
     }
   });
@@ -238,7 +244,10 @@ routes.post("/", requireRole("editor"), validate("json", directSaleInput), async
 
   const id = newId("sal");
   const feeCents = b.paymentFeeCents;
-  const inCents = b.kind === "order" ? b.itemCents + b.shippingChargedCents : -b.refundCents;
+  const inCents =
+    b.kind === "order"
+      ? b.itemCents + b.shippingChargedCents + b.salesTaxCents
+      : -(b.refundCents + b.salesTaxCents);
   const insertSale = db.insert(sale).values({
     id,
     orgId,
@@ -252,7 +261,7 @@ routes.post("/", requireRole("editor"), validate("json", directSaleInput), async
     quantity: 1,
     itemCents: b.kind === "order" ? b.itemCents : 0,
     shippingChargedCents: b.kind === "order" ? b.shippingChargedCents : 0,
-    salesTaxCents: 0,
+    salesTaxCents: b.salesTaxCents,
     refundCents: b.kind === "refund" ? b.refundCents : 0,
     shippingLabelCents: b.shippingLabelCents,
     netCents: inCents - feeCents - b.shippingLabelCents,

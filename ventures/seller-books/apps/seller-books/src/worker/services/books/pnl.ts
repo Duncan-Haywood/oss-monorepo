@@ -4,8 +4,10 @@
 //   revenue      = item sales + shipping charged to buyers − refunds
 //   gross profit = revenue − marketplace fees − postage − cost of goods sold
 //   net profit   = gross profit − other expenses (expenses not tied to a platform sit in the "general" row)
-// Sales tax the marketplace collected is shown but is never revenue.
+// Sales tax is shown but is never revenue: split by who collected it (shared/sales-tax.ts), since the tax
+// a marketplace collected is done with and the tax the seller collected still goes on their sales tax return.
 import type { FeeKind } from "@shared/enums";
+import { taxCollector } from "@shared/sales-tax";
 
 export interface PnlSaleInput {
   platform: string;
@@ -55,7 +57,14 @@ export interface PnlCell {
   grossProfitCents: number;
   expensesCents: number;
   netProfitCents: number;
+  /** All sales tax on these orders, whoever collected it (kept for the 1099-K check and the ledger). */
   salesTaxCollectedCents: number;
+  /** The part a marketplace collected and sent to the state. */
+  marketplaceSalesTaxCents: number;
+  /** The part the seller collected (Square, PayPal, their Shopify store, direct sales): theirs to file. */
+  sellerSalesTaxCents: number;
+  /** Tax the seller handed back on refunds of those sales (read where the report gives it). */
+  sellerSalesTaxRefundedCents: number;
 }
 
 export interface PnlReport {
@@ -85,6 +94,9 @@ function emptyCell(platform: string, month: string): PnlCell {
     expensesCents: 0,
     netProfitCents: 0,
     salesTaxCollectedCents: 0,
+    marketplaceSalesTaxCents: 0,
+    sellerSalesTaxCents: 0,
+    sellerSalesTaxRefundedCents: 0,
   };
 }
 
@@ -108,6 +120,9 @@ function addInto(into: PnlCell, c: PnlCell) {
   into.cogsCents += c.cogsCents;
   into.expensesCents += c.expensesCents;
   into.salesTaxCollectedCents += c.salesTaxCollectedCents;
+  into.marketplaceSalesTaxCents += c.marketplaceSalesTaxCents;
+  into.sellerSalesTaxCents += c.sellerSalesTaxCents;
+  into.sellerSalesTaxRefundedCents += c.sellerSalesTaxRefundedCents;
 }
 
 const inRange = (d: string, from: string, to: string) => d >= from && d <= to;
@@ -141,10 +156,13 @@ export function buildPnl(
       c.itemSalesCents += s.itemCents;
       c.shippingChargedCents += s.shippingChargedCents;
       c.salesTaxCollectedCents += s.salesTaxCents;
+      if (taxCollector(s.platform) === "seller") c.sellerSalesTaxCents += s.salesTaxCents;
+      else c.marketplaceSalesTaxCents += s.salesTaxCents;
       if (s.cogsCents == null || (s.unitsWithoutCost ?? 0) > 0) c.ordersWithoutCost++;
       if (s.cogsCents != null) c.cogsCents += s.cogsCents;
     } else {
       c.refundsCents += s.refundCents;
+      if (taxCollector(s.platform) === "seller") c.sellerSalesTaxRefundedCents += s.salesTaxCents;
       if (s.cogsCents != null) c.cogsCents += s.cogsCents;
     }
     c.postageCents += s.shippingLabelCents;
