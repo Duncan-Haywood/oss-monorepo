@@ -209,7 +209,7 @@ ${ld.map((d) => `  <script type="application/ld+json">${JSON.stringify(d).replac
   <nav class="guides" aria-label="Guides">
     <a href="${HUB}">All states</a>
     <a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional waivers</a>
-    <a href="lien-waiver-log.html">Lien waiver log</a>
+    <a href="lien-waiver-log.html">Lien waiver log</a>${NOTICE[code] ? `\n    <a href="${NOTICE[code][0]}">${NOTICE[code][1]}</a>` : ""}
     <a href="#all-guides" class="all">All guides</a>
   </nav>
 </header>
@@ -270,6 +270,12 @@ ${faq.map(([q, a]) => `  <h3>${esc(q)}</h3>\n  <p>${esc(a)}</p>`).join("\n")}
 </html>
 `;
 }
+
+// The state's notice guide, where the guides have one: the notice comes before any waiver.
+const NOTICE = {
+  CA: ["california-preliminary-notice.html", "20-day preliminary notice"],
+  FL: ["florida-notice-to-owner.html", "Notice to Owner (45 days)"],
+};
 
 // The hub's "What each state asks of you" entries each end with a link to the state's page.
 const LINK_START = "<!-- state-forms link -->";

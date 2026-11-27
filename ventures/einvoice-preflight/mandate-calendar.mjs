@@ -49,7 +49,7 @@ export function splitClauses(text) {
 
 export function parseHub(html) {
   const body = html.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1] ?? "";
-  const rows = [...body.matchAll(/<tr><th scope="row"><a href="([^"]+)">([^<]+)<\/a><\/th><td>([\s\S]*?)<\/td><td>([\s\S]*?)<\/td>/g)];
+  const rows = [...body.matchAll(/<tr><th scope="row"><a href="([^"]+)">([^<]+)<\/a><\/th><td(?: class="prose")?>([\s\S]*?)<\/td><td>([\s\S]*?)<\/td>/g)];
   const events = [];
   for (const [, page, countryRaw, datesRaw, statusRaw] of rows) {
     const country = decode(countryRaw);

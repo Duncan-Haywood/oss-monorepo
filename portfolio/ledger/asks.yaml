@@ -259,3 +259,34 @@ decisions:
     Cloudflare is the registrar. The cloudflare-mail-and-ruleset row's
     Email Routing part becomes moot once SES receives mail; its ruleset
     part does not.
+- id: paid-app-deploy-settings
+  asks: []
+  prs: [19682]
+  gates: deployment
+  exposure: credential
+  opened: "2026-11-27"
+  action: >-
+    Two settings that agents cannot supply. (1) Add Account -> Workers R2
+    Storage -> Edit to the repository's `CLOUDFLARE_API_TOKEN`. PayApps' first
+    deploy (run 45947552522) was refused on R2, so it is live without
+    attachments, and Job Shop Quote (bet #2) cannot deploy at all without R2,
+    because RFQ drawings, CAD files and sent quotes are stored there
+    (`ventures/jobshop-quote/DEPLOY.md`). (2) Optional, and it spends money:
+    a repository secret `JOBSHOP_ANTHROPIC_API_KEY`, in the
+    `jobshop-quote-production` environment, turns on "Extract with AI" in Job
+    Shop Quote. The deploy deliberately does not fall back to the shared
+    `ANTHROPIC_API_KEY`. Spend is capped in
+    `ventures/jobshop-quote/apps/jobshop-quote/wrangler.jsonc`
+    (`ORG_MONTHLY_LLM_CAP_USD` 25, `GLOBAL_DAILY_LLM_CAP_USD` 200); lower the
+    global cap there first if 200 a day is too high. Nothing else is yours:
+    agent sessions run the deploys themselves after either step.
+  unlocks:
+    - >-
+      Bet #2 live: a machine shop can sign up and quote, with AI RFQ
+      extraction once (2) is set. PayApps gets photo and file attachments
+      (backup packets, RFI files, daily-report photos).
+  blocked_by: []
+  note: >-
+    Added 2026-11-27 by the jobshop-quote deploy-workflow-port run. Remove (1)
+    once a deploy summary reports R2 on, and (2) once the secret is set or
+    declined.

@@ -4,6 +4,7 @@
 // fills the WH-347 without retyping). Text cells a spreadsheet would run are neutralised (csvCell).
 import type { TimesheetWeekDto } from "@shared/api/types";
 import { centsToDecimal } from "@shared/money";
+import { rowOvertimeByDay } from "@shared/timesheet-certified";
 import { formatHours } from "@shared/timesheets";
 import { csvCell } from "./csv";
 
@@ -81,14 +82,8 @@ export function timesheetDetailCsv(w: TimesheetWeekDto): string {
     const worker = w.workers.find((x) => x.workerId === r.workerId);
     const j = job(r.projectId);
     const item = j?.lines.find((l) => l.id === r.sovLineId)?.itemNumber ?? null;
-    // Overtime takes the row's latest hours: walk back from the last day.
-    let ot = r.overtime;
-    const otByDay = r.hours.map(() => 0);
-    for (let d = 6; d >= 0 && ot > 0; d--) {
-      const take = Math.min(ot, r.hours[d] ?? 0);
-      otByDay[d] = take;
-      ot -= take;
-    }
+    // Overtime takes the row's latest hours, as the certified payroll fill spreads it.
+    const otByDay = rowOvertimeByDay(r.hours, r.overtime);
     r.hours.forEach((h, d) => {
       if (h <= 0) return;
       const o = otByDay[d] ?? 0;

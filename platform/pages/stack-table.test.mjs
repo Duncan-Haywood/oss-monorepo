@@ -71,8 +71,8 @@ test('editable rows (stack fields) get a labelled field grid, phones only, and v
 // pages) put the label above the text at full card width, not in a 34% column beside it.
 test('prose stack tables put the label above the value, phones only, inside :where() for ventures', () => {
   const phone = STACK_TABLE_CSS.slice(STACK_TABLE_CSS.indexOf('@media (max-width:600px)'));
-  assert.match(phone, /table\.stack\.prose td\{display:block\}/);
-  assert.match(phone, /table\.stack\.prose td::before\{display:block;width:auto/);
-  assert.ok(phone.indexOf('table.stack.prose td{') > phone.indexOf('table.stack td{'), 'prose comes after the base rule, so it wins at equal specificity');
-  assert.match(STACK_TABLE_CHROME_CSS, /:where\(table\.stack\.prose\) td\{display:block\}/);
+  assert.match(phone, /table\.stack\.prose td,table\.stack td\.prose\{display:block\}/);
+  assert.match(phone, /table\.stack\.prose td::before,table\.stack td\.prose::before\{display:block;width:auto/);
+  assert.ok(phone.indexOf('table.stack.prose td,') > phone.indexOf('table.stack td{'), 'prose comes after the base rule, so it wins at equal specificity');
+  assert.match(STACK_TABLE_CHROME_CSS, /:where\(table\.stack\.prose\) td,:where\(table\.stack\) td\.prose\{display:block\}/);
 });

@@ -3,12 +3,12 @@
 One Cloudflare Worker (`seller-books`) serves the SPA and the API, with a D1 database (`seller-books`)
 and Cloudflare Email Service for account mail. There is no R2 bucket: report files are parsed in the
 request and only the rows are kept. The workflow
-`seller-books-deploy.yml` (in private-monorepo; not ported to this repository yet, see
-[the venture's DEPLOY.md](../../../DEPLOY.md)) does
+[`priv-seller-books-deploy.yml`](../../../../../.github/workflows/priv-seller-books-deploy.yml) (ported from
+private-monorepo on 2026-11-27, see [the venture's DEPLOY.md](../../../DEPLOY.md)) does
 the whole deploy; there are no dashboard steps beyond the settings below. It was ported from
 `jobshop-quote-deploy.yml` on 2026-11-26 and has not run yet.
 
-**It runs by hand only** (Actions -> seller-books-deploy -> Run workflow). The operator and contact
+**It runs by hand only** (Actions -> seller-books-deploy -> Run workflow, from `main`). The operator and contact
 email are filled in and launch is agent-approved under `docs/legal/OPERATOR.md` (no attorney review);
 the review it asks for is [LAUNCH-REVIEW.md](LAUNCH-REVIEW.md) (2026-11-27), so an agent may run the
 first deploy and open sign-ups. After launch, add `push: branches: [main]` to the workflow so every merge ships. To gate each run, add
@@ -77,7 +77,7 @@ BASE_PATH=/seller-books/app pnpm build
 - Cloudflare picks the most specific route, so a Workers route `marisstella.app/seller-books/app*` on this
   Worker wins over the site's `marisstella.app/seller-books*`.
 
-**Not wired into the deploy yet.** `seller-books-deploy.yml` builds without a prefix and attaches a
+**Not wired into the deploy yet.** `priv-seller-books-deploy.yml` builds without a prefix and attaches a
 custom domain or workers.dev. Serving on the shared host needs the workflow to build with `BASE_PATH`,
 set `APP_URL` with the path, and `scripts/provision.mjs` to write a route instead of a custom domain.
 
