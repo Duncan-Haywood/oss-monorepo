@@ -698,6 +698,27 @@ export interface NoticeOverviewDto {
   tx: TxNoticeLogDto | null;
 }
 
+/** GET .../notices/miller: the Miller Act 90-day notice drafted from a federal job. */
+export interface MillerNoticeDto {
+  /** Whether the org's plan includes lien waivers and notices (Crew and up). */
+  enabled: boolean;
+  /**
+   * Whether the job needs the notice: "needed" (contracted with one of the prime's subs),
+   * "unsure" (the tier is not saved; sending it never hurts), "not-needed" (contracted with the
+   * prime), "not-covered" (below the second tier), "not-federal" (the job is not marked federal).
+   */
+  applies: "needed" | "unsure" | "not-needed" | "not-covered" | "not-federal";
+  notice: NoticeFormDto;
+  prefill: Record<string, string>;
+  /** The job's unpaid money from the cash report: billed and not paid, and retainage held. */
+  outstandingCents: number;
+  retainageHeldCents: number;
+  /** The saved last day of labor or material, if any (the amount and dates run from it). */
+  lastFurnishedOn: string | null;
+  /** The notice's 90th day (moved back to a Friday on a weekend), when the last day is saved. */
+  noticeDueOn: string | null;
+}
+
 /** A Texas notice of claim recorded as sent to one recipient. */
 export interface TxNoticeSendDto {
   id: string;

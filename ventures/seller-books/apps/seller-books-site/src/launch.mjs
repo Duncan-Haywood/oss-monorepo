@@ -79,6 +79,12 @@ export function signinUrl() {
   return appUrl ? `${appUrl}/login` : null;
 }
 
+/** The app's Terms of Service (apps/seller-books, route /legal/$key). */
+export function appTermsUrl() {
+  const { appUrl } = launch();
+  return appUrl ? `${appUrl}/legal/terms` : null;
+}
+
 /** The app's own privacy notice (apps/seller-books, route /legal/$key). */
 export function appPrivacyUrl() {
   const { appUrl } = launch();

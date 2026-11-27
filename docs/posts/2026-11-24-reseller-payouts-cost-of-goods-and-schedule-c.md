@@ -2,7 +2,7 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, ebay, amazon, paypal, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+tags: [resellers, ebay, amazon, paypal, venmo, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
 description: "Resellers: bridge a payout back to sales, cost a mixed lot by resale value, map the year onto Schedule C. Seller Books, the hosted books, is open free."
 ---
 
@@ -675,6 +675,35 @@ were not sales. Every column is read by the name in PayPal's published field
 reference for the report, but we have not yet run a real download through
 it. If a column is missing, the import stops and names it rather than
 guessing.
+
+## Sales paid by Venmo, from the monthly statement (added 2026-11-27)
+
+Venmo is how a lot of local sales get paid: a porch pickup, a flea market
+table, a Facebook Marketplace meetup. Venmo lets you download a statement
+as a CSV, one month at a time, and Seller Books now imports it as its own
+platform, the same way it reads PayPal's download.
+
+The statement is an odd file. Two title lines sit above the column names,
+the first column is empty, and amounts are written "+ $25.00" for money in
+and "- $30.00" for money out. Seller Books reads that layout as it is. A
+complete payment with a "+" is a sale, whoever started it, so a request you
+sent that the buyer paid counts too. Payments you sent, transfers to your
+bank, Venmo card purchases and rewards, and pending payments are left out,
+each with its reason. A refund you sent back is a refund on its own date.
+
+A worked row from the test file: a buyer paid $40.00 for a denim jacket,
+$5.00 of it a tip, and Venmo kept an $0.86 fee. Seller Books books $40.00
+as the sale, because a tip is income like the price, and $0.86 as a payment
+processing fee.
+
+Two things to check. First, Venmo's statement cannot tell a sale from a
+friend paying you back for dinner, so every payment received comes in as a
+sale and you delete the ones that were not. Second, we read the layout from
+a real personal statement someone published, but we have not seen a
+business profile's statement. We read "Amount (total)" as what the buyer
+sent, before Venmo's fee, which is how Venmo describes its business fees.
+The import says so whenever a fee is present: open one of those sales in
+the Venmo app and check the figure matches.
 
 ## Marketplace sales into QuickBooks Online, one entry a month (added 2026-11-26)
 

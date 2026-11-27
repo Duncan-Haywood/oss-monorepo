@@ -127,3 +127,13 @@ test("replay window edge: exactly 300 s old is accepted, one tick more is not (l
   assert.equal(st(NOW - 300).ok, true);
   assert.match(st(NOW - 301).reason, /tolerance/);
 });
+
+test("a blank or non-string secret is refused, since anyone can sign with it", () => {
+  // A whitespace secret (a blank paste) would accept any forged event signed with the same key.
+  for (const secret of [" ", "\n", "\t \r\n", 12345]) {
+    const sig = `sha256=${h(String(secret), body)}`;
+    const v = verify("github", { headers: { "x-hub-signature-256": sig }, body, secret, nowSec: NOW });
+    assert.equal(v.ok, false);
+    assert.match(v.reason, /no secret configured/);
+  }
+});

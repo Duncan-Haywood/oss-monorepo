@@ -2,7 +2,7 @@
 title: "One page for online sellers: the problems first, then the tools"
 seo_title: "Bookkeeping and profit tools for online sellers and resellers"
 date: 2026-11-24
-tags: [online-sellers, resellers, ebay, poshmark, schedule-c, product]
+tags: [online-sellers, resellers, ebay, poshmark, schedule-c, product, seller-books, for-customers]
 description: "A new page for resellers on eBay, Poshmark, Etsy, Mercari, Whatnot and Depop: six problems, the books product in development, and 15 hand-picked free tools."
 ---
 
@@ -64,6 +64,23 @@ the 1099-K reconciliation worksheet and threshold checker, and the economic
 nexus tracker. The longer lists stay on the audience pages for resellers,
 eBay, Etsy, Amazon and Shopify sellers, which the page links. A tool the
 build did not publish is dropped from the page rather than linked dead.
+
+## Update, 2026-11-27: the product has its own site now
+
+Seller Books is open (free for one platform and up to 25 orders a month, no
+card), and its own pages are now on this site too:
+[marisstella.app/seller-books](https://marisstella.app/seller-books/). One
+page per platform it reads (eBay, Poshmark, Mercari, Whatnot, Depop, Etsy,
+Shopify, Amazon, TikTok Shop and Square), and one each on the
+[Schedule C worksheet](https://marisstella.app/seller-books/schedule-c-worksheet),
+[Form 1099-K](https://marisstella.app/seller-books/1099-k),
+[cost of goods sold](https://marisstella.app/seller-books/cost-of-goods-sold),
+the [mileage deduction](https://marisstella.app/seller-books/mileage-deduction),
+[home office and equipment](https://marisstella.app/seller-books/home-office-and-equipment),
+[quarterly estimated tax](https://marisstella.app/seller-books/quarterly-estimated-tax)
+and [pricing](https://marisstella.app/seller-books/pricing). The online
+sellers page links them from its product section. Paid plans are not on
+sale yet.
 
 Not tax advice: the tools organise and estimate. What to deduct and how to
 file is for you or a tax professional.

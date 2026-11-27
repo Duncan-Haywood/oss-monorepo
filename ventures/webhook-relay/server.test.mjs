@@ -26,6 +26,8 @@ test("parseRoutes validates names, schemes, secrets and targets", () => {
   assert.throws(() => parseRoutes(JSON.stringify([route, route])), /duplicate/);
   assert.throws(() => parseRoutes(JSON.stringify([{ ...route, scheme: "nope" }])), /unknown scheme/);
   assert.throws(() => parseRoutes(JSON.stringify([{ ...route, secret: "" }])), /needs a secret/);
+  assert.throws(() => parseRoutes(JSON.stringify([{ ...route, secret: "  \n" }])), /needs a secret/);
+  assert.throws(() => parseRoutes(JSON.stringify([{ ...route, secret: 42 }])), /needs a secret/);
   assert.throws(() => parseRoutes(JSON.stringify([{ ...route, target: "ftp://x" }])), /http/);
 });
 

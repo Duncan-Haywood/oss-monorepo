@@ -753,7 +753,10 @@ def roadmap_done(roadmap: str) -> list[str]:
 LAUNCH_HEAD = "must do before a public launch"
 # A launch-list bullet that records a shipped feature: "Dutch explanations, part 1 (2026-11-27,
 # slug): ..." or "ISO 9001 dates in the calendar (2026-11-27)." Runs park changelog entries there.
-_SHIPPED = re.compile(r"^\W*(?:done\b|[^:()]{3,100}\(\d{4}-\d\d-\d\d\b)", re.I)
+# Also "~~Re-check each source~~ done 2026-11-27 (slug)" and "Launch review done 2026-11-27 (...)":
+# both were offered as free "Start here" work on 2026-11-27 after they had shipped.
+_SHIPPED = re.compile(
+    r"^\W*(?:~~|done\b|[^:()]{3,100}(?:\(|\bdone\s+)\d{4}-\d\d-\d\d\b)", re.I)
 
 
 def launch_items(roadmap: str) -> list[str]:

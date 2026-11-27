@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVQ5ejyscwANpBAHkmG",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T17:56:04Z",
+  "ended": "2026-11-27T18:03:19Z",
+  "wall_minutes": 7.41,
+  "tokens_in": 7613981,
+  "tokens_out": 29186,
+  "cost_usd": 3.1996,
+  "tool_calls": 65,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19827",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets printed 'Start here: einvoice-preflight item #4' as free, but that item's own text is gated 'if accountants ask', and payapps (bet #1) has 24 Next items all waiting on demand. So the bets table gave no claimable item for the top bets; I picked an ARCHITECTURE.md 'next, if sellers ask' item on bet #5 instead."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud quirks note says some data hosts 403. help.venmo.com and community.tiller.com failed DNS (not 403) at the proxy, so the vendor's own help page could not be read; raw.githubusercontent.com worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Bets #1-#4 had no claimable item: everything was gated on demand, an owner step or a deploy. I took bet #5 (seller-books), whose growth line names Venmo after PayPal.",
+      "did": "Venmo statement importer plus a site page and a post section",
+      "result": "merged with tests green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (Venmo section added)"
+  ],
+  "goal": null,
+  "notes": "Local verification: seller-books typecheck pass; unit 351/351; worker 149/149; seller-books-site node --test 74/74; biome 0 errors. Unconfirmed: whether Venmo Amount (total) is before the fee on business profiles (warned in the product, documented in IMPORTERS.md).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "abc9ebee-dfdd-564c-a630-04edace7981c",
+    "transcripts": 1,
+    "first": "2026-11-27T17:56:04Z",
+    "last": "2026-11-27T18:03:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 123,
+        "output": 29186,
+        "thinking": 5288,
+        "cache_read": 7473774,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140084,
+        "api_equivalent_usd": 3.1996,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 123,
+      "output": 29186,
+      "thinking": 5288,
+      "cache_read": 7473774,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140084,
+      "api_equivalent_usd": 3.1996,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 55,
+      "WebSearch": 3,
+      "WebFetch": 3,
+      "ToolSearch": 2,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.41,
+      "active_minutes": 7.41,
+      "model_minutes": 5.53,
+      "tool_minutes": 1.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "importer + tests + docs + site page, comparable to the PayPal importer PR",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 187.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

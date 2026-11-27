@@ -34,7 +34,7 @@ import { launch } from "./launch.mjs";
 export const TAGLINE = "True profit and Schedule C books for resellers";
 
 const SUMMARY_BASE =
-  "Seller Books is bookkeeping for people who resell on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square and PayPal. It brings your sales from every platform into one ledger, takes out the fees each platform actually charged, matches what you paid for each item, logs your sourcing miles, and builds a Schedule C worksheet you or your tax preparer can work from.";
+  "Seller Books is bookkeeping for people who resell on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal and Venmo. It brings your sales from every platform into one ledger, takes out the fees each platform actually charged, matches what you paid for each item, logs your sourcing miles, and builds a Schedule C worksheet you or your tax preparer can work from.";
 
 /**
  * The Free plan, as apps/seller-books/src/shared/plans.ts sets it (test/site.test.mjs reads that file
@@ -55,6 +55,11 @@ export function statusSentence() {
 
 /** The product summary with its current status (home lead, JSON-LD, llms.txt). */
 export const summary = () => `${SUMMARY_BASE} ${statusSentence()}`;
+
+/** The limitation every page's footer carries (PRODUCT_PLAYBOOK.md §5b; the catalogue's check.mjs
+ * refuses a page without "no warranty"). */
+export const NO_WARRANTY =
+  "Seller Books is provided as is, with no warranty: check every figure against your own records before you rely on it.";
 
 export const NOT_TAX_ADVICE =
   "Seller Books is bookkeeping software, not a tax adviser. It organises your numbers; what you deduct and how you file is your decision, or your tax professional's.";
@@ -242,6 +247,24 @@ export const PLATFORMS = [
     ],
     report: "the Activity download CSV, from Activity > Statements",
   },
+  {
+    slug: "venmo",
+    name: "Venmo",
+    what: "sales paid by Venmo with no marketplace payout behind them: a local pickup, a flea market or a Facebook Marketplace sale, on a personal or a business profile",
+    // Venmo is a payment app, not a marketplace: the page's opening sentence says so.
+    intro:
+      "Venmo is where many local sales get paid: a pickup from your porch, a flea market table, a Facebook Marketplace meetup. Its monthly statement lists every payment, and Seller Books sorts the sales from the rest.",
+    fees: [
+      "Venmo's fee on each payment to a business profile or a goods-and-services payment, from the statement's fee column",
+      "On a refund, the part of the fee Venmo gives back, read from the same column",
+    ],
+    quirks: [
+      "A Venmo statement cannot tell a sale from a friend paying you back for dinner or rent. Seller Books counts each payment received as a sale and says so, so you delete the ones that are not business income.",
+      "Bank transfers, Venmo card purchases and card rewards are left out with a reason, and so are payments you sent: a purchase of stock goes in Inventory and supplies in Expenses.",
+      "A tip is part of what you earned. A refund is dated on its own day and lowers the month it was given back; the statement does not say which payment it refunds, so Seller Books asks you to check the sale is in your books.",
+    ],
+    report: "the monthly statement CSV, from Statements > Download CSV",
+  },
 ];
 /**
  * What the product does (home page and llms.txt). Every item is in the app today
@@ -251,7 +274,7 @@ export const FEATURES = [
   {
     key: "profit",
     title: "True profit per sale, across every platform",
-    body: "One ledger for eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square and PayPal. Each sale shows what the buyer paid, every fee the platform took, shipping you paid, and what the item cost you, so the number at the bottom is profit, not payout. Sales with no marketplace report (cash at a market, Facebook Marketplace, a local pickup paid by Venmo) are typed in and counted the same way.",
+    body: "One ledger for eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal and Venmo. Each sale shows what the buyer paid, every fee the platform took, shipping you paid, and what the item cost you, so the number at the bottom is profit, not payout. Sales with no marketplace report (cash at a market, a local pickup paid by Cash App or Zelle) are typed in and counted the same way.",
   },
   {
     key: "fees",
@@ -368,7 +391,7 @@ export const TIERS = [
     platforms: "Every platform",
     for: "Reselling is your main work and you crosslist",
     includes: [
-      "Every platform: eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal",
+      "Every platform: eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo",
       "About 600 orders a month (going over never locks anything)",
       "Monthly profit by platform",
       "Year-end inventory at cost",

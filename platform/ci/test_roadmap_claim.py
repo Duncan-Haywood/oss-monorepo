@@ -198,6 +198,9 @@ LAUNCH = """## Done
   checkout is live
 - Dutch explanations, part 1 (2026-11-27, dutch-part-1): every rule has a Dutch template
 - A native German reviewer for the explanation templates
+- ~~Re-check each official deadline source directly~~ done 2026-11-27
+  (launch-re-check): every statement re-read against the official text
+- Launch review done 2026-11-27 ([docs/LAUNCH-REVIEW.md](docs/LAUNCH-REVIEW.md)): margins re-derived
 
 ## Next
 - Billing, part 2 if people ask

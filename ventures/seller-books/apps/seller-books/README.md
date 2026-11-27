@@ -2,9 +2,9 @@
 
 Profit and Schedule C books for resellers on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify,
 Amazon (FBA or shipped yourself), TikTok Shop, Square (a card reader or the Square app at a market or flea
-market, from its Transactions CSV) and PayPal (sales paid by PayPal off the marketplaces, from its Activity
-download), plus the sales made off them (cash at a market or flea market, Facebook
-Marketplace, a local pickup paid by Venmo), which are typed in one at a time. You import the
+market, from its Transactions CSV), PayPal (sales paid by PayPal off the marketplaces, from its Activity
+download) and Venmo (a local or Facebook Marketplace sale paid by Venmo, from its monthly statement CSV), plus the sales made off them (cash at a market or flea market, Facebook
+Marketplace, a local pickup paid by Cash App or Zelle), which are typed in one at a time. You import the
 marketplaces' own reports, track cost of goods per item and per lot, and log mileage (typed in, or read from
 a mileage tracker app's CSV export). The app then shows
 profit by platform and month, a stock report (how long unsold items have sat, sell-through, days to sell by
@@ -112,5 +112,5 @@ pnpm db:migrate:local
 pnpm dev   # http://localhost:5173
 ```
 
-Status: v0.1, not deployed; the by-hand deploy workflow is in [docs/DEPLOY.md](docs/DEPLOY.md). Paid plans are built and dark until the owner sets the Paddle secrets
+Status: v0.1, live on the Free plan since 2026-11-27, deployed on every merge to `main` that touches the venture ([docs/DEPLOY.md](docs/DEPLOY.md)). Paid plans are built and dark until the owner sets the Paddle secrets
 ([docs/BILLING.md](docs/BILLING.md)). Account email (verification, password reset) and its setup: [docs/EMAIL.md](docs/EMAIL.md). See "Gaps / next" in the architecture doc before launch.

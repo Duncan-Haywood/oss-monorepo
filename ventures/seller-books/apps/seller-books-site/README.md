@@ -79,12 +79,18 @@ that package's TypeScript source; Node ≥ 22.18 and wrangler both load it). The
 unset, they are closed. Every read writes a row to `admin_audit_log` (`migrations/0002_admin_audit_log.sql`).
 Unsubscribed rows stay as suppression records, so they count in `total` and `unsubscribed`. `ADMIN_METRICS_TOKEN` (same rules) is the agents' read-only credential: `/metrics` only; `/accounts` answers 403.
 
-## Hosting and launch checklist (not deployed)
+## Hosting and launch checklist
 
-The copy is launched (above); the site itself is not served yet (`https://marisstella.app/seller-books/`
-answers 404). Serving it as a static export copied by the catalogue build is the next step, following
-whichever of PayApps' two open approaches lands (PRs #19733 and #19736), so the two sites are served the
-same way. The early-access list API needs the Worker; a static copy needs only the open copy.
+Since 2026-11-27 (seller-books-site-served) the catalogue build serves the open copy at
+`https://marisstella.app/seller-books/`: `platform/pages/seller-books-site.mjs` runs this app's
+`build()` into a scratch directory on every catalogue build and copies the pages in (no committed
+export, so nothing can drift), with root-relative links made relative, `404.html` and `_headers` left
+out, its sitemap in the host's sitemap index, and the online sellers page
+(`/industries/online-sellers/`) linking it. `platform/pages/check.mjs` holds every page to the
+"no warranty" disclaimer the footer now carries. The early-access list API still needs this Worker,
+which is not deployed; the open copy has no form, so the static copy needs none of it.
+
+The Worker checklist below applies only if the early-access list is ever wanted again.
 
 
 Intended URL `https://marisstella.app/seller-books` (provisional, like grants at `/grants`). Before launch:

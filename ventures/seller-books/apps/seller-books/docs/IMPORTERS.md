@@ -6,7 +6,7 @@ each field accepts several known spellings. Position never matters. The header r
 missing field and the spellings accepted for it. A changed export therefore fails loudly instead of importing
 wrong numbers.
 
-**Verification status (2026-11-24; Mercari, Whatnot and Etsy's file menus re-checked on official pages 2026-11-26; Shopify added 2026-11-26 from its own column lists; Amazon added 2026-11-26 from no live page, see its section; TikTok Shop added 2026-11-26 from a column dictionary and TikTok's field definitions, see its section; Square added 2026-11-26 from a seller-quoted header row and Square's glossary, see its section; PayPal added 2026-11-27 from PayPal's own field reference, see its section).** This environment could not open the marketplaces' help pages. The column
+**Verification status (2026-11-24; Mercari, Whatnot and Etsy's file menus re-checked on official pages 2026-11-26; Shopify added 2026-11-26 from its own column lists; Amazon added 2026-11-26 from no live page, see its section; TikTok Shop added 2026-11-26 from a column dictionary and TikTok's field definitions, see its section; Square added 2026-11-26 from a seller-quoted header row and Square's glossary, see its section; PayPal added 2026-11-27 from PayPal's own field reference, see its section; Venmo added 2026-11-27 from a published personal statement, see its section).** This environment could not open the marketplaces' help pages. The column
 names below come from search-engine excerpts of those pages, from seller and community posts that quote the
 headers, and, where noted, only from the help page's own field descriptions. **No platform's full, ordered
 header row was confirmed.** The fixtures in `test/fixtures/` were written to match these names; they are not
@@ -393,6 +393,56 @@ exact labels. A Tiller community thread reports downloads with `Amount` in place
   (counted in a warning); anything else, with its type named.
 - **Ids:** `Transaction ID` (PayPal's unique 17-character id), or a hash of the date, type, amounts and name
   without one, so the same file again adds nothing.
+
+## Venmo: statement (sales paid by Venmo off the marketplaces)
+
+venmo.com or the app > Me > Statements > Download CSV, one month at a time (Venmo's help centre, through a
+search excerpt). Added 2026-11-27 for the sales a reseller is paid for in Venmo: a local pickup, a flea-market or
+Facebook Marketplace sale, on a personal profile (goods and services) or a business profile. Until then these
+had to be typed in one at a time as direct sales. One row is one balance entry.
+
+**How sure we are: high on the layout and the personal-profile columns, low on business-profile fees.** The
+layout was read from a real personal statement a user published (github.com/egost/venmo_statement,
+`venmo_statement.csv`, a 2021 statement, read 2026-11-27): two title lines ("Account Statement - (@handle) -
+...", "Account Activity"), then a header with an empty first column: `ID`, `Datetime`, `Type`, `Status`, `Note`,
+`From`, `To`, `Amount (total)`, `Amount (tip)`, `Amount (fee)`, `Funding Source`, `Destination`, `Beginning
+Balance`, `Ending Balance`, `Statement Period Venmo Fees`, `Terminal Location`, `Year to Date Venmo Fees`,
+`Disclaimer`. Then a row holding only the beginning balance, then the transactions, then a closing row with the
+ending balance and fee totals. Amounts read `+ $45.00` and `- $885.00` (`"- $1,000.00"` quoted); `Datetime` is
+ISO (`2021-08-07T04:11:17`); statuses seen were `Complete` and, on a bank transfer, `Issued`; types seen were
+`Charge`, `Standard Transfer`, `Credit Card Reward` and `Credit Card Payment`. Two open-source importers
+(jbms/beancount-import and jbms/finance-dl, read 2026-11-27) use the same column names and also handle
+`Payment`, `Merchant Transaction` and `Refunded transaction`. Venmo's own help pages could not be opened from
+this environment, and no business-profile statement was seen, so **whether `Amount (total)` is before or after
+Venmo's fee is not confirmed**: it is read as before the fee (what the buyer sent), which is how Venmo's
+help centre describes business fees ("automatically deducted from the total payment amount sent by your
+customer"), and every import with a fee carries a warning asking the seller to check one sale against the app.
+The fixture `test/fixtures/venmo-statement.csv` copies that layout with invented people and amounts; it is not a
+real export. **Before launch, run one real business-profile statement through it.**
+
+- **Required:** `Datetime` (or `Date`), `Type`, `Status`, `Amount (total)` (or `Amount`).
+- **Also read:** `ID`, `Note` (the title, line breaks joined), `From` and `To` (only in the id hash of a row
+  without an `ID`, never stored), `Amount (fee)`, `Amount (tax)` if a statement has it (kept out of income);
+  `Amount (tip)` is not read on its own because the tip is already inside `Amount (total)` (on the published
+  statement the tip column was empty, so this too is unconfirmed).
+- **Payments received** (`Payment`, `Charge` or another payment type with a `+` amount; the sign is the
+  statement owner's side, whoever started it): a sale of `Amount (total)` less any tax, tip included (a tip is
+  income). `Amount (fee)` → payment processing. A warning says every payment received counts as a sale, so
+  money from friends splitting a bill, rent or a loan repaid must be deleted afterwards: Venmo's file cannot
+  tell them apart.
+- **Refunds** (a refund or reversal with a `-` amount): a refund on its own date, with a fee in `Amount (fee)`
+  read as given back. The statement names no original payment, so a warning asks the seller to check the sale
+  it refunds is in the books. A refund with a `+` amount (money back for something the seller bought) is
+  skipped with its reason.
+- **Skipped, each with its reason:** transfers to or from the bank (`Standard Transfer`, `Instant Transfer`, add
+  funds), checked by type before status because they read `Issued`; Venmo card activity (`Merchant
+  Transaction`, `Credit Card Reward`, `Credit Card Payment`, debit card rows); any other status than `Complete`;
+  payments sent (a warning totals them: stock goes in Inventory, supplies and postage in Expenses); the closing
+  balance row; anything else, with its type named. Venmo statements are in US dollars only.
+- **Ids:** Venmo's `ID`, or a hash of the date, type, amount, from, to and note without one, so the same file
+  again adds nothing.
+- **Bank statements:** with `venmo` a platform, a deposit named "VENMO" on a bank statement ("Did I import
+  everything?") is set against the Venmo sales, and the check notes it may be friends-and-family money cashed out.
 
 ## Your own sourcing sheet (inventory, not a marketplace report)
 

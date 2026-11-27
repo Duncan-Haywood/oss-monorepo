@@ -111,6 +111,13 @@ export {
 } from "./tx-dates.ts";
 export { TX_LABOR_NOTICE_ID, TX_RETAINAGE_NOTICE_ID } from "./tx-notice.ts";
 export * from "./types.ts";
+export {
+  MILLER_CHECKED_ON,
+  MILLER_NOTICE_ID,
+  MILLER_PHRASES,
+  MILLER_SOURCE_URL,
+  millerActNotice,
+} from "./us-miller.ts";
 export { formatCents, formatDate, isIsoDate, validate } from "./validate.ts";
 export { amountInWords } from "./words.ts";
 

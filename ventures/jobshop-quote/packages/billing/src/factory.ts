@@ -36,7 +36,8 @@ export function createBillingProvider(
     });
   }
   const provider = (env.BILLING_PROVIDER ?? "").toLowerCase();
-  if (provider === "paddle" && env.BILLING_API_KEY && env.BILLING_WEBHOOK_SECRET) {
+  // A blank (whitespace-only) webhook secret counts as unset: billing stays off.
+  if (provider === "paddle" && env.BILLING_API_KEY && env.BILLING_WEBHOOK_SECRET?.trim()) {
     return new PaddleBillingProvider({
       apiKey: env.BILLING_API_KEY,
       webhookSecret: env.BILLING_WEBHOOK_SECRET,
