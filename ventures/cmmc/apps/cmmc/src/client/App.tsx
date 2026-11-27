@@ -1,27 +1,44 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { ApiError, api } from "./lib/api";
 import { authModeFromLocation } from "./lib/auth-mode";
 import type { Me, OrgInfo } from "./lib/types";
 import { btnCls, btnGhostCls, Card, Disclaimer, ErrorText, Field, inputCls } from "./ui";
 import { AccountPageView, accountPageFromPath, ResendVerification } from "./views/Account";
-import { AffirmationsView } from "./views/Affirmations";
-import { AssetsView } from "./views/Assets";
-import { AuditsView } from "./views/Audits";
-import { BillingView } from "./views/Billing";
-import { ControlsView } from "./views/Controls";
-import { Dashboard } from "./views/Dashboard";
-import { DocumentsView } from "./views/Documents";
 import { AcceptLegal, LegalFooter, LegalLinks, LegalPage, legalKeyFromPath } from "./views/Legal";
-import { PeopleView } from "./views/People";
-import { PoamView } from "./views/Poam";
-import { PoliciesView } from "./views/Policies";
-import { ProvidersView } from "./views/Providers";
-import { QualityView } from "./views/Quality";
-import { SettingsView } from "./views/Settings";
-import { SspView } from "./views/Ssp";
-import { SuppliersView } from "./views/Suppliers";
 import { isUnsubscribePath, UnsubscribePage } from "./views/Unsubscribe";
+
+// The signed-in views load on demand: a visitor on the sign-in or sign-up screen downloads only that
+// screen, the legal pages and the account pages (docs/history/cmmc-app-first-load-perf-2026-11-27.md).
+const AffirmationsView = lazy(() =>
+  import("./views/Affirmations").then((m) => ({ default: m.AffirmationsView })),
+);
+const AssetsView = lazy(() => import("./views/Assets").then((m) => ({ default: m.AssetsView })));
+const AuditsView = lazy(() => import("./views/Audits").then((m) => ({ default: m.AuditsView })));
+const BillingView = lazy(() => import("./views/Billing").then((m) => ({ default: m.BillingView })));
+const ControlsView = lazy(() =>
+  import("./views/Controls").then((m) => ({ default: m.ControlsView })),
+);
+const Dashboard = lazy(() => import("./views/Dashboard").then((m) => ({ default: m.Dashboard })));
+const DocumentsView = lazy(() =>
+  import("./views/Documents").then((m) => ({ default: m.DocumentsView })),
+);
+const PeopleView = lazy(() => import("./views/People").then((m) => ({ default: m.PeopleView })));
+const PoamView = lazy(() => import("./views/Poam").then((m) => ({ default: m.PoamView })));
+const PoliciesView = lazy(() =>
+  import("./views/Policies").then((m) => ({ default: m.PoliciesView })),
+);
+const ProvidersView = lazy(() =>
+  import("./views/Providers").then((m) => ({ default: m.ProvidersView })),
+);
+const QualityView = lazy(() => import("./views/Quality").then((m) => ({ default: m.QualityView })));
+const SettingsView = lazy(() =>
+  import("./views/Settings").then((m) => ({ default: m.SettingsView })),
+);
+const SspView = lazy(() => import("./views/Ssp").then((m) => ({ default: m.SspView })));
+const SuppliersView = lazy(() =>
+  import("./views/Suppliers").then((m) => ({ default: m.SuppliersView })),
+);
 
 type Tab =
   | "dashboard"
@@ -346,7 +363,7 @@ function Workspace({ me }: { me: Me }) {
         {accepted && !orgId && <CreateOrg />}
         {accepted && org.error && <ErrorText error={org.error} />}
         {accepted && orgId && org.data && (
-          <>
+          <Suspense fallback={<p className="text-sm text-stone-600">Loading…</p>}>
             {tab === "dashboard" && (
               <Dashboard
                 orgId={orgId}
@@ -395,7 +412,7 @@ function Workspace({ me }: { me: Me }) {
             {tab === "ssp" && <SspView orgId={orgId} info={org.data} />}
             {tab === "settings" && <SettingsView orgId={orgId} info={org.data} />}
             {tab === "billing" && <BillingView orgId={orgId} info={org.data} />}
-          </>
+          </Suspense>
         )}
         <Disclaimer />
       </main>
