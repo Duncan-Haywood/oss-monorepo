@@ -36,11 +36,15 @@
   "doc_friction": [
     {
       "file": "ventures/payapps/apps/payapps/ROADMAP.md",
-      "issue": "The Next item called the \u00a7 713.08 filing a 'notice of nonpayment'; \u00a7 713.08 is the claim of lien (Florida's notice of nonpayment is \u00a7 713.23 on bonded jobs). The part 3 item was rewritten without it."
+      "issue": "The Next item called the § 713.08 filing a 'notice of nonpayment'; § 713.08 is the claim of lien (Florida's notice of nonpayment is § 713.23 on bonded jobs). The part 3 item was rewritten without it."
     },
     {
       "file": "platform/security/risk_review.py",
-      "issue": "The 'guaranteed' marketing-claim check is set off by the USPS service name 'Global Express Guaranteed', which \u00a7 713.18 itself names; answered in the PR body."
+      "issue": "The 'guaranteed' marketing-claim check is set off by the USPS service name 'Global Express Guaranteed', which § 713.18 itself names; answered in the PR body."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight treats payapps (a paid product moved here from private-monorepo) as a free-tools catalogue entry and fails on launched.json and CATEGORY_RULES, which are unrelated to a feature change inside the app."
     }
   ],
   "deviations": [
@@ -55,7 +59,7 @@
     "docs/posts/2026-11-27-florida-notice-to-owner-45-days.md (extended: the service table and the reminder)"
   ],
   "goal": null,
-  "notes": "Security queue: 5 alerts, all claimed (exit 3). IDEAS and requests were empty. Route: ventures/1. Local checks: lien-waivers node --test 252/252; payapps tsc clean; biome no new diagnostics; pnpm test unit 1335 passed (1 skipped), worker 559 passed (88 files), including the new test/worker/fl-notice-log.test.ts (7 tests); venture-preflight run in the background before the merge.",
+  "notes": "Security queue: 5 alerts, all claimed (exit 3). IDEAS and requests were empty. Route: ventures/1. Local checks: lien-waivers node --test 252/252; payapps tsc clean; biome no new diagnostics; pnpm test unit 1335 passed (1 skipped), worker 559 passed (88 files), including the new test/worker/fl-notice-log.test.ts (7 tests); venture-preflight payapps: FAILED before the build on two site-wide listing checks this diff does not touch (payapps has no launch date in launched.json; it would land in the catch-all 'More free tools' section, a 6th entry). Both come from payapps moving into this repository on 2026-11-27, not from this change; left for a catalogue run, since adding a paid product to the free-tools catalogue is a listing decision, not part of this feature.",
   "corrections": [],
   "redteam": null,
   "usage": {
