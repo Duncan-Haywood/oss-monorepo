@@ -137,7 +137,7 @@ describe("the daily reminder run", () => {
       "The second 2026 estimated payment is due in 5 days, June 15, 2026.",
     );
     expect(mail?.text).toContain("not tax advice");
-    expect(mail?.text).toContain(`/orgs/${t.orgId}/estimated-tax`);
+    expect(mail?.text).toContain(`/o/${t.orgId}/estimated-tax`);
     expect(mail?.html).toContain("Stop these reminders");
     expect(mail?.headers?.["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
 

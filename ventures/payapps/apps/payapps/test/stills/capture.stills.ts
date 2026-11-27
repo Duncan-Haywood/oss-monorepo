@@ -154,6 +154,12 @@ test("stills of a made-up electrical job", async ({ page, browser }) => {
   ).toBeVisible();
   await shot(page, "job-desktop");
 
+  // The cash and retainage report: #1 paid, so what is left is the retainage held on it.
+  const orgUrl = jobUrl.replace(/\/projects\/.*$/, "");
+  await page.goto(`${orgUrl}/cash`);
+  await expect(page.getByRole("heading", { level: 1, name: "Cash and retainage" })).toBeVisible();
+  await shot(page, "cash-desktop");
+
   // The same draft on a phone, in the same signed-in session.
   const phone = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -170,5 +176,7 @@ test("stills of a made-up electrical job", async ({ page, browser }) => {
   await summaryCard(p).screenshot({ path: join(OUT, "pay-app-2-summary-phone.png") });
   await toSite(p, "pay-app-2-desktop");
   await toSite(p, "pay-app-2-summary-phone");
+  await toSite(p, "job-desktop");
+  await toSite(p, "cash-desktop");
   await phone.close();
 });

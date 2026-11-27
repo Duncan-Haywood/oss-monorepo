@@ -390,8 +390,6 @@ before writing the first scene.
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
-- *Isidore and the rope at the well* (4 April, optional memorial of Saint Isidore, bishop and doctor of the Church, in the General Roman Calendar; proposed 2026-11-27): after *Romuald and the Little Houses in the Forest* (learning to be still), one about learning slowly: the boy who found his lessons too hard, ran off, and saw how a rope had worn a groove into the stone lip of a well. Check before drafting: his dates (born about 560, probably at Cartagena; bishop of Seville from about 600 after his brother Leander; died 4 April 636), the *Etymologies*, and where the well story first appears (it is usually told as a later tradition, so tell it as one). Keep his elder brother Leander as the stern but loving teacher (the reasonable "no"). An invented child, perhaps a water-carrier's son who shows him the well. 'Isidore of Seville' is unused in `overlap.mjs` (Isidore the Farmer is a different saint, *Isidore and the Angels Who Ploughed*).
-
 ## What not to do
 
 - No cliffhanger endings that depend on a sequel. Each story stands alone.

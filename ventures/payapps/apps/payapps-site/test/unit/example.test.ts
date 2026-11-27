@@ -56,3 +56,21 @@ describe("home page app screenshots", () => {
     expect(home).toContain("Nothing here is a customer's job.");
   });
 });
+
+describe("features page app screenshots", () => {
+  it("shows the job, pay app and cash stills under their sections", () => {
+    const site = buildSite({ siteUrl: "https://marisstella.app/payapps", appUrl: null });
+    const key = [...site.keys()].find((k) => k.startsWith("features"));
+    const features = site.get(key ?? "") ?? "";
+    for (const [id, file] of [
+      ["schedule-of-values", "job-desktop.webp"],
+      ["monthly-pay-app", "pay-app-2-desktop.webp"],
+      ["cash", "cash-desktop.webp"],
+    ]) {
+      const section = new RegExp(`<section class="feature" id="${id}">([\\s\\S]*?)</section>`).exec(
+        features,
+      );
+      expect(section?.[1], id).toContain(`/payapps/shots/${file}`);
+    }
+  });
+});

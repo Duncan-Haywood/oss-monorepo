@@ -54,7 +54,7 @@ describe("legal pages", () => {
     expect(terms).toContain("<h2>14. Governing law</h2>");
     expect(terms).toContain("<strong>State of Colorado</strong>");
     expect(terms).toContain('<a href="mailto:hello@marisstella.app">hello@marisstella.app</a>');
-    const refunds = site.get("refunds.html") ?? "";
+    const refunds = String(site.get("refunds.html") ?? "");
     expect(refunds).toContain("<h2>30-day money-back guarantee</h2>");
     expect(refunds).toContain("<strong>full refund within 30 days</strong>");
     expect(site.get("acceptable-use.html")).toContain("<strong>false or inflated</strong>");

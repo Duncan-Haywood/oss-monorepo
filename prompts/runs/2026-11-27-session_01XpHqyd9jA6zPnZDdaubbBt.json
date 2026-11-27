@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyd9jA6zPnZDdaubbBt",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T17:38:50Z",
+  "ended": "2026-11-27T17:43:57Z",
+  "wall_minutes": 8.02,
+  "tokens_in": 6582225,
+  "tokens_out": 25413,
+  "cost_usd": 2.6893,
+  "tool_calls": 66,
+  "task": "Bet #3 einvoice-preflight launch list: re-check each official deadline source directly (DE/FR in einvoice-site/content/deadlines.mjs)",
+  "projects": [
+    "einvoice-pro"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19823",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Ran `git checkout origin/main -- .` by mistake while inspecting a log; restored with `git checkout HEAD -- .` and removed the 26 main-only files it staged; nothing was committed or lost."
+  ],
+  "integrity_issues": [
+    "Germany 2026-12-31 row implied any issuer may send a plain PDF; BMF FAQ Q11 requires the recipient's consent for non-paper 'other invoices'. Fixed in 4 languages.",
+    "France 'new mandatory details' rule cited fiche-1_f_ps (a B2C small-services fiche) that does not list them; now cites the DGFiP FAQ Q3.4, which lists four (delivery address was missing). Fixed."
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-pro/apps/einvoice-site/content/deadlines.mjs",
+      "issue": "Header said DE/FR hosts were DNS-blocked; on 2026-11-27 bundesfinanzministerium.de and impots.gouv.fr answered 200 through the proxy (economie.gouv.fr 403). Probing first was worth it; header updated."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Flags 'new outbound hosts' and 'personal data' for a data file that only holds citation URLs; answered as not applicable in the PR."
+    },
+    {
+      "file": "ventures/einvoice-pro/apps/einvoice-preflight/repair-facturx.test.mjs",
+      "issue": "Fails in cloud containers whose pdfdetach is a list-only wrapper; the test could skip when `pdfdetach -save*` is refused, as it already skips when poppler is absent."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-e-invoicing-deadlines-four-countries-official-sources.md (extended: 27 November update)",
+    "ventures/einvoice-pro/apps/einvoice-site/README.md (Deadlines section)"
+  ],
+  "goal": "$10k MRR: bet #3's public deadline pages are a launch prerequisite; every DE/FR statement now rests on the official text read directly, and two wordings that would have misled accountants are fixed",
+  "notes": "Security queue empty (exit 3); ideas inbox empty; routed ventures/2. roadmap_claim --bets pointed at bet #3's free launch item. Fetched 7 DE/FR sources directly (6 OK, economie.gouv.fr 403) plus the DGFiP FAQ PDF and data PDF. einvoice-site node --test test/*.test.mjs: 45 pass, 0 fail. run_workflow_locally --for-changes: pages.yml, conflict-markers, einvoice-site tests, billing/admin-metrics/typecheck, paid layer all ok; ventures-tests and einvoice-pro-ci 'Checker suite' each fail 1 test (repair-facturx.test.mjs:115) only because this container's pdfdetach wrapper refuses to save attachments (environment, not this diff, which touches no einvoice-preflight code); security gates no verdict locally (need PR data), deferred to PR CI.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bbc7770f-91e6-5d7d-b6d2-e251694a285f",
+    "transcripts": 1,
+    "first": "2026-11-27T17:38:50Z",
+    "last": "2026-11-27T17:46:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 124,
+        "output": 25413,
+        "thinking": 4891,
+        "cache_read": 6471312,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110789,
+        "api_equivalent_usd": 2.6893,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 124,
+      "output": 25413,
+      "thinking": 4891,
+      "cache_read": 6471312,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110789,
+      "api_equivalent_usd": 2.6893,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.02,
+      "active_minutes": 8.02,
+      "model_minutes": 4.75,
+      "tool_minutes": 3.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "fetch and read 9 official DE/FR pages and PDFs, correct 3 statements in 4 languages, add a test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 111.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

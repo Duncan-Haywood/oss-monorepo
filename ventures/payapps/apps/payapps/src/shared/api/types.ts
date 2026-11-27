@@ -38,6 +38,7 @@ import type { CertificateHolder, InsuranceKind, InsuranceStatus } from "../insur
 import type { InsuranceRequirement, RequirementCheck } from "../insurance-requirements";
 import type { CommitmentKind, CostCategory, JobCostReport } from "../job-cost";
 import type { JobEventAction, JobEventData } from "../job-history";
+import type { LateInterestMethod, LateInterestPer } from "../late-interest";
 import type { LegalStatusDto } from "../legal";
 import type { LienDeadlineResult } from "../lien-deadline";
 import type { LowerTierPartyKind, LowerTierStatus, LowerTierSummary } from "../lower-tier-waivers";
@@ -129,6 +130,11 @@ export interface ProjectDto {
   payTermsBasis: PayTermsBasis;
   /** Pay-when-paid outer limit in days from the application date ("in any event within 90 days"); null when none. */
   payTermsOuterDays: number | null;
+  /** Interest on late payment (src/shared/late-interest.ts): basis points per period, or null. */
+  lateInterestBps: number | null;
+  lateInterestPer: LateInterestPer;
+  lateInterestMethod: LateInterestMethod;
+  lateInterestSource: string | null;
   /** The application summary PDF carries a notary block (jurat and seal box). */
   notaryBlock: boolean;
   /** The GC's monthly billing cutoff, day of the month (31: the last day); null when not set. */

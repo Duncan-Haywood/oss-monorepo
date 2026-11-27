@@ -78,7 +78,7 @@ export const PLAN_LIST: readonly Plan[] = [
     ordersPerMonth: 600,
     hardOrderCap: false,
     features: [
-      "Every platform: eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square",
+      "Every platform: eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo",
       "About 600 orders a month (going over never locks anything)",
       "Monthly profit by platform",
       "Year-end inventory at cost",

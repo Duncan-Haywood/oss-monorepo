@@ -579,7 +579,7 @@ class ClaimRaceTest(unittest.TestCase):
             self.assertEqual(self.main(self.b, "--claim", n)[0], 0)
         code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
         self.assertEqual(code, 0, out)
-        self.assertIn("payapps: 3 Next, free and not gated: none; 3 live claim(s)", out)
+        self.assertIn("payapps: 3 Next, free and not gated: none (3 claimed); 3 live claim(s)", out)
         self.assertIn("seller-books: no ROADMAP.md", out)
         self.assertIn("nowhere: not in this clone", out)
         self.assertRegex(out, r"Start here: bet #3 jobshop-quote, item #[34] ")
@@ -750,9 +750,26 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(self.main(self.b, "--slug", "extra", app="payapps")[0], 0)
         code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
         self.assertEqual(code, 0, out)
+        self.assertIn("payapps: 3 Next, free and not gated: none (3 claimed);", out)
         self.assertIn("Fewest live claims: bet #2 jobshop-quote (2)", out)
+        self.assertNotIn("wait on demand", out)
         self.assertIn("Wedge (bets.md): email in, quote out.", out)
         self.assertNotIn("growth path", out)
+
+    def test_bets_overview_says_why_nothing_is_free(self):
+        # 2026-11-26..27 friction (8 runs): "free and not gated: none" on every bet, then 10 to
+        # 20 minutes reading ROADMAPs to learn that nearly every item waited on demand.
+        bets = Path(self.tmp.name) / "bets.md"
+        bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                        "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n")
+        (self.a / "apps" / "payapps" / "ROADMAP.md").write_text(
+            "## Next\n\n- Unit-price billing if people ask\n- Joint checks if GCs ask for them\n"
+            "- Lien deadlines\n")
+        self.assertEqual(self.main(self.b, "--claim", "3")[0], 0)
+        code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertEqual(code, 0, out)
+        self.assertIn("free and not gated: none (2 waits on demand, 1 claimed);", out)
+        self.assertIn("2 of 3 Next items wait on demand, so a bet's work now is demand itself", out)
 
     def test_listing_probes_named_hosts(self):
         road = self.a / "apps" / "payapps" / "ROADMAP.md"

@@ -46,7 +46,7 @@ function home() {
   const SUMMARY = summary();
   const title = `${SITE_NAME}: ${TAGLINE}`;
   const description =
-    "Bookkeeping for resellers on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop and Square: true profit after fees and cost of goods, and a Schedule C worksheet.";
+    "Bookkeeping for resellers on eBay, Poshmark, Mercari, Etsy, Whatnot and more: true profit after fees and cost of goods, and a Schedule C worksheet.";
   const features = FEATURES.map(
     (f) => `<div class="card"><h3>${esc(f.title)}</h3><p>${esc(f.body)}</p></div>`,
   ).join("\n");
@@ -144,7 +144,7 @@ function platformsIndex() {
   const path = "/platforms";
   const title = "Reseller bookkeeping by platform";
   const description =
-    "How fees, payouts and cost of goods work on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop and Square, and how Seller Books puts them in one ledger.";
+    "How fees, payouts and cost of goods work on eBay, Poshmark, Mercari, Etsy, Amazon and six more platforms, and how Seller Books puts them in one ledger.";
   const cards = PLATFORMS.map(
     (p) =>
       `<a class="card link-card" href="${href(`/platforms/${p.slug}`)}"><h2>${esc(p.name)}</h2><p>${esc(p.what)}</p></a>`,
@@ -170,14 +170,14 @@ ${cards}
 function platformPage(p) {
   const path = `/platforms/${p.slug}`;
   const title = `${p.name} seller profit, fees and bookkeeping`;
-  const description = `Track true profit on ${p.name} sales: the fees ${p.name} actually charged, what each item cost you, shipping and miles, in one ledger with your other platforms. ${launch().open ? "Free on one platform." : "Early access."}`;
+  const description = `Profit on ${p.name} sales: the fees ${p.name} charged, what each item cost, shipping and miles, in one ledger with other platforms.${launch().open ? " Free on one platform." : ""}`;
   const others = PLATFORMS.filter((o) => o.slug !== p.slug)
     .map((o) => `<a href="${href(`/platforms/${o.slug}`)}">${esc(o.name)}</a>`)
     .join(", ");
   const body = `<section class="wrap">
   <p class="eyebrow"><a href="${href("/platforms")}">Platforms</a></p>
   <h1>${esc(p.name)}: profit after fees and cost of goods</h1>
-  <p class="lead">${esc(p.name)} is a marketplace for ${esc(p.what)}. ${esc(SITE_NAME)} brings your ${esc(p.name)} sales into the same books as everything else you sell, with each sale's fees and cost attached.</p>
+  <p class="lead">${esc(p.intro ?? `${p.name} is a marketplace for ${p.what}.`)} ${esc(SITE_NAME)} brings your ${esc(p.name)} sales into the same books as everything else you sell, with each sale's fees and cost attached.</p>
   <h2>What comes out of a ${esc(p.name)} sale</h2>
   ${list(p.fees)}
   <p>${esc(SITE_NAME)} doesn't apply a published rate to these. It reads the amounts on your own ${esc(p.name)} records (${esc(p.report)}), so a change in ${esc(p.name)}'s fees shows up in your books the day it shows up in your account.</p>
@@ -191,7 +191,7 @@ function platformPage(p) {
 <div class="wrap">${callToAction(path, { heading: `Get early access for your ${p.name} books`, openHeading: `Try it on your ${p.name} report`, idPrefix: p.slug })}</div>`;
   const text = `# ${title}
 
-${p.name} is a marketplace for ${p.what}. ${SITE_NAME} brings your ${p.name} sales into the same books as your other platforms.
+${p.intro ?? `${p.name} is a marketplace for ${p.what}.`} ${SITE_NAME} brings your ${p.name} sales into the same books as your other platforms.
 
 ## What comes out of a ${p.name} sale
 
@@ -304,7 +304,7 @@ function form1099k() {
   const path = "/1099-k";
   const title = "Why your 1099-K is higher than your sales";
   const description =
-    "A reseller's Form 1099-K counts gross payments before refunds and fees. What box 1a includes, why it rarely matches your sales, and how to check it month by month.";
+    "A reseller's 1099-K counts gross payments before refunds and fees: what box 1a includes, why it rarely matches your sales, and how to check it by month.";
   const ex = FORM_1099K_EXAMPLE;
   const box1a = ex.itemSales + ex.shippingPaid;
   const net = box1a - ex.refunds - ex.fees;
@@ -487,7 +487,7 @@ function costOfGoodsSold() {
   const path = "/cost-of-goods-sold";
   const title = "Cost of goods sold for resellers";
   const description =
-    "How a reseller fills in Schedule C Part III, lines 35 to 42: opening inventory, purchases, closing inventory and cost of goods sold, with the IRS wording and a worked example.";
+    "Schedule C Part III for resellers, lines 35 to 42: opening inventory, purchases, closing inventory and cost of goods sold, with a worked example.";
   const ex = COGS_EXAMPLE;
   const l = cogsLines(ex);
   const lines = [
@@ -909,7 +909,7 @@ function mileageDeduction() {
   const path = "/mileage-deduction";
   const title = "Mileage deduction for resellers";
   const description =
-    "Sourcing trips, estate sales and post office runs on Schedule C line 9: the IRS standard mileage rates, why 2026 has two (72.5¢, then 76¢ from July 1), and the log a reseller keeps.";
+    "Sourcing trips and post office runs on Schedule C line 9: the IRS mileage rates, why 2026 has two (72.5¢, then 76¢ from July 1), and the log to keep.";
   const m = mileageLines();
   const rows = MILEAGE_RATES.slice()
     .reverse()
@@ -1172,7 +1172,7 @@ function homeOfficeAndEquipment() {
   const path = "/home-office-and-equipment";
   const title = "Home office and equipment deductions for resellers";
   const description =
-    "Stock stored at home on Schedule C line 30 by the simplified method ($5 a square foot, up to 300), and a camera, label printer or shelving under the de minimis safe harbor.";
+    "Stock stored at home on Schedule C line 30 ($5 a square foot, up to 300), and a camera, label printer or shelving under the de minimis safe harbor.";
   const h = homeOfficeLines();
   const limit = usd(DE_MINIMIS_LIMIT_CENTS / 100);
   const storage = [
@@ -1334,7 +1334,7 @@ function estimatedTax() {
   const path = "/quarterly-estimated-tax";
   const title = "Quarterly estimated taxes for resellers";
   const description =
-    "The 2026 Form 1040-ES due dates, how much a reseller pays by each (the 90/100/110% safe harbours), self-employment tax, and the annualized method for a Q4-heavy year.";
+    "The 2026 Form 1040-ES due dates, what a reseller pays by each (the 90/100/110% safe harbours), self-employment tax, and the annualized method.";
   const ex = ESTIMATE_EXAMPLE;
   const r = ESTIMATE_RESULT;
   const cum = (xs, i) => xs.slice(0, i + 1).reduce((a, b) => a + b, 0);
@@ -1614,7 +1614,7 @@ function taxDeductions() {
   const path = "/reseller-tax-deductions";
   const title = "Reseller tax deductions by Schedule C line";
   const description =
-    "Where resellers deduct each cost on Schedule C: marketplace fees on line 10, promoted listings on 8, mileage on 9, mailers on 22, labels on 27a, stock through cost of goods sold.";
+    "Where resellers deduct each cost on Schedule C: fees on line 10, promoted listings on 8, mileage on 9, mailers on 22, labels on 27a, stock via cost of goods.";
   const outside = [
     [
       "Stock you buy to resell",

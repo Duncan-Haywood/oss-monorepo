@@ -182,6 +182,20 @@ While `BILLING_PROVIDER` is `none` each run logs `usage_settlement.unavailable` 
 Set the variable `USAGE_SETTLEMENT=off` to stop it. Rolling back to a version from before the class
 existed needs a `deleted_classes` migration first, so roll forward instead.
 
+**The client summary clock** (2026-11-27, `worker/digest-clock.mjs`). A second Durable Object,
+`DigestClock` (binding `DIGEST_CLOCK`, migration `v2`, SQLite-backed), sends the accountants' weekly
+and monthly summary email (pro/README.md, "The client summary email") through the same
+`sendDigests` as `POST /v1/admin/digest/send`. **Off by default:** nothing is armed or sent unless
+the Worker variable `DIGEST_SCHEDULE` is `on`, because an unattended send is the owner's call; to
+turn it on, add `--var "DIGEST_SCHEDULE:on"` to the deploy step in
+`.github/workflows/priv-einvoice-pro-deploy.yml` (or set it in the dashboard) once email sign-in is
+live. Once on, it runs hourly; weekly summaries go out from 07:00 UTC on Monday and monthly ones
+from 07:00 UTC on the 1st, up to 2 or 3 days late. Each account and period is claimed in D1 first,
+so the clock and the admin endpoint never both send. It stores, per frequency, the last period
+done and a failed-run count: no account or invoice data. Logs: `digest_schedule.done`, `.retry`,
+`.gave_up` (counts and opaque account ids), `.unavailable` (no mailer or `APP_URL`). Turning the
+variable off ends the alarm chain at its next run.
+
 **Backups.** D1 Time Travel is always on and restores to any minute of the last 30 days on Workers
 Paid ([Cloudflare: Time Travel](https://developers.cloudflare.com/d1/reference/time-travel/));
 `wrangler d1 time-travel restore einvoice-pro --timestamp=<unix>`. The DPA's Annex II and section

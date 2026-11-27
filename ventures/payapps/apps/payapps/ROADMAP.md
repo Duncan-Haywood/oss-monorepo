@@ -1732,6 +1732,36 @@ nothing to copy. No customers yet. Paid plans are dark
   Next, if Illinois customers ask: the accepted values from a real upload's errors, and IDOL's
   classification names offered as a list from the county's rate sheet.
 
+- Certified payroll, part 3e: New Jersey MW-562 for the NJ Wage Hub (2026-11-27, certified-payroll-nj-mw562,
+  every plan). A "New Jersey public works" section on the certified payroll page fills NJDOL's own fillable
+  MW-562 (revision 2/25) with the same week; the NJ Wage Hub takes "an electronically filled out MW-562"
+  dropped into its Add Certified Payroll window (NJDOL's Contractor User Guide, 03/06/2026, Part 6 C;
+  online submission required on all public works since August 2024, P.L. 2023, c.138). Why the PDF and
+  not the Hub's CSV template: `njwages.nj.gov` (where the template zip lives) answered 403 from this
+  session, directly and through the Internet Archive, while the MW-562 on `www.nj.gov` (the file the
+  Wage Hub FAQ links as "the latest version") downloaded. The form is NJDOL's and is not kept here: the
+  contractor downloads the blank from NJDOL's link and chooses it, and the browser fills it
+  (`src/shared/pdf/form-fill.ts`, a general AcroForm filler on the existing PDF reader: fields by
+  qualified name, text and check boxes, an incremental update with its own xref table or stream, an
+  appearance stream per filled field plus /NeedAppearances; refuses encrypted or damaged forms, unknown
+  names and values past MaxLen). The form's 555 field names are irregular row to row, so
+  `scripts/nj-mw562-fields.py` maps them by position into `src/shared/nj-mw562-fields.ts`; a chosen file
+  whose fields differ is refused with a message (`mw562Problem`). Adds what the MW-562 asks and the
+  WH-347 does not: FEIN, NJ public works contractor registration number, the date wages were paid, per
+  worker the address, sex (M/F/N), race (the form's key) and ethnicity (H/N), the NJ income tax split
+  out of the WH-347 withholding (federal is the rest), an optional job title; fringe credits go to
+  section 4(c) one row per worker by the form's benefit types (health, vacation/holiday, training,
+  pension, other by name), boxes 4(a)/4(b) from funded plans and cash in lieu. The electronic-signature
+  box is ticked only when the contractor ticks "I sign electronically" (with today's date). Refused: a
+  week not ending on Saturday (the form's columns run Sunday to Saturday) and more than 10 rows (the Hub
+  keeps only the last submission for a week, so a second sheet would replace the first). Checked on
+  NJDOL's real file (`NJ_MW562=<path> pnpm test:unit`; `NJ_MW562_OUT` writes the filled copy): values
+  read back by our reader and by pypdf, pages rendered with poppler. Not yet tried on a live Wage Hub
+  upload. `src/shared/nj-cpr.ts`, `src/client/components/nj-cpr-section.tsx`; tests
+  `src/shared/nj-cpr.test.ts`, `src/shared/pdf/form-fill.test.ts`, `test/unit/certified-payroll-page.test.tsx`.
+  Next, if New Jersey customers ask: what a real upload reads back (and whether blank day cells need a 0),
+  the Hub's CSV template once njwages.nj.gov answers (for crews past 10 rows), and more than one sheet a week if the Hub ever keeps them all.
+
 - Getting started, part 5 (2026-11-26): where companies stall, in the owner's metrics.
   `GET /api/admin/metrics` now carries `activation`: for every company, and for those that signed
   up inside the window, how many reached each checklist step (job, schedule of values, pay
@@ -2353,6 +2383,27 @@ nothing to copy. No customers yet. Paid plans are dark
   `src/shared/timesheet-certified.ts`) instead of the time.csv export and import; two workweeks when
   the payroll week straddles them; other jobs' hours and missing trades named. docs/TIMESHEETS.md.
 
+- Interest on late payment (2026-11-27, every plan; prompt-pay-interest). The job page's
+  "Late-payment interest" setting takes a rate a month or a year, whether a part month counts as a
+  whole one ("per month or a fraction thereof"), and where the rate comes from in the contractor's
+  words (`projects.late_interest_bps`, `late_interest_per`, `late_interest_method`,
+  `late_interest_source`, migration 0088, saved through the job's PATCH; a monthly rate above 5% or a
+  yearly one above 60% is refused as a typo). "Fill from a statute" offers the four prompt payment
+  statutes whose rate the free guide read from the legislature's text (Tex. Prop. Code § 28.004 1.5% a
+  month; 815 ILCS 603/10 10% a year; N.C. Gen. Stat. § 22C-5 1% a month or part; Va. Code § 2.2-4354
+  1% a month, public work), each linked with what to check; PayApps never decides a statute applies.
+  The cash report (`src/shared/late-interest.ts`, `OutstandingApp.interestCents`) shows the simple
+  interest accrued since the due date on each past-due application, on the balance still owed after
+  each payment from the day it came in (30-day months, 365-day years), per job and in total; the
+  second follow-up request and a past-due balance request state the rate, its source and the amount
+  (the first reminder stays friendly and leaves it out).
+- Every page fits a phone (2026-11-27, phone-width-all-pages): a sweep of all 24 signed-in routes at
+  390 px found the submittal log 417 px wide (its "Transmittals ask the GC" select sized to its longest
+  option). Selects are now capped at their container (`styles.css`), the header keeps "PayApps" and
+  "Sign out" from wrapping beside a long email, and the signed-in home page has an h1.
+  `test/e2e/03-phone-width.spec.ts` now walks the job's six logs and eleven company pages too, not
+  only the first-pay-app path.
+
 - Public jobs, part 1 (2026-11-27, every plan, public-jobs-part-1): the lien deadline panel asks who
   owns the job (a private owner, a state or local public body, the federal government). Public
   property cannot be liened, so a public job no longer shows or reminds about a lien date that does
@@ -2414,6 +2465,11 @@ nothing to copy. No customers yet. Paid plans are dark
 
 ## Next (suite, by promise)
 
+- Late-payment interest, part 2 (part 1, the rate per job, the accrued interest on the cash report and
+  in the second request, done 2026-11-27): interest on an application that was paid late (the
+  accrual stops at the last payment, so it is billable after the check clears), an interest line on
+  the next pay application or a separate invoice to QuickBooks, and the cash CSV and weekly email
+  columns, if contractors ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if
@@ -2482,7 +2538,7 @@ nothing to copy. No customers yet. Paid plans are dark
   browser if people ask, other states' prevailing-wage formats once their official specs are read (California's DIR eCPR
   XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b;
   Washington's L&I XML done 2026-11-27: part 3c; Illinois' IDOL CTP CSV done 2026-11-27: part 3d;
-  New Jersey's Wage Hub CSV next, once njwages.nj.gov answers), and the upload formats of the compliance
+  New Jersey's Wage Hub MW-562 done 2026-11-27: part 3e; its CSV template once njwages.nj.gov answers), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
 - Notice to Owner, Florida, part 3 (part 2, the notices served per person, the saved first day and

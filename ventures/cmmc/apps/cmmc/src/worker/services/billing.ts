@@ -276,7 +276,8 @@ export async function startPortal(ctx: AppContext, orgId: string): Promise<{ url
   const sub = await getSubscription(ctx, orgId);
   if (!sub?.providerCustomerId) throw badRequest("This organization has no paid subscription");
   const returnUrl = new URL("/?tab=billing", ctx.env.APP_URL).toString();
-  return ctx.billing.createPortalSession(sub.providerCustomerId, returnUrl);
+  const { url } = await ctx.billing.createPortalSession(sub.providerCustomerId, returnUrl);
+  return { url };
 }
 
 // ---- Webhook ---------------------------------------------------------------------------------------

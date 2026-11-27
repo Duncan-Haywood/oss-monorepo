@@ -120,6 +120,30 @@ class T(unittest.TestCase):
         _, _, branches = slug_dupe.check("qux-widget")
         self.assertEqual(branches, ["claude/qux-widget-2"])
 
+    def test_own_claim_branch_is_not_a_notice(self):
+        tree = run(self.clone, "rev-parse", "HEAD^{tree}")
+        mine = run(self.clone, "commit-tree", tree, "-m", "claim x {run aaaaaaaaaa} (1)")
+        theirs = run(self.clone, "commit-tree", tree, "-m", "claim x {run bbbbbbbbbb} (2)")
+        run(self.clone, "push", "origin", f"{mine}:refs/heads/claim/app/zed-gizmo")
+        run(self.clone, "push", "origin", f"{theirs}:refs/heads/claim/app/zed-gizmo--2")
+        os.environ["ROADMAP_CLAIM_RUN"] = "x"
+        try:
+            import hashlib
+            tag = hashlib.sha256(b"x").hexdigest()[:10]
+            self.assertTrue(slug_dupe.own_claim(mine, tag="aaaaaaaaaa"))
+            self.assertFalse(slug_dupe.own_claim(theirs, tag="aaaaaaaaaa"))
+            self.assertFalse(slug_dupe.own_claim("0" * 40, tag="aaaaaaaaaa"))
+            # With this session's real tag neither commit is ours, so both stay listed.
+            self.assertNotEqual(tag, "aaaaaaaaaa")
+            _, _, branches = slug_dupe.check("zed-gizmo")
+            self.assertEqual(sorted(branches), ["claim/app/zed-gizmo", "claim/app/zed-gizmo--2"])
+            mine2 = run(self.clone, "commit-tree", tree, "-m", f"claim y {{run {tag}}} (3)")
+            run(self.clone, "push", "-f", "origin", f"{mine2}:refs/heads/claim/app/zed-gizmo")
+            _, _, branches = slug_dupe.check("zed-gizmo")
+            self.assertEqual(branches, ["claim/app/zed-gizmo--2"])
+        finally:
+            del os.environ["ROADMAP_CLAIM_RUN"]
+
     def test_help_uses_summary_line(self):
         import contextlib, io
         out = io.StringIO()

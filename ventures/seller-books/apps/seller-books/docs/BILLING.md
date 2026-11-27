@@ -62,8 +62,8 @@ from the first failed renewal (the Billing page shows the deadline). After that,
 | `GET /api/billing/plans` | anyone | Public plan list (for a pricing page) |
 | `POST /api/billing/webhook` | Paddle | Signature-verified; always 200 once verified |
 | `GET /api/orgs/:orgId/billing` | members | Plan, status, usage, limits, suggested plan, plans |
-| `POST /api/orgs/:orgId/billing/checkout` | admins | `{plan, interval, promoCode?}` → hosted checkout URL |
-| `POST /api/orgs/:orgId/billing/portal` | admins | Paddle customer portal URL |
+| `POST /api/orgs/:orgId/billing/checkout` | admins | `{plan, interval, renewalConsent: true, promoCode?}` → hosted checkout URL (400 without the consent) |
+| `POST /api/orgs/:orgId/billing/portal` | admins | `{action?: "manage" \| "cancel"}` → Paddle customer portal URL, or the subscription's cancellation form |
 
 The webhook is mounted before the Origin check and the session (`src/worker/app.ts`). It follows
 `packages/billing` exactly: the org is bound only by an existing subscription id or a signed,
@@ -88,6 +88,36 @@ the portal return to `/o/:orgId/billing`. `GET /api/health` reports `billing: tr
    `SELLER_BOOKS_BILLING_WEBHOOK_SECRET`; `AUTH_SECRET` (it also signs checkout tokens) must be 32+ characters.
 4. A Paddle notification destination at `https://<seller-books host>/api/billing/webhook` for
    `subscription.*` and `transaction.completed`.
+
+## Automatic renewal (2026-11-27)
+
+Resellers are often consumers (a side hustle bought for themselves), so the state automatic-renewal
+laws apply to Seller Books more than to the B2B apps. This was the launch review's open check
+("Renewal terms", [LAUNCH-REVIEW.md](LAUNCH-REVIEW.md)). Read 2026-11-27, by an agent, not a lawyer:
+
+| Law | What it asks | Where the app does it |
+| --- | --- | --- |
+| Colorado, C.R.S. 6-1-732(2)(a)-(b) ([text](https://colorado.public.law/statutes/crs_6-1-732), current through fall 2025) | the renewal terms clearly and conspicuously before the contract, next to the purchase button | `renewalTerms()` under every "Choose" button on the Billing page, which now reads "Choose Side hustle, renews monthly" |
+| Colorado, 6-1-732(2)(c) | a written acknowledgment the consumer can keep, with the terms and how to cancel | Paddle's receipt (merchant of record) plus the Terms' "Automatic renewal" bullet; a receipt email of our own is not built |
+| Colorado, 6-1-732(2)(d), as SB25-145 rewrote it ([introduced text](https://content.leg.colorado.gov/sites/default/files/documents/2025A/bills/2025a_145_01.pdf); reported as enacted, applying from 2026) | a one-step online cancel link, available right after sign-in, for anyone who signed up online | "Cancel subscription" on the Billing page: `POST /billing/portal {action: "cancel"}` asks Paddle for the subscription's `cancel_subscription` deep link (portal session with `subscription_ids`), which opens Paddle's cancellation form directly |
+| Colorado, 6-1-732(4) | a notice that it renews unless cancelled, and how to cancel, 25 to 40 days before each renewal; for terms under 12 months, before each renewal that carries it past a 12-month period | `services/billing/renewal-notices.ts` on the daily cron: 26 to 39 calendar days ahead (inside the window whatever the renewal's hour), every yearly renewal and each monthly plan's twelve-month mark; a renewal first seen inside 25 days gets a late notice (logged) rather than none |
+| California, Bus. & Prof. Code 17602 as amended by AB 2863, from 2025-07-01 ([summary](https://btlaw.com/en/insights/alerts/2025/california-expands-automatic-renewal-law-new-requirements-now-in-effect)) | express affirmative consent to the renewal terms, proof of it kept (3 years, or 1 year after the contract ends, whichever is longer), a yearly reminder with frequency, amount and how to cancel, cancel by the channel used to sign up | the consent tick (checkout answers 400 without `renewalConsent: true`); `pending_checkouts.renewal_terms_version` and `renewal_consent_at` (the server's `RENEWAL_TERMS_VERSION`, never the page's); the same notice; the same one-step cancel |
+
+The notice goes to every owner and admin (the people who can cancel), carries the price exactly as
+Paddle's webhook reported it (or "the price on your last receipt from Paddle" when it was discounted
+or not reported: never a guess), and has no unsubscribe link: it is the notice the law asks for. One
+row per (shop, renewal date) in `renewal_notice` is the claim, so a doubled or retried run sends once;
+a send that reaches nobody releases the row and the next day retries. Tests:
+`test/unit/renewal-notice.test.ts` (the window, the monthly mark, month-end dates),
+`test/worker/renewal-notices.test.ts` (recipients, price, idempotency, retry, plans that do not renew),
+`test/worker/billing.test.ts` (consent required and recorded, the cancel link) and e2e spec 02 (the
+terms beside the button, the button disabled until the tick).
+
+Still open, for the owner or a lawyer when volume grows: deleting a shop deletes its consent rows with
+it (`ON DELETE CASCADE`), which may fall short of California's retention period for a cancelled
+subscriber who then deletes the shop (Paddle keeps its own transaction records); a price change needs
+its own notice under both laws (none is planned, and the Terms already promise one in advance); and
+other states (New York, Illinois, Virginia and more) have similar laws not read here.
 
 ## Operators
 

@@ -23,6 +23,7 @@ describe("fee sources", () => {
       tiktok: /^https:\/\/seller-us\.tiktok\.com\//,
       square: /^https:\/\/squareup\.com\/help\//,
       paypal: /^https:\/\/www\.paypal\.com\//,
+      venmo: /^https:\/\/help\.venmo\.com\//,
     };
     for (const f of FEE_SOURCES) {
       expect(f.officialPages.length).toBeGreaterThan(0);

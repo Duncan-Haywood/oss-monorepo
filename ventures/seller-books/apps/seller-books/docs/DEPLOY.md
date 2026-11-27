@@ -6,12 +6,14 @@ request and only the rows are kept. The workflow
 [`priv-seller-books-deploy.yml`](../../../../../.github/workflows/priv-seller-books-deploy.yml) (ported from
 private-monorepo on 2026-11-27, see [the venture's DEPLOY.md](../../../DEPLOY.md)) does
 the whole deploy; there are no dashboard steps beyond the settings below. It was ported from
-`jobshop-quote-deploy.yml` on 2026-11-26 and has not run yet.
+`jobshop-quote-deploy.yml` on 2026-11-26; first run 2026-11-27 ([the venture's DEPLOY.md](../../../DEPLOY.md)).
 
-**It runs by hand only** (Actions -> seller-books-deploy -> Run workflow, from `main`). The operator and contact
+**It runs on every merge to `main` that touches `ventures/seller-books/`** (Markdown-only changes
+excepted, since 2026-11-27 after two good runs by hand, 45973427499 and 45986733132), and by hand
+(Actions -> seller-books-deploy -> Run workflow, from `main`). Push runs always run the full checks. The operator and contact
 email are filled in and launch is agent-approved under `docs/legal/OPERATOR.md` (no attorney review);
 the review it asks for is [LAUNCH-REVIEW.md](LAUNCH-REVIEW.md) (2026-11-27), so an agent may run the
-first deploy and open sign-ups. After launch, add `push: branches: [main]` to the workflow so every merge ships. To gate each run, add
+first deploy and open sign-ups. To gate each run, add
 required reviewers to the `seller-books-production` environment (Settings -> Environments).
 
 ## What a run does
