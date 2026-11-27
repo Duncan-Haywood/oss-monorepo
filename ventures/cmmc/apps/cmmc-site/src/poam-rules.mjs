@@ -72,7 +72,7 @@ function familyTable(code, name) {
   const rows = REQUIREMENTS.filter((r) => r.family === code)
     .map((r) => {
       const v = poamVerdict(r);
-      return `<tr><th scope="row">${r.code}</th><td>${esc(r.text)}</td><td>${r.weight}</td><td class="poam-${v.status}"><strong>${LABEL[v.status]}</strong><br><span class="muted">${esc(v.why)}</span></td></tr>`;
+      return `<tr><th scope="row">${r.code}</th><td>${esc(r.text)}</td><td>${r.weight}</td><td class="poam-${v.status}"><strong>${Object.hasOwn(LABEL, v.status) ? LABEL[v.status] : v.status}</strong><br><span class="muted">${esc(v.why)}</span></td></tr>`;
     })
     .join("\n");
   const n = REQUIREMENTS.filter((r) => r.family === code);

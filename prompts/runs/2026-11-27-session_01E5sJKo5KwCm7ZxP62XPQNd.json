@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "marisstella.app and ecfr.gov answered 403/000 through the proxy, so the live app could not be probed and 170.21 was not re-read today"
+    "marisstella.app and ecfr.gov answered 403/000 through the proxy, so the live app could not be probed and 170.21 was not re-read today",
+    "changed-ventures failed on the first push: platform/ci/test_inherited_keys.py flagged LABEL[v.status] (unguarded object-map lookup); fixed with Object.hasOwn"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,6 +46,10 @@
     {
       "file": "ventures/cmmc/apps/cmmc-site/README.md",
       "issue": "says to lint with 'pnpm exec biome' from the repo root, but the root biome.json clashes with ventures/cmmc/biome.json ('nested root configuration'); running npx @biomejs/biome@2.6.8 from ventures/cmmc worked"
+    },
+    {
+      "file": "platform/ci/test_inherited_keys.py",
+      "issue": "runs only in CI's changed-ventures job, not in the venture's own node --test; run it locally before pushing a new .mjs with object-map lookups"
     }
   ],
   "deviations": [
