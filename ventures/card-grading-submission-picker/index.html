@@ -29,7 +29,7 @@
     th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
     th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
     .tablewrap { overflow-x: auto; }
-    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
     code { overflow-wrap: anywhere; word-break: break-word; }
     .error { color: #9a3412; font-weight: 600; }
     .ok { color: #14532d; font-weight: 600; }
@@ -78,12 +78,12 @@
     <h2>3. The submission</h2>
     <p id="summary"></p>
     <h3>Send to the grader (best first)</h3>
-    <div class="tablewrap"><table>
+    <div class="tablewrap"><table class="stack">
       <thead><tr><th>#</th><th>Card</th><th>Tier</th><th>Fee + shipping</th><th>Expected net graded</th><th>Net selling raw</th><th>Expected gain</th><th>Needs a 10 chance of</th><th>You said</th><th>Chance worse than raw</th><th>Worst case vs raw</th></tr></thead>
       <tbody id="submit-rows"></tbody>
     </table></div>
     <h3>Sell raw or hold</h3>
-    <div class="tablewrap"><table>
+    <div class="tablewrap"><table class="stack">
       <thead><tr><th>Card</th><th>Why</th><th>Expected gain from grading</th><th>Needs a 10 chance of</th><th>You said</th></tr></thead>
       <tbody id="hold-rows"></tbody>
     </table></div>

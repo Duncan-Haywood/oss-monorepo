@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVN2M1oEFckT2s9hpvm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T01:56:07Z",
+  "ended": "2026-11-27T02:03:31Z",
+  "wall_minutes": 7.62,
+  "tokens_in": 8475880,
+  "tokens_out": 34276,
+  "cost_usd": 3.5092,
+  "tool_calls": 72,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19561",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported no free, ungated item on any bet; every payapps Next item waits on demand, so the next run has to open its own slug. The 2026-11-19 quality-audit defects in ventures/einvoice-preflight/NEXT.md were the quickest real work to find, but --bets does not list them."
+    },
+    {
+      "file": "private-monorepo apps/einvoice-preflight (repair-facturx.test.mjs)",
+      "issue": "'poppler opens the repaired PDF' fails in a cloud session with and without the change (an environment issue), so a full-suite run never comes back all green."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bet #1 (payapps) has 67 merged features and no free item. I took bet #3's open audit defect (a false blocking error on valid invoices) as the thing that most directly stands between the product and a paying accountant who trusts it.",
+      "did": "Fixed BR-CO-17 tolerance in private-monorepo PR #453",
+      "result": "merged, tests green apart from the pre-existing poppler failure"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the change is a correctness fix inside the paid product, and its ROADMAP entry and PR body record it. A customer post about rounding tolerance would be thin.",
+      "did": "ROADMAP Done entry instead",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/einvoice-preflight/ROADMAP.md Done entry (br-co-17-rounding-tolerance)"
+  ],
+  "goal": null,
+  "notes": "Security queue: alert #1434 triaged as a false positive (public Census aggregates). Venture: private PR #453 merged. Checks run: node --test '*.test.mjs' 2231 pass / 1 pre-existing fail (poppler); pro 247/247; Python 445 OK; new tests 7 JS + 5 Py + 1 pro.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "953f7056-a326-57a5-adba-a7add4e05c7e",
+    "transcripts": 1,
+    "first": "2026-11-27T01:56:07Z",
+    "last": "2026-11-27T02:03:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 133,
+        "output": 34276,
+        "thinking": 7539,
+        "cache_read": 8331130,
+        "cache_write_5m": 0,
+        "cache_write_1h": 144617,
+        "api_equivalent_usd": 3.5092,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 133,
+      "output": 34276,
+      "thinking": 7539,
+      "cache_read": 8331130,
+      "cache_write_5m": 0,
+      "cache_write_1h": 144617,
+      "api_equivalent_usd": 3.5092,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 67,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.62,
+      "active_minutes": 7.62,
+      "model_minutes": 6.07,
+      "tool_minutes": 1.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "read audit + CEN rule, fix JS/Python/explanations, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 114.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

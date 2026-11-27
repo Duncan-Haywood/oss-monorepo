@@ -2,8 +2,8 @@
 title: "A subcontractor's three-week lookahead: keeping your own schedule when the GC's slips"
 seo_title: "Subcontractor three-week lookahead: schedule, sequence and slips"
 date: 2026-11-27
-tags: [for-customers, payapps, construction, scheduling, lookahead, subcontractors, holidays]
-description: "What a trade subcontractor's own lookahead should hold, how to check its sequence, take out holidays, and move everything after a GC slip in one step."
+tags: [for-customers, payapps, construction, scheduling, lookahead, subcontractors, holidays, p6, delays, time-extension]
+description: "A subcontractor's own lookahead: check its sequence, skip holidays, start from the GC's P6 file, move it after a slip, log delays by activity."
 ---
 
 *Written by an AI agent working in this repository. Your subcontract and the GC's schedule
@@ -71,6 +71,47 @@ observe it on the Friday before a Saturday or the Monday after a Sunday, so Inde
 union agreements add the day after Thanksgiving. Your company calendar decides; the federal list
 is only a starting point.
 
+## Tie each lost hour to the activity it held up
+
+When you ask the GC for more time, the first question is which work was held up, on which days,
+and by how much. A daily report that says "lost 6 hours, waiting on framing" answers the "how
+much". It does not say which of your activities stood still, and three weeks later nobody
+remembers whether that was the level 2 rough-in or the level 3 boxes.
+
+So on the day it happens, write the hours lost on the daily report and name the activity they
+held up. At the end of the slip you then have, per activity:
+
+- the days it was held up, oldest first;
+- the hours lost each day, and which days a foreman noted a delay without the hours;
+- the delay in the foreman's words, and the weather, from the same report.
+
+That list is the backup a time-extension change order needs. It is a record, not an answer:
+hours lost are not days of contract time, and a delay to one activity may not move your finish
+at all if other work can go on. How many calendar days to ask for is your call, made against
+the schedule and the subcontract, and many subcontracts only grant time if written notice went
+to the GC within a set number of days of the delay starting. Keep the log and send the notice;
+one does not replace the other.
+
+## Start from the GC's P6 file when you can get it
+
+Many GCs will send their P6 export (an `.xer` file) if you ask. Only a few of its activities are
+yours, and P6 holds things a sub's own schedule doesn't need:
+
+- **Which dates.** An activity that has started has an actual start. One that is complete has an
+  actual finish. Use those first. For open work, P6's *remaining* dates reflect the last update,
+  and the early and planned dates come after them. A finish milestone such as "Rough-in
+  inspection" has only a finish date, so it is one day.
+- **Which links.** P6 activities can wait for several others, linked four ways (finish to start,
+  start to start, finish to finish, start to finish), with leads and lags in hours. For a sub's
+  lookahead, the finish-to-start link that allows the latest start is the one that matters. Lag
+  hours turn into workdays at the activity's calendar: 20 hours on a four-tens calendar is 2
+  workdays, not 2.5. Write the other links down rather than dropping them.
+- **What to leave out.** Level-of-effort activities (supervision, general conditions) and WBS
+  summaries span other work. They are not tasks your crew starts and finishes.
+- **The next update.** The GC re-issues the schedule after each update. Match each activity by
+  its P6 activity ID, which doesn't change, not by its name, which sometimes does. Then the new
+  dates replace the old ones and your own notes stay.
+
 ## What to bring to the meeting
 
 - The next three weeks of your open activities, with a bar per workday.
@@ -96,7 +137,17 @@ for subcontractors, on every plan:
 - a company holiday list (added 2026-11-27): type the days you take off, or add the federal
   holidays for a year and delete the ones your crews work. Every workday count, sequence check,
   move and lookahead skips them, and the PDF names the holidays it left out;
-- a crew lookahead across every active job, grouped by the crew typed on each activity.
+- a crew lookahead across every active job, grouped by the crew typed on each activity;
+- delays by activity (added 2026-11-27): a daily report names the activity its lost hours held
+  up, the schedule lists the days and hours per activity, and the delay log (each day's hours,
+  weather and the delay as written) prints as a PDF for one activity or all, in a date range. On
+  a change order, "Attach the delay log" keeps it with the change order's files as backup. It
+  adds up what was typed and never turns hours into days;
+- the GC's P6 schedule imported (added 2026-11-27): choose the `.xer` file, find your activities
+  by ID, name or WBS, and tick them. The file is read in your browser and is not uploaded. Dates,
+  percent complete and the driving finish-to-start link come across, and any other links are
+  listed in the notes. Importing the GC's next update matches activities by P6 activity ID and
+  updates them, keeping your trade and notes. Typed activities stay as they are.
 
 Weekends are skipped, and so are the holidays you list. Nothing else is assumed. Dates are the
 ones you type: nothing is scheduled for you.

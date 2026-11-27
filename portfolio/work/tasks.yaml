@@ -589,6 +589,9 @@ tasks:
     notes: >-
       Owner, 2026-11-26 (LICENSING_TRANSITION.md, "Superseded, 2026-11-26").
       Publishing private code cannot be undone: audit before every copy.
+      Step 3 done 2026-11-27: platform/security/prepub_audit.py; PayApps,
+      payapps-site and packages/ audited with 0 block findings
+      (docs/reports/2026-11-27-prepub-audit-payapps.md).
       Watch: the payments account's OIDC trust is private-monorepo only, so
       a product's payments/webhook deploy either stays there or the trust is
       redesigned in its own reviewed PR; private apps use a pnpm workspace
@@ -646,7 +649,9 @@ tasks:
       Owner, 2026-11-27: "i shouldn't be in the loop for this". Replaces the
       ledger row agent-inboxes-secrets. The Cloudflare route also needs token
       permissions only the owner can grant, so the SES route (aws-ses-email)
-      is the one with no owner step.
+      is the one with no owner step, and the owner chose it the same day
+      ("all iac stuff instead we will do on aws instead once we fully move";
+      asks.yaml, aws-turnover).
   - id: paddle-key-check
     direction: paid-bets
     title: Report whether each Paddle key is the right kind, without printing it

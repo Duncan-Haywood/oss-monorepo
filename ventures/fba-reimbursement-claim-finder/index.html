@@ -92,11 +92,11 @@
     <p class="stats" id="report-stats"></p>
     <div id="report-findings"></div>
     <h3>By SKU</h3>
-    <div class="scroll"><table><thead><tr><th scope="col">SKU</th><th class="n" scope="col">Lost</th><th class="n" scope="col">Damaged</th><th class="n" scope="col">Found</th><th class="n" scope="col">Reimbursed</th><th class="n" scope="col">Unclaimed</th><th class="n" scope="col">Claim now</th><th class="n" scope="col">Expiring</th><th class="n" scope="col">Too new</th><th class="n" scope="col">Past window</th><th class="n" scope="col">Value / unit</th><th class="n" scope="col">Claim value</th><th class="n" scope="col">File by</th></tr></thead><tbody id="by-sku"></tbody></table></div>
+    <div class="scroll"><table class="stack"><thead><tr><th scope="col">SKU</th><th class="n" scope="col">Lost</th><th class="n" scope="col">Damaged</th><th class="n" scope="col">Found</th><th class="n" scope="col">Reimbursed</th><th class="n" scope="col">Unclaimed</th><th class="n" scope="col">Claim now</th><th class="n" scope="col">Expiring</th><th class="n" scope="col">Too new</th><th class="n" scope="col">Past window</th><th class="n" scope="col">Value / unit</th><th class="n" scope="col">Claim value</th><th class="n" scope="col">File by</th></tr></thead><tbody id="by-sku"></tbody></table></div>
     <div id="inbound" hidden>
       <h3>Inbound shipments that arrived short</h3>
       <p class="stats" id="inbound-stats"></p>
-      <div class="scroll"><table><thead><tr><th scope="col">Shipment / SKU</th><th class="n" scope="col">Sent</th><th class="n" scope="col">Received</th><th class="n" scope="col">Reimbursed</th><th class="n" scope="col">Open</th><th class="n" scope="col">Value</th><th scope="col">Status</th><th scope="col">File by</th></tr></thead><tbody id="inbound-rows"></tbody></table></div>
+      <div class="scroll"><table class="stack"><thead><tr><th scope="col">Shipment / SKU</th><th class="n" scope="col">Sent</th><th class="n" scope="col">Received</th><th class="n" scope="col">Reimbursed</th><th class="n" scope="col">Open</th><th class="n" scope="col">Value</th><th scope="col">Status</th><th scope="col">File by</th></tr></thead><tbody id="inbound-rows"></tbody></table></div>
       <label for="inbound-pick">Draft case text for the shipment you pick</label>
       <select id="inbound-pick"></select>
       <label for="inbound-claim">Case text</label>

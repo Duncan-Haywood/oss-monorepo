@@ -46,7 +46,7 @@ export function renderPage() {
 </header>
 ${GROUPS.map(([title, test]) => `<section>
 <h2>${title}</h2>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Code</th><th>What SdI refused</th><th>How to fix it</th><th>Caught offline?</th></tr></thead>
 <tbody>
 ${rows(test)}

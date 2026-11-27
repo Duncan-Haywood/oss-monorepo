@@ -94,7 +94,7 @@ test("the page says the announced rates are not a guarantee", () => {
 });
 
 test("the comparison table headers match the rendered row template", () => {
-  const table = markup.match(/<table>[\s\S]*?<\/table>/);
+  const table = markup.match(/<table(?: class="stack")?>[\s\S]*?<\/table>/);
   assert.ok(table, "comparison table missing");
   const headers = [...table[0].matchAll(/<th\b/g)];
   assert.equal(headers.length, 4, `expected 4 headers, found ${headers.length}`);

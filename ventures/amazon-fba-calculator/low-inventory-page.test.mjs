@@ -143,7 +143,7 @@ test("the calculator page carries the low-inventory section renderLowInventory w
 
 test("the calculator's low-inventory table renders one cell per column", () => {
   const { markup, scripts } = parse(index);
-  const table = markup.match(/<table id="lowInventoryTable">[\s\S]*?<\/table>/);
+  const table = markup.match(/<table(?: class="stack")? id="lowInventoryTable">[\s\S]*?<\/table>/);
   assert.ok(table, "index.html is missing the low-inventory table");
   const columns = table[0].match(/<th\b/g).length;
   const body = scripts.join("\n").match(/function renderLowInventory\([\s\S]*?\n    \}\n/);

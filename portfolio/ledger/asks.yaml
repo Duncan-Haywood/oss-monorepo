@@ -64,10 +64,18 @@
 #     free (task products-to-public-repo). Both are agent work.
 #   - `private-monorepo-clone`: "migrate this to public oss one instead"
 #     (owner, 2026-11-27). Same task, products-to-public-repo.
-#   - `agent-inboxes-secrets`: "i shouldn't be in the loop for this" (owner,
-#     2026-11-27). The tokens are random values a deploy can generate and
-#     store itself, and the forward address is the one the owner already
-#     gives the AWS bootstrap; task inboxes-without-owner.
+# Rows `agent-inboxes-secrets`, `web-analytics-token` and
+# `publication-identity` are gone: answered by the owner on 2026-11-27.
+# Inboxes and analytics: "all iac stuff instead we will do on aws instead
+# once we fully move" and "we will set up more in depth there" -- both move
+# into `aws-turnover` (SES receives mail; analytics are built on AWS). Do not
+# ask for the Cloudflare MAIL_* secrets, the Cloudflare token's email or Web
+# Analytics permissions, or a site token again. Publication identity: dropped
+# ("more side project"); registry listings reach developers, none of the
+# ranked bets in `portfolio/monetization/bets.md` sells to developers, and the
+# row's own estimate was $16-$145/month. No registry signup, GitHub App
+# permission change or free-listing approval is pending; do not put it back
+# unless a ranked bet needs a registry to reach its buyers.
 # Row `print-atelier-stripe-checkout` is gone: the owner's 2026-10-15 rule
 # answers it (payment code is fine off by default on the deployer's keys;
 # `PRODUCT_PLAYBOOK.md` §6). Its Stripe code already works that way.
@@ -141,43 +149,6 @@ decisions:
     so "the egress entry it needs" is no longer needed. The key-safety design
     stays `docs/reports/2026-10-30-billing-plan.md`, Option A: hosted
     checkout, no live key anywhere this repo or its agents can reach.
-- id: publication-identity
-  asks: [0, 1, 5]
-  prs: []
-  gates: distribution
-  exposure: legal-person
-  opened: "2026-08-19"
-  action: >-
-    Three related grants: one registry account signup (Packagist or RubyGems
-    preferred; not Docker Hub), one GitHub App permission change, and one
-    standing approval on whether an agent session may publish a *free* listing
-    -- no payment, no personal data, no compliance claim -- under this
-    portfolio's name.
-  unlocks:
-    - A demand measurement on a developer-buyer channel, and submission access to the git/PR-based channels.
-    - >-
-      (Added 2026-10-29.) crates.io is a registry this covers too: `cargo
-      install dupehound` for the Rust copy-paste detector in
-      ventures/dupehound, and later tools of the "dev tools in Rust"
-      direction. crates.io logs in with a GitHub account; publishing under
-      the portfolio's name is the owner's call. index.crates.io answered 200
-      from a cloud session on 2026-10-29, so egress is not the blocker there.
-  blocked_by: []
-  note: >-
-    Listed as blocked, and this is the correction the #139 table does not
-    carry. `CLAUDE.md` states it in prose -- "Ask 5 is currently inert" --
-    because every channel nominated as agent-listable (WordPress.org, Open
-    VSX, VS Code Marketplace, GitHub Marketplace) measured egress- or
-    scope-denied, verified twice on separate dates against a control host. So
-    granting the publish approval today publishes nothing. Per #218 a cold
-    listing carries roughly 5% odds of reaching the top decile, and per
-    #219/#225 the payoff at today's reachable-registry regime is $16-$145/month
-    -- a rounding error against the ceiling in `break-even.md`. Worth granting
-    after the egress decision, not before it. Unblocked 2026-10-31: the owner
-    granted the egress list and the re-probe that day found WordPress.org,
-    Open VSX, the VS Code Marketplace, Packagist and RubyGems all reachable
-    (`portfolio/research/egress-reachability/results-2026-10-31.json`).
-
 - id: search-engine-verification
   asks: []
   prs: [12907]
@@ -274,6 +245,11 @@ decisions:
       PayApps (bet #1): its launch review is merged (private-monorepo#444)
       and its deploy (run 45921558751, 2026-11-27) ended with no runner. Then
       every other paid app's deploy and the Paddle catalog sync.
+    - >-
+      Agent-managed inboxes (hello@, support@, privacy@, billing@) on SES and
+      real visitor analytics, both built on AWS (owner, 2026-11-27) in place
+      of the dropped Cloudflare rows. Working support and privacy addresses
+      are part of what Paddle's domain review in payout-rail looks for.
   blocked_by: []
   note: >-
     Owner, 2026-11-27: working on it now. Added 2026-11-24 by the aws-spend-guards follow-up (PR 18802) after PR
@@ -283,36 +259,3 @@ decisions:
     Cloudflare is the registrar. The cloudflare-mail-and-ruleset row's
     Email Routing part becomes moot once SES receives mail; its ruleset
     part does not.
-
-- id: web-analytics-token
-  asks: []
-  prs: [18774]
-  gates: measurement
-  exposure: credential
-  opened: "2026-11-25"
-  action: >-
-    The site now ships Cloudflare Web Analytics (cookieless, free, on the
-    Cloudflare account the site already uses; platform/analytics/README.md)
-    and standard Privacy, Terms and Cookie pages. The deploy finds or creates
-    the Web Analytics site through the API, but the deploy token probably
-    cannot: on 2026-11-19 it could not even read zone analytics
-    (portfolio/usage/cloudflare-analytics.json). Do one of: (a) give
-    the deploy token (CLOUDFLARE_API_TOKEN) the account-level Account
-    Analytics / Web Analytics edit permission, and the next deploy
-    provisions itself; or (b) Cloudflare -> Analytics & Logs -> Web Analytics
-    -> Add a site -> marisstella.app, copy the site token (public by design)
-    into platform/analytics/site.json "token" (any session can commit it).
-    Until then the pages ship without the beacon and the legal pages say
-    analytics are off. Also confirm hello@marisstella.app receives mail: the
-    Privacy Policy names it as the contact for privacy requests, and the
-    2026-11-10 audit found the domain had no MX record.
-  unlocks:
-    - >-
-      Real visitor analytics (pages, referrers, countries, devices, Core Web
-      Vitals) for every page, the measurement the $10k MRR funnel work needs.
-  blocked_by: []
-  note: >-
-    Owner, 2026-11-25: "the privacy policies that are like no data gathered
-    kill those let's set up real analytics and standard privacy policies and
-    other legal docs." No money, no new account; the token permission is
-    reversible in the same page.

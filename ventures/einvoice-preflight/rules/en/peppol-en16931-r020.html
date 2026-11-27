@@ -12,7 +12,7 @@
 <meta property="og:title" content="PEPPOL-EN16931-R020: Seller electronic address is missing">
 <meta property="og:description" content="PEPPOL-EN16931-R020: Peppol requires the Seller electronic address (BT-34): your own Peppol endpoint, so the buyer and the network know where the invoice…">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does PEPPOL-EN16931-R020 mean?","acceptedAnswer":{"@type":"Answer","text":"Peppol requires the Seller electronic address (BT-34): your own Peppol endpoint, so the buyer and the network know where the invoice comes from and where to send responses. In UBL it is cbc:EndpointID in the seller party, with a schemeID from the Peppol EAS code list; in CII it is ram:URIUniversalCommunication/ram:URIID in ram:SellerTradeParty."}},{"@type":"Question","name":"How do I fix PEPPOL-EN16931-R020?","acceptedAnswer":{"@type":"Answer","text":"Find your Peppol participant ID (your access point provider registered it); it is a scheme code plus an identifier, for example 9930 with your German VAT number or 0088 with your GLN. Add it as the first element of the seller party: cbc:EndpointID with schemeID (UBL), or ram:URIUniversalCommunication/ram:URIID with schemeID (CII). Store it in your company settings so every invoice carries it."}}]}</script>
-<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
 </head><body><main>
 <header>
 <p class="eyebrow">E-invoice rule explained · Peppol BIS</p>
@@ -47,21 +47,9 @@
 </ol>
 <h2>Corrected XML (minimal example we wrote)</h2>
 <p><strong>UBL</strong></p>
-<pre><code>&lt;cac:AccountingSupplierParty&gt;
-  &lt;cac:Party&gt;
-    &lt;cbc:EndpointID schemeID=&quot;9930&quot;&gt;DE123456789&lt;/cbc:EndpointID&gt;
-    &lt;cac:PartyName&gt;
-      &lt;cbc:Name&gt;Example Seller GmbH&lt;/cbc:Name&gt;
-    &lt;/cac:PartyName&gt;
-  &lt;/cac:Party&gt;
-&lt;/cac:AccountingSupplierParty&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;cac:AccountingSupplierParty&gt;</span><span class="ln" style="--i:2">  &lt;cac:Party&gt;</span><span class="ln" style="--i:4">    &lt;cbc:EndpointID schemeID=&quot;9930&quot;&gt;DE123456789<wbr>&lt;/cbc:EndpointID&gt;</span><span class="ln" style="--i:4">    &lt;cac:PartyName&gt;</span><span class="ln" style="--i:6">      &lt;cbc:Name&gt;Example Seller GmbH<wbr>&lt;/cbc:Name&gt;</span><span class="ln" style="--i:4">    &lt;/cac:PartyName&gt;</span><span class="ln" style="--i:2">  &lt;/cac:Party&gt;</span><span class="ln" style="--i:0">&lt;/cac:AccountingSupplierParty&gt;</span></code></pre>
 <p><strong>CII</strong></p>
-<pre><code>&lt;ram:SellerTradeParty&gt;
-  &lt;ram:Name&gt;Example Seller GmbH&lt;/ram:Name&gt;
-  &lt;ram:URIUniversalCommunication&gt;
-    &lt;ram:URIID schemeID=&quot;9930&quot;&gt;DE123456789&lt;/ram:URIID&gt;
-  &lt;/ram:URIUniversalCommunication&gt;
-&lt;/ram:SellerTradeParty&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;ram:SellerTradeParty&gt;</span><span class="ln" style="--i:2">  &lt;ram:Name&gt;Example Seller GmbH<wbr>&lt;/ram:Name&gt;</span><span class="ln" style="--i:2">  &lt;ram:URIUniversalCommunication&gt;</span><span class="ln" style="--i:4">    &lt;ram:URIID schemeID=&quot;9930&quot;&gt;DE123456789<wbr>&lt;/ram:URIID&gt;</span><span class="ln" style="--i:2">  &lt;/ram:URIUniversalCommunication&gt;</span><span class="ln" style="--i:0">&lt;/ram:SellerTradeParty&gt;</span></code></pre>
 <p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
 </section>
 <section>

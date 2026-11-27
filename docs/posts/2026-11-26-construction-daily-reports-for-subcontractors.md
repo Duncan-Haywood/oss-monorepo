@@ -70,8 +70,12 @@ should show the gaps: the weekdays since the job's first report that have no rep
 gap caught on Wednesday can still be filled from memory and the foreman's texts. One found in
 a dispute months later can't.
 
-Holidays and days your crew wasn't scheduled show up as gaps too. That's fine: a gap is a
-question to answer, not an error.
+Leave the company's holidays out of the count. A GC that asks for a report every workday
+doesn't expect one on Thanksgiving, and a list that flags every holiday trains people to skip
+it. The simple way is one list of the days your company takes off, kept where the schedule
+already reads it, so the lookahead and the daily log agree on what a workday is. A report
+written on a holiday still counts. Days your crew wasn't scheduled, which no calendar knows
+about, will still show as gaps. That's fine: a gap is a question to answer, not an error.
 
 Check once a week, not only when you open the log. Monday morning is a good time: last week's
 missed days are still fresh, and a short report saying "no crew on site" closes a gap as surely
@@ -105,8 +109,10 @@ for subcontractors, on every plan:
 - one report per job and day, with the fields above, crew lines by company and trade, and
   man-hours totalled per day and for the job;
 - the weekdays since the first report with no report, listed on the log, each a click away
-  from a new report;
-- the weekly email lists last week's missing weekdays per job, linked to that job's log. Only
+  from a new report. The company's holidays (the same list the job schedule uses) are left out,
+  and the log names the ones it skipped (added 2026-11-27);
+- the weekly email lists last week's missing weekdays per job, less the company's holidays,
+  linked to that job's log. Only
   jobs someone is still logging (a report in the last 14 days) are listed, and missing days
   alone never send the email, since a sub isn't on site every weekday;
 - "New, with the crew from yesterday" copies the crew and equipment, nothing else;

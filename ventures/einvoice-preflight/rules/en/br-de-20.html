@@ -12,7 +12,7 @@
 <meta property="og:title" content="BR-DE-20: Debited account is not a valid IBAN for a SEPA direct debit">
 <meta property="og:description" content="BR-DE-20: When the payment means code (BT-81) is 59 (SEPA direct debit), the debited account identifier (BT-91), the buyer's account you will collect from,…">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does BR-DE-20 mean?","acceptedAnswer":{"@type":"Answer","text":"When the payment means code (BT-81) is 59 (SEPA direct debit), the debited account identifier (BT-91), the buyer's account you will collect from, should be a valid IBAN with a correct check sum. Spaces are ignored. This is a warning."}},{"@type":"Question","name":"How do I fix BR-DE-20?","acceptedAnswer":{"@type":"Answer","text":"Take the buyer's IBAN from the signed SEPA mandate and check it against the original. Put it in cbc:ID of cac:PayerFinancialAccount inside cac:PaymentMandate (UBL) or ram:IBANID of ram:PayerPartyDebtorFinancialAccount (CII). If you are not collecting by direct debit, use the payment means code that matches how you will be paid."}}]}</script>
-<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
 </head><body><main>
 <header>
 <p class="eyebrow">E-invoice rule explained · XRechnung</p>
@@ -47,22 +47,9 @@
 </ol>
 <h2>Corrected XML (minimal example we wrote)</h2>
 <p><strong>UBL</strong></p>
-<pre><code>&lt;cac:PaymentMeans&gt;
-  &lt;cbc:PaymentMeansCode&gt;59&lt;/cbc:PaymentMeansCode&gt;
-  &lt;cac:PaymentMandate&gt;
-    &lt;cbc:ID&gt;MANDAT-2026-001&lt;/cbc:ID&gt;
-    &lt;cac:PayerFinancialAccount&gt;
-      &lt;cbc:ID&gt;DE02120300000000202051&lt;/cbc:ID&gt;
-    &lt;/cac:PayerFinancialAccount&gt;
-  &lt;/cac:PaymentMandate&gt;
-&lt;/cac:PaymentMeans&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;cac:PaymentMeans&gt;</span><span class="ln" style="--i:2">  &lt;cbc:PaymentMeansCode&gt;59<wbr>&lt;/cbc:PaymentMeansCode&gt;</span><span class="ln" style="--i:2">  &lt;cac:PaymentMandate&gt;</span><span class="ln" style="--i:4">    &lt;cbc:ID&gt;MANDAT-2026-001<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:4">    &lt;cac:PayerFinancialAccount&gt;</span><span class="ln" style="--i:6">      &lt;cbc:ID&gt;DE02120300000000202051<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:4">    &lt;/cac:PayerFinancialAccount&gt;</span><span class="ln" style="--i:2">  &lt;/cac:PaymentMandate&gt;</span><span class="ln" style="--i:0">&lt;/cac:PaymentMeans&gt;</span></code></pre>
 <p><strong>CII</strong></p>
-<pre><code>&lt;ram:SpecifiedTradeSettlementPaymentMeans&gt;
-  &lt;ram:TypeCode&gt;59&lt;/ram:TypeCode&gt;
-  &lt;ram:PayerPartyDebtorFinancialAccount&gt;
-    &lt;ram:IBANID&gt;DE02120300000000202051&lt;/ram:IBANID&gt;
-  &lt;/ram:PayerPartyDebtorFinancialAccount&gt;
-&lt;/ram:SpecifiedTradeSettlementPaymentMeans&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;ram:SpecifiedTradeSettlementPaymentMeans&gt;</span><span class="ln" style="--i:2">  &lt;ram:TypeCode&gt;59<wbr>&lt;/ram:TypeCode&gt;</span><span class="ln" style="--i:2">  &lt;ram:PayerPartyDebtorFinancialAccount&gt;</span><span class="ln" style="--i:4">    &lt;ram:IBANID&gt;DE02120300000000202051<wbr>&lt;/ram:IBANID&gt;</span><span class="ln" style="--i:2">  &lt;/ram:PayerPartyDebtorFinancialAccount&gt;</span><span class="ln" style="--i:0">&lt;/ram:SpecifiedTradeSettlementPaymentMeans&gt;</span></code></pre>
 <p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
 </section>
 <section>

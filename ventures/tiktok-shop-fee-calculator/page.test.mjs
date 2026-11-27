@@ -149,7 +149,7 @@ test("the landing copy names the affiliate-return problem in the first screen", 
 });
 
 test("the calculator's free-shipping table renders one cell per column", () => {
-  const table = markup.match(/<table id="freeShipTable">[\s\S]*?<\/table>/);
+  const table = markup.match(/<table(?: class="stack")? id="freeShipTable">[\s\S]*?<\/table>/);
   assert.ok(table, "index.html is missing the free-shipping table");
   const columns = table[0].match(/<th\b/g).length;
   const row = scriptSource.match(/shipping\.paths\.map\([\s\S]*?<\/tr>`\)/);
