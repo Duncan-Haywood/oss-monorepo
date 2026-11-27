@@ -37,6 +37,12 @@ describe("webhookUrl", () => {
     assert.equal(webhookUrl(`${APP_URL}/`), HOOK);
     assert.equal(webhookUrl(" HTTPS://PayApps.MarisStella.app "), HOOK);
   });
+  it("accepts every digit and hyphens in host labels", () => {
+    // Labels may hold any digit 0-9 (a workers.dev account or a numbered staging host).
+    for (const host of ["app0123456789.example.com", "pay-apps-2.acme-9.workers.dev"]) {
+      assert.equal(webhookUrl(`https://${host}`), `https://${host}${HOOK.slice(APP_URL.length)}`);
+    }
+  });
   it("refuses http, paths, queries, credentials and odd hosts", () => {
     for (const bad of [
       "http://payapps.marisstella.app",
@@ -49,6 +55,7 @@ describe("webhookUrl", () => {
       `${APP_URL}/#frag`,
       "https://localhost",
       "https://127.0.0.1",
+      "https://[::1]",
       "not a url",
     ]) {
       assert.throws(() => webhookUrl(bad), /app URL/);
