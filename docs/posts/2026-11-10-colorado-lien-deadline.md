@@ -12,13 +12,33 @@ The free [mechanics lien deadline calculator](https://marisstella.app/mechanics-
 
 The calculator answers one job at a time, when you remember to ask. The deadline that matters is the one on the job where the GC is slow to pay, and lien rights end on that date whether anyone reminds you or not. Lien-tracking services sell this reminder on its own: SubLien starts at [$199 a month](https://www.saasworthy.com/product/sublien/pricing).
 
-[PayApps](https://payapps.marisstella.app/?signup&from=lien-deadline-post) now keeps the same ten states' lien dates on each job, on every plan, the free one included:
+[PayApps](https://payapps.marisstella.app/?signup&from=lien-deadline-post) now keeps the same ten states' lien dates on each job, plus six more (below), on every plan, the free one included:
 
 - **On the job page**, enter the property's state and your last day on site. The panel shows the last day to record (or file) the lien, the rule it comes from and the statute section. California and Arizona also take the project's completion date and the day the owner recorded a notice of completion, which cuts California's time to 30 days and Arizona's to 60.
 - **Before you enter a last day**, PayApps estimates the date from your billing. It counts from the first day of the latest pay application period that billed work. Your last day of work was on or after that day, so the estimate can only come out early, never late, and the page says it is an estimate.
 - **On the cash page and in the weekly email**, a job that still owes you money (retainage counts) gets a line 45 days before the date: what to file, by when, under which section, and how much is still owed. After the date passes, the line says to ask a construction attorney what is left (a late lien, a payment bond claim, or suing on the contract) instead of telling you to file. A job that is still billing work every month gets no line until you enter your last day or the work is billed complete, because until then the estimate moves forward every month.
 
 The same limits as the calculator apply. A weekend date moves back to the Friday before it, and holidays are not counted. Public jobs (payment bond claims), third-tier claimants and contract terms are not covered. It is a date lookup, not legal advice.
+
+## Six more states in PayApps: Michigan, Minnesota, Nevada, Oregon, Utah and Virginia (added 2026-11-27)
+
+The job page's lien deadline now covers sixteen states. These six were read whole on each legislature's own site on 2026-11-27 (legislature.mi.gov, revisor.mn.gov, leg.state.nv.us, oregonlegislature.gov, le.utah.gov, law.lis.virginia.gov), not taken from secondary explainers. They are in PayApps only for now, not yet in the free calculator.
+
+| State | Lien filing deadline | What PayApps asks for | Statute |
+|---|---|---|---|
+| Michigan | Record a claim of lien within 90 days after your last furnishing of labor or material, in each county where the property is | Your last day | MCL 570.1111(1) |
+| Minnesota | Within 120 days after your last work or materials, file the lien statement **and** serve a copy on the owner (in person or by certified mail) | Your last day | Minn. Stat. 514.08, subd. 1 |
+| Nevada | Record a notice of lien within 90 days after the latest of completion of the work of improvement and your own last work or delivery, or within 40 days after a notice of completion is recorded and served | Your last day, completion and the notice of completion | NRS 108.226(1) |
+| Oregon | File a claim of lien within 75 days after you stopped providing labor, materials or rented equipment, or 75 days after completion of construction, **whichever is earlier** | Your last day and completion | ORS 87.035(1) |
+| Utah | Record a notice of construction lien within 180 days after final completion of the original contract, or 90 days after a notice of completion is filed (never later than the 180 days) | Your last day, completion and the notice of completion | Utah Code 38-1a-502(1) |
+| Virginia | File a memorandum of lien within 90 days from the last day of the month you last furnished, and in no event later than 90 days after the building is completed or the work otherwise terminated | Your last day and completion | Va. Code 43-4 |
+
+Two of these catch subs out because the deadline can come before the one they count from their own last day:
+
+- **Oregon** counts from whichever is earlier, your last day or completion of construction. If you were back for punch work after the job was complete, the 75 days started at completion. PayApps asks for the completion date and, until you enter it, says the date may be earlier.
+- **Virginia's** end-of-month rule gives up to 120 days, but the 90 days after completion can cut it short. With no completion date entered, PayApps counts those 90 days from your last day, the earliest completion can be. So the date comes out early, never late, and the page says how it was counted.
+
+Missouri was read too and left out. Its statute (RSMo 429.080) counts six months from when "the indebtedness shall have accrued". PayApps does not hold that date, and guessing it could put the deadline late. It is a date lookup, not legal advice: confirm the date with the county recorder or a construction attorney before you rely on it.
 
 ## North Carolina, New York and Ohio (added 2026-11-25)
 

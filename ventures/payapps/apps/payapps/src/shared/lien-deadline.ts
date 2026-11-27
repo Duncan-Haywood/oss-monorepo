@@ -1,11 +1,15 @@
 // The last day to record (or file) a mechanics lien on a job, for a subcontractor or supplier, in the
-// ten states whose filing clock PayApps carries. The money a sub is owed is only as safe as its lien
+// sixteen states whose filing clock PayApps carries. The money a sub is owed is only as safe as its lien
 // rights, and those end on a date most subs never write down: the job page shows it and the cash page
 // and weekly email name it when money is still owed and the date is near.
 //
 // Rules ported from ventures/mechanics-lien-deadline-calculator/calc.mjs (the free front door), whose
 // timing was checked against each state's statute text on 2026-11-25 (see that file's header for how
-// each was read). Only the lien-filing clock is here; preliminary notices have their own panels
+// each was read). Michigan, Minnesota, Nevada, Oregon, Utah and Virginia were added 2026-11-27 from
+// the statute text on each legislature's own site (MCL 570.1111, Minn. Stat. 514.08, NRS 108.226,
+// ORS 87.035 and 87.010, Utah Code 38-1a-502, Va. Code 43-4), read whole that day. Missouri was read
+// and left out: § 429.080 counts six months from when "the indebtedness shall have accrued", a date
+// PayApps does not hold. Only the lien-filing clock is here; preliminary notices have their own panels
 // (California, Florida, Texas, packages/lien-waivers).
 //
 // Safe side, always. Where a statute counts from completion of the whole project (California,
@@ -43,10 +47,16 @@ export const LIEN_DEADLINE_STATES = [
   "CO",
   "FL",
   "GA",
+  "MI",
+  "MN",
   "NC",
+  "NV",
   "NY",
   "OH",
+  "OR",
   "TX",
+  "UT",
+  "VA",
   "WA",
 ] as const;
 export type LienDeadlineState = (typeof LIEN_DEADLINE_STATES)[number];
@@ -58,7 +68,26 @@ type Rule =
   | { type: "days_after_last"; days: number }
   | { type: "months_after_last"; months: number }
   | { type: "day15_months_after_last"; months: number }
-  | { type: "completion"; completionDays: number; nocDays: number };
+  | {
+      type: "completion";
+      completionDays: number;
+      nocDays: number;
+      /** What completes, in the statute's words (default: the work of improvement). */
+      completionWhat?: string;
+    }
+  /**
+   * The earlier of a count from the claimant's own last furnishing (from the last day of that month
+   * when `monthEnd`) and a count from completion of the building, whichever comes first (Oregon,
+   * Virginia). Completion can come before a sub's last day (punch work after it), so an entered
+   * completion date is used whatever its order.
+   */
+  | {
+      type: "earlier_of_completion";
+      days: number;
+      monthEnd: boolean;
+      completionDays: number;
+      completionWhat: string;
+    };
 
 interface StateRule {
   name: string;
@@ -159,6 +188,77 @@ export const LIEN_DEADLINE_RULES: Record<LienDeadlineState, StateRule> = {
       "These are the clocks for original contracts signed on or after 1 January 2022 (H.B. 2237). The lien also needs a notice of claim for each unpaid month (§ 53.056, on the job's preliminary notice panel); claims for retainage have their own dates (§ 53.057).",
     ],
   },
+  MI: {
+    name: "Michigan",
+    citation: "Mich. Comp. Laws § 570.1111(1)",
+    act: "record a claim of lien with the register of deeds",
+    commercial: { type: "days_after_last", days: 90 },
+    notes: [
+      "The claim of lien is recorded in each county where the property is, and is valid only for the property in that county (§ 570.1111(1)).",
+    ],
+  },
+  MN: {
+    name: "Minnesota",
+    citation: "Minn. Stat. § 514.08, subd. 1",
+    act: "file a statement of the claim for record and serve a copy on the owner",
+    commercial: { type: "days_after_last", days: 120 },
+    notes: [
+      "Both steps are due within the 120 days: the statement filed with the county recorder (or registrar of titles for registered land), and a copy served personally or by certified mail on the owner, the owner's agent or the person who contracted with the contractor (§ 514.08, subd. 1).",
+    ],
+  },
+  NV: {
+    name: "Nevada",
+    citation: "Nev. Rev. Stat. § 108.226(1)",
+    act: "record a notice of lien",
+    commercial: { type: "completion", completionDays: 90, nocDays: 40 },
+    notes: [
+      "The statute counts 90 days from the latest of completion of the work of improvement and your own last furnishing or work, or 40 days after a valid notice of completion is recorded and served (§§ 108.226(1), 108.228).",
+    ],
+  },
+  OR: {
+    name: "Oregon",
+    citation: "Or. Rev. Stat. § 87.035(1)",
+    act: "file a claim of lien with the county recording officer",
+    commercial: {
+      type: "earlier_of_completion",
+      days: 75,
+      monthEnd: false,
+      completionDays: 75,
+      completionWhat: "completion of construction",
+    },
+    notes: [
+      "This is the clock for labor, materials or rented equipment on the improvement (§ 87.010(1) and (2)): 75 days after you stopped providing them or 75 days after completion of construction, whichever is earlier.",
+    ],
+  },
+  UT: {
+    name: "Utah",
+    citation: "Utah Code § 38-1a-502(1)",
+    act: "submit a notice of construction lien for recording with the county recorder",
+    commercial: {
+      type: "completion",
+      completionDays: 180,
+      nocDays: 90,
+      completionWhat: "final completion of the original contract",
+    },
+    notes: [
+      "With a notice of completion filed (§ 38-1a-507) the time is 90 days after it, and never later than 180 days after final completion. A subcontractor who does substantial work after the certificate of occupancy or final inspection has 180 days after its own final work (§ 38-1a-502(1)(b)).",
+    ],
+  },
+  VA: {
+    name: "Virginia",
+    citation: "Va. Code § 43-4",
+    act: "file a memorandum of lien in the clerk's office",
+    commercial: {
+      type: "earlier_of_completion",
+      days: 90,
+      monthEnd: true,
+      completionDays: 90,
+      completionWhat: "completion of the building, or the work on it otherwise terminated",
+    },
+    notes: [
+      "The same deadline applies to the general contractor and to subcontractors and suppliers (§§ 43-4, 43-7): 90 days from the last day of the month you last furnished, and in no event later than 90 days after the building is completed or the work otherwise terminated.",
+    ],
+  },
   WA: {
     name: "Washington",
     citation: "Wash. Rev. Code § 60.04.091",
@@ -181,6 +281,26 @@ export function addMonths(iso: string, months: number): string {
 export function day15MonthsAfter(iso: string, months: number): string {
   const [y, m] = iso.split("-").map(Number) as [number, number];
   return new Date(Date.UTC(y, m - 1 + months, 15)).toISOString().slice(0, 10);
+}
+
+/** The last day of the month containing `iso`. */
+export function monthEnd(iso: string): string {
+  const [y, m] = iso.split("-").map(Number) as [number, number];
+  return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
+}
+
+/** Which of the completion dates the job's panel asks for in a state. */
+export function lienDateFields(state: string | null | undefined): {
+  completion: boolean;
+  noticeOfCompletion: boolean;
+} {
+  const s = state?.trim().toUpperCase();
+  if (!isLienDeadlineState(s)) return { completion: false, noticeOfCompletion: false };
+  const t = LIEN_DEADLINE_RULES[s].commercial.type;
+  return {
+    completion: t === "completion" || t === "earlier_of_completion",
+    noticeOfCompletion: t === "completion",
+  };
 }
 
 const weekday = (iso: string) => new Date(`${iso}T00:00:00Z`).getUTCDay();
@@ -350,7 +470,8 @@ export function lienDeadline(input: LienDeadlineInput): LienDeadlineResult {
       const byCompletion = addDays(completed ?? fromOn, rule.completionDays);
       const noc = input.noticeOfCompletionOn ?? null;
       const byNoc = noc ? addDays(noc, rule.nocDays) : null;
-      const completionWords = `${plural(rule.completionDays, "day")} after completion of the work of improvement${completed ? "" : ` (counted from ${from}, which cannot be later than completion)`}`;
+      const what = rule.completionWhat ?? "completion of the work of improvement";
+      const completionWords = `${plural(rule.completionDays, "day")} after ${what}${completed ? "" : ` (counted from ${from}, which cannot be later than completion)`}`;
       if (byNoc && byNoc < byCompletion) {
         statutoryOn = byNoc;
         words = `${plural(rule.nocDays, "day")} after the owner recorded a notice of completion (earlier than ${completionWords})`;
@@ -360,11 +481,38 @@ export function lienDeadline(input: LienDeadlineInput): LienDeadlineResult {
       }
       break;
     }
+    case "earlier_of_completion": {
+      const own = rule.monthEnd ? monthEnd(fromOn) : fromOn;
+      const byOwn = addDays(own, rule.days);
+      const ownWords = rule.monthEnd
+        ? `${plural(rule.days, "day")} from the last day of the month of ${from}`
+        : `${plural(rule.days, "day")} after ${from}`;
+      const completed = input.completedOn ?? null;
+      // No completion entered: completion is on or after the last day of work (else the panel asks
+      // for it), so counting completion's days from the last day of work can only be early.
+      usedLast = !completed;
+      const byCompletion = addDays(completed ?? fromOn, rule.completionDays);
+      if (byCompletion < byOwn) {
+        statutoryOn = byCompletion;
+        words = completed
+          ? `${plural(rule.completionDays, "day")} after ${rule.completionWhat} (earlier than ${ownWords})`
+          : `${plural(rule.completionDays, "day")} after ${from}, the earliest ${rule.completionWhat} can be (earlier than ${ownWords})`;
+      } else {
+        statutoryOn = byOwn;
+        words = ownWords;
+      }
+      break;
+    }
   }
   const notes = [...info.notes];
+  if (rule.type === "earlier_of_completion" && !input.completedOn) {
+    notes.unshift(
+      `If ${rule.completionWhat} came before your last day of work, enter its date: the ${plural(rule.completionDays, "day")} then count from it and the date is earlier.`,
+    );
+  }
   if (rule.type === "completion" && !input.noticeOfCompletionOn) {
     notes.unshift(
-      `If the owner records a notice of completion (or cessation), the time is shorter: ${plural((rule as { nocDays: number }).nocDays, "day")} after it is recorded. Check with the county recorder and enter its date here.`,
+      `If the owner records a notice of completion${state === "CA" ? " (or cessation)" : ""}, the time is shorter: ${plural((rule as { nocDays: number }).nocDays, "day")} after it is recorded. Check with the county recorder and enter its date here.`,
     );
   }
   if (info.residential && !residentialRule) {

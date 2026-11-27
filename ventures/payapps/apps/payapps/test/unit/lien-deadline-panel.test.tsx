@@ -67,6 +67,11 @@ it("offers the residential rule only where the state has one, and the completion
   cleanup();
   show(project({ lienState: "CA", lastFurnishedOn: "2026-09-01" }));
   expect(screen.getByLabelText("Day the owner recorded a notice of completion")).toBeTruthy();
+  cleanup();
+  // Virginia counts from completion but has no notice of completion.
+  show(project({ lienState: "VA", lastFurnishedOn: "2026-09-01" }));
+  expect(screen.getByLabelText("Completion of the whole project")).toBeTruthy();
+  expect(screen.queryByLabelText("Day the owner recorded a notice of completion")).toBeNull();
 });
 
 it("saves the state and last day through the job's PATCH", async () => {

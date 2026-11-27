@@ -1024,7 +1024,25 @@ nothing to copy. No customers yet. Paid plans are dark
   hand), `test/worker/lien-deadline.test.ts`, `test/unit/lien-deadline-panel.test.tsx`. Also fixed:
   the cash CSV's Total row was one column short since "Pay terms count from" was added, so its past
   due total sat under that header. Not done: holidays, public jobs (bond claims), states beyond the
-  ten, the notice of intent dates (Colorado) as their own reminder, and a lien recorded on the job.
+  ten (six more done 2026-11-27, below), the notice of intent dates (Colorado) as their own reminder,
+  and a lien recorded on the job.
+
+- Lien deadline, six more states (2026-11-27, every plan; lien-deadline-more-states): Michigan (MCL
+  570.1111(1), 90 days after last furnishing), Minnesota (§ 514.08 subd. 1, 120 days, statement
+  filed and served), Nevada (NRS 108.226(1), 90 days after the latest of completion and last
+  furnishing, 40 after a notice of completion), Oregon (ORS 87.035(1), 75 days after last furnishing
+  or completion, whichever is earlier), Utah (§ 38-1a-502(1), 180 days after final completion, 90
+  after a notice of completion) and Virginia (§ 43-4, 90 days from the end of the month of last
+  furnishing, never later than 90 after completion). Each read whole on the legislature's own site
+  that day. A new rule type `earlier_of_completion` (Oregon, Virginia) uses an entered completion
+  date even when it is before the sub's last day, and without one counts completion's days from the
+  last day (the earliest completion can be). `lienDateFields()` decides which completion dates the
+  panel asks for (Virginia and Oregon have no notice of completion). Missouri read and left out:
+  § 429.080 counts six months from when the indebtedness accrued, a date PayApps does not hold.
+  Tests: every new state's date worked by hand in `src/shared/lien-deadline.test.ts`; the panel's
+  fields in `test/unit/lien-deadline-panel.test.tsx`. Still not done: holidays, the other states
+  (Illinois and Pennsylvania's statute hosts did not answer from the session), and the free
+  calculator, which still has ten.
 
 - Notices of claim: Texas, part 2 (2026-11-27, Crew and up; texas-notices-of-claim-part-2). Under
   the Texas notices, "Notices of claim sent (Texas)": the job is tracked as a residential construction
