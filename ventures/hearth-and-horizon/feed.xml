@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Leo and the King at the River</title>
+      <link>https://example.invalid/hearth-and-horizon/leo-and-the-king-at-the-river.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/leo-and-the-king-at-the-river.html</guid>
+      <pubDate>Fri, 27 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Leo the Great, the pope who rode north out of Rome to meet Attila, the king everyone feared, and about Marcus, a frightened boy who leads the mules and walks beside him anyway. Told from the chronicles written at the time, with what nobody knows left unknown and the later legend of the two apostles marked as legend, and a note for grown-ups on what is history and what is ours. For ages 3 to 8, about ten minutes read aloud. He is remembered on the 10th of November. Setting: Rome and a ford of the river Mincio in northern Italy, in the summer of the year 452. Read the full text at https://example.invalid/hearth-and-horizon/leo-and-the-king-at-the-river.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Leo the Great, the pope who rode north out of Rome to meet Attila, the king everyone feared, and about Marcus, a frightened boy who leads the mules and walks beside him anyway. Told from the chronicles written at the time, with what nobody knows left unknown and the later legend of the two apostles marked as legend, and a note for grown-ups on what is history and what is ours. For ages 3 to 8, about ten minutes read aloud. He is remembered on the 10th of November.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>André and the Door at Notre-Dame College</title>
       <link>https://example.invalid/hearth-and-horizon/andre-and-the-door-at-notre-dame-college.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/andre-and-the-door-at-notre-dame-college.html</guid>
