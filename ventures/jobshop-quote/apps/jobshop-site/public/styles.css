@@ -1,4 +1,4 @@
-/* RFQ Desk marketing site. Palette and type follow apps/grants' "Juniper & Sandstone" system
+/* Job Shop Quote marketing site. Palette and type follow apps/grants' "Juniper & Sandstone" system
    (apps/grants/docs/DESIGN.md): brand = juniper, accent = sandstone, warm neutrals. System fonts,
    no url()s, no inline styles, so the CSP stays at style-src 'self'. */
 :root {

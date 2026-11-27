@@ -13,8 +13,9 @@
     },
     "manufacturing": {
       "label": "Manufacturing",
-      "product": "RFQ-to-quote for CNC and fabrication job shops, and a CMMC and ISO 9001 workspace for small defense suppliers",
-      "status": "In development — early access"
+      "product": "Job Shop Quote, RFQ-to-quote for CNC and fabrication job shops, and CMMC Workspace for small defense suppliers (CMMC Level 1/2, ISO 9001)",
+      "status": "Open — free on Level 1 or 40 RFQs a month",
+      "open": true
     },
     "construction": {
       "label": "Construction",
