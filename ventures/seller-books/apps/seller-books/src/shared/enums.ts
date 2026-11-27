@@ -19,6 +19,12 @@ export const PLATFORMS = [
   "square",
   "paypal",
   "venmo",
+  // Imported only through the column-mapped CSV (importers/mapped.ts): none of these publishes its
+  // export's column names, so the seller says which column is which (docs/IMPORTERS.md).
+  "grailed",
+  "stockx",
+  "vinted",
+  "other",
 ] as const;
 export type Platform = (typeof PLATFORMS)[number];
 
@@ -46,6 +52,10 @@ export const PLATFORM_LABELS: Record<SaleChannel, string> = {
   square: "Square",
   paypal: "PayPal",
   venmo: "Venmo",
+  grailed: "Grailed",
+  stockx: "StockX",
+  vinted: "Vinted",
+  other: "Another marketplace",
   direct: "Direct sales",
 };
 

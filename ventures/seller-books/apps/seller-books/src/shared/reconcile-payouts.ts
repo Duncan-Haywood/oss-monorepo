@@ -108,7 +108,10 @@ export function matchPlatform(description: string, platforms: readonly string[])
     .toLowerCase()
     .split(/[^a-z]+/)
     .filter(Boolean);
-  const hits = platforms.filter((p) => words.some((w) => w.startsWith(p.toLowerCase())));
+  // "other" (another marketplace, typed by the seller) names no payer a bank line would carry.
+  const hits = platforms.filter(
+    (p) => p !== "other" && words.some((w) => w.startsWith(p.toLowerCase())),
+  );
   return hits.length === 1 ? (hits[0] as string) : null;
 }
 
