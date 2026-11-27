@@ -18,9 +18,10 @@ Etsy — fees, cost of goods, mileage, a Schedule C worksheet. The product is bu
 | `build.mjs` | Prerenders `dist/`: pages, `sitemap.xml`, `robots.txt` (AI crawlers named), `llms.txt`, `llms-full.txt`, `_headers` |
 | `src/worker.mjs` | Cloudflare Worker: static assets + `/seller-books/api/early-access/*` |
 | `src/early-access.mjs`, `migrations/` | Double opt-in list on D1 (docs/EARLY_ACCESS.md) |
+| `src/inventory-sheet.mjs` | The free inventory spreadsheet (`.xlsx`, written by `build.mjs`, nothing committed): the app's sourcing-sheet import columns, profit per sale, a Year summary of Part III lines 35, 36 and 41. `test/inventory-sheet.test.mjs` checks the headers against the importer's source and, where `soffice` is installed, recalculates the example in LibreOffice |
 | `docs/PRICING.md` | Proposed tiers and the reasoning |
 
-Pages: `/` · `/platforms` + one per platform · `/schedule-c-worksheet` · `/1099-k` · `/personal-items-or-business` · `/cost-of-goods-sold` · `/mileage-deduction` · `/home-office-and-equipment` · `/reseller-tax-deductions` · `/quarterly-estimated-tax` · `/pricing` · `/faq` ·
+Pages: `/` · `/platforms` + one per platform · `/schedule-c-worksheet` · `/1099-k` · `/personal-items-or-business` · `/cost-of-goods-sold` · `/reseller-inventory-spreadsheet` (with the two `.xlsx` downloads) · `/mileage-deduction` · `/home-office-and-equipment` · `/reseller-tax-deductions` · `/quarterly-estimated-tax` · `/pricing` · `/faq` ·
 `/early-access` · `/privacy` (all under `/seller-books`).
 
 Conventions follow apps/grants' marketing site (`apps/grants/docs/SEO.md`, `EMAIL_MARKETING.md`):
