@@ -197,35 +197,40 @@
       "what": "Marketplace-import auto-link gives a multi-quantity order one inventory item (free?.shift() once per order; sale.inventoryItemId is a single column), so the other units stay in stock: P&L COGS is understated with no 'without cost' flag, and Schedule C line 41 is overstated and line 42 understated by their cost. Confirmed with the repo's own eBay fixture (Pyrex, quantity 2: one of two $10 items linked, COGS 1000 instead of 2000).",
       "where": "private-monorepo/apps/seller-books/src/worker/services/importers/store.ts:156",
       "category": "logic-error",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/private-monorepo/pull/367"
     },
     {
       "severity": "high",
       "what": "Marketplace-import auto-link does not require the item to have been bought on or before the sale date, so a sale links to a later purchase (probe: 2026-01-05 sale linked to an item acquired 2026-03-01, disposedDate before acquiredDate) and that later purchase's cost moves into the earlier period's COGS. The sourcing-sheet path already has the rule (inventory-store.ts:126); the two copies of the matching logic diverge.",
       "where": "private-monorepo/apps/seller-books/src/worker/services/importers/store.ts:103",
       "category": "logic-error",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/private-monorepo/pull/367"
     },
     {
       "severity": "medium",
       "what": "The order-to-item matching path is untested where it matters: replacing oldest-first ordering and removing the in_stock filter both survive the full worker suite, and no test has a quantity > 1 order or a sale before the item's acquired date.",
       "where": "private-monorepo/apps/seller-books/test/worker/books.test.ts:135",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/private-monorepo/pull/367"
     },
     {
       "severity": "medium",
       "what": "Schedule C worksheet gives no warning when orders in the year have no linked item; their items stay in_stock, so line 41 is overstated and line 42 understated, while only the P&L counts ordersWithoutCost.",
       "where": "private-monorepo/apps/seller-books/src/worker/services/books/schedule-c.ts:106",
       "category": "scope-gap",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/private-monorepo/pull/375"
     },
     {
       "severity": "medium",
       "what": "Line 9 uses one user-typed cents-per-mile for the whole year with no rate table, no check that the rate belongs to the year and no split for a mid-year change; the repo's free engine (ventures/reseller-books/trips.mjs) already prices each trip by date from a sourced IRS table.",
       "where": "private-monorepo/apps/seller-books/src/worker/routes/org/reports.ts:22",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/private-monorepo/pull/401"
     },
     {
       "severity": "medium",
@@ -239,14 +244,16 @@
       "what": "A refund for a returned item ('Return accepted') does not put the item back in stock, so its cost stays in COGS instead of closing inventory; no warning.",
       "where": "private-monorepo/apps/seller-books/src/worker/services/importers/store.ts:218",
       "category": "scope-gap",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/private-monorepo/pull/385"
     },
     {
       "severity": "low",
       "what": "ARCHITECTURE says an order is linked to 'the item it sold' and Part III uses specific identification, without stating the one-item-per-order limit.",
       "where": "private-monorepo/apps/seller-books/docs/ARCHITECTURE.md:72",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/private-monorepo/pull/367"
     },
     {
       "severity": "low",
@@ -256,6 +263,6 @@
       "origin": "implementation"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/private-monorepo/pull/367", "https://github.com/Duncan-Haywood/private-monorepo/pull/375", "https://github.com/Duncan-Haywood/private-monorepo/pull/401", "https://github.com/Duncan-Haywood/private-monorepo/pull/385"],
   "verdict": "Does not meet the bar (correctness 2, verification 2; median 3); finished against what it claims (completeness 3). The Schedule C line mapping is what a reseller's preparer would use: a 2025 worksheet worked by hand from the form (gross with shipping, refunds on line 2, fee credits netting line 10, ads on 8, postage and subscriptions in Part V, 50% meals, mileage at 70 cents, Part III 35 + 36 - 41 = 42 with personal use and write-offs) matches to the cent, the eBay importer's books reconcile to the report's own net column, and re-uploads are deduplicated. Tests pass (126 unit, 56 worker) and caught 7 of 9 valid seeded mutants. The cost-of-goods matching on marketplace import is wrong in two common cases, both shown with the app's own eBay fixture: a quantity-2 order costs one unit, and a sale can take an item bought after it; both move Part III line 41/42, and both seeded mutants in that path survived. A preparer would also want a 1099-K tie-out, a per-trip-date mileage rate (the free front door already has one) and returns put back in stock. Not deployed."
 }
