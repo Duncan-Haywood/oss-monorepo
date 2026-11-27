@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjgjYtPTv3ovuH5fFc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T04:18:47Z",
+  "ended": "2026-11-27T04:27:31Z",
+  "wall_minutes": 8.93,
+  "tokens_in": 7681526,
+  "tokens_out": 35189,
+  "cost_usd": 3.4414,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19607",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First invoice text put two figures on one line; sumview.mjs splits on the colon and showed them wrong in the browser. Split into one figure per line before merge."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reports every bet's Next list as claimed or waiting on demand: seven feature-saturated products with no customers; the binding constraint is the private-monorepo runner starvation blocking every deploy, which the tool does not surface."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "marisstella.app, leginfo.legislature.ca.gov and statutes.capitol.texas.gov are refused by this session's proxy, so the live site cannot be smoke-tested and statute pages cannot be sourced from here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No bet had a free, ungated ROADMAP item and PayApps' launch deploy is starved of runners (already in the decision queue), so the run took bet #1's public side instead of private-monorepo code.",
+      "did": "A progress billing guide and draw schedule calculator in ventures/pay-app-guides aimed at a search no existing page covered.",
+      "result": "Merged with tests; traffic unmeasured."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No separate blog post: the deliverable is itself a customer-facing SEO page, and the guidance favours consolidated posts over a post per PR.",
+      "did": "Extended the existing pay-app-guides set, README and llms.txt.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/pay-app-guides/progress-billing.html (customer SEO page)"
+  ],
+  "goal": null,
+  "notes": "Local verification: pay-app-guides node --test 275/275; run_venture_tests.py pay-app-guides ok; platform/pages industry-construction, llms-answers, product-llms, css-lint 38/38; Chromium 390/1200 px no overflow, no console errors. PayApps payapps-deploy run 45921558751 (2026-11-27) never got a runner (ci_starvation exit 1); every private-monorepo run since is failing the same way.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6058ac8a-943c-55ce-821f-c7b20ec7a994",
+    "transcripts": 1,
+    "first": "2026-11-27T04:18:47Z",
+    "last": "2026-11-27T04:27:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 127,
+        "output": 35189,
+        "thinking": 5889,
+        "cache_read": 7527445,
+        "cache_write_5m": 0,
+        "cache_write_1h": 153954,
+        "api_equivalent_usd": 3.4414,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 127,
+      "output": 35189,
+      "thinking": 5889,
+      "cache_read": 7527445,
+      "cache_write_5m": 0,
+      "cache_write_1h": 153954,
+      "api_equivalent_usd": 3.4414,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 3,
+      "mcp__github__actions_list": 3,
+      "Write": 3,
+      "Read": 3,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__get_job_logs": 1,
+      "WebFetch": 1,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.93,
+      "active_minutes": 8.93,
+      "model_minutes": 6.3,
+      "tool_minutes": 2.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "guide page with sourced QuickBooks section, tested calculator module, nav/sitemap/llms wiring",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 174.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
