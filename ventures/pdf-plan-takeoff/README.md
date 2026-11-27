@@ -79,6 +79,19 @@ CSV for the estimate you already keep.
   counted. The filled region is drawn over the sheet so you see what was
   measured. A region that runs off the 1,800-point window is refused as open.
 
+- **Walls to a framing takeoff** (`wallsDxf` in `measure.mjs`): the length
+  measurements on one sheet labelled with "wall" (or "partition"), "door" or
+  "window" are written as an ASCII DXF in real inches, on the WALLS, DOORS
+  and WINDOWS layers, valued at the first wall run's scale (runs at another
+  scale, with none, or on another sheet are left out and counted). Each
+  polyline segment is one line, so a run clicked around a corner keeps its
+  corners; an opening is its first and last click. The
+  [residential takeoff](https://marisstella.app/residential-takeoff/) opens
+  the file as a plan (corners, tees and openings worked out by its DXF
+  reader) and counts the studs, plates, headers and sheathing, with a
+  supplier material list. Lengths are the lines clicked: on a wall drawn with
+  two face lines, click one face.
+
 ## Use it
 
 Browser: open `index.html` over http (`python3 -m http.server`), choose a PDF
@@ -93,7 +106,7 @@ node cli.mjs set.pdf            # every page: notes, dimensions matched, verdict
 node cli.mjs set.pdf --json
 ```
 
-Tests: `node --test engine.test.mjs page.test.mjs pdf-parser-sync.test.mjs`.
+Tests: `node --test engine.test.mjs page.test.mjs pdf-parser-sync.test.mjs walls-dxf.test.mjs`.
 
 ## How it was checked
 
