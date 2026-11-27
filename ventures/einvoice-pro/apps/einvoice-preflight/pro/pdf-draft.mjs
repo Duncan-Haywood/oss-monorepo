@@ -657,7 +657,7 @@ export function draftFromLines(lines, opts = {}) {
   for (const { l, i, row, extra, carried } of rows) {
     const parts = [...extra, { y: l.y, text: row.description }].filter((p) => p.text).sort((x, y) => y.y - x.y);
     // Lines continued at the top of the next page come last, in page order.
-    const description = [...parts, ...carried].map((p) => ("cells" in p ? p.cells.join(" ") : p.text)).join(" ").replace(/\s+/g, " ").trim();
+    const description = [...parts, ...carried].map((p) => ("cells" in p && Array.isArray(p.cells) ? p.cells.join(" ") : p.text)).join(" ").replace(/\s+/g, " ").trim();
     if (!description) continue;
     /** @type {Record<string, unknown>} */
     const line = { description, quantity: row.quantity, unit_price: row.unitPrice };
@@ -1091,7 +1091,7 @@ function rowAdjustments(lines, kinds, candidateRows, headerAt, locale, rowOpts, 
  * (quantity x price less that percent) or an amount cell between the price and the amount
  * (quantity x price less that amount). Exactly one reading must fit; the other percent, if any, is
  * the row's VAT rate.
- * @param {string[]} cells @param {"de" | "fr" | "en"} locale @param {{ discount?: boolean }} [opts]
+ * @param {string[]} cells0 @param {"de" | "fr" | "en"} locale @param {{ discount?: boolean }} [opts]
  */
 export function readRow(cells0, locale, opts = {}) {
   // Amounts and percents printed close together share a cell in some producers ("-9,40 € 19 %

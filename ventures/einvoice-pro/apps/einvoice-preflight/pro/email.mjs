@@ -41,7 +41,7 @@ export const oneLine = (v, max = 200) =>
 
 export class ResendMailer {
   /** @param {string} apiKey @param {string} from @param {typeof fetch} [fetchImpl] */
-  constructor(apiKey, from, fetchImpl = (...a) => fetch(...a)) {
+  constructor(apiKey, from, fetchImpl = (input, init) => fetch(input, init)) {
     this.name = "resend";
     this.apiKey = apiKey;
     this.from = from;

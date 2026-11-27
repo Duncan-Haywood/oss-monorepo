@@ -804,7 +804,7 @@ function h(tag, attrs = {}, ...kids) {
 
 const main = /** @type {HTMLElement} */ (document.getElementById("app"));
 
-/** @param {...Node} nodes */
+/** @param {...(Node | string)} nodes */
 function show(...nodes) {
   main.replaceChildren(...nodes);
   document.documentElement.lang = state.lang;
@@ -819,7 +819,7 @@ function errorBox(e) {
 
 /** @param {string} name @param {string | Uint8Array} content @param {string} type */
 function download(name, content, type) {
-  const url = URL.createObjectURL(new Blob([content], { type }));
+  const url = URL.createObjectURL(new Blob([/** @type {BlobPart} */ (content)], { type }));
   const a = h("a", { href: url, download: name });
   document.body.append(a);
   a.click();

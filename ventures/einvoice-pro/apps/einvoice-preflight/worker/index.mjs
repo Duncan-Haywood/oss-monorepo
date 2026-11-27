@@ -108,7 +108,7 @@ export default {
     if (to === "font") {
       const font = files.get(url.pathname.slice(1));
       if (!font || typeof font === "string") return new Response(JSON.stringify({ error: { code: "not_found", message: "No such route." } }), { status: 404, headers: JSON_HEADERS });
-      return new Response(request.method === "HEAD" ? null : font, { headers: { "content-type": "font/ttf", "cache-control": "public, max-age=86400", "x-content-type-options": "nosniff" } });
+      return new Response(request.method === "HEAD" ? null : /** @type {BodyInit} */ (/** @type {unknown} */ (font)), { headers: { "content-type": "font/ttf", "cache-control": "public, max-age=86400", "x-content-type-options": "nosniff" } });
     }
     if (to === "off") {
       return new Response(JSON.stringify({ error: { code: "not_found", message: "The free JSON API is not served here. Use POST /v1/check with an API key." } }), { status: 404, headers: JSON_HEADERS });

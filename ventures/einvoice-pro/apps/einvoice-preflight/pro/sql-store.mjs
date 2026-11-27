@@ -892,6 +892,7 @@ export async function nodeSqliteDb(file) {
   if (file !== ":memory:") db.exec("PRAGMA journal_mode = WAL");
   db.exec("PRAGMA busy_timeout = 5000; PRAGMA foreign_keys = ON;");
   /** @param {string} sql @param {unknown[]} params */
+  /** @returns {[any, any[]]} */
   const prep = (sql, params) => [db.prepare(sql), /** @type {any[]} */ (params)];
   return {
     exec: async (sql) => {

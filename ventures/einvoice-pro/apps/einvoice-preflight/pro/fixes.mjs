@@ -76,7 +76,7 @@ const dateFormat = {
     for (const d of dateLeaves(xml)) {
       if (dateIsWellFormed(d.value.trim(), d.want)) continue;
       const r = normaliseDate(d.value, d.want);
-      if (!r.ok) {
+      if (r.ok === false) {
         p.notes.push(`${d.name}: ${r.reason}`);
         continue;
       }

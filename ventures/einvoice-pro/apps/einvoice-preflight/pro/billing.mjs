@@ -62,7 +62,7 @@ export const publicSubscription = (s) => ({
 });
 
 /**
- * @param {{ env: Record<string, string | undefined>, store: import("./store.mjs").MemoryStore, now: () => Date,
+ * @param {{ env: Record<string, string | undefined>, store: import("./store.mjs").MemoryStore | import("./sql-store.mjs").SqlStore, now: () => Date,
  *   fetch?: typeof fetch, log?: (msg: string) => void }} deps
  */
 export function createBilling(deps) {
@@ -207,7 +207,7 @@ export function createBilling(deps) {
         subId,
         now(),
       );
-      if (!res.ok) return { result: "ignored", reason: res.reason };
+      if (res.ok === false) return { result: "ignored", reason: res.reason };
       accountId = res.orgId;
       checkoutId = res.checkoutId;
     }
@@ -225,7 +225,7 @@ export function createBilling(deps) {
       event,
       { isPurchasable: catalog.isPurchasable, now: now() },
     );
-    if (!decision.apply) {
+    if (decision.apply === false) {
       if (decision.reason === "customer mismatch") log(`einvoice-billing: customer mismatch ignored for account ${accountId}, event ${event.providerEventId}`);
       return { result: "ignored", reason: decision.reason, accountId };
     }

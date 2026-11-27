@@ -111,3 +111,11 @@ jobs:
         run: node --test "packages/billing/src/**/*.test.ts"
       - name: admin-metrics
         run: node --test packages/admin-metrics/src/*.test.ts
+      # The // @ts-check files and the TypeScript they import. platform/pages/typecheck.mjs skips a
+      # venture with its own tsconfig.json, so this job runs it, with the same pinned typescript and
+      # @types/node, installed outside the tree.
+      - name: typecheck (tsconfig.json)
+        run: |
+          tools="$RUNNER_TEMP/tsc"
+          npm install --no-audit --no-fund --prefix "$tools" typescript@5.9.3 @types/node@22.18.0
+          "$tools/node_modules/.bin/tsc" -p tsconfig.json --typeRoots "$tools/node_modules/@types" --pretty false

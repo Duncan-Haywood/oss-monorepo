@@ -738,6 +738,7 @@ export function writeFacturXPdf(doc, ciiXml, { fonts, date = new Date() } = {}) 
 /**
  * Draft -> { ok, errors, warnings, totals, pdf (Uint8Array), xml, filename }:
  * the same validation as generateInvoice, then the Factur-X PDF.
+ * @param {any} draft @param {{ profile?: string, fonts?: any, date?: any }} [opts]
  */
 export function generateFacturX(draft, { profile = "en16931", fonts, date } = {}) {
   const result = { ok: false, errors: [], warnings: [], format: "facturx" };
