@@ -2,7 +2,7 @@
 title: "Florida's Notice to Owner for subcontractors: the form, the 45 days and the 40-day mailing rule"
 seo_title: "Florida Notice to Owner: 45-day deadline, form text, how to serve it"
 date: 2026-11-27
-tags: [payapps, for-customers, construction, subcontractors, lien-waivers, florida, notice-to-owner]
+tags: [payapps, for-customers, construction, subcontractors, lien-waivers, florida, texas, notice-to-owner]
 description: "Fla. Stat. § 713.06 for subs and suppliers: who serves a Notice to Owner, the 45-day deadline, the form, copies, and the 40-day mailing rule."
 ---
 
@@ -98,6 +98,31 @@ It is served on the owner before recording or within 15 days after (§ 713.08(4)
 "the date and method of service of the notice to owner" (§ 713.08(1)(h)), which is one more reason
 to keep the mail log with the job.
 
+## Texas is different: a notice for every month you are not paid
+
+Florida asks for one notice at the start of the job. Texas asks for one per month of unpaid work,
+from every tier, to both the owner and the general contractor. For original contracts signed on or
+after 1 January 2022 (H.B. 2237), the notice of claim goes out "not later than the 15th day of the
+third month after the month during which" the labor or materials were provided, or the second month
+on a residential construction project
+([Tex. Prop. Code § 53.056(a-1)](https://statutes.capitol.texas.gov/Docs/PR/htm/PR.53.htm)). March
+work is due 15 June on a commercial job. A missed month costs the lien for that month's work, not
+the whole job.
+
+Two details differ from Florida. Texas moves a date that falls "on a Saturday, Sunday, or legal
+holiday" to the next business day (§ 53.003(e)), but chapter 53 never says which days are legal
+holidays, so plan on the unmoved 15th. And retainage has its own notice, due by the earlier of 30
+days after your contract ends or 30 days after the original contract is terminated or abandoned
+(§ 53.057(a-1)), much sooner than the monthly clock.
+
+The free [Texas lien notice guide](https://marisstella.app/pay-app-guides/texas-lien-notice.html)
+lists the date for each unpaid month with any weekend or holiday extension beside it, the retainage
+notice, the lien affidavit (§ 53.052), its five-day copies (§ 53.055) and the one-year suit date
+(§ 53.158(a)), and drafts the § 53.056(a-2) or § 53.057(a-2) form word for word, with the
+§ 53.254(g) statement for a homestead. Its tests check both forms and every quoted phrase against
+the statute text read on 2026-11-27. PayApps does not yet track Texas notices; its cash page
+already shows what each GC owes and for how long, which is the list a Texas notice starts from.
+
 ## Free: the dates and the form in your browser
 
 The [Florida Notice to Owner guide](https://marisstella.app/pay-app-guides/florida-notice-to-owner.html)
@@ -144,7 +169,7 @@ combined notice to contractor on bonded and public jobs (§ 255.05, § 713.23).
 
 PayApps is open: pay applications with retainage and change orders are free on one job, no card.
 Lien waivers, notices, QuickBooks and job costing are in the paid plans, which are not on sale yet.
-[Start free in PayApps](https://payapps.duncan-andrew-haywood.workers.dev/?signup&from=posts%2Fflorida-notice-to-owner). This is general information about the
+[Start free in PayApps](https://payapps.marisstella.app/?signup&from=posts%2Fflorida-notice-to-owner). This is general information about the
 statute's text, not legal advice. Whether a notice is required on your job, and who must get it,
 depends on your contract chain, so check with a Florida construction attorney when the money
 matters.
