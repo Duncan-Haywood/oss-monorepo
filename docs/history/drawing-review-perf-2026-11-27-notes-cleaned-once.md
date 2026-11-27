@@ -14,10 +14,9 @@ callouts), where the time is in `readDrawing`, not the PDF reader.
 
 Benchmark: the page's invented sample drawing with N extra text runs
 (`BT /F1 6 Tf … Tm (d.ddd) Tj ET`, random positions in the views, seeded
-LCG) and optionally M random line segments, one FlateDecode content stream,
+LCG) and optionally M random line segments ([`platform/perf/drawing-review-bench.mjs`](../../platform/perf/drawing-review-bench.mjs)), one FlateDecode content stream,
 `extractPdfLines` + `readDrawing` with `zlib.inflateSync`, Node 22 on a
-4-core cloud container, median of 21. The script is reproduced in the PR
-notes of the run record (`prompts/runs/`).
+4-core cloud container, median of 21.
 
 | drawing | before | after | output hash (both) |
 |---|---:|---:|---|
