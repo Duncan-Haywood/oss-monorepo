@@ -296,3 +296,37 @@ decisions:
     Added 2026-11-27 by the jobshop-quote deploy-workflow-port run. Remove (1)
     once a deploy summary reports R2 on, and (2) once the secret is set or
     declined.
+
+- id: einvoice-provider-identification
+  asks: []
+  prs: []
+  gates: revenue
+  exposure: legal-person
+  opened: "2026-11-27"
+  action: >-
+    Bet #3 (E-invoice Fix & Explain, sold to German and French firms ahead of
+    Germany's 1 January 2027 issuing mandate) has never been deployed: its
+    launch review (`ventures/einvoice-pro/apps/einvoice-preflight/docs/LAUNCH-REVIEW.md`,
+    section 4) holds the first run on two things only a legal person can
+    supply. (1) The Impressum details § 5 DDG asks of a commercial service
+    aimed at German users: a postal address at which the LLC can be served (a
+    registered agent's address works), the name of the person who represents
+    the LLC (its manager or managing member), and optionally the Colorado
+    Secretary of State entity ID and a VAT ID. (2) A representative in the EU
+    under GDPR Article 27: choose a provider (commercial services are roughly
+    EUR 100-300 a year, an unverified estimate), sign its contract, and give
+    its name, EU postal address and email. Reply with the values (in IDEAS.md
+    or a session); a run writes them into
+    `ventures/einvoice-pro/apps/einvoice-preflight/pro/provider.mjs` and runs
+    the deploy. Nothing else waits on you for the trial to open.
+  unlocks:
+    - >-
+      Bet #3 live: the Impressum page (/app/impressum, built 2026-11-27) is
+      complete, the production host opens trial sign-ups (it refuses them
+      while `providerGaps()` is non-empty), and agents run the first
+      `einvoice-pro-deploy`.
+  blocked_by: []
+  note: >-
+    Added 2026-11-27 by the impressum-and-eu-representative run, which built
+    the page and the fail-closed sign-up guard so the owner supplies values
+    only. Remove once provider.mjs has no gaps.

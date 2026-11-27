@@ -21,6 +21,7 @@
 //                                            Agreement (pro/legal/*.md); /app/de/... and /app/fr/...
 //                                            serve the translations (the English text governs)
 //   GET    /app/notices                      the third-party notices and licences (rule sets, code, fonts), text
+//   GET    /app[/de|/fr]/impressum           the provider identification (§ 5 DDG, LCEN, GDPR Art. 27), pro/provider.mjs
 //   GET    /v1/legal                         -> {terms: {title, version, url}, privacy: {...}, dpa: {...}}   (public)
 //   POST   /v1/signup                        {name, acceptTerms: true, termsVersion?} -> 201 {account, apiKey}  (public trial
 //                                            sign-up; the account records the terms version accepted, and a stale
@@ -98,6 +99,7 @@
 //                                            key, or, with none, is the one key allowed over the limit (recovery)
 // Links carry the token in the URL fragment (`/app#signin=...`), which browsers never send to a server
 // or a Referer, and only the POST uses it, so a mail scanner that opens the link cannot.
+import { impressumPage, providerGaps } from "./provider.mjs";
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
@@ -543,6 +545,13 @@ export function createProHandler(deps = {}) {
         headers: { "content-type": "text/html; charset=utf-8", "content-security-policy": WEB_CSP, "referrer-policy": "no-referrer", "cache-control": "no-cache" },
       };
     }
+    if (method === "GET" && (m = /^\/app\/(?:(de|fr)\/)?impressum$/.exec(p))) {
+      return {
+        status: 200,
+        raw: Buffer.from(impressumPage(/** @type {"de" | "fr"} */ (m[1]) ?? "en")),
+        headers: { "content-type": "text/html; charset=utf-8", "content-security-policy": WEB_CSP, "referrer-policy": "no-referrer", "cache-control": "no-cache" },
+      };
+    }
     if (method === "GET" && p === "/app/notices") {
       return {
         status: 200,
@@ -558,7 +567,16 @@ export function createProHandler(deps = {}) {
         // Convenience translations; the English text at `url` governs.
         translations: Object.fromEntries(Object.entries(LEGAL[k].translations).map(([lang, d]) => [lang, { title: d.title, url: `/app/${lang}/${k}` }])),
       });
-      return { status: 200, body: { terms: meta("terms"), privacy: meta("privacy"), dpa: meta("dpa") } };
+      const gaps = providerGaps();
+      return {
+        status: 200,
+        body: {
+          terms: meta("terms"),
+          privacy: meta("privacy"),
+          dpa: meta("dpa"),
+          impressum: { url: "/app/impressum", translations: { de: { url: "/app/de/impressum" }, fr: { url: "/app/fr/impressum" } }, complete: gaps.length === 0, missing: gaps },
+        },
+      };
     }
     if (method === "GET" && WEB[p]) {
       const f = WEB[p];
@@ -571,6 +589,10 @@ export function createProHandler(deps = {}) {
 
     if (method === "POST" && p === "/v1/signup") {
       if (env.PUBLIC_SIGNUP === "off") throw new HttpError(403, "signup_closed", "Sign-up is closed on this server.");
+      // A production host takes no sign-ups until the provider identification is complete (§ 5 DDG,
+      // GDPR Art. 27; docs/LAUNCH-REVIEW.md section 4). PROVIDER_CHECK=off is for tests only.
+      if (env.APP_ENV === "production" && env.PROVIDER_CHECK !== "off" && providerGaps().length)
+        throw new HttpError(403, "signup_closed", "Trial sign-ups open once the provider identification at /app/impressum is complete.");
       const body = json(await readBody(req, 4096));
       const name = text(body.name, 200);
       if (!name) throw new HttpError(400, "invalid", "name is required.");
