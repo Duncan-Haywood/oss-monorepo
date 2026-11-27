@@ -15,20 +15,27 @@ them for you:
   notes and one of the easiest to introduce by accident, because the two
   numbers live in two different files with nothing forcing them to move
   together.
-- **Missing required fields** -- `readme.txt`'s `Stable tag`, `License`, and
-  `License URI` (a GPL-compatible license declaration is a hard directory
-  requirement), and the plugin header's `Plugin Name` and `Version`. Several
-  more fields are checked and reported as recommended-but-not-required
-  (`Contributors`, `Tags`, `Requires at least`, `Tested up to`, header
-  `License`, `Requires PHP`, `Text Domain`).
+- **Missing required fields** -- `readme.txt`'s `Stable tag` and `License`,
+  and the plugin header's `Plugin Name`, `Version` and `License` (Plugin Check
+  errors on a missing licence in either file). Several more fields are
+  checked and reported as recommended-but-not-required (`License URI`,
+  `Contributors`, `Tags`, `Requires at least`, `Tested up to`, header
+  `Requires at least`, `Requires PHP`, `Text Domain`).
+- **Licence problems** -- the three errors Plugin Check's licence rules raise,
+  using its own normalisation (`License_Utils`): a readme `License` that is
+  not an SPDX-style identifier (`invalid_license`), a header `License` that is
+  not GPL-compatible (`plugin_header_invalid_license`, e.g. `Proprietary`),
+  and readme and header naming different licences (`license_mismatch`, e.g.
+  `GPLv2` against `GPL-3.0`).
 - **Unescaped superglobal output** -- a `$_GET`/`$_POST`/`$_REQUEST`/
   `$_COOKIE`/`$_SERVER` value printed with `echo`/`print`/`printf` and no
   escaping function (`esc_html`, `esc_attr`, `esc_url`, `sanitize_text_field`,
   `absint`, and others) on the same line.
 - **Missing nonce checks** -- a file that reads `$_POST` with no
   nonce-verification call (`check_admin_referer`, `check_ajax_referer`,
-  `wp_verify_nonce`) anywhere in it, which is how plugin review's own
-  security pass looks for cross-site request forgery protection.
+  `wp_verify_nonce`) anywhere in it. Plugin Check's own rule (WPCS
+  `NonceVerification`) is stricter: it works per function and also covers
+  `$_GET` and `$_REQUEST`, so treat a pass here as necessary, not sufficient.
 
 After using this, you can find the exact field, line, or file to fix before
 you submit or update a plugin -- instead of guessing from the guidelines or
@@ -82,8 +89,8 @@ Review will pass -- verify against
 before you submit.
 
 **"Recommended" fields are reported, never counted against a clean result.**
-`Contributors`, `Tags`, `Requires at least`, and `Tested up to` in
-`readme.txt`, and header `License`, `Requires at least`, `Requires PHP`, and
+`License URI`, `Contributors`, `Tags`, `Requires at least`, and `Tested up to` in
+`readme.txt`, and header `Requires at least`, `Requires PHP`, and
 `Text Domain` are listed as missing when absent but do not fail the check --
 their absence is a common first-review note, not a documented rejection
 cause on its own.
@@ -98,21 +105,21 @@ From the quality audit of 2026-11-26
 ([`portfolio/quality/audits/2026-11-26-wordpress-plugin-review-check.json`](../../portfolio/quality/audits/2026-11-26-wordpress-plugin-review-check.json)),
 measured against Plugin Check's source and the WordPress Coding Standards:
 
-- **Any `License` value passes.** Plugin Check raises `invalid_license` for a
-  licence that is not GPL-compatible (`License: Proprietary`); this tool only
-  checks that the field exists.
 - `sanitize_text_field`, `sanitize_email`, `sanitize_file_name` and `boolval`
   count as escaping here; WPCS does not accept them as output escaping.
 - Header parsing departs from core `get_file_data()`: `#`-prefixed and
   `<?php /* ... */` one-line headers are missed, a trailing `*/` is kept, there
   is no 8 KB window, and the first header file in any subdirectory wins.
-- `License URI` is treated as required; the readme docs mark it optional.
 - The nonce check is file-level and textual (a nonce call in a comment or
   another function counts) and reads `$_POST` only, where WPCS works per
   function.
 - Not checked yet: the 5-tag limit, the 150-character short description, an
-  outdated `Tested up to`, and name or licence mismatches between readme and
+  outdated `Tested up to`, and a plugin-name mismatch between readme and
   header.
+- Fixed since that audit: the licence rules (any `License` value used to
+  pass; now Plugin Check's `invalid_license`, `plugin_header_invalid_license`
+  and `license_mismatch` fail the check, and a missing header `License`
+  fails it), and `License URI` is no longer treated as required.
 - Fixed in PR #19370: `Stable tag: trunk` now fails, as Plugin Check errors on it.
 
 ## Privacy

@@ -7,6 +7,8 @@ import {
   detectUnescapedOutput,
   detectMissingNonceChecks,
   buildReport,
+  normalizeLicense,
+  checkLicenses,
   REQUIRED_README_FIELDS,
   RECOMMENDED_README_FIELDS,
   REQUIRED_PLUGIN_HEADER_FIELDS,
@@ -51,7 +53,10 @@ test('parseReadme reports missing required and recommended fields separately', (
   const r = parseReadme('=== Bare ===\nStable tag: 1.0.0\n');
   assert.equal(r.found, true);
   assert.ok(r.missingRequired.includes('license'));
-  assert.ok(r.missingRequired.includes('licenseUri'));
+  // License URI is optional in the readme docs and Plugin Check does not
+  // check it (audit 2026-11-26, defect 4): recommended, not required.
+  assert.ok(!r.missingRequired.includes('licenseUri'));
+  assert.ok(r.missingRecommended.includes('licenseUri'));
   assert.ok(!r.missingRequired.includes('stableTag'));
   assert.ok(r.missingRecommended.includes('contributors'));
 });
@@ -93,7 +98,7 @@ test('parsePluginHeader with no file reports not found and everything missing', 
 });
 
 test('parsePluginHeader reports a missing Version separately from a missing Plugin Name', () => {
-  const h = parsePluginHeader({ path: 'x.php', content: '<?php /**\n * Plugin Name: X\n */' });
+  const h = parsePluginHeader({ path: 'x.php', content: '<?php /**\n * Plugin Name: X\n * License: GPLv2\n */' });
   assert.deepEqual(h.missingRequired, ['version']);
 });
 
@@ -202,7 +207,7 @@ test('buildReport: missing plugin header fails ok', () => {
 
 test('buildReport: missing recommended fields alone does not fail ok', () => {
   const readme = parseReadme('=== X ===\nStable tag: 1.0.0\nLicense: GPLv2\nLicense URI: https://x\n');
-  const pluginHeader = parsePluginHeader({ path: 'x.php', content: '<?php\n/**\n * Plugin Name: X\n * Version: 1.0.0\n */\n' });
+  const pluginHeader = parsePluginHeader({ path: 'x.php', content: '<?php\n/**\n * Plugin Name: X\n * Version: 1.0.0\n * License: GPLv2\n */\n' });
   const report = buildReport({ readme, pluginHeader, unescapedOutput: [], missingNonceChecks: [] });
   assert.ok(report.missingRecommendedReadme.length > 0);
   assert.equal(report.ok, true, 'missing only recommended fields must not fail ok');
@@ -222,4 +227,45 @@ test('buildReport: unescaped output and missing nonce checks each independently 
     missingNonceChecks: [{ path: 'x.php', line: 1, snippet: '$_POST["x"]' }],
   });
   assert.equal(withNonce.ok, false);
+});
+
+// Licence rules, checked against Plugin Check's License_Utils trait and
+// Plugin_Readme_Check::check_license / Plugin_Header_Fields_Check (audit
+// 2026-11-26-wordpress-plugin-review-check, defect 1: any License passed).
+test('normalizeLicense maps the common GPL spellings to one form, as Plugin Check does', () => {
+  for (const s of ['GPLv2 or later', 'GPL-2.0-or-later', 'GPLv2', 'GPL v2', 'GPL-2.0+', 'GNU General Public License v2 or later', 'GPL version 2']) {
+    assert.equal(normalizeLicense(s), 'GPL2', s);
+  }
+  assert.equal(normalizeLicense('GPL-3.0'), 'GPL3');
+  assert.equal(normalizeLicense('Apache License 2.0'), 'Apache2');
+});
+
+test('checkLicenses: matching GPL-compatible licences pass', () => {
+  assert.deepEqual(checkLicenses('GPLv2 or later', 'GPL-2.0-or-later'), []);
+  assert.deepEqual(checkLicenses('MIT', 'MIT'), []);
+});
+
+test('checkLicenses: a proprietary header licence is plugin_header_invalid_license', () => {
+  assert.deepEqual(checkLicenses('Proprietary', 'Proprietary').map((i) => i.code), ['plugin_header_invalid_license']);
+});
+
+test('checkLicenses: readme and header naming different licences is license_mismatch', () => {
+  assert.deepEqual(checkLicenses('Proprietary', 'GPL-2.0-or-later').map((i) => i.code), ['license_mismatch']);
+  assert.deepEqual(checkLicenses('GPLv2', 'GPL-3.0').map((i) => i.code), ['license_mismatch']);
+});
+
+test('checkLicenses: free text in readme License is invalid_license', () => {
+  const codes = checkLicenses('All rights reserved', 'GPLv2').map((i) => i.code);
+  assert.ok(codes.includes('invalid_license'));
+});
+
+test('buildReport: a licence issue fails ok; a missing header License fails ok', () => {
+  const pluginHeader = parsePluginHeader({ path: 'example.php', content: GOOD_HEADER.replace('GPL-2.0-or-later', 'Proprietary') });
+  const report = buildReport({ readme: parseReadme(GOOD_README), pluginHeader, unescapedOutput: [], missingNonceChecks: [] });
+  assert.equal(report.ok, false);
+  assert.ok(report.licenseIssues.length > 0);
+  const noLicence = parsePluginHeader({ path: 'example.php', content: GOOD_HEADER.replace(' * License: GPL-2.0-or-later\n', '') });
+  const r2 = buildReport({ readme: parseReadme(GOOD_README), pluginHeader: noLicence, unescapedOutput: [], missingNonceChecks: [] });
+  assert.equal(r2.ok, false);
+  assert.deepEqual(r2.missingRequiredHeader, ['License']);
 });
