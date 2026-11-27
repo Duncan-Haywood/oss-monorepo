@@ -50,6 +50,12 @@ The continuation sheet (open it for full size). Type this month's work and store
 
 The summary on a phone, for checking the numbers from the truck before you send it.
 
+[](https://marisstella.app/payapps/shots/job-desktop.webp)
+The job: its schedule of values, locked once the first application went out, the exports GC portals ask for, and change orders below.
+
+[](https://marisstella.app/payapps/shots/cash-desktop.webp)
+Cash and retainage across every job: application #1 is paid, so what is left is the 10% held on it, and the report says how long it has been held.
+
 ## What billing day looks like for a lot of subs
 
 If you bill general contractors on a schedule of values, this list will be familiar. Every item is a place for a number to go wrong, and a wrong number can mean the pay app comes back and payment slips to the next cycle.
@@ -134,6 +140,9 @@ Each job starts from the SOV in your subcontract, with the contract sum and reta
 - GC on GCPay asking for your schedule of values breakdown? Download it as the Excel file GCPay's Upload button takes (Item Number, Description and Value, base contract only, as GCPay's subcontractor guide sets out), with a check that the lines add up to the contract amount before GCPay refuses the submission. Built from GCPay's published subcontractor guide, not yet tried on a live GCPay project
 - Unit-price contracts: give a line its quantity, unit and unit price (3,400 LF of curb at $18.25) and bill it each month by the quantity installed. The dollars are always quantity × unit price to the cent, the quantity to date is on the screen, the CSV and the PDF, and GCPay's five-column unit-price SOV (Units, Unit Description, Unit Value) downloads from the same job
 
+[](https://marisstella.app/payapps/shots/job-desktop.webp)
+The job: its schedule of values, locked once the first application went out, the exports GC portals ask for, and change orders below.
+
 Built · in testing
 
 ## The monthly pay app
@@ -151,6 +160,9 @@ Enter work completed this period and materials presently stored per line; the co
 - Keep your certificates of insurance (general liability, auto, workers' comp, umbrella and others) with their policy dates: a note on the projects page 30 days before one expires, and a warning on any draft pay app dated on or after an expiry, or within 30 days before it, so a lapsed certificate doesn't hold up the payment. Tick which jobs' GCs hold each certificate: the renewal then lists every GC to send it to, drafts the email to each one from the certificate's details (you attach the PDF and send it from your own mail), and each pay app says whether its GC has the certificate on file. Type what each job's subcontract requires (coverages, minimum limits, additional insured, waiver of subrogation, primary and non-contributory, whether an umbrella may count), or read it from the subcontract's insurance exhibit PDF in your browser, each value shown with the sentence it came from for you to check, and each requirement shows as met or as a gap in words, on the job and on its draft pay app. It checks what you typed from the certificate, not the policy itself
 - Keep your other compliance papers beside them: contractor's licenses by state with class and number, business license, W-9 (the date you signed it; the tax ID number is never a typed field), bonding letter, safety program, EMR letter, OSHA 300A summary and DBE/MBE/WBE certifications. Keep each one's file with it (the license card, the bonding letter PDF, and the signed W-9 only if you choose) and add it to a pay application's backup in one click. The same 30-day note and pay app warning when one with an expiry date is about to lapse, and the whole list as text to paste into a GC's prequalification form. It reads what you type and does not check a license with the state board
 - One PDF to send the GC: the application, an index of every attached file and the page it starts on, then the PDF and photo backup, every page numbered (files a PDF can't hold, like spreadsheets, are listed to send separately); change orders get the same packet with their pricing backup
+
+[](https://marisstella.app/payapps/shots/pay-app-2-desktop.webp)
+The continuation sheet (open it for full size). Type this month's work and stored materials on each line; completed to date, percent complete, balance to finish and retainage are worked out as you type.
 
 Built · in testing
 
@@ -192,6 +204,9 @@ One report of every application sent: billed, paid, still owed and retainage hel
 - Aged 0-30, 31-60, 61-90 and 90+ days, with the most overdue application named so you know who to call
 - Interest on late payment: set the rate from your subcontract's late-payment clause, or fill it from a prompt payment statute PayApps has read (Texas, Illinois, North Carolina, Virginia), and see what has accrued on each past-due application, net of partial payments; the second follow-up email to the GC states it
 - Each GC's billing cutoff ("by the 25th"): a reminder the week before when nothing has gone out yet, and a note when a draft missed it, so an application doesn't slip to next month's draw
+
+[](https://marisstella.app/payapps/shots/cash-desktop.webp)
+Cash and retainage across every job: application #1 is paid, so what is left is the 10% held on it, and the report says how long it has been held.
 
 Built · in testing
 

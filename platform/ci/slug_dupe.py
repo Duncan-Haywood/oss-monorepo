@@ -29,7 +29,8 @@ cannot answer it says so and the git checks, deepened, stand alone; --no-search 
 Exit 1: `ventures/<slug>` is already on origin/main, or a commit naming the
 slug landed there within --days, or a PR titled with it merged within --days. Extend that work instead of duplicating it.
 Exit 0: none of these; other branches whose name contains the slug, and open
-PRs titled with it, are listed as a notice (another session may be building it right now: check its PR).
+PRs titled with it, are listed as a notice (another session may be building it right now: check its PR);
+the current branch, archive/* and claim branches this session pushed (roadmap_claim.py) are left out.
 """
 import argparse
 import datetime as dt
@@ -42,6 +43,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import fetch_ref  # noqa: E402
+from roadmap_claim import RUN, run_tag  # noqa: E402
 
 
 def git(*args):
@@ -61,10 +63,25 @@ def check(slug, days=14, remote="origin", ref=None):
                   f"--grep={slug}", "--format=%h %ad %s", "--date=short")
     commits = out.splitlines() if rc == 0 else []
     rc, out = git("ls-remote", "--heads", remote, f"*{slug}*")
-    branches = [l.split("\t")[1].removeprefix("refs/heads/") for l in out.splitlines()] if rc == 0 else []
+    heads = [l.split("\t") for l in out.splitlines() if "\t" in l] if rc == 0 else []
     _, cur = git("branch", "--show-current")
     # archive/* only preserves history (research/_mirror/archive.py); nobody is building there.
-    return on_main, commits, [b for b in branches if b != cur.strip() and not b.startswith("archive/")]
+    return on_main, commits, [ref.removeprefix("refs/heads/") for sha, ref in heads
+                              if ref.removeprefix("refs/heads/") != cur.strip()
+                              and not ref.startswith("refs/heads/archive/") and not own_claim(sha)]
+
+
+def own_claim(sha, tag=None):
+    """True when `sha` is a claim commit this session pushed (roadmap_claim.py's `{run <tag>}`).
+
+    A run that claims first and checks for duplicates second saw its own claim branch listed
+    as a rival (friction 2026-11-27 16:11). The claim commit was made locally, so its message
+    is readable without a fetch; a rival's is not, and stays listed."""
+    tag = tag or run_tag()
+    if not tag:
+        return False
+    rc, msg = git("log", "-1", "--format=%B", sha)
+    return rc == 0 and tag in RUN.findall(msg)
 
 
 def repo_of(remote="origin"):

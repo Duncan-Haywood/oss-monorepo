@@ -78,6 +78,7 @@ describe("SignedFakeBillingProvider", () => {
     );
     assert.deepEqual(await fake.createPortalSession("ctm", "/billing"), {
       url: "/billing?fake_portal=1",
+      cancelUrl: null,
     });
   });
 });

@@ -33,6 +33,7 @@ import { MAX_BODY, workerRoute } from "./route.mjs";
 import { SqlStore, d1Db } from "../pro/sql-store.mjs";
 import { BASE64, TEXT } from "./files.generated.mjs";
 import { armSettleClock, settleClockClass } from "./settle-clock.mjs";
+import { appUrlOf, armDigestClock, digestClockClass } from "./digest-clock.mjs";
 
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff" };
 
@@ -106,6 +107,17 @@ function coreFor(env) {
  */
 export const SettleClock = settleClockClass(async (/** @type {Env} */ env) => (await coreFor(env)).billing);
 
+/**
+ * The client summary email on a Durable Object alarm (digest-clock.mjs), hourly, sending nothing
+ * unless DIGEST_SCHEDULE=on. Bound as DIGEST_CLOCK in wrangler.jsonc. The alarm awaits each send
+ * itself, so the mailer needs no waitUntil tracking here.
+ */
+export const DigestClock = digestClockClass(async (/** @type {Env} */ env) => ({
+  store: (await coreFor(env)).store,
+  mailer: mailerFromEnv(env),
+  appUrl: appUrlOf(env),
+}));
+
 /** One handler per isolate: the store's schema check runs once, not per request. @param {Env} env */
 function appFor(env) {
   app ??= (async () => {
@@ -125,6 +137,7 @@ export default {
   /** @param {Request} request @param {Env} env @param {{ waitUntil: (p: Promise<unknown>) => void }} ctx */
   async fetch(request, env, ctx) {
     ctx.waitUntil(armSettleClock(env));
+    ctx.waitUntil(armDigestClock(env));
     const url = new URL(request.url);
     const to = workerRoute(url.pathname, request.method);
     if (to === "font") {

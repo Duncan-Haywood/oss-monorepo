@@ -92,9 +92,16 @@ export class SignedFakeBillingProvider implements BillingProvider {
     };
   }
 
-  async createPortalSession(_providerCustomerId: string, returnUrl: string) {
+  async createPortalSession(
+    _providerCustomerId: string,
+    returnUrl: string,
+    opts: { subscriptionId?: string | null } = {},
+  ) {
     const sep = returnUrl.includes("?") ? "&" : "?";
-    return { url: `${returnUrl}${sep}fake_portal=1` };
+    return {
+      url: `${returnUrl}${sep}fake_portal=1`,
+      cancelUrl: opts.subscriptionId ? `${returnUrl}${sep}fake_portal=cancel` : null,
+    };
   }
 
   /** Usage charges this fake was asked for, in order (tests read them). */
