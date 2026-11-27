@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "payapps-site CI typecheck failed on the merge ref: main's test/unit/legal.test.ts (PR #19791) called .match on string|Buffer; fixed forward here with String(...)"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -49,7 +51,7 @@
     "docs/posts/2026-11-25-prompt-payment-laws-for-subcontractors.md (extended: interest kept on the job, worked example)"
   ],
   "goal": null,
-  "notes": "Local verification: tsc clean; unit 1446 passed; worker 590 passed; vite build ok; payapps-site unit 38 passed; biome no errors. Security queue empty (exit 3); ideas inbox empty.",
+  "notes": "Local verification: tsc clean; unit 1446 passed; worker 590 passed; vite build ok; payapps-site unit 38 passed; biome no errors. Security queue empty (exit 3); ideas inbox empty. After merging main: payapps unit 1446, worker 590 passed; payapps-site tsc, biome ci, unit 49 passed.",
   "corrections": [],
   "redteam": null,
   "usage": {
