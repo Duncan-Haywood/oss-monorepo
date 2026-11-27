@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, conversion]
+topics: [design]
 date: 2026-11-27
 ---
 
