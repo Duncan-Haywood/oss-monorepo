@@ -51,6 +51,20 @@ test("the first-pay-app path fits a phone", async ({ page }) => {
   await expectNoSidewaysScroll(page, "pay application");
   // The job's own logs: the submittal log's "Transmittals ask the GC" select once pushed it to 417px.
   const jobPath = new URL(page.url()).pathname.replace(/\/pay-apps\/[^/]+$/, "");
+  // Back on the job, the applications come first once there is one (they were six screens down, under
+  // the RFIs, schedule, punch list and close-out), and the change order form stacks instead of
+  // squeezing seven boxes into one row.
+  await page.goto(jobPath);
+  const top = async (name: string) =>
+    (await page.getByRole("heading", { level: 2, name, exact: true }).boundingBox())?.y ?? 0;
+  expect(await top("Pay applications")).toBeLessThan(await top("Schedule of values"));
+  await page
+    .getByRole("navigation", { name: "On this page" })
+    .getByRole("link", { name: "Change orders" })
+    .click();
+  await expect(page).toHaveURL(/#change-orders$/);
+  const desc = await page.getByPlaceholder("Description", { exact: true }).boundingBox();
+  expect(desc?.width ?? 0).toBeGreaterThan(250);
   for (const sub of [
     "submittals",
     "daily-reports",
