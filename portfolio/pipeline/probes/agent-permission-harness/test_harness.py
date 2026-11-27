@@ -18,7 +18,6 @@ Standard library only; no network.
 from __future__ import annotations
 
 import json
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -1180,8 +1179,6 @@ class TestSparseCheckout(unittest.TestCase):
         )
 
     def test_off_disk_tracked_files_still_count(self):
-        if shutil.which("git") is None:
-            self.skipTest("git not installed")
         with tempfile.TemporaryDirectory() as td:
             root = Path(td).resolve()
             build_repo(root, {}, {
