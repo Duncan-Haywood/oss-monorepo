@@ -284,6 +284,7 @@ Org (`/api/orgs/:orgId`)
 - `GET /reports/schedule-c?year=&mileageRate=` → `{ year, disclaimer, lines, partIII, otherExpenses,
   warnings, businessMiles, mileageRateCents }`
 - `GET /reports/schedule-c.csv?year=&mileageRate=` (download)
+- `GET /reports/schedule-c.pdf?year=&mileageRate=` (download; the same worksheet laid out by part, `services/books/worksheet-pdf.ts`)
 - `POST /reports/estimated-tax` `{ year, asOf?, mileageRate?, filing, wages, otherIncome, withholding,
   priorYearTax?, priorAgiOver150k, paid[≤4] }` (dollars; a body, not a query, so request logs never hold
   the seller's wages or tax) → `{ rows[4] (due, status, profitToDate,
@@ -406,7 +407,7 @@ apps/jobshop-quote, apps/payapps and apps/cmmc):
   worksheet, the year's sales ledger, the three lists and the QuickBooks journal (default account names, no COGS),
   each byte for byte its single download, plus a `README.txt` naming every file, the figure it totals to and the
   worksheet's warnings. A stored ZIP from `src/worker/lib/zip.ts` (no dependency; CRC-32 checked against zlib and
-  the archive against `unzip -t` in `test/unit/zip.test.ts`). Next, if sellers ask: a PDF of the worksheet.
+  the archive against `unzip -t` in `test/unit/zip.test.ts`). The worksheet as a PDF since 2026-11-27 (`services/books/worksheet-pdf.ts`, `GET /reports/schedule-c.pdf?year=&mileageRate=`, "Download PDF" on the Schedule C page, and in the ZIP as `schedule-c-worksheet-<year>.pdf`): the same lines, notes and warnings laid out by Schedule C part on Letter pages, the shop's name under the title, the disclaimer at the top and "a worksheet, not a tax return" in every page's footer; no timestamp in the file, so the ZIP's copy is byte for byte the single download. Written by `src/worker/lib/pdf.ts`, PayApps' dependency-free PDF writer ported over (`test/unit/worksheet-pdf.test.ts` checks every xref offset). Next, if preparers ask: the year-end lists as PDFs too.
 - Line 35 from last year's return (2026-11-26, `filed_inventory`, migration 0007): the seller types in the
   line 41 they filed for the year before (`PUT /reports/filed-inventory/:year`, the Part III card on the
   Schedule C page). That figure is line 35, the books' own December 31 count stays in the line's note

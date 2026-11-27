@@ -160,4 +160,58 @@ describe("lien deadline", () => {
     expect(seen.lienState).toBe("CA");
     await call(job.base, { method: "PATCH", as: viewer, expect: 403, json: { lienState: "AZ" } });
   });
+
+  it("a federal job dates the Miller Act notice on the job and the cash report; a state public job has no lien date", async () => {
+    const { orgId, userId: as } = await setupTenant("owner");
+    await grantPlan(orgId);
+    const from = addDays(today(), -80);
+    const job = await finishedJob(orgId, as, from, addDays(from, 20));
+    const last = addDays(today(), -60);
+
+    let p = await call<ProjectDetailDto>(job.base, {
+      method: "PATCH",
+      as,
+      json: {
+        lienState: "CA",
+        publicOwner: "federal",
+        millerTier: "second",
+        lastFurnishedOn: last,
+      },
+    });
+    expect(p.publicOwner).toBe("federal");
+    expect(p.millerTier).toBe("second");
+    if (p.lienDeadline.kind !== "deadline") throw new Error(p.lienDeadline.kind);
+    expect(p.lienDeadline.deadline.state).toBe("US");
+    expect(p.lienDeadline.deadline.statutoryOn).toBe(addDays(last, 90));
+    let r = await call<CashReport>(`/api/orgs/${orgId}/reports/cash`, { as });
+    let row = r.projects.find((x) => x.id === job.id);
+    const text = row?.actions.find((a) => a.startsWith("Federal Miller Act notice deadline")) ?? "";
+    expect(text).toContain(
+      "give the prime contractor written notice of your payment bond claim by",
+    );
+    expect(row?.actions.some((a) => a.includes("California lien deadline"))).toBe(false);
+
+    // A state or local public job: no lien date anywhere, and an unknown value is refused.
+    p = await call<ProjectDetailDto>(job.base, {
+      method: "PATCH",
+      as,
+      json: { publicOwner: "state_local", millerTier: null },
+    });
+    expect(p.lienDeadline).toEqual({ kind: "public", state: "CA" });
+    r = await call<CashReport>(`/api/orgs/${orgId}/reports/cash`, { as });
+    row = r.projects.find((x) => x.id === job.id);
+    expect(row?.lienDeadline ?? null).toBeNull();
+    expect(row?.actions.some((a) => a.includes("deadline"))).toBe(false);
+    await call(job.base, { method: "PATCH", as, expect: 400, json: { publicOwner: "county" } });
+
+    // Private again: the California lien date comes back, and the history names the change.
+    p = await call<ProjectDetailDto>(job.base, {
+      method: "PATCH",
+      as,
+      json: { publicOwner: null },
+    });
+    expect(p.lienDeadline.kind).toBe("deadline");
+    const history = await (await api(`${job.base}/history.csv`, { as })).text();
+    expect(history).toContain("public job (owner)");
+  });
 });

@@ -52,6 +52,10 @@ const date = (v: unknown): Date | null => {
   return Number.isNaN(d.getTime()) ? null : d;
 };
 
+/** `record[key]` only when it is the record's own key: "toString" or "__proto__" never resolve. */
+const own = <T>(record: Record<string, T>, key: string): T | undefined =>
+  Object.hasOwn(record, key) ? record[key] : undefined;
+
 const INTERVALS = ["day", "week", "month", "year"] as const;
 const posInt = (v: unknown): number | null => {
   const n = typeof v === "string" && /^\d+$/.test(v) ? Number(v) : v;
@@ -189,7 +193,7 @@ export class PaddleBillingProvider implements BillingProvider {
   }
 
   async createCheckout(req: CheckoutRequest): Promise<{ url: string }> {
-    const priceId = this.opts.priceIds[req.planKey];
+    const priceId = own(this.opts.priceIds, req.planKey);
     if (!priceId) throw new Error(`Paddle: no price id configured for ${req.planKey}`);
     const [customerId, discountId] = await Promise.all([
       req.providerCustomerId
@@ -235,7 +239,7 @@ export class PaddleBillingProvider implements BillingProvider {
       throw new Error("Paddle: a usage charge needs a positive whole amount");
     }
     if (!/^[A-Z]{3}$/.test(req.currency)) throw new Error("Paddle: currency must be ISO 4217");
-    const priceId = this.opts.priceIds[req.planKey];
+    const priceId = own(this.opts.priceIds, req.planKey);
     if (!priceId) throw new Error(`Paddle: no price id configured for ${req.planKey}`);
     const price = await this.call("GET", `/prices/${encodeURIComponent(priceId)}`);
     const productId = str(obj(price.data).product_id);
@@ -296,7 +300,7 @@ export class PaddleBillingProvider implements BillingProvider {
       raw,
     };
     if (isSubscription) {
-      const status = STATUS_MAP[str(data.status) ?? ""];
+      const status = own(STATUS_MAP, str(data.status) ?? "");
       const items = Array.isArray(data.items) ? data.items.map(obj) : [];
       const priceId = str(obj(items[0]?.price).id);
       const fromPrice = priceId

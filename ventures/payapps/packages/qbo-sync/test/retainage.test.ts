@@ -166,6 +166,13 @@ describe("planPayAppInvoice", () => {
       () => planPayAppInvoice({ ...base, retainageRateBps: 10_001 }),
       isValidation(/rate/),
     );
+    // Each bound on its own: an integer below 0 and a fraction inside the range are both refused.
+    for (const bad of [-1, -500, 12.5, Number.NaN]) {
+      assert.throws(
+        () => planPayAppInvoice({ ...base, retainageRateBps: bad }),
+        isValidation(/rate/),
+      );
+    }
     assert.throws(
       () => planPayAppInvoice({ ...base, applicationNumber: 0 }),
       isValidation(/application/),

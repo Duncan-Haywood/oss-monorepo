@@ -22,6 +22,11 @@ function project(fields: Partial<ProjectDetailDto>): ProjectDetailDto {
     lastFurnishedOn: null,
     workCompletedOn: null,
     noticeOfCompletionOn: null,
+    publicOwner: null,
+    millerTier: null,
+    retainagePctBps: 1000,
+    storedRetainagePctBps: 1000,
+    sovLines: [],
     payApps: [],
     ...fields,
   };
@@ -33,6 +38,8 @@ function project(fields: Partial<ProjectDetailDto>): ProjectDetailDto {
       lastFurnishedOn: base.lastFurnishedOn,
       completedOn: base.workCompletedOn,
       noticeOfCompletionOn: base.noticeOfCompletionOn,
+      publicOwner: base.publicOwner,
+      millerTier: base.millerTier,
     }),
   } as unknown as ProjectDetailDto;
 }
@@ -84,5 +91,39 @@ it("saves the state and last day through the job's PATCH", async () => {
     lastFurnishedOn: "2026-10-31",
     workCompletedOn: null,
     noticeOfCompletionOn: null,
+    publicOwner: null,
+    millerTier: null,
+  });
+});
+
+it("shows the Miller Act notice on a federal job, not a lien", () => {
+  show(project({ publicOwner: "federal", millerTier: "second", lastFurnishedOn: "2026-03-02" }));
+  expect(screen.getByText("Payment bond claim (Miller Act)")).toBeTruthy();
+  expect(
+    screen.getAllByText(
+      /give the prime contractor written notice of your payment bond claim by 2026-05-29/,
+    ).length,
+  ).toBeGreaterThan(0);
+  expect(screen.queryByText(/record a claim of lien/)).toBeNull();
+  expect(screen.getByLabelText("Who you contracted with")).toBeTruthy();
+});
+
+it("checks a state public job's retainage against the cap and saves the owner", async () => {
+  const fetchMock = vi
+    .spyOn(globalThis, "fetch")
+    .mockResolvedValue(new Response("{}", { headers: { "content-type": "application/json" } }));
+  show(project({ publicOwner: "state_local", lienState: "CA" }));
+  expect(screen.getByText(/This job holds 10%, above the 5% California allows/)).toBeTruthy();
+  expect(screen.getByRole("link", { name: /Read Cal\. Pub\. Cont\. Code § 7201/ })).toBeTruthy();
+  fireEvent.change(screen.getByLabelText("Who owns the job"), { target: { value: "federal" } });
+  fireEvent.change(screen.getByLabelText("Who you contracted with"), {
+    target: { value: "first" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Save" }));
+  await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+  const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+  expect(JSON.parse(String(init.body))).toMatchObject({
+    publicOwner: "federal",
+    millerTier: "first",
   });
 });
