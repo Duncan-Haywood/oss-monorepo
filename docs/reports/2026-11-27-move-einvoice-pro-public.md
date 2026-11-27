@@ -1,6 +1,6 @@
 ---
 kind: note
-subjects: [security, einvoice]
+subjects: [security, einvoice-pro]
 ---
 # E-invoice Fix & Explain moved into this repository (part 1 of `move-einvoice-pro-public`)
 
