@@ -38,10 +38,10 @@
     }
   },
   "counts": {
-    "ventures": 1443,
+    "ventures": 1444,
     "by_vertical": {
       "construction": 165,
-      "manufacturing-engineering": 8,
+      "manufacturing-engineering": 9,
       "online-sellers": 105,
       "eu-einvoicing-accounting": 12,
       "nonprofits": 10,
@@ -58,13 +58,13 @@
       "payapps": 154,
       "jobshop-quote": 10,
       "einvoice": 12,
-      "cmmc": 2,
+      "cmmc": 3,
       "seller-books": 105,
       "residential-takeoff": 11,
       "grants": 9
     },
     "by_status": {
-      "front-door": 303,
+      "front-door": 304,
       "frozen": 1140
     }
   },
@@ -1942,6 +1942,14 @@
       "site_category": "ci",
       "front_door_for": null,
       "status": "frozen"
+    },
+    {
+      "venture": "cmmc",
+      "vertical": "manufacturing-engineering",
+      "rule": "slug",
+      "site_category": "more",
+      "front_door_for": "cmmc",
+      "status": "front-door"
     },
     {
       "venture": "cnc-machining-quote-calculator",
