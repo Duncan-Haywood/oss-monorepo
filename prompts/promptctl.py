@@ -1312,6 +1312,18 @@ def _last_change_indexes() -> tuple[dict[str, tuple[str, str]], dict[str, tuple[
     into: dict[str, tuple[str, str]] = idx
     cur: tuple[str, str] | None = None
     edge = _shallow_boundary()
+    # A merge checkout (CI's PR merge ref) has two shallow roots. For a path only the roots
+    # list, every merge is TREESAME to its first parent, so `git log -1 -- path` follows first
+    # parents and names the first-parent root, not the newest root (2026-11-27: the PR head's
+    # root, dated a few minutes later and past midnight UTC, gave a different date).
+    first_root = ""
+    if len(edge) > 1:
+        try:
+            chain = subprocess.run(["git", "rev-list", "--first-parent", "HEAD"], cwd=ROOT.parent,
+                                   capture_output=True, text=True, timeout=60).stdout.split()
+            first_root = next((c for c in chain if c in edge), "")
+        except (OSError, subprocess.SubprocessError):
+            pass
     for line in out.splitlines():
         if line.startswith("@"):
             sha, _, when = line[1:].partition(" ")
@@ -1319,7 +1331,10 @@ def _last_change_indexes() -> tuple[dict[str, tuple[str, str]], dict[str, tuple[
             cur = (sha, when)
             into = edge_idx if sha in edge else idx
         elif line and cur:
-            into.setdefault(line, cur)
+            if cur[0] == first_root:
+                edge_idx[line] = cur
+            else:
+                into.setdefault(line, cur)
     return idx, edge_idx
 
 
