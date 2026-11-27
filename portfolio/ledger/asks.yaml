@@ -133,6 +133,12 @@ decisions:
     the margin floor and its PR records a thorough review (`prompts/goals.md`,
     "2026-11-26: agents approve launch"). Operator: Maris Stella Labs LLC,
     Colorado. Webhook destinations can be automated the same way next.
+    Answered 2026-11-27 (paddle-key-check run 46006688313): the saved
+    secret, PADDLE_API_KEY, is a live server-side key (pdl_live_apikey_)
+    and Paddle allows listing and creating products and prices. The
+    PayApps and Seller Books deploys read it since PR #19731
+    (docs/reports/2026-11-27-one-paddle-key-for-every-deploy.md). Nothing
+    more on the key is yours.
   unlocks:
     - >-
       The only thing that moves the revenue ceiling off $0. Every other item in
