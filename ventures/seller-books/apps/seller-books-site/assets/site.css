@@ -1,0 +1,333 @@
+/* Seller Books marketing site. System fonts, no url(), no @font-face (keeps the CSP to 'self'). */
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --text: #1c1f1e;
+  --muted: #5b625f;
+  --line: #dedbd3;
+  --brand: #0f5c4a;
+  --brand-ink: #ffffff;
+  --accent-bg: #e7f1ed;
+  --focus: #b45309;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121514;
+    --surface: #1a1f1d;
+    --text: #e9ece9;
+    --muted: #a3aca8;
+    --line: #2e3532;
+    --brand: #5ec2a3;
+    --brand-ink: #0d1412;
+    --accent-bg: #1c2c27;
+    --focus: #f59e0b;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    17px / 1.6 system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+a {
+  color: var(--brand);
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+h1 {
+  font-size: clamp(1.9rem, 5vw, 2.8rem);
+  margin: 0.4em 0;
+}
+h2 {
+  font-size: 1.5rem;
+  margin-top: 2em;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.narrow {
+  max-width: 680px;
+}
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+.skip:focus {
+  left: 16px;
+  top: 8px;
+  background: var(--surface);
+  padding: 8px;
+  z-index: 2;
+}
+.muted {
+  color: var(--muted);
+}
+.lead {
+  font-size: 1.15rem;
+  max-width: 46em;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0;
+}
+.note {
+  border-left: 4px solid var(--line);
+  padding: 4px 12px;
+  color: var(--muted);
+}
+
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.header-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--text);
+  text-decoration: none;
+}
+.badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--accent-bg);
+  color: var(--brand);
+  border-radius: 99px;
+  padding: 2px 8px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.site-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  align-items: center;
+}
+.site-header nav a:not(.button) {
+  color: var(--text);
+  text-decoration: none;
+}
+.site-header nav a[aria-current="page"] {
+  text-decoration: underline;
+}
+
+.button {
+  display: inline-block;
+  background: var(--brand);
+  color: var(--brand-ink);
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  margin: 4px 8px 4px 0;
+}
+.button.small {
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  margin: 0;
+}
+.button.ghost {
+  background: transparent;
+  color: var(--brand);
+  border: 2px solid var(--brand);
+}
+
+.hero {
+  padding-top: 40px;
+  padding-bottom: 16px;
+}
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+.card h2,
+.card h3 {
+  margin-top: 0.3em;
+}
+.link-card {
+  color: var(--text);
+  text-decoration: none;
+}
+.link-card:hover {
+  border-color: var(--brand);
+}
+.platform-list {
+  padding-left: 1.2em;
+}
+.platform-list li {
+  margin: 6px 0;
+}
+
+.worked {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 20px;
+  max-width: 520px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.worked td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.worked .total th,
+.worked .total td {
+  font-weight: 700;
+  border-bottom: 0;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+
+.tier .price {
+  margin: 8px 0 0;
+}
+.tier .amount {
+  font-size: 2rem;
+  font-weight: 700;
+}
+.tier.featured {
+  border: 2px solid var(--brand);
+}
+
+.faq details {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+}
+.faq summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.signup {
+  background: var(--accent-bg);
+  border-radius: 12px;
+  padding: 8px 20px 20px;
+  margin: 40px 0;
+  max-width: 680px;
+}
+.signup form {
+  display: grid;
+  gap: 8px;
+}
+.signup label {
+  font-weight: 600;
+}
+.signup input[type="email"],
+.signup select {
+  font: inherit;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  width: 100%;
+}
+.signup fieldset {
+  border: 0;
+  padding: 0;
+  margin: 8px 0 0;
+}
+.signup legend {
+  font-weight: 600;
+  padding: 0;
+}
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+.signup .check {
+  font-weight: 400;
+}
+.consent {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  margin-top: 48px;
+  padding: 24px 0;
+  background: var(--surface);
+  font-size: 0.95rem;
+}
+.footer-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 2fr 1fr 1fr;
+}
+.footer-grid nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.footer-head {
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+@media (max-width: 720px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
