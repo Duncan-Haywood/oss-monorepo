@@ -193,6 +193,15 @@ GATES = (
         r"\b(?:on|with|from) (?:a |an )?(?:real|physical) (?:[\w-]+ ){0,2}?(?:devices?|phones?|"
         r"iPhones?|iPads?|tablets?|PCs?|Macs?|printers?|scanners?|photos?)\b|"
         r"\bon (?:a |an )?(?:Windows PC|Mac(?:Book)?|iPhone|iPad|Android (?:phone|tablet|device))\b", re.I)),
+    # A change to the customer contract: the einvoice DPA's sub-processor list takes 30 days'
+    # notice (DPA 4.2), and binding customers to new terms is the owner's call, not a session's.
+    # einvoice-preflight #4 ("client names ... only with the DPA Annex III change and the 30-day
+    # notice") was --bets' only "free" pick for eight sessions on 2026-11-27. A bare "90-day
+    # notice" is a lien notice in payapps, so the phrase must name the DPA.
+    ("legal step", re.compile(
+        r"\b(?:with|needs?|requires?|after|once) the (?:DPA|data processing agreement)\b"
+        r"[^.;()]{0,40}\b(?:change|amendment|update|notice)\b|"
+        r"\bnotice (?:in|under) (?:the )?DPA\b", re.I)),
     ("waits on evidence", re.compile(
         r"\bonly if\b[^.;()]{0,60}\b(?:a market|worth)\b|"
         r"\bif\b[^.;()]{0,60}?\b(?:ever|turns? up|shows? up|proves?|turns? out)\b|"
@@ -373,7 +382,7 @@ def ask_gates(text: str, reach: dict[str, str] | None = None) -> list[tuple[str,
 
 def gate(text: str) -> str | None:
     """Why an item waits ("waits on demand", "waits on a source", "owner step",
-    "waits on a person", "waits on a device", "waits on evidence"), or None."""
+    "waits on a person", "waits on a device", "legal step", "waits on evidence"), or None."""
     hit = gate_match(text)
     return hit[0] if hit else None
 

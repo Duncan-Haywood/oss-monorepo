@@ -4,6 +4,7 @@ seo_title: "French TVA number validation: letter keys and SIREN check digit"
 date: 2026-11-10
 tags: [einvoice-preflight, testing]
 description: "einvoice-preflight waved through any French VAT number with a letter key. Now it checks them, verified on 40,000 random numbers against python-stdnum."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 French VAT numbers are two key characters plus a nine-digit SIREN. Newer numbers use letters in the key, and our checker used to accept any of them unchecked. It also skipped the SIREN's Luhn digit.

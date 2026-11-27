@@ -4,6 +4,7 @@ seo_title: "Check Israel, Japan, Egypt, Kenya tax IDs in an e-invoice pre-send"
 date: 2026-11-09
 tags: [einvoice-preflight, tax-id, validation]
 description: "Four more countries' tax numbers now reach the party check in einvoice-preflight; only Israel's has a check digit."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 einvoice-preflight already carried small checkers for Israel, Japan, Egypt and

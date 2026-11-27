@@ -129,3 +129,12 @@ test("tiered items are reported as uncounted, sub-cent prices use unit_amount_de
   assert.equal(s.mrr, 1500); // 1000 + 0.5 x 1000; the tiered line is left out, not priced at 0 silently
   assert.equal(normalizeSubscription({ id: "sub_p", status: "active", items: { data: [{ price: price(1000) }] } }).uncounted, 0);
 });
+
+test("pause_collection is marked as a paused collection; Stripe's own paused status is not", () => {
+  const items = { data: [{ price: { unit_amount: 1000, currency: "usd", recurring: { interval: "month", interval_count: 1 } }, quantity: 1 }] };
+  const a = normalizeSubscription({ id: "a", status: "active", trial_end: 1700000000, pause_collection: { behavior: "void" }, items });
+  assert.equal(a.status, "paused");
+  assert.equal(a.collectionPaused, true);
+  const b = normalizeSubscription({ id: "b", status: "paused", trial_end: 1700000000, items });
+  assert.equal(b.collectionPaused, false);
+});

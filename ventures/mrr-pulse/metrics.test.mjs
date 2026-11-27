@@ -479,3 +479,48 @@ test("subscriptions with no customer id each stand for a customer", () => {
   assert.equal(customerKey({ id: "sub_1" }), "sub_1");
   assert.equal(concentration(liveMap([{ id: "a", customer: "c", status: "active", mrr: 100 }, { id: "b", customer: "c", status: "active", mrr: 100 }])).customers, 1);
 });
+
+test("an unpaid or collection-paused subscription paid until now: kept in past months, churned this month", async () => {
+  // Quality audit 2026-11-21, defect 2: 22 months of 5000 then unpaid read 0 in every month, and the churn was never booked.
+  const { stoppedAt } = await import("./metrics.mjs");
+  const now = D(2026, 11, 15);
+  for (const extra of [{ status: "unpaid" }, { status: "paused", collectionPaused: true, trialEnd: D(2025, 1, 15) }, { status: "paused" }]) {
+    const subs = [{ id: "s", mrr: 5000, created: D(2025, 1, 1), endedAt: null, ...extra }];
+    const { months } = backfill(subs, now, 12);
+    assert.deepEqual(months.slice(0, 11).map((m) => m.mrr), Array(11).fill(5000), extra.status);
+    assert.equal(months[11].mrr, 0);
+    assert.equal(months[11].churn, 5000);
+    assert.equal(months[11].churnCount, 1);
+    assert.equal(stoppedAt(subs[0], now), now);
+  }
+  // A known stop date wins: churned in that month, not this one.
+  const known = backfill([{ id: "s", mrr: 5000, created: D(2025, 1, 1), endedAt: null, status: "unpaid", stoppedAt: D(2026, 6, 10) }], now, 12).months;
+  // months run 2025-12 .. 2026-11, so June is index 6
+  assert.equal(known[6].month, "2026-06");
+  assert.deepEqual(known.map((m) => m.churn), [0, 0, 0, 0, 0, 0, 5000, 0, 0, 0, 0, 0]);
+  assert.equal(known[5].mrr, 5000);
+  assert.equal(known[6].mrr, 0);
+});
+
+test("Stripe's own paused status (trial ended, no payment method) never paid: no MRR, no churn", () => {
+  const now = D(2026, 11, 15);
+  const subs = [{ id: "t", mrr: 3000, created: D(2026, 5, 1), trialEnd: D(2026, 5, 15), endedAt: null, status: "paused" }];
+  const { months } = backfill(subs, now, 12);
+  assert.ok(months.every((m) => m.mrr === 0 && m.churn === 0 && m.new === 0));
+});
+
+test("an active subscription still counts at the last instant of a month and not before it starts", () => {
+  // Quality audit 2026-11-21, defect 5: the month-end boundary in mapAt survived mutation.
+  const end = D(2026, 3, 1) - 1;
+  const subs = [{ id: "a", mrr: 100, status: "canceled", created: D(2026, 1, 1), endedAt: D(2026, 3, 1) }, { id: "b", mrr: 50, status: "active", created: end }];
+  assert.deepEqual(mapAt(subs, end), { a: 100, b: 50 });
+  assert.deepEqual(mapAt(subs, end - 1), { a: 100 });
+  assert.deepEqual(mapAt(subs, D(2026, 3, 1)), { b: 50 });
+});
+
+test("quick ratio counts reactivation as gained MRR", () => {
+  // Quality audit 2026-11-21, defect 5: dropping the reactivation term left every test green.
+  const base = { month: "2026-10", startMrr: 1000, startCustomers: 2, new: 100, expansion: 0, reactivation: 300, contraction: 0, churn: 200, churnCount: 1 };
+  const s = summarize([base, { ...base, month: "2026-11" }]);
+  assert.equal(s.rates.quickRatio, 2);
+});

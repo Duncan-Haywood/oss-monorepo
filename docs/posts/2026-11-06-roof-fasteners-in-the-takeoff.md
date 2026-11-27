@@ -4,6 +4,7 @@ seo_title: "Roof nail and fastener takeoff: drip edge, ridge vent, cap nails"
 date: 2026-11-06
 tags: [wall-framing-takeoff, roofing, estimating]
 description: "How the free framing takeoff now counts drip edge, ridge vent, underlayment cap and H-clip fasteners from a typed spacing, and what that does not tell you."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 A roof order usually lists shingles, felt and lumber. The small fasteners get a "a few boxes" line and a bad guess, and they are the items a crew runs out of on a Friday.

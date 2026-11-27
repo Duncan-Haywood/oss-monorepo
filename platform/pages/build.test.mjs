@@ -2345,6 +2345,8 @@ test('every published venture page routes back to the hub', async () => {
     .filter((f) => !path.relative(outDir, f).startsWith(`payapps${path.sep}`))
     // Seller Books' marketing site (seller-books-site.mjs), the same kind of product site.
     .filter((f) => !path.relative(outDir, f).startsWith(`seller-books${path.sep}`))
+    // Residential Takeoff's paid app (residential-takeoff-app.mjs), the same arrangement.
+    .filter((f) => !path.relative(outDir, f).startsWith(`residential-takeoff${path.sep}`))
     // Job Shop Quote's (jobshop-site.mjs), the same arrangement.
     .filter((f) => !path.relative(outDir, f).startsWith(`jobshop${path.sep}`))
     // CMMC Workspace's own marketing site (cmmc-site.mjs), likewise.

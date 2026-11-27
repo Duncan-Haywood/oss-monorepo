@@ -4,6 +4,7 @@ seo_title: "Truss bearing toenails in a framing takeoff nail count"
 date: 2026-11-06
 tags: [wall-framing-takeoff, fasteners, construction]
 description: "The open-source wall framing takeoff can now add truss-to-plate toenails to its nail total, at a count you type per bearing."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 Rafter roofs already had their plate and ridge nails counted. Truss roofs added none, because the trusses are a purchased line. Their bearings still get nailed on site.

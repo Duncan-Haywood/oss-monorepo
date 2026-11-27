@@ -3,6 +3,7 @@ title: "Turkish tax numbers carry two different check-digit rules"
 date: 2026-10-30
 tags: [einvoice-preflight, turkey, e-fatura]
 description: "A 10-digit VKN and an 11-digit TCKN each end in check digits. The free Turkey e-Fatura page now tests both, in the browser."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 On a Turkish invoice the buyer or seller is named by a 10-digit VKN (companies, sole traders) or an 11-digit TCKN (individuals). Both carry check digits, so a mistyped digit can be caught before the invoice goes to an integrator and comes back rejected.

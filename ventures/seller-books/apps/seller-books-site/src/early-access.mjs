@@ -318,7 +318,8 @@ export async function unsubscribe(deps, token) {
 /**
  * Deletes never-confirmed signups older than PENDING_RETENTION_MS whose newest confirmation link has
  * also expired (the email promises CONFIRM_LINK_DAYS, so a link re-sent on day 29 still works on day
- * 35). Returns rows deleted.
+ * 35), and scrubs an unsubscribed address's unconfirmed re-signup once its link has expired.
+ * Returns rows deleted.
  */
 export async function purgePending(deps) {
   const nowMs = deps.now().getTime();
@@ -329,6 +330,18 @@ export async function purgePending(deps) {
          AND (confirm_token_expires_at IS NULL OR confirm_token_expires_at < ?)`,
     )
     .bind(cutoff, nowMs)
+    .run();
+  // An unsubscribed address can be typed in again by anyone. That re-signup writes survey answers
+  // and an IP hash onto the suppression record; if its link expires unconfirmed, drop them again,
+  // leaving what unsubscribe() leaves (the privacy page: an unsubscribed address keeps only itself).
+  await deps.db
+    .prepare(
+      `UPDATE early_access_signups SET platforms = '[]', volume = NULL, consent_ip_hash = NULL,
+         confirm_token_hash = NULL, confirm_token_expires_at = NULL, updated_at = ?
+       WHERE status = 'unsubscribed' AND confirm_token_expires_at IS NOT NULL
+         AND confirm_token_expires_at < ?`,
+    )
+    .bind(nowMs, nowMs)
     .run();
   return res.meta.changes;
 }

@@ -3,6 +3,7 @@ title: "VAT number typo checks for eleven more countries"
 date: 2026-10-30
 tags: [einvoice-preflight, vat, validation]
 description: "E-invoice Preflight now checks the VAT check digit, not only the length, for eleven more EU countries, from Estonia to Czechia."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 Until today the [e-invoice preflight](https://duncan-haywood.github.io/oss-monorepo/einvoice-preflight/) tool checked only the length of a VAT number from eleven EU countries. A typo that kept the length, such as `HU12892313` for `HU12892312`, passed. It now raises INV-023 for those, as it already did for Germany, France, Italy and the others.

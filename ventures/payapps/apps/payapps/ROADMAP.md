@@ -247,6 +247,14 @@ nothing to copy. No customers yet. Paid plans are dark
   step links to the job or application where it is done; the card disappears once the five
   required steps are done, and "Hide" dismisses it in that browser. Rules in
   `src/shared/getting-started.ts`, counts in `services/payapps/getting-started.ts`.
+- Job page on a phone (2026-11-27, payapps-job-page-order): a first-run walk of sign-up and the sample job
+  at 390 px found the pay applications 4,795 px down a 6,200 px page, under the RFIs, schedule, punch
+  list and close-out, while the sample banner says "open an application". They now come first once a
+  job has one (after the schedule of values before that, since an application needs it; 764 px on
+  the sample job), an "On this page" bar under the header links every section, the banner's
+  "application" links to the list, and the change order form stacks two to a row on a phone instead
+  of seven boxes in one (they had shrunk to "Desc" and "Amo"). `src/client/pages/project.tsx`;
+  `test/e2e/03-phone-width.spec.ts` checks the order, the jump link and the form's width.
 - Sample job, part 2 (2026-11-25): its lien waiver PDFs are marked "SAMPLE DATA - NOT A REAL LIEN
   WAIVER" on every page, above the form and outside its body (CSVs and change order PDFs: PR 69).
 - Mid-job start from the last continuation sheet (2026-11-25, every plan): on the opening-balance form,

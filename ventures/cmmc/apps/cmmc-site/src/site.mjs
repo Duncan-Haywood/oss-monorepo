@@ -92,6 +92,31 @@ export const SOURCES = [
     checked: STATUS_CHECKED,
   },
   {
+    id: "cfr-170-15",
+    title: "32 CFR 170.15, CMMC Level 1 self-assessment and affirmation requirements",
+    url: "https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.15",
+    publisher: "eCFR",
+    checked: "2026-11-25",
+    note: "Level 1 (Self) is assessed annually and entered in SPRS; where an SP 800-171A objective says CUI, read FCI (170.15(c)(1)(i)).",
+  },
+  {
+    id: "cfr-170-22",
+    title: "32 CFR 170.22, Affirmation",
+    url: "https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.22",
+    publisher: "eCFR",
+    checked: "2026-11-25",
+    note: "The affirming official affirms continuing compliance in SPRS after every assessment and annually thereafter.",
+  },
+  {
+    id: "nist-800-171a",
+    title:
+      "NIST SP 800-171A, Assessing Security Requirements for Controlled Unclassified Information",
+    url: "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-171A.pdf",
+    publisher: "NIST",
+    checked: "2026-11-25",
+    note: "The assessment objectives Level 1 and Level 2 requirements are checked against.",
+  },
+  {
     id: "nist-800-171r2",
     title: "NIST SP 800-171 Rev. 2, Protecting CUI in Nonfederal Systems and Organizations",
     url: "https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final",

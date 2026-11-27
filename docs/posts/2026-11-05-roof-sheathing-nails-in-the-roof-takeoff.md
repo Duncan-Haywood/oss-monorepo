@@ -4,6 +4,7 @@ seo_title: "Roof sheathing nails per 4x8 sheet: edge and field nail count"
 date: 2026-11-05
 tags: [wall-framing-takeoff, roofing, construction]
 description: "The roof takeoff now counts nails for the roof sheathing sheets, from edge and field spacing and the rafter or truss spacing."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 The roof takeoff counted sheets but not the nails that hold them. It now does, for gable, hip and cross-wing roofs.

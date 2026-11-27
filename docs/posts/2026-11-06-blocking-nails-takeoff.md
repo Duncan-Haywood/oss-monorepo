@@ -4,6 +4,7 @@ seo_title: "Counting nails for wall blocking and fire blocking in a takeoff"
 date: 2026-11-06
 tags: [wall-framing-takeoff, fasteners, construction]
 description: "The open-source wall framing takeoff placed blocking and fire blocking but never counted its nails. It now does, at a typed count per end."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 The wall framing takeoff already places blocking between studs, fire blocking at 10 ft and ladder blocking at tees. Its nail count skipped all of it: every blocking piece was lumber on the list and zero nails in the box total.

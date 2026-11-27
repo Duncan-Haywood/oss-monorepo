@@ -4,6 +4,7 @@ seo_title: "Tunisia matricule fiscal format check for El Fatoora invoices"
 date: 2026-11-09
 tags: [einvoice-preflight, tunisia]
 description: "The free e-invoice preflight now flags a Tunisian tax number whose shape cannot be a matricule fiscal, before El Fatoora does."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 Tunisia's El Fatoora e-invoicing identifies businesses by their matricule

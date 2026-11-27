@@ -4,6 +4,7 @@ seo_title: "Dominican RNC and Venezuelan RIF check digit validator for e-invoice
 date: 2026-11-09
 tags: [einvoice-preflight, tax-id, dominican-republic, venezuela]
 description: "einvoice-preflight now catches a mistyped Dominican RNC or cedula and Venezuelan RIF with their check digits, tested against python-stdnum on 900 numbers."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 The Dominican Republic's DGII is phasing in mandatory electronic invoices (e-CF),

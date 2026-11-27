@@ -29,5 +29,5 @@ kill_criteria:
   - No paid Job report within 90 days of the checkout link being set.
   - A user reports a material list that misses members the layout placed, which the self-check passed.
 links:
-  production: null
+  production: https://marisstella.app/residential-takeoff/
   analytics: null

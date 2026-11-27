@@ -4,6 +4,7 @@ seo_title: "Ecuador RUC and Paraguay RUC check digit in an e-invoice validator"
 date: 2026-11-09
 tags: [einvoice-preflight, e-invoicing, validation]
 description: "einvoice-preflight now tests the check digit of an Ecuadorian or Paraguayan RUC when it appears as a party's VAT id in an invoice file."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 The Ecuador and Paraguay pages of einvoice-preflight already had a RUC

@@ -45,6 +45,7 @@ import { buildJobshopSite } from './jobshop-site.mjs';
 import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { buildCmmcSite } from './cmmc-site.mjs';
+import { buildResidentialTakeoffApp } from './residential-takeoff-app.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
@@ -14100,13 +14101,17 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // static export, without the catalogue chrome (`payapps-site.mjs`). Before the
   // construction page, which links it.
   const payappsSite = await buildPayappsSite(outDir, { baseUrl: base });
+  // Residential Takeoff, the paid edition of Wall Framing Takeoff (paid bet #6), copied in as its
+  // static app with the paid path dark (`residential-takeoff-app.mjs`). Before the construction
+  // page, which links it.
+  const residentialTakeoffApp = await buildResidentialTakeoffApp(outDir, { baseUrl: base });
   const extraSitemaps = [...payappsSite, ...jobshopSite, ...sellerBooksSite].filter((rel) =>
     rel === 'payapps/sitemap.xml' || rel === 'jobshop/sitemap.xml' || rel === 'seller-books/sitemap.xml');
 
   // The construction industry landing page (`industry-construction.mjs`):
   // links only tools and research this build published.
   await buildConstructionPage(outDir, {
-    productSites: new Set(payappsSite.length ? ['payapps'] : []),
+    productSites: new Set([...(payappsSite.length ? ['payapps'] : []), ...(residentialTakeoffApp.length ? ['residential-takeoff'] : [])]),
     baseUrl: base,
     disclaimer: disclaimerHtml('../../', surfaces),
     footer: renderSiteFooterNav({ toRoot: '../../' }),
@@ -14200,6 +14205,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   );
 
   extraSitemaps.push(...cmmcSite.filter((rel) => rel === 'cmmc/sitemap.xml'));
+  extraSitemaps.push(...residentialTakeoffApp.filter((rel) => rel === 'residential-takeoff/sitemap.xml'));
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base, extraSitemaps));
   await fs.writeFile(
     path.join(outDir, 'sitemap-hub.xml'),

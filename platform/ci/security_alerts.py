@@ -18,7 +18,8 @@ The branch holds, regenerated whole on every run:
   alerts/<n>.md      one file per open alert: rule, location, finding, how to fix
 
 A fixed or dismissed alert's file disappears on the next run after CodeQL
-stops reporting it, so the queue empties itself.
+(or, for scan.py's full-repo SARIF from priv-security-scan-repo.yml, that
+scanner) stops reporting it, so the queue empties itself.
 
 False positives: sessions cannot dismiss an alert (no security-events scope),
 so until 2026-11-25 every run re-read the same top alerts and found them
@@ -113,6 +114,16 @@ def triage_reason(s: dict, triage: list[dict]) -> str | None:
     return None
 
 
+def is_codeql(s: dict) -> bool:
+    """CodeQL's alerts, or (tool unnamed) assume so; the rest come from scan.py's full-repo SARIF."""
+    return s.get("tool", "") in ("", "CodeQL")
+
+
+def rescan(s: dict) -> str:
+    return ("CodeQL re-scans main" if is_codeql(s) else
+            "the next full-repo scan (`.github/workflows/priv-security-scan-repo.yml`) re-scans main")
+
+
 def stale_check(s: dict) -> list[str]:
     """Step 0 of an alert file: is the finding still on main, or did a later merge fix it?"""
     if not s["commit"]:
@@ -121,9 +132,11 @@ def stale_check(s: dict) -> list[str]:
     # of the quotes (a file name is repository data, and anyone can propose one in a PR).
     path = f" -- '{s['path']}'" if SAFE_PATH.fullmatch(s["path"]) else ""
     return [
-        f"0. Check it is still there. CodeQL last saw it on `{s['commit'][:12]}`; queued CodeQL",
-        "   runs on main are replaced by newer pushes and one takes about an hour, so a fix",
-        "   merged since then stays listed here. Run",
+        *([f"0. Check it is still there. CodeQL last saw it on `{s['commit'][:12]}`; queued CodeQL",
+           "   runs on main are replaced by newer pushes and one takes about an hour, so a fix",
+           "   merged since then stays listed here. Run"] if is_codeql(s) else
+          [f"0. Check it is still there. {s['tool']} last saw it on `{s['commit'][:12]}` in the last",
+           "   full-repo scan, so a fix merged since then stays listed until the next one. Run"]),
         f"   `git fetch -q --depth=1 origin {s['commit']} main && git diff --stat {s['commit'][:12]} origin/main{path}`",
         "   (fetching main too: a session's origin/main is as old as its clone):",
         "   no output means the file is unchanged and the finding stands; otherwise read the",
@@ -172,11 +185,16 @@ def alert_file(s: dict, reason: str | None = None) -> str:
         "   in this PR (`--claim` claims their branches too). The first scan found 977 alerts, mostly",
         "   a few regex-sanitisation rules repeated, so one alert per session is too slow.",
         f"3. Land it as usual (CLAUDE.md), PR titled `security: fix code-scanning alert #{n} ({s['rule']})`.",
-        "   This file disappears once CodeQL re-scans main and stops reporting the alert.",
+        f"   This file disappears once {rescan(s)} and stops reporting the alert.",
         "",
-        "A false positive: change no code. Add an entry with the reason to",
-        "`platform/security/codeql-triage.json` in your PR, so the queue stops offering it and",
-        "the owner can dismiss it. An unused claim branch expires after 48h (branch_cleanup.py),",
+        *(["A false positive: change no code. Add an entry with the reason to",
+           "`platform/security/codeql-triage.json` in your PR, so the queue stops offering it and",
+           "the owner can dismiss it."] if is_codeql(s) else
+          ["A false positive: change no code. Accept it in `platform/security/baseline.yaml`",
+           "(tool, rule, path, fingerprint, reason) in a PR of its own; the next full-repo scan",
+           "then stops reporting it and the alert closes with no owner step. Until then, an entry",
+           "in `platform/security/codeql-triage.json` takes it off the queue."]),
+        "An unused claim branch expires after 48h (branch_cleanup.py),",
         "after which the alert is offered again until it is triaged or dismissed.",
         "",
     ])

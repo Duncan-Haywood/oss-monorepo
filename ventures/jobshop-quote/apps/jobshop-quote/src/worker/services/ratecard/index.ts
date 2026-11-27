@@ -16,6 +16,7 @@ import { type MaterialRateKind, planMaterialRateImport } from "@shared/material-
 import { type ImportValues, planRateImport } from "@shared/rate-card-import";
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import type { AppContext } from "../../context";
+import { allInChunks } from "../../db/in-chunks";
 import {
   cutSpeeds,
   drillFeeds,
@@ -106,11 +107,14 @@ export async function confirmMaterialPrices(
   byUserId: string | null,
 ) {
   const ids = [...new Set(materialIds)];
-  const rows = await ctx.db
-    .select()
-    .from(materials)
-    .where(and(eq(materials.orgId, orgId), inArray(materials.id, ids)))
-    .all();
+  // In slices: the request allows 500 ids and D1 binds at most 100 parameters a statement.
+  const rows = await allInChunks(ids, (slice) =>
+    ctx.db
+      .select()
+      .from(materials)
+      .where(and(eq(materials.orgId, orgId), inArray(materials.id, slice)))
+      .all(),
+  );
   if (rows.length !== ids.length) throw notFound("Material");
   const retired = rows.filter((r) => !r.active);
   if (retired.length > 0) {

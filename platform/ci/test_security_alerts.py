@@ -113,6 +113,25 @@ class RenderTest(unittest.TestCase):
             self.assertEqual(sorted(p.name for p in (out / "alerts").iterdir()), ["2.md"])
 
 
+class ScannerAlertTest(unittest.TestCase):
+    """Alerts from scan.py's weekly SARIF (priv-security-scan-repo.yml) name their own rescan."""
+
+    def test_scanner_alert_points_at_the_weekly_scan_and_the_baseline(self):
+        a = alert(4, "high", commit=SHA_A)
+        a["tool"] = {"name": "semgrep"}
+        text = render([a])["alerts/4.md"]
+        self.assertIn("semgrep last saw it", text)
+        self.assertIn("priv-security-scan-repo.yml", text)
+        self.assertIn("platform/security/baseline.yaml", text)
+        self.assertNotIn("CodeQL re-scans", text)
+
+    def test_codeql_alert_keeps_its_wording(self):
+        text = render([alert(4, "high", commit=SHA_A)])["alerts/4.md"]
+        self.assertIn("CodeQL last saw it", text)
+        self.assertIn("once CodeQL re-scans main", text)
+        self.assertNotIn("baseline.yaml", text)
+
+
 class TriageTest(unittest.TestCase):
     def entry(self, number, rule=None, path="a.py", reason="read it: harmless"):
         return {"number": number, "rule": rule or f"py/rule-{number}", "path": path, "reason": reason}

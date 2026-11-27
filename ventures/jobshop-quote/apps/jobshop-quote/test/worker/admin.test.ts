@@ -4,7 +4,14 @@
 import type { AdminAccountsPage, ProductAdminMetrics } from "@admin-metrics";
 import { fakeWebhookRequest, signCheckoutToken } from "@billing";
 import { testFakes } from "@worker/context";
-import { adminAuditLog, llmCalls, organization, pendingCheckouts, user } from "@worker/db/schema";
+import {
+  adminAuditLog,
+  llmCalls,
+  member,
+  organization,
+  pendingCheckouts,
+  user,
+} from "@worker/db/schema";
 import { newId } from "@worker/lib/ids";
 import { desc, eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
@@ -167,6 +174,39 @@ describe("read-only metrics token (agents)", () => {
 });
 
 describe("cross-tenant reads", () => {
+  it("lists 200 accounts once there are more than 100 orgs", async () => {
+    // D1 binds at most 100 parameters a statement and `limit` allows 200: the owner lookup bound
+    // every listed org id in one `IN (...)` and answered 500 from about 100 orgs on.
+    const db = testDb();
+    const shops = Array.from({ length: 120 }, () => ({
+      orgId: newId("org"),
+      userId: newId("usr"),
+      memberId: newId("mem"),
+    }));
+    const stmts = shops.flatMap((x) => [
+      db.insert(organization).values({ id: x.orgId, name: "Bulk Shop", slug: x.orgId }),
+      db.insert(user).values({
+        id: x.userId,
+        name: "Bulk Owner",
+        email: `${x.userId}@example.test`,
+        emailVerified: true,
+      }),
+      db
+        .insert(member)
+        .values({ id: x.memberId, organizationId: x.orgId, userId: x.userId, role: "owner" }),
+    ]);
+    const [first, ...more] = stmts;
+    if (first) await db.batch([first, ...more]);
+    const page = await call<AdminAccountsPage>("/api/admin/accounts?list=recent&limit=200", {
+      headers: bearer,
+    });
+    // The 120 newest orgs, each with its owner from the chunked lookup.
+    const byOrg = new Map(page.items.map((i) => [i.orgId, i]));
+    for (const x of shops) {
+      expect(byOrg.get(x.orgId)?.owner?.email).toBe(`${x.userId}@example.test`);
+    }
+  });
+
   it("only a platform admin sees every org; a tenant member sees neither the admin API nor another org", async () => {
     const a = await setupTenant();
     const b = await setupTenant();

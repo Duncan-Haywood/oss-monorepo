@@ -179,6 +179,6 @@ It gives squares, eave length and every ridge, hip and valley. It does **not** y
 
 ## Where to use it
 
-This is part of the estimating module we are building for the contractor suite, and it is not on the free framing page yet. Until it is, the multipliers above get you there by hand for an L, T or U, and the bay table for a 45-degree bay. The free [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/) already counts studs, plates, headers and the board order for the walls under that roof.
+Since 2026-11-27 you can run it on any square-cornered outline in [Residential Takeoff](https://marisstella.app/residential-takeoff/), the paid edition of the framing takeoff: pick "any outline" under Roof shape, type the corners, and the roof plan, hip and valley lengths, sheathing courses and blocking come out with the walls, then go into one supplier material list. It is in early access and checkout is not open, so every feature works without a key for now; the material list and bid package are planned as a $29 report per house. It is not on the free framing page, and the multipliers above still get you there by hand for an L, T or U, and the bay table for a 45-degree bay. The free [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/) already counts studs, plates, headers and the board order for the walls under that roof.
 
 Quantities only, not engineering: hip and valley rafter sizes, bearing and connections are for your engineer or the local building department.

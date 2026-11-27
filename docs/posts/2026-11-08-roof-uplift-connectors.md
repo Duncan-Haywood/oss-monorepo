@@ -4,6 +4,7 @@ seo_title: "How many hurricane ties does a roof need?"
 date: 2026-11-08
 tags: [construction, roofing, wall-framing-takeoff]
 description: "The roof tool now turns a typed uplift pressure and a connector's rated capacity into connectors per rafter end and a total to order."
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 A roof takeoff lists rafters, sheathing and shingles, then stops where the metal begins. Hurricane ties and similar roof-to-wall connectors are small, cheap and missed on bids, and a short order stops the crew for a day.

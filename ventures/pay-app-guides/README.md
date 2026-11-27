@@ -16,6 +16,7 @@ Live: <https://marisstella.app/pay-app-guides/>
 |---|---|
 | `index.html` | Schedule of values / continuation sheet calculator: work completed, stored materials, retainage held and released, balance to finish, current payment due, over-billed lines flagged; copy summary, CSV, print. Runs in the browser. |
 | `how-to-fill-out-a-pay-application.html` | The continuation sheet column by column and the summary page line by line, one worked example, what to attach. |
+| `es-como-llenar-una-solicitud-de-pago.html` | The same guide in Spanish (`lang="es"`, hreflang-paired with the English page), each line with its English name as printed on the form. Agent-translated; a native-speaker read is still owed. `cta.mjs` writes its Spanish CTA, which says the app is in English. |
 | `retainage-explained.html` | How retainage is calculated, reduced, released and flowed down, and a table of public retainage caps for 16 states, each linked to the official statute. |
 | `conditional-vs-unconditional-lien-waivers.html` | The four waiver types, when to sign each, exceptions to write in, California and Florida statutory forms. |
 | `schedule-of-values-template.html` | Free Excel schedule of values / continuation sheet template and a filled-in example (`schedule-of-values-template.xlsx`, `schedule-of-values-example.xlsx`), built by `template.mjs` with no library; `template.test.mjs` checks the committed files match the code and, where LibreOffice is installed, recalculates the example against the guide's numbers. Rebuild with `node template.mjs`. |

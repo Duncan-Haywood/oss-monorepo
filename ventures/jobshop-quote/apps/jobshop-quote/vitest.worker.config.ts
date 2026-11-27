@@ -39,6 +39,14 @@ export default defineConfig({
     include: ["test/worker/**/*.test.ts", "src/worker/**/*.worker.test.ts"],
     setupFiles: ["./test/worker/setup.ts"],
     testTimeout: 30_000,
+    // One isolate per Vitest worker, reused across its test files, instead of a fresh isolate per
+    // file (48 files). Same change as payapps (PR #19715); timings in
+    // docs/history/jobshop-quote-worker-tests-perf-2026-11-27.md. What this asks of a test file:
+    // the D1 database and module singletons (testFakes) are shared with the files that ran before
+    // it in that worker, so scope reads to rows the file created (its own org, user or quote ids)
+    // and never assert a global count or an empty table. Files may run in any order:
+    // `--sequence.shuffle.files` must pass too.
+    isolate: false,
     // Pre-bundle the heavy runtime deps once per run. Every test file gets a fresh isolate and
     // re-imports the Worker's graph; unbundled, better-auth + zod + drizzle + hono are seconds of
     // small-module loads per file. Same change as payapps (PR #19655); timings in

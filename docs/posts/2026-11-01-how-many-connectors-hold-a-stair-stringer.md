@@ -3,6 +3,7 @@ title: "How many connectors does a stair stringer need at the top?"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, construction]
 description: The framing takeoff's stringer check now turns its end reaction into a connector count per stringer, from a per-connector capacity you type.
+folded_into: writing/framing-nails-hangers-and-ties-for-a-house/
 ---
 
 The stringer check already computed the reaction at the top of each stringer. Add `connectorCapacity` (lb per hanger or bolt group, from the maker's table; none is shipped) and the report divides it out: connectors per stringer, and the buy count for the flight.

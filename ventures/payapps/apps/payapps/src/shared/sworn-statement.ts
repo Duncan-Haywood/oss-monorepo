@@ -22,6 +22,7 @@
 
 import { z } from "zod";
 import type { JobCostCommitmentDto, PayAppDto, ProjectDetailDto } from "./api/types";
+import { isCalendarDate } from "./calendar-date";
 import { formatCents } from "./money";
 
 export const MAX_SWORN_ROWS = 300;
@@ -69,7 +70,10 @@ export const swornStatementSchema = z.object({
   contractorAddress: text(300).default(""),
   /** The pay application it goes with, as printed ("No. 4, period to 2026-10-31"). */
   payApp: text(120).default(""),
-  statementDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD"),
+  statementDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+    .refine(isCalendarDate, "Not a calendar date: use YYYY-MM-DD"),
   /** Your own contract with change orders; null = not checked. */
   contractSumCents: cents.nullable().default(null),
   /** What the pay application asks for this period; null = not checked. */

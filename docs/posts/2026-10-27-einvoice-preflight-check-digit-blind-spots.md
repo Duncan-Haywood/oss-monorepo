@@ -3,6 +3,7 @@ title: "Which tax-ID check digits miss typos? Seven rules, measured"
 date: 2026-10-27
 description: "Chile and Argentina check digits catch every single-character typo; Mexico's RFC misses about one in seven. Seeded measurement of seven e-invoice ID rules."
 tags: [einvoice-preflight, check-digit, e-invoicing, testing]
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now checks tax IDs for seven countries, and each has a check digit. They are not equally good at catching a mistyped character, so we measured it: `eval/id-blindspots.mjs` generates seeded random valid IDs, changes one character in every possible way, swaps every adjacent pair, and counts the typos that still pass.

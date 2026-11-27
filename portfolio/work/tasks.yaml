@@ -382,15 +382,49 @@ tasks:
       the scan workflow; new findings above the baseline land in the queue
       that .github/workflows/security-alert-queue.yml already keeps, as files.
     hours: 4
-    status: open
+    status: done
     added: 2026-11-24
     notes: >-
       Half done 2026-11-24: .github/rulesets/main.json requires
       `security-scan` and `adversarial-gate` (and Code Owner review is off;
       the adversarial gate replaced it, docs/security/agent-hardening.md).
       The file takes effect only when an admin applies it (nothing in the
-      repo holds an admin token, on purpose). Left: a scheduled full-repo run
-      of scan.py whose findings go to the alert queue as files.
+      repo holds an admin token, on purpose). Pipeline done 2026-11-27:
+      .github/workflows/priv-security-scan-repo.yml runs `scan.py repo
+      --sarif` and uploads the blocking findings to code scanning, which
+      priv-security-alert-queue.yml already mirrors to the `security-alerts`
+      branch as files; an alert file from it says to accept a false
+      positive in baseline.yaml, so it closes with no owner step. Manual
+      only until scan-repo-baseline lands (121 blocking findings on the
+      first reading would flood the queue).
+
+  - id: scan-repo-baseline
+    direction: security-first
+    title: Triage the first full-repo security reading into fixes and baseline.yaml entries, then schedule the scan weekly
+    done_when: >-
+      Each blocking finding in docs/reports/2026-11-27-full-repo-security-scan.md
+      is fixed, or accepted in platform/security/baseline.yaml with a
+      specific path, the fingerprint where one exists and a real reason (a
+      fixture key, a sample page); `scan.py repo` over a fresh checkout then
+      reports 0 blocking for gitleaks and semgrep, a CI reading covers the
+      other tools, and priv-security-scan-repo.yml gets back its
+      `schedule: cron "29 7 * * 1"`.
+    hours: 6
+    status: open
+    added: 2026-11-27
+    notes: >-
+      Split by tool so each is one PR: (1) gitleaks, 97 matches in 54
+      files, nearly all test fixtures (AKIA... in the Terraform secret-check
+      tests, sample JWTs in jwt-security-check) and statistical engine code
+      gitleaks reads as keys; check each is not a live credential before
+      accepting it. (2) semgrep, 24: js-child-process-dynamic in the
+      platform/ci page checkers and a few ventures, py-shell-injection in
+      run_workflow_locally.py and runner_probe.py, js-tls-verify-off in
+      status-keeper/certs.mjs; fix the real ones. (3) run the workflow once
+      (workflow_dispatch, needs a person or a session that can dispatch) to
+      read checkov, trivy, zizmor and osv on a runner. baseline.yaml
+      changes go in a PR of their own (the adversarial gate reads it from
+      main).
 
   - id: aws-org-baseline
     direction: security-first
@@ -966,11 +1000,17 @@ tasks:
       check on a real finding; owner-escalation items are labelled on the PR;
       tests cover a clean PR, a finding, and each escalation trigger.
     hours: 12
-    status: open
+    status: done
     added: 2026-11-24
     notes: >-
       Owner, 2026-11-24: "can we instead have maybe a review process on cysec
       and legal risks instead?" The script and process landed with this task
-      (docs/security/risk-review.md); this task automates it. The workflow
-      calls a paid model API, so it is a priv- workflow and the owner switches
-      its key on once.
+      (docs/security/risk-review.md); this task automates it. Closed
+      2026-11-27 as built in a different shape, so `workctl next` stops
+      ranking it first: .github/workflows/priv-risk-review.yml runs main's
+      risk_review.py --gate on every PR as the required `risk-review` check
+      (blocking, no approval path); the AI reviewer that is not the author
+      is `adversarial-llm` in priv-security-gate.yml (Claude on AWS, OIDC,
+      for control-plane and high-risk PRs). Owner-escalation labels were
+      dropped: the owner said the same day nothing waits on their review.
+      A per-check LLM answer on every PR, if wanted, is a new task.

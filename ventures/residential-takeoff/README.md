@@ -33,9 +33,11 @@ package), with the subscription kept for the contractor suite ([`docs/PRICING.md
 
 ## Status
 
-- **Not served and not on sale.** Nothing under `apps/` is published by the catalogue build (it serves a
-  venture's root `index.html` only). Every checkout link in `apps/wall-framing-takeoff/checkout.mjs` is
-  empty, so the paid path is dark and every feature is open (`plans.mjs`).
+- **Served, not on sale** (2026-11-27). The catalogue build copies the app into
+  https://marisstella.app/residential-takeoff/ (`platform/pages/residential-takeoff-app.mjs`: the page, the
+  modules it imports, the IFC wasm and the bid-package pages; the calculator copies stay on the free
+  edition). Every checkout link in `apps/wall-framing-takeoff/checkout.mjs` is empty, so the paid path is
+  dark and every feature is open (`plans.mjs`); the page says so.
 - **Before the first sale** (`apps/wall-framing-takeoff/docs/STEP4_NOTES.md`): pick the hosting for the
   paid page, move the checkout from the licence-key design (written for a static page against Lemon
   Squeezy) to the owner's merchant of record, Paddle (`prompts/goals.md`, "Payments"), and read one real

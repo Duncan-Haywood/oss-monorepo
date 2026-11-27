@@ -125,6 +125,30 @@ describe("subscribe", () => {
     assert.equal(sent.length, 0);
   });
 
+  test("honeypot: a single character in the hidden field is enough", async () => {
+    const res = await formPost("/api/early-access/subscribe", signup({ website: "x" }));
+    await flush();
+    assert.equal(res.status, 303);
+    assert.equal(rows().length, 0);
+    assert.equal(sent.length, 0);
+  });
+
+  test("the first confirmation email counts as one send of the day's five", async () => {
+    await formPost("/api/early-access/subscribe", signup());
+    await flush();
+    assert.equal(rows()[0].confirm_send_count, 1);
+    // Four resends, each past the 10-minute gap, are allowed; the sixth email of the day is not.
+    for (let i = 0; i < 5; i++) {
+      env.DB.rows(
+        "UPDATE early_access_signups SET confirm_sent_at = confirm_sent_at - 11 * 60000 RETURNING id",
+      );
+      await formPost("/api/early-access/subscribe", signup());
+      await flush();
+    }
+    assert.equal(sent.length, 5);
+    assert.equal(rows()[0].confirm_send_count, 5);
+  });
+
   test("CSRF: missing or foreign Origin is refused", async () => {
     for (const origin of [null, "https://evil.example"]) {
       const res = await formPost("/api/early-access/subscribe", signup(), { origin });
@@ -309,6 +333,36 @@ describe("unsubscribe", () => {
     await confirmWith(confirmTokenFrom(sent[1]));
     assert.equal(rows()[0].status, "confirmed");
   });
+
+  test("an unconfirmed re-signup on an unsubscribed address is scrubbed once its link expires", async () => {
+    // Anyone can type the address: the survey answers and IP hash a re-signup writes onto the
+    // suppression record must not outlive the confirmation link (privacy page: unconfirmed signups
+    // are deleted; an unsubscribed address keeps only the address).
+    await formPost("/api/early-access/subscribe", signup());
+    await flush();
+    await formPost(
+      `/api/early-access/unsubscribe?token=${encodeURIComponent(unsubTokenFrom(sent[0]))}`,
+      {},
+      { origin: null },
+    );
+    env.DB.rows("UPDATE early_access_signups SET confirm_sent_at = 0 RETURNING id");
+    await formPost("/api/early-access/subscribe", signup());
+    await flush();
+    assert.equal(rows()[0].volume, "100-600");
+    const inside = () => new Date(Date.now() + CONFIRM_TOKEN_TTL_MS - 60_000);
+    await purgePending({ db: env.DB, now: inside });
+    assert.equal(rows()[0].volume, "100-600", "the link still works: nothing scrubbed yet");
+    const after = () => new Date(Date.now() + CONFIRM_TOKEN_TTL_MS + 60_000);
+    await purgePending({ db: env.DB, now: after });
+    const [row] = rows();
+    assert.equal(row.status, "unsubscribed");
+    assert.equal(row.email, "reseller@example.com", "the suppression record stays");
+    assert.equal(row.platforms, "[]");
+    assert.equal(row.volume, null);
+    assert.equal(row.consent_ip_hash, null);
+    assert.equal(row.confirm_token_hash, null);
+    assert.equal(row.confirm_token_expires_at, null);
+  });
 });
 
 describe("routing", () => {
@@ -336,6 +390,10 @@ describe("pure helpers", () => {
     await flush();
     env.DB.rows(
       "UPDATE early_access_signups SET created_at = 0, confirm_token_expires_at = 0 WHERE email = 'reseller@example.com' RETURNING id",
+    );
+    // A pending row from 10 days ago whose link has lapsed is inside the 30 days: it stays.
+    env.DB.rows(
+      `UPDATE early_access_signups SET created_at = ${Date.now() - 10 * 86_400_000}, confirm_token_expires_at = 0 WHERE email = 'keep@example.com' RETURNING id`,
     );
     const deleted = await purgePending({ db: env.DB, now: () => new Date() });
     assert.equal(deleted, 1);
@@ -425,6 +483,23 @@ describe("pure helpers", () => {
       platforms: ["etsy", "ebay", "etsy"],
     });
     assert.deepEqual(ok.value.platforms, ["ebay", "etsy"]);
+    // Source pages are site paths: every digit is allowed (e.g. a dated guide), nothing else is.
+    for (const source of ["/guides/1099-k-2026", "/a9/b_8-7"]) {
+      const res = parseSubscribe({
+        email: "x@y.com",
+        source,
+        consentVersion: EARLY_ACCESS_CONSENT_VERSION,
+      });
+      assert.equal(res.ok, true, source);
+    }
+    for (const source of ["guides", "/a b", "/a?b", `/${"a".repeat(200)}`]) {
+      const res = parseSubscribe({
+        email: "x@y.com",
+        source,
+        consentVersion: EARLY_ACCESS_CONSENT_VERSION,
+      });
+      assert.equal(res.ok, false, source);
+    }
     // A JSON body may send a field as a one-item array; the first string counts.
     const arr = parseSubscribe({
       email: ["X@Y.com"],

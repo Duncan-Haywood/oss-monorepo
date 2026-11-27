@@ -4,6 +4,7 @@ seo_title: "Singapore UEN validator: check letter for InvoiceNow invoices"
 date: 2026-11-10
 tags: [einvoice-preflight, tax-id, singapore, invoicenow]
 description: "einvoice-preflight now verifies the check letter at the end of a Singapore UEN, not only its shape."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 A Singapore Unique Entity Number ends in a check letter, and an InvoiceNow

@@ -47,6 +47,9 @@ export function normalizeSubscription(s) {
     plans,
     customer: typeof s.customer === "string" ? s.customer : s.customer?.id,
     status: paused && s.status === "active" ? "paused" : s.status,
+    // pause_collection (status stays active in Stripe), unlike Stripe's own
+    // paused status, which only follows a trial that ended unpaid.
+    collectionPaused: paused && s.status === "active",
     mrr: net,
     uncounted,
     currency,
