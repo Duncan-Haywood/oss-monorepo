@@ -7,7 +7,9 @@ do not edit by hand. Take the first one whose claim branch
 
 Triaged already: alerts in `platform/security/codeql-triage.json` are listed apart, at the end; `docs/reports/*security-queue*.md` on main has earlier runs' notes. A false positive you find goes in the JSON file with its reason (only the owner can dismiss alerts).
 
-Empty: no open alerts awaiting a fix.
+Scanned commit: `89bf955827d8` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 89bf955827d8 origin/main -- <path>` before fixing (each alert file says how).
+
+- [high] #1514 `js/incomplete-sanitization` in `platform/billing/paddle-catalogue.mjs:133`: alerts/1514.md
 
 ## Triaged, awaiting dismissal
 
@@ -28,7 +30,7 @@ for a session. The owner dismisses each on its alert page.
 - [high] #960 `js/xss-through-dom` in `ventures/quick-pick-survey/site/rank.html:461`: alerts/960.md
 - [high] #968 `js/xss-through-dom` in `ventures/shed-designer/hoa-page.mjs:59`: alerts/968.md
 - [high] #969 `js/xss-through-dom` in `ventures/silence-cutter/index.html:258`: alerts/969.md
-- [high] #1049 `js/incomplete-url-substring-sanitization` in `platform/pages/check.mjs:1537`: alerts/1049.md
+- [high] #1049 `js/incomplete-url-substring-sanitization` in `platform/pages/check.mjs:1547`: alerts/1049.md
 - [high] #1050 `js/incomplete-url-substring-sanitization` in `platform/pages/custom-domain.test.mjs:161`: alerts/1050.md
 - [high] #1086 `js/disabling-certificate-validation` in `ventures/status-keeper/certs.mjs:12`: alerts/1086.md
 - [high] #1181 `js/redos` in `ventures/regex-redos-check/cli.test.mjs:81`: alerts/1181.md
