@@ -77,7 +77,7 @@ jobs:
   e2e:
     # A stranger's first pay application in a real browser (test/e2e): sign-up, job, schedule of
     # values, pay app, PDF and CSV, payments; two companies kept apart; every page at phone width.
-    # Offline: local D1 and R2, FAKE_EXTERNALS=true, BILLING_PROVIDER=none, no secrets.
+    # Offline: local D1 and R2, FAKE_EXTERNALS=true, BILLING_PROVIDER=none; it reads no secret at all
     name: payapps (browser e2e)
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
