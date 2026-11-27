@@ -26,3 +26,10 @@ copy stays online as the free edition; new depth is built here (oss-monorepo
       working for them.
 - [ ] The paid path goes through the merchant of record (no key in this
       repository) and stays dark until the owner sets the checkout link.
+
+## Vendored from the free PDF Plan Takeoff (2026-11-27)
+
+`pdf-parser.mjs`, `pdf-text.mjs`, `geometry.mjs`, `scale.mjs`, `inflate-browser.mjs` and the test
+fixture `sample.mjs` are byte-for-byte copies of `ventures/pdf-plan-takeoff` (FSL-1.1-MIT, the same
+owner's copyright, written by agents working for them; no third-party code). `pdfsync.test.mjs`
+fails when a copy drifts. `planpdf.mjs`, which uses them, is this folder's own.

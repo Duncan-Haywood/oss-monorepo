@@ -67,7 +67,7 @@ export function llmsTxt(baseUrl = PRODUCTION) {
   const at = `${baseUrl}${RESIDENTIAL_TAKEOFF_DIR}/`;
   return `# Residential Takeoff
 
-> The paid edition of Wall Framing Takeoff, for remodelers, framers and small builders. A house typed, drawn on a sketch, or read from an IFC or DXF file gives every stud, header, plate splice and cut, the cheapest mix of board lengths to buy (with a lower bound), wall and roof sheathing, outline and hip roofs with a roof plan drawing, siding, soffit and fascia, and one supplier material list (CSV) a lumberyard can quote from, plus a branded bid package. Runs in the browser; nothing is uploaded.
+> The paid edition of Wall Framing Takeoff, for remodelers, framers and small builders. A house typed, drawn on a sketch (over a photo or a vector plan PDF placed at its printed scale, with clicks snapping to the drawn corners), or read from an IFC or DXF file gives every stud, header, plate splice and cut, the cheapest mix of board lengths to buy (with a lower bound), wall and roof sheathing, outline and hip roofs with a roof plan drawing, siding, soffit and fascia, and one supplier material list (CSV) a lumberyard can quote from, plus a branded bid package. Runs in the browser; nothing is uploaded.
 
 Status: early access. Checkout is not open, so every feature works without a key. Once it opens, the supplier material list and the branded bid package are planned as a $29 Job report per house; the free edition stays free.
 

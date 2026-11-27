@@ -14,7 +14,7 @@
   "proprietary": [
     {
       "venture": "payapps",
-      "source_lines": 146473,
+      "source_lines": 153633,
       "track": "proprietary",
       "why": "flagship #1: the depth people pay for",
       "model": "subscription",
@@ -25,7 +25,7 @@
     },
     {
       "venture": "jobshop-quote",
-      "source_lines": 83927,
+      "source_lines": 85897,
       "track": "proprietary",
       "why": "flagship #2: the depth people pay for",
       "model": "subscription",
@@ -38,7 +38,7 @@
     },
     {
       "venture": "einvoice-preflight",
-      "source_lines": 36729,
+      "source_lines": 36755,
       "track": "proprietary",
       "why": "flagship #3: the depth people pay for",
       "model": "subscription",
@@ -57,7 +57,7 @@
     },
     {
       "venture": "cmmc",
-      "source_lines": 52685,
+      "source_lines": 53968,
       "track": "proprietary",
       "why": "flagship #4: the depth people pay for",
       "model": "subscription",
@@ -68,7 +68,7 @@
     },
     {
       "venture": "seller-books",
-      "source_lines": 46475,
+      "source_lines": 49875,
       "track": "proprietary",
       "why": "flagship #5: the depth people pay for",
       "model": "subscription",
@@ -207,7 +207,7 @@
     },
     {
       "venture": "einvoice-pro",
-      "source_lines": 49161,
+      "source_lines": 50991,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -221,19 +221,8 @@
       "move_order": 17
     },
     {
-      "venture": "ig-media-pipeline",
-      "source_lines": 22479,
-      "track": "proprietary",
-      "why": "over 5000 lines of product code, more than a single-page tool",
-      "model": "one-off",
-      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
-      "third_party_licences": [],
-      "moved": null,
-      "move_order": 18
-    },
-    {
       "venture": "residential-takeoff",
-      "source_lines": 21252,
+      "source_lines": 23868,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -241,6 +230,17 @@
       "third_party_licences": [
         "ventures/residential-takeoff/apps/wall-framing-takeoff/LICENSE"
       ],
+      "moved": null,
+      "move_order": 18
+    },
+    {
+      "venture": "ig-media-pipeline",
+      "source_lines": 22479,
+      "track": "proprietary",
+      "why": "over 5000 lines of product code, more than a single-page tool",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
       "moved": null,
       "move_order": 19
     },
@@ -316,7 +316,7 @@
     },
     {
       "venture": "machine-shop-guides",
-      "source_lines": 7148,
+      "source_lines": 7272,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -338,7 +338,7 @@
     },
     {
       "venture": "pay-app-guides",
-      "source_lines": 5368,
+      "source_lines": 5691,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",

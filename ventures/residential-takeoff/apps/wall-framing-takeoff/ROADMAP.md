@@ -229,6 +229,10 @@ Ticked items are on `main`.
       sill-32 window framed as an 82.5 in door); fixed with `openingSizes`
       (`ifcwasm.mjs`, test in `ifcwasm.test.mjs`; property test on invented plans in `ifcwasm-fuzz.test.mjs`, 2026-11-04). Still open: clipping
       (ifc-engine plan, milestone 3) and a real US wood-framed model.
+- [x] (2026-11-27, `planpdf.mjs`, page card; click-checked in Chromium on the invented sample sheet
+      only) A vector plan PDF as the sketch underlay: sized by its printed scale (checked against its
+      dimension strings, half-size prints caught), wall clicks snapping to its line ends. Still open:
+      walls found without clicking (Next, item 2) and a real permit set.
 
 ### 3. The rest of the shell
 
@@ -501,10 +505,13 @@ From [`2026-11-19-wall-framing-takeoff-r5.json`](../../../../portfolio/quality/a
    client-side token, a $29 "Job report" price in the catalogue's `residential-takeoff` row), then a
    sandbox purchase end to end; then update the free edition's bid-package page and the paid
    page's "Checkout is not open yet" note. Waits on the owner.
-2. Material lists from plan PDFs, part 2 (part 1 done 2026-11-27: the free `pdf-plan-takeoff` writes
-   the length runs labelled Walls, Doors and Windows on one sheet as a DXF in real inches,
-   `wallsDxf` in its `measure.mjs`, and this app opens it with `planFromDxf`; corners, tees and
-   openings survive, `pdf-takeoff-walls.test.mjs`): find the wall runs on a vector plan PDF without
-   clicking them (the parallel face-line pairs `pairDoubleLines` already reads in a DXF, taken from
-   the PDF's painted segments at the sheet's checked scale), if people use the hand-off.
+2. Material lists from plan PDFs, part 2. Part 1 has two routes, both done 2026-11-27: the free
+   `pdf-plan-takeoff` writes the length runs labelled Walls, Doors and Windows on one sheet as a DXF in
+   real inches (`wallsDxf` in its `measure.mjs`) that this app opens with `planFromDxf`
+   (`pdf-takeoff-walls.test.mjs`); and the sketch takes a vector plan PDF as its underlay at its
+   printed scale, with clicks snapping to its line ends (README, "Plan PDF underlay", `planpdf.mjs`).
+   Next: find the wall runs without clicking them (the parallel face-line pairs `pairDoubleLines`
+   already reads in a DXF, taken from the PDF's painted segments at the sheet's checked scale, inside
+   a box the user drags round the floor plan, offered as a sketch to correct), measured against a real
+   permit set before saying it works, if people use either hand-off.
 
