@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqydXenUyZhius3owzWA",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "status check in on full repos progress of the pivot (then: trim pre-pivot directions; redirect don't block; owner steps agents can take)",
+  "input_sha256": "4cd282f4a54049a4ff8345315c681954fdafe5f6c336e4986b142fc3234b80f2",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T01:47:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Pivot status check, then the owner's follow-ups: trim pre-pivot directions, redirect ventures runs to cross-bet unblockers, drop answered owner rows, fix PayApps' stale launch wording",
+  "projects": [
+    "portfolio/work",
+    "platform/ci/roadmap_claim.py",
+    "portfolio/ledger",
+    "private-monorepo/apps/payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19556",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/asks.yaml",
+      "issue": "private-actions-billing still asked the owner to fix GitHub billing a day after the owner declined it ('not happening', 2026-11-26, recorded only in private-monorepo docs/ci-on-aws.md), so the status check first repeated a stale ask. Removed with a do-not-re-add note."
+    },
+    {
+      "file": "portfolio/work/directions.yaml",
+      "issue": "No direction covered the ranked paid bets at all, so `workctl.py next` never pointed at them; 12 pre-pivot directions (research, hardware, consumer) stayed active at weight 1. Added paid-bets (weight 4) and paused the 12."
+    },
+    {
+      "file": "portfolio/work/directions.yaml",
+      "issue": "Coverage paths that include a bet's customer-post guides make the direction look well covered (pay-app-guides lands many commits a day) while its cross-bet tasks sit open; paid-bets now counts only the cross-bet paths."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Owner answers this session (2026-11-27), recorded in goals.md '2026-11-27: agents steer the work': agents run meta-analyses and re-steering; redirect, don't block; no owner loop for inbox tokens; move private apps to this repo instead of fixing private Actions billing or the routine's sources; owner is doing aws-turnover steps 1-4 now. Paddle key question: no run has verified the key (catalog sync landed 2026-11-25, after private Actions stopped); grants holds BILLING_API_KEY, payapps-deploy reads PAYAPPS_BILLING_API_KEY; task paddle-key-check added. Verification: pytest platform/ci/test_roadmap_claim.py portfolio/work/test_workctl.py portfolio/ledger/test_decision_queue.py portfolio/ledger/test_no_duplicate_yaml_keys.py -> 144 passed; workctl validate ok (35 directions, 51 tasks); workctl next --offline ranks the four free paid-bets tasks first (2.049); roadmap_claim --bets live prints them above the bets. Private side: Duncan-Haywood/private-monorepo#450 merged (docs and workflow comment only).",
+  "corrections": [],
+  "redteam": null
+}
