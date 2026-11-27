@@ -15,7 +15,7 @@ import * as whatnot from "./engines/whatnot.mjs";
 function reference(text, delim = ",") {
   const rows = [];
   let row = [], field = "", quoted = false, line = 1, start = 1;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
@@ -40,10 +40,10 @@ function rng(seed) {
   return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 2 ** 32);
 }
 
-const PIECES = ['"', '""', ",", ";", "\t", "\n", "\r", "\r\n", " ", "a", "12.50", "x y", "﻿", "é", "", "Order ID"];
+const PIECES = ['"', '""', ",", ";", "\t", "\n", "\r", "\r\n", " ", "a", "12.50", "x y", "\uFEFF", "é", "", "Order ID"];
 
 function sample(r) {
-  let t = r() < 0.2 ? "﻿" : "";
+  let t = r() < 0.2 ? "\uFEFF" : "";
   const n = Math.floor(r() * 40);
   for (let i = 0; i < n; i++) t += PIECES[Math.floor(r() * PIECES.length)];
   return t;

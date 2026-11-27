@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "The new test file was written with literal U+FEFF characters, not \\uFEFF escapes. CI's changed-ventures job (check_hidden_unicode.py) caught it, and I fixed it in a follow-up commit."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "prompts/perf/prompt-0.md",
       "issue": "item 4's module-weight sweep can't measure most for-profit rows from transition.py (quick-pick-survey, print-atelier, local-site-studio, photo-editing ...): they have no index.html in this repo."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "run_workflow_locally.py --for-changes passed locally but did not run check_hidden_unicode.py, which changed-ventures runs on any new file; it is cheap enough to list in the local pre-push checks."
     }
   ],
   "deviations": [
