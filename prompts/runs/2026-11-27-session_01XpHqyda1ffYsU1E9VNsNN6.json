@@ -49,7 +49,7 @@
     "docs/posts/2026-11-27-quality-fix-a-canceled-plan-stopped-redrafting.md"
   ],
   "goal": null,
-  "notes": "Quality mode fix (queue seed 2026-11-27-800d). grants high #0 (canceled/past-grace org could regenerate unmetered) fixed in Duncan-Haywood/private-monorepo PR 451: assertCanRegenerate on stepDraft round>0 and section path. Local: pnpm typecheck exit 0; pnpm test:worker 67 files / 614 tests passed; the 2 new pipeline tests fail with the checks removed. seller-books defects 0,1,2,7 (PR 367), 3 (375), 4 (401), 6 (385) marked fixed_by after reading the code; 5 and 8 still open. validate: 705 audit files, 0 problems. risk_review: nothing blocked in either repo. No scores changed.",
+  "notes": "Quality mode fix (queue seed 2026-11-27-800d). grants high #0 (canceled/past-grace org could regenerate unmetered) fixed in Duncan-Haywood/private-monorepo PR 451: assertCanRegenerate on stepDraft round>0 and section path. Local: pnpm typecheck exit 0; pnpm test:worker 67 files / 614 tests passed; the 2 new pipeline tests fail with the checks removed. seller-books defects 0,1,2,7 (PR 367), 3 (375), 4 (401), 6 (385) marked fixed_by after reading the code; 5 and 8 still open. validate: 705 audit files, 0 problems. risk_review: nothing blocked in either repo. No scores changed. Private PR 451 CI: all 7 jobs starved (ci_starvation.py: no runner assigned); merged on the local checks above (squash c5a7d57).",
   "corrections": [],
   "redteam": null,
   "usage": {
