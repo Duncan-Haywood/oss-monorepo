@@ -111,6 +111,23 @@ Each remaining review finding read:
   made-up "Acme Machining" sheet (`it@acme.example`), written by LibreOffice from the committed
   `.source.csv`; `docProps` hold no author.
 
+## Landed (2026-11-27, PR #19714)
+
+PR #19601 stalled with only the gate checks run (its `cmmc CI` never started) while main moved on.
+PR #19714 merged its branch, unchanged, with main. It kept both sides of the `tasks.yaml` and
+`third_party.json` conflicts, regenerated `transition.json` and `verticals.json`, and re-ran
+`run_workflow_locally.py --for-changes`. A sync from private-monorepo `7ca83b92` that afternoon
+changed nothing in the app. Its only diffs were three hand edits this PR made after the copy, which
+`sync-from-private.sh` does not re-apply:
+
+- `packages/billing/src/paddle.test.ts`: the host is compared exactly (CodeQL);
+- `packages/billing/src/paddle-key.test.ts`: the comment on the same comparison;
+- `apps/cmmc/docs/DEPLOY.md`: the private deploy workflow named as text.
+
+`sync-from-private.sh` now saves these files before it replaces the tree and puts them back afterwards (its
+`keep_local` list). Drop an entry once private-monorepo has the same edit. The payapps sync may have the
+same gap with PR #19632's CodeQL fixes, which I have not checked.
+
 ## Next
 
 1. `priv-cmmc-deploy.yml`, ported from the private workflow, in its own PR (control-plane tier),
