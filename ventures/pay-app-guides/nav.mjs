@@ -24,6 +24,7 @@ export const GROUPS = [
     ["how-to-fill-out-a-pay-application.html", "How to fill out a pay application"],
     ["change-orders-schedule-of-values.html", "Change orders and the SOV"],
     ["stored-materials-billing.html", "Billing stored materials"],
+    ["progress-billing.html", "Progress billing and draw schedules"],
     ["overbilling-underbilling.html", "Overbilling and underbilling"],
     ["retainage-explained.html", "Retainage explained, with state caps"],
     ["retainage-release.html", "Getting retainage released"],

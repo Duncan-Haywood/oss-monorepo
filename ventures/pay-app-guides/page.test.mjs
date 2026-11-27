@@ -23,7 +23,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "joint.mjs", "forecast.mjs", "millerbond.mjs", "prelim.mjs", "tmlog.mjs", "usage.mjs", "sumview.mjs", "gcportal.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "joint.mjs", "forecast.mjs", "millerbond.mjs", "prelim.mjs", "tmlog.mjs", "progress.mjs", "usage.mjs", "sumview.mjs", "gcportal.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -319,7 +319,7 @@ test("Miller Act page: inputs labelled, statute and FAR linked with a read date,
 const FAQ_PAGES = [
   "california-preliminary-notice.html", "certificate-of-insurance-for-subcontractors.html", "change-order-log.html", "change-orders-schedule-of-values.html",
   "conditional-vs-unconditional-lien-waivers.html", "gc-portal-billing.html",
-  "front-loading-schedule-of-values.html", "how-to-fill-out-a-pay-application.html",
+  "front-loading-schedule-of-values.html", "how-to-fill-out-a-pay-application.html", "progress-billing.html",
   "index.html", "joint-checks.html", "lien-waiver-forms-by-state.html",
   "lien-waiver-log.html", "miller-act-payment-bond-claims.html",
   "overbilling-underbilling.html", "paid-short.html", "pay-app-cash-forecast.html",
