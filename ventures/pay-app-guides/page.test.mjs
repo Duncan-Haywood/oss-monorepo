@@ -328,7 +328,7 @@ const FAQ_PAGES = [
   "how-to-write-an-rfi.html", "index.html", "joint-checks.html", "lien-waiver-forms-by-state.html",
   "lien-waiver-log.html", "miller-act-payment-bond-claims.html",
   "overbilling-underbilling.html", "paid-short.html", "pay-app-cash-forecast.html",
-  "pay-application-checker.html", "pay-application-software-compared.html",
+  "pay-application-checker.html", "pay-application-software-compared.html", "coconstruct-alternatives.html",
   "pay-if-paid-clauses.html", "prompt-payment-laws.html", "retainage-explained.html",
   "retainage-in-quickbooks.html", "retainage-release.html", "retainage-tracker.html",
   "schedule-of-values-template.html", "stored-materials-billing.html",
