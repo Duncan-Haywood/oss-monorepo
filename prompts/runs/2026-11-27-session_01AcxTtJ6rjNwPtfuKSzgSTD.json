@@ -1,0 +1,512 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtJ6rjNwPtfuKSzgSTD",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T19:07:22Z",
+  "ended": "2026-11-27T19:08:05Z",
+  "wall_minutes": 6.4,
+  "tokens_in": 4801252,
+  "tokens_out": 20465,
+  "cost_usd": 2.1011,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19845",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/README.md",
+      "issue": "'Where the work happens' says private-monorepo is where PayApps is built and this copy is a snapshot, but lien-deadline.ts exists only here (no such file in private-monorepo/apps/payapps/src/shared); a sync-from-private.sh run would delete it and its tests. The README should say which files now live only in the public copy."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "The guarded-target list (redteam.py targets) has no files under ventures/payapps/apps/payapps (its vitest suites aren't wired), so the code users rely on most can't be campaigned; it had to be hunted by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: a test-and-fix PR on a lien clock, nothing new for readers; the earlier the date the less there is to announce.",
+      "did": "Recorded the defect and the guard in the PR and here instead.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Three campaigns (nv.ts 8/8, retainage.ts 6/8, grace.ts 7/8). The real defect came from reading lien-deadline.ts against calc.mjs. Guard added: src/shared/lien-deadline-parity.test.ts (11 tests, fails on the old code for CA and AZ); payapps-ci.yml checks out the calculator for it. Local verification: payapps vitest unit 160 files / 1486 passed, tsc clean, biome clean, validate_workflows OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/payapps/packages/lien-waivers/src/nv.ts",
+        "test": "node --test test/**/*.test.ts  (in ventures/payapps/packages/lien-waivers)",
+        "seed": 414688753,
+        "commit": "8df1b5369",
+        "sites": 10,
+        "baseline_seconds": 1.4,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/nv.ts",
+            "line": 50,
+            "col": 48,
+            "operator": "true-to-false",
+            "before": "f(\"jobLocation\", \"Property Location\", \"text\", true),",
+            "after": "f(\"jobLocation\", \"Property Location\", \"text\", false),",
+            "line_text": "  f(\"jobLocation\", \"Property Location\", \"text\", true),",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/nv.ts",
+            "line": 55,
+            "col": 4,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "    true,",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/nv.ts",
+            "line": 58,
+            "col": 67,
+            "operator": "true-to-false",
+            "before": "f(\"invoiceNumber\", \"Invoice/Payment Application Number\", \"text\", true),",
+            "after": "f(\"invoiceNumber\", \"Invoice/Payment Application Number\", \"text\", false),",
+            "line_text": "  f(\"invoiceNumber\", \"Invoice/Payment Application Number\", \"text\", true),",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/nv.ts",
+            "line": 63,
+            "col": 4,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "    true,",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/nv.ts",
+            "line": 66,
+            "col": 44,
+            "operator": "true-to-false",
+            "before": "f(\"claimantName\", \"Company Name\", \"text\", true),",
+            "after": "f(\"claimantName\", \"Company Name\", \"text\", false),",
+            "line_text": "  f(\"claimantName\", \"Company Name\", \"text\", true),",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/nv.ts",
+            "line": 68,
+            "col": 35,
+            "operator": "true-to-false",
+            "before": "f(\"signedDate\", \"Dated\", \"date\", true),",
+            "after": "f(\"signedDate\", \"Dated\", \"date\", false),",
+            "line_text": "  f(\"signedDate\", \"Dated\", \"date\", true),",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/nv.ts",
+            "line": 70,
+            "col": 60,
+            "operator": "false-to-true",
+            "before": "const PERIOD = f(\"paymentPeriod\", \"Payment Period\", \"text\", false);",
+            "after": "const PERIOD = f(\"paymentPeriod\", \"Payment Period\", \"text\", true);",
+            "line_text": "const PERIOD = f(\"paymentPeriod\", \"Payment Period\", \"text\", false);",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/nv.ts",
+            "line": 71,
+            "col": 80,
+            "operator": "false-to-true",
+            "before": "const DISPUTED = f(\"disputedClaimsCents\", \"Amount of Disputed Claims\", \"money\", false);",
+            "after": "const DISPUTED = f(\"disputedClaimsCents\", \"Amount of Disputed Claims\", \"money\", true);",
+            "line_text": "const DISPUTED = f(\"disputedClaimsCents\", \"Amount of Disputed Claims\", \"money\", false);",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+        "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/**/*.test.ts  (in ventures/payapps/packages/qbo-sync)",
+        "seed": 883463369,
+        "commit": "8df1b5369",
+        "sites": 40,
+        "baseline_seconds": 0.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 77,
+            "col": 36,
+            "operator": "lt-to-le",
+            "before": "if (!Number.isInteger(app) || app < 1) {",
+            "after": "if (!Number.isInteger(app) || app <= 1) {",
+            "line_text": "  if (!Number.isInteger(app) || app < 1) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 83,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "const released = input.retainageReleasedCents ?? 0;",
+            "after": "const released = input.retainageReleasedCents ?? 1;",
+            "line_text": "  const released = input.retainageReleasedCents ?? 0;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 90,
+            "col": 35,
+            "operator": "and-to-or",
+            "before": "if (input.workLines.length === 0 && released === 0) {",
+            "after": "if (input.workLines.length === 0 || released === 0) {",
+            "line_text": "  if (input.workLines.length === 0 && released === 0) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 90,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "if (input.workLines.length === 0 && released === 0) {",
+            "after": "if (input.workLines.length === 0 && released === 1) {",
+            "line_text": "  if (input.workLines.length === 0 && released === 0) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 109,
+            "col": 74,
+            "operator": "const-plus-one",
+            "before": "for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[0] - a[0])) {",
+            "after": "for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[1] - a[0])) {",
+            "line_text": "  for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[0] - a[0])) {",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Held-retainage lines must list highest rate first; the only multi-rate test fed the work lines already in that order. Added a test with the lower rates first (qbo-sync/test/retainage.test.ts)."
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 109,
+            "col": 77,
+            "operator": "minus-to-plus",
+            "before": "for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[0] - a[0])) {",
+            "after": "for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[0] + a[0])) {",
+            "line_text": "  for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[0] - a[0])) {",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Held-retainage lines must list highest rate first; the only multi-rate test fed the work lines already in that order. Added a test with the lower rates first (qbo-sync/test/retainage.test.ts)."
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 119,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (released > 0) {",
+            "after": "if (released > 1) {",
+            "line_text": "  if (released > 0) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 151,
+            "col": 86,
+            "operator": "minus-to-plus",
+            "before": "retainageBalanceAfterCents: heldBefore === undefined ? null : heldBefore + held - released,",
+            "after": "retainageBalanceAfterCents: heldBefore === undefined ? null : heldBefore + held + released,",
+            "line_text": "      retainageBalanceAfterCents: heldBefore === undefined ? null : heldBefore + held - released,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/billing/src/grace.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 743297221,
+        "commit": "8df1b5369",
+        "sites": 20,
+        "baseline_seconds": 0.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 18,
+            "operator": "times-to-div",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 / 60 * 60 * 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 * 61 * 60 * 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 * 60 * 61 * 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 9,
+            "col": 53,
+            "operator": "times-to-div",
+            "before": "export const PAST_DUE_GRACE_MS = PAST_DUE_GRACE_DAYS * DAY_MS;",
+            "after": "export const PAST_DUE_GRACE_MS = PAST_DUE_GRACE_DAYS / DAY_MS;",
+            "line_text": "export const PAST_DUE_GRACE_MS = PAST_DUE_GRACE_DAYS * DAY_MS;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "PAST_DUE_GRACE_MS is a public export no test read. Added an assertion that it equals 7 days in ms (billing/src/period-grace.test.ts)."
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 21,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "return new Date(pastDueSince.getTime() + graceDays * DAY_MS);",
+            "after": "return new Date(pastDueSince.getTime() - graceDays * DAY_MS);",
+            "line_text": "  return new Date(pastDueSince.getTime() + graceDays * DAY_MS);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 31,
+            "col": 24,
+            "operator": "and-to-or",
+            "before": "return until !== null && now.getTime() < until.getTime();",
+            "after": "return until !== null || now.getTime() < until.getTime();",
+            "line_text": "  return until !== null && now.getTime() < until.getTime();",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 31,
+            "col": 41,
+            "operator": "lt-to-le",
+            "before": "return until !== null && now.getTime() < until.getTime();",
+            "after": "return until !== null && now.getTime() <= until.getTime();",
+            "line_text": "  return until !== null && now.getTime() < until.getTime();",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 44,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (nextStatus !== \"past_due\") return null;",
+            "after": "if (nextStatus === \"past_due\") return null;",
+            "line_text": "  if (nextStatus !== \"past_due\") return null;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/payapps/apps/payapps/src/shared/lien-deadline.ts",
+        "issue": "For California, Arizona and Utah (completion-based lien clocks), a completion date entered before the last-furnished date was silently dropped and the clock ran from the last day of work instead, giving a later lien deadline than the statute and than the free calculator it was ported from (CA, last 2026-09-01, completion 2026-08-01: 2026-11-30 instead of 2026-10-30) and wording that claimed no completion date was entered. Only Nevada (NRS 108.226(1), 'the latest of') should ignore an earlier completion. Fixed with a latestOfOwn flag on Nevada's rule; failing test first, plus a parity test against calc.mjs.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "25472058-85f0-5f3e-84b0-b13fd6362738",
+    "transcripts": 1,
+    "first": "2026-11-27T19:07:22Z",
+    "last": "2026-11-27T19:13:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 102,
+        "output": 20465,
+        "thinking": 5013,
+        "cache_read": 4707411,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93739,
+        "api_equivalent_usd": 2.1011,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 102,
+      "output": 20465,
+      "thinking": 5013,
+      "cache_read": 4707411,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93739,
+      "api_equivalent_usd": 2.1011,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 49,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__get_file_contents": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.4,
+      "active_minutes": 6.4,
+      "model_minutes": 4.03,
+      "tool_minutes": 2.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "read a 600-line lien module against its source port, fix and write the parity grid, three mutation triages",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 190.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
