@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "PR CI changed-ventures red from a main-side break: docs/posts/2026-11-27-florida-notice-to-owner-45-days.md linked the retired payapps workers.dev host (check_post_links.py); fixed in this PR"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "ventures/payapps/apps/payapps/ROADMAP.md",
       "issue": "The 'Must do before a public launch' list still says APP_URL in cta.mjs is the workers.dev origin, which is stale: cta.mjs already points at payapps.marisstella.app."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight for payapps fails on main-side gaps this PR does not touch (no launched.json date; would land in the over-full 'More free tools' catalogue section), so for a moved-in venture it gives no verdict on the change itself."
     }
   ],
   "deviations": [
@@ -53,7 +59,7 @@
     "docs/reports/2026-11-27-payapps-signup-sources.md (agent doc); no customer post, see deviations"
   ],
   "goal": null,
-  "notes": "Security queue: 12 alerts, all claimed (exit 3). IDEAS and requests empty. Routed ventures/2 to bet #1 (PayApps). The open PRs #19659, #19666, #19688 and #19690 cover the marketing site and front-door CTAs, so I left them alone. Built sign-up source attribution: migration 0083 signup_source, POST /api/me/signup-source, client localStorage hand-off honouring DNT/GPC, and an optional `sources` field in admin metrics. Verification: pnpm typecheck clean; pnpm test:unit exit 0; pnpm test:worker 89 files / 563 tests pass; pnpm build exit 0; the new worker tests are in test/worker/signup-source.test.ts (4 tests). The full worker run came before the DNT/GPC commit, which changed only the client lib, the privacy text and the regenerated legal documents; the unit tests were re-run after it (18 pass, including the legal drift test).",
+  "notes": "Security queue: 12 alerts, all claimed (exit 3). IDEAS and requests empty. Routed ventures/2 to bet #1 (PayApps). The open PRs #19659, #19666, #19688 and #19690 cover the marketing site and front-door CTAs, so I left them alone. Built sign-up source attribution: migration 0083 signup_source, POST /api/me/signup-source, client localStorage hand-off honouring DNT/GPC, and an optional `sources` field in admin metrics. Verification: pnpm typecheck clean; pnpm test:unit exit 0; pnpm test:worker 89 files / 563 tests pass; pnpm build exit 0; the new worker tests are in test/worker/signup-source.test.ts (4 tests). The full worker run came before the DNT/GPC commit, which changed only the client lib, the privacy text and the regenerated legal documents; the unit tests were re-run after it (18 pass, including the legal drift test). venture-preflight payapps: FAILED on the pre-existing launched.json and catalogue-section gaps (not touched here; recorded in doc_friction).",
   "corrections": [],
   "redteam": null,
   "usage": {
