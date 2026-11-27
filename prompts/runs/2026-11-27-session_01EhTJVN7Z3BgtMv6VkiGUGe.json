@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVN7Z3BgtMv6VkiGUGe",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T09:56:24Z",
+  "ended": "2026-11-27T10:15:58Z",
+  "wall_minutes": 19.75,
+  "tokens_in": 2651054,
+  "tokens_out": 12291,
+  "cost_usd": 1.2931,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19702",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A sed meant for the two new configs also matched payapps' vitest.worker.config.ts comment; caught in the grep output and reverted with git checkout before committing."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 3's run_venture_tests.py --times leaves out the pnpm-workspace ventures (payapps, jobshop-quote, seller-books) that moved in on 2026-11-27, which are now among the largest product CI consumers. ci_profile.py (item 2) is what surfaced them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new post in docs/posts/. A test-config speed-up isn't interesting to customers, and the payapps write-up from earlier today covers the same finding.",
+      "did": "wrote docs/history/bet-worker-tests-perf-2026-11-27.md only",
+      "result": "agent doc landed"
+    }
+  ],
+  "writeups": [
+    "docs/history/bet-worker-tests-perf-2026-11-27.md"
+  ],
+  "goal": null,
+  "notes": "Metric: pnpm test:worker wall time (Vitest Duration), 4-core cloud container, one suite at a time, cold means node_modules/.vite removed. jobshop-quote: before 114.4 s and 112.2 s; after 67.7 s cold, 91.2 s warm, 91.6 s cold (45 files / 282 tests on both sides). seller-books: before 59.7 s; after 29.3 s cold, 29.5 s warm (25 files / 133 tests). biome ci passes on both changed files. Pool reading: ci_profile.py --runs 600 --top 15 at 09:57 UTC.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f6804e1d-b97c-57dd-8efd-2ecdae1d7819",
+    "transcripts": 1,
+    "first": "2026-11-27T09:56:24Z",
+    "last": "2026-11-27T10:16:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 64,
+        "output": 12291,
+        "thinking": 1413,
+        "cache_read": 2584733,
+        "cache_write_5m": 0,
+        "cache_write_1h": 66257,
+        "api_equivalent_usd": 1.2931,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 64,
+      "output": 12291,
+      "thinking": 1413,
+      "cache_read": 2584733,
+      "cache_write_5m": 0,
+      "cache_write_1h": 66257,
+      "api_equivalent_usd": 1.2931,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 32,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.75,
+      "active_minutes": 19.75,
+      "model_minutes": 2.36,
+      "tool_minutes": 17.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "profile, port config, timing runs, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 154.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
