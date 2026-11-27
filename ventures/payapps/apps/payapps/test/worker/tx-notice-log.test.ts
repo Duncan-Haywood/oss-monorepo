@@ -3,7 +3,7 @@
 // recipient and month with its timing, the cash report's reminder until both recipients have one,
 // the job history, the plan and role gates, and tenant isolation.
 
-import { txMonthlyNoticeDue } from "@lien-waivers";
+import { txMonthlyNoticeDue, txRetainageAffidavitDue, txRetainageNoticeDue } from "@lien-waivers";
 import type {
   JobEventDto,
   NoticeOverviewDto,
@@ -281,5 +281,94 @@ describe("Texas notices of claim sent", () => {
     );
     expect(del.status).toBe(404);
     expect((await overview()).tx?.sends.length).toBe(2);
+  });
+});
+
+describe("Texas retainage dates (§§ 53.057(a-1), 53.052(d))", () => {
+  const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
+  const put = (json: Record<string, unknown>, user = as) =>
+    api(`${base}/notices/tx/retainage-dates`, { method: "PUT", as: user, json });
+  const ended = daysAgo(5);
+
+  it("saved dates give the notice and affidavit dates; the reminder runs while retainage is held", async () => {
+    await setKind("commercial");
+    expect((await overview()).tx?.retainage).toMatchObject({
+      contractEndedOn: null,
+      retainageHeldCents: 50_000, // 10% of $5,000
+      notice: null,
+      affidavit: null,
+    });
+    expect(await cashActions()).not.toMatch(/unpaid retainage/);
+    const res = await put({
+      contractEndedOn: ended,
+      originalEndedOn: ended,
+      originalEndedHow: "completed",
+    });
+    expect(res.status).toBe(200);
+    const r = (await overview()).tx?.retainage;
+    const due = txRetainageNoticeDue(ended).due;
+    expect(r).toMatchObject({
+      contractEndedOn: ended,
+      originalEndedOn: ended,
+      originalEndedHow: "completed",
+      notice: { due, basis: "claimant", missing: ["owner", "original-contractor"] },
+      affidavit: { due: txRetainageAffidavitDue(ended.slice(0, 7)).due },
+    });
+    const a = await cashActions();
+    expect(a).toContain("Texas notice of claim for unpaid retainage ($500.00 held) is due");
+    expect(a).toContain(`by ${due}`);
+    expect(a).toContain("none is recorded for the owner and the original contractor");
+  });
+
+  it("a retainage notice per recipient stops the reminder", async () => {
+    const ids: string[] = [];
+    for (const recipient of ["owner", "original-contractor"]) {
+      ids.push((await record({ kind: "retainage", recipient, sentOn: today() })).id);
+    }
+    expect((await overview()).tx?.retainage.notice?.missing).toEqual([]);
+    expect(await cashActions()).not.toMatch(/notice of claim for unpaid retainage/);
+    for (const id of ids) await call(`${base}/notices/tx/sends/${id}`, { method: "DELETE", as });
+  });
+
+  it("refuses a future date, a date without how it ended, and a bad value (400)", async () => {
+    const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+    for (const json of [
+      { contractEndedOn: tomorrow, originalEndedOn: null, originalEndedHow: null },
+      { contractEndedOn: null, originalEndedOn: ended, originalEndedHow: null },
+      { contractEndedOn: null, originalEndedOn: null, originalEndedHow: "completed" },
+      { contractEndedOn: null, originalEndedOn: ended, originalEndedHow: "finished" },
+      { contractEndedOn: "2027-02-30", originalEndedOn: null, originalEndedHow: null },
+    ]) {
+      expect((await put(json)).status, JSON.stringify(json)).toBe(400);
+    }
+  });
+
+  it("the history records setting and clearing; clearing stops the reminder", async () => {
+    expect(
+      (await put({ contractEndedOn: null, originalEndedOn: null, originalEndedHow: null })).status,
+    ).toBe(200);
+    expect((await overview()).tx?.retainage.notice).toBeNull();
+    expect(await cashActions()).not.toMatch(/unpaid retainage|retainage \(\$/);
+    const texts = (await history()).map((e) => e.text);
+    expect(texts).toContain(
+      `Texas retainage dates: your contract ended ${ended}; the original contract completed ${ended}`,
+    );
+    expect(texts).toContain("Texas retainage dates cleared");
+    await setKind(null);
+  });
+
+  it("viewers cannot save the dates; another org sees 404", async () => {
+    const viewer = await createTestUser();
+    await addToOrg(orgId, viewer.id, "viewer");
+    const json = { contractEndedOn: ended, originalEndedOn: null, originalEndedHow: null };
+    expect((await put(json, viewer.id)).status).toBe(403);
+    const other = await setupTenant("owner");
+    await grantPlan(other.orgId, "crew", "active");
+    const res = await api(`${base.replace(orgId, other.orgId)}/notices/tx/retainage-dates`, {
+      method: "PUT",
+      as: other.userId,
+      json,
+    });
+    expect(res.status).toBe(404);
   });
 });

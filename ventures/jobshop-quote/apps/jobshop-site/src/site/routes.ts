@@ -78,6 +78,15 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/compare",
+      label: "Compare",
+      title: `Machine shop quoting software compared · ${SITE_NAME}`,
+      description: `Paperless Parts, QuotedPart, JobBOSS², ProShop or a spreadsheet: published prices with sources, what each fits, and where ${SITE_NAME} fits.`,
+      changefreq: "monthly",
+      priority: 0.8,
+      lastmod: CONTENT_DATE,
+    },
+    {
       path: "/faq",
       label: "FAQ",
       title: `Frequently asked questions · ${SITE_NAME}`,

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Free Change Order Form Template (Excel)</title>
+  <meta name="description" content="Free construction change order form for Excel and Google Sheets: priced lines, overhead and profit, deducts, contract sum before and after, time and signatures.">
+  <meta property="og:title" content="Free change order form template (Excel) for subcontractors">
+  <meta property="og:description" content="A free .xlsx change order request with the formulas in: line amounts, overhead and profit at your rate, the new contract sum, the new completion date and two signature blocks.">
+  <link rel="canonical" href="./change-order-template.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Article", "headline": "Free change order form template (Excel) for subcontractors", "datePublished": "2026-11-27", "dateModified": "2026-11-27"}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What should a change order request include?", "acceptedAnswer": {"@type": "Answer", "text": "Your company, the GC, the project and subcontract number; a change order number that matches your log; the reason (the RFI, ASI, field directive or drawing revision behind it); the change in plain words and what is not included; the price by line with any markup; the contract sum before and after; the change in contract time, even if it is none; and signature and date lines for both sides."}}, {"@type": "Question", "name": "How do I price a change order?", "acceptedAnswer": {"@type": "Answer", "text": "List the labor (hours times your rate), material (from your quote or invoice), equipment and any lower-tier sub as separate lines, then add overhead and profit at the rate your subcontract allows. Many subcontracts set that rate, and some set different rates for your own work and for a lower-tier sub's work; use what yours says. Attach the backup the subcontract asks for."}}, {"@type": "Question", "name": "How do I write a deductive change order?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the work taken out as a negative quantity or a negative unit price, so the total shows as a credit and the new contract sum goes down. Whether overhead and profit come back on a deduct is up to your subcontract: if it says they do not, leave the rate blank on that form."}}, {"@type": "Question", "name": "Can I bill a change order before it is signed?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not. Until the GC signs it, it is a request: track it in a change order log and bill it the month it is signed, as its own schedule-of-values line (CO-1, CO-2). Some subcontracts allow billing work approved in principle, so check yours."}}, {"@type": "Question", "name": "Is this the AIA G701 form?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is our own layout, not an AIA document. G701 is the AIA's change order form used between owner, architect and contractor. This template is a subcontractor's request to a GC; if your contract requires the AIA form, use it."}}, {"@type": "Question", "name": "Does the template work in Google Sheets?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Upload the .xlsx to Google Drive and open it with Google Sheets, or open it in Excel or LibreOffice Calc. It contains only ordinary formulas: no macros, no links to other files and no add-ins."}}]}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>Free change order form template, priced and ready to sign</h1>
+  <p>A free Excel change order request for subcontractors: the reason and the scope, <strong>priced lines</strong> for labor, material and equipment, <strong>overhead and profit</strong> at your contract's rate, deducts as credits, the <strong>contract sum before and after</strong>, the <strong>change in contract time</strong> and the new completion date, and signature lines for you and the GC. Type in the shaded cells; the rest fills itself in, and a checks line catches what a PM would send back.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="change-orders-schedule-of-values.html">Change orders and the SOV</a>
+    <a href="change-order-log.html">Change order log</a>
+    <a href="tm-tickets.html">T&amp;M tickets</a>
+    <a href="schedule-of-values-template.html">Pay application (SOV) template</a>
+    <a href="construction-invoice-template.html">Invoice template</a>
+  </nav>
+</header>
+<main>
+<section class="card" id="download">
+  <h2>Download</h2>
+  <p><a href="change-order-template.xlsx" download data-event="change_order_template_downloaded"><strong>Blank change order form (.xlsx)</strong></a>: 20 priced lines, overhead and profit left blank until you type your contract's rate.</p>
+  <p><a href="change-order-example.xlsx" download data-event="change_order_example_downloaded"><strong>Filled-in example (.xlsx)</strong></a>: an electrical subcontractor's CO-1 for four EV charger circuits, the same change the <a href="change-orders-schedule-of-values.html">change orders guide</a> puts on the schedule of values. 44 hours of labor at $92.50 ($4,070.00), $3,207.27 of material and a $450.00 core drill rental make <strong>$7,727.27</strong>; 10% overhead and profit adds $772.73, so the change order is <strong>$8,500.00</strong>. The contract sum goes from $150,000.00 to <strong>$158,500.00</strong>, and 3 calendar days move completion from 31 March to 3 April 2027.</p>
+  <p class="note">Opens in Excel, Google Sheets (upload to Drive, then open with Sheets) and LibreOffice Calc. Ordinary formulas only: no macros, no links to other files, no add-ins. Prints portrait on one page. Built by <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/pay-app-guides/change-order-template.mjs">open-source code</a>, and a test recalculates the example in LibreOffice and checks it against the figures on this page. It is our own layout, not an AIA document.</p>
+</section>
+
+<section class="card">
+  <h2>What a change order request should show</h2>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Part</th><th role="columnheader" scope="col">What goes in it</th><th role="columnheader" scope="col">Why it matters</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Part">Who, which job, which number</td><td role="cell" data-label="What goes in it">Your company, the GC, the project, the subcontract or job no., and a CO number that matches your log (CO-1, CO-2)</td><td role="cell" data-label="Why it matters">The number becomes the schedule-of-values line, so the request, the log and the pay app all agree.</td></tr>
+      <tr role="row"><td role="cell" data-label="Part">Reason</td><td role="cell" data-label="What goes in it">The RFI, ASI, field directive or drawing revision behind the change</td><td role="cell" data-label="Why it matters">A PM signs faster when the change traces to their own paper.</td></tr>
+      <tr role="row"><td role="cell" data-label="Part">The change and what is not included</td><td role="cell" data-label="What goes in it">The scope in plain words, and the exclusions</td><td role="cell" data-label="Why it matters">Exclusions stop the GC reading more into the price than you priced.</td></tr>
+      <tr role="row"><td role="cell" data-label="Part">Priced lines</td><td role="cell" data-label="What goes in it">Labor (hours x rate), material, equipment, lower-tier subs; a deduct as a negative line</td><td role="cell" data-label="Why it matters">Backup by line is what the GC checks against its own estimate.</td></tr>
+      <tr role="row"><td role="cell" data-label="Part">Overhead and profit</td><td role="cell" data-label="What goes in it">One rate on the cost of the change, typed from your subcontract</td><td role="cell" data-label="Why it matters">Many subcontracts cap markup on changes; a rate over the cap gets the request sent back.</td></tr>
+      <tr role="row"><td role="cell" data-label="Part">Contract sum before and after</td><td role="cell" data-label="What goes in it">Original sum, changes approved before, this change, the new sum</td><td role="cell" data-label="Why it matters">The PM checks your numbers against theirs in one glance.</td></tr>
+      <tr role="row"><td role="cell" data-label="Part">Contract time</td><td role="cell" data-label="What goes in it">Calendar days added or taken away (0 if none), and the new completion date</td><td role="cell" data-label="Why it matters">Many subcontracts treat silence on time as no extension.</td></tr>
+      <tr role="row"><td role="cell" data-label="Part">Signatures</td><td role="cell" data-label="What goes in it">Yours, and the GC's or owner's, each with a date</td><td role="cell" data-label="Why it matters">Until the GC signs, the work is pending: track it, do not bill it.</td></tr>
+    </tbody>
+  </table></div>
+  <p>The form has every part above. A line's amount is quantity times unit price, rounded to the cent; a lump-sum line with no quantity counts as one. Overhead and profit is the subtotal times your rate. The new contract sum is the original, plus changes approved before this one, plus this one; the new completion date is the old one plus the days you enter.</p>
+</section>
+
+<section class="card">
+  <h2>Pricing it, deducts and time</h2>
+  <p><strong>Price by cost line.</strong> Put labor, material, equipment and any lower-tier sub on their own lines so the PM can check each against their estimate. Use your real labor rate and attach the material quote; a single lump sum with no backup is the request most often sent back for "more detail".</p>
+  <p><strong>Markup is your contract's, not ours.</strong> The form applies one overhead and profit rate to the whole subtotal. Many subcontracts set a maximum markup on changes, and some set different rates for your own work and for a lower-tier sub's; if yours does, put the sub's marked-up price on its line and the rate for your own work in the markup cell, or price each line with its markup in. The form never fills in a rate for you.</p>
+  <p><strong>Deducts are credits.</strong> Work taken out goes in as a negative quantity or a negative unit price. The total then shows as a credit and the new contract sum drops. Whether overhead and profit come back on a deduct is up to your subcontract; if it says they do not, leave the rate blank. A checks line warns if a deduct takes the contract sum below zero.</p>
+  <p><strong>Always say the time.</strong> Enter the calendar days the change adds, a negative number if it saves time, or 0 for no schedule impact. The checks line asks for it if you price a change and leave time blank, because many subcontracts treat silence as no extension.</p>
+</section>
+
+<section class="card">
+  <h2>After it is signed</h2>
+  <p>Log it, then bill it. Record the date you sent the request in a <a href="change-order-log.html">change order log</a>, which flags requests that have waited too long and totals what is approved and pending. Once the GC signs, the change order becomes its own line on your schedule of values (CO-1 with $8,500.00 as its scheduled value, in the example), the contract sum to date on your next <a href="how-to-fill-out-a-pay-application.html">pay application</a> goes up by the same amount, and retainage applies to it unless the change order says otherwise (<a href="change-orders-schedule-of-values.html">change orders and the SOV, with a worked example</a>). Extra work done on a <a href="tm-tickets.html">T&amp;M ticket</a> usually needs a change order like this before it can be billed. When you sign a progress <a href="conditional-vs-unconditional-lien-waivers.html">lien waiver</a> while a request is still unsigned, list it as an exception.</p>
+  <p class="note">This is general information, not legal advice. Your subcontract's change and notice clauses decide what a request must contain, how much markup is allowed and when a request is due; they can be short.</p>
+</section>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>What should a change order request include?</h3>
+  <p>Your company, the GC, the project and subcontract number; a change order number that matches your log; the reason (the RFI, ASI, field directive or drawing revision behind it); the change in plain words and what is not included; the price by line with any markup; the contract sum before and after; the change in contract time, even if it is none; and signature and date lines for both sides.</p>
+  <h3>How do I price a change order?</h3>
+  <p>List the labor (hours times your rate), material (from your quote or invoice), equipment and any lower-tier sub as separate lines, then add overhead and profit at the rate your subcontract allows. Many subcontracts set that rate, and some set different rates for your own work and for a lower-tier sub's work; use what yours says. Attach the backup the subcontract asks for.</p>
+  <h3>How do I write a deductive change order?</h3>
+  <p>Enter the work taken out as a negative quantity or a negative unit price, so the total shows as a credit and the new contract sum goes down. Whether overhead and profit come back on a deduct is up to your subcontract: if it says they do not, leave the rate blank on that form.</p>
+  <h3>Can I bill a change order before it is signed?</h3>
+  <p>Usually not. Until the GC signs it, it is a request: track it in a change order log and bill it the month it is signed, as its own schedule-of-values line (CO-1, CO-2). Some subcontracts allow billing work approved in principle, so check yours.</p>
+  <h3>Is this the AIA G701 form?</h3>
+  <p>No. It is our own layout, not an AIA document. G701 is the AIA's change order form used between owner, architect and contractor. This template is a subcontractor's request to a GC; if your contract requires the AIA form, use it.</p>
+  <h3>Does the template work in Google Sheets?</h3>
+  <p>Yes. Upload the .xlsx to Google Drive and open it with Google Sheets, or open it in Excel or LibreOffice Calc. It contains only ordinary formulas: no macros, no links to other files and no add-ins.</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Change orders on every job?</h2>
+  <p>PayApps is hosted pay-app billing for specialty subcontractors that logs change orders from request to signature and adds the approved ones to the next pay application, so the contract sum and retainage stay right without retyping. <!-- cta-status: generated by cta.mjs, do not edit by hand -->It is <strong>open now</strong>: pay applications with retainage and change orders, free on one job, no card. Lien waivers, QuickBooks and job costing are in the paid plans, which are not on sale yet. <a href="https://payapps.marisstella.app/?signup&amp;from=pay-app-guides%2Fchange-order-template">Start free in PayApps</a>.<!-- /cta-status --></p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" id="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="tm-tickets.html">T&amp;M ticket log and CO request</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="construction-invoice-template.html">Free contractor invoice template (Excel)</a></li>
+      <li><a href="change-order-template.html" aria-current="page">Free change order form (Excel)</a></li>
+      <li><a href="front-loading-schedule-of-values.html">Front-loading check (balanced SOV)</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      <li><a href="how-to-write-an-rfi.html">RFI drafter and how to write an RFI</a></li>
+      <li><a href="punch-list.html">Punch list tracker and back-check email</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="progress-billing.html">Progress billing and draw schedules</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="gc-portal-billing.html">Billing in Procore, Textura and GCPay</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      <li><a href="coconstruct-alternatives.html">CoConstruct closing: your options</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-form.html">Free lien waiver form (general, fill in and print)</a></li>
+      <li><a href="california-preliminary-notice.html">California 20-day preliminary notice</a></li>
+      <li><a href="florida-notice-to-owner.html">Florida Notice to Owner (45 days)</a></li>
+      <li><a href="texas-lien-notice.html">Texas monthly lien notice deadlines</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      <li><a href="joint-checks.html">Joint check splitter and split letter</a></li>
+      <li><a href="miller-act-payment-bond-claims.html">Miller Act bond claim deadlines (federal jobs)</a></li>
+      <li><a href="state-payment-bond-claims.html">State public job bond claims (little Miller Acts)</a></li>
+      <li><a href="pay-app-cash-forecast.html">When will I get paid? Cash forecast</a></li>
+      <li><a href="certificate-of-insurance-for-subcontractors.html">Certificates of insurance (COI)</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing by trade</h2>
+      <ul>
+      <li><a href="electrical-contractor-billing.html">Electrical contractors</a></li>
+      <li><a href="mechanical-contractor-billing.html">HVAC, plumbing and mechanical</a></li>
+      <li><a href="drywall-contractor-billing.html">Drywall and framing</a></li>
+      <li><a href="concrete-contractor-billing.html">Concrete (unit-price billing)</a></li>
+      <li><a href="site-work-contractor-billing.html">Site work and excavation (unit prices)</a></li>
+      <li><a href="roofing-contractor-billing.html">Commercial roofing</a></li>
+      <li><a href="masonry-contractor-billing.html">Masonry</a></li>
+      <li><a href="painting-contractor-billing.html">Commercial painting</a></li>
+      <li><a href="finish-carpentry-contractor-billing.html">Millwork and finish carpentry</a></li>
+      <li><a href="flooring-contractor-billing.html">Commercial flooring and tile</a></li>
+      <li><a href="glazing-contractor-billing.html">Glass, glazing and curtain wall</a></li>
+      <li><a href="steel-contractor-billing.html">Structural steel and misc metals</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Statutory lien waiver forms</h2>
+      <ul>
+      <li><a href="arizona-lien-waiver-forms.html">Arizona</a></li>
+      <li><a href="california-lien-waiver-forms.html">California</a></li>
+      <li><a href="florida-lien-waiver-forms.html">Florida</a></li>
+      <li><a href="georgia-lien-waiver-forms.html">Georgia</a></li>
+      <li><a href="massachusetts-lien-waiver-forms.html">Massachusetts</a></li>
+      <li><a href="michigan-lien-waiver-forms.html">Michigan</a></li>
+      <li><a href="mississippi-lien-waiver-forms.html">Mississippi</a></li>
+      <li><a href="missouri-lien-waiver-forms.html">Missouri</a></li>
+      <li><a href="nevada-lien-waiver-forms.html">Nevada</a></li>
+      <li><a href="texas-lien-waiver-forms.html">Texas</a></li>
+      <li><a href="utah-lien-waiver-forms.html">Utah</a></li>
+      <li><a href="wyoming-lien-waiver-forms.html">Wyoming</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>En español</h2>
+      <ul>
+      <li><a href="es-como-llenar-una-solicitud-de-pago.html">Cómo llenar una solicitud de pago</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This template and guide are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, accounting, or financial advice, and they do not replace your contract, your accountant, or an attorney. You are responsible for verifying anything you submit. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. Anonymous counters (<code>guide_change_order_template_viewed</code>, <code>change_order_template_downloaded</code>, <code>change_order_example_downloaded</code>) are kept in local storage on your device only, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  record("guide_change_order_template_viewed");
+  for (const a of document.querySelectorAll("a[data-event]")) a.addEventListener("click", () => record(a.dataset.event));
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKm7jUx4t44Ut3tN4fC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T20:19:04Z",
+  "ended": "2026-11-27T20:30:41Z",
+  "wall_minutes": 11.79,
+  "tokens_in": 12783361,
+  "tokens_out": 45662,
+  "cost_usd": 4.9072,
+  "tool_calls": 95,
+  "task": "payapps Texas notices of claim part 3: retainage notice (\u00a7 53.057) and retainage affidavit (\u00a7 53.052(d)) dates from saved contract end dates, with the cash/weekly reminder",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19867",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    "First pick (late-payment interest part 2) was already open as PR #19860; slug_dupe caught it before any code."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bet #3's 'deploy workflow not yet ported' is stale: .github/workflows/priv-einvoice-pro-deploy.yml exists."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Every payapps ROADMAP Next item ends 'if contractors ask'; with no customers yet the gate never opens, so runs pick among them by taste. A rule for choosing (e.g. deadline/money-at-risk first) would save time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "why": "Skipped the Mississippi \u00a7 1-3-67 item: moving a statutory lien-waiver date later on our own reading makes it less conservative.",
+      "did": "Took the Texas retainage notice instead, whose statute text was already in the repo snapshot.",
+      "result": "Shipped with tests."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-texas-retainage-notice-30-days.md"
+  ],
+  "goal": null,
+  "notes": "tsc 0; payapps unit 1536 passed/4 skipped (163 files); worker 605 passed (96 files); payapps-site 50 passed. Claim branch claim/payapps/texas-notices-of-claim-part-3-retainage.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ef0f6e35-6159-5e54-9ce3-484fa4db39a6",
+    "transcripts": 1,
+    "first": "2026-11-27T20:19:04Z",
+    "last": "2026-11-27T20:30:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 165,
+        "output": 45662,
+        "thinking": 7838,
+        "cache_read": 12599004,
+        "cache_write_5m": 0,
+        "cache_write_1h": 184192,
+        "api_equivalent_usd": 4.9072,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 165,
+      "output": 45662,
+      "thinking": 7838,
+      "cache_read": 12599004,
+      "cache_write_5m": 0,
+      "cache_write_1h": 184192,
+      "api_equivalent_usd": 4.9072,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 86,
+      "mcp__github__pull_request_read": 3,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.79,
+      "active_minutes": 11.79,
+      "model_minutes": 8.48,
+      "tool_minutes": 3.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "schema + migration + API + UI + tests + post for one statutory deadline feature, by a mid-level full-stack dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 122.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

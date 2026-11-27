@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVP6z69uxbEfZ9X4tqJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T20:56:31Z",
+  "ended": "2026-11-27T21:01:27Z",
+  "wall_minutes": 5.11,
+  "tokens_in": 5319933,
+  "tokens_out": 20312,
+  "cost_usd": 2.3847,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19872",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported every ranked bet with no free, ungated Next item (39 of 57 wait on demand); it correctly pointed to demand work, but picking which demand page took a manual survey of each bet's marketing site."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Says re-check prices on the vendor's page, but the vendor hosts (paperlessparts.com, quotedpart.com, proshoperp.com, fulcrumpro.com) are refused by the session proxy, so only aggregator figures can be cited."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bet #1 payapps is the most crowded (25 Next items, all gated) and bet #3 waits on owner items, so I took bet #2's demand side: a comparison page for high-intent searches instead of a feature.",
+      "did": "/compare page plus a fix for stale IGES/STL copy",
+      "result": "merged with tests"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the /compare page is itself the customer-facing SEO page, and the owner asked for fewer, consolidated posts.",
+      "did": "marketing page instead of a post",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/jobshop-quote/apps/jobshop-site/catalogue-export/compare.html (marketing/SEO page)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); IDEAS.md empty. jobshop-site: tsc clean, 60 unit + 13 worker tests pass, platform/pages/jobshop-site.test.mjs 6/6, Playwright 375px no horizontal scroll.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e62e057a-6044-567b-9578-e4d54f865377",
+    "transcripts": 1,
+    "first": "2026-11-27T20:56:31Z",
+    "last": "2026-11-27T21:01:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 102,
+        "output": 20312,
+        "thinking": 4368,
+        "cache_read": 5202644,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117187,
+        "api_equivalent_usd": 2.3847,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 102,
+      "output": 20312,
+      "thinking": 4368,
+      "cache_read": 5202644,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117187,
+      "api_equivalent_usd": 2.3847,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 44,
+      "WebFetch": 4,
+      "ToolSearch": 2,
+      "Read": 2,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.11,
+      "active_minutes": 5.11,
+      "model_minutes": 3.73,
+      "tool_minutes": 1.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "researching four vendors' published prices, writing a sourced comparison page with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 125.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

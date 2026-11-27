@@ -93,3 +93,31 @@ purchase is the real test.
 
 The next agent step is the Paddle catalogue as code, so the products and
 prices come from a script instead of dashboard clicks.
+
+## Update, 2026-11-27: an eighth product, the framers' Job report
+
+The residential takeoff bet, the paid edition of the wall framing takeoff,
+moved into this repository with its own billing: a $29 one-off "Job report"
+that unlocks the supplier material list and the branded bid package for one
+house. It still carried the Lemon Squeezy design, so it could never have
+gone on sale either. It now uses the same path as the other seven. No new
+Worker and no new deploy workflow: the shared billing Worker already signs a
+key for whatever product the paid price sells.
+
+One thing was new. The product lives under a bet's directory
+(`ventures/residential-takeoff/apps/wall-framing-takeoff`), not at
+`ventures/<slug>`, so its catalogue row names its own `dir`. The sync refuses
+any `dir` outside `ventures/`, because a catalogue edit shouldn't be able to
+make it write anywhere else. A valid key for this product is the Job report
+plan; a key for the free edition's bid package, or for any other tool,
+unlocks nothing here. An accepted key is remembered in that browser, so the
+buyer types it once.
+
+Two runs built this port at the same time. The first PR (#19857) landed it,
+and the second added a browser check, `eval-paddle-click.mjs`. It serves the
+page with a lit config and a throwaway key pair. It confirms that the Buy button shows and the
+material list locks. A key for another tool and a key from the wrong key pair
+are both refused. A signed Job report key unlocks the list and the package.
+With Paddle's script blocked, the Buy click says checkout couldn't load
+instead of hanging. The owner's steps are the same as for the other seven,
+plus one $29 price id.

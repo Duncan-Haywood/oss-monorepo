@@ -276,7 +276,7 @@ ${appShots(ctx)}
         <ul class="checks">
           <li>${check}<span>${ai("Reads RFQ emails and PDF drawings: parts, quantities, material, finish, tolerances and notes")}</span></li>
           <li>${check}<span>${ai("Checks what it read a second time against the drawing and flags anything it can't confirm")}</span></li>
-          <li>${check}<span>Measures STEP and DXF files: blank size, holes, cut length, pierces and bends, for roughing, drilling, cutting and bending times you can correct</span></li>
+          <li>${check}<span>Measures STEP, IGES, STL and DXF files: blank size, holes, cut length, pierces and bends, for roughing, drilling, cutting and bending times you can correct</span></li>
           <li>${check}<span>Applies your rates, minimums and markups with plain arithmetic: same inputs, same price</span></li>
           <li>${check}<span>Lists the sent quotes due for a follow-up each morning and keeps a log of every call, so no quote goes quiet</span></li>
           <li>${check}<span>Dates every material price, warns when one is past your limit, and lists the open quotes priced before your supplier's price moved</span></li>
@@ -367,9 +367,9 @@ export function howItWorksPage(ctx: RenderContext): Html {
       title: "Send in the RFQ",
       body: html`<p>Forward the customer's email to your shop's intake address, or upload the PDF drawings
       directly. It reads email text and PDF drawings, including scans, and CAD files: a STEP solid's size,
-      volume and holes, and a DXF flat pattern's cut length, pierces and bend lines. From those it suggests
+      volume and holes, an IGES solid's size and holes, an STL mesh's size and volume, and a DXF flat pattern's cut length, pierces and bend lines. From those it suggests
       the blank, the parts per sheet and, where you have entered the rate, a roughing, drilling, tapping, cutting or bending time, each labelled with
-      how it was worked out. IGES, STL and native SolidWorks files are stored but not measured yet.</p>
+      how it was worked out. Native SolidWorks files are stored but not measured yet.</p>
       ${inboundEmail ? "" : html`<p class="fineprint">${INBOUND_OFF}</p>`}${aiNote(ctx)}`,
     },
     {
@@ -565,6 +565,165 @@ export function cmmcPage(ctx: RenderContext): Html {
 ${ctaBand(ctx, "Start with your commercial RFQs", open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
+/**
+ * Other ways shops quote, for /compare. Every price is quoted with its source and the date it was
+ * read, because most vendors here do not publish a price list and third-party listings disagree
+ * (portfolio/monetization/bets.md, "re-check a price on the vendor's page before pricing against
+ * it"). A row with no source we could read says so rather than guessing a number.
+ */
+export interface Alternative {
+  name: string;
+  kind: string;
+  price: string;
+  /** Where the price was read; omitted when no price was found. */
+  source?: { label: string; url: string; read: string };
+  fits: string;
+}
+
+export const ALTERNATIVES: readonly Alternative[] = [
+  {
+    name: "A spreadsheet",
+    kind: "Your own Excel or Google Sheets workbook",
+    price: "Free, or the cost of the office suite you already have",
+    fits: "One estimator, a handful of RFQs a week, and a workbook only they need to understand.",
+  },
+  {
+    name: "Paperless Parts",
+    kind: "Dedicated quoting software for machine shops and fabricators",
+    price: "No public price list; custom pricing, per the listing",
+    source: {
+      label: "G2 pricing page",
+      url: "https://www.g2.com/products/paperless-parts/pricing",
+      read: "2026-11-27",
+    },
+    fits: "Shops with a steady RFQ flow that want a mature, widely used quoting product and will take a sales call to get a price.",
+  },
+  {
+    name: "QuotedPart",
+    kind: "Dedicated quoting software, priced per shop",
+    price: "$199 a month per shop, as listed",
+    source: {
+      label: "Toolradar",
+      url: "https://toolradar.com/tools/quotedpart",
+      read: "2026-11-24",
+    },
+    fits: "Shops that want a flat per-shop price rather than per-seat fees.",
+  },
+  {
+    name: "JobBOSS\u00b2",
+    kind: "Job-shop ERP with quoting as one module",
+    price: "About $3,000 a year, as listed",
+    source: {
+      label: "SoftwareConnect",
+      url: "https://softwareconnect.com/manufacturing-estimating-quoting",
+      read: "2026-11-24",
+    },
+    fits: "Shops that want quoting, scheduling, job tracking and invoicing in one system and are ready for an ERP rollout.",
+  },
+  {
+    name: "ProShop",
+    kind: "Shop-floor ERP and quality system with quoting built in",
+    price: "$650 to $715 a month, as listed",
+    source: {
+      label: "G2 pricing page",
+      url: "https://www.g2.com/products/proshop/pricing",
+      read: "2026-11-24",
+    },
+    fits: "Shops that also want paperless work orders, quality records and traceability in the same place.",
+  },
+];
+
+export function comparePage(ctx: RenderContext): Html {
+  const { open, aiReading, paidPlans } = ctx.launch;
+  const from = formatUsd(Math.min(...PLANS.map((p) => p.monthlyPrice)));
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Compare</p>
+    <h1>Machine shop quoting software, compared honestly</h1>
+    <p class="lead">Most CNC and fabrication shops quote in one of three ways: a spreadsheet, the quoting
+    module of their ERP, or dedicated quoting software. Here is what each
+    costs where a price is published, what it is good at, and where ${SITE_NAME} fits, including what it
+    does not do.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>The options side by side</h2>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">Prices as listed by the source named, on the date given. Vendors change
+        prices and most quote by shop size, so check with the vendor before you decide.</caption>
+        <thead>
+          <tr><th scope="col">Option</th><th scope="col">What it is</th><th scope="col">Price</th><th scope="col">Fits when</th></tr>
+        </thead>
+        <tbody>
+          ${ALTERNATIVES.map(
+            (a) => html`<tr>
+            <th scope="row">${a.name}</th>
+            <td>${a.kind}</td>
+            <td>${a.price}${
+              a.source
+                ? html`<br><span class="fineprint">(<a class="link" href="${a.source.url}" rel="nofollow">${a.source.label}</a>, read ${a.source.read})</span>`
+                : ""
+            }</td>
+            <td>${a.fits}</td>
+          </tr>`,
+          )}
+          <tr>
+            <th scope="row">${SITE_NAME}</th>
+            <td>Quoting only: prices RFQs from your own rate card and builds the quote</td>
+            <td>Free for up to ${EARLY_ACCESS_PLAN.rfqsPerMonth} RFQs a month, ${EARLY_ACCESS_PLAN.seats} people, no card. Paid plans from ${from} a month${paidPlans ? "" : ", not on sale yet"}</td>
+            <td>Shops that want quoting help without an ERP project, and want to try it on real RFQs before paying anything.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>What ${SITE_NAME} does today</h2>
+    <ul>
+      <li>Prices each part from the machines, rates, materials, minimums and markups on your rate card.
+      The math is plain arithmetic you can check line by line; no model sets a price.</li>
+      <li>Measures CAD files: a STEP or IGES solid's blank size and hole locations (for roughing and
+      drilling time at your machine's rates), an STL's size and volume, and a DXF flat pattern's cut
+      length, pierces and bend lines (for laser, waterjet, plasma and press-brake time, and parts per
+      sheet).</li>
+      <li>Imports your rate card and your supplier's price list from a spreadsheet.</li>
+      <li>Builds the quote PDF, emails it when your estimator sends it, keeps revisions, and logs each
+      quote as won or lost so you can see your win rate by estimator, routing, part family and month.</li>
+    </ul>
+
+    <h2>What it does not do</h2>
+    <ul>
+      <li>It is not an ERP: no scheduling, work orders, inventory, shop-floor tracking or quality records.
+      If you need those, JobBOSS\u00b2 or ProShop are built for it.</li>
+      ${aiReading ? "" : html`<li>${AI_OFF}</li>`}
+      <li>No connection to an ERP yet. A QuickBooks Online connection is built and switches on once Intuit
+      approves it.</li>
+      <li>Not for CUI or export-controlled drawings during early access (<a class="link" href="${href(ctx, "/for-cmmc-shops")}">why</a>).</li>
+      <li>It is new. The products above have years of shops behind them; ${SITE_NAME} does not yet, and we
+      won't pretend otherwise.</li>
+    </ul>
+
+    <h2>How to choose</h2>
+    <ol>
+      <li><strong>Count your RFQs.</strong> A few a week rarely justifies more than a good spreadsheet.
+      Dozens a week, with parts that repeat, is where quoting software pays for the estimator's time.</li>
+      <li><strong>Decide whether you need an ERP.</strong> If you already run one, try its quoting module
+      first. If you don't, buying an ERP just to quote is a large project; quoting-only tools are smaller.</li>
+      <li><strong>Price it on your own work.</strong> Quote last month's RFQs in any tool you trial and compare
+      the numbers with what you actually charged and what the jobs cost.</li>
+      <li><strong>Check who owns your data.</strong> Ask whether your drawings are used to train AI models and
+      whether you can export your rate card and quote history. (${SITE_NAME}: never used for training,
+      and your rate card exports as a spreadsheet.)</li>
+    </ol>
+    <p class="fineprint">Product names belong to their owners. ${PUBLISHER} is not affiliated with any of them.
+    Descriptions are from each product's public listings and may be out of date; tell us at
+    <a class="link" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> if one is wrong and we will fix it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Try it on last month's RFQs", open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
 export interface Faq {
   q: string;
   a: string;
@@ -585,7 +744,7 @@ const CLOSED_TODAY: Faq = {
 function openToday(launch: Launch): Faq {
   return {
     q: `Can I use ${SITE_NAME} today?`,
-    a: `Yes. Sign up free at ${appLink(launch, "/sign-up")}. The Early access plan covers up to ${EARLY_ACCESS_PLAN.rfqsPerMonth} RFQs a month for ${EARLY_ACCESS_PLAN.seats} people, with no card. It prices the parts you enter, and what it measures from STEP and DXF files, from your rate card, builds the quote PDF, emails it when your estimator sends it, and keeps the won/lost log.${launch.aiReading ? "" : ` ${AI_OFF}`}`,
+    a: `Yes. Sign up free at ${appLink(launch, "/sign-up")}. The Early access plan covers up to ${EARLY_ACCESS_PLAN.rfqsPerMonth} RFQs a month for ${EARLY_ACCESS_PLAN.seats} people, with no card. It prices the parts you enter, and what it measures from STEP, IGES, STL and DXF files, from your rate card, builds the quote PDF, emails it when your estimator sends it, and keeps the won/lost log.${launch.aiReading ? "" : ` ${AI_OFF}`}`,
   };
 }
 
@@ -631,7 +790,7 @@ const CORE_FAQS = (launch: Launch): Faq[] => [
   },
   {
     q: "What does it read?",
-    a: `${launch.aiReading ? "" : "The STEP and DXF measurements work today; reading email text and PDF drawings with AI is not switched on in the hosted app yet. "}RFQ email text and PDF drawings, including scans, plus STEP and DXF files. A STEP solid gives the blank size and, with your machine's measured removal rate, a roughing time; with your seconds per hole and, if you enter one, your drill feed for each hole's depth, a drilling time that counts a counterbored hole once, flags holes deeper than 3× their diameter and leaves bores over 1 in to you; tick which hole sizes are threaded and, with your seconds per tapped hole, it adds a tapping time. A DXF flat pattern gives a laser, waterjet or plasma cutting time from its cut length and pierces at your cut speed (one per machine, or your own speed for each material and thickness from your cut charts), and a press-brake time from its bend lines; on a material sold by the sheet, with your sheet size and nest gap, it counts how many flat blanks fit on one sheet (a rectangular nest, so a nesting program may fit more, never fewer). IGES, STL and native SolidWorks files are not measured yet.`,
+    a: `${launch.aiReading ? "" : "The STEP, IGES, STL and DXF measurements work today; reading email text and PDF drawings with AI is not switched on in the hosted app yet. "}RFQ email text and PDF drawings, including scans, plus STEP and DXF files. A STEP solid gives the blank size and, with your machine's measured removal rate, a roughing time; with your seconds per hole and, if you enter one, your drill feed for each hole's depth, a drilling time that counts a counterbored hole once, flags holes deeper than 3× their diameter and leaves bores over 1 in to you; tick which hole sizes are threaded and, with your seconds per tapped hole, it adds a tapping time. A DXF flat pattern gives a laser, waterjet or plasma cutting time from its cut length and pierces at your cut speed (one per machine, or your own speed for each material and thickness from your cut charts), and a press-brake time from its bend lines; on a material sold by the sheet, with your sheet size and nest gap, it counts how many flat blanks fit on one sheet (a rectangular nest, so a nesting program may fit more, never fewer). An IGES solid gives the blank size and hole locations like a STEP file (no volume: send STEP for that). An STL mesh gives its size and, when closed, its volume; an STL carries no units, so your estimator picks millimetres or inches. Native SolidWorks files are not measured yet.`,
   },
   {
     q: "What happens when a drawing is unclear?",
@@ -850,6 +1009,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/how-it-works": howItWorksPage,
   "/pricing": pricingPage,
   "/for-cmmc-shops": cmmcPage,
+  "/compare": comparePage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
   "/early-access/thanks": thanksPage,

@@ -7,14 +7,19 @@ import {
   type FlNoticeRecipient,
   flNoticeDates,
 } from "@lien-waivers";
-import { type CashReport, type CashReportProjectInput, cashReport } from "@shared/cash-report";
+import {
+  type CashReport,
+  type CashReportProjectInput,
+  cashReport,
+  PAID_LATE_WINDOW_DAYS,
+} from "@shared/cash-report";
 import {
   type CloseoutItemFacts,
   type CloseoutReadiness,
   closeoutReadiness,
   summarizeCloseout,
 } from "@shared/closeout";
-import { lateInterestTermsOf } from "@shared/late-interest";
+import { lateInterestTermsOf, rateLabel } from "@shared/late-interest";
 import type { LienDeadline, LienDeadlineResult } from "@shared/lien-deadline";
 import { centsToDecimal } from "@shared/money";
 import { type PunchItemFacts, summarizePunchList } from "@shared/punch-list";
@@ -86,7 +91,15 @@ export function toCashInput(
       p.flFirstFurnishedOn && flMissing.length > 0 ? flNoticeDates(p.flFirstFurnishedOn) : null,
     lienDeadline: lienOf(projectLienDeadline(b)),
     txNotice: p.txProjectKind
-      ? { residential: p.txProjectKind === "residential", sends: txSends.get(p.id) ?? [] }
+      ? {
+          residential: p.txProjectKind === "residential",
+          sends: txSends.get(p.id) ?? [],
+          retainage: {
+            contractEndedOn: p.txContractEndedOn ?? null,
+            originalEndedOn: p.txOriginalEndedOn ?? null,
+            originalEndedHow: p.txOriginalEndedHow ?? null,
+          },
+        }
       : null,
     changeOrders: b.changeOrders.map((co) => ({
       id: co.id,
@@ -301,6 +314,10 @@ export function cashReportCsv(r: CashReport): string {
     "Pay-when-paid outer limit (days from the application date)",
     "Retainage waiting on close-out",
     "Lien deadline",
+    "Late-payment rate",
+    "Interest accrued on past-due applications",
+    "Interest earned on applications paid late",
+    "Applications paid late",
   ];
   const rows = r.projects.map((p) => [
     p.name,
@@ -352,6 +369,17 @@ export function cashReportCsv(r: CashReport): string {
     p.lienDeadline
       ? `${p.lienDeadline.dueOn} (${p.lienDeadline.stateName}, ${p.lienDeadline.citation}${p.lienDeadline.basis === "estimated" ? "; estimated from billing" : ""})`
       : null,
+    p.lateInterest
+      ? `${rateLabel(p.lateInterest)}${p.lateInterest.source ? ` (${p.lateInterest.source})` : ""}`
+      : null,
+    p.lateInterest ? amt(p.interestCents) : null,
+    p.lateInterest ? amt(p.paidLateInterestCents) : null,
+    p.paidLate
+      .map(
+        (a) =>
+          `#${a.number} due ${a.dueOn}, paid ${a.paidOn} (${a.daysLate} days): ${amt(a.interestCents)}`,
+      )
+      .join("; ") || null,
   ]);
   const t = r.totals;
   const total = [
@@ -385,13 +413,17 @@ export function cashReportCsv(r: CashReport): string {
     null,
     amt(t.retainageWaitingOnCloseoutCents),
     null,
+    null,
+    amt(t.interestCents),
+    amt(t.paidLateInterestCents),
+    null,
   ];
   const lines = [
     header,
     ...rows,
     total,
     [
-      `As of ${r.asOf}. Drafts are not counted. Past due and the next 30 days count only jobs with pay terms set, and on pay-when-paid jobs only applications whose owner payment to the GC is recorded or whose job has an outer limit (the rest is under "Waiting on the owner's payment"). Pending change orders (additions) adds up those waiting for the GC's approval that add money; deductions are listed but not added. Backcharged, disputed and written off are balances of applications paid short that were closed: they count as neither paid nor outstanding.`,
+      `As of ${r.asOf}. Drafts are not counted. Past due and the next 30 days count only jobs with pay terms set, and on pay-when-paid jobs only applications whose owner payment to the GC is recorded or whose job has an outer limit (the rest is under "Waiting on the owner's payment"). Pending change orders (additions) adds up those waiting for the GC's approval that add money; deductions are listed but not added. Backcharged, disputed and written off are balances of applications paid short that were closed: they count as neither paid nor outstanding. Interest is simple interest at each job's late-payment rate, not in any other column: on past-due applications to the report date, and on applications paid late in the last ${PAID_LATE_WINDOW_DAYS} days from the due date to the last payment.`,
     ],
   ];
   return `${lines.map((l) => l.map(csvCell).join(",")).join("\r\n")}\r\n`;

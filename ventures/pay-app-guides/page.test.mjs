@@ -331,12 +331,12 @@ const FAQ_PAGES = [
   "finish-carpentry-contractor-billing.html", "flooring-contractor-billing.html", "glazing-contractor-billing.html", "steel-contractor-billing.html",
   "front-loading-schedule-of-values.html", "how-to-fill-out-a-pay-application.html", "progress-billing.html",
   "how-to-write-an-rfi.html", "index.html", "joint-checks.html", "lien-waiver-forms-by-state.html",
-  "lien-waiver-log.html", "lien-waiver-form.html", "miller-act-payment-bond-claims.html",
+  "lien-waiver-log.html", "lien-waiver-form.html", "miller-act-payment-bond-claims.html", "state-payment-bond-claims.html",
   "overbilling-underbilling.html", "paid-short.html", "pay-app-cash-forecast.html",
   "pay-application-checker.html", "pay-application-software-compared.html", "coconstruct-alternatives.html",
   "pay-if-paid-clauses.html", "prompt-payment-laws.html", "retainage-explained.html",
   "retainage-in-quickbooks.html", "retainage-release.html", "retainage-tracker.html",
-  "schedule-of-values-template.html", "construction-invoice-template.html", "stored-materials-billing.html",
+  "schedule-of-values-template.html", "construction-invoice-template.html", "change-order-template.html", "stored-materials-billing.html",
   "sworn-statement.html", "tm-tickets.html", "punch-list.html",
   "es-como-llenar-una-solicitud-de-pago.html",
   // state-forms.mjs: one page per state with statutory waiver forms
@@ -394,6 +394,22 @@ test("punch list page: inputs labelled, wired to punch.mjs, linked from retainag
   assert.match(html, /does not say your subcontract's conditions for payment or retainage are met/);
   assert.match(page("retainage-release.html"), /href="punch-list\.html"/);
   assert.match(readFileSync(new URL("../../platform/pages/industry-construction.mjs", import.meta.url), "utf8"), /pay-app-guides\/punch-list\.html/);
+});
+
+test("the state bond claim table links each of its eight states to the legislature's own site, with the read date", () => {
+  const html = page("state-payment-bond-claims.html");
+  const start = html.indexOf('id="state-table"');
+  const table = html.slice(start, html.indexOf("</table>", start));
+  const rows = [...table.matchAll(/<tr><td data-label="State">([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td data-label="Statute"><a href="([^"]+)"/g)];
+  assert.deepEqual(rows.map((r) => r[1]), ["Texas", "Florida", "New York", "Virginia", "Washington", "Arizona", "North Carolina", "Ohio"]);
+  const official = /^https:\/\/(statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|www\.azleg\.gov|www\.ncleg\.gov|codes\.ohio\.gov)\//;
+  for (const [, state, href] of rows) assert.match(href, official, state);
+  assert.match(html, /2026-11-27/);
+  // The statute text it was read from is kept beside it.
+  const src = page("sources/state-bond-claims.txt");
+  for (const cite of ["2253.047", "255.05", "137", "2.2-4341", "39.08.030", "34-223", "44A-27", "153.56"]) assert.ok(src.includes(cite), cite);
+  assert.match(html, /href="miller-act-payment-bond-claims\.html"/);
+  assert.match(page("miller-act-payment-bond-claims.html"), /href="state-payment-bond-claims\.html"/);
 });
 
 test("each Spanish page is paired with its English page and says the app is in English", () => {

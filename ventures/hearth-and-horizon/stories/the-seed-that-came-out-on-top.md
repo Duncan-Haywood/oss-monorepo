@@ -82,7 +82,7 @@ On the Tuesday he looked at the table for a long time and then went to the cabin
 
 "That would give this table," Kiem said. "I haven't shown that it does."
 
-Lieve looked at Jonas, and Jonas looked at the old pharmacy scale, and both of them thought about the surplus. Lieve had always sent half as much again as the gardens needed, ever since the year she had sent exactly enough and the last garden had got a quarter of a scoop. Whatever came back went into the store jar for the packets. For four years Jonas had come back up the ramp at the end of the round with a third of a tub of seed, and for four years Lieve had poured it, without looking, into a jar that had slowly turned black.
+Lieve looked at Jonas, and Jonas looked at the old pharmacy scale, and both of them thought about the surplus. Lieve had always sent half as much again as the gardens needed, ever since the year she had sent exactly enough and the last garden had got a quarter of a scoop. Whatever came back went into the store jar for the packets. For four years Jonas had come back up the ramp at the end of the round with a third of the seed he had set out with still in the tub, and for four years Lieve had poured it, without looking, into a jar that had slowly turned black.
 
 "Can we find out?" Jonas said.
 

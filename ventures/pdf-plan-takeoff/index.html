@@ -106,7 +106,8 @@ small{color:var(--mut)}
       </div>
     </div>
   </div>
-  <div class="row" style="margin-top:1rem"><h2 style="margin:0">Takeoff</h2><button type="button" id="csv" disabled>Download CSV</button><button type="button" class="secondary" id="clear" disabled>Clear all</button></div>
+  <div class="row" style="margin-top:1rem"><h2 style="margin:0">Takeoff</h2><button type="button" id="csv" disabled>Download CSV</button><button type="button" class="secondary" id="wallsDxf" disabled title="Length measurements labelled Walls, Doors and Windows on this sheet, as a DXF in real inches for the residential takeoff">Walls to framing takeoff (DXF)</button><button type="button" class="secondary" id="clear" disabled>Clear all</button></div>
+  <p class="note" id="wallsNote">For a framing material list: measure the wall runs with the length tool under a label with "Walls" in it (click around corners in one run), each door and window across its opening under "Doors" or "Windows", then download the DXF and open it in the <a href="../residential-takeoff/">residential takeoff</a>, which counts studs, plates, headers and sheathing from it.</p>
   <div class="tablewrap"><table><thead><tr><th>#</th><th>Sheet</th><th>Label</th><th>Type</th><th>Quantity</th><th>Scale</th><th></th></tr></thead><tbody id="rows"><tr><td colspan="7" class="note">No measurements yet.</td></tr></tbody></table></div>
 </section>
 
@@ -137,7 +138,7 @@ small{color:var(--mut)}
 import { readSheets } from "./geometry.mjs";
 import { inflate } from "./inflate-browser.mjs";
 import { scaleNotes, assignScale, sheetVerdict, parseFeetInches, formatFeetInches } from "./scale.mjs";
-import { SnapIndex, valueOf, takeoffCsv, polylineLength } from "./measure.mjs";
+import { SnapIndex, valueOf, takeoffCsv, polylineLength, wallsDxf } from "./measure.mjs";
 import { roomAt, loadImagesNear } from "./rooms.mjs";
 import { samplePdf } from "./sample.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -485,6 +486,7 @@ function save() {
 function renderRows() {
   save();
   $("#csv").disabled = $("#clear").disabled = !measurements.length;
+  $("#wallsDxf").disabled = !measurements.some((m) => m.type === "length");
   if (!measurements.length) { $("#rows").innerHTML = `<tr><td colspan="7" class="note">No measurements yet.</td></tr>`; return; }
   $("#rows").innerHTML = measurements.map((m, i) => {
     const v = valueOf(m);
@@ -496,6 +498,15 @@ $("#csv").addEventListener("click", () => {
   const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([takeoffCsv(measurements)], { type: "text/csv;charset=utf-8" })), download: `${baseName}-takeoff.csv` });
   document.body.append(a); a.click(); a.remove();
   record("csv_downloaded");
+});
+$("#wallsDxf").addEventListener("click", () => {
+  const r = wallsDxf(measurements, { page: page ? page.page : undefined });
+  if (!r.ok) { $("#wallsNote").textContent = r.error; return; }
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([r.dxf], { type: "application/dxf" })), download: `${baseName}-walls.dxf` });
+  document.body.append(a); a.click(); a.remove();
+  const k = r.skipped, left = [k.otherPage && `${k.otherPage} on another sheet`, k.otherScale && `${k.otherScale} at another scale`, k.noScale && `${k.noScale} with no scale`].filter(Boolean);
+  $("#wallsNote").textContent = `Sheet ${r.page}: ${r.walls} wall run${r.walls === 1 ? "" : "s"}, ${r.doors} door${r.doors === 1 ? "" : "s"}, ${r.windows} window${r.windows === 1 ? "" : "s"} written${left.length ? `; left out: ${left.join(", ")}` : ""}. Open the file in the residential takeoff (../residential-takeoff/, "Open plan file"). Lengths are the lines you clicked: on a wall drawn with two face lines, click one face all the way round.`;
+  record("walls_dxf_downloaded");
 });
 $("#clear").addEventListener("click", () => { if (confirm("Delete every measurement?")) { measurements = []; renderRows(); draw(); } });
 
