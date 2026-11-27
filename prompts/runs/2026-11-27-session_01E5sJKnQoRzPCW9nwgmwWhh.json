@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKnQoRzPCW9nwgmwWhh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T00:18:25Z",
+  "ended": "2026-11-27T00:33:34Z",
+  "wall_minutes": 27.0,
+  "tokens_in": 21524047,
+  "tokens_out": 67227,
+  "cost_usd": 7.3889,
+  "tool_calls": 129,
+  "task": "Bet #2 jobshop-quote, growth path 'material price lists': material priced by the foot (bar, tube, extrusion) with cut allowance, bar length and remnant; supplier price-list import; traveler cut list",
+  "projects": [
+    "jobshop-quote",
+    "jobshop-site",
+    "machine-shop-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19534",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 24,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "private PR 438 hit a merge conflict with #437 (material-price-lists-price-dates), merged ~minutes earlier on the same growth topic, which also took migration 0036",
+      "fix": "merged main, renumbered to 0037 via drizzle-kit generate, extended #437's price history/stale-price code to the per_ft price (effectivePrice, history column, New price form) with tests"
+    },
+    {
+      "what": "first draft of the guide paragraph used dollar figures; page.test.mjs forbids them on the pricing guide",
+      "fix": "rewrote the worked example in lengths and bar counts"
+    },
+    {
+      "what": "after the first merge, 03-phone-width e2e failed: the rate-card materials table was 526 px on a 390 px screen (from #437's new columns, already failing on main); then #439 landed the same fix and conflicted",
+      "fix": "wrapped the table in an overflow box, then took #439's version in the second merge; e2e 12/12"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets said bet #2 had 0 live claims and the topic 'material price lists' had no live claim, yet another session merged material-price-lists-price-dates (private #437) on the same topic during this run; the per-topic report matches only slugs starting with the topic, so a sibling slug under the same topic is invisible until it merges. Cost: one migration renumber and a merge."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "private-monorepo CI jobs were starved again (runner_id 0, ~3 s red); ci_starvation.py confirmed it quickly, as documented."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bet #1 (payapps) had no free ungated item; roadmap_claim --bets pointed at bet #2 with every Next item gated on demand or the owner, so I opened a new item from bets.md's growth path ('material price lists') instead of a gated Next item.",
+      "did": "Claimed material-price-per-foot and shipped it end to end.",
+      "result": "merged; overlapped in topic (not content) with a concurrent run, resolved by integrating both."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Writeup went into the existing how-to-price guide rather than a new post, per the 2026-11-24 consolidation direction; no separate docs/reports agent doc because the ROADMAP Done/Next entries carry what the next run needs.",
+      "did": "Extended section 2 of the guide.",
+      "result": "253 guide tests pass."
+    }
+  ],
+  "writeups": [
+    "ventures/machine-shop-guides/how-to-price-a-machined-part.html (extended: bar stock priced by the foot)",
+    "private apps/jobshop-quote/ROADMAP.md (Done entry + Next item 15)",
+    "private apps/jobshop-site FAQ entry on material pricing"
+  ],
+  "goal": "$10k MRR: deepen bet #2's wedge (priced quote from the shop's own rates) for turned/bar-stock shops",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/438 merged (squash 6f94a17d): per_ft pricing basis, migration 0037 (materials + material_price_changes columns), engine barStockUse, rate-card form, line editor, import/export/workbook, traveler, price-history integration with #437/#439, jobshop-site FAQ. CI starved (ci_starvation: 2/2 jobs runner_id 0), so verified locally after merging main twice: typecheck 0 errors, biome clean, build OK, unit 593/593, worker 270/270, e2e 12/12, jobshop-site unit 42/42. machine-shop-guides: node --test *.test.mjs 253 pass. Three sessions worked bet #2's 'material price lists' topic in parallel (#437, #438, #439); slices were complementary but cost two merges.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3593bf33-f6aa-545a-8cc7-bee483cc3540",
+    "transcripts": 1,
+    "first": "2026-11-27T00:18:25Z",
+    "last": "2026-11-27T00:45:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 122,
+        "input": 230,
+        "output": 67227,
+        "thinking": 12663,
+        "cache_read": 21300912,
+        "cache_write_5m": 0,
+        "cache_write_1h": 222905,
+        "api_equivalent_usd": 7.3889,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 122,
+      "input": 230,
+      "output": 67227,
+      "thinking": 12663,
+      "cache_read": 21300912,
+      "cache_write_5m": 0,
+      "cache_write_1h": 222905,
+      "api_equivalent_usd": 7.3889,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 129,
+    "tools": {
+      "Bash": 119,
+      "mcp__github__merge_pull_request": 3,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.0,
+      "active_minutes": 27.0,
+      "model_minutes": 12.23,
+      "tool_minutes": 14.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "senior full-stack engineer: pricing-engine change, migration, import rules, UI, traveler, tests, two merges",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 189.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
