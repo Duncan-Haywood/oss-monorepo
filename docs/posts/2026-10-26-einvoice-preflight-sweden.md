@@ -3,6 +3,7 @@ title: "E-invoice Preflight adds Sweden: public sector first, B2B optional"
 date: 2026-10-26
 description: "A new Sweden page says what is reported: public suppliers on e-invoices since 2019, Peppol BIS 3.0 preferred, B2B optional until EU rules in 2030."
 tags: [einvoice-preflight, e-invoicing, sweden]
+folded_into: einvoice-preflight/sweden-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Sweden](../../ventures/einvoice-preflight/sweden-e-invoice-mandate.html), the 35th in the all-countries table. Vendor guides report that suppliers to Swedish public bodies have sent e-invoices since April 2019, that Peppol BIS Billing 3.0 is the preferred format, and that business-to-business e-invoicing stays optional, with 1 July 2030 (EU rules for intra-EU B2B) the first fixed date.

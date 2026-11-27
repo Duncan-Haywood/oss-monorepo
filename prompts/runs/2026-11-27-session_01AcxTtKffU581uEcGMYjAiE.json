@@ -1,0 +1,513 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtKffU581uEcGMYjAiE",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T04:07:32Z",
+  "ended": "2026-11-27T04:08:29Z",
+  "wall_minutes": 5.37,
+  "tokens_in": 2956774,
+  "tokens_out": 18928,
+  "cost_usd": 1.6097,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19600",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "CI changed-ventures failed first push: open-house-plans byte-for-byte vendor check of wall-framing-takeoff/engine.mjs; fixed by re-vendoring."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 says to run campaign right after record; the record command prints 'Fill in outcome...' which reads like the run is over. Minor."
+    },
+    {
+      "file": "ventures/wall-framing-takeoff/engine.mjs",
+      "issue": "Nothing near toCsv says open-house-plans vendors this file byte for byte; run_venture_tests.py on the changed slug alone does not run dependents, CI caught it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: this was a security fix in export code with no customer-facing finding worth a post; the guard and tests are the deliverable.",
+      "did": "Skipped the post",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Targets: three bet-#1 front-door calc.mjs files (pay-application-generator, lien-waiver-checker, mechanics-lien-deadline-calculator). The guard I added: shrank the csv_formula_guard ratchet from 349 to 343 by fixing six construction exporters, each with a test that fails without the fix. Verification: run_venture_tests.py on all 5 slugs gave 0 failures (1489 tests); check_csv_formula_guard.py ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+        "test": "node --test ventures/mechanics-lien-deadline-calculator/**/*.test.mjs  (in .)",
+        "seed": 266865282,
+        "commit": "c9af32c1e",
+        "sites": 158,
+        "baseline_seconds": 0.2,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 106,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "noticeOfCompletionDays: 30,",
+            "after": "noticeOfCompletionDays: 31,",
+            "line_text": "      noticeOfCompletionDays: 30,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 469,
+            "col": 44,
+            "operator": "plus-to-minus",
+            "before": "const endKey = last.getUTCFullYear() * 12 + last.getUTCMonth();",
+            "after": "const endKey = last.getUTCFullYear() * 12 - last.getUTCMonth();",
+            "line_text": "  const endKey = last.getUTCFullYear() * 12 + last.getUTCMonth();",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 470,
+            "col": 30,
+            "operator": "and-to-or",
+            "before": "while (y * 12 + m <= endKey && rows.length < MAX_SCHEDULE_MONTHS) {",
+            "after": "while (y * 12 + m <= endKey || rows.length < MAX_SCHEDULE_MONTHS) {",
+            "line_text": "  while (y * 12 + m <= endKey && rows.length < MAX_SCHEDULE_MONTHS) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 600,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (prelimRule && prelimRule.note) add(\"medium\", `${info.name}: who owes this notice`, prelimRule.note);",
+            "after": "if (prelimRule || prelimRule.note) add(\"medium\", `${info.name}: who owes this notice`, prelimRule.note);",
+            "line_text": "  if (prelimRule && prelimRule.note) add(\"medium\", `${info.name}: who owes this notice`, prelimRule.note);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 601,
+            "col": 27,
+            "operator": "and-to-or",
+            "before": "if (info.residentialNote && pt === \"residential\" && (!info.residentialNoteTier || info.residentialNoteTier === tr)) add(\"medium\", `${info.name}: confirm the residential category`, info.residentialNote);",
+            "after": "if (info.residentialNote || pt === \"residential\" && (!info.residentialNoteTier || info.residentialNoteTier === tr)) add(\"medium\", `${info.name}: confirm the residential category`, info.residentialNote);",
+            "line_text": "  if (info.residentialNote && pt === \"residential\" && (!info.residentialNoteTier || info.residentialNoteTier === tr)) add(\"medium\", `${info.name}: confirm the residential category`, info.residentialNote);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 601,
+            "col": 51,
+            "operator": "and-to-or",
+            "before": "if (info.residentialNote && pt === \"residential\" && (!info.residentialNoteTier || info.residentialNoteTier === tr)) add(\"medium\", `${info.name}: confirm the residential category`, info.residentialNote);",
+            "after": "if (info.residentialNote && pt === \"residential\" || (!info.residentialNoteTier || info.residentialNoteTier === tr)) add(\"medium\", `${info.name}: confirm the residential category`, info.residentialNote);",
+            "line_text": "  if (info.residentialNote && pt === \"residential\" && (!info.residentialNoteTier || info.residentialNoteTier === tr)) add(\"medium\", `${info.name}: confirm the residential category`, info.residentialNote);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 608,
+            "col": 27,
+            "operator": "and-to-or",
+            "before": "if (prelim && prelimRule && prelimRule.lookback && prelim.status !== \"passed\") {",
+            "after": "if (prelim && prelimRule || prelimRule.lookback && prelim.status !== \"passed\") {",
+            "line_text": "  if (prelim && prelimRule && prelimRule.lookback && prelim.status !== \"passed\") {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 608,
+            "col": 50,
+            "operator": "and-to-or",
+            "before": "if (prelim && prelimRule && prelimRule.lookback && prelim.status !== \"passed\") {",
+            "after": "if (prelim && prelimRule && prelimRule.lookback || prelim.status !== \"passed\") {",
+            "line_text": "  if (prelim && prelimRule && prelimRule.lookback && prelim.status !== \"passed\") {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/lien-waiver-checker/calc.mjs",
+        "test": "node --test ventures/lien-waiver-checker/**/*.test.mjs  (in .)",
+        "seed": 700612308,
+        "commit": "c9af32c1e",
+        "sites": 156,
+        "baseline_seconds": 0.2,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/lien-waiver-checker/calc.mjs",
+            "line": 21,
+            "col": 10,
+            "operator": "const-plus-one",
+            "before": "if (m < 1 || m > 12 || d < 1 || d > 31) return null;",
+            "after": "if (m < 2 || m > 12 || d < 1 || d > 31) return null;",
+            "line_text": "  if (m < 1 || m > 12 || d < 1 || d > 31) return null;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "January dates were never tested; added 01/15/2026 and January 31 cases."
+          },
+          {
+            "file": "ventures/lien-waiver-checker/calc.mjs",
+            "line": 21,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "if (m < 1 || m > 12 || d < 1 || d > 31) return null;",
+            "after": "if (m < 1 || m > 12 || d < 2 || d > 31) return null;",
+            "line_text": "  if (m < 1 || m > 12 || d < 1 || d > 31) return null;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/lien-waiver-checker/calc.mjs",
+            "line": 33,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "const neg = c < 0;",
+            "after": "const neg = c < 1;",
+            "line_text": "  const neg = c < 0;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "dollars(0) is exported and was untested; added."
+          },
+          {
+            "file": "ventures/lien-waiver-checker/calc.mjs",
+            "line": 60,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "const mo = MONTHS[m[1].toLowerCase().slice(0, 4)] || MONTHS[m[1].toLowerCase().slice(0, 3)];",
+            "after": "const mo = MONTHS[m[2].toLowerCase().slice(0, 4)] || MONTHS[m[1].toLowerCase().slice(0, 3)];",
+            "line_text": "    const mo = MONTHS[m[1].toLowerCase().slice(0, 4)] || MONTHS[m[1].toLowerCase().slice(0, 3)];",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "The 4-letter lookup only ever hits 'sept', whose 3-letter prefix 'sep' maps to the same month 9, so falling through to slice(0,3) gives the same month for every input."
+          },
+          {
+            "file": "ventures/lien-waiver-checker/calc.mjs",
+            "line": 106,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (expected === null) errors.push(\"The amount you expect is not a number.\");",
+            "after": "if (expected !== null) errors.push(\"The amount you expect is not a number.\");",
+            "line_text": "  if (expected === null) errors.push(\"The amount you expect is not a number.\");",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/lien-waiver-checker/calc.mjs",
+            "line": 143,
+            "col": 112,
+            "operator": "const-plus-one",
+            "before": "const limited = /(labor|services?|equipment|materials?)[^.]{0,120}(furnished|provided|performed|supplied)[^.]{0,120}through/.test(low);",
+            "after": "const limited = /(labor|services?|equipment|materials?)[^.]{0,120}(furnished|provided|performed|supplied)[^.]{1,120}through/.test(low);",
+            "line_text": "  const limited = /(labor|services?|equipment|materials?)[^.]{0,120}(furnished|provided|performed|supplied)[^.]{0,120}through/.test(low);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "{0,120} vs {1,120} between the verb and 'through' differs only for 'furnishedthrough' with no separator; text is whitespace-normalised prose, so there is always at least the space."
+          },
+          {
+            "file": "ventures/lien-waiver-checker/calc.mjs",
+            "line": 192,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "if (retainage > 0 && !isFinal) {",
+            "after": "if (retainage > 1 && !isFinal) {",
+            "line_text": "  if (retainage > 0 && !isFinal) {",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Retainage of one cent was untested; added a 0.01 retainage case."
+          },
+          {
+            "file": "ventures/lien-waiver-checker/calc.mjs",
+            "line": 231,
+            "col": 134,
+            "operator": "plus-to-minus",
+            "before": "\"Where a statute prescribes the form, a waiver that does not follow it can be unenforceable, which can cut either way for you.\" + (Object.hasOwn(FORM_SCOPE, settings.state) ? FORM_SCOPE[settings.state] : \"\"),",
+            "after": "\"Where a statute prescribes the form, a waiver that does not follow it can be unenforceable, which can cut either way for you.\" - (Object.hasOwn(FORM_SCOPE, settings.state) ? FORM_SCOPE[settings.state] : \"\"),",
+            "line_text": "      \"Where a statute prescribes the form, a waiver that does not follow it can be unenforceable, which can cut either way for you.\" + (Object.hasOwn(FORM_SCOPE, settings.state) ? FORM_SCOPE[settings.state] : \"\"),",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/pay-application-generator/calc.mjs",
+        "test": "node --test ventures/pay-application-generator/**/*.test.mjs  (in .)",
+        "seed": 548926569,
+        "commit": "c9af32c1e",
+        "sites": 224,
+        "baseline_seconds": 3.6,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 34,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "if (t.startsWith(\"-\")) { neg = !neg; t = t.slice(1); }",
+            "after": "if (t.startsWith(\"-\")) { neg = !neg; t = t.slice(2); }",
+            "line_text": "  if (t.startsWith(\"-\")) { neg = !neg; t = t.slice(1); }",
+            "caught": true,
+            "seconds": 3.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 37,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "const v = parseInt(d, 10) * 100 + parseInt((c + \"00\").slice(0, 2), 10);",
+            "after": "const v = parseInt(d, 10) * 100 + parseInt((c + \"00\").slice(0, 3), 10);",
+            "line_text": "  const v = parseInt(d, 10) * 100 + parseInt((c + \"00\").slice(0, 2), 10);",
+            "caught": true,
+            "seconds": 3.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 157,
+            "col": 12,
+            "operator": "le-to-lt",
+            "before": "if (x.c <= 0 && g > 0 && !x.isCo) findings.push({ severity: \"high\", title: `${x.desc}: work is billed on a line with no scheduled value.` });",
+            "after": "if (x.c < 0 && g > 0 && !x.isCo) findings.push({ severity: \"high\", title: `${x.desc}: work is billed on a line with no scheduled value.` });",
+            "line_text": "    if (x.c <= 0 && g > 0 && !x.isCo) findings.push({ severity: \"high\", title: `${x.desc}: work is billed on a line with no scheduled value.` });",
+            "caught": true,
+            "seconds": 3.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 180,
+            "col": 74,
+            "operator": "ge-to-gt",
+            "before": "const early = out.lines.filter((l) => l.c > 0 && l.pct != null && l.pct >= 9000 && l.pct <= 10000 && l.e > 0);",
+            "after": "const early = out.lines.filter((l) => l.c > 0 && l.pct != null && l.pct > 9000 && l.pct <= 10000 && l.e > 0);",
+            "line_text": "  const early = out.lines.filter((l) => l.c > 0 && l.pct != null && l.pct >= 9000 && l.pct <= 10000 && l.e > 0);",
+            "caught": false,
+            "seconds": 3.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A line at exactly 90.00% billed was untested; added."
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 208,
+            "col": 40,
+            "operator": "minus-to-plus",
+            "before": "].filter((x, i, a) => x !== \"\" || a[i - 1] !== \"\").join(\"\\n\");",
+            "after": "].filter((x, i, a) => x !== \"\" || a[i + 1] !== \"\").join(\"\\n\");",
+            "line_text": "  ].filter((x, i, a) => x !== \"\" || a[i - 1] !== \"\").join(\"\\n\");",
+            "caught": false,
+            "seconds": 3.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Dropping a blank followed by a blank (a[i+1]) instead of one preceded by a blank (a[i-1]) keeps exactly one blank per run either way; the list never starts or ends with a blank, so output is identical."
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 208,
+            "col": 45,
+            "operator": "neq-flip",
+            "before": "].filter((x, i, a) => x !== \"\" || a[i - 1] !== \"\").join(\"\\n\");",
+            "after": "].filter((x, i, a) => x !== \"\" || a[i - 1] === \"\").join(\"\\n\");",
+            "line_text": "  ].filter((x, i, a) => x !== \"\" || a[i - 1] !== \"\").join(\"\\n\");",
+            "caught": false,
+            "seconds": 3.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Blank-line collapse in summaryText was untested; added a no-\\n\\n\\n assertion."
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 215,
+            "col": 146,
+            "operator": "const-plus-one",
+            "before": "const rows = result.lines.map((l) => [l.item, l.desc, plain(l.c), plain(l.d), plain(l.e), plain(l.f), plain(l.g), l.pct == null ? \"\" : (l.pct / 100).toFixed(2), plain(l.balance), plain(l.ret)]);",
+            "after": "const rows = result.lines.map((l) => [l.item, l.desc, plain(l.c), plain(l.d), plain(l.e), plain(l.f), plain(l.g), l.pct == null ? \"\" : (l.pct / 101).toFixed(2), plain(l.balance), plain(l.ret)]);",
+            "line_text": "  const rows = result.lines.map((l) => [l.item, l.desc, plain(l.c), plain(l.d), plain(l.e), plain(l.f), plain(l.g), l.pct == null ? \"\" : (l.pct / 100).toFixed(2), plain(l.balance), plain(l.ret)]);",
+            "caught": false,
+            "seconds": 3.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The CSV percent column value was never asserted; added."
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 236,
+            "col": 53,
+            "operator": "min-to-max",
+            "before": "const nd = d >= lastDay(y, mo) ? lastDay(ny, nm) : Math.min(d, lastDay(ny, nm));",
+            "after": "const nd = d >= lastDay(y, mo) ? lastDay(ny, nm) : Math.max(d, lastDay(ny, nm));",
+            "line_text": "  const nd = d >= lastDay(y, mo) ? lastDay(ny, nm) : Math.min(d, lastDay(ny, nm));",
+            "caught": true,
+            "seconds": 3.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-application-generator/calc.mjs",
+        "issue": "scheduleCsv wrote line descriptions raw, so a schedule of values line named =HYPERLINK(...) (pasted or imported from a GC's spreadsheet) ran as a formula when the downloaded continuation-sheet CSV was opened (CWE-1236). The same unguarded quoting helper was in five more construction exporters on the guard baseline: certified-payroll-calculator/wh347.mjs (worker names), wall-framing-takeoff engine/budget/schedule CSVs, construction-delay-claim-calculator (numbers only, guarded for consistency). Reproduced with node: row 1 came out as 1,=HYPERLINK(http://x),1000.00,... open-house-plans vendors engine.mjs as wft-engine.mjs, so it was re-vendored (node vendor-framing.mjs) and its baseline line dropped too (343 -> 342).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19600"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f33e1a25-775a-5130-a8cd-bcef01951c83",
+    "transcripts": 1,
+    "first": "2026-11-27T04:07:32Z",
+    "last": "2026-11-27T04:12:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 71,
+        "output": 18928,
+        "thinking": 5539,
+        "cache_read": 2874719,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81984,
+        "api_equivalent_usd": 1.6097,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 71,
+      "output": 18928,
+      "thinking": 5539,
+      "cache_read": 2874719,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81984,
+      "api_equivalent_usd": 1.6097,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.37,
+      "active_minutes": 5.37,
+      "model_minutes": 3.35,
+      "tool_minutes": 2.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation triage plus six exporter fixes and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 186.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

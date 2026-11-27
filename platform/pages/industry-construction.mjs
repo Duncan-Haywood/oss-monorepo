@@ -51,7 +51,10 @@ export const PRODUCTS = [
     for: 'Specialty subcontractors and small general contractors',
     summary:
       'Monthly pay applications in the G702/G703 format from your schedule of values, retainage tracked line by line until release, lien waivers collected and checked against each payment, and change orders logged so approved work reaches the next bill.',
-    planned: ['QuickBooks sync', 'Job costing', 'RFIs', 'Estimating'],
+    // `built`: modules in the app's ROADMAP "Done" list (ventures/payapps/apps/payapps/ROADMAP.md),
+    // written but not yet deployed, so shown as "built, in testing", never as available.
+    built: ['QuickBooks Online sync', 'job costing and the WIP schedule', 'RFI and submittal logs', 'estimates', 'daily reports', 'insurance certificates'],
+    planned: [],
     freeToday: ['pay-application-generator', 'pay-app-guides', 'retainage-cashflow-calculator', 'lien-waiver-checker'],
   },
   {
@@ -111,6 +114,7 @@ export const PROBLEMS = [
       ['pay-app-guides/retainage-release.html', 'Retainage release', 'The closeout documents usually asked for, a release date, and a request letter.'],
       ['pay-app-guides/retainage-in-quickbooks.html', 'Retainage in QuickBooks Online', 'The account, item and invoice lines QuickBooks needs, since it has no retainage field.'],
       ['pay-app-guides/gc-portal-billing.html', 'Billing in Procore, Textura and GCPay', 'Where your pay app numbers go in each GC portal, and why a GCPay SOV upload is refused.'],
+      ['pay-app-guides/progress-billing.html', 'Progress billing and draw schedules', 'Milestone draws against percent-complete pay apps, the deposit and retainage on each invoice, and the next progress invoice worked out.'],
       ['pay-app-guides/overbilling-underbilling.html', 'Overbilling and underbilling', 'Billed to date against cost-to-cost percent complete for one job, with the adjusting entry.'],
       ['retainage-cashflow-calculator', 'Retainage cash-flow calculator', 'How much retainage is held, what carrying it costs, and a follow-up draft.'],
       ['subcontractor-cashflow-planner', 'Subcontractor cash-flow planner', 'The funding gap that payment terms and retention open, and what closes it.'],
@@ -148,6 +152,8 @@ export const PROBLEMS = [
       ['pay-app-guides/california-preliminary-notice.html', 'California 20-day preliminary notice', 'Working a private California job? Who gets the notice, the last day by delivery method, what a late one covers, and a printable draft.'],
       ['pay-app-guides/miller-act-payment-bond-claims.html', 'Miller Act bond claim deadlines', 'Not paid on a federal job? Who can claim on the payment bond, the 90-day notice date, the one-year limit, and a notice to the prime.'],
       ['pay-app-guides/pay-app-cash-forecast.html', 'When will I get paid? Cash forecast', 'Each job’s pay-app cutoff and pay terms in; the week each payment lands, late money and your first short week out.'],
+      ['pay-app-guides/how-to-write-an-rfi.html', 'How to write an RFI', 'One question, the sheet and spec section, a proposed answer and a needed-by date: draft an RFI the GC answers fast, and catch answers that should be change orders.'],
+      ['pay-app-guides/certificate-of-insurance-for-subcontractors.html', 'Certificates of insurance', 'What a GC checks on your ACORD 25, the endorsement pages that prove additional insured and waiver of subrogation, and renewals that don’t stall a pay app.'],
       ['pay-app-guides/pay-application-software-compared.html', 'Pay application software compared', 'Spreadsheet, QuickBooks, Knowify, PayAppHub, Trimble Pay and Siteline, and what GC portals charge the sub.'],
     ],
   },
@@ -340,7 +346,8 @@ export function renderConstructionPage({
         <h3>${escapeHtml(p.name)}</h3>
         <p><span class="ic-status ic-${escapeHtml(p.status)}">${escapeHtml(STATUS_LABELS[p.status])}</span></p>
         <p class="ic-who">${escapeHtml(p.for)}</p>
-        <p>${escapeHtml(p.summary)}</p>${p.planned.length ? `
+        <p>${escapeHtml(p.summary)}</p>${p.built?.length ? `
+        <p class="ic-built">Built, in testing (not open yet): ${escapeHtml(p.built.join(', '))}.</p>` : ''}${p.planned.length ? `
         <p class="ic-planned">Planned: ${escapeHtml(p.planned.join(', '))}.</p>` : ''}${free.length ? `
         <p class="ic-free">Try the free version of part of it now: ${free.map(toolLink).join(', ')}.</p>` : ''}${shot && shot !== leadShot ? figure(shot, 'ic-still', true, '(max-width: 640px) calc(100vw - 66px), 440px') : ''}
       </article>`;

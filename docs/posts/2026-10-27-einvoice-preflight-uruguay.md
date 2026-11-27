@@ -3,6 +3,7 @@ title: "E-invoice Preflight adds Uruguay, with a RUT check-digit test"
 date: 2026-10-27
 description: "A Uruguay mandate page with a local tax-number check, and the one sample the check rests on."
 tags: [einvoice-preflight, e-invoicing, uruguay]
+folded_into: einvoice-preflight/uruguay-dgi-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Uruguay](../../ventures/einvoice-preflight/uruguay-dgi-e-invoice-mandate.html), the 46th in the all-countries table.

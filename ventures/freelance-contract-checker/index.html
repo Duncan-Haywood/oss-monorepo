@@ -150,7 +150,7 @@
       last = { r, s };
       $("#verdict").textContent = VERDICT_TEXT[r.verdict];
       const x = r.extracted;
-      $("#facts").textContent = `Payment due found: ${x.days ? x.days + " days" : "none"}. Revision rounds found: ${x.revisions ?? "none"}.${x.fee ? " Fee: " + dollars(x.fee) + "." : ""}`;
+      $("#facts").textContent = `Payment due found: ${x.days != null ? x.days + " days" : "none"}. Revision rounds found: ${x.revisions ?? "none"}.${x.fee ? " Fee: " + dollars(x.fee) + "." : ""}`;
       $("#report-findings").innerHTML = r.findings.length
         ? r.findings.map((g) => `<div class="finding"><span class="pill ${g.severity}">${g.severity}</span><strong>${esc(g.title)}</strong><br>${esc(g.why)}<br><em>Ask for:</em> ${esc(g.ask)}</div>`).join("")
         : '<div class="finding">Nothing flagged by these rules. They read wording only and cannot tell you the contract is fair or enforceable.</div>';

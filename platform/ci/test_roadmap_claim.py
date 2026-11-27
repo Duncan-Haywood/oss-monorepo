@@ -191,9 +191,45 @@ class ClaimRaceTest(unittest.TestCase):
         run(self.a, "-c", "user.name=t", "-c", "user.email=t@example.invalid", "commit", "-q", "-m", "base")
         run(self.a, "push", "-q", "origin", "HEAD:refs/heads/main")
         run(t, "clone", "-q", str(bare), str(self.b))
+        # No public copy unless a test makes one: the real repository must not leak in.
+        self.public = mock.patch.object(rc, "PUBLIC_ROOT", t / "no-public-repo")
+        self.public.start()
 
     def tearDown(self):
+        self.public.stop()
         self.tmp.cleanup()
+
+    def test_app_moved_to_this_repository_is_read_and_claimed_here(self):
+        # PayApps moved to ventures/payapps on 2026-11-27; the private copy goes stale.
+        t = Path(self.tmp.name)
+        pub = t / "public"
+        run(t, "clone", "-q", str(t / "origin.git"), str(pub))
+        app = pub / "ventures" / "payapps" / "apps" / "payapps"
+        app.mkdir(parents=True)
+        (app / "ROADMAP.md").write_text(NUMBERED)
+        missing = t / "no-private-clone"
+        with mock.patch.object(rc, "PUBLIC_ROOT", pub):
+            self.assertEqual(rc.app_home("payapps", str(missing)), (str(pub), app))
+            self.assertEqual(rc.app_home("cmmc", str(missing)), (str(missing), missing / "apps" / "cmmc"))
+            code, out = self.main(missing)
+            self.assertEqual(code, 0, out)
+            self.assertIn("lives in this repository (ventures/payapps/apps/payapps)", out)
+            self.assertIn("billing-part-2", out)
+            self.assertNotIn("quickbooks-part-5", out)
+            code, out = self.main(missing, "--claim", "4")
+            self.assertEqual(code, 0, out)
+            self.assertIn("CLAIMED claim/payapps/billing-part-2", out)
+            bets = t / "bets.md"
+            bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                            "| 1 | **Pay apps** | `ventures/payapps/apps/payapps` |\n"
+                            "| 2 | **CMMC** | new `private-monorepo/apps/cmmc` |\n")
+            code, out = self.main(missing, "--bets", "--bets-md", str(bets), app=None)
+        self.assertEqual(code, 0, out)
+        self.assertIn("listing only the bets whose app is in this repository", out)
+        self.assertIn("payapps: 2 Next, free and not gated: #3; 1 live claim(s)", out)
+        self.assertIn(f"claims in {pub}", out)
+        self.assertIn("cmmc: not in this clone", out)
+        self.assertRegex(out, r"Start here: bet #1 payapps, item #3 ")
 
     def main(self, repo, *argv, now=None, run=None, app="payapps"):
         """Each clone stands for one session (run tag = its path) unless `run` says otherwise."""

@@ -9,3 +9,7 @@
 # Applies to local `git merge`; GitHub's web conflict check ignores it.
 # Keep union off prose and code: on a line both sides changed it keeps both.
 ventures/**/sitemap.xml merge=union
+
+# Real blobs from history, pinned by git blob id in page-integrity.test.mjs:
+# no end-of-line or filter conversion may touch their bytes.
+platform/webcheck/fixtures/*.blob -text

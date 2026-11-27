@@ -55,6 +55,7 @@ import json
 import os
 import bisect
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -392,7 +393,7 @@ def rule_missing_referenced_script(wf: WorkflowFile, repo_root: Path) -> list[Fi
             if not isinstance(run, str):
                 continue
             for match in dict.fromkeys(SCRIPT_REFERENCE.findall(run)):
-                if (repo_root / match).exists():
+                if (repo_root / match).exists() or _tracked_in_sparse(repo_root, match):
                     continue
                 guarded = any(token in run for token in SILENCING)
                 line = wf.lines.get(("jobs", job.name, "steps", index, "run"))
@@ -713,7 +714,7 @@ def _expand_prompt_path(
             if p.is_file() and not _pruned(p, repo_root)
         )
 
-    if (repo_root / normalised).is_file():
+    if (repo_root / normalised).is_file() or _tracked_in_sparse(repo_root, normalised):
         return [normalised]
 
     if "/" not in normalised:
@@ -828,7 +829,53 @@ def _file_index(repo_root: Path) -> list[str]:
                         files.append(f"{rel}/{name}" if rel else name)
                 except OSError:
                     continue
+    tracked = _sparse_tracked(repo_root)
+    if tracked:
+        # A sparse checkout leaves most tracked files off the disk, but they
+        # are still in the repository, which is what the closure counts.
+        on_disk = set(files)
+        files.extend(
+            f for f in tracked
+            if f not in on_disk and not any(part in PRUNED_DIRS for part in f.split("/"))
+        )
     return sorted(files)
+
+
+@functools.lru_cache(maxsize=None)
+def _sparse_tracked(repo_root: Path) -> frozenset[str]:
+    """Tracked files when `repo_root` is the top of a sparse checkout, else empty.
+
+    CI checks this repository out sparse (Markdown, `.github/` and this probe:
+    the only files whose contents the probe reads), because a full checkout
+    of ~80k files was two thirds of the job. The closure and R1 still have to
+    see every tracked path, so they consult git's index for the files the
+    sparse checkout left off the disk. A full checkout returns empty and the
+    probe reads the disk exactly as before, untracked files included.
+    """
+    root = str(repo_root)
+
+    def git(*args: str) -> str | None:
+        try:
+            proc = subprocess.run(
+                ["git", "-C", root, *args], capture_output=True, text=True, check=False
+            )
+        except OSError:
+            return None
+        return proc.stdout if proc.returncode == 0 else None
+
+    if (git("config", "--bool", "core.sparseCheckout") or "").strip() != "true":
+        return frozenset()
+    top = git("rev-parse", "--show-toplevel")
+    if top is None or Path(top.strip()).resolve() != Path(root).resolve():
+        return frozenset()
+    listed = git("ls-files", "-z")
+    return frozenset(f for f in (listed or "").split("\0") if f)
+
+
+def _tracked_in_sparse(repo_root: Path, rel: str) -> bool:
+    """Is `rel` a tracked file that a sparse checkout left off the disk?"""
+    tracked = _sparse_tracked(repo_root)
+    return bool(tracked) and os.path.normpath(rel) in tracked
 
 
 @functools.lru_cache(maxsize=None)

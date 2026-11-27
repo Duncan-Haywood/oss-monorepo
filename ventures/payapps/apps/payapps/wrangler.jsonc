@@ -1,0 +1,32 @@
+// PayApps — Cloudflare Worker configuration. Deployed by .github/workflows/payapps-deploy.yml, whose
+// scripts/provision.mjs creates D1 and R2 and adds the database id to the deploy config (docs/DEPLOY.md).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "payapps",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "preview_urls": false,
+  "upload_source_maps": true,
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  // Cloudflare Email Service (account mail; docs/EMAIL.md). Mail goes out only once EMAIL_FROM is set
+  // to an address on an onboarded sender domain; `wrangler dev` only simulates sends.
+  "send_email": [{ "name": "EMAIL" }],
+  // Every hour: the weekly "money to chase" email to members whose chosen weekday and hour have come
+  // in their own time zone (services/payapps/digest.ts; opt-in per member), and on Mondays at
+  // 13:00 UTC only the getting-started reminders (src/worker/index.ts).
+  "triggers": { "crons": ["0 * * * *"] },
+  "d1_databases": [{ "binding": "DB", "database_name": "payapps", "migrations_dir": "migrations" }],
+  // Pay-app attachments (services/payapps/attachments.ts). The deploy creates it;
+  // private, no public URL.
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "payapps-files" }],
+  "vars": {
+    "APP_ENV": "development",
+    "APP_URL": "http://localhost:5173",
+    "BILLING_PROVIDER": "none"
+  }
+}

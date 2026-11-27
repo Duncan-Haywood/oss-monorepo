@@ -30,7 +30,7 @@ Homeowners shop "$4,500 automatic gate" and "$350 a foot." Those numbers
 cannot see the style. A 12-foot single aluminum swing on existing posts
 at the sample rates is about $6,506. The same shop's 16-foot dual steel
 swing with masonry columns, two loops, a keypad, and a solar kit is
-about $20,440 — and almost half of that cost is columns, loops, power, and
+about $21,221 — and about 44% of that cost is columns, loops, power, and
 access. Matching the kit special on the dual masonry job is how a sold
 gate becomes a two-day loss after the first loop sawcut.
 
@@ -80,6 +80,12 @@ Events counted: `bid_calculated`, `preset_applied`, `style_changed`,
 
 ## Limitations
 
+- Leaf dollars and hang hours are per lineal foot at the height the rates are
+  quoted at (**Leaf rates quoted at height**, 5 ft by default) and scale with
+  the leaf height: a 6 ft leaf on 5 ft rates is 1.2x, a 10 ft leaf 2x. Fixed
+  2026-11-27 after the quality audit found leaf height priced nothing. The
+  operator still does not scale with height or weight (below).
+
 - Single currency and no tax handling; the shop enters their own numbers.
 - Starting hours and kit rates are ballpark figures, not a catalog,
   a UL 325 determination, or an electrical design.
@@ -92,10 +98,6 @@ Events counted: `bid_calculated`, `preset_applied`, `style_changed`,
 Known gaps from the 2026-11-26 quality audit
 ([`../../portfolio/quality/audits/2026-11-26-automatic-driveway-gate-bid-calculator.json`](../../portfolio/quality/audits/2026-11-26-automatic-driveway-gate-bid-calculator.json)):
 
-- **Leaf height does not change the price.** It is validated and printed on
-  the proposal, but leaf cost, hang hours and the operator ignore it: a 5 ft
-  and a 10 ft leaf price the same (`calc.mjs`, `gatePerLf` is effectively a
-  6 ft rate).
 - Operators are not sized to gate weight or length; a slide leaf is priced
   at the opening width with no cantilever tail or track line.
 - One photo-eye kit per job, whatever the style; UL 325 (2016 on) needs

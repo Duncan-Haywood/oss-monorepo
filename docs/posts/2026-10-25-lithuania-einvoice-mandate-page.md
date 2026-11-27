@@ -4,6 +4,7 @@ seo_title: "Lithuania e-invoicing: public buyers since 2017, no B2B mandate"
 date: 2026-10-25
 description: "einvoice-preflight now has a Lithuania page that separates what is in force (SABIS, i.SAF) from the 2028 and 2030 dates secondary sources float."
 tags: [einvoice-preflight, lithuania, e-invoicing, peppol]
+folded_into: einvoice-preflight/lithuania-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) had pages for Latvia

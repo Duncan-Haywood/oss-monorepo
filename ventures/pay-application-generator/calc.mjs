@@ -208,7 +208,7 @@ export function summaryText(result, s = {}) {
   ].filter((x, i, a) => x !== "" || a[i - 1] !== "").join("\n");
 }
 
-const q = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+const q = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236): a cell starting = + - @ tab or CR runs as a formula in a spreadsheet
 const plain = (c) => (c / 100).toFixed(2);
 export function scheduleCsv(result) {
   const head = ["Item", "Description", "Scheduled value", "Previous", "This period", "Stored", "Total completed and stored", "Percent", "Balance to finish", "Retainage amount"];

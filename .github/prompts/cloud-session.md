@@ -31,6 +31,11 @@ background it, only if you need it all.
 
 ## Reaching `private-monorepo` (the bets' code)
 
+**PayApps (bet #1) is not there any more:** it moved to `ventures/payapps` on 2026-11-27
+(`ventures/payapps/DEPLOY.md`). Build it in this clone; `roadmap_claim.py payapps` reads
+`ventures/payapps/apps/payapps/ROADMAP.md` and claims on this repository's origin, with no
+private clone. The steps below are for the bets still in `private-monorepo`.
+
 A clone of `Duncan-Haywood/private-monorepo` fails until the repository is
 attached to the session. Ten run records from 2026-11-24/25 say "clone refused"
 and built only the bet's public side, while other runs the same day shipped

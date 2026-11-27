@@ -172,3 +172,17 @@ test('early access goes somewhere private: the edge form, or the inbox by email;
     assert.ok(!/published in the project/.test(html));
   }
 });
+
+test('built pay-app modules show as built and in testing, never as planned or available', () => {
+  const html = renderConstructionPage({ baseUrl: BASE });
+  const card = /<article class="ic-product" id="product-pay-apps">([\s\S]*?)<\/article>/.exec(html)[1];
+  assert.match(card, /Built, in testing \(not open yet\): QuickBooks Online sync/);
+  assert.doesNotMatch(card, /Planned: QuickBooks/);
+  assert.match(card, /In development · early access/);
+  // Each built module must be in the app's ROADMAP "Done" list.
+  const roadmap = readFileSync(path.join(ROOT, 'ventures/payapps/apps/payapps/ROADMAP.md'), 'utf8');
+  const done = roadmap.slice(roadmap.indexOf('## Done'), roadmap.indexOf('## Next'));
+  for (const heading of ['QuickBooks Online', 'Job costing, part 1', 'RFI log', 'Submittal log', 'Estimates, part 1', 'Daily reports, part 1', 'Insurance certificates']) {
+    assert.ok(done.includes(`- ${heading}`), `${heading} is in ROADMAP Done`);
+  }
+});

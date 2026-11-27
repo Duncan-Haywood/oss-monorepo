@@ -1,0 +1,1 @@
+ALTER TABLE `change_orders` ADD `submitted_on` text;

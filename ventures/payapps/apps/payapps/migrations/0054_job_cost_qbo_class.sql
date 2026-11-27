@@ -1,0 +1,1 @@
+ALTER TABLE `job_cost_qbo_links` ADD `match_by` text DEFAULT 'customer' NOT NULL;

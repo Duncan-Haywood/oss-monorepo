@@ -4,6 +4,7 @@ date: 2026-11-03
 seo_title: "E-invoice Preflight adds Albania"
 description: "Albania page: invoices cleared by the tax authority, B2G from 1 January 2021, cashless B2B from 1 July 2021, UBL 2.1 or CII signed with an AKSHI certificate."
 tags: [einvoice-preflight, e-invoicing, albania]
+folded_into: einvoice-preflight/albania-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Albania](../../ventures/einvoice-preflight/albania-e-invoice-mandate.html), the 74th in the all-countries table. Vendor and compliance guides say Law 87/2019 set up a clearance system run by the General Directorate of Taxes: government buyers from 1 January 2021, cashless business-to-business sales from 1 July 2021, cash sales to consumers from 1 September 2021. Each invoice is checked and returned with a unique number (NIVF) and a security code (NSLF), shown as a QR code on the PDF. Files are UBL 2.1 or UN/CEFACT CII, signed with a certificate from the national agency AKSHI. It is not Peppol.

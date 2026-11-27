@@ -23,7 +23,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "joint.mjs", "forecast.mjs", "millerbond.mjs", "prelim.mjs", "tmlog.mjs", "usage.mjs", "sumview.mjs", "gcportal.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "joint.mjs", "forecast.mjs", "millerbond.mjs", "prelim.mjs", "tmlog.mjs", "progress.mjs", "usage.mjs", "sumview.mjs", "gcportal.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -317,10 +317,10 @@ test("Miller Act page: inputs labelled, statute and FAR linked with a read date,
 // so in a form an answer engine can lift. Each question must also be an h3 in
 // the page's visible "Common questions" section.
 const FAQ_PAGES = [
-  "california-preliminary-notice.html", "change-order-log.html", "change-orders-schedule-of-values.html",
+  "california-preliminary-notice.html", "certificate-of-insurance-for-subcontractors.html", "change-order-log.html", "change-orders-schedule-of-values.html",
   "conditional-vs-unconditional-lien-waivers.html", "gc-portal-billing.html",
-  "front-loading-schedule-of-values.html", "how-to-fill-out-a-pay-application.html",
-  "index.html", "joint-checks.html", "lien-waiver-forms-by-state.html",
+  "front-loading-schedule-of-values.html", "how-to-fill-out-a-pay-application.html", "progress-billing.html",
+  "how-to-write-an-rfi.html", "index.html", "joint-checks.html", "lien-waiver-forms-by-state.html",
   "lien-waiver-log.html", "miller-act-payment-bond-claims.html",
   "overbilling-underbilling.html", "paid-short.html", "pay-app-cash-forecast.html",
   "pay-application-checker.html", "pay-application-software-compared.html",
@@ -350,4 +350,25 @@ test("every guide page carries an FAQ (a new guide ships with one)", () => {
   const all = readdirSync(new URL(".", import.meta.url)).filter((f) => f.endsWith(".html"));
   const missing = all.filter((f) => !FAQ_PAGES.includes(f));
   assert.deepEqual(missing, [], `add a "Common questions" section and FAQPage JSON-LD, then list the page in FAQ_PAGES: ${missing.join(", ")}`);
+});
+
+test("certificate of insurance guide: says the certificate is not the coverage, names each endorsement, cites and dates its sources", () => {
+  const html = page("certificate-of-insurance-for-subcontractors.html");
+  assert.match(html, /confers no rights on the certificate holder/);
+  for (const form of ["CG 20 10", "CG 20 37", "CG 24 04", "CG 20 01"]) assert.match(html, new RegExp(form), form);
+  assert.match(html, /read 2026-11-27/);
+  assert.match(html, /secondary sources/);
+  const links = [...html.matchAll(/href="(https:[^"]+)"/g)].map((m) => m[1]).filter((h) => !/marisstella|github\.com\/sponsors/.test(h));
+  assert.ok(links.length >= 5, `only ${links.length} sources`);
+  assert.match(page("index.html"), /href="certificate-of-insurance-for-subcontractors\.html"/);
+});
+
+test("RFI guide: drafter inputs labelled, wired to rfi.mjs, linked from the tools and the T&M page", () => {
+  const html = page("how-to-write-an-rfi.html");
+  for (const id of ["number", "project", "to", "from", "sent", "subject", "drawings", "spec", "question", "proposal", "impact", "due", "reason", "attachments", "out"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.match(html, /from "\.\/rfi\.mjs"/);
+  assert.match(html, /does not authorize extra work/);
+  assert.match(html, /record\("guide_rfi_viewed"\)/);
+  assert.match(html, /No warranty/);
+  assert.match(page("tm-tickets.html"), /href="how-to-write-an-rfi\.html"/);
 });

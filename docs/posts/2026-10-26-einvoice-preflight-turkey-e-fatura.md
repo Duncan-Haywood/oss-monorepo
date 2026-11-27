@@ -3,6 +3,7 @@ title: "E-invoice Preflight adds Turkey, and says what it cannot check"
 date: 2026-10-26
 description: "Turkey's e-Fatura and e-Arşiv rules summarised from vendor guides, with a plain statement that a free EN 16931 checker has no UBL-TR rules."
 tags: [einvoice-preflight, e-invoicing, turkey, compliance]
+folded_into: einvoice-preflight/turkey-e-invoice-mandate
 ---
 
 [E-invoice Preflight](../../ventures/einvoice-preflight/) now has a page for Turkey, its 36th country. Vendor guides report that e-Fatura is mandatory from TRY 3 million in gross sales (TRY 500,000 in listed sectors such as e-commerce, real estate, construction and motor vehicles), that businesses outside it issue e-Arşiv, and that the TRY 3,000 per-invoice threshold for e-Arşiv went on 1 January 2026.

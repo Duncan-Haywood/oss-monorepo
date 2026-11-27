@@ -3,6 +3,7 @@ title: "Slovenia's e-invoice law has three enactment dates"
 date: 2026-11-01
 tags: [e-invoicing, slovenia, compliance]
 description: Slovenia's B2B e-invoicing start (1 Jan 2028) is firm in every source we found, but the enactment date is not. Here is what conflicts and how we show it.
+folded_into: einvoice-preflight/slovenia-e-invoice-mandate
 ---
 
 Slovenia's mandatory B2B e-invoicing starts on 1 January 2028 in every source

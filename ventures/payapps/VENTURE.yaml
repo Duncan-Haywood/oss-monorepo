@@ -1,0 +1,30 @@
+name: payapps
+description: >-
+  Hosted pay-application billing for specialty subcontractors and small GCs: schedule of values,
+  change orders, retainage, an application-and-continuation-sheet PDF in our own layout (not an AIA
+  document), lien waivers, insurance certificates and QuickBooks Online sync, sold by subscription
+  ($0/$99/$179/$249 a month by active jobs; apps/payapps/src/shared/plans.ts).
+stage: prototype
+owner: duncan
+
+# Bet #1 in portfolio/monetization/bets.md. Moved from private-monorepo on 2026-11-27 (task
+# move-payapps-public); not deployed yet (DEPLOY.md). Free front door: ventures/pay-application-generator.
+hypotheses:
+  - claim: Specialty subcontractors will pay about $99-249 a month for pay apps, retainage and lien waivers with QuickBooks sync in one place.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+budget:
+  monthly_cap: 50
+  protected: true
+kill_criteria:
+  - No paying customer after 90 days post-launch.
+  - Monthly cost exceeds MRR for 3 consecutive months past `revenue` stage.
+links:
+  production: null
+  analytics: null

@@ -43,23 +43,24 @@ concurrency:
 jobs:
   page-integrity:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
-    # A full-history checkout plus a node --test sweep over every venture
+    # A one-commit checkout plus a node --test sweep over every venture
     # page -- normally under 30s. See hetzner-gitops-ci.yml's timeout-minutes
     # addition for why an unbounded job is worth capping on a
-    # metered-minutes account; fetch-depth: 0 below is the one step here with
+    # metered-minutes account; the checkout below is the one step here with
     # any real network variance.
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-          # The checker's tests read historical blobs of a page that shipped
-          # broken, so they need real history rather than a shallow clone.
-          # Blob-less: every commit and tree, but only the blobs something
-          # reads (HEAD's, plus the few old ones git fetches on demand).
-          # 33s instead of 279s and 5.3 GB; all 61 tests pass, none skip
-          # (docs/history/ci-perf-2026-10-21.md).
-          fetch-depth: 0
+          # One commit, blob-less. The checker's tests once read historical
+          # blobs of pages that shipped broken with `git show`, which needed
+          # every commit and tree (fetch-depth: 0; 33s instead of 279s,
+          # docs/history/ci-perf-2026-10-21.md). Those blobs now live in
+          # platform/webcheck/fixtures/, pinned by git blob id, so nothing here
+          # reads history: checkout is the job's largest step
+          # (docs/history/ci-perf-2026-11-27-page-integrity-shallow.md).
+          fetch-depth: 1
           filter: blob:none
           # Sparse and blob-less: the job reads HTML, JS, JSON and YAML under
           # ventures/, platform/ and portfolio/ (build.mjs imports

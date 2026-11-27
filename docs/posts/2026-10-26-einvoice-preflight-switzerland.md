@@ -3,6 +3,7 @@ title: "E-invoice Preflight adds Switzerland: federal suppliers only"
 date: 2026-10-26
 description: "Switzerland requires e-invoices from suppliers to the federal administration, not between businesses; the page says which claims sources disagree on."
 tags: [einvoice-preflight, e-invoicing, switzerland, compliance]
+folded_into: einvoice-preflight/switzerland-e-invoice-mandate
 ---
 
 [E-invoice Preflight](../../ventures/einvoice-preflight/) now has a Switzerland page, its 37th country. Vendor guides report that suppliers on federal contracts of CHF 5,000 or more have had to send e-invoices since 2016, and that no private B2B mandate or timeline exists.

@@ -1,0 +1,105 @@
+# Wyo. Stat. § 29-10-101, text as published by the Wyoming Legislature (Title 29, Liens).
+# Source: https://wyoleg.gov/statutes/compress/title29.pdf (PDF created 2026-05-08, sha256
+# e0ffc1c364563141f04c7cf685f8984abe2cd6e5b885f8bf67d03d7f8dbed383).
+# Fetched: 2026-11-25 (pdftotext -layout; page breaks and blank lines removed, leading spaces
+# trimmed; a printed rule is "____"; wording unchanged).
+# Public law. Used by test/wy.test.ts and test/whole-form.test.ts to check the encoded form.
+CHAPTER 10 - FORMS
+29-10-101.   Preliminary notice of right to lien; lien
+waiver form.
+(a) Preliminary notice of right to a lien shall be sent to
+the record owner of the property against which the lien may be
+filed and shall be completed in substantially the following
+form:
+Note to Lien Claimant: This form, if filled out correctly and
+sent within the time periods specified in W.S. 29-2-112,
+constitutes prima facie evidence that you have provided the
+content of the notice required by W.S. 29-2-112(a)(i). If you
+have any questions regarding how to fill out this form or
+whether it has been filled out properly, you should consult an
+attorney.
+NOTICE TO OWNER
+The undersigned party is providing work or materials to the
+property described below. Failure of payment due and owing to a
+contractor, subcontractor or materialman for work performed or
+materials provided to the project located on the property can
+result in the filing of a lien against the property. To avoid
+this result, when paying for labor and materials you may ask the
+contractor, subcontractor or materialman for "lien waivers" from
+all persons supplying materials or services. Failure to secure
+lien waivers may result in your paying for labor and materials
+twice. A form of lien waiver is attached to this notice.
+Name, address and telephone number of contractor, subcontractor
+or materialman, and contact person:
+________________________________________________________________
+________________________________________________________________
+________________________________________________________________
+MATERIALS PROVIDED OR WORK PERFORMED:
+________________________________________________________________
+________________________________________________________________
+________________________________________________________________
+PROPERTY DESCRIPTION:
+________________________________________________________________
+________________________________________________________________
+________________________________________________________________
+ADDRESS:
+________________________________________________________________
+________________________________________________________________
+________________________________________________________________
+LEGAL DESCRIPTION:
+________________________________________________________________
+________________________________________________________________
+________________________________________________________________
+SIGNED: ________________
+DATE: __________________
+(b) The form for waiver of a lien shall be completed in
+substantially the following form:
+Note to lien claimant: Signing this form has legal
+implications. If you have any questions regarding how to
+complete this form or whether it has been properly completed,
+you should consult an attorney.
+LIEN WAIVER
+TO:_____________________         PROJECT:_____________________
+FROM:________________________
+DATE:________________________
+PAYMENT: $____________________
+In consideration of the PAYMENT received to date, the
+undersigned does hereby waive, release, and relinquish any and
+all claim and/or right of lien against the project and the real
+property improvements thereto for labor and/or materials
+furnished for use in construction of the project; provided
+however, the undersigned reserves all claims and/or rights of
+lien as to monies withheld as retainage in the amount of
+$_______________, and any labor and/or materials hereafter
+furnished for which payment has not yet been made. The
+undersigned has not been paid the sum of $________________ for
+work performed and/or materials provided under contract on this
+project and retains the right to file a lien against the
+property and pursue any and all actions to recover the full
+amount due, including any and all equitable claims. The
+undersigned acknowledges receipt of payment for work performed
+or materials provided and acknowledges that this waiver may be
+relied upon by the owner even if the undersigned accepts payment
+in uncertified funds and such payment is subsequently dishonored
+or revoked, in which case this lien waiver shall remain in full
+force and effect. The foregoing waiver shall not apply,
+however, if payment tendered by the owner is dishonored or
+revoked.
+By:__________________________________
+subcontractor/materialman/employee
+Title:_______________________________
+Date:________________________________
+STATE OF __________________      )
+)ss.
+COUNTY OF ________________       )
+This instrument was acknowledged before me on this _____
+day of _____________, 20___, by _____________________ (name of
+person) as lien claimant or ______________________ (title,
+position or type of authority granted by lien claimant) of
+_____________________________ (lien claimant).
+IN WITNESS THEREOF, I have hereunto set my hand and affixed
+my official seal on the day and year last above written.
+______________________________
+Notarial officer
+My Commission Expires:
+Seal:

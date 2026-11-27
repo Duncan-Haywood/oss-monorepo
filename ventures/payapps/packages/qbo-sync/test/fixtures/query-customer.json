@@ -1,0 +1,17 @@
+{
+  "QueryResponse": {
+    "Customer": [
+      {
+        "Id": "58",
+        "SyncToken": "2",
+        "DisplayName": "Mesa Ridge Builders",
+        "CompanyName": "Mesa Ridge Builders LLC",
+        "PrimaryEmailAddr": { "Address": "ap@mesaridge.example" },
+        "Active": true
+      }
+    ],
+    "startPosition": 1,
+    "maxResults": 1
+  },
+  "time": "2026-11-24T10:00:00.000-08:00"
+}

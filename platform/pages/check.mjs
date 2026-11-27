@@ -203,6 +203,13 @@ const DISCLAIMER_MARKER = /no warranty/i;
 // contradiction worth reporting; one declaring it and staying out is correct.
 const NOINDEX_RE = /<meta name="robots" content="noindex">/i;
 
+/** A noindex page whose zero-second refresh names its own canonical: a redirect, not a page. */
+export function isRedirectPage(html, canonicalHref) {
+  if (!NOINDEX_RE.test(html)) return false;
+  const refresh = /<meta http-equiv="refresh" content="0; url=([^"]+)">/i.exec(html);
+  return Boolean(refresh) && refresh[1] === canonicalHref;
+}
+
 // The budget a published description has to fit, restated rather than imported.
 // This file checks the artifact `build.mjs` produced and is deliberately not
 // built out of it, so importing the builder to learn its own limit would let a
@@ -1326,6 +1333,13 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
       const html = await readPage(relative);
       const canonical = /<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["']/i.exec(html);
       if (!canonical) continue;
+      // A folded post's old URL (`foldedStub` in writing.mjs) canonicalises on
+      // the page that absorbed it, by design. Only a page that is all three
+      // (noindex, a zero-second refresh, to that same canonical) counts.
+      if (isRedirectPage(html, canonical[1])) {
+        if (!canonical[1].startsWith(prefix)) problems.push(`${relative}: redirect points outside this site -> ${canonical[1]}`);
+        continue;
+      }
       if (/^https?:/i.test(canonical[1]) && !canonical[1].startsWith(prefix)) {
         problems.push(`${relative}: canonical points outside this site -> ${canonical[1]}`);
         continue;

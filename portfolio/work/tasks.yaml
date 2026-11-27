@@ -619,8 +619,9 @@ tasks:
       exit on any finding; tests with planted examples; its output on
       apps/payapps and the packages PayApps imports, in the PR.
     hours: 6
-    status: open
+    status: done
     added: 2026-11-27
+    pr: 19563
   - id: move-payapps-public
     direction: paid-bets
     title: Move PayApps and the packages it imports into this repository (step 4 of products-to-public-repo)
@@ -635,7 +636,15 @@ tasks:
     hours: 12
     status: open
     added: 2026-11-27
-    blocked_on: public-repo-audit
+    notes: >-
+      Part 1 done 2026-11-27: ventures/payapps holds the app, the site and the
+      four packages (private-monorepo 03e2e560), all rights reserved, with
+      .github/workflows/payapps-ci.yml and the audit in
+      docs/reports/2026-11-27-move-payapps-public.md. Left (ventures/payapps/DEPLOY.md,
+      "Then"): port payapps-deploy.yml as priv-payapps-deploy.yml in its own
+      PR, deploy once, then remove the private copy and repoint models.yaml,
+      bets.md and roadmap_claim.py. Until then private-monorepo is where runs
+      build; refresh this copy with ventures/payapps/sync-from-private.sh.
   - id: move-jobshop-quote-public
     direction: paid-bets
     title: Move Job Shop Quote and the packages it imports into this repository (step 4 of products-to-public-repo, bet #2)
@@ -674,7 +683,12 @@ tasks:
       permissions only the owner can grant, so the SES route (aws-ses-email)
       is the one with no owner step, and the owner chose it the same day
       ("all iac stuff instead we will do on aws instead once we fully move";
-      asks.yaml, aws-turnover).
+      asks.yaml, aws-turnover). Progress 2026-11-27: the SES route's store,
+      platform/email/aws/dynamo-store.mjs (DynamoDB rows + S3 raw MIME),
+      passes the store contract and runs the service end to end. Left: the
+      table, bucket and generated tokens (random_password into Secrets
+      Manager) in platform/aws/stacks/email-ops, and the Lambda API entry
+      (README.md, "Portability", step 4).
   - id: paddle-key-check
     direction: paid-bets
     title: Report whether each Paddle key is the right kind, without printing it

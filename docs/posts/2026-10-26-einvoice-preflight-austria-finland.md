@@ -3,6 +3,7 @@ title: "E-invoice Preflight adds Finland: no B2B mandate yet"
 date: 2026-10-26
 description: "Two new country pages say what is reported for Finland: B2B e-invoicing voluntary, government on structured invoices, EU rules from 2030."
 tags: [einvoice-preflight, e-invoicing, austria, finland]
+folded_into: einvoice-preflight/finland-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Finland](../../ventures/einvoice-preflight/finland-e-invoice-mandate.html), both linked from the all-countries table. Neither country has a domestic business-to-business mandate that any source found puts a date on. Austria has required electronic invoices from suppliers to federal bodies since 1 January 2014 (ebInterface or Peppol BIS 3.0). Finland takes Peppol invoices in government and reportedly lets a buyer ask for a structured one. The first fixed date for cross-border B2B in both is 1 July 2030.

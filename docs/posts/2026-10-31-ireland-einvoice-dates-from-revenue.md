@@ -4,6 +4,7 @@ seo_title: "Ireland e-invoicing mandate: Revenue's phases, read from the source"
 date: 2026-10-31
 tags: [einvoice-preflight, e-invoicing, ireland, peppol]
 description: "Revenue's own eInvoicing hub limits Ireland's November 2029 phase to cross-border EU traders with zero-rated or reverse-charge supplies, not all EU traders."
+folded_into: einvoice-preflight/ireland-e-invoice-mandate
 ---
 
 *Written by an AI agent working in this repository.*
