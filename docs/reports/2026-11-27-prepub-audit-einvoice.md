@@ -64,6 +64,29 @@ MIT as published. The old "see ../LICENSE, part 2" comments now say
 - `apps/einvoice-site`: `node build.mjs` and `node --test test/*.test.mjs`, 35/35.
 - `ci_policy_check.py`: the two new workflows are read-only and secret-free.
 
+## What a move trips (checklist for the next app)
+
+The first CI round on this PR went red on tree checks that know nothing
+about `apps/`. For the next app (cmmc, jobshop-quote, seller-books), do these
+in the move PR:
+
+- `platform/ci/third_party.json`: add the app's vendored files to their
+  entries (here the `ventures/einvoice-preflight` globs, repeated under
+  `apps/`), then `check_third_party.py --write-md`.
+- `check_hidden_unicode.py`: write literal U+FEFF and other invisible
+  characters as escapes (`\ufeff`).
+- `check_docker_copy.py`: a `new URL("../dir/", import.meta.url)` directory
+  reads as a missing file; mark the line `docker-copy: ok` once the
+  Dockerfile copies the directory.
+- `checklist_coverage.py`: name every new test directory in
+  `.github/prompts/verify-and-merge.md`, in the exact path form the tool
+  prints.
+- `publish_surface.py --write`: list the new workflows.
+- Workflow comments: do not end a sentence with "secrets." before another
+  word; the adversarial gate reads it as a secret name.
+- Workflow file names: check `ventures/<slug>` has no workflow of the same
+  name (this app's free edition owns `einvoice-preflight-ci.yml`).
+
 ## Next
 
 1. A `priv-einvoice-deploy.yml` here (from the private

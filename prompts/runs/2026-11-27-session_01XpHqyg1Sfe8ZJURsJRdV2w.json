@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First draft overwrote the free edition's existing .github/workflows/einvoice-preflight-ci.yml with the paid app's CI; caught at commit review, restored, and renamed mine einvoice-pro-ci.yml."
+    "First draft overwrote the free edition's existing .github/workflows/einvoice-preflight-ci.yml with the paid app's CI; caught at commit review, restored, and renamed mine einvoice-pro-ci.yml.",
+    "First CI round: 5 red checks (third-party inventory, hidden U+FEFF, docker-copy false positive on a directory URL, checklist coverage for new test dirs, check_code_refs on a goals.md private-monorepo path now that apps/ exists, and the adversarial gate reading 'secrets.' + next word in a workflow comment as a secret). All fixed in one commit."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,18 @@
     {
       "file": "docs/reports/2026-11-27-prepub-audit-payapps.md",
       "issue": "Does not say that a moved app's CI file name may collide with an existing ventures/<slug> workflow (einvoice-preflight-ci.yml existed for the free edition)."
+    },
+    {
+      "file": "platform/ci/adversarial_gate/gate.py",
+      "issue": "workflow-escalation reads a prose comment ending 'never needs secrets.' followed by 'name:' or 'Biome' as secrets.NAME / secrets.BIOME; a comment-aware match would avoid it."
+    },
+    {
+      "file": "platform/ci/check_code_refs.py",
+      "issue": "Adding any apps/ file makes goals.md's Guardrails reference to private-monorepo's apps/grants path fail; Guardrails are append-only, so the checker had to learn to skip paths named as another repository's."
+    },
+    {
+      "file": "docs/reports/2026-11-27-prepub-audit-payapps.md",
+      "issue": "A moved app needs third_party.json, hidden_unicode, checklist_coverage and publish-surface updates; none of that is listed for the next mover."
     }
   ],
   "deviations": [
