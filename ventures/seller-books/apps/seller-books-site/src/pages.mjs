@@ -2,18 +2,28 @@
 // page as Markdown for llms-full.txt (written from the same content, so the two never disagree).
 import {
   EARLY_ACCESS_SUBSCRIBE_MESSAGE,
-  FAQ,
   FEATURES,
+  FREE_INCLUDES,
+  faqItems,
   NOT_TAX_ADVICE,
   PLATFORMS,
   SCHEDULE_C_LINES,
   SITE_NAME,
   SITE_URL,
-  SUMMARY,
+  summary,
   TAGLINE,
   TIERS,
 } from "./content.mjs";
-import { breadcrumbs, canonicalUrl, earlyAccessForm, esc, href, webPage } from "./html.mjs";
+import {
+  breadcrumbs,
+  callToAction,
+  canonicalUrl,
+  earlyAccessForm,
+  esc,
+  href,
+  webPage,
+} from "./html.mjs";
+import { appPrivacyUrl, launch, signupUrl } from "./launch.mjs";
 
 const IRS_SCHEDULE_C = "https://www.irs.gov/forms-pubs/about-schedule-c-form-1040";
 const IRS_MILEAGE = "https://www.irs.gov/tax-professionals/standard-mileage-rates";
@@ -32,6 +42,8 @@ const notTaxAdvice = `<p class="note">${esc(NOT_TAX_ADVICE)}</p>`;
 
 function home() {
   const path = "/";
+  const open = launch().open;
+  const SUMMARY = summary();
   const title = `${SITE_NAME}: ${TAGLINE}`;
   const description =
     "Bookkeeping for resellers on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop and Square: true profit after fees and cost of goods, and a Schedule C worksheet.";
@@ -43,10 +55,14 @@ function home() {
       `<li><a href="${href(`/platforms/${p.slug}`)}">${esc(p.name)}</a> <span class="muted">${esc(p.what)}</span></li>`,
   ).join("");
   const body = `<section class="hero wrap">
-  <p class="eyebrow">Early access</p>
+  <p class="eyebrow">${open ? "Open now · free on one platform" : "Early access"}</p>
   <h1>Know what you actually made on every sale</h1>
   <p class="lead">${esc(SUMMARY)}</p>
-  <p><a class="button" href="${href("/early-access")}">Join early access</a> <a class="button ghost" href="${href("/pricing")}">See proposed pricing</a></p>
+  <p>${
+    open
+      ? `<a class="button" href="${esc(signupUrl("/hero"))}">Start free</a> <a class="button ghost" href="${href("/pricing")}">See the plans</a>`
+      : `<a class="button" href="${href("/early-access")}">Join early access</a> <a class="button ghost" href="${href("/pricing")}">See proposed pricing</a>`
+  }</p>
 </section>
 <section class="wrap" aria-labelledby="problem-h">
   <h2 id="problem-h">Payout is not profit</h2>
@@ -66,14 +82,14 @@ function home() {
   </div>
 </section>
 <section class="wrap" aria-labelledby="what-h">
-  <h2 id="what-h">What ${esc(SITE_NAME)} will do</h2>
-  <p>${esc(SITE_NAME)} is being built now. This is what early-access members will get.</p>
+  <h2 id="what-h">What ${esc(SITE_NAME)} ${open ? "does" : "will do"}</h2>
+  <p>${open ? "Every part of this is in the app today, on the Free plan as well as the paid ones." : `${esc(SITE_NAME)} is being built now. This is what early-access members will get.`}</p>
   <div class="grid">
 ${features}
   </div>
 </section>
 <section class="wrap" aria-labelledby="platforms-h">
-  <h2 id="platforms-h">Nine platforms, one set of books</h2>
+  <h2 id="platforms-h">${PLATFORMS.length} platforms, one set of books</h2>
   <ul class="platform-list">${platformLinks}</ul>
 </section>
 <section class="wrap" aria-labelledby="honest-h">
@@ -84,7 +100,7 @@ ${features}
     <li>It won't invent a cost for an item you didn't record. Missing costs are flagged for you to fill in.</li>
   </ul>
 </section>
-<div class="wrap">${earlyAccessForm(path, { idPrefix: "home" })}</div>`;
+<div class="wrap">${callToAction(path, { idPrefix: "home" })}</div>`;
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -112,7 +128,7 @@ ${SUMMARY}
 
 A platform payout is the sale minus that platform's fees. It doesn't include what you paid for the item, shipping supplies, sourcing miles, or sales on other platforms. Profit needs all of it in one place.
 
-## What ${SITE_NAME} will do
+## What ${SITE_NAME} ${open ? "does" : "will do"}
 
 ${FEATURES.map((f) => `### ${f.title}\n\n${f.body}`).join("\n\n")}
 
@@ -154,7 +170,7 @@ ${cards}
 function platformPage(p) {
   const path = `/platforms/${p.slug}`;
   const title = `${p.name} seller profit, fees and bookkeeping`;
-  const description = `Track true profit on ${p.name} sales: the fees ${p.name} actually charged, what each item cost you, shipping and miles, in one ledger with your other platforms. Early access.`;
+  const description = `Track true profit on ${p.name} sales: the fees ${p.name} actually charged, what each item cost you, shipping and miles, in one ledger with your other platforms. ${launch().open ? "Free on one platform." : "Early access."}`;
   const others = PLATFORMS.filter((o) => o.slug !== p.slug)
     .map((o) => `<a href="${href(`/platforms/${o.slug}`)}">${esc(o.name)}</a>`)
     .join(", ");
@@ -172,7 +188,7 @@ function platformPage(p) {
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
 </section>
-<div class="wrap">${earlyAccessForm(path, { heading: `Get early access for your ${p.name} books`, idPrefix: p.slug })}</div>`;
+<div class="wrap">${callToAction(path, { heading: `Get early access for your ${p.name} books`, openHeading: `Try it on your ${p.name} report`, idPrefix: p.slug })}</div>`;
   const text = `# ${title}
 
 ${p.name} is a marketplace for ${p.what}. ${SITE_NAME} brings your ${p.name} sales into the same books as your other platforms.
@@ -234,7 +250,7 @@ ${rows}
   <p>For federal reporting, a payment platform sends a Form 1099-K when your payments for the year are over $20,000 and more than 200 transactions; some states require it at lower amounts. The form reports gross payments, before fees and refunds, so it will be larger than your profit. Your own books are how you match it: <a href="${href("/1099-k")}">why your 1099-K is higher than your sales</a>, and the IRS page on <a href="${IRS_1099K}">Form 1099-K</a>.</p>
   ${notTaxAdvice}
 </section>
-<div class="wrap">${earlyAccessForm(path, { idPrefix: "schc" })}</div>`;
+<div class="wrap">${callToAction(path, { idPrefix: "schc" })}</div>`;
   const text = `# ${title}
 
 If you buy things to resell, the profit usually goes on Schedule C (Form 1040). At year end ${SITE_NAME} gives you your totals grouped the way the form asks for them.
@@ -365,7 +381,7 @@ ${reasons.map(([a, b]) => `      <tr><th scope="row">${esc(a)}</th><td>${esc(b)}
 ${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
   ${notTaxAdvice}
 </section>
-<div class="wrap">${earlyAccessForm(path, { idPrefix: "f1099k" })}</div>`;
+<div class="wrap">${callToAction(path, { idPrefix: "f1099k" })}</div>`;
   const text = `# ${title}
 
 A marketplace's Form 1099-K usually shows more than a reseller thinks they made. The form counts what buyers paid, before anything came back out.
@@ -594,7 +610,7 @@ ${mistakes.map(([a, b]) => `      <tr><th scope="row">${esc(a)}</th><td>${esc(b)
 ${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
   ${notTaxAdvice}
 </section>
-<div class="wrap">${earlyAccessForm(path, { idPrefix: "cogs" })}</div>`;
+<div class="wrap">${callToAction(path, { idPrefix: "cogs" })}</div>`;
   const text = `# ${title}
 
 Cost of goods sold is the cost of what sold: opening inventory, plus purchases, minus closing inventory. On Schedule C it is Part III, lines 35 to 42 (line names from IRS Publication 334, chapter 6: ${IRS_PUB_334}).
@@ -649,39 +665,62 @@ ${NOT_TAX_ADVICE}`;
 function pricing() {
   const path = "/pricing";
   const title = "Pricing";
-  const description =
-    "Proposed Seller Books plans, priced by how many orders you ship and how many platforms you sell on, from $15 a month. Nothing is charged during early access.";
+  const { open, paidOn } = launch();
+  const description = !open
+    ? "Proposed Seller Books plans, priced by how many orders you ship and how many platforms you sell on, from $15 a month. Nothing is charged during early access."
+    : "Seller Books is free on one platform and up to 25 orders a month. Paid plans from $15 a month are sized by orders and platforms.";
+  const paidNote = !open
+    ? ""
+    : paidOn
+      ? ""
+      : `<p class="note">Paid plans are not on sale yet: the app does not take payment details, and nothing is charged. Until they are, everyone is on the Free plan.</p>`;
+  const freeCard = open
+    ? `<div class="card tier">
+  <h2>Free</h2>
+  <p class="muted">See your own profit before you pay anything</p>
+  <p class="price"><span class="amount">$0</span></p>
+  <p class="muted">No card · one platform</p>
+  ${list(FREE_INCLUDES)}
+  <p><a class="button" href="${esc(signupUrl("/pricing/free"))}">Start free</a></p>
+</div>`
+    : "";
   const cards = TIERS.map(
     (t) => `<div class="card tier${t.featured ? " featured" : ""}">
   <h2>${esc(t.name)}</h2>
   <p class="muted">${esc(t.for)}</p>
   <p class="price"><span class="amount">${usd(t.monthly)}</span> a month</p>
-  <p class="muted">or ${usd(t.annual)} a year · ${esc(t.platforms)}</p>
+  <p class="muted">or ${usd(t.annual)} a year · ${esc(t.platforms)}${open && !paidOn ? " · not on sale yet" : ""}</p>
   ${list(t.includes)}
 </div>`,
   ).join("\n");
   const top = TIERS[TIERS.length - 1];
+  const heading = open ? "Pricing" : "Proposed pricing";
+  const lead = !open
+    ? "Priced by what you sell, not by feature checklists: how many orders you ship each month across all platforms, and how many platforms you sell on. These are proposed prices for launch; during early access nothing is charged and we don't ask for payment details."
+    : "Priced by what you sell, not by feature checklists: how many orders you ship each month across all platforms, and how many platforms you sell on. Start on the Free plan; every report is on it.";
   const body = `<section class="wrap">
-  <h1>Proposed pricing</h1>
-  <p class="lead">Priced by what you sell, not by feature checklists: how many orders you ship each month across all platforms, and how many platforms you sell on. These are proposed prices for launch; during early access nothing is charged and we don't ask for payment details.</p>
+  <h1>${heading}</h1>
+  <p class="lead">${esc(lead)}</p>
+  ${paidNote}
   <div class="grid tiers">
+${freeCard}
 ${cards}
   </div>
   <p>Shipping more than ${top.orders.toLocaleString("en-US")} orders a month? <a href="mailto:hello@marisstella.app">Email us</a> and we'll talk about it.</p>
   <h2>How the limits work</h2>
   <ul>
     <li>An order is one sale on one platform, whatever the number of items in it.</li>
-    <li>If you go over your plan's orders in a busy month, nothing stops working. If it keeps happening we'll suggest the next plan; you choose.</li>
+    <li>${open ? "On a paid plan, going over its orders in a busy month never locks anything; if it keeps happening the billing page suggests the next plan, and you choose. The Free plan's 25 orders a month is a hard limit: an import that would pass it is refused, with the reason." : "If you go over your plan's orders in a busy month, nothing stops working. If it keeps happening we'll suggest the next plan; you choose."}</li>
     <li>Annual plans cost ten times the monthly price.</li>
-    <li>Early-access members will see the final price before they're asked to pay anything.</li>
+    <li>${open ? "Prices may change before paid plans go on sale; anyone on the Free plan sees the price before being asked to pay." : "Early-access members will see the final price before they're asked to pay anything."}</li>
   </ul>
   ${notTaxAdvice}
 </section>
-<div class="wrap">${earlyAccessForm(path, { idPrefix: "pricing" })}</div>`;
-  const text = `# Proposed pricing
+<div class="wrap">${callToAction(path, { idPrefix: "pricing" })}</div>`;
+  const text = `# ${heading}
 
-Priced by orders per month across all platforms and by number of platforms. Proposed for launch; nothing is charged during early access.
-
+${lead}${open && !paidOn ? " Paid plans are not on sale yet; nothing is charged." : ""}
+${open ? `\n## Free: $0\n\n${mdList(FREE_INCLUDES)}\n` : ""}
 ${TIERS.map((t) => `## ${t.name}: ${usd(t.monthly)} a month (${usd(t.annual)} a year)\n\n${t.for}. ${t.platforms}.\n\n${mdList(t.includes)}`).join("\n\n")}
 
 More than ${top.orders.toLocaleString("en-US")} orders a month: email hello@marisstella.app.`;
@@ -700,6 +739,7 @@ function faq() {
   const title = "Questions";
   const description =
     "Answers about Seller Books: availability, platforms, fees, Form 1099-K, pricing and data.";
+  const FAQ = faqItems();
   const items = FAQ.map(
     (f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`,
   ).join("\n");
@@ -728,6 +768,23 @@ ${items}
 
 function earlyAccess() {
   const path = "/early-access";
+  if (launch().open) {
+    // Kept so old links and the confirmation emails' back links still land somewhere useful.
+    const title = "Seller Books is open";
+    return {
+      path,
+      title,
+      description:
+        "Early access is over: Seller Books is open, free on one platform. Create an account.",
+      noindex: true,
+      body: `<section class="wrap narrow">
+  <h1>Early access is over: ${esc(SITE_NAME)} is open</h1>
+  <p class="lead">You no longer need an invite. Create an account and import one platform's report; the Free plan covers one platform and up to 25 orders a month, with no card.</p>
+  <p><a class="button" href="${esc(signupUrl(path))}">Start free</a> <a class="button ghost" href="${href("/pricing")}">See the plans</a></p>
+  <p class="muted">If you joined the early-access list, you can still leave it from the unsubscribe link in any email we sent.</p>
+</section>`,
+    };
+  }
   const title = "Join early access";
   const description =
     "Join the Seller Books early-access list. We'll email you an invite when it's ready. No payment details asked.";
@@ -770,7 +827,11 @@ function privacy() {
     "What the Seller Books early-access list stores, why, how long, and how to leave it.";
   const body = `<section class="wrap narrow">
   <h1>Privacy</h1>
-  <p class="lead">This page covers the early-access list, which is the only thing this site collects. The product will have its own privacy policy before anyone puts their books in it.</p>
+  <p class="lead">${
+    launch().open
+      ? `This page covers the early-access list, the only thing this site collected. Your books in the app are covered by <a href="${esc(appPrivacyUrl())}">the app's own privacy notice</a>.`
+      : "This page covers the early-access list, which is the only thing this site collects. The product will have its own privacy policy before anyone puts their books in it."
+  }</p>
   <h2>What we store</h2>
   <ul>
     <li>Your email address.</li>
@@ -942,7 +1003,7 @@ ${mistakes.map(([a, b]) => `      <tr><th scope="row">${esc(a)}</th><td>${esc(b)
 ${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
   ${notTaxAdvice}
 </section>
-<div class="wrap">${earlyAccessForm(path, { idPrefix: "mileage" })}</div>`;
+<div class="wrap">${callToAction(path, { idPrefix: "mileage" })}</div>`;
   const text = `# ${title}
 
 Business miles go on Schedule C line 9, car and truck expenses. Each mile is priced at the IRS standard rate in force on the day it was driven.
@@ -1211,7 +1272,7 @@ ${mistakes.map(([a, b]) => `      <tr><th scope="row">${esc(a)}</th><td>${esc(b)
 ${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
   ${notTaxAdvice}
 </section>
-<div class="wrap">${earlyAccessForm(path, { idPrefix: "home-office" })}</div>`;
+<div class="wrap">${callToAction(path, { idPrefix: "home-office" })}</div>`;
   const text = `# ${title}
 
 ## Line 30: storing stock at home
@@ -1378,7 +1439,7 @@ ${mistakes.map(([a, b]) => `      <tr><th scope="row">${esc(a)}</th><td>${esc(b)
 ${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
   ${notTaxAdvice}
 </section>
-<div class="wrap">${earlyAccessForm(path, { idPrefix: "estimates" })}</div>`;
+<div class="wrap">${callToAction(path, { idPrefix: "estimates" })}</div>`;
   const text = `# ${title}
 
 No tax is withheld from marketplace payouts. A profitable reseller generally pays income tax and self-employment tax during the year on four dates (Form 1040-ES), when the year's tax after withholding and refundable credits is expected to be $1,000 or more.

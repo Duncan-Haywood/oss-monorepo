@@ -5,12 +5,15 @@ import {
   CONTACT_EMAIL,
   EARLY_ACCESS_CONSENT_TEXT,
   EARLY_ACCESS_CONSENT_VERSION,
+  FREE_PLAN,
   NOT_TAX_ADVICE,
   PLATFORMS,
   SITE_NAME,
   SITE_URL,
+  statusSentence,
   VOLUME_BANDS,
 } from "./content.mjs";
+import { launch, signinUrl, signupUrl } from "./launch.mjs";
 
 const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 
@@ -48,6 +51,7 @@ const jsonLdTag = (data) =>
  * page: { path, title, description, body, jsonLd?: object[], noindex?: boolean }
  */
 export function layout(page) {
+  const open = launch().open;
   const title = pageTitle(page.title);
   const url = canonicalUrl(page.path);
   const nav = HEADER_NAV.map(
@@ -81,8 +85,12 @@ ${ld}
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="wrap header-row">
-    <a class="brand" href="${href("/")}">${esc(SITE_NAME)}<span class="badge">Early access</span></a>
-    <nav aria-label="Main">${nav}<a class="button small" href="${href("/early-access")}">Join early access</a></nav>
+    <a class="brand" href="${href("/")}">${esc(SITE_NAME)}<span class="badge">${open ? "Free plan" : "Early access"}</span></a>
+    <nav aria-label="Main">${nav}${
+      open
+        ? `<a href="${esc(signinUrl())}">Sign in</a><a class="button small" href="${esc(signupUrl("/header"))}">Start free</a>`
+        : `<a class="button small" href="${href("/early-access")}">Join early access</a>`
+    }</nav>
   </div>
 </header>
 <main id="main">
@@ -91,7 +99,7 @@ ${page.body}
 <footer class="site-footer">
   <div class="wrap footer-grid">
     <div>
-      <p><strong>${esc(SITE_NAME)}</strong> is in early access. Nothing is for sale yet. “${esc(SITE_NAME)}” is a working name.</p>
+      <p><strong>${esc(SITE_NAME)}</strong> ${esc(statusSentence().replace(/^It is /, "is "))} “${esc(SITE_NAME)}” is a working name.</p>
       <p class="muted">${esc(NOT_TAX_ADVICE)}</p>
     </div>
     <nav aria-label="Platforms">
@@ -116,6 +124,20 @@ ${page.body}
 </body>
 </html>
 `;
+}
+
+/**
+ * The page's closing call to action: before launch the early-access form, after it a "Start free"
+ * section linking the app's sign-up, tagged with the page (launch.mjs). `heading` is the pre-launch
+ * form's; `openHeading` the open one's.
+ */
+export function callToAction(sourcePath, { heading, openHeading, idPrefix = "ea" } = {}) {
+  if (!launch().open) return earlyAccessForm(sourcePath, { heading, idPrefix });
+  return `<section class="signup" aria-labelledby="${idPrefix}-h">
+  <h2 id="${idPrefix}-h">${esc(openHeading ?? `Try ${SITE_NAME} on your own numbers`)}</h2>
+  <p>Free for one platform and up to ${FREE_PLAN.ordersPerMonth} orders a month, with no card${launch().paidOn ? "" : "; paid plans are not on sale yet"}. Import one platform's report and see your profit after fees and cost of goods.</p>
+  <p><a class="button" href="${esc(signupUrl(sourcePath))}">Start free</a> <a class="button ghost" href="${href("/pricing")}">See the plans</a></p>
+</section>`;
 }
 
 /**
