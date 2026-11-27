@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyfC76pMYPMaVAcsuLe",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T17:38:50Z",
+  "ended": "2026-11-27T17:50:20Z",
+  "wall_minutes": 11.66,
+  "tokens_in": 8979446,
+  "tokens_out": 36657,
+  "cost_usd": 3.7207,
+  "tool_calls": 82,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19825",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "stills spec first run: the part card's heading follows the typed part number, so a locator on 'New part' lost it; re-located by part number",
+    "tsc: tuple-typed array literals in the spec needed `as const`"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish_next.py",
+      "issue": "Named PayApps item 1 as the next open item though open PR #19807 already takes it; only a manual open-PR search showed that."
+    },
+    {
+      "file": "ventures/jobshop-quote/apps/jobshop-site/catalogue-export",
+      "issue": "The export uses root-absolute /jobshop/ links, so `python3 -m http.server` in the folder (the polish prompt's suggestion) loads no CSS; it has to be served under a /jobshop/ path (symlink in a parent dir)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "The last note's next item was claimed by open PR #19807, so I took the same kind of job on bet #2's newly served site instead of the next PayApps item.",
+      "did": "Added real app stills to the Job Shop Quote site",
+      "result": "Merged-ready; 3 stills on 2 pages"
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "No docs/posts post: CLAUDE.md asks for consolidated posts rather than one per PR, and a screenshot pass isn't a reader-facing story on its own.",
+      "did": "Wrote the agent note docs/reports/polish-2026-11-27-jobshop-shots.md with before/after numbers",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-27-jobshop-shots.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: jobshop-site unit 54 pass (49 before), tsc site+app pass, biome clean on changed files, platform/pages jobshop-site tests 6 pass, pnpm stills pass; Chromium 5 pages x 390/1280 x light/dark: no sideways scroll, 0 errors. Found product gap: a hand-entered part never links a STEP/DXF's measurements (linking only at extract/upload), which matters while AI reading is off in the hosted app.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "abd02ea7-24cc-5492-a874-1d0a2dc3f932",
+    "transcripts": 1,
+    "first": "2026-11-27T17:38:50Z",
+    "last": "2026-11-27T17:50:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 140,
+        "output": 36657,
+        "thinking": 6144,
+        "cache_read": 8826595,
+        "cache_write_5m": 0,
+        "cache_write_1h": 152711,
+        "api_equivalent_usd": 3.7207,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 140,
+      "output": 36657,
+      "thinking": 6144,
+      "cache_read": 8826595,
+      "cache_write_5m": 0,
+      "cache_write_1h": 152711,
+      "api_equivalent_usd": 3.7207,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 64,
+      "Read": 14,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.66,
+      "active_minutes": 11.65,
+      "model_minutes": 5.55,
+      "tool_minutes": 6.11,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "screenshot script against the e2e server, site section, test and report, by a senior front-end dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 134.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

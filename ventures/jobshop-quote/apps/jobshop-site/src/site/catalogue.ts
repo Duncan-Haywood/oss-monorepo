@@ -10,7 +10,7 @@
 // plans or launch switch.
 //
 // Node only (reads public/ from disk); never imported by the Worker.
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildSite } from "./build";
@@ -36,6 +36,10 @@ export function catalogueFiles(): Map<string, string | Buffer> {
   for (const name of PUBLIC_FILES) {
     const buf = readFileSync(join(ROOT, "public", name));
     files.set(name, name.endsWith(".png") ? buf : buf.toString("utf8"));
+  }
+  // Screenshots of the app (pages.ts SHOTS), binary.
+  for (const name of readdirSync(join(ROOT, "public", "shots"))) {
+    files.set(`shots/${name}`, readFileSync(join(ROOT, "public", "shots", name)));
   }
   return new Map([...files].sort(([a], [b]) => a.localeCompare(b)));
 }

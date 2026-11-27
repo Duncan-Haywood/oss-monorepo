@@ -62,6 +62,67 @@ function ctaBand(ctx: RenderContext, heading: string, body: string): Html {
 </section>`;
 }
 
+/**
+ * Screenshots of the app itself (public/shots/), captured by `pnpm stills` in apps/jobshop-quote
+ * (test/stills/capture.stills.ts) from the real app running offline. The shop, customer and part are
+ * made up, and the quote's figures are asserted there against a hand check before the shot is taken.
+ * Only what the hosted app does today is shown: the part is entered by hand, not read by AI.
+ */
+export const SHOTS = {
+  quoteLine: {
+    file: "quote-line-desktop.webp",
+    width: 1280,
+    height: 860,
+    alt: "Job Shop Quote on a laptop: a draft quote line for part BRK-1001 Rev B, a motor mount bracket in 6061-T6 aluminum plate, from a 4 by 3 by 0.5 inch blank with one operation, Op 10 mill on a Haas VF-2, 60 minutes setup and 12 minutes a part, and black anodize. The price table beside it shows quantities 10, 50 and 100 at $46.40, $26.80 and $25.85 a part ($464.00, $1,340.00 and $2,585.00), with the material, setup, run and finish cost of each, and a breakdown saying which rate each figure came from.",
+  },
+  quotePhone: {
+    file: "quote-phone.webp",
+    width: 390,
+    height: 311,
+    alt: "The same quote line on a phone: the price table for quantities 10, 50 and 100 (material, setup, run, finish and extras; swipe for unit price and total), and the breakdown: 0.585 lb of 6061-T6 a part at $4.50/lb plus 10% scrap, 60 minutes setup and 12 minutes a part at $95.00 an hour, anodize at $3.00 a part with a $150.00 lot minimum, and 0% markups.",
+  },
+  rateCard: {
+    file: "rate-card-desktop.webp",
+    width: 1280,
+    height: 860,
+    alt: "The rate card in Job Shop Quote: two machines (a Haas VF-2 mill at $95.00 an hour and an Okuma LB3000 lathe at $105.00 an hour) and two materials (303 stainless bar at $6.20/lb and 6061-T6 aluminum plate at $4.50/lb, each with its density, 10% scrap, a minimum charge and the date the price was set), with the forms for adding more.",
+  },
+} as const;
+
+type Shot = (typeof SHOTS)[keyof typeof SHOTS];
+
+function shotImg(ctx: RenderContext, s: Shot): Html {
+  return html`<img src="${href(ctx, `/shots/${s.file}`)}" width="${s.width}" height="${s.height}" loading="lazy" decoding="async" alt="${s.alt}">`;
+}
+
+/** A full-width still that opens at full size, with a caption. */
+function shotFigure(ctx: RenderContext, s: Shot, caption: string): Html {
+  return html`<figure class="shot">
+  <a class="shot-link" href="${href(ctx, `/shots/${s.file}`)}">${shotImg(ctx, s)}</a>
+  <figcaption>${caption}</figcaption>
+</figure>`;
+}
+
+function appShots(ctx: RenderContext): Html {
+  return html`<section class="band band-muted" id="in-the-app" aria-labelledby="shots-heading">
+  <div class="container">
+    <h2 id="shots-heading" class="center">What a quote looks like in the app</h2>
+    <p class="center shots-lead">Screenshots of ${SITE_NAME} itself. The shop, customer and part are made up; the prices are what the app worked out from the rate card typed in for them.</p>
+    <div class="shots">
+      <figure class="shot shot-wide">
+        <a class="shot-link" href="${href(ctx, `/shots/${SHOTS.quoteLine.file}`)}">${shotImg(ctx, SHOTS.quoteLine)}</a>
+        <figcaption>One quote line: the blank, the operation and the finish on the left, every quantity break priced on the right, and under the table which rate each figure came from.</figcaption>
+      </figure>
+      <figure class="shot shot-phone">
+        ${shotImg(ctx, SHOTS.quotePhone)}
+        <figcaption>The same line on a phone.</figcaption>
+      </figure>
+    </div>
+    <p class="center"><a class="link" href="${href(ctx, "/how-it-works")}">How the price is built, step by step →</a></p>
+  </div>
+</section>`;
+}
+
 /** Illustration only: clearly labelled sample data, not a real customer, quote or result. */
 function quoteMock(aiReading: boolean): Html {
   // With AI reading off, the sample shows what the app does today: rates and CAD measurements,
@@ -165,6 +226,8 @@ export function homePage(ctx: RenderContext): Html {
     ${quoteMock(aiReading)}
   </div>
 </section>
+
+${appShots(ctx)}
 
 <section class="band" aria-labelledby="backlog-heading">
   <div class="container narrow">
@@ -274,7 +337,8 @@ export function howItWorksPage(ctx: RenderContext): Html {
       body: html`<p>You enter how your shop prices work: each machine or work center and its hourly rate,
       setup charges, material costs or markups, outside processes such as anodizing, plating or heat treat
       with what your vendors charge, minimum order values, quantity breaks and how you round. This rate
-      table is the only place prices come from.</p>`,
+      table is the only place prices come from.</p>
+      ${shotFigure(ctx, SHOTS.rateCard, "The rate card: each machine's hourly rate, each material's price, density, scrap and minimum, and the date every price was set. Made-up shop.")}`,
     },
     {
       title: "Send in the RFQ",
@@ -298,7 +362,8 @@ export function howItWorksPage(ctx: RenderContext): Html {
       with its reasoning written out (operations, tools, approximate times) for your estimator to accept
       or correct. The dollar figures are then plain arithmetic on your rate table: the same inputs always
       give the same price, and every line shows which rate it used. Corrections your estimator makes are
-      saved as rules for your shop, so the next similar part starts closer.</p>`,
+      saved as rules for your shop, so the next similar part starts closer.</p>
+      ${shotFigure(ctx, SHOTS.quoteLine, "A priced line: one operation and a finish on a made-up bracket, every quantity break worked out, and the rate behind each figure listed under the table.")}`,
     },
     {
       title: "Your estimator reviews and sends",
