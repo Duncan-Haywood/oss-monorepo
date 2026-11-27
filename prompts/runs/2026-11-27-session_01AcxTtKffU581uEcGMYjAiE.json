@@ -29,12 +29,18 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI changed-ventures failed first push: open-house-plans byte-for-byte vendor check of wall-framing-takeoff/engine.mjs; fixed by re-vendoring."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "Step 1 says to run campaign right after record; the record command prints 'Fill in outcome...' which reads like the run is over. Minor."
+    },
+    {
+      "file": "ventures/wall-framing-takeoff/engine.mjs",
+      "issue": "Nothing near toCsv says open-house-plans vendors this file byte for byte; run_venture_tests.py on the changed slug alone does not run dependents, CI caught it."
     }
   ],
   "deviations": [
@@ -424,7 +430,7 @@
     "real_defects": [
       {
         "file": "ventures/pay-application-generator/calc.mjs",
-        "issue": "scheduleCsv wrote line descriptions raw, so a schedule of values line named =HYPERLINK(...) (pasted or imported from a GC's spreadsheet) ran as a formula when the downloaded continuation-sheet CSV was opened (CWE-1236). The same unguarded quoting helper was in five more construction exporters on the guard baseline: certified-payroll-calculator/wh347.mjs (worker names), wall-framing-takeoff engine/budget/schedule CSVs, construction-delay-claim-calculator (numbers only, guarded for consistency). Reproduced with node: row 1 came out as 1,=HYPERLINK(http://x),1000.00,...",
+        "issue": "scheduleCsv wrote line descriptions raw, so a schedule of values line named =HYPERLINK(...) (pasted or imported from a GC's spreadsheet) ran as a formula when the downloaded continuation-sheet CSV was opened (CWE-1236). The same unguarded quoting helper was in five more construction exporters on the guard baseline: certified-payroll-calculator/wh347.mjs (worker names), wall-framing-takeoff engine/budget/schedule CSVs, construction-delay-claim-calculator (numbers only, guarded for consistency). Reproduced with node: row 1 came out as 1,=HYPERLINK(http://x),1000.00,... open-house-plans vendors engine.mjs as wft-engine.mjs, so it was re-vendored (node vendor-framing.mjs) and its baseline line dropped too (343 -> 342).",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19600"
       }

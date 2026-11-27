@@ -199,7 +199,6 @@ ventures/ny-llc-transparency-act-tracker/calc.mjs
 ventures/oncall-load-analyzer/calc.mjs
 ventures/online-business-valuation-calculator/calc.mjs
 ventures/open-house-plans/framing.mjs
-ventures/open-house-plans/wft-engine.mjs
 ventures/optical-dispensary-margin-calculator/calc.mjs
 ventures/oyster-farm-growout-planner/calc.mjs
 ventures/padel-club-profit-calculator/calc.mjs
