@@ -167,6 +167,8 @@ const JOB_FIELD_LABELS: Record<string, string> = {
   lastFurnishedOn: "last day furnished (lien deadline)",
   workCompletedOn: "project completion (lien deadline)",
   noticeOfCompletionOn: "notice of completion recorded (lien deadline)",
+  publicOwner: "public job (owner)",
+  millerTier: "who you contracted with (Miller Act)",
   procoreSsov: "Procore SOV positions for the invoice sheet",
   status: "status",
 };

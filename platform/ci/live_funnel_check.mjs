@@ -43,6 +43,17 @@ export const FUNNELS = [
     signupPath: '/sign-up',
     frontDoors: ['https://marisstella.app/industries/manufacturing/'],
   },
+  {
+    // Live since cmmc-deploy run 46022366507 (2026-11-27), free Level 1 plan. `/signup` opens
+    // "Create account" (src/client/lib/auth-mode.ts, PR #19788) once a deploy carries it.
+    app: 'cmmc',
+    base: 'https://cmmc.marisstella.app',
+    signupPath: '/signup',
+    frontDoors: [
+      'https://marisstella.app/machine-shop-guides/',
+      'https://marisstella.app/industries/manufacturing/',
+    ],
+  },
 ];
 
 /** Responses a signed-out visitor is expected to get: the session probe answers 401. */

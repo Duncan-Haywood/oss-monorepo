@@ -159,10 +159,35 @@ describe("year-end records", () => {
       "/reports/mileage-log.csv?year=2026",
       "/reports/expenses.csv?year=2026",
       "/reports/year-end.zip?year=2026",
+      "/reports/schedule-c.pdf?year=2026",
     ]) {
       expect((await api(`/api/orgs/${a.orgId}${path}`, { as: b.userId })).status, path).toBe(404);
       expect((await api(`/api/orgs/${a.orgId}${path}`, { as: a.userId })).status, path).toBe(200);
     }
+  });
+
+  it("the worksheet PDF carries the shop's name and the worksheet's lines", async () => {
+    const { userId, orgId } = await setupTenant();
+    await api(`/api/orgs/${orgId}`, { method: "PATCH", as: userId, json: { name: "Attic Finds" } });
+    await api(`/api/orgs/${orgId}/sales`, {
+      method: "POST",
+      as: userId,
+      json: { date: "2026-03-14", title: "Brass bell", itemCents: 4500 },
+    });
+    const res = await api(`/api/orgs/${orgId}/reports/schedule-c.pdf?year=2026`, { as: userId });
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toBe("application/pdf");
+    expect(res.headers.get("Content-Disposition")).toBe(
+      "attachment; filename=schedule-c-worksheet-2026.pdf",
+    );
+    const pdf = await res.text();
+    expect(pdf.startsWith("%PDF-1.4")).toBe(true);
+    expect(pdf).toContain("(Attic Finds)");
+    expect(pdf).toContain("($45.00)");
+    expect(pdf).toContain("Part III  Cost of goods sold");
+    expect(
+      (await api(`/api/orgs/${orgId}/reports/schedule-c.pdf?year=1999`, { as: userId })).status,
+    ).toBe(400);
   });
 
   it("the year-end ZIP holds each single download byte for byte, with a README", async () => {
@@ -200,6 +225,7 @@ describe("year-end records", () => {
     expect([...files.keys()]).toEqual([
       "README.txt",
       "schedule-c-worksheet-2026.csv",
+      "schedule-c-worksheet-2026.pdf",
       "sales-ledger-2026-01-01-to-2026-12-31.csv",
       "closing-inventory-2026.csv",
       "mileage-log-2026.csv",
@@ -210,6 +236,9 @@ describe("year-end records", () => {
       (await api(`/api/orgs/${orgId}/reports/${path}`, { as: userId })).text();
     expect(files.get("schedule-c-worksheet-2026.csv")).toBe(
       await single("schedule-c.csv?year=2026&mileageRate=70"),
+    );
+    expect(files.get("schedule-c-worksheet-2026.pdf")).toBe(
+      await single("schedule-c.pdf?year=2026&mileageRate=70"),
     );
     expect(files.get("sales-ledger-2026-01-01-to-2026-12-31.csv")).toBe(
       await single("sales-ledger.csv?from=2026-01-01&to=2026-12-31"),
