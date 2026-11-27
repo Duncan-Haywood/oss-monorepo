@@ -72,9 +72,12 @@ export const PRODUCTS = [
     status: 'early-access',
     for: 'Remodelers, roofers, siding contractors and framers',
     summary:
-      'Roof, siding and framing material lists from plan PDFs: scale read from the drawing, quantities measured once, and an order list priced from your own supplier rates.',
-    planned: ['Feeds estimates into the pay-app suite'],
+      'Framing, sheathing, roof and siding quantities from a house you type, draw or open as IFC or DXF, and one supplier material list a lumberyard can quote from. The paid edition is open to try while checkout is not; reading plan PDFs directly is next.',
+    planned: ['Material lists from plan PDFs', 'Feeds estimates into the pay-app suite'],
     freeToday: ['wall-framing-takeoff', 'pdf-plan-takeoff'],
+    // The paid edition's app at /residential-takeoff/ (residential-takeoff-app.mjs), when copied in.
+    site: 'residential-takeoff',
+    siteLabel: 'Try the paid edition (early access, every feature open)',
   },
   {
     id: 'schedule-check',
@@ -400,7 +403,7 @@ export function renderConstructionPage({
         <p class="ic-included">On the Free plan: ${escapeHtml(p.included.join(', '))}.</p>` : ''}${p.paidOnly?.length ? `
         <p class="ic-planned">In the paid plans, not on sale yet: ${escapeHtml(p.paidOnly.join(', '))}.</p>` : ''}${p.appUrl ? `
         <p><a class="ic-start" href="${escapeHtml(p.appUrl)}">Start free in PayApps</a> (no card)</p>` : ''}${p.site && productSites.has(p.site) ? `
-        <p><a href="${escapeHtml(`${toRoot}${p.site}/`)}">PayApps features and pricing</a></p>` : ''}${p.built?.length ? `
+        <p><a href="${escapeHtml(`${toRoot}${p.site}/`)}">${escapeHtml(p.siteLabel || 'PayApps features and pricing')}</a></p>` : ''}${p.built?.length ? `
         <p class="ic-built">Built, in testing (not open yet): ${escapeHtml(p.built.join(', '))}.</p>` : ''}${p.planned.length ? `
         <p class="ic-planned">Planned: ${escapeHtml(p.planned.join(', '))}.</p>` : ''}${openProduct && p.status === 'early-access' && EARLY_ACCESS_KEYS[p.id] ? `
         <p><a href="#early-access">Ask for early access</a></p>` : ''}${free.length ? `

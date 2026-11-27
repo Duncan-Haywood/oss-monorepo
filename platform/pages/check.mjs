@@ -198,6 +198,9 @@ export const SITE_OWN_DIRS = new Set([PAYAPPS_SITE_DIR, SELLER_BOOKS_SITE_DIR, J
 // CMMC Workspace's own marketing site, built in by cmmc-site.mjs: a site page, not a free tool.
 export const CMMC_SITE_DIR = 'cmmc';
 SITE_OWN_DIRS.add(CMMC_SITE_DIR);
+// Residential Takeoff's paid app, copied in by residential-takeoff-app.mjs (paid bet #6).
+export const RESIDENTIAL_TAKEOFF_DIR = 'residential-takeoff';
+SITE_OWN_DIRS.add(RESIDENTIAL_TAKEOFF_DIR);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -893,6 +896,13 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
 
   // CMMC Workspace's marketing site (cmmc-site.mjs): every page carries the disclaimer (its
   // footer); reachability comes from the sitemap index and the manufacturing page's link.
+  // Residential Takeoff's app pages (residential-takeoff-app.mjs) likewise, from their footers.
+  for (const name of await fs.readdir(path.join(site, RESIDENTIAL_TAKEOFF_DIR)).catch(() => [])) {
+    if (!name.endsWith('.html')) continue;
+    const relative = path.join(RESIDENTIAL_TAKEOFF_DIR, name);
+    const html = await fs.readFile(path.join(site, relative), 'utf8');
+    if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+  }
   for (const name of await fs.readdir(path.join(site, CMMC_SITE_DIR)).catch(() => [])) {
     if (!name.endsWith('.html')) continue;
     const relative = path.join(CMMC_SITE_DIR, name);
