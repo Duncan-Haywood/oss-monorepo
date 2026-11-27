@@ -6,6 +6,8 @@ import {
   CA_NOTICE_RECIPIENTS,
   FL_NOTICE_RECIPIENTS,
   FL_SERVICE_METHODS,
+  TX_NOTICE_METHODS,
+  TX_PROJECT_KINDS,
 } from "@lien-waivers";
 import { ATTACHMENT_CATEGORIES } from "@shared/attachments";
 import {
@@ -138,6 +140,12 @@ export const projects = sqliteTable(
      * (§ 44-14-366(g)(2)) and say where it goes (migration 0041).
      */
     gaNocFiled: integer("ga_noc_filed", { mode: "boolean" }),
+    /**
+     * Texas notices of claim (Tex. Prop. Code § 53.056): whether the job is a residential
+     * construction project (§ 53.001(10): the 15th of the second month after the work) or not (the
+     * third month). Null: not a Texas job, or not set; the cash page then says nothing (migration 0083).
+     */
+    txProjectKind: text("tx_project_kind", { enum: TX_PROJECT_KINDS }),
     gaNocContractor: text("ga_noc_contractor"),
     /** The one-click sample job (services/payapps/sample.ts): not counted toward the plan. */
     isSample: integer("is_sample", { mode: "boolean" }).notNull().default(false),
@@ -280,6 +288,13 @@ export const payApps = sqliteTable(
      * known yet). The due date counts from it (src/shared/cash-report.ts, payDueOn).
      */
     ownerPaidOn: text("owner_paid_on"),
+    /**
+     * Texas (projects.tx_project_kind set): the day a notice of claim for this application's unpaid
+     * work went to the owner and the original contractor, and how (§ 53.003(b)); both null when none
+     * is recorded. The cash page's reminder stops once it is set (src/shared/tx-notice-claims.ts).
+     */
+    txNoticeSentOn: text("tx_notice_sent_on"),
+    txNoticeMethod: text("tx_notice_method", { enum: TX_NOTICE_METHODS }),
     notes: text("notes"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

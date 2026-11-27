@@ -74,6 +74,7 @@ export function toCashInput(
         : null,
     flNotice:
       p.flFirstFurnishedOn && flMissing.length > 0 ? flNoticeDates(p.flFirstFurnishedOn) : null,
+    txProjectKind: p.txProjectKind,
     changeOrders: b.changeOrders.map((co) => ({
       id: co.id,
       number: co.number,
@@ -94,6 +95,9 @@ export function toCashInput(
           status: a.status,
           applicationDate: a.applicationDate,
           periodTo: a.periodTo,
+          periodFrom: a.periodFrom,
+          txNoticeSentOn: a.txNoticeSentOn,
+          txNoticeMethod: a.txNoticeMethod,
           submittedOn: a.submittedAt ? isoDay(a.submittedAt) : null,
           certifiedAmountCents: a.certifiedAmountCents,
           ownerPaidOn: a.ownerPaidOn,

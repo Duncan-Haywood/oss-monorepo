@@ -4,6 +4,8 @@ import {
   CA_NOTICE_RECIPIENTS,
   FL_NOTICE_RECIPIENTS,
   FL_SERVICE_METHODS,
+  TX_NOTICE_METHODS,
+  TX_PROJECT_KINDS,
 } from "@lien-waivers";
 import { z } from "zod";
 import { isTimeZone } from "../cash-digest";
@@ -830,6 +832,12 @@ export const flNoticeSendSchema = z.object({
 });
 /** PATCH /projects/:id/notices/fl/sends/:sendId: the delivery date, once the evidence is back. */
 export const flNoticeDeliveredSchema = z.object({ deliveredOn: isoDate.nullable() });
+/** PUT /projects/:id/notices/tx/kind: turn Texas notices of claim on (residential or not) or off. */
+export const txProjectKindSchema = z.object({ kind: z.enum(TX_PROJECT_KINDS).nullable() });
+/** PUT /projects/:id/notices/tx/pay-apps/:payAppId: a § 53.056 notice recorded as sent, or cleared (null). */
+export const txNoticeSentSchema = z.object({
+  sent: z.object({ sentOn: isoDate, method: z.enum(TX_NOTICE_METHODS) }).nullable(),
+});
 export const updateWaiverSchema = z.object({ status: z.enum(WAIVER_STATUSES) });
 /**
  * PUT .../waivers/:id/ga-affidavit/filing: record Georgia's affidavit of nonpayment as filed, and

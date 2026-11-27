@@ -17,6 +17,8 @@ import {
   procoreSsovSchema,
   projectSchema,
   sovLineSchema,
+  txNoticeSentSchema,
+  txProjectKindSchema,
   updateProjectSchema,
   updateSovLineSchema,
 } from "@shared/api/schemas";
@@ -117,6 +119,7 @@ import { getRfi, updateRfi } from "../../services/payapps/rfis";
 import { createSampleProject } from "../../services/payapps/sample";
 import { loadDelayLogDocument } from "../../services/payapps/schedule-delays";
 import { certifiedPayrollHours } from "../../services/payapps/timesheets";
+import { setTxNoticeSent, setTxProjectKind } from "../../services/payapps/tx-notices";
 import type { AppEnv } from "../../types";
 
 const routes = new Hono<AppEnv>();
@@ -671,6 +674,53 @@ routes.delete("/:projectId/notices/fl/sends/:sendId", editor, async (c) => {
   ]);
   return c.json({ ok: true });
 });
+
+// Texas notices of claim (§ 53.056): residential or not, saved with the job, and each notice sent
+// recorded on its application (Crew and up; editors record).
+routes.put(
+  "/:projectId/notices/tx/kind",
+  editor,
+  validate("json", txProjectKindSchema),
+  async (c) => {
+    const projectId = c.req.param("projectId");
+    const r = await setTxProjectKind(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      projectId,
+      c.req.valid("json").kind,
+    );
+    if (r.changed) {
+      await log(c, { id: projectId, isSample: r.isSample }, [
+        { action: "tx_project_kind_set", data: { txKind: r.kind } },
+      ]);
+    }
+    return c.json({ kind: r.kind });
+  },
+);
+
+routes.put(
+  "/:projectId/notices/tx/pay-apps/:payAppId",
+  editor,
+  validate("json", txNoticeSentSchema),
+  async (c) => {
+    const projectId = c.req.param("projectId");
+    const payAppId = c.req.param("payAppId");
+    const { sent } = c.req.valid("json");
+    const r = await setTxNoticeSent(c.var.ctx, c.var.tenant.orgId, projectId, payAppId, sent);
+    if (r.changed) {
+      await log(c, { id: projectId, isSample: r.isSample }, [
+        sent
+          ? {
+              action: "tx_notice_recorded",
+              subjectId: payAppId,
+              data: { appNumber: r.number, date: sent.sentOn, txMethod: sent.method },
+            }
+          : { action: "tx_notice_cleared", subjectId: payAppId, data: { appNumber: r.number } },
+      ]);
+    }
+    return c.json({ sent });
+  },
+);
 
 // Files kept with a notice record: § 8118(b)'s mailing receipt or proof of delivery, the signed
 // declaration (Crew and up to add or remove; any member lists and downloads).

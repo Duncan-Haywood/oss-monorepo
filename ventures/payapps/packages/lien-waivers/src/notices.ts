@@ -2,6 +2,7 @@ import { CA_CHECKED_ON, CA_SOURCE_URL } from "./ca.ts";
 import { flNoticeToOwner } from "./fl-notice.ts";
 import { fillBlocks } from "./render.ts";
 import { normalizeState } from "./states.ts";
+import { txNoticeOfClaim, txRetainageNotice } from "./tx-notice.ts";
 import type {
   Block,
   BlockTemplate,
@@ -20,7 +21,8 @@ import { WY_BODIES, WY_CHECKED_ON, WY_SOURCE_URL } from "./wy.ts";
  * official text; a state with no encoded notice gets none (never wording this package made up).
  *
  * Today: California, Cal. Civ. Code §§ 8102 and 8202 (private works); Florida's Notice to Owner,
- * Fla. Stat. § 713.06(2)(c) (fl-notice.ts); and Wyoming, Wyo. Stat.
+ * Fla. Stat. § 713.06(2)(c) (fl-notice.ts); Texas' notices of claim for unpaid labor or materials
+ * and for unpaid retainage, Tex. Prop. Code §§ 53.056(a-2) and 53.057(a-2) (tx-notice.ts); and Wyoming, Wyo. Stat.
  * § 29-10-101(a), whose form "shall be sent to the record owner of the
  * property against which the lien may be filed and shall be completed in substantially the
  * following form". When it must be sent is set by § 29-2-112, which is not encoded here: this
@@ -374,6 +376,7 @@ export function noticeForms(state: string): NoticeForm[] {
   const code = normalizeState(state);
   if (code === "CA") return [caPreliminaryNotice()];
   if (code === "FL") return [flNoticeToOwner()];
+  if (code === "TX") return [txNoticeOfClaim(), txRetainageNotice()];
   return code === "WY" ? [wyPreliminaryNotice()] : [];
 }
 

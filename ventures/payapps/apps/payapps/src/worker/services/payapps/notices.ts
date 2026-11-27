@@ -41,6 +41,7 @@ import { badRequest, notFound } from "../../lib/errors";
 import { assertLienWaivers, orgPlan } from "../billing";
 import { flNoticeLog } from "./fl-notices";
 import { noticeFileCounts, purgeNoticeFiles } from "./notice-files";
+import { txNoticeLog } from "./tx-notices";
 import { fieldErrors, orgName } from "./waivers";
 
 function parseState(state: string) {
@@ -132,6 +133,11 @@ export async function noticeOverview(
   // copy (§ 713.06(2)(a) requires it from a sub-subcontractor or a supplier to a subcontractor).
   prefill.lienorName = claimant;
   if (prefill.directContractor) prefill.copiesTo = prefill.directContractor;
+  // Texas' notices of claim (§§ 53.056(a-2), 53.057(a-2)): the claim amount is picked per unpaid
+  // application on the panel (tx-notices.ts), so it is not prefilled here.
+  prefill.projectDescription = prefill.siteDescription;
+  prefill.claimantName = claimant;
+  if (p.gcName) prefill.originalContractor = p.gcName;
   prefill.estimate = formatCents(
     p.originalContractSumCents + (await approvedChangeCents(ctx, orgId, projectId)),
   );
@@ -156,6 +162,7 @@ export async function noticeOverview(
             contractor: prefill.directContractor || undefined,
           })
         : null,
+    tx: state === "TX" ? await txNoticeLog(ctx, orgId, projectId) : null,
   };
 }
 

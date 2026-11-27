@@ -85,6 +85,22 @@ export {
 } from "./render.ts";
 export { normalizeState, US_STATES, type UsState } from "./states.ts";
 export { STATUTORY_STATES } from "./statutory.ts";
+export {
+  monthOf,
+  monthsBetween,
+  TX_NOTICE_CHECKED_ON,
+  TX_NOTICE_ID,
+  TX_NOTICE_METHOD_LABELS,
+  TX_NOTICE_METHODS,
+  TX_PROJECT_KIND_LABELS,
+  TX_PROJECT_KINDS,
+  TX_RETAINAGE_NOTICE_ID,
+  type TxNoticeDeadline,
+  type TxNoticeMethod,
+  type TxProjectKind,
+  txNoticeDeadline,
+  txPeriodDeadline,
+} from "./tx-notice.ts";
 export * from "./types.ts";
 export { formatCents, formatDate, isIsoDate, validate } from "./validate.ts";
 export { amountInWords } from "./words.ts";

@@ -80,7 +80,7 @@ test("WY notice: the statute's whole subsection (a) is printed, nothing left out
   assert.equal(printed, statute);
 });
 
-test("WY notice declares every placeholder it uses; only Wyoming and California have one", () => {
+test("WY notice declares every placeholder it uses; Missouri has none", () => {
   const form = noticeById("WY", WY_NOTICE_ID);
   assert.ok(form);
   const declared = new Set(form.fields.map((f) => f.key));
@@ -90,7 +90,7 @@ test("WY notice declares every placeholder it uses; only Wyoming and California 
   );
   assert.equal(noticeForms("wy").length, 1);
   assert.equal(noticeForms("CA").length, 1);
-  assert.deepEqual(noticeForms("TX"), []);
+  assert.equal(noticeForms("TX").length, 2); // tx-notice.test.ts
   assert.deepEqual(noticeForms("MO"), []);
   assert.equal(noticeById("CO", WY_NOTICE_ID), undefined);
   assert.throws(() => noticeForms("ZZ"), RangeError);

@@ -46,6 +46,7 @@
 //   the release (punch items not accepted, close-out documents still to send), as the job's close-out
 //   checklist reads it (closeoutReadiness in src/shared/closeout.ts, computed by the Worker). Its
 //   retainage is counted again under retainageWaitingOnCloseoutCents until nothing does.
+import type { TxNoticeMethod, TxProjectKind } from "@lien-waivers";
 import { billingCutoff, billingCutoffText } from "./billing-cutoff";
 import type { CloseoutReadiness } from "./closeout";
 import type { PayAppStatus, PayTermsBasis, ShortCloseReason } from "./enums";
@@ -58,6 +59,7 @@ import {
 import { formatCents } from "./money";
 import type { ApplicationSummary, Totals } from "./payapp-math";
 import { expectedCents, type PaymentInput, paymentPosition } from "./payments";
+import { type TxNoticeClaim, txNoticeClaims, txNoticeText } from "./tx-notice-claims";
 import {
   type WaiverFollowUpInput,
   type WaiverToSend,
@@ -74,6 +76,11 @@ export interface CashReportAppInput {
   status: PayAppStatus;
   applicationDate: string; // YYYY-MM-DD
   periodTo: string; // YYYY-MM-DD
+  /** Start of the period it bills (YYYY-MM-DD); needed only for the Texas notice dates. */
+  periodFrom?: string;
+  /** Texas: the day a § 53.056 notice of claim for it was recorded as sent, and how; else null. */
+  txNoticeSentOn?: string | null;
+  txNoticeMethod?: TxNoticeMethod | null;
   /** The UTC day it left draft (src/shared/billing-cutoff.ts); null or absent for a draft. */
   submittedOn?: string | null;
   certifiedAmountCents: number | null;
@@ -169,6 +176,12 @@ export interface CashReportProjectInput {
    * entered or a notice to the owner is recorded.
    */
   flNotice?: { serveBy: string; mailBy: string } | null;
+  /**
+   * Texas notices of claim (src/shared/tx-notice-claims.ts): whether the job is a residential
+   * construction project, which sets the § 53.056(a-1) month count. Null or absent: not a Texas
+   * job, no dates.
+   */
+  txProjectKind?: TxProjectKind | null;
   /** The GC's monthly billing cutoff, day of the month (src/shared/billing-cutoff.ts); null when not set. */
   billingDay?: number | null;
   /**
@@ -251,6 +264,11 @@ export interface CashReportProject {
    * copy to the owner is not recorded as sent (src/shared/ga-waiver-clock.ts, gaClockNeedsAction).
    */
   gaWaiverDeadlines: GaWaiverClock[];
+  /**
+   * Texas jobs: each unpaid application's § 53.056 notice-of-claim date and whether a notice is
+   * recorded, earliest first; empty on any other job.
+   */
+  txNoticeClaims: TxNoticeClaim[];
   /** Change orders waiting for the GC's approval, oldest first. */
   pendingChanges: PendingChange[];
   /** Pending change orders that add money: work that cannot be billed until approved. */
@@ -717,6 +735,32 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
   if (caText) actions.push(caText);
   const flText = flNoticeText(p.status === "active" ? p.flNotice : null, asOf);
   if (flText) actions.push(flText);
+  // Texas: each unpaid application's notice of claim date (§ 53.056(a-1)), from its period.
+  const txKind = p.txProjectKind ?? null;
+  const byId = new Map(sent.map((a) => [a.id, a]));
+  const txClaims = txKind
+    ? txNoticeClaims(
+        outstanding.flatMap((o) => {
+          const a = byId.get(o.payAppId);
+          if (!a?.periodFrom) return [];
+          return [
+            {
+              payAppId: o.payAppId,
+              number: o.number,
+              periodFrom: a.periodFrom,
+              periodTo: a.periodTo,
+              unpaidCents: o.amountCents,
+              txNoticeSentOn: a.txNoticeSentOn ?? null,
+              txNoticeMethod: a.txNoticeMethod ?? null,
+            },
+          ];
+        }),
+        txKind,
+        asOf,
+      )
+    : [];
+  const txText = txKind && p.status === "active" ? txNoticeText(txClaims, p.gcName, txKind) : null;
+  if (txText) actions.push(txText);
   // The GC's billing cutoff: drafts count too (a draft dated before a passed cutoff is a missed one).
   if (p.billingDay && p.status === "active" && !workComplete) {
     const cutoff = billingCutoff(
@@ -766,6 +810,7 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
     closeout,
     waiversToSend: toSend,
     gaWaiverDeadlines: gaDeadlines,
+    txNoticeClaims: txClaims,
     pendingChanges: pending,
     pendingChangeCents: pending.reduce((s, c) => s + Math.max(0, c.amountCents), 0),
     closedShort,

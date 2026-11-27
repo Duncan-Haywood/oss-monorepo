@@ -5,6 +5,8 @@ import type {
   FlNoticeRecipient,
   FlServedBasis,
   FlServiceMethod,
+  TxNoticeMethod,
+  TxProjectKind,
 } from "@lien-waivers";
 import type {
   CloseoutKind,
@@ -60,6 +62,7 @@ import type {
   TmTicketStage,
   TmTicketSummary,
 } from "../tm-tickets";
+import type { TxNoticeClaim } from "../tx-notice-claims";
 import type { WaiverToSend } from "../waiver-followup";
 
 export interface MeDto {
@@ -669,6 +672,18 @@ export interface NoticeOverviewDto {
   ca: CaNoticeLogDto | null;
   /** Florida only (state=FL): the notices recorded as served and the 45/40-day dates. */
   fl: FlNoticeLogDto | null;
+  /** Texas only (state=TX): residential or not, and each unpaid application's § 53.056 date. */
+  tx: TxNoticeLogDto | null;
+}
+
+/** Texas notices of claim on one job (services/payapps/tx-notices.ts). */
+export interface TxNoticeLogDto {
+  /** Null: not turned on for this job, so no dates and no reminder. */
+  kind: TxProjectKind | null;
+  kinds: { id: TxProjectKind; label: string }[];
+  methods: { id: TxNoticeMethod; label: string }[];
+  /** Unpaid submitted or certified applications with their dates, earliest first; empty when off. */
+  claims: TxNoticeClaim[];
 }
 
 /** A Florida Notice to Owner, or a copy, recorded as served on one person. */

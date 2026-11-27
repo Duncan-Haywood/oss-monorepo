@@ -46,7 +46,7 @@ describe("preliminary notices", () => {
   it("on Free: the overview loads, printing needs Crew (402)", async () => {
     const o = await call<NoticeOverviewDto>(`${base}/notices?state=WY`, { as });
     expect(o.enabled).toBe(false);
-    expect(o.states).toEqual(["CA", "FL", "WY"]);
+    expect(o.states).toEqual(["CA", "FL", "TX", "WY"]);
     const res = await print({
       state: "WY",
       formId: "WY/preliminary-notice/statutory",
@@ -249,7 +249,7 @@ describe("preliminary notices", () => {
   });
 
   it("a state with no encoded notice lists none", async () => {
-    const o = await call<NoticeOverviewDto>(`${base}/notices?state=TX`, { as });
+    const o = await call<NoticeOverviewDto>(`${base}/notices?state=CO`, { as });
     expect(o.notices).toEqual([]);
   });
 

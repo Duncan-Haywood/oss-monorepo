@@ -11,6 +11,9 @@ import {
   FL_SERVICE_METHOD_LABELS,
   type FlNoticeRecipient,
   type FlServiceMethod,
+  TX_NOTICE_METHOD_LABELS,
+  type TxNoticeMethod,
+  type TxProjectKind,
 } from "@lien-waivers";
 import { formatCents } from "./money";
 import { type RfiFacts, rfiLabel } from "./rfi";
@@ -42,6 +45,9 @@ export const JOB_EVENT_ACTIONS = [
   "fl_notice_recorded",
   "fl_notice_delivered_set",
   "fl_notice_deleted",
+  "tx_project_kind_set",
+  "tx_notice_recorded",
+  "tx_notice_cleared",
   "rfi_created",
   "rfi_sent_changed",
   "rfi_answered",
@@ -110,6 +116,10 @@ export interface JobEventData {
   tracking?: string | null;
   /** RFI number on the job (printed "RFI 003"). */
   rfiNumber?: number;
+  /** Texas: residential or not (§ 53.001(10)); null: cleared (not a Texas job). */
+  txKind?: TxProjectKind | null;
+  /** Texas notice of claim: how it was sent (§ 53.003(b)). */
+  txMethod?: TxNoticeMethod;
   /** The date before the change (an RFI answered on another day before). */
   beforeDate?: string | null;
   /** Who answered an RFI, as entered. */
@@ -334,6 +344,14 @@ export function describeJobEvent(action: JobEventAction, d: JobEventData = {}): 
         : `${flNotice(d)}: delivery date cleared`;
     case "fl_notice_deleted":
       return `${flNotice(d)} sent${flManner(d)}: record deleted`;
+    case "tx_project_kind_set":
+      return d.txKind
+        ? `Texas notices of claim turned on: ${d.txKind === "residential" ? "residential construction project (second month)" : "not residential (third month)"}, Tex. Prop. Code § 53.056(a-1)`
+        : "Texas notices of claim turned off for this job";
+    case "tx_notice_recorded":
+      return `Texas notice of claim for application #${d.appNumber ?? ""} recorded as sent${d.txMethod ? ` by ${TX_NOTICE_METHOD_LABELS[d.txMethod].split(" (")[0]?.toLowerCase()}` : ""} on ${d.date ?? ""}`;
+    case "tx_notice_cleared":
+      return `Texas notice of claim for application #${d.appNumber ?? ""}: record cleared`;
     case "rfi_created": {
       const sent = d.date ? `, sent to the GC ${d.date}` : ", not sent yet";
       return `${rfi(d)} entered${d.description ? `: ${d.description}` : ""}${sent}`;

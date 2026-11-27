@@ -126,6 +126,18 @@ off when blank (`NoticeForm.omitIfBlank`). The notes quote § 8204(a)'s 20-day r
 date, name the ways to give notice (§§ 8106, 8110) and the proof of notice declaration (§ 8118,
 not printed). Public works (§ 9300 ff.) are not encoded. Other states return no notice.
 
+**2026-11-27: Texas' notices of claim.** `src/tx-notice.ts`: the "NOTICE OF CLAIM FOR UNPAID LABOR
+OR MATERIALS" (Tex. Prop. Code § 53.056(a-2)) and the "NOTICE OF CLAIM FOR UNPAID RETAINAGE"
+(§ 53.057(a-2)), both word for word, offered by `noticeForms("TX")`; `txNoticeDeadline(month, kind)`
+(the 15th of the third month after the work, the second on a residential construction project,
+§ 53.056(a-1); a Saturday or Sunday moved to the Monday, § 53.003(e), legal holidays not known) and
+`txPeriodDeadline` (a billing period takes its first month's date). Snapshot `sources/tx-53-056.txt`
+(§§ 53.001, 53.003, 53.052, 53.054, 53.056, 53.057 from the Legislature's chapter file, and H.B. 2237
+§§ 37-38: original contracts entered into on or after 2022-01-01); `test/tx-notice.test.ts` checks
+both whole forms, every quoted phrase and the month counts against it. Not encoded: the lien
+affidavit, the optional past-due notice (§ 53.056(a-4)), specially fabricated materials, pre-2022
+contracts and public works.
+
 **2026-11-25: California's preliminary notice, part 2.** `src/ca-proof.ts`: `caNoticeDueOn` (§ 8204(a),
 20 calendar days after first furnishing, never moved for a weekend or holiday), `caNoticeCompleteOn`
 (§ 8116: on delivery or deposit; five days after mailing for Code Civ. Proc. § 415.20),

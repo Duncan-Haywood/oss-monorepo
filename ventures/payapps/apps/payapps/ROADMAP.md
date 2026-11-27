@@ -1046,6 +1046,33 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   § 713.18(3)'s returned-mail rule, and a company setting for its tier so the contractor's copy can
   join the reminder.
 
+- Notices of claim: Texas (2026-11-27, Crew and up, with lien waivers; texas-notice-of-claim). With the
+  job's state set to TX, the notice panel offers both statutory forms word for word: the "NOTICE OF
+  CLAIM FOR UNPAID LABOR OR MATERIALS" (Tex. Prop. Code § 53.056(a-2)) and the "NOTICE OF CLAIM FOR
+  UNPAID RETAINAGE" (§ 53.057(a-2)), prefilled with the job, the GC as the original contractor and the
+  company. Under it, "Notices of claim by month (Texas)": say once whether the job is a residential
+  construction project (§ 53.001(10); `projects.tx_project_kind`, migration 0083) and every submitted
+  or certified application with money still owed gets its last day, the 15th of the third month after
+  the work (second, residential; § 53.056(a-1)), from the first month its period touches, so one
+  notice by then claims the whole application; a Saturday or Sunday moves to the Monday
+  (§ 53.003(e)), legal holidays are not tracked and the panel says so. "Put this amount on the
+  notice" fills the claim amount; each notice sent is recorded on its application with the day and
+  the § 53.003(b) method (`pay_apps.tx_notice_sent_on`, `tx_notice_method`), which a lien affidavit
+  must state (§ 53.054(a)(8)). The cash page and the weekly email remind from 30 days ahead, and once
+  the date passes say what § 53.056(a) says, until a notice is recorded or the application is paid
+  (`src/shared/tx-notice-claims.ts`). Job history: turned on or off, recorded, cleared. Statute text
+  from the Texas Legislature's chapter 53 file and H.B. 2237's transition section (only original
+  contracts entered into on or after 2022-01-01), read 2026-11-27 (`packages/lien-waivers/sources/
+  tx-53-056.txt`); `packages/lien-waivers/test/tx-notice.test.ts` compares both forms and every quoted
+  phrase with it. Tests: `src/shared/tx-notice-claims.test.ts` (dates, the weekend move, the
+  reminder's wordings), `test/worker/tx-notice-claims.test.ts` (forms offered and printed, dates from
+  a submitted application, residential, record and clear, paid, history, plan, role and tenant
+  gates). Why: Texas has the third most specialty-trade establishments (34,243, bets.md), its notice
+  is due again for every unpaid month, and PayApps already knows which months are unpaid. Not done:
+  the retainage notice's 30-day date (it runs from the sub's contract completion, which PayApps does
+  not record), Texas legal holidays, pre-2022 contracts, public jobs (Gov't Code ch. 2253 bond
+  notices), and the lien affidavit (§§ 53.052, 53.054).
+
 - GC portal exports, part 1: Procore's subcontractor SOV template (2026-11-25). On the job page, under
   the schedule of values, "Procore subcontractor SOV": choose the CSV template the GC's Procore
   commitment gives (Subcontractor Schedule of Values tab, Edit SSOV, Import CSV, Download CSV
