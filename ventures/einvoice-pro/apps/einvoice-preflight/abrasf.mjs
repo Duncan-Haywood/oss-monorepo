@@ -1,0 +1,437 @@
+// Offline checks for a Brazilian municipal NFS-e in the ABRASF layout (the model most
+// municipal web services follow, namespace http://www.abrasf.org.br/nfse.xsd): an RPS sent
+// for conversion (GerarNfseEnvio, EnviarLoteRpsEnvio, EnviarLoteRpsSincronoEnvio), an issued
+// NFS-e (CompNfse) or a web service's reply that carries them. Rule ids are ABR-nnn and are
+// this tool's own; no municipal rejection code is named. Layers:
+//   1. the schema (ABR-002..ABR-006) for layouts 2.00 to 2.04, read from the ABRASF XSDs
+//      by build-abrasf-schema.mjs; a file that states another layout (1.00) or a provider's
+//      own variant skips this layer and says so;
+//   2. identifiers (ABR-010, ABR-011): CNPJ and CPF check digits (brazil.mjs); every IBGE
+//      municipality code (CodigoMunicipio, MunicipioIncidencia, CodigoMunicipioGerador)
+//      against IBGE's list of 5,571 codes, its check digit, and the state named beside it;
+//   3. the values (ABR-020..ABR-023), the same in every 2.x layout and in 1.00:
+//      BaseCalculo = ValorServicos - ValorDeducoes - DescontoIncondicionado;
+//      ValorIss = BaseCalculo x Aliquota (a percentage, 5.00 for 5%; 1.00 files write the
+//      fraction, 0.05, and both readings are accepted);
+//      ValorLiquidoNfse = ValorServicos - PIS - COFINS - INSS - IR - CSLL - OutrasRetencoes
+//      - ISS retained (IssRetido 1) - DescontoIncondicionado - DescontoCondicionado;
+//      deductions plus the unconditional discount no more than ValorServicos;
+//   4. the rate (ABR-024): Aliquota within LC 116's national 2% to 5% band (iss-rate.mjs);
+//      ABR-025: where the ISS is due in a city whose own rate table is read (São Paulo, Rio de Janeiro),
+//      Aliquota against that city's rate for the service (iss-city-rates.mjs);
+//   5. the city's own service code (ABR-026): on a file issued by Rio de Janeiro's system,
+//      CodigoTributacaoMunicipio against Rio's Tabela de Códigos de Serviços on the file's date
+//      and against ItemListaServico (rio-service-codes.mjs).
+//      The ABRASF manual itself was not reachable from the build host; the formulas are as
+//      quoted from integration manuals that reproduce it (see README) and were then measured
+//      on the real files described there, which is where the tolerance rules come from.
+// An offline observation, not the municipality's acceptance, and not tax advice.
+
+import { checkAgainstAbrasf, rootsOf, ABRASF_NS, VERSIONS, SOURCE, cityProvider, providerSameAs, providerBase, providerMulti, multiFor, rootNamespace, CITY_COUNT } from "./abrasf-xsd.mjs";
+import { checkBrazilId } from "./brazil.mjs";
+import { issRateProblem, lcSubitem } from "./iss-rate.mjs";
+import { cityRateProblem, CITIES } from "./iss-city-rates.mjs";
+import { rioCodeProblem, RIO } from "./rio-service-codes.mjs";
+import { parseCfdiXml } from "./cfdi-xml.mjs";
+import { UF_CODE } from "./nfe.mjs";
+import { GAPS, CHECK_DIGIT_EXCEPTIONS, COUNT } from "./ibge-municipios-data.mjs";
+import { stripXmlNoise } from "./xml-text.mjs";
+
+export { ABRASF_NS, SOURCE };
+const SCHEMA_RULES = new Set(["ABR-002", "ABR-003", "ABR-004", "ABR-005", "ABR-006"]);
+const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
+
+const OWN_NS = /sistema\.com\.br\/Nfse\/arquivos\/nfse_3\.xsd|isscuritiba\.curitiba\.pr\.gov\.br\/iss\/nfse\.xsd|www\.e-nfs\.com\.br/;
+export function looksLikeAbrasf(text) {
+  const head = String(text).slice(0, 8192);
+  // Ginfes 1.00 (www.ginfes.com.br/..._v03.xsd) and WebISS 1.00 (www.abrasf.org.br/nfse) are
+  // ABRASF-model provider layouts with their own namespaces, read as such; so are ISSNet 1.00
+  // (www.issnetonline.com.br/webserviceabrasf/vsd/...) and Betha 1.00
+  // (www.betha.com.br/e-nota-contribuinte-ws).
+  // The single-file 1.0x layouts add SimplISS 1.00 (www.sistema.com.br/Nfse/arquivos/nfse_3.xsd),
+  // Curitiba's (isscuritiba.curitiba.pr.gov.br/iss/nfse.xsd) and Abaco 1.00 (www.e-nfs.com.br).
+  return OWN_NS.test(head) || head.includes("abrasf.org.br/nfse.xsd") || head.includes("www.ginfes.com.br/") || head.includes("issnetonline.com.br/webserviceabrasf/vsd/") || head.includes("betha.com.br/e-nota-contribuinte-ws") || /abrasf\.org\.br\/nfse["'&]/.test(head) || head.includes("abrasf.org.br/ABRASF/arquivos/nfse.xsd") || /&lt;[A-Za-z]+[^&]*xmlns=&quot;http:\/\/www\.abrasf\.org\.br\/nfse\.xsd/.test(head);
+}
+
+// ---------- IBGE municipality codes ----------
+
+let MUNICIPIOS = null;
+const municipios = () => {
+  if (!MUNICIPIOS) { let c = 0; MUNICIPIOS = new Set(GAPS.split(",").map((g) => (c += parseInt(g, 36)))); }
+  return MUNICIPIOS;
+};
+const UF_BY_CODE = Object.fromEntries(Object.entries(UF_CODE).map(([k, v]) => [v, k]));
+
+export function ibgeCheckDigit(first6) {
+  let s = 0;
+  for (let i = 0; i < 6; i++) { const p = Number(first6[i]) * (i % 2 ? 2 : 1); s += Math.floor(p / 10) + (p % 10); }
+  return (10 - (s % 10)) % 10;
+}
+
+/** Why `code` is not a municipality code IBGE lists, or "". */
+export function municipioProblem(code) {
+  const c = String(code).trim();
+  if (c === "9999999") return ""; // ABRASF's code for a service abroad
+  if (!/^\d{7}$/.test(c)) return "is not a 7-digit IBGE code";
+  if (municipios().has(Number(c))) return "";
+  if (!UF_BY_CODE[c.slice(0, 2)]) return `starts ${c.slice(0, 2)}, which is no state's IBGE code`;
+  if (ibgeCheckDigit(c) !== Number(c[6]) && !CHECK_DIGIT_EXCEPTIONS.includes(Number(c))) return `ends in check digit ${c[6]}, but its first six digits give ${ibgeCheckDigit(c)} (a typo is likely)`;
+  return `is not in IBGE's list of ${COUNT.toLocaleString("en")} municipality codes`;
+}
+
+// ---------- helpers ----------
+
+const named = (n) => (n?.children || []).filter((c) => c.name);
+const kid = (n, name) => named(n).find((c) => c.name === name);
+const txt = (n, name) => (kid(n, name)?.text ?? "").trim();
+function* walk(n, path) {
+  yield [n, path];
+  const seen = {};
+  for (const c of named(n)) {
+    const same = named(n).filter((k) => k.name === c.name).length;
+    seen[c.name] = (seen[c.name] || 0) + 1;
+    yield* walk(c, `${path}/${c.name}${same > 1 ? `[${seen[c.name]}]` : ""}`);
+  }
+}
+
+function cents(s) {
+  const m = /^\s*([+-]?)(\d*)(?:\.(\d*))?\s*$/.exec(String(s ?? ""));
+  if (!m || (!m[2] && !m[3])) return NaN;
+  const frac = (m[3] || "").padEnd(2, "0");
+  const v = Number(m[2] || "0") * 100 + Number(frac.slice(0, 2)) + (Number(frac.slice(2) ? "0." + frac.slice(2) : 0) >= 0.5 ? 1 : 0);
+  return m[1] === "-" ? -v : v;
+}
+const money = (c) => (c / 100).toFixed(2);
+const amt = (n, name) => { const v = txt(n, name); return v === "" ? 0 : cents(v); };
+
+// ---------- the file's ABRASF element ----------
+
+// Many files wrap the ABRASF element: a SOAP envelope, a web service reply, an ERP's own
+// container, or the XML escaped as text inside a SOAP parameter. Find the first element in
+// the ABRASF namespace whose name a layout declares as a root, reading escaped XML once.
+const MISSPELT = "http:/www.abrasf.org.br/nfse.xsd";
+function findRoot(node, depth = 0) {
+  const roots = new Set(VERSIONS.flatMap(rootsOf));
+  for (const [n] of walk(node, "")) {
+    if (n.ns === ABRASF_NS && roots.has(n.name)) return { root: n, wrapped: n !== node };
+    // ABRASF's own 1.00 schema (and ISSIntegra's copy) misspells its namespace as
+    // "http:/www.abrasf.org.br/nfse.xsd"; a file in it that states a 2.x layout is far more
+    // likely a 2.x file with a typo (named as such below) than an ISSIntegra 1.00 file.
+    const multi = n.ns === MISSPELT && VERSIONS.includes(statedVersion(n)) ? "" : multiFor(n.name, n.ns)[0];
+    if (multi) return { root: n, wrapped: n !== node, multi };
+    if (depth === 0 && !named(n).length && /^\s*</.test(n.text || "") && (/abrasf\.org\.br\/(nfse|ABRASF\/arquivos)|www\.ginfes\.com\.br\/|issnetonline\.com\.br\/webserviceabrasf\/vsd\/|betha\.com\.br\/e-nota-contribuinte-ws/.test(n.text) || OWN_NS.test(n.text))) {
+      try {
+        const inner = findRoot(parseCfdiXml(n.text).root, 1);
+        if (inner) return { ...inner, wrapped: true, escaped: true };
+      } catch { /* not XML */ }
+    }
+  }
+  return null;
+}
+
+function statedVersion(root) {
+  for (const [n] of walk(root, "")) {
+    if (n.attrs.versao) return n.attrs.versao.trim();
+    if (n.name === "versaoDados") return n.text.trim();
+  }
+  return "";
+}
+
+// The city whose web service takes the file: on an issued NFS-e the issuing body
+// (OrgaoGerador) or the provider's address; on an RPS, which carries no provider address,
+// the service's CodigoMunicipio (in practice the provider's city: an RPS is sent to the
+// provider's own city hall). ISSNet 1.00 names the service's city MunicipioPrestacaoServico.
+function issuerCity(root) {
+  const order = [["OrgaoGerador", "CodigoMunicipio"], ["PrestadorServico", "Endereco"], ["Servico", "CodigoMunicipio"], ["Servico", "MunicipioPrestacaoServico"]];
+  for (const [parent, child] of order) {
+    for (const [n, p] of walk(root, `/${root.name}`)) {
+      if (n.name !== parent) continue;
+      const holder = child === "Endereco" ? kid(n, "Endereco") : n;
+      const field = child === "Endereco" ? "CodigoMunicipio" : child;
+      const code = txt(holder, field);
+      if (/^\d{7}$/.test(code)) return { code, path: `${p}${child === "Endereco" ? "/Endereco" : ""}/${field}` };
+    }
+  }
+  return null;
+}
+
+// ---------- identifiers ----------
+
+function checkIds(root, base, out) {
+  for (const [n, p] of walk(root, base)) {
+        if ((n.name === "Cnpj" || n.name === "Cpf") && !named(n).length && n.text.trim()) {
+      const v = n.text.trim();
+      const r = checkBrazilId(v);
+      if (!r.ok && (r.kind === "cpf" || r.kind?.startsWith("cnpj"))) out.push(finding("ABR-010", `${n.name} ${v}: ${r.problems[0]}`, `Copy the ${n.name.toUpperCase()} from the party's registration (cartão CNPJ or CPF card).`, p));
+    }
+  }
+  for (const [n, p] of walk(root, base)) {
+        for (const field of ["CodigoMunicipio", "MunicipioIncidencia", "CodigoMunicipioGerador", "MunicipioPrestacaoServico"]) {
+      const c = kid(n, field);
+      if (!c || named(c).length || !c.text.trim()) continue;
+      const code = c.text.trim();
+      const why = municipioProblem(code);
+      if (why) { out.push(finding("ABR-011", `${field} ${code} ${why}.`, "Use the municipality's 7-digit IBGE code (the IBGE list, or the municipality's NFS-e manual).", `${p}/${field}`)); continue; }
+      const uf = txt(n, "Uf");
+      if (field === "CodigoMunicipio" && UF_CODE[uf] && code !== "9999999" && code.slice(0, 2) !== UF_CODE[uf]) out.push(finding("ABR-011", `CodigoMunicipio ${code} is in ${UF_BY_CODE[code.slice(0, 2)]} (IBGE state code ${code.slice(0, 2)}), but Uf beside it is ${uf} (code ${UF_CODE[uf]}).`, "Correct the city code or the state so they match.", `${p}/CodigoMunicipio`));
+    }
+  }
+}
+
+// ---------- values ----------
+
+// Aliquota as a fraction of one: 5.00 (a percentage, layouts 2.x) or 0.05 (1.00). Values
+// under 1 are ambiguous (0.50 could be 0.5% or 50%), so both readings are tried there.
+function issCandidates(baseCents, aliq) {
+  const a = Number(aliq);
+  if (!Number.isFinite(a)) return [];
+  const out = [Math.round((baseCents * a) / 100)];
+  if (a < 1) out.push(Math.round(baseCents * a));
+  return out;
+}
+
+// The InfDeclaracaoPrestacaoServico (2.x) or InfRps (1.00) that holds node `n`.
+function declaracao(n, root) {
+  let best = null;
+  for (const [m] of walk(root, "")) if ((m.name === "InfDeclaracaoPrestacaoServico" || m.name === "InfRps") && [...walk(m, "")].some(([x]) => x === n)) best = m;
+  return best;
+}
+
+function checkValues(root, base, out, notes) {
+  for (const [n, p] of walk(root, base)) {
+    if (n.name !== "Valores" || !kid(n, "ValorServicos")) continue;
+    const servico = n; // Servico/Valores (2.x RPS and 1.00 alike)
+    const vServ = amt(n, "ValorServicos");
+    const ded = amt(n, "ValorDeducoes"), dInc = amt(n, "DescontoIncondicionado"), dCond = amt(n, "DescontoCondicionado");
+    if (![vServ, ded, dInc, dCond].every(Number.isFinite)) continue;
+    // The issued totals sit beside the values (1.00) or in InfNfse/ValoresNfse (2.x).
+    let tot = kid(n, "BaseCalculo") || kid(n, "ValorLiquidoNfse") ? n : null;
+    let totPath = p;
+    if (!tot) {
+      for (const [m, q] of walk(root, base)) {
+        if (m.name === "InfNfse" && kid(m, "ValoresNfse") && [...walk(m, "")].some(([x]) => x === n)) { tot = kid(m, "ValoresNfse"); totPath = `${q}/ValoresNfse`; break; }
+      }
+    }
+    // Servico carries IssRetido beside Valores in 2.x; 1.00 puts it inside Valores.
+    let parent = null;
+    for (const [m] of walk(root, base)) if (named(m).includes(n)) { parent = m; break; }
+    const issRetido = (txt(parent, "IssRetido") || txt(n, "IssRetido")) === "1";
+
+    if (ded + dInc > vServ) out.push(finding("ABR-023", `ValorDeducoes ${money(ded)} + DescontoIncondicionado ${money(dInc)} = ${money(ded + dInc)}, more than ValorServicos ${money(vServ)}.`, "Deductions and the unconditional discount cannot exceed the service value; check which amount is off.", `${p}/ValorServicos`));
+    const wantBase = vServ - ded - dInc;
+    const baseTxt = tot ? txt(tot, "BaseCalculo") : "";
+    if (baseTxt && Number.isFinite(cents(baseTxt)) && cents(baseTxt) !== wantBase) out.push(finding("ABR-020", `BaseCalculo is ${baseTxt}, but ValorServicos ${money(vServ)} - ValorDeducoes ${money(ded)} - DescontoIncondicionado ${money(dInc)} = ${money(wantBase)}.`, "Recompute the ISS base from the service value, the deductions and the unconditional discount (a conditional discount does not lower it).", `${totPath}/BaseCalculo`));
+    const baseC = baseTxt && Number.isFinite(cents(baseTxt)) ? cents(baseTxt) : wantBase;
+    // ValorIss: the issued total if there is one, else the RPS's own.
+    for (const [node, where] of [[tot, totPath], [tot === servico ? null : servico, p]]) {
+      if (!node) continue;
+      const iss = txt(node, "ValorIss"), aliq = txt(node, "Aliquota") || txt(tot, "Aliquota") || txt(servico, "Aliquota");
+      if (!iss || !aliq || !Number.isFinite(cents(iss))) continue;
+      if (cents(iss) === 0 && cents(aliq) !== 0) {
+        // A zero ISS beside a rate: an RPS that leaves the computation to the municipality,
+        // a Simples Nacional provider (ISS paid inside the DAS) or ISS not due here.
+        const sn = txt(declaracao(n, root), "OptanteSimplesNacional") === "1";
+        const exig = txt(parent, "ExigibilidadeISS");
+        if (node === servico || sn || (exig && exig !== "1")) { notes.add(`ValorIss: 0.00 beside Aliquota ${aliq}${sn ? " from a Simples Nacional provider" : exig && exig !== "1" ? ` with ExigibilidadeISS ${exig}` : " on an RPS"}; read as not computed by the issuer, not checked`); continue; }
+      }
+      // The issued ISS may follow the stated base or the computed one (a wrong base is
+      // reported once, by ABR-020); an RPS has no stated base, so the computed one is used.
+      const want = node === servico && node !== tot ? issCandidates(wantBase, aliq) : [...issCandidates(baseC, aliq), ...issCandidates(wantBase, aliq)];
+      if (want.length && !want.some((w) => Math.abs(w - cents(iss)) <= 1)) out.push(finding("ABR-021", `ValorIss is ${iss}, but BaseCalculo ${money(node === servico && node !== tot ? wantBase : baseC)} x Aliquota ${aliq}% = ${money(want[0])}.`, "Recompute the ISS from the base and the rate (Aliquota is a percentage in layouts 2.x: 5.00 for 5%).", `${where}/ValorIss`));
+    }
+    checkIssRate(root, n, parent, tot, servico, txt(tot, "Aliquota") ? totPath : p, out, notes);
+    if (parent) checkCityCode(root, n, parent, p, out, notes);
+    const liqTxt = tot ? txt(tot, "ValorLiquidoNfse") : txt(n, "ValorLiquidoNfse");
+    if (liqTxt && Number.isFinite(cents(liqTxt))) {
+      const fed = ["ValorPis", "ValorCofins", "ValorInss", "ValorIr", "ValorCsll", "OutrasRetencoes"].map((k) => amt(n, k));
+      const issVal = cents(txt(tot, "ValorIss") || txt(n, "ValorIss") || "0");
+      const issRet = issRetido ? (Number.isFinite(cents(txt(n, "ValorIssRetido"))) && txt(n, "ValorIssRetido") ? cents(txt(n, "ValorIssRetido")) : issVal) : 0;
+      const want = vServ - fed.reduce((a, b) => a + b, 0) - issRet - dInc - dCond;
+      if (Number.isFinite(want) && Math.abs(want - cents(liqTxt)) > 1) out.push(finding("ABR-022", `ValorLiquidoNfse is ${liqTxt}, but ValorServicos ${money(vServ)} - PIS/COFINS/INSS/IR/CSLL/other retentions ${money(fed.reduce((a, b) => a + b, 0))}${issRetido ? ` - ISS retained ${money(issRet)}` : ""} - DescontoIncondicionado ${money(dInc)} - DescontoCondicionado ${money(dCond)} = ${money(want)}.`, issRetido ? "The net amount deducts the retained ISS (IssRetido 1) and every federal retention." : "The net amount deducts the federal retentions and both discounts; ISS is deducted only when retained (IssRetido 1).", `${tot ? totPath : p}/ValorLiquidoNfse`));
+    }
+  }
+}
+
+// ABR-024: the stated Aliquota against the national band (iss-rate.mjs: LC 116/2003 art. 8,
+// 2% to 5%, with 7.02, 7.05 and 16.01 allowed below 2%). Not judged: a Simples Nacional
+// provider (its rate follows its revenue band), a special regime (1 municipal micro-company,
+// 3 professional partnership, 5 MEI, 6 ME/EPP), ISS not due here (ExigibilidadeISS other
+// than 1; 1.00 NaturezaOperacao 3-6) and a zero rate.
+function checkIssRate(root, n, parent, tot, servico, p, out, notes) {
+  const aliq = txt(tot, "Aliquota") || txt(servico, "Aliquota");
+  if (!aliq || !Number.isFinite(Number(aliq)) || Number(aliq) === 0) return;
+  const decl = declaracao(n, root);
+  const sn = txt(decl, "OptanteSimplesNacional") === "1";
+  const reg = txt(decl, "RegimeEspecialTributacao");
+  const exig = txt(parent, "ExigibilidadeISS");
+  const nat = txt(decl, "NaturezaOperacao");
+  const why = sn ? "a Simples Nacional provider" : ["1", "3", "5", "6"].includes(reg) ? `RegimeEspecialTributacao ${reg}` : exig && exig !== "1" ? `ExigibilidadeISS ${exig}` : ["3", "4", "5", "6"].includes(nat) ? `NaturezaOperacao ${nat}` : "";
+  const item = lcSubitem(txt(parent, "ItemListaServico"));
+  // The competence month (2.x Competencia; 1.00 DataEmissao), for the 2029-2032 cuts.
+  const year = Number(rawDay(root, n).slice(0, 4));
+  const prob = issRateProblem({ rate: aliq, item, year });
+  if (!prob) {
+    // ABR-025: the city's own rate. The city is MunicipioIncidencia (2.x) where the file names
+    // one, else the city whose system issued the file.
+    if (why) return;
+    const city = txt(parent, "MunicipioIncidencia") || issuerCity(root)?.code || "";
+    const c = cityRateProblem({ city, rate: aliq, item, year });
+    if (c) out.push(finding("ABR-025", c.message, c.fix, `${p}/Aliquota`));
+    else if (CITIES[city] && item && !(year >= CITIES[city].years[0] && year <= CITIES[city].years[1])) notes.add(`Aliquota ${aliq}: ${CITIES[city].name}'s own rate table is read for ${CITIES[city].years.join("-")} competences only; not compared`);
+    return;
+  }
+  if (why && prob.kind === "low") { notes.add(`Aliquota ${aliq}: below the national 2% minimum, from ${why}; not judged (the band applies to the municipal rate, not this regime)`); return; }
+  out.push(finding("ABR-024", prob.message, prob.fix, `${p}/Aliquota`));
+}
+
+// The file's competence date as written (2.x Competencia; 1.00 DataEmissao).
+function rawDay(root, n) {
+  const decl = declaracao(n, root);
+  let dateNode = null;
+  for (const [m] of walk(root, "")) if (m === decl || (m.name === "InfNfse" && [...walk(m, "")].some(([x]) => x === n))) { dateNode = m; }
+  return txt(decl, "Competencia") || txt(decl, "DataEmissao") || txt(dateNode, "Competencia") || txt(dateNode, "DataEmissao");
+}
+// The same as YYYY-MM-DD (a month alone is read as its first day), or "".
+function fileDay(root, n) {
+  const d = rawDay(root, n).slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : /^\d{4}-\d{2}$/.test(d.slice(0, 7)) ? `${d.slice(0, 7)}-01` : "";
+}
+
+// ABR-026: Rio de Janeiro's own service code. CodigoTributacaoMunicipio is the issuing city's
+// code, so it is read where Rio's system issues the file (OrgaoGerador, the provider's address
+// or, on an RPS, the service's city), not where the ISS is due.
+function checkCityCode(root, n, parent, p, out, notes) {
+  const raw = txt(parent, "CodigoTributacaoMunicipio");
+  if (!raw || issuerCity(root)?.code !== RIO) return;
+  const item = lcSubitem(txt(parent, "ItemListaServico"));
+  const r = rioCodeProblem({ code: raw, item, day: fileDay(root, n) });
+  const at = `${p.slice(0, p.lastIndexOf("/"))}/CodigoTributacaoMunicipio`;
+  if (r?.message) out.push(finding("ABR-026", r.message, r.fix, at));
+  else if (r?.note) notes.add(r.note);
+}
+
+// ---------- entry ----------
+
+/** Check an ABRASF NFS-e file. Returns {findings, skipped, meta}. */
+export function checkAbrasf(text) {
+  const findings = [], skipped = [];
+  const body = stripXmlNoise(text, { cdata: true });
+  const amp = /&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/.exec(body);
+  if (amp) {
+    const line = body.slice(0, amp.index).split("\n").length;
+    return { findings: [finding("ABR-001", `The file is not well-formed XML: a bare & near line ${line}.`, "Write & as &amp; (a company name such as \"A & B\" is the usual cause); the web service rejects a file that is not well-formed.", "/")], skipped, meta: {} };
+  }
+  let doc;
+  try { doc = parseCfdiXml(text).root; } catch (e) {
+    return { findings: [finding("ABR-001", `The file could not be read as XML: ${e.message}.`, "Export the RPS or NFS-e again from the issuing system.", "/")], skipped, meta: {} };
+  }
+  let found = doc && findRoot(doc);
+  if (!found && doc) {
+    // A declared root outside the namespace (a dropped or mistyped xmlns): name it, then
+    // check identifiers and values anyway. Failing that, an older layout (1.00, InfRps) or a
+    // provider variant: the first ABRASF-namespace element, values only.
+    const roots = new Set(VERSIONS.flatMap(rootsOf));
+    const all = [...walk(doc, "")].map(([n]) => n);
+    const misplaced = all.find((n) => roots.has(n.name));
+    if (misplaced) {
+      findings.push(finding("ABR-002", `${misplaced.name} is not in the ABRASF namespace (it is in ${misplaced.ns ? `"${misplaced.ns}"` : "no namespace"}), so the web service cannot read it as ${misplaced.name}.`, `Declare xmlns="${ABRASF_NS}" on ${misplaced.name} (exactly that address; a missing slash or a namespace set only on an inner element is the usual cause).`, `/${misplaced.name}`));
+      found = { root: misplaced, wrapped: misplaced !== doc, offNs: true };
+    } else {
+      const first = all.find((n) => n.ns === ABRASF_NS || /abrasf\.org\.br/.test(n.ns));
+      if (first) found = { root: first, wrapped: first !== doc, other: true };
+    }
+  }
+  if (!found) {
+    return { findings: [finding("ABR-001", `No ABRASF element (GerarNfseEnvio, EnviarLoteRpsEnvio, CompNfse, ...) was found.`, "Check this is an ABRASF-layout municipal NFS-e; DSF's layout (namespace http://localhost:8080/WsNFe2/lote) and the national NFS-e have their own checks; other providers' own layouts (São Paulo's Paulistana, IPM 1.0x, ...) are not read.", "/")], skipped, meta: {} };
+  }
+  const { root, wrapped, escaped, offNs, other, multi } = found;
+  const base = `/${root.name}`;
+  const stated = statedVersion(root);
+  let version = "";
+  if (multi) {
+    // A provider's own layout, recognised by the root's namespace: the schema layer checks
+    // against that provider's schema set, whatever versao says. ABRASF 1.00's namespace
+    // (www.abrasf.org.br/ABRASF/arquivos/nfse.xsd) is shared by several city systems (Rio,
+    // Salvador, DBSeller, Pronim, Thema, ...): the issuing city's own system is taken when it
+    // is one of them, otherwise the one the file draws fewest schema findings under.
+    const candidates = multiFor(root.name, root.ns);
+    const listed = candidates.length > 1 && issuerCity(root) && cityProvider(issuerCity(root).code);
+    if (listed && candidates.includes(listed.key)) version = listed.key;
+    else {
+      const tries = candidates.map((k) => [k, checkAgainstAbrasf(root, k).length]).sort((a, b) => a[1] - b[1]);
+      version = tries[0][0];
+      if (candidates.length > 1) skipped.push(`layout: ${root.ns} is used by ${candidates.length} city systems (${candidates.join(", ")}); with no city among them named in the file, it is checked against ${version}, which it fits best (${tries[0][1]} schema finding${tries[0][1] === 1 ? "" : "s"}${tries.length > 1 ? `; ${tries[1][0]} would draw ${tries[1][1]}` : ""})`);
+    }
+    const files = providerMulti(version).files;
+    skipped.push(`layout: ${root.name} is in ${root.ns}, ${version}'s own layout (${files === 1 ? "its single schema file" : `${files} schema files`} read from OpenAC.Net.NFSe), so the schema layer checks against ${files === 1 ? "it" : "that set"}, namespaces included`);
+  } else if (offNs) skipped.push(`schema: ${root.name} is outside the ABRASF namespace, so the schema layer is skipped (identifiers and values are still checked)`);
+  else if (other) skipped.push(`schema: ${root.name} is not an element ABRASF 2.00-2.04 declares as a document (an older layout such as 1.00, a provider's variant, or a fragment), so the schema layer is skipped (identifiers and values are still checked)`);
+  else if (VERSIONS.includes(stated)) version = stated;
+  else if (!stated) {
+    // No layout stated: take the layout under which the file draws fewer schema findings.
+    const tries = VERSIONS.map((v) => [v, checkAgainstAbrasf(root, v)]).sort((a, b) => a[1].length - b[1].length || (a[0] < b[0] ? 1 : -1));
+    version = tries[0][0];
+    skipped.push(`layout: the file states none (no versao); checked against ABRASF ${version}, the layout it fits best`);
+  } else skipped.push(`schema: the file states layout ${stated}; only ABRASF 2.00 to 2.04 are read, so the schema layer is skipped (identifiers and values are still checked)`);
+  if (version) {
+    const own = checkAgainstAbrasf(root, version);
+    findings.push(...own);
+    // A stale or copied versao: the file draws schema findings under the layout it states
+    // but none, or far fewer, under another (2.00 writes DataEmissao as a date and time,
+    // 2.01 on as a date; 2.04 renamed Tomador to TomadorServico). Say which layout it fits;
+    // the findings stand.
+    if (stated && own.length && !multi) {
+      const best = VERSIONS.filter((v) => v !== version).map((v) => [v, checkAgainstAbrasf(root, v).length]).sort((a, b) => a[1] - b[1] || (a[0] < b[0] ? 1 : -1))[0];
+      if (best && (best[1] === 0 || best[1] * 2 <= own.length - 2)) skipped.push(`layout: the file states ${version} and draws ${own.length} schema finding${own.length === 1 ? "" : "s"} under it, but ${best[1] === 0 ? "none" : best[1]} under ABRASF ${best[0]}: if the city's web service runs ${best[0]}, set versao to ${best[0]} (or build the file to ${version})`);
+    }
+  }
+  // The city's own system. OpenAC.Net.NFSe's municipality list says which provider and
+  // layout each city it supports runs; where that provider publishes its own copy of the
+  // ABRASF schema (read by build-abrasf-schema.mjs), that copy is what the city's web service
+  // validates against, so it replaces the ABRASF layout for the schema layer and the note
+  // says how many findings each would draw.
+  const city = !offNs && !other ? issuerCity(root) : null;
+  const run = city && cityProvider(city.code);
+  if (run) {
+    const where = `${run.city} (${city.path.slice(city.path.lastIndexOf("/", city.path.lastIndexOf("/") - 1) + 1)} ${city.code})`;
+    const layoutOfListed = run.listed.split(" ").pop();
+    const listedMulti = run.key && providerMulti(run.key);
+    if (multi) {
+      if (run.key === version) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, the layout the file is in`);
+      else skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, but the file is in ${root.ns}, the namespace ${version}'s schemas use: check which system the city's web service runs before sending`);
+    } else if (listedMulti && rootNamespace(run.key, root.name) === root.ns && rootsOf(run.key).includes(root.name) && VERSIONS.includes(stated)) {
+      skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, but the file states layout ${stated}, so it is checked against ABRASF ${stated}; ${run.listed}'s own schema would draw ${checkAgainstAbrasf(root, run.key).length} schema findings. Check which layout the city's web service takes before sending`);
+    } else if (listedMulti && rootNamespace(run.key, root.name) === root.ns && rootsOf(run.key).includes(root.name)) {
+      // BHISS 1.00 and DSF 1.00 write ABRASF's 1.00 model in the 2.x namespace: the city's
+      // own schema replaces the 2.x layout for the schema layer.
+      const theirs = checkAgainstAbrasf(root, run.key);
+      const ours = findings.filter((f) => SCHEMA_RULES.has(f.rule));
+      findings.splice(0, findings.length, ...findings.filter((f) => !SCHEMA_RULES.has(f.rule)), ...theirs);
+      skipped.splice(0, skipped.length, ...skipped.filter((x) => !/^schema: the file states layout/.test(x)));
+      skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, whose single schema file writes the 1.00 model in this same namespace, so the schema layer checks against it: ${theirs.length} schema finding${theirs.length === 1 ? "" : "s"}${version ? ` (ABRASF ${version} would draw ${ours.length})` : ""}. If the file goes to another city, its system may differ`);
+      version = run.key;
+    } else if (listedMulti) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, whose layout puts its elements in its own namespaces (${listedMulti.namespace} and one per message); this file is in ${root.ns}, so that web service would not read it as ${root.name}${version ? `. Checked against ABRASF ${version}` : ""}. If the city has moved to another system, its list entry is stale`);
+    else if (!run.key) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities; that provider's own schema is not read here${version ? `, so the file is checked against ABRASF ${version}` : ""}`);
+    else if (!rootsOf(run.key).includes(root.name)) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, whose schema does not declare ${root.name} as a document${version ? `; checked against ABRASF ${version}` : ""}`);
+    else if (!version && stated && /^1\./.test(stated) !== /^1\./.test(layoutOfListed)) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, but the file states layout ${stated}: check which layout the city's web service takes before sending`);
+    else {
+      const same = providerSameAs(run.key);
+      const theirs = checkAgainstAbrasf(root, run.key);
+      const ours = version ? findings.filter((f) => SCHEMA_RULES.has(f.rule)) : [];
+      if (version) findings.splice(0, findings.length, ...findings.filter((f) => !SCHEMA_RULES.has(f.rule)));
+      findings.push(...theirs);
+      const copy = same ? `its copy of the schema is ABRASF ${same} as published${same !== layoutOfListed ? ` (not ${layoutOfListed}, the layout its name gives)` : ""}` : `its own copy of the schema (ABRASF ${providerBase(run.key)} with its additions)`;
+      skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities; ${copy}, so the schema layer checks against it: ${theirs.length} schema finding${theirs.length === 1 ? "" : "s"}${version && run.key !== version ? ` (ABRASF ${version}${stated === version ? ", the layout the file states," : ""} would draw ${ours.length})` : ""}. If the file goes to another city, its system may differ`);
+      version = same || run.key;
+    }
+  }
+  checkIds(root, base, findings);
+  const notes = new Set();
+  checkValues(root, base, findings, notes);
+  skipped.push(...notes);
+  if (wrapped) skipped.push(`wrapper: the ABRASF element ${root.name} sits inside ${escaped ? "escaped text (a SOAP parameter)" : `${doc.name}`}; only ${root.name} is checked`);
+  if ([...walk(root, "")].some(([n]) => n.name === "Signature")) skipped.push("signature: ds:Signature is present and not verified here");
+  const kinds = new Set([...walk(root, "")].map(([n]) => n.name));
+  const meta = { root: root.name, issuer: issuerCity(root)?.code ?? "", version: version || stated, stated, issued: kinds.has("InfNfse"), rps: kinds.has("InfDeclaracaoPrestacaoServico") || kinds.has("InfRps"), source: SOURCE };
+  return { findings, skipped, meta };
+}

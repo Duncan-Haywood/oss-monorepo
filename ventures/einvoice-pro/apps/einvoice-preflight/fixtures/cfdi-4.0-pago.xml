@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A synthetic CFDI 4.0 de pago (type P, unstamped) with the Pagos 2.0 complement,
+     between two of SAT's published test taxpayers. Two payments: one in pesos against a
+     peso invoice (IVA 16% transferred, ISR 1.25% withheld), one in dollars against a
+     dollar invoice and a peso invoice (EquivalenciaDR 17.25). Every sum was worked out
+     with Python's decimal module. Passes every MX rule; pagos20.test.mjs and
+     eval/pagos-mutations.mjs plant defects in it. -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:pago20="http://www.sat.gob.mx/Pagos20" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd http://www.sat.gob.mx/Pagos20 http://www.sat.gob.mx/sitio_internet/cfd/Pagos/Pagos20.xsd" Version="4.0" Serie="P" Folio="211" Fecha="2026-11-10T12:00:00" SubTotal="0" Moneda="XXX" Total="0" TipoDeComprobante="P" Exportacion="01" LugarExpedicion="86000" NoCertificado="30001000000500003416" Sello="" Certificado="">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="URE180429TM6" Nombre="UNIVERSIDAD ROBOTICA ESPAÑOLA" DomicilioFiscalReceptor="86991" RegimenFiscalReceptor="601" UsoCFDI="CP01"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="84111506" Cantidad="1" ClaveUnidad="ACT" Descripcion="Pago" ValorUnitario="0" Importe="0" ObjetoImp="01"/>
+  </cfdi:Conceptos>
+  <cfdi:Complemento>
+    <pago20:Pagos Version="2.0">
+      <pago20:Totales TotalRetencionesISR="125.00" TotalTrasladosBaseIVA16="20112.07" TotalTrasladosImpuestoIVA16="3217.93" MontoTotalPagos="23205.00"/>
+      <pago20:Pago FechaPago="2026-11-09T10:30:00" FormaDePagoP="03" MonedaP="MXN" TipoCambioP="1" Monto="11475.00">
+        <pago20:DoctoRelacionado IdDocumento="5FB2822E-396D-4725-8521-CDC4BDD20CCF" Serie="A" Folio="1040" MonedaDR="MXN" EquivalenciaDR="1" NumParcialidad="1" ImpSaldoAnt="22950.00" ImpPagado="11475.00" ImpSaldoInsoluto="11475.00" ObjetoImpDR="02">
+          <pago20:ImpuestosDR>
+            <pago20:RetencionesDR>
+              <pago20:RetencionDR BaseDR="10000.00" ImpuestoDR="001" TipoFactorDR="Tasa" TasaOCuotaDR="0.012500" ImporteDR="125.00"/>
+            </pago20:RetencionesDR>
+            <pago20:TrasladosDR>
+              <pago20:TrasladoDR BaseDR="10000.00" ImpuestoDR="002" TipoFactorDR="Tasa" TasaOCuotaDR="0.160000" ImporteDR="1600.00"/>
+            </pago20:TrasladosDR>
+          </pago20:ImpuestosDR>
+        </pago20:DoctoRelacionado>
+        <pago20:ImpuestosP>
+          <pago20:RetencionesP>
+            <pago20:RetencionP ImpuestoP="001" ImporteP="125.00"/>
+          </pago20:RetencionesP>
+          <pago20:TrasladosP>
+            <pago20:TrasladoP BaseP="10000.00" ImpuestoP="002" TipoFactorP="Tasa" TasaOCuotaP="0.160000" ImporteP="1600.00"/>
+          </pago20:TrasladosP>
+        </pago20:ImpuestosP>
+      </pago20:Pago>
+      <pago20:Pago FechaPago="2026-11-10T09:00:00" FormaDePagoP="03" MonedaP="USD" TipoCambioP="17.25" Monto="680.00">
+        <pago20:DoctoRelacionado IdDocumento="0C9A3E1B-7D44-4C2B-9E1F-2B6F4A8D9E01" Serie="B" Folio="77" MonedaDR="USD" EquivalenciaDR="1" NumParcialidad="1" ImpSaldoAnt="580.00" ImpPagado="580.00" ImpSaldoInsoluto="0.00" ObjetoImpDR="02">
+          <pago20:ImpuestosDR>
+            <pago20:TrasladosDR>
+              <pago20:TrasladoDR BaseDR="500.00" ImpuestoDR="002" TipoFactorDR="Tasa" TasaOCuotaDR="0.160000" ImporteDR="80.00"/>
+            </pago20:TrasladosDR>
+          </pago20:ImpuestosDR>
+        </pago20:DoctoRelacionado>
+        <pago20:DoctoRelacionado IdDocumento="9E4D2C11-58A0-4F7B-B3C6-71D2E5A40B33" Serie="A" Folio="1041" MonedaDR="MXN" EquivalenciaDR="17.25" NumParcialidad="2" ImpSaldoAnt="3450.00" ImpPagado="1725.00" ImpSaldoInsoluto="1725.00" ObjetoImpDR="02">
+          <pago20:ImpuestosDR>
+            <pago20:TrasladosDR>
+              <pago20:TrasladoDR BaseDR="1487.068966" ImpuestoDR="002" TipoFactorDR="Tasa" TasaOCuotaDR="0.160000" ImporteDR="237.931034"/>
+            </pago20:TrasladosDR>
+          </pago20:ImpuestosDR>
+        </pago20:DoctoRelacionado>
+        <pago20:ImpuestosP>
+          <pago20:TrasladosP>
+            <pago20:TrasladoP BaseP="586.206897" ImpuestoP="002" TipoFactorP="Tasa" TasaOCuotaP="0.160000" ImporteP="93.793103"/>
+          </pago20:TrasladosP>
+        </pago20:ImpuestosP>
+      </pago20:Pago>
+    </pago20:Pagos>
+  </cfdi:Complemento>
+</cfdi:Comprobante>

@@ -1,0 +1,24 @@
+// The paid layer on Cloudflare Workers + D1 (worker/index.mjs; docs/HOSTING.md, "On Cloudflare
+// Workers"). Build first: `npm i --no-save slimdom@4.3.5 && node worker/build.mjs`.
+// Needs Workers Paid (a check takes 40-440 ms of CPU, over the free plan's 10 ms), which the
+// owner's account already has for Grant Autopilot.
+{
+  "name": "einvoice-pro",
+  "main": "worker/index.mjs",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Error logs (console output: a short message, never a key or an invoice) go to Workers Logs,
+  // which Cloudflare keeps 7 days on Workers Paid. Invocation logs are off: they record each
+  // request's details, the client IP among them, and the Privacy Policy says IPs are never written.
+  "observability": { "enabled": true, "logs": { "enabled": true, "invocation_logs": false } },
+  "preview_urls": false,
+  // Modules compute file paths from import.meta.url at load (schematron.mjs, plain-node.mjs); the
+  // bundle has none, so give them one. Nothing is read from it: Saxon and the SEF files are not
+  // in the Worker (they report "unavailable") and the plain rules come from the embedded copy.
+  "define": { "import.meta.url": "\"file:///bundle/apps/einvoice-preflight/worker/index.mjs\"" },
+  // One CPU budget per request; a 50-invoice batch at the slowest set measured (cius-pt, 440 ms)
+  // is about 22 s. Raise only with Workers Metrics in hand.
+  "limits": { "cpu_ms": 60000 },
+  // The SqlStore creates its tables on first use (pro/sql-store.mjs SCHEMA), so no migrations dir.
+  "d1_databases": [{ "binding": "DB", "database_name": "einvoice-pro" }]
+}

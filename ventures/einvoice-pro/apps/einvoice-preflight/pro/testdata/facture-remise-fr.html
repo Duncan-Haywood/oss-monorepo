@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>Facture</title>
+<style>
+@page { size: A4; margin: 18mm 18mm; }
+body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 10pt; }
+.cols { display: flex; justify-content: space-between; margin-top: 10mm; }
+.cols div { width: 45%; line-height: 1.4; }
+h1 { font-size: 16pt; }
+table.items { width: 100%; border-collapse: collapse; margin-top: 8mm; }
+table.items th, table.items td { padding: 4px 6px; border-bottom: 1px solid #aaa; text-align: left; }
+table.items .r { text-align: right; }
+table.sum { margin-left: auto; margin-top: 4mm; }
+table.sum td { padding: 2px 6px; }
+table.sum .r { text-align: right; padding-left: 20mm; }
+.foot { position: absolute; bottom: 0; left: 0; right: 0; font-size: 7.5pt; text-align: center; }
+</style></head><body>
+<h1>FACTURE</h1>
+<table>
+<tr><td>N° de facture :</td><td>FA-2026-0388</td></tr>
+<tr><td>Date de facture :</td><td>18 novembre 2026</td></tr>
+<tr><td>Échéance :</td><td>18/12/2026</td></tr>
+</table>
+<div class="cols">
+<div><b>Vendeur</b><br>Plâtrerie Exemple SAS<br>12 rue des Artisans<br>69007 Lyon<br>N° TVA : FR68900000001</div>
+<div><b>Client</b><br>Promotion Modèle SARL<br>4 avenue du Parc<br>38000 Grenoble<br>N° TVA : FR40303265045</div>
+</div>
+<table class="items">
+<tr><th>Désignation</th><th class="r">Quantité</th><th class="r">Prix unitaire HT</th><th class="r">TVA</th><th class="r">Montant HT</th></tr>
+<tr><td>Cloisons en plaques de plâtre</td><td class="r">64 m²</td><td class="r">32,50 €</td><td class="r">20 %</td><td class="r">2 080,00 €</td></tr>
+<tr><td>Bandes et enduit</td><td class="r">64 m²</td><td class="r">6,25 €</td><td class="r">20 %</td><td class="r">400,00 €</td></tr>
+<tr><td>Déplacement chantier</td><td class="r">2 jours</td><td class="r">10,00 €</td><td class="r">20 %</td><td class="r">20,00 €</td></tr>
+</table>
+<table class="sum">
+<tr><td>Total HT</td><td class="r">2 500,00 €</td></tr>
+<tr><td>Remise 10 %</td><td class="r">-250,00 €</td></tr>
+<tr><td>Net HT</td><td class="r">2 250,00 €</td></tr>
+<tr><td>TVA 20 %</td><td class="r">450,00 €</td></tr>
+<tr><td><b>Total TTC</b></td><td class="r"><b>2 700,00 €</b></td></tr>
+</table>
+<p>Conditions de paiement : virement à 30 jours. Pas d'escompte pour paiement anticipé.</p>
+<div class="foot">Plâtrerie Exemple SAS · 12 rue des Artisans · 69007 Lyon · SIREN 900 000 001 · IBAN : FR14 2004 1010 0505 0001 3M02 606 · BIC : PSSTFRPPLYO</div>
+</body></html>

@@ -1,0 +1,3 @@
+worker/files.generated.mjs
+.wrangler/
+wrangler.deploy.json

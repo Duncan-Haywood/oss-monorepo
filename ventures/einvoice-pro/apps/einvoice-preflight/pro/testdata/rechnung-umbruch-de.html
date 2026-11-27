@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><title>Rechnung</title>
+<style>
+@page { size: A4; margin: 15mm 15mm 15mm 15mm; }
+body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 10pt; color: #000; }
+.sender { font-size: 7pt; text-decoration: underline; margin-top: 30mm; }
+.addr { margin-top: 3mm; line-height: 1.35; }
+.info { position: absolute; top: 40mm; right: 0; }
+.info td { padding: 1px 0 1px 12mm; }
+h1 { font-size: 14pt; margin-top: 18mm; }
+table.items { width: 100%; border-collapse: collapse; margin-top: 6mm; }
+table.items { font-size: 9pt; }
+table.items th, table.items td { white-space: nowrap; padding: 5px 5px; vertical-align: top; border-bottom: 1px solid #999; text-align: left; }
+table.items .r { text-align: right; }
+.carry { margin-left: auto; margin-top: 3mm; }
+.carry td { padding: 2px 6px; }
+.carry .r { text-align: right; padding-left: 20mm; }
+table.sum { margin-left: auto; margin-top: 4mm; }
+table.sum td { padding: 2px 6px; }
+table.sum .r { text-align: right; padding-left: 14mm; }
+.page2 { break-before: page; }
+.pagehead { font-size: 8pt; }
+table.items td.d { white-space: normal; }
+.foot { margin-top: 10mm; font-size: 7pt; display: flex; justify-content: space-between; }
+</style></head><body>
+<div class="sender">Garten Beispiel GmbH &amp; Co. KG · Gärtnerweg 5 · 04109 Leipzig</div>
+<div class="addr">Hausverwaltung Muster GmbH<br>Herrn Jan Exempel<br>Parkstraße 40<br>04103 Leipzig</div>
+<table class="info">
+<tr><td>Rechnungsnummer:</td><td>2026-1131</td></tr>
+<tr><td>Rechnungsdatum:</td><td>26.11.2026</td></tr>
+<tr><td>Leistungsdatum:</td><td>20.11.2026</td></tr>
+</table>
+<h1>Rechnung</h1>
+<p style="margin-top:86mm">Sehr geehrter Herr Exempel,<br>für die Hofeinfahrt Parkstraße 40 berechnen wir:</p>
+<table class="items">
+<thead><tr><th>Pos.</th><th>Bezeichnung</th><th class="r">Menge</th><th>Einheit</th><th class="r">Einzelpreis</th><th class="r">USt</th><th class="r">Gesamt</th></tr></thead>
+<tr><td>1</td><td class="d">Pflastersteine Beton grau 20x10x8 cm</td><td class="r">45</td><td>m²</td><td class="r">18,90 €</td><td class="r">19 %</td><td class="r">850,50 €</td></tr>
+<tr><td>2</td><td class="d">Pflasterarbeiten inkl. Splittbett</td><td class="r">45</td><td>m²</td><td class="r">32,00 €</td><td class="r">19 %</td><td class="r">1.440,00 €</td></tr>
+<tr><td>3</td><td class="d">Randsteine setzen</td><td class="r">28</td><td>m</td><td class="r">16,50 €</td><td class="r">19 %</td><td class="r">462,00 €</td></tr>
+<tr><td>4</td><td class="d">Schotter 0/32 Tragschicht</td><td class="r">12</td><td>t</td><td class="r">24,00 €</td><td class="r">19 %</td><td class="r">288,00 €</td></tr>
+<tr><td>5</td><td class="d">Rüttelplatte mit Bediener</td><td class="r">6</td><td>Std.</td><td class="r">62,00 €</td><td class="r">19 %</td><td class="r">372,00 €</td></tr>
+<tr><td>6</td><td class="d">Entwässerungsrinne Polymerbeton</td><td class="r">8</td><td>m</td><td class="r">48,00 €</td><td class="r">19 %</td><td class="r">384,00 €</td></tr>
+<tr><td>7</td><td class="d">Aushub Bodenklasse 3-5</td><td class="r">18</td><td>m³</td><td class="r">21,00 €</td><td class="r">19 %</td><td class="r">378,00 €</td></tr>
+<tr><td>8</td><td class="d">Abfuhr Erdaushub</td><td class="r">18</td><td>m³</td><td class="r">19,50 €</td><td class="r">19 %</td><td class="r">351,00 €</td></tr>
+<tr><td>9</td><td class="d">Geotextil Vlies GRK 3</td><td class="r">60</td><td>m²</td><td class="r">2,10 €</td><td class="r">19 %</td><td class="r">126,00 €</td></tr>
+<tr><td>10</td><td class="d">Kantensteine Beton 100x25x6 cm</td><td class="r">30</td><td>Stk</td><td class="r">3,95 €</td><td class="r">19 %</td><td class="r">118,50 €</td></tr>
+<tr><td>11</td><td class="d">Natursteinmauer Granit trocken gesetzt,<br>Höhe bis 60 cm, inkl. Streifenfundament<br>C20/25, Frostschutzschicht und<br>Hinterfüllung mit Drainagekies 16/32<br>sowie Abdeckplatten Granit geflammt</td><td class="r">9</td><td>m</td><td class="r">145,00 €</td><td class="r">19 %</td><td class="r">1.305,00 €</td></tr>
+<tr><td>12</td><td class="d">Entsorgung Altpflaster</td><td class="r">1</td><td>psch</td><td class="r">240,00 €</td><td class="r">19 %</td><td class="r">240,00 €</td></tr>
+<tr><td>13</td><td class="d">Pflegeschnitt</td><td class="r">3</td><td>Std.</td><td class="r">54,00 €</td><td class="r">19 %</td><td class="r">162,00 €</td></tr>
+</table>
+<table class="sum">
+<tr><td>Nettobetrag</td><td class="r">6.477,00 €</td></tr>
+<tr><td>19 % USt</td><td class="r">1.230,63 €</td></tr>
+<tr><td><b>Gesamtbetrag</b></td><td class="r"><b>7.707,63 €</b></td></tr>
+</table>
+<p>Zahlbar innerhalb von 14 Tagen ohne Abzug.</p>
+<div class="foot">
+<div>Garten Beispiel GmbH &amp; Co. KG<br>Gärtnerweg 5<br>04109 Leipzig<br>Tel. 0341 556677</div>
+<div>Amtsgericht Leipzig HRA 7788<br>USt-IdNr.: DE136695976<br>Steuernummer: 231/123/45678</div>
+<div>Leipziger Beispielbank<br>IBAN: DE02 1203 0000 0000 2020 51<br>BIC: BYLADEM1001<br>rechnung@garten-beispiel.example</div>
+</div>
+</body></html>

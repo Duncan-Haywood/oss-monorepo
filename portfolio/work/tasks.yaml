@@ -645,6 +645,28 @@ tasks:
       PR, deploy once, then remove the private copy and repoint models.yaml,
       bets.md and roadmap_claim.py. Until then private-monorepo is where runs
       build; refresh this copy with ventures/payapps/sync-from-private.sh.
+  - id: move-einvoice-pro-public
+    direction: paid-bets
+    title: Move E-invoice Fix & Explain (bet #3) and the packages it imports into this repository (step 4 of products-to-public-repo)
+    done_when: >-
+      ventures/einvoice-pro/ holds the paid edition and its site under the
+      all-rights-reserved notice, with the packages it imports, its CI ported
+      and passing (CodeQL gate included), the audit's output in the PR, and
+      the deploy path written down. The private copy is removed in a
+      private-monorepo PR once the public one deploys.
+    hours: 10
+    status: open
+    added: 2026-11-27
+    notes: >-
+      Part 1 (2026-11-27): ventures/einvoice-pro holds apps/einvoice-preflight,
+      apps/einvoice-site, packages/billing and packages/admin-metrics
+      (private-monorepo a1531806), with .github/workflows/einvoice-pro-ci.yml
+      and docs/reports/2026-11-27-move-einvoice-pro-public.md. It takes over
+      PRs #19574 and #19575, which copied to top-level apps/ (the layout main
+      dropped when PayApps landed in ventures/payapps) and stalled on CodeQL.
+      Left (ventures/einvoice-pro/DEPLOY.md, "Then"): priv-einvoice-pro-deploy.yml
+      in its own PR, deploy once, repoint bets.md, models.yaml and
+      roadmap_claim.py, remove the private copy.
   - id: inboxes-without-owner
     direction: paid-bets
     title: Turn the agent inboxes on with no owner-pasted secrets

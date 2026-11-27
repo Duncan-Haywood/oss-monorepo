@@ -128,6 +128,9 @@ workflows:
 - workflow: einvoice-preflight-ci.yml
   classification: none
   publishes: []
+- workflow: einvoice-pro-ci.yml
+  classification: none
+  publishes: []
 - workflow: error-rate-disclosure-ci.yml
   classification: none
   publishes: []
