@@ -2,7 +2,7 @@
 
 > Free, private schedule of values / continuation sheet calculator for construction subcontractors (work completed, stored materials, retainage held and released, balance to finish, current payment due), plus plain-English guides on filling out a pay application, retainage with cited public retainage caps for 16 US states, conditional vs unconditional lien waivers, and change orders, plus a change order log. Runs in the browser; nothing is uploaded.
 
-Free to use and source available (FSL-1.1-MIT). Not legal, tax, accounting or financial advice. Not affiliated with the American Institute of Architects and does not reproduce the AIA G702/G703 forms. Statutes were read on 2026-11-24; check the linked statute before relying on it. Hosted pay-app billing for subcontractors is in development, with early access; nothing is for sale yet.
+Free to use and source available (FSL-1.1-MIT). Not legal, tax, accounting or financial advice. Not affiliated with the American Institute of Architects and does not reproduce the AIA G702/G703 forms. Statutes were read on 2026-11-24; check the linked statute before relying on it. PayApps, hosted pay-app billing for subcontractors, is open: pay applications with retainage and change orders, free on one active job with no card, at https://payapps.duncan-andrew-haywood.workers.dev/?signup . Lien waivers, QuickBooks and job costing are in paid plans, which are not on sale yet.
 
 ## Pages
 
