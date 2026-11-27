@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "PR #19778 merged with industries/manufacturing's meta description at 178 characters; priv-portfolio-pages' build job (check.mjs, 160 budget) was red but not required, and I merged on required checks without reading the non-required ones. Fixed forward in the next PR with a page-level length test."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -43,6 +45,10 @@
     {
       "file": "platform/ci/live_funnel_check.mjs",
       "issue": "Through the session's egress proxy a freshly bound custom domain fails intermittently (ERR_TUNNEL_CONNECTION_FAILED on some requests) for several minutes after health first answers, so the check reports a missing form that is not missing; a retry or two-pass mode would avoid a false alarm."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes left priv-portfolio-pages.yml at NO VERDICT, and that is the workflow whose check.mjs catches a long page description; running `node build.mjs --out=dist && node check.mjs dist` in platform/pages by hand would have caught it before the merge."
     }
   ],
   "deviations": [

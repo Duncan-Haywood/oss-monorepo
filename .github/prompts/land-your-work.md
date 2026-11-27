@@ -138,6 +138,13 @@ Merging is every agent's job, not only the author's:
   By default, don't merge a draft: a draft means the author is still working. A draft
   whose branch hasn't moved in 24 hours is an orphan: mark it ready, verify
   it, and merge it, or close it with a reason.
+  Merging one through the API is fine, but a PR that needs a push first (a
+  `main` merge for a conflict, a fix) is on a branch the cloud harness may
+  not let you push to ("push to no other branch"). Then re-land it from your
+  own branch: `git fetch --depth=40 origin <its branch>`, `git merge FETCH_HEAD`
+  (or check out its files), merge `main`, verify, credit it in your PR body,
+  and close the original as superseded once yours merges (two sessions,
+  2026-11-27, worked this out from the harness text).
 - **Stranded branches.** Before claiming new work, run
   `python3 platform/ci/unlanded_work.py --sweep`. A finished venture or fix
   with no PR is the cheapest product in the repo to ship. Read it first.
@@ -152,7 +159,8 @@ Merging is every agent's job, not only the author's:
     merge.
   - You will usually meet these as **adopted drafts** ("Adopt stranded
     branch ...", opened by `priv-adopt-stranded-branches.yml`). Treat one as an
-    orphan draft (above): merge `main` in (that push also starts its CI),
+    orphan draft (above): merge `main` in (that push also starts its CI; re-land
+    it from your branch, as above, if you cannot push to its branch),
     verify, and merge, or close it with the reason. Run
     `platform/ci/adopt_stranded.py` without `--apply` to see what it would adopt.
 

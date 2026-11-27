@@ -154,7 +154,7 @@ test("the free plan line matches Job Shop Quote's own FREE_PLAN", () => {
   assert.equal(jq.freePlan, `${rfqs} RFQs a month, ${members} users, no card`);
 });
 
-test('the meta description fits the 160 characters a search result shows', () => {
+test('the meta description fits the 160-character budget check.mjs enforces', () => {
   const d = /<meta name="description" content="([^"]*)"/.exec(html)[1];
-  assert.ok(d.length <= 160, `description is ${d.length} characters`);
+  assert.ok(d.length <= 160, `${d.length} characters`);
 });

@@ -135,7 +135,8 @@ wrangler dev                         # local D1; or `wrangler d1 create einvoice
 
 ## Deploying (2026-11-26)
 
-`.github/workflows/einvoice-preflight-deploy.yml`, run by hand (Actions -> einvoice-preflight-deploy
+`.github/workflows/priv-einvoice-pro-deploy.yml` in oss-monorepo (ported 2026-11-27 from
+private-monorepo's `einvoice-preflight-deploy.yml`), run by hand from `main` (Actions -> einvoice-pro-deploy
 -> Run workflow). Nothing deploys on a merge or from a pull request. It runs the tests, installs
 `slimdom@4.3.5` and `wrangler@4.165.0` (the version `pnpm-lock.yaml` pins for the other apps) with
 `--no-save`, builds the embedded files, then `worker/provision.mjs`:
