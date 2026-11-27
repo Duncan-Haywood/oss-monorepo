@@ -26,12 +26,12 @@
 
   <h2>1. How easily heat crosses each surface (U-values)</h2>
   <p>A wood-framed wall is two heat paths side by side: through the insulated cavity and through the studs. Each path's resistance is the sum of its layers, and the wall's U-factor is the area-weighted sum of the two paths' conductances (the parallel-path method):</p>
-  <pre>U = (1 − f) / R_cavity_path + f / R_stud_path</pre>
+  <pre style="white-space:pre-wrap;overflow-wrap:anywhere">U = (1 − f) / R_cavity_path + f / R_stud_path</pre>
   <p>With inside air film R 0.68, ½" drywall 0.45, sheathing 0.62, siding 0.62, outside film 0.17, softwood at R 1.25 per inch and a framing fraction f of 0.25, a 2x4 wall with R-13 batts works out at U ≈ 0.084 Btu/h·ft²·°F, about R-11.8 overall rather than the R-13 on the bag. The attic floor is <code>1 / (R_insulation + 0.45 + 2 × 0.61)</code>. Windows and doors use the U-factor from their label. A slab loses heat mostly at its edge, so it is counted as <code>F × perimeter × ΔT</code>; the default F of 0.73 Btu/h·ft·°F is the usual figure for an uninsulated slab edge, and an insulated edge is lower.</p>
 
   <h2>2. Heating: the cold night</h2>
   <p>Heating is steady state at the winter design temperature, with no credit for sun or people, since the worst hour is a cloudy pre-dawn:</p>
-  <pre>Q_heat = Σ U·A·ΔT  +  F·P·ΔT  +  1.08 · ρ · cfm_leak · ΔT</pre>
+  <pre style="white-space:pre-wrap;overflow-wrap:anywhere">Q_heat = Σ U·A·ΔT  +  F·P·ΔT  +  1.08 · ρ · cfm_leak · ΔT</pre>
   <p>Air leakage comes from a blower-door number. A house's natural air change rate is roughly ACH50 divided by an N factor (about 20 for a typical single-storey house; lower for tall or windy sites), so 6 ACH50 is 0.3 air changes an hour. That airflow is shared among rooms by their outside wall area. 1.08 is the sensible heat of air (Btu/h per cfm per °F) at sea level; ρ scales it down with altitude by the standard atmosphere (about 83% at 5,000 ft). Mechanical ventilation adds <code>1.08 · ρ · cfm · (1 − recovery) · ΔT</code> to the whole house, and ducts outside the conditioned space add a percentage on top.</p>
 
   <h2>3. Cooling: a whole design day, hour by hour</h2>

@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVNrZfRn79jtbjPAAJM",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T00:56:30Z",
+  "ended": "2026-11-27T01:09:06Z",
+  "wall_minutes": 12.77,
+  "tokens_in": 7085978,
+  "tokens_out": 33096,
+  "cost_usd": 3.0155,
+  "tool_calls": 75,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19542",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First merge attempt 405: PR #19540 (parallel polish run) landed table.stack.fields on 7 of the same input grids; merged main, took its side, re-probed (0 at 390 px)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/stack-overflowing.mjs",
+      "issue": "Skips every script-filled table ('a script fills it') although STACK_LABELS_JS now labels runtime rows, and does not look at bare tables outside a .pf-table-scroll box; 0 of 24 remaining pages were handled, so all edits were by hand."
+    },
+    {
+      "file": "platform/pages/site-nav.mjs",
+      "issue": "STACK_TABLE_CHROME_CSS does not stretch a select in a stacked card: a venture's max-width on the select pushed it 40 px past the card (service-load-check); needed width:100%;min-width:0 locally."
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "Searched 'swipe' and 'input-grids' before opening; the parallel PR #19540 was titled 'editable rows become cards' and opened during this run, so neither search could catch it. Two polish runs picking the same 'Still weakest' item in the same hour has no claim mechanism."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the full survey and took the last note's list, as the prompt's first bullet suggests.",
+      "did": "Probed the construction set only.",
+      "result": "43 -> 0 at 390 px."
+    },
+    {
+      "file": "docs/reports/polish-2026-11-26-results-tables-stack.md",
+      "why": "Note suggested giving the charts width:100%; they already have a viewBox and a deliberate min-width:560px for 11 px labels.",
+      "did": "Marked the two charts data-phone-scroll-ok instead of shrinking them.",
+      "result": "Labels stay readable; probe clean."
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-27-input-grids-stack.md",
+    "docs/posts/2026-11-19-wide-tables-become-cards-on-a-phone.md (update section)"
+  ],
+  "goal": null,
+  "notes": "phone-probe-check.mjs over 131 construction slugs / 495 pages at 390x844: 43 failures before (origin/main f500f761b), 0 after. 320 px on the 24 touched slugs: 21 (next list). run_venture_tests.py --changed: 33 suites, 0 failed. risk_review.py: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5daa882a-ff13-5d51-945c-8be7dd444198",
+    "transcripts": 1,
+    "first": "2026-11-27T00:56:30Z",
+    "last": "2026-11-27T01:09:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 128,
+        "output": 33096,
+        "thinking": 7524,
+        "cache_read": 6965868,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119982,
+        "api_equivalent_usd": 3.0155,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 128,
+      "output": 33096,
+      "thinking": 7524,
+      "cache_read": 6965868,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119982,
+      "api_equivalent_usd": 3.0155,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 66,
+      "Read": 7,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.77,
+      "active_minutes": 12.77,
+      "model_minutes": 5.73,
+      "tool_minutes": 7.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "front-end dev: triage 43 overflow cases across 24 tools, CSS/markup fixes, screenshot QA, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 165.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

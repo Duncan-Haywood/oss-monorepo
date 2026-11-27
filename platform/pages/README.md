@@ -2081,6 +2081,8 @@ node platform/pages/phone-probe-check.mjs --industry all --list             # ev
 
 First reading, 2026-11-26: 0 sideways pages, 0 small fields, 0 tall rows,
 126 swipes over 495 pages (`docs/reports/polish-2026-11-26-phone-probe.md`).
+2026-11-27: 0 failures of any kind over the same 495 pages at 390 px
+(`docs/reports/polish-2026-11-27-input-grids-stack.md`); 320 px still finds 21.
 Not in CI (Playwright).
 
 The probe sees only what a page prints at its defaults and its example, so
