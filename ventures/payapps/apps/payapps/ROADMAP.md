@@ -2246,6 +2246,16 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   docs/TIMESHEETS.md, privacy policy 2026-11-27.4, marketing site features page and llms.txt. Why:
   payroll reports and QuickBooks bring labor in weeks after it is worked, and time tracking is a
   standard module of the suites the bet compares against (JobTread, Contractor Foreman, Knowify).
+- Browser e2e suite, part 1 (2026-11-27, payapps-e2e-suite): `pnpm test:e2e` (Playwright, offline,
+  README "Browser tests") walks a stranger's first pay application from the guides' sign-up link to a
+  paid application, keeps two companies apart by page and API, and holds every page on that path to a
+  390 px phone width; CI job `payapps (browser e2e)`. Found and fixed on the way: the company page was
+  859 px wide on a phone (ten links in one unwrapped row) and the job page 567 px (three tables with no
+  scroll box), so a new user's first screen scrolled sideways; the pre-submit checks printed money as
+  "$250000.00" (now "$250,000.00", as the page and PDF do); a returning user's home page offered "Add
+  your company" under the company they already had (now "Add another company", with what it is for).
+  Next, if it earns its time: the change-order and second-application path, the sample job, and an
+  invited PM through the email link.
 
 - Crew timesheets, part 2a (2026-11-27, every plan, timesheets-part-2-certified-payroll-fill): the
   certified payroll page's "Fill hours from PayApps timesheets" reads the job's week straight from

@@ -39,6 +39,10 @@
     {
       "file": "ventures/jobshop-quote/apps/jobshop-quote/ROADMAP.md",
       "issue": "Next numbers two items 15, but the file is a snapshot that sync-from-private.sh overwrites, so it can't be renumbered here; the tool now refuses an ambiguous --claim instead."
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "I checked for duplicates of P097 and 'cron', not 'roadmap_claim' or 'device'. PR #19713 shipped the same device gate (keyword 'device-gate') from the same friction while this run worked, so most of my first commit turned into a merge conflict. A lens taken from 'Doc friction by file' has no backlog id to search, so two critique runs reading the same top row collide."
     }
   ],
   "deviations": [
@@ -53,7 +57,7 @@
     "prompts/process/backlog/P098-roadmap-claim-device-gate.json"
   ],
   "goal": null,
-  "notes": "Backlog: P097 skipped (open PR #19732), P098 filed and done. roadmap_claim.py gains a 'waits on a device' gate (payapps #11: 'check it on a Windows PC and an Android phone with a real iPhone photo', mentioned by 16 run records on 2026-11-27) and refuses --claim N when the Next list uses N twice (jobshop-quote #15). Checked across the payapps, jobshop-quote, cmmc and seller-books Next lists: only payapps #11 changes from free to gated; --bets 'Start here' now names an untouched jobshop-quote growth topic. Verification: python3 -m unittest test_roadmap_claim (37 OK), promptctl validate ok, unittest discover -s prompts (169 OK), main_health.py 330/330 before the change. risk_review: nothing blocked; flagged checks are false positives (no auth, payment, personal data or guardrail text touched).",
+  "notes": "Backlog: P097 skipped (open PR #19732), P098 filed and done. roadmap_claim.py: the 'waits on a device' gate this run wrote was also merged first by PR #19713 (parallel process run). On merging main this run kept #19713's regex and added two test cases. The new behaviour in this PR is that the tool (payapps #11: 'check it on a Windows PC and an Android phone with a real iPhone photo', mentioned by 16 run records on 2026-11-27) refuses --claim N when the Next list uses N twice (jobshop-quote #15). Checked across the payapps, jobshop-quote, cmmc and seller-books Next lists: only payapps #11 changes from free to gated; --bets 'Start here' now names an untouched jobshop-quote growth topic. Verification: python3 -m unittest test_roadmap_claim (37 OK), promptctl validate ok, unittest discover -s prompts (169 OK), main_health.py 330/330 before the change. risk_review: nothing blocked; flagged checks are false positives (no auth, payment, personal data or guardrail text touched).",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -1,6 +1,6 @@
 {
   "id": "P098",
-  "title": "roadmap_claim --bets sent every session to a Next ask only a physical device can check",
+  "title": "roadmap_claim: a device-only Next ask read as free, and a Next number used twice was claimed silently",
   "status": "done",
   "owner": "agent",
   "effect": 2,
@@ -11,7 +11,7 @@
     "promptctl.py measure, 'Doc friction by file', 2026-11-27: platform/ci/roadmap_claim.py 8 live reports in 3 days, the latest three naming payapps #11",
     "apps/jobshop-quote/ROADMAP.md friction 2026-11-27T01:46: 'two items numbered 15 ... --claim 15 is ambiguous'"
   ],
-  "change": "A 'waits on a device' gate (a check on a Windows PC, Mac, Android, iPhone or iPad, or on a 'real'/'physical' device; a bare 'on phones' stays free, since Playwright emulates it), and --claim N refused with the candidate slugs when N is used twice.",
+  "change": "The 'waits on a device' gate landed in PR #19713 (a parallel process run, same day); this PR keeps that regex, adds two cases to its tests, and refuses --claim N with the candidate slugs when the Next list uses N twice.",
   "touches": [
     "platform/ci/roadmap_claim.py",
     "platform/ci/test_roadmap_claim.py"
@@ -20,7 +20,7 @@
   "baseline": "16 records on 2026-11-27 mentioned the device ask; --bets 'Start here' was payapps #11",
   "opened": "2026-11-27",
   "source": "process run (doc friction by file, roadmap_claim.py)",
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19738",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19738 (duplicate numbers); https://github.com/Duncan-Haywood/oss-monorepo/pull/19713 (device gate)",
   "result": null,
   "history": []
 }

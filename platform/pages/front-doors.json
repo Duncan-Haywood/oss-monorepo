@@ -18,13 +18,15 @@
     },
     "construction": {
       "label": "Construction",
-      "product": "Pay-app billing for subcontractors (G702/G703, retainage, lien waivers, change orders), growing into a contractor suite",
-      "status": "In development — early access"
+      "product": "PayApps, pay-app billing for subcontractors (G702/G703, retainage, change orders), growing into a contractor suite",
+      "status": "Open — free on one job",
+      "open": true
     },
     "online-sellers": {
       "label": "Online sellers",
-      "product": "Profit and Schedule C books for resellers who sell on several platforms",
-      "status": "In development — early access"
+      "product": "Seller Books, profit and Schedule C books for resellers who sell on several platforms",
+      "status": "Open — free on one platform",
+      "open": true
     }
   },
   "pages": {

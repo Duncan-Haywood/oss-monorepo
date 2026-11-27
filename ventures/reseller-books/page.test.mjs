@@ -60,3 +60,12 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("points to the hosted Seller Books app honestly: free plan stated, paid plans not on sale, uploads said", () => {
+  const html = page("index.html");
+  assert.match(html, /href="https:\/\/seller-books\.marisstella\.app\/signup"/);
+  assert.match(html, /one platform and up to 25 orders a month/);
+  assert.match(html, /Paid plans are not on sale yet/);
+  assert.match(html, /uploads the files you import/);
+  assert.doesNotMatch(html.slice(html.indexOf('id="keep-books"')), /\$\d/, "no price on a plan that is not on sale");
+});

@@ -245,7 +245,17 @@ export function HomePage() {
           create.mutate();
         }}
       >
-        <h2 className="font-semibold">Add your company</h2>
+        {me.data.memberships.length > 0 ? (
+          <>
+            <h2 className="font-semibold">Add another company</h2>
+            <p className="text-sm text-slate-600">
+              Only for a second business you bill under: each company has its own jobs, people and
+              plan. Your jobs are inside the company above.
+            </p>
+          </>
+        ) : (
+          <h2 className="font-semibold">Add your company</h2>
+        )}
         <input
           className="input"
           placeholder="Company name (shown as the contractor on pay apps)"
