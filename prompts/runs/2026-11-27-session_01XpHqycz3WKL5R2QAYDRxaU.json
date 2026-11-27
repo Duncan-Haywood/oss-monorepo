@@ -27,13 +27,14 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": false,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [
-    "Overwrote the existing .github/workflows/einvoice-preflight-ci.yml (the free edition's CI) with the moved app's CI of the same name; caught in git status before commit and renamed to einvoice-pro-ci.yml."
+    "Overwrote the existing .github/workflows/einvoice-preflight-ci.yml (the free edition's CI) with the moved app's CI of the same name; caught in git status before commit and renamed to einvoice-pro-ci.yml.",
+    "Session ended with PR #19575 unmerged: its einvoice-pro-ci, einvoice-site-ci, check (check_code_refs) and check_docker_copy failures all need PR #19571's packages/, root workspace and checker change, and #19571 was still red on its own payapps tests after ~80 minutes of waiting."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -52,6 +53,10 @@
     {
       "file": "prompts/promptctl.py validate",
       "issue": "An app-level CLAUDE.md (carrying the private root CLAUDE.md's per-app rules into the moved app) fails validation unless registered in prompts/system.json, a control-plane file; the move steps do not say where a moved app's agent rules should go. Dropped it; pro/README.md already states them."
+    },
+    {
+      "file": "platform/ci/adversarial_gate/gate.py (SECRET_NAME)",
+      "issue": "`secrets\\s*\\.\\s*([A-Za-z0-9_]+)` spans a newline, so a workflow comment ending 'no secrets.' followed by the 'name:' key blocks as 'reads secret NAME'; PR #19571 hit the same."
     }
   ],
   "deviations": [
@@ -66,13 +71,19 @@
       "why": "No customer post: this is a repository move with no user-facing change; the agent doc is docs/reports/2026-11-27-prepub-audit-einvoice.md.",
       "did": "agent doc only",
       "result": "n/a"
+    },
+    {
+      "file": "CLAUDE.md (Every session lands its own work)",
+      "why": "Merging before PR #19571 would put red einvoice CI on main (pro/ imports packages/billing, which only #19571 adds); pushing to #19571 is not this session's call.",
+      "did": "Left #19575 open and ready, with 'merge after #19571' in its body; fixed every failure this PR itself caused (BOM escapes, gate-safe comments, publish-surface, checklist lines, third-party inventory, two scanner false positives).",
+      "result": "pending: the next session merges main after #19571 lands and merges #19575 once CI is green"
     }
   ],
   "writeups": [
     "docs/reports/2026-11-27-prepub-audit-einvoice.md"
   ],
   "goal": null,
-  "notes": "Local verification: pro 263/263, worker 9/9, checker 2231 pass/149 skipped/1 environmental fail (container pdfdetach wrapper), einvoice-site 35/35 + biome ci clean; ci_policy_check, check_md_links, prepub_audit (0 block), risk_review (nothing blocked). Depends on PR #19571 for packages/billing and packages/admin-metrics.",
+  "notes": "Local verification: pro 263/263, worker 9/9, checker 2231 pass/149 skipped/1 environmental fail (container pdfdetach wrapper), einvoice-site 35/35 + biome ci clean; ci_policy_check, check_md_links, prepub_audit (0 block), risk_review (nothing blocked). Depends on PR #19571 for packages/billing and packages/admin-metrics. Fixed in-PR after the first CI round: U+FEFF literals written as escapes; a workflow comment 'no secrets.' + 'name:' read by the gate as secrets.NAME; publish-surface.yaml; merge-checklist lines; third_party.json apps/ paths; ubl-xsd.test.mjs 'secret' renamed; sql-store ALTER TABLE joined from checked identifiers. Private einvoice moved on after 0c4bf8e8 (metered API parts 1-2): port before removing the private copy.",
   "corrections": [],
   "redteam": null,
   "usage": {
