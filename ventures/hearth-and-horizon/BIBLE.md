@@ -397,6 +397,8 @@ before writing the first scene.
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
+- *Joachim and Anne and the sparrows' nest* *(Drafting, 2026-11-27.)* (26 July, General Roman Calendar, memorial of Saints Joachim and Anne, parents of the Blessed Virgin Mary; proposed 2026-11-27): Mary's parents, told from the **Protoevangelium of James** (second century), which is the only source for their names and story and is not Scripture: say so in the welcome and the note. Joachim's offering refused at the Temple because he has no child; his forty days in the wilderness; Anne in her garden under a laurel tree seeing a sparrows' nest; the angel's message to each; the meeting at the gate (later art's Golden Gate); Mary's birth, her seven steps at six months, and at three her welcome at the Temple with girls carrying lamps, where she danced on the step. Bedtime frame: grandparents (Jesus's grandparents; the World Day for Grandparents and the Elderly, fourth Sunday of July since 2021). Check each detail against M. R. James's translation (1924) before drafting; the presentation of Mary (21 November) and her nativity (8 September) are feasts drawn from this text.
+
 ## What not to do
 
 - No cliffhanger endings that depend on a sequel. Each story stands alone.
