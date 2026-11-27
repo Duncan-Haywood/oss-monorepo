@@ -58,6 +58,17 @@ they wait for. The same panel checks the job's retainage rate against the state'
 work. Federal jobs show the Miller Act dates and a draft 90-day notice. It works on every plan,
 including the free one, which covers one active job.
 
-What it does not do yet: name a state bond date on the cash page and in the weekly email, as it
-does for the Miller Act, and cover California, whose statute site refused our requests on the day.
-Both are next on the PayApps roadmap.
+The cash page and the weekly cash email now carry the same dates. While a state or local job still
+owes you money, the next dated bond step shows up 45 days before it is due, with the amount owed
+(retainage included) and the statute. Take a Virginia job where a sub's sub last worked on 10 July
+2026: on 20 September its next steps read "Virginia payment bond claim in 18 days: Give the
+contractor written notice of your claim by 2026-10-08 (within 90 days from your last day of labor or
+material, Va. Code § 2.2-4341(B))". A step missed in the last 30 days stays on the page with the
+next one still open, which is usually the suit, and a note to ask a construction attorney. When you
+have not said who you contracted with, the line says which notices only apply to someone who
+contracted with a subcontractor. When the statute's date lands on a weekend, it says that too and
+shows the Friday before. The reminder only counts from dates you entered, never from billing, so a
+job you are still billing every month does not get nagged.
+
+California is still missing: its statute site refused our requests on the day. It is next on the
+PayApps roadmap.

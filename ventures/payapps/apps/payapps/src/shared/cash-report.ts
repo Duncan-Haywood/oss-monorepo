@@ -56,10 +56,11 @@ import {
   gaWaiverClocks,
 } from "./ga-waiver-clock";
 import { type LateInterestTerms, lateInterest, rateLabel } from "./late-interest";
-import { type LienDeadline, lienDeadlineText } from "./lien-deadline";
+import { type LienDeadline, lienDeadlineText, stateBondText } from "./lien-deadline";
 import { formatCents } from "./money";
 import type { ApplicationSummary, Totals } from "./payapp-math";
 import { expectedCents, type PaymentInput, paymentPosition } from "./payments";
+import type { MillerTier, StateBondCheck } from "./public-jobs";
 import {
   type TxRetainageDates,
   type TxSendFacts,
@@ -189,6 +190,12 @@ export interface CashReportProjectInput {
    * dates or its billing. Absent when the job has no state set or PayApps does not carry the state.
    */
   lienDeadline?: LienDeadline | null;
+  /**
+   * A state or local public job's payment bond claim steps (stateBondClaim, src/shared/public-jobs.ts)
+   * and who the company contracted with. Absent on private and federal jobs (the Miller Act is the
+   * lien deadline's federal form) and when the job has no state.
+   */
+  stateBond?: { check: StateBondCheck | null; tier: MillerTier | null } | null;
   /**
    * Texas notices of claim (src/shared/tx-notices.ts): set when the job is tracked (residential or
    * not), with the notices recorded so far. Each unpaid month's § 53.056 notice is read from `apps`.
@@ -884,6 +891,15 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
     asOf,
   );
   if (lienText) actions.push(lienText);
+  const bondText = p.stateBond
+    ? stateBondText(
+        p.stateBond.check,
+        { outstandingCents, retainageHeldCents },
+        asOf,
+        p.stateBond.tier,
+      )
+    : null;
+  if (bondText) actions.push(bondText);
   if (p.status === "active") actions.push(...txNoticeTexts(txUnpaidMonthsOf(p), asOf));
   if (p.txNotice?.retainage) {
     actions.push(
