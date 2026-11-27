@@ -1,8 +1,8 @@
 ---
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
-updated: 2026-11-27
-tags: [construction, subcontractors, electrical-contractors, hvac-contractors, drywall-contractors, concrete-contractors, site-work-contractors, roofing-contractors, masonry-contractors, painting-contractors, millwork-contractors, flooring-contractors, glazing-contractors, steel-contractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, insurance-certificates, pay-app-guides, for-customers]
+updated: 2026-11-28
+tags: [construction, subcontractors, electrical-contractors, hvac-contractors, drywall-contractors, concrete-contractors, site-work-contractors, roofing-contractors, masonry-contractors, painting-contractors, millwork-contractors, flooring-contractors, glazing-contractors, steel-contractors, fire-sprinkler-contractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, insurance-certificates, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and PayApps, now open free on one job."
 ---
 
@@ -665,6 +665,10 @@ schedule of values, and where that trade usually loses money.
 - [Structural steel and misc metals](https://marisstella.app/pay-app-guides/steel-contractor-billing.html):
   detailing, fabrication and erection by sequence or ton, embeds
   delivered early, rework after design changes.
+- [Fire sprinkler and fire protection](https://marisstella.app/pay-app-guides/fire-protection-contractor-billing.html):
+  design billed when the AHJ approves it, rough-in apart from heads
+  set after the ceiling grid, the hydro test, relocated heads on
+  signed tickets, final acceptance before the last retainage.
 
 ## What exists now, free
 

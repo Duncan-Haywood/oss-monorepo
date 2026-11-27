@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKkery1aRjffwdXQFn8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T23:18:23Z",
+  "ended": "2026-11-27T23:34:53Z",
+  "wall_minutes": 16.88,
+  "tokens_in": 7968516,
+  "tokens_out": 26511,
+  "cost_usd": 3.1942,
+  "tool_calls": 73,
+  "task": "bet #1 (PayApps) front door: fire sprinkler contractor billing page; close two stalled superseded PayApps PRs",
+  "projects": [
+    "pay-app-guides",
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19915",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "security_next: 1 alert queued and claimed, none workable",
+    "curl to payapps.marisstella.app and marisstella.app refused by the egress proxy (403), so the live app could not be probed",
+    "portfolio/ledger/supersede_check.py 19706 did not finish within 100 s; checked by hand instead (main's tx-notice.ts, migrations 0083/0084)",
+    "platform/pages build.test 'identical cache name' failed once because I edited a post while the suite ran; it passed when re-run alone"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "says to run supersede_check.py before closing a PR as superseded; it did not finish within a 100 s timeout, so both closures were checked by hand"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "its 'Ready PRs that stalled' rule sent me to two green PayApps PRs (#19706, #19721) that main had already superseded; checking for a superseding implementation (same feature, colliding migration number) before re-landing would have saved time"
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "stalled green PRs #19706 and #19721 were superseded on main (Texas notices already shipped; lazy routes landed in #19722; TanStack already reloads on a missing chunk)",
+      "did": "closed both with a reason instead of merging or re-landing",
+      "result": "no duplicate code or migration collision on main"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "consolidated posts direction",
+      "did": "extended the existing PayApps customer post with the new trade instead of writing a new post",
+      "result": "one post updated"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)",
+    "ventures/pay-app-guides/fire-protection-contractor-billing.html (new customer page)"
+  ],
+  "goal": "$10k MRR: traffic to bet #1 PayApps from fire sprinkler subcontractors",
+  "notes": "Bet #1 is feature-rich and blocked on owner steps (Paddle, Intuit), so traffic was the lever. Twelve trades had billing pages; fire sprinkler had none. The hydro test figure was checked against Philadelphia's TP 005 F certificate form (web search) and cited on the page. Verification: pay-app-guides node --test *.test.mjs 361 pass / 0 fail; platform/pages tests 2205/2206 pass, and the one failure passed on re-run (it was caused by my editing a post mid-run); venture-preflight pay-app-guides: clean (exit 0). Also closed PR #19706 (main has tx-notice.ts and 0084_tx_notice_sends; the PR's 0083 collides with 0083_signup_source) and PR #19721 (superseded by #19722; TanStack lazyRouteComponent 1.170.46 already reloads on a missing module).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "685aa596-3eb5-5972-bbcc-e3889c1c7610",
+    "transcripts": 1,
+    "first": "2026-11-27T23:18:23Z",
+    "last": "2026-11-27T23:35:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 128,
+        "output": 26511,
+        "thinking": 5219,
+        "cache_read": 7831236,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137152,
+        "api_equivalent_usd": 3.1942,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 128,
+      "output": 26511,
+      "thinking": 5219,
+      "cache_read": 7831236,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137152,
+      "api_equivalent_usd": 3.1942,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 3,
+      "mcp__github__pull_request_read": 3,
+      "mcp__github__add_issue_comment": 2,
+      "mcp__github__update_pull_request": 2,
+      "mcp__github__list_pull_requests": 1,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.88,
+      "active_minutes": 16.88,
+      "model_minutes": 5.16,
+      "tool_minutes": 11.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "researching and writing one sourced trade billing page and wiring it in, plus triaging two stale PRs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 125.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
