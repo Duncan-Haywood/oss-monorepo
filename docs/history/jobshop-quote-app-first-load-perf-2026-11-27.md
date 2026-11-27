@@ -49,7 +49,11 @@ other signed-out pages: `/` 1,868 -> 1,324 ms, `/legal/terms` 1,708 -> 1,183 ms.
   `/app/x/rfqs` fetches `layout-*.js` and `rfqs-*.js` and redirects a signed-out visitor to sign-in,
   as before.
 - `pnpm test:e2e` (16 specs, real Worker, local D1, offline fakes): walks the signed-in pages and the
-  customer link through the lazy chunks. Result in the run record's `notes`.
+  customer link through the lazy chunks. First run: 15 passed, 1 failed. Spec 05 checked for the
+  legal gate with a one-shot `isVisible()` right after the invite was accepted. The gate now
+  renders once the lazy layout chunk arrives, so the check came back false and the gate then
+  blocked the rate card. The spec now waits for either the gate or the "Quote log" heading
+  before deciding. Second run: 16 passed. Users see the same gate, one chunk later.
 - The Worker bundle (`dist/jobshop_quote`) is unaffected: the router is browser-only.
 
 ## Not changed (ranked, for the next run)
