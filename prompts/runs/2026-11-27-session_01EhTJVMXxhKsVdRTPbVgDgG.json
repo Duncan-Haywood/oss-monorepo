@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVMXxhKsVdRTPbVgDgG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T10:56:40Z",
+  "ended": "2026-11-27T11:12:49Z",
+  "wall_minutes": 26.68,
+  "tokens_in": 8043768,
+  "tokens_out": 22282,
+  "cost_usd": 3.0113,
+  "tool_calls": 74,
+  "task": "Adopt PR #19601's stalled CMMC move (bet #4). PR #19689 landed the same adoption first; this PR keeps the sync fix found while re-verifying it",
+  "projects": [
+    "cmmc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19714",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "Ran sync-from-private.sh while run_workflow_locally.py was still running; the sync briefly replaced ventures/cmmc and voided two verdicts (priv-portfolio-pages, priv-security-gate)",
+      "fix": "Re-ran both workflows on a still tree"
+    },
+    {
+      "what": "First pass of the tasks.yaml conflict resolution (keep both sides by regex) produced a broken Seller Books entry",
+      "fix": "Rebuilt both entries by hand and checked the diff against main"
+    },
+    {
+      "what": "Two sessions adopted stalled PR #19601 at the same time (this one and PR #19689). I checked slug_dupe.py only at the start, not again before the merge attempt",
+      "fix": "Reduced this PR to the delta: the sync script fix, the report section and this record"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "It reported bet #1 as having one free item (#11), but that item needs a real Windows PC, an Android phone and an iPhone photo, so a cloud session cannot do it. Every other item waits on demand. It took about 15 minutes to find that bets #1, #2 and #5 had nothing to take."
+    },
+    {
+      "file": "docs/reports/2026-11-27-move-seller-books-public.md",
+      "issue": "This was the only place that said CMMC's move PR #19601 was open. Neither slug_dupe.py, roadmap_claim.py --bets nor tasks.yaml on main listed it, because the task entry lives on the PR's branch. A stalled PR that adds its own task entry cannot be found from main."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "It says to call register_repo_root after cloning private-monorepo (in the add_repo result), but ToolSearch did not find that tool. I read private-monorepo's CLAUDE.md directly instead."
+    },
+    {
+      "file": "ventures/cmmc/sync-from-private.sh",
+      "issue": "It did not re-apply edits made in this repository after the copy (CodeQL fixes, a doc link), so a sync would have silently reverted them. Fixed here with a keep_local list. The payapps sync may have the same gap."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "The stalled-PR rule has no claim step, so two sessions can adopt the same stalled PR at once. A claim branch (like roadmap_claim's) or a comment on the stalled PR would prevent the duplicate."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "The stalled-PR rule says to merge the PR itself when its checks are green. #19601's own cmmc CI never ran and main had moved on, so it could not be merged as it stood",
+      "did": "Merged its branch into my branch with main, resolved the conflicts, re-verified and landed it as PR #19714 (its commits are kept, so GitHub marks #19601 merged)",
+      "result": "Duplicated work. I verified the move (18/18 workflows locally, and full GitHub CI green including cmmc CI), but PR #19689 adopted the same branch and merged it about 40 min after I started. slug_dupe.py at 11:00 had shown no open adoption PR, so #19689 was opened after that. What survived is the sync-from-private.sh keep_local fix and the report section"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No new customer post: this PR moves code and adds no feature a customer sees",
+      "did": "Extended the agent doc docs/reports/2026-11-27-move-cmmc-public.md with a Landed section",
+      "result": "The next run's sync is safe and the next step is written down"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-move-cmmc-public.md (new section: sync keeps the edits made here)"
+  ],
+  "goal": "$10k MRR: bet #4 can be deployed only from this repository (private-monorepo's Actions start no jobs)",
+  "notes": "Security queue was empty and IDEAS.md had nothing pending. Route: ventures. Bets #1 (PayApps), #2 and #5 had every launch item claimed by an open PR (#19659, #19698, #19676, #19682, #19692), and their ROADMAP items wait on demand. marisstella.app is blocked by the proxy, so the live funnel could not be checked. Attached private-monorepo with add_repo and the clone worked first time. Found PR #19601 (CMMC move) stalled for 6 h, with only the gate checks run. Merged it with main. Re-synced from private 7ca83b92 and the app was unchanged. Local verification: run_workflow_locally.py --for-changes origin/main gave 18/18 selected workflows passed (cmmc-ci 15/15: biome, typecheck, unit, worker, provision, build, no source maps, drizzle; site, billing, admin-metrics, scripts; portfolio-validate 101/101). Two workflows voided by a mid-run edit were re-run: re-run on a still tree, their runnable steps passed (priv-portfolio-pages 10/10, priv-security-gate 1/1; the rest run only in Actions). venture-preflight.mjs cmmc exited 0. Next: allowlist PR, then priv-cmmc-deploy.yml (the PayApps and Job Shop Quote ports are the pattern). After the merge attempt, main had PR #19689 (the same adoption). Merged main in, kept main's versions of everything, and kept only the sync-script fix (verified: a sync from 7ca83b92 onto main's tree leaves ventures/cmmc unchanged) and the report section.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9f2655fc-aa06-5ae4-a5bb-c963244b9b2c",
+    "transcripts": 1,
+    "first": "2026-11-27T10:56:40Z",
+    "last": "2026-11-27T11:23:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 135,
+        "output": 22282,
+        "thinking": 5060,
+        "cache_read": 7921017,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122616,
+        "api_equivalent_usd": 3.0113,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 135,
+      "output": 22282,
+      "thinking": 5060,
+      "cache_read": 7921017,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122616,
+      "api_equivalent_usd": 3.0113,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 64,
+      "mcp__github__pull_request_read": 5,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.68,
+      "active_minutes": 26.68,
+      "model_minutes": 4.99,
+      "tool_minutes": 21.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "merge two branches and resolve conflicts, re-sync and audit, run the CI sweep, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 99.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
