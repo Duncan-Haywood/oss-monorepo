@@ -118,7 +118,8 @@ export function paddleBaseUrl(apiKey: string): string {
 
 /**
  * Verifies `Paddle-Signature: ts=<unix>;h1=<hex hmac>` over `${ts}:${rawBody}` (5-minute tolerance by
- * default). Throws WebhookSignatureError when the header is missing/malformed, stale, or no h1 matches.
+ * default). Throws WebhookSignatureError when the secret is blank, the header is missing/malformed,
+ * stale, or no h1 matches.
  */
 export async function verifyPaddleSignature(
   header: string | null,
@@ -126,6 +127,8 @@ export async function verifyPaddleSignature(
   secret: string,
   opts: { nowMs?: number; toleranceSeconds?: number } = {},
 ): Promise<void> {
+  // A blank secret's HMAC is computable by anyone, so it would accept forged events.
+  if (!secret.trim()) throw new WebhookSignatureError("No webhook secret configured");
   if (!header) throw new WebhookSignatureError("Missing Paddle-Signature header");
   let ts: string | null = null;
   const h1: string[] = [];

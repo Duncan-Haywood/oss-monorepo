@@ -103,5 +103,16 @@ describe("createBillingProvider", () => {
     assert.equal(paddle.name, "paddle");
     assert.equal(createBillingProvider({ BILLING_PROVIDER: "paddle", BILLING_API_KEY: "k" }), null);
     assert.equal(createBillingProvider({}), null);
+    // A blank webhook secret is no secret: billing stays off rather than accept forged events.
+    for (const blank of ["", " ", "\n"]) {
+      assert.equal(
+        createBillingProvider({
+          BILLING_PROVIDER: "paddle",
+          BILLING_API_KEY: "pdl_sdbx_apikey_x",
+          BILLING_WEBHOOK_SECRET: blank,
+        }),
+        null,
+      );
+    }
   });
 });

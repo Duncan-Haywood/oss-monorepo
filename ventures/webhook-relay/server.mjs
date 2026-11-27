@@ -46,7 +46,7 @@ export function parseRoutes(json, envVars = {}) {
     if (seen.has(r.name)) throw new Error(`duplicate route: ${r.name}`);
     seen.add(r.name);
     if (!SCHEMES.includes(r.scheme || "none")) throw new Error(`route ${r.name}: unknown scheme ${r.scheme}`);
-    if ((r.scheme || "none") !== "none" && !r.secret) throw new Error(`route ${r.name}: scheme ${r.scheme} needs a secret`);
+    if ((r.scheme || "none") !== "none" && (typeof r.secret !== "string" || !r.secret.trim())) throw new Error(`route ${r.name}: scheme ${r.scheme} needs a secret`);
     const raw = r.targets !== undefined ? r.targets : [r.target];
     if (!Array.isArray(raw) || !raw.length || raw.length > 10) throw new Error(`route ${r.name}: target must be an http(s) URL (or targets: up to 10 http(s) URLs)`);
     // A target is a URL, or {"url": ..., "filter": ...} to receive only matching events.
