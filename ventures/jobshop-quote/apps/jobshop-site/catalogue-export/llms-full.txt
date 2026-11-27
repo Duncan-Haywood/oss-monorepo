@@ -49,6 +49,8 @@ Job Shop Quote does the arithmetic and the paperwork, so your estimator's time g
 
 - Dates every material price, warns when one is past your limit, and lists the open quotes priced before your supplier's price moved
 
+- Puts your won jobs on your machines by due date, shows which ones run past their date, and gives each new quote a lead time from your real backlog
+
 - Imports your supplier's price sheet showing each price change and the open quotes it touches before you save, and keeps the supplier and date in each price's history
 
 #### Your shop keeps control
