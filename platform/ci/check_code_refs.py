@@ -61,18 +61,31 @@ def candidate(token: str) -> str | None:
     return tok if PATH_RE.match(tok) else None
 
 
+# A path named as another repository's ("`private-monorepo`'s `apps/grants/...`") is not a
+# path in this tree. It only became checkable when apps/ arrived here (PayApps, 2026-11-27).
+OTHER_REPO_RE = re.compile(r"private-monorepo")
+
+
 def refs_in(text: str):
     in_fence = False
+    prev = ""
     for n, line in enumerate(text.split("\n"), 1):
         if FENCE_RE.match(line):
             in_fence = not in_fence
+            prev = line
             continue
         if in_fence:
+            prev = line
             continue
+        last = 0
         for m in CODE_SPAN_RE.finditer(line):
             c = candidate(m.group(1) or m.group(2))
-            if c:
+            before = line[last:m.start()]
+            context = (prev[-40:] if last == 0 and not before.strip() else "") + before
+            if c and not OTHER_REPO_RE.search(context[-40:] + line[last:m.start()]):
                 yield n, c
+            last = m.end()
+        prev = line
 
 
 def missing_refs(path: Path, root: Path, tops: set[str], known: set[str] = frozenset()):

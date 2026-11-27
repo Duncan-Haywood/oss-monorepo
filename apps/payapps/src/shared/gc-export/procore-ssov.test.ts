@@ -32,7 +32,7 @@ describe("readSsovTemplate", () => {
   });
 
   it("keeps a semicolon delimiter and a BOM-led header", () => {
-    const t = template(`﻿${HEADER.replaceAll(",", ";")}\n1;;Work;100;;0.00\n`);
+    const t = template(`\ufeff${HEADER.replaceAll(",", ";")}\n1;;Work;100;;0.00\n`);
     expect(t.delimiter).toBe(";");
     expect(t.positions).toHaveLength(1);
   });

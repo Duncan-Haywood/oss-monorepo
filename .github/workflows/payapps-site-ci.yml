@@ -1,5 +1,5 @@
 # PR checks for apps/payapps-site (the PayApps marketing site, moved from the
-# private repository; task products-to-public-repo). Read-only, no secrets.
+# private repository; task products-to-public-repo). Read-only and secret-free.
 name: payapps-site-ci
 on:
   pull_request:

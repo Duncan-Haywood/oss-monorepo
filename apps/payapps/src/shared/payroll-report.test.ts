@@ -41,7 +41,7 @@ function read() {
 
 describe("parseCsv", () => {
   it("reads quoted commas, doubled quotes, line breaks in quotes, CRLF and a BOM", () => {
-    expect(parseCsv('﻿a,"b, c","say ""hi"""\r\n"two\nlines",x')).toEqual([
+    expect(parseCsv('\ufeffa,"b, c","say ""hi"""\r\n"two\nlines",x')).toEqual([
       ["a", "b, c", 'say "hi"'],
       ["two\nlines", "x"],
     ]);

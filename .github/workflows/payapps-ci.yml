@@ -1,5 +1,5 @@
 # PR checks for apps/payapps (bet #1, moved from the private repository; task
-# products-to-public-repo). Read-only, no secrets. The deploy is separate.
+# products-to-public-repo). Read-only and secret-free; the deploy is separate.
 name: payapps-ci
 on:
   pull_request:
@@ -68,9 +68,11 @@ jobs:
       - run: pnpm test:worker
       - run: pnpm build
       - name: No source maps in the public assets
-        run: node ../../scripts/check-no-client-maps.mjs dist/client
+        working-directory: .
+        run: node scripts/check-no-client-maps.mjs apps/payapps/dist/client
       - name: deploy provisioning script
-        run: node --test scripts/provision.test.mjs
+        working-directory: .
+        run: node --test apps/payapps/scripts/provision.test.mjs
       - name: lien-waivers package (statutory text checked against its official snapshot)
         working-directory: packages/lien-waivers
         run: node --test "test/**/*.test.ts"
