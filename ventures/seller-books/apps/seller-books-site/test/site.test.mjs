@@ -46,7 +46,7 @@ after(() => rmSync(out, { recursive: true, force: true }));
 function fileForServed(path) {
   const rel = path.slice(BASE_PATH.length) || "/";
   if (rel.startsWith("/api/")) return null;
-  if (/\.(txt|xml|css|svg)$/.test(rel)) return rel.slice(1);
+  if (/\.(txt|xml|css|svg|xlsx)$/.test(rel)) return rel.slice(1);
   return fileFor(rel.replace(/\/$/, "") || "/");
 }
 
@@ -684,5 +684,41 @@ describe("the personal items or business page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/personal-items-or-business)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/personal-items-or-business`));
+  });
+});
+
+describe("the reseller inventory spreadsheet page", () => {
+  const page = () => pages.find((p) => p.path === "/reseller-inventory-spreadsheet");
+
+  test("offers both downloads, built next to the page, and names the import and Part III lines", () => {
+    const html = htmlOf(page());
+    for (const f of [
+      "reseller-inventory-spreadsheet.xlsx",
+      "reseller-inventory-spreadsheet-example.xlsx",
+    ]) {
+      assert.ok(linksTo(html, `${BASE_PATH}/${f}`), f);
+      assert.ok(existsSync(join(base(), f)), f);
+    }
+    for (const s of [
+      "Import your sourcing sheet",
+      "Line 35",
+      "Line 36",
+      "Line 41",
+      "Total Cost",
+      "Date Removed",
+      "are invented",
+      "https://www.irs.gov/publications/p334",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+    assert.doesNotMatch(html, /\d+(\.\d+)?% (fee|commission)/, "no fee percentages");
+  });
+
+  test("linked from the cost of goods page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/reseller-inventory-spreadsheet"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/cost-of-goods-sold")).includes(link));
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/reseller-inventory-spreadsheet)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/reseller-inventory-spreadsheet<`));
   });
 });

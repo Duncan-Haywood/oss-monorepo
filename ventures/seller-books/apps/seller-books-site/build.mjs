@@ -3,6 +3,7 @@
 //   dist/_headers                         security + cache headers (Workers static assets)
 //   dist/seller-books/<page>.html         every page from src/pages.mjs
 //   dist/seller-books/assets/*            stylesheet + favicon
+//   dist/seller-books/*.xlsx              the free inventory spreadsheet and its example (src/inventory-sheet.mjs)
 //   dist/seller-books/sitemap.xml, robots.txt, llms.txt, llms-full.txt
 //
 // Usage: node build.mjs [--out <dir>]
@@ -23,6 +24,7 @@ import {
 } from "./src/content.mjs";
 import { SECURITY_HEADERS } from "./src/headers.mjs";
 import { canonicalUrl, layout } from "./src/html.mjs";
+import { OUTPUTS as SHEETS } from "./src/inventory-sheet.mjs";
 import { launch, setLaunch } from "./src/launch.mjs";
 import { allPages } from "./src/pages.mjs";
 
@@ -108,7 +110,7 @@ Facts to keep straight: federal Form 1099-K reporting applies when a platform's 
 
 ## Product
 
-${["/", "/schedule-c-worksheet", "/1099-k", "/personal-items-or-business", "/cost-of-goods-sold", "/mileage-deduction", "/home-office-and-equipment", "/reseller-tax-deductions", "/quarterly-estimated-tax", "/pricing", "/faq", ...(launch().open ? [] : ["/early-access"])].map(link).join("\n")}
+${["/", "/schedule-c-worksheet", "/1099-k", "/personal-items-or-business", "/cost-of-goods-sold", "/reseller-inventory-spreadsheet", "/mileage-deduction", "/home-office-and-equipment", "/reseller-tax-deductions", "/quarterly-estimated-tax", "/pricing", "/faq", ...(launch().open ? [] : ["/early-access"])].map(link).join("\n")}
 
 ## Platforms
 
@@ -143,6 +145,7 @@ export function build(outDir = join(HERE, "dist")) {
   for (const f of readdirSync(join(HERE, "assets"))) {
     copyFileSync(join(HERE, "assets", f), join(base, "assets", f));
   }
+  for (const [name, bytes] of Object.entries(SHEETS)) write(name, bytes());
   write("sitemap.xml", sitemap(pages));
   write("robots.txt", robots());
   write("llms.txt", llmsTxt(pages));
