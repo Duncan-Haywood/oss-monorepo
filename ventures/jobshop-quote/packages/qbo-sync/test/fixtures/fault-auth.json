@@ -1,0 +1,7 @@
+{
+  "Fault": {
+    "Error": [{ "Message": "Fixture authentication failure", "code": "3200" }],
+    "type": "AUTHENTICATION"
+  },
+  "time": "2026-11-24T10:00:09.000-08:00"
+}

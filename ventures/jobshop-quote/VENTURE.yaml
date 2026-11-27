@@ -1,0 +1,32 @@
+name: jobshop-quote
+description: >-
+  Hosted RFQ-to-quote for CNC machining and fabrication job shops: paste the RFQ email or forward it,
+  attach drawings and STEP, IGES, STL or DXF files, check what the AI extracted against the RFQ's own
+  words, and send a quote priced only from the shop's rate card, with revisions, follow-ups, win/loss
+  and QuickBooks Online invoices. Sold by subscription ($0 early access, Shop $199, Shop Plus $399 a
+  month; apps/jobshop-quote/src/shared/plans.ts).
+stage: prototype
+owner: duncan
+
+# Bet #2 in portfolio/monetization/bets.md. Moved from private-monorepo on 2026-11-27 (task
+# move-jobshop-quote-public); not deployed yet (DEPLOY.md). Free front doors:
+# ventures/machine-shop-guides, ventures/dxf-nesting, ventures/cnc-machining-quote-calculator.
+hypotheses:
+  - claim: Small CNC and fabrication shops will pay about $199 a month to turn RFQs into priced quotes from their own rate card in minutes instead of hours.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+budget:
+  monthly_cap: 50
+  protected: true
+kill_criteria:
+  - No paying customer after 90 days post-launch.
+  - Monthly cost exceeds MRR for 3 consecutive months past `revenue` stage.
+links:
+  production: null
+  analytics: null

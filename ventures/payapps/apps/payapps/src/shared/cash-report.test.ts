@@ -203,6 +203,54 @@ describe("projectCash", () => {
     expect(r.actions[0]).toMatch(/bill the retainage/);
   });
 
+  it("names what close-out still needs on a finished job, and totals that retainage apart", () => {
+    const done = period(3, "2026-03-31", { L2: line(3_000_000) });
+    const apps = [
+      { status: "paid", applicationDate: "2026-01-31" },
+      { status: "paid", applicationDate: "2026-02-28" },
+      { status: "paid", applicationDate: "2026-03-31" },
+    ] as const;
+    const blockers = ["2 punch list items are not accepted yet (2 to fix)."];
+    const waiting = projectCash(
+      job([p1, p2, done], [...apps], { closeout: { ready: false, blockers } }),
+      "2026-04-10",
+    );
+    expect(waiting.closeout).toEqual({ ready: false, blockers });
+    expect(waiting.actions[0]).toBe(
+      "Work is complete and $10,000.00 retainage is still held, waiting on close-out: 2 punch list items are not accepted yet (2 to fix). Clear these on the job's close-out checklist, then ask for the release.",
+    );
+    const ready = projectCash(
+      job([p1, p2, done], [...apps], { id: "prj_ready", closeout: { ready: true, blockers: [] } }),
+      "2026-04-10",
+    );
+    expect(ready.actions[0]).toMatch(
+      /close-out checklist is in: ask for the \$10,000\.00 retainage/,
+    );
+    const r = cashReport(
+      [
+        job([p1, p2, done], [...apps], { closeout: { ready: false, blockers } }),
+        job([p1, p2, done], [...apps], {
+          id: "prj_ready",
+          closeout: { ready: true, blockers: [] },
+        }),
+      ],
+      "2026-04-10",
+    );
+    expect(r.totals.retainageOnCompleteJobsCents).toBe(2_000_000);
+    expect(r.totals.retainageWaitingOnCloseoutCents).toBe(1_000_000);
+  });
+
+  it("ignores the close-out reading on a job that is not finished", () => {
+    const r = projectCash(
+      job([p1], [{ status: "paid", applicationDate: "2026-01-31" }], {
+        closeout: { ready: false, blockers: ["x"] },
+      }),
+      "2026-02-10",
+    );
+    expect(r.closeout).toBeNull();
+    expect(r.actions.join(" ")).not.toContain("close-out");
+  });
+
   it("stops counting retainage once a final application releases it", () => {
     const done = period(3, "2026-03-31", { L2: line(3_000_000) });
     const release = period(4, "2026-04-30", { L1: line(0, 600_000), L2: line(0, 400_000) });

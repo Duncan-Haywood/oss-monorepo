@@ -103,7 +103,7 @@ describe("unconditional waivers owed after payment", () => {
       /,Unconditional waivers to send,Pending change orders \(additions\),Pending change orders,Backcharged,/,
     );
     // The last column (waiting on the owner's payment) is blank on a job not on pay-when-paid terms.
-    expect(csv).toMatch(/,#1 progress,0,,0,0,0,,\r\n/);
+    expect(csv).toMatch(/,#1 progress,0,,0,0,0,,,\r\n/);
 
     const uncond = await track(t, "AZ", "unconditional-progress");
     expect((await call<WaiverOverviewDto>(t.waivers, { as: t.as })).toSend).toEqual([
