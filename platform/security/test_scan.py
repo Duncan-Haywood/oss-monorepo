@@ -137,6 +137,48 @@ class Verdicts(unittest.TestCase):
             self.assertGreater(len(str(e.get("reason", ""))), 40, e)
 
 
+class Sarif(unittest.TestCase):
+    """The full-repo reading goes to code scanning, then to the session queue."""
+
+    def test_one_run_per_tool_with_its_own_category(self):
+        doc = scan.sarif([F(rule="a", sev="critical"), F(rule="a", sev="high", h="y"), F(tool="gitleaks", rule="k", path="b.env")],
+                         {"semgrep": "1.184.0", "gitleaks": "v8.30.1", "checkov": "3.4.3"})
+        self.assertEqual(doc["version"], "2.1.0")
+        runs = {r["tool"]["driver"]["name"]: r for r in doc["runs"]}
+        self.assertEqual(set(runs), {"semgrep", "gitleaks", "checkov"})
+        self.assertEqual(len({r["automationDetails"]["id"] for r in doc["runs"]}), 3)
+        # A tool that ran clean still gets an empty run, so its fixed alerts close.
+        self.assertEqual(runs["checkov"]["results"], [])
+        sem = runs["semgrep"]
+        self.assertEqual(len(sem["results"]), 2)
+        self.assertEqual(len(sem["tool"]["driver"]["rules"]), 1)
+        self.assertEqual(sem["tool"]["driver"]["rules"][0]["properties"]["security-severity"], "9.5")
+        r0 = sem["results"][0]
+        self.assertEqual(r0["level"], "error")
+        self.assertEqual(r0["locations"][0]["physicalLocation"]["artifactLocation"]["uri"], "a.py")
+        self.assertEqual(r0["locations"][0]["physicalLocation"]["region"]["startLine"], 1)
+        self.assertEqual(r0["partialFingerprints"], {"scanLineHash/v1": "x"})
+
+    def test_gitleaks_message_stays_redacted(self):
+        fake = "AKIA" + "Q" * 16  # built at run time so the tree holds no key-shaped literal
+        found = scan.parse_gitleaks([{"File": "/scan-root/x.env", "StartLine": 2, "RuleID": "aws-access-token",
+                                      "Description": "AWS key", "Secret": fake, "Match": fake}], ROOT)
+        text = json.dumps(scan.sarif(found))
+        self.assertNotIn(fake, text)
+        self.assertIn("secret redacted", text)
+
+    def test_cli_writes_sarif_of_blocking_findings_only(self):
+        found = {"status": {"semgrep": "ok: 2 finding(s)", "osv-scanner": "ERROR: network"},
+                 "findings": [F(rule="bad"), F(rule="minor", sev="low")]}
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(scan, "scan_repo", return_value=found), \
+                mock.patch.dict("os.environ", {"GITHUB_STEP_SUMMARY": ""}), mock.patch("sys.stdout"):
+            out = Path(tmp)
+            self.assertEqual(scan.main(["repo", "--root", tmp, "--tools-dir", tmp, "--out", tmp, "--sarif", str(out / "s.sarif")]), 0)
+            doc = json.loads((out / "s.sarif").read_text())
+        self.assertEqual([r["tool"]["driver"]["name"] for r in doc["runs"]], ["semgrep"])  # osv did not run: no run, its alerts stay
+        self.assertEqual([x["ruleId"] for x in doc["runs"][0]["results"]], ["bad"])
+
+
 class Staging(unittest.TestCase):
     def test_planted_configs_symlinks_and_fixtures_are_not_staged(self):
         with tempfile.TemporaryDirectory() as t:
