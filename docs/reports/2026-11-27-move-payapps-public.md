@@ -96,5 +96,6 @@ which is repointed when the private copy goes (DEPLOY.md, "Then").
 1. `priv-payapps-deploy.yml`, ported from the private `payapps-deploy.yml`, in its own PR (control-plane
    tier). Secrets and variables it needs: `ventures/payapps/DEPLOY.md`.
 2. Deploy once by hand, then remove the private copy and repoint the ledgers.
-3. Until step 2, scheduled runs keep building in `private-monorepo/apps/payapps`. Refresh this copy with
+3. The fixes the public checks forced (30 February, CSV negatives, BOM escapes, the trailing flag) also landed in private-monorepo PR 465, so a refresh keeps them.
+4. Until step 2, scheduled runs keep building in `private-monorepo/apps/payapps`. Refresh this copy with
    `ventures/payapps/sync-from-private.sh <clone>`, which audits first and stops on a block finding.

@@ -27,12 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 3,
   "review_findings": null,
-  "tests_added": null,
+  "tests_added": 8,
   "outcome": "partial",
   "errors": [
-    "First fixture-email rewrite missed addresses inside regex literals (@sierra\\.com); 4 unit tests failed until rewrite_public.py handled the escaped dot."
+    "First fixture-email rewrite missed addresses inside regex literals (@sierra\\.com); 4 unit tests failed until rewrite_public.py handled the escaped dot.",
+    "Moving a workspace in tripped seven repo-wide checks the private repo never ran: calendar-date rollover (2 real: xerDay, day counters), CSV guard defusing negative numbers, literal U+FEFF, unguarded trailing CLI flag, third-party inventory, missing VENTURE.yaml, publish-surface snapshot, and the agent-permission harness (job working-directory ignored when resolving script paths). All fixed in the PR."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -43,6 +44,18 @@
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "--bets reported no free ungated item on any bet (every Next item waits on demand or an owner step); the useful work was the cross-bet task list it prints first, which is easy to skip past."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "No checklist for moving an app into ventures/: the checks it must pass (VENTURE.yaml, transition.json, verticals.json, third_party.json, publish-surface.yaml, the harness snapshot, unwired_checks.py) were found one CI round at a time; run `python3 platform/ci/unwired_checks.py` and `portfolio/router/validate.py` before the first push."
+    },
+    {
+      "file": "prompts/test_promptctl.py",
+      "issue": "LastChangeIndexTest fails on a PR whose merge commit changes a directory (prompts/, prompts/runs/*.json) as the shallow edge; not required, and filed as P095 by another session (PR 19588)."
+    },
+    {
+      "file": "portfolio/pipeline/probes/agent-permission-harness/harness.py",
+      "issue": "R1-missing-referenced-script resolves a step's script path from the repo root and ignores the job's defaults.run.working-directory, so `node --test scripts/x.test.mjs` under a working-directory is reported missing."
     }
   ],
   "deviations": [
@@ -59,7 +72,7 @@
     "ventures/payapps/DEPLOY.md"
   ],
   "goal": "Unblock bet #1's deploy (PayApps) toward its first paying subscriber",
-  "notes": "Security queue empty (security_next exit 3); ideas inbox empty. Local verification: app unit 1279 passed/1 skipped, worker 546, provision 4, lien-waivers 240, site all passed, packages all passed; full app suite re-run after the rewrite. prepub_audit block 0 before and after. No customer blog post: this is infrastructure for the product, and the product's own site carries its marketing; a post saying 'moved repos' would tell customers nothing.",
+  "notes": "Security queue empty (security_next exit 3); ideas inbox empty. Local verification: app unit 1279 passed/1 skipped, worker 546, provision 4, lien-waivers 240, site all passed, packages all passed; full app suite re-run after the rewrite. prepub_audit block 0 before and after. No customer blog post: this is infrastructure for the product, and the product's own site carries its marketing; a post saying 'moved repos' would tell customers nothing. Repo-wide checks then found real bugs in the moved code (30 February accepted by xerDay and the day/workday counters; CSV guard turning -12.50 into text); fixed with 8 new tests here. The same patch landed in private-monorepo PR 465 (verified there: unit 1286/1 skipped, worker 546, provision 5), so a later sync-from-private.sh refresh keeps the fixes.",
   "corrections": [],
   "redteam": null,
   "usage": {
