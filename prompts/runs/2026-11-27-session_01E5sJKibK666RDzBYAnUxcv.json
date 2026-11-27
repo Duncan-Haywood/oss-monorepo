@@ -28,7 +28,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 10,
+  "ci_failures_before_green": 12,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
@@ -40,7 +40,9 @@
     "agent-permission-harness R1: it ignores working-directory, so scripts/provision.test.mjs looked missing; paths made repo-rooted",
     "check_code_refs: goals.md names private-monorepo's apps/grants path, checkable once apps/ existed here; the checker now skips a path named as private-monorepo's (with a test)",
     "publish_surface: the two new workflows needed --write",
-    "check_third_party: the all-rights-reserved LICENSE files and wrangler's generated Cloudflare types; same ARR hunk as open PR #19560 applied here, plus a third_party.json entry and THIRD_PARTY.md"
+    "check_third_party: the all-rights-reserved LICENSE files and wrangler's generated Cloudflare types; same ARR hunk as open PR #19560 applied here, plus a third_party.json entry and THIRD_PARTY.md",
+    "payapps-ci: one UI unit test failed once in CI (log host blocked here); passed locally 1279/1280 and on re-run of the failed job: a flake",
+    "CodeQL gate (JS, ~45 min): 4 findings in moved code, fixed: incomplete sanitization in ca-ecpr notes and payapps-site htmlToMarkdown (now repeat until stable and drop stray brackets), and a URL prefix check in paddle.test.ts (now compares the parsed host)"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -55,6 +57,10 @@
     {
       "file": "platform/ci/adversarial_gate/gate.py",
       "issue": "SECRET_NAME matches prose: a workflow comment 'no secrets. The deploy' is read as secrets.THE and blocks; comments in workflows must avoid 'secrets.' followed by a word"
+    },
+    {
+      "file": "docs/reports/2026-11-27-prepub-audit-payapps.md",
+      "issue": "the audit's 'clear to copy' did not cover what this repo's gates add on top: CodeQL on the copied JS (4 findings), hidden-unicode BOMs, check_third_party, publish_surface; the next app's move should run those locally before the first push"
     }
   ],
   "deviations": [

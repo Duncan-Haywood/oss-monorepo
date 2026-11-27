@@ -114,10 +114,19 @@ function planPrices(): string {
   ).join("; ");
 }
 
+/** Applies `step` until the text stops changing (one pass can leave a tag a removal joined). */
+function untilStable(text: string, step: (t: string) => string): string {
+  let out = text;
+  for (let prev = ""; prev !== out; ) {
+    prev = out;
+    out = step(out);
+  }
+  return out;
+}
+
 /** The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only. */
 export function htmlToMarkdown(input: string): string {
-  return input
-    .replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, "")
+  return untilStable(input, (t) => t.replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, ""))
     .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, "\n# $1\n\n")
     .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, "\n## $1\n\n")
     .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, "\n### $1\n\n")
@@ -127,6 +136,7 @@ export function htmlToMarkdown(input: string): string {
     .replace(/<(strong|b)>([\s\S]*?)<\/\1>/gi, "**$2**")
     .replace(/<\/(p|ul|ol|div|section|article|details)>/gi, "\n\n")
     .replace(/<[^>]+>/g, "")
+    .replace(/[<>]/g, "")
     .replace(/&#39;/g, "'")
     .replace(/&quot;/g, '"')
     .replace(/&lt;/g, "<")
