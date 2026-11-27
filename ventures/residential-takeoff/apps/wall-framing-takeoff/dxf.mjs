@@ -471,7 +471,7 @@ export function pairDoubleLines(segs, o) {
  * @param {{ units?: "in"|"ft"|"mm"|"cm"|"m", openingSize?: (mid: Pt, width?: number) => any, wallHeight?: (mid: Pt) => number | undefined, wallLayer?: RegExp, doorLayer?: RegExp, windowLayer?: RegExp,
  *   snap?: number, mergeGap?: number, doubleLine?: boolean | "auto", doorHeight?: number, windowHeight?: number, header?: string,
  *   exteriorStud?: "2x4"|"2x6", interiorStud?: "2x4"|"2x6" }} [opt]
- * @returns {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }}
+ * @returns {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any, outline?: { x: number, y: number }[] | null, wallThickness?: number }}
  */
 export function planFromDxf(text, opt) {
   if (opt === null || typeof opt !== "object" || Array.isArray(opt)) opt = {};

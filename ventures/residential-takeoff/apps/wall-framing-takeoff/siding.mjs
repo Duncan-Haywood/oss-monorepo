@@ -154,7 +154,7 @@ export function layoutSiding(d, plan) {
   let walls = plan.walls;
   if (d.gables === "roof") {
     const rg = roofGables(plan);
-    if (!rg.ok) return { ok: false, errors: rg.errors };
+    if (!rg.ok) return { ok: false, errors: /** @type {any} */ (rg).errors };
     gableNotes.push(...rg.notes);
     walls = plan.walls.map((w) => (rg.gables.has(w.id) ? { ...w, gable: rg.gables.get(w.id) } : w));
   }

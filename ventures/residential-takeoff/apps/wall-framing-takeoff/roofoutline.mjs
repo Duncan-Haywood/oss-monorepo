@@ -240,7 +240,7 @@ function angledRoof(points, pitch, overhang) {
   if (!eave) return { ok: false, errors: ["At this overhang the eave line of an inside corner runs into another side, or a short side between two angled corners turns round; the outline is too tight for one eave all round."] };
   const walls = areaPerimeterAny(points), line = areaPerimeterAny(eave), k = slopeFactor(pitch);
   const roofLines = skeletonRoofLines(eave, pitch);
-  if (!roofLines.ok) return { ok: false, errors: [roofLines.error] };
+  if (!roofLines.ok) return { ok: false, errors: [/** @type {any} */ (roofLines).error] };
   const { convex, reflex } = cornerCounts(points);
   const ft = (/** @type {number} */ v) => v.toFixed(2);
   return {
@@ -288,7 +288,7 @@ export function outlineRoof(raw, o) {
     rect = { ridgeFeet: (L - W) / 12, hipFeet: 4 * (W / 2) * Math.sqrt(2 + (o.pitch / 12) ** 2) / 12 };
   }
   const roofLines = hipRoofLines(eave, o.pitch);
-  if (!roofLines.ok) return { ok: false, errors: [roofLines.error] };
+  if (!roofLines.ok) return { ok: false, errors: [/** @type {any} */ (roofLines).error] };
   if (rect && (Math.abs(rect.ridgeFeet - roofLines.ridgeFeet) > 1e-6 || Math.abs(rect.hipFeet - roofLines.hipFeet) > 1e-6)) return { ok: false, errors: ["The roof lines of this rectangle disagree with the closed form; please report the outline."] };
   const ft = (v) => v.toFixed(2);
   return {

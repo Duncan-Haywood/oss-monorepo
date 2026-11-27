@@ -51,6 +51,13 @@ only in the paid copy, 118 changed). The two must not share a directory or a lic
   levels. The buildingSMART fixtures got their own `platform/ci/third_party.json` entry.
   `portfolio/monetization/verticals.json` was regenerated (`verticals.py --write`) and the venture
   count in `PRODUCT_PLAYBOOK.md` refreshed (`check_doc_counts.py --fix`).
+- **Four `// @ts-check` diagnostics** fixed (`platform/pages/typecheck.mjs`, which `ventures-tests.yml`
+  runs on touched ventures and private CI never ran). The fixes are types only: `dxf.mjs`'s return type
+  now names `outline` and `wallThickness`, and three failure-branch reads in `roofoutline.mjs` and
+  `siding.mjs` are cast where the union does not narrow on `ok`.
+- `portfolio/monetization/transition.json` regenerated (`transition.py --write`). Its heuristic files the
+  venture as "subscription" because it sees a script (`sync-from-private.sh`), but the product is a
+  $29 one-off per house (`docs/PRICING.md`). The generated row is left as the rule writes it.
 - No fixture emails, hostnames or `private-monorepo` paths needed rewriting (the audit found none).
 
 ## Verification (this session)
