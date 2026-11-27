@@ -2548,6 +2548,18 @@ nothing to copy. No customers yet. Paid plans are dark
   reminder block in `src/shared/state-bond.test.ts` (worked dates: 45 days out, today, tomorrow,
   passed, first tier, New York's Saturday) and a Virginia job through `/reports/cash` in
   `test/worker/lien-deadline.test.ts`.
+- Public jobs, part 2d (2026-11-27, every plan, state-bond-claims-more-states): five more states'
+  bond claim steps, read on each legislature's own site on 2026-11-27 (excerpts appended to
+  `ventures/pay-app-guides/sources/state-bond-claims.txt`): Massachusetts (ch. 149, § 29: the 65-day
+  notice for a sub's sub, the petition within a year of the last day), Michigan (MCL 129.207, .209: the
+  30-day start notice and the 90-day notice to the prime and the governmental unit; the suit runs from
+  final payment to the prime, which PayApps does not have, so it waits undated), Minnesota (§ 574.31:
+  everyone, first tier included, serves the surety and the contractor within 120 days; suit within a
+  year), Nevada (NRS 339.035, .055: the 30-day and 90-day notices, suit within a year) and Oregon
+  (ORS 279C.600-.610: everyone notifies the contractor and the contracting agency within 180 days; suit
+  within two years). Thirteen states in `STATE_BOND_RULES`; the cash page and weekly email pick them up
+  with no other change. Worked dates in `src/shared/state-bond.test.ts` (Massachusetts' Sunday, the
+  Oregon two-year suit); the public guide gains five rows, its test checks each link's host.
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
@@ -2711,6 +2723,7 @@ nothing to copy. No customers yet. Paid plans are dark
   retainage cap check; part 2a, the Miller Act notice drafted from the job, done 2026-11-27): a log of
   Miller notices sent with the proof of delivery, if contractors use the draft; state bond claims
   part 2 (part 1, eight states on the job page, and the next bond date on the cash page and weekly
-  email 45 days ahead, done 2026-11-27); California's stop payment notice
-  and bond claim once leginfo.legislature.ca.gov answers; more states, each read from the statute
-  page, if contractors mark public jobs
+  email 45 days ahead, done 2026-11-27; MA, MI, MN, NV and OR added 2026-11-27, part 2d);
+  California's stop payment notice and bond claim (leginfo.legislature.ca.gov answered 2026-11-27);
+  more states, each read from the statute page, if contractors mark public jobs (ilga.gov and
+  docs.legis.wisconsin.gov timed out and legis.state.pa.us returned 403 on 2026-11-27)
