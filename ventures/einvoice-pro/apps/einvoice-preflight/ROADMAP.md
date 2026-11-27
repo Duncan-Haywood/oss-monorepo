@@ -229,6 +229,12 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   form on the page itself with "software vendor" pre-selected. The old "billed monthly in arrears"
   line, wrong for the minimum, is gone from the page and corrected in docs/PRICING.md.
 
+- einvoice-site in Dutch (2026-11-27, einvoice-site-dutch): the marketing site's fourth language, every
+  page under `/nl/` (home, boekhouders, api, prijzen, the four deadline pages, vroege-toegang, privacy
+  and the form-flow pages), Belgium first for Flemish accountants, each deadline text in Dutch, the
+  sign-up email in Dutch, and a D1 migration so the form stores `nl`. Drafted by the agent, not yet read
+  by a native speaker (einvoice-site README, "Dutch").
+
 ## Next (by what stands between the bet and a paying accountant)
 
 1. Hosting, part 3 (part 2 done 2026-11-26: the Worker + D1 build, and the manual deploy workflow
@@ -287,8 +293,10 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
    done 2026-11-26): scans (OCR) if customers send them.
 7. Dutch, part 2 (part 1 done 2026-11-27: every non-KSeF rule explained in Dutch, `lang=nl`): a
    native speaker's read of `pro/explain-catalog-nl.mjs` and the workspace's Dutch strings (Flemish and
-   Netherlands usage; part 2, the workspace page and emails, done 2026-11-27); a Dutch page on
-   einvoice-site for Belgian accountants (Peppol mandatory B2B since 1 January 2026) once the deploy has run.
+   Netherlands usage; part 2, the workspace page and emails, done 2026-11-27; einvoice-site in Dutch,
+   every page under `/nl/` written for Belgian accountants, done 2026-11-27, einvoice-site README
+   "Dutch"): the same native read for `apps/einvoice-site/content/i18n/nl.mjs`, and the Dutch pages'
+   CTA pointed at the workspace once the deploy has run.
 8. Metered validation API, part 2 (part 1 done 2026-11-27; `explain=0` plain validation done
    2026-11-27): the settlement on a schedule (a Worker cron on the 1st once the deploy has run,
    calling the same `settleUsage`); the einvoice-site API page's link to the `api` plan's sign-up

@@ -274,3 +274,34 @@ test("static paths go to assets; API needs SIGNING_SECRET", async () => {
   const r3 = await worker.fetch(new Request(`${SITE}/api/nope`), env, ctx);
   assert.equal(r3.status, 404);
 });
+
+test("Dutch sign-up: stored as nl (migration 0003 widens the CHECK), Dutch email, Dutch pages", async () => {
+  const { env, ctx, sent, flush, rows } = setup();
+  const res = await worker.fetch(
+    post("/api/early-access", form(good({ lang: "nl", countries: ["be"] }))),
+    env,
+    ctx,
+  );
+  assert.equal(res.status, 303);
+  assert.equal(res.headers.get("Location"), `${SITE}/nl/vroege-toegang/inbox/`);
+  await flush();
+  assert.equal(rows()[0].lang, "nl");
+  assert.equal(rows()[0].countries, "be");
+  assert.equal(sent[0].subject, "Bevestig uw aanvraag voor vroege toegang");
+  assert.match(sent[0].text, /de link werkt 7 dagen/);
+  const page = await worker.fetch(
+    new Request(`${SITE}/api/early-access/confirm?token=${tokenFrom(sent[0])}&lang=nl`),
+    env,
+    ctx,
+  );
+  assert.match(await page.text(), /<button type="submit">Bevestigen<\/button>/);
+  // The rebuilt table still refuses a language the site does not have.
+  assert.throws(() =>
+    env.DB.raw
+      .prepare(
+        `INSERT INTO early_access (id, email, lang, role, consent_version, consent_at, status, created_at)
+         VALUES ('x', 'x@example.test', 'es', 'other', 'v', 0, 'pending', 0)`,
+      )
+      .run(),
+  );
+});
