@@ -22,8 +22,22 @@ const dueOf = (r: ReturnType<typeof checked>, citation: string) =>
   r.steps.find((s) => s.citation === citation)?.dueOn;
 
 describe("state bond claims", () => {
-  it("covers the eight states read, each with a statute link on its legislature's site", () => {
-    expect(STATE_BOND_STATES).toEqual(["AZ", "FL", "NC", "NY", "OH", "TX", "VA", "WA"]);
+  it("covers the thirteen states read, each with a statute link on its legislature's site", () => {
+    expect(STATE_BOND_STATES).toEqual([
+      "AZ",
+      "FL",
+      "MA",
+      "MI",
+      "MN",
+      "NC",
+      "NV",
+      "NY",
+      "OH",
+      "OR",
+      "TX",
+      "VA",
+      "WA",
+    ]);
     for (const s of STATE_BOND_STATES) {
       const rule = STATE_BOND_RULES[s];
       expect(rule?.url).toMatch(/^https:\/\//);
@@ -95,6 +109,43 @@ describe("state bond claims", () => {
     expect(dueOf(checked("NC", "second"), "N.C. Gen. Stat. § 44A-27(b)")).toBe("2026-11-06");
   });
 
+  it("Massachusetts: 65 days, moved off a Sunday; the petition within a year", () => {
+    const r = checked("MA", "second");
+    const notice = r.steps.find((s) => s.citation === "Mass. Gen. Laws ch. 149, § 29, par. 3");
+    // 10 July + 65 days = Sunday 13 September 2026 -> Friday 11 September.
+    expect(notice?.statutoryOn).toBe("2026-09-13");
+    expect(notice?.dueOn).toBe("2026-09-11");
+    expect(dueOf(r, "Mass. Gen. Laws ch. 149, § 29, par. 2(a)")).toBe("2027-07-09");
+    expect(checked("MA", "first").steps.map((s) => s.who)).toEqual(["all"]);
+  });
+
+  it("Michigan and Nevada: a 30-day start notice and a 90-day claim notice for a sub's sub", () => {
+    const mi = checked("MI", "second");
+    expect(mi.steps[0]?.dueOn).toBeNull();
+    expect(mi.steps[0]?.waitsFor).toMatch(/first furnished/);
+    expect(dueOf(mi, "MCL 129.207(b)")).toBe("2026-10-08");
+    // The suit runs from final payment to the prime, which PayApps does not know.
+    const suit = mi.steps.find((s) => s.citation === "MCL 129.209");
+    expect(suit?.dueOn).toBeNull();
+    expect(suit?.waitsFor).toMatch(/final payment/);
+    const nv = checked("NV", "second");
+    expect(dueOf(nv, "NRS 339.035(2)(b)")).toBe("2026-10-08");
+    expect(dueOf(nv, "NRS 339.055(2)")).toBe("2027-07-09");
+    expect(checked("NV", "first").steps.map((s) => s.citation)).toEqual(["NRS 339.055(2)"]);
+  });
+
+  it("Minnesota and Oregon: everyone gives the notice, first-tier subs included", () => {
+    const mn = checked("MN", "first");
+    // 120 days = Saturday 7 November -> Friday 6 November.
+    expect(dueOf(mn, "Minn. Stat. § 574.31, subd. 2(a)")).toBe("2026-11-06");
+    expect(dueOf(mn, "Minn. Stat. § 574.31, subd. 2(c)")).toBe("2027-07-09");
+    const or = checked("OR", "first");
+    // 10 July + 180 days = Wednesday 6 January 2027; the suit two years on, Monday 10 July 2028.
+    expect(dueOf(or, "ORS 279C.600(1)(b), 279C.605(1)")).toBe("2027-01-06");
+    expect(dueOf(or, "ORS 279C.610(3)")).toBe("2028-07-10");
+    expect(or.dated[0]?.citation).toBe("ORS 279C.600(1)(b), 279C.605(1)");
+  });
+
   it("Ohio and Washington count from acceptance", () => {
     const oh = checked("OH", "first", ACCEPTED);
     expect(dueOf(oh, "Ohio Rev. Code § 153.56(A)")).toBe("2027-03-12");
@@ -134,7 +185,7 @@ describe("state bond claim reminder on the cash page", () => {
     expect(stateBondText(va(), owed, "2026-10-07", "second")).toContain("claim tomorrow:");
   });
 
-  it("stays quiet more than 45 days out, with nothing owed, and off the eight states", () => {
+  it("stays quiet more than 45 days out, with nothing owed, and off the states read", () => {
     expect(stateBondText(va(), owed, "2026-08-23", "second")).toBeNull();
     expect(stateBondText(va(), owed, "2026-08-24", "second")).toContain("in 45 days");
     expect(
