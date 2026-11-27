@@ -52,9 +52,23 @@ export function ctaRowFillsOnPhone(html) {
   return phoneMediaBodies(html).some((body) =>
     [...body.matchAll(/([^{}]+)\{([^{}]*)\}/g)].some(
       ([, sel, decl]) =>
-        /\.cta-row\b[^,{]*\.cta\b/.test(sel) && /(^|;)\s*(flex\s*:\s*1\b|flex-grow\s*:\s*1\b)/.test(decl),
+        /\.cta-row\b[^,{]*\.(cta|btn)\b/.test(sel) && /(^|;)\s*(flex\s*:\s*1\b|flex-grow\s*:\s*1\b)/.test(decl),
     ),
   );
+}
+
+/**
+ * The page with its linked same-directory stylesheets inlined as <style>, so a
+ * page whose CSP forbids inline styles (ventures/payapps/site, built by
+ * payapps-site) is judged by the CSS it actually loads.
+ */
+export function withLinkedStyles(file, html) {
+  const extra = [];
+  for (const m of html.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^":?#]+\.css)"/gi)) {
+    if (m[1].startsWith('/')) continue;
+    try { extra.push(`<style>${readFileSync(join(dirname(file), m[1]), 'utf8')}</style>`); } catch { /* missing file: judged without it */ }
+  }
+  return html + extra.join('');
 }
 
 function htmlFiles(dir) {
@@ -89,7 +103,7 @@ test('every venture or research page with a cta-row lets its buttons fill the li
   const bad = [];
   for (const dir of ['ventures', 'research']) {
     for (const f of htmlFiles(join(ROOT, dir))) {
-      if (!ctaRowFillsOnPhone(readFileSync(f, 'utf8'))) {
+      if (!ctaRowFillsOnPhone(withLinkedStyles(f, readFileSync(f, 'utf8')))) {
         bad.push(`${relative(ROOT, f)}: class="cta-row" with no phone rule; add the /* cta-row-phone */ <style> block (see ventures/wall-framing-takeoff/index.html)`);
       }
     }

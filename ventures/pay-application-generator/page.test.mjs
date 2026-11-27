@@ -81,6 +81,8 @@ test("next-month carry-forward is on the page and the suite pitch says PayApps i
     assert.doesNotMatch(suite, /\$\s?\d/, `${file}: no price until checkout is live`);
     assert.doesNotMatch(suite, /in development|early access/i, `${file}: stale pre-launch copy`);
     assert.ok(suite.includes(`href="https://payapps.marisstella.app/?signup&amp;from=${from}"`), `${file}: tracked sign-up link`);
+    // The product's own page in the catalogue (ventures/payapps/site/, built by payapps-site).
+    assert.ok(suite.includes('href="../payapps/"'), `${file}: link to the PayApps home page`);
     assert.doesNotMatch(suite, /feedback\/\?type=idea/);
   }
 });
