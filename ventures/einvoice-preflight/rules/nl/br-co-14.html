@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="nl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-CO-14: Totale btw is niet de som van de btw-uitsplitsing</title>
+<meta name="description" content="BR-CO-14: Het totale btw-bedrag van de factuur (BT-110) moet gelijk zijn aan de btw-bedragen van alle regels van de btw-uitsplitsing (BT-117) opgeteld en…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/nl/br-co-14">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-co-14">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-co-14">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-co-14">
+<link rel="alternate" hreflang="nl" href="https://example.invalid/einvoice-preflight/rules/nl/br-co-14">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-co-14">
+<meta property="og:title" content="BR-CO-14: Totale btw is niet de som van de btw-uitsplitsing">
+<meta property="og:description" content="BR-CO-14: Het totale btw-bedrag van de factuur (BT-110) moet gelijk zijn aan de btw-bedragen van alle regels van de btw-uitsplitsing (BT-117) opgeteld en…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Wat betekent BR-CO-14?","acceptedAnswer":{"@type":"Answer","text":"Het totale btw-bedrag van de factuur (BT-110) moet gelijk zijn aan de btw-bedragen van alle regels van de btw-uitsplitsing (BT-117) opgeteld en afgerond op twee decimalen. Bijvoorbeeld 19.00 tegen 19 % plus 3.15 tegen 7 % geeft een totale btw van 22.15. In UBL wordt een btw-totaal zonder uitsplitsingsregels niet gecontroleerd; zo slaagt het tweede btw-totaal in de boekhoudvaluta (BT-111)."}},{"@type":"Question","name":"Hoe los ik BR-CO-14 op?","acceptedAnswer":{"@type":"Answer","text":"Tel het btw-bedrag van elke uitsplitsingsregel op (19.00 + 3.15 = 22.15) en gebruik dat als totale btw. Zet het totaal in UBL in cac:TaxTotal/cbc:TaxAmount, met de regels als cac:TaxSubtotal in dezelfde cac:TaxTotal; zet het in CII in ram:TaxTotalAmount met een currencyID gelijk aan de factuurvaluta. Verschilt de afronding per regel en per tarief, neem dan de bedragen van de uitsplitsing als uitgangspunt en pas het totaal aan."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-factuurregel uitgelegd · EN 16931</p>
+<h1>BR-CO-14: Totale btw is niet de som van de btw-uitsplitsing</h1>
+<nav class="langs" aria-label="Andere talen"><a href="../en/br-co-14.html" hreflang="en" lang="en">English</a><a href="../de/br-co-14.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-co-14.html" hreflang="fr" lang="fr">Français</a><a href="index.html">Alle regels</a></nav>
+</header>
+<section>
+<h2>Officiële melding</h2>
+<blockquote lang="en">Invoice total VAT amount (BT-110) = Σ VAT category tax amount (BT-117).</blockquote>
+<dl>
+<dt>Ernst</dt><dd>Fout (de factuur wordt geweigerd)</dd>
+<dt>Gecontroleerd in</dt><dd>UBL, CII</dd>
+<dt>Bedrijfstermen</dt><dd>BT-110, BT-117</dd>
+</dl>
+</section>
+<section>
+<h2>Wat betekent BR-CO-14?</h2>
+<p>Het totale btw-bedrag van de factuur (BT-110) moet gelijk zijn aan de btw-bedragen van alle regels van de btw-uitsplitsing (BT-117) opgeteld en afgerond op twee decimalen. Bijvoorbeeld 19.00 tegen 19 % plus 3.15 tegen 7 % geeft een totale btw van 22.15. In UBL wordt een btw-totaal zonder uitsplitsingsregels niet gecontroleerd; zo slaagt het tweede btw-totaal in de boekhoudvaluta (BT-111).</p>
+<h2>Gebruikelijke oorzaken</h2>
+<ul>
+<li>De totale btw is regel per regel berekend en de uitsplitsing per tarief, zodat ze door afronding verschillen.</li>
+<li>Een btw-tarief of -categorie is in de uitsplitsing toegevoegd of verwijderd zonder het totaal bij te werken.</li>
+<li>In UBL staan de uitsplitsingsregels in een tweede cac:TaxTotal in plaats van in de cac:TaxTotal met BT-110.</li>
+</ul>
+</section>
+<section>
+<h2>Hoe los ik BR-CO-14 op?</h2>
+<ol>
+<li>Tel het btw-bedrag van elke uitsplitsingsregel op (19.00 + 3.15 = 22.15) en gebruik dat als totale btw.</li>
+<li>Zet het totaal in UBL in cac:TaxTotal/cbc:TaxAmount, met de regels als cac:TaxSubtotal in dezelfde cac:TaxTotal; zet het in CII in ram:TaxTotalAmount met een currencyID gelijk aan de factuurvaluta.</li>
+<li>Verschilt de afronding per regel en per tarief, neem dan de bedragen van de uitsplitsing als uitgangspunt en pas het totaal aan.</li>
+</ol>
+<h2>Gecorrigeerde XML (minimaal voorbeeld van ons)</h2>
+<p><strong>UBL</strong></p>
+<pre><code><span class="ln" style="--i:0">&lt;cac:TaxTotal&gt;</span><span class="ln" style="--i:2">  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;22.15<wbr>&lt;/cbc:TaxAmount&gt;</span><span class="ln" style="--i:2">  &lt;cac:TaxSubtotal&gt;</span><span class="ln" style="--i:4">    &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;100.00<wbr>&lt;/cbc:TaxableAmount&gt;</span><span class="ln" style="--i:4">    &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;19.00<wbr>&lt;/cbc:TaxAmount&gt;</span><span class="ln" style="--i:4">    &lt;cac:TaxCategory&gt;</span><span class="ln" style="--i:6">      &lt;cbc:ID&gt;S<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;cbc:Percent&gt;19<wbr>&lt;/cbc:Percent&gt;</span><span class="ln" style="--i:6">      &lt;cac:TaxScheme&gt;</span><span class="ln" style="--i:8">        &lt;cbc:ID&gt;VAT<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;/cac:TaxScheme&gt;</span><span class="ln" style="--i:4">    &lt;/cac:TaxCategory&gt;</span><span class="ln" style="--i:2">  &lt;/cac:TaxSubtotal&gt;</span><span class="ln" style="--i:2">  &lt;cac:TaxSubtotal&gt;</span><span class="ln" style="--i:4">    &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;45.00<wbr>&lt;/cbc:TaxableAmount&gt;</span><span class="ln" style="--i:4">    &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;3.15<wbr>&lt;/cbc:TaxAmount&gt;</span><span class="ln" style="--i:4">    &lt;cac:TaxCategory&gt;</span><span class="ln" style="--i:6">      &lt;cbc:ID&gt;S<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;cbc:Percent&gt;7<wbr>&lt;/cbc:Percent&gt;</span><span class="ln" style="--i:6">      &lt;cac:TaxScheme&gt;</span><span class="ln" style="--i:8">        &lt;cbc:ID&gt;VAT<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;/cac:TaxScheme&gt;</span><span class="ln" style="--i:4">    &lt;/cac:TaxCategory&gt;</span><span class="ln" style="--i:2">  &lt;/cac:TaxSubtotal&gt;</span><span class="ln" style="--i:0">&lt;/cac:TaxTotal&gt;</span></code></pre>
+<p><strong>CII</strong></p>
+<pre><code><span class="ln" style="--i:0">&lt;ram:ApplicableHeaderTradeSettlement&gt;</span><span class="ln" style="--i:2">  &lt;ram:InvoiceCurrencyCode&gt;EUR<wbr>&lt;/ram:InvoiceCurrencyCode&gt;</span><span class="ln" style="--i:2">  &lt;ram:ApplicableTradeTax&gt;</span><span class="ln" style="--i:4">    &lt;ram:CalculatedAmount&gt;19.00<wbr>&lt;/ram:CalculatedAmount&gt;</span><span class="ln" style="--i:4">    &lt;ram:TypeCode&gt;VAT<wbr>&lt;/ram:TypeCode&gt;</span><span class="ln" style="--i:4">    &lt;ram:BasisAmount&gt;100.00<wbr>&lt;/ram:BasisAmount&gt;</span><span class="ln" style="--i:4">    &lt;ram:CategoryCode&gt;S<wbr>&lt;/ram:CategoryCode&gt;</span><span class="ln" style="--i:4">    &lt;ram:RateApplicablePercent&gt;19<wbr>&lt;/ram:RateApplicablePercent&gt;</span><span class="ln" style="--i:2">  &lt;/ram:ApplicableTradeTax&gt;</span><span class="ln" style="--i:2">  &lt;ram:ApplicableTradeTax&gt;</span><span class="ln" style="--i:4">    &lt;ram:CalculatedAmount&gt;3.15<wbr>&lt;/ram:CalculatedAmount&gt;</span><span class="ln" style="--i:4">    &lt;ram:TypeCode&gt;VAT<wbr>&lt;/ram:TypeCode&gt;</span><span class="ln" style="--i:4">    &lt;ram:BasisAmount&gt;45.00<wbr>&lt;/ram:BasisAmount&gt;</span><span class="ln" style="--i:4">    &lt;ram:CategoryCode&gt;S<wbr>&lt;/ram:CategoryCode&gt;</span><span class="ln" style="--i:4">    &lt;ram:RateApplicablePercent&gt;7<wbr>&lt;/ram:RateApplicablePercent&gt;</span><span class="ln" style="--i:2">  &lt;/ram:ApplicableTradeTax&gt;</span><span class="ln" style="--i:2">  &lt;ram:SpecifiedTradeSettlementHeaderMonetarySummation&gt;</span><span class="ln" style="--i:4">    &lt;ram:LineTotalAmount&gt;145.00<wbr>&lt;/ram:LineTotalAmount&gt;</span><span class="ln" style="--i:4">    &lt;ram:TaxBasisTotalAmount&gt;145.00<wbr>&lt;/ram:TaxBasisTotalAmount&gt;</span><span class="ln" style="--i:4">    &lt;ram:TaxTotalAmount currencyID=&quot;EUR&quot;&gt;22.15<wbr>&lt;/ram:TaxTotalAmount&gt;</span><span class="ln" style="--i:4">    &lt;ram:GrandTotalAmount&gt;167.15<wbr>&lt;/ram:GrandTotalAmount&gt;</span><span class="ln" style="--i:4">    &lt;ram:DuePayableAmount&gt;167.15<wbr>&lt;/ram:DuePayableAmount&gt;</span><span class="ln" style="--i:2">  &lt;/ram:SpecifiedTradeSettlementHeaderMonetarySummation&gt;</span><span class="ln" style="--i:0">&lt;/ram:ApplicableHeaderTradeSettlement&gt;</span></code></pre>
+<p class="note">Alleen voorbeeldwaarden. Vervang of vul de elementen in uw bestand aan; de volgorde van de elementen ligt in beide syntaxen vast.</p>
+</section>
+<section>
+<h2>Controleer uw bestand gratis</h2>
+<p>De gratis controle voert de officiële regels voor EN 16931, XRechnung en Peppol uit in uw browser. Uw bestand wordt niet geüpload.</p>
+<p><a class="button" href="../../index.html">Open de gratis controle</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In ontwikkeling — vroege toegang</span></p>
+<h2>Controleren en uitleggen, voor boekhouders en factuurteams</h2>
+<p>Een betaalde dienst die elke geschonden regel in gewoon Nederlands, Duits, Frans of Engels uitlegt en een gecorrigeerd bestand voorstelt, is in ontwikkeling. <a href="https://example.invalid/industries/eu-e-invoicing/">Vroege toegang</a></p>
+</section>
+<section>
+<h2>Bron</h2>
+<p>Regel-ID en officiële melding uit: CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), gecompileerd uit upstream-commit 6e35e0a. De uitleg, oorzaken, oplossing en XML op deze pagina zijn van ons, niet van de uitgever van de regel. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Geen fiscaal of juridisch advies.</strong> Deze pagina legt uit wat een validatieregel controleert en hoe een bestand die regel doorstaat. Ze zegt niet welke btw-behandeling op uw verkoop van toepassing is; vraag dat aan uw boekhouder of belastingadviseur. <strong>Zonder garantie (no warranty):</strong> gratis en zoals het is; controleer het resultaat voordat u erop vertrouwt.</p>
+<p>Onze code en uitleg vallen onder de licentie FSL-1.1-MIT. Officiële regelmeldingen worden geciteerd onder de licentie van hun uitgever (EUPL-1.2, Apache-2.0, MPL-2.0), die op elke pagina wordt genoemd.</p>
+</footer>
+</main></body></html>

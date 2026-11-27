@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="nl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E-factuur foutmeldingen uitgelegd: Peppol BIS en EN 16931</title>
+<meta name="description" content="Wat 35 foutmeldingen bij Peppol BIS (PEPPOL-EN16931) en EN 16931 (BR-CO, BR-S) e-facturen betekenen en hoe u ze oplost, met gecorrigeerde XML.">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/nl/">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/">
+<link rel="alternate" hreflang="nl" href="https://example.invalid/einvoice-preflight/rules/nl/">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/">
+<meta property="og:title" content="E-factuur foutmeldingen uitgelegd: Peppol BIS en EN 16931">
+<meta property="og:description" content="Wat 35 foutmeldingen bij Peppol BIS (PEPPOL-EN16931) en EN 16931 (BR-CO, BR-S) e-facturen betekenen en hoe u ze oplost, met gecorrigeerde XML.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Waar komen deze regel-ID's vandaan?","acceptedAnswer":{"@type":"Answer","text":"Uit de officiële validatieartefacten: de EN 16931-validatieartefacten van CEN/TC 434 voor de BR-regels en de BIS Billing 3-regels van OpenPeppol voor de PEPPOL-regels. Elke pagina noemt de versie en linkt ernaar."}},{"@type":"Question","name":"Is een waarschuwing een weigering?","acceptedAnswer":{"@type":"Answer","text":"Nee. Een regel met ernst waarschuwing of informatie weigert de factuur in de officiële regelsets niet op zich, maar een ontvangend platform of accesspoint kan strenger zijn. Een fout (fatal) leidt tot weigering."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice Preflight</p>
+<h1>Foutmeldingen bij e-facturen, uitgelegd</h1>
+<p>35 validatieregels waarop e-facturen worden geweigerd of gemarkeerd, elk met wat de regel betekent, de gebruikelijke oorzaken, de oplossing en een gecorrigeerd XML-fragment. Regel-ID's en meldingen komen uit de officiële regelsets die op elke pagina worden genoemd. De Duitse XRechnung-regels (BR-DE) staan alleen in het Duits, Frans en Engels.</p>
+<nav class="langs" aria-label="Andere talen"><a href="../en/index.html" hreflang="en" lang="en">English</a><a href="../de/index.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/index.html" hreflang="fr" lang="fr">Français</a></nav>
+</header>
+<section>
+<h2>Basisregels EN 16931 (alle e-facturen in de EU)</h2>
+<p class="note"><a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+<ul class="rules">
+<li><a href="br-27.html"><strong>BR-27</strong></a>: Nettoprijs van het artikel is negatief</li>
+<li><a href="br-49.html"><strong>BR-49</strong></a>: Betaalinstructies zonder code voor het betaalmiddel</li>
+<li><a href="br-61.html"><strong>BR-61</strong></a>: Overschrijving zonder rekening om op te betalen</li>
+<li><a href="br-62.html"><strong>BR-62</strong></a>: Elektronisch adres van de verkoper heeft geen schema-identificatie</li>
+<li><a href="br-63.html"><strong>BR-63</strong></a>: Elektronisch adres van de koper heeft geen schema-identificatie</li>
+<li><a href="br-ae-10.html"><strong>BR-AE-10</strong></a>: Btw-uitsplitsing met verlegging heeft geen vrijstellingsreden</li>
+<li><a href="br-cl-14.html"><strong>BR-CL-14</strong></a>: Landcode is geen ISO 3166-1-code</li>
+<li><a href="br-cl-23.html"><strong>BR-CL-23</strong></a>: Eenheid is geen code uit UN/ECE-aanbeveling 20/21</li>
+<li><a href="br-co-09.html"><strong>BR-CO-09</strong></a>: Btw-nummer begint niet met een geldige landcode</li>
+<li><a href="br-co-10.html"><strong>BR-CO-10</strong></a>: Som van de nettoregelbedragen klopt niet met de factuurregels</li>
+<li><a href="br-co-13.html"><strong>BR-CO-13</strong></a>: Totaal zonder btw klopt niet met regels, kortingen en toeslagen</li>
+<li><a href="br-co-14.html"><strong>BR-CO-14</strong></a>: Totale btw is niet de som van de btw-uitsplitsing</li>
+<li><a href="br-co-15.html"><strong>BR-CO-15</strong></a>: Totaal met btw is niet totaal zonder btw plus btw</li>
+<li><a href="br-co-16.html"><strong>BR-CO-16</strong></a>: Te betalen bedrag is niet totaal min vooruitbetaald plus afronding</li>
+<li><a href="br-co-17.html"><strong>BR-CO-17</strong></a>: Btw-bedrag in de uitsplitsing klopt niet met grondslag maal tarief</li>
+<li><a href="br-co-26.html"><strong>BR-CO-26</strong></a>: Verkoper heeft geen identificatie, registratienummer of btw-nummer</li>
+<li><a href="br-dec-23.html"><strong>BR-DEC-23</strong></a>: Nettoregelbedrag heeft meer dan twee decimalen</li>
+<li><a href="br-e-10.html"><strong>BR-E-10</strong></a>: Btw-uitsplitsing met vrijstelling heeft geen vrijstellingsreden</li>
+<li><a href="br-s-01.html"><strong>BR-S-01</strong></a>: Regels met normaal tarief maar geen btw-uitsplitsing voor categorie S</li>
+<li><a href="br-s-08.html"><strong>BR-S-08</strong></a>: Belastbaar bedrag bij normaal tarief klopt niet met de regels</li>
+<li><a href="br-s-09.html"><strong>BR-S-09</strong></a>: Btw-bedrag bij normaal tarief is niet belastbaar bedrag maal tarief</li>
+<li><a href="br-z-10.html"><strong>BR-Z-10</strong></a>: Btw-uitsplitsing met nultarief mag geen vrijstellingsreden hebben</li>
+</ul>
+</section>
+
+<section>
+<h2>Peppol BIS Billing 3</h2>
+<p class="note"><a href="https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/3.0.22" rel="noopener">OpenPeppol BIS Billing 3 rules 3.0.22</a></p>
+<ul class="rules">
+<li><a href="peppol-en16931-p0112.html"><strong>PEPPOL-EN16931-P0112</strong></a>: Factuurtypecode 326, 384 of 389 buiten de toegestane landen</li>
+<li><a href="peppol-en16931-r001.html"><strong>PEPPOL-EN16931-R001</strong></a>: Bedrijfsproces (profiel-ID) ontbreekt</li>
+<li><a href="peppol-en16931-r003.html"><strong>PEPPOL-EN16931-R003</strong></a>: Er is geen kopersreferentie en geen ordernummer opgegeven</li>
+<li><a href="peppol-en16931-r004.html"><strong>PEPPOL-EN16931-R004</strong></a>: Specificatie-identificatie is niet die van Peppol BIS Billing 3.0</li>
+<li><a href="peppol-en16931-r007.html"><strong>PEPPOL-EN16931-R007</strong></a>: Identificatie van het bedrijfsproces is geen goedgekeurde waarde</li>
+<li><a href="peppol-en16931-r008.html"><strong>PEPPOL-EN16931-R008</strong></a>: Het document bevat een leeg element</li>
+<li><a href="peppol-en16931-r010.html"><strong>PEPPOL-EN16931-R010</strong></a>: Elektronisch adres van de koper ontbreekt</li>
+<li><a href="peppol-en16931-r020.html"><strong>PEPPOL-EN16931-R020</strong></a>: Elektronisch adres van de verkoper ontbreekt</li>
+<li><a href="peppol-en16931-r046.html"><strong>PEPPOL-EN16931-R046</strong></a>: Nettoprijs is niet brutoprijs min prijskorting</li>
+<li><a href="peppol-en16931-r051.html"><strong>PEPPOL-EN16931-R051</strong></a>: Een bedrag gebruikt een andere valuta dan de factuurvaluta</li>
+<li><a href="peppol-en16931-r053.html"><strong>PEPPOL-EN16931-R053</strong></a>: Er moet precies één btw-totaal met btw-uitsplitsing zijn</li>
+<li><a href="peppol-en16931-r120.html"><strong>PEPPOL-EN16931-R120</strong></a>: Nettoregelbedrag klopt niet met hoeveelheid, prijs en regelkortingen of -toeslagen</li>
+<li><a href="peppol-en16931-r121.html"><strong>PEPPOL-EN16931-R121</strong></a>: Basishoeveelheid van de prijs is nul of negatief</li>
+</ul>
+</section>
+<section>
+<h2>Controleer uw bestand gratis</h2>
+<p>De gratis controle voert de officiële regels voor EN 16931, XRechnung en Peppol uit in uw browser. Uw bestand wordt niet geüpload.</p>
+<p><a class="button" href="../../index.html">Open de gratis controle</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In ontwikkeling — vroege toegang</span></p>
+<h2>Controleren en uitleggen, voor boekhouders en factuurteams</h2>
+<p>Een betaalde dienst die elke geschonden regel in gewoon Nederlands, Duits, Frans of Engels uitlegt en een gecorrigeerd bestand voorstelt, is in ontwikkeling. <a href="https://example.invalid/industries/eu-e-invoicing/">Vroege toegang</a></p>
+</section>
+<section>
+<h2>Waar komen deze regel-ID's vandaan?</h2>
+<p>Uit de officiële validatieartefacten: de EN 16931-validatieartefacten van CEN/TC 434 voor de BR-regels en de BIS Billing 3-regels van OpenPeppol voor de PEPPOL-regels. Elke pagina noemt de versie en linkt ernaar.</p>
+<h2>Is een waarschuwing een weigering?</h2>
+<p>Nee. Een regel met ernst waarschuwing of informatie weigert de factuur in de officiële regelsets niet op zich, maar een ontvangend platform of accesspoint kan strenger zijn. Een fout (fatal) leidt tot weigering.</p>
+</section>
+<footer>
+<p><strong>Geen fiscaal of juridisch advies.</strong> Deze pagina legt uit wat een validatieregel controleert en hoe een bestand die regel doorstaat. Ze zegt niet welke btw-behandeling op uw verkoop van toepassing is; vraag dat aan uw boekhouder of belastingadviseur. <strong>Zonder garantie (no warranty):</strong> gratis en zoals het is; controleer het resultaat voordat u erop vertrouwt.</p>
+<p>Onze code en uitleg vallen onder de licentie FSL-1.1-MIT. Officiële regelmeldingen worden geciteerd onder de licentie van hun uitgever (EUPL-1.2, Apache-2.0, MPL-2.0), die op elke pagina wordt genoemd.</p>
+</footer>
+</main></body></html>
