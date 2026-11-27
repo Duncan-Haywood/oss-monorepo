@@ -288,6 +288,13 @@
       "when": 1795779819433,
       "tag": "0040_shop_default_fallout",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "6",
+      "when": 1795785337222,
+      "tag": "0041_file_blobs",
+      "breakpoints": true
     }
   ]
 }

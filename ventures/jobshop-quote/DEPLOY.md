@@ -46,10 +46,11 @@ this app deploys with a Cloudflare token, not that trust, so it is not affected.
    the code (`POLICY_VERSION` 2026-11-27.1). Its open item is the owner's: pick
    `GLOBAL_DAILY_LLM_CAP_USD` before setting `JOBSHOP_ANTHROPIC_API_KEY`, because free sign-ups can
    spend AI up to that cap.
-2. **The Cloudflare token needs R2 edit.** PayApps' ROADMAP (2026-11-27) says its attachments are off
-   because the token lacks Workers R2 Storage edit. Job Shop Quote cannot run without R2, so
-   `provision.mjs` will stop the run before anything is deployed until the owner adds that permission
-   (and Workers AI) to `CLOUDFLARE_API_TOKEN`.
+2. **R2 no longer blocks the deploy (2026-11-27).** PayApps' token lacks Workers R2 Storage edit. Job
+   Shop Quote now deploys without the bucket and keeps its files in D1 (`file_blobs`,
+   `apps/jobshop-quote/src/worker/ports/file-store.ts`); adding R2 edit to `CLOUDFLARE_API_TOKEN` later
+   moves new files to R2 with nothing to copy. Not yet known: whether the token can deploy a Worker with
+   a Workers AI binding; if the first run fails there, that is the next thing to fix.
 3. Deploy once by hand; `/api/health` answers `ok: true, app: "jobshop-quote"`.
 4. Remove `private-monorepo/apps/jobshop-quote` and `apps/jobshop-site` in a private PR, repoint
    `portfolio/monetization/bets.md` ("Where it is built") and the `private-monorepo/apps/jobshop-quote`
