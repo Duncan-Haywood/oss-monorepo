@@ -24,7 +24,7 @@
   "baseline": "7 sessions 2026-11-25..27 (friction_rank.py cluster 1)",
   "opened": "2026-11-27",
   "source": "process run (friction_rank.py --live --ungated --days 3)",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19896",
   "result": null,
   "history": []
 }
