@@ -1,4 +1,4 @@
-# PayApps (in development)
+# PayApps
 
 Pay-application billing for specialty subcontractors: schedule of values, change orders, retainage,
 and an application-for-payment summary + continuation sheet as PDF and CSV. Not an AIA document.
