@@ -97,6 +97,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/how-to-quote-cnc-machining",
+      label: "How to quote CNC machining",
+      title: `How to quote a CNC machined part, step by step · ${SITE_NAME}`,
+      description:
+        "Price a CNC machined part from material, setup, cycle time, finishing and markup, with quantity breaks worked out for a made-up bracket at 1, 10, 50 and 250.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
       path: "/faq",
       label: "FAQ",
       title: `Frequently asked questions · ${SITE_NAME}`,

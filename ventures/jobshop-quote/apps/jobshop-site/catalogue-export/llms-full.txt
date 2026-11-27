@@ -514,7 +514,8 @@ and at least once a year.
 
 ### Where the rate goes next
 
-A rate is half of a quote; the other half is how long the part takes. In Job Shop Quote each machine
+A rate is half of a quote; the other half is how long the part takes
+(how to quote a machined part, with quantity breaks). In Job Shop Quote each machine
 on your rate card has its own hourly rate and, if you want one, a separate setup rate. A quote line is
 then the time on each machine at that machine's rate, plus material, outside processes, minimums and
 your markup, with every figure showing the rate it used. You can
@@ -528,6 +529,129 @@ books, and those may differ from the simple straight-line figures used here.
 ### Put your rates on a rate card
 
 The Early access plan is free and needs no card. Enter each machine's rate once and quote real RFQs from it.
+
+Start free
+
+## How to quote CNC machining
+
+Source: https://marisstella.app/jobshop/how-to-quote-cnc-machining
+
+Guide
+
+## How to quote a CNC machined part
+
+A machined part's price is material, setup, run time, finishing and a markup, worked
+out again at every quantity the customer asks about. Here is the method step by step, a worked example
+at four quantity breaks, and the places quotes most often go wrong.
+
+### The method in six steps
+
+- Material. Size the blank: the finished part plus stock to face and clean up on
+every side, rounded up to a size you can buy or saw. Weight is length × width × thickness × the
+material's density; price it per pound (or per bar, sheet or foot, however your supplier sells it) and
+add saw kerf, facing and drop. A supplier's cut charge or minimum is a floor, not a rounding error.
+
+- Operations and setup. List every time the part goes on a machine: first side,
+flip, a second machine, deburr. Each operation has a setup (fixturing, indicating, tool loading,
+first-article check) that is paid once per lot, whatever the quantity.
+
+- Cycle time. Estimate the minutes per part for each operation, from CAM, a similar
+job or a time study, including load and unload. Multiply by the machine's hourly rate and the number of
+parts started.
+
+- Fallout. If you expect to scrap some parts, start more than the customer orders:
+starts = quantity ÷ (1 − fallout), rounded up. Material, run time and per-part finishing are priced on
+the starts.
+
+- Finishing and outside services. Anodize, plating and heat treat usually cost a
+price per part with a vendor lot minimum. On a small order the minimum is the price.
+
+- Markup and minimums. Add your markup to each component (many shops mark up labor
+and purchased items at different percentages), then check the line against your minimum order. Divide
+by the quantity for the price each, rounded up to the cent.
+
+### A worked example: one bracket at four quantities
+
+A 6061 aluminum bracket, milled in two setups on a 3-axis mill and sent out for anodize.
+Every number here is made up to show the arithmetic; they are not typical prices,
+rates or times for any shop or region. Use your own.
+
+- Blank 4.25 × 3.25 × 1 in at 0.0975 lb/in³:
+1.347 lb, at $4.50 a pound plus 10% for kerf and
+facing, with a $25.00 material minimum.
+
+- Op 10: first side: 60 min setup, 7 min a part.
+- Op 20: flip, second side: 30 min setup, 4 min a part.
+
+- Both at $100 an hour (the cost-based rate from the
+hourly rate guide's example,
+rounded), for setup and run alike.
+
+- Anodize, clear (outside vendor): $3.00 a part, $125.00 lot minimum.
+
+- 2% fallout; markup 20% on labor, 15% on
+material and 15% on the outside finish; $250.00 line minimum.
+
+Made-up bracket: 90 min of setup and 11 min of cycle a part, $100 an hour.
+Quantity11050250
+
+Parts started21152256Material$25.00$73.33$346.65$1,706.56Setup$150.00$150.00$150.00$150.00Run time$36.66$201.66$953.34$4,693.34Anodize, clear (outside vendor)$125.00$125.00$156.00$768.00Cost$336.66$549.99$1,605.99$7,317.90Markup$59.83$100.08$296.07$1,339.85Price each$396.49$65.01$38.05$34.64Line total$396.49$650.10$1,902.50$8,660.00Setup's share of each part (at cost)$150.00$15.00$3.00$0.60
+
+Following the 10-piece column: 11 parts are started (10 ÷ 0.98, rounded up).
+Material is 1.347 lb × 11 × $4.50 × 1.1 =
+$73.33. Setup is 90 min at $100 an hour, $150.00. Run time is
+11 min × 11 parts, $201.66. The anodize lot minimum
+($125.00) is more than 11 × $3.00, so it applies.
+That is $549.99 of cost; markup adds $100.08, and the price is
+$65.01 each.
+
+Two things the table shows:
+
+- Setup and lot minimums dominate small orders. At one piece, setup alone is
+$150.00 of the part's cost; at 250 it is $0.60.
+That is why one price each for every quantity loses money on the small orders or loses the big ones.
+
+- Fallout bites hardest at quantity one. 2% fallout on one part
+still means starting 2. Whether you price a spare blank, or quote a single prototype
+with no fallout and accept the risk, is a decision to make on purpose.
+
+### Where quotes go wrong
+
+- One price at every quantity. Quote breaks (1, 10, 50, 250, or the quantities the
+customer named) so the setup is spread honestly.
+
+- Forgetting the second setup. Every flip, second machine and secondary operation
+has its own setup. A part with three setups at one piece costs three setups.
+
+- Cycle time without load and unload. CAM run time is cutting time; the machine is
+not earning while the operator swaps parts, deburrs or measures.
+
+- Vendor minimums priced per part. $3.00 a part anodize
+is $30.00 on ten parts; the vendor will bill
+$125.00.
+
+- Material at the finished size. The blank is bigger than the part, and the bar
+or plate you buy is bigger than the blank.
+
+- No record of why. Six months later the repeat order comes in, and nobody knows
+which rate, time or vendor price the old quote used.
+
+### Doing this in Job Shop Quote
+
+The worked example above uses the same arithmetic as Job Shop Quote's pricing: you enter the blank,
+the operations with their setup and cycle minutes, the finishing and any fallout, and each quantity
+break is priced from your own rate card, with every figure on the quote showing the rate it used and a
+copy of those rates kept with the quote. A STEP file can pre-fill the blank and suggest roughing and drilling
+times, and a DXF flat pattern the cutting and bending; the estimator checks every number before it goes out.
+See how a quote is built.
+
+This page explains a common costing method with made-up figures.
+It is not accounting, tax or financial advice, and it is not a price list: your own rates, times and vendor
+quotes decide what a part costs you.
+
+### Quote your next RFQ from your own rates
+
+The Early access plan is free and needs no card. Enter your machines once and price every quantity break from them.
 
 Start free
 

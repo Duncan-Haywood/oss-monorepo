@@ -38,6 +38,7 @@ Flip a field when the app changes, then `pnpm export:catalogue` and commit `cata
 | `/for-cmmc-shops` | No CUI / ITAR / EAR drawings during early access; CMMC workspace "coming" |
 | `/compare` | Machine shop quoting software compared: spreadsheet, Paperless Parts, QuotedPart, JobBOSS², ProShop, with each price's source and read date (`ALTERNATIVES` in `src/site/pages.ts`; re-check a price before changing it), and what this app does not do |
 | `/machine-shop-hourly-rate` | Guide: work out a machine shop hourly rate from your own costs, worked example computed in `src/site/shop-rate.ts` (numbers made up, labelled so) |
+| `/how-to-quote-cnc-machining` | Guide: price a machined part from material, setup, cycle, fallout, finishing and markup at four quantity breaks; worked example computed in `src/site/part-quote.ts`, cross-checked against the app's `computeCost` in `test/unit/part-quote.test.ts` (numbers made up, labelled so) |
 | `/faq` | FAQ (FAQPage JSON-LD built from the same list) |
 | `/early-access` | Closed site only: the form (posts to `/api/early-access`, stored in D1) |
 | `/early-access/thanks` | Closed site only: after a successful post (noindex, not in the sitemap) |
