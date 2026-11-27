@@ -7,7 +7,9 @@ do not edit by hand. Take the first one whose claim branch
 
 Triaged already: alerts in `platform/security/codeql-triage.json` are listed apart, at the end; `docs/reports/*security-queue*.md` on main has earlier runs' notes. A false positive you find goes in the JSON file with its reason (only the owner can dismiss alerts).
 
-Empty: no open alerts awaiting a fix.
+Scanned commit: `9db53ee586e9` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 9db53ee586e9 origin/main -- <path>` before fixing (each alert file says how).
+
+- [high] #1434 `py/clear-text-logging-sensitive-data` in `portfolio/smb/cbp_counts.py:150`: alerts/1434.md
 
 ## Triaged, awaiting dismissal
 
