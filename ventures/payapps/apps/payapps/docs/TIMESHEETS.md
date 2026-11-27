@@ -45,19 +45,35 @@ little reason to keep a second tool for billing.
   hours, overtime on each row's latest days) in columns the certified payroll page's timesheet import
   reads, so a prevailing-wage job's week fills the WH-347 without retyping
   (`test/worker/timesheets.test.ts` reads it back through `timesheetHours`). Cells are formula-safe.
+- **Into the certified payroll page** (2026-11-27, crew timesheets part 2,
+  `GET /api/orgs/:orgId/projects/:projectId/certified-payroll/timesheet-hours?weekEnding=`): the
+  page's "Fill hours from PayApps timesheets" button reads the job's hours for the seven days ending
+  on the payroll's week-ending date straight from the timesheets (`src/shared/timesheet-certified.ts`),
+  in the same entries the time-report import makes, and puts them on the form with
+  `fillFromTimesheet` (matched by name; the crew list's trade is the classification). Overtime is the
+  timesheet's, spread on each row's latest days as time.csv spreads it (`rowOvertimeByDay`, shared by
+  both). A payroll week that is not one workweek (a Saturday week ending, Monday workweeks) reads the
+  two workweeks it straddles, and each day keeps the overtime its own workweek gave it. The response
+  also lists each worker's hours on other jobs that week (the WH-347's gross for all work must
+  include that pay) and workers with no trade. Every member reads it, as every member reads the
+  weeks; the job must be the caller's company's (`getProjectRow`). Nothing is stored: the form
+  stays in the browser as before.
 
 ## What it does not do
 
 Not payroll: no deductions, taxes or paychecks. Federal weekly overtime only; state daily overtime
 (California Labor Code 510, Alaska, Nevada, Colorado and others), double time, exempt employees and
 prevailing-wage rates are not applied, and the page says so. No clock-in from a phone, GPS or
-photos; no approval step. Those are the next parts if contractors ask.
+photos; no approval step; prevailing-wage rates are typed on the certified payroll page, not
+taken from the crew list's pay rate. Those are the next parts if contractors ask.
 
 ## Files
 
 Tables `crew_members`, `time_entries`, `timesheet_settings` (migration 0081,
 `src/worker/db/schema/timesheets.ts`); `src/shared/timesheets.ts`; `services/payapps/timesheets.ts`;
-`routes/org/timesheets.ts`; `services/export/timesheet-export.ts`; `src/client/pages/timesheets.tsx`.
+`routes/org/timesheets.ts`; `services/export/timesheet-export.ts`; `src/client/pages/timesheets.tsx`;
+`src/shared/timesheet-certified.ts` and `src/client/components/timesheet-fill.tsx` (the certified
+payroll fill; tests `src/shared/timesheet-certified.test.ts`, `test/unit/timesheet-fill.test.tsx`).
 Tests: `src/shared/timesheets.test.ts` (hand sums), `test/worker/timesheets.test.ts` (crew list,
 week, overtime, posting once, CSVs, plan gate, workweek lock, viewer, cross-tenant). Privacy policy
 2026-11-27.4 names the workers, rates and hours stored.

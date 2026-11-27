@@ -116,6 +116,7 @@ import {
 import { getRfi, updateRfi } from "../../services/payapps/rfis";
 import { createSampleProject } from "../../services/payapps/sample";
 import { loadDelayLogDocument } from "../../services/payapps/schedule-delays";
+import { certifiedPayrollHours } from "../../services/payapps/timesheets";
 import type { AppEnv } from "../../types";
 
 const routes = new Hono<AppEnv>();
@@ -807,6 +808,21 @@ routes.post(
     });
   },
 );
+
+// The job's hours for a certified payroll week, from the company's crew timesheets
+// (src/shared/timesheet-certified.ts): read by the certified payroll page to fill the WH-347 without
+// the time.csv round-trip. Every member, as every member reads the timesheet weeks.
+routes.get("/:projectId/certified-payroll/timesheet-hours", async (c) => {
+  const project = await getProjectRow(c.var.ctx, c.var.tenant.orgId, c.req.param("projectId"));
+  return c.json(
+    await certifiedPayrollHours(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      project.id,
+      c.req.query("weekEnding") ?? "",
+    ),
+  );
+});
 
 // Contractor's sworn statement (Illinois, Michigan, a lender's or title company's) to go with a pay
 // application (src/shared/sworn-statement.ts): posted, checked and printed; nothing is stored. Every
