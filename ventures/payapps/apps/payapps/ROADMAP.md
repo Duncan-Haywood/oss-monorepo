@@ -1651,6 +1651,21 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   `packages/admin-metrics` (optional, so other products send nothing until they have steps); code
   `services/admin/activation.ts`. Why: the onboarding emails (parts 2 to 4) exist to move people
   past a step; this is how the owner sees which step to fix first once strangers sign up.
+- Sign-ups by source (2026-11-27, signup-source): which of our pages brings accounts that bill. The
+  42 pay-app guides, the free construction tools and the marketing site link to
+  `/?signup&from=<page>`; until now the app read `signup` and dropped `from`. The browser keeps the
+  first `from` in local storage (14 days; sign-up usually finishes in another tab through the
+  confirmation email), posts it once after sign-in (`POST /api/me/signup-source`), and the account
+  keeps it in `signup_source` (one row per user, only while the account is under 14 days old, never
+  replaced). Only our own page names in shape (`[a-z0-9._/-]`, no `..`, at most 80) are taken:
+  never a URL, a referrer header or a cookie. `GET /api/admin/metrics` carries `sources`: per page,
+  sign-ups (all and in the window), verified, with a company, whose company sent a pay application
+  on a real job, and paying now, with "(none)" last; ids, statuses and page names only (a test
+  checks job, GC and email never appear). Privacy Policy says so (`POLICY_VERSION` 2026-11-27.5).
+  Contract: `SignupSources` in `packages/admin-metrics` (optional). Code `shared/signup-source.ts`,
+  `client/lib/signup-source.ts`, `services/signup-source.ts`, `services/admin/sources.ts`. Next:
+  the owner console (private-monorepo) shows `sources` as a table next to "Getting started"; until
+  then it is in the JSON the agents' `ADMIN_METRICS_TOKEN` reads.
 - RFI log (2026-11-26, every plan, rfi-log): requests for information to the GC, numbered per job
   (one past the highest used; a deleted number is not reused), with the subject, the question, the
   sheet/detail/spec reference, the contractor's proposed solution, the date sent, the response date
