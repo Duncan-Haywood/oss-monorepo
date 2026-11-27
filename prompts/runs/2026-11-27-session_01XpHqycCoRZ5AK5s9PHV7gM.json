@@ -28,7 +28,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
@@ -43,6 +43,10 @@
     {
       "file": "prompt.md",
       "issue": "Said 'the bets' code lives in private-monorepo' after bets #1, #2 and #5 had moved into ventures/; fixed here to point at the bets table."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Two review sessions routed within minutes; the PR claim only works once a draft PR exists, so a parallel review (#19658) did the same claim-expiry fix and landed first. Cost: a duplicate measure pass and a merge conflict in experiments.md and prompts/derived."
     }
   ],
   "deviations": [
@@ -66,11 +70,10 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-24-a-review-claim-that-never-expired.md (carried from PR #18741)",
-    "prompts/experiments.md E122"
+    "prompts/experiments.md E123"
   ],
   "goal": null,
-  "notes": "python3 -m unittest discover -s prompts: 165 tests OK; promptctl.py validate ok; risk_review.py: nothing blocked.",
+  "notes": "python3 -m unittest discover -s prompts: 165 tests OK; promptctl.py validate ok; risk_review.py: nothing blocked. Parallel review #19658 landed the claim fix first; this PR was cut back to the bets #2/#5 location drift fix plus E123. Local run_workflow_locally --for-changes: all green except test_verticals.py (main's verticals.json missing jobshop-quote; already fixed by open PR #19649, not duplicated here).",
   "corrections": [],
   "redteam": null,
   "usage": {

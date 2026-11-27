@@ -53,7 +53,7 @@ a scheduled venture run takes the top bet in
 [`portfolio/monetization/bets.md`](portfolio/monetization/bets.md) it can move
 toward a paying customer: vertical software for small and medium businesses,
 chosen by promise rather than by how much code exists (`goals.md`, "Where
-effort goes"). The ranking's last column says where each bet is built: most
+effort goes"). The ranking's last column says where each bet is built: several
 have moved into `ventures/` (build them here); for one still in
 `private-monorepo`, try one clone ([`cloud-session.md`](.github/prompts/cloud-session.md),
 "Reaching `private-monorepo`"), and if it is refused (final for the session) take
