@@ -30,8 +30,13 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { REPO_URL, withSiteHeader } from './site-nav.mjs';
 import { renderEarlyAccessForm, EARLY_ACCESS_CSS } from './early-access-form.mjs';
-// One source for the deployed PayApps origin: the same constant switches the 30 pay-app guides.
-import { APP_URL as PAYAPPS_URL } from '../../ventures/pay-app-guides/cta.mjs';
+
+/**
+ * The deployed PayApps origin, or null before the first deploy. Kept equal to
+ * `APP_URL` in ventures/pay-app-guides/cta.mjs by industry-construction.test.mjs
+ * (not imported: the privileged site build may only run code-owned files, ci_policy_check.py).
+ */
+export const PAYAPPS_URL = 'https://payapps.duncan-andrew-haywood.workers.dev';
 
 export const CONSTRUCTION_PATH = 'industries/construction/';
 

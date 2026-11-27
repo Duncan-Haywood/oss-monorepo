@@ -29,7 +29,7 @@ date: 2026-11-27
    forbidden by the test until checkout is on. The pay-app card gets a "Start free in PayApps" link
    (`from=industries/construction`), the note, FAQ and meta description say it is open, and the
    "built" modules read as in the app (QuickBooks left out: not connected). Pay apps leave the
-   early-access form; takeoff stays. The URL comes from `cta.mjs`, one constant for both.
+   early-access form; takeoff stays. The URL is a constant in the page module, tested equal to `cta.mjs` `APP_URL` (an import would make the privileged site build run an un-owned venture file: `ci_policy_check.py`).
 3. **App banner:** reads `/api/health`'s new `checkout` flag (a billing provider is configured):
    "PayApps is open and free on one job; paid plans are not on sale yet. Check every figure before
    you send it." It drops the not-on-sale clause by itself when Paddle is turned on.

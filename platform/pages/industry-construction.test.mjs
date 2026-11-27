@@ -13,6 +13,7 @@ import {
   PRODUCTS,
   renderConstructionPage,
   startHref,
+  PAYAPPS_URL,
   RESEARCH,
   STATUS_LABELS,
   toolHref,
@@ -214,4 +215,9 @@ test('built pay-app modules show as built and in testing, never as planned or av
   for (const heading of ['QuickBooks Online', 'Job costing, part 1', 'RFI log', 'Submittal log', 'Estimates, part 1', 'Daily reports, part 1', 'Insurance certificates']) {
     assert.ok(done.includes(`- ${heading}`), `${heading} is in ROADMAP Done`);
   }
+});
+
+test('the PayApps URL matches the one the pay-app guides link to', async () => {
+  const { APP_URL } = await import('../../ventures/pay-app-guides/cta.mjs');
+  assert.equal(PAYAPPS_URL, APP_URL, 'change both together (a custom domain turns workers.dev off)');
 });

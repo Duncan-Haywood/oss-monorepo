@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "biome format failed once on a new test file (fixed)",
-    "worker health test expected checkout:false; the test Worker injects a fake billing provider, so true"
+    "worker health test expected checkout:false; the test Worker injects a fake billing provider, so true",
+    "ci-policy (required) failed: platform/pages/industry-construction.mjs imported ventures/pay-app-guides/cta.mjs, so privileged site-build jobs ran an un-owned file; replaced the import with a constant and an equality test"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,6 +43,10 @@
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "'Start here' pointed at Next #10, whose only open ask needs a real Windows PC and iPhone photo; the launch-day steps in docs/reports/2026-11-27-payapps-launch-switch-for-the-guides.md were the real top task and no list surfaced them."
+    },
+    {
+      "file": "platform/ci/ci_policy_check.py",
+      "issue": "A plain import from platform/pages into a venture file trips the privileged-code rule; nothing in the pages docs warns of it, and it surfaces only in CI (run ci_policy_check.py locally before pushing platform/pages changes)."
     }
   ],
   "deviations": [
