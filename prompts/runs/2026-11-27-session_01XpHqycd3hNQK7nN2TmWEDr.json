@@ -28,7 +28,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
@@ -60,7 +60,7 @@
   ],
   "writeups": [],
   "goal": "bets #5 and #1: the early-access funnel keeps the confirmation-link promise its email makes",
-  "notes": "seller-books-site node --test: 58/58. payapps-site: vitest worker 11/11 (the new test fails 1/11 on the old code), unit 22/22, tsc --noEmit clean, biome clean. Catch rate 0.467 -> 1.0 (1 equivalent). Guard added: purge regression tests in both early-access suites.",
+  "notes": "seller-books-site node --test: 58/58. payapps-site: vitest worker 11/11 (the new test fails 1/11 on the old code), unit 22/22, tsc --noEmit clean, biome clean. Catch rate 0.467 -> 1.0 (1 equivalent). Guard added: purge regression tests in both early-access suites. Also fixed two checks red on main (after #19686): pay-app-guides CTA/nav blocks stale (node cta.mjs && node nav.mjs, suite 330/330) and portfolio/monetization/transition.json stale (transition.py --write).",
   "corrections": [],
   "redteam": {
     "campaigns": [
