@@ -596,24 +596,17 @@
     import { ribbon, ribbonHtml, ribbonCsv, ribbonOptions } from "./ribbon.mjs";
     import { EXAMPLE_XER, EXAMPLE_PREV_XER } from "./example.mjs";
     import { compare, compareCsv } from "./compare.mjs";
-    import { narrative, narrativeText, narrativeHtml } from "./narrative.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
-    import { mspdiText, msprojectSummary } from "./msproject.mjs";
     import { reviewHtml, reviewItems, windowsFor } from "./report.mjs";
     import { riskAnalysisAsync, riskCsv, parseRanges, parseRisks, parseBranches, branchRows } from "./risk.mjs";
     import { udfFields, guessRangeFields, rangesFromUdf, udfRangeNote } from "./udf-ranges.mjs";
     import { formatDate } from "./xer.mjs";
     import { levelAsync, levelCsv } from "./level.mjs";
-    import { windows, windowsCsv } from "./windows.mjs";
     import { schedule } from "./cpm.mjs";
     import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
-    import { collapsedAsBuilt, collapsedCsv, collapsedTableHtml, EXAMPLE_DELAYS } from "./collapse.mjs";
     import { xerText, xerBytes } from "./xer.mjs";
     import { pmxmlToXer } from "./pmxml.mjs";
     import { earnedValue, earnedValueCsv, sCurveCsv, sCurveSvg } from "./evm.mjs";
-    import { earnedValueSeries, earnedValueSeriesCsv } from "./evmseries.mjs";
-    import { trend, trendCsv } from "./trend.mjs";
-    import { lookahead, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
     import { constraintLogCsv, EXAMPLE_LOG, pastLabel } from "./constraints.mjs";
     import { gantt, ganttSvg, ganttHtml, ganttCsv, visibleRows, ganttLegend, codeTypes, groupsPhrase } from "./gantt.mjs";
 
@@ -633,6 +626,13 @@
     const milestonesModule = onDemand(() => import("./milestones.mjs"));
     const tiaModule = onDemand(() => import("./tia.mjs"));
     const asplannedModule = onDemand(() => import("./asplanned.mjs"));
+    const msprojectModule = onDemand(() => import("./msproject.mjs"));
+    const collapseModule = onDemand(() => import("./collapse.mjs"));
+    const lookaheadModule = onDemand(() => import("./lookahead.mjs"));
+    const narrativeModule = onDemand(() => import("./narrative.mjs"));
+    const windowsModule = onDemand(() => import("./windows.mjs"));
+    const evmseriesModule = onDemand(() => import("./evmseries.mjs"));
+    const trendModule = onDemand(() => import("./trend.mjs"));
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
@@ -799,9 +799,10 @@
         out.innerHTML = `<p class="note">Could not write the workbook: ${esc(e.message)}</p>`;
       }
     });
-    $("#conv-xml").addEventListener("click", () => {
+    $("#conv-xml").addEventListener("click", async () => {
       if (!xer || xer.format === "mspdi") return;
       try {
+        const { mspdiText, msprojectSummary } = await msprojectModule();
         const r = mspdiText(xer, { projId: last ? last.project.id : null, codeNames: $("#conv-code-names").checked, outlineCodes: $("#conv-outline-codes").checked, allResources: $("#conv-all-resources").checked });
         save(new Blob([r.xml], { type: "application/xml" }), `${fileName}${r.project.name && r.project.name !== fileName ? `-${r.project.name.replace(/[^\w.-]+/g, "_")}` : ""}.xml`);
         $("#conv-out").innerHTML = `<p class="note">${esc(r.project.name)}: ${esc(msprojectSummary(r))}.</p>${r.warnings.length ? `<div class="warnbox"><strong>What Project will do differently</strong><ul>${r.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : ""}`;
@@ -896,12 +897,13 @@
     $("#tia-csv").addEventListener("click", async () => { if (!lastTia) return; const { timeImpactCsv } = await tiaModule(); save(new Blob([timeImpactCsv(lastTia)], { type: "text/csv" }), `${fileName}-time-impact.csv`); record("findings_downloaded"); });
     $("#tia-xer").addEventListener("click", () => { if (!lastTia) return; save(new Blob([xerText(lastTia.impactedXer)], { type: "text/plain" }), `${fileName}-impacted.xer`); record("findings_downloaded"); });
     let lastCab = null;
-    $("#cab-example").addEventListener("click", () => { $("#cab-list").value = EXAMPLE_DELAYS; });
+    $("#cab-example").addEventListener("click", async () => { const { EXAMPLE_DELAYS } = await collapseModule(); $("#cab-list").value = EXAMPLE_DELAYS; });
     $("#cab-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) $("#cab-list").value = await f.text(); });
-    $("#cab-run").addEventListener("click", () => {
+    $("#cab-run").addEventListener("click", async () => {
       const st = $("#cab-status");
       if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
       try {
+        const { collapsedAsBuilt, collapsedTableHtml } = await collapseModule();
         const r = collapsedAsBuilt(xer, $("#cab-list").value.trim(), { projId: last.project.id });
         lastCab = r;
         st.innerHTML = r.rows.length
@@ -915,7 +917,7 @@
         $("#cab-out").innerHTML = "";
       }
     });
-    $("#cab-csv").addEventListener("click", () => { if (!lastCab) return; save(new Blob([collapsedCsv(lastCab)], { type: "text/csv" }), `${fileName}-collapsed-as-built.csv`); record("findings_downloaded"); });
+    $("#cab-csv").addEventListener("click", async () => { if (!lastCab) return; const { collapsedCsv } = await collapseModule(); save(new Blob([collapsedCsv(lastCab)], { type: "text/csv" }), `${fileName}-collapsed-as-built.csv`); record("findings_downloaded"); });
     $("#cab-xer").addEventListener("click", () => { if (!lastCab) return; save(new Blob([xerText(lastCab.collapsedXer)], { type: "text/plain" }), `${fileName}-collapsed.xer`); record("findings_downloaded"); });
     $("#cab-model").addEventListener("click", () => { if (!lastCab) return; save(new Blob([xerText(lastCab.asBuiltXer)], { type: "text/plain" }), `${fileName}-as-built-model.xer`); record("findings_downloaded"); });
     let lastApab = null, apabBase = null;
@@ -1289,10 +1291,11 @@
     $("#gantt-csv").addEventListener("click", () => { if (!lastGantt) return; save(new Blob([ganttCsv(lastGantt)], { type: "text/csv" }), `${fileName}-gantt.csv`); record("findings_downloaded"); });
     // ---- look-ahead
     let lastLa = null;
-    $("#la-run").addEventListener("click", () => {
+    $("#la-run").addEventListener("click", async () => {
       if (!xer || !last) return;
       const st = $("#la-status");
       try {
+        const { lookahead } = await lookaheadModule();
         const la = lookahead(xer, { weeks: Number($("#la-weeks").value) || 3, from: $("#la-from").value || null, projId: last.project.id, constraints: $("#la-log").value.trim() || null });
         lastLa = la;
         const m = la.summary;
@@ -1319,11 +1322,11 @@
         record("lookahead_run");
       } catch (e) { st.textContent = `Could not build the look-ahead: ${e.message}`; }
     });
-    $("#la-print").addEventListener("click", () => { if (!lastLa) return; save(new Blob([lookaheadHtml(lastLa)], { type: "text/html" }), `${fileName}-lookahead-${lastLa.through}.html`); record("findings_downloaded"); });
+    $("#la-print").addEventListener("click", async () => { if (!lastLa) return; const { lookaheadHtml } = await lookaheadModule(); save(new Blob([lookaheadHtml(lastLa)], { type: "text/html" }), `${fileName}-lookahead-${lastLa.through}.html`); record("findings_downloaded"); });
     $("#la-log-csv").addEventListener("click", () => { if (!lastLa?.constraintLog) return; save(new Blob([constraintLogCsv(lastLa.constraintLog)], { type: "text/csv" }), `${fileName}-constraints-${lastLa.from.slice(0, 10)}.csv`); record("findings_downloaded"); });
     $("#la-log-example").addEventListener("click", () => { $("#la-log").value = EXAMPLE_LOG; });
     $("#la-log-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) $("#la-log").value = await f.text(); });
-    $("#la-csv").addEventListener("click", () => { if (!lastLa) return; save(new Blob([lookaheadCsv(lastLa)], { type: "text/csv" }), `${fileName}-lookahead-${lastLa.through}.csv`); record("findings_downloaded"); });
+    $("#la-csv").addEventListener("click", async () => { if (!lastLa) return; const { lookaheadCsv } = await lookaheadModule(); save(new Blob([lookaheadCsv(lastLa)], { type: "text/csv" }), `${fileName}-lookahead-${lastLa.through}.csv`); record("findings_downloaded"); });
     // ---- finish date risk
     let lastRisk = null, riskBusy = false;
     $("#risk-run").addEventListener("click", async () => {
@@ -1450,7 +1453,7 @@
     }
     // earned value by window, for cost- or hours-loaded updates
     let lastWinEv = null;
-    function renderWinEv(list) {
+    function renderWinEv(list, earnedValueSeries) {
       lastWinEv = null;
       $("#win-ev").innerHTML = "";
       $("#win-ev-download").hidden = true;
@@ -1468,10 +1471,10 @@
       $("#win-ev").innerHTML = `<h3>Earned value by window</h3><p class="note">Promised: what the previous update's own forecast would have earned by the next data date. Earned / promised is 1.000 when the period went exactly as that update said; a re-planned baseline cannot hide a shortfall here. Baseline: the planned dates of the earliest update (${esc(r.baseline)}), held for the series.</p>${r.warnings.length ? `<div class="warnbox">${r.warnings.slice(0, 10).map(esc).join("<br>")}</div>` : ""}<div class="tablewrap"><table id="win-ev-table"><thead><tr><th>Window</th><th>Data dates</th><th class="n">Promised</th><th class="n">Earned</th><th class="n">Earned / promised</th><th class="n">Baseline planned</th><th class="n">SPI (baseline)</th><th class="n">Spent</th><th class="n">CPI</th><th class="n">Budget change</th></tr></thead><tbody>${rows}</tbody></table></div>${detail}`;
       $("#win-ev-download").hidden = false;
     }
-    $("#win-ev-download").addEventListener("click", () => { if (!lastWinEv) return; save(new Blob([earnedValueSeriesCsv(lastWinEv)], { type: "text/csv" }), `${(lastWinEv.project || "project").replace(/[^\w.-]+/g, "-")}-earned-value-windows.csv`); record("findings_downloaded"); });
+    $("#win-ev-download").addEventListener("click", async () => { if (!lastWinEv) return; const { earnedValueSeriesCsv } = await evmseriesModule(); save(new Blob([earnedValueSeriesCsv(lastWinEv)], { type: "text/csv" }), `${(lastWinEv.project || "project").replace(/[^\w.-]+/g, "-")}-earned-value-windows.csv`); record("findings_downloaded"); });
     // schedule health across the updates
     let lastTrend = null;
-    function renderTrend(list) {
+    function renderTrend(list, trend) {
       lastTrend = null;
       $("#win-trend").innerHTML = "";
       $("#win-trend-download").hidden = true;
@@ -1495,13 +1498,14 @@
         ${ero ? `<h4>Losing float</h4><p class="note">Activities open in the last update, in at least three updates, whose float fell: working days of float in each update, the loss per month fitted across them, and the months to zero at that rate. Float can also fall with nothing late: work under way whose successors are start-to-start has its late finish pulled in as its remaining duration shrinks.</p><div class="tablewrap"><table id="erosion-table"><thead><tr><th>Activity</th><th>Name</th><th>Float by update (days)</th><th class="n">Per month</th><th class="n">Months to zero</th><th>Where it went</th></tr></thead><tbody>${ero}</tbody></table></div>` : ""}`;
       $("#win-trend-download").hidden = false;
     }
-    $("#win-trend-download").addEventListener("click", () => { if (!lastTrend) return; save(new Blob([trendCsv(lastTrend)], { type: "text/csv" }), `${(lastTrend.project || "project").replace(/[^\w.-]+/g, "-")}-health-trend.csv`); record("findings_downloaded"); });
-    function runWindows(list, note) {
+    $("#win-trend-download").addEventListener("click", async () => { if (!lastTrend) return; const { trendCsv } = await trendModule(); save(new Blob([trendCsv(lastTrend)], { type: "text/csv" }), `${(lastTrend.project || "project").replace(/[^\w.-]+/g, "-")}-health-trend.csv`); record("findings_downloaded"); });
+    async function runWindows(list, note) {
       try {
+        const [{ windows }, { earnedValueSeries }, { trend }] = await Promise.all([windowsModule(), evmseriesModule(), trendModule()]);
         const r = windows(list);
         renderWindows(r);
-        renderWinEv(list);
-        renderTrend(list);
+        renderWinEv(list, earnedValueSeries);
+        renderTrend(list, trend);
         $("#win-status").textContent = note || `Done: ${r.windows.length} windows from ${r.updates.length} updates, in data-date order.`;
         return true;
       } catch (e) {
@@ -1519,13 +1523,13 @@
         try { list.push({ xer: parseSchedule(decodeXer(new Uint8Array(await f.arrayBuffer()))), label: f.name.replace(/\.(xer|xml)$/i, "") }); } catch (err) { $("#win-status").textContent = `${f.name} does not look like an XER or Microsoft Project XML file: ${err.message}`; return; }
       }
       $("#win-status").textContent = `Scheduling ${files.length} updates...`;
-      setTimeout(() => { if (runWindows(list)) record("windows_analysed"); }, 20);
+      setTimeout(async () => { if (await runWindows(list)) record("windows_analysed"); }, 20);
     });
     $("#load-example-series").addEventListener("click", async () => {
       const { exampleSeries } = await exampleSeriesModule();
-      if (runWindows(exampleSeries(), "Example: four invented monthly updates of an office fit-out with planted changes (paint re-estimated in May, board and tape running long in June), not a real project.")) record("example_loaded");
+      if (await runWindows(exampleSeries(), "Example: four invented monthly updates of an office fit-out with planted changes (paint re-estimated in May, board and tape running long in June), not a real project.")) record("example_loaded");
     });
-    $("#win-download").addEventListener("click", () => { if (!lastWin) return; save(new Blob([windowsCsv(lastWin)], { type: "text/csv" }), `${(lastWin.project || "project").replace(/[^\w.-]+/g, "-")}-windows.csv`); record("findings_downloaded"); });
+    $("#win-download").addEventListener("click", async () => { if (!lastWin) return; const { windowsCsv } = await windowsModule(); save(new Blob([windowsCsv(lastWin)], { type: "text/csv" }), `${(lastWin.project || "project").replace(/[^\w.-]+/g, "-")}-windows.csv`); record("findings_downloaded"); });
     $("#win-download-json").addEventListener("click", () => { if (!lastWin) return; save(new Blob([JSON.stringify(lastWin, null, 2)], { type: "application/json" }), `${(lastWin.project || "project").replace(/[^\w.-]+/g, "-")}-windows.json`); record("findings_downloaded"); });
     // ---- update-to-update comparison
     let prevXer = null, lastCmp = null;
@@ -1616,25 +1620,28 @@
     });
     $("#rev-download").addEventListener("click", () => { if (!last) return; save(new Blob([reviewHtml(last, lastCmp, reviewMeta())], { type: "text/html" }), `${fileName}-schedule-review.html`); record("review_printed"); });
     $("#cmp-download").addEventListener("click", () => { if (!lastCmp) return; save(new Blob([compareCsv(lastCmp)], { type: "text/csv" }), `${fileName}-update-changes.csv`); record("findings_downloaded"); });
-    function buildNarrative() {
+    async function buildNarrative() {
       if (!lastCmp || !xer) return null;
       const projId = $("#proj-wrap").hidden ? undefined : $("#proj").value;
+      const [{ lookahead }, { narrative }] = await Promise.all([lookaheadModule(), narrativeModule()]);
       const la = lookahead(xer, { weeks: Number($("#nar-weeks").value) || 4, projId: last ? last.project.id : projId });
       const n = narrative(lastCmp, { lookahead: la });
       $("#nar-status").textContent = `Drafted: ${n.sections.length} sections, ${n.fillIns} highlighted fill-in${n.fillIns === 1 ? "" : "s"} left for causes and reasons.`;
       return n;
     }
     const narMeta = () => ({ by: $("#nar-by").value.trim(), to: $("#nar-to").value.trim() });
-    $("#nar-print").addEventListener("click", () => {
-      const n = buildNarrative();
-      if (!n) return;
+    $("#nar-print").addEventListener("click", async () => {
+      if (!lastCmp || !xer) return;
+      // open the window inside the click, before the awaited module load, so a popup blocker still counts it as the user's
       const w = window.open("", "_blank");
       if (!w) { $("#nar-status").textContent = "The browser blocked the new window: use Download narrative (HTML) and print that file."; return; }
-      w.document.write(narrativeHtml(n, narMeta())); w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
+      let n, html;
+      try { n = await buildNarrative(); html = (await narrativeModule()).narrativeHtml(n, narMeta()); } catch (e) { w.close(); $("#nar-status").textContent = `Could not draft the narrative: ${e.message}`; return; }
+      w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
       record("narrative_written");
     });
-    $("#nar-download").addEventListener("click", () => { const n = buildNarrative(); if (!n) return; save(new Blob([narrativeHtml(n, narMeta())], { type: "text/html" }), `${fileName}-schedule-narrative.html`); record("narrative_written"); });
-    $("#nar-download-text").addEventListener("click", () => { const n = buildNarrative(); if (!n) return; save(new Blob([narrativeText(n)], { type: "text/plain" }), `${fileName}-schedule-narrative.txt`); record("narrative_written"); });
+    $("#nar-download").addEventListener("click", async () => { const n = await buildNarrative(); if (!n) return; const { narrativeHtml } = await narrativeModule(); save(new Blob([narrativeHtml(n, narMeta())], { type: "text/html" }), `${fileName}-schedule-narrative.html`); record("narrative_written"); });
+    $("#nar-download-text").addEventListener("click", async () => { const n = await buildNarrative(); if (!n) return; const { narrativeText } = await narrativeModule(); save(new Blob([narrativeText(n)], { type: "text/plain" }), `${fileName}-schedule-narrative.txt`); record("narrative_written"); });
     $("#cmp-download-json").addEventListener("click", () => { if (!lastCmp) return; save(new Blob([JSON.stringify(lastCmp, null, 2)], { type: "application/json" }), `${fileName}-update-comparison.json`); record("findings_downloaded"); });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }

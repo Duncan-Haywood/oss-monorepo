@@ -17,7 +17,7 @@
   "tokens_out": 33221,
   "cost_usd": 4.0248,
   "tool_calls": 90,
-  "task": "products-to-public-repo step 4 for PayApps (bet #1): move the app here so it can deploy",
+  "task": "products-to-public-repo step 4 for PayApps (bet #1); superseded mid-run by PR #19586/#19616/#19617, so this run lands the CodeQL fixes its CI found in the moved code",
   "projects": [
     "payapps",
     "payapps-site"
@@ -30,8 +30,8 @@
   "merged": null,
   "ci_failures_before_green": 12,
   "review_findings": null,
-  "tests_added": 2,
-  "outcome": "success",
+  "tests_added": 0,
+  "outcome": "partial",
   "errors": [
     "payapps-ci first run: pnpm install --filter ran in apps/payapps (the job's default working-directory), matched nothing, so biome was missing; fixed by installing from the root",
     "4 tests matched escaped '\\.com' regexes after fixture emails moved to .example; fixed",
@@ -61,28 +61,29 @@
     {
       "file": "docs/reports/2026-11-27-prepub-audit-payapps.md",
       "issue": "the audit's 'clear to copy' did not cover what this repo's gates add on top: CodeQL on the copied JS (4 findings), hidden-unicode BOMs, check_third_party, publish_surface; the next app's move should run those locally before the first push"
+    },
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "issue": "'run slug_dupe again before opening a PR' is not enough when a PR sits in CI for hours: the 45-min CodeQL JS analysis on a 960-file PR let a parallel session open and merge the same move (#19586 opened after #19571). A long-running PR should re-run slug_dupe (or check the work: tag) before each push"
     }
   ],
   "deviations": [
     {
-      "file": "portfolio/work/tasks.yaml (products-to-public-repo, done_when 4)",
-      "why": "step 4 says copy, port CI and remove the private copy in one PR; the deploy needs a priv- workflow with Cloudflare credentials (its own reviewed change) and a live private session was still building payapps (claim daily-reports-skip-holidays), so removing the private copy now would strand its work",
-      "did": "copied the app, packages and unprivileged CI here; left the deploy workflow and the private-copy removal (with a git diff 0c4bf8e8.. port) as the next steps, written in apps/README.md and the ROADMAP status",
-      "result": "the app builds and tests green in this repo's CI; deploy still pending"
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "why": "I ran slug_dupe only at the start; a parallel session opened and merged the same move (#19586, ventures/payapps layout) while my PR #19571 (top-level apps/) sat in CI for ~2.5 h",
+      "did": "closed #19571 as superseded and re-landed the only unique part, 4 CodeQL fixes, against ventures/payapps",
+      "result": "the move work was duplicated; the security fixes land"
     },
     {
       "file": "prompts/goals.md (Write about the work)",
-      "why": "no customer post: this run is infrastructure for the launch, and a post about moving code is not for customers",
-      "did": "agent doc: extended docs/reports/2026-11-27-prepub-audit-payapps.md and added apps/README.md",
-      "result": "next run knows the layout and the remaining steps"
+      "why": "no post: a security fix to moved code is not customer-facing and there is no data story",
+      "did": "the findings and fixes are in this record and the PR body",
+      "result": "n/a"
     }
   ],
-  "writeups": [
-    "apps/README.md",
-    "docs/reports/2026-11-27-prepub-audit-payapps.md (re-run section)"
-  ],
+  "writeups": [],
   "goal": "$10k MRR: PayApps is launch-approved but could not deploy because the private repo's Actions start no jobs; this repo's do",
-  "notes": "Copied private 0c4bf8e8 via git archive (962 files). prepub_audit: block 0, review 47 (27 example emails -> .example, 18 private-monorepo names -> @paid-apps scope, 2 confidentiality promises kept). Local: payapps biome ci, typecheck, test:unit + test:worker (1280 tests; 4 failed until the regex fix, then the 4 files 47/47), build, no-client-maps, provision.test.mjs, lien-waivers node tests, drizzle-kit check; payapps-site typecheck, unit 21, worker 10, build: all exit 0. ci_policy_check ok; check_md_links ok; checklist_coverage ok; test_roadmap_claim 35 OK. roadmap_claim.py now reads a moved app's ROADMAP here, so claim branches for payapps are pushed to this repo from now on (the 67 merged private claims stay in the private repo's history). Second CI round fixes: BOM escapes, comment wording, repo-rooted paths in payapps-ci, publish-surface entries, check_code_refs other-repo skip. Local after fixes: gate.py analyze 0 blocking/1 warning (base64 JPEG test fixture), check_results_current.py ok, check_code_refs ok, test_check_code_refs OK. unwired_checks.py locally: 302/305 pass, 3 skipped.",
+  "notes": "PR #19571 moved PayApps to top-level apps/ (private 0c4bf8e8, prepub audit 0 block) and went green on everything but CodeQL after fixing BOMs, gate-tripping comment text, harness paths, publish-surface, third-party, check_code_refs; CodeQL JS then found 4 high alerts in the moved code. Meanwhile #19586 (ventures/payapps) merged, so #19571 was closed as superseded. This PR applies the fixes to ventures/payapps: ca-ecpr notes and payapps-site htmlToMarkdown strip in a fixpoint loop and drop stray brackets, htmlToMarkdown no longer decodes &lt;/&gt; after stripping (llms-full.txt had none, so output unchanged), paddle.test compares the parsed host. Local: payapps-site biome/tsc/unit 21/worker 10; payapps biome/tsc/ca-ecpr tests 9+1 skipped; billing node tests 86 pass.",
   "corrections": [],
   "redteam": null,
   "usage": {

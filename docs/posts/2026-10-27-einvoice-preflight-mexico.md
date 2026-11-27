@@ -4,6 +4,7 @@ seo_title: "E-invoice Preflight adds Mexico"
 date: 2026-10-27
 description: "A new Mexico page explains the stamped-XML CFDI model and tests an RFC's check digit in the browser, with the check's measured blind spot."
 tags: [einvoice-preflight, e-invoicing, mexico]
+folded_into: einvoice-preflight/mexico-cfdi-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Mexico](../../ventures/einvoice-preflight/mexico-cfdi-e-invoice-mandate.html), the 40th in the all-countries table and the first in Latin America. Every Mexican tax invoice is a CFDI: XML that a SAT-authorised provider (a PAC) validates, stamps with a unique folio and reports to the tax authority. Version 4.0 is reported to require the customer's RFC, exact legal name, postal code and tax regime, which is why a mistyped RFC means a rejected stamp.

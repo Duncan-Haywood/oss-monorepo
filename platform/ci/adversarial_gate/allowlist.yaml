@@ -202,3 +202,63 @@ allow:
     contains: "condition     = aws_guardduty_detector.security.enable && length(aws_securityhub_standards_subscription.single) == 2"
     reason: the same single-account assert, re-indexed to aws_guardduty_detector.security[0] when the resource gains count; it still requires the detector enabled, and a new organization-mode assert requires the adopted detector
     added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: CLOUDFLARE_API_TOKEN
+    reason: "the Cloudflare deploy token under the spelling priv-email-deploy.yml and priv-edge-deploy.yml already read; deploys PayApps (bet #1, launch review private-monorepo#444) with wrangler from main only, by hand (D1, R2, Workers); masked and exported only after install, tests and build"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: CLOUDFLAREAPITOKEN
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys PayApps (bet #1, launch review private-monorepo#444) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: CLOUDFLARERESTRICTEDAPIKEY
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys PayApps (bet #1, launch review private-monorepo#444) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: CLOUDFLARE_ACCOUNT_ID
+    reason: "the Cloudflare account id wrangler needs, as priv-email-deploy.yml reads it; deploys PayApps (bet #1, launch review private-monorepo#444) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: CLOUDFLAREACCOUNTID
+    reason: "alias of CLOUDFLARE_ACCOUNT_ID the owner saved, as priv-email-deploy.yml reads it; deploys PayApps (bet #1, launch review private-monorepo#444) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_AUTH_SECRET
+    reason: "optional override of the session-signing key, pushed to the payapps Worker with wrangler secret bulk from a 0600 temp file deleted in the same step, never logged; when unset the workflow generates one on the Worker"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_BILLING_API_KEY
+    reason: "the owner's Paddle key, read only when set, to sync billing/paddle-catalog.json to Paddle and push it to the payapps Worker (wrangler secret bulk, never logged); when unset paid plans stay dark"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_BILLING_PRICE_IDS
+    reason: "fallback Paddle price ids (not credentials) pushed to the payapps Worker when the catalog sync gives none; wrangler secret bulk, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_BILLING_WEBHOOK_SECRET
+    reason: "the Paddle webhook signing secret the payapps Worker verifies notifications with; pushed with wrangler secret bulk when set, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_QBO_CLIENT_ID
+    reason: "the owner's Intuit app client id for the QuickBooks connection, pushed to the payapps Worker when set (wrangler secret bulk, never logged)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_QBO_CLIENT_SECRET
+    reason: "the owner's Intuit app client secret for the QuickBooks connection, pushed to the payapps Worker when set (wrangler secret bulk, never logged)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_QBO_TOKEN_KEY
+    reason: "the key the payapps Worker encrypts stored QuickBooks tokens with, pushed when set (wrangler secret bulk, never logged)"
+    added: 2026-11-27

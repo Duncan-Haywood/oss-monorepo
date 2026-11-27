@@ -191,9 +191,45 @@ class ClaimRaceTest(unittest.TestCase):
         run(self.a, "-c", "user.name=t", "-c", "user.email=t@example.invalid", "commit", "-q", "-m", "base")
         run(self.a, "push", "-q", "origin", "HEAD:refs/heads/main")
         run(t, "clone", "-q", str(bare), str(self.b))
+        # No public copy unless a test makes one: the real repository must not leak in.
+        self.public = mock.patch.object(rc, "PUBLIC_ROOT", t / "no-public-repo")
+        self.public.start()
 
     def tearDown(self):
+        self.public.stop()
         self.tmp.cleanup()
+
+    def test_app_moved_to_this_repository_is_read_and_claimed_here(self):
+        # PayApps moved to ventures/payapps on 2026-11-27; the private copy goes stale.
+        t = Path(self.tmp.name)
+        pub = t / "public"
+        run(t, "clone", "-q", str(t / "origin.git"), str(pub))
+        app = pub / "ventures" / "payapps" / "apps" / "payapps"
+        app.mkdir(parents=True)
+        (app / "ROADMAP.md").write_text(NUMBERED)
+        missing = t / "no-private-clone"
+        with mock.patch.object(rc, "PUBLIC_ROOT", pub):
+            self.assertEqual(rc.app_home("payapps", str(missing)), (str(pub), app))
+            self.assertEqual(rc.app_home("cmmc", str(missing)), (str(missing), missing / "apps" / "cmmc"))
+            code, out = self.main(missing)
+            self.assertEqual(code, 0, out)
+            self.assertIn("lives in this repository (ventures/payapps/apps/payapps)", out)
+            self.assertIn("billing-part-2", out)
+            self.assertNotIn("quickbooks-part-5", out)
+            code, out = self.main(missing, "--claim", "4")
+            self.assertEqual(code, 0, out)
+            self.assertIn("CLAIMED claim/payapps/billing-part-2", out)
+            bets = t / "bets.md"
+            bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                            "| 1 | **Pay apps** | `ventures/payapps/apps/payapps` |\n"
+                            "| 2 | **CMMC** | new `private-monorepo/apps/cmmc` |\n")
+            code, out = self.main(missing, "--bets", "--bets-md", str(bets), app=None)
+        self.assertEqual(code, 0, out)
+        self.assertIn("listing only the bets whose app is in this repository", out)
+        self.assertIn("payapps: 2 Next, free and not gated: #3; 1 live claim(s)", out)
+        self.assertIn(f"claims in {pub}", out)
+        self.assertIn("cmmc: not in this clone", out)
+        self.assertRegex(out, r"Start here: bet #1 payapps, item #3 ")
 
     def main(self, repo, *argv, now=None, run=None, app="payapps"):
         """Each clone stands for one session (run tag = its path) unless `run` says otherwise."""
@@ -530,6 +566,36 @@ class ClaimRaceTest(unittest.TestCase):
         want = rc.spread(["RFIs", "estimating"], rc.hashlib.sha256(b"r1").hexdigest()[:10])[0]
         self.assertIn(f"Untouched topic: '{want}'", out)
 
+    def test_growth_topic_with_merged_claims_is_not_untouched(self):
+        # 2026-11-27 friction (eight runs): "Untouched topic: 'PDF to ZUGFeRD conversion'" in the
+        # same output that listed 8 merged claims on it. Untouched now means no claim at all.
+        bets = Path(self.tmp.name) / "bets.md"
+        bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                        "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n"
+                        "\n"
+                        "### 1. Pay apps\n\n- **Wedge:** pay apps.\n"
+                        "- **Growth path:** job costing and estimating.\n"
+                        "- **Risks:** none\n")
+        for n in ("1", "2", "3"):
+            self.assertEqual(self.main(self.b, "--claim", n)[0], 0)
+        self.assertEqual(self.main(self.b, "--claim", "0", "--slug", "job-cost-codes")[0], 0)
+        self.merge("payapps: job cost codes (job-cost-codes) (#40)")
+        for run in ("s0", "s1", "s2", "s3"):
+            code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None, run=run)
+            self.assertEqual(code, 0, out)
+            self.assertIn("job costing (no live claim; 1 merged)", out)
+            self.assertIn("Untouched topic: 'estimating'", out)
+            self.assertNotIn("Untouched topic: 'job costing'", out)
+        # Once every free topic has merged work, name the least-worked one, with its count.
+        self.assertEqual(self.main(self.b, "--claim", "0", "--slug", "estimating-takeoff")[0], 0)
+        self.merge("payapps: estimating takeoff (estimating-takeoff) (#41)")
+        self.assertEqual(self.main(self.b, "--claim", "0", "--slug", "estimating-bid-forms")[0], 0)
+        self.merge("payapps: estimating bid forms (estimating-bid-forms) (#42)")
+        _, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertNotIn("Untouched topic", out)
+        self.assertIn("Least-worked topic (1 merged claim(s)", out)
+        self.assertIn("'job costing'", out)
+
     def test_bets_overview_sends_a_run_to_the_least_crowded_wedge(self):
         # 2026-11-26 friction (6 runs): every bet's Next items waited, the fallback named a
         # "growth path" bets.md does not have, and three runs piled onto payapps.
@@ -580,20 +646,6 @@ class ClaimRaceTest(unittest.TestCase):
         slug = rc.slugify(rc.next_items(ROADMAP)[2][1])
         self.assertEqual(self.main(self.a, "--release", slug)[0], 0)
         self.assertEqual(self.main(self.b, "--claim", "3")[0], 0)
-
-
-
-class RepoForTest(unittest.TestCase):
-    """An app moved into this repository (products-to-public-repo) is read here, not in the clone."""
-
-    def test_moved_app_reads_this_repository(self):
-        with tempfile.TemporaryDirectory() as d:
-            here = Path(d)
-            (here / "apps" / "payapps").mkdir(parents=True)
-            (here / "apps" / "payapps" / "ROADMAP.md").write_text("# PayApps\n", encoding="utf-8")
-            self.assertEqual(rc.repo_for("payapps", rc.DEFAULT_REPO, here), str(here))
-            self.assertEqual(rc.repo_for("cmmc", rc.DEFAULT_REPO, here), rc.DEFAULT_REPO)
-            self.assertEqual(rc.repo_for("payapps", "/other/clone", here), "/other/clone")
 
 
 if __name__ == "__main__":

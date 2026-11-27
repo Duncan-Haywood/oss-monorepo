@@ -132,7 +132,7 @@
     th:first-child, td:first-child { text-align: left; white-space: normal; min-width: 11rem; }
     thead th { font-size: .82rem; color: var(--muted); }
     tbody tr.best { background: color-mix(in srgb, var(--accent) 12%, transparent); }
-    tbody tr.best td:first-child::after { content: " — best"; color: var(--accent); font-weight: 700; }
+    tbody tr.best th[scope=row]::after { content: " — best"; color: var(--accent); font-weight: 700; }
     .profit-good { color: var(--good); font-weight: 700; }
     .profit-bad { color: var(--bad); font-weight: 700; }
     .verdict { font-size: 1.05rem; margin: 0 0 .4rem; }

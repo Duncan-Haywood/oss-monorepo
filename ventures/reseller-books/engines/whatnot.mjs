@@ -52,6 +52,12 @@ const ALIASES = {
 
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
+  // Most cells are a plain amount ("12.50", or "12,50" in a decimal-comma
+  // file): read it directly, the same number the general path gives.
+  if (decimalComma ? /^\d+(?:,\d+)?$/.test(s) : /^\d+(?:\.\d+)?$/.test(s)) {
+    const n = Number(decimalComma ? s.replace(",", ".") : s);
+    if (Number.isFinite(n)) return n;
+  }
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
   const neg = /\([^()]*\d[^()]*\)/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
@@ -81,21 +87,27 @@ export function parseCsv(text, delim = ",") {
   // so a reader can name it after blank lines or quoted line breaks.
   let row = [], field = "", quoted = false, line = 1, start = 1;
   const src = String(text ?? "").replace(/^\uFEFF/, "");
+  // Plain characters are copied a run at a time (src.slice from `from`),
+  // not one by one onto `field`: same rows, a fraction of the string work.
+  let from = 0;
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
-      if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
-    } else if (c === '"') quoted = true;
-    else if (c === delim) { row.push(field); field = ""; }
+      if (c === '"') {
+        field += src.slice(from, i);
+        if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false;
+        from = i + 1;
+      } else if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++;
+    } else if (c === '"') { field += src.slice(from, i); quoted = true; from = i + 1; }
+    else if (c === delim) { row.push(field + src.slice(from, i)); field = ""; from = i + 1; }
     else if (c === "\n" || c === "\r") {
+      row.push(field + src.slice(from, i)); field = "";
       if (c === "\r" && src[i + 1] === "\n") i++;
-      row.push(field); field = "";
       if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
-      row = []; start = ++line;
-    } else field += c;
+      row = []; start = ++line; from = i + 1;
+    }
   }
-  row.push(field);
+  row.push(field + src.slice(from));
   if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }

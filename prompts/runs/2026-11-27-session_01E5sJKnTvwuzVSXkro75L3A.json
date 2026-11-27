@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKnTvwuzVSXkro75L3A",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T05:09:26Z",
+  "ended": "2026-11-27T05:17:04Z",
+  "wall_minutes": 7.92,
+  "tokens_in": 6878150,
+  "tokens_out": 31306,
+  "cost_usd": 3.0014,
+  "tool_calls": 66,
+  "task": "wall-framing-takeoff ROADMAP Next #1: weigh hip starts one at a time (the-same-weighing-start-by-start-drop-the)",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/478",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [
+    "508c4343632f0160cc8247acc2d1d0db762a4551"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First merge attempt on private PR #478 returned 405 'Base branch was modified'; an immediate retry merged.",
+    "A heredoc python edit containing many backslash escapes was refused by the shell safety parser (it deleted nothing); rewrote it as a script file."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported no free, ungated item on bets #1-#4 (every Next item waits on demand), so the pick fell to bet #6; every bet's product is deep while mrr.yaml has no reading, so traffic and owner-side checkout config look like the real bottleneck, and the tool has no way to say that."
+    },
+    {
+      "file": "private-monorepo/.github/workflows",
+      "issue": "No CI workflow runs apps/wall-framing-takeoff's tests, so its PRs merge on local verification only (PR #478 had 0 check runs)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "apps/wall-framing-takeoff/ROADMAP.md",
+      "why": "The item also named `blockedJointPrice` on the page, but the page has no roof-outline form (roof.outline and roof.sheet come only from a loaded plan file), so a lone price field would have nothing to attach to.",
+      "did": "Shipped the start-by-start weighing only and rewrote the Next line to say the page field waits for a roof-outline form.",
+      "result": "Algorithm landed and was measured; the page part is still open."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No customer post: the change is an internal optimiser refinement (0.1-1.4% cheaper sheathing+blocking on synthetic outlines) with no new user-facing feature worth a marketing page.",
+      "did": "Recorded the measurement in the app README and ROADMAP instead.",
+      "result": "No post this run."
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/wall-framing-takeoff/README.md (start-by-start weighing paragraph with the 200-outline measurement)"
+  ],
+  "goal": "bet #6 residential takeoff: cheaper roof sheathing layouts (sheets + blocking)",
+  "notes": "Security queue empty (security_next.py exit 3); IDEAS.md and requests empty. Routed ventures/1 by weighted draw. private-monorepo clone worked via add_repo. Measured 200 seeded framed outlines at $25/sheet against main's whole-layout weighing: never dearer; 1.26/1.38/0.57/0.12% cheaper at $5/$10/$15/$25 a joint (147/143/68/8 roofs cheaper), ~23 ms a roof instead of 7. Tests: outlinesheathing.test.mjs 21 pass; full app suite 1313 tests, 1311 pass, 0 fail. risk_review.py: no check triggered.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f8141096-1b48-57bd-8d5a-3f31f964d514",
+    "transcripts": 1,
+    "first": "2026-11-27T05:09:26Z",
+    "last": "2026-11-27T05:17:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 116,
+        "output": 31306,
+        "thinking": 6426,
+        "cache_read": 6749924,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128110,
+        "api_equivalent_usd": 3.0014,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 116,
+      "output": 31306,
+      "thinking": 6426,
+      "cache_read": 6749924,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128110,
+      "api_equivalent_usd": 3.0014,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 56,
+      "Write": 4,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.92,
+      "active_minutes": 7.92,
+      "model_minutes": 5.88,
+      "tool_minutes": 2.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior dev: read optimiser, add per-start local search, tests, 200-roof benchmark",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 199.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

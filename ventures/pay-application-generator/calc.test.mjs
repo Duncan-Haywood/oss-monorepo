@@ -318,3 +318,32 @@ test("front-loading: only lines 90%+ billed count, and exactly 30% complete is p
   const under = compute("Description,Scheduled value,Previous,This period\nA,1000,0,1000\nB,9000,0,1999", S());
   assert.ok(under.findings.some((f) => /Front-loading flag: A is 90%\+ billed/.test(f.title)));
 });
+
+test("front-loading: a line at exactly 90.00% billed counts", () => {
+  const r = compute("Description,Scheduled value,Previous,This period\nA,1000,0,900\nB,9000,0,0", S());
+  assert.equal(r.lines[0].pct, 9000);
+  assert.ok(r.findings.some((f) => /Front-loading flag: A is 90%\+ billed/.test(f.title)), r.findings.map((f) => f.title).join("\n"));
+});
+
+test("summary text collapses the blank header lines to one", () => {
+  const r = compute("Description,Scheduled value,Previous,This period\nA,1000,0,100", S());
+  const t = summaryText(r, {});
+  assert.ok(!/\n\n\n/.test(t), t);
+  assert.match(t, /^PAYMENT APPLICATION\n\n1\. /);
+});
+
+test("schedule CSV writes the percent column as a percent", () => {
+  const r = compute("Description,Scheduled value,Previous,This period\nA,1000,0,100", S());
+  assert.equal(scheduleCsv(r).split("\n")[1].split(",")[7], "10.00");
+});
+
+test("schedule CSV defuses a description that a spreadsheet would run as a formula (CWE-1236)", () => {
+  const r = compute('Description,Scheduled value,Previous,This period\n"=HYPERLINK(""http://x"",""pay"")",1000,0,100\n@SUM(A1),500,0,0\n-1+2,500,0,0', S());
+  assert.deepEqual(r.errors, []);
+  const rows = scheduleCsv(r).split("\n").slice(1, 4);
+  for (const row of rows) assert.ok(!/^[^,]*,"?[=+\-@]/.test(row), row);
+  assert.match(rows[0], /,"'=HYPERLINK/);
+  // A negative amount is still a plain number a spreadsheet can sum.
+  const neg = compute("Description,Scheduled value,Previous,This period\nCredit,-500,0,-100", S());
+  assert.match(scheduleCsv(neg).split("\n")[1], /,-500\.00,/);
+});

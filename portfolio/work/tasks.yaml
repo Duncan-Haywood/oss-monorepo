@@ -612,7 +612,7 @@ tasks:
     direction: paid-bets
     title: Pre-publication audit script for a private app (step 3 of products-to-public-repo)
     done_when: >-
-      platform/security/prepublish_audit.py, run against a directory of a
+      platform/security/prepub_audit.py, run against a directory of a
       private-monorepo clone, reports likely secrets, personal data (emails,
       phone numbers, names outside the operator's), client or customer data,
       internal hostnames and account ids, and security notes, with a nonzero
@@ -636,7 +636,15 @@ tasks:
     hours: 12
     status: open
     added: 2026-11-27
-    blocked_on: public-repo-audit
+    notes: >-
+      Part 1 done 2026-11-27: ventures/payapps holds the app, the site and the
+      four packages (private-monorepo 03e2e560), all rights reserved, with
+      .github/workflows/payapps-ci.yml and the audit in
+      docs/reports/2026-11-27-move-payapps-public.md. Left (ventures/payapps/DEPLOY.md,
+      "Then"): port payapps-deploy.yml as priv-payapps-deploy.yml in its own
+      PR, deploy once, then remove the private copy and repoint models.yaml,
+      bets.md and roadmap_claim.py. Until then private-monorepo is where runs
+      build; refresh this copy with ventures/payapps/sync-from-private.sh.
   - id: inboxes-without-owner
     direction: paid-bets
     title: Turn the agent inboxes on with no owner-pasted secrets

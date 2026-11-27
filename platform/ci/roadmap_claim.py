@@ -15,7 +15,9 @@ second run's push fails and it picks another item. No files, so no CI runs on it
     python3 platform/ci/roadmap_claim.py payapps --release <slug>   # give up your own claim
     python3 platform/ci/roadmap_claim.py --bets                # every bet's app: where to start
 
---repo defaults to /home/user/private-monorepo. A claim older than --stale-hours (6) is
+--repo defaults to /home/user/private-monorepo. An app whose code moved to this repository
+(`ventures/<venture>/apps/<app>`, as PayApps did on 2026-11-27) is read and claimed here
+instead, whatever --repo says, so its claims live on this repository's origin. A claim older than --stale-hours (6) is
 shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since the run
 that made it has ended. A claim whose slug a later commit subject on origin/main names
 (the PR title, punctuation ignored) is shown as MERGED and is no sibling. A claim records a hash of the session id, so re-running --claim on
@@ -50,22 +52,10 @@ from pathlib import Path
 
 PREFIX = "claim/"
 DEFAULT_REPO = "/home/user/private-monorepo"
-HERE = Path(__file__).resolve().parents[2]
-BETS_MD = HERE / "portfolio" / "monetization" / "bets.md"
-TASKS_YAML = HERE / "portfolio" / "work" / "tasks.yaml"
+PUBLIC_ROOT = Path(__file__).resolve().parents[2]
+BETS_MD = Path(__file__).resolve().parents[2] / "portfolio" / "monetization" / "bets.md"
+TASKS_YAML = Path(__file__).resolve().parents[2] / "portfolio" / "work" / "tasks.yaml"
 UNBLOCK_DIRECTION = "paid-bets"
-
-
-def repo_for(app: str, repo: str, here: Path = HERE) -> str:
-    """This repository for an app moved here, else the given clone.
-
-    Task products-to-public-repo moves the paid apps out of private-monorepo one at a time
-    (PayApps first, 2026-11-27, apps/payapps). Once an app's ROADMAP.md is in this tree, its
-    items and claims live here, and a run must not build in the private copy.
-    """
-    if repo != DEFAULT_REPO:  # an explicit --repo wins
-        return repo
-    return str(here) if (here / "apps" / app / "ROADMAP.md").is_file() else repo
 CACHE = "refs/roadmap-claims/"
 GEN = re.compile(r"^(?P<base>.+?)--(?P<n>\d+)$")
 RUN = re.compile(r"\{run ([0-9a-f]{10})\}")
@@ -590,6 +580,21 @@ def item_marks(app: str, items: list[tuple[int, str]], claims: dict[str, tuple[i
     return rows, open_now
 
 
+def app_home(app: str, repo: str) -> tuple[str, Path]:
+    """(git repo to claim in, app directory) for `app`.
+
+    PayApps moved from private-monorepo to ventures/payapps on 2026-11-27; its private copy
+    is due for removal, so a run that read the private ROADMAP and claimed there would build
+    from stale text and race nobody. The public copy under ventures/*/apps/<app> wins.
+    """
+    root = PUBLIC_ROOT
+    if (root / ".git").exists():
+        hits = sorted(h for h in root.glob(f"ventures/*/apps/{app}") if h.is_dir())
+        if hits:
+            return str(root), hits[0]
+    return repo, Path(repo) / "apps" / app
+
+
 def bet_apps(bets_md: str) -> list[tuple[int, str, str]]:
     """(rank, bet name, app dir) from bets.md's ranking table; the app is the last cell's path."""
     out = []
@@ -680,24 +685,40 @@ def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, di
 
     Picking the bet was not enough: inside it runs still invented the same item (three payapps
     runs within 15 minutes, 2026-11-26), so say which topic nobody holds yet.
+
+    "Untouched" once meant only "no live claim", so a topic with 8 or 10 merged claims was
+    named untouched in the same line that counted them (eight run records, 2026-11-27:
+    'PDF to ZUGFeRD conversion', 'job costing', 'evidence per control'). Now a topic is
+    untouched only with no claim at all; failing that, the free topic with the fewest merged
+    claims is named as the least-worked one, with its count, so the run reads what landed.
     """
     if not topics:
         print(f"  (bets.md has no **Growth path:** line for bet #{rank}: add one in your PR)")
         return
     info, merged = claims or ({}, {})
-    untouched, cells = [], []
+    untouched, free, cells = [], [], []
     for t in topics:
         live, done = topic_claims(t, info, merged, now, stale_s)
         note = (f"{len(live)} live: {', '.join(live[:2])}" if live else "no live claim")
         note += f"; {len(done)} merged" if done else ""
         cells.append(f"{t} ({note})")
         if not live:
-            untouched.append(t)
-    pick = (spread(untouched, tag) or [None])[0]
+            free.append((len(done), t))
+            if not done:
+                untouched.append(t)
     print("  Growth path (bets.md), claims whose slug names each topic: " + "; ".join(cells))
+    if untouched:
+        pick, label = spread(untouched, tag)[0], "Untouched topic"
+    elif free:
+        fewest = min(n for n, _ in free)
+        pick = spread([t for n, t in free if n == fewest], tag)[0]
+        label = (f"Least-worked topic ({fewest} merged claim(s): read them first, "
+                 "and build a part they do not cover)")
+    else:
+        pick = None
     if pick:
         slug = "-".join(sorted(topic_words(pick), key=pick.lower().find))[:40] or "item"
-        print(f"  Untouched topic: '{pick}': `roadmap_claim.py {app} --slug {slug}-<part> --note ...`")
+        print(f"  {label}: '{pick}': `roadmap_claim.py {app} --slug {slug}-<part> --note ...`")
     else:
         print(f"  Every topic has a live claim: take a part none names (`roadmap_claim.py {app} --all`).")
 
@@ -750,32 +771,38 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
     if not bets:
         print(f"no ranking rows with an app path in {bets_md}")
         return 2
-    default_repo, listed = repo, {}
-    for r in {repo_for(app, default_repo) for _, _, app in bets}:
-        ls = git(r, "ls-remote", "origin", f"refs/heads/{PREFIX}*")
-        if ls.returncode != 0:
-            print(f"git ls-remote failed in {r}: {ls.stderr.strip()}")
-            return 2
-        listed[r] = ls
+    remote: dict[str, subprocess.CompletedProcess | None] = {}
+
+    def claims_in(r: str) -> subprocess.CompletedProcess | None:
+        if r not in remote:
+            remote[r] = (git(r, "ls-remote", "origin", f"refs/heads/{PREFIX}*")
+                         if (Path(r) / ".git").exists() else None)
+        return remote[r]
+
     print_unblockers(tasks_yaml or TASKS_YAML, tag)
     now = time.time()
     start = None
     present: list[tuple[int, int, str]] = []  # (live claims, rank, app) for apps in this clone
     print(f"Bets in bets.md order (claims older than {stale_s / 3600:g} h are stale):")
     for rank, name, app in bets:
-        repo = repo_for(app, default_repo)
-        ls = listed[repo]
-        roadmap = Path(repo) / "apps" / app / "ROADMAP.md"
-        if not (Path(repo) / "apps" / app).is_dir():
+        home, app_dir = app_home(app, repo)
+        roadmap = app_dir / "ROADMAP.md"
+        if not app_dir.is_dir():
             print(f"{rank:>3}. {app}: not in this clone ({name})")
             continue
+        ls = claims_in(home)
+        if ls is None or ls.returncode != 0:
+            err = ls.stderr.strip() if ls is not None else "no clone"
+            print(f"{rank:>3}. {app}: claims unreadable in {home} ({err[:120]}) ({name})")
+            continue
+        where = "" if home == repo else f", claims in {home}"
         claims = parse_claims(ls.stdout, app)
-        info = claim_info(repo, app, claims)
-        merged = merged_claims(repo, info)
+        info = claim_info(home, app, claims)
+        merged = merged_claims(home, info)
         live = sum(1 for s, (ts, _) in info.items() if s not in merged and ts and now - ts < stale_s)
         present.append((live, rank, app))
         if not roadmap.is_file():
-            print(f"{rank:>3}. {app}: no ROADMAP.md, {live} live claim(s); claim with --slug ({name})")
+            print(f"{rank:>3}. {app}: no ROADMAP.md, {live} live claim(s); claim with --slug ({name}{where})")
             growth[app] = (info, merged)
             continue
         items = next_items(roadmap.read_text(encoding="utf-8"))
@@ -783,7 +810,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
         _, open_now = item_marks(app, items, claims, info, merged, now, stale_s, tag, reach)
         free = ", ".join(f"#{n}" for n in open_now) or "none"
         print(f"{rank:>3}. {app}: {len(items)} Next, free and not gated: {free}; "
-              f"{live} live claim(s) ({name})")
+              f"{live} live claim(s) ({name}{where})")
         if open_now and start is None:
             start = (rank, app, open_now)
         growth[app] = (info, merged)
@@ -833,14 +860,19 @@ def main(argv: list[str] | None = None) -> int:
     if not a.bets and not a.app:
         ap.error("name an app, or pass --bets")
 
-    if a.app:
-        a.repo = repo_for(a.app, a.repo)
+    if a.bets:
+        if not (Path(a.repo) / ".git").exists():
+            print(f"no git clone at {a.repo}: listing only the bets whose app is in this repository "
+                  f"(clone private-monorepo for the rest, .github/prompts/cloud-session.md)")
+        return bets_overview(a.repo, a.bets_md, a.stale_hours * 3600, run_tag(), not a.no_probe)
+    home, app_dir = app_home(a.app, a.repo)
+    if home != a.repo:
+        print(f"{a.app} lives in this repository ({app_dir.relative_to(home)}): reading and claiming here.")
+        a.repo = home
     if not (Path(a.repo) / ".git").exists():
         print(f"no git clone at {a.repo}: clone private-monorepo first (.github/prompts/cloud-session.md)")
         return 2
-    if a.bets:
-        return bets_overview(a.repo, a.bets_md, a.stale_hours * 3600, run_tag(), not a.no_probe)
-    roadmap = Path(a.repo) / "apps" / a.app / "ROADMAP.md"
+    roadmap = app_dir / "ROADMAP.md"
     # An app with no ROADMAP.md (seller-books, grants, cmmc on 2026-11-25..26) still takes
     # --slug claims; three runs pushed claim branches by hand because this used to exit 2.
     items = next_items(roadmap.read_text(encoding="utf-8")) if roadmap.is_file() else []

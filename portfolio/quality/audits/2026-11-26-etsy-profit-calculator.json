@@ -190,7 +190,8 @@
       "what": "Listing-renewal page and README state Etsy charges the listing fee 'not once per sale' and that per-order charging 'overstates listing cost'; Etsy auto-renews a multi-quantity listing on each sale for $0.20 (and a sold-out quantity-1 listing must be renewed to sell again), so the page understates listing cost (2 sales -> $0.10 per sale instead of about $0.20).",
       "where": "ventures/etsy-profit-calculator/listing-renewal.html:35",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19608"
     },
     {
       "severity": "medium",
@@ -218,9 +219,10 @@
       "what": "Seeded mutant 'organic.profit < floor' -> '<=' survives: no test pins the exact break-even boundary of maxAffordableOffsiteRate.",
       "where": "ventures/etsy-profit-calculator/calc.mjs:104",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19608"
     }
   ],
-  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19370"],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19370", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19608"],
   "verdict": "Does not meet the bar (correctness 2, claims 2, verification 3, median 2); finished (completeness 3). The per-order arithmetic is right: five outputs recomputed by hand from Etsy's Help Center rates (the $40 llms.txt example, the $3.78 page lead, the $14 print's 14.3% Offsite ceiling, a 30% target-margin price, the break-even price) all match to the cent, 197 tests pass and 4 of 5 seeded mutants are caught. The gap is the fee model a bookkeeper reconciles against: the Offsite Ads fee is not capped at Etsy's published $100 per order, the listing-renewal page tells sellers the $0.20 fee is not charged per sale when Etsy auto-renews a multi-quantity listing on each sale, processing excludes sales tax, and multi-quantity, regulatory operating and currency-conversion fees are absent. etsy.com/legal/fees was 403 from this container; the rules come from Etsy's Help Center fee article (loaded) and search extracts of Etsy's multi-quantity and regulatory-fee pages."
 }

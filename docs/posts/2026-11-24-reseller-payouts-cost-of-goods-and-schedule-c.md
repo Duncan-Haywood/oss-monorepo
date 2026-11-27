@@ -261,8 +261,15 @@ To pay on the annualized schedule you file Schedule AI with your return.
 Seller Books now has a **Quarterly estimates** page that does this from your
 books. It reads the Schedule C profit to each period's end, shows both
 methods side by side, and tells you what is still to pay by the next date
-after counting the payments you have sent and your withholding. The figures
-you type in (wages, last year's tax, payments sent) stay in your browser.
+after counting the payments you have sent and your withholding. Since
+2026-11-27 the figures you type in (filing status, wages, withholding, last
+year's tax and each payment you sent) are saved to your shop for the year,
+so your phone and your laptop show the same ones and you keep a record of
+what you have paid. Only the shop's owner and admins can see or change
+them: they are the taxpayer's own figures, not the shop's books. A
+bookkeeper you invite as an editor can still use the page, with figures
+that stay in their own browser. The Privacy Policy says all of this, and
+the year's figures are in the shop's export and are deleted with the shop.
 The page is an estimate, not tax advice: it leaves out credits, itemised
 deductions and state tax, so check it with your tax preparer.
 

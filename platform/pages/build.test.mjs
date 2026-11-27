@@ -153,6 +153,7 @@ import { STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { ASSISTANT_VOICE_CSS } from './assistant.mjs';
 import { STICKY_FIT_CSS } from './sticky-fit.mjs';
 import { AGENT_POSTS_DIR, loadPosts } from './writing.mjs';
+import { isRedirectPage } from './check.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { renderCard } from './sharecard.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
@@ -2707,6 +2708,8 @@ test('every published page names a canonical that resolves to its own URL', asyn
       assert.match(html, /<meta name="robots" content="noindex">/, `${relative}: no canonical and not noindex`);
       continue;
     }
+    // A folded post's old URL is a redirect to the page that absorbed it (check.mjs, isRedirectPage).
+    if (isRedirectPage(html, canonical[1])) continue;
     const pageUrl = new URL(servedPath(relative), BASE).href;
     if (new URL(canonical[1], pageUrl).href !== pageUrl) wrong.push(`${relative} -> ${canonical[1]}`);
   }

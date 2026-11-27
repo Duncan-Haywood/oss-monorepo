@@ -12,7 +12,7 @@ The checklist (moved here from `CLAUDE.md` by process backlog P030; `platform/ci
 ```
 python3 platform/ci/checklist_coverage.py  # fails if a line below is missing
 python3 platform/ci/sync_tree_counts.py  # AFTER merging main: fixes the counts a concurrent merge just invalidated
-node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs  # ~22 min in a cloud session (measured 2026-10-18): run_in_background
+node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs  # pages part ~5.5 min in a fresh cloud session, cold card cache (2026-11-27; was ~22 min on 2026-10-18): run_in_background
 python3 platform/ci/check_post_frontmatter.py  # 1s: new/edited post? description over 160 chars or missing tags turns main red (twice 2026-10-26)
 node --test platform/agents/*.test.mjs        # imports every venture engine; ~10 s
 node --test platform/proposal/*.test.mjs
@@ -23,7 +23,6 @@ node --test platform/deploy/*.test.mjs
 node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs
 node --test platform/devstats/*.test.mjs
-node --test apps/payapps/scripts/*.test.mjs  # paid app; its own suite: apps/README.md
 node --test platform/daily/*.test.mjs
 node --test platform/aws/stacks/email-ops/sender/*.test.mjs  # SES sender, consent store, unsubscribe
 (cd platform/audio && python3 -m unittest test_narrate)  # the narration engine; needs numpy, ffmpeg for the Master case

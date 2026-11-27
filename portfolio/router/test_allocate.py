@@ -931,6 +931,15 @@ class FlagshipTests(unittest.TestCase):
             task = next_task(by["payapps"])
             self.assertTrue(task.startswith("Deepen (flagship 1): Work in private-monorepo/apps/payapps"))
             self.assertIn("build pay apps", task)
+            self.assertIn("attach private-monorepo", task)
+            # Moved to this repository (PayApps, 2026-11-27): no private clone to attach.
+            flags.write_text(flags.read_text().replace("private-monorepo/apps/payapps",
+                                                       "ventures/payapps/apps/payapps"))
+            vs = _load_ventures(root / "ventures", root / "ledger", root / "scores.json", flags)
+            task = next_task({v.name: v for v in vs}["payapps"])
+            self.assertTrue(task.startswith("Deepen (flagship 1): Work in ventures/payapps/apps/payapps in this repository"))
+            self.assertIn("roadmap_claim.py payapps", task)
+            self.assertNotIn("attach private-monorepo", task)
 
     def test_every_listed_flagship_is_a_real_routable_venture(self):
         names = {v.name for v in load_ventures()}

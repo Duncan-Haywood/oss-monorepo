@@ -83,6 +83,10 @@ def bet_row(**kw):
 def test_bet_row_without_a_ventures_dir_is_valid():
     assert m.check({"products": [bet_row()]}) == []
     assert m.row_name(bet_row()) == "app:payapps"
+    moved = bet_row(app="ventures/payapps/apps/payapps")  # PayApps moved here 2026-11-27
+    assert m.check({"products": [moved]}) == []
+    assert m.row_name(moved) == "app:payapps"
+    assert any("`app` must be" in e for e in m.check({"products": [bet_row(app="ventures/payapps")]}))
 
 
 def test_bet_row_tier_must_be_a_labelled_proposal_with_reasoning():

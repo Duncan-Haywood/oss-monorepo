@@ -75,11 +75,5 @@ class Main(unittest.TestCase):
             self.assertEqual(got, [(1, "platform/gone.py")])
 
 
-class OtherRepo(unittest.TestCase):
-    def test_path_named_as_private_repos_is_skipped(self):
-        text = "Paddle (`private-monorepo`'s\n`apps/grants/x.ts` is the reference) and `apps/payapps/y.ts`"
-        self.assertEqual(list(c.refs_in(text)), [(2, "apps/payapps/y.ts")])
-
-
 if __name__ == "__main__":
     unittest.main()

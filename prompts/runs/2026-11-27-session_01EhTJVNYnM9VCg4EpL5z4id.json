@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVNYnM9VCg4EpL5z4id",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T03:56:08Z",
+  "ended": "2026-11-27T04:01:53Z",
+  "wall_minutes": 5.94,
+  "tokens_in": 4910033,
+  "tokens_out": 24941,
+  "cost_usd": 2.4047,
+  "tool_calls": 47,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19598",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_venture_tests flagged 3 unguarded IMPACTS[key] lookups (inherited_keys) and a 181-char meta description; both fixed before commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo's result still says to call register_repo_root; ToolSearch does not find it (the doc already says skip it, which was right)."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets found no free ungated item on any bet (every Next item is 'if people ask'), and its suggested 'untouched topic' for einvoice (PDF to ZUGFeRD) lists 8 merged claims, so 'untouched' is wrong. Meanwhile three bets' apps are mid-move to this repo in open PRs, which makes building in private-monorepo risky to sync."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The private-monorepo clone worked, but every bet's ROADMAP Next item is gated on customer asks, and payapps/jobshop/einvoice are being moved to this repo in five open PRs. Building private code now would conflict with those snapshot moves.",
+      "did": "Took bet #1's public side: a new RFI guide and drafter on pay-app-guides (an RFI log is a shipped PayApps feature), linked from the customer post.",
+      "result": "merged with tests; adds a search entry point for 'how to write an RFI' into the PayApps early-access CTA"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-tm-tickets-to-change-orders.md (customer post extended with the RFI-writing paragraph and link); no agent doc, nothing new for the next run beyond this record"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); IDEAS empty. Verified: run_venture_tests pay-app-guides all pass; platform/pages industry + llms-answers tests 69 pass; Playwright 390px no errors, no horizontal scroll, example passes all checks, two questions warn. AIA G716 named without a link: aiacontracts.com/.org 403 through the proxy.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "059a41a5-d7a1-5373-9e30-70d67becafd4",
+    "transcripts": 1,
+    "first": "2026-11-27T03:56:08Z",
+    "last": "2026-11-27T04:02:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 92,
+        "output": 24941,
+        "thinking": 2878,
+        "cache_read": 4791546,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118395,
+        "api_equivalent_usd": 2.4047,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 92,
+      "output": 24941,
+      "thinking": 2878,
+      "cache_read": 4791546,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118395,
+      "api_equivalent_usd": 2.4047,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.94,
+      "active_minutes": 5.94,
+      "model_minutes": 4.51,
+      "tool_minutes": 1.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "writing and sourcing one guide page with a small tested tool, like the COI guide",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 166.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

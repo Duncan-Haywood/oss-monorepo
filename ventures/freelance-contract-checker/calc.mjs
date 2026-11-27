@@ -3,6 +3,25 @@
 
 const norm = (s) => String(s || "").replace(/\s+/g, " ").trim();
 const f = (id, severity, title, why, ask) => ({ id, severity, title, why, ask });
+// Sentences (split on . ; or line break before the next word). Rules that pair two phrases test them in
+// the same sentence: a cap or a condition elsewhere in the contract says nothing about this clause.
+export const sentences = (low) => String(low).split(/(?<=[.;!?])\s+(?=[a-z0-9("'])|\n+/).filter(Boolean);
+const inOne = (low, ...res) => sentences(low).some((x) => res.every((re) => re.test(x)));
+
+// A money cap: "limited to the fees paid", "shall not exceed $5,000", "capped at the amount".
+const MONEY_CAP = /(limited to|shall not exceed|not to exceed|not exceed|capped at|cap(ped)? of|up to|no more than|maximum of)[^.;]{0,60}(\$\s?\d|fees?|amounts?|compensation|price|sums?|paid|payable|contract value)/;
+// A limit on the contractor's liability, read sentence by sentence.
+const LIABILITY_LIMIT = [
+  [/(liab)/, MONEY_CAP],
+  [/(limitation of liability|limit(ation)? on liability)/],
+  [/\b(not|never|neither|nor|in no event)\b[^.;]{0,60}\bliable/, /(consequential|indirect|incidental|special|punitive|lost profits|exceed|beyond)/],
+  [/(exclud|waive|disclaim)/, /(consequential|indirect|incidental|lost profits)/],
+  [/no liability/],
+];
+export const hasLiabilityLimit = (low) => sentences(low).some((x) => LIABILITY_LIMIT.some((res) => res.every((re) => re.test(x))));
+export const hasIndemnityCap = (low) => inOne(low, /(indemnif|indemnit|hold harmless)/, MONEY_CAP);
+// Late-fee or interest wording: a day count there is when the penalty starts, not when payment is due.
+const LATE = /\b(late|overdue|past due|interest|penalt\w*|remains? (unpaid|outstanding)|(is|are) not paid)\b/;
 
 export function parseMoney(s) {
   const t = String(s ?? "").replace(/[$,\s]/g, "");
@@ -20,12 +39,16 @@ const WORDNUM = { thirty: 30, forty: 40, "forty-five": 45, sixty: 60, ninety: 90
 
 // Days until payment: "net 60", "within sixty (60) days of invoice", "paid 90 days after receipt". Largest one wins.
 export function paymentDays(text) {
-  const t = String(text).toLowerCase();
   const found = [];
-  for (const m of t.matchAll(/\bnet[\s-]*(\d{1,3})\b/g)) found.push(+m[1]);
-  for (const m of t.matchAll(/(?:within|after|in)\s+(?:([a-z][a-z -]*?)\s*)?\(?(\d{1,3})\)?\s*(?:calendar |business )?days[^.]{0,60}(?:invoice|receipt|acceptance|approval|delivery|completion)/g)) found.push(+m[2]);
-  for (const m of t.matchAll(/(?:invoice|payment)[^.]{0,80}(?:within|after)\s+(\d{1,3})\s*days/g)) found.push(+m[1]);
-  for (const [w, n] of Object.entries(WORDNUM)) if (new RegExp(`(?:within|after)\\s+${w}\\b[^.]{0,30}days`).test(t)) found.push(n);
+  for (const t of sentences(String(text).toLowerCase())) {
+    // "invoices that remain unpaid after 60 days accrue 1.5%": a count just after late-fee wording is when
+    // the penalty starts, not the payment term (quality audit 2026-11-26, defect 6).
+    const push = (m, n) => { if (!LATE.test(t.slice(Math.max(0, m.index - 50), m.index))) found.push(n); };
+    for (const m of t.matchAll(/\bnet[\s-]*(\d{1,3})\b/g)) found.push(+m[1]);
+    for (const m of t.matchAll(/(?:within|after|in)\s+(?:([a-z][a-z -]*?)\s*)?\(?(\d{1,3})\)?\s*(?:calendar |business )?days[^.]{0,60}(?:invoice|receipt|acceptance|approval|delivery|completion)/g)) push(m, +m[2]);
+    for (const m of t.matchAll(/(?:invoice|payment)[^.]{0,80}(?:within|after)\s+(\d{1,3})\s*days/g)) push({ index: m.index + m[0].search(/(within|after)\s+\d/) }, +m[1]);
+    for (const [w, n] of Object.entries(WORDNUM)) for (const m of t.matchAll(new RegExp(`(?:within|after)\\s+${w}\\b[^.]{0,30}days`, "g"))) push(m, n);
+  }
   return found.length ? Math.max(...found) : null;
 }
 
@@ -77,7 +100,7 @@ export function analyze(rawText, settings = {}) {
 
   const ipAll = /(all|any)\s+(right|rights|work product|work|deliverables|materials|ideas|inventions)[^.]{0,120}(whether or not|including|related|regardless)/.test(low)
     || /(assigns?|transfers?|owns?)[^.]{0,60}(all|any)[^.]{0,40}(intellectual property|work product|inventions)[^.]{0,80}(prior|existing|pre-existing|background|tools|know-how|during the term)/.test(low);
-  const upon = /(upon|only upon|until)[^.]{0,40}(full |final )?(payment|paid)/.test(low) && /(assign|ownership|transfer|work made for hire|work for hire|license)/.test(low);
+  const upon = inOne(low, /(upon|only upon|until|after|subject to|conditional on|contingent on)[^.]{0,40}(full |final )?(payment|paid)/, /(assign|ownership|transfer|work made for hire|work for hire|license|title|vest)/);
   const wfh = /work(s)?[- ]made[- ]for[- ]hire|work[- ]for[- ]hire/.test(low);
   if ((wfh || /(assigns?|hereby assign)/.test(low)) && !upon) {
     findings.push(f("ip-before-payment", "high", "You give up the work whether or not you are paid",
@@ -94,7 +117,7 @@ export function analyze(rawText, settings = {}) {
       "After assignment you may have no right to display your own work.", "Add a right to show the work in your portfolio and case studies, subject to confidentiality."));
   }
 
-  const unlimited = /(unlimited|until (the )?(client|customer|company) is (satisfied|happy|pleased)|as many|any number of|additional revisions at no (additional )?(cost|charge|fee)|(revisions?|changes?|edits?)[^.]{0,60}no (additional )?(charge|cost|fee))/.test(low);
+  const unlimited = /(unlimited|until (the )?(client|customer|company) is (satisfied|happy|pleased)|as many|any number of|additional revisions at no (additional )?(cost|charge|fee)|(revisions?|changes?|edits?)[^.]{0,60}no (additional )?(charge|cost|fee)|(all|any|every) (revisions?|changes?|edits?|modifications?)[^.]{0,40}(client|customer|company) (requests?|asks?|requires?|wants?|reasonably requests?))/.test(low);
   if (unlimited) {
     findings.push(f("unlimited-revisions", "high", "Revisions are unlimited or open-ended",
       "An open revision clause turns a fixed fee into unpaid hours of unknown size and the project never closes.",
@@ -138,12 +161,12 @@ export function analyze(rawText, settings = {}) {
   }
 
   const indem = /(indemnif|hold harmless)/.test(low);
-  if (indem && !/(limited to|shall not exceed|capped|not exceed|up to the (total )?(fees|amount))/.test(low)) {
+  if (indem && !hasIndemnityCap(low)) {
     findings.push(f("uncapped-indemnity", "high", "Indemnity with no cap",
       "If the client is sued over your work you could owe their legal costs and damages far beyond the fee.",
       "Make it mutual, limited to third-party claims caused by your breach, and capped at the fees paid under this contract."));
   }
-  if (/(consequential|indirect|incidental|lost profits)/.test(low) === false && /(liab)/.test(low) === false) {
+  if (!hasLiabilityLimit(low)) {
     findings.push(f("no-liability-limit", "medium", "No limit on your liability",
       "Without a cap, a mistake in a small project can be argued into a claim for the client's lost business.",
       "Add a cap at the fees paid and exclude consequential and indirect damages."));
@@ -187,7 +210,7 @@ export function summaryText(r, s = {}) {
   const lines = ["FREELANCE CONTRACT CHECK"];
   if (s.client) lines.push(`Client: ${s.client}`);
   if (s.project) lines.push(`Project: ${s.project}`);
-  lines.push(`Payment due in the text: ${x.days ? x.days + " days" : "not found"}`);
+  lines.push(`Payment due in the text: ${x.days != null ? x.days + " days" : "not found"}`);
   lines.push(`Revision rounds in the text: ${x.revisions ?? "not found"}`);
   if (x.fee) lines.push(`Project fee: ${dollars(x.fee)}`);
   lines.push("", `RESULT: ${VERDICT_TEXT[r.verdict]}`, "");

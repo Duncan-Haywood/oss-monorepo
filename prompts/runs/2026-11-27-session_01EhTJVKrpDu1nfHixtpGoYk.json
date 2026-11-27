@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVKrpDu1nfHixtpGoYk",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T04:56:20Z",
+  "ended": "2026-11-27T05:02:17Z",
+  "wall_minutes": 6.23,
+  "tokens_in": 4852767,
+  "tokens_out": 22333,
+  "cost_usd": 2.3733,
+  "tool_calls": 64,
+  "task": "Explore: state certified-payroll filing systems for PayApps (bet #1)",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19613",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "cbp_counts.py could not download (www2.census.gov 403/ENOTFOUND through the proxy)",
+    "WebFetch ENOTFOUND for every state labor host (dol.ny.gov, nj.gov, lni.wa.gov, labor.illinois.gov) and points-north.com"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/smb/cbp_counts.py",
+      "issue": "Depends on www2.census.gov, which this session's network policy blocks; there is no cached zip in the repo, so state counts for a bet can't be read in such sessions."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "The 'Not now' list has no stated home for candidates screened later, so I added a 'Screened 2026-11-27' bullet under it."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "'Outbound hosts' covers irs.gov and ssa.gov 403s but not state labor departments or census.gov, which fail as ENOTFOUND in WebFetch."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "No new paid bet survived screening: certified payroll is already in PayApps, and A/E practice management and contractor safety look weak. So the run became R&D for bet #1's ROADMAP item 'other states' formats once their official specs are read'.",
+      "did": "Customer-post section, agent doc with a next-format ranking, bets.md evidence",
+      "result": "Merged a sourced state table and a next-format pick (NY XSD). The specs themselves are still to be downloaded."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Tried no private-monorepo clone: explore gives free choice, and the bets' code is mid-move to public (open PRs #19594, #19601).",
+      "did": "Public-side research and SEO only",
+      "result": "No conflict with the move PRs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-wh-347-certified-payroll-for-subcontractors.md (extended)",
+    "docs/reports/2026-11-27-state-certified-payroll-filing-systems.md"
+  ],
+  "goal": null,
+  "notes": "Idea: rank which state's electronic certified-payroll format PayApps builds after CA eCPR. NY (MPWR, 1 Jan 2026, XML+XSD) first, then NJ CSV, WA XML, IL CSV; MI/NV/many DOTs go through LCPtracker. Facts come from search-quoted agency pages, because the state hosts couldn't be fetched. Local checks: post front-matter fixed (description 186 to 151 chars); risk_review blocked nothing.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7ec10d98-0065-59c6-9bfb-c2cb2b2befe2",
+    "transcripts": 1,
+    "first": "2026-11-27T04:56:20Z",
+    "last": "2026-11-27T05:02:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 82,
+        "output": 22333,
+        "thinking": 6617,
+        "cache_read": 4730151,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122534,
+        "api_equivalent_usd": 2.3733,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 82,
+      "output": 22333,
+      "thinking": 6617,
+      "cache_read": 4730151,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122534,
+      "api_equivalent_usd": 2.3733,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 32,
+      "WebSearch": 22,
+      "WebFetch": 5,
+      "ToolSearch": 2,
+      "Edit": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.23,
+      "active_minutes": 6.23,
+      "model_minutes": 4.35,
+      "tool_minutes": 1.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "researching 8 state filing systems and writing the post section and doc",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 168.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

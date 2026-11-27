@@ -84,7 +84,7 @@ The catalogue has neighbouring checkers with the same kind of sourced figures: a
 ## Where to go next
 
 - The tool itself: [Start here: E-invoice preflight](2026-10-29-start-here-einvoice-preflight.md)
-- An example of a page read against the authority: [Ireland's e-invoicing dates, from Revenue](2026-10-31-ireland-einvoice-dates-from-revenue.md)
+- An example of a page read against the authority: [Ireland's e-invoicing dates, from Revenue](../../ventures/einvoice-preflight/ireland-e-invoice-mandate.html)
 - Accountants have a guide of their own: [Start here: accountants and bookkeepers](2026-11-03-start-here-accountants-and-bookkeepers.md)
 
 The other ways to help are on [Start here: every way to help](2026-10-30-start-here-every-way-to-help.md).

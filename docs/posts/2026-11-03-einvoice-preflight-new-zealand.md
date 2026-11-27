@@ -4,6 +4,7 @@ date: 2026-11-03
 seo_title: "E-invoice Preflight adds New Zealand"
 description: "New Zealand page: Peppol PINT A-NZ, large government suppliers reported required from 1 January 2027, B2B voluntary, with the source disagreements flagged."
 tags: [einvoice-preflight, e-invoicing, new-zealand]
+folded_into: einvoice-preflight/new-zealand-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [New Zealand](../../ventures/einvoice-preflight/new-zealand-e-invoice-mandate.html), the 73rd in the all-countries table. Vendor and compliance guides say there is no general business-to-business mandate; central government agencies have had to receive Peppol e-invoices since 2022; and from 1 January 2027 agencies are reported to be required to make large suppliers send them on applicable contracts. The format is PINT A-NZ, the Australia and New Zealand variant of Peppol's billing specification, with MBIE as the Peppol authority. Inland Revenue does not see the invoices.

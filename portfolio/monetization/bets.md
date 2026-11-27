@@ -22,7 +22,7 @@ without a sales team, Margin, Time = time to first dollar.
 
 | # | Bet | Customer | WTP | Size | Dist | Margin | Time | Total | Where it is built |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | **Pay-app billing → contractor suite** | specialty subcontractors, small GCs | 4 | 5 | 4 | 5 | 4 | 22 | `apps/payapps` (this repo, moved 2026-11-27) |
+| 1 | **Pay-app billing → contractor suite** | specialty subcontractors, small GCs | 4 | 5 | 4 | 5 | 4 | 22 | `ventures/payapps/apps/payapps` (moved from private-monorepo 2026-11-27) |
 | 2 | **AI RFQ-to-quote for job shops** | CNC and fabrication shops | 5 | 3 | 3 | 4 | 4 | 19 | new `private-monorepo/apps/jobshop-quote` |
 | 3 | **E-invoice fix-and-explain** | DE/FR SMEs, their accountants, small invoicing vendors | 3 | 5 | 4 | 5 | 4 | 21 | `einvoice-preflight` imported to private |
 | 4 | **CMMC L1/L2 + ISO 9001 workspace** | small defense/aerospace shops | 4 | 5 | 3 | 4 | 3 | 19 | new `private-monorepo/apps/cmmc` |
@@ -81,6 +81,15 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
   associations.
 - **Second wedge:** CoConstruct is being folded into Buildertrend, with
   [no new CoConstruct projects after 31 Mar 2027](https://coconstruct.com/migration).
+- **Certified payroll, a paid add-on subs already buy:** standalone tools
+  charge $49–$175/mo (PaidReady [$49/mo](https://www.getapp.com/all-software/a/paidready/),
+  Certified Payroll WH-347 [$79/mo](https://www.saasworthy.com/product/certified-payroll-wh-347/pricing),
+  Points North for ADP [$175/mo + $7.50/report](https://apps.adp.com/en-us/apps/253943/points-north-certified-payroll-reporting-for-run-powered-by-adp/configure));
+  Miter (construction payroll) raised a [$40M Series B, Sep 2026](https://www.constructiondive.com/press-release/20260930-miter-the-ai-platform-for-construction-raises-40-million-for-the-built-w/).
+  Davis-Bacon covers [$217B a year and 1.2M workers](https://www.federalregister.gov/documents/2023/08/23/2023-17221/updating-the-davis-bacon-and-related-acts-regulations),
+  and NY (from 1 Jan 2026), NJ (Aug 2024), WA, IL and CA now want the
+  payroll filed in a state system. Read 2026-11-27; detail and the state
+  ranking in `docs/reports/2026-11-27-state-certified-payroll-filing-systems.md`.
 - **Wedge:** pay apps + retainage + lien waivers + change orders at about
   $99–249/mo (estimate), growing into job costing, RFIs and estimating.
 - **Growth path:** job costing, RFIs, estimating, subcontractor compliance
@@ -114,6 +123,12 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
   at about $199/mo. Ship narrow and soon: funded rivals are arriving.
 - **Growth path:** quote follow-up and win rates, won quote to job traveler,
   QuickBooks invoicing, material price lists.
+- **Launch:** the launch review OPERATOR.md asks for is done (2026-11-27,
+  private-monorepo#482, `apps/jobshop-quote/docs/LAUNCH-REVIEW.md`): paid
+  plans keep 42–53% at their full AI ceiling, the legal pages match the code,
+  and the global AI cap is $30 a day for launch. An agent may now run
+  `jobshop-quote-deploy` and open sign-ups (Actions runners permitting);
+  checkout stays dark until Paddle verification. Bets #3–#5 have no review yet.
 
 ### 3. E-invoice fix-and-explain
 
@@ -202,6 +217,18 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
 - **Photo culling:** Aftershoot [nearly 250,000 photographers](https://www.slrlounge.com/aftershoot-new-campaign-2026/), prices falling to about $10/mo.
 - **Multicam sync:** free in DaVinci Resolve; PluralEyes [ended support 2024](https://support.maxon.net/hc/en-us/articles/7389361453340).
 - **Qualitative coding:** strong (Dovetail [$63M raised](https://techcrunch.com/?p=2259520)), but not SMB buyers.
+
+- **Screened 2026-11-27, not ranked:** *Practice management for small
+  architecture and engineering firms* (time, billing, project budgets): real
+  WTP (Monograph [about $25–55/user/mo](https://www.cloudwards.net/monograph-review/),
+  Capterra [from $60/user/mo](https://www.capterra.com/p/178124/Monograph/reviews/Capterra___3424150/);
+  BQE Core quote-only), but crowded (Monograph, BQE, Deltek Ajera) and no
+  wedge we hold that rivals lack; Census counts could not be read from the
+  session. *Safety programs for small contractors* (toolbox talks,
+  inspections): SafetyCulture has a free tier and paid plans around
+  [$24/user/mo](https://safetyculture.com/apps/construction-safety-software),
+  so prices are anchored low; better as a module of #1 (daily reports
+  already exist) than a bet.
 
 ## Hardware (long term, not a ranked bet)
 

@@ -19,11 +19,13 @@ export const GROUPS = [
     ["schedule-of-values-template.html", "Free Excel SOV template"],
     ["front-loading-schedule-of-values.html", "Front-loading check (balanced SOV)"],
     ["pay-if-paid-clauses.html", "Pay-if-paid clause reader"],
+    ["how-to-write-an-rfi.html", "RFI drafter and how to write an RFI"],
   ]],
   ["Billing guides", [
     ["how-to-fill-out-a-pay-application.html", "How to fill out a pay application"],
     ["change-orders-schedule-of-values.html", "Change orders and the SOV"],
     ["stored-materials-billing.html", "Billing stored materials"],
+    ["progress-billing.html", "Progress billing and draw schedules"],
     ["overbilling-underbilling.html", "Overbilling and underbilling"],
     ["retainage-explained.html", "Retainage explained, with state caps"],
     ["retainage-release.html", "Getting retainage released"],

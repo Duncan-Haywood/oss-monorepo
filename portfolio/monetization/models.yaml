@@ -624,7 +624,7 @@ products:
   # sets each product's price ids in owner-only config. Cost drivers are the
   # things that scale with customers; their unit costs are not measured yet.
   # ---------------------------------------------------------------------------
-  - app: private-monorepo/apps/payapps
+  - app: ventures/payapps/apps/payapps
     bet: 1
     buyer: specialty-trade subcontractors (electrical, mechanical, drywall, concrete) and small GCs who bill monthly AIA-style pay applications
     liability: medium
@@ -685,7 +685,7 @@ products:
         read: 2026-11-24
     stage: built-dark
     next: >-
-      The tiers are code in private-monorepo/apps/payapps/src/shared/plans.ts
+      The tiers are code in ventures/payapps/apps/payapps/src/shared/plans.ts
       (PR #37), with a Free plan of 1 active job and 1 user as the default, the
       Paddle catalogue as code (billing/paddle-catalog.json) and a 40%-margin
       test; checkout, portal and the signed webhook are built and dark. Next for

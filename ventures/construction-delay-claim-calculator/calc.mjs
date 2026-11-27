@@ -161,5 +161,6 @@ export function toCsv(r) {
     ["field_overhead_claim", r.field.toFixed(2)], ["home_office_overhead_claim", r.eichleay.claim.toFixed(2)], ["profit", r.profit.toFixed(2)],
     ["total_claim", r.claim.toFixed(2)], ["liquidated_damages", r.ld.toFixed(2)], ["net_position", r.net.toFixed(2)],
   ];
-  return "item,value\n" + rows.map((x) => x.join(",")).join("\n") + "\n";
+  const q = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236): a cell starting = + - @ tab or CR runs as a formula in a spreadsheet
+  return "item,value\n" + rows.map((x) => x.map(q).join(",")).join("\n") + "\n";
 }

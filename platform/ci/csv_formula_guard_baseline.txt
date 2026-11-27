@@ -49,7 +49,6 @@ ventures/cash-flow-risk-forecaster/calc.mjs
 ventures/cbam-cost-estimator/calc.mjs
 ventures/cd-treasury-ladder-planner/calc.mjs
 ventures/cdl-school-payback-calculator/calc.mjs
-ventures/certified-payroll-calculator/wh347.mjs
 ventures/changepoint-detector/drift-view.mjs
 ventures/changepoint-detector/multi-view.mjs
 ventures/charity-bunching-planner/calc.mjs
@@ -70,7 +69,6 @@ ventures/coffee-cart-event-quote-calculator/calc.mjs
 ventures/coffee-roaster-margin-calculator/calc.mjs
 ventures/commercial-solar-ppa-lease-buy-calculator/calc.mjs
 ventures/concrete-maturity/maturity.mjs
-ventures/construction-delay-claim-calculator/calc.mjs
 ventures/container-load-planner/calc.mjs
 ventures/convenience-store-gas-station-profit-calculator/calc.mjs
 ventures/courier-van-route-profit-calculator/calc.mjs
@@ -201,7 +199,6 @@ ventures/ny-llc-transparency-act-tracker/calc.mjs
 ventures/oncall-load-analyzer/calc.mjs
 ventures/online-business-valuation-calculator/calc.mjs
 ventures/open-house-plans/framing.mjs
-ventures/open-house-plans/wft-engine.mjs
 ventures/optical-dispensary-margin-calculator/calc.mjs
 ventures/oyster-farm-growout-planner/calc.mjs
 ventures/padel-club-profit-calculator/calc.mjs
@@ -210,7 +207,6 @@ ventures/parcel-late-delivery-refund-finder/calc.mjs
 ventures/party-bus-charter-profit-calculator/calc.mjs
 ventures/patent-maintenance-fee-planner/calc.mjs
 ventures/pawn-loan-profit-calculator/calc.mjs
-ventures/pay-application-generator/calc.mjs
 ventures/payment-processor-fee-comparison-calculator/calc.mjs
 ventures/payroll-hours-csv-check/calc.mjs
 ventures/pet-boarding-daycare-profit-calculator/calc.mjs
@@ -330,9 +326,6 @@ ventures/veterinarian-associate-pay-calculator/calc.mjs
 ventures/vineyard-grape-vs-wine-calculator/calc.mjs
 ventures/visit-keeper/stats.mjs
 ventures/wage-garnishment-limit-calculator/calc.mjs
-ventures/wall-framing-takeoff/budget.mjs
-ventures/wall-framing-takeoff/engine.mjs
-ventures/wall-framing-takeoff/schedule.mjs
 ventures/water-damage-drying-estimate-calculator/calc.mjs
 ventures/water-well-drilling-bid-calculator/calc.mjs
 ventures/wedding-day-timeline-builder/calc.mjs

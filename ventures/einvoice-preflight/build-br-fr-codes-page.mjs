@@ -32,6 +32,19 @@ export function collect() {
   return [...rows.values()].sort((a, b) => num(a.code).localeCompare(num(b.code)) || a.en.localeCompare(b.en));
 }
 
+// A message that quotes a long allowed-code list (BR-FR-CDV-CL-09 lists 51) folds the list into a
+// <details> so the row stays readable on a phone; the codes stay in the page for search and Ctrl-F.
+const LIST = /(?:"[^"]+",\s*){11,}"[^"]+"/;
+export function cell(text, lang) {
+  const m = text.match(LIST);
+  if (!m) return esc(text);
+  const codes = m[0].split(/,\s*/).map((c) => c.replace(/^"|"$/g, ""));
+  const label = lang === "fr" ? `Afficher les ${codes.length} codes autorisés` : `Show the ${codes.length} allowed codes`;
+  const before = text.slice(0, m.index).replace(/\s+$/, "");
+  const after = text.slice(m.index + m[0].length).replace(/^[\s.]+/, "");
+  return `${esc(before)}<details class="codes"><summary>${label}</summary>${codes.map((c) => `<code>${esc(c)}</code>`).join(" ")}</details>${after ? esc(after) : ""}`;
+}
+
 const GROUPS = [
   ["core", "Core invoice rules (BR-FR-01 to BR-FR-32)", "Invoice number format, dates, French document types and billing frameworks (BT-23), SIREN and SIRET, VAT categories and rates, electronic addresses and notes."],
   ["CO", "Coherence rules (BR-FR-CO)", "Fields that must agree with each other: identifiers and their schemes, credit notes and the invoices they correct, the parties' roles."],
@@ -62,10 +75,10 @@ export function renderPage() {
     return `<section>
 <h2>${esc(title)}</h2>
 ${lede ? `<p class="note">${esc(lede)}</p>` : ""}
-<div class="table-wrap"><table class="stack">
+<div class="table-wrap"><table class="stack prose">
 <thead><tr><th>Rule</th><th>What it checks (English)</th><th>FNFE-MPE text (French)</th><th>Applies to</th></tr></thead>
 <tbody>
-${list.map((r) => `<tr${anchor(r.code)}><td><strong>${esc(r.code)}</strong>${r.flag === "warning" ? " <em>warning</em>" : ""}</td><td>${esc(r.en)}</td><td lang="fr">${esc(r.fr)}</td><td>${[...r.syntaxes].join(", ")}</td></tr>`).join("\n")}
+${list.map((r) => `<tr${anchor(r.code)}><td><strong>${esc(r.code)}</strong>${r.flag === "warning" ? " <em>warning</em>" : ""}</td><td>${cell(r.en, "en")}</td><td lang="fr">${cell(r.fr, "fr")}</td><td>${[...r.syntaxes].join(", ")}</td></tr>`).join("\n")}
 </tbody></table></div>
 </section>`;
   }).join("\n");
@@ -80,7 +93,7 @@ ${list.map((r) => `<tr${anchor(r.code)}><td><strong>${esc(r.code)}</strong>${r.f
 <meta property="og:title" content="BR-FR error codes in English">
 <meta property="og:description" content="What each French e-invoicing rule (BR-FR, BR-FR-CDV) checks, in English, and a free offline checker that runs them.">
 <script type="application/ld+json">${JSON.stringify(schema)}</script>
-<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:1100px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:28ch}.lede{font-size:1.05rem;max-width:66ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;min-width:760px;border-collapse:collapse;margin:.6rem 0;font-size:.88rem}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #d3dbe4;vertical-align:top}td:first-child{white-space:nowrap}@media(max-width:600px){table.stack{min-width:0}table.stack td:first-child{white-space:normal}}td[lang=fr]{color:#3d4f5f}th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}tr:target{background:#fff6d6}.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}</style>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:1100px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:28ch}.lede{font-size:1.05rem;max-width:66ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;min-width:760px;border-collapse:collapse;margin:.6rem 0;font-size:.88rem}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #d3dbe4;vertical-align:top}td:first-child{white-space:nowrap}@media(max-width:600px){table.stack{min-width:0}table.stack td:first-child{white-space:normal}}td[lang=fr]{color:#3d4f5f}th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}tr:target{background:#fff6d6}details.codes{margin:.35rem 0}details.codes summary{cursor:pointer;color:#0b5f8a;font-weight:600}details.codes summary:focus-visible{outline:2px solid #0b5f8a;outline-offset:2px}details.codes code{display:inline-block;margin:.15rem .1rem;padding:0 .3rem;border-radius:4px;background:#eef2f6;font-size:.8rem;overflow-wrap:anywhere}.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}</style>
 </head><body><main>
 <header>
 <p class="eyebrow">E-invoice Preflight · France</p>
