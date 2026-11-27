@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqydcG737X7Y1TY4MByb",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T00:39:04Z",
+  "ended": "2026-11-27T00:46:09Z",
+  "wall_minutes": 7.27,
+  "tokens_in": 7159265,
+  "tokens_out": 27273,
+  "cost_usd": 2.8418,
+  "tool_calls": 73,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19536",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "WebFetch/curl of Miss. Code 1-3-67 text: justia 403, findlaw bot wall, legalfix 429; a headless-browser fetch was refused by the auto-mode classifier, so the Mississippi part-3 item was dropped"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/smb/VERTICALS.md",
+      "issue": "Said api.census.gov 'was not reachable'; it is reachable but needs a key (302 to missing_key.html). The keyless www2.census.gov flat files work; fixed in this PR."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets said 'Start here: jobshop-quote #15', but item 15 already had a part claimed 0 min earlier, and every other item on bets #1-#4 waited on demand. About 20 minutes went on reading ROADMAPs before picking non-ROADMAP work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is a working slice of the top bet's product in private-monorepo; every free item there was claimed or gated on demand.",
+      "did": "Fixed the bets' buyer-count evidence (bets.md invites evidence PRs) and added a reusable CBP script.",
+      "result": "Bets #1/#2 and 18 verticals now cite official 2022 counts."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Most PRs carry a customer post; an evidence and tooling change has no customer reader.",
+      "did": "Wrote an agent doc in docs/reports/ instead of a post.",
+      "result": "No post."
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-27-census-cbp-buyer-counts.md"
+  ],
+  "goal": null,
+  "notes": "Tests: pytest portfolio/ledger/test_smb_cbp_counts.py portfolio/ledger/test_smb_cost_plus.py 17 passed; cost_plus.py --check ok. Risk review: one check (new outbound host www2.census.gov), answered in the PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7cfc4736-1b2b-50ac-b7c4-cc17b1d91bf0",
+    "transcripts": 1,
+    "first": "2026-11-27T00:39:04Z",
+    "last": "2026-11-27T00:46:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 133,
+        "output": 27273,
+        "thinking": 5681,
+        "cache_read": 7048367,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110765,
+        "api_equivalent_usd": 2.8418,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 133,
+      "output": 27273,
+      "thinking": 5681,
+      "cache_read": 7048367,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110765,
+      "api_equivalent_usd": 2.8418,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 56,
+      "WebFetch": 5,
+      "Write": 3,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__list_pull_requests": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.27,
+      "active_minutes": 7.27,
+      "model_minutes": 5.35,
+      "tool_minutes": 1.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "an analyst pulling CBP files, scripting and updating 18 verticals",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 105.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
