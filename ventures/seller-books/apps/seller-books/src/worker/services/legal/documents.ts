@@ -125,7 +125,7 @@ This policy explains what information Seller Books (operated by Maris Stella Lab
 - To support you when you ask us to.
 - To meet legal obligations.
 
-- To send account emails: confirming your address when you sign up, resetting your password when you ask, and telling you when someone tries to sign up with an address that already has an account. When a shop's admin invites someone, we email the invitation, with the shop's name, the inviter's name and the role, to the address the admin typed. We do not send marketing email from the app.
+- To send account emails: confirming your address when you sign up, resetting your password when you ask, and telling you when someone tries to sign up with an address that already has an account. When a shop's admin invites someone, we email the invitation, with the shop's name, the inviter's name and the role, to the address the admin typed. If a shop's owner or admin turns on estimated-tax reminders, we email them a week before each federal estimated-tax due date, with the amount still to pay that the app works out from the shop's books and the figures they saved; each email has a one-click link that turns the reminders off. We do not send marketing email from the app.
 
 ## Subprocessors
 
@@ -133,7 +133,7 @@ We share data only with service providers that process it on our behalf to run t
 
 | Subprocessor | Purpose |
 | --- | --- |
-| Cloudflare, Inc. | Hosting, database, logs and sending account emails |
+| Cloudflare, Inc. | Hosting, database, logs and sending account and reminder emails |
 | Paddle (merchant of record) | Checkout, payments, invoicing and sales tax |
 
 **No AI model reads your books.** The Service does not send your reports or records to an AI provider. We do not use your data to train AI models.
