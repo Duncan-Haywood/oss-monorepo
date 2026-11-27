@@ -144,7 +144,7 @@ combined notice to contractor on bonded and public jobs (§ 255.05, § 713.23).
 
 PayApps is open: pay applications with retainage and change orders are free on one job, no card.
 Lien waivers, notices, QuickBooks and job costing are in the paid plans, which are not on sale yet.
-[Start free in PayApps](https://payapps.duncan-andrew-haywood.workers.dev/?signup&from=posts%2Fflorida-notice-to-owner). This is general information about the
+[Start free in PayApps](https://payapps.marisstella.app/?signup&from=posts%2Fflorida-notice-to-owner). This is general information about the
 statute's text, not legal advice. Whether a notice is required on your job, and who must get it,
 depends on your contract chain, so check with a Florida construction attorney when the money
 matters.
