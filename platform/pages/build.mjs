@@ -50,7 +50,7 @@ import { COOKIES_PATH, legalDocuments, legalFooterHtml, PRIVACY_PATH, TERMS_PATH
 import { injectDir as injectWebAnalytics, normaliseToken as normaliseAnalyticsToken, resolveToken as resolveAnalyticsToken } from '../analytics/web-analytics.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildProducts, productSitemapPaths, PRODUCT_CARD_CSS, renderProductGrid, PRODUCTS_PATH, INDUSTRIES_PATH, industryPath } from './products.mjs';
-import { PRODUCT_LINES, softwareLines, hardwareLines, INDUSTRIES as BUSINESS_INDUSTRIES, buildFirstHref } from './business.mjs';
+import { PRODUCT_LINES, softwareLines, hardwareLines, INDUSTRIES as BUSINESS_INDUSTRIES, buildFirstHref, usableSentence } from './business.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { buildQueue, clip, QUEUE_PATH } from './queue.mjs';
@@ -201,7 +201,7 @@ import {
 } from './home.mjs';
 import { servedPath } from './served-path.mjs';
 import { completeArticleJsonLd } from './article-ld.mjs';
-import { COMPANY_SUMMARY, IN_DEVELOPMENT, INDUSTRIES, LIVE_PRODUCTS } from './company.mjs';
+import { COMPANY_SUMMARY, IN_DEVELOPMENT, INDUSTRIES, LIVE_PRODUCTS, OPEN_FREE } from './company.mjs';
 import { liveIndustries, pruneDoors, renderPageDoor, renderToolDoor } from './front-doors.mjs';
 import { loadFunnel, offerTable, OFFER_ATTR, renderProductOffer } from './product-offer.mjs';
 import { acquireBuildLock, waitForBuildLock } from './build-lock.mjs';
@@ -8198,7 +8198,12 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
 ${/* Absolute: a live product may be served by the site Worker rather than
      from this build's output (Grant Autopilot is), so a relative link would
      read as dead to check.mjs. */ ''}${LIVE_PRODUCTS.map((p) => `        <li><strong><a href="${escapeHtml(`${baseUrl}${p.path}`)}">${escapeHtml(p.name)}</a></strong>, for ${escapeHtml(p.audience)}: it ${escapeHtml(p.summary)}</li>`).join('\n')}
-      </ul>
+      </ul>${OPEN_FREE.length ? `
+      <h3>Open on a free plan</h3>
+      <p>Sign up and use these today. Their paid plans are not on sale yet.</p>
+      <ul>
+${OPEN_FREE.map((p) => `        <li><strong><a href="${escapeHtml(p.url)}">${escapeHtml(p.name)}</a></strong>, for ${escapeHtml(p.audience)}: it ${escapeHtml(p.summary)}.</li>`).join('\n')}
+      </ul>` : ''}
       <h3>In development</h3>
       <p>
         These are being built now. None of them takes payment or sign-ups yet,
@@ -9558,8 +9563,6 @@ export function renderHub(
 
   // The product lines (business.mjs). Tools the build did not publish drop out of the cards.
   const publishedTools = new Map(surfaces.map((s) => [s.slug, cardName(s.title)]));
-  const liveLines = PRODUCT_LINES.filter((l) => l.status === 'live');
-  const liveNames = liveLines.map((l) => l.name).join(' and ') || 'None';
 
   return `<!doctype html>
 <html lang="en">
@@ -9859,14 +9862,14 @@ ${HERO_BACKDROP_HTML}
            live. The full tool catalogue is one link away at c/. -->
       <p class="lede">
         Pick your business, then the problem costing you the most time.
-        ${escapeHtml(liveNames)} ${liveLines.length === 1 ? 'is' : 'are'} live; the rest are in early access, with
+        ${escapeHtml(usableSentence(PRODUCT_LINES))} The rest are in early access, with
         free tools that already do part of each job.
       </p>
 ${renderFinder({
   industries: BUSINESS_INDUSTRIES,
   lines: PRODUCT_LINES,
   trades: audiencePages.map(({ audience }) => ({ id: audiencePageId(audience), name: audience.name, href: categoryPagePath(audiencePageId(audience)) })),
-  statusLabel: (status) => (status === 'live' ? 'live' : 'early access'),
+  statusLabel: (status) => (status === 'live' ? 'live' : status === 'open-free' ? 'open, free plan' : 'early access'),
   industryHref: industryPath,
   askHref: ASK_PATH,
   customHref: CUSTOM_DEV_PATH,
@@ -11705,9 +11708,11 @@ export const SOCIAL_CARD_FILE = 'social-card.png';
  */
 export function siteCardFooter(lines, toolCount) {
   const live = lines.filter((l) => l.status === 'live').map((l) => l.name);
+  const open = lines.filter((l) => l.status === 'open-free').map((l) => l.appName || l.name);
   const early = lines.filter((l) => l.status === 'early-access').length;
   const parts = [];
   if (live.length) parts.push(`${live.join(' and ')} live`);
+  if (open.length) parts.push(`${open.join(' and ')} open free`);
   if (early) parts.push(`${formatCount(early)} in early access`);
   parts.push(`${formatCount(toolCount)} free tools`);
   return parts.join(' · ');
@@ -13184,7 +13189,11 @@ Live:
 
 ${LIVE_PRODUCTS.map((p) => `- [${p.name}](${baseUrl}${p.path}): for ${p.audience}. ${p.name} ${full ? p.summary : shortText(p.summary)}`).join('\n')}
 
-${full ? `In development (not for sale yet, no sign-ups; the order changes with the evidence):
+${OPEN_FREE.length ? `Open on a free plan (sign up today; paid plans not on sale yet):
+
+${OPEN_FREE.map((p) => `- [${p.name}](${p.url}): for ${p.audience}. ${p.name} ${full ? p.summary : shortText(p.summary)}.`).join('\n')}
+
+` : ''}${full ? `In development (not for sale yet, no sign-ups; the order changes with the evidence):
 
 ${IN_DEVELOPMENT.map(([name, what]) => `- **${name}**, ${what}.`).join('\n')}` : `In development, not for sale yet: ${IN_DEVELOPMENT.map(([name]) => name).join('; ')}. Each is described in [llms-full.txt](${baseUrl}llms-full.txt).`}
 
@@ -13194,7 +13203,7 @@ ${full ? `Built for ${INDUSTRIES}. A business with a problem software could solv
   const live = LIVE_PRODUCTS.map((p) => `${p.name}, for ${p.audience}`);
   return `# ${SITE_NAME}
 
-> ${SITE_NAME} ${COMPANY_SUMMARY}. Live: ${listProse(live)}; more products are in development for construction, manufacturing and other small businesses. Free: ${formatCount(surfaces.length)} source-available tools${researchProjects ? ` and ${formatCount(researchProjects)} research projects` : ''}, MIT licensed.
+> ${SITE_NAME} ${COMPANY_SUMMARY}. Live: ${listProse(live)}${OPEN_FREE.length ? `; open on a free plan: ${listProse(OPEN_FREE.map((p) => `${p.name}, for ${p.audience}`))}` : ''}; more products are in development for construction, manufacturing and other small businesses. Free: ${formatCount(surfaces.length)} source-available tools${researchProjects ? ` and ${formatCount(researchProjects)} research projects` : ''}, MIT licensed.
 
 ${products}
 ${audienceSection ? `${audienceSection}\n` : ''}## Free tools

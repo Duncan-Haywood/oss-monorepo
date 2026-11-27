@@ -6,7 +6,10 @@
  * Honesty rules (prompts/goals.md, Guardrails): the company is one owner plus
  * AI agents; no invented team, customers, revenue or press. Only a product a
  * visitor can use and pay for today goes in LIVE_PRODUCTS, and only live
- * products are named as offers in structured data. IN_DEVELOPMENT names work
+ * products are named as offers in structured data. OPEN_FREE names hosted apps
+ * a stranger can sign up to and use on a free plan today while their paid
+ * plans are not on sale (checkout dark); they are linked, never offered as for
+ * sale. IN_DEVELOPMENT names work
  * in progress with no price, date or customer claimed; its order and evidence
  * are in portfolio/monetization/bets.md. Change these lists in the PR that
  * changes what is actually live.
@@ -28,12 +31,33 @@ export const LIVE_PRODUCTS = Object.freeze([
   }),
 ]);
 
+/**
+ * Open on a free plan (business.mjs status 'open-free'; the same URLs). Each
+ * app's deploy record is in its ventures/<slug>/DEPLOY.md.
+ */
+export const OPEN_FREE = Object.freeze([
+  Object.freeze({
+    name: 'PayApps',
+    url: 'https://payapps.marisstella.app/?signup&from=about',
+    audience: 'specialty subcontractors and small general contractors',
+    // ventures/payapps/apps/payapps/src/shared/plans.ts: Free is one active job.
+    summary:
+      'builds AIA-style G702/G703 pay applications from a schedule of values, with retainage and change orders, free on one active job with no card; lien waivers, QuickBooks and job costing are in paid plans that are not on sale yet',
+  }),
+  Object.freeze({
+    name: 'Seller Books',
+    url: 'https://seller-books.marisstella.app/signup',
+    audience: 'resellers selling on several marketplaces',
+    // ventures/seller-books/apps/seller-books/src/shared/plans.ts: Free is one platform, 25 orders a month.
+    summary:
+      'reads the sales reports eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop and Square let sellers download, tracks cost of goods and mileage, and builds profit by platform and a Schedule C worksheet (not tax advice); free for one platform and 25 orders a month, with paid plans not on sale yet',
+  }),
+]);
+
 export const IN_DEVELOPMENT = Object.freeze([
-  ['Pay applications and retainage', 'for specialty subcontractors and small general contractors: AIA-style pay apps, retainage, lien waivers and change orders, growing into a contractor suite'],
   ['RFQ-to-quote', 'for CNC and fabrication job shops: a drawing or an emailed request in, a priced quote out'],
   ['E-invoice fix-and-explain', 'for small businesses and their accountants facing the German and French e-invoicing mandates: each failed rule explained, with a corrected file'],
   ['Compliance workspace', 'for small defense and aerospace shops working toward CMMC and ISO 9001'],
-  ['Profit and books for resellers', 'for people selling across several marketplaces'],
   ['Residential takeoff', 'for remodelers, roofers and framers: quantities and material lists from plan PDFs'],
 ]);
 

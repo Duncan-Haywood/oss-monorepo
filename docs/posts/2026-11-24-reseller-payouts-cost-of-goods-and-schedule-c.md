@@ -3,8 +3,19 @@ title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
 tags: [resellers, ebay, amazon, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
-description: "Three new guides for multi-platform resellers: bridge a payout back to sales, cost a mixed lot by resale value, and map the year onto Schedule C."
+description: "Three guides for multi-platform resellers: bridge a payout back to sales, cost a mixed lot by resale value, and map the year onto Schedule C. Seller Books, the hosted books, is open on a free plan."
 ---
+
+**Update, 2026-11-27: Seller Books is open.** The hosted books this post
+describes in its later sections can be used today. Sign up at
+[seller-books.marisstella.app](https://seller-books.marisstella.app/signup)
+and the Free plan gives you one platform and up to 25 orders a month, with
+one user and no card. Paid plans for more platforms and orders are built but
+not on sale yet, so nothing is charged and no price below is final. Unlike
+the free page, Seller Books saves what you import in your account, so the
+next month starts where this one ended; you can download every record or
+delete the shop at any time. What it reads and builds is listed on the
+[online sellers page](https://marisstella.app/industries/online-sellers/).
 
 A marketplace fee calculator answers one question: what does this sale pay
 out? The ten seller tools in this repository (eBay, Etsy, Poshmark, Mercari,
@@ -98,7 +109,7 @@ of this is tax advice.
 ## Has each lot paid for itself? (added 2026-11-26)
 
 The free tool ages what is left at December 31. Seller Books, the hosted
-product in development, now has a stock report that works on any day and
+product (open on a free plan since 2026-11-27), has a stock report that works on any day and
 goes one step further, to the lot. A bin, pallet or estate-sale haul is
 bought as one price and sold as many items, so it is hard to tell whether
 it was a good buy. For each lot the report adds up the proceeds of every
@@ -199,9 +210,9 @@ stores, and a test fails if the code and the policy drift apart:
   sales it created; an owner can delete the whole shop.
 
 The Refund Policy offers a full refund within 30 days of the first paid
-payment, once paid plans open. Seller Books is still in development; the
-[online sellers page](https://marisstella.app/industries/online-sellers/)
-has early access.
+payment, once paid plans open. Seller Books is open on the Free plan
+([sign up](https://seller-books.marisstella.app/signup)); the paid plans
+are not on sale yet.
 
 ## The sale-by-sale backup behind the worksheet (added 2026-11-26)
 

@@ -10,11 +10,17 @@
 //
 // Honesty rules this file is held to (prompts/goals.md, hard limits; checked
 // by business.test.mjs):
-//   * `status: 'live'` only for a product a visitor can open and use today.
-//     On 2026-11-24 that is Grant Autopilot alone (served at /grants/ by the
-//     site Worker). Everything else is 'early-access' (software being built,
-//     the free tools beside it are live) or 'long-term' (hardware designs;
-//     nothing has been physically built).
+//   * `status: 'live'` only for a product a visitor can open, use and buy
+//     today. On 2026-11-24 that is Grant Autopilot alone (served at /grants/ by
+//     the site Worker).
+//   * `status: 'open-free'` for a hosted app a stranger can sign up to and use
+//     on its free plan today, while its paid plans are not on sale (checkout
+//     dark until the owner's Paddle account is set). Its `appUrl` is the
+//     deployed app's sign-up page; the deploy record that proves it answers
+//     is named beside it. On 2026-11-27: PayApps and Seller Books.
+//   * Everything else is 'early-access' (software being built, the free tools
+//     beside it are live) or 'long-term' (hardware designs; nothing has been
+//     physically built).
 //   * Problems are the customer's jobs in plain words. No percentages, no
 //     customer counts, no testimonials, no prices that no checkout backs.
 //
@@ -26,6 +32,8 @@
 //   product   one sentence: what the product does for them
 //   status    'live' | 'early-access' | 'long-term'
 //   href      site-relative link to the product when live, else null
+//   appName   the app's own name, when it has one a visitor signs up to
+//   appUrl    absolute sign-up URL of the deployed app, only when 'open-free'
 //   industry  an INDUSTRIES slug, or null (hardware lines)
 //   kind      'software' | 'hardware'
 //   tools     slugs of free tools on this site that do part of the job today
@@ -36,6 +44,7 @@ export const CONTACT_EMAIL = 'hello@marisstella.app';
 
 export const STATUS = Object.freeze({
   live: Object.freeze({ label: 'Live', note: 'Open it and use it today.' }),
+  'open-free': Object.freeze({ label: 'Open · free plan', note: 'Sign up and use it today on the free plan. Paid plans are not on sale yet.' }),
   'early-access': Object.freeze({ label: 'In development · early access', note: 'Being built now. The free tools beside it work today.' }),
   'long-term': Object.freeze({ label: 'Long-term · open design', note: 'An open design. Nothing has been physically built yet.' }),
 });
@@ -252,8 +261,12 @@ export const PRODUCT_LINES = Object.freeze([
       'Getting approved change orders onto the next bill',
     ],
     product: 'Pay applications, retainage, lien waivers and change orders in one place, growing into a suite for running the whole job.',
-    status: 'early-access',
+    status: 'open-free',
     href: null,
+    appName: 'PayApps',
+    // Deployed from ventures/payapps (ventures/payapps/DEPLOY.md); the same origin as
+    // ventures/pay-app-guides/cta.mjs and industry-construction.mjs.
+    appUrl: 'https://payapps.marisstella.app/?signup&from=products',
     industry: 'construction',
     kind: 'software',
     tools: ['pay-application-generator', 'retainage-cashflow-calculator', 'lien-waiver-checker', 'mechanics-lien-deadline-calculator'],
@@ -302,8 +315,12 @@ export const PRODUCT_LINES = Object.freeze([
       'Getting a Schedule C-ready profit and loss at tax time',
     ],
     product: 'Payout reports from each platform in, fees split out, a Schedule C-ready profit and loss out.',
-    status: 'early-access',
+    status: 'open-free',
     href: null,
+    appName: 'Seller Books',
+    // Deployed from ventures/seller-books (ventures/seller-books/DEPLOY.md, "First deploy";
+    // /api/health answered on the custom domain 2026-11-27).
+    appUrl: 'https://seller-books.marisstella.app/signup',
     industry: 'online-sellers',
     kind: 'software',
     tools: ['reseller-books', 'ebay-fee-calculator', 'poshmark-fee-calculator', 'ebay-payout-to-journal'],
@@ -389,7 +406,7 @@ export const PRODUCT_LINES = Object.freeze([
 
 /** Software lines first, live before early access, otherwise in file order (bets.md's ranking). */
 export function softwareLines(lines = PRODUCT_LINES) {
-  const rank = { live: 0, 'early-access': 1, 'long-term': 2 };
+  const rank = { live: 0, 'open-free': 1, 'early-access': 2, 'long-term': 3 };
   return lines.filter((l) => l.kind === 'software').map((l, i) => ({ l, i }))
     .sort((a, b) => rank[a.l.status] - rank[b.l.status] || a.i - b.i).map(({ l }) => l);
 }
@@ -401,6 +418,31 @@ export function hardwareLines(lines = PRODUCT_LINES) {
 /** The lines for one industry slug. */
 export function linesForIndustry(slug, lines = PRODUCT_LINES) {
   return lines.filter((l) => l.industry === slug);
+}
+
+/** Lines a visitor can use today: live, or open on a free plan. */
+export function usableLines(lines = PRODUCT_LINES) {
+  return lines.filter((l) => l.status === 'live' || l.status === 'open-free');
+}
+
+/** "A", "A and B", "A, B and C". */
+export function joinNames(names) {
+  return names.length <= 2 ? names.join(' and ') : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+}
+
+/**
+ * One sentence on what a visitor can use today, from the statuses alone:
+ * "Grant Autopilot is live, and PayApps and Seller Books are open on a free plan."
+ */
+export function usableSentence(lines = PRODUCT_LINES) {
+  const name = (l) => l.appName || l.name;
+  const live = lines.filter((l) => l.status === 'live').map(name);
+  const open = lines.filter((l) => l.status === 'open-free').map(name);
+  const parts = [];
+  if (live.length) parts.push(`${joinNames(live)} ${live.length === 1 ? 'is' : 'are'} live`);
+  if (open.length) parts.push(`${joinNames(open)} ${open.length === 1 ? 'is' : 'are'} open on a free plan`);
+  if (!parts.length) return 'Nothing is open yet.';
+  return `${parts.join(', and ')}.`;
 }
 
 /** A mailto link asking for early access to a line. */
