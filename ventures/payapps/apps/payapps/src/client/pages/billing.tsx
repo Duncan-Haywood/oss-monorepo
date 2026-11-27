@@ -114,7 +114,15 @@ export function BillingPage() {
           </div>
           {!b.checkoutAvailable && (
             <p className="text-sm text-slate-600">
-              Paid plans are not on sale yet. Everything on the Free plan works today.
+              Paid plans are not on sale yet.
+              {b.attachmentsAvailable
+                ? " Everything on the Free plan works today."
+                : " Everything on the Free plan works today except attached files, which are not switched on yet."}
+            </p>
+          )}
+          {b.checkoutAvailable && !b.attachmentsAvailable && (
+            <p className="text-sm text-slate-600">
+              Attached files are not switched on yet on this site; the storage below applies once they are.
             </p>
           )}
           <div className="grid gap-4 md:grid-cols-4">

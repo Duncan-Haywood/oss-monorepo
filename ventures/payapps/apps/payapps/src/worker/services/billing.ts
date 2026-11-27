@@ -27,7 +27,7 @@ import {
   WebhookSignatureError,
 } from "@billing";
 import type { BillingDto } from "@shared/api/types";
-import { COMP_PLAN, catalog, FREE_PLAN, type Plan, PUBLIC_PLANS } from "@shared/plans";
+import { COMP_PLAN, catalog, FREE_PLAN, type Plan, PUBLIC_PLANS, planFeatures } from "@shared/plans";
 import { and, count, eq, isNull, or } from "drizzle-orm";
 import type { AppContext } from "../context";
 import { billingEvents, member, pendingCheckouts, projects, subscriptions } from "../db/schema";
@@ -131,11 +131,14 @@ export async function billingSummary(ctx: AppContext, orgId: string): Promise<Bi
     usage: used,
     checkoutAvailable: ctx.billing !== null,
     portalAvailable: ctx.billing !== null && Boolean(subscription?.providerCustomerId),
-    plans: PUBLIC_PLANS.map(publicPlan),
+    attachmentsAvailable: Boolean(ctx.env.FILES),
+    plans: PUBLIC_PLANS.map((p) => publicPlan(p, Boolean(ctx.env.FILES))),
   };
 }
 
-export const publicPlan = (p: Plan) => ({
+// `attachments`: whether this deployment has the R2 bucket bound (FILES). Without it uploads answer
+// 503, so a plan's storage line says so instead of selling space nobody can use (docs/DEPLOY.md).
+export const publicPlan = (p: Plan, attachments = true) => ({
   key: p.key,
   name: p.name,
   description: p.description,
@@ -143,7 +146,7 @@ export const publicPlan = (p: Plan) => ({
   annualPriceCents: p.annualPriceCents,
   maxActiveJobs: p.maxActiveJobs,
   maxMembers: p.maxMembers,
-  features: [...p.features],
+  features: planFeatures(p, attachments),
   purchasable: p.purchasable,
 });
 

@@ -215,6 +215,6 @@ describe("existing account", () => {
 describe("health", () => {
   it("reports that tests keep mail in memory (nothing is delivered)", async () => {
     const res = await api("/api/health");
-    expect(await res.json()).toEqual({ ok: true, app: "payapps", email: false });
+    expect(await res.json()).toEqual({ ok: true, app: "payapps", email: false, files: true });
   });
 });
