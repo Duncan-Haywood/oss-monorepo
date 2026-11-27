@@ -15,7 +15,7 @@
 //
 // The planner is pure (planWebhookDestination); PaddleWebhookClient does the I/O with plain fetch.
 // The signing secret is returned to the caller and never logged here.
-import { paddleBaseUrl } from "./paddle.ts";
+import { nextPagePath, paddleBaseUrl } from "./paddle.ts";
 
 /**
  * The events PayApps reads. subscription.* drive the plan (services/billing.ts); transaction.completed
@@ -205,9 +205,7 @@ export class PaddleWebhookClient {
     for (let page = 0; next && page < 20; page++) {
       const json = await this.call("GET", next);
       out.push(...((json.data as PaddleNotificationSetting[]) ?? []));
-      const pagination = ((json.meta as Json)?.pagination ?? {}) as Json;
-      const url = pagination.has_more ? String(pagination.next ?? "") : "";
-      next = url ? url.replace(this.base, "") : null;
+      next = nextPagePath(json.meta, this.base, "/notification-settings");
     }
     return out;
   }

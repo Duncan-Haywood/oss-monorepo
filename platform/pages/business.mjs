@@ -309,6 +309,27 @@ export const PRODUCT_LINES = Object.freeze([
     tools: ['einvoice-preflight'],
   }),
   line({
+    id: 'cmmc-workspace',
+    name: 'CMMC and ISO 9001 paperwork',
+    customer: 'Small defense and aerospace machine shops',
+    problems: [
+      'Writing the System Security Plan and POA&M without a consultant',
+      'Knowing your SPRS score and which open requirements cost the most points',
+      'Keeping the yearly affirmation and its evidence current',
+      'Keeping ISO 9001 records beside the security work',
+    ],
+    product: 'CMMC Level 1 and Level 2 self-assessment and ISO 9001 records in one workspace. It does not certify anyone.',
+    status: 'open-free',
+    href: null,
+    appName: 'CMMC Workspace',
+    // Deployed from ventures/cmmc (cmmc-deploy run 46022366507, 2026-11-27; ventures/cmmc/DEPLOY.md).
+    // `/signup` opens "Create account" (apps/cmmc/src/client/lib/auth-mode.ts).
+    appUrl: 'https://cmmc.marisstella.app/signup?from=products',
+    industry: 'manufacturing',
+    kind: 'software',
+    tools: ['machine-shop-guides'],
+  }),
+  line({
     id: 'seller-books',
     name: 'Reseller profit and books',
     customer: 'Resellers on eBay, Poshmark, Mercari, Whatnot and Depop',

@@ -49,7 +49,32 @@ test("the first-pay-app path fits a phone", async ({ page }) => {
   await page.getByRole("button", { name: "New pay application" }).click();
   await page.waitForURL(/\/pay-apps\/[^/]+$/);
   await expectNoSidewaysScroll(page, "pay application");
-  for (const sub of ["cash", "billing", "team"]) {
+  // The job's own logs: the submittal log's "Transmittals ask the GC" select once pushed it to 417px.
+  const jobPath = new URL(page.url()).pathname.replace(/\/pay-apps\/[^/]+$/, "");
+  for (const sub of [
+    "submittals",
+    "daily-reports",
+    "tm-tickets",
+    "job-cost",
+    "certified-payroll",
+    "sworn-statement",
+  ]) {
+    await page.goto(`${jobPath}/${sub}`);
+    await expectNoSidewaysScroll(page, sub);
+  }
+  for (const sub of [
+    "cash",
+    "billing",
+    "team",
+    "quickbooks",
+    "insurance",
+    "documents",
+    "estimates",
+    "price-list",
+    "crews",
+    "timesheets",
+    "wip",
+  ]) {
     await page.goto(`${orgPath}/${sub}`);
     await expectNoSidewaysScroll(page, sub);
   }

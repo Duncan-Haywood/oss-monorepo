@@ -8,7 +8,7 @@
 // and new checkouts get the new amount.
 //
 // The planner is pure (planCatalogSync); PaddleCatalogClient does the I/O with plain fetch.
-import { paddleBaseUrl } from "./paddle.ts";
+import { nextPagePath, paddleBaseUrl } from "./paddle.ts";
 import { checkoutPriceKey } from "./price-keys.ts";
 import type { BillingInterval } from "./provider.ts";
 
@@ -318,9 +318,7 @@ export class PaddleCatalogClient {
     for (let page = 0; next && page < 50; page++) {
       const json = await this.call("GET", next);
       out.push(...((json.data as T[]) ?? []));
-      const pagination = ((json.meta as Json)?.pagination ?? {}) as Json;
-      const url = pagination.has_more ? String(pagination.next ?? "") : "";
-      next = url ? url.replace(this.base, "") : null;
+      next = nextPagePath(json.meta, this.base, path.split("?")[0] ?? path);
     }
     return out;
   }

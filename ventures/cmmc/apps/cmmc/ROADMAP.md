@@ -3,6 +3,14 @@
 Bet #4 in the public repository's `portfolio/monetization/bets.md`. Claim an item before building it:
 `python3 platform/ci/roadmap_claim.py cmmc` (in the public repository) lists the Next items below.
 
+Status: **live on the free Level 1 plan** (2026-11-27). First production deploy: cmmc-deploy run
+46022366507 (manual, main at bae2bd14), straight onto https://cmmc.marisstella.app; `/api/health`
+answered `{"ok":true,"app":"cmmc-workspace","billing":false,"email":true,"files":"d1"}`. AI drafts are
+off (no `CMMC_ANTHROPIC_API_KEY`, the owner's choice), Level 2 and Level 2 + Quality are dark (no
+Paddle secrets), evidence is kept in D1. The machine-shop guides, the products page and the
+manufacturing tool doors link to `/signup?from=<page>` (`src/client/lib/auth-mode.ts`, 2026-11-27).
+No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
+
 ## Done
 
 - Account email (2026-11-25): confirm the address at sign-up (sign-in refused until then), reset a
@@ -443,9 +451,8 @@ Bet #4 in the public repository's `portfolio/monetization/bets.md`. Claim an ite
 
 ## Must do before a public launch
 
-- Run `cmmc-deploy` once (by hand; [docs/DEPLOY.md](docs/DEPLOY.md); R2 no longer blocks it, and the
-  launch review is done, docs/LAUNCH-REVIEW.md, so an agent may dispatch it as Job Shop Quote's was) and, at launch, let it
-  run on every merge (`push: branches: [main]`)
+- Done 2026-11-27: `cmmc-deploy` ran by hand twice (46022366507, 46040310064; [docs/DEPLOY.md](docs/DEPLOY.md)),
+  and now runs on every merge that touches `ventures/cmmc/` (Markdown excepted; cmmc-deploy-on-merge)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on")
 - Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
   agent-approved under `docs/legal/OPERATOR.md`. No attorney review (open checks listed there)

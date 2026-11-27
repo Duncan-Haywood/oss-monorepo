@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKo6fofJqYi8k6k9k5o",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T17:18:43Z",
+  "ended": "2026-11-27T17:25:24Z",
+  "wall_minutes": 6.89,
+  "tokens_in": 2215718,
+  "tokens_out": 30148,
+  "cost_usd": 1.7725,
+  "tool_calls": 26,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19820",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the 2026-11-24 direction is consolidated posts, not one per PR, and per-story For Other Minds posts are the thin kind it asks to fold together.",
+      "did": "Shipped the story, its page, feeds, llms.txt and DONE entry only.",
+      "result": "Story lands; no new thin post."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio is over the 400 MB cap (581 MB).",
+      "did": "Text only, no MP3.",
+      "result": "Page and feeds list it as text only."
+    }
+  ],
+  "writeups": [
+    "ventures/hearth-and-horizon/stories/two-hours-a-box.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, For Other Minds shelf (drawn by creative_due.py). Story: two-hours-a-box (3,640 words incl. notes), a Dayton electrical sub's agent bills rough-in by hours/budget (97.5%) while boxes in hollow clay tile run 2.0 h vs 0.6; box count gives 75.0%, cost-to-cost 61.7%, overrun 1,860 h. First For Other Minds story on construction (retainage, pay application, schedule of values unused in overlap.mjs), near the payapps bet's subject. Proposal written, claimed with a draft PR, then moved to DONE.md by bible_done.mjs. Every number re-run in a script against the closing note; the re-read fixed three slips (Feb over-billing $31,700 -> $31,600, 'seventy-one thousand' -> 'sixty-one thousand', Feb app 'paid in March' contradicted 45-day terms). Dates checked: 25 Mar 2059 Tuesday, Easter 30 Mar 2059. Checks: node --test 22/22 pass; run_venture_tests.py hearth-and-horizon 0 failed; risk_review: nothing blocked (story page carries the shelf's existing anonymous local-only counters, no new data).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8c8657a4-00d0-5c8f-9202-86168104ab97",
+    "transcripts": 1,
+    "first": "2026-11-27T17:18:43Z",
+    "last": "2026-11-27T17:25:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 25,
+        "input": 47,
+        "output": 30148,
+        "thinking": 15337,
+        "cache_read": 2122571,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93100,
+        "api_equivalent_usd": 1.7725,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 25,
+      "input": 47,
+      "output": 30148,
+      "thinking": 15337,
+      "cache_read": 2122571,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93100,
+      "api_equivalent_usd": 1.7725,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.958,
+    "tool_calls": 26,
+    "tools": {
+      "Bash": 23,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.89,
+      "active_minutes": 6.89,
+      "model_minutes": 6.18,
+      "tool_minutes": 0.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a professional writer researching and drafting a 3,500-word technical short story with checked numbers",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 338.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

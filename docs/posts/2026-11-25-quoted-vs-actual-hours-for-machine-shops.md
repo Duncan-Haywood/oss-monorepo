@@ -50,6 +50,34 @@ The RFQ-to-quote assistant described below (in development) now answers that fro
 
 Routings are matched as they are saved today. If you change a routing's operations, older lines that used the old version stop matching it.
 
+## A lead time from your own backlog
+
+The lead time on a quote is usually a habit: "3 weeks ARO" on every quote, or the estimator's feel
+for how busy the floor is. Both go wrong the same way. When the mill is booked solid, the shop
+promises a date it can't make; when it is quiet, the quote says three weeks for a job that could
+ship in five days. The hours to get it right are already in your won quotes: each one has the setup
+and cycle time it was priced on, per machine.
+
+Job Shop Quote, the assistant described below, now adds a **shop load** page (2026-11-27). It takes
+the won jobs not yet marked shipped and puts them on your machines in due-date order, at the hours a
+day you say each machine runs, Monday to Friday. Each part's operations run in the order the quote
+lists them, so the turning has to finish before the milling starts. Each job shows the day its
+machine work would be done and is flagged if that day is after its due date. Each machine shows its
+open hours and the day it is booked until. On a draft quote, a card plans every quantity break
+behind all of those jobs and prints the day, the working days and a "weeks ARO" figure you can type
+into the quote.
+
+An invented example, worked by hand in the tests: a mill runs 8 hours a day and has two days of
+open work. A new quote for 200 parts at 4 minutes each, with a one-hour setup and 3% expected
+scrap, means 207 starts and 14.8 hours of machining, so it would come off the mill on day four,
+about a week out. At 10 parts the same quote is done on day three.
+
+It is an estimate, not a schedule, and the page says what it leaves out: holidays, work already done
+on a job that is under way (every open job counts in full until it ships), and finishing and outside
+services, which carry no time in a quote, so add their days. It doesn't guess. A machine with no hours a
+day, an operation with no cycle time, or a won quote with several quantity breaks and no quantity
+saved is listed as "can't plan" with the reason, and takes no capacity.
+
 ## Where this is going
 
 The RFQ-to-quote assistant we are building for small CNC and fabrication shops (in development, early access on the [manufacturing page](https://marisstella.app/industries/manufacturing/)) is meant to do this comparison every time a job closes. That way the next quote starts from how your shop actually runs, not from how it ran when the rates were last set. This free page is the manual version of that step.

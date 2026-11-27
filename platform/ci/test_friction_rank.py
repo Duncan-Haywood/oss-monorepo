@@ -427,3 +427,22 @@ def test_load_skips_confirmations(tmp_path):
         {"file": "a.md", "issue": "add_repo + one clone worked first time as documented; no friction"},
         {"file": "a.md", "issue": "migration numbers collide between parallel runs"}]}))
     assert [e[3] for e in fr.load(tmp_path)] == ["migration numbers collide between parallel runs"]
+
+
+def test_by_design_holds_while_later_reports_restate_it(tmp_path):
+    runs = tmp_path / "runs"
+    runs.mkdir()
+    write(runs, "r1.json", "2026-11-10", [{"file": "a.md", "issue": "the tool result names a missing helper tool"}])
+    write(runs, "r2.json", "2026-11-14", [{"file": "a.md", "issue": "the tool result names a missing helper tool again"}])
+    v = _verdicts(tmp_path, [{"file": "a.md", "match": "missing helper", "verdict": "by-design", "by": "x",
+                              "at": "2026-11-12"}])
+    c = fr.apply_verdicts(fr.rank(fr.load(runs)), fr.load_verdicts(v))[0]
+    assert c["verdict"]["by"] == "x" and c["reopened"] is None
+    # a later report the regex misses reopens it, and a fixed verdict never holds this way
+    write(runs, "r3.json", "2026-11-15", [{"file": "a.md", "issue": "the tool result names a missing tool, helper gone"}])
+    c = fr.apply_verdicts(fr.rank(fr.load(runs)), fr.load_verdicts(v))[0]
+    assert c["reports"] == 3 and c["verdict"] is None and c["reopened"]["by"] == "x"
+    f = _verdicts(tmp_path, [{"file": "a.md", "match": "tool result", "verdict": "fixed", "by": "y",
+                              "at": "2026-11-12"}])
+    c = fr.apply_verdicts(fr.rank(fr.load(runs)), fr.load_verdicts(f))[0]
+    assert c["verdict"] is None and c["reopened"]["by"] == "y"

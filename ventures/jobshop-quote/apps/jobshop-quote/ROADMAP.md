@@ -15,6 +15,15 @@ checks the pair. No customers yet.
 
 ## Done (v0.1, this core)
 
+- Marketing site served (2026-11-27, `jobshop-site-served`): `apps/jobshop-site` opened (launch switch
+  `LAUNCH` in its `src/site/config.ts`: Start free / Sign in to `https://jobshop-quote.marisstella.app`,
+  early-access list retired, AI reading and inbound email labelled "not switched on yet", paid plans
+  "not on sale yet"), renamed from the placeholder "RFQ Desk" to this app's name, and served at
+  `https://marisstella.app/jobshop/` from its committed `catalogue-export/`
+  (`platform/pages/jobshop-site.mjs`). The manufacturing industry page and the products page now list
+  Job Shop Quote as open with a Start free link. When the owner sets `JOBSHOP_ANTHROPIC_API_KEY`, flip
+  `LAUNCH.aiReading` and run `pnpm export:catalogue` there.
+
 - Shops, members, roles (owner/admin/estimator/viewer), invitation links.
 - Rate card: machines (hourly + optional setup rate, default setup, measured removal rate),
   materials ($/lb with density and scrap, or $/stock piece; minimum charge), finishing/outside
@@ -707,6 +716,34 @@ checks the pair. No customers yet.
   clears it); "Yield" is refused ("a 97% yield is 3% fallout") and "Scrap" alone is refused because
   it could be a material's kerf and drop. `src/shared/settings-import.test.ts`,
   `test/worker/default-fallout.test.ts`.
+- Shop load and lead time (2026-11-27, claim `shop-load-lead-time`; migration 0042). Why: the
+  lead time on a quote was a fixed default ("3 weeks ARO") or the estimator's memory of how busy
+  the floor is, and a shop that promises a date it cannot make loses the repeat order. A "Shop
+  load" page (any member) puts the open jobs on the machines: won quotes not marked shipped (won
+  in the last 90 days, or any with a due date saved, so an old win nobody closed does not book the
+  machines forever), quantities as the traveler takes them (saved for the job, else the break the
+  customer accepted online, else the only break). Jobs go in by due date (no date last, then the
+  earlier win); each part's operations run in the estimate's order, an operation starting when its
+  machine is free and the part's previous operation is done; the time is setup + cycle x starts
+  (fallout included) at the machine's hours a day, Monday to Friday. Each job shows the day its
+  machine work would be done and "after the due date" when it is late; each machine its open hours
+  and the day it is booked until. A draft quote's "Lead time from shop load" card plans every
+  quantity break behind all open jobs and prints the day, the working days and "N weeks ARO". It
+  never guesses: a machine with no hours a day, a blank cycle time, a machine gone from the rate
+  card or a multi-break win with no quantity saved is listed as "can't plan" with the reason and
+  takes no capacity. Holidays, work already done on a job, finishing and outside services are not
+  counted, and the page says so. A won quote's "Job" card saves the due date, the quantity ordered
+  per multi-break part and the shipped day (estimators); admins set each machine's hours a day
+  (0.5 to 24) on the shop load page. Kept in two new tables (`machine_capacity`, `quote_jobs`) so
+  the rate-card import, export and workbook are unchanged. Privacy policy 2026-11-27.2 names the
+  saved job fields and machine hours. Pure model `src/shared/shop-load.ts` (hand-worked examples in
+  `src/shared/shop-load.test.ts`), `services/quotes/shop-load.ts`, routes
+  `GET /shop-load`, `PUT /shop-load/machines/:id`, `GET /quotes/:id/lead-time`,
+  `GET|PUT /quotes/:id/job`; `test/worker/shop-load.test.ts` (booked days, lead time behind the
+  backlog, shipped jobs leaving, the saved quantity, refusals, roles and another shop). Next, if
+  shops ask: work done per operation (from the traveler's sign-offs or a barcode scan) so a job
+  under way counts only what is left, a shop holiday calendar, outside-service days per finishing
+  op, and the lead time copied into the quote's lead-time field with one click.
 
 ## Next
 

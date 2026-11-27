@@ -2383,6 +2383,13 @@ nothing to copy. No customers yet. Paid plans are dark
   `src/shared/timesheet-certified.ts`) instead of the time.csv export and import; two workweeks when
   the payroll week straddles them; other jobs' hours and missing trades named. docs/TIMESHEETS.md.
 
+- Every page fits a phone (2026-11-27, phone-width-all-pages): a sweep of all 24 signed-in routes at
+  390 px found the submittal log 417 px wide (its "Transmittals ask the GC" select sized to its longest
+  option). Selects are now capped at their container (`styles.css`), the header keeps "PayApps" and
+  "Sign out" from wrapping beside a long email, and the signed-in home page has an h1.
+  `test/e2e/03-phone-width.spec.ts` now walks the job's six logs and eleven company pages too, not
+  only the first-pay-app path.
+
 - Public jobs, part 1 (2026-11-27, every plan, public-jobs-part-1): the lien deadline panel asks who
   owns the job (a private owner, a state or local public body, the federal government). Public
   property cannot be liened, so a public job no longer shows or reminds about a lien date that does
