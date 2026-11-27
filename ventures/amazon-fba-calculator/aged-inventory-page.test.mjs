@@ -48,7 +48,7 @@ test("the page imports the comparison it claims to run", () => {
 
 test("every results column has a cell, and every cell has a column", () => {
   assert.ok(rowTemplate, "could not find the per-path <tr> template");
-  const firstTable = markup.match(/<table>[\s\S]*?<\/table>/);
+  const firstTable = markup.match(/<table(?: class="stack")?>[\s\S]*?<\/table>/);
   assert.ok(firstTable, "could not find the keep-vs-dispose table");
   const headers = [...firstTable[0].matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
     m[1].replace(/\s+/g, " ").trim());

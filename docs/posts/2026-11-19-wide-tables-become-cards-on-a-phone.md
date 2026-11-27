@@ -132,3 +132,27 @@ The rebar schedule wrote its header row into the table body, so it had nothing t
 from; it now writes a real `<thead>`. Across the 131 construction front doors the count is now
 43 swipes, down from 128 at the start of the day. Run notes:
 `docs/reports/polish-2026-11-26-results-tables-stack.md`.
+
+## Update, 2026-11-27: the online-seller tools
+
+The same probe over the 57 tools that lead to the reseller books product (Whatnot, Shopify,
+eBay, Etsy, Amazon, TikTok Shop and the other marketplace calculators and report analyzers),
+235 pages at 390 px with each tool's example worked out, found **195** blocks behind a
+sideways swipe. 62 were the results tables an analyzer writes after you load a report. On the
+Whatnot sales report analyzer, the "By show" table showed the show name, the sale count, the
+sale price and half the fees column. Profit and margin, the reason to open the tool, sat
+three swipes to the right.
+
+| Whatnot "By show" at 390 px, before | after |
+|---|---|
+| ![show, sales, sale price and part of the fees visible](../reports/img/polish-2026-11-27-whatnot-report-before.png) | ![each show as a card with all nine figures](../reports/img/polish-2026-11-27-whatnot-report-after.png) |
+
+The fix for each was the class `stack`, as before; what changed is that the script which adds
+it no longer refuses tables a calculator fills (since the 26th the page labels such rows when
+they appear). It now clicks the page's example and its Analyze button before it measures, and
+handles several tables that share one header (one per grouping: by show, by category, by
+month). It added the class to 190 tables on 101 pages. The probe after: **9** swipes left,
+none of them tables the script could match: six command-line `pre` blocks, one
+1,223 px table that a script writes whole, and two tables that run over by 9 and 109 px.
+No card is taller than the screen. Desktop is unchanged. Run notes:
+`docs/reports/polish-2026-11-27-online-seller-tables-stack.md`.
