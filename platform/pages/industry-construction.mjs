@@ -175,6 +175,7 @@ export const PROBLEMS = [
       ['pay-app-guides/how-to-write-an-rfi.html', 'How to write an RFI', 'One question, the sheet and spec section, a proposed answer and a needed-by date: draft an RFI the GC answers fast, and catch answers that should be change orders.'],
       ['pay-app-guides/certificate-of-insurance-for-subcontractors.html', 'Certificates of insurance', 'What a GC checks on your ACORD 25, the endorsement pages that prove additional insured and waiver of subrogation, and renewals that don’t stall a pay app.'],
       ['pay-app-guides/pay-application-software-compared.html', 'Pay application software compared', 'Spreadsheet, QuickBooks, Knowify, PayAppHub, Trimble Pay and Siteline, and what GC portals charge the sub.'],
+      ['pay-app-guides/coconstruct-alternatives.html', 'CoConstruct closing: your options', 'No new CoConstruct projects after 31 March 2027: where each kind of builder or sub can go, and how to move a half-billed job.'],
     ],
   },
   {

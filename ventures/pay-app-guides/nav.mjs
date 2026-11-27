@@ -34,6 +34,7 @@ export const GROUPS = [
     ["retainage-tracker.html", "Retainage tracker (every job)"],
     ["gc-portal-billing.html", "Billing in Procore, Textura and GCPay"],
     ["pay-application-software-compared.html", "Pay app software compared"],
+    ["coconstruct-alternatives.html", "CoConstruct closing: your options"],
   ]],
   ["Getting paid and lien waivers", [
     ["prompt-payment-laws.html", "Prompt payment laws by state"],
