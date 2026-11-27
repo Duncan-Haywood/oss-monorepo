@@ -68,6 +68,11 @@ export interface ChangeOrderInput {
   status: "pending" | "approved" | "rejected";
   /** ISO date (YYYY-MM-DD) of approval; counts in every pay app whose periodTo is on/after it. */
   approvedOn: string | null;
+  /**
+   * Set when it was approved on or before the end of an application already submitted: the day
+   * after that period, from which it counts instead of `approvedOn`.
+   */
+  countsFrom?: string | null;
   items: { sovLineId: string; amountCents: number }[];
 }
 
@@ -199,8 +204,15 @@ export interface ComputedApplication {
   warnings: Warning[];
 }
 
-const isApprovedBy = (co: ChangeOrderInput, date: string | null): boolean =>
-  co.status === "approved" && co.approvedOn !== null && (date === null || co.approvedOn <= date);
+/** The date an approved change order starts counting: `countsFrom` when set, else `approvedOn`. */
+export const changeOrderCountsFrom = (
+  co: Pick<ChangeOrderInput, "approvedOn" | "countsFrom">,
+): string | null => co.countsFrom ?? co.approvedOn;
+
+const isApprovedBy = (co: ChangeOrderInput, date: string | null): boolean => {
+  const from = changeOrderCountsFrom(co);
+  return co.status === "approved" && from !== null && (date === null || from <= date);
+};
 
 /** Scheduled value adjustment per SOV line from change orders approved on/before `date`. */
 export function changeOrderAdjustments(
@@ -444,6 +456,8 @@ export interface UncountedChange {
   number: string;
   status: "pending" | "approved" | "rejected";
   approvedOn: string | null;
+  /** The date it counts from (`countsFrom`, else `approvedOn`). */
+  countsFrom: string | null;
   /** What it adds to this line (positive; deductions never explain billing over the value). */
   amountCents: number;
 }
@@ -469,6 +483,7 @@ export function uncountedChangesOnLine(
       number: co.number,
       status: co.status,
       approvedOn: co.approvedOn,
+      countsFrom: changeOrderCountsFrom(co),
       amountCents: amount,
     });
   }
@@ -522,8 +537,17 @@ function overbilledWarning(
   if (late.length > 0) {
     parts.push(
       `${late.length === 1 ? "change order" : "change orders"} ${listText(
-        late.map((c) => `${c.number} (${fmtUsd(c.amountCents)}, approved ${c.approvedOn})`),
-      )} ${late.length === 1 ? "was" : "were"} approved after this period ends (${period.periodTo})`,
+        late.map(
+          (c) =>
+            `${c.number} (${fmtUsd(c.amountCents)}, approved ${c.approvedOn}${
+              c.countsFrom !== c.approvedOn ? `, counted from ${c.countsFrom}` : ""
+            })`,
+        ),
+      )} ${
+        late.some((c) => c.countsFrom !== c.approvedOn)
+          ? `${late.length === 1 ? "counts" : "count"} only from after`
+          : `${late.length === 1 ? "was" : "were"} approved after`
+      } this period ends (${period.periodTo})`,
     );
   }
   const waitingTotal = waiting.reduce((s, c) => s + c.amountCents, 0);
