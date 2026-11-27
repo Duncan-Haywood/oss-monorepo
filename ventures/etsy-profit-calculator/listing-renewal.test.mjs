@@ -55,10 +55,14 @@ test('FAQ copy uses the same leftover the calculator defaults produce', async ()
   const five = calculateListingRenewal({ ...renewalInput, expectedSales: 5 });
   assert.ok(page.includes(money(two.contributionExListing)), `missing contribution ${money(two.contributionExListing)}`);
   assert.ok(page.includes(money(two.periodProfitAfterListing)), `missing two-sale leftover ${money(two.periodProfitAfterListing)}`);
-  assert.ok(page.includes(money(two.listingPerSale)), `missing two-sale allocation ${money(two.listingPerSale)}`);
+  assert.ok(page.includes(money(two.listingFeesInPeriod)), `missing two-sale listing fees ${money(two.listingFeesInPeriod)}`);
   assert.ok(page.includes(money(zero.periodProfitAfterListing)), `missing unpaid leftover ${money(zero.periodProfitAfterListing)}`);
   assert.ok(page.includes(money(zero.annualListingCost)), `missing annual ${money(zero.annualListingCost)}`);
-  assert.ok(page.includes(money(five.listingPerSale)), `missing five-sale allocation ${money(five.listingPerSale)}`);
+  assert.ok(page.includes(money(five.listingPerSale)), `missing five-sale listing cost ${money(five.listingPerSale)}`);
+  // The 2026-11-26 audit: Etsy auto-renews a listing on each sale, so no copy
+  // may say the fee is charged "not once per sale" or that per-order overstates it.
+  assert.doesNotMatch(page, /not once per sale/);
+  assert.doesNotMatch(page, /overstates listing cost/);
   assert.ok(page.includes('does not turn auto-renew on or off'));
   assert.equal(listingRenewalNote(two).includes(money(two.periodProfitAfterListing)), true);
 });

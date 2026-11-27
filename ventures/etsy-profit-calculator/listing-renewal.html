@@ -4,12 +4,12 @@
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e761b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Does Etsy auto-renew still pay if this listing is slow?</title>
-  <meta name="description" content="Etsy charges the $0.20 listing fee when a listing publishes or auto-renews, not once per sale. See leftover after the fee across the sales you actually expect, including zero.">
+  <meta name="description" content="Etsy auto-renews a listing for $0.20 on each sale and every four months it sits unsold. See leftover after listing fees across the sales you actually expect, including zero.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="listing-renewal.html">
   <meta property="og:title" content="Does Etsy auto-renew still pay if this listing is slow?">
-  <meta property="og:description" content="Allocate the listing fee across the sales you expect in one renewal window, including a listing that sells nothing.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Etsy auto-renew still pay if a listing is slow?","acceptedAnswer":{"@type":"Answer","text":"On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, $1 other cost, a $0.20 listing fee, and a 4-month renewal window — contribution before the listing fee is $20.43. Two sales leave $40.65 after the listing fee ($0.10 per sale). One sale recovers the fee. Charging $0.20 on every order overstates listing cost by $0.20 across those two sales."}},{"@type":"Question","name":"What does auto-renew cost if nothing sells?","acceptedAnswer":{"@type":"Answer","text":"Zero sales still leave −$0.20 after the listing fee. Treating the listing fee as a per-order cost hides that $0.20 until an order is calculated. At a 4-month window the listing still costs $0.60 a year."}},{"@type":"Question","name":"Does the order calculator already include the listing fee?","acceptedAnswer":{"@type":"Answer","text":"Yes, once per order. That is right for a listing that sells once and wrong for one that sells five times ($0.04 listing cost per sale) or zero times. This page keeps the same fee stack, then allocates the listing fee across the sales you type in. It does not turn auto-renew on or off."}}]}</script>
+  <meta property="og:description" content="Listing fees across the sales you expect in one renewal window: $0.20 per sale, plus the renewal a window with no sale still pays.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Etsy auto-renew still pay if a listing is slow?","acceptedAnswer":{"@type":"Answer","text":"On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, $1 other cost, a $0.20 listing fee, and a 4-month renewal window — contribution before the listing fee is $20.43. Two sales pay $0.40 in listing fees (each sale auto-renews the listing for $0.20) and leave $40.45. Each sale covers its own renewal. A slow listing only costs extra in a window with no sale."}},{"@type":"Question","name":"What does auto-renew cost if nothing sells?","acceptedAnswer":{"@type":"Answer","text":"Zero sales still leave −$0.20 after the listing fee. Treating the listing fee as a per-order cost hides that $0.20 until an order is calculated. At a 4-month window the listing still costs $0.60 a year."}},{"@type":"Question","name":"Does the order calculator already include the listing fee?","acceptedAnswer":{"@type":"Answer","text":"Yes, once per order. That is right whenever the listing sells at least once per renewal window, because each sale auto-renews it for $0.20 ($0.20 listing cost per sale at five sales too). It misses the renewal a window with no sale pays. This page keeps the same fee stack, then counts the listing fees for the sales you type in. It does not turn auto-renew on or off."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -32,7 +32,7 @@
   <header>
     <p><a href="./">← Etsy order profit</a></p>
     <h1>Does auto-renew still pay if this listing is slow?</h1>
-    <p>Etsy charges the listing fee when a listing publishes or auto-renews — not once per sale. The <a href="./">order calculator</a> subtracts that fee from every order. This page allocates it across the sales you actually expect in one renewal window, including zero. It does not turn auto-renew on or off.</p>
+    <p>Etsy charges $0.20 when a listing publishes, again each time a sale auto-renews it (or you renew a sold-out listing to sell again), and again when four months pass with no sale. So every sale carries its own listing fee, and the <a href="./">order calculator</a>'s one fee per order is right for a listing that sells. What it misses is the slow window: this page counts listing fees across the sales you actually expect in one renewal window, including zero. It does not turn auto-renew on or off. Source: Etsy Help Center, &ldquo;Fees and Listing Multiple Quantities&rdquo; and &ldquo;How to Renew or Hide Your Listings&rdquo;.</p>
   </header>
   <main class="layout">
     <section>
@@ -58,16 +58,17 @@
       <div id="label">estimated leftover after the listing fee</div>
       <p id="insight" class="alert" hidden></p>
       <dl>
+        <dt>Listing fees in this window</dt><dd id="feesInWindow"></dd>
         <dt>Listing cost per sale</dt><dd id="perSale"></dd>
         <dt>Contribution before listing</dt><dd id="contribution"></dd>
         <dt>If every order pays the full listing fee</dt><dd id="perOrder"></dd>
-        <dt>Sales that recover this listing fee</dt><dd id="recover"></dd>
+        <dt>Does each sale cover its renewal?</dt><dd id="recover"></dd>
         <dt>Annual listing cost at this window</dt><dd id="annual"></dd>
       </dl>
       <hr>
       <h2>Sales in one renewal window</h2>
       <table>
-        <thead><tr><th>Sales</th><th>Listing / sale</th><th>Leftover after listing</th><th>If listing is per order</th></tr></thead>
+        <thead><tr><th>Sales</th><th>Listing / sale</th><th>Leftover after listing</th><th>Listing fees</th></tr></thead>
         <tbody id="scenarios"></tbody>
       </table>
       <p id="renewalNote" class="note"></p>
@@ -78,11 +79,11 @@
   </main>
   <h2>Common questions</h2>
   <h3>Does Etsy auto-renew still pay if a listing is slow?</h3>
-  <p>On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, $1 other cost, a $0.20 listing fee, and a 4-month renewal window — contribution before the listing fee is $20.43. Two sales leave $40.65 after the listing fee ($0.10 per sale). One sale recovers the fee. Charging $0.20 on every order overstates listing cost by $0.20 across those two sales.</p>
+  <p>On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, $1 other cost, a $0.20 listing fee, and a 4-month renewal window — contribution before the listing fee is $20.43. Two sales pay $0.40 in listing fees (each sale auto-renews the listing for $0.20) and leave $40.45. Each sale covers its own renewal. A slow listing only costs extra in a window with no sale.</p>
   <h3>What does auto-renew cost if nothing sells?</h3>
   <p>Zero sales still leave −$0.20 after the listing fee. Treating the listing fee as a per-order cost hides that $0.20 until an order is calculated. At a 4-month window the listing still costs $0.60 a year.</p>
   <h3>Does the order calculator already include the listing fee?</h3>
-  <p>Yes, once per order. That is right for a listing that sells once and wrong for one that sells five times ($0.04 listing cost per sale) or zero times. This page keeps the same fee stack, then allocates the listing fee across the sales you type in. It does not turn auto-renew on or off.</p>
+  <p>Yes, once per order. That is right whenever the listing sells at least once per renewal window, because each sale auto-renews it for $0.20 ($0.20 listing cost per sale at five sales too). It misses the renewal a window with no sale pays. This page keeps the same fee stack, then counts the listing fees for the sales you type in. It does not turn auto-renew on or off.</p>
 
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
@@ -140,17 +141,18 @@
         document.getElementById('perSale').textContent = result.listingPerSale === null ? 'no sales to allocate' : money(result.listingPerSale);
         document.getElementById('contribution').textContent = money(result.contributionExListing);
         document.getElementById('perOrder').textContent = money(result.profitIfChargedEveryOrder);
+        document.getElementById('feesInWindow').textContent = money(result.listingFeesInPeriod);
         document.getElementById('recover').textContent = result.salesToRecover === null
-          ? 'this order does not recover the listing fee'
-          : `${result.salesToRecover} sale${result.salesToRecover === 1 ? '' : 's'}`;
+          ? 'no: this order earns less than its renewal fee'
+          : 'yes';
         document.getElementById('annual').textContent = money(result.annualListingCost);
         document.getElementById('renewalNote').textContent = listingRenewalNote(result);
         if (result.unpaidRenewal) {
           insight.hidden = false;
           insight.textContent = `Auto-renew still charges ${money(result.listingFee)} even if nothing sells. Treating the listing fee as a per-order cost hides that ${money(result.listingFee)} until an order is calculated.`;
-        } else if (result.overstatedInPeriod > 0) {
+        } else if (result.missedByPerOrder > 0) {
           insight.hidden = false;
-          insight.textContent = `Charging the full listing fee on every order overstates listing cost by ${money(result.overstatedInPeriod)} across ${result.expectedSales} sales in this window.`;
+          insight.textContent = `Charging one listing fee per order misses ${money(result.missedByPerOrder)} of renewals in months without a sale.`;
         } else {
           insight.hidden = true;
           insight.textContent = '';
@@ -161,7 +163,7 @@
             String(row.sales),
             row.listingPerSale === null ? '—' : money(row.listingPerSale),
             money(row.periodProfitAfterListing),
-            money(row.periodProfitIfListingPerOrder),
+            money(row.listingFees),
           ]) {
             tr.insertCell().textContent = text;
           }

@@ -255,19 +255,23 @@ walks through the same examples.
 
 ## Does auto-renew still cover a slow listing?
 
-Etsy charges the listing fee when a listing publishes or auto-renews,
-not once per sale. The order calculator subtracts that fee from every
-order, which overstates cost on a listing that sells more than once
-and hides the fee on a listing that sells nothing.
+Etsy charges the $0.20 listing fee when a listing publishes, again each
+time a sale auto-renews it (a multi-quantity listing with stock left; a
+sold-out quantity-1 listing is renewed to sell again), and again when four
+months pass with no sale (Etsy Help Center, "Fees and Listing Multiple
+Quantities" and "How to Renew or Hide Your Listings", read 2026-11-27).
+So every sale carries its own listing fee, and the order calculator's one
+fee per order is right for a listing that sells at least once per window.
+What it misses is the window with no sale.
 
 Open [listing-renewal.html](listing-renewal.html) and type the sales
 you actually expect in one renewal window. On the default $30 listing
 with $1 other cost, contribution before the listing fee is $20.43.
-Two sales in four months leave $40.65 after the $0.20 fee ($0.10 per
-sale). One sale recovers the fee. Zero sales still cost $0.20 — $0.60
-a year at a four-month window. Charging $0.20 on every order
-overstates listing cost by $0.20 across those two sales, or $0.80
-across five. The page does not turn auto-renew on or off.
+Two sales in four months pay $0.40 in listing fees and leave $40.45.
+Zero sales still cost $0.20, or $0.60 a year at a four-month window.
+Half a sale per window (one sale every eight months) pays a sale renewal
+and an expiry renewal per sale, $0.40 a sale. The page does not turn
+auto-renew on or off.
 
 ## What price keeps a leftover I name?
 
@@ -304,11 +308,9 @@ The page ends with a short section for sellers on more than one marketplace. It 
 From the quality audit of 2026-11-26
 ([`portfolio/quality/audits/2026-11-26-etsy-profit-calculator.json`](../../portfolio/quality/audits/2026-11-26-etsy-profit-calculator.json)):
 
-- **The listing-renewal page understates listing cost for multi-quantity
-  listings.** Etsy auto-renews a listing with stock left for $0.20 each time
-  it sells, so per-sale is the real cost there; the page's "not once per
-  sale" framing only fits a quantity-1 listing renewing on its four-month
-  timer.
+- Fixed on 2026-11-27: the listing-renewal page now charges $0.20 per sale
+  (each sale auto-renews the listing) plus expiry renewals across gaps longer
+  than the window, instead of splitting one fee across every sale.
 - Payment processing is computed without sales tax (Etsy charges it on the
   tax too), and there is no sales-tax field.
 - Not modelled: $0.20 per extra unit in one order, the regulatory operating
