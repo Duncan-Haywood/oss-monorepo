@@ -3,7 +3,13 @@
 // contract sum. Only the confirmed lines go to the bulk SOV endpoint.
 import type { ProjectDetailDto, ProjectDto } from "@shared/api/types";
 import { formatCents } from "@shared/money";
-import { findSov, importSovFile, parseCsv, type SovImportResult } from "@shared/sov-import";
+import {
+  findSov,
+  type ImportedSovLine,
+  importSovFile,
+  parseCsv,
+  type SovImportResult,
+} from "@shared/sov-import";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, orgPath, projectPath } from "../lib/api";
@@ -78,9 +84,8 @@ export function SovImport({
     enabled: open && source === "copy",
   });
   const others = (jobs.data?.items ?? []).filter((x) => x.id !== project.id);
-  // Each mutation takes what it acts on as its argument, never from a closure: useMutation hands
-  // new options to its observer in an effect, so a click right after a state change would run the
-  // previous render's mutationFn (a deploy run's unit test hit exactly that, "Nothing to import").
+  // Like save below: the job and the amounts toggle are passed to mutate(), not read from this
+  // render's closure, so a submit right after changing either uses the new values.
   const copy = useMutation({
     mutationFn: async ({ jobId, amounts }: { jobId: string; amounts: boolean }) =>
       copyFromJob(await api<ProjectDetailDto>(projectPath(orgId, jobId)), amounts),
@@ -91,13 +96,17 @@ export function SovImport({
   // While a scan with no text is read by OCR: the page it is on, of how many.
   const [ocrPage, setOcrPage] = useState<[number, number] | null>(null);
 
+  // The lines are passed to mutate() rather than read from `result` here: useMutation takes
+  // new options in an effect, so a click landing between the render that shows the preview
+  // and that effect would otherwise run the previous render's mutationFn, see no result and
+  // fail with "Nothing to import" (seen in the deploy's tests, run 45950799211).
   const save = useMutation({
-    mutationFn: (preview: SovImportResult | null) => {
-      if (!preview?.ok) throw new Error("Nothing to import");
+    mutationFn: (lines: ImportedSovLine[]) => {
+      if (lines.length === 0) throw new Error("Nothing to import");
       return api<ProjectDetailDto>(bulkPath, {
         method: "POST",
         body: {
-          lines: preview.lines.map(({ itemNumber, description, originalCents }) => ({
+          lines: lines.map(({ itemNumber, description, originalCents }) => ({
             itemNumber,
             description,
             originalCents,
@@ -366,7 +375,7 @@ export function SovImport({
             type="button"
             className="btn"
             disabled={save.isPending}
-            onClick={() => save.mutate(result)}
+            onClick={() => save.mutate(result.lines)}
           >
             Add {result.lines.length} line{result.lines.length === 1 ? "" : "s"} to the schedule
           </button>

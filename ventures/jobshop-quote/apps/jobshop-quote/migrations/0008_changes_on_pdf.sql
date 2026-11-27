@@ -1,0 +1,1 @@
+ALTER TABLE `quotes` ADD `show_changes_on_pdf` integer DEFAULT false NOT NULL;

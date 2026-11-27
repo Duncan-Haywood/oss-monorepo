@@ -18,10 +18,11 @@ This file says what the move to this repository changes (task `move-seller-books
    (private-monorepo's Actions start no jobs). A port is a `priv-seller-books-deploy.yml` here, in its
    own PR through the control-plane tier of `adversarial-gate`, after an allowlist PR for its secrets
    (the pattern PayApps follows: PR #19610).
-2. **The legal pages.** They are drafts until the owner confirms the operator name and contact email
-   and counsel reviews them ([apps/seller-books/docs/BILLING.md](apps/seller-books/docs/BILLING.md),
-   "Turning it on"). PayApps has a recorded launch review; Seller Books does not, so a first deploy
-   should keep sign-ups closed until it has one.
+2. **The legal pages: done 2026-11-27.** The launch review `docs/legal/OPERATOR.md` asks for is
+   [apps/seller-books/docs/LAUNCH-REVIEW.md](apps/seller-books/docs/LAUNCH-REVIEW.md) (private-monorepo PR 486):
+   margins 49-62% at twice the order allowance, and the four pages read against the schema, routes and
+   email sends, with the gaps fixed (policy version `2026-11-27.2`). So the first deploy may open
+   sign-ups, as PayApps' does; paid plans stay dark until the Paddle account is verified.
 3. **The browser suite.** The private CI's Playwright job (`scripts/e2e-run.sh`) is not ported: it
    installs Chromium with `--with-deps` on each run. Run it locally (`pnpm test:e2e`) after touching
    the client.

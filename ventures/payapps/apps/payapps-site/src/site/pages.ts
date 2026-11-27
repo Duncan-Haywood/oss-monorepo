@@ -141,7 +141,7 @@ function home(ctx: SiteContext): BuiltPage {
       <li><strong>Set up a job once.</strong> Import the schedule of values from your own spreadsheet or the PDF bid breakdown, with the contract sum, retainage rate and pay terms. Already billing the job? Start from your last application.</li>
       <li><strong>Update progress each month.</strong> Work this period and stored materials per line; the continuation-sheet math, retainage and "less previous certificates" are calculated for you.</li>
       <li><strong>Send it with its backup.</strong> The application and continuation sheet as PDF and CSV for the GC's portal or email, the waiver it needs, and the backup attached.</li>
-      <li><strong>Get paid and keep the books straight.</strong> Record each check, see what is past due across every job, send the invoice and payment to QuickBooks Online, and bill the retainage when the work is done.</li>
+      <li><strong>Get paid and keep the books straight.</strong> Record each check, see what is past due across every job, send the invoice and payment to QuickBooks Online, and bill the retainage when the work is done, with the punch items and close-out documents it still waits on named job by job.</li>
     </ol>
     <p>All four steps work in the app today and are being tested before it opens to the public. The <a href="${href(ctx, PAGES.features.path)}">features page</a> marks what is built and what comes next.</p>
   </div>
@@ -285,7 +285,8 @@ export const FEATURES: readonly Feature[] = [
     bullets: [
       "Prints the state's statutory form where we have checked the text against the statute: Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah and Wyoming, plus Missouri's residential final waiver and Massachusetts' partial waiver and subordination of lien (its pay-app lines filled from the application); a general form in states with no statutory form",
       "Once a payment arrives, a reminder for the unconditional waiver you now owe, for the amount actually paid",
-      "Preliminary notices from the job page where the statute sets the wording or contents: California (private works) and Wyoming so far, prefilled from the job",
+      "Preliminary notices from the job page where the statute sets the wording or contents: California (private works), Florida's Notice to Owner and Wyoming so far, prefilled from the job",
+      "Florida: the § 713.06 Notice to Owner word for word, with the 45-day last day to serve it and the 40-day last day to mail it so service counts on mailing (§ 713.18), from the day you first furnished work",
       "California: record each preliminary notice you give, see the 20-day deadline from the day you first furnished work, get a reminder until the owner and GC have one, print the § 8118 proof of notice declaration, and keep the mailing receipt and return receipt with each notice",
       "We don't tell you which waiver to sign or what it means for your rights: that is a question for your attorney",
     ],

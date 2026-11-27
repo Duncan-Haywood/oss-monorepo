@@ -108,6 +108,13 @@ For `src/shared/pdf/crypt.test.ts` and the packet test in `pdf-merge.test.ts`. E
   item found by iinf and iloc, as an iPhone stores it) and the WebP's by Pillow's libwebp writer (a RIFF "EXIF" chunk).
   Regenerate with `pip install pillow pillow-heif; python3 pdf-sources/exif-photo-heic-webp.py .`. Used by
   `src/shared/photo-exif.test.ts` and `test/unit/packet-photo.test.ts`.
+- `heic-grid-libheif.heic`, `heic-grid-rot-libheif.heic`, `heic-grid-transpose-libheif.heic` and
+  `heic-single-libheif.heic`: a 600 x 400 colour ramp with one block per tile, encoded by libheif 1.23's x265 encoder
+  through pillow-heif 1.9: as a 3 x 2 grid of 256 x 256 HEVC tiles cropped to 600 x 400 (as an iPhone stores 512 x 512
+  tiles), the same with EXIF orientation 6 (an `irot`) and 5 (`irot` then `imir`), and as one image item. Regenerate
+  with `pip install pillow pillow-heif; python3 pdf-sources/heic-grid.py .`. Used by `src/shared/heif.test.ts` and
+  `test/unit/heic-webcodecs.test.ts`. `pdf-sources/heic-webcodecs-check.cjs` checks the WebCodecs path end to end in
+  Chromium against libheif's decode of every `.heic` here (needs ffmpeg, pillow-heif and numpy; see its header).
 
 ## Submittal stamp fixture
 

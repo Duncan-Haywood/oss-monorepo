@@ -1,7 +1,7 @@
 // Preliminary notices of the right to a lien for a job (Crew plan and up, with lien waivers). A
 // sub or supplier sends one to the property's record owner early in the job where a state's statute
 // prescribes it. Wording comes only from packages/lien-waivers (California's §§ 8102 and 8202 for
-// private works and Wyoming's § 29-10-101(a) today);
+// private works, Florida's Notice to Owner, § 713.06(2)(c), and Wyoming's § 29-10-101(a) today);
 // a state with no encoded notice gets none. Printing saves nothing: the notice is filled from the
 // job and the org, checked by the package, and returned as a PDF. For California the company can
 // also record each notice it gave (who, how, when, where) and enter the day it first furnished work:
@@ -126,6 +126,10 @@ export async function noticeOverview(
   prefill.hiredBy = p.gcName;
   prefill.siteDescription = [p.name, p.location].filter(Boolean).join(", ");
   prefill.claimant = claimant;
+  // Florida's Notice to Owner (§ 713.06(2)(c)): the lienor's name, and the contractor as the first
+  // copy (§ 713.06(2)(a) requires it from a sub-subcontractor or a supplier to a subcontractor).
+  prefill.lienorName = claimant;
+  if (prefill.directContractor) prefill.copiesTo = prefill.directContractor;
   prefill.estimate = formatCents(
     p.originalContractSumCents + (await approvedChangeCents(ctx, orgId, projectId)),
   );
