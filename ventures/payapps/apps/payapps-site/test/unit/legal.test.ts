@@ -49,7 +49,7 @@ describe("legal pages", () => {
   });
 
   it("carry each document's sections and its contact line", () => {
-    const terms = site.get("terms.html") ?? "";
+    const terms = String(site.get("terms.html") ?? "");
     expect(terms).toContain("<h2>1. Who we are</h2>");
     expect(terms).toContain("<h2>14. Governing law</h2>");
     expect(terms).toContain("<strong>State of Colorado</strong>");

@@ -212,6 +212,7 @@ describe("syncWebhookDestination", () => {
     );
     assert.equal(r.action.kind, "update");
     assert.equal(f.items[0]?.active, true);
+    assert.equal(r.active, true);
     assert.equal(r.secret, SECRET);
   });
 
@@ -230,6 +231,61 @@ describe("syncWebhookDestination", () => {
       /403 forbidden \(give the key notification_setting\.write\)/,
     );
     assert.ok(!String(err?.message).includes("pdl_sdbx_apikey_test"));
+  });
+
+  it("plan only reports the destination's current active state, not the wanted one", async () => {
+    const f = fakePaddle([setting({ active: false })]);
+    const r = await syncWebhookDestination(
+      client(f),
+      { app: "payapps", appUrl: APP_URL, active: true },
+      { apply: false },
+    );
+    assert.equal(r.action.kind, "update");
+    assert.equal(r.active, false);
+    assert.equal(f.items[0]?.active, false);
+    assert.ok(f.calls.every((c) => c.startsWith("GET")));
+  });
+
+  it("follows Paddle's next page but stops after 20 pages", async () => {
+    const base = "https://sandbox-api.paddle.com";
+    const calls: string[] = [];
+    const fetchFn = (async (input: string | URL | Request) => {
+      const url = new URL(String(input));
+      calls.push(`${url.pathname}${url.search}`);
+      return Response.json({
+        data: [setting({ id: `ntfset_p${calls.length}` })],
+        meta: {
+          pagination: {
+            has_more: true,
+            next: `${base}/notification-settings?after=ntfset_p${calls.length}`,
+          },
+        },
+      });
+    }) as typeof fetch;
+    const all = await new PaddleWebhookClient("pdl_sdbx_apikey_test", {
+      fetch: fetchFn,
+      baseUrl: base,
+    }).list();
+    assert.equal(calls.length, 20);
+    assert.equal(all.length, 20);
+    assert.equal(calls[1], "/notification-settings?after=ntfset_p1");
+  });
+
+  it("never follows a next page on another host with the API key", async () => {
+    const base = "https://sandbox-api.paddle.com";
+    const seen: string[] = [];
+    const fetchFn = (async (input: string | URL | Request) => {
+      seen.push(String(input));
+      return Response.json({
+        data: [setting()],
+        meta: {
+          pagination: { has_more: true, next: "https://evil.example/notification-settings" },
+        },
+      });
+    }) as typeof fetch;
+    const c = new PaddleWebhookClient("pdl_sdbx_apikey_test", { fetch: fetchFn, baseUrl: base });
+    await assert.rejects(c.list(), /next page outside/);
+    assert.deepEqual(seen, [`${base}/notification-settings`]);
   });
 
   it("reads the destination by id when the list leaves the secret out", async () => {

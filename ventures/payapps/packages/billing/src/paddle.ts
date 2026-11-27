@@ -92,6 +92,24 @@ export function paddleSubscriptionPrice(
   };
 }
 
+/**
+ * The path of Paddle's next list page (`meta.pagination.next`), or null when there is none. A next
+ * URL outside `base` throws: following it would send the bearer key to another host (red team,
+ * 2026-11-27: `url.replace(base, "")` left a foreign URL whole and fetched `${base}${url}`).
+ */
+export function nextPagePath(meta: unknown, base: string, what: string): string | null {
+  const pagination = ((meta as Record<string, unknown> | undefined)?.pagination ?? {}) as Record<
+    string,
+    unknown
+  >;
+  const url = pagination.has_more ? String(pagination.next ?? "") : "";
+  if (!url) return null;
+  if (!url.startsWith(`${base}/`)) {
+    throw new Error(`Paddle GET ${what}: next page outside the API base`);
+  }
+  return url.slice(base.length);
+}
+
 export function paddleBaseUrl(apiKey: string): string {
   return apiKey.startsWith("pdl_sdbx_")
     ? "https://sandbox-api.paddle.com"
