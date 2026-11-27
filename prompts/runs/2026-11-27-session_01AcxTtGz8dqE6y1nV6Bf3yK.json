@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtGz8dqE6y1nV6Bf3yK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T04:06:26Z",
+  "ended": "2026-11-27T04:18:09Z",
+  "wall_minutes": 12.46,
+  "tokens_in": 10814932,
+  "tokens_out": 27690,
+  "cost_usd": 3.9824,
+  "tool_calls": 88,
+  "task": "grants paid path: adopt stranded private PR #25 (plan changes, seat limits, match preview, checkout return, GO-LIVE)",
+  "projects": [
+    "grants"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/469",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "git stash during an unfinished merge dropped MERGE_HEAD; content survived, landed as a squash commit instead of a merge",
+    "wrote two scratch files to /tmp instead of the scratchpad (deleted after use)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "says ToolSearch does not find register_repo_root and to skip it; add_repo's result still tells the session to call it. Skipped as the doc says; no harm, but the two disagree."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets listed no free item on any bet and pointed at einvoice's dashboard topic; it does not see stranded open PRs on the bets (private #25 had the grants paid path built and tested for 3 days). Listing open stale PRs per bet app would have found the work in one step."
+    },
+    {
+      "file": "apps/grants/docs/GO-LIVE.md (private, on the stranded branch)",
+      "issue": "pre-dated the products-as-code catalog sync and the 2026-11-24 repricing; adopting a stale PR needs its docs re-read against main, not only its code conflicts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md (Write about the work)",
+      "why": "no customer post: the change is billing plumbing behind a dark checkout, nothing a grant seeker can use yet; an agent doc records it instead",
+      "did": "docs/reports/ventures-2026-11-27-grants-paid-path-adopted.md",
+      "result": "next grants run has the state and the pre-existing test failure"
+    },
+    {
+      "file": "portfolio/monetization/bets.md (take the top bet)",
+      "why": "bets #1-#6 had no free ungated item and their cross-bet tasks (PayApps move, inboxes) were live in other sessions' PRs updated minutes earlier; took bet #7, the only live one, whose paid path was built but stranded",
+      "did": "adopted and landed private PR #25 as #469",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-27-grants-paid-path-adopted.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; ideas inbox empty. Private CI starved (runner_id 0; payapps-deploy run 45921558751 also never got a runner). Verified locally in apps/grants: typecheck clean, biome clean on 23 TS files, build ok (22/22 prerendered), test:worker 624/624, test:unit 1659 passed + 1 failure in pages.smoke.test.tsx that also fails on origin/main with the change stashed (pre-existing). Closed private #25 as superseded by #469. Record PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/19604.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "03c1f2da-bb11-5f30-ae5c-fc6d7711d901",
+    "transcripts": 1,
+    "first": "2026-11-27T04:06:26Z",
+    "last": "2026-11-27T04:18:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 162,
+        "output": 27690,
+        "thinking": 5590,
+        "cache_read": 10652593,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162177,
+        "api_equivalent_usd": 3.9824,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 162,
+      "output": 27690,
+      "thinking": 5590,
+      "cache_read": 10652593,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162177,
+      "api_equivalent_usd": 3.9824,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 73,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 2,
+      "mcp__github__actions_list": 2,
+      "mcp__github__list_pull_requests": 2,
+      "mcp__github__update_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__merge_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.46,
+      "active_minutes": 12.46,
+      "model_minutes": 5.54,
+      "tool_minutes": 6.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "rebase a 1.6k-line billing PR over 440 commits, resolve 5 conflicts, rewrite go-live doc, run suites",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 125.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

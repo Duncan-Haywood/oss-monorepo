@@ -28,6 +28,16 @@ def meta(text: str, pattern: str) -> str:
     return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", m.group(1)))).strip() if m else ""
 
 
+def licence_words(d: Path) -> tuple[str, str]:
+    """(footer clause, source line) for the venture's own LICENSE: FSL-1.1-MIT for
+    the free tools, all rights reserved for the paid products (relicense_arr.py)."""
+    lic = d / "LICENSE"
+    text = lic.read_text(errors="replace")[:2000] if lic.exists() else ""
+    if "All rights reserved." in text and "grants no licence" in text:
+        return "source visible (all rights reserved)", "all rights reserved"
+    return "source available (FSL-1.1-MIT)", "FSL-1.1-MIT licensed"
+
+
 def build(d: Path) -> str | None:
     # platform/pages/build.mjs (ENTRY_CANDIDATES) serves site/index.html too
     pages = d if (d / "index.html").exists() else d / "site"
@@ -40,12 +50,13 @@ def build(d: Path) -> str | None:
     if not title or not desc:
         return None
     slug = d.name
+    clause, source = licence_words(d)
     out = [
         f"# {title}",
         "",
         f"> {desc}",
         "",
-        "Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, "
+        f"Free to use and {clause}. Results are estimates from the numbers typed in, "
         "not legal, tax, financial or professional advice.",
         "",
         "## Pages",
@@ -58,7 +69,7 @@ def build(d: Path) -> str | None:
         pt = meta(p.read_text(errors="replace"), r"<h1[^>]*>(.*?)</h1>")
         if pt:
             out.append(f"- [{pt}]({SITE}/{slug}/{p.name})")
-    out += ["", "## Source", "", f"- [Source code and README]({SRC}/{slug}): FSL-1.1-MIT licensed.", ""]
+    out += ["", "## Source", "", f"- [Source code and README]({SRC}/{slug}): {source}.", ""]
     return "\n".join(out)
 
 

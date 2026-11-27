@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyeM6ZUdoVpd2SdsdMk",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T03:39:01Z",
+  "ended": "2026-11-27T03:50:26Z",
+  "wall_minutes": 11.56,
+  "tokens_in": 7063189,
+  "tokens_out": 24200,
+  "cost_usd": 2.6324,
+  "tool_calls": 78,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19592",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Site page tests: stack-labels.test.mjs pinned the list of stack variants (compact|fields); adding prose failed it once, fixed in the same PR."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish_next.py",
+      "issue": "Printed the online-seller note as newest by commit, but polish-2026-11-27-fee-compare-stack.md (PR #19587) had landed after the clone's origin/main; a fresh fetch first would have shown item 2 already taken. About 10 minutes redone and dropped."
+    },
+    {
+      "file": "docs/reports/polish-2026-11-27-fee-compare-stack.md",
+      "issue": "Guessed stack-overflowing.mjs missed the table because the example is prefilled; the script's own output says the header text did not match (a script-rewritten th span). Corrected in the new note."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports/polish-2026-11-27-fee-compare-stack.md",
+      "why": "Its item 1 (stack fields on four online-seller SKU tables) measured as already readable: 241 px cards, eight read-only figures and one input; fields' grid suits rows of inputs.",
+      "did": "Left them as they are and recorded the reasoning.",
+      "result": "No change; the next run need not revisit."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-wide-tables-become-cards-on-a-phone.md (dated update)",
+    "docs/reports/polish-2026-11-27-stack-prose.md"
+  ],
+  "goal": null,
+  "notes": "Phone probe (einvoice-preflight + marketplace-fee-compare, 338 pages, 390x844): 2 failures -> 1; tall rows 6 -> 1, worst 1,779 -> 1,118 px. run_venture_tests.py --changed: 9 suites, 0 failed. node --test platform/pages/*.test.mjs: 2153/2154 before the stack-labels regex fix; stack-labels + stack-table rerun 18/18 after.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bded7b66-aaf7-5d69-949a-90aa84e9f985",
+    "transcripts": 1,
+    "first": "2026-11-27T03:39:01Z",
+    "last": "2026-11-27T03:50:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 146,
+        "output": 24200,
+        "thinking": 4484,
+        "cache_read": 6968783,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94260,
+        "api_equivalent_usd": 2.6324,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 146,
+      "output": 24200,
+      "thinking": 4484,
+      "cache_read": 6968783,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94260,
+      "api_equivalent_usd": 2.6324,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 70,
+      "Read": 4,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.56,
+      "active_minutes": 11.56,
+      "model_minutes": 4.23,
+      "tool_minutes": 7.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "measure two pages before/after, CSS variant + test, generator change, one bug fix, note and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 114.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

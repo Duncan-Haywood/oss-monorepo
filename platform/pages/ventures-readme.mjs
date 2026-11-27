@@ -38,8 +38,9 @@ export function renderVenturesReadme({ groups, others = [], baseUrl = DEFAULT_BA
   out.push('');
   out.push(`Every tool in this folder (${total} when this list was last generated), grouped the way the live site`);
   out.push('groups them. Each line links to the **free web version**, which needs no account and, for all but the');
-  out.push('self-hosted apps, runs entirely in your browser, and to its **source code** here, FSL-1.1-MIT licensed, so you');
-  out.push('can run, fork or self-host your own copy.');
+  out.push('self-hosted apps, runs entirely in your browser, and to its **source code** here. The free tools are FSL-1.1-MIT');
+  out.push('licensed, so you can run, fork or self-host your own copy; the paid products are source visible with all rights');
+  out.push('reserved (their own `LICENSE` says which).');
   out.push('');
   out.push(`**Search and use them all at [${baseUrl}](${baseUrl}).**`);
   out.push('Looking for your trade or kind of business? The [repository front page](../README.md) links a page of');
@@ -71,7 +72,8 @@ export function renderVenturesReadme({ groups, others = [], baseUrl = DEFAULT_BA
   out.push('## How a tool folder is laid out');
   out.push('');
   out.push('Each `ventures/<name>/` is self-contained: an `index.html` that is the tool itself (open it in a browser,');
-  out.push('no build step), its own `README.md` and tests, a `VENTURE.yaml` the portfolio reads, and an FSL-1.1-MIT `LICENSE`.');
+  out.push('no build step), its own `README.md` and tests, a `VENTURE.yaml` the portfolio reads, and a `LICENSE`');
+  out.push('(FSL-1.1-MIT for a free tool, an all-rights-reserved notice for a paid product).');
   out.push('Some also ship a command-line version or a server you can deploy. How to build one:');
   out.push('[`PRODUCT_PLAYBOOK.md`](../PRODUCT_PLAYBOOK.md).');
   out.push('');

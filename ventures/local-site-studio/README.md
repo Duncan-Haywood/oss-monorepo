@@ -48,4 +48,4 @@ Next.js 16 · TypeScript · Tailwind v4 · Vercel · Stripe
 
 ## License
 
-FSL-1.1-MIT — see [`LICENSE`](LICENSE).
+All rights reserved — see [`LICENSE`](LICENSE).

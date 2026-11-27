@@ -1,6 +1,6 @@
 # Wall Framing Takeoff
 
-> Free, source available (FSL-1.1-MIT) wall framing takeoff for US stick-built houses: type the walls, doors and windows and get the stud layout (16, 19.2 or 24 inches on center), every king, jack, header, rough sill and cripple, plate splices that land on studs, a cut list, the cheapest mix of board lengths to buy (with a lower bound that shows how close the order is), and optionally sheathing panels, shop-panel splits and a floor frame and a gable roof (rafters, ridge, roof sheathing, shingle and felt quantities). Runs in the browser with nothing uploaded, as a zero-dependency Node CLI, and as an engine an agent can call.
+> Free, source visible (all rights reserved) wall framing takeoff for US stick-built houses: type the walls, doors and windows and get the stud layout (16, 19.2 or 24 inches on center), every king, jack, header, rough sill and cripple, plate splices that land on studs, a cut list, the cheapest mix of board lengths to buy (with a lower bound that shows how close the order is), and optionally sheathing panels, shop-panel splits and a floor frame and a gable roof (rafters, ridge, roof sheathing, shingle and felt quantities). Runs in the browser with nothing uploaded, as a zero-dependency Node CLI, and as an engine an agent can call.
 
 This is the free edition (frozen 2026-11-24): it stays free and working, with fixes and page polish only. A paid edition for remodelers, roofers and framers is in development, not for sale yet: early access at https://marisstella.app/industries/construction/.
 

@@ -2,6 +2,10 @@ output "log_bucket" {
   value = aws_s3_bucket.logs.id
 }
 
+output "config_bucket" {
+  value = aws_s3_bucket.config.id
+}
+
 output "log_kms_key_arn" {
   value = aws_kms_key.logs.arn
 }

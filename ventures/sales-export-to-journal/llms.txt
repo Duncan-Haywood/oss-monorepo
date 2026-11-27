@@ -2,7 +2,7 @@
 
 > Free sales export to journal converter for Airbnb, Amazon, eBay, Etsy, Gumroad, DistroKid, YouTube AdSense, Amazon KDP, PayPal, Shopify, Square and Stripe: drop the CSV, the page detects the platform, proves the rows add up to the payout, and downloads month-split journals for Xero or QuickBooks.
 
-Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source visible (all rights reserved). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sales-export-to-journal): FSL-1.1-MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sales-export-to-journal): all rights reserved.

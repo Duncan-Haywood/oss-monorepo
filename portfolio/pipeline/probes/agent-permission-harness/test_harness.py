@@ -18,6 +18,7 @@ Standard library only; no network.
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import tempfile
 import textwrap
@@ -1159,6 +1160,53 @@ class TestResultsCurrencyNormalisation(unittest.TestCase):
         # The gate itself, run against the real checkout: the same assertion CI
         # makes, so a stale committed file fails locally too.
         self.assertEqual(check_results_current.main(), 0)
+
+
+class TestSparseCheckout(unittest.TestCase):
+    """CI checks the repository out sparse; the closure must not shrink.
+
+    agent-permission-harness-ci.yml keeps only Markdown, `.github/` and this
+    probe on disk (2026-11-27), because the full checkout was two thirds of
+    the job. Every other tracked file is still in the repository, and the
+    closure counts files, so `_file_index` and the explicit-path and R1
+    existence checks read git's index for what the sparse checkout left out.
+    """
+
+    def git(self, root: Path, *args: str) -> None:
+        subprocess.run(
+            ["git", "-C", str(root), "-c", "user.email=t@example.invalid", "-c", "user.name=t", *args],
+            check=True, capture_output=True,
+        )
+
+    def test_off_disk_tracked_files_still_count(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td).resolve()
+            build_repo(root, {}, {
+                "CLAUDE.md": "Read `tools/run.py` and `ventures/<name>/package.json`.",
+                "tools/run.py": "print(1)",
+                "ventures/a/package.json": "{}",
+            })
+            self.git(root, "init", "-q")
+            self.git(root, "add", "-A")
+            self.git(root, "commit", "-q", "-m", "x")
+            full = instruction_closure(root, ["CLAUDE.md"])
+            self.assertEqual(harness._file_index(root), sorted(harness._file_index(root)))
+            self.git(root, "sparse-checkout", "set", "--no-cone", "*.md", "/.github/")
+            self.assertFalse((root / "tools" / "run.py").exists())
+            harness._sparse_tracked.cache_clear()
+            try:
+                self.assertEqual(instruction_closure(root, ["CLAUDE.md"]), full)
+                self.assertIn("tools/run.py", harness._file_index(root))
+                self.assertTrue(harness._tracked_in_sparse(root, "tools/run.py"))
+                self.assertFalse(harness._tracked_in_sparse(root, "tools/missing.py"))
+            finally:
+                harness._sparse_tracked.cache_clear()
+            self.assertEqual(set(full), {"tools/run.py", "ventures/a/package.json"})
+
+    def test_full_checkout_reads_the_disk_only(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = build_repo(Path(td).resolve(), {}, {"CLAUDE.md": "x"})
+            self.assertEqual(harness._sparse_tracked(root), frozenset())
 
 
 if __name__ == "__main__":

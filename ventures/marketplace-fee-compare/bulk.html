@@ -24,6 +24,7 @@
     .scroll { overflow-x:auto; }
     th,td { text-align:right; padding:.5rem; border-bottom:1px solid var(--border); white-space:nowrap; }
     th:first-child,td:first-child { text-align:left; white-space:normal; }
+    @media (max-width:600px) { table.stack th, table.stack td { white-space:normal; } }
     th { font-size:.82rem; color:var(--muted); }
     .fine { font-size:.87rem; color:var(--muted); }
     .errors { color:var(--bad); white-space:pre-line; font-size:.9rem; }
@@ -58,7 +59,7 @@
       <h2>Result</h2>
       <p id="verdict"></p>
       <div class="scroll">
-        <table>
+        <table class="stack">
           <thead><tr><th scope="col">Item</th><th scope="col">Best channel</th><th scope="col">Best nets</th><th scope="col">On your channel</th><th scope="col">Gain / sale</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>

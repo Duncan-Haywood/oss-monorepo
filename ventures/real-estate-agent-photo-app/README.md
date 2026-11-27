@@ -231,4 +231,4 @@ The static export is generated in `research/out/`.
 
 ## License
 
-FSL-1.1-MIT — see `LICENSE`. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and does not change what the preflight check does.
+All rights reserved — see `LICENSE`. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and does not change what the preflight check does.

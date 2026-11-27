@@ -115,7 +115,10 @@ MIT_TEXT = re.compile(r"Permission is hereby granted, free of charge", re.IGNORE
 # relicense_fsl.py). Its MIT future grant also matches MIT_TEXT, so a file is
 # told apart by this heading.
 FSL_TEXT = re.compile(r"^# Functional Source License, Version 1\.1, MIT Future License", re.MULTILINE)
-OWNER_SPDX = {"MIT", "FSL-1.1-MIT"}
+# The owner's notice for the paid products since 2026-11-26 (portfolio/
+# monetization/relicense_arr.py): all rights reserved, no licence granted.
+ARR_TEXT = re.compile(r"All rights reserved\.[\s\S]*Publishing it\s+grants no licence\.")
+OWNER_SPDX = {"MIT", "FSL-1.1-MIT", "LicenseRef-AllRightsReserved"}
 
 STRONG = re.compile(r"\b(?:A?GPL|SSPL|BUSL)|-NC\b|NonCommercial", re.IGNORECASE)
 WEAK = re.compile(r"\b(?:LGPL|MPL|EUPL|EPL|CDDL)", re.IGNORECASE)
@@ -176,10 +179,11 @@ def scan_file(rel: str, text: str, owners: list[str]) -> list[Signal]:
         holders = [clean_holder(m.group(2)) for m in COPYRIGHT.finditer(text[:6000])]
         holders = [h for h in holders if h]
         fsl = bool(FSL_TEXT.search(text))
-        mit = fsl or bool(MIT_TEXT.search(text))
+        arr = not fsl and bool(ARR_TEXT.search(text))
+        mit = fsl or arr or bool(MIT_TEXT.search(text))
         if not (mit and holders and all(holder_is_owner(h, owners) for h in holders)):
             who = ", ".join(holders) if holders else "no copyright line"
-            kind = "FSL-1.1-MIT" if fsl else "MIT" if mit else "not MIT"
+            kind = "FSL-1.1-MIT" if fsl else "all rights reserved" if arr else "MIT" if mit else "not MIT"
             signals.append(Signal(rel, "licence file", f"{kind}; {who}"))
         return signals
 

@@ -1,8 +1,8 @@
 ---
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
-updated: 2026-11-26
-tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, pay-app-guides, for-customers]
+updated: 2026-11-27
+tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, insurance-certificates, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and the product we are building. In development."
 ---
 
@@ -361,6 +361,14 @@ application lists the same gaps as of its own date, so they are fixed
 before it goes out. The build checks what was typed from the
 certificate, not the policy itself. The insurance broker still confirms
 the coverage. (Added 2026-11-26; still in development.)
+
+A free guide covers the same ground for anyone without the product: the
+[ACORD 25 box by box, the endorsement page that proves each request, and
+why a certificate gets sent back](https://marisstella.app/pay-app-guides/certificate-of-insurance-for-subcontractors.html).
+The short version: the certificate says it confers no rights on its
+holder, so a ticked "additional insured" box needs the endorsement behind
+it (often ISO CG 20 10 for ongoing work and CG 20 37 for completed work).
+(Added 2026-11-27.)
 
 Typing those requirements in from a ten-page exhibit is its own chore, so
 the form can now read them from the exhibit itself: the PDF (a scan is

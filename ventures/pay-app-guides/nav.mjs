@@ -19,6 +19,7 @@ export const GROUPS = [
     ["schedule-of-values-template.html", "Free Excel SOV template"],
     ["front-loading-schedule-of-values.html", "Front-loading check (balanced SOV)"],
     ["pay-if-paid-clauses.html", "Pay-if-paid clause reader"],
+    ["how-to-write-an-rfi.html", "RFI drafter and how to write an RFI"],
   ]],
   ["Billing guides", [
     ["how-to-fill-out-a-pay-application.html", "How to fill out a pay application"],
@@ -43,6 +44,7 @@ export const GROUPS = [
     ["joint-checks.html", "Joint check splitter and split letter"],
     ["miller-act-payment-bond-claims.html", "Miller Act bond claim deadlines (federal jobs)"],
     ["pay-app-cash-forecast.html", "When will I get paid? Cash forecast"],
+    ["certificate-of-insurance-for-subcontractors.html", "Certificates of insurance (COI)"],
   ]],
 ];
 
