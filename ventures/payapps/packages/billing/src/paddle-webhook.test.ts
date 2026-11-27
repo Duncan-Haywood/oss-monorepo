@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  describeSecretField,
   isEndpointSecret,
   type PaddleNotificationSetting,
   PaddleWebhookClient,
@@ -122,7 +123,10 @@ describe("planWebhookDestination", () => {
 });
 
 /** In-memory Paddle notification settings. */
-function fakePaddle(seed: PaddleNotificationSetting[] = [], opts: { forbidWrite?: boolean } = {}) {
+function fakePaddle(
+  seed: PaddleNotificationSetting[] = [],
+  opts: { forbidWrite?: boolean; secretById?: string } = {},
+) {
   const items = [...seed];
   const calls: string[] = [];
   const fetchFn = (async (input: string | URL | Request, init?: RequestInit) => {
@@ -147,6 +151,13 @@ function fakePaddle(seed: PaddleNotificationSetting[] = [], opts: { forbidWrite?
       return Response.json({ data: s }, { status: 201 });
     }
     const m = url.pathname.match(/^\/notification-settings\/(.+)$/);
+    if (method === "GET" && m) {
+      const s = items.find((x) => x.id === m[1]);
+      if (!s) return Response.json({ error: { code: "not_found" } }, { status: 404 });
+      return Response.json({
+        data: { ...s, endpoint_secret_key: opts.secretById ?? s.endpoint_secret_key },
+      });
+    }
     if (method === "PATCH" && m) {
       const i = items.findIndex((s) => s.id === m[1]);
       if (i < 0) return Response.json({ error: { code: "not_found" } }, { status: 404 });
@@ -221,6 +232,36 @@ describe("syncWebhookDestination", () => {
     assert.ok(!String(err?.message).includes("pdl_sdbx_apikey_test"));
   });
 
+  it("reads the destination by id when the list leaves the secret out", async () => {
+    const f = fakePaddle([setting({ endpoint_secret_key: undefined })], { secretById: SECRET });
+    const r = await syncWebhookDestination(
+      client(f),
+      { app: "payapps", appUrl: APP_URL, active: false },
+      { apply: true },
+    );
+    assert.equal(r.secret, SECRET);
+    assert.deepEqual(f.calls, [
+      "GET /notification-settings",
+      "GET /notification-settings/ntfset_1",
+    ]);
+  });
+
+  it("accepts a secret whose body has characters beyond letters, digits and underscores", () => {
+    assert.equal(isEndpointSecret("pdl_ntfset_01jabc_Ab-c+d/e=f0123456789"), true);
+    assert.equal(isEndpointSecret("pdl_ntfset_x"), false);
+    assert.equal(isEndpointSecret("pdl_ntfset_01jabc_with space_0123456789"), false);
+    assert.equal(isEndpointSecret("pdl_live_apikey_0123456789abcdef"), false);
+  });
+
+  it("says what the secret field held without printing it", () => {
+    assert.equal(describeSecretField(undefined), "field absent");
+    assert.equal(
+      describeSecretField(SECRET),
+      `a string of ${SECRET.length} characters, prefix pdl_ntfset_`,
+    );
+    assert.ok(!describeSecretField(SECRET).includes(SECRET.slice(11)));
+  });
+
   it("refuses a destination that comes back without a notification secret", async () => {
     const f = fakePaddle([setting({ endpoint_secret_key: undefined })]);
     await assert.rejects(
@@ -229,7 +270,7 @@ describe("syncWebhookDestination", () => {
         { app: "payapps", appUrl: APP_URL, active: false },
         { apply: true },
       ),
-      /without a notification secret/,
+      /without a usable notification secret \(write\/list response: field absent; GET by id: field absent\)/,
     );
   });
 });

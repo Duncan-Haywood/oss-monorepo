@@ -26,13 +26,14 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": 0,
   "review_findings": null,
   "tests_added": 12,
   "outcome": "success",
   "errors": [
-    "first draft of webhookUrl accepted https://127.0.0.1 (the new test caught it); node:assert types in packages/billing lack assert.fail and the 3-arg throws, fixed in the test"
+    "first draft of webhookUrl accepted https://127.0.0.1 (the new test caught it); node:assert types in packages/billing lack assert.fail and the 3-arg throws, fixed in the test",
+    "first live deploy (run 46027839041) created the Paddle destination but refused its secret (format check too strict or field absent); fixed forward in a part-2 PR"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -64,7 +65,7 @@
     "ventures/payapps/apps/payapps/docs/BILLING.md (step 4 rewritten)"
   ],
   "goal": "$10k MRR: removes the last dashboard step (webhook destination + secret) between the owner's live Paddle key and PayApps checkout; the switch PAYAPPS_BILLING_PROVIDER=paddle is now the only step left",
-  "notes": "Verification: packages/billing node --test 98/98 (12 new); pnpm typecheck all workspace packages clean; biome ci . clean (27 pre-existing warnings); adversarial gate analyze: tier control-plane, 0 blocking, 0 warnings; risk_review.py: nothing blocked; secret-merge snippet simulated with a fake file; run_workflow_locally --for-changes: ci-policy 2/2, control-plane-guard 2/2, secrets-inventory 3/3, doc-refs 3/3, conflict-markers 2/2, workflow-self-audit 2/2, agent-permission-harness 5/5, pages 6/6, ventures-tests 5/5, portfolio-validate 103/103 (codeql gate UNRUN locally, needs an artifact). PR CI green on every completed check incl. payapps CI, risk-review, security-scan, adversarial-rules. Unknown until the first deploy after merge: whether PADDLE_API_KEY has notification_setting.read/write; the step warns and names the permission if not. Next: same for seller-books-deploy.",
+  "notes": "Verification: packages/billing node --test 98/98 (12 new); pnpm typecheck all workspace packages clean; biome ci . clean (27 pre-existing warnings); adversarial gate analyze: tier control-plane, 0 blocking, 0 warnings; risk_review.py: nothing blocked; secret-merge snippet simulated with a fake file; run_workflow_locally --for-changes: ci-policy 2/2, control-plane-guard 2/2, secrets-inventory 3/3, doc-refs 3/3, conflict-markers 2/2, workflow-self-audit 2/2, agent-permission-harness 5/5, pages 6/6, ventures-tests 5/5, portfolio-validate 103/103 (codeql gate UNRUN locally, needs an artifact). PR CI green on every completed check incl. payapps CI, risk-review, security-scan, adversarial-rules. Unknown until the first deploy after merge: whether PADDLE_API_KEY has notification_setting.read/write; the step warns and names the permission if not. Next: same for seller-books-deploy. After merge (PR #19776): payapps-deploy 46027839041 created destination ntfset_01m8evambp5mrdq1z9w7wsgack (inactive) but the secret check failed (state=failed, deploy green, checkout still dark); part 2 relaxes the check and reads the destination by id.",
   "corrections": [],
   "redteam": null,
   "usage": {
