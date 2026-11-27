@@ -16,7 +16,7 @@ import official from "../../cmmc/src/shared/controls/official-text.json" with { 
 export const MAX_SCORE = 110;
 export const CONDITIONAL_MIN_SCORE = 88;
 export const SSP_ID = "3.12.4";
-/** 32 CFR 170.21(a)(2)(iv): never allowed on a POA&M. */
+/** 32 CFR 170.21(a)(2)(iii): never allowed on a POA&M. */
 export const POAM_EXCLUDED = ["3.1.20", "3.1.22", "3.12.4", "3.10.3", "3.10.4", "3.10.5"];
 
 export const FAMILIES = [
@@ -102,7 +102,7 @@ export function deduction(nistId, { notMet, partial }) {
 /** May this open requirement be on a POA&M for a Conditional Level 2 (Self) status? */
 export function poamEligible(nistId, input) {
   if (POAM_EXCLUDED.includes(nistId))
-    return { eligible: false, reason: "never allowed on a POA&M (32 CFR 170.21(a)(2)(iv))" };
+    return { eligible: false, reason: "never allowed on a POA&M (32 CFR 170.21(a)(2)(iii))" };
   const points = deduction(nistId, input);
   if (points <= 1) return { eligible: true, reason: "1-point requirement" };
   if (nistId === "3.13.11" && input.partial.has(nistId))

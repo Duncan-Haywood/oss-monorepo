@@ -197,14 +197,16 @@
       "what": "A requirement's status is stored and scored independently of its 800-171A objective results: Implemented with an objective marked Not met scores full points, though 32 CFR 170.24(b)(1) makes a requirement MET only when all applicable objectives are satisfied. The SPRS figure the affirming official enters can be overstated with no warning.",
       "where": "private-monorepo/apps/cmmc/src/worker/services/controls/index.ts:104",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19893"
     },
     {
       "severity": "medium",
       "what": "POA&M eligibility is untested for a 3-point requirement other than 3.13.11 and for a score of exactly 88: mutants 'weight === 1 -> weight <= 3' and '< 88 -> <= 88' survive both the unit and worker suites, so a regression that lets 3.1.5 or 3.8.8 onto a Conditional-status POA&M, or rejects 88, would ship green.",
       "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:183",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19893"
     },
     {
       "severity": "medium",
@@ -218,14 +220,16 @@
       "what": "POA&M reason strings cite 32 CFR 170.21(a)(2)(iv) for the excluded six and (a)(2)(iii) for the 1-point rule; eCFR numbers them (a)(2)(iii) and (a)(2)(ii).",
       "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:178",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19893"
     },
     {
       "severity": "low",
       "what": "conditionalReadiness().allMet is untested (hard-wiring it true survives the unit suite).",
       "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:229",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19893"
     },
     {
       "severity": "low",
@@ -249,6 +253,6 @@
       "origin": "maintenance"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19893"],
   "verdict": "Misses the bar on verification (correctness 3, claims 3, verification 2, median 3); finished (completeness 3). The scoring engine is right: point values agree 110/110 with an independent DoD Methodology table and with 32 CFR 170.24's lists read from eCFR today, all 110 requirement statements match NIST's spreadsheet and all 320 objectives the 800-171A PDF, and seven scoring scenarios (partial credits for 3.5.3 and 3.13.11, no SSP -> no score, -203 floor, the 88 threshold both sides, the excluded six, 180-day closeout) match hand arithmetic. The free Level 1 page is accurate to FAR 52.204-21 and 170.15, and no surface claims certification; the no-CUI rule is enforced on upload. Tests pass (258 unit, 81 worker) but 3 of 9 seeded mutants survive, two of them in the Conditional-status POA&M gate. The worst domain gap is that a requirement's status is not tied to its objectives, so Implemented with a Not-met objective scores full points; enduring exceptions and operational plans of action are not modelled, and the app is not deployed."
 }

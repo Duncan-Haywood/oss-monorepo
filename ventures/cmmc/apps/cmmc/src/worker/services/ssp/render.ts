@@ -19,6 +19,7 @@ import {
   type FamilyCode,
   LEVEL2_BASELINE,
   LIBRARY_VERIFICATION,
+  type ObjectiveConflict,
   PARTIAL_CREDIT_RULES,
   SOURCES,
   scoreLevel1,
@@ -50,6 +51,8 @@ export interface SspRecord {
   controlId: string;
   status: ControlState["status"];
   partialCredit: ControlState["partialCredit"];
+  /** Objective results; a "not_met" one makes the requirement NOT MET in the summary. */
+  objectiveResults?: ControlState["objectiveResults"];
   statement: string;
   draftStatement: string | null;
   ownerName: string | null;
@@ -167,7 +170,10 @@ export function renderSsp(input: SspInput): string {
   const { profile: p, level } = input;
   const byId = new Map(input.records.map((r) => [r.controlId, r]));
   const states = new Map<string, ControlState>(
-    input.records.map((r) => [r.controlId, { status: r.status, partialCredit: r.partialCredit }]),
+    input.records.map((r) => [
+      r.controlId,
+      { status: r.status, partialCredit: r.partialCredit, objectiveResults: r.objectiveResults },
+    ]),
   );
   const controls = CONTROLS[level];
   const shares = level === 2 ? sharesByControl(input.providers ?? []) : new Map();
@@ -235,11 +241,13 @@ export function renderSsp(input: SspInput): string {
     out.push(
       `- Implemented: ${s.counts.implemented} · Not applicable: ${s.counts.not_applicable} · Partially implemented: ${s.counts.partially_implemented} · Not implemented: ${s.counts.not_implemented} · Not yet assessed: ${s.counts.not_assessed}`,
     );
+    out.push(...conflictLines(s.objectiveConflicts));
   } else {
     const s = scoreLevel1(states);
     out.push(
       `- Requirements met: ${s.met} of ${s.total}${s.allMet ? "" : " (Level 1 requires all 15; no POA&M is allowed)"}`,
     );
+    out.push(...conflictLines(s.objectiveConflicts));
   }
   if (drafts > 0)
     out.push(
@@ -402,4 +410,16 @@ function renderProviders(out: string[], providers: SspProvider[]) {
     for (const p of notes) out.push(`- ${tableCell(p.name)}: ${tableCell(p.notes)}`);
   }
   out.push("");
+}
+
+/**
+ * A requirement recorded as implemented (or not applicable) with an objective recorded "not_met" is
+ * NOT MET under 32 CFR 170.24(b)(2) and is scored that way; say so in the summary.
+ */
+function conflictLines(conflicts: readonly ObjectiveConflict[]): string[] {
+  if (conflicts.length === 0) return [];
+  const list = conflicts.map((c) => `${c.id} (${c.objectives.join(", ")})`).join("; ");
+  return [
+    `- ${conflicts.length} requirement(s) are recorded as implemented or not applicable but have an assessment objective recorded as not met, and are scored as not met: ${list}. Correct the status or re-assess the objective before relying on this summary.`,
+  ];
 }

@@ -26,7 +26,7 @@ const preview: PoamImportPreview = {
       fields: [],
       scheduledCompletion: "2026-12-31",
       eligible: false,
-      eligibilityReason: "32 CFR 170.21(a)(2)(iv) excludes this requirement from POA&Ms",
+      eligibilityReason: "32 CFR 170.21(a)(2)(iii) excludes this requirement from POA&Ms",
     },
     {
       line: 3,
