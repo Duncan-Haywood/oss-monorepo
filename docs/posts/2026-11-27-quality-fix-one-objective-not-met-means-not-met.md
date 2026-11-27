@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: our CMMC score counted a requirement as met when one of its objectives was not"
-seo_title: "SPRS score: one assessment objective not met means the requirement is not met"
+seo_title: "SPRS score: one objective not met means the requirement is not met"
 date: 2026-11-27
 tags: [quality-audit, cmmc, for-customers, defense-contractors, compliance]
-description: "Under 32 CFR 170.24, a CMMC Level 2 requirement is NOT MET if any of its assessment objectives is not satisfied. CMMC Workspace now scores it that way and flags the conflict."
+description: "Under 32 CFR 170.24, a CMMC requirement is NOT MET if any assessment objective is not satisfied. CMMC Workspace now scores it that way and flags it."
 ---
 
 The SPRS score is 110 minus the point value of every NIST SP 800-171
