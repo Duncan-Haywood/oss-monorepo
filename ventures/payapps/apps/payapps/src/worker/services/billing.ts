@@ -28,6 +28,7 @@ import {
 } from "@billing";
 import type { BillingDto } from "@shared/api/types";
 import {
+  type AttachmentStore,
   COMP_PLAN,
   catalog,
   FREE_PLAN,
@@ -40,6 +41,7 @@ import type { AppContext } from "../context";
 import { billingEvents, member, pendingCheckouts, projects, subscriptions } from "../db/schema";
 import { AppError, badRequest, paymentRequired } from "../lib/errors";
 import { newId } from "../lib/ids";
+import { fileStoreKind } from "../ports/file-store";
 import type { Tenant } from "../types";
 import { notifyOwnerNewPaid } from "./owner-notify";
 
@@ -139,13 +141,20 @@ export async function billingSummary(ctx: AppContext, orgId: string): Promise<Bi
     checkoutAvailable: ctx.billing !== null,
     portalAvailable: ctx.billing !== null && Boolean(subscription?.providerCustomerId),
     attachmentsAvailable: Boolean(ctx.env.FILES),
-    plans: PUBLIC_PLANS.map((p) => publicPlan(p, Boolean(ctx.env.FILES))),
+    plans: PUBLIC_PLANS.map((p) => publicPlan(p, attachmentStore(ctx.env))),
   };
 }
 
-// `attachments`: whether this deployment has the R2 bucket bound (FILES). Without it uploads answer
-// 503, so a plan's storage line says so instead of selling space nobody can use (docs/DEPLOY.md).
-export const publicPlan = (p: Plan, attachments = true) => ({
+/**
+ * Where this deployment keeps files, for the plan lists: "r2", "d1" while the bucket is not bound
+ * (ports/file-store.ts; each company gets D1_ORG_LIMIT_BYTES), or false with no store at all.
+ */
+export const attachmentStore = (env: AppContext["env"]): AttachmentStore =>
+  env.FILES ? fileStoreKind(env) : false;
+
+// `attachments`: where this deployment keeps files (attachmentStore). A plan's storage line says what
+// the deployment can honour instead of selling space nobody can use (docs/DEPLOY.md).
+export const publicPlan = (p: Plan, attachments: AttachmentStore = true) => ({
   key: p.key,
   name: p.name,
   description: p.description,
