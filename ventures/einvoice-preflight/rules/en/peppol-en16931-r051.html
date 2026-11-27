@@ -12,7 +12,7 @@
 <meta property="og:title" content="PEPPOL-EN16931-R051: Peppol BIS explained">
 <meta property="og:description" content="PEPPOL-EN16931-R051: Every amount in the invoice (prices, line amounts, allowances and charges, VAT amounts and the document totals) must carry a currencyID…">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does PEPPOL-EN16931-R051 mean?","acceptedAnswer":{"@type":"Answer","text":"Every amount in the invoice (prices, line amounts, allowances and charges, VAT amounts and the document totals) must carry a currencyID equal to the Invoice currency code (BT-5, cbc:DocumentCurrencyCode). The only exception is the VAT total in accounting currency (BT-111): a second cac:TaxTotal that has no tax subtotals."}},{"@type":"Question","name":"How do I fix PEPPOL-EN16931-R051?","acceptedAnswer":{"@type":"Answer","text":"Set currencyID on every amount to the value of cbc:DocumentCurrencyCode, exactly as written there. If you must state VAT in your accounting currency, set cbc:TaxCurrencyCode and add a separate cac:TaxTotal with only cbc:TaxAmount in that currency, no cac:TaxSubtotal. Search the file for currencyID= and check each value."}}]}</script>
-<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
 </head><body><main>
 <header>
 <p class="eyebrow">E-invoice rule explained · Peppol BIS</p>
@@ -47,26 +47,7 @@
 </ol>
 <h2>Corrected XML (minimal example we wrote)</h2>
 <p><strong>UBL</strong></p>
-<pre><code>&lt;cbc:DocumentCurrencyCode&gt;USD&lt;/cbc:DocumentCurrencyCode&gt;
-&lt;cbc:TaxCurrencyCode&gt;EUR&lt;/cbc:TaxCurrencyCode&gt;
-&lt;!-- parties, lines and other elements unchanged --&gt;
-&lt;cac:TaxTotal&gt;
-  &lt;cbc:TaxAmount currencyID=&quot;USD&quot;&gt;19.00&lt;/cbc:TaxAmount&gt;
-  &lt;cac:TaxSubtotal&gt;
-    &lt;cbc:TaxableAmount currencyID=&quot;USD&quot;&gt;100.00&lt;/cbc:TaxableAmount&gt;
-    &lt;cbc:TaxAmount currencyID=&quot;USD&quot;&gt;19.00&lt;/cbc:TaxAmount&gt;
-    &lt;cac:TaxCategory&gt;
-      &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
-      &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
-      &lt;cac:TaxScheme&gt;
-        &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
-      &lt;/cac:TaxScheme&gt;
-    &lt;/cac:TaxCategory&gt;
-  &lt;/cac:TaxSubtotal&gt;
-&lt;/cac:TaxTotal&gt;
-&lt;cac:TaxTotal&gt;
-  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;17.48&lt;/cbc:TaxAmount&gt;
-&lt;/cac:TaxTotal&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;cbc:DocumentCurrencyCode&gt;USD<wbr>&lt;/cbc:DocumentCurrencyCode&gt;</span><span class="ln" style="--i:0">&lt;cbc:TaxCurrencyCode&gt;EUR<wbr>&lt;/cbc:TaxCurrencyCode&gt;</span><span class="ln" style="--i:0">&lt;!-- parties, lines and other elements unchanged --&gt;</span><span class="ln" style="--i:0">&lt;cac:TaxTotal&gt;</span><span class="ln" style="--i:2">  &lt;cbc:TaxAmount currencyID=&quot;USD&quot;&gt;19.00<wbr>&lt;/cbc:TaxAmount&gt;</span><span class="ln" style="--i:2">  &lt;cac:TaxSubtotal&gt;</span><span class="ln" style="--i:4">    &lt;cbc:TaxableAmount currencyID=&quot;USD&quot;&gt;100.00<wbr>&lt;/cbc:TaxableAmount&gt;</span><span class="ln" style="--i:4">    &lt;cbc:TaxAmount currencyID=&quot;USD&quot;&gt;19.00<wbr>&lt;/cbc:TaxAmount&gt;</span><span class="ln" style="--i:4">    &lt;cac:TaxCategory&gt;</span><span class="ln" style="--i:6">      &lt;cbc:ID&gt;S<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;cbc:Percent&gt;19<wbr>&lt;/cbc:Percent&gt;</span><span class="ln" style="--i:6">      &lt;cac:TaxScheme&gt;</span><span class="ln" style="--i:8">        &lt;cbc:ID&gt;VAT<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;/cac:TaxScheme&gt;</span><span class="ln" style="--i:4">    &lt;/cac:TaxCategory&gt;</span><span class="ln" style="--i:2">  &lt;/cac:TaxSubtotal&gt;</span><span class="ln" style="--i:0">&lt;/cac:TaxTotal&gt;</span><span class="ln" style="--i:0">&lt;cac:TaxTotal&gt;</span><span class="ln" style="--i:2">  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;17.48<wbr>&lt;/cbc:TaxAmount&gt;</span><span class="ln" style="--i:0">&lt;/cac:TaxTotal&gt;</span></code></pre>
 <p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
 </section>
 <section>

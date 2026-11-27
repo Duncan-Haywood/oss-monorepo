@@ -12,7 +12,7 @@
 <meta property="og:title" content="BR-DE-30: Prélèvement sans identifiant de créancier">
 <meta property="og:description" content="BR-DE-30: Quand la facture contient des informations de prélèvement (BG-19), elle doit indiquer l'identifiant de créancier attribué par la banque (BT-90),…">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que signifie BR-DE-30 ?","acceptedAnswer":{"@type":"Answer","text":"Quand la facture contient des informations de prélèvement (BG-19), elle doit indiquer l'identifiant de créancier attribué par la banque (BT-90), c'est-à-dire l'identifiant créancier SEPA (ICS) sous lequel vous prélevez. En UBL c'est un identifiant de partie avec schemeID=\"SEPA\" sur le vendeur ou le bénéficiaire ; en CII c'est ram:CreditorReferenceID."}},{"@type":"Question","name":"Comment corriger BR-DE-30 ?","acceptedAnswer":{"@type":"Answer","text":"Retrouver votre identifiant de créancier SEPA (en Allemagne il commence par DE et contient ZZZ, par exemple DE98ZZZ09999999999 ; en France par FR). En UBL, ajouter cac:PartyIdentification/cbc:ID avec schemeID=\"SEPA\" à la partie vendeur (ou à cac:PayeeParty si un bénéficiaire distinct prélève). En CII, le placer dans ram:CreditorReferenceID au début de ram:ApplicableHeaderTradeSettlement."}}]}</script>
-<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
 </head><body><main>
 <header>
 <p class="eyebrow">Règle de facture électronique expliquée · XRechnung</p>
@@ -47,21 +47,9 @@
 </ol>
 <h2>XML corrigé (exemple minimal rédigé par nous)</h2>
 <p><strong>UBL</strong></p>
-<pre><code>&lt;cac:AccountingSupplierParty&gt;
-  &lt;cac:Party&gt;
-    &lt;cac:PartyIdentification&gt;
-      &lt;cbc:ID schemeID=&quot;SEPA&quot;&gt;DE98ZZZ09999999999&lt;/cbc:ID&gt;
-    &lt;/cac:PartyIdentification&gt;
-    &lt;cac:PartyName&gt;
-      &lt;cbc:Name&gt;Beispiel GmbH&lt;/cbc:Name&gt;
-    &lt;/cac:PartyName&gt;
-  &lt;/cac:Party&gt;
-&lt;/cac:AccountingSupplierParty&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;cac:AccountingSupplierParty&gt;</span><span class="ln" style="--i:2">  &lt;cac:Party&gt;</span><span class="ln" style="--i:4">    &lt;cac:PartyIdentification&gt;</span><span class="ln" style="--i:6">      &lt;cbc:ID schemeID=&quot;SEPA&quot;&gt;DE98ZZZ09999999999<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:4">    &lt;/cac:PartyIdentification&gt;</span><span class="ln" style="--i:4">    &lt;cac:PartyName&gt;</span><span class="ln" style="--i:6">      &lt;cbc:Name&gt;Beispiel GmbH<wbr>&lt;/cbc:Name&gt;</span><span class="ln" style="--i:4">    &lt;/cac:PartyName&gt;</span><span class="ln" style="--i:2">  &lt;/cac:Party&gt;</span><span class="ln" style="--i:0">&lt;/cac:AccountingSupplierParty&gt;</span></code></pre>
 <p><strong>CII</strong></p>
-<pre><code>&lt;ram:ApplicableHeaderTradeSettlement&gt;
-  &lt;ram:CreditorReferenceID&gt;DE98ZZZ09999999999&lt;/ram:CreditorReferenceID&gt;
-  &lt;ram:InvoiceCurrencyCode&gt;EUR&lt;/ram:InvoiceCurrencyCode&gt;
-&lt;/ram:ApplicableHeaderTradeSettlement&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;ram:ApplicableHeaderTradeSettlement&gt;</span><span class="ln" style="--i:2">  &lt;ram:CreditorReferenceID&gt;DE98ZZZ09999999999<wbr>&lt;/ram:CreditorReferenceID&gt;</span><span class="ln" style="--i:2">  &lt;ram:InvoiceCurrencyCode&gt;EUR<wbr>&lt;/ram:InvoiceCurrencyCode&gt;</span><span class="ln" style="--i:0">&lt;/ram:ApplicableHeaderTradeSettlement&gt;</span></code></pre>
 <p class="note">Valeurs d'exemple uniquement. Remplacez ou complétez les éléments de votre fichier ; l'ordre des éléments est imposé dans les deux syntaxes.</p>
 </section>
 <section>

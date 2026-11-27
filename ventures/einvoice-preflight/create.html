@@ -116,10 +116,10 @@
 
   <section>
     <h2>Lines</h2>
-    <div class="lines-scroll"><table class="lines"><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Unit price (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th>KPD (HR)</th><th>HR label</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
+    <div class="lines-scroll"><table class="stack fields lines"><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Unit price (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th>KPD (HR)</th><th>HR label</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
     <div class="actions"><button type="button" class="secondary" id="addLine">+ Add line</button></div>
     <h3 style="font-size:1rem;margin:1rem 0 .3rem">Allowances and charges on the whole invoice</h3>
-    <div class="lines-scroll"><table class="lines"><thead><tr><th>Type</th><th>Reason</th><th>Amount (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th>HR label</th><th></th></tr></thead><tbody id="adjustments"></tbody></table></div>
+    <div class="lines-scroll"><table class="stack fields lines"><thead><tr><th>Type</th><th>Reason</th><th>Amount (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th>HR label</th><th></th></tr></thead><tbody id="adjustments"></tbody></table></div>
     <div class="actions"><button type="button" class="secondary" id="addAdjustment">+ Add allowance or charge</button></div>
     <p class="muted" style="font-size:.85rem">A discount on the whole invoice is an <b>allowance</b>, a delivery or packaging fee a <b>charge</b>; each counts in its VAT rate's row (EN 16931 BG-20, BG-21). In Croatia, an amount outside the VAT base takes an <b>HR label</b>: POVNAK (refundable deposit), PP (consumption tax), PPMV (special tax on motor vehicles) or N (another non-taxable fee, e.g. tourist tax). The label also works on a line, in the HR label column there. It is written as the Porezna uprava's own samples write it: exempt (E) in the EN layer, outside the VAT base (O) in the HR extension.</p>
     <p class="muted" style="font-size:.85rem">0% needs a category: <b>Z</b> zero-rated, <b>E</b> exempt (e.g. Kleinunternehmer § 19 UStG), <b>AE</b> reverse charge, <b>K</b> intra-EU supply, <b>G</b> export, <b>O</b> outside scope. All but Z need a reason.</p>
@@ -133,7 +133,7 @@
       <button type="button" class="secondary" id="example">Load example</button>
     </div>
     <div id="result" aria-live="polite"></div>
-    <pre id="xml" hidden></pre>
+    <pre id="xml" data-phone-scroll-ok hidden></pre>
   </section>
 
   
