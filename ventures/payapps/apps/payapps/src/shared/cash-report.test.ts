@@ -8,7 +8,9 @@ import {
   cashReport,
   daysBetween,
   outerLimitOn,
+  PAID_LATE_WINDOW_DAYS,
   PENDING_CHANGE_FOLLOW_UP_DAYS,
+  paidLateText,
   parseOuterLimitDays,
   parsePayTermsDays,
   payDueOn,
@@ -976,5 +978,141 @@ describe("late-payment interest on the cash report", () => {
     );
     expect(early.outstanding[0]?.interestCents).toBe(0);
     expect(early.interestCents).toBe(0);
+  });
+});
+
+describe("interest earned on applications paid late", () => {
+  const p1 = period(1, "2026-01-31", { L1: line(3_000_000) });
+  const tx = {
+    bps: 150,
+    per: "month" as const,
+    method: "prorata" as const,
+    source: "Subcontract § 5.3",
+  };
+  // #1: $27,000 due 2026-03-02 (30 days after the application date).
+  const paidLate = (
+    payments: { amountCents: number; receivedOn: string }[],
+    over: Partial<CashReportProjectInput> = {},
+  ) =>
+    job([p1], [{ status: "paid", applicationDate: "2026-01-31", payments }], {
+      payTermsDays: 30,
+      lateInterest: tx,
+      ...over,
+    });
+  const twoChecks = [
+    { amountCents: 700_000, receivedOn: "2026-03-12" },
+    { amountCents: 2_000_000, receivedOn: "2026-04-01" },
+  ];
+
+  it("accrues from the due date to the last payment and stops there", () => {
+    // 2,700,000 x 0.015 x 10/30 + 2,000,000 x 0.015 x 20/30 = 13,500 + 20,000, as if still owed on
+    // 2026-04-01; a report a month later says the same.
+    for (const asOf of ["2026-04-01", "2026-05-01"]) {
+      const r = projectCash(paidLate(twoChecks), asOf);
+      expect(r.outstanding).toEqual([]);
+      expect(r.interestCents).toBe(0);
+      expect(r.paidLate).toEqual([
+        {
+          payAppId: "P1",
+          number: 1,
+          applicationDate: "2026-01-31",
+          periodTo: "2026-01-31",
+          dueOn: "2026-03-02",
+          paidOn: "2026-04-01",
+          daysLate: 30,
+          paidCents: 2_700_000,
+          interestCents: 33_500,
+        },
+      ]);
+      expect(r.paidLateInterestCents).toBe(33_500);
+    }
+    const r = projectCash(paidLate(twoChecks), "2026-05-01");
+    expect(r.actions.join(" ")).toContain(
+      "Application #1 was paid 30 days late (due 2026-03-02, paid 2026-04-01): at the job's late-payment rate of 1.5% a month (Subcontract § 5.3), $335.00 of interest accrued",
+    );
+    expect(cashReport([paidLate(twoChecks)], "2026-05-01").totals.paidLateInterestCents).toBe(
+      33_500,
+    );
+  });
+
+  it("is empty when paid on time, with no rate or terms, or with no recorded pay date", () => {
+    const onTime = [{ amountCents: 2_700_000, receivedOn: "2026-03-02" }];
+    expect(projectCash(paidLate(onTime), "2026-05-01").paidLate).toEqual([]);
+    expect(projectCash(paidLate(twoChecks, { lateInterest: null }), "2026-05-01").paidLate).toEqual(
+      [],
+    );
+    expect(projectCash(paidLate(twoChecks, { payTermsDays: null }), "2026-05-01").paidLate).toEqual(
+      [],
+    );
+    // Marked paid with only the first check recorded: the day it was paid in full is not known.
+    const short = [{ amountCents: 700_000, receivedOn: "2026-03-12" }];
+    expect(projectCash(paidLate(short), "2026-05-01").paidLate).toEqual([]);
+    // Still owed: that is the past-due interest, not this list.
+    const open = job(
+      [p1],
+      [{ status: "submitted", applicationDate: "2026-01-31", payments: short }],
+      {
+        payTermsDays: 30,
+        lateInterest: tx,
+      },
+    );
+    expect(projectCash(open, "2026-05-01").paidLate).toEqual([]);
+  });
+
+  it("drops off a year after the payment", () => {
+    expect(
+      projectCash(paidLate(twoChecks), addDays("2026-04-01", PAID_LATE_WINDOW_DAYS)).paidLate,
+    ).toHaveLength(1);
+    expect(
+      projectCash(paidLate(twoChecks), addDays("2026-04-01", PAID_LATE_WINDOW_DAYS + 1)).paidLate,
+    ).toEqual([]);
+  });
+
+  it("runs on what was paid when a balance was closed short", () => {
+    const input = paidLate([
+      { amountCents: 700_000, receivedOn: "2026-03-12" },
+      { amountCents: 1_800_000, receivedOn: "2026-04-01" },
+    ]);
+    const app = input.apps[0];
+    if (!app) throw new Error("fixture");
+    app.shortClose = { cents: 200_000, reason: "backcharge", note: null, closedOn: "2026-04-02" };
+    // 2,500,000 x 0.015 x 10/30 + 1,800,000 x 0.015 x 20/30 = 12,500 + 18,000.
+    const r = projectCash(input, "2026-05-01");
+    expect(r.paidLate[0]).toMatchObject({ paidCents: 2_500_000, interestCents: 30_500 });
+  });
+
+  it("names several applications in one step", () => {
+    const text = paidLateText(
+      [
+        {
+          payAppId: "a",
+          number: 2,
+          applicationDate: "",
+          periodTo: "",
+          dueOn: "2026-03-02",
+          paidOn: "2026-03-20",
+          daysLate: 18,
+          paidCents: 1,
+          interestCents: 1_000,
+        },
+        {
+          payAppId: "b",
+          number: 3,
+          applicationDate: "",
+          periodTo: "",
+          dueOn: "2026-04-01",
+          paidOn: "2026-04-11",
+          daysLate: 10,
+          paidCents: 1,
+          interestCents: 500,
+        },
+      ],
+      { ...tx, source: null },
+      "Harbor Builders",
+    );
+    expect(text).toBe(
+      "2 applications were paid late (#2, 18 days; #3, 10 days): at the job's late-payment rate of 1.5% a month, $15.00 of interest accrued until the payment came in. If the subcontract or statute lets you collect it, bill it to Harbor Builders on the next application or a separate invoice; the draft email below states the figures.",
+    );
+    expect(paidLateText([], tx, "Harbor Builders")).toBeNull();
   });
 });

@@ -3,13 +3,22 @@
 // edits the draft, then copies it or opens it in their own mail program.
 
 import { FOLLOW_UP_ANCHOR_PREFIX, followUpAnchor } from "@shared/cash-digest";
-import type { CashReport, CashReportProject, OutstandingApp } from "@shared/cash-report";
 import {
+  type CashReport,
+  type CashReportProject,
+  type OutstandingApp,
+  PAID_LATE_WINDOW_DAYS,
+  type PaidLateApp,
+} from "@shared/cash-report";
+import {
+  type FollowUpEmail,
   type FollowUpKind,
   followUpEmail,
   mailtoHref,
   needsFollowUp,
+  paidLateInterestEmail,
 } from "@shared/follow-up-email";
+import { rateLabel } from "@shared/late-interest";
 import { formatCents } from "@shared/money";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
@@ -27,15 +36,14 @@ type From = { name: string; company: string };
 function Draft({
   orgId,
   job,
-  app,
-  from,
+  initial,
+  note,
 }: {
   orgId: string;
   job: CashReportProject;
-  app: OutstandingApp;
-  from: From;
+  initial: Omit<FollowUpEmail, "kind">;
+  note: string;
 }) {
-  const initial = followUpEmail(job, app, from);
   const [to, setTo] = useState(initial.to ?? "");
   const [subject, setSubject] = useState(initial.subject);
   const [body, setBody] = useState(initial.body);
@@ -52,7 +60,7 @@ function Draft({
   };
   return (
     <div className="mt-2 space-y-2 rounded border border-slate-200 p-2">
-      <p className="text-xs text-slate-500">{KIND_LABELS[initial.kind]}. Edit before sending.</p>
+      <p className="text-xs text-slate-500">{note}. Edit before sending.</p>
       <label className="block text-xs">
         To
         <input
@@ -103,6 +111,90 @@ function Draft({
         {copied && <span className="text-xs text-green-700">Copied</span>}
       </div>
     </div>
+  );
+}
+
+function OutstandingDraft({
+  orgId,
+  job,
+  app,
+  from,
+}: {
+  orgId: string;
+  job: CashReportProject;
+  app: OutstandingApp;
+  from: From;
+}) {
+  const initial = followUpEmail(job, app, from);
+  return <Draft orgId={orgId} job={job} initial={initial} note={KIND_LABELS[initial.kind]} />;
+}
+
+/**
+ * "Interest earned on late payments": each application paid after its due date on a job with a
+ * late-payment rate, the interest it earned up to the payment (src/shared/cash-report.ts,
+ * paidLateApps) and a draft asking the GC for it. Nothing is billed or sent from here.
+ */
+export function PaidLateInterest({
+  orgId,
+  report,
+  from,
+}: {
+  orgId: string;
+  report: CashReport;
+  from: From;
+}) {
+  const rows: { job: CashReportProject; app: PaidLateApp }[] = report.projects.flatMap((job) =>
+    job.paidLate.map((app) => ({ job, app })),
+  );
+  const [open, setOpen] = useState<string | null>(null);
+  if (rows.length === 0) return null;
+  return (
+    <section className="card space-y-2" aria-labelledby="paid-late-interest">
+      <h2 id="paid-late-interest" className="font-semibold">
+        Interest earned on late payments
+      </h2>
+      <p className="text-xs text-slate-500">
+        Applications paid after their due date in the last {PAID_LATE_WINDOW_DAYS} days, on jobs
+        with a late-payment rate set. Interest is simple interest on the unpaid balance from the due
+        date to the last payment, so the figure no longer grows. Whether you can collect it depends
+        on your subcontract, any statute that applies and any waiver you signed: check before you
+        ask. {formatCents(report.totals.paidLateInterestCents)} in all; it is not in the totals
+        above.
+      </p>
+      <ul className="divide-y divide-slate-100 text-sm">
+        {rows.map(({ job, app }) => (
+          <li key={app.payAppId} className="py-2">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <span>
+                <span className="font-medium">{job.name}</span> · #{app.number} ·{" "}
+                {formatCents(app.interestCents)} interest
+                <span className="text-xs text-slate-500">
+                  {" "}
+                  · {job.gcName} · due {app.dueOn}, paid {app.paidOn} ({app.daysLate} days late)
+                  {job.lateInterest ? ` · ${rateLabel(job.lateInterest)}` : ""}
+                </span>
+              </span>
+              <button
+                type="button"
+                className="underline"
+                aria-expanded={open === app.payAppId}
+                onClick={() => setOpen(open === app.payAppId ? null : app.payAppId)}
+              >
+                {open === app.payAppId ? "Hide draft" : `Draft interest email for #${app.number}`}
+              </button>
+            </div>
+            {open === app.payAppId && (
+              <Draft
+                orgId={orgId}
+                job={job}
+                initial={paidLateInterestEmail(job, app, from)}
+                note="Paid late: ask for the interest"
+              />
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -196,7 +288,9 @@ export function FollowUpEmails({
                 {open === rowKey(app) ? "Hide draft" : `Draft email for #${app.number}`}
               </button>
             </div>
-            {open === rowKey(app) && <Draft orgId={orgId} job={job} app={app} from={from} />}
+            {open === rowKey(app) && (
+              <OutstandingDraft orgId={orgId} job={job} app={app} from={from} />
+            )}
           </li>
         ))}
       </ul>

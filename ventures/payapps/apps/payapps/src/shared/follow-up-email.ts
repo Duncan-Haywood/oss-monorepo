@@ -23,7 +23,7 @@
 // contractor's own words, or "our subcontract") and what has accrued on the cash report. The first
 // reminder leaves it out: it is the friendly one, and most late payments are paperwork.
 
-import type { OutstandingApp } from "./cash-report";
+import type { OutstandingApp, PaidLateApp } from "./cash-report";
 import { OWNER_PAYMENT_FOLLOW_UP_DAYS, ownerPaymentUnknown, termsPhrase } from "./cash-report";
 import type { PayTermsBasis } from "./enums";
 import { type LateInterestTerms, rateLabel } from "./late-interest";
@@ -186,6 +186,48 @@ export function followUpEmail(
     company,
   ].join("\n");
   return { kind, to: job.gcBillingEmail?.trim() || null, subject, body };
+}
+
+/**
+ * The draft asking the GC for the interest a late payment earned (src/shared/cash-report.ts,
+ * paidLateApps): one application paid after its due date, the rate and where it comes from, the
+ * days late and the figure. Like the other drafts it states only what the report shows: it does not
+ * say the interest is legally owed (that is the subcontract's or the statute's question, and the
+ * contractor's call), and asks for it on the next payment or by reply.
+ */
+export function paidLateInterestEmail(
+  job: FollowUpJob,
+  app: PaidLateApp,
+  from: { name: string; company: string },
+): Omit<FollowUpEmail, "kind"> {
+  const label = jobLabel(job);
+  const rate = job.lateInterest ? rateLabel(job.lateInterest) : "the agreed late-payment rate";
+  const source = job.lateInterest?.source?.trim() || "our subcontract";
+  const interest = formatCents(app.interestCents);
+  const termsText =
+    job.payTermsDays !== null
+      ? ` (${termsPhrase(job.payTermsDays, job.payTermsBasis, terms(job))})`
+      : "";
+  const lines = [
+    `Thank you for the payment of our pay application #${app.number} on ${label} (dated ${app.applicationDate}, for work through ${app.periodTo}). It was due on ${app.dueOn} under our subcontract's pay terms${termsText}, and the last of the ${formatCents(app.paidCents)} came in on ${app.paidOn}, ${app.daysLate} days later.`,
+    `Under ${source}, a late payment carries interest at ${rate}. On the balance unpaid each day from ${app.dueOn} to ${app.paidOn} that comes to ${interest}.`,
+    `Could you include the ${interest} with the next payment on this job, or let me know if you would rather we invoice it separately? If you count the dates differently, tell me which and I will check them against our records.`,
+  ];
+  const name = from.name.trim() || "[your name]";
+  const company = from.company.trim() || "[your company]";
+  const body = [
+    greeting(job),
+    "",
+    ...lines.flatMap((l) => [l, ""]),
+    "Thank you,",
+    name,
+    company,
+  ].join("\n");
+  return {
+    to: job.gcBillingEmail?.trim() || null,
+    subject: `${label}: interest on late payment of pay application #${app.number}, ${interest}`,
+    body,
+  };
 }
 
 /**

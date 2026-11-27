@@ -106,7 +106,9 @@ describe("lien deadline", () => {
     // The CSV carries it, and its total row lines up with its header.
     const csv = await (await api(`/api/orgs/${orgId}/reports/cash.csv`, { as })).text();
     const rows = csv.split("\r\n");
-    expect(rows[0]).toMatch(/,Lien deadline$/);
+    expect(rows[0]).toMatch(
+      /,Lien deadline,Late-payment rate,Interest accrued on past-due applications,Interest earned on applications paid late,Applications paid late$/,
+    );
     expect(rows[1]).toContain(`${p.lienDeadline.deadline.dueOn} (Florida, Fla. Stat. § 713.08(5))`);
     const header = rows[0]?.split(",") ?? [];
     const total = rows.find((l) => l.startsWith("Total,"))?.split(",") ?? [];
