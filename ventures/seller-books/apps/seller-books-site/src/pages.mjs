@@ -23,6 +23,15 @@ import {
   href,
   webPage,
 } from "./html.mjs";
+import {
+  COLUMNS,
+  EXAMPLE_FILE,
+  EXAMPLE_ITEMS,
+  EXAMPLE_SUMMARY,
+  STATUSES,
+  summaryLines,
+  TEMPLATE_FILE,
+} from "./inventory-sheet.mjs";
 import { appPrivacyUrl, launch, signupUrl } from "./launch.mjs";
 
 const IRS_SCHEDULE_C = "https://www.irs.gov/forms-pubs/about-schedule-c-form-1040";
@@ -772,7 +781,7 @@ ${lineRows}
     <p class="muted">${usd(ex.purchases)} was spent on stock, but only ${usd(l.line42)} is cost of goods sold this year. The ${usd(l.line41)} still on the shelves is next year's line 35, and becomes cost of goods when it sells.</p>
   </div>
   <h2>Bulk lots, bins and mystery boxes</h2>
-  <p>Part III needs a cost for each item that sold and each item still unsold, but a lot is bought for one price. ${esc(SITE_NAME)} spreads a lot's cost evenly over the items in it unless you type a cost for an item yourself; leftover cents go to the first items, so the shares always add back up to exactly what you paid. Whether an even split suits a particular lot is your call: give the one valuable piece in a box its own cost and the rest is shared by the others. The stock report then shows whether each lot has paid for itself.</p>
+  <p>Part III needs a cost for each item that sold and each item still unsold, but a lot is bought for one price. ${esc(SITE_NAME)} spreads a lot's cost evenly over the items in it unless you type a cost for an item yourself; leftover cents go to the first items, so the shares always add back up to exactly what you paid. Whether an even split suits a particular lot is your call: give the one valuable piece in a box its own cost and the rest is shared by the others. The stock report then shows whether each lot has paid for itself. Keeping purchases in a spreadsheet for now? The free <a href="${href("/reseller-inventory-spreadsheet")}">reseller inventory spreadsheet</a> has a row per purchase, the lot rule and a year summary of these lines, and imports into ${esc(SITE_NAME)} later.</p>
   <h2>Keeping an inventory, or not</h2>
   <p>The <a href="${IRS_SC_INSTRUCTIONS}">Schedule C instructions</a> start Part III with the general rule, that a business selling merchandise must take inventories into account at the start and end of the year, then an exception: &ldquo;${esc(NO_INVENTORY_QUOTE)}&rdquo; You are a small business taxpayer if you &ldquo;${esc(SMALL_BUSINESS_QUOTE)}&rdquo; and are not a tax shelter.</p>
   <p>Without an inventory, the instructions name two methods the IRS accepts as clearly reflecting income: treating inventory as non-incidental materials and supplies, deducted &ldquo;${esc(SUPPLIES_QUOTE)},&rdquo; or following how your own books treat it. When goods bought to resell count as used or consumed is a point to settle with your preparer. Switching methods is a change of accounting method, made with <a href="${IRS_FORM_3115}">Form 3115</a>. Which method fits you is a question for your tax preparer.</p>
@@ -1946,6 +1955,142 @@ ${NOT_TAX_ADVICE}`;
   };
 }
 
+const money = (n) => `$${n.toFixed(2)}`;
+
+function inventorySpreadsheet() {
+  const path = "/reseller-inventory-spreadsheet";
+  const title = "Free reseller inventory spreadsheet (Excel)";
+  const description =
+    "A free Excel inventory spreadsheet for resellers: cost per item and per lot, profit per sale, days to sell, and the year's Schedule C Part III figures at cost.";
+  const ex = EXAMPLE_SUMMARY;
+  const imported = COLUMNS.filter((c) => c.imported).map((c) => c.header);
+  const colRows = COLUMNS.map(
+    (c) =>
+      `      <tr><th scope="row">${esc(c.header)}</th><td>${c.kind === "formula" ? "Worked out" : "You"}</td><td>${c.imported ? "Yes" : "No"}</td><td>${esc(c.about)}</td></tr>`,
+  ).join("\n");
+  const summaryRows = summaryLines()
+    .map(
+      (l) =>
+        `      <tr><th scope="row">${esc(l.label)}</th><td>${l.line ? `Line ${esc(l.line)}` : ""}</td><td>${esc(l.note)}</td></tr>`,
+    )
+    .join("\n");
+  const exRows = [
+    ["On hand January 1, at cost (line 35)", ex.onHandJan1],
+    ["Bought during the year, at cost", ex.bought],
+    ["Kept for yourself, at cost", -ex.kept],
+    ["Purchases less items kept (line 36)", ex.line36],
+    ["Sold during the year, at cost", ex.soldAtCost],
+    ["Donated, at cost", ex.writtenOff],
+    ["Still in stock December 31, at cost (line 41)", ex.onHandDec31],
+  ];
+  const faqs = [
+    {
+      q: "What should a reseller inventory spreadsheet track?",
+      a: "For each purchase: what it is, a SKU, how many, what you paid (each, or for the whole lot), the date you bought it, and where it went: sold on a date, or kept, donated or lost on a date. Those are the facts Schedule C Part III needs at year end. Where you bought it, the platform, the sale price, fees and shipping are useful for profit per sale and are in the sheet too.",
+    },
+    {
+      q: "How do I record a bulk lot or a bin haul?",
+      a: "Put the number of items in Qty and the price you paid for the whole lot in Total Cost. The sheet counts the row at that price; Seller Books splits it evenly over the items when you import, leftover cents to the first items, so the shares add back up to what you paid. If one piece is clearly worth more, give it its own row and cost.",
+    },
+    {
+      q: "Does the spreadsheet work in Google Sheets or Numbers?",
+      a: "It is an .xlsx file built for Excel and checked by recalculating it in LibreOffice Calc. Google Sheets and Numbers open .xlsx files; check the Year summary figures against a few rows by hand after opening it there.",
+    },
+    {
+      q: "Can I import this spreadsheet into Seller Books?",
+      a: `Yes. Save the Inventory sheet as CSV and import it on the Inventory page, under "Import your sourcing sheet". It reads ${imported.join(", ")}; it shows what it found before anything is saved, and importing the same sheet again later adds only the new rows. The import is on the Free plan.`,
+    },
+    {
+      q: "When is a spreadsheet enough?",
+      a: "When you sell on one platform, a few dozen items a month, and are happy to copy each sale's price and fees in by hand. It stops being enough when sales come from several platforms, when refunds and returns need matching to items, or when you want the payouts checked against the bank and a 1099-K checked against your sales.",
+    },
+  ];
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">One row per purchase: what you paid, when, and where each item went. The sheet works out profit per sale and how long things sit, and its Year summary gives the cost figures <a href="${href("/cost-of-goods-sold")}">Schedule C Part III</a> asks for. Free, no sign-up, no email.</p>
+  <p><a class="button" href="${href(`/${TEMPLATE_FILE}`)}" download>Download the spreadsheet (.xlsx)</a> <a class="button ghost" href="${href(`/${EXAMPLE_FILE}`)}" download>Download the filled-in example</a></p>
+  <p class="muted">Three sheets: Inventory (500 rows), Year summary and Read me. Built for Excel and checked by recalculating it in LibreOffice Calc. The example's ${EXAMPLE_ITEMS.length} rows are invented.</p>
+  <h2>The columns</h2>
+  <p>Shaded cells are for you; the last four columns are worked out. The "Imported" column says which ones Seller Books reads if you move the sheet into it later.</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">Column</th><th scope="col">Filled by</th><th scope="col">Imported</th><th scope="col">What goes in it</th></tr></thead>
+    <tbody>
+${colRows}
+    </tbody>
+  </table></div>
+  <h2>Lots, and items that leave without a sale</h2>
+  <p>A bin haul, pallet or mystery box bought for one price goes on one row: the number of items in Qty and the price in Total Cost. An item you keep for yourself, give away, lose or throw out still left your stock, and Part III needs the year it left: set Status to ${esc(STATUSES.slice(3).join(", "))} and fill in Date Removed. Kept items come off purchases on line 36; donated and lost ones stop counting as stock on hand. The Status column offers ${esc(STATUSES.join(", "))}.</p>
+  <h2>The Year summary</h2>
+  <p>Type a tax year and the sheet adds up the Inventory rows for it, at cost. The line numbers are Schedule C Part III's (<a href="${IRS_PUB_334}">Publication 334</a>, chapter 6). The last row is a check that should read zero: it catches a row with both a date sold and a date removed, or a date removed with no status.</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">Figure</th><th scope="col">Part III</th><th scope="col">What it counts</th></tr></thead>
+    <tbody>
+${summaryRows}
+    </tbody>
+  </table></div>
+  <div class="worked">
+    <p class="muted">The example file, for 2026 (invented rows, figures as the sheet works them out):</p>
+    <table>
+      <tbody>
+${exRows.map(([label, v]) => `        <tr><th scope="row">${esc(label)}</th><td>${v < 0 ? "&minus;" : ""}${money(Math.abs(v))}</td></tr>`).join("\n")}
+        <tr class="total"><th scope="row">Profit on the ${ex.itemsSold} items sold in 2026</th><td>${money(ex.profit)}</td></tr>
+      </tbody>
+    </table>
+    <p class="muted">${money(ex.onHandJan1)} + ${money(ex.bought)} &minus; ${money(ex.kept)} &minus; ${money(ex.soldAtCost)} &minus; ${money(ex.writtenOff)} = ${money(ex.onHandDec31)}, so the check reads zero. The ski jacket bought in December and sold in January is in the December 31 stock, and its cost counts in 2027, the year it sold. Profit is ${money(ex.soldFor)} sold for, less ${money(ex.fees)} fees, ${money(ex.shipping)} shipping and ${money(ex.soldAtCost)} cost.</p>
+  </div>
+  <p>The Year summary covers stock only. Fees, supplies, miles and a storage unit are expenses on their own Schedule C lines (see <a href="${href("/reseller-tax-deductions")}">reseller tax deductions</a>), and the cost of goods sold on line 42 comes from your full records, not from a template. Check the figures with your tax preparer.</p>
+  <h2>Moving the sheet into ${esc(SITE_NAME)}</h2>
+  <p>With the Inventory sheet open, save it as CSV, then in ${esc(SITE_NAME)} open Inventory and use "Import your sourcing sheet". It reads ${esc(imported.join(", "))}, by column name, so the sheet can also be one you made yourself with those headings. It shows what it found and which rows it would skip, and why, before anything is saved, and importing the same sheet again adds only the new rows. Sales then come from each platform's own report and are matched to these items by SKU, which is why the SKU column is worth filling in.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "sheet", openHeading: "When the spreadsheet gets too long" })}</div>`;
+  const text = `# ${title}
+
+One row per purchase. The sheet works out profit per sale and days to sell, and a Year summary gives the Schedule C Part III cost figures (lines 35, 36 and 41). Free download, no sign-up: ${SITE_URL}/${TEMPLATE_FILE} (example: ${SITE_URL}/${EXAMPLE_FILE}).
+
+## Columns
+
+${mdList(COLUMNS.map((c) => `${c.header} (${c.kind === "formula" ? "worked out" : "you"}${c.imported ? ", imported by Seller Books" : ""}): ${c.about}`))}
+
+## Year summary
+
+${mdList(summaryLines().map((l) => `${l.label}${l.line ? ` (line ${l.line})` : ""}: ${l.note}`))}
+
+Invented example for 2026: ${exRows.map(([l, v]) => `${l} ${money(v)}`).join("; ")}; profit on ${ex.itemsSold} sales ${money(ex.profit)}.
+
+## Moving the sheet into ${SITE_NAME}
+
+Save the Inventory sheet as CSV and import it on the Inventory page ("Import your sourcing sheet"). It reads ${imported.join(", ")}, shows a preview first, and a re-import adds only new rows. Sales come from marketplace reports, matched by SKU.
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Reseller inventory spreadsheet", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
 function notFound() {
   return {
     path: "/404",
@@ -1969,6 +2114,7 @@ export function allPages() {
     form1099k(),
     personalItems(),
     costOfGoodsSold(),
+    inventorySpreadsheet(),
     mileageDeduction(),
     homeOfficeAndEquipment(),
     taxDeductions(),
