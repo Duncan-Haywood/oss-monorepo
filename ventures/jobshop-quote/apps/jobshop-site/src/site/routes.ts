@@ -38,7 +38,7 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       label: "Home",
       title: `${SITE_NAME} · Quote RFQs from email or drawings with your own rates`,
       description: open
-        ? `${SITE_NAME} prices machined and fabricated parts from your shop's own rate card and builds the quote PDF for your estimator to check and send. Free to start.`
+        ? `${SITE_NAME} prices machined and fabricated parts from your shop's own rate card and builds the quote PDF for your estimator to check. Free to start.`
         : `${SITE_NAME} (in development) reads RFQ emails and PDF drawings and drafts quotes priced with your shop's own rates, for your estimator to check and send.`,
       changefreq: "weekly",
       priority: 1,
@@ -50,7 +50,7 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       label: "How it works",
       title: `How it works · ${SITE_NAME}`,
       description: open
-        ? `How ${SITE_NAME} turns an RFQ into a quote: your rate card, the parts and CAD files, pricing by your rules, and your estimator's review before anything is sent.`
+        ? `How ${SITE_NAME} turns an RFQ into a quote: your rate card, the parts and CAD files, pricing by your rules, and your estimator's check before sending.`
         : `How ${SITE_NAME} will turn an RFQ into a draft quote: your rate table, reading and double-checking the drawing, pricing by your rules, and your estimator's review.`,
       changefreq: "monthly",
       priority: 0.9,

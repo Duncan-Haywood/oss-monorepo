@@ -1,6 +1,6 @@
 # Job Shop Quote
 
-> Job Shop Quote prices machined and fabricated parts from your shop's own rate card and builds the quote PDF for your estimator to check and send. Free to start.
+> Job Shop Quote prices machined and fabricated parts from your shop's own rate card and builds the quote PDF for your estimator to check. Free to start.
 
 Job Shop Quote is a hosted web app for CNC machine shops and metal fabrication job shops, open for sign-up at https://jobshop-quote.marisstella.app/sign-up. A shop sets up its rate card (machine and setup rates, material priced by weight, piece or length, outside processing, markups, minimums and quantity breaks), adds an RFQ's parts and files, and gets each line priced only from those rates, with setup and cycle times from its routings and from STEP and DXF measurements that the estimator can correct. It builds the quote PDF, emails it when the estimator sends it, gives the customer a link to accept or decline, reminds about follow-ups and expiring quotes, prints job travelers and keeps a won/lost log. An estimator at the shop reviews and sends every quote; the product never sends quotes itself. The Early access plan is free (up to 40 RFQs a month, 3 people, no card). Built but not switched on in the hosted app yet: reading RFQ emails and PDF drawings with AI, RFQs forwarded by email, paid plans, the QuickBooks Online connection. It has no customers yet. It is not set up for CUI or export-controlled (ITAR/EAR) drawings.
 
@@ -8,8 +8,8 @@ Paid plans (not on sale yet): Shop $199/month for up to 125 RFQs; Shop Plus $399
 
 ## Pages
 
-- [Home](https://marisstella.app/jobshop/): Job Shop Quote prices machined and fabricated parts from your shop's own rate card and builds the quote PDF for your estimator to check and send. Free to start.
-- [How it works](https://marisstella.app/jobshop/how-it-works): How Job Shop Quote turns an RFQ into a quote: your rate card, the parts and CAD files, pricing by your rules, and your estimator's review before anything is sent.
+- [Home](https://marisstella.app/jobshop/): Job Shop Quote prices machined and fabricated parts from your shop's own rate card and builds the quote PDF for your estimator to check. Free to start.
+- [How it works](https://marisstella.app/jobshop/how-it-works): How Job Shop Quote turns an RFQ into a quote: your rate card, the parts and CAD files, pricing by your rules, and your estimator's check before sending.
 - [Pricing](https://marisstella.app/jobshop/pricing): Start free on the Early access plan, up to 40 RFQs a month. Paid plans from $199 a month, sized by RFQs quoted, priced from what it costs to run.
 - [For CMMC-conscious shops](https://marisstella.app/jobshop/for-cmmc-shops): What Job Shop Quote means for shops that handle CUI or export-controlled drawings today, and the CMMC workspace we're building alongside it.
 - [FAQ](https://marisstella.app/jobshop/faq): Answers about Job Shop Quote: what it reads, who sets the prices, whether it sends quotes, your drawings and AI training, ERP links and the free plan.

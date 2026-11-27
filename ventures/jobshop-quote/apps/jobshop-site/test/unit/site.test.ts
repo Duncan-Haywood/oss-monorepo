@@ -36,7 +36,7 @@ describe("prerendered pages", () => {
     expect(p.html).toContain(`<link rel="canonical" href="${url}">`);
     expect(p.html).toContain(`<meta property="og:url" content="${url}">`);
     expect(p.html).toContain(`<meta property="og:image" content="${SITE}/og.png">`);
-    expect(p.html).toMatch(/<meta name="description" content="[^"]{70,170}">/);
+    expect(p.html).toMatch(/<meta name="description" content="[^"]{70,160}">/);
     expect(p.html.match(/<h1\b/g)).toHaveLength(1);
     expect(types(p.html)).toContain("WebPage");
     if (path !== "/") expect(types(p.html)).toContain("BreadcrumbList");
