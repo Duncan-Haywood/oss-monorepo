@@ -12,9 +12,16 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 - [This calculator vs. LCPtracker](https://marisstella.app/certified-payroll-calculator/vs-lcptracker.html)
 - [WH-347 certified payroll report builder](https://marisstella.app/certified-payroll-calculator/wh347-report.html)
 
+## State certified payroll files
+
+- [California eCPR XML upload (DIR certified payroll, version 2.0)](https://marisstella.app/certified-payroll-calculator/california-ecpr-xml-upload.html)
+- [New York certified payroll bulk upload (NYSDOL XML)](https://marisstella.app/certified-payroll-calculator/new-york-certified-payroll-bulk-upload.html)
+- [Washington certified payroll XML upload (L&I PWIA)](https://marisstella.app/certified-payroll-calculator/washington-prevailing-wage-xml-upload.html)
+- [Illinois Certified Transcript of Payroll CSV (IDOL CTP)](https://marisstella.app/certified-payroll-calculator/illinois-certified-transcript-of-payroll-csv.html)
+
 ## Hosted product
 
-- [PayApps for specialty subcontractors](https://payapps.marisstella.app/?signup&from=certified-payroll-calculator): pay applications, retainage, change orders and a weekly WH-347 per job. Open now, free on one job with no card; lien waivers, QuickBooks and job costing are in paid plans that are not on sale yet. More: https://marisstella.app/industries/construction/
+- [PayApps for specialty subcontractors](https://payapps.marisstella.app/?signup&from=certified-payroll-calculator): pay applications, retainage, change orders and a weekly WH-347 per job, with the California, New York, Washington and Illinois state files made from the same week. Open now, free on one job with no card; lien waivers, QuickBooks and job costing are in paid plans that are not on sale yet. More: https://marisstella.app/industries/construction/
 
 ## Source
 

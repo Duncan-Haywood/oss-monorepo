@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%234e7e1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Washington Certified Payroll XML Upload: L&amp;I PWIA File</title>
+  <meta name="description" content="Washington public works payroll is filed online with L&amp;I at least monthly. What L&amp;I&#x27;s PWIA XML file holds beyond the WH-347, and the upload rules the guide adds to the schema.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="washington-prevailing-wage-xml-upload.html">
+  <meta property="og:title" content="Washington Certified Payroll XML Upload: L&amp;I PWIA File">
+  <meta property="og:description" content="Washington public works payroll is filed online with L&amp;I at least monthly. What L&amp;I&#x27;s PWIA XML file holds beyond the WH-347, and the upload rules the guide adds to the schema.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Washington certified payroll: the L&I PWIA XML upload", "description": "Washington public works payroll is filed online with L&I at least monthly. What L&I's PWIA XML file holds beyond the WH-347, and the upload rules the guide adds to the schema.", "datePublished": "2026-11-27", "dateModified": "2026-11-27", "author": {"@type": "Organization", "name": "Maris Stella Labs"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How often do I file?", "acceptedAnswer": {"@type": "Answer", "text": "At least once a month, on every public works project, under RCW 39.12.120. Several weekly payrolls can go in one XML upload."}}, {"@type": "Question", "name": "Do I report weeks with no work?", "acceptedAnswer": {"@type": "Answer", "text": "The schema has a no-work flag for a week with no employees on the job."}}, {"@type": "Question", "name": "Is the WH-347 enough in Washington?", "acceptedAnswer": {"@type": "Answer", "text": "Not on state public works: L&I wants the payroll in its own system. A federal job may also need a WH-347 for the GC; the contract says."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 16px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; letter-spacing: -.03em; }
+    h2 { font-size: 1.2rem; margin-top: 28px; }
+    h3 { font-size: 1rem; margin: 16px 0 4px; }
+    p, li { line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    table { border-collapse: collapse; width: 100%; background: #fff; border: 1px solid #c4cedb; border-radius: 10px; }
+    th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid #e3e8ef; }
+    th { width: 30%; font-weight: 600; }
+    .cta { background: #fff; border: 1px solid #c4cedb; border-left: 5px solid #4e7e1b; border-radius: 12px; padding: 14px 18px; margin: 24px 0; }
+    .cta a.go { display: inline-block; margin-top: 6px; padding: 9px 14px; border-radius: 8px; background: #1f4a5d; color: #fff; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 28px; font-size: .82rem; color: #4f5967; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">← Certified payroll calculator</a> · <a href="./wh347-report.html">WH-347 builder</a></p>
+  <h1>Washington certified payroll: the L&amp;I PWIA XML upload</h1>
+  <p>Every contractor on a Washington public works project files certified payroll online with the Department of Labor &amp; Industries at least once a month (RCW 39.12.120), in L&amp;I's Prevailing Wage Intents and Affidavits (PWIA) system. Weekly payrolls can be typed in, or sent as an XML file ("Submit Payroll in XML File") that takes several weeks at once.</p>
+  <table>
+    <tr><th scope="row">Where it goes</th><td>L&amp;I's Prevailing Wage Intents and Affidavits (PWIA) system</td></tr>
+    <tr><th scope="row">Since</th><td>1 January 2020, all public works</td></tr>
+    <tr><th scope="row">How often</th><td>At least monthly</td></tr>
+    <tr><th scope="row">How</th><td>Online entry, or an XML file on L&amp;I's schema</td></tr>
+  </table>
+  <h2>What the L&amp;I PWIA file holds that the WH-347 does not</h2>
+  <p>The hours, rates, fringes and deductions are the same numbers as on the federal WH-347. The state's file wraps them with more:</p>
+  <ul>
+    <li>The project's Intent ID (from the intent to pay prevailing wages you filed).</li>
+    <li>Each worker's full SSN and home address (the WH-347 asks only for the last four digits).</li>
+    <li>For every row, a four-letter L&amp;I trade code (99 codes) and the county the work was in, plus L&amp;I's job classification.</li>
+    <li>For apprentices: the ARTS ID, the registering state (WA, OR, MT or AK), occupation, step and step hours.</li>
+    <li>Fringe credits in L&amp;I's five fixed benefit fields, by type, with other plans named.</li>
+    <li>Double-time hours and rate where overtime is paid at double time.</li>
+    <li>A no-work week, sent as a file with the no-work flag and no employees.</li>
+  </ul>
+  <h2>Upload errors to check before you send</h2>
+  <ul>
+    <li>Trade codes in capitals and the county in Title Case, as the upload guide asks.</li>
+    <li>SSNs checked against the patterns the SSA never issues; no duplicates.</li>
+    <li>The apprentice's state one of WA, OR, MT or AK; apprentice rows carry a step, not a job class.</li>
+    <li>Obsolete elements (WageID, the apprentice program IDs) left out.</li>
+    <li>L&amp;I's own upload step compares your rates with the project's journey-level and apprentice wages: a rate below them is caught there, after you have built the file.</li>
+  </ul>
+  <h2>Keep one set of numbers</h2>
+  <p>The usual mistake is retyping the week: once on the WH-347 for the GC, once into the state portal. Two copies drift. Compute the week once, then produce the WH-347 and the state's file from it, so gross, deductions and net agree on both.</p>
+  <div class="cta">
+    <p><strong>PayApps makes this file.</strong> PayApps' certified payroll page has a <em>Washington public works</em> section that writes this week's payroll as L&amp;I's PWIA XML, from the same numbers as the WH-347 PDF (gross is the WH-347's 7B; FICA and withholding are the form's). Trade codes and counties are offered from L&amp;I's lists and written as the guide asks. Full SSNs are held in the page's memory only, never saved or sent to our server. The output is tested against L&amp;I's schema; it has not yet been through a live PWIA upload.</p>
+    <p>PayApps is our hosted pay-app billing for specialty subcontractors: pay applications with retainage and change orders, the weekly WH-347 and the state files, on the job they belong to. Certified payroll is on every plan. It is <strong>open now</strong>, free on one job, no card; lien waivers, QuickBooks and job costing are in paid plans that are not on sale yet.</p>
+    <a class="go" href="https://payapps.marisstella.app/?signup&amp;from=certified-payroll-calculator%2Fwashington-prevailing-wage-xml-upload">Start free in PayApps</a>
+  </div>
+  <h2>Questions</h2>
+  <h3>How often do I file?</h3>
+  <p>At least once a month, on every public works project, under RCW 39.12.120. Several weekly payrolls can go in one XML upload.</p>
+  <h3>Do I report weeks with no work?</h3>
+  <p>The schema has a no-work flag for a week with no employees on the job.</p>
+  <h3>Is the WH-347 enough in Washington?</h3>
+  <p>Not on state public works: L&amp;I wants the payroll in its own system. A federal job may also need a WH-347 for the GC; the contract says.</p>
+  <h2>Sources</h2>
+  <p>Read on 2026-11-27 from the agency's own pages. Rules change: check the agency's page and your contract before your first payroll on a job. Cities, counties and DOTs often run their own system on top (LCPtracker is common); on those jobs the GC tells you where to file.</p>
+  <ul>
+    <li><a href="https://www.lni.wa.gov/licensing-permits/_docs/xmlschema.xsd" rel="noopener">L&amp;I XML schema (xmlschema.xsd)</a></li>
+    <li><a href="https://lni.wa.gov/licensing-permits/_docs/xml%20payroll%20guide.pdf" rel="noopener">L&amp;I XML Payroll Upload Guide (January 2020)</a></li>
+  </ul>
+  <p>Other states' files: <a href="./california-ecpr-xml-upload.html">California (DIR eCPR)</a>, <a href="./new-york-certified-payroll-bulk-upload.html">New York (NYSDOL)</a>, <a href="./illinois-certified-transcript-of-payroll-csv.html">Illinois (IDOL CTP)</a>. Federal jobs: <a href="./wh347-report.html">the WH-347 builder</a> and <a href="./does-overtime-include-fringe-benefits-on-certified-payroll.html">overtime on cash fringe</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This page is a plain-language summary of a state agency's published filing rules, not legal, payroll or compliance advice, and it does not decide whether a contract is covered or whether your rates meet the prevailing wage. Passing a schema or an upload does not make a payroll correct. Verify every figure and your actual obligation with the agency and a qualified professional before relying on it. The authors accept no liability for loss arising from its use.</p>
+  <p>Free to read. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a>.</p>
+</footer>
+</body>
+</html>

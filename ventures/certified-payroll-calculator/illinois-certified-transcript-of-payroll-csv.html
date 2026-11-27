@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%234e7e1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Illinois Certified Transcript of Payroll CSV Upload (IDOL CTP)</title>
+  <meta name="description" content="Illinois Prevailing Wage Act payroll is filed monthly in IDOL&#x27;s Certified Transcript of Payroll portal. How the 102-column Full Import CSV works, and the mistakes that send a payroll to Need Info.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="illinois-certified-transcript-of-payroll-csv.html">
+  <meta property="og:title" content="Illinois Certified Transcript of Payroll CSV Upload (IDOL CTP)">
+  <meta property="og:description" content="Illinois Prevailing Wage Act payroll is filed monthly in IDOL&#x27;s Certified Transcript of Payroll portal. How the 102-column Full Import CSV works, and the mistakes that send a payroll to Need Info.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Illinois certified payroll: the IDOL Certified Transcript of Payroll CSV", "description": "Illinois Prevailing Wage Act payroll is filed monthly in IDOL's Certified Transcript of Payroll portal. How the 102-column Full Import CSV works, and the mistakes that send a payroll to Need Info.", "datePublished": "2026-11-27", "dateModified": "2026-11-27", "author": {"@type": "Organization", "name": "Maris Stella Labs"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How often is Illinois certified payroll due?", "acceptedAnswer": {"@type": "Answer", "text": "Monthly, under 820 ILCS 130/5, through the IDOL portal."}}, {"@type": "Question", "name": "Do I file a payroll for a week with no work on the project?", "acceptedAnswer": {"@type": "Answer", "text": "IDOL's FAQ says a week with no work needs no payroll."}}, {"@type": "Question", "name": "My payroll week runs Thursday to Wednesday. Which columns?", "acceptedAnswer": {"@type": "Answer", "text": "Each day's hours go under its own weekday; IDOL's FAQ says to start your hours on Thursday."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 16px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; letter-spacing: -.03em; }
+    h2 { font-size: 1.2rem; margin-top: 28px; }
+    h3 { font-size: 1rem; margin: 16px 0 4px; }
+    p, li { line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    table { border-collapse: collapse; width: 100%; background: #fff; border: 1px solid #c4cedb; border-radius: 10px; }
+    th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid #e3e8ef; }
+    th { width: 30%; font-weight: 600; }
+    .cta { background: #fff; border: 1px solid #c4cedb; border-left: 5px solid #4e7e1b; border-radius: 12px; padding: 14px 18px; margin: 24px 0; }
+    .cta a.go { display: inline-block; margin-top: 6px; padding: 9px 14px; border-radius: 8px; background: #1f4a5d; color: #fff; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 28px; font-size: .82rem; color: #4f5967; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">← Certified payroll calculator</a> · <a href="./wh347-report.html">WH-347 builder</a></p>
+  <h1>Illinois certified payroll: the IDOL Certified Transcript of Payroll CSV</h1>
+  <p>Contractors and subcontractors on Illinois Prevailing Wage Act work file their certified payroll with the Illinois Department of Labor each month (820 ILCS 130/5), in the Certified Transcript of Payroll (CTP) portal, signed in with an Illinois Public ID. A payroll can be typed in, or sent by <em>Full Import</em>: a CSV in the exact columns of IDOL's own template.</p>
+  <table>
+    <tr><th scope="row">Where it goes</th><td>IDOL Certified Transcript of Payroll portal (Illinois Public ID login)</td></tr>
+    <tr><th scope="row">How often</th><td>Monthly (820 ILCS 130/5)</td></tr>
+    <tr><th scope="row">How</th><td>Online entry, or a Full Import CSV on IDOL's template</td></tr>
+    <tr><th scope="row">Who</th><td>Contractors and subcontractors on Prevailing Wage Act public works</td></tr>
+  </table>
+  <h2>What the IDOL CTP file holds that the WH-347 does not</h2>
+  <p>The hours, rates, fringes and deductions are the same numbers as on the federal WH-347. The state's file wraps them with more:</p>
+  <ul>
+    <li>102 columns in the template's order and with its header names, misspellings included (<code>Wednsday</code>, <code>Satday</code>): IDOL's FAQ says the template order cannot be changed.</li>
+    <li>One row per worker per classification worked.</li>
+    <li>Hours by weekday, Sunday to Saturday, whatever day your payroll week ends.</li>
+    <li>Hours and gross on other, non-prevailing projects that week, alongside this project's.</li>
+    <li>Fringe as hourly credits in IDOL's five columns (pension, health and welfare, vacation, training, other insurance).</li>
+    <li>Race, ethnicity, gender and veteran status, which the Act asks for.</li>
+    <li>Project county, the public body, and the contractor's contact, phone and email.</li>
+  </ul>
+  <h2>Upload errors to check before you send</h2>
+  <ul>
+    <li>An address that does not match the project address sends the payroll to "Need Info".</li>
+    <li>Changed, renamed or reordered columns.</li>
+    <li>Dates in a format other than MM/DD/YYYY.</li>
+    <li>Missing required fields: project county, contractor contact, phone and email, the public body.</li>
+    <li>Cash paid in lieu of fringe has no column in the template: check how IDOL wants it shown before you upload.</li>
+  </ul>
+  <h2>Keep one set of numbers</h2>
+  <p>The usual mistake is retyping the week: once on the WH-347 for the GC, once into the state portal. Two copies drift. Compute the week once, then produce the WH-347 and the state's file from it, so gross, deductions and net agree on both.</p>
+  <div class="cta">
+    <p><strong>PayApps makes this file.</strong> PayApps' certified payroll page has an <em>Illinois public works</em> section that writes this week's payroll as the CTP Full Import CSV in the template's 102 columns, from the same numbers as the WH-347 PDF, and checks the required fields above. Race, ethnicity, gender and veteran status are held in the page's memory only. It has not yet been checked against a real IDOL upload: the template does not list the values the portal accepts for race, ethnicity and gender, so those are written as you type them.</p>
+    <p>PayApps is our hosted pay-app billing for specialty subcontractors: pay applications with retainage and change orders, the weekly WH-347 and the state files, on the job they belong to. Certified payroll is on every plan. It is <strong>open now</strong>, free on one job, no card; lien waivers, QuickBooks and job costing are in paid plans that are not on sale yet.</p>
+    <a class="go" href="https://payapps.marisstella.app/?signup&amp;from=certified-payroll-calculator%2Fillinois-certified-transcript-of-payroll-csv">Start free in PayApps</a>
+  </div>
+  <h2>Questions</h2>
+  <h3>How often is Illinois certified payroll due?</h3>
+  <p>Monthly, under 820 ILCS 130/5, through the IDOL portal.</p>
+  <h3>Do I file a payroll for a week with no work on the project?</h3>
+  <p>IDOL's FAQ says a week with no work needs no payroll.</p>
+  <h3>My payroll week runs Thursday to Wednesday. Which columns?</h3>
+  <p>Each day's hours go under its own weekday; IDOL's FAQ says to start your hours on Thursday.</p>
+  <h2>Sources</h2>
+  <p>Read on 2026-11-27 from the agency's own pages. Rules change: check the agency's page and your contract before your first payroll on a job. Cities, counties and DOTs often run their own system on top (LCPtracker is common); on those jobs the GC tells you where to file.</p>
+  <ul>
+    <li><a href="https://labor.illinois.gov/laws-rules/conmed/certifiedtranscriptofpayroll.html" rel="noopener">IDOL, Certified Transcript of Payroll (the Full-CTP-Upload.xlsx template and the 2026 training slides)</a></li>
+    <li><a href="https://labor.illinois.gov/faqs/certifiedpayrollfaq.html" rel="noopener">IDOL, Certified Transcript of Payroll FAQ</a></li>
+  </ul>
+  <p>Other states' files: <a href="./california-ecpr-xml-upload.html">California (DIR eCPR)</a>, <a href="./new-york-certified-payroll-bulk-upload.html">New York (NYSDOL)</a>, <a href="./washington-prevailing-wage-xml-upload.html">Washington (L&amp;I PWIA)</a>. Federal jobs: <a href="./wh347-report.html">the WH-347 builder</a> and <a href="./does-overtime-include-fringe-benefits-on-certified-payroll.html">overtime on cash fringe</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This page is a plain-language summary of a state agency's published filing rules, not legal, payroll or compliance advice, and it does not decide whether a contract is covered or whether your rates meet the prevailing wage. Passing a schema or an upload does not make a payroll correct. Verify every figure and your actual obligation with the agency and a qualified professional before relying on it. The authors accept no liability for loss arising from its use.</p>
+  <p>Free to read. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a>.</p>
+</footer>
+</body>
+</html>

@@ -152,3 +152,30 @@ test('PayApps CTAs link the open sign-up with their source and no longer say ear
   assert.match(html, /Lien waivers, QuickBooks and job costing are in the paid plans, which are not on sale yet/);
   for (const text of [html, report, llms]) assert.doesNotMatch(text, /early access|nothing is for sale yet/i);
 });
+
+// State filing pages (2026-11-27, certified-payroll-state-filing-pages): one per state file PayApps
+// writes. Each must be reachable from the index, listed in the sitemap and llms.txt, carry the
+// disclaimer, tag its sign-up link with its own source, and say it has not been through a live upload.
+const STATE_PAGES = [
+  'california-ecpr-xml-upload',
+  'new-york-certified-payroll-bulk-upload',
+  'washington-prevailing-wage-xml-upload',
+  'illinois-certified-transcript-of-payroll-csv',
+];
+test('state certified payroll pages are linked, listed, disclaimed and tagged', () => {
+  const llms = readFileSync(new URL('./llms.txt', import.meta.url), 'utf8');
+  for (const slug of STATE_PAGES) {
+    const page = readFileSync(new URL(`./${slug}.html`, import.meta.url), 'utf8');
+    assert.match(html, new RegExp(`href="${slug}\\.html"`), `index does not link ${slug}`);
+    assert.match(sitemap, new RegExp(`/${slug}\\.html<`), `sitemap misses ${slug}`);
+    assert.match(llms, new RegExp(`/${slug}\\.html\\)`), `llms.txt misses ${slug}`);
+    assert.match(page, /No warranty/);
+    assert.match(page, /not legal, payroll or compliance advice/);
+    assert.match(page, new RegExp(`href="https://payapps\\.marisstella\\.app/\\?signup&amp;from=certified-payroll-calculator%2F${slug}"`));
+    assert.match(page, /not yet been (through|checked against) a (live|real)/, `${slug} must say the file has not been through a live upload`);
+    assert.doesNotMatch(page, /early access|nothing is for sale yet/i);
+    for (const other of STATE_PAGES) if (other !== slug) assert.match(page, new RegExp(`href="\\./${other}\\.html"`));
+    const ld = [...page.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+    assert.ok(ld.some((d) => d['@type'] === 'FAQPage' && d.mainEntity.length >= 3), `${slug} lacks FAQPage JSON-LD`);
+  }
+});

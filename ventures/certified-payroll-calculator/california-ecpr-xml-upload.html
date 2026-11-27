@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%234e7e1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>California eCPR XML Upload: DIR Certified Payroll, Version 2.0</title>
+  <meta name="description" content="California public works payroll goes to DIR&#x27;s Public Works portal as eCPR. Version 1 XML is accepted only until 13 January 2027. What the v2.0 file holds beyond the WH-347, and the checks before upload.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="california-ecpr-xml-upload.html">
+  <meta property="og:title" content="California eCPR XML Upload: DIR Certified Payroll, Version 2.0">
+  <meta property="og:description" content="California public works payroll goes to DIR&#x27;s Public Works portal as eCPR. Version 1 XML is accepted only until 13 January 2027. What the v2.0 file holds beyond the WH-347, and the checks before upload.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "California eCPR: the DIR certified payroll XML, version 2.0", "description": "California public works payroll goes to DIR's Public Works portal as eCPR. Version 1 XML is accepted only until 13 January 2027. What the v2.0 file holds beyond the WH-347, and the checks before upload.", "datePublished": "2026-11-27", "dateModified": "2026-11-27", "author": {"@type": "Organization", "name": "Maris Stella Labs"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is version 1 of the eCPR XML still accepted?", "acceptedAnswer": {"@type": "Answer", "text": "DIR's version 2 FAQ says version 1 files are accepted until 13 January 2027. After that, an upload has to be on the version 2.0 schema."}}, {"@type": "Question", "name": "Do I still need the WH-347 if I file eCPR?", "acceptedAnswer": {"@type": "Answer", "text": "eCPR is the copy DIR keeps. The GC or awarding body may also ask for a signed payroll on its own form: the contract says. Where both are owed, the numbers on both should be the same."}}, {"@type": "Question", "name": "Does passing the XSD mean my payroll is right?", "acceptedAnswer": {"@type": "Answer", "text": "No. DIR's FAQ says so: the schema checks the file's shape, not whether the rates meet the prevailing wage determination."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 16px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; letter-spacing: -.03em; }
+    h2 { font-size: 1.2rem; margin-top: 28px; }
+    h3 { font-size: 1rem; margin: 16px 0 4px; }
+    p, li { line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    table { border-collapse: collapse; width: 100%; background: #fff; border: 1px solid #c4cedb; border-radius: 10px; }
+    th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid #e3e8ef; }
+    th { width: 30%; font-weight: 600; }
+    .cta { background: #fff; border: 1px solid #c4cedb; border-left: 5px solid #4e7e1b; border-radius: 12px; padding: 14px 18px; margin: 24px 0; }
+    .cta a.go { display: inline-block; margin-top: 6px; padding: 9px 14px; border-radius: 8px; background: #1f4a5d; color: #fff; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 28px; font-size: .82rem; color: #4f5967; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">← Certified payroll calculator</a> · <a href="./wh347-report.html">WH-347 builder</a></p>
+  <h1>California eCPR: the DIR certified payroll XML, version 2.0</h1>
+  <p>On a California public works job, each week's certified payroll goes to the Department of Industrial Relations' Public Works portal as electronic certified payroll (eCPR), typed in or uploaded as an XML file. DIR's XML schema is now at version 2.0, and its FAQ says version 1 files are accepted only until <strong>13 January 2027</strong>. If your payroll software writes version 1, it has to change before then.</p>
+  <table>
+    <tr><th scope="row">Where it goes</th><td>DIR Public Works portal, eCPR (Labor Code § 1776; § 1771.4 makes electronic submission the rule on public works)</td></tr>
+    <tr><th scope="row">How</th><td>Online form, or an XML file on DIR's eCPR schema</td></tr>
+    <tr><th scope="row">Version</th><td>2.0; version 1 accepted until 13 January 2027 (DIR's V2 FAQ)</td></tr>
+    <tr><th scope="row">Who</th><td>Contractors and subcontractors on California prevailing-wage public works</td></tr>
+  </table>
+  <h2>What the DIR eCPR file holds that the WH-347 does not</h2>
+  <p>The hours, rates, fringes and deductions are the same numbers as on the federal WH-347. The state's file wraps them with more:</p>
+  <ul>
+    <li>The contractor's PWCR (public works contractor registration number, 10 digits) and the DIR project ID, plus the awarding body.</li>
+    <li>Each worker's middle name, home address and full SSN or ITIN (the WH-347 asks only for the last four digits).</li>
+    <li>Check number, or CASH, per worker; travel and subsistence; notes.</li>
+    <li>Each row's craft, and the apprentice period (1 to 10) for apprentices.</li>
+    <li>Doubletime hours and rate. The WH-347 has no doubletime column, so a file that carries doubletime has a higher gross than a WH-347 that left it out.</li>
+    <li>Deductions split into DIR's categories (state income tax, SDI, fund administration, savings, dues and the rest) and fringe as hourly amounts in DIR's five categories, with a flag saying whether fringe was paid to a plan or to the employee.</li>
+    <li>A statement of non-performance for a week with no work, sent as a file with no employees.</li>
+  </ul>
+  <h2>Upload errors to check before you send</h2>
+  <ul>
+    <li>Lengths and patterns: the PWCR is 10 digits; names, addresses and IDs have maximum lengths in the schema.</li>
+    <li>Every SSN unique within the file.</li>
+    <li>No more than 24 hours a day, doubletime included.</li>
+    <li>Every apprentice row carries an apprentice period.</li>
+    <li>At most 500 employees per file.</li>
+    <li>The "source of truth" totals (total hourly rates, total deductions, gross for this project, gross for all work, net) are stored as you send them: DIR does not recompute them, so they have to add up before you upload.</li>
+  </ul>
+  <h2>Keep one set of numbers</h2>
+  <p>The usual mistake is retyping the week: once on the WH-347 for the GC, once into the state portal. Two copies drift. Compute the week once, then produce the WH-347 and the state's file from it, so gross, deductions and net agree on both.</p>
+  <div class="cta">
+    <p><strong>PayApps makes this file.</strong> PayApps' certified payroll page has a <em>California public work</em> section that writes this week's payroll as the eCPR v2.0 XML, from the same numbers as the WH-347 PDF. Deductions are split out of the WH-347 totals, never re-totalled, so the PDF and the file show the same net. It checks the upload rules above before you download. Full SSNs and ITINs are held in the page's memory only: they are never saved or sent to our server. The output is tested against DIR's XSD; it has not yet been through a live DIR upload, and DIR's classification names are not published, so an unrecognized one becomes "Other".</p>
+    <p>PayApps is our hosted pay-app billing for specialty subcontractors: pay applications with retainage and change orders, the weekly WH-347 and the state files, on the job they belong to. Certified payroll is on every plan. It is <strong>open now</strong>, free on one job, no card; lien waivers, QuickBooks and job costing are in paid plans that are not on sale yet.</p>
+    <a class="go" href="https://payapps.marisstella.app/?signup&amp;from=certified-payroll-calculator%2Fcalifornia-ecpr-xml-upload">Start free in PayApps</a>
+  </div>
+  <h2>Questions</h2>
+  <h3>Is version 1 of the eCPR XML still accepted?</h3>
+  <p>DIR's version 2 FAQ says version 1 files are accepted until 13 January 2027. After that, an upload has to be on the version 2.0 schema.</p>
+  <h3>Do I still need the WH-347 if I file eCPR?</h3>
+  <p>eCPR is the copy DIR keeps. The GC or awarding body may also ask for a signed payroll on its own form: the contract says. Where both are owed, the numbers on both should be the same.</p>
+  <h3>Does passing the XSD mean my payroll is right?</h3>
+  <p>No. DIR's FAQ says so: the schema checks the file's shape, not whether the rates meet the prevailing wage determination.</p>
+  <h2>Sources</h2>
+  <p>Read on 2026-11-26 from the agency's own pages. Rules change: check the agency's page and your contract before your first payroll on a job. Cities, counties and DOTs often run their own system on top (LCPtracker is common); on those jobs the GC tells you where to file.</p>
+  <ul>
+    <li><a href="https://www.dir.ca.gov/Public-Works/Certified-Payroll-Reporting.html" rel="noopener">DIR, Certified Payroll Reporting (the eCPR XSD, blank and sample files, XML Guidelines V2, V2 FAQ)</a></li>
+  </ul>
+  <p>Other states' files: <a href="./new-york-certified-payroll-bulk-upload.html">New York (NYSDOL)</a>, <a href="./washington-prevailing-wage-xml-upload.html">Washington (L&amp;I PWIA)</a>, <a href="./illinois-certified-transcript-of-payroll-csv.html">Illinois (IDOL CTP)</a>. Federal jobs: <a href="./wh347-report.html">the WH-347 builder</a> and <a href="./does-overtime-include-fringe-benefits-on-certified-payroll.html">overtime on cash fringe</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This page is a plain-language summary of a state agency's published filing rules, not legal, payroll or compliance advice, and it does not decide whether a contract is covered or whether your rates meet the prevailing wage. Passing a schema or an upload does not make a payroll correct. Verify every figure and your actual obligation with the agency and a qualified professional before relying on it. The authors accept no liability for loss arising from its use.</p>
+  <p>Free to read. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%234e7e1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New York Certified Payroll Bulk Upload: NYSDOL XML File</title>
+  <meta name="description" content="Since 1 January 2026 New York Article 8 public work files certified payroll electronically with NYSDOL. What the bulk-upload XML holds beyond the WH-347, and the errors the portal rejects.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="new-york-certified-payroll-bulk-upload.html">
+  <meta property="og:title" content="New York Certified Payroll Bulk Upload: NYSDOL XML File">
+  <meta property="og:description" content="Since 1 January 2026 New York Article 8 public work files certified payroll electronically with NYSDOL. What the bulk-upload XML holds beyond the WH-347, and the errors the portal rejects.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "New York certified payroll: the NYSDOL bulk-upload XML", "description": "Since 1 January 2026 New York Article 8 public work files certified payroll electronically with NYSDOL. What the bulk-upload XML holds beyond the WH-347, and the errors the portal rejects.", "datePublished": "2026-11-27", "dateModified": "2026-11-27", "author": {"@type": "Organization", "name": "Maris Stella Labs"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do I have to file with NYSDOL on a federal job?", "acceptedAnswer": {"@type": "Answer", "text": "The electronic filing covers New York Article 8 public work. A purely federal Davis-Bacon job follows the federal rules; the contract says which apply."}}, {"@type": "Question", "name": "Can I upload several weeks at once?", "acceptedAnswer": {"@type": "Answer", "text": "NYSDOL takes up to five weekly payrolls per 30-day cycle. Each week you upload must not already have employee entries typed in."}}, {"@type": "Question", "name": "Why does the portal reject my classification?", "acceptedAnswer": {"@type": "Answer", "text": "The XML has to use a name from NYSDOL's XML Work Classification List exactly as spelled there."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 16px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; letter-spacing: -.03em; }
+    h2 { font-size: 1.2rem; margin-top: 28px; }
+    h3 { font-size: 1rem; margin: 16px 0 4px; }
+    p, li { line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    table { border-collapse: collapse; width: 100%; background: #fff; border: 1px solid #c4cedb; border-radius: 10px; }
+    th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid #e3e8ef; }
+    th { width: 30%; font-weight: 600; }
+    .cta { background: #fff; border: 1px solid #c4cedb; border-left: 5px solid #4e7e1b; border-radius: 12px; padding: 14px 18px; margin: 24px 0; }
+    .cta a.go { display: inline-block; margin-top: 6px; padding: 9px 14px; border-radius: 8px; background: #1f4a5d; color: #fff; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 28px; font-size: .82rem; color: #4f5967; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">← Certified payroll calculator</a> · <a href="./wh347-report.html">WH-347 builder</a></p>
+  <h1>New York certified payroll: the NYSDOL bulk-upload XML</h1>
+  <p>From <strong>1 January 2026</strong>, contractors and subcontractors on New York Labor Law Article 8 public work file certified payroll electronically with the Department of Labor, at least every 30 days and up to five weekly payrolls per cycle. You can type each week into the portal, or upload an XML file checked against the XSD NYSDOL publishes. There is no API.</p>
+  <table>
+    <tr><th scope="row">Where it goes</th><td>NYSDOL Electronic Certified Payroll Submissions (the MPWR portal)</td></tr>
+    <tr><th scope="row">Since</th><td>1 January 2026, all Article 8 public work (Article 9 building service is not included)</td></tr>
+    <tr><th scope="row">How often</th><td>At least every 30 days; up to five weekly payrolls per cycle</td></tr>
+    <tr><th scope="row">How</th><td>Online entry, or a bulk XML upload on NYSDOL's XSD (version 2.0)</td></tr>
+  </table>
+  <h2>What the NYSDOL file holds that the WH-347 does not</h2>
+  <p>The hours, rates, fringes and deductions are the same numbers as on the federal WH-347. The state's file wraps them with more:</p>
+  <ul>
+    <li>The project's PRC number (the prevailing rate case number, 10 characters), which has to match a project the portal already knows.</li>
+    <li>Each worker's address with the state spelled out, not abbreviated.</li>
+    <li>The last four digits of the SSN, or else the date of birth: one of the two, never both.</li>
+    <li>Whether the worker is a New York registered apprentice.</li>
+    <li>For every row, a classification name from NYSDOL's XML Work Classification List (261 names); the portal rejects any other spelling.</li>
+    <li>Deductions by type (state and local income tax, disability and paid family leave, union dues and the rest) and supplements by type per classification, each with its straight-time and overtime hourly amount.</li>
+  </ul>
+  <h2>Upload errors to check before you send</h2>
+  <ul>
+    <li>A <code>prcNumber</code> that does not match an existing project.</li>
+    <li>Field lengths and minimum or maximum values: wage rates up to 999.99, each deduction up to 9,999.99, at most 10 deductions and 50 supplements per worker, at most 500 employees.</li>
+    <li>Date formats.</li>
+    <li>The same employee twice in one payroll, or a worker sent with both an SSN's last four and a date of birth.</li>
+    <li>Bulk upload works only for pay weeks that have no employee entries yet: a week half typed in by hand cannot then be uploaded.</li>
+  </ul>
+  <h2>Keep one set of numbers</h2>
+  <p>The usual mistake is retyping the week: once on the WH-347 for the GC, once into the state portal. Two copies drift. Compute the week once, then produce the WH-347 and the state's file from it, so gross, deductions and net agree on both.</p>
+  <div class="cta">
+    <p><strong>PayApps makes this file.</strong> PayApps' certified payroll page has a <em>New York public work</em> section that writes this week's payroll as the NYSDOL bulk-upload XML, from the same numbers as the WH-347 PDF (gross is the WH-347's 7B, net its column 9). It offers the classification list as you type, matches near misses such as a hyphen for an en dash to the list's spelling, and checks the limits above before you download. Dates of birth are held in the page's memory only. The output is tested against NYSDOL's XSD; it has not yet been through a live NYSDOL upload.</p>
+    <p>PayApps is our hosted pay-app billing for specialty subcontractors: pay applications with retainage and change orders, the weekly WH-347 and the state files, on the job they belong to. Certified payroll is on every plan. It is <strong>open now</strong>, free on one job, no card; lien waivers, QuickBooks and job costing are in paid plans that are not on sale yet.</p>
+    <a class="go" href="https://payapps.marisstella.app/?signup&amp;from=certified-payroll-calculator%2Fnew-york-certified-payroll-bulk-upload">Start free in PayApps</a>
+  </div>
+  <h2>Questions</h2>
+  <h3>Do I have to file with NYSDOL on a federal job?</h3>
+  <p>The electronic filing covers New York Article 8 public work. A purely federal Davis-Bacon job follows the federal rules; the contract says which apply.</p>
+  <h3>Can I upload several weeks at once?</h3>
+  <p>NYSDOL takes up to five weekly payrolls per 30-day cycle. Each week you upload must not already have employee entries typed in.</p>
+  <h3>Why does the portal reject my classification?</h3>
+  <p>The XML has to use a name from NYSDOL's XML Work Classification List exactly as spelled there.</p>
+  <h2>Sources</h2>
+  <p>Read on 2026-11-27 from the agency's own pages. Rules change: check the agency's page and your contract before your first payroll on a job. Cities, counties and DOTs often run their own system on top (LCPtracker is common); on those jobs the GC tells you where to file.</p>
+  <ul>
+    <li><a href="https://dol.ny.gov/bizserve/ep" rel="noopener">NYSDOL, Electronic Payroll Submission (XSD version 2.0, sample file, Bulk Upload Formatting Guide, XML Work Classification List)</a></li>
+    <li><a href="https://dol.ny.gov/electronic-payroll" rel="noopener">NYSDOL, electronic payroll FAQ</a></li>
+  </ul>
+  <p>Other states' files: <a href="./california-ecpr-xml-upload.html">California (DIR eCPR)</a>, <a href="./washington-prevailing-wage-xml-upload.html">Washington (L&amp;I PWIA)</a>, <a href="./illinois-certified-transcript-of-payroll-csv.html">Illinois (IDOL CTP)</a>. Federal jobs: <a href="./wh347-report.html">the WH-347 builder</a> and <a href="./does-overtime-include-fringe-benefits-on-certified-payroll.html">overtime on cash fringe</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This page is a plain-language summary of a state agency's published filing rules, not legal, payroll or compliance advice, and it does not decide whether a contract is covered or whether your rates meet the prevailing wage. Passing a schema or an upload does not make a payroll correct. Verify every figure and your actual obligation with the agency and a qualified professional before relying on it. The authors accept no liability for loss arising from its use.</p>
+  <p>Free to read. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a>.</p>
+</footer>
+</body>
+</html>
