@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [design, seo]
+date: 2026-11-27
+---
+
 # Polish, 2026-11-27: the construction page's hero leads with the open product
 
 Surface: `industries/construction/` (`platform/pages/industry-construction.mjs`), the catalogue's
