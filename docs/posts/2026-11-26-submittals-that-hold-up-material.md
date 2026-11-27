@@ -158,8 +158,8 @@ reflects what was entered. If a late review is turning into a schedule claim, re
 subcontract's notice and delay clauses and talk to a construction attorney before the deadline
 in them passes.
 
-The product is in development with early access; nothing is for sale yet. If you want a
-register for a whole project manual today (every volume, plus submit requirements buried outside
+PayApps is open: submittals are on every plan, free on one active job, with no card
+([start free](https://marisstella.app/industries/construction/)). The paid plans (more jobs and users, lien waivers, QuickBooks and job costing) are not on sale yet. If you want a
+register for a whole project manual first (every volume, plus submit requirements buried outside
 Part 1), the free [submittal register](https://marisstella.app/submittal-register/)
-lists every submittal a project manual asks for, in your browser:
-[construction tools and early access](https://marisstella.app/industries/construction/).
+lists every submittal a project manual asks for, in your browser, with no account.
