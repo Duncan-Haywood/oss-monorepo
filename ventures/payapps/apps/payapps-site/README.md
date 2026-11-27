@@ -11,8 +11,8 @@ separately). Pages: home, features, pricing, early access, privacy. It also serv
 ## Honesty rules (the copy)
 
 - The product is **in development**. The site says "early access", collects interest and sells nothing.
-- No testimonials, customer counts, logos, ratings or outcome claims. JSON-LD has no `offers` or
-  `aggregateRating`. `test/unit/site.test.ts` checks for the obvious cases.
+- No testimonials, customer counts, logos, ratings or outcome claims. The JSON-LD carries no offers
+  and no review or rating markup; `test/unit/site.test.ts` checks for the obvious cases.
 - A feature is marked **built · in testing** only once it is in the app (`apps/payapps/ROADMAP.md`, "Done");
   everything else is **next**.
 - Prices are the app's own plans (`apps/payapps/src/shared/plans.ts`); `test/unit/plans-sync.test.ts`
