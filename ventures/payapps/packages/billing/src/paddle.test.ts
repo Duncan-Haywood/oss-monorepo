@@ -306,6 +306,32 @@ describe("own-key lookups (no Object.prototype names)", () => {
 });
 
 describe("PaddleBillingProvider.createCheckout", () => {
+  it("sends the app's pay page as the transaction's checkout.url when given", async () => {
+    let body: Record<string, unknown> | null = null;
+    const fetchFn: typeof fetch = async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/transactions")) {
+        body = JSON.parse(String(init?.body));
+        return Response.json({
+          data: { id: "txn_2", checkout: { url: "https://app.example/pay/org_1?_ptxn=txn_2" } },
+        });
+      }
+      return new Response("{}", { status: 404 });
+    };
+    const res = await provider(fetchFn).createCheckout({
+      checkoutToken: "pco_tok.sig",
+      planKey: "starter",
+      customerEmail: "a@example.org",
+      successUrl: "https://app/s",
+      cancelUrl: "https://app/c",
+      providerCustomerId: "ctm_1",
+      checkoutPageUrl: "https://app.example/pay/org_1",
+    });
+    assert.equal(res.url, "https://app.example/pay/org_1?_ptxn=txn_2");
+    assert.deepEqual((body as Record<string, unknown> | null)?.checkout, {
+      url: "https://app.example/pay/org_1",
+    });
+  });
   it("creates a transaction with customer, discount and only the signed token in custom_data", async () => {
     const calls: { method: string; url: string; body: unknown }[] = [];
     const fetchFn: typeof fetch = async (input, init) => {

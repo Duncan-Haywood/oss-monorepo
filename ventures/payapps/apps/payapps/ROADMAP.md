@@ -2476,7 +2476,13 @@ nothing to copy. No customers yet. Paid plans are dark
   from this app's `docs/legal/*.md` (`apps/payapps-site`, `pnpm sync:legal`; a drift test fails when
   they differ), linked from every footer and from the pricing note, for Paddle's website review
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on"); the
-  deploy workflow runs the Paddle catalog sync
+  deploy workflow runs the Paddle catalog sync. Done 2026-11-27 (paddle-checkout-page): the checkout
+  page Paddle opens, `/pay/<org>` with Paddle.js (`src/worker/routes/pay.ts`), its client-side token
+  and the account's default payment link as code (`packages/billing/src/paddle-checkout-page.ts`, the
+  deploy's "Paddle checkout page" step), and each transaction's own `checkout.url`; Paddle checkout
+  stays off without the token. Left for the owner: approve `payapps.marisstella.app` in Paddle's
+  Website approval (no API), give the key `client_token.*` and `checkout_settings.*` if the deploy log
+  asks, and set `PAYAPPS_BILLING_PROVIDER=paddle`
 - Owner: an Intuit developer app, its keys and redirect URI, and `QBO_TOKEN_KEY`
   (docs/QUICKBOOKS.md, "Turning it on"); check one invoice in a sandbox company first
 - Marketing site with the pricing table (`apps/payapps-site`, PR #18) reading `/api/billing/plans`.

@@ -11,7 +11,7 @@
   "upload_source_maps": true,
   "assets": {
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/pay", "/pay/*"]
   },
   // Cloudflare Email Service (account mail; docs/EMAIL.md). Mail goes out only once EMAIL_FROM is set
   // to an address on an onboarded sender domain; `wrangler dev` only simulates sends.

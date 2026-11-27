@@ -8,6 +8,7 @@ export * from "./fake.ts";
 export * from "./grace.ts";
 export * from "./paddle.ts";
 export * from "./paddle-catalog.ts";
+export * from "./paddle-checkout-page.ts";
 export * from "./paddle-key.ts";
 export * from "./paddle-webhook.ts";
 export * from "./period.ts";

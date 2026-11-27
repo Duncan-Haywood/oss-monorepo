@@ -43,6 +43,7 @@ import submittalRoutes from "./routes/org/submittals";
 import timesheetRoutes from "./routes/org/timesheets";
 import tmTicketRoutes from "./routes/org/tm-tickets";
 import orgRoutes from "./routes/orgs";
+import payRoutes from "./routes/pay";
 import unsubscribeRoutes from "./routes/unsubscribe";
 import type { AppEnv } from "./types";
 
@@ -64,6 +65,9 @@ export function createApp() {
       fileStore: fileStoreKind(c.var.ctx.env),
     }),
   );
+
+  // Paddle's checkout page (routes/pay.ts): outside /api, so wrangler.jsonc runs the Worker first on it.
+  app.route("/pay", payRoutes);
 
   app.use("/api/*", originCheck);
   // Durable per-IP and per-account limits in front of Better Auth (middleware/auth-rate-limit.ts).
