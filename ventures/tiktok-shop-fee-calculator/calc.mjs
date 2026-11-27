@@ -426,7 +426,7 @@ export function compareFreeShipping(input = {}) {
 export function freeShippingNote(comparison) {
   const money = (value) => {
     const sign = value < 0 ? "−" : "";
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const charged = comparison.charged.result;
   const raised = comparison.raised.result;
@@ -536,7 +536,7 @@ export function feeChangeImpact(input, fromId = "us_standard", toId = "oct_2026"
 export function feeChangeNote(impact) {
   const money = (value) => {
     const sign = value < 0 ? "−" : "";
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const cost = impact.extraCostPerOrder;
 
@@ -649,7 +649,7 @@ export function compareBundleDiscount(input = {}) {
 export function bundleDiscountNote(comparison) {
   const money = (value) => {
     const sign = value < 0 ? "−" : "";
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { bundleQuantity, bundleDiscountPct, bundleGain, winner, breakEvenDiscountPct } =
     comparison;

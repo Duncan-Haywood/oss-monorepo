@@ -657,7 +657,7 @@ export function listingFormatNote(comparison) {
     throw new Error('Listing-format comparison is missing rows');
   }
   const money = (value) => {
-    const format = (value) => `$${value.toFixed(2)}`;
+    const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const text = format(Math.abs(value));
     return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
@@ -789,7 +789,7 @@ export function partialRefundNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { partial, takeReturn, keepItemFull } = comparison;
   const gap = money(Math.abs(partial.kept - takeReturn.kept));
@@ -973,7 +973,7 @@ export function authenticityNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { skip, authenticity } = comparison;
   const gap = money(Math.abs(authenticity.expectedProfit - skip.expectedProfit));
@@ -1185,7 +1185,7 @@ export function localPickupNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { ship, pickup } = comparison;
   const gap = money(Math.abs(pickup.expectedProfit - ship.expectedProfit));
@@ -1443,7 +1443,7 @@ export function lotVsSinglesNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { lot, singles } = comparison;
   const gap = money(Math.abs(singles.expectedProfit - lot.expectedProfit));
@@ -1672,7 +1672,7 @@ export function standardEnvelopeNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { tracked, envelope } = comparison;
   const gap = money(Math.abs(envelope.expectedProfit - tracked.expectedProfit));
@@ -1920,7 +1920,7 @@ export function combinedShippingNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { separate, combined } = comparison;
   const gap = money(Math.abs(combined.expectedProfit - separate.expectedProfit));
@@ -2069,7 +2069,7 @@ export function sellerInitiatedOfferNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { wait, offer } = comparison;
   const gap = money(Math.abs(offer.expectedProfit - wait.expectedProfit));
@@ -2593,7 +2593,7 @@ export function promotedAdvancedNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { skip, advanced } = comparison;
   const gap = money(Math.abs(advanced.expectedProfit - skip.expectedProfit));
@@ -2613,7 +2613,7 @@ export function promotedStandardNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { skip, promote } = comparison;
   const gap = money(Math.abs(promote.expectedProfit - skip.expectedProfit));
@@ -2633,7 +2633,7 @@ export function promotedOffsiteNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { skip, offsite } = comparison;
   const gap = money(Math.abs(offsite.expectedProfit - skip.expectedProfit));
@@ -2918,7 +2918,7 @@ export function quantityDiscountNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { singles, discount } = comparison;
   const packedGap = money(Math.abs(discount.soldExpectedProfit - singles.soldExpectedProfit));
@@ -3161,7 +3161,7 @@ export function sellerCouponNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { listed, coupon, drop } = comparison;
   const packedGap = money(Math.abs(coupon.soldExpectedProfit - listed.soldExpectedProfit));
@@ -3365,7 +3365,7 @@ export function immediatePaymentNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { later, immediate } = comparison;
   const packedGap = money(Math.abs(immediate.soldExpectedProfit - later.soldExpectedProfit));
@@ -3608,7 +3608,7 @@ export function topRatedPlusNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { standard, topRated } = comparison;
   const gap = money(Math.abs(topRated.expectedProfit - standard.expectedProfit));
@@ -3795,7 +3795,7 @@ export function managedReturnsNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const {
     winner,
@@ -4090,7 +4090,7 @@ export function globalShippingNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { gsp, selfShip } = comparison;
   const packedGap = money(Math.abs(gsp.soldExpectedProfit - selfShip.soldExpectedProfit));
@@ -4278,7 +4278,7 @@ export function storeTiersNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { winner, currentRate, extraKeptOnStarter, starter } = comparison;
   // A seller already on Starter (or a matching fee+rate) drops that
@@ -4446,7 +4446,7 @@ export function bestOfferNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const wait = comparison.acceptBeatsWait
     ? ` Accepting keeps ${money(Math.abs(comparison.extraKeptOnAccept))} more than waiting if you only have a ${comparison.chanceOfFullPricePct}% chance of the list price.`
@@ -4631,7 +4631,7 @@ export function freeShippingNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { buyerPays, freeShip } = comparison;
   const stGap = money(Math.abs(freeShip.expectedProfit - buyerPays.expectedProfit));
@@ -4797,7 +4797,7 @@ export function internationalNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const buyer = comparison.rows.find((row) => row.id === 'intl_buyer_pays');
   const youShip = comparison.rows.find((row) => row.id === 'intl_you_ship');
@@ -5120,7 +5120,7 @@ export function packageProtectionNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { skip, insure, signature } = comparison;
   const skipLine = `Skip protection at a ${skip.claimRatePercent}% item-not-received claim rate expects ${money(skip.expectedProfit)} after the typed return mix — a claim on that path leaves ${money(skip.claimProfit)}.`;
@@ -5419,7 +5419,7 @@ export function ebayLabelsNote(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? '-' : '';
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { ebay, third, postageOnly } = comparison;
   const ebayLine = `The ${money(ebay.labelCost)} eBay label at a ${ebay.claimRatePercent}% item-not-received claim rate expects ${money(ebay.expectedProfit)} after the typed return mix — a claim on that path leaves ${money(ebay.claimProfit)}.`;

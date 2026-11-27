@@ -103,7 +103,7 @@
     };
     const INPUTS_KEY = 'etsy-offsite-ads-inputs';
     const field = id => document.getElementById(id);
-    const money = value => `${value < 0 && Math.abs(value).toFixed(2) !== '0.00' ? '−' : ''}$${Math.abs(value).toFixed(2)}`;
+    const money = value => `${value < 0 && Math.abs(value).toFixed(2) !== '0.00' ? '−' : ''}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const currentInputs = () => Object.fromEntries(FIELD_IDS.map(id => [id, field(id).value]));
     const safe = fn => { try { return fn(); } catch { return undefined; } };
     let statusTimer;

@@ -104,7 +104,7 @@
     const INPUTS_KEY = 'etsy-target-profit-inputs';
     const field = id => document.getElementById(id);
     const money = (value) => {
-      const format = (value) => `$${Number(value).toFixed(2)}`;
+      const format = (value) => `$${Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(value));
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };

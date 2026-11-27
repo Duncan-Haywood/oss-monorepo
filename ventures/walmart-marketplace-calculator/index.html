@@ -401,7 +401,7 @@
       "promoTakePct", "promoDays", "monthDays",
     ];
     const money = (value) => {
-      const format = (value) => `$${value.toFixed(2)}`;
+      const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(value));
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };
@@ -452,7 +452,7 @@
         const field = document.getElementById("fulfillmentFee");
         field.placeholder = result.suggestedFulfillment.toFixed(2);
         document.getElementById("sizeHint").textContent =
-          `(${result.sizeTierLabel}, default $${result.suggestedFulfillment.toFixed(2)})`;
+          `(${result.sizeTierLabel}, default $${result.suggestedFulfillment.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
         if (field.value === "" || field.dataset.auto === "1") {
           syncingFee = true;
           field.value = result.suggestedFulfillment.toFixed(2);
@@ -493,7 +493,7 @@
         if (result.match) {
           const verb = result.matchStillProfitable ? "still profits" : "loses money";
           document.getElementById("matchResult").textContent =
-            `${money(result.match.selected.profit)} at $${result.matchPrice.toFixed(2)} (${verb})`;
+            `${money(result.match.selected.profit)} at $${result.matchPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${verb})`;
         } else {
           document.getElementById("matchResult").textContent = "no match price entered";
         }
