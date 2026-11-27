@@ -64,6 +64,17 @@ run "baseline_shape" {
   }
 
   assert {
+    condition = alltrue([
+      for st in jsondecode(aws_organizations_policy.scp["guardrails"].content).Statement :
+      st.Sid != "KeepS3BlockPublicAccess" || (
+        st.Effect == "Deny" &&
+        jsonencode(try(st.Condition, null)) == jsonencode({ ArnNotLike = { "aws:PrincipalArn" = "arn:aws:iam::*:role/OrganizationAccountAccessRole" } })
+      )
+    ]) && length([for st in jsondecode(aws_organizations_policy.scp["guardrails"].content).Statement : st if st.Sid == "KeepS3BlockPublicAccess"]) == 1
+    error_message = "S3 Block Public Access stays denied to everyone but OrganizationAccountAccessRole"
+  }
+
+  assert {
     condition     = length(aws_organizations_policy_attachment.scp) == 15
     error_message = "three SCPs on each of five OUs"
   }

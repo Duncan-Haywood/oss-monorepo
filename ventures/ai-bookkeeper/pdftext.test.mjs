@@ -159,3 +159,41 @@ test("LZW codes past 512 and 1024 entries decode (width changes), with early cha
     assert.equal(text, big.toString("latin1").replace(/[()\\]/g, "x").replace(/\s/g, ""), `early ${early}`);
   }
 });
+
+// Red team 2026-11-27 (real defect): content streams were decoded with
+// TextDecoder("latin1"), which is windows-1252, so a raw byte 0x80-0x9F inside a
+// literal string came back as U+20AC, U+2019 and so on. Subset fonts number their
+// glyphs from 0x01 up, so the 128th-159th glyph of a ToUnicode-mapped font (one or two
+// bytes) missed the map and printed the wrong character or nothing.
+function pdfWithMappedFont({ type0, shown, cmap }) {
+  const parts = [Buffer.from("%PDF-1.4\n")];
+  const add = (s) => parts.push(Buffer.isBuffer(s) ? s : Buffer.from(s, "latin1"));
+  const data = Buffer.concat([Buffer.from("BT /F1 12 Tf 72 700 Td ("), shown, Buffer.from(") Tj ET")]);
+  add("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n");
+  add("3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n");
+  add(`4 0 obj\n<< /Length ${data.length} >>\nstream\n`); add(data); add("\nendstream\nendobj\n");
+  add(type0
+    ? "5 0 obj\n<< /Type /Font /Subtype /Type0 /BaseFont /ABCDEF+Sans /Encoding /Identity-H /ToUnicode 6 0 R >>\nendobj\n"
+    : "5 0 obj\n<< /Type /Font /Subtype /TrueType /BaseFont /ABCDEF+Sans /ToUnicode 6 0 R >>\nendobj\n");
+  add(`6 0 obj\n<< /Length ${cmap.length} >>\nstream\n${cmap}\nendstream\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n`);
+  return Buffer.concat(parts);
+}
+
+test("raw bytes 0x80-0x9F in a literal string reach a ToUnicode map unchanged", async () => {
+  const one = pdfWithMappedFont({
+    shown: Buffer.from([0x80, 0x92, 0x41]),
+    cmap: "beginbfchar\n<80> <0050>\n<92> <0061>\n<41> <0079>\nendbfchar",
+  });
+  assert.equal((await pdfToText(one)).trim(), "Pay");
+  const two = pdfWithMappedFont({
+    type0: true,
+    shown: Buffer.from([0x00, 0x85, 0x00, 0x9f]),
+    cmap: "begincodespacerange\n<0000> <FFFF>\nendcodespacerange\nbeginbfchar\n<0085> <0034>\n<009f> <0032>\nendbfchar",
+  });
+  assert.equal((await pdfToText(two)).trim(), "42");
+});
+
+test("an unmapped single-byte font still prints WinAnsi 0x80 as the euro sign", async () => {
+  const pdf = pdfWith("/ASCIIHexDecode", Buffer.from(Buffer.from("BT /F1 12 Tf 72 700 Td (\x80 5) Tj ET", "latin1").toString("hex") + ">"));
+  assert.equal((await pdfToText(pdf)).trim(), "€ 5");
+});
