@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjNuW5hiRcjpQPxw1p",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T07:22:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Port Seller Books' (bet #5) deploy workflow to this repository so it can go live: the allowlist PR first, then priv-seller-books-deploy.yml [work:move-seller-books-public]",
+  "projects": [
+    "ventures/seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19652",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/adversarial_gate/gate.py",
+      "issue": "`analyze --diff <file>` on a new workflow reported 0 findings; only `--base origin/main --head HEAD` on a committed temp branch showed the 9 secret findings. The --diff path silently misses workflow-escalation for new files, so a local check with it looks clean when CI will block."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "payapps and jobshop-quote list 22 and 13 Next items, and every one but one is gated on demand. The 'Start here' pointer named payapps #11, whose only open ask is a manual check on a Windows PC and an Android phone, which a cloud session cannot do."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is to advance the top bet (payapps). Its roadmap is saturated and waiting on demand, and other sessions were already claiming its deploy and CTA work. Seller Books (bet #5) had all its code and a launch review but no way to deploy from here.",
+      "did": "Ported the deploy workflow (two PRs: an allowlist PR, then the workflow), so a stranger can sign up once it is dispatched.",
+      "result": "PR #19652 opened; the workflow PR follows once the allowlist is on main."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Most PRs carry a post, but this one is deploy plumbing with no user-facing change yet. A post saying 'Seller Books is live' would be premature before a successful run.",
+      "did": "No post in this PR; the agent doc is the venture's DEPLOY.md, updated.",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "ventures/seller-books/DEPLOY.md (updated: deploy workflow done, which secrets it needs)"
+  ],
+  "goal": null,
+  "notes": "Local verification of every step the workflow runs, in ventures/seller-books/apps/seller-books: pnpm install --frozen-lockfile; biome ci (2 warnings, 0 errors); typecheck; test:unit 308/308 passed (31 files); test:worker 133/133 passed (25 files); provision.test.mjs 5 pass 0 fail; pnpm build; check-no-client-maps clean; provision.mjs --dry-run wrote dist/seller_books/wrangler.deploy.json (workers.dev). The adversarial gate, run locally on a temp commit with the workflow, gave tier control-plane, 9 blocking (exactly the 9 secrets allowlisted in PR #19652) and 3 warnings. validate_workflows.py: all 144 workflow files valid. The allowlist's unittest suite passed 124 tests.",
+  "corrections": [],
+  "redteam": null
+}
