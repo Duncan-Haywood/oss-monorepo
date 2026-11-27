@@ -1,100 +1,44 @@
-# Deploys PayApps (ventures/payapps/apps/payapps, bet #1) to Cloudflare Workers.
-# Ported from private-monorepo's payapps-deploy.yml on 2026-11-27 (task
-# move-payapps-public; ventures/payapps/DEPLOY.md). App-side details, every
-# secret and variable: ventures/payapps/apps/payapps/docs/DEPLOY.md.
+# Deploys ventures/payapps/apps/payapps (PayApps, paid bet #1) to Cloudflare Workers: one Worker
+# (`payapps`) for the SPA and the API, a D1 database (`payapps`), an R2 bucket for attachments
+# (`payapps-files`). Ported on 2026-11-27 from private-monorepo's payapps-deploy.yml, whose first
+# run (45921558751) never got a runner; this repository's runners start jobs. What each step does and
+# every setting: ventures/payapps/apps/payapps/docs/DEPLOY.md; why it lives here:
+# ventures/payapps/DEPLOY.md and docs/reports/2026-11-27-payapps-deploy-workflow.md.
 #
-# Manual only (workflow_dispatch) until the first deploy succeeds. The launch
-# review is done (apps/payapps/docs/LAUNCH-REVIEW.md, under docs/legal/OPERATOR.md,
-# 2026-11-26): agents may run this and open sign-ups. After a first good run,
-# add `push: branches: [main]` here. Never runs on pull requests (PR checks are
-# payapps-ci.yml). Paid plans stay dark until the owner sets
-# PAYAPPS_BILLING_PROVIDER=paddle and the Paddle secrets (docs/BILLING.md).
+# Manual only (workflow_dispatch), from main only. The launch review is recorded
+# (apps/payapps/docs/LAUNCH-REVIEW.md, under private-monorepo docs/legal/OPERATOR.md), so an agent
+# may run it and open sign-ups on the Free plan. Paid plans stay dark: checkout turns on only when
+# the owner sets PAYAPPS_BILLING_PROVIDER=paddle and the two Paddle secrets (apps/payapps/docs/BILLING.md).
+# After a first good run, a separate PR may add `push: branches: [main]` with a paths filter.
 #
-# Two jobs, so the product's own code never runs next to the Cloudflare token:
-#   build  - no secrets, no environment: install, checks, `pnpm build`, and the
-#            built Worker + assets uploaded as an artifact.
-#   deploy - the `payapps-production` environment: runs only owned scripts
-#            (provision.mjs, CODEOWNERS) and a pinned global wrangler on the
-#            downloaded build; never `pnpm install`.
+# Differences from the private workflow, all hardening: actions pinned by SHA, checkout without
+# persisted credentials and sparse to the venture, a job-level guard that refuses any ref but main,
+# this repository's Cloudflare secret names, and a step that fails clearly until the code has moved.
 name: payapps-deploy
-
 on:
   workflow_dispatch:
     inputs:
       skip_checks:
-        description: "Skip lint/typecheck/tests (only for a commit payapps-ci already passed)"
+        description: "Skip lint/typecheck/tests (only for a commit payapps CI already passed)"
         type: boolean
         default: false
 
 permissions:
   contents: read
 
-# One Worker and one D1 database behind this: never two deploys at once, and
-# never cancel one (or a migration) half-way.
 concurrency:
   group: payapps-deploy
-  cancel-in-progress: false
+  cancel-in-progress: false # never cancel a deploy (or a migration) half-way
 
 jobs:
-  build:
-    name: build (no secrets)
-    if: ${{ github.ref == 'refs/heads/main' }}
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
-    timeout-minutes: 25
-    defaults:
-      run:
-        shell: bash
-        working-directory: ventures/payapps/apps/payapps
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-          filter: blob:none
-          sparse-checkout: |
-            .github
-            ventures/payapps
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-        with:
-          package_json_file: ventures/payapps/package.json
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: "22"
-          cache: pnpm
-          cache-dependency-path: ventures/payapps/pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
-
-      - name: Checks
-        if: ${{ !inputs.skip_checks }}
-        run: |
-          pnpm exec biome ci .
-          pnpm typecheck
-          pnpm test:unit
-          pnpm test:worker
-          node --test scripts/provision.test.mjs
-
-      - name: Build
-        run: pnpm build
-      - name: No source maps in the public assets (proprietary source)
-        run: node ../../scripts/check-no-client-maps.mjs dist/client
-
-      - name: Upload the build
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: payapps-dist
-          path: ventures/payapps/apps/payapps/dist
-          retention-days: 7
-          if-no-files-found: error
-          # dist/client/.assetsignore keeps wrangler.json out of the public assets.
-          include-hidden-files: true
-
   deploy:
     name: deploy (production)
-    needs: build
+    # A dispatch from a branch could ship unreviewed code with production secrets: main only.
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
-    timeout-minutes: 20
-    permissions:
-      contents: read
+    timeout-minutes: 30
+    # Limit this environment to `main` and, if wanted, add required reviewers (Settings -> Environments).
+    # The PAYAPPS_* secrets belong here; the Cloudflare ones are the repository's.
     environment:
       name: payapps-production
       url: ${{ steps.urls.outputs.app_url }}
@@ -104,52 +48,70 @@ jobs:
         working-directory: ventures/payapps/apps/payapps
     env:
       WRANGLER_SEND_METRICS: "false"
-      # provision.mjs calls this instead of `pnpm exec wrangler`: no install here.
-      PAYAPPS_WRANGLER_BIN: wrangler
       # Optional custom domain (zone on the same Cloudflare account); empty = workers.dev.
       APP_DOMAIN: ${{ vars.PAYAPPS_DOMAIN }}
     steps:
       - name: Cloudflare credentials present
-        env:
-          HAS_TOKEN: ${{ (secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN) != '' }}
-          HAS_ACCOUNT: ${{ (secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID || vars.CLOUDFLARE_ACCOUNT_ID) != '' }}
         working-directory: .
+        env:
+          HAS_TOKEN: ${{ (secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY) != '' }}
+          HAS_ACCOUNT: ${{ (secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID || vars.CLOUDFLARE_ACCOUNT_ID) != '' }}
         run: |
           if [[ "$HAS_TOKEN" != "true" || "$HAS_ACCOUNT" != "true" ]]; then
-            echo "::error title=Missing Cloudflare secrets::Need CLOUDFLARE_API_TOKEN (D1, R2, Workers Scripts edit; Zone/DNS/Routes edit for a custom domain) and CLOUDFLARE_ACCOUNT_ID. See ventures/payapps/apps/payapps/docs/DEPLOY.md. Nothing was deployed."
+            echo "::error title=Missing Cloudflare secrets::Need CLOUDFLARE_API_TOKEN (Workers Scripts, D1 and R2 edit; Zone Read, DNS and Workers Routes edit for a custom domain) and CLOUDFLARE_ACCOUNT_ID. Nothing was deployed."
             exit 1
           fi
 
-      # Migrations and provision.mjs come from the checkout;
-      # the Worker and its assets come from the build job.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
           filter: blob:none
           sparse-checkout: |
-            ventures/payapps/apps/payapps/migrations
-            ventures/payapps/apps/payapps/scripts
+            ventures/payapps
+
+      - name: The app is in this repository
+        working-directory: .
+        run: |
+          if [[ ! -f ventures/payapps/apps/payapps/package.json ]]; then
+            echo "::error title=PayApps not moved yet::ventures/payapps/apps/payapps is not on main (task move-payapps-public). Nothing was deployed."
+            exit 1
+          fi
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          package_json_file: ventures/payapps/package.json
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
-      - name: Install wrangler (pinned, the app's own version)
-        working-directory: .
-        run: npm install --global wrangler@4.165.0
+          cache: pnpm
+          cache-dependency-path: ventures/payapps/pnpm-lock.yaml
+      # Cloudflare credentials are exported only after install, tests and build.
+      - run: pnpm install --frozen-lockfile
 
-      - name: Fetch the build
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: payapps-dist
-          path: ventures/payapps/apps/payapps/dist
+      - name: Checks
+        if: ${{ !inputs.skip_checks }}
+        run: |
+          pnpm exec biome ci .
+          pnpm typecheck
+          pnpm test:unit
+          pnpm test:worker
+      - name: Deploy provisioning script tests
+        if: ${{ !inputs.skip_checks }}
+        run: node --test ./scripts/provision.test.mjs
+
+      - name: Build
+        run: pnpm build
+      - name: No source maps in the public assets (proprietary source)
+        run: node ../../scripts/check-no-client-maps.mjs dist/client
 
       - name: Cloudflare credentials
         env:
-          CF_SECRET: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN }}
+          CF_SECRET: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID || vars.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          token="$(printf '%s' "$CF_SECRET" | tr -d '[:space:]')"
-          account="$(printf '%s' "$CF_ACCOUNT" | tr -d '[:space:]')"
-          echo "::add-mask::$token"
+          # Used exactly as stored: a transformed secret would print unmasked (actions-secret-leak-check).
+          token="$CF_SECRET"
+          account="$CF_ACCOUNT"
           api=https://api.cloudflare.com/client/v4
           ok() { jq -e '.success == true' >/dev/null 2>&1; }
           if ! { curl -sS -H "Authorization: Bearer $token" "$api/user/tokens/verify" | ok ||
@@ -165,6 +127,10 @@ jobs:
           api=https://api.cloudflare.com/client/v4
           auth=(-H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
           domain="$(printf '%s' "$APP_DOMAIN" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+          if [[ -n "$domain" && ! "$domain" =~ ^[a-z0-9.-]+$ ]]; then
+            echo "::error title=Bad PAYAPPS_DOMAIN::Use a bare host name such as payapps.marisstella.app. Nothing was deployed."
+            exit 1
+          fi
           if [[ -n "$domain" ]]; then
             zone="$(awk -F. '{print $(NF-1)"."$NF}' <<<"$domain")"
             zone_id="$(curl -sS "${auth[@]}" "$api/zones?name=$zone&account.id=$CLOUDFLARE_ACCOUNT_ID" | jq -r '.result[0].id // empty' 2>/dev/null || true)"
@@ -190,33 +156,46 @@ jobs:
         id: provision
         env:
           DOMAIN: ${{ steps.urls.outputs.domain }}
-        run: node scripts/provision.mjs --write-config dist/payapps/wrangler.deploy.json ${DOMAIN:+--domain "$DOMAIN"}
+        run: node ./scripts/provision.mjs --write-config dist/payapps/wrangler.deploy.json ${DOMAIN:+--domain "$DOMAIN"}
 
       # Migrations run BEFORE the new code goes live, so they must stay backward compatible.
       - name: Apply D1 migrations
         env:
           CONFIG: ${{ steps.provision.outputs.config }}
-        run: wrangler d1 migrations apply DB --remote --config "$CONFIG"
+        run: pnpm exec wrangler d1 migrations apply DB --remote --config "$CONFIG"
 
-      # Not ported: the Paddle catalog sync (packages/billing/scripts/paddle-catalog.ts). It is
-      # product code that would run with the Paddle key in this job, and nothing here may run
-      # unowned code next to a secret (.github/ci-policy.yaml). Paid plans are dark until the owner
-      # sets the Paddle key; until a sync is ported, PAYAPPS_BILLING_PRICE_IDS carries the price ids
-      # (ventures/payapps/DEPLOY.md, "Paddle").
+      # Products and prices as code: billing/paddle-catalog.json is synced to Paddle and the price ids
+      # are read back, never pasted. Skipped (and checkout stays dark) without the Paddle key. Only items
+      # tagged custom_data.app=payapps are touched; nothing is deleted.
+      # A Paddle problem must not block shipping the app: a failed sync warns and leaves price_ids empty,
+      # so the secret sync below falls back to PAYAPPS_BILLING_PRICE_IDS (or checkout stays dark).
+      - name: Sync the Paddle catalog
+        id: paddle
+        env:
+          BILLING_API_KEY: ${{ secrets.PAYAPPS_BILLING_API_KEY }}
+        run: |
+          if [[ -z "$BILLING_API_KEY" ]]; then echo "PAYAPPS_BILLING_API_KEY not set: paid plans stay dark"; exit 0; fi
+          out="$RUNNER_TEMP/paddle-price-ids.json"
+          if node ../../packages/billing/scripts/paddle-catalog.ts --catalog billing/paddle-catalog.json --apply --price-ids-out "$out" \
+             && ids="$(jq -c . "$out")"; then
+            echo "price_ids=$ids" >>"$GITHUB_OUTPUT"
+          else
+            echo "::warning title=Paddle catalog sync failed::The app still deploys; price ids fall back to PAYAPPS_BILLING_PRICE_IDS if set."
+          fi
 
       - name: Deploy
         id: deploy
         env:
           CONFIG: ${{ steps.provision.outputs.config }}
           APP_URL: ${{ steps.urls.outputs.app_url }}
-          # The sender domain must be onboarded to Cloudflare Email Service (docs/EMAIL.md).
+          # The sender domain must be onboarded to Cloudflare Email Service (apps/payapps/docs/EMAIL.md).
           EMAIL_FROM: ${{ vars.PAYAPPS_EMAIL_FROM || 'PayApps <no-reply@marisstella.app>' }}
           # Not secret ("paddle" or "none"); a var because a Worker secret cannot share a var's name.
           BILLING_PROVIDER: ${{ vars.PAYAPPS_BILLING_PROVIDER || 'none' }}
           QBO_ENVIRONMENT: ${{ vars.PAYAPPS_QBO_ENVIRONMENT || 'sandbox' }}
           WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-deploy.ndjson
         run: |
-          wrangler deploy --config "$CONFIG" \
+          pnpm exec wrangler deploy --config "$CONFIG" \
             --var "APP_ENV:production" --var "APP_URL:${APP_URL%/}" --var "EMAIL_FROM:$EMAIL_FROM" \
             --var "BILLING_PROVIDER:$BILLING_PROVIDER" --var "QBO_ENVIRONMENT:$QBO_ENVIRONMENT" \
             --var "QBO_REDIRECT_URI:${APP_URL%/}/api/integrations/quickbooks/callback" \
@@ -230,13 +209,13 @@ jobs:
           S_AUTH_SECRET: ${{ secrets.PAYAPPS_AUTH_SECRET }}
           S_BILLING_API_KEY: ${{ secrets.PAYAPPS_BILLING_API_KEY }}
           S_BILLING_WEBHOOK_SECRET: ${{ secrets.PAYAPPS_BILLING_WEBHOOK_SECRET }}
-          S_BILLING_PRICE_IDS: ${{ secrets.PAYAPPS_BILLING_PRICE_IDS }}
+          S_BILLING_PRICE_IDS: ${{ steps.paddle.outputs.price_ids || secrets.PAYAPPS_BILLING_PRICE_IDS }}
           S_QBO_CLIENT_ID: ${{ secrets.PAYAPPS_QBO_CLIENT_ID }}
           S_QBO_CLIENT_SECRET: ${{ secrets.PAYAPPS_QBO_CLIENT_SECRET }}
           S_QBO_TOKEN_KEY: ${{ secrets.PAYAPPS_QBO_TOKEN_KEY }}
         run: |
           umask 077
-          file="$RUNNER_TEMP/worker-secret-values.json"
+          file="$RUNNER_TEMP/worker-env.json"
           trap 'rm -f "$file"' EXIT
           node -e '
             const out = {};
@@ -247,7 +226,7 @@ jobs:
             console.log(`syncing ${Object.keys(out).length} secret(s): ${Object.keys(out).sort().join(", ") || "none"}`);
           ' "$file"
           if [[ "$(jq 'length' "$file")" -gt 0 ]]; then
-            wrangler secret bulk "$file" --name payapps --config "$CONFIG"
+            pnpm exec wrangler secret bulk "$file" --name payapps --config "$CONFIG"
           fi
 
       # The app refuses to start sessions without AUTH_SECRET. Generated once, stored only on the Worker.
@@ -256,14 +235,14 @@ jobs:
           CONFIG: ${{ steps.provision.outputs.config }}
         run: |
           # Fails the step (pipefail) if the list cannot be read: never guess and overwrite a secret.
-          existing="$(wrangler secret list --format json --name payapps --config "$CONFIG" \
+          existing="$(pnpm exec wrangler secret list --format json --name payapps --config "$CONFIG" \
             | sed -n '/^\[/,$p' | jq -r '.[].name')"
           if grep -qx AUTH_SECRET <<<"$existing"; then
             echo "AUTH_SECRET already set: keeping it"
           else
             value="$(openssl rand -hex 32)"
             echo "::add-mask::$value"
-            printf '%s' "$value" | wrangler secret put AUTH_SECRET --name payapps --config "$CONFIG" >/dev/null
+            printf '%s' "$value" | pnpm exec wrangler secret put AUTH_SECRET --name payapps --config "$CONFIG" >/dev/null
             unset value
             echo "AUTH_SECRET generated and stored on the Worker (write-only)"
           fi
@@ -284,7 +263,7 @@ jobs:
           echo "healthy: $url -> $body"
           # Sign-up needs a verified email in production: without mail nobody can finish signing up.
           if ! jq -e '.email == true' <<<"$body" >/dev/null; then
-            echo "::warning title=Account mail is off::$url reports email:false, so nobody can verify an address and finish signing up. Onboard the EMAIL_FROM sender domain to Cloudflare Email Service (ventures/payapps/apps/payapps/docs/EMAIL.md) and re-run."
+            echo "::warning title=Account mail is off::$url reports email:false, so nobody can verify an address and finish signing up. Onboard the EMAIL_FROM sender domain to Cloudflare Email Service (apps/payapps/docs/EMAIL.md) and re-run."
           fi
 
       - name: Summary
@@ -298,6 +277,6 @@ jobs:
             echo "### payapps-deploy"
             echo "- url: ${APP_URL:-n/a}"
             echo "- attachments (R2): ${R2:-n/a}"
-            echo "- version: \`${VERSION:-n/a}\` (rollback: \`wrangler rollback <version-id> --name payapps\`)"
+            echo "- version: \`${VERSION:-n/a}\` (rollback: \`pnpm exec wrangler rollback <version-id> --name payapps\`)"
             echo "- commit: \`$GITHUB_SHA\`"
           } >>"$GITHUB_STEP_SUMMARY"

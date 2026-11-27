@@ -53,6 +53,24 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          # Blob-less and sparse: ~14.4k of ~82k files. The full checkout was
+          # 71% of each job (46 s of a 64 s median). measure.py reads this
+          # directory, the probes, register-change-rate's results and READMEs;
+          # agent-permission-harness walks every *.md plus .github, and lists
+          # the rest with `git ls-files` in a sparse tree (its _sparse_tracked).
+          # Checked: tests, measure.py's JSON and every probe's rendered
+          # artifact are byte-identical to a clean full checkout's
+          # (docs/history/ci-perf-2026-11-27-error-rate-disclosure-sparse.md).
+          # A test that starts reading a path outside this list fails here;
+          # add the path rather than dropping the sparse checkout.
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            *.md
+            /.github/
+            /portfolio/pipeline/
+            /portfolio/research/error-rate-disclosure/
+            /portfolio/research/register-change-rate/
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"

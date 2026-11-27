@@ -685,24 +685,40 @@ def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, di
 
     Picking the bet was not enough: inside it runs still invented the same item (three payapps
     runs within 15 minutes, 2026-11-26), so say which topic nobody holds yet.
+
+    "Untouched" once meant only "no live claim", so a topic with 8 or 10 merged claims was
+    named untouched in the same line that counted them (eight run records, 2026-11-27:
+    'PDF to ZUGFeRD conversion', 'job costing', 'evidence per control'). Now a topic is
+    untouched only with no claim at all; failing that, the free topic with the fewest merged
+    claims is named as the least-worked one, with its count, so the run reads what landed.
     """
     if not topics:
         print(f"  (bets.md has no **Growth path:** line for bet #{rank}: add one in your PR)")
         return
     info, merged = claims or ({}, {})
-    untouched, cells = [], []
+    untouched, free, cells = [], [], []
     for t in topics:
         live, done = topic_claims(t, info, merged, now, stale_s)
         note = (f"{len(live)} live: {', '.join(live[:2])}" if live else "no live claim")
         note += f"; {len(done)} merged" if done else ""
         cells.append(f"{t} ({note})")
         if not live:
-            untouched.append(t)
-    pick = (spread(untouched, tag) or [None])[0]
+            free.append((len(done), t))
+            if not done:
+                untouched.append(t)
     print("  Growth path (bets.md), claims whose slug names each topic: " + "; ".join(cells))
+    if untouched:
+        pick, label = spread(untouched, tag)[0], "Untouched topic"
+    elif free:
+        fewest = min(n for n, _ in free)
+        pick = spread([t for n, t in free if n == fewest], tag)[0]
+        label = (f"Least-worked topic ({fewest} merged claim(s): read them first, "
+                 "and build a part they do not cover)")
+    else:
+        pick = None
     if pick:
         slug = "-".join(sorted(topic_words(pick), key=pick.lower().find))[:40] or "item"
-        print(f"  Untouched topic: '{pick}': `roadmap_claim.py {app} --slug {slug}-<part> --note ...`")
+        print(f"  {label}: '{pick}': `roadmap_claim.py {app} --slug {slug}-<part> --note ...`")
     else:
         print(f"  Every topic has a live claim: take a part none names (`roadmap_claim.py {app} --all`).")
 
