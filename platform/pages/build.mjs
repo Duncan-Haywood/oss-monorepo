@@ -42,6 +42,7 @@ import { buildConstructionPage, CONSTRUCTION_PATH } from './industry-constructio
 import { buildPayappsSite } from './payapps-site.mjs';
 import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
+import { buildCmmcSite } from './cmmc-site.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
@@ -14080,6 +14081,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // `noindex` and in no sitemap; see `engineering.mjs`.
   await buildEngineeringPage(outDir, base);
 
+  // CMMC Workspace's own marketing site (paid bet #4), built from the app's zero-dependency
+  // source in its open state, without the catalogue chrome (`cmmc-site.mjs`).
+  const cmmcSite = await buildCmmcSite(outDir, { baseUrl: base });
+
   // PayApps' own marketing site (paid bet #1), copied in whole from the app's committed
   // static export, without the catalogue chrome (`payapps-site.mjs`). Before the
   // construction page, which links it.
@@ -14182,6 +14187,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     }),
   );
 
+  extraSitemaps.push(...cmmcSite.filter((rel) => rel === 'cmmc/sitemap.xml'));
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base, extraSitemaps));
   await fs.writeFile(
     path.join(outDir, 'sitemap-hub.xml'),

@@ -11,7 +11,9 @@
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { humanDate, PAGES, statusBox } from "./pages.mjs";
+import { launchFromEnv, launchState, signinUrl, signupUrl } from "./launch.mjs";
+import { buildPages, humanDate, statusBox } from "./pages.mjs";
+import { publicPlans } from "./plans.mjs";
 import {
   DEFAULT_BASE_PATH,
   DEFAULT_SITE_URL,
@@ -159,16 +161,26 @@ const NAV = [
   ["/what-it-does", "What it does"],
   ["/security", "Security"],
   ["/pricing", "Pricing"],
-  ["/early-access", "Early access"],
 ];
 
-export function renderPage(page, { siteUrl, base }) {
+/** The header links: early access before launch; sign in and start free after. */
+export function navFor(launch, path) {
+  if (!launch.open) return [...NAV, ["/early-access", "Early access"]];
+  return [...NAV, [signinUrl(launch), "Sign in"], [signupUrl(launch, path), "Start free"]];
+}
+
+/** The SPRS page's script on a static host (open mode): the calculator runs in the browser. */
+export const SPRS_SCRIPT = '<script type="module" src="./sprs-page.js"></script>';
+
+export function renderPage(page, { siteUrl, base, launch = launchState() }) {
   const url = pageUrl(siteUrl, page.path);
   const indexable = page.indexable !== false;
-  const nav = NAV.map(
-    ([href, label]) =>
-      `<a href="${href}"${href === page.path ? ' aria-current="page"' : ""}>${label}</a>`,
-  ).join("");
+  const nav = navFor(launch, page.path)
+    .map(
+      ([href, label]) =>
+        `<a href="${href}"${href === page.path ? ' aria-current="page"' : ""}>${label}</a>`,
+    )
+    .join("");
   const html = `<!doctype html>
 <html lang="en">
 <head>
@@ -187,6 +199,7 @@ ${indexable ? `<link rel="canonical" href="${url}">` : '<meta name="robots" cont
 <link rel="stylesheet" href="/styles.css">
 <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt">
 ${indexable ? `<script type="application/ld+json">${jsonLd(page, siteUrl)}</script>` : ""}
+${launch.open && page.path === "/sprs-score-calculator" ? SPRS_SCRIPT : ""}
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -195,8 +208,9 @@ ${indexable ? `<script type="application/ld+json">${jsonLd(page, siteUrl)}</scri
 ${page.body}
 </main>
 <footer class="site">
-<p><strong>Early access.</strong> Not a C3PAO or assessor; not affiliated with or endorsed by the DoD or the Cyber AB.
-Using this workspace does not certify your shop or guarantee any score or assessment result.</p>
+<p><strong>${launch.open ? "Free Level 1 plan." : "Early access."}</strong> Not a C3PAO or assessor; not affiliated with or endorsed by the DoD or the Cyber AB.
+Using this workspace does not certify your shop or guarantee any score or assessment result.
+This site is general information, not legal advice, and comes with no warranty.</p>
 <p>Also for machine shops: <a href="${JOBSHOP.url}">${JOBSHOP.name}</a> · <a href="/privacy">Privacy</a> · <a href="/llms.txt">llms.txt</a></p>
 </footer>
 </body>
@@ -205,8 +219,9 @@ Using this workspace does not certify your shop or guarantee any score or assess
   return withBase(html, base);
 }
 
-export function renderSitemap(siteUrl) {
-  const urls = PAGES.filter((p) => p.indexable !== false)
+export function renderSitemap(siteUrl, pages = buildPages()) {
+  const urls = pages
+    .filter((p) => p.indexable !== false)
     .map(
       (p) =>
         `  <url><loc>${pageUrl(siteUrl, p.path)}</loc><lastmod>${STATUS_CHECKED}</lastmod><changefreq>${p.changefreq ?? "monthly"}</changefreq><priority>${(p.priority ?? 0.5).toFixed(1)}</priority></url>`,
@@ -222,15 +237,21 @@ export function renderRobots(siteUrl, base) {
 }
 
 /** llmstxt.org format: H1, blockquote summary, notes, then sections of annotated links. */
-export function renderLlmsTxt(siteUrl) {
-  const indexable = PAGES.filter((p) => p.indexable !== false);
+export function renderLlmsTxt(siteUrl, launch = launchState(), pages = buildPages(launch)) {
+  const indexable = pages.filter((p) => p.indexable !== false);
+  const paid = publicPlans().filter((p) => p.priceCents > 0);
+  const status = launch.open
+    ? `Open: Level 1 is free (sign up at ${launch.appUrl}/signup); ${paid
+        .map((p) => `${p.name} $${p.priceCents / 100}/month`)
+        .join(", ")}${launch.paidOn ? "" : ", not on sale yet"}.`
+    : "Early access; prices are proposals.";
   const link = (p) =>
     `- [${p.title.split(" · ")[0]}](${pageUrl(siteUrl, p.path)}): ${p.description}`;
   return `# ${SITE_NAME}
 
 > A workspace for small defense and aerospace machine shops to prepare CMMC Level 1 and Level 2 self-assessment
 > paperwork in-house (System Security Plan, POA&M, SPRS score) and keep ISO 9001 / AS9100 records beside it.
-> Early access; prices are proposals.
+> ${status}
 
 Facts an answer should keep:
 
@@ -281,19 +302,42 @@ export function htmlToText(html, siteUrl, base) {
     .trim();
 }
 
+/**
+ * sprs.mjs for the browser: the same file with the official data inlined (only the fields it
+ * reads), so the static page scores with exactly the code the Worker and the tests run.
+ */
+export function browserSprs() {
+  const src = readFileSync(join(HERE, "sprs.mjs"), "utf8");
+  const importLine =
+    'import official from "../../cmmc/src/shared/controls/official-text.json" with { type: "json" };';
+  if (!src.includes(importLine))
+    throw new Error("sprs.mjs no longer imports official-text.json as expected");
+  const official = JSON.parse(
+    readFileSync(resolve(APP, "../cmmc/src/shared/controls/official-text.json"), "utf8"),
+  );
+  const data = {
+    level2: official.level2.map((r) => ({ nistId: r.nistId, text: r.text })),
+    weights: official.weights,
+  };
+  const inlined = `const official = ${JSON.stringify(data)};`;
+  return `// Built from src/sprs.mjs by build.mjs; do not edit.\n${src.replace(importLine, inlined)}`;
+}
+
 export function build({
   siteUrl = DEFAULT_SITE_URL,
   basePath = DEFAULT_BASE_PATH,
   outDir = join(APP, "dist"),
+  launch = launchState(),
 } = {}) {
+  const pages = buildPages(launch);
   const site = normalizeSiteUrl(siteUrl);
   const base = normalizeBasePath(basePath);
   rmSync(outDir, { recursive: true, force: true });
   /** @type {Record<string, string>} */
   const files = {};
   const full = [`# ${SITE_NAME}: full text`, ""];
-  for (const page of PAGES) {
-    const html = renderPage(page, { siteUrl: site, base });
+  for (const page of pages) {
+    const html = renderPage(page, { siteUrl: site, base, launch });
     files[fileFor(page.path)] = html;
     if (page.indexable !== false) {
       const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
@@ -308,11 +352,15 @@ export function build({
       description: "That page does not exist.",
       body: `<h1>Page not found</h1><p>Try the <a href="/">home page</a>.</p>${statusBox()}`,
     },
-    { siteUrl: site, base },
+    { siteUrl: site, base, launch },
   );
-  files["sitemap.xml"] = renderSitemap(site);
+  files["sitemap.xml"] = renderSitemap(site, pages);
   files["robots.txt"] = renderRobots(site, base);
-  files["llms.txt"] = renderLlmsTxt(site);
+  files["llms.txt"] = renderLlmsTxt(site, launch, pages);
+  if (launch.open) {
+    files["sprs.js"] = browserSprs();
+    files["sprs-page.js"] = readFileSync(join(HERE, "sprs-page.js"), "utf8");
+  }
   files["llms-full.txt"] = `${full.join("\n").trim()}\n`;
   files["styles.css"] = readFileSync(join(HERE, "styles.css"), "utf8");
   for (const [name, content] of Object.entries(files)) {
@@ -327,6 +375,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const files = build({
     siteUrl: process.env.SITE_URL || DEFAULT_SITE_URL,
     basePath: process.env.BASE_PATH ?? DEFAULT_BASE_PATH,
+    launch: launchFromEnv(process.env),
   });
   console.log(`[cmmc-site] wrote ${Object.keys(files).length} files to dist/`);
 }

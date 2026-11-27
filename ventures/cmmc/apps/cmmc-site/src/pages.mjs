@@ -1,6 +1,9 @@
 // Page content for apps/cmmc-site. Each page: path, title, description, body (HTML for <main>).
 // Links inside bodies use site paths ("/pricing"); the build prefixes the base path.
 // Copy rules: see the header of site.mjs and docs/CLAIMS.md.
+
+import { appLegalUrl, launchState, signinUrl, signupUrl } from "./launch.mjs";
+import { publicPlans } from "./plans.mjs";
 import {
   CONSENT_TEXT,
   JOBSHOP,
@@ -57,7 +60,16 @@ const sourcesList = (ids) =>
     })
     .join("")}</ul></section>`;
 
-const cta = `<p class="cta"><a class="button" href="/early-access">Join early access</a> <span class="muted">No charge during early access. One confirmation email, nothing else unless you confirm.</span></p>`;
+/** Where each page's call to action goes (CTA_MARKER in a body; buildPages fills it per page). */
+const CTA_MARKER = "<!--cta-->";
+const cta = CTA_MARKER;
+
+/** The call to action for one page: the early-access list before launch, the app's sign-up after. */
+export function ctaFor(launch, path) {
+  if (!launch.open)
+    return `<p class="cta"><a class="button" href="/early-access">Join early access</a> <span class="muted">No charge during early access. One confirmation email, nothing else unless you confirm.</span></p>`;
+  return `<p class="cta"><a class="button" href="${signupUrl(launch, path)}">Start free with Level 1</a> <span class="muted">Level 1 is free, with no card. ${launch.paidOn ? "Level 2 plans are billed through Paddle." : "Level 2 plans are not on sale yet."} Already have an account? <a href="${signinUrl(launch)}">Sign in</a>.</span></p>`;
+}
 
 /**
  * @typedef {{
@@ -114,18 +126,24 @@ const sprsFaq = [
   },
 ];
 
-/** @type {readonly Page[]} */
-export const PAGES = [
-  {
-    path: "/",
-    kind: "home",
-    title: `${SITE_NAME} · CMMC Level 1/2 and ISO 9001 paperwork for small machine shops`,
-    description:
-      "Prepare your System Security Plan, POA&M and SPRS score in-house instead of a $3k–25k consultant engagement. A workspace for small defense and aerospace machine shops. Early access.",
-    changefreq: "weekly",
-    priority: 1,
-    body: `<section class="hero">
-  <p class="eyebrow">Early access · for small defense and aerospace machine shops</p>
+/**
+ * Every page for one launch state. Open: no early-access pages, sign-up links, the app's real plans.
+ * @param {import("./launch.mjs").Launch} [launch]
+ * @returns {Page[]}
+ */
+export function buildPages(launch = launchState()) {
+  const open = launch.open;
+  /** @type {Page[]} */
+  const pages = [
+    {
+      path: "/",
+      kind: "home",
+      title: `${SITE_NAME} · CMMC Level 1/2 and ISO 9001 paperwork for small machine shops`,
+      description: `Prepare your System Security Plan, POA&M and SPRS score in-house instead of a $3k–25k consultant engagement. A workspace for small defense and aerospace machine shops. ${open ? "Free for Level 1." : "Early access."}`,
+      changefreq: "weekly",
+      priority: 1,
+      body: `<section class="hero">
+  <p class="eyebrow">${open ? "Free Level 1 plan" : "Early access"} · for small defense and aerospace machine shops</p>
   <h1>Your SSP, POA&amp;M and SPRS score, prepared in-house</h1>
   <p class="lead">Outside help to write the System Security Plan and Plan of Action and Milestones is commonly quoted at
   <strong>$3,000–$25,000</strong> (${cite("preveil-costs", "PreVeil's estimate")}, which counts in-house IT time and outside providers;
@@ -166,17 +184,17 @@ ${statusBox()}
   <p><a href="${JOBSHOP.url}">${JOBSHOP.name}</a>: ${JOBSHOP.pitch}</p>
 </section>
 ${cta}`,
-  },
-  {
-    path: "/cmmc-level-1-vs-level-2",
-    kind: "faq",
-    title: `CMMC Level 1 vs Level 2 for machine shops · ${SITE_NAME}`,
-    description:
-      "Plain-language explainer: what CMMC Level 1 and Level 2 require, which one your contract triggers, how SPRS scoring and POA&Ms work, and where the rollout stands.",
-    changefreq: "monthly",
-    priority: 0.9,
-    faq: levelFaq,
-    body: `<h1>CMMC Level 1 vs Level 2, for machine shops</h1>
+    },
+    {
+      path: "/cmmc-level-1-vs-level-2",
+      kind: "faq",
+      title: `CMMC Level 1 vs Level 2 for machine shops · ${SITE_NAME}`,
+      description:
+        "Plain-language explainer: what CMMC Level 1 and Level 2 require, which one your contract triggers, how SPRS scoring and POA&Ms work, and where the rollout stands.",
+      changefreq: "monthly",
+      priority: 0.9,
+      faq: levelFaq,
+      body: `<h1>CMMC Level 1 vs Level 2, for machine shops</h1>
 <p class="lead">The level is set by the information your contract gives you, not by the size of your shop.
 Level 1 covers Federal Contract Information; Level 2 covers Controlled Unclassified Information (CUI).</p>
 ${statusBox()}
@@ -218,18 +236,18 @@ from one place.</p>
 ${levelFaq.map((f) => `<details><summary>${f.q}</summary><p>${f.a}</p></details>`).join("\n")}
 ${sourcesList(["dod-cio-cmmc", "war-gov-phase2", "crowell-phase2", "wiley-pause", "igc-task-force", "cfr-170", "cfr-170-21", "far-52-204-21", "nist-800-171r2", "dod-methodology", "dfars-7012"])}
 ${cta}`,
-  },
-  {
-    path: "/what-it-does",
-    kind: "page",
-    title: `What it does and does not do · ${SITE_NAME}`,
-    description:
-      "What the compliance workspace does (SSP, POA&M, SPRS score, evidence, ISO 9001 records) and what it does not (certify you, assess you, store CUI, or promise a score).",
-    changefreq: "monthly",
-    priority: 0.8,
-    body: `<h1>What it does, and what it does not do</h1>
+    },
+    {
+      path: "/what-it-does",
+      kind: "page",
+      title: `What it does and does not do · ${SITE_NAME}`,
+      description:
+        "What the compliance workspace does (SSP, POA&M, SPRS score, evidence, ISO 9001 records) and what it does not (certify you, assess you, store CUI, or promise a score).",
+      changefreq: "monthly",
+      priority: 0.8,
+      body: `<h1>What it does, and what it does not do</h1>
 <p class="lead">A workspace for the person in a small shop who has been handed CMMC on top of their real job.
-It is in early access: the list below is what we are building with the first shops.</p>
+${open ? 'Everything on the left is in the workspace today; what each plan includes is on the <a href="/pricing">pricing page</a>.' : "It is in early access: the list below is what we are building with the first shops."}</p>
 <div class="two-col">
 <section>
   <h2>Does</h2>
@@ -261,18 +279,17 @@ ${statusBox()}
 <h2>Also for the same shops</h2>
 <p><a href="${JOBSHOP.url}">${JOBSHOP.name}</a>: ${JOBSHOP.pitch}</p>
 ${cta}`,
-  },
-  {
-    path: "/security",
-    kind: "page",
-    title: `Security: how your documents are stored · ${SITE_NAME}`,
-    description:
-      "How the workspace stores your SSP, POA&M and evidence: encryption, per-shop separation, access, retention and export, and why CUI itself does not belong in it.",
-    changefreq: "monthly",
-    priority: 0.7,
-    body: `<h1>Security: how your documents are stored</h1>
-<p class="lead">An SSP is a map of your weak spots, so we treat it like one. The workspace is in early access: this page
-describes how it is designed to store your documents, and will be updated with the date of each change as it ships.</p>
+    },
+    {
+      path: "/security",
+      kind: "page",
+      title: `Security: how your documents are stored · ${SITE_NAME}`,
+      description:
+        "How the workspace stores your SSP, POA&M and evidence: encryption, per-shop separation, access, retention and export, and why CUI itself does not belong in it.",
+      changefreq: "monthly",
+      priority: 0.7,
+      body: `<h1>Security: how your documents are stored</h1>
+<p class="lead">An SSP is a map of your weak spots, so we treat it like one. ${open ? "This page describes how the workspace stores your documents today; the workspace's own privacy policy is the binding text." : "The workspace is in early access: this page\ndescribes how it is designed to store your documents, and will be updated with the date of each change as it ships."}</p>
 <h2>Do not upload CUI</h2>
 <p>The workspace is for documents about your system: the SSP, the POA&amp;M, policies, screenshots and records that show a
 requirement is met. It is not a CUI enclave and is not FedRAMP authorized, so controlled drawings, specifications and other
@@ -280,40 +297,45 @@ CUI stay in the environment you use for CUI. If your prime or your own policy tr
 copy there too and use the workspace for drafting with the CUI details left out.</p>
 <h2>Where and how documents are stored</h2>
 <ul>
-  <li><strong>Hosting.</strong> The application runs on Cloudflare Workers. Records are kept in Cloudflare D1 and files in
-  Cloudflare R2, which Cloudflare encrypts at rest; every connection uses TLS.</li>
+  <li><strong>Hosting.</strong> The application runs on Cloudflare Workers. Records and evidence files are kept in Cloudflare
+  D1 (files may move to Cloudflare R2 as storage grows), which Cloudflare encrypts at rest; every connection uses TLS.</li>
   <li><strong>Separation between shops.</strong> Every record carries your shop's id and every query filters by it; every file key
   starts with your shop's own prefix. Automated tests try to read one shop's records as another shop and must fail.</li>
-  <li><strong>Access.</strong> Only people you invite can sign in to your shop's workspace, with roles (owner, editor, viewer).
+  <li><strong>Access.</strong> Only people your shop adds can sign in to its workspace, with roles (owner, admin, editor, viewer).
   Our staff do not open your documents unless you ask for support on a specific item.</li>
   <li><strong>AI drafting.</strong> Draft wording is generated only from your own answers and is marked as a draft for you to
   check. Your documents are not used to train AI models.</li>
   <li><strong>Export and deletion.</strong> You can export everything at any time. When you close the account, your documents
-  are deleted; backups expire on a fixed schedule we will publish before launch.</li>
+  and evidence files are deleted; provider backups and logs roll off on their normal schedules${open ? ` (<a href="${appLegalUrl(launch, "privacy")}">privacy policy</a>, "Retention")` : ""}.</li>
   <li><strong>Logs.</strong> Request logs record what happened (who, which record, when), not the content of your documents.</li>
 </ul>
 <h2>What this site stores today</h2>
-<p>This marketing site stores only the early-access list: your email address, the level and shop size you chose, the wording you
+${
+  open
+    ? `<p>This marketing site stores nothing about you: no forms, no cookies, no tracking scripts. The free SPRS calculator runs in
+your browser and sends nothing. See the <a href="/privacy">privacy notice</a>.</p>`
+    : `<p>This marketing site stores only the early-access list: your email address, the level and shop size you chose, the wording you
 agreed to, and a salted hash of your IP address for abuse limits. Unconfirmed sign-ups are deleted after 30 days. See the
-<a href="/privacy">privacy notice</a>.</p>
+<a href="/privacy">privacy notice</a>.</p>`
+}
 <h2>Reporting a security issue</h2>
 <p>Reply to any email from us with "security" in the subject. Please do not test against other people's data.</p>
 ${cta}`,
-  },
-  {
-    path: "/sprs-score-calculator",
-    kind: "faq",
-    title: `Free SPRS score calculator (NIST SP 800-171) · ${SITE_NAME}`,
-    description:
-      "Free SPRS score calculator: tick the NIST SP 800-171 requirements you do not meet yet and get your DoD Assessment Methodology score, the costliest gaps and whether a POA&M can cover them. No sign-up.",
-    changefreq: "monthly",
-    priority: 0.9,
-    faq: sprsFaq,
-    body: `<h1>Free SPRS score calculator</h1>
+    },
+    {
+      path: "/sprs-score-calculator",
+      kind: "faq",
+      title: `Free SPRS score calculator (NIST SP 800-171) · ${SITE_NAME}`,
+      description:
+        "Free SPRS score calculator: tick the NIST SP 800-171 requirements you do not meet yet and get your DoD Assessment Methodology score, the costliest gaps and whether a POA&M can cover them. No sign-up.",
+      changefreq: "monthly",
+      priority: 0.9,
+      faq: sprsFaq,
+      body: `<h1>Free SPRS score calculator</h1>
 <p class="lead">Tick the NIST SP 800-171 requirements your shop does not fully meet yet. You get the score you would post in
 SPRS under the ${cite("dod-methodology", "DoD Assessment Methodology")}, which gaps cost the most points, and whether the
 open items could sit on a POA&amp;M for a Conditional Level 2 (Self) status (${cite("cfr-170-21", "32 CFR 170.21")}).
-No sign-up, no scripts, and nothing you tick is stored.</p>
+No sign-up, and nothing you tick is stored.</p>
 ${statusBox()}
 ${RESULT_MARKER}
 <h2>How the score works</h2>
@@ -327,20 +349,22 @@ ${sprsFaq.map((f) => `<details><summary>${f.q}</summary><p>${f.a}</p></details>`
 <section class="sibling">
   <h2>Keep the score current instead of recalculating it</h2>
   <p>${SHORT_NAME} keeps each requirement's status, owner and evidence next to your SSP and POA&amp;M, so the score moves as
-  you close items. Read <a href="/what-it-does">what it does</a> or <a href="/pricing">the proposed prices</a>.</p>
+  you close items. Read <a href="/what-it-does">what it does</a> or <a href="/pricing">${open ? "the plans" : "the proposed prices"}</a>.</p>
 </section>
 ${sourcesList(["dod-methodology", "cfr-170", "cfr-170-21", "nist-800-171r2", "dfars-7012"])}
 ${cta}`,
-  },
-  {
-    path: "/pricing",
-    kind: "pricing",
-    title: `Pricing (proposed, early access) · ${SITE_NAME}`,
-    description:
-      "Proposed plans from $39/month for Level 1 and $149/month for Level 2 with SSP, POA&M and SPRS score, compared with FutureFeed, PreVeil Pass and consultant fees. Free during early access.",
-    changefreq: "monthly",
-    priority: 0.8,
-    body: `<h1>Pricing</h1>
+    },
+    open
+      ? pricingPage(launch)
+      : {
+          path: "/pricing",
+          kind: "pricing",
+          title: `Pricing (proposed, early access) · ${SITE_NAME}`,
+          description:
+            "Proposed plans from $39/month for Level 1 and $149/month for Level 2 with SSP, POA&M and SPRS score, compared with FutureFeed, PreVeil Pass and consultant fees. Free during early access.",
+          changefreq: "monthly",
+          priority: 0.8,
+          body: `<h1>Pricing</h1>
 <p class="lead">Early access is free. These are the prices we propose to charge after launch, billed annually;
 they may change before then, and we will tell everyone on the list first.</p>
 <ul class="plans">
@@ -367,16 +391,16 @@ they may change before then, and we will tell everyone on the list first.</p>
 the low end of a consultant engagement, while the documents stay current as your shop changes. Level 1 is priced low because
 it is 15 requirements and no score. If you handle CUI you still need a place to store it; we do not replace that.</p>
 ${cta}`,
-  },
-  {
-    path: "/early-access",
-    kind: "page",
-    title: `Join early access · ${SITE_NAME}`,
-    description:
-      "Join the early-access list for the CMMC Level 1/2 and ISO 9001 workspace for small machine shops. Double opt-in: one confirmation email, nothing more unless you confirm.",
-    changefreq: "monthly",
-    priority: 0.9,
-    body: `<h1>Join early access</h1>
+        },
+    {
+      path: "/early-access",
+      kind: "page",
+      title: `Join early access · ${SITE_NAME}`,
+      description:
+        "Join the early-access list for the CMMC Level 1/2 and ISO 9001 workspace for small machine shops. Double opt-in: one confirmation email, nothing more unless you confirm.",
+      changefreq: "monthly",
+      priority: 0.9,
+      body: `<h1>Join early access</h1>
 <p class="lead">We are building this with a small group of machine shops. Early access is free; in return we ask for
 feedback on what the workspace gets wrong.</p>
 <form class="signup" method="post" action="/api/early-access">
@@ -402,16 +426,18 @@ feedback on what the workspace gets wrong.</p>
 </form>
 <p class="muted">We store what you enter here as described in the <a href="/privacy">privacy notice</a>. No testimonials,
 no sales calls unless you ask for one.</p>`,
-  },
-  {
-    path: "/privacy",
-    kind: "page",
-    title: `Privacy notice for the early-access list · ${SITE_NAME}`,
-    description:
-      "What the early-access list stores (email, chosen level and shop size, consent wording, hashed IP), why, for how long, and how to leave it.",
-    changefreq: "yearly",
-    priority: 0.3,
-    body: `<h1>Privacy notice for the early-access list</h1>
+    },
+    open
+      ? privacyPage(launch)
+      : {
+          path: "/privacy",
+          kind: "page",
+          title: `Privacy notice for the early-access list · ${SITE_NAME}`,
+          description:
+            "What the early-access list stores (email, chosen level and shop size, consent wording, hashed IP), why, for how long, and how to leave it.",
+          changefreq: "yearly",
+          priority: 0.3,
+          body: `<h1>Privacy notice for the early-access list</h1>
 <p>Last updated ${humanDate(STATUS_CHECKED)}.</p>
 <h2>What we store</h2>
 <ul>
@@ -431,50 +457,153 @@ program ends.</p>
 <h2>Leaving</h2>
 <p>Every email has a link that deletes your entry. You can also reply to any email and ask.</p>
 <p>No cookies and no tracking scripts are used on this site.</p>`,
-  },
-  // Utility pages: noindex, left out of the sitemap and llms.txt.
-  {
-    path: "/early-access/check-email",
-    indexable: false,
-    title: `Check your email · ${SITE_NAME}`,
-    description: "We sent a confirmation link if the address can receive one.",
-    body: `<h1>Check your email</h1>
+        },
+    // Utility pages: noindex, left out of the sitemap and llms.txt.
+    {
+      path: "/early-access/check-email",
+      indexable: false,
+      title: `Check your email · ${SITE_NAME}`,
+      description: "We sent a confirmation link if the address can receive one.",
+      body: `<h1>Check your email</h1>
 <p class="lead">If that address can receive mail, a confirmation link is on its way. It works for 7 days.</p>
 <p>Nothing else is sent unless you confirm. Not there after a few minutes? Check spam, or <a href="/early-access">try again</a> in ten minutes.</p>`,
-  },
-  {
-    path: "/early-access/confirmed",
-    indexable: false,
-    title: `You're on the list · ${SITE_NAME}`,
-    description: "Your early-access sign-up is confirmed.",
-    body: `<h1>You're on the list</h1>
+    },
+    {
+      path: "/early-access/confirmed",
+      indexable: false,
+      title: `You're on the list · ${SITE_NAME}`,
+      description: "Your early-access sign-up is confirmed.",
+      body: `<h1>You're on the list</h1>
 <p class="lead">Thanks. We will write when there is a workspace for you to try. Every email has a link to leave the list.</p>
 <p>Meanwhile: <a href="/cmmc-level-1-vs-level-2">CMMC Level 1 vs Level 2</a> · <a href="${JOBSHOP.url}">${JOBSHOP.name}</a></p>`,
-  },
-  {
-    path: "/early-access/link-expired",
-    indexable: false,
-    title: `Link expired · ${SITE_NAME}`,
-    description: "That link is not valid any more.",
-    body: `<h1>That link is not valid any more</h1>
+    },
+    {
+      path: "/early-access/link-expired",
+      indexable: false,
+      title: `Link expired · ${SITE_NAME}`,
+      description: "That link is not valid any more.",
+      body: `<h1>That link is not valid any more</h1>
 <p>Confirmation links work once and for 7 days. <a href="/early-access">Sign up again</a> to get a fresh one.</p>`,
-  },
-  {
-    path: "/early-access/invalid",
-    indexable: false,
-    title: `Check the form · ${SITE_NAME}`,
-    description: "The sign-up form was missing something.",
-    body: `<h1>Please check the form</h1>
+    },
+    {
+      path: "/early-access/invalid",
+      indexable: false,
+      title: `Check the form · ${SITE_NAME}`,
+      description: "The sign-up form was missing something.",
+      body: `<h1>Please check the form</h1>
 <p>We need a valid email address and your agreement to the wording next to the checkbox. <a href="/early-access">Back to the form</a>.</p>`,
-  },
-  {
-    path: "/early-access/left",
-    indexable: false,
-    title: `You have left the list · ${SITE_NAME}`,
-    description: "Your early-access entry was deleted.",
-    body: `<h1>You have left the list</h1>
+    },
+    {
+      path: "/early-access/left",
+      indexable: false,
+      title: `You have left the list · ${SITE_NAME}`,
+      description: "Your early-access entry was deleted.",
+      body: `<h1>You have left the list</h1>
 <p>Your entry is deleted. We will not email you again.</p>`,
-  },
-];
+    },
+  ];
+  const visible = open ? pages.filter((p) => !p.path.startsWith("/early-access")) : pages;
+  return visible.map((p) => ({
+    ...p,
+    body: p.body.replaceAll(CTA_MARKER, ctaFor(launch, p.path)),
+  }));
+}
+
+const usd = (cents) => `$${Math.round(cents / 100).toLocaleString("en-US")}`;
+
+/**
+ * The pricing page once the app is open: the app's own plans (plans.mjs, checked against
+ * apps/cmmc/src/shared/plans.ts by test/plans.test.mjs), the paid ones "not on sale yet" until
+ * checkout is live.
+ * @param {import("./launch.mjs").Launch} launch
+ * @returns {Page}
+ */
+export function pricingPage(launch) {
+  const plans = publicPlans();
+  const paid = plans.filter((p) => p.priceCents > 0);
+  const card = (p) => {
+    const price =
+      p.priceCents === 0
+        ? `<p class="price">$0<span>/month</span></p><p class="muted">Free, no card</p>`
+        : `<p class="price">${usd(p.priceCents)}<span>/month</span></p><p class="muted">or ${usd(p.annualPriceCents)} a year${launch.paidOn ? "" : " · not on sale yet"}</p>`;
+    const action =
+      p.priceCents === 0
+        ? `<p><a class="button" href="${signupUrl(launch, "/pricing")}">Start free</a></p>`
+        : launch.paidOn
+          ? `<p><a href="${signupUrl(launch, "/pricing")}">Start on Level 1, then upgrade from Billing</a></p>`
+          : `<p class="muted">Start on Level 1 now; upgrade from the Billing tab once Level 2 plans go on sale.</p>`;
+    return `<li${p.key === "level2" ? ' class="featured"' : ""}><h2>${p.name}</h2>${price}
+  <p>${p.description}</p>
+  <ul>${p.features.map((f) => `<li>${f}</li>`).join("")}</ul>${action}</li>`;
+  };
+  const cheapest = paid[0];
+  return {
+    path: "/pricing",
+    kind: "pricing",
+    title: `Pricing · ${SITE_NAME}`,
+    description: `Level 1 free; Level 2 with SSP, POA&M and SPRS score ${usd(cheapest.priceCents)}/month, compared with FutureFeed, PreVeil Pass and consultant fees.`,
+    changefreq: "monthly",
+    priority: 0.8,
+    body: `<h1>Pricing</h1>
+<p class="lead">Level 1 is free for as long as you use it. ${
+      launch.paidOn
+        ? "Level 2 plans are billed monthly or yearly through Paddle, our reseller, and you can cancel any time."
+        : "Level 2 plans are not on sale yet: the prices below are what they will cost, and you can start on Level 1 today."
+    }</p>
+<ul class="plans">
+${plans.map(card).join("\n")}
+</ul>
+<p>AI statement drafts are counted per organization per calendar month and are always saved as drafts for you to check.
+Drafting is switched on separately from sign-up; until it is, you write each statement yourself and nothing else changes.
+No plan certifies your shop or guarantees a score. Refunds and cancellation: the <a href="${appLegalUrl(launch, "refunds")}">refund policy</a>.</p>
+<h2>How this compares</h2>
+<div class="table-wrap"><table>
+  <caption>Published prices, checked ${humanDate(STATUS_CHECKED)}</caption>
+  <thead><tr><th scope="col">Option</th><th scope="col">Price</th><th scope="col">What it includes</th></tr></thead>
+  <tbody>
+    <tr><td>${cite("futurefeed-pricing", "FutureFeed")} Innovator + Level 2 add-on</td><td>$99/mo billed annually + $1,008/yr (about $183/mo)</td><td>Compliance platform for shops of 25 or fewer FTEs</td></tr>
+    <tr><td>${cite("preveil-pass", "PreVeil Pass")}</td><td>$450/mo for 3 users, 12 months prepaid</td><td>Encrypted email and file sharing for CUI plus a compliance kit; a different scope from ours</td></tr>
+    <tr><td>Consultant-written SSP and POA&amp;M</td><td>$3,000–$25,000 (${cite("preveil-costs", "PreVeil")}); $3,500–$20,000 (${cite("secureframe-consultant", "Secureframe")})</td><td>Documents written for you; upkeep usually extra</td></tr>
+  </tbody>
+</table></div>
+<h2>Why these numbers</h2>
+<p>Level 1 is 15 requirements and a pass or fail, so it is free. A year of Level 2 (${usd(cheapest.annualPriceCents)}) costs less
+than the low end of a consultant engagement, and the documents stay current as your shop changes. FutureFeed costs less for
+Level 2 if a compliance checklist is all you need; this workspace adds the POA&amp;M rules, the asset inventory and the
+ISO 9001 records in one place. If you handle CUI you still need a place to store it; we do not replace that.</p>
+${CTA_MARKER}`,
+  };
+}
+
+/**
+ * The privacy notice once the app is open: this site keeps nothing; the app has its own policy.
+ * @param {import("./launch.mjs").Launch} launch
+ * @returns {Page}
+ */
+export function privacyPage(launch) {
+  const app = signinUrl(launch);
+  return {
+    path: "/privacy",
+    kind: "page",
+    title: `Privacy notice for this site · ${SITE_NAME}`,
+    description:
+      "This marketing site stores nothing about you: no forms, no cookies, no tracking scripts. The workspace's own privacy policy covers your account.",
+    changefreq: "yearly",
+    priority: 0.3,
+    body: `<h1>Privacy notice for this site</h1>
+<p>Last updated 27 Nov 2026.</p>
+<h2>This site</h2>
+<p>These pages have no forms, cookies or tracking scripts, and keep nothing about you. The free SPRS calculator works out
+your score in your browser: the requirements you tick go into the page address only, and nothing is sent to us. The host,
+Cloudflare, keeps its usual request logs.</p>
+<h2>The workspace</h2>
+<p>Signing up happens in the workspace at <a href="${app}">${new URL(app).host}</a>, under its own
+<a href="${appLegalUrl(launch, "privacy")}">privacy policy</a> (what it stores, the services it uses, how long, and how to
+close your account) and <a href="${appLegalUrl(launch, "terms")}">terms</a>.</p>`,
+  };
+}
+
+/** @type {readonly Page[]} The pages for the state launch.mjs names. */
+export const PAGES = buildPages();
 
 export { SOURCES };

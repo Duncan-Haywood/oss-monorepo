@@ -135,6 +135,33 @@ else's shop. The
 [pricing guide](https://marisstella.app/machine-shop-guides/how-to-price-a-machined-part.html)
 explains where to find each number in your own records.
 
-Both tools are the free front door to two products in development for the
-same shops: an RFQ-to-quote assistant and a CMMC/ISO 9001 workspace. Neither
-certifies anyone. Only an authorized C3PAO or the government can do that.
+Both tools are the free front door to two products for the same shops: an
+RFQ-to-quote app and a CMMC/ISO 9001 workspace. Neither certifies anyone.
+Only an authorized C3PAO or the government can do that.
+
+## Keeping the score instead of recalculating it (updated 27 Nov 2026)
+
+A calculator gives you a number once. The number then goes stale as the shop
+closes items, adds a laptop or changes its MSP. The
+[CMMC workspace](https://marisstella.app/cmmc/) keeps each requirement's status,
+owner and evidence next to the SSP and the POA&M, so the score moves as you
+close items. Since 27 November 2026 anyone can sign up, at
+[cmmc.marisstella.app](https://cmmc.marisstella.app/signup?from=cmmc-site%2Fpost-sprs).
+
+- **Level 1 is free:** the 15 FAR 52.204-21 safeguards, evidence, the SSP and
+  the pass/fail result, for one user.
+- **Level 2** (110 requirements, 320 assessment objectives, the SPRS score, SSP
+  and POA&M with the conditional-status checks) will cost $249 a month, and
+  **Level 2 + Quality** (adding the ISO 9001:2015 clause checklist) $399. Both
+  are not on sale yet. The
+  [pricing page](https://marisstella.app/cmmc/pricing) compares them with
+  FutureFeed, PreVeil Pass and consultant fees.
+- AI drafting of implementation statements is built but switched off for now.
+  Until it is on, you write each statement yourself.
+
+The workspace's site has its own
+[SPRS calculator](https://marisstella.app/cmmc/sprs-score-calculator). It uses
+the same weights and the same −203 floor, and adds the POA&M rules of
+32 CFR 170.21: whether the open items could support a Conditional Level 2
+(Self) status. It works out the score in your browser, and nothing you tick
+is sent anywhere.

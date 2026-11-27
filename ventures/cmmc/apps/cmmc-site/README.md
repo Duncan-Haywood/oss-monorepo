@@ -5,7 +5,22 @@ and aerospace machine shops to prepare the SSP, POA&M and SPRS score in-house. T
 `apps/cmmc` (built separately); its sibling for the same shops is the job-shop quoting product
 (`apps/jobshop-site`, linked at `https://marisstella.app/jobshop`).
 
-Served at `https://marisstella.app/cmmc`. Early access only; prices are proposals.
+Served at `https://marisstella.app/cmmc` by the catalogue build (`platform/pages/cmmc-site.mjs`, every
+merge), as static files. **Open since 2026-11-27:** the app is live at `https://cmmc.marisstella.app`, so
+every page links "Start free" to its sign-up; Level 1 is free and the paid plans are "not on sale yet"
+until checkout is on.
+
+## The launch switch
+
+`src/launch.mjs` holds `APP_URL` (the app's origin; `null` builds the early-access copy) and
+`PAID_PLANS_ON`. The build takes `APP_URL` / `PAID_PLANS_ON=1` from the environment when set
+(`APP_URL= node src/build.mjs` builds the early-access copy). Open: no early-access pages or form,
+sign-up and sign-in links in the header and every call to action, the app's plans on the pricing page
+(`src/plans.mjs`, checked against `apps/cmmc/src/shared/plans.ts` by `test/plans.test.mjs`), a privacy
+notice for a site that keeps nothing, and the SPRS calculator scored in the browser (`sprs.js`, built
+from `src/sprs.mjs` with the data inlined, applied by `src/sprs-page.js`). `test/site.test.mjs` runs
+every check on both states. The catalogue refuses to serve the early-access copy, whose form needs this
+site's own Worker.
 
 ## Layout
 
@@ -13,7 +28,7 @@ Served at `https://marisstella.app/cmmc`. Early access only; prices are proposal
 |---|---|
 | `src/site.mjs` | Site name, URLs, sibling link, `STATUS_CHECKED`, the source register (`SOURCES`), consent wording |
 | `src/pages.mjs` | Page content: home, Level 1 vs 2 explainer, what it does / does not, security, pricing, early access, privacy, utility pages |
-| `src/sprs.mjs` | Free SPRS score calculator at `/sprs-score-calculator`: a plain GET form (no scripts, CSP unchanged) the Worker scores and writes into the static page (`applyToPage`). Requirements and point values are read from `apps/cmmc/src/shared/controls/official-text.json` (the official-text extract); rules match `apps/cmmc` `scoring.ts`, and `test/sprs.test.mjs` pins the same worked examples. Result URLs are `noindex`, `no-store`, and nothing is stored |
+| `src/sprs.mjs` | Free SPRS score calculator at `/sprs-score-calculator`: a plain GET form. Behind the Worker it is scored server-side and written into the static page (`applyToPage`); on the static catalogue copy the same file runs in the browser (`sprs.js` + `src/sprs-page.js`). Requirements and point values are read from `apps/cmmc/src/shared/controls/official-text.json` (the official-text extract); rules match `apps/cmmc` `scoring.ts`, and `test/sprs.test.mjs` pins the same worked examples. Result URLs are `noindex`, `no-store`, and nothing is stored |
 | `src/build.mjs` | Zero-dependency static build to `dist/`: HTML per page (canonical, OG, JSON-LD), `sitemap.xml`, `robots.txt` (AI crawlers named), `llms.txt`, `llms-full.txt` |
 | `src/worker.mjs` | Worker entry (default export only; workerd treats named exports as entrypoints) |
 | `src/early-access.mjs` | Base-path routing, security headers, double opt-in list in D1 (same design as grants' newsletter) |
@@ -68,7 +83,8 @@ count: leaving deletes the row. `ADMIN_METRICS_TOKEN` (same rules) is the agents
 
 ## Deploy (owner)
 
-Not wired into CI yet (this change stays inside `apps/cmmc-site`). To deploy by hand:
+Not needed while the site is open: the catalogue serves the static copy. The Worker below is only
+for the early-access copy (its list form and server-side calculator). To deploy it by hand:
 
 1. `wrangler d1 create cmmc-site`, put the id in `wrangler.jsonc`, then
    `wrangler d1 migrations apply cmmc-site --remote`.
