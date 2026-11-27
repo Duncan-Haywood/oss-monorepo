@@ -103,7 +103,14 @@ export function QuoteDetailPage() {
         method: "POST",
         body: {
           partNumber: "New part",
-          inputs: { quantities: org.data?.settings.defaultQuantities ?? [1], material: null },
+          inputs: {
+            quantities: org.data?.settings.defaultQuantities ?? [1],
+            material: null,
+            // The shop's default fallout, as on lines made from an RFQ.
+            ...(org.data?.settings.defaultFalloutBps
+              ? { falloutBps: org.data.settings.defaultFalloutBps }
+              : {}),
+          },
         },
       }),
     onSuccess: setData,

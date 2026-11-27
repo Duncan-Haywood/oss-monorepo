@@ -1,0 +1,27 @@
+{
+  "id": "P098",
+  "title": "Fold the three landing-site purge crons before their Workers get deploy workflows, so the account stays within 5 cron triggers",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "platform/ci/cron_budget.py (P097) counts 8 configured cron schedules against the free plan's 5, of which 3 are on workflow-deployed Workers (payapps, seller-books, platform/email). Wiring a deploy workflow for any two of cmmc, cmmc-site, jobshop-quote, payapps-site or seller-books-site, or adding one more cron, fails the check. Three of the five (payapps-site 04:41, seller-books-site 04:23, cmmc-site 04:17) only purge never-confirmed early-access sign-ups once a day.",
+  "evidence": [
+    "python3 platform/ci/cron_budget.py on 2026-11-27 main: '3 deployed by a workflow, 8 configured; Workers free allows 5'"
+  ],
+  "change": "Cheapest first: the owner moves the account to Workers Paid ($5/month, also lifts the 10 ms CPU and 100k requests/day limits paid products will hit) and sets portfolio/hosting/cloudflare-plan.json to paid/1000. Without that: the three site purges run from one scheduler (e.g. platform/email's daily cron calling each site's purge route over a service binding with a shared secret), keeping each site's retention promise (rows older than the stated age deleted daily).",
+  "touches": [
+    "ventures/payapps/apps/payapps-site/",
+    "ventures/seller-books/apps/seller-books-site/",
+    "ventures/cmmc/apps/cmmc-site/",
+    "platform/email/",
+    "portfolio/hosting/cloudflare-plan.json"
+  ],
+  "metric": "configured cron schedules (cron_budget.py), and whether the next site deploy workflow passes it",
+  "baseline": "8 configured, 3 deployed, 5 allowed (2026-11-27)",
+  "opened": "2026-11-27",
+  "source": "process run (P097)",
+  "pr": null,
+  "result": null,
+  "history": []
+}

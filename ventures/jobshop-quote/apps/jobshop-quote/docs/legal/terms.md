@@ -1,6 +1,6 @@
 # Terms of Service
 
-**Version 2026-11-26** · Maris Stella Labs LLC
+**Version 2026-11-27** · Maris Stella Labs LLC
 
 ## 1. Who we are
 
@@ -8,13 +8,14 @@ Job Shop Quote (the "Service") is operated by **Maris Stella Labs LLC**, a Color
 
 ## 2. The Service
 
-The Service helps machining and fabrication shops turn requests for quotation (RFQs) into quotes: it reads an RFQ's text and attached drawings, suggests the part details it found, prices each quantity break from the rate card **you enter**, produces a quote PDF and cover note, can email the quote to your customer, and keeps a log of quotes won and lost.
+The Service helps machining and fabrication shops turn requests for quotation (RFQs) into quotes: it reads an RFQ's text and attached drawings, suggests the part details it found, prices each quantity break from the rate card **you enter**, produces a quote PDF and cover note, can email the quote to your customer, and keeps a log of quotes won and lost. It can also receive RFQs at an email address for your shop, share a sent quote through a customer link the customer can accept or decline through, print a job traveler for a won quote, remind your estimators of quotes that are expiring or due for a follow-up, and send a won quote to your QuickBooks Online company as an invoice if an admin connects it.
 
 ## 3. You are the one quoting
 
 Every price comes from your own rate card and the inputs you or your estimators enter (material, blank size, operations, setup and cycle times, finishing, extras and markups). The Service does the arithmetic; it does not know your machines, your costs, your customer's requirements or whether a part can be made as drawn. Before you send a quote, you are responsible for checking every part, quantity, price, lead time and term, and for making sure the quote is accurate and complete. Your customers rely on you, not on us.
 
 - **AI suggestions are suggestions.** The Service uses an AI model to read RFQs and to draft cover notes. It checks each value it extracts against the RFQ text and drops values it cannot find there, but it can still misread a drawing, miss a requirement or a revision, or leave something out. A part goes onto a quote only after one of your people confirms it. Read the RFQ and the drawings yourself.
+- **Customer answers are your customer's words.** When a customer accepts or declines a quote through a customer link, the Service records and forwards what they typed. Whether that forms an order, and on what terms, is between you and your customer.
 - **Geometry is an estimating aid.** Sizes, volumes and suggested operations read from CAD files are starting points, not measurements you can rely on without checking.
 - **No engineering, legal, tax or accounting advice.** Nothing in the Service is engineering, manufacturing, legal, tax, accounting or financial advice, and we do not review drawings for manufacturability, export control or compliance.
 
@@ -52,7 +53,7 @@ We work to keep the Service available, but it may be interrupted for maintenance
 
 ## 10. Termination
 
-You may stop using the Service and cancel at any time. We may suspend or terminate accounts that violate these Terms or the Acceptable Use Policy, or for non-payment, with notice where practical. Before your account closes, you can download your quote PDFs.
+You may stop using the Service and cancel at any time. We may suspend or terminate accounts that violate these Terms or the Acceptable Use Policy, or for non-payment, with notice where practical. Before your account closes, you can download your quote PDFs and the won/lost report (CSV).
 
 ## 11. Disclaimers
 

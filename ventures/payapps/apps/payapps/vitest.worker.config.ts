@@ -36,6 +36,15 @@ export default defineConfig({
     include: ["test/worker/**/*.test.ts", "src/worker/**/*.worker.test.ts"],
     setupFiles: ["./test/worker/setup.ts"],
     testTimeout: 30_000,
+    // One isolate per Vitest worker, reused across its test files, instead of a fresh isolate per
+    // file. Each fresh isolate re-imported the Worker's ~300-module graph on its first request
+    // (~1.7 s per file, 88 files): cold suite 156 s -> 30 s on 4 cores, same 559 tests
+    // (docs/history/payapps-worker-tests-perf-2026-11-27.md, "Second pass"). What this asks of a
+    // test file: the D1 database and module singletons (testFakes) are shared with the files that
+    // ran before it in that worker, so scope reads to rows the file created (its own org, user or
+    // job ids) and never assert a global count or an empty table. Files may run in any order:
+    // `--sequence.shuffle.files` must pass too.
+    isolate: false,
     // Pre-bundle the heavy runtime deps once per run. Every test file gets a fresh isolate and
     // re-imports the Worker's graph; unbundled, better-auth + zod + drizzle + hono are ~3 s of
     // small-module loads per file (87 files). Bundled: suite 193-195 s -> 99-121 s on 4 cores,

@@ -25,8 +25,11 @@ import {
 } from "./plans";
 
 const usd = (n: number) => Math.round(n * 1_000_000);
-/** One draft, worst case: a long profile and notes in (8k tokens), the 4k-token output cap out. */
-const PER_DRAFT = llmCostMicros(tokens(8_000, 4_000), "claude-opus-5-5");
+/**
+ * One draft, worst case: every profile field, the notes and the statement at their length limits in
+ * (20k tokens, src/worker/services/ai-capacity.ts WORST_DRAFT_TOKENS), the 4k-token output cap out.
+ */
+const PER_DRAFT = llmCostMicros(tokens(20_000, 4_000), "claude-opus-5-5");
 /** R2 standard storage, $0.015 per GB-month (Cloudflare R2 pricing). */
 const R2_PER_GB_MONTH = usd(0.015);
 /** Owner's onboarding and support time per org-month: compliance buyers ask questions. */

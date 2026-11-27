@@ -76,7 +76,7 @@ const isPairSheet = (k: SheetKind) => k === "cut-speeds" || isMaterialRate(k);
 const KINDS: { kind: SheetKind; label: string }[] = [
   {
     kind: "settings",
-    label: "Shop settings (markups, line minimum, quantities, lead time, terms)",
+    label: "Shop settings (markups, line minimum, quantities, fallout, lead time, terms)",
   },
   { kind: "machines", label: "Machines and work centers" },
   { kind: "materials", label: "Materials" },

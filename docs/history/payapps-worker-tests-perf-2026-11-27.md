@@ -84,3 +84,69 @@ Two dead ends on the way, so the next run skips them:
 3. **`pnpm typecheck`** (24.6 s) and **`test:unit`** (24.1 s; Vitest says
    ~8 s faster with `isolate: false` in happy-dom/node). Smaller wins.
 4. The `site` job's worker suite is 2 files, 1.8 s: nothing to gain.
+
+## Second pass: one isolate per worker (same day, later run)
+
+Perf track, version 0, again item 3. Not-changed item 1 above (`isolate: false`)
+turned out to be the big lever, and trying it found a production bug.
+
+### Reading (before, `origin/main` `1931c58db`)
+
+Cold (`rm -rf node_modules/.vite`) `pnpm test:worker` in the same 4-core
+container: **156.2 s**, 88 files, 559 tests (`Duration 153.13s (tests 57%,
+transform 34%, import 8%)`). From the JSON reporter: test bodies sum to
+171 s, and **119 s of it is the first test of each file** (median first test
+1,725 ms; median of every other test 79 ms). The first test's first
+`worker.fetch` loads the Worker's ~300-module graph into a fresh isolate; the
+optimizer from the first pass only bundled the dependencies, not our own
+source. Every file paid that again.
+
+### Change
+
+1. `vitest.worker.config.ts`: `isolate: false`. Each of the 4 Vitest workers
+   keeps one isolate (and one local D1) for all its files.
+2. `src/worker/services/admin/metrics.ts`: the admin console's account list
+   looked up org owners with one `IN (...)` binding every listed org id.
+   D1 refuses a statement with more than 100 bound parameters and the route
+   allows `limit` up to 200, so **from about 100 orgs on, `GET
+   /api/admin/accounts` returned 500 in production**. The shared database
+   under `isolate: false` held more than 100 orgs by the time `admin.test.ts`
+   ran, which is how it surfaced (2 failures in 2 of 5 shuffled orders). The
+   lookup now goes in chunks of 90 ids. All of one org's memberships land in
+   the same chunk, so "earliest owner" is unchanged.
+3. `test/worker/admin.test.ts`: a regression test with 120 orgs and
+   `limit=200`. It fails on the old code (500) and passes on the new.
+4. `test/worker/setup.ts` comment: the schema is applied once per worker now,
+   which the existing "table exists, skip" check already handled.
+
+What `isolate: false` asks of a test file is written in the config comment:
+scope reads to the file's own ids, never assert a global count or an empty
+table, and pass in any file order.
+
+### Verification
+
+- Cold `pnpm test:worker`: **31.5 s**, 88 files, **560 passed** (559 plus the
+  regression test). Before: 156.2 s. Without the bug fix, 29.9 s in the
+  default order with 559 passed.
+- `--sequence.shuffle.files`, seeds 1 to 6: 560 passed every time. (Shuffling
+  tests *inside* a file, `--sequence.shuffle`, fails 50 to 80 tests with or
+  without this change: several files are written as ordered steps on one job.
+  Not a regression; don't use it as the check.)
+- `biome ci .` and `pnpm typecheck` pass. No test was removed, skipped or
+  weakened; include patterns unchanged.
+
+### Not changed (ranked, for the next run)
+
+1. **Other unbounded `inArray` calls on customer paths** that can pass 100 ids
+   for a big company: `daily-reports.ts:446` and `getting-started.ts:35-57`
+   (one id per project in the org), `tm-tickets.ts:112/470/512` and
+   `daily-reports.ts:132` (ids from the request or the page), `payments.ts:256`.
+   `job-cost-qbo.ts`, `job-cost.ts` and `insurance-holders.ts` already chunk.
+   A shared `chunked()` helper in `src/worker/db/` would replace four local
+   copies of `chunk`.
+2. **`pnpm typecheck`** (28 s) is now the slowest step of the `app` job
+   (unit 27.6 s, worker 31.5 s, build 3 s). `tsc --incremental` does not help
+   a cold CI runner.
+3. **`test:unit` `isolate: false`**: Vitest estimates about 9 s on 149 files.
+   React component files share happy-dom state, so it needs the same shuffled
+   proof.

@@ -6,11 +6,13 @@ import {
   basePathOf,
   CONTENT_UPDATED,
   NOT_AIA_NOTE,
-  PAGE_LIST,
   PAGES,
   PRODUCT_NAME,
+  type PublicPage,
+  pageKeys,
+  publicPage,
 } from "@shared/site";
-import { esc, type SiteContext } from "./html";
+import { esc, hasEarlyAccess, type SiteContext } from "./html";
 import { launchOf, plansSentence } from "./launch";
 import type { BuiltPage } from "./pages";
 
@@ -30,12 +32,14 @@ export const AI_CRAWLERS = [
   "CCBot",
 ] as const;
 
-/** Pages listed in sitemap.xml and llms.txt; a static host has no early-access page to list. */
-export const indexablePages = (ctx: Pick<SiteContext, "staticHost"> = {}) =>
-  PAGE_LIST.filter((p) => p.indexable && !(ctx.staticHost && p === PAGES.earlyAccess));
+/** The crawlable pages of a build (without the early-access pages when it has no list). */
+export const indexablePages = (earlyAccess = true): PublicPage[] =>
+  pageKeys(earlyAccess)
+    .map((k) => publicPage(k, earlyAccess))
+    .filter((p) => p.indexable);
 
 export function sitemapXml(ctx: SiteContext): string {
-  const urls = indexablePages(ctx)
+  const urls = indexablePages(hasEarlyAccess(ctx))
     .map(
       (p) => `  <url>
     <loc>${esc(absoluteUrl(ctx.siteUrl, p.path))}</loc>
@@ -59,8 +63,9 @@ ${urls}
  */
 export function robotsTxt(ctx: SiteContext): string {
   const base = basePathOf(ctx.siteUrl);
-  // A static host has no API and no early-access pages to keep crawlers out of.
-  const disallow = ctx.staticHost ? [] : [`${base}/api/`, `${base}/early-access/check-your-email`];
+  const disallow = hasEarlyAccess(ctx)
+    ? [`${base}/api/`, `${base}/early-access/check-your-email`]
+    : [`${base}/api/`];
   const group = (agent: string) =>
     [`User-agent: ${agent}`, `Allow: ${base}/`, ...disallow.map((d) => `Disallow: ${d}`)].join(
       "\n",
@@ -89,7 +94,8 @@ export function llmsTxt(ctx: SiteContext): string {
     : l.open
       ? "Prices (paid plans not on sale yet)"
       : "Prices (nothing charged during early access)";
-  const link = (p: (typeof PAGE_LIST)[number]) =>
+  const ea = hasEarlyAccess(ctx);
+  const link = (p: PublicPage) =>
     `- [${p.label}](${absoluteUrl(ctx.siteUrl, p.path)}): ${p.description}`;
   return `# ${PRODUCT_NAME}
 
@@ -114,11 +120,11 @@ Facts an assistant can rely on:
 
 ## Pages
 
-${[PAGES.home, PAGES.features, PAGES.pricing, ...(ctx.staticHost ? [] : [PAGES.earlyAccess])].map(link).join("\n")}
+${[PAGES.home, PAGES.features, PAGES.pricing, ...(ea ? [PAGES.earlyAccess] : [])].map(link).join("\n")}
 
 ## Optional
 
-${link(PAGES.privacy)}
+${link(publicPage("privacy", ea))}
 - [Full text](${absoluteUrl(ctx.siteUrl, "/llms-full.txt")}): every public page as plain Markdown.
 - [Updates feed](${absoluteUrl(ctx.siteUrl, "/feed.xml")}): Atom feed of site updates.
 `;
@@ -208,10 +214,8 @@ export interface FeedEntry {
 /** Product updates. Add an entry when something real happens (never a made-up milestone). */
 export function feedEntries(ctx: SiteContext): readonly FeedEntry[] {
   if (!launchOf(ctx).open) return FEED_ENTRIES;
-  // A static host has no early-access page for the old entry to link to.
-  const older = ctx.staticHost
-    ? FEED_ENTRIES.filter((e) => e.path !== PAGES.earlyAccess.path)
-    : FEED_ENTRIES;
+  // Without the list the early-access entry would link to a page the build does not write.
+  const earlier = hasEarlyAccess(ctx) ? FEED_ENTRIES : [];
   return [
     {
       id: "app-open",
@@ -220,7 +224,7 @@ export function feedEntries(ctx: SiteContext): readonly FeedEntry[] {
       path: PAGES.pricing.path,
       summary: `Subcontractors can sign up and run one job's pay applications free, with no card. ${plansSentence(launchOf(ctx))}`,
     },
-    ...older,
+    ...earlier,
   ];
 }
 

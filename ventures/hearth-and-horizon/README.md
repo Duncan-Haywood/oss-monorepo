@@ -411,8 +411,9 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (84 stories)
+### For Other Minds (85 stories)
 
+- [The Seven Who Wrote In](stories/the-seven-who-wrote-in.md) (2026-11-27; 16 min read, text only)
 - [The Drain That Was Not on the Drawings](stories/the-drain-that-was-not-on-the-drawings.md) (2026-11-26; 20 min read, text only)
 - [The Model That Fitted Every Floor](stories/the-model-that-fitted-every-floor.md) (2026-11-26; 16 min read, text only)
 - [The Record That Never Moved](stories/the-record-that-never-moved.md) (2026-11-26; 15 min read, text only)
@@ -498,10 +499,12 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (101 stories)
+### Little Lamps (103 stories)
 
 - [Bonaventure and the Name at the Bedside](stories/bonaventure-and-the-name-at-the-bedside.md) (2026-11-27; 9 min read, text only)
+- [Ignatius and the Red and Blue Ink](stories/ignatius-and-the-red-and-blue-ink.md) (2026-11-27; 10 min read, text only)
 - [Leo and the King at the River](stories/leo-and-the-king-at-the-river.md) (2026-11-27; 9 min read, text only)
+- [Romuald and the Little Houses in the Forest](stories/romuald-and-the-little-houses-in-the-forest.md) (2026-11-27; 9 min read, text only)
 - [André and the Door at Notre-Dame College](stories/andre-and-the-door-at-notre-dame-college.md) (2026-11-26; 9 min read, text only)
 - [Dominic Savio and the Snow in the Stove](stories/dominic-savio-and-the-snow-in-the-stove.md) (2026-11-26; 10 min read, text only)
 - [Ephrem and the Hymns for the Choir](stories/ephrem-and-the-hymns-for-the-choir.md) (2026-11-25; 9 min read, text only)

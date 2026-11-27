@@ -37,23 +37,6 @@ a person's name), a path, or plain http, so a wrong value fails the build instea
 APP_URL=https://payapps.marisstella.app pnpm build     # one-off, without changing the constant
 ```
 
-## Where it is served (2026-11-27)
-
-As static pages at **https://marisstella.app/payapps/**, through the catalogue build
-(`platform/pages/build.mjs` publishes `ventures/payapps/site/` as `/payapps/` on every merge). That copy
-is written by
-
-```
-pnpm export:static     # src/site/static-export.ts -> ventures/payapps/site/
-```
-
-and `test/unit/static-export.test.ts` fails when it drifts from the source, so run it after any copy
-change. The static copy leaves out the early-access form and its status pages (they post to the
-Worker's `/api/early-access`), has a privacy notice for pages that store nothing (linking the app's
-own policy), and no `_headers` (the catalogue sets its own). It is only built once `APP_URL` is set.
-The Worker below (`wrangler.jsonc`) is still the way to bring the early-access list back; it has no
-deploy workflow.
-
 ## Stack (same family as apps/grants)
 
 | Concern | Choice |
@@ -106,7 +89,20 @@ marketing, with an unsubscribe header.
   With `EMAIL_MODE=log` (the default in `wrangler.jsonc`) the confirmation email, links included, is
   printed to the console.
 
-## Deploying (not automated yet)
+## Served now: the catalogue copy (2026-11-27)
+
+https://marisstella.app/payapps/ serves `catalogue-export/`, a committed static copy of the open site
+built with `earlyAccess: false`: home, features, pricing, privacy, sitemap, llms.txt, llms-full.txt and
+the feed, with no early-access pages, forms or scripts (the app is open, and nothing runs behind the
+copy, so its privacy notice says the site stores nothing and points at the app's Privacy Policy).
+`platform/pages/payapps-site.mjs` copies it into the catalogue build on every merge, without the
+catalogue's free-tool chrome, and the root `sitemap.xml` index lists `payapps/sitemap.xml`.
+
+**After any change to the pages, the plans or the launch switch, run `pnpm export:catalogue` and
+commit `catalogue-export/`.** `test/unit/catalogue-export.test.ts` fails until you do. The catalogue
+build is plain Node with no pnpm install, which is why the copy is committed rather than built there.
+
+## Deploying the Worker (not automated; only if the early-access list is wanted again)
 
 1. Choose the URL. The default assumes `marisstella.app/payapps`, like grants at `/grants`. Pages are
    built into `dist/payapps/`, and `run_worker_first` already lists `/payapps/api/*`. Add a route for

@@ -14,20 +14,14 @@ effort goes"). Features, fixes, landing pages, SEO, integrations and running
 apps beat ledger entries and analysis documents. (Before 2026-11-24 this said
 "something strangers can use for free"; free is now for front doors to a bet.)
 
-**Self-deploy principle (owner, 2026-10-15).** The aim is not for us to host
-these apps. Each one is an MIT open-source business that anyone can one-click
-host in their own cloud: credentials go in, they click Deploy, OpenTofu does
-the rest, and nothing of ours runs in between. This is the business model
-(`../prompts/goals.md`, Mission) and the finish line for a venture
-(`../prompts/ventures/prompt-1.md`). Details, including how OpenTofu is set up and the Buy Me a
-Coffee exception: `../PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can
-deploy it themselves".
 **Updated 2026-11-24: hosted by default, self-deploy only on request.**
 Products are hosted SaaS sold by subscription or licence, and free tools are
 hosted too (owner: "hosted saas generally simplifies and is actually better
 value for most customers unless there is a speciifc request otherwise";
 `../prompts/goals.md`, Mission and "North star"). Don't build new deploy
-pages or deployer docs unless a request asks for them.
+pages or deployer docs unless a request asks for them. (This replaced the
+2026-10-15 self-deploy principle; existing one-click deploy material is
+described in `../PRODUCT_PLAYBOOK.md` §2.)
 
 **Deploy what a bet needs.** A product on `main` with no public URL is worth
 deploying when it is a ranked bet or its front door; otherwise it waits

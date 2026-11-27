@@ -219,10 +219,7 @@ test('notListedNote names the app\'s own CI workflow when it has one, else the v
 test('the moved paid apps are not catalogue entries, so preflight skips their launch date and placement', async () => {
   const site = await import('./build.mjs');
   const slugs = new Set((await site.discoverSurfaces(path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..', 'ventures'))).map((s) => s.slug));
-  // payapps left this list on 2026-11-27: its marketing site is published from ventures/payapps/site/
-  // (payapps-site's `pnpm export:static`), so it is a catalogue entry with a launch date and a section.
-  assert.equal(slugs.has('payapps'), true, 'payapps should be listed through ventures/payapps/site/');
-  for (const app of ['jobshop-quote']) {
+  for (const app of ['payapps', 'jobshop-quote']) {
     try { await fs.access(path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..', 'ventures', app)); } catch { continue; }
     assert.equal(slugs.has(app), false, `${app} is listed; the preflight would demand a launch date for it`);
   }

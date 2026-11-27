@@ -1,0 +1,6 @@
+{
+  "workers_plan": "free",
+  "cron_triggers_per_account": 5,
+  "source": "https://developers.cloudflare.com/workers/platform/limits/ ('Number of Cron Triggers per account | 5 | 1,000', Free | Paid), read 2026-11-27",
+  "note": "Read by platform/ci/cron_budget.py. When the owner moves the account to Workers Paid ($5 a month), set workers_plan to 'paid' and the limit to 1000 in the same PR."
+}

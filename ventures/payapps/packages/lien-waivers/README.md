@@ -18,6 +18,16 @@ The pay-app billing app is meant to import it.
 
 ## Current status: Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah and Wyoming encoded and verified, Missouri's one residential form and Massachusetts' partial waiver as alternatives; no listed state pending
 
+**2026-11-27: Texas notices of claim.** Besides Texas' four § 53.284 waivers, `src/tx-notice.ts` holds
+the two notices a subcontractor or supplier sends to keep a Texas lien (Tex. Prop. Code §§ 53.056(a-2) and
+53.057(a-2), as amended by H.B. 2237 for original contracts from 2022-01-01), offered by
+`noticeForms("TX")`, and `src/tx-dates.ts` (no imports, safe for a browser bundle) the deadlines:
+`txMonthlyNoticeDue`, `txNoticeSchedule`, `txRetainageNoticeDue`, `txLienAffidavitDue`,
+`txRetainageAffidavitDue`, each moved past a Saturday or Sunday per § 53.003(e) but not past a legal
+holiday. Text from the Texas Legislature's chapter 53 file (`sources/tx-53-notices.txt`, read
+2026-11-27, the same file `tx-53-284.txt` came from); `test/tx-notice.test.ts` compares both whole
+forms and every quoted note with it.
+
 **2026-11-26: Mississippi encoded from the Act that wrote it.** Miss. Code Ann. §§ 85-7-419 and
 85-7-433 were created by SB 2622 (2014 Regular Session), approved by the Governor 11 Apr 2014. The
 official Code is published through LexisNexis, and Justia and FindLaw answer 403, but the Legislature's

@@ -2,9 +2,20 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, ebay, amazon, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
-description: "Three new guides for multi-platform resellers: bridge a payout back to sales, cost a mixed lot by resale value, and map the year onto Schedule C."
+tags: [resellers, ebay, amazon, paypal, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+description: "Resellers: bridge a payout back to sales, cost a mixed lot by resale value, map the year onto Schedule C. Seller Books, the hosted books, is open free."
 ---
+
+**Update, 2026-11-27: Seller Books is open.** The hosted books this post
+describes in its later sections can be used today. Sign up at
+[seller-books.marisstella.app](https://seller-books.marisstella.app/signup)
+and the Free plan gives you one platform and up to 25 orders a month, with
+one user and no card. Paid plans for more platforms and orders are built but
+not on sale yet, so nothing is charged and no price below is final. Unlike
+the free page, Seller Books saves what you import in your account, so the
+next month starts where this one ended; you can download every record or
+delete the shop at any time. What it reads and builds is listed on the
+[online sellers page](https://marisstella.app/industries/online-sellers/).
 
 A marketplace fee calculator answers one question: what does this sale pay
 out? The ten seller tools in this repository (eBay, Etsy, Poshmark, Mercari,
@@ -98,7 +109,7 @@ of this is tax advice.
 ## Has each lot paid for itself? (added 2026-11-26)
 
 The free tool ages what is left at December 31. Seller Books, the hosted
-product in development, now has a stock report that works on any day and
+product (open on a free plan since 2026-11-27), has a stock report that works on any day and
 goes one step further, to the lot. A bin, pallet or estate-sale haul is
 bought as one price and sold as many items, so it is hard to tell whether
 it was a good buy. For each lot the report adds up the proceeds of every
@@ -199,9 +210,9 @@ stores, and a test fails if the code and the policy drift apart:
   sales it created; an owner can delete the whole shop.
 
 The Refund Policy offers a full refund within 30 days of the first paid
-payment, once paid plans open. Seller Books is still in development; the
-[online sellers page](https://marisstella.app/industries/online-sellers/)
-has early access.
+payment, once paid plans open. Seller Books is open on the Free plan
+([sign up](https://seller-books.marisstella.app/signup)); the paid plans
+are not on sale yet.
 
 ## The sale-by-sale backup behind the worksheet (added 2026-11-26)
 
@@ -594,6 +605,37 @@ collected yourself. Whether you owe sales tax on a direct sale depends on
 your state, and that is a question for your state or your tax professional.
 On the free plan, direct sales count toward the 25 orders a month. They do
 not use up the plan's one marketplace.
+
+## Sales paid through PayPal, from one download (added 2026-11-27)
+
+Typing in direct sales one at a time works for a few a month. If buyers pay
+you in PayPal for local pickups, Facebook Marketplace or Instagram sales,
+there is a faster way. PayPal's own Activity download (Activity >
+Statements > Activity download, CSV) lists every payment, and Seller Books
+now imports it as its own platform.
+
+The file holds more than sales, so the importer sorts every row and says why
+it left each one out. A completed payment you received is a sale. Payments
+you sent, withdrawals to your bank, holds, currency conversions and pending
+payments are not sales. Refunds you gave back are imported as refunds, with
+the part of the fee PayPal returned. A payment from eBay, Poshmark, Mercari,
+Etsy or another marketplace Seller Books imports is skipped, with a note to
+import that marketplace's own report instead, so the same sale is never
+counted twice.
+
+Here is a worked row from the test file. A buyer paid $63.50 for a wool coat,
+and PayPal kept a $2.71 fee. That $63.50 is PayPal's Gross. It includes
+$8.00 of shipping and $3.50 of sales tax. Seller Books books $52.00 as the
+item, $8.00 as shipping charged and $2.71 as a payment processing fee. The
+$3.50 of tax stays out of gross receipts.
+
+PayPal's file cannot tell a sale from money a friend sent you, a loan paid
+back or a personal item you sold at a loss. Seller Books imports every
+payment you received as a sale and says so on the import. Delete any that
+were not sales. Every column is read by the name in PayPal's published field
+reference for the report, but we have not yet run a real download through
+it. If a column is missing, the import stops and names it rather than
+guessing.
 
 ## Marketplace sales into QuickBooks Online, one entry a month (added 2026-11-26)
 

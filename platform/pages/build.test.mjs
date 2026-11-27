@@ -141,7 +141,7 @@ import {
   isNodeOnlyScript,
   CATCH_ALL_MAX,
 } from './build.mjs';
-import { IN_DEVELOPMENT, LIVE_PRODUCTS } from './company.mjs';
+import { IN_DEVELOPMENT, LIVE_PRODUCTS, OPEN_FREE } from './company.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
 import { APP_DIRS } from './cloudflare/router.mjs';
 import { productSitemapPaths } from './products.mjs';
@@ -1023,9 +1023,9 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
   // Plus one per tool that calls the network, under "Tools that call the network".
   const network = externalCallExceptions(surfaces).length;
-  // Plus one per live product under "Products" (company.mjs); products in
-  // development are bold, not linked, so they are not "- [" bullets.
-  assert.equal(bullets.length, surfaces.length + 16 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
+  // Plus one per live or open-free product under "Products" (company.mjs);
+  // products in development are bold, not linked, so they are not "- [" bullets.
+  assert.equal(bullets.length, surfaces.length + 16 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length + OPEN_FREE.length);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -2339,7 +2339,10 @@ test('every published venture page routes back to the hub', async () => {
   const { outDir, surfaces } = await site();
   const pages = (await listFiles(outDir))
     .filter((f) => f.endsWith('.html'))
-    .filter((f) => path.dirname(f) !== outDir); // the hub and 404 are the destination
+    .filter((f) => path.dirname(f) !== outDir) // the hub and 404 are the destination
+    // PayApps' own marketing site (payapps-site.mjs): a product's site with its own header and
+    // footer, copied in without the catalogue chrome on purpose.
+    .filter((f) => !path.relative(outDir, f).startsWith(`payapps${path.sep}`));
 
   assert.ok(pages.length > surfaces.length, 'deep SEO pages are included, not just landing pages');
 
@@ -5256,6 +5259,11 @@ test('llms.txt leads with the company, its products and industries, and puts the
     assert.ok(quote.includes(p.name), `the summary names live product ${p.name}`);
     assert.ok(llms.includes(`- [${p.name}](${BASE}${p.path}): `), `${p.name} is linked under Products`);
   }
+  for (const p of OPEN_FREE) {
+    assert.ok(quote.includes(p.name), `the summary names open product ${p.name}`);
+    assert.ok(llms.includes(`- [${p.name}](${p.url}): `), `${p.name} is linked under Products`);
+    assert.match(p.summary, /not on sale yet/, `${p.name}: says paid plans are not on sale`);
+  }
   const full = renderLlmsTxt(surfaces, BASE, [], [], { full: true });
   for (const [name] of IN_DEVELOPMENT) {
     assert.ok(llms.includes(name), `${name} is named as in development`);
@@ -5316,6 +5324,8 @@ test('the About page ships, carries the disclaimer, and states the real catalogu
   assert.match(about, /one owner and a team of AI agents/);
   for (const p of LIVE_PRODUCTS) assert.ok(about.includes(`href="${BASE}${p.path}"`), `About links live product ${p.name}`);
   for (const [name] of IN_DEVELOPMENT) assert.ok(about.includes(`<strong>${name}</strong>`), `About lists ${name} as in development`);
+  for (const p of OPEN_FREE) assert.ok(about.includes(`href="${p.url.replace(/&/g, '&amp;')}"`), `About links open product ${p.name}`);
+  assert.match(about, /Open on a free plan/);
   assert.match(about, /None of them takes payment or sign-ups yet/);
   assert.match(about, new RegExp(`${formatCount(surfaces.length)} free calculators`));
   // The copy-paste boilerplate: its numbers come from `surfaces`, so they

@@ -4,12 +4,11 @@
 import {
   absoluteUrl,
   basePathOf,
-  NO_WARRANTY_NOTE,
   NOT_AIA_NOTE,
-  PAGE_LIST,
   PAGES,
   PRODUCT_NAME,
   type PublicPage,
+  WARRANTY_NOTE,
 } from "@shared/site";
 import { type LaunchInput, launchOf, plansSentence, signupUrl } from "./launch";
 
@@ -17,12 +16,22 @@ export interface SiteContext extends LaunchInput {
   /** Origin + base path, e.g. "https://marisstella.app/payapps". */
   siteUrl: string;
   /**
-   * Served as plain static files with no Worker in front (the catalogue at marisstella.app/payapps,
-   * `scripts/export-static.ts`): the early-access form and its status pages need the Worker's API, so
-   * they are left out. Only allowed once the app is open (APP_URL set); before launch the early-access
-   * list is the only call to action and needs the Worker.
+   * Whether the early-access list (the Worker's API) is behind the pages. Default true. The static
+   * catalogue copy passes false: no early-access pages, and a privacy notice for a site that stores
+   * nothing. Only an open site can drop it (before launch the list is the page's one action).
    */
-  staticHost?: boolean;
+  earlyAccess?: boolean;
+}
+
+/** True unless the build was asked to leave the early-access list out. */
+export function hasEarlyAccess(ctx: SiteContext): boolean {
+  if (ctx.earlyAccess !== false) return true;
+  if (!launchOf(ctx).open) {
+    throw new Error(
+      "A build without the early-access list needs APP_URL: before launch the list is the site's only action",
+    );
+  }
+  return false;
 }
 
 /** A string that is already safe HTML. */
@@ -59,15 +68,6 @@ function render(v: unknown): string {
 
 /** Site-relative href with the base path, e.g. href(ctx, "/pricing") → "/payapps/pricing". */
 export function href(ctx: SiteContext, path: string): string {
-  // The catalogue may serve its tree under another base (check.mjs refuses root-absolute links), and
-  // every static page sits in the base directory itself, so links there are relative.
-  // A page is linked by its file (features.html), as the catalogue's other ventures link theirs:
-  // platform/ci/check_pages_links.py resolves no extensionless link, and Cloudflare serves the file at
-  // the canonical extensionless URL.
-  if (ctx.staticHost) {
-    if (path === "/") return "./";
-    return PAGE_LIST.find((p) => p.path === path)?.file ?? path.slice(1);
-  }
   const base = basePathOf(ctx.siteUrl);
   if (path === "/") return `${base}/`;
   return `${base}${path}`;
@@ -160,8 +160,7 @@ ${main}
 <footer class="site-footer">
   <div class="wrap">
     <p>${statusLine(ctx)}</p>
-    <p class="fine">${NOT_AIA_NOTE}</p>
-    <p class="fine">${NO_WARRANTY_NOTE}</p>
+    <p class="fine">${NOT_AIA_NOTE} ${WARRANTY_NOTE}</p>
     <p class="footer-links">
       <a href="${href(ctx, PAGES.features.path)}">Features</a>
       <a href="${href(ctx, PAGES.pricing.path)}">Pricing</a>

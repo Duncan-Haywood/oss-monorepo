@@ -335,7 +335,7 @@ describe("pure helpers", () => {
     await formPost("/api/early-access/subscribe", signup({ email: "keep@example.com" }));
     await flush();
     env.DB.rows(
-      "UPDATE early_access_signups SET created_at = 0 WHERE email = 'reseller@example.com' RETURNING id",
+      "UPDATE early_access_signups SET created_at = 0, confirm_token_expires_at = 0 WHERE email = 'reseller@example.com' RETURNING id",
     );
     const deleted = await purgePending({ db: env.DB, now: () => new Date() });
     assert.equal(deleted, 1);
@@ -343,6 +343,24 @@ describe("pure helpers", () => {
       rows().map((r) => r.email),
       ["keep@example.com"],
     );
+  });
+
+  test("purgePending keeps an old pending row while its newest confirmation link still works", async () => {
+    // Created 25 days ago, link (re)sent today: the email promises 7 days, so a purge 6 days from
+    // now, past the 30-day mark, must not delete it. Once that link has expired too, the row goes.
+    await formPost("/api/early-access/subscribe", signup());
+    await flush();
+    const day = 86_400_000;
+    const now = Date.now();
+    env.DB.rows(
+      `UPDATE early_access_signups SET created_at = ${now - 25 * day} WHERE email = 'reseller@example.com' RETURNING id`,
+    );
+    const sixDays = () => new Date(now + 6 * day);
+    assert.equal(await purgePending({ db: env.DB, now: sixDays }), 0);
+    assert.equal(rows().length, 1);
+    const afterLink = () => new Date(now + CONFIRM_TOKEN_TTL_MS + 1);
+    assert.equal(await purgePending({ db: env.DB, now: afterLink }), 1);
+    assert.equal(rows().length, 0);
   });
 
   test("resend limits: 10 minutes apart, at most 5 a day", () => {
@@ -354,6 +372,12 @@ describe("pure helpers", () => {
     assert.equal(
       canResendConfirmation({ confirm_sent_at: now - 60_000, confirm_send_count: 1 }, now).allowed,
       false,
+    );
+    // Exactly 10 minutes later is allowed (the boundary the page and the code both name).
+    assert.equal(
+      canResendConfirmation({ confirm_sent_at: now - 10 * 60_000, confirm_send_count: 1 }, now)
+        .allowed,
+      true,
     );
     assert.equal(
       canResendConfirmation({ confirm_sent_at: now - 11 * 60_000, confirm_send_count: 4 }, now)
@@ -376,6 +400,11 @@ describe("pure helpers", () => {
     const t = await unsubscribeToken(SECRET, "abc-123");
     assert.equal(await verifyUnsubscribeToken(SECRET, t), "abc-123");
     assert.equal(await verifyUnsubscribeToken(SECRET, t.replace("abc-123", "abc-124")), null);
+    // The prefix is part of the format: a valid signature under another prefix is not a token.
+    assert.equal(await verifyUnsubscribeToken(SECRET, t.replace(/^u1\./, "u2.")), null);
+    for (const bad of [undefined, null, 5, {}]) {
+      assert.equal(await verifyUnsubscribeToken(SECRET, bad), null);
+    }
   });
 
   test("email and form validation", () => {
@@ -396,6 +425,18 @@ describe("pure helpers", () => {
       platforms: ["etsy", "ebay", "etsy"],
     });
     assert.deepEqual(ok.value.platforms, ["ebay", "etsy"]);
+    // A JSON body may send a field as a one-item array; the first string counts.
+    const arr = parseSubscribe({
+      email: ["X@Y.com"],
+      source: ["/"],
+      consentVersion: [EARLY_ACCESS_CONSENT_VERSION],
+    });
+    assert.equal(arr.ok, true);
+    assert.equal(arr.value.email, "x@y.com");
+    assert.equal(
+      parseSubscribe({ email: [5], source: "/", consentVersion: EARLY_ACCESS_CONSENT_VERSION }).ok,
+      false,
+    );
     assert.equal(ok.value.volume, null);
     assert.equal(CONFIRM_TOKEN_TTL_MS, 7 * 86_400_000);
   });

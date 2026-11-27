@@ -39,6 +39,7 @@ import { FUNNEL_ATTRS, FUNNEL_TOKEN_RE } from '../counter/core.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import { buildManufacturingPage } from './industry-manufacturing.mjs';
 import { buildConstructionPage, CONSTRUCTION_PATH } from './industry-construction.mjs';
+import { buildPayappsSite } from './payapps-site.mjs';
 import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
@@ -50,7 +51,7 @@ import { COOKIES_PATH, legalDocuments, legalFooterHtml, PRIVACY_PATH, TERMS_PATH
 import { injectDir as injectWebAnalytics, normaliseToken as normaliseAnalyticsToken, resolveToken as resolveAnalyticsToken } from '../analytics/web-analytics.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildProducts, productSitemapPaths, PRODUCT_CARD_CSS, renderProductGrid, PRODUCTS_PATH, INDUSTRIES_PATH, industryPath } from './products.mjs';
-import { PRODUCT_LINES, softwareLines, hardwareLines, INDUSTRIES as BUSINESS_INDUSTRIES, buildFirstHref } from './business.mjs';
+import { PRODUCT_LINES, softwareLines, hardwareLines, INDUSTRIES as BUSINESS_INDUSTRIES, buildFirstHref, usableSentence } from './business.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { buildQueue, clip, QUEUE_PATH } from './queue.mjs';
@@ -201,7 +202,7 @@ import {
 } from './home.mjs';
 import { servedPath } from './served-path.mjs';
 import { completeArticleJsonLd } from './article-ld.mjs';
-import { COMPANY_SUMMARY, IN_DEVELOPMENT, INDUSTRIES, LIVE_PRODUCTS } from './company.mjs';
+import { COMPANY_SUMMARY, IN_DEVELOPMENT, INDUSTRIES, LIVE_PRODUCTS, OPEN_FREE } from './company.mjs';
 import { liveIndustries, pruneDoors, renderPageDoor, renderToolDoor } from './front-doors.mjs';
 import { loadFunnel, offerTable, OFFER_ATTR, renderProductOffer } from './product-offer.mjs';
 import { acquireBuildLock, waitForBuildLock } from './build-lock.mjs';
@@ -1086,7 +1087,7 @@ const CATEGORY_RULES = [
     // revision compare of the drawing set, beside `submittal-register` (the spec book).
     // `pdf-plan-takeoff` joined 2026-11-23 on its first commit: an estimator's takeoff
     // from the PDF drawings, beside `drawing-set-index` and `ifc-quantity-takeoff`.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'pdf-plan-takeoff' || slug === 'ids-model-check' || slug === 'ifc-quantity-takeoff' || slug === 'submittal-register' || slug === 'drawing-set-index' || slug === 'xer-schedule-check' || slug === 'concrete-maturity' || slug === 'floor-flatness' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'stormwater-detention-sizer' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'roof-snow-load-calculator' || slug === 'window-design-pressure-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'pv-row-spacing-optimizer' || slug === 'voltage-drop-calculator' || slug === 'fault-current-check' || slug === 'wall-condensation-check' || slug === 'psychrometric-calculator' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|pay-app|payapps|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'pdf-plan-takeoff' || slug === 'ids-model-check' || slug === 'ifc-quantity-takeoff' || slug === 'submittal-register' || slug === 'drawing-set-index' || slug === 'xer-schedule-check' || slug === 'concrete-maturity' || slug === 'floor-flatness' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'stormwater-detention-sizer' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'roof-snow-load-calculator' || slug === 'window-design-pressure-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'pv-row-spacing-optimizer' || slug === 'voltage-drop-calculator' || slug === 'fault-current-check' || slug === 'wall-condensation-check' || slug === 'psychrometric-calculator' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|pay-app|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -5219,7 +5220,7 @@ const SUBCATEGORY_RULES = {
       // `trade-bid-studio` is the trade-agnostic bid front door: it prices a job from
       // labour, burden, materials and overhead at a target margin, the same
       // job-costing shape as `job-margin`, so it sits here.
-      test: (slug) => /^(trade-bid-studio|construction-delay-claim|surety-bond-capacity|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|mosquito-control-program|quote-margin|coi-expiry-gap-checker|retainage|pay-app|payapps|freelance-retainer|price-increase-breakeven|freelance-rate-increase|no-show-fee|change-order|construction-delay|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|plumber-flat-rate|hvac-repair-tier|auto-repair-effective-labor-rate|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|experience-mod)/.test(slug),
+      test: (slug) => /^(trade-bid-studio|construction-delay-claim|surety-bond-capacity|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|mosquito-control-program|quote-margin|coi-expiry-gap-checker|retainage|pay-app|freelance-retainer|price-increase-breakeven|freelance-rate-increase|no-show-fee|change-order|construction-delay|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|plumber-flat-rate|hvac-repair-tier|auto-repair-effective-labor-rate|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|experience-mod)/.test(slug),
     },
     {
       id: 'trades-cleaning',
@@ -8198,7 +8199,12 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
 ${/* Absolute: a live product may be served by the site Worker rather than
      from this build's output (Grant Autopilot is), so a relative link would
      read as dead to check.mjs. */ ''}${LIVE_PRODUCTS.map((p) => `        <li><strong><a href="${escapeHtml(`${baseUrl}${p.path}`)}">${escapeHtml(p.name)}</a></strong>, for ${escapeHtml(p.audience)}: it ${escapeHtml(p.summary)}</li>`).join('\n')}
-      </ul>
+      </ul>${OPEN_FREE.length ? `
+      <h3>Open on a free plan</h3>
+      <p>Sign up and use these today. Their paid plans are not on sale yet.</p>
+      <ul>
+${OPEN_FREE.map((p) => `        <li><strong><a href="${escapeHtml(p.url)}">${escapeHtml(p.name)}</a></strong>, for ${escapeHtml(p.audience)}: it ${escapeHtml(p.summary)}.</li>`).join('\n')}
+      </ul>` : ''}
       <h3>In development</h3>
       <p>
         These are being built now. None of them takes payment or sign-ups yet,
@@ -9558,8 +9564,6 @@ export function renderHub(
 
   // The product lines (business.mjs). Tools the build did not publish drop out of the cards.
   const publishedTools = new Map(surfaces.map((s) => [s.slug, cardName(s.title)]));
-  const liveLines = PRODUCT_LINES.filter((l) => l.status === 'live');
-  const liveNames = liveLines.map((l) => l.name).join(' and ') || 'None';
 
   return `<!doctype html>
 <html lang="en">
@@ -9859,14 +9863,14 @@ ${HERO_BACKDROP_HTML}
            live. The full tool catalogue is one link away at c/. -->
       <p class="lede">
         Pick your business, then the problem costing you the most time.
-        ${escapeHtml(liveNames)} ${liveLines.length === 1 ? 'is' : 'are'} live; the rest are in early access, with
+        ${escapeHtml(usableSentence(PRODUCT_LINES))} The rest are in early access, with
         free tools that already do part of each job.
       </p>
 ${renderFinder({
   industries: BUSINESS_INDUSTRIES,
   lines: PRODUCT_LINES,
   trades: audiencePages.map(({ audience }) => ({ id: audiencePageId(audience), name: audience.name, href: categoryPagePath(audiencePageId(audience)) })),
-  statusLabel: (status) => (status === 'live' ? 'live' : 'early access'),
+  statusLabel: (status) => (status === 'live' ? 'live' : status === 'open-free' ? 'open, free plan' : 'early access'),
   industryHref: industryPath,
   askHref: ASK_PATH,
   customHref: CUSTOM_DEV_PATH,
@@ -11705,9 +11709,11 @@ export const SOCIAL_CARD_FILE = 'social-card.png';
  */
 export function siteCardFooter(lines, toolCount) {
   const live = lines.filter((l) => l.status === 'live').map((l) => l.name);
+  const open = lines.filter((l) => l.status === 'open-free').map((l) => l.appName || l.name);
   const early = lines.filter((l) => l.status === 'early-access').length;
   const parts = [];
   if (live.length) parts.push(`${live.join(' and ')} live`);
+  if (open.length) parts.push(`${open.join(' and ')} open free`);
   if (early) parts.push(`${formatCount(early)} in early access`);
   parts.push(`${formatCount(toolCount)} free tools`);
   return parts.join(' · ');
@@ -12759,11 +12765,13 @@ function oneLineText(value) {
  * Every published venture gets a generated sitemap (see `renderVentureSitemap`),
  * so there is no venture the index can leave out.
  */
-export function renderSitemapIndex(surfaces, baseUrl) {
+export function renderSitemapIndex(surfaces, baseUrl, extraSitemaps = []) {
   const entries = [`  <sitemap><loc>${baseUrl}sitemap-hub.xml</loc></sitemap>`].concat(
     surfaces.map(
       (surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`,
     ),
+    // Sites this build copies in whole, with a sitemap of their own (payapps-site.mjs).
+    extraSitemaps.map((rel) => `  <sitemap><loc>${baseUrl}${rel}</loc></sitemap>`),
   );
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -13184,7 +13192,11 @@ Live:
 
 ${LIVE_PRODUCTS.map((p) => `- [${p.name}](${baseUrl}${p.path}): for ${p.audience}. ${p.name} ${full ? p.summary : shortText(p.summary)}`).join('\n')}
 
-${full ? `In development (not for sale yet, no sign-ups; the order changes with the evidence):
+${OPEN_FREE.length ? `Open on a free plan (sign up today; paid plans not on sale yet):
+
+${OPEN_FREE.map((p) => `- [${p.name}](${p.url}): for ${p.audience}. ${p.name} ${full ? p.summary : shortText(p.summary)}.`).join('\n')}
+
+` : ''}${full ? `In development (not for sale yet, no sign-ups; the order changes with the evidence):
 
 ${IN_DEVELOPMENT.map(([name, what]) => `- **${name}**, ${what}.`).join('\n')}` : `In development, not for sale yet: ${IN_DEVELOPMENT.map(([name]) => name).join('; ')}. Each is described in [llms-full.txt](${baseUrl}llms-full.txt).`}
 
@@ -13194,7 +13206,7 @@ ${full ? `Built for ${INDUSTRIES}. A business with a problem software could solv
   const live = LIVE_PRODUCTS.map((p) => `${p.name}, for ${p.audience}`);
   return `# ${SITE_NAME}
 
-> ${SITE_NAME} ${COMPANY_SUMMARY}. Live: ${listProse(live)}; more products are in development for construction, manufacturing and other small businesses. Free: ${formatCount(surfaces.length)} source-available tools${researchProjects ? ` and ${formatCount(researchProjects)} research projects` : ''}, MIT licensed.
+> ${SITE_NAME} ${COMPANY_SUMMARY}. Live: ${listProse(live)}${OPEN_FREE.length ? `; open on a free plan: ${listProse(OPEN_FREE.map((p) => p.name))}` : ''}; more products are in development for construction, manufacturing and other small businesses. Free: ${formatCount(surfaces.length)} source-available tools${researchProjects ? ` and ${formatCount(researchProjects)} research projects` : ''}, MIT licensed.
 
 ${products}
 ${audienceSection ? `${audienceSection}\n` : ''}## Free tools
@@ -14068,9 +14080,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // `noindex` and in no sitemap; see `engineering.mjs`.
   await buildEngineeringPage(outDir, base);
 
+  // PayApps' own marketing site (paid bet #1), copied in whole from the app's committed
+  // static export, without the catalogue chrome (`payapps-site.mjs`). Before the
+  // construction page, which links it.
+  const payappsSite = await buildPayappsSite(outDir, { baseUrl: base });
+  const extraSitemaps = payappsSite.filter((rel) => rel === 'payapps/sitemap.xml');
+
   // The construction industry landing page (`industry-construction.mjs`):
   // links only tools and research this build published.
   await buildConstructionPage(outDir, {
+    productSites: new Set(payappsSite.length ? ['payapps'] : []),
     baseUrl: base,
     disclaimer: disclaimerHtml('../../', surfaces),
     footer: renderSiteFooterNav({ toRoot: '../../' }),
@@ -14163,7 +14182,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     }),
   );
 
-  await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base, extraSitemaps));
   await fs.writeFile(
     path.join(outDir, 'sitemap-hub.xml'),
     renderHubSitemap(

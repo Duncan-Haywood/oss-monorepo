@@ -103,7 +103,12 @@ class ParseTest(unittest.TestCase):
                           # cmmc #6 (2026-11-26): --bets called it free; the asker is no _WHO word.
                           ("C3PAO evidence binder export, if assessors ask for them there",
                            "waits on demand"),
-                          ("a Procore sync once a prime requests one", "waits on demand")):
+                          ("a Procore sync once a prime requests one", "waits on demand"),
+                          # payapps #11 (2026-11-27): eight cloud sessions were sent to it.
+                          ("Backup packets, part 3: check it on a Windows PC and an Android phone "
+                           "with a real iPhone photo", "waits on a device"),
+                          ("test the scan on a real phone", "waits on a device"),
+                          ("verify the print layout on an iPad", "waits on a device")):
             self.assertEqual(rc.gate(text), why, text)
         self.assertEqual(rc.gate_match("Saved crews; if shops ask for it (part 2)"),
                          ("waits on demand", "if shops ask for it"))
@@ -116,7 +121,11 @@ class ParseTest(unittest.TestCase):
                      "Show the total only if the rows add up",
                      "Retry the upload if it asks for a new token",
                      "Ask-for-quote form that emails the shop",
-                     "Waiver text, agent-approved (no attorney review; open checks listed there)"):
+                     "Waiver text, agent-approved (no attorney review; open checks listed there)",
+                     "Phone layout for the daily report on narrow screens",
+                     "HEIC from Chrome, Edge and Firefox through WebCodecs",
+                     "check the layout on phones at 375 px",
+                     "Retainage on a real job's pay app"):
             self.assertIsNone(rc.gate(free), free)
 
     def test_gate_reads_each_open_ask(self):
@@ -465,6 +474,19 @@ class ClaimRaceTest(unittest.TestCase):
         code, out = self.main(self.b, "--claim", "99")
         self.assertEqual(code, 2, out)
         self.assertIn("pass --slug", out)
+
+    def test_number_used_twice_needs_a_slug(self):
+        # jobshop-quote's Next numbered two items 15 (2026-11-27); --claim 15 took the second.
+        roadmap = self.a / "apps" / "payapps" / "ROADMAP.md"
+        roadmap.write_text("## Next\n\n15. Price lists, part 2: title block\n"
+                           "15. Price lists, part 2c: bar lengths\n")
+        code, out = self.main(self.a, "--claim", "15")
+        self.assertEqual(code, 2, out)
+        self.assertIn("numbered twice", out)
+        self.assertIn("--slug price-lists-part-2c", out)
+        code, out = self.main(self.a, "--claim", "15", "--slug", "price-lists-part-2c")
+        self.assertEqual(code, 0, out)
+        self.assertIn("CLAIMED claim/payapps/price-lists-part-2c", out)
 
     def test_bets_overview_skips_a_bet_with_nothing_free(self):
         bets = Path(self.tmp.name) / "bets.md"

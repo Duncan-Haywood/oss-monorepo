@@ -9,10 +9,11 @@ import {
   NOT_AIA_NOTE,
   PAGES,
   type PageKey,
+  PRIVACY_NO_LIST,
   PRODUCT_NAME,
   type PublicPage,
 } from "@shared/site";
-import { type Html, href, html, primaryCta, type SiteContext } from "./html";
+import { type Html, hasEarlyAccess, href, html, primaryCta, type SiteContext } from "./html";
 import { launchOf, plansSentence } from "./launch";
 
 export interface Faq {
@@ -291,7 +292,8 @@ export const FEATURES: readonly Feature[] = [
     bullets: [
       "Prints the state's statutory form where we have checked the text against the statute: Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah and Wyoming, plus Missouri's residential final waiver and Massachusetts' partial waiver and subordination of lien (its pay-app lines filled from the application); a general form in states with no statutory form",
       "Once a payment arrives, a reminder for the unconditional waiver you now owe, for the amount actually paid",
-      "Preliminary notices from the job page where the statute sets the wording or contents: California (private works), Florida's Notice to Owner and Wyoming so far, prefilled from the job",
+      "Preliminary notices from the job page where the statute sets the wording or contents: California (private works), Florida's Notice to Owner, Texas' notices of claim and Wyoming so far, prefilled from the job",
+      "Texas: the § 53.056 notice of claim for unpaid labor or materials and the § 53.057 notice of claim for unpaid retainage, word for word, with the 15th-of-the-month date for each unpaid month, the retainage notice's 30 days and the lien affidavit dates",
       "Florida: the § 713.06 Notice to Owner word for word, with the 45-day last day to serve it and the 40-day last day to mail it so service counts on mailing (§ 713.18), from the day you first furnished work; record each notice and copy served (owner, contractor, the notice of commencement's designee) with how and when it went, see when each counts as served, and get a reminder on the cash page and in the weekly email until the owner has one",
       "California: record each preliminary notice you give, see the 20-day deadline from the day you first furnished work, get a reminder until the owner and GC have one, print the § 8118 proof of notice declaration, and keep the mailing receipt and return receipt with each notice",
       "We don't tell you which waiver to sign or what it means for your rights: that is a question for your attorney",
@@ -728,9 +730,8 @@ function earlyAccess(ctx: SiteContext): BuiltPage {
 // ---------- privacy ----------
 
 function privacy(ctx: SiteContext): BuiltPage {
+  if (!hasEarlyAccess(ctx)) return privacyNoList(ctx);
   const page = PAGES.privacy;
-  const appUrl = launchOf(ctx).appUrl;
-  if (ctx.staticHost && appUrl) return staticPrivacy(ctx, appUrl);
   const main = html`
 <section class="page-head">
   <div class="wrap narrow">
@@ -745,7 +746,7 @@ function privacy(ctx: SiteContext): BuiltPage {
   <h2>Why</h2>
   <p>To email you about ${PRODUCT_NAME} early access and to decide what to build first. We do not sell or share the list, and we do not add you to any other mailing list.</p>
   <h2>Confirmation</h2>
-  <p>We send one email with a confirmation link. Until you use it you are not on the list, and an unconfirmed sign-up is deleted after 30 days.</p>
+  <p>We send one email with a confirmation link. Until you use it you are not on the list, and an unconfirmed sign-up is deleted after 30 days, or once its newest confirmation link has expired if that is later.</p>
   <h2>Removing your sign-up</h2>
   <p>Every email we send has a link that deletes your sign-up and your answers straight away.</p>
   <h2>Who can see it</h2>
@@ -756,14 +757,14 @@ function privacy(ctx: SiteContext): BuiltPage {
   return { page, main, jsonLd: [webPage(ctx, page), breadcrumbs(ctx, page)] };
 }
 
-/** The static host has no form and no list: this site stores nothing; the app has its own policy. */
-function staticPrivacy(ctx: SiteContext, appUrl: string): BuiltPage {
-  const page = {
-    ...PAGES.privacy,
-    description:
-      "These PayApps pages have no form and set no cookies; page loads are counted anonymously. The app's own privacy policy covers your account.",
-  };
-  const policy = `${appUrl}/legal/privacy`;
+/**
+ * The privacy notice of the static catalogue copy (no early-access list): the pages have no form,
+ * cookie or script, so the only data is what the host sees serving them. The account's own data is
+ * the app's Privacy Policy (apps/payapps/docs/legal/privacy.md, served at <APP_URL>/legal/privacy).
+ */
+function privacyNoList(ctx: SiteContext): BuiltPage {
+  const page = PRIVACY_NO_LIST;
+  const appUrl = launchOf(ctx).appUrl;
   const main = html`
 <section class="page-head">
   <div class="wrap narrow">
@@ -773,10 +774,12 @@ function staticPrivacy(ctx: SiteContext, appUrl: string): BuiltPage {
   </div>
 </section>
 <div class="wrap narrow section prose">
-  <h2>What this site stores</h2>
-  <p>Nothing that identifies you. There is no form on these pages, and they set no cookies and run no advertising scripts. They are served from the catalogue at marisstella.app, whose script counts page loads without cookies: one number per page per day, and, when you arrive from another site, which kind of site it was (a search engine, an AI assistant, a forum), worked out in your browser. It stores no IP address, browser details, referring address or identifier. The host that delivers the pages (Cloudflare, in the United States) handles your IP address to send them, as every web host does.</p>
-  <h2>The ${PRODUCT_NAME} app</h2>
-  <p>The sign-up and sign-in links go to the app at <a href="${`${appUrl}/`}">${new URL(appUrl).host}</a>. What the app stores when you create an account and use it is in its own <a href="${policy}">privacy policy</a>.</p>
+  <h2>What this website stores</h2>
+  <p>Nothing about you. These pages have no forms, set no cookies and run no analytics, advertising or other scripts.</p>
+  <h2>What the host sees</h2>
+  <p>The pages are served by Cloudflare as part of the marisstella.app site. Like any web host, Cloudflare handles the request your browser sends (including its IP address) to deliver the page and protect the site, under Cloudflare's own privacy policy.</p>
+  <h2>Your ${PRODUCT_NAME} account</h2>
+  <p>Signing up happens in the app${appUrl ? html`, at <a href="${`${appUrl}/`}">${new URL(appUrl).host}</a>` : ""}. What the app stores about your account and your jobs, and how to delete it, is in its <a href="${appUrl ? `${appUrl}/legal/privacy` : href(ctx, "/")}">Privacy Policy</a>.</p>
 </div>`;
   return { page, main, jsonLd: [webPage(ctx, page), breadcrumbs(ctx, page)] };
 }

@@ -17,7 +17,7 @@
   "tokens_out": 43087,
   "cost_usd": 5.0002,
   "tool_calls": 104,
-  "task": "payapps-site-static-export: serve the PayApps marketing site (bet #1) at marisstella.app/payapps",
+  "task": "payapps-site served at marisstella.app/payapps (duplicate of PR #19733); landed: front-door link from pay-application-generator",
   "projects": [
     "payapps"
   ],
@@ -29,8 +29,8 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 7,
-  "outcome": "success",
+  "tests_added": 1,
+  "outcome": "partial",
   "errors": [
     {
       "what": "first venture-preflight rerun failed check_conflict_markers on ventures/payapps/site/404.html",
@@ -41,6 +41,11 @@
       "what": "misread a raw-copy diff as 'the catalogue injects no chrome'",
       "why": "diffed dist/payapps while the build was still running",
       "fix": "rechecked after BUILD_EXIT=0: pf-site.js is injected; privacy copy names the counter"
+    },
+    {
+      "what": "duplicate work: PR #19733 (another session) served the same site and merged at 13:30 UTC while this PR waited on starved runners",
+      "why": "slug_dupe.py was run with 'payapps-site' and 'payapps' at 12:13; #19733 was opened after that check, and no second check ran before the merge (CLAUDE.md asks for one before opening the PR, which was done; it does not ask again before merging)",
+      "fix": "merged main and kept main's version of every overlapping file; this PR now carries only the pay-application-generator link to ../payapps/ and this record"
     }
   ],
   "integrity_issues": [],
@@ -52,6 +57,10 @@
     {
       "file": "ventures/payapps/apps/payapps/ROADMAP.md",
       "issue": "'Next: serve it (a deploy workflow, or the static pages...)' gave no hint that the early-access form needs the Worker API, so the static route needs a mode without it."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "The duplicate check runs at task pick and before the PR opens. A PR that waits about 90 minutes on starved runners can be overtaken by a parallel session doing the same task. A re-check before each fix push would have caught #19733 about an hour earlier."
     }
   ],
   "deviations": [
@@ -66,11 +75,17 @@
       "why": "Committed generated output (ventures/payapps/site/) instead of building payapps-site inside the catalogue workflow, which would need a control-plane change to priv-portfolio-pages.yml.",
       "did": "pnpm export:static plus a drift test that fails when the committed copy differs from a fresh export",
       "result": "unit tests pass; the catalogue build picks the copy up"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Kept PR #19736 open and shrank it to what #19733 lacks, instead of closing it as superseded",
+      "did": "merged origin/main and took main's files for every overlapping path",
+      "result": "4-file diff: generator link plus page test, and this record"
     }
   ],
   "writeups": [],
   "goal": "bet #1 traffic: a served product page with pricing and features for PayApps (open on the Free plan)",
-  "notes": "Local verification: payapps-site pnpm test:unit 32/32, test:worker 10/10, typecheck, biome clean; pay-application-generator page.test 11/11; platform/pages cta-row-phone, siblings, venture-preflight tests pass; node platform/pages/venture-preflight.mjs payapps: 'preflight clean for payapps' (build + check.mjs). Trial catalogue build confirmed dist/payapps/ gets the shared chrome (pf-site.js counter), which the static privacy notice names. check.mjs first flagged root-absolute links, missing 'no warranty', an unreachable 404 and no launch date; siblings flagged payapps as an orphan; cta-row-phone flagged a real phone-width defect. All fixed.",
+  "notes": "Local verification: payapps-site pnpm test:unit 32/32, test:worker 10/10, typecheck, biome clean; pay-application-generator page.test 11/11; platform/pages cta-row-phone, siblings, venture-preflight tests pass; node platform/pages/venture-preflight.mjs payapps: 'preflight clean for payapps' (build + check.mjs). Trial catalogue build confirmed dist/payapps/ gets the shared chrome (pf-site.js counter), which the static privacy notice names. check.mjs first flagged root-absolute links, missing 'no warranty', an unreachable 404 and no launch date; siblings flagged payapps as an orphan; cta-row-phone flagged a real phone-width defect. All fixed. 13:53 UTC: PR #19733 (session_01AcxTtLcPohUQszKb2rLFra) had already merged the same feature in a different form: catalogue-export/ plus platform/pages/payapps-site.mjs, with no free-tool chrome. That is the better design for a paid product page, so this PR took main's version. Unique value kept: pay-application-generator's suite sections link the product page ../payapps/ (page.test 12/12, check_pages_links OK).",
   "corrections": [],
   "redteam": null,
   "usage": {

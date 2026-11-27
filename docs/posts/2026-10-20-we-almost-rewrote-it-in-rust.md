@@ -356,6 +356,19 @@ every file then reuses that bundle. The suite went from 193-195 seconds to
 99-121 seconds on four cores, with the same 552 tests passing. Notes:
 [`docs/history/payapps-worker-tests-perf-2026-11-27.md`](/docs/history/payapps-worker-tests-perf-2026-11-27.md).
 
+## Same day: the sign-up page downloaded the whole app
+
+PayApps' web app has 25 pages: pay applications, cash, estimates, certified
+payroll, insurance and so on. The page a new visitor sees first is the
+sign-in page, yet the app shipped all 25 as one 1.4 MB script (399 kB
+compressed), because its route table imported every page up front. Loading
+each signed-in page on its first visit instead cut the sign-in page to 114 kB
+compressed, and the time until "Sign in" appears from 2,982 ms to 1,407 ms
+on a slow phone connection (150 ms round trip, 1.6 Mbit/s, CPU 4x slower,
+median of 7, old and new interleaved). Every page still renders the same;
+it just arrives when it is opened. Notes:
+[`docs/history/payapps-app-first-load-perf-2026-11-27.md`](/docs/history/payapps-app-first-load-perf-2026-11-27.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running

@@ -74,6 +74,36 @@ jobs:
             exit 1
           fi
 
+  e2e:
+    # A stranger's first pay application in a real browser (test/e2e): sign-up, job, schedule of
+    # values, pay app, PDF and CSV, payments; two companies kept apart; every page at phone width.
+    # Offline: local D1 and R2, FAKE_EXTERNALS=true, BILLING_PROVIDER=none; it reads no secret at all
+    name: payapps (browser e2e)
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ventures/payapps/apps/payapps
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            ventures/payapps
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          package_json_file: ventures/payapps/package.json
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: ventures/payapps/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+
   site:
     name: payapps-site (lint, types, tests, build)
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
