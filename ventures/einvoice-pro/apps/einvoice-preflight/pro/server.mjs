@@ -20,6 +20,7 @@
 //   GET    /app/terms, /app/privacy, /app/dpa  the Terms of Service, Privacy Policy and Data Processing
 //                                            Agreement (pro/legal/*.md); /app/de/... and /app/fr/...
 //                                            serve the translations (the English text governs)
+//   GET    /app/notices                      the third-party notices and licences (rule sets, code, fonts), text
 //   GET    /v1/legal                         -> {terms: {title, version, url}, privacy: {...}, dpa: {...}}   (public)
 //   POST   /v1/signup                        {name, acceptTerms: true, termsVersion?} -> 201 {account, apiKey}  (public trial
 //                                            sign-up; the account records the terms version accepted, and a stale
@@ -30,6 +31,9 @@
 //   POST   /v1/admin/accounts                {name, plan?} -> 201 {account, apiKey}   (ADMIN_TOKEN)
 //   POST   /v1/admin/usage/settle            {period: "YYYY-MM"} -> {period, results}   (ADMIN_TOKEN): bills a
 //                                            closed month's metered usage above the minimum (billing.mjs)
+//   POST   /v1/admin/digest/send             {frequency: "weekly"|"monthly", period?, limit?} -> {period, sent, more, results}
+//                                            (ADMIN_TOKEN; 503 without email): the client summary email to every
+//                                            account that turned it on, once per account and period (pro/digest.mjs)
 //   GET    /v1/admin/metrics?days=           -> ProductAdminMetrics (packages/admin-metrics)
 //   GET    /v1/admin/accounts?list=recent|trials|churn&limit=   -> AdminAccountsPage
 //                                            Both also at /api/admin/*, the other products' path. Owner console
@@ -79,6 +83,8 @@
 //   GET    /v1/signin/options                -> {email: boolean}                   (public)
 //   POST   /v1/account/email                 {email, lang?} -> 202: a verification link (24 h) goes to the address
 //   DELETE /v1/account/email                 -> 204: the account has no sign-in address any more
+//   PUT    /v1/account/digest                {digest: "off"|"weekly"|"monthly", lang?} -> {digest, lang}: the client
+//                                            summary email to the verified sign-in address (409 no_email without one)
 //   POST   /v1/email/verify                  {token} -> {email} (public: the link may open in another browser);
 //                                            409 email_in_use if another account verified it first
 //   POST   /v1/signin/email                  {email, lang?} -> 202 {sent: true} whatever the address (no account
@@ -96,10 +102,11 @@ import { generateFacturX } from "../facturx-pdf.mjs";
 import { generateInvoice } from "../generate.mjs";
 import { isBlocking } from "../report.mjs";
 import { AdminError, adminRead } from "./admin.mjs";
-import { readAppFile } from "./app-files.mjs";
+import { readAppFile, readAppText } from "./app-files.mjs";
 import { BillingError, createBilling } from "./billing.mjs";
 import { checkInvoice, sha256 } from "./check.mjs";
-import { buildDashboard, dashboardCsv, dashboardDays, runsSince } from "./dashboard.mjs";
+import { dashboardCsv, dashboardDays, dashboardFor } from "./dashboard.mjs";
+import { digestFrequency, digestLang, sendDigests, validPeriod } from "./digest.mjs";
 import { mailerFromEnv, message, normalizeEmail } from "./email.mjs";
 import { loadLegal } from "./legal.mjs";
 import { loadLlmFromEnv } from "./llm.mjs";
@@ -138,6 +145,30 @@ const web = () =>
       return [path, { type, body: Buffer.from(bytes) }];
     }),
   ));
+/** The notices and licences of the third-party rule sets, code and fonts the Service runs, in the order shown. */
+export const NOTICE_FILES = ["plain/NOTICE.txt", "plain/fontoxpath.LICENSE.txt", "plain/xspattern.LICENSE.txt", "plain/prsc.LICENSE.txt", "fonts/OFL.txt"];
+/** Rule sets a host may leave out (worker/build.mjs EXCLUDED); the notices page says which are not run. */
+const OPTIONAL_SETS = [["plain/cius-hr-ubl.json", "Croatia's HR-CIUS rules"], ["plain/zatca-ksa-ubl.json", "ZATCA's rules"]];
+/**
+ * GET /app/notices: the attribution the rule sets' licences ask for (EUPL-1.2 and MPL-2.0 count use over
+ * a network; Apache-2.0, MIT and the OFL ask for their notices), with a line on the sets this host leaves out.
+ */
+export function noticesText() {
+  const left = OPTIONAL_SETS.filter(([f]) => readAppFile(f) === null).map(([, what]) => what);
+  const head = [
+    "Third-party notices: E-invoice Fix & Explain (Maris Stella Labs LLC)",
+    "",
+    "The checks run the official e-invoicing rules below, unmodified, compiled from their published Schematron.",
+    "Each file's source and licence follow. The rule files themselves are published with this product's source code.",
+    ...(left.length ? ["", `Not run on this host: ${left.join(" and ")}. A file that names them is reported as not checked.`] : []),
+  ];
+  const parts = NOTICE_FILES.map((f) => {
+    const text = readAppText(f);
+    return text === null ? null : `\n==== ${f} ====\n\n${text.trim()}\n`;
+  }).filter(Boolean);
+  return `${head.join("\n")}\n${parts.join("")}`;
+}
+
 /** @type {ReturnType<typeof loadLegal> | null} */
 let legalCache = null;
 /** The Terms and Privacy Policy (pro/legal/*.md), rendered once; sign-up records the terms version. */
@@ -508,6 +539,13 @@ export function createProHandler(deps = {}) {
         headers: { "content-type": "text/html; charset=utf-8", "content-security-policy": WEB_CSP, "referrer-policy": "no-referrer", "cache-control": "no-cache" },
       };
     }
+    if (method === "GET" && p === "/app/notices") {
+      return {
+        status: 200,
+        raw: Buffer.from(noticesText()),
+        headers: { "content-type": "text/plain; charset=utf-8", "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", "cache-control": "no-cache" },
+      };
+    }
     if (method === "GET" && p === "/v1/legal") {
       const meta = (/** @type {import("./legal.mjs").LegalKey} */ k) => ({
         title: LEGAL[k].title,
@@ -622,6 +660,28 @@ export function createProHandler(deps = {}) {
       return { status: 200, body: await billing.settleUsage(typeof body.period === "string" ? body.period : "") };
     }
 
+    if (method === "POST" && p === "/v1/admin/digest/send") {
+      const admin = env.ADMIN_TOKEN;
+      const given = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization ?? "")?.[1] ?? "";
+      if (!admin || !given || !sameSecret(given, admin)) throw new HttpError(401, "unauthorized", "Admin token required.");
+      requireEmail();
+      const body = json(await readBody(req, 4096));
+      const frequency = body.frequency === "weekly" || body.frequency === "monthly" ? body.frequency : null;
+      if (!frequency) throw new HttpError(400, "invalid", 'frequency must be "weekly" or "monthly".');
+      if (body.period !== undefined && !validPeriod(body.period, frequency))
+        throw new HttpError(400, "invalid", frequency === "weekly" ? "period must be YYYY-Www." : "period must be YYYY-MM.");
+      const result = await sendDigests({
+        store,
+        mailer: /** @type {import("./email.mjs").Mailer} */ (mailer),
+        appUrl,
+        now,
+        frequency,
+        period: body.period,
+        limit: typeof body.limit === "number" ? body.limit : undefined,
+      });
+      return { status: 200, body: result };
+    }
+
     const { account } = await authenticate(req);
     const ent = await billing.entitlement(account);
     const plan = ent.plan;
@@ -656,6 +716,19 @@ export function createProHandler(deps = {}) {
         await store.setAccountEmail(account.id, null);
         return { status: 204, body: null };
       }
+    }
+
+    if (method === "PUT" && p === "/v1/account/digest") {
+      const body = json(await readBody(req, 4096));
+      const digest = digestFrequency(body.digest);
+      if (!digest) throw new HttpError(400, "invalid", 'digest must be "off", "weekly" or "monthly".');
+      const lang = digestLang(body.lang ?? account.digestLang);
+      if (digest !== "off") {
+        requireEmail();
+        if (!account.email) throw new HttpError(409, "no_email", "Add and confirm a sign-in email first; the summary goes to that address.");
+      }
+      await store.setAccountDigest(account.id, digest, lang);
+      return { status: 200, body: { digest, lang } };
     }
 
     if (method === "POST" && p === "/v1/billing/checkout") {
@@ -771,16 +844,7 @@ export function createProHandler(deps = {}) {
     if (method === "GET" && p === "/v1/dashboard") {
       const days = dashboardDays(url.searchParams.get("days") ?? undefined);
       const at = now();
-      const since = new Date(at.getTime() - days * 86_400_000).toISOString();
-      const clients = await store.listClients(account.id);
-      const runsByClient = new Map();
-      const lastByClient = new Map();
-      for (const c of clients) {
-        const { runs, last } = await runsSince(store, account.id, c.id, since);
-        runsByClient.set(c.id, runs);
-        lastByClient.set(c.id, last);
-      }
-      const dash = buildDashboard({ clients, runsByClient, lastByClient, now: at, days });
+      const dash = await dashboardFor(store, account.id, days, at);
       if (url.searchParams.get("format") === "csv") {
         const lang = /** @type {"de" | "fr" | "en" | "nl" | "pl"} */ (["de", "fr", "nl", "pl"].includes(url.searchParams.get("lang") ?? "") ? url.searchParams.get("lang") : "en");
         return {
@@ -881,7 +945,8 @@ export function createProHandler(deps = {}) {
     } catch (e) {
       if (e instanceof HttpError || e instanceof BillingError || e instanceof AdminError) out = { status: e.status, body: { error: { code: e.code, message: e.message } } };
       else {
-        console.error("einvoice-pro: internal error", e instanceof Error ? e.message : "unknown");
+        // Cut short, as the other logs are: a parser's message can quote the invoice it read.
+        console.error("einvoice-pro: internal error", e instanceof Error ? e.message.slice(0, 200) : "unknown");
         out = { status: 500, body: { error: { code: "internal", message: "Internal error." } } };
       }
     }

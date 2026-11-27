@@ -5,7 +5,8 @@ import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { build } from "../src/build.mjs";
+import { browserSprs, build, SPRS_SCRIPT } from "../src/build.mjs";
+import { launchState } from "../src/launch.mjs";
 import {
   applyToPage,
   MIN_SCORE,
@@ -77,9 +78,61 @@ test("unknown and repeated ids are ignored", () => {
   assert.equal(score(q(["3.1.1", "3.1.1", "9.9.9", "<script>"])).score, 105);
 });
 
+// The Worker-served (early-access) build: no scripts, the Worker scores the query.
 const out = mkdtempSync(join(tmpdir(), "cmmc-sprs-"));
-build({ outDir: out });
+build({ outDir: out, launch: launchState({ appUrl: null }) });
 const page = readFileSync(join(out, "sprs-score-calculator.html"), "utf8");
+
+// The static (open) build: the same form, plus the browser copy of these functions.
+const openOut = mkdtempSync(join(tmpdir(), "cmmc-sprs-open-"));
+const openFiles = build({
+  outDir: openOut,
+  launch: launchState({ appUrl: "https://cmmc.example.com" }),
+});
+const openPage = openFiles["sprs-score-calculator.html"];
+
+test("static build: the page loads sprs-page.js, which imports the built sprs.js", () => {
+  assert.ok(openPage.includes(SPRS_SCRIPT));
+  assert.equal((openPage.match(/name="nm"/g) ?? []).length, 110);
+  assert.ok(openPage.includes(RESULT_MARKER));
+  assert.match(openFiles["sprs-page.js"], /from "\.\/sprs\.js"/);
+  assert.equal(openFiles["sprs.js"], browserSprs());
+  assert.doesNotMatch(openFiles["sprs.js"], /^import /m, "no imports left: the data is inlined");
+  // The submit button sends calc=1, so "nothing ticked" still has a query to score.
+  assert.match(openPage, /<button type="submit" class="button" name="calc" value="1">/);
+  for (const name of ["index.html", "pricing.html"])
+    assert.ok(!openFiles[name].includes(SPRS_SCRIPT), `${name} loads no calculator script`);
+});
+
+test("the browser sprs.js scores exactly like sprs.mjs", async () => {
+  const url = `data:text/javascript;base64,${Buffer.from(openFiles["sprs.js"]).toString("base64")}`;
+  const browser = await import(url);
+  assert.equal(browser.REQUIREMENTS.length, REQUIREMENTS.length);
+  assert.equal(browser.MIN_SCORE, MIN_SCORE);
+  for (const query of [
+    "calc=1",
+    "nm=3.5.3&pc=3.5.3&nm=3.1.8&calc=1",
+    "nm=3.12.4",
+    REQUIREMENTS.map((r) => `nm=${r.nistId}`).join("&"),
+    "nm=3.13.11&pc=3.13.11&nm=3.1.20",
+  ]) {
+    const params = new URLSearchParams(query);
+    const a = score(parseQuery(params));
+    const b = browser.score(browser.parseQuery(params));
+    assert.equal(b.score, a.score, query);
+    assert.equal(
+      browser.renderResult(b),
+      applyToPage(RESULT_MARKER, params).replace(/\n<meta name="robots"[^>]*>/, ""),
+      query,
+    );
+  }
+});
+
+test("nothing ticked still scores: calc=1 gives 110 with no POA&M needed", () => {
+  const html = applyToPage(page, new URLSearchParams("calc=1"));
+  assert.match(html, /<p class="score">110 /);
+  assert.match(html, /a Final Level 2 \(Self\) self-assessment would need no POA&amp;M/);
+});
 
 test("built page: one checkbox per requirement, the marker, a GET form under the base path, no scripts", () => {
   assert.equal((page.match(/name="nm"/g) ?? []).length, 110);

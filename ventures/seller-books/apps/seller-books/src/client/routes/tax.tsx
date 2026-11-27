@@ -302,6 +302,13 @@ export function ScheduleCPage() {
         </a>
         <a
           className="btn-secondary"
+          href={apiUrl(orgPath(orgId, `/reports/schedule-c.pdf?year=${year}${rateParam}`))}
+          title="The worksheet laid out by Schedule C part, to print or hand to your preparer"
+        >
+          Download PDF
+        </a>
+        <a
+          className="btn-secondary"
           href={apiUrl(
             orgPath(orgId, `/reports/sales-ledger.csv?from=${year}-01-01&to=${year}-12-31`),
           )}
@@ -336,7 +343,7 @@ export function ScheduleCPage() {
         <a
           className="btn"
           href={apiUrl(orgPath(orgId, `/reports/year-end.zip?year=${year}${rateParam}`))}
-          title="The worksheet, sales ledger, closing inventory, mileage log, expenses and QuickBooks journal for the year in one ZIP, with a README for your preparer"
+          title="The worksheet (CSV and PDF), sales ledger, closing inventory, mileage log, expenses and QuickBooks journal for the year in one ZIP, with a README for your preparer"
         >
           Everything for your preparer (ZIP)
         </a>

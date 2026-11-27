@@ -87,6 +87,14 @@ account as `charged`, `none` (within the minimum), `skipped` (canceled, paused o
 or `already`. A `pending` row means the call was interrupted: check the subscription's next
 transaction in Paddle before changing it. The API key needs `subscription.write` and `price.read`.
 
+On the Worker this runs by itself (2026-11-27): the `SettleClock` Durable Object's alarm
+(`worker/settle-clock.mjs`) settles each closed month from 06:00 UTC on the 1st, checking every 6
+hours, and catches up at most the three months since the last one it settled. Its log lines are
+`usage_settlement.done` (counts by status, and the account ids of any `failed` charge to look at),
+`usage_settlement.unavailable` (billing dark) and `usage_settlement.error`. The endpoint above stays
+for a month before the clock was armed or a re-run by hand; the per-account claim means the two can
+never charge the same month twice. `USAGE_SETTLEMENT=off` stops the schedule.
+
 ## Turning it on (owner)
 
 1. Paddle account verified (it needs the live pricing page, terms, privacy and refund policies: the

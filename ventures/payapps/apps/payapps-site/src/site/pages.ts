@@ -16,6 +16,7 @@ import {
 import { examplePanel } from "./example";
 import { type Html, hasEarlyAccess, href, html, primaryCta, type SiteContext } from "./html";
 import { launchOf, plansSentence } from "./launch";
+import { legalPage } from "./legal";
 
 export interface Faq {
   q: string;
@@ -97,6 +98,28 @@ export function homeFaq(ctx: SiteContext): readonly Faq[] {
   ];
 }
 
+/**
+ * Screenshots of the app itself (public/shots/), captured from a local copy of apps/payapps by
+ * `pnpm stills` there, with the worked example's made-up job, so the two agree to the cent. The
+ * capture asserts those figures before it takes the pictures.
+ */
+function appShots(ctx: SiteContext): Html {
+  return html`<section class="wrap section" aria-labelledby="shots-h">
+  <h2 id="shots-h">What it looks like in the app</h2>
+  <p>Screenshots of ${PRODUCT_NAME} itself, with the same made-up electrical job as the worked example, so the figures match. Nothing here is a customer's job.</p>
+  <div class="shots">
+    <figure class="shot shot-wide">
+      <a class="shot-link" href="${href(ctx, "/shots/pay-app-2-desktop.webp")}"><img src="${href(ctx, "/shots/pay-app-2-desktop.webp")}" width="1280" height="860" loading="lazy" decoding="async" alt="PayApps on a laptop: pay application #2 for the job Harbor Clinic Fit-out, period October 1 to 31, 2026. The continuation sheet lists four lines (rough-in, switchgear and panels, lighting fixtures, trim and close-out) with this period's work and stored materials typed in, and totals of $102,100.00 completed and stored to date and $10,210.00 retainage."></a>
+      <figcaption>The continuation sheet (open it for full size). Type this month's work and stored materials on each line; completed to date, percent complete, balance to finish and retainage are worked out as you type.</figcaption>
+    </figure>
+    <figure class="shot shot-phone">
+      <img src="${href(ctx, "/shots/pay-app-2-summary-phone.webp")}" width="358" height="569" loading="lazy" decoding="async" alt="The application summary on a phone: contract sum $210,000.00, completed and stored to date $102,100.00, retainage $8,980.00 on completed work and $1,230.00 on stored materials, less previous certificates $52,560.00, current payment due $39,330.00.">
+      <figcaption>The summary on a phone, for checking the numbers from the truck before you send it.</figcaption>
+    </figure>
+  </div>
+</section>`;
+}
+
 function home(ctx: SiteContext): BuiltPage {
   const page = PAGES.home;
   const l = launchOf(ctx);
@@ -113,6 +136,8 @@ function home(ctx: SiteContext): BuiltPage {
     ${examplePanel()}
   </div>
 </section>
+
+${appShots(ctx)}
 
 <section class="wrap section">
   <h2>What billing day looks like for a lot of subs</h2>
@@ -297,6 +322,7 @@ export const FEATURES: readonly Feature[] = [
       "Prints the state's statutory form where we have checked the text against the statute: Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah and Wyoming, plus Missouri's residential final waiver and Massachusetts' partial waiver and subordination of lien (its pay-app lines filled from the application); a general form in states with no statutory form",
       "Once a payment arrives, a reminder for the unconditional waiver you now owe, for the amount actually paid",
       "The lien deadline on every job (every plan): the last day to record a mechanics lien in Arizona, California, Colorado, Florida, Georgia, New York, North Carolina, Ohio, Texas or Washington, from the property's state and your last day on site, with the statute cited, and a warning on the cash page and in the weekly email 45 days ahead on any job that still owes you money",
+      "Public jobs (every plan): on a federal job, the Miller Act payment bond dates in place of a lien date (the 90-day notice to the prime and the one-year limit on the suit, 40 U.S.C. § 3133(b)); on a state or local job, your retainage checked against the state's cap on public work in 16 states, with the statute linked",
       "Preliminary notices from the job page where the statute sets the wording or contents: California (private works), Florida's Notice to Owner, Texas' notices of claim and Wyoming so far, prefilled from the job",
       "Texas: the § 53.056 notice of claim for unpaid labor or materials and the § 53.057 notice of claim for unpaid retainage, word for word, with the 15th-of-the-month date for each unpaid month (rolled past weekends and Texas legal holidays), the retainage notice's 30 days and the lien affidavit dates; the months read from the job's unpaid pay apps, a log of each notice sent, and a reminder on the cash page and in the weekly email before each month's date",
       "Florida: the § 713.06 Notice to Owner word for word, with the 45-day last day to serve it and the 40-day last day to mail it so service counts on mailing (§ 713.18), from the day you first furnished work; record each notice and copy served (owner, contractor, the notice of commencement's designee) with how and when it went, see when each counts as served, and get a reminder on the cash page and in the weekly email until the owner has one",
@@ -633,7 +659,7 @@ function pricing(ctx: SiteContext): BuiltPage {
     </article>`,
     )}
   </div>
-  <p class="note">Prices in US dollars, before any sales tax. No setup fee; cancel any time. The <a href="${href(ctx, PAGES.features.path)}">features page</a> marks what is built and what comes next.</p>
+  <p class="note">Prices in US dollars, before any sales tax. No setup fee; cancel any time, and a full refund within 30 days of your first paid payment (<a href="${href(ctx, PAGES.refunds.path)}">Refund Policy</a>). The <a href="${href(ctx, PAGES.features.path)}">features page</a> marks what is built and what comes next.</p>
   <h2>Questions about pricing</h2>
   ${faqList(faq)}
   <p class="cta-row">${primaryCta(ctx, "pricing")}</p>
@@ -826,6 +852,10 @@ export function buildPage(ctx: SiteContext, key: PageKey): BuiltPage {
       return earlyAccess(ctx);
     case "privacy":
       return privacy(ctx);
+    case "terms":
+    case "refunds":
+    case "acceptableUse":
+      return { page: PAGES[key], ...legalPage(ctx, key) };
     default:
       return statusPage(ctx, key);
   }

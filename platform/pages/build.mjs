@@ -43,6 +43,7 @@ import { buildPayappsSite } from './payapps-site.mjs';
 import { buildSellerBooksSite } from './seller-books-site.mjs';
 import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
+import { buildCmmcSite } from './cmmc-site.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
@@ -13955,6 +13956,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     path.join(aboutDir, 'index.html'),
     renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
   );
+  // CMMC Workspace's own marketing site (paid bet #4), built from the app's zero-dependency
+  // source in its open state, without the catalogue chrome (`cmmc-site.mjs`). Before the
+  // manufacturing page, which links it.
+  const cmmcSite = await buildCmmcSite(outDir, { baseUrl: base });
   const feedbackDir = path.join(outDir, FEEDBACK_PATH);
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
@@ -13978,6 +13983,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     // Job shops and small engineering firms: quoting and CMMC/ISO 9001
     // products in development, and the free tools (`industry-manufacturing.mjs`).
     await buildManufacturingPage(outDir, base, {
+      productSites: new Set(cmmcSite.length ? ['cmmc'] : []),
       published: new Set(surfaces.map((s) => s.slug)),
       footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
       tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-manufacturing" defer></script>`,
@@ -14188,6 +14194,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     }),
   );
 
+  extraSitemaps.push(...cmmcSite.filter((rel) => rel === 'cmmc/sitemap.xml'));
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base, extraSitemaps));
   await fs.writeFile(
     path.join(outDir, 'sitemap-hub.xml'),

@@ -37,6 +37,9 @@ The D1 database is created in the EU jurisdiction by `apps/einvoice-preflight/wo
 
 ## Then
 
+0. The launch review is done (2026-11-27, `apps/einvoice-preflight/docs/LAUNCH-REVIEW.md`); the first
+   run waits on its section 4: an Impressum address and a GDPR Art. 27 representative, both the
+   owner's.
 1. Run `einvoice-pro-deploy` once by hand from `main`, record the URL, and point
    einvoice-site's call to action at the Worker's `/app` (ROADMAP "Next" 1 and 2).
 2. Remove `apps/einvoice-preflight` and `apps/einvoice-site` from `private-monorepo` in a PR there,
