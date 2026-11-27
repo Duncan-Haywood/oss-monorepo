@@ -135,3 +135,24 @@ assessed against Rev. 2, so Rev. 3 text was not substituted.
 | Three years counted from the status date, not a closeout | Final-rule preamble, search excerpt: "CMMC Status date is not based on the date of a POA&M closeout assessment"; the workspace's schedule applies the same reading to 170.16(a)(1). |
 | 29 February rolls to 28 February a year on | A choice, not a rule: a reminder a day early is safe, a day late is not. |
 
+
+## CMMC flow-down to subcontractors (`cmmc-subcontractor-flow-down.html`), 27 Nov 2026
+
+Both texts were read directly on the eCFR versioner API on 27 Nov 2026 (the API
+needs `Accept-Encoding: gzip`, or it answers 406), tags stripped and saved as
+plain text in `fixtures/flow-down/`. `page.test.mjs` fails if any `<q>` on the
+page is not found word for word in them.
+
+- 32 CFR 170.23, Application to subcontractors:
+  `https://www.ecfr.gov/api/versioner/v1/full/2026-11-01/title-32.xml?part=170&section=170.23`,
+  saved as `fixtures/flow-down/32-cfr-170.23.txt` (sha256 `ae1f0211...4c24a5`). Paragraphs (a)(1)-(4) and (b).
+- DFARS 252.204-7021, Contractor Compliance With the Cybersecurity Maturity
+  Model Certification Level Requirements (NOV 2025), 90 FR 43575, 10 Sept 2025:
+  `https://www.ecfr.gov/api/versioner/v1/full/2026-11-01/title-48.xml?part=252&section=252.204-7021`,
+  saved as `fixtures/flow-down/dfars-252.204-7021.txt` (sha256 `b79ef71c...07abc`). Used: (a) "Current",
+  (d)(1)(ii), (d)(4), (d)(5), (e)(1), (f)(1) (COTS excluded), (f)(2).
+- Phase 2 status on the page is the 24 Nov 2026 check above, not re-read:
+  `dodcio.defense.gov/CMMC/` answered 403 through the proxy on 27 Nov 2026.
+- The machine-shop examples (outside processes, overflow machining, labs,
+  material) are our reading of how the rule applies, not quotes; the page tells
+  the reader that the marking and the prime's guidance decide what is CUI.

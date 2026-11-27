@@ -37,10 +37,23 @@ locals {
           "securityhub:DisableSecurityHub",
           "securityhub:DisassociateFromAdministratorAccount",
           "access-analyzer:DeleteAnalyzer",
-          "s3:PutAccountPublicAccessBlock",
           "ec2:DisableEbsEncryptionByDefault",
         ]
         Resource = "*"
+      },
+      {
+        # The account-level S3 Block Public Access setting has one API for on
+        # and off, so the deny must spare the role that turns it on
+        # (modules/account-baseline, applied through ci_member_role). Without
+        # this the first baseline apply was refused in every member account
+        # (run 45925800126).
+        Sid      = "KeepS3BlockPublicAccess"
+        Effect   = "Deny"
+        Action   = ["s3:PutAccountPublicAccessBlock"]
+        Resource = "*"
+        Condition = {
+          ArnNotLike = { "aws:PrincipalArn" = local.ci_member_role }
+        }
       },
       {
         Sid      = "NoRootUser"

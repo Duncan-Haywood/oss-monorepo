@@ -11,16 +11,22 @@
 // prep, striping, travel, and materials layer on. That is what separates a
 // defensible quote from a neighborhood special.
 
+// Starting coverage per surface type, in square feet per gallon of the sealer
+// as applied. Manufacturer data sheets give one rate for every coat (for
+// example SealMaster's PMCTS and PMM sheets: about 70 to 82 sq ft per gallon
+// of mixed material, each coat), so the second coat starts at the same figure
+// as the first. Both are editable on the page; replace them with your own
+// sealer's sheet.
 export const SURFACE_PRESETS = Object.freeze([
-  { id: 'driveway', label: 'Residential driveway', firstCoatSqFtPerGal: 90, secondCoatSqFtPerGal: 120 },
-  { id: 'parking-lot', label: 'Commercial parking lot', firstCoatSqFtPerGal: 80, secondCoatSqFtPerGal: 110 },
-  { id: 'court', label: 'Basketball / play court', firstCoatSqFtPerGal: 85, secondCoatSqFtPerGal: 115 },
-  { id: 'walkway', label: 'Walkway / apron', firstCoatSqFtPerGal: 95, secondCoatSqFtPerGal: 125 },
+  { id: 'driveway', label: 'Residential driveway', firstCoatSqFtPerGal: 90, secondCoatSqFtPerGal: 90 },
+  { id: 'parking-lot', label: 'Commercial parking lot', firstCoatSqFtPerGal: 80, secondCoatSqFtPerGal: 80 },
+  { id: 'court', label: 'Basketball / play court', firstCoatSqFtPerGal: 85, secondCoatSqFtPerGal: 85 },
+  { id: 'walkway', label: 'Walkway / apron', firstCoatSqFtPerGal: 95, secondCoatSqFtPerGal: 95 },
 ]);
 
 // First-coat coverage multiplier. Oxidized pavement drinks sealer; a recently
-// sealed lot does not. Second coat is already thinner and is not adjusted —
-// the first coat did the drinking.
+// sealed lot does not. The second and later coats are not adjusted: the first
+// coat already filled the oxidized texture.
 export const CONDITION_COVERAGE = Object.freeze({
   good: 1.2,
   oxidized: 1.0,
