@@ -67,3 +67,14 @@ Edit to `CLOUDFLARE_API_TOKEN`.
   post to `mutate()` instead of reading component state inside `mutationFn`. Write new
   `mutationFn`s the same way when the button appears in the render that an async read (a file, OCR)
   sets.
+
+## workers.dev stays on beside a custom domain (2026-11-27)
+
+`provision.mjs` used to set `workers_dev: false` whenever a domain was given. Since PR #19642 the
+deploy defaults to `payapps.marisstella.app`, while the 42 guide CTAs and the construction page link
+to `https://payapps.duncan-andrew-haywood.workers.dev/?signup` (PR #19644). So the first deploy that
+got the domain would have broken every published sign-up link. Run 6 (45963162134) kept workers.dev
+(it answered `/api/health` afterwards; the domain itself did not answer from a cloud session).
+Now workers.dev stays on with a domain. To retire it: once the domain answers, set
+`ventures/pay-app-guides/cta.mjs` `APP_URL` (and `PAYAPPS_URL` on the construction page) to the
+domain, wait for the site deploy, and only then turn workers.dev off.

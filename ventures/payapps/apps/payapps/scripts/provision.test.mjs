@@ -50,11 +50,12 @@ test("deploy config: D1 id, R2 binding, workers.dev", () => {
   assert.equal(build.vars.FAKE_EXTERNALS, "true", "the build output is not mutated");
 });
 
-test("deploy config: no R2 binding when R2 is not enabled; custom domain turns workers.dev off", () => {
+test("deploy config: no R2 binding when R2 is not enabled; a custom domain keeps workers.dev on", () => {
   const cfg = deployConfigFor(build, { r2Enabled: false, domain: "payapps.example.org" });
   assert.deepEqual(cfg.r2_buckets, []);
   assert.deepEqual(cfg.routes, [{ pattern: "payapps.example.org", custom_domain: true }]);
-  assert.equal(cfg.workers_dev, false);
+  // Published sign-up links point at workers.dev (pay-app-guides/cta.mjs); a domain must not break them.
+  assert.equal(cfg.workers_dev, true);
   assert.equal(cfg.d1_databases[0].database_id, undefined);
 });
 

@@ -14,7 +14,7 @@
 //
 // --write-config <out> derives the deploy config from the Vite build output (dist/payapps/wrangler.json;
 // override with --from). <out> must sit next to it, since paths in it are relative. --domain <host> adds a
-// custom-domain route and turns workers.dev off. Needs CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID.
+// custom-domain route (workers.dev stays on, so links to it keep working). Needs CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID.
 // Writes worker, d1_exists and config to $GITHUB_OUTPUT when set.
 import { spawnSync } from "node:child_process";
 import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
@@ -52,7 +52,7 @@ export function parseArgs(argv) {
 
 /**
  * The deploy config, derived from the build output: our resource names, the D1 id when known, the R2
- * binding only when the bucket exists, and either a custom domain or workers.dev. Pure, for tests.
+ * binding only when the bucket exists, and workers.dev with an optional custom domain. Pure, for tests.
  */
 export function deployConfigFor(base, { d1Id = "", r2Enabled = true, domain = "" } = {}) {
   const cfg = structuredClone(base);
@@ -70,7 +70,10 @@ export function deployConfigFor(base, { d1Id = "", r2Enabled = true, domain = ""
     : [];
   if (domain) {
     cfg.routes = [{ pattern: domain, custom_domain: true }];
-    cfg.workers_dev = false;
+    // workers.dev stays on beside the domain: the free guides and the construction page link to it
+    // (ventures/pay-app-guides/cta.mjs APP_URL), and turning it off would break every published
+    // sign-up link the moment a domain deploy succeeds. Switch APP_URL first, then turn it off.
+    cfg.workers_dev = true;
   } else {
     delete cfg.routes;
     cfg.workers_dev = true;
