@@ -82,7 +82,8 @@ export function parse(input) {
       out.hoursWorked = out.periodHours.reduce((a, b) => a + b, 0);
     } else out.hoursWorked = num("hoursWorked", "the hours you worked in the leave year (or expect to), or the hours of each pay period", { max: MAX_HOURS_YEAR });
     out.payPeriod = i.payPeriod === undefined || i.payPeriod === "" ? "weekly" : i.payPeriod;
-    if (!out.periodHours && !PAY_PERIODS[out.payPeriod]) errors.push("Pick how often you are paid.");
+    out.period = Object.hasOwn(PAY_PERIODS, out.payPeriod) ? PAY_PERIODS[out.payPeriod] : null;
+    if (!out.periodHours && !out.period) errors.push("Pick how often you are paid.");
     out.hourlyRate = num("hourlyRate", "your hourly pay (zero to skip the money)", { allowEmpty: true }) || 0;
     out.takenHours = num("takenHours", "the hours of holiday already taken (zero if none)", { allowEmpty: true }) || 0;
   }
@@ -140,7 +141,7 @@ export function compute(input) {
     // Reg 15B(3)(b) and (5): accrue per pay period and round each period to the
     // nearest hour. A bare annual total is spread evenly over the pay periods,
     // which is exact only if each period's hours were the same.
-    const periods = p.periodHours || Array(PAY_PERIODS[p.payPeriod].n).fill(p.hoursWorked / PAY_PERIODS[p.payPeriod].n);
+    const periods = p.periodHours || Array(p.period.n).fill(p.hoursWorked / p.period.n);
     const accruedHours = periods.reduce((a, h) => a + roundHour(h * ACCRUAL), 0);
     const unroundedHours = r2(hoursYear * ACCRUAL);
     const periodCount = periods.length;
@@ -151,7 +152,7 @@ export function compute(input) {
     const uplift = r2(p.hoursWorked * p.hourlyRate * ACCRUAL);
     Object.assign(res, { hoursYear, accruedHours, unroundedHours, periodCount, evenSpread, payPeriod: evenSpread ? p.payPeriod : null, remaining, holidayPay, remainingPay, uplift, hourlyRate: p.hourlyRate, takenHours: p.takenHours, accrual: ACCRUAL, bankHolidays: p.bankHolidays });
     findings.push({ severity: "high", title: `You accrue holiday at 12.07% of the hours worked in each pay period, each period rounded to the nearest hour (half an hour rounds up): ${hoursYear} hours over ${periodCount} pay periods gives ${accruedHours} hours of paid holiday (${unroundedHours} before rounding).` });
-    if (evenSpread) findings.push({ severity: "medium", title: `This spreads ${hoursYear} hours evenly over ${periodCount} ${PAY_PERIODS[p.payPeriod].label.toLowerCase()} pay periods. Because each period is rounded on its own, uneven hours give a different total: enter the hours of each pay period for the exact figure.` });
+    if (evenSpread) findings.push({ severity: "medium", title: `This spreads ${hoursYear} hours evenly over ${periodCount} ${p.period.label.toLowerCase()} pay periods. Because each period is rounded on its own, uneven hours give a different total: enter the hours of each pay period for the exact figure.` });
     if (p.hourlyRate > 0) findings.push({ severity: "high", title: `That holiday is worth about ${money(holidayPay)} gross at ${money(p.hourlyRate)} an hour.` });
     if (p.takenHours > 0) findings.push({ severity: p.takenHours > accruedHours ? "medium" : "info", title: p.takenHours > accruedHours ? `You have taken ${r2(p.takenHours - accruedHours)} hours more than accrued so far.` : `You have ${remaining} hours of holiday left${p.hourlyRate > 0 ? `, worth about ${money(remainingPay)}` : ""}.` });
     // The 12.07% accrual and rolled-up pay apply only to leave years starting on
