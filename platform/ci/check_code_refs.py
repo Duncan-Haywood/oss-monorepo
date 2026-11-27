@@ -61,18 +61,29 @@ def candidate(token: str) -> str | None:
     return tok if PATH_RE.match(tok) else None
 
 
+# A path written as another repository's ("`private-monorepo`'s `apps/x`") names
+# a file there, not here: skipped, even when the possessive ends the line before.
+OTHER_REPO_RE = re.compile(r"`?\b(?:private-monorepo|oss-research-monorepo)`?'s\s*$")
+
+
 def refs_in(text: str):
     in_fence = False
+    prev = ""
     for n, line in enumerate(text.split("\n"), 1):
         if FENCE_RE.match(line):
             in_fence = not in_fence
+            prev = ""
             continue
         if in_fence:
             continue
         for m in CODE_SPAN_RE.finditer(line):
+            before = line[: m.start()]
+            if OTHER_REPO_RE.search(before if before.strip() else prev):
+                continue
             c = candidate(m.group(1) or m.group(2))
             if c:
                 yield n, c
+        prev = line
 
 
 def missing_refs(path: Path, root: Path, tops: set[str], known: set[str] = frozenset()):

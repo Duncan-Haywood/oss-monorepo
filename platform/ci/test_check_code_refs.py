@@ -15,6 +15,11 @@ class Candidate(unittest.TestCase):
         self.assertEqual(c.candidate("a/b.md#sec"), "a/b.md")
         self.assertEqual(c.candidate("a/b.py --flag"), "a/b.py")
 
+    def test_other_repository_paths_skipped(self):
+        text = ("see `private-monorepo`'s `apps/a/b.ts`, and its\n"
+                "`private-monorepo`'s\n    `apps/c/d.ts` here, but `apps/e/f.ts`\n")
+        self.assertEqual([tok for _, tok in c.refs_in(text)], ["apps/e/f.ts"])
+
     def test_not_paths(self):
         for t in ("ventures/<slug>/x", "a/*.py", "https://x/y", "/abs/p", "foo", "a/b|c",
                   "prompts/runs/YYYY-MM.md"):

@@ -23,6 +23,9 @@ node --test platform/deploy/*.test.mjs
 node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs
 node --test platform/devstats/*.test.mjs
+node --test apps/einvoice-preflight/pro/*.test.mjs apps/einvoice-preflight/worker/*.test.mjs  # paid einvoice edition's paid layer
+node --test --test-concurrency=4 apps/einvoice-preflight/*.test.mjs  # its checker suite, ~3 min: run_in_background
+node --test apps/einvoice-site/test/*.test.mjs  # after `node build.mjs` in apps/einvoice-site
 node --test platform/daily/*.test.mjs
 node --test platform/aws/stacks/email-ops/sender/*.test.mjs  # SES sender, consent store, unsubscribe
 (cd platform/audio && python3 -m unittest test_narrate)  # the narration engine; needs numpy, ffmpeg for the Master case
@@ -54,6 +57,7 @@ python3 -m pytest portfolio/work -q                      # directions and tasks 
 python3 -m pytest platform/aws/stacks/dns/scripts -q    # Route 53 export and zone diff (cf_export.py, zone_diff.py), under 1 s
 python3 -m pytest platform/aws/cutover -q    # Cloudflare -> AWS cutover orchestrator against its fakes, under 2 s
 python3 -m pytest platform/aws/tests -q    # bootstrap.yaml: organization mode unchanged, single-account denies match stacks/org
+python3 -m pytest apps/einvoice-preflight/tests -q    # paid einvoice edition's Python CLI (the node suites run in einvoice-pro-ci.yml)
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records

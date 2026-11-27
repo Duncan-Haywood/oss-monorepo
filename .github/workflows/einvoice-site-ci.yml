@@ -1,6 +1,6 @@
 # PR checks for apps/einvoice-site (the E-invoice Fix & Explain marketing site, moved from the
 # private repository; task products-to-public-repo): zero-dependency static site + worker.
-# Read-only, never needs secrets. Biome runs once the root workspace (PayApps' move) is in.
+# Read-only; it reads no secret at all. Biome runs once the root workspace (PayApps' move) is in.
 name: einvoice-site-ci
 on:
   pull_request:
