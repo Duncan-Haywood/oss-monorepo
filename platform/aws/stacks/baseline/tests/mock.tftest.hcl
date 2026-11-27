@@ -909,8 +909,40 @@ run "baseline_shape" {
   }
 
   assert {
+    condition = (
+      length(aws_securityhub_organization_configuration.this) == 0
+      && length(aws_securityhub_configuration_policy.baseline) == 0
+      && length(aws_securityhub_configuration_policy_association.root) == 0
+      && length(aws_securityhub_organization_admin_account.this) == 1
+      && length(aws_securityhub_finding_aggregator.this) == 1
+      && length(aws_securityhub_standards_subscription.direct) == 2
+    )
+    error_message = "central configuration off by default: delegated admin and aggregator kept, FSBP and CIS subscribed on the management account"
+  }
+}
+
+# Central configuration on: one policy with FSBP and CIS for the whole
+# organisation, and no local subscriptions to conflict with it.
+run "security_hub_central" {
+  command = plan
+
+  variables {
+    security_hub_central_configuration = true
+  }
+
+  assert {
     condition     = length(aws_securityhub_configuration_policy.baseline[0].configuration_policy[0].enabled_standard_arns) == 2
     error_message = "FSBP and CIS enabled"
+  }
+
+  assert {
+    condition     = aws_securityhub_organization_configuration.this[0].organization_configuration[0].configuration_type == "CENTRAL" && length(aws_securityhub_configuration_policy_association.root) == 1
+    error_message = "central configuration applied to the organisation root"
+  }
+
+  assert {
+    condition     = length(aws_securityhub_standards_subscription.direct) == 0
+    error_message = "no local standards subscriptions alongside central configuration"
   }
 }
 
@@ -955,7 +987,7 @@ run "single_account" {
   }
 
   assert {
-    condition     = aws_guardduty_detector.security[0].enable && length(aws_securityhub_standards_subscription.single) == 2
+    condition     = aws_guardduty_detector.security[0].enable && length(aws_securityhub_standards_subscription.direct) == 2
     error_message = "GuardDuty on, FSBP and CIS subscribed on the account"
   }
 

@@ -67,6 +67,23 @@ resource "aws_guardduty_organization_configuration" "this" {
 
 # --- Security Hub: central configuration, FSBP and CIS everywhere -----------
 
+# Central configuration is behind var.security_hub_central_configuration
+# (default off) since 2026-11-27: every apply from 08:06 to 21:31 UTC that day
+# (runs 32 and 33) failed on UpdateOrganizationConfiguration with
+# "Central configuration couldn't be enabled because data from organization
+# ... is still syncing. Retry later.", and because the apply stops at the
+# first failing stack, the spend guards, llm, email and cutover-access stacks
+# behind it could not apply (owner, same day: "yes go ahead").
+# While it is off: the security account stays Security Hub's delegated admin,
+# the finding aggregator stays, and the management account subscribes FSBP and
+# CIS directly (aws_securityhub_standards_subscription.direct below).
+# Member accounts get standards only once central configuration is on.
+# To turn it on: set the variable to true in a PR once AWS stops answering
+# "still syncing" (platform/aws/status.sh shows the organization config).
+locals {
+  securityhub_central = !local.single && var.security_hub_central_configuration
+}
+
 resource "aws_securityhub_finding_aggregator" "this" {
   count        = local.single ? 0 : 1
   provider     = aws.security
@@ -75,7 +92,7 @@ resource "aws_securityhub_finding_aggregator" "this" {
 }
 
 resource "aws_securityhub_organization_configuration" "this" {
-  count                 = local.single ? 0 : 1
+  count                 = local.securityhub_central ? 1 : 0
   provider              = aws.security
   auto_enable           = false
   auto_enable_standards = "NONE"
@@ -88,7 +105,7 @@ resource "aws_securityhub_organization_configuration" "this" {
 }
 
 resource "aws_securityhub_configuration_policy" "baseline" {
-  count       = local.single ? 0 : 1
+  count       = local.securityhub_central ? 1 : 0
   provider    = aws.security
   name        = "baseline"
   description = "AWS Foundational Security Best Practices and CIS, every control on"
@@ -106,7 +123,7 @@ resource "aws_securityhub_configuration_policy" "baseline" {
 }
 
 resource "aws_securityhub_configuration_policy_association" "root" {
-  count     = local.single ? 0 : 1
+  count     = local.securityhub_central ? 1 : 0
   provider  = aws.security
   target_id = data.aws_organizations_organization.this[0].roots[0].id
   policy_id = aws_securityhub_configuration_policy.baseline[0].id
@@ -172,10 +189,18 @@ resource "aws_accessanalyzer_analyzer" "org" {
   depends_on    = [aws_organizations_delegated_administrator.this, aws_iam_service_linked_role.access_analyzer]
 }
 
-# --- Single-account mode: Security Hub standards on the account itself -----
+# --- Standards subscribed on this account directly ---------------------------
+# Single-account mode always; organization mode while central configuration is
+# off (central configuration manages them otherwise, and refuses accounts that
+# also subscribe locally).
 
-resource "aws_securityhub_standards_subscription" "single" {
-  for_each      = local.single ? toset([for s in var.security_hub_standards : format(s, var.region)]) : toset([])
+moved {
+  from = aws_securityhub_standards_subscription.single
+  to   = aws_securityhub_standards_subscription.direct
+}
+
+resource "aws_securityhub_standards_subscription" "direct" {
+  for_each      = local.securityhub_central ? toset([]) : toset([for s in var.security_hub_standards : format(s, var.region)])
   standards_arn = each.value
   depends_on    = [aws_securityhub_account.management]
 }
