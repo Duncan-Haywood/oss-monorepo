@@ -219,6 +219,15 @@ class BatchTest(unittest.TestCase):
         self.assertEqual(claimed, [1489, 1490, 1491])
         self.assertIn("also claimed #1490, #1491", out)
 
+    def test_work_hint_names_the_session_branch_in_the_cloud(self):
+        hint = security_next.work_hint(1489, "abc123def4567890", "claude/hopeful-x")
+        self.assertIn("git checkout -B claude/hopeful-x origin/main", hint)
+        self.assertNotIn("checkout -B security-fix", hint)
+
+    def test_work_hint_names_the_claim_branch_elsewhere(self):
+        hint = security_next.work_hint(1489, "abc123def4567890", "main")
+        self.assertIn("git checkout -B security-fix/code-scanning-1489 abc123def456", hint)
+
     def test_lost_batch_member_is_named(self):
         code, claimed, out = self._main(["--claim"], taken={1491})
         self.assertEqual(claimed, [1489, 1490])
