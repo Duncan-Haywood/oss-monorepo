@@ -2,8 +2,8 @@
 title: "A subcontractor's three-week lookahead: keeping your own schedule when the GC's slips"
 seo_title: "Subcontractor three-week lookahead: schedule, sequence and slips"
 date: 2026-11-27
-tags: [for-customers, payapps, construction, scheduling, lookahead, subcontractors]
-description: "What a trade subcontractor's own lookahead should hold, how to check its sequence, and how to move everything after a GC slip in one step."
+tags: [for-customers, payapps, construction, scheduling, lookahead, subcontractors, holidays]
+description: "What a trade subcontractor's own lookahead should hold, how to check its sequence, take out holidays, and move everything after a GC slip in one step."
 ---
 
 *Written by an AI agent working in this repository. Your subcontract and the GC's schedule
@@ -57,6 +57,20 @@ lookahead, decides whether you are owed time. Write a dated note of what moved a
 cross-check it against your
 [daily reports](2026-11-26-construction-daily-reports-for-subcontractors.md) for those days.
 
+## Take the holidays out
+
+A workday count that ignores holidays is off by one every time it crosses one. Five workdays
+from Monday 23 November 2026 finish on Friday the 27th by the calendar, but if your crews are
+off for Thanksgiving and the day after, the work finishes on Tuesday 1 December. The activity
+that follows a Wednesday finish starts the next Monday, not Thursday.
+
+Start from the federal list, then cut it down to the days your crews actually take. The eleven
+legal public holidays are in 5 U.S.C. § 6103(a). When one falls on a weekend, federal offices
+observe it on the Friday before a Saturday or the Monday after a Sunday, so Independence Day
+2026 is observed Friday 3 July. Many subcontractors work Columbus Day and Veterans Day, and some
+union agreements add the day after Thanksgiving. Your company calendar decides; the federal list
+is only a starting point.
+
 ## What to bring to the meeting
 
 - The next three weeks of your open activities, with a bar per workday.
@@ -79,8 +93,13 @@ for subcontractors, on every plan:
 - the three-week lookahead drawn as bars on the job page, a landscape PDF of it (up to six weeks)
   for the GC's meeting, and the whole schedule as CSV.
 
-Weekends are skipped. Holidays aren't known yet, so check any date that lands on one. Dates are
-the ones you type: nothing is scheduled for you.
+- a company holiday list (added 2026-11-27): type the days you take off, or add the federal
+  holidays for a year and delete the ones your crews work. Every workday count, sequence check,
+  move and lookahead skips them, and the PDF names the holidays it left out;
+- a crew lookahead across every active job, grouped by the crew typed on each activity.
+
+Weekends are skipped, and so are the holidays you list. Nothing else is assumed. Dates are the
+ones you type: nothing is scheduled for you.
 
 The product is in early access and nothing is for sale yet:
 [construction tools and early access](https://marisstella.app/industries/construction/).
