@@ -28,7 +28,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
@@ -69,7 +69,7 @@
     "docs/reports/2026-11-27-one-paddle-key-for-every-deploy.md"
   ],
   "goal": null,
-  "notes": "Verification: adversarial gate.py on both diffs (PR 1: 0 blocking; PR 2: 0 blocking, 2 warnings for the intended environment use); test_gate.py 125 passed; secrets_inventory.py and its tests OK; ci_policy_check ok; publish_surface --check clean. run_workflow_locally --for-changes: payapps-ci 22/22, seller-books-ci 18/18, pages 6/6, agent-permission-harness 5/5, doc-refs 3/3; secrets-inventory and post front matter failures were fixed in later commits; ventures-tests failure is pay-app-guides page.test.mjs (coconstruct-alternatives nav), which this diff does not touch and which fails on the base. Simulated the key-check step locally with no key, a client token and a notification secret.",
+  "notes": "Verification: adversarial gate.py on both diffs (PR 1: 0 blocking; PR 2: 0 blocking, 2 warnings for the intended environment use); test_gate.py 125 passed; secrets_inventory.py and its tests OK; ci_policy_check ok; publish_surface --check clean. run_workflow_locally --for-changes: payapps-ci 22/22, seller-books-ci 18/18, pages 6/6, agent-permission-harness 5/5, doc-refs 3/3; secrets-inventory and post front matter failures were fixed in later commits; ventures-tests failure is pay-app-guides page.test.mjs (coconstruct-alternatives nav), which this diff does not touch and which fails on the base. Simulated the key-check step locally with no key, a client token and a notification secret. Main was red on pay-app-guides page.test.mjs (PRs #19696 and #19697 merged together, each without the other's nav link); fixed forward in this PR with node nav.mjs (344 passed).",
   "corrections": [],
   "redteam": null,
   "usage": {
