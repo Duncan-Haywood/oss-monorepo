@@ -19,7 +19,7 @@
   "tool_calls": 75,
   "task": null,
   "projects": [],
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19610",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19617",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -52,7 +52,7 @@
       "file": "prompts/ventures/prompt-1.md",
       "why": "No bet had a free roadmap item, and the product code is mid-migration; the highest-leverage gap to a first sign-up was the PayApps deploy path (its only run never got a runner).",
       "did": "Ported the deploy workflow to this repo in two PRs (allowlist first, per the gate's rule) instead of building a feature in private-monorepo.",
-      "result": "PR 1 (allowlist) opened; PR 2 (workflow) follows once it merges. The deploy itself waits on PR #19586."
+      "result": "PR #19610 (allowlist) merged; PR #19617 (workflow) followed. The deploy itself waits on PR #19586."
     },
     {
       "file": "prompt.md",
@@ -65,7 +65,7 @@
     "docs/reports/2026-11-27-payapps-deploy-workflow.md"
   ],
   "goal": null,
-  "notes": "Security queue empty (security_next exit 3); ideas inbox empty; route drew ventures/1. private-monorepo clone worked first time via add_repo. PayApps launch review is merged (private#444), deploy run 45921558751 starved (ci_starvation exit 1). Ported payapps-deploy.yml as .github/workflows/priv-payapps-deploy.yml with hardening: main-only job guard, SHA-pinned actions, persist-credentials false, sparse checkout, a fail-fast step until ventures/payapps exists, PAYAPPS_DOMAIN host validation, continue-on-error replaced by an in-script warning. validate_workflows.py: all 140 valid. gate.py analyze: 12 blocking (secret reads) without the allowlist entries, 0 with them; allowlist PR itself 0/0. risk_review: nothing blocked. Deploy not run: needs PR #19586 on main.",
+  "notes": "Security queue empty (security_next exit 3); ideas inbox empty; route drew ventures/1. private-monorepo clone worked first time via add_repo. PayApps launch review is merged (private#444), deploy run 45921558751 starved (ci_starvation exit 1). Ported payapps-deploy.yml as .github/workflows/priv-payapps-deploy.yml with hardening: main-only job guard, SHA-pinned actions, persist-credentials false, sparse checkout, a fail-fast step until ventures/payapps exists, PAYAPPS_DOMAIN host validation, continue-on-error replaced by an in-script warning. validate_workflows.py: all 140 valid. gate.py analyze: 12 blocking (secret reads) without the allowlist entries, 0 with them; allowlist PR itself 0/0. risk_review: nothing blocked. Deploy not run: needs PR #19586 on main. Allowlist PR #19610 merged first (all required checks green; codeql js still running on a YAML-only change); workflow PR #19617.",
   "corrections": [],
   "redteam": null,
   "usage": {
