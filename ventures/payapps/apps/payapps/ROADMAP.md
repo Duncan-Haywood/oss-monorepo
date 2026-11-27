@@ -1,6 +1,6 @@
 # PayApps — Roadmap
 
-Status: **live, sign-ups open** (2026-11-27). `payapps-deploy` run 45949861746 (this repository)
+Status: **live, sign-ups open** (2026-11-27). `payapps-deploy` run 45949861746 (commit 5f432ae0, this repository)
 deployed `https://payapps.duncan-andrew-haywood.workers.dev`; `/api/health` answered
 `{"ok":true,"app":"payapps","email":true}`, so account mail is on and a stranger can finish signing
 up. The 30+ free pay-app guides and the construction industry page link to `/?signup` from
@@ -2159,9 +2159,9 @@ would replace the workers.dev address: when it is set, workers.dev turns off, so
 
 ## Must do before a public launch
 
-- Deploy sets `EMAIL_FROM` and checks `GET /api/health` answers `"email": true` (docs/EMAIL.md)
-- Run the deploy workflow once (`payapps-deploy`, by hand; [docs/DEPLOY.md](docs/DEPLOY.md)) and, at
-  launch, let it run on every merge (`push: branches: [main]`)
+- Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
+  `"email": true` (docs/EMAIL.md); the deploy workflow ran once by hand (`priv-payapps-deploy.yml` in
+  oss-monorepo). Next: let it run on every merge (`push: branches: [main]`, a control-plane PR)
 - Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
   agent-approved under `docs/legal/OPERATOR.md` (no attorney review; open checks listed there)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on"); the

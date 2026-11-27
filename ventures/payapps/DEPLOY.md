@@ -55,8 +55,11 @@ Edit to `CLOUDFLARE_API_TOKEN`.
 
 ## Runs 2 and 3 (2026-11-27)
 
-- Run 45949861746 (after PR #19625) **deployed**: provisioning, D1 migrations, the deploy and the
-  `/api/health` smoke test all passed, with no attachments (R2) and paid plans dark.
+- Run 45949861746 (after PR #19625) **deployed**: provisioning, D1 migrations, the deploy (version
+  `e9f3df29-1349-4b1e-8656-4d67ffc12631`) and the smoke test all passed:
+  `https://payapps.duncan-andrew-haywood.workers.dev/api/health` answered
+  `{"ok":true,"app":"payapps","email":true}`, so sign-up email works. No attachments (R2) and paid
+  plans dark.
 - Run 45950799211 (on `6e69be0e`) stopped in Checks: `test/unit/sov-import.test.tsx` timed out
   waiting for the import to post. Cause: `useMutation` takes new options in an effect, so a click
   landing between the render that shows the preview and that effect ran the earlier render's
@@ -65,8 +68,8 @@ Edit to `CLOUDFLARE_API_TOKEN`.
   `mutationFn`s the same way when the button appears in the render that an async read (a file, OCR)
   sets.
 
-## Live
+## Linked (PR #19645)
 
-The second run, after PR #19625, deployed `https://payapps.duncan-andrew-haywood.workers.dev`
-(version `e9f3df29-1349-4b1e-8656-4d67ffc12631`, R2 off, `email: true`). The guides and the construction page link to the app from PR "payapps: open the
-funnel" ([docs/reports/2026-11-27-payapps-open-the-funnel.md](../../docs/reports/2026-11-27-payapps-open-the-funnel.md)).
+The free pay-app guides and the construction industry page link to the app's `/?signup` from PR
+#19645 ([docs/reports/2026-11-27-payapps-open-the-funnel.md](../../docs/reports/2026-11-27-payapps-open-the-funnel.md)).
+Redeploy from main after it so `/?signup` and the new banner reach the live Worker.
