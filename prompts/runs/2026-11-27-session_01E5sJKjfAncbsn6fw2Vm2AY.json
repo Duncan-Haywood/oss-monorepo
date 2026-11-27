@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjfAncbsn6fw2Vm2AY",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T05:18:25Z",
+  "ended": "2026-11-27T05:22:56Z",
+  "wall_minutes": 4.81,
+  "tokens_in": 4172281,
+  "tokens_out": 16598,
+  "cost_usd": 1.9765,
+  "tool_calls": 43,
+  "task": "bet #6 wall-framing-takeoff ROADMAP Next #1: roof sheet and blocked-joint prices on the page (roof-sheet-prices-on-page)",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/479",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported 'Next, free and not gated: none' for bets #1-#5. Every free item waits on demand from customers, so the only buildable item was in bet #6, and the bets ahead of it had nothing a run could pick up without inventing work."
+    },
+    {
+      "file": "apps/wall-framing-takeoff/ROADMAP.md (private-monorepo)",
+      "issue": "The item said to wait 'once the page has a roof-outline form'. That form already existed (2026-11-26); the real gap was that toPlan() dropped an opened plan's roof.sheet, which the item did not mention."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "The default is the top-ranked bet, but bets #1-#5 had no free, ungated item, and roadmap_claim --bets named bet #6.",
+      "did": "Took bet #6's one free item instead of opening a new growth-path slug on bet #1.",
+      "result": "Merged a small, verified fix to a real page bug (the outline roof never weighed hip starts on the page)."
+    },
+    {
+      "file": "prompt.md",
+      "why": "The work landed in private-monorepo, so the run record has no PR of its own to ride in.",
+      "did": "Opened a separate oss-monorepo PR for the record only.",
+      "result": "The record lands on main; it is not counted as a deliverable."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "The default asks for a new or extended post per PR. This was a small fix to a field on an existing page, and the app's README and ROADMAP already cover the feature.",
+      "did": "Extended README and ROADMAP; wrote no blog post.",
+      "result": "null"
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/wall-framing-takeoff/README.md (extended)",
+    "private-monorepo apps/wall-framing-takeoff/ROADMAP.md (item ticked)"
+  ],
+  "goal": null,
+  "notes": "private-monorepo was attached with add_repo and cloned first try. Verification: node eval-roof-plan-click.mjs, all ok, no page errors. node --test '*.test.mjs' in apps/wall-framing-takeoff: 1313 tests, 1311 pass, 0 fail, 2 skipped. risk_review.py run against the private clone: blocked on nothing, no check triggered.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f38c228c-a4da-5ec9-9cca-0303128d5f30",
+    "transcripts": 1,
+    "first": "2026-11-27T05:18:25Z",
+    "last": "2026-11-27T05:23:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 81,
+        "output": 16598,
+        "thinking": 2917,
+        "cache_read": 4068378,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103822,
+        "api_equivalent_usd": 1.9765,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 81,
+      "output": 16598,
+      "thinking": 2917,
+      "cache_read": 4068378,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103822,
+      "api_equivalent_usd": 1.9765,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 40,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.81,
+      "active_minutes": 4.81,
+      "model_minutes": 3.52,
+      "tool_minutes": 1.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "a frontend dev adding two validated form fields with save/load round-trip and a browser eval",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 101.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
