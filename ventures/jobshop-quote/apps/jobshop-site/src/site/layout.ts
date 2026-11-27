@@ -117,7 +117,7 @@ ${body}
                 : html`<li><a href="${href(ctx, "/early-access")}">Early access</a></li>`
             }
             <li><a href="${href(ctx, "/machine-shop-hourly-rate")}">Machine shop hourly rate</a></li>
-            <li><a href="${href(ctx, "/how-to-quote-cnc-machining")}">How to quote CNC machining</a></li>
+            <li><a href="${href(ctx, "/how-to-quote-cnc-machining")}">How to quote a machining job</a></li>
             <li><a href="${href(ctx, "/privacy")}">Privacy</a></li>
             <li><a href="${CMMC_SITE_URL}">CMMC Workspace</a></li>
           </ul>

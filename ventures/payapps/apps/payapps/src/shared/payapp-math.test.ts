@@ -513,6 +513,20 @@ describe("work billed against a change order not yet approved", () => {
     expect(w?.message).toContain("It counts from the first application ending on or after");
   });
 
+  it("counts a change order signed inside a submitted period from its countsFrom date", () => {
+    // Signed 2026-01-20, inside a January application already submitted: it counts from February.
+    const signedInJanuary = { ...co1, approvedOn: "2026-01-20", countsFrom: "2026-02-01" };
+    const [w] = lineWarning([signedInJanuary]);
+    expect(w?.message).toContain(
+      "change order 1 ($2,000.00, approved 2026-01-20, counted from 2026-02-01) counts only from after this period ends (2026-01-31)",
+    );
+    expect(uncountedChangesOnLine([signedInJanuary], "L3", "2026-01-31")).toHaveLength(1);
+    expect(uncountedChangesOnLine([signedInJanuary], "L3", "2026-02-28")).toEqual([]);
+    expect(changeOrderAdjustments([signedInJanuary], "2026-01-31").get("L3")).toBeUndefined();
+    expect(changeOrderAdjustments([signedInJanuary], "2026-02-01").get("L3")).toBe(200_000);
+    expect(lineWarning([signedInJanuary], { ...billed, periodTo: "2026-02-28" })).toEqual([]);
+  });
+
   it("is silent once the change order counts and the work fits", () => {
     expect(lineWarning([co1], { ...billed, periodTo: "2026-02-28" })).toEqual([]);
   });

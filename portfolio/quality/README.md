@@ -191,6 +191,9 @@ easy failure is grading the README instead of the thing. So:
   `queue` shows the rest as open. An audit with `fix_prs` and no `fixed_by`
   counts every defect as fixed, which hid the two a partial fix left (PR
   #15848). Re-auditing after a fix is a new audit file, so the trend is honest.
+  A product, red-team or other PR that fixes a defect in passing records it
+  too: `run_workflow_locally.py --for-changes` (or `quality_audit.py touched`)
+  lists the open defects in the subjects your diff touches.
 
 - **Check what ships, not only the source.** The Pages build rewrites hosts
   in `llms.txt`, sitemaps and canonical links at deploy

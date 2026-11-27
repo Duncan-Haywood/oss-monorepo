@@ -2234,7 +2234,30 @@ def run_for_changes(args) -> int:
             rc = NO_VERDICT
     if not args.list and not getattr(args, "no_research_tests", False):
         rc = research_tests(changed) or rc
+    note = quality_touched_note(changed)
+    if note:
+        print(note, flush=True)
     return rc
+
+
+# Fixes made outside a quality round seldom record `fixed_by`, so the fix queue
+# kept offering defects a product or red-team PR had already closed (the most
+# repeated doc friction, 2026-11-25 to 27: seven sessions). The sweep names the
+# open defects in the subjects the diff touches, once, while the session that
+# made the change can still say which it fixed. Informational; never fails.
+def quality_touched_note(changed, repo: str = REPO) -> str:
+    """Lines from quality_metrics.touched for `changed`, or '' (none, or any error)."""
+    try:
+        here = os.path.join(repo, "platform", "ci")
+        if here not in sys.path:
+            sys.path.insert(0, here)
+        import quality_audit
+        import quality_metrics
+        from pathlib import Path
+        audits = quality_audit.load_audits(Path(repo) / "portfolio" / "quality" / "audits")
+        return "\n".join(quality_metrics.touched_lines(quality_metrics.touched(audits, changed)))
+    except Exception:  # noqa: BLE001 - a hint must not break the sweep
+        return ""
 
 
 # No workflow runs a research project's own tests (research-ci.yml builds the

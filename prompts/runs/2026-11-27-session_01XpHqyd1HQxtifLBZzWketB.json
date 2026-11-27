@@ -28,8 +28,10 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
-  "errors": [],
+  "outcome": "partial",
+  "errors": [
+    "Built /how-to-quote-cnc-machining in parallel with session_01XpHqybjdJCP4r6Vw4FBrqM. Its PR #19899 landed the same slug and route while mine was in CI; mine was a subset (same bracket, fewer operations), so I dropped it and landed only the customer post update. A force-push to reset the branch was refused, so main was merged in and main's jobshop-site files were taken instead."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "portfolio/monetization/bets.md",
       "issue": "Bets #1, #4 and #5 have every ROADMAP Next item waiting on demand and their front-door SEO is dense (65+ pay-app guide pages). Finding a real gap took about 15 tool calls; a list of which front-door search topics are already covered per bet would save that."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "My --slug claim on how-to-quote-cnc-machining succeeded and slug_dupe found nothing, yet a parallel session was building the same page under the same slug, so two sessions built the same guide at once. The claim check does not see sessions that never pushed a claim branch."
     }
   ],
   "deviations": [
@@ -50,10 +56,10 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-24-one-page-for-machine-shops.md (extended with a 27 November update; no new post, following the consolidation direction)"
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (27 November update linking both jobshop pricing guides)"
   ],
   "goal": null,
-  "notes": "Local checks in ventures/jobshop-quote/apps/jobshop-site: pnpm typecheck clean; pnpm test 74 unit + 13 worker passed; biome check clean; risk_review: nothing blocked.",
+  "notes": "Local checks in ventures/jobshop-quote/apps/jobshop-site: pnpm typecheck clean; pnpm test 74 unit + 13 worker passed; biome check clean; risk_review: nothing blocked. Duplicate: my site page (the first commit on this PR; local typecheck, 74 unit + 13 worker tests and CI all green) was replaced by #19899's page. The merged PR carries only the post update and this record.",
   "corrections": [],
   "redteam": null,
   "usage": {

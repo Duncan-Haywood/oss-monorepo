@@ -98,10 +98,10 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
     },
     {
       path: "/how-to-quote-cnc-machining",
-      label: "How to quote CNC machining",
-      title: `How to quote a CNC machined part, step by step · ${SITE_NAME}`,
+      label: "How to quote a CNC machining job",
+      title: `How to quote a CNC machining job · ${SITE_NAME}`,
       description:
-        "Price a CNC machined part from material, setup, cycle time, finishing and markup, with quantity breaks worked out for a made-up bracket at 1, 10, 50 and 250.",
+        "Quote a machined part step by step: blank and material, setup, cycle time, outside processes, fallout, markup and quantity breaks, with a worked example.",
       changefreq: "monthly",
       priority: 0.7,
       lastmod: CONTENT_DATE,

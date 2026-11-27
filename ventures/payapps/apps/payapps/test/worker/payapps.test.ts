@@ -130,19 +130,25 @@ describe("pay application flow", () => {
     });
     const co = project.changeOrders[0];
     expect(co?.totalCents).toBe(700_000);
-    // Cannot be dated into the submitted period.
-    const early = await api(`${base}/change-orders/${co?.id}/approve`, {
+    // Signed by the GC inside the period already submitted: the true date is kept, and it counts
+    // from the day after that period, so pay app #1 stays exactly as it was sent.
+    project = await call<ProjectDetailDto>(`${base}/change-orders/${co?.id}/approve`, {
       method: "POST",
       as,
       json: { approvedOn: "2026-01-15" },
     });
-    expect(early.status).toBe(400);
-    project = await call<ProjectDetailDto>(`${base}/change-orders/${co?.id}/approve`, {
-      method: "POST",
-      as,
-      json: { approvedOn: "2026-02-10" },
+    expect(project.changeOrders[0]).toMatchObject({
+      status: "approved",
+      approvedOn: "2026-01-15",
+      countsFrom: "2026-02-01",
     });
     expect(project.sovLines.map((l) => l.currentCents)).toEqual([6_000_000, 4_500_000, 200_000]);
+    const sent = await call<PayAppDetailDto>(`${base}/pay-apps/${app1.id}`, { as });
+    expect(sent.computed.summary).toMatchObject({
+      netChangeByChangeOrdersCents: 0,
+      contractSumToDateCents: 10_000_000,
+      currentPaymentDueCents: 2_250_000,
+    });
   });
 
   it("bills period 2 against the previous application", async () => {

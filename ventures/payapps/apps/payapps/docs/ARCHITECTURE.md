@@ -91,7 +91,11 @@ migrations/            D1 migrations (drizzle-kit generate)
   rewrite figures the GC already has.
 - **change_order** + **change_order_item**: adjusts existing lines or creates new ones (negative
   amounts are deductions). `pending` → `approved` (with `approvedOn`) | `rejected`. An approved change
-  order counts in every pay app whose `periodTo` is on/after `approvedOn`.
+  order counts in every pay app whose `periodTo` is on/after `approvedOn`. One signed on or before the
+  end of a pay app already submitted keeps its true `approvedOn` and gets `countsFrom`, the day after
+  that period, which the math reads instead (`changeOrderCountsFrom` in `shared/payapp-math.ts`), so
+  the submitted application never changes (until 2026-11-27 such a date was refused, which forced a
+  false approval date whenever the GC signed the day the pay app went in).
 - **pay_app**: numbered 1..n per project, `periodFrom..periodTo`, its own retainage rates (inherited
   from the previous app, so a reduction to 5% carries forward). `draft` → `submitted` → `certified`
   (GC-certified amount, may differ) → `paid`.

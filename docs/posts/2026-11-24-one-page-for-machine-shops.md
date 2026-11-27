@@ -961,18 +961,19 @@ the buyers and the limits are in
 ## Update, 27 November 2026: two pricing guides on the Job Shop Quote site
 
 The second problem above, pricing from your own rates, now has two guides on
-the product's own site, each with a worked example whose figures are computed
-in code and checked by hand in a test:
+the product's own site. Each has a worked example whose figures are computed
+in code and checked in a test:
 
 - [How to work out a machine shop hourly rate](https://marisstella.app/jobshop/machine-shop-hourly-rate):
   machine ownership, overhead, operator burden and billable hours.
-- [How to quote a CNC machined part](https://marisstella.app/jobshop/how-to-quote-cnc-machining):
-  material, setup, cycle time, fallout, an outside finish with its lot
-  minimum, and markup, for a made-up aluminum bracket at 1, 10, 50 and 250
-  pieces. At one piece the setup alone is $150 of the part's cost; at 250 it
-  is 60 cents, which is why one price at every quantity loses either the small
-  orders' money or the large orders.
+- [How to quote a CNC machining job](https://marisstella.app/jobshop/how-to-quote-cnc-machining):
+  material from the blank, setup, cycle time, an outside finish with its lot
+  minimum, fallout and markup, for a made-up aluminum bracket at 1, 10 and 100
+  parts. The same $278.67 of setup is 47% of the price of one part and 4% at a
+  hundred, so the price each falls from $587.26 to $71.65. One price at every
+  quantity gives away money on the small orders or loses the large ones.
 
-The part guide's arithmetic is the same model Job Shop Quote prices with, and
-its test runs the app's own costing engine on the same bracket and fails if a
-single break differs by a cent. All the figures are made up and labelled so.
+The quoting guide's figures come from the same arithmetic Job Shop Quote
+prices with. A test in the app runs its own costing engine on the same
+bracket and fails if any quantity break differs by a cent. All the figures
+are made up, and the guide says so.
