@@ -7,7 +7,7 @@
 // Files go under dist/<base path>/ (dist/payapps/pricing.html is served at /payapps/pricing), so
 // Workers static assets need no base_path setting. public/_headers is the exception: it must sit at
 // the assets root (dist/_headers).
-import { copyFileSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { basePathOf, DEFAULT_SITE_URL } from "@shared/site";
@@ -38,10 +38,10 @@ for (const [rel, contents] of files) write(rel, contents);
 
 copyFileSync(join(root, "src/site/styles.css"), join(out, "styles.css"));
 for (const name of readdirSync(join(root, "public"))) {
-  copyFileSync(
-    join(root, "public", name),
-    name === "_headers" ? join(dist, name) : join(out, name),
-  );
+  // shots/ (the app screenshots) is a folder; everything else is a file.
+  cpSync(join(root, "public", name), name === "_headers" ? join(dist, name) : join(out, name), {
+    recursive: true,
+  });
 }
 
 const launch = launchOf({ appUrl, paidOn });

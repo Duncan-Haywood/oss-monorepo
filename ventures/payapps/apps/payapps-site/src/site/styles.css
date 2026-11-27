@@ -462,6 +462,61 @@ textarea {
   max-width: 44rem;
 }
 
+/* screenshots of the app (pages.ts appShots) */
+.shots {
+  display: grid;
+  gap: 1.75rem;
+  align-items: start;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 52rem) {
+  .shots {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+  }
+}
+
+.shot {
+  margin: 0;
+  min-width: 0;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 10px 28px -14px rgb(0 0 0 / 0.25);
+  background: #ffffff;
+}
+
+/* On a phone the phone still comes first: the laptop one is too small to read until opened. */
+@media (max-width: 51.99rem) {
+  .shot-phone {
+    order: -1;
+  }
+}
+
+.shot-link {
+  display: block;
+  border-radius: var(--radius);
+}
+
+.shot-phone img {
+  max-width: 15rem;
+  margin-inline: auto;
+  border-radius: 1.1rem;
+}
+
+.shot figcaption {
+  color: var(--neutral-600);
+  font-size: 0.92rem;
+  margin-top: 0.7rem;
+}
+
 /* hero worked example (src/site/example.ts) */
 .hero-grid {
   display: grid;

@@ -29,3 +29,30 @@ describe("home page worked example", () => {
     expect(home).not.toContain("style=");
   });
 });
+
+describe("home page app screenshots", () => {
+  it("shows each committed still at its real size, with alt text and lazy loading", async () => {
+    const { readFileSync, readdirSync } = await import("node:fs");
+    const { SHOTS_DIR } = await import("@site/catalogue");
+    const home =
+      buildSite({ siteUrl: "https://marisstella.app/payapps", appUrl: null }).get("index.html") ??
+      "";
+    const imgs = [...home.matchAll(/<img src="\/payapps\/shots\/([^"]+)"([^>]*)>/g)];
+    expect(imgs.map((m) => m[1]).sort()).toEqual(readdirSync(SHOTS_DIR).sort());
+    for (const [, name, attrs] of imgs) {
+      // A VP8X WebP header stores canvas width-1 and height-1 as 24-bit little-endian at 24 and 27.
+      const b = readFileSync(`${SHOTS_DIR}/${name}`);
+      expect(b.subarray(12, 16).toString("latin1"), name).toBe("VP8X");
+      const w = b.readUIntLE(24, 3) + 1;
+      const h = b.readUIntLE(27, 3) + 1;
+      const [, cw, ch] = /width="(\d+)" height="(\d+)"/.exec(attrs ?? "") ?? [];
+      // The phone still is captured at 2x; the attributes give its CSS size.
+      const scale = w / Number(cw);
+      expect([1, 2], `${name} is ${w}x${h}, attributes say ${cw}x${ch}`).toContain(scale);
+      expect(h / scale, name).toBe(Number(ch));
+      expect(attrs).toMatch(/loading="lazy"/);
+      expect(attrs).toMatch(/alt="[^"]{40,}"/);
+    }
+    expect(home).toContain("Nothing here is a customer's job.");
+  });
+});

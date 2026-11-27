@@ -97,6 +97,28 @@ export function homeFaq(ctx: SiteContext): readonly Faq[] {
   ];
 }
 
+/**
+ * Screenshots of the app itself (public/shots/), captured from a local copy of apps/payapps by
+ * `pnpm stills` there, with the worked example's made-up job, so the two agree to the cent. The
+ * capture asserts those figures before it takes the pictures.
+ */
+function appShots(ctx: SiteContext): Html {
+  return html`<section class="wrap section" aria-labelledby="shots-h">
+  <h2 id="shots-h">What it looks like in the app</h2>
+  <p>Screenshots of ${PRODUCT_NAME} itself, with the same made-up electrical job as the worked example, so the figures match. Nothing here is a customer's job.</p>
+  <div class="shots">
+    <figure class="shot shot-wide">
+      <a class="shot-link" href="${href(ctx, "/shots/pay-app-2-desktop.webp")}"><img src="${href(ctx, "/shots/pay-app-2-desktop.webp")}" width="1280" height="860" loading="lazy" decoding="async" alt="PayApps on a laptop: pay application #2 for the job Harbor Clinic Fit-out, period October 1 to 31, 2026. The continuation sheet lists four lines (rough-in, switchgear and panels, lighting fixtures, trim and close-out) with this period's work and stored materials typed in, and totals of $102,100.00 completed and stored to date and $10,210.00 retainage."></a>
+      <figcaption>The continuation sheet (open it for full size). Type this month's work and stored materials on each line; completed to date, percent complete, balance to finish and retainage are worked out as you type.</figcaption>
+    </figure>
+    <figure class="shot shot-phone">
+      <img src="${href(ctx, "/shots/pay-app-2-summary-phone.webp")}" width="358" height="569" loading="lazy" decoding="async" alt="The application summary on a phone: contract sum $210,000.00, completed and stored to date $102,100.00, retainage $8,980.00 on completed work and $1,230.00 on stored materials, less previous certificates $52,560.00, current payment due $39,330.00.">
+      <figcaption>The summary on a phone, for checking the numbers from the truck before you send it.</figcaption>
+    </figure>
+  </div>
+</section>`;
+}
+
 function home(ctx: SiteContext): BuiltPage {
   const page = PAGES.home;
   const l = launchOf(ctx);
@@ -113,6 +135,8 @@ function home(ctx: SiteContext): BuiltPage {
     ${examplePanel()}
   </div>
 </section>
+
+${appShots(ctx)}
 
 <section class="wrap section">
   <h2>What billing day looks like for a lot of subs</h2>

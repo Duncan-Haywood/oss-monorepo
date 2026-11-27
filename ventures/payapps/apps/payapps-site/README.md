@@ -22,6 +22,9 @@ separately). Pages: home, features, pricing, early access, privacy. It also serv
   everything else is **next**.
 - Prices are the app's own plans (`apps/payapps/src/shared/plans.ts`); `test/unit/plans-sync.test.ts`
   fails when the pricing page drifts from them.
+- Screenshots of the app (`public/shots/`) come only from `pnpm stills` in `apps/payapps`: the real
+  app, the worked example's made-up job, figures asserted before capture. Re-run it after a UI
+  change, then `pnpm export:catalogue`. No mock-ups standing in for the product.
 - No competitor comparisons until they come with sourced, dated facts (see `docs/PRICING.md`, "Market check").
 - Wherever pay-app forms, waivers or retainage come up: "not affiliated with the AIA, does not produce
   AIA Contract Documents, not legal advice" (`NOT_AIA_NOTE`).

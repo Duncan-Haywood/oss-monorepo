@@ -9,7 +9,7 @@
 // Regenerate with `pnpm export:catalogue` after any change to the pages, plans or launch switch.
 //
 // Node only (reads public/ and styles.css from disk); never imported by the Worker.
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DEFAULT_SITE_URL } from "@shared/site";
@@ -24,14 +24,23 @@ export const CATALOGUE_EXPORT_DIR = join(ROOT, "catalogue-export");
  */
 const LEFT_OUT = new Set(["404.html", "_headers"]);
 
-/** Every file of the catalogue copy, path under /payapps/ -> contents, at the constants' launch state. */
-export function catalogueFiles(): Map<string, string> {
-  const files = new Map<string, string>();
+/** The app screenshots the pages show (public/shots/, written by apps/payapps `pnpm stills`). */
+export const SHOTS_DIR = join(ROOT, "public", "shots");
+
+/**
+ * Every file of the catalogue copy, path under /payapps/ -> contents, at the constants' launch state.
+ * Text files are strings; the screenshots are bytes.
+ */
+export function catalogueFiles(): Map<string, string | Buffer> {
+  const files = new Map<string, string | Buffer>();
   const built = buildSite({ siteUrl: DEFAULT_SITE_URL, earlyAccess: false });
   for (const [rel, contents] of built) if (!LEFT_OUT.has(rel)) files.set(rel, contents);
   files.set("styles.css", readFileSync(join(ROOT, "src/site/styles.css"), "utf8"));
   for (const name of ["favicon.svg", "og.svg"]) {
     files.set(name, readFileSync(join(ROOT, "public", name), "utf8"));
+  }
+  for (const name of readdirSync(SHOTS_DIR)) {
+    files.set(`shots/${name}`, readFileSync(join(SHOTS_DIR, name)));
   }
   return new Map([...files].sort(([a], [b]) => a.localeCompare(b)));
 }
