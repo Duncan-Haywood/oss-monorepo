@@ -5,9 +5,9 @@
 // `service.ingest` call the Cloudflare Worker makes, so threads, flags,
 // guardrails and the agent API are unchanged.
 //
-// What still has to be written for the move (README.md, "Portability"):
-// a DynamoDB + S3 store passing store.test.mjs's contract, and a Lambda
-// entry that builds createService({ store, sender: portSender(sesSender(...)),
+// The store is dynamoS3Store in ./dynamo-store.mjs. What still has to be
+// written for the move (README.md, "Portability"): the table and bucket in
+// the email-ops stack, and a Lambda entry that builds createService({ store, sender: portSender(sesSender(...)),
 // alerter, ... }) and passes HTTP requests to service.api through the
 // function-URL adapter platform/edge/aws/lambda.mjs already has.
 
