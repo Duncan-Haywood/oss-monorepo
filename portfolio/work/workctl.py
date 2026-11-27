@@ -149,6 +149,35 @@ def commit_files(days: int, repo: Path = REPO, ref: str = "origin/main") -> tupl
     return commits, oldest
 
 
+# Notes that already log a multi-PR task's progress ("Part 1 done ...", "Left: ...") make the
+# merged-PR warning noise: on 2026-11-27 eight move-* tasks were tagged on main and all eight
+# were rightly still open with what is left written down.
+PROGRESS_NOTE = re.compile(r"\b(Left|Next|Progress|Part \d|Step \d)\b")
+
+
+def merged_subjects(days: int, repo: Path = REPO, ref: str = "origin/main") -> list[str]:
+    since = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%d")
+    out = subprocess.run(["git", "log", ref, f"--since={since}", "--format=%s"],
+                         cwd=repo, capture_output=True, text=True)
+    return out.stdout.splitlines()
+
+
+def merged_mentions(task_ids, subjects: list[str]) -> dict[str, list[str]]:
+    """Open task id -> merged PR numbers whose title tags it ([work:<id>] or [<id>]).
+
+    A task left `status: open` after the PR that finished it merged was ranked first by
+    `next` (five sessions, 2026-11-27, on public-repo-audit); a tag on main is the cheap
+    signal. A task can take several PRs, so this warns rather than skips."""
+    found: dict[str, list[str]] = {}
+    for subj in subjects:
+        tags = set(re.findall(r"\[(?:work:)?([a-z0-9][a-z0-9-]*)\]", subj))
+        pr = re.search(r"\(#(\d+)\)\s*$", subj)
+        for tid in task_ids:
+            if tid in tags:
+                found.setdefault(tid, []).append(f"#{pr.group(1)}" if pr else subj[:60])
+    return found
+
+
 def coverage(directions: list[dict], commits: list[list[str]]) -> dict[str, int]:
     """Commits touching each area's paths. One commit can count for several."""
     counts: dict[str, int] = {}
@@ -226,12 +255,17 @@ def cmd_next(args, directions, tasks) -> int:
     counts = coverage(directions, commits)
     taken, note = taken_ids(args.offline)
     ranked = rank(directions, tasks, counts, taken)
+    unlogged = {t["id"] for _, t in ranked[: args.n] if not PROGRESS_NOTE.search(str(t.get("notes", "")))}
+    merged = merged_mentions(unlogged, merged_subjects(max(args.days, 14)))
     print(f"Open tasks, best first ({note}; {len(commits)} commits on main in {args.days} days"
           + (f", local history from {oldest}" if oldest else "") + "):")
     for score, t in ranked[: args.n]:
         print(f"  {score:>5}  {t['id']}  ({t['direction']}, {counts.get(t['direction'], 0)} recent commits)")
         print(f"         {t['title']}")
         print(f"         done when: {' '.join(str(t['done_when']).split())}")
+        if t["id"] in merged:
+            print(f"         already merged on main: {', '.join(merged[t['id']])}: if that finished it,"
+                  " set status: done in tasks.yaml; if not, say what is left in its notes")
     if not ranked:
         print("  none open: add tasks to portfolio/work/tasks.yaml under a starved direction")
     elif ranked:

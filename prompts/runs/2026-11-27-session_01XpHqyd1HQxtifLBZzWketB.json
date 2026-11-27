@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyd1HQxtifLBZzWketB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T22:39:20Z",
+  "ended": "2026-11-27T22:46:47Z",
+  "wall_minutes": 7.62,
+  "tokens_in": 7593918,
+  "tokens_out": 28370,
+  "cost_usd": 3.0837,
+  "tool_calls": 71,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19902",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "Built /how-to-quote-cnc-machining in parallel with session_01XpHqybjdJCP4r6Vw4FBrqM. Its PR #19899 landed the same slug and route while mine was in CI; mine was a subset (same bracket, fewer operations), so I dropped it and landed only the customer post update. A force-push to reset the branch was refused, so main was merged in and main's jobshop-site files were taken instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets offered jobshop-quote item #3 (launch) as 'free and not gated', but what is left of it is all owner steps (inbound domain, R2 token, AI key, Paddle), so the pick sent the run to read an item it could not move."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bets #1, #4 and #5 have every ROADMAP Next item waiting on demand and their front-door SEO is dense (65+ pay-app guide pages). Finding a real gap took about 15 tool calls; a list of which front-door search topics are already covered per bet would save that."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "My --slug claim on how-to-quote-cnc-machining succeeded and slug_dupe found nothing, yet a parallel session was building the same page under the same slug, so two sessions built the same guide at once. The claim check does not see sessions that never pushed a claim branch."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is the top bet's product slice, but every free payapps item waits on demand and jobshop #3's remainder is owner-only. I took bet #2's public side instead: an SEO guide on its marketing site, which had only one guide.",
+      "did": "Built the /how-to-quote-cnc-machining guide, cross-checked against the app's computeCost.",
+      "result": "Landed with tests green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (27 November update linking both jobshop pricing guides)"
+  ],
+  "goal": null,
+  "notes": "Local checks in ventures/jobshop-quote/apps/jobshop-site: pnpm typecheck clean; pnpm test 74 unit + 13 worker passed; biome check clean; risk_review: nothing blocked. Duplicate: my site page (the first commit on this PR; local typecheck, 74 unit + 13 worker tests and CI all green) was replaced by #19899's page. The merged PR carries only the post update and this record.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e461ee48-ebee-59e5-bd32-c5844fab4c4f",
+    "transcripts": 1,
+    "first": "2026-11-27T22:39:20Z",
+    "last": "2026-11-27T22:46:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 134,
+        "output": 28370,
+        "thinking": 4556,
+        "cache_read": 7465957,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127827,
+        "api_equivalent_usd": 3.0837,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 134,
+      "output": 28370,
+      "thinking": 4556,
+      "cache_read": 7465957,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127827,
+      "api_equivalent_usd": 3.0837,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 68,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.62,
+      "active_minutes": 7.62,
+      "model_minutes": 5.52,
+      "tool_minutes": 2.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a senior estimator-writer drafting the guide, the worked example and its test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 129.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

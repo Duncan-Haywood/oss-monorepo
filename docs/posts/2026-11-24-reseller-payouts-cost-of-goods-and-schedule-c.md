@@ -128,6 +128,30 @@ expenses that are not tied to one sale, such as ads bought separately,
 subscriptions and supplies, so a lot can show as paid back and still have
 lost money once those are counted. The page says so.
 
+## Which stores pay? Profit by where you buy (added 2026-11-27)
+
+Most resellers' sourcing sheets have a "where bought" column, and the
+question behind it is which thrift store, estate sale or bins run is worth
+the drive. Seller Books now answers it on the stock report. Each item can
+carry where it was bought: typed on the Inventory page (with the places
+you have used before offered, so one store keeps one spelling), read from a
+sourcing sheet's `Where Bought`, `Source`, `Store` or `Vendor` column, or,
+for an item in a lot, taken from the lot's vendor. "Goodwill Main St" and
+"goodwill  main st" count as one place. A `Location` column is not read as
+a source, since in most sheets it means the shelf or bin.
+
+For the items sold in the period, the table shows, per source, the
+proceeds (the same proceeds as the lot table above), their cost of goods,
+the profit between the two, that profit as a return on the cost, the median
+days to sell, and what is still unsold from that source. The app's test
+example: two Goodwill items that cost $18.00 sold for $55.00 in proceeds, a
+$37.00 profit and a 206% return; one estate-sale item that cost $15.00
+brought $12.00, a $3.00 loss. Like the lot figures, this comes before
+expenses not tied to a sale, and the miles driven to each store are among
+them, so a far-off store's return reads higher than it really is. The
+free inventory spreadsheet already had a `Where Bought` column; it now
+imports along with the rest.
+
 ## The fee figures, rechecked
 
 Each of the ten tools states its marketplace's current fee in a sourced lead,

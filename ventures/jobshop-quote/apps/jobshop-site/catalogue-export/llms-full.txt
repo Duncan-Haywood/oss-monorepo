@@ -137,7 +137,8 @@ This is how Job Shop Quote works. It is new, and the first shops on it shape wha
 You enter how your shop prices work: each machine or work center and its hourly rate,
 setup charges, material costs or markups, outside processes such as anodizing, plating or heat treat
 with what your vendors charge, minimum order values, quantity breaks and how you round. This rate
-table is the only place prices come from.
+table is the only place prices come from. Not sure what an hour on a machine costs you?
+Work out a machine's hourly rate.
 
 -
 
@@ -457,7 +458,11 @@ books, a worked example, and the mistakes that make a rate too low.
 
 - What the machine costs you each year. Take the installed price, subtract what you
 expect to sell it for, and divide by the years you will run it. Add a year of maintenance, tooling,
-coolant and power for that machine. If you financed it, the interest belongs here too.
+coolant and power for that machine. If you financed it, the interest belongs here too. Power is
+hours run × average draw in kW (well under the nameplate) × your price per kWh; the US average
+commercial price was 14.27¢ in September 2026
+(EIA Electric Power Monthly, Table 5.6.A,
+read 2026-11-27), and states differ a lot, so use your own bill.
 
 - Its share of overhead. Rent, insurance, utilities, the office, the estimator, software
 and everything else that does not belong to one machine, split across your machines. Splitting by
@@ -469,7 +474,9 @@ remakes and idle time all come out. Your job records are the best source; a gues
 rate more than any other number.
 
 - The operator. Wage plus payroll taxes, workers' comp, insurance and benefits gives
-the cost of a paid hour. The operator is paid for more hours than the machine bills, so spread the
+the cost of a paid hour. The employer's Social Security and Medicare alone are
+7.65% of wages (IRS Topic no. 751,
+read 2026-11-27); your payroll reports give the rest as a percentage. The operator is paid for more hours than the machine bills, so spread the
 whole paid year over the billable hours. One operator tending two machines splits that cost between them.
 
 - Add the profit. Divide the cost of a billable hour by one minus your margin. A 20%
@@ -492,6 +499,19 @@ $99.08 to $71.08 an hour.
 
 - Divide by every paid hour instead of billable hours (the common shortcut of about 2,000 hours a
 year) and the cost comes out at $64.40 an hour: $34.68 an hour short, on every hour you bill.
+
+### Utilization moves the rate most
+
+The same made-up mill and costs, billing more or fewer of the operator's 2,000 paid hours:
+
+Only billable hours change; the margin stays 20%.
+Billable hoursUtilizationCost an hourRate at 20% margin
+
+1,80090%$71.56$89.441,60080%$80.50$100.631,300 (the example)65%$99.08$123.851,00050%$128.80$161.0080040%$161.00$201.25
+
+Almost every cost is fixed for the year, so each hour you cannot bill is paid for by the hours you
+can. A rate set for a busy year loses money in a slow one; set it on the utilization your job records
+show, and rework it when the backlog changes.
 
 ### Mistakes that make a rate too low
 

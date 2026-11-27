@@ -6,6 +6,7 @@ import {
   type StockItemInput,
   type StockSaleInput,
   saleProceeds,
+  sourceKey,
 } from "@worker/services/books/stock";
 import { describe, expect, it } from "vitest";
 
@@ -237,5 +238,139 @@ describe("buildStockReport", () => {
       lots: [{ id: "free", name: "Curb find", acquiredDate: "2026-01-05", totalCostCents: 0 }],
     });
     expect(r4.lots[0]).toMatchObject({ recoveredPercent: null, paybackCents: 0, items: 0 });
+  });
+});
+
+describe("profit by source", () => {
+  const report = () =>
+    buildStockReport({
+      asOf: "2026-06-30",
+      from: "2026-04-01",
+      to: "2026-06-30",
+      lots: [
+        {
+          id: "L1",
+          name: "Estate sale",
+          acquiredDate: "2026-02-01",
+          totalCostCents: 3000,
+          vendor: "Estate sale on Elm",
+        },
+        {
+          id: "L2",
+          name: "Bin haul",
+          acquiredDate: "2026-02-01",
+          totalCostCents: 500,
+          vendor: null,
+        },
+      ],
+      items: [
+        // Goodwill, typed two ways: one source. Sold for 50.00 net on a 10.00 cost, and 5.00 net on 8.00.
+        item({
+          id: "g1",
+          source: "Goodwill",
+          acquiredDate: "2026-03-01",
+          costCents: 1000,
+          status: "sold",
+          disposedDate: "2026-04-11",
+        }),
+        item({
+          id: "g2",
+          source: "  goodwill ",
+          acquiredDate: "2026-03-10",
+          costCents: 800,
+          status: "sold",
+          disposedDate: "2026-05-10",
+        }),
+        item({ id: "g3", source: "GOODWILL", acquiredDate: "2026-03-20", costCents: 400 }),
+        // Sold before the window: neither sold nor in stock in this report.
+        item({
+          id: "g4",
+          source: "Goodwill",
+          acquiredDate: "2026-01-02",
+          costCents: 100,
+          status: "sold",
+          disposedDate: "2026-03-01",
+        }),
+        // A lot item takes the lot's vendor; its own source wins when typed.
+        item({
+          id: "e1",
+          lotId: "L1",
+          acquiredDate: "2026-02-01",
+          costCents: 1500,
+          status: "sold",
+          disposedDate: "2026-06-01",
+        }),
+        item({
+          id: "e2",
+          lotId: "L1",
+          acquiredDate: "2026-02-01",
+          costCents: 1500,
+          source: "Goodwill",
+        }),
+        // No source and a lot with no vendor: the "no source" row, listed last.
+        item({
+          id: "n1",
+          acquiredDate: "2026-04-01",
+          costCents: 200,
+          status: "sold",
+          disposedDate: "2026-04-02",
+        }),
+        item({ id: "n2", lotId: "L2", acquiredDate: "2026-02-01", costCents: 500 }),
+        // Written off: not sold, not in stock.
+        item({ id: "w1", source: "Goodwill", status: "written_off", disposedDate: "2026-04-05" }),
+      ],
+      sales: [
+        order({ itemId: "g1", date: "2026-04-11", itemCents: 6000, feesCents: 1000 }),
+        order({
+          itemId: "g2",
+          date: "2026-05-10",
+          itemCents: 1000,
+          feesCents: 200,
+          shippingLabelCents: 300,
+        }),
+        order({ itemId: "g4", date: "2026-03-01", itemCents: 900 }),
+        order({ itemId: "e1", date: "2026-06-01", itemCents: 1200 }),
+        order({ itemId: "n1", date: "2026-04-02", itemCents: 1000 }),
+      ],
+    }).sources;
+
+  it("groups spellings, takes the lot vendor, and ranks by profit with no-source last", () => {
+    expect(sourceKey(" Goodwill  Store ")).toBe(sourceKey("goodwill store"));
+    expect(sourceKey("  ")).toBe("none");
+    expect(report()).toEqual([
+      {
+        source: "Goodwill",
+        sold: 2,
+        proceedsCents: 5000 + 500,
+        costCents: 1800,
+        profitCents: 3700,
+        returnPercent: 206,
+        medianDays: 51,
+        inStock: 2,
+        inStockCostCents: 400 + 1500,
+      },
+      {
+        source: "Estate sale on Elm",
+        sold: 1,
+        proceedsCents: 1200,
+        costCents: 1500,
+        profitCents: -300,
+        returnPercent: -20,
+        medianDays: 120,
+        inStock: 0,
+        inStockCostCents: 0,
+      },
+      {
+        source: null,
+        sold: 1,
+        proceedsCents: 1000,
+        costCents: 200,
+        profitCents: 800,
+        returnPercent: 400,
+        medianDays: 1,
+        inStock: 1,
+        inStockCostCents: 500,
+      },
+    ]);
   });
 });

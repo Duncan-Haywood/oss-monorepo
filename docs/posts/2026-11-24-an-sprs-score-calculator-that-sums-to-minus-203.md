@@ -127,7 +127,7 @@ assessment, since rules change.
 
 Phase 2 would have started requiring third-party Level 2 certification on
 10 November 2026. The Department of War suspended it on
-[13 July 2026](https://www.war.gov/News/Releases/Release/Article/4542329/forging-the-arsenal-of-freedom-department-of-war-suspends-cmmc-phase-ii-require/).
+[13 July 2026](https://www.war.gov/News/Releases/Release/Article/4542563/forging-the-arsenal-of-freedom-department-of-war-suspends-cmmc-phase-ii-require/).
 Level 1 and Level 2 self-assessments still apply, and so does DFARS
 252.204-7012. We found no announced restart date. The
 [Level 1 vs Level 2 guide](https://marisstella.app/machine-shop-guides/cmmc-level-1-vs-level-2.html)

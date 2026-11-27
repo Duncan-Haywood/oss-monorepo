@@ -61,7 +61,8 @@ export function hubFacts(hub, name) {
   if (at < 0) throw new Error(`${HUB}: no "What each state asks of you" entry for ${name}`);
   const ulStart = hub.indexOf("<ul>", at);
   const ul = hub.slice(ulStart, hub.indexOf("</ul>", ulStart) + 5);
-  return { statuteUrl: row[1], statute: row[2], forms: row[3], strict: row[4], rules: ul };
+  // The href comes out of the hub HTML already escaped; unescape it so esc() on the page escapes once.
+  return { statuteUrl: unescape(row[1]), statute: row[2], forms: row[3], strict: row[4], rules: ul };
 }
 
 // A blank: a rule with what goes there captioned under it. Inline, so it wraps with the sentence.

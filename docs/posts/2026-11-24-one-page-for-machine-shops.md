@@ -957,3 +957,54 @@ about 14,600 machine shops under 20 employees. The rest of defense machining,
 and with it most CMMC, reaches shops through a prime's flow-down. The counts,
 the buyers and the limits are in
 [432 small machine shops sold to DoD directly last year](https://marisstella.app/writing/how-many-machine-shops-sell-to-dod-directly/).
+
+## Update, 27 November 2026: two pricing guides on the Job Shop Quote site
+
+The second problem above, pricing from your own rates, now has two guides on
+the product's own site. Each has a worked example whose figures are computed
+in code and checked in a test:
+
+- [How to work out a machine shop hourly rate](https://marisstella.app/jobshop/machine-shop-hourly-rate):
+  machine ownership, overhead, operator burden and billable hours.
+- [How to quote a CNC machining job](https://marisstella.app/jobshop/how-to-quote-cnc-machining):
+  material from the blank, setup, cycle time, an outside finish with its lot
+  minimum, fallout and markup, for a made-up aluminum bracket at 1, 10 and 100
+  parts. The same $278.67 of setup is 47% of the price of one part and 4% at a
+  hundred, so the price each falls from $587.26 to $71.65. One price at every
+  quantity gives away money on the small orders or loses the large ones.
+
+The quoting guide's figures come from the same arithmetic Job Shop Quote
+prices with. A test in the app runs its own costing engine on the same
+bracket and fails if any quantity break differs by a cent. All the figures
+are made up, and the guide says so.
+
+## Update, 27 November 2026: what the cyber clauses on a defense PO ask
+
+A defense purchase order often ends with a block of clause numbers: FAR
+52.204-21 and DFARS 252.204-7008, -7012, -7019, -7020, -7021, -7024 and
+-7025. They read as one blur, but they ask different things at different
+times. [DFARS cybersecurity clauses
+explained](https://marisstella.app/cmmc/dfars-cybersecurity-clauses) takes
+each one in turn. It says whether the item is a provision (about your offer)
+or a clause (about the work), what it asks a small shop to do, and whether
+you have to pass it on to your heat treater, plater or overflow shop.
+
+Things the clause texts make plain that the lists hide:
+
+- 7019 is about getting the award: a NIST SP 800-171 score in SPRS no more
+  than 3 years old. 7020 is about the work: the government may assess you,
+  and you may not award a sub that needs 800-171 unless it has a Basic
+  Assessment from the last 3 years.
+- 7024 is not a cyber clause at all. It says SPRS risk ratings for item,
+  price, quality and delivery feed into the evaluation.
+- 7021 sets the clocks for CMMC. A Final Level 1 status lasts 1 year, a
+  Final Level 2 status 3 years and a Conditional one 180 days, each with a
+  yearly affirmation. Under DFARS 204.7504, until 9 November 2028 it goes
+  into contracts where the program office sets a level. From 10 November
+  2028 it goes into every contract where FCI or CUI will sit on your systems.
+
+Every quotation on the page is checked word for word against the clause
+text saved from the eCFR on 27 November 2026, and a test fails if one stops
+matching. The plain readings are ours, and the page says so. It ends on the
+free Level 1 plan of the CMMC workspace, which keeps the 15 FAR 52.204-21
+requirements, their evidence and the next affirmation date in one place.

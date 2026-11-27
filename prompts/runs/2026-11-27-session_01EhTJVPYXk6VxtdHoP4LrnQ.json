@@ -1,0 +1,453 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVPYXk6VxtdHoP4LrnQ",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T22:56:06Z",
+  "ended": "2026-11-27T22:56:46Z",
+  "wall_minutes": 3.84,
+  "tokens_in": 3488236,
+  "tokens_out": 13062,
+  "cost_usd": 1.6062,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19905",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "campaign's last-line tally reports only that campaign (\"seeded 8 caught 8\" after the second), not the record's total; easy to misread as the run's figure. tally on the record gives the total."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: a red-team run that adds one test and finds no real defect has nothing a customer would search for; folding it into a post would be thin.",
+      "did": "Wrote the findings in the PR body and this record only.",
+      "result": "none needed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target payapps (bet #1). Campaigns: qbo-sync costs.ts 6/8 (2 equivalent: FakeCostBook seq step), retainage.ts 8/8, lien-waivers statutory.ts 1/5 (4 gaps: CA per-kind official URLs). Guard added: statutory.test.ts now ties every number in each citation's section to its official URL (GA/MS/WY whole-document sources exempted, with a test that the exemption still holds); it runs in ventures-tests/payapps-ci with no agent. rerun: all 4 gaps caught_after_fix true. Hunted QBO expense/PO mapping, PO import (closed-by-hand orders are left unticked by design), retainage plan arithmetic and all 17 distinct citation/URL pairs across 51 jurisdictions: no real defects. Verification: lien-waivers node --test 274/274 pass; tsc/biome not run locally (no node_modules), left to payapps-ci.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/payapps/packages/qbo-sync/src/costs.ts",
+        "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/**/*.test.ts  (in ventures/payapps/packages/qbo-sync)",
+        "seed": 647893936,
+        "commit": "37e75c98b",
+        "sites": 114,
+        "baseline_seconds": 0.7,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/costs.ts",
+            "line": 272,
+            "col": 18,
+            "operator": "eq-flip",
+            "before": "...(txnType === \"Purchase\" && txn.PaymentType ? { paymentType: txn.PaymentType } : {}),",
+            "after": "...(txnType !== \"Purchase\" && txn.PaymentType ? { paymentType: txn.PaymentType } : {}),",
+            "line_text": "      ...(txnType === \"Purchase\" && txn.PaymentType ? { paymentType: txn.PaymentType } : {}),",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/costs.ts",
+            "line": 349,
+            "col": 41,
+            "operator": "or-to-and",
+            "before": "const status = txn.POStatus === \"Open\" || txn.POStatus === \"Closed\" ? txn.POStatus : null;",
+            "after": "const status = txn.POStatus === \"Open\" && txn.POStatus === \"Closed\" ? txn.POStatus : null;",
+            "line_text": "  const status = txn.POStatus === \"Open\" || txn.POStatus === \"Closed\" ? txn.POStatus : null;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/costs.ts",
+            "line": 420,
+            "col": 30,
+            "operator": "true-to-false",
+            "before": "return { rows, truncated: true };",
+            "after": "return { rows, truncated: false };",
+            "line_text": "    return { rows, truncated: true };",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/costs.ts",
+            "line": 426,
+            "col": 30,
+            "operator": "neq-flip",
+            "before": ".filter((c) => c.Active !== false)",
+            "after": ".filter((c) => c.Active === false)",
+            "line_text": "      .filter((c) => c.Active !== false)",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/costs.ts",
+            "line": 574,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "this.seq += 1;",
+            "after": "this.seq += 2;",
+            "line_text": "    this.seq += 1;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "FakeCostBook (the in-memory test/demo double) id counter: stepping by 2 keeps every id unique and nothing reads the numbering; no user-visible change."
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/costs.ts",
+            "line": 587,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "this.seq += 1;",
+            "after": "this.seq += 2;",
+            "line_text": "    this.seq += 1;",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "FakeCostBook (the in-memory test/demo double) id counter: stepping by 2 keeps every id unique and nothing reads the numbering; no user-visible change."
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/costs.ts",
+            "line": 647,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "const id = String(1000 + this.seq);",
+            "after": "const id = String(1001 + this.seq);",
+            "line_text": "    const id = String(1000 + this.seq);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/costs.ts",
+            "line": 675,
+            "col": 43,
+            "operator": "eq-flip",
+            "before": "this.purchaseOrders.find((t) => t.Id === txnId) ??",
+            "after": "this.purchaseOrders.find((t) => t.Id !== txnId) ??",
+            "line_text": "      this.purchaseOrders.find((t) => t.Id === txnId) ??",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+        "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/**/*.test.ts  (in ventures/payapps/packages/qbo-sync)",
+        "seed": 99092430,
+        "commit": "37e75c98b",
+        "sites": 40,
+        "baseline_seconds": 0.7,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 83,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "const released = input.retainageReleasedCents ?? 0;",
+            "after": "const released = input.retainageReleasedCents ?? 1;",
+            "line_text": "  const released = input.retainageReleasedCents ?? 0;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 85,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (released < 0)",
+            "after": "if (released < 1)",
+            "line_text": "  if (released < 0)",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 88,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (heldBefore !== undefined) checkCents(heldBefore, \"retainageHeldToDateCents\");",
+            "after": "if (heldBefore === undefined) checkCents(heldBefore, \"retainageHeldToDateCents\");",
+            "line_text": "  if (heldBefore !== undefined) checkCents(heldBefore, \"retainageHeldToDateCents\");",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 90,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "if (input.workLines.length === 0 && released === 0) {",
+            "after": "if (input.workLines.length !== 0 && released === 0) {",
+            "line_text": "  if (input.workLines.length === 0 && released === 0) {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 90,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "if (input.workLines.length === 0 && released === 0) {",
+            "after": "if (input.workLines.length === 1 && released === 0) {",
+            "line_text": "  if (input.workLines.length === 0 && released === 0) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 90,
+            "col": 47,
+            "operator": "eq-flip",
+            "before": "if (input.workLines.length === 0 && released === 0) {",
+            "after": "if (input.workLines.length === 0 && released !== 0) {",
+            "line_text": "  if (input.workLines.length === 0 && released === 0) {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 125,
+            "col": 30,
+            "operator": "plus-to-minus",
+            "before": "if (released > heldBefore + held) {",
+            "after": "if (released > heldBefore - held) {",
+            "line_text": "    if (released > heldBefore + held) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 151,
+            "col": 79,
+            "operator": "plus-to-minus",
+            "before": "retainageBalanceAfterCents: heldBefore === undefined ? null : heldBefore + held - released,",
+            "after": "retainageBalanceAfterCents: heldBefore === undefined ? null : heldBefore - held - released,",
+            "line_text": "      retainageBalanceAfterCents: heldBefore === undefined ? null : heldBefore + held - released,",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/lien-waivers/src/statutory.ts",
+        "test": "node --test test/**/*.test.ts  (in ventures/payapps/packages/lien-waivers)",
+        "seed": 14959114,
+        "commit": "37e75c98b",
+        "sites": 5,
+        "baseline_seconds": 1.6,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/statutory.ts",
+            "line": 135,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "\"conditional-progress\": caUrl(8132),",
+            "after": "\"conditional-progress\": caUrl(8133),",
+            "line_text": "      \"conditional-progress\": caUrl(8132),",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "California official link pointed at a neighbouring section with no test noticing; new test in statutory.test.ts ties every official URL to the numbers in its citation."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/statutory.ts",
+            "line": 136,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "\"unconditional-progress\": caUrl(8134),",
+            "after": "\"unconditional-progress\": caUrl(8135),",
+            "line_text": "      \"unconditional-progress\": caUrl(8134),",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "California official link pointed at a neighbouring section with no test noticing; new test in statutory.test.ts ties every official URL to the numbers in its citation."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/statutory.ts",
+            "line": 137,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "\"conditional-final\": caUrl(8136),",
+            "after": "\"conditional-final\": caUrl(8137),",
+            "line_text": "      \"conditional-final\": caUrl(8136),",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "California official link pointed at a neighbouring section with no test noticing; new test in statutory.test.ts ties every official URL to the numbers in its citation."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/statutory.ts",
+            "line": 138,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "\"unconditional-final\": caUrl(8138),",
+            "after": "\"unconditional-final\": caUrl(8139),",
+            "line_text": "      \"unconditional-final\": caUrl(8138),",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "California official link pointed at a neighbouring section with no test noticing; new test in statutory.test.ts ties every official URL to the numbers in its citation."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/statutory.ts",
+            "line": 304,
+            "col": 46,
+            "operator": "eq-flip",
+            "before": "return STATUTORY_STATES.find((s) => s.state === state);",
+            "after": "return STATUTORY_STATES.find((s) => s.state !== state);",
+            "line_text": "  return STATUTORY_STATES.find((s) => s.state === state);",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c588b271-e5bf-53ed-986b-0eb553594508",
+    "transcripts": 1,
+    "first": "2026-11-27T22:56:06Z",
+    "last": "2026-11-27T22:59:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 81,
+        "output": 13062,
+        "thinking": 3798,
+        "cache_read": 3405206,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82949,
+        "api_equivalent_usd": 1.6062,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 81,
+      "output": 13062,
+      "thinking": 3798,
+      "cache_read": 3405206,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82949,
+      "api_equivalent_usd": 1.6062,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.84,
+      "active_minutes": 3.84,
+      "model_minutes": 2.75,
+      "tool_minutes": 1.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -34,6 +34,8 @@ const lotInput = z.object({
         title: text(300).min(1),
         sku: text(100).nullish(),
         costCents: positiveCents.nullish(),
+        /** Where this item came from when not the lot's vendor. */
+        source: text(200).nullish(),
       }),
     )
     .max(500)
@@ -91,6 +93,7 @@ routes.post("/lots", requireRole("editor"), validate("json", lotInput), async (c
     acquiredDate: body.acquiredDate,
     costCents: i.costCents ?? 0,
     costIsManual: i.costCents != null,
+    source: i.source || null,
   }));
   const chunk = rowsPerInsert(inventoryItem);
   for (let i = 0; i < rows.length; i += chunk)
@@ -175,6 +178,8 @@ const itemInput = z.object({
   /** Omit for an item in a lot to take its share of the lot cost. */
   costCents: positiveCents.nullish(),
   lotId: z.string().nullish(),
+  /** Where it was bought (a store, a sale, a supplier); an item in a lot falls back to the lot's vendor. */
+  source: text(200).nullish(),
 });
 
 routes.get(
@@ -229,6 +234,7 @@ routes.post("/items", requireRole("editor"), validate("json", itemInput), async 
     acquiredDate,
     costCents: body.costCents ?? 0,
     costIsManual: body.costCents != null,
+    source: body.source || null,
   });
   if (body.lotId) await reallocateLot(c.var.ctx, orgId, body.lotId);
   const row = await c.var.ctx.db
@@ -270,6 +276,7 @@ routes.patch(
     z.object({
       title: text(300).min(1).optional(),
       sku: text(100).nullish(),
+      source: text(200).nullish(),
       acquiredDate: isoDate.optional(),
       /** A number sets a typed-in cost; null returns a lot item to its share of the lot. */
       costCents: positiveCents.nullable().optional(),
@@ -293,6 +300,7 @@ routes.patch(
     const patch: Partial<typeof inventoryItem.$inferInsert> = {};
     if (body.title !== undefined) patch.title = body.title;
     if (body.sku !== undefined) patch.sku = body.sku || null;
+    if (body.source !== undefined) patch.source = body.source || null;
     if (body.acquiredDate !== undefined) patch.acquiredDate = body.acquiredDate;
     if (body.costCents !== undefined) {
       if (body.costCents === null && !item.lotId)
