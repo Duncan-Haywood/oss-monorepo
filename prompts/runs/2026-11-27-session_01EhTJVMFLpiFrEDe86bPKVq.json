@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVMFLpiFrEDe86bPKVq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T17:56:00Z",
+  "ended": "2026-11-27T17:59:05Z",
+  "wall_minutes": 3.27,
+  "tokens_in": 3300989,
+  "tokens_out": 11101,
+  "cost_usd": 1.6044,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19826",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/seller-books/apps/seller-books/README.md",
+      "issue": "Still says 'Status: v0.1, not deployed' although two deploys ran on 2026-11-27; cost a detour to confirm via the Actions API."
+    },
+    {
+      "file": "ventures/seller-books/apps/seller-books/docs/DEPLOY.md",
+      "issue": "Said the workflow 'has not run yet' after two successful runs (fixed in this PR)."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported no free items on bets #1, #2, #4 and only owner-gated launch items on #3; the deploy-on-merge gap for #5 (merged features not live) is not something it detects. A check comparing the last deploy run's sha with later merges into the venture would surface it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new customer post: the change is CI/deploy plumbing with nothing new for a reseller to read.",
+      "did": "Recorded the reasoning in ventures/seller-books/DEPLOY.md instead.",
+      "result": "No post written."
+    }
+  ],
+  "writeups": [
+    "ventures/seller-books/DEPLOY.md (section 'Deploy on every merge')"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (security_next exit 3); ideas inbox empty. Routed ventures/1. PayApps (#1), Job Shop (#2), CMMC (#4) had no free Next items; einvoice (#3) launch waits on owner items. Seller Books (#5) had two good manual deploys but ~10 later merges never shipped; added the push trigger as payapps/cmmc/jobshop have. Local checks: publish_surface --check OK, ci_policy_check OK, adversarial gate 0 blocking (1 pre-existing || true warning), risk_review nothing blocked. Could not probe the live host (proxy 403 on marisstella.app).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9d09a419-28af-55fc-b1ea-4ab97e072e8b",
+    "transcripts": 1,
+    "first": "2026-11-27T17:56:00Z",
+    "last": "2026-11-27T17:59:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 65,
+        "output": 11101,
+        "thinking": 1958,
+        "cache_read": 3208370,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92554,
+        "api_equivalent_usd": 1.6044,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 65,
+      "output": 11101,
+      "thinking": 1958,
+      "cache_read": 3208370,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92554,
+      "api_equivalent_usd": 1.6044,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 30,
+      "ToolSearch": 1,
+      "mcp__github__actions_list": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.27,
+      "active_minutes": 3.27,
+      "model_minutes": 2.17,
+      "tool_minutes": 1.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 0.75,
+      "basis": "check run history, edit one workflow trigger and two docs, run CI policy checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 75.0
+    },
+    "leverage": 46.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
