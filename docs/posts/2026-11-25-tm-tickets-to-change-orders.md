@@ -2,6 +2,7 @@
 title: "T&M tickets and RFI answers: the extra work subcontractors do for free, and how to find it"
 seo_title: "T&M ticket and RFI log: chase extra work into change orders"
 date: 2026-11-25
+updated: 2026-11-27
 tags: [for-customers, payapps, construction, change-orders, tm-tickets, rfi, submittals, pay-app-guides]
 description: "A signed T&M ticket or an RFI answer that adds scope is not money until it is on an executed change order. How to log both and find the ones at risk."
 ---
@@ -64,6 +65,13 @@ Three habits keep that from happening, whatever tool you use:
 - **Close the loop**: once the answer adds scope, write the change order request, and keep
   track of which RFI it came from. An RFI answered with a cost impact and no change order is
   the one to chase.
+
+Writing the RFI itself well gets the answer back sooner: one question per RFI, the sheet, detail
+and spec section it is about, a proposed answer the design team can approve as written, and a
+needed-by date tied to the work waiting on it. A free
+[RFI drafter and guide](https://marisstella.app/pay-app-guides/how-to-write-an-rfi.html) builds
+that text in your browser and names what a reviewer usually sends an RFI back for. (Added
+2026-11-27.)
 
 The pay-app billing we are building now has an RFI log that works this way. Each job numbers its
 RFIs and shows which are open, which are past the response date you entered, and how long

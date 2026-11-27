@@ -149,6 +149,7 @@ export const PROBLEMS = [
       ['pay-app-guides/california-preliminary-notice.html', 'California 20-day preliminary notice', 'Working a private California job? Who gets the notice, the last day by delivery method, what a late one covers, and a printable draft.'],
       ['pay-app-guides/miller-act-payment-bond-claims.html', 'Miller Act bond claim deadlines', 'Not paid on a federal job? Who can claim on the payment bond, the 90-day notice date, the one-year limit, and a notice to the prime.'],
       ['pay-app-guides/pay-app-cash-forecast.html', 'When will I get paid? Cash forecast', 'Each job’s pay-app cutoff and pay terms in; the week each payment lands, late money and your first short week out.'],
+      ['pay-app-guides/how-to-write-an-rfi.html', 'How to write an RFI', 'One question, the sheet and spec section, a proposed answer and a needed-by date: draft an RFI the GC answers fast, and catch answers that should be change orders.'],
       ['pay-app-guides/certificate-of-insurance-for-subcontractors.html', 'Certificates of insurance', 'What a GC checks on your ACORD 25, the endorsement pages that prove additional insured and waiver of subrogation, and renewals that don’t stall a pay app.'],
       ['pay-app-guides/pay-application-software-compared.html', 'Pay application software compared', 'Spreadsheet, QuickBooks, Knowify, PayAppHub, Trimble Pay and Siteline, and what GC portals charge the sub.'],
     ],
