@@ -25,11 +25,13 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import subprocess
 import sys
 from pathlib import Path
 
 import yaml
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from repo_files import ls_files  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 CUT = re.compile(r"[ \t]+#\S")
@@ -83,9 +85,7 @@ def fix_text(text: str) -> tuple[str, int]:
 
 
 def tracked_yaml(repo: Path) -> list[str]:
-    out = subprocess.run(["git", "ls-files", "*.yaml", "*.yml"], cwd=repo,
-                         capture_output=True, text=True, check=True)
-    return [p for p in out.stdout.splitlines() if p not in SKIP]
+    return [p for p in ls_files(repo, "*.yaml", "*.yml") if p not in SKIP]
 
 
 def main(argv: list[str] | None = None) -> int:
