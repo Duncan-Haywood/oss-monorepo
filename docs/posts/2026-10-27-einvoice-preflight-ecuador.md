@@ -3,6 +3,7 @@ title: "E-invoice Preflight adds Ecuador, with RUC and clave de acceso tests"
 date: 2026-10-27
 description: "An Ecuador SRI page with two local checks, and why a 49-digit key's check digit catches every single typo."
 tags: [einvoice-preflight, e-invoicing, ecuador]
+folded_into: einvoice-preflight/ecuador-sri-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Ecuador](../../ventures/einvoice-preflight/ecuador-sri-e-invoice-mandate.html), the 48th in the all-countries table.

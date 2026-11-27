@@ -4,6 +4,7 @@ seo_title: "E-invoice Preflight adds Vietnam, with a tax code check"
 date: 2026-10-28
 description: "A Vietnam e-invoicing page with a local tax-code check, and what the sources do and do not settle."
 tags: [einvoice-preflight, e-invoicing, vietnam]
+folded_into: einvoice-preflight/vietnam-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Vietnam](../../ventures/einvoice-preflight/vietnam-e-invoice-mandate.html), the 49th in the all-countries table.

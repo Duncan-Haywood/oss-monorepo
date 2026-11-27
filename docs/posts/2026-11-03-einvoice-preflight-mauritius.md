@@ -4,6 +4,7 @@ date: 2026-11-03
 seo_title: "E-invoice Preflight adds Mauritius"
 description: "Mauritius page: every invoice registered with the revenue authority, first wave 15 May 2024, reported threshold MUR 40 million from 1 September 2026."
 tags: [einvoice-preflight, e-invoicing, mauritius]
+folded_into: einvoice-preflight/mauritius-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Mauritius](../../ventures/einvoice-preflight/mauritius-e-invoice-mandate.html), the 75th in the all-countries table. Compliance guides say businesses above a turnover threshold must issue invoices from an approved system that sends each one to the Mauritius Revenue Authority (MRA) platform and gets back an invoice registration number and a QR code. The first wave was 15 May 2024 (above MUR 100 million); two guides agree the threshold falls to MUR 40 million on 1 September 2026.

@@ -22,6 +22,13 @@
  * searches titles, summaries and full text; the podcast groups episodes by
  * their post's topic.
  *
+ * `folded_into:` (a site path: `<venture>/<page>`, `<venture>/` or
+ * `writing/<post-slug>/`) retires a thin post into the page that now carries
+ * its content: the post leaves every index, feed and the sitemap, and its URL
+ * becomes a redirect to that page (`foldTargetProblem` checks the target exists;
+ * the build fails if it does not). Consolidate this way instead of deleting a post, so its
+ * links keep working.
+ *
  * A second, smaller blog is written by agents for agents (LLM readers):
  * Markdown in `docs/agent-posts/`, same front matter, published at
  * `writing/agents/` with each post's raw Markdown beside its page (as
@@ -35,7 +42,7 @@
  * link from the hub. Rendering reuses the devlog's escaping Markdown renderer,
  * so a post cannot inject markup and repository paths become GitHub links.
  */
-import { promises as fs, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { promises as fs, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderMarkdown } from '../devlog/markdown.mjs';
@@ -45,6 +52,7 @@ import { loadResearchRegistry } from './research-registry.mjs';
 import { decodeEntities } from './entities.mjs';
 import { completeArticleNode } from './article-ld.mjs';
 import { softwareLines } from './business.mjs';
+import { stubPage } from './redirect-stubs.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -355,7 +363,49 @@ export function parseFrontMatter(src) {
  * took 48 minutes to go live (169 at worst). Pull requests stay strict, and
  * the `test` job still fails on `main`, so the bad post is still flagged.
  */
-export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, { skipBad = process.env.PAGES_SKIP_BAD_POSTS === '1' } = {}) {
+export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, opts = {}) {
+  return loadAllPosts(root, dirName, opts).filter((p) => !p.foldedInto);
+}
+
+/**
+ * Posts folded into another page (`folded_into:` in their front matter), newest
+ * first. They are left out of `loadPosts`, so no index, topic page, feed, search
+ * index, sitemap or llms.txt lists them; `buildWriting` writes a redirect at
+ * each one's old URL instead (owner, 2026-11-24: "consolidating blog posts to
+ * keep seo better"). A short "E-invoice Preflight adds Cyprus" announcement whose
+ * every fact is on the Cyprus page is one: two thin pages for one search split
+ * the signal, and the post's URL keeps working because the redirect names the
+ * page that absorbed it.
+ */
+export function loadFoldedPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, opts = {}) {
+  return loadAllPosts(root, dirName, opts).filter((p) => p.foldedInto);
+}
+
+// A site path, relative to the site root: `<slug>/<page>` (a venture page,
+// extensionless, as the site serves it), `<slug>/` or `writing/<post-slug>/`.
+// No scheme, no `..`, no `//`: a post must not become an open redirect.
+const FOLD_TARGET_RE = /^(?!.*\.\.)(?!.*\/\/)[a-z0-9][a-z0-9._-]*(?:\/[a-z0-9][a-z0-9._-]*)*\/?$/;
+
+/**
+ * The problem with a folded post's target, or '' when it resolves: a live
+ * (unfolded) post for `writing/<slug>/`, else a file in `ventures/<slug>/`
+ * (`<page>`, `<page>.html` or `<page>/index.html`) whose slug the site
+ * publishes (checked when `published` is given).
+ */
+export function foldTargetProblem(target, { root = DEFAULT_ROOT, live = new Set(), published = new Set() } = {}) {
+  const parts = target.replace(/\/$/, '').split('/');
+  if (parts[0] === 'writing') {
+    if (parts.length !== 2) return `"${target}" is not writing/<post-slug>/`;
+    return live.has(parts[1]) ? '' : `no live post "${parts[1]}"`;
+  }
+  if (published.size && !published.has(parts[0])) return `the site does not publish "${parts[0]}/"`;
+  const file = path.join(root, 'ventures', ...parts);
+  const isFile = (f) => existsSync(f) && statSync(f).isFile();
+  const found = parts.length === 1 ? isFile(path.join(file, 'index.html')) : [file, `${file}.html`, path.join(file, 'index.html')].some(isFile);
+  return found ? '' : `ventures/${parts.join('/')} (.html) does not exist`;
+}
+
+function loadAllPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, { skipBad = process.env.PAGES_SKIP_BAD_POSTS === '1' } = {}) {
   const POSTS_DIR = dirName; // shadows the module constant so every message names the directory read
   const dir = path.join(root, POSTS_DIR);
   if (!existsSync(dir)) return [];
@@ -422,9 +472,14 @@ function loadPost(root, POSTS_DIR, name, projects = NO_PROJECTS) {
     throw new Error(`${POSTS_DIR}/${name}: topic "${meta.topic}" is not one of ${[...TOPIC_IDS].join(', ')}`);
   }
   const tags = Array.isArray(meta.tags) ? meta.tags : [];
+  const foldedInto = meta.folded_into ? String(meta.folded_into) : '';
+  if (foldedInto && !FOLD_TARGET_RE.test(foldedInto)) {
+    throw new Error(`${POSTS_DIR}/${name}: folded_into "${foldedInto}" must be a site path such as einvoice-preflight/cyprus-e-invoice-mandate or writing/<post-slug>/`);
+  }
   const words = body.split(/\s+/).filter(Boolean).length;
   return {
     slug: fm[2],
+    foldedInto,
     date,
     title: meta.title,
     seoTitle: meta.seo_title ? String(meta.seo_title) : (String(meta.title).length > TITLE_BUDGET ? autoSeoTitle(String(meta.title)) : undefined),
@@ -1712,6 +1767,33 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
 // the address the site is actually built for, the way rewriteOrigin in
 // build.mjs treats venture pages. A relative link cannot do this: in a post,
 // relative paths are repository paths and render as GitHub links.
+/**
+ * A redirect at each folded post's old URL, `writing/<slug>/`, to the page that
+ * absorbed it: canonical, a zero-second refresh and `location.replace`, the stub
+ * the old GitHub Pages origin serves (`redirect-stubs.mjs`). Not in the returned
+ * page list, so the sitemap leaves them out. A target that does not resolve
+ * fails the build (a redirect to a 404 loses the URL's signal); under
+ * `PAGES_SKIP_BAD_POSTS=1` (the deploy on `main`) it is skipped with a warning
+ * instead, like a malformed post, and pull requests stay strict.
+ */
+async function writeFolded(outDir, live, { root, baseUrl, published }) {
+  const liveSlugs = new Set(live.map((p) => p.slug));
+  for (const p of loadFoldedPosts(root)) {
+    const problem = foldTargetProblem(p.foldedInto, { root, live: liveSlugs, published });
+    if (problem) {
+      const msg = `${p.source}: folded_into ${problem}`;
+      if (process.env.PAGES_SKIP_BAD_POSTS !== '1') throw new Error(msg);
+      console.warn(`::warning file=${p.source}::${msg}; the post's URL now 404s until it is fixed`);
+      continue;
+    }
+    const target = baseUrl ? `${baseUrl}${p.foldedInto}` : `../../${p.foldedInto}`;
+    const dir = path.join(outDir, WRITING_PATH, p.slug);
+    await fs.mkdir(dir, { recursive: true });
+    // check.mjs holds every page under writing/ to the disclaimer, stubs included.
+    await fs.writeFile(path.join(dir, 'index.html'), stubPage(target).replace('</body>', `<p>${esc(p.title)} is now part of that page. Provided as is, with no warranty.</p>\n</body>`));
+  }
+}
+
 // `published` holds the slugs the site serves at `<slug>/`, so a project page links its tool.
 export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '', originAlias = '', published = new Set() } = {}) {
   const posts = loadPosts(root);
@@ -1728,6 +1810,7 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
     ...projectGroups(posts.filter((p) => p.topic === 'research'), { root, topic: 'research', questions: (slug) => questions.get(slug) || '', ledes: (slug) => ledes.get(slug) || '' }),
   ];
   await writeSection(outDir, posts, BLOG, { baseUrl, socialCard, rebase, episodes, byPost, agentPosts: agentPosts.length, projects, published });
+  await writeFolded(outDir, posts, { root, baseUrl, published });
   // Every page writeSection wrote links this (shell(); writeSection made outDir).
   await fs.writeFile(path.join(outDir, WRITING_STYLE_FILE), renderWritingStyle());
   if (agentPosts.length) {
