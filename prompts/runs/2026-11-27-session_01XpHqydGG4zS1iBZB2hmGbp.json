@@ -32,7 +32,9 @@
   "review_findings": null,
   "tests_added": 1,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "venture-preflight caught 3 unguarded object lookups in the new generator code; fixed before the merge"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -50,7 +52,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue empty (exit 3); ideas inbox empty. Routed ventures/1. Bet #1 roadmap's Next items all wait on demand, so I did front-door SEO: lien-waiver-form.html covers the generic 'lien waiver form' searches that the 12 statutory-state pages miss. Verified: pay-app-guides node --test 352 pass + new test; platform/pages industry-construction 19 and llms-answers 7 pass; Chromium 390px fill-in fills every blank with no errors and no horizontal scroll. venture-preflight pay-app-guides started in the background (result in the PR if it finished before the merge).",
+  "notes": "Security queue empty (exit 3); ideas inbox empty. Routed ventures/1. Bet #1 roadmap's Next items all wait on demand, so I did front-door SEO: lien-waiver-form.html covers the generic 'lien waiver form' searches that the 12 statutory-state pages miss. Verified: pay-app-guides node --test 352 pass + new test; platform/pages industry-construction 19 and llms-answers 7 pass; Chromium 390px fill-in fills every blank with no errors and no horizontal scroll. venture-preflight pay-app-guides: first run flagged 3 unguarded GENERIC_USE[...] lookups (fixed with an Object.hasOwn helper); second run 'preflight clean for pay-app-guides', exit 0.",
   "corrections": [],
   "redteam": null,
   "usage": {

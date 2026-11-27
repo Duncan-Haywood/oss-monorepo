@@ -291,6 +291,7 @@ const GENERIC_USE = {
   "conditional-final": "the last payment on the job, before it has cleared",
   "unconditional-final": "the last payment on the job, once it has cleared",
 };
+const useOf = (k) => { if (!Object.hasOwn(GENERIC_USE, k)) throw new Error(`no use text for ${k}`); return GENERIC_USE[k]; };
 const GENERIC_ANCHOR = (k) => `general-${k}`;
 
 export function renderGenericPage(pkg) {
@@ -309,14 +310,14 @@ export function renderGenericPage(pkg) {
     ["Can I use this lien waiver form in any state?",
       `No. ${strictStates.length} states set the wording by statute (${strictNames}), and a waiver that does not follow their form may be unenforceable there: use that state's form instead. Missouri and Massachusetts each set one narrow form and leave the rest open. In every other state the statute prints no form, so general wording like this is common, but check the state's lien statute and have local counsel review the form before you rely on it.`],
     ["Which lien waiver should I sign?",
-      forms.map((f) => `${f.title}: for ${GENERIC_USE[f.kind]}.`).join(" ") + " Sign an unconditional waiver only once the payment it names has cleared your bank."],
+      forms.map((f) => `${f.title}: for ${useOf(f.kind)}.`).join(" ") + " Sign an unconditional waiver only once the payment it names has cleared your bank."],
     ["What is the difference between a conditional and an unconditional lien waiver?",
       "A conditional waiver takes effect only when the payment it describes is actually received and the check is honored, so it is safe to hand over with the pay application. An unconditional waiver takes effect when signed, paid or not, so it should only go out after the money has cleared."],
     ["Does a progress lien waiver give up my retainage?",
       "Not on these forms. The progress waivers exclude retention or amounts withheld, extras not yet paid, work after the through date, contract rights and any exceptions you write in. Read every waiver a GC sends you for the same exclusions before you sign it."],
   ];
 
-  const rows = forms.map((f) => `      <tr role="row"><td role="cell" data-label="Form"><a href="#${GENERIC_ANCHOR(f.kind)}">${esc(f.title)}</a></td><td role="cell" data-label="Use it for">${esc(GENERIC_USE[f.kind])}</td><td role="cell" data-label="Takes effect">${pkg.isConditional(f.kind) ? "when the payment is received and the check clears" : "when you sign it"}</td></tr>`).join("\n");
+  const rows = forms.map((f) => `      <tr role="row"><td role="cell" data-label="Form"><a href="#${GENERIC_ANCHOR(f.kind)}">${esc(f.title)}</a></td><td role="cell" data-label="Use it for">${esc(useOf(f.kind))}</td><td role="cell" data-label="Takes effect">${pkg.isConditional(f.kind) ? "when the payment is received and the check clears" : "when you sign it"}</td></tr>`).join("\n");
 
   const fieldOrder = [];
   for (const f of forms) for (const fld of f.fields) if (!fieldOrder.some((x) => x.key === fld.key)) fieldOrder.push(fld);
@@ -329,7 +330,7 @@ export function renderGenericPage(pkg) {
 
   const sections = forms.map((f) => `<section class="card" id="${GENERIC_ANCHOR(f.kind)}">
   <h2>${esc(f.title)}</h2>
-  <p class="note">Use it for: <strong>${esc(GENERIC_USE[f.kind])}</strong>. General wording, not any state's statutory form.</p>
+  <p class="note">Use it for: <strong>${esc(useOf(f.kind))}</strong>. General wording, not any state's statutory form.</p>
   <div class="statutory-form">
       ${renderBody(f, true)}
   </div>
