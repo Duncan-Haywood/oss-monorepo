@@ -46,8 +46,9 @@ Chromium, catalogue copy served locally under `/payapps/`:
 | payapps unit tests | 1398 pass | 1398 pass |
 | `tsc --noEmit` (site, app); `biome check` on changed files | pass | pass |
 
-`biome ci .` over the whole venture reports 1 error both before and after this change, in a file
-this PR doesn't touch (`apps/payapps/src/shared/heif.test.ts`, the `noNonNullAssertion` group).
+Run locally from `ventures/payapps`, `biome ci .` reports 1 error both before and after this change,
+in a file this PR doesn't touch (`apps/payapps/src/shared/heif.test.ts`). payapps-ci's own lint job
+passed on this PR, so the error comes from the local invocation, not from the code CI checks.
 
 ![Home at 1280 px, before: no app screenshots](img/polish-2026-11-27-payapps-shots-site-before-1280-light.png)
 ![The new section at 1280 px](img/polish-2026-11-27-payapps-shots-section-1280-light.png)
@@ -60,7 +61,8 @@ this PR doesn't touch (`apps/payapps/src/shared/heif.test.ts`, the `noNonNullAss
    `capture.stills.ts` and add a figure. The features page has no stills at all.
 2. The hero still has no "see it in the app" anchor; on a phone the screenshots sit about two
    screens down (item 1 of the last note, still open).
-3. `biome ci .` in `ventures/payapps` is red on `heif.test.ts` on main; payapps-ci's lint job
-   must be failing or not running for it.
+3. A local `biome ci .` from `ventures/payapps` reports an error in `heif.test.ts` that payapps-ci's
+   lint job does not. Running the same command CI runs would save the next run from the
+   false alarm.
 4. The stills are light-mode only. Dark-mode visitors see a light screenshot on a dark page, which
    reads fine (a white card) but a dark capture would only make sense if the app gets a dark mode.

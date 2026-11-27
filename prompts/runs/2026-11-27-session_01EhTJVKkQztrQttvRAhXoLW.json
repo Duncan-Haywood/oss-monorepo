@@ -36,7 +36,7 @@
   "doc_friction": [
     {
       "file": "ventures/payapps (biome ci .)",
-      "issue": "biome ci reports 1 error on main in apps/payapps/src/shared/heif.test.ts, so a whole-venture lint can't tell a PR's own errors apart; checked changed files only."
+      "issue": "A local `biome ci .` from ventures/payapps reports 1 error in apps/payapps/src/shared/heif.test.ts, but payapps-ci's lint job passes. The local and CI invocations differ, which cost a detour; checked changed files only."
     },
     {
       "file": "ventures/payapps/apps/payapps-site/src/site/catalogue.ts",
