@@ -290,7 +290,12 @@ export async function build() {
   const hub = readFileSync(here(HUB), "utf8");
   const counts = Object.fromEntries(STATES.map(([code, name]) => [name, statutoryForms(pkg, code).forms.length]));
   const files = { [HUB]: linkHub(hub, counts) };
-  for (const [code, name] of STATES) files[slugOf(name)] = applyCta(apply(renderPage(pkg, hub, code, name), slugOf(name)), slugOf(name));
+  for (const [code, name] of STATES) {
+    // The CTA status goes through cta.mjs, so the launch switch reaches these pages too and the
+    // two generators cannot undo each other (red team 2026-11-27: main went red when they did).
+    const file = slugOf(name);
+    files[file] = applyCta(apply(renderPage(pkg, hub, code, name), file), file);
+  }
   return files;
 }
 
