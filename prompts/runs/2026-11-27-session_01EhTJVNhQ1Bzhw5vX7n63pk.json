@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVNhQ1Bzhw5vX7n63pk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T15:57:25Z",
+  "ended": "2026-11-27T16:07:33Z",
+  "wall_minutes": 10.26,
+  "tokens_in": 6031923,
+  "tokens_out": 20366,
+  "cost_usd": 2.4534,
+  "tool_calls": 70,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19798",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First e2e rerun after the CSS fix still failed: the reused vite dev server served the old stylesheet; restarting it fixed that (the stale run doubled as proof the spec catches the bug)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/live_funnel_check.mjs",
+      "issue": "marisstella.app and payapps.marisstella.app are refused by this session's proxy (CONNECT 403), so the live funnel could not be walked; a local e2e-server sweep was the substitute."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Every bet's ROADMAP Next is gated on demand and bets #1-#6 each had several live claims today; roadmap_claim.py --bets points at 'RFIs' as untouched although RFIs parts 1-2 are done, so finding unclaimed product work took most of the orientation time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new post: a phone-layout fix tells a customer nothing new, and the owner asked for consolidated posts rather than one per PR.",
+      "did": "Recorded the change in the payapps ROADMAP Done list instead.",
+      "result": "Nothing for a reader to miss."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local checks: phone-width e2e spec fails on main CSS (submittals 417px > 390, <select>), all 3 e2e specs pass with the fix (24.5s); pnpm typecheck clean; pnpm test:unit 156 files, 1430 passed, 3 skipped. Sweep script (24 routes x 2 widths) kept in the session scratchpad only.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bf048b5b-afb1-5e3f-9cb1-47890abc35bd",
+    "transcripts": 1,
+    "first": "2026-11-27T15:57:25Z",
+    "last": "2026-11-27T16:07:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 112,
+        "output": 20366,
+        "thinking": 3996,
+        "cache_read": 5924218,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107593,
+        "api_equivalent_usd": 2.4534,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 112,
+      "output": 20366,
+      "thinking": 3996,
+      "cache_read": 5924218,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107593,
+      "api_equivalent_usd": 2.4534,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 62,
+      "Read": 3,
+      "Edit": 2,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.26,
+      "active_minutes": 10.26,
+      "model_minutes": 3.81,
+      "tool_minutes": 6.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
