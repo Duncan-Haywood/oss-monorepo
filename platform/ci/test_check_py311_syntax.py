@@ -78,9 +78,8 @@ class FastTokens(unittest.TestCase):
         "no newline": "x = f'{1}'",
     }
 
+    @unittest.skipIf(c._TokenizerIter is None, "no _tokenize on this Python; _tokens is the public API")
     def test_same_tokens_as_the_public_api(self):
-        if c._TokenizerIter is None:
-            self.skipTest("no _tokenize on this Python; _tokens is the public API")
         srcs = {**BAD, **GOOD, **self.EXTRA}
         files = [c.ROOT / n for n in c.repo_files.ls_files(c.ROOT, "*.py")]
         for p in files[::40]:  # a spread of real files; the full tree took 8 s
