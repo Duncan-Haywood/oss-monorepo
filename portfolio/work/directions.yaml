@@ -51,7 +51,7 @@ directions:
     # would make this look covered while CI, the move and checkout sat open.
     paths:
       - platform/billing/**
-      - platform/security/prepublish_audit*
+      - platform/security/prepub_audit*
       - ventures/payapps/**
       - ventures/jobshop-quote/**
       - ventures/cmmc/**
