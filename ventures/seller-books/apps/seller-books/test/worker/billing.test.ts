@@ -246,10 +246,18 @@ describe("checkout", () => {
       expect((await post(body)).status).toBe(400);
     }
     expect(
-      await testDb().select().from(pendingCheckouts).where(eq(pendingCheckouts.orgId, t.orgId)).all(),
+      await testDb()
+        .select()
+        .from(pendingCheckouts)
+        .where(eq(pendingCheckouts.orgId, t.orgId))
+        .all(),
     ).toHaveLength(0);
     // A stale page's version is not recorded: the server's terms version is.
-    const res = await post({ plan: "side", renewalConsent: true, renewalTermsVersion: "2020-01-01" });
+    const res = await post({
+      plan: "side",
+      renewalConsent: true,
+      renewalTermsVersion: "2020-01-01",
+    });
     expect(res.status).toBe(200);
     const [row] = await testDb()
       .select()

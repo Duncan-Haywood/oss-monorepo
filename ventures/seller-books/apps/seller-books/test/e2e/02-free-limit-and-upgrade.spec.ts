@@ -34,7 +34,9 @@ test("the Free plan refuses a second platform until a paid plan is confirmed", a
     .locator(".card")
     .filter({ has: page.getByRole("button", { name: /Choose Full time/ }) });
   // The automatic-renewal terms sit beside the button, which waits for the consent tick.
-  await expect(fulltime.getByText(/renews automatically every month at \$35\.00 plus any sales tax/)).toBeVisible();
+  await expect(
+    fulltime.getByText(/renews automatically every month at \$35\.00 plus any sales tax/),
+  ).toBeVisible();
   await expect(fulltime.getByRole("button", { name: /Choose Full time/ })).toBeDisabled();
   await page.getByLabel(/I agree that a paid plan renews automatically/).check();
   await fulltime.getByRole("button", { name: /Choose Full time, renews monthly/ }).click();
