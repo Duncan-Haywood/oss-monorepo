@@ -1,0 +1,22 @@
+{
+  "app": "jobshop-quote",
+  "productName": "Job Shop Quote",
+  "currency": "USD",
+  "taxCategory": "saas",
+  "plans": [
+    {
+      "key": "shop",
+      "name": "Shop",
+      "description": "For a shop where the owner or one estimator does the quoting.",
+      "monthlyCents": 19900,
+      "annualCents": 214900
+    },
+    {
+      "key": "shop_plus",
+      "name": "Shop Plus",
+      "description": "For shops with a quoting team or a steady stream of multi-part RFQs.",
+      "monthlyCents": 39900,
+      "annualCents": 430900
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+// Test-only config: like wrangler.jsonc but assets come from a fixture dir (no build needed) and
+// there is no rate limiter binding, so tests can post repeatedly.
+{
+  "name": "jobshop-site-test",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./test/worker/fixtures",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "jobshop-site-test", "database_id": "test" }
+  ],
+  "vars": { "BASE_PATH": "", "SITE_URL": "https://marisstella.app/jobshop" }
+}
