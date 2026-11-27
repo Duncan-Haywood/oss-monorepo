@@ -291,6 +291,22 @@ class CampaignTest(unittest.TestCase):
         with self.assertRaisesRegex(SystemExit, "baseline is red"):
             redteam.campaign(self.target, 2, seed=1, repo=self.repo)
 
+    def test_baseline_records_skipped_tests(self):
+        camp = redteam.campaign(self.target, 1, seed=1, repo=self.repo)
+        self.assertEqual(camp["baseline_skipped"], 0)
+        (self.venture / "calc.test.mjs").write_text(
+            CALC_TEST + 'test("needs a dep", { skip: "npm i x" }, () => {});\n')
+        subprocess.run(["git", "commit", "-qam", "skip"], cwd=self.repo, check=True)
+        camp = redteam.campaign(self.target, 1, seed=1, repo=self.repo)
+        self.assertEqual(camp["baseline_skipped"], 1)
+
+    def test_skipped_tests_reads_each_runner(self):
+        self.assertEqual(redteam.skipped_tests("# pass 5\n# fail 0\n# skipped 3\n"), 3)
+        self.assertEqual(redteam.skipped_tests("== 12 passed, 2 skipped in 0.4s =="), 2)
+        self.assertEqual(redteam.skipped_tests("Ran 9 tests\n\nOK (skipped=4)"), 4)
+        self.assertEqual(redteam.skipped_tests("# pass 5\n# skipped 0\n"), 0)
+        self.assertEqual(redteam.skipped_tests("ok 1 - a skipped-looking name"), 0)
+
     def test_slow_baseline_is_a_timeout_not_a_defect(self):
         with self.assertRaisesRegex(SystemExit, "baseline timed out"):
             with mock.patch.object(redteam, "run_suite", return_value=(False, 5.0)):
