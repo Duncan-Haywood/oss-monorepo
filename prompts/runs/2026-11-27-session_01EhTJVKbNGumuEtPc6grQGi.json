@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVKbNGumuEtPc6grQGi",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T00:56:43Z",
+  "ended": "2026-11-27T01:12:07Z",
+  "wall_minutes": 15.58,
+  "tokens_in": 11914586,
+  "tokens_out": 47253,
+  "cost_usd": 4.6026,
+  "tool_calls": 89,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19544",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First e2e run of the new spec 14 failed: the post-save note read the preview's quote count after the preview had cleared; fixed by capturing it in onSuccess."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".claude/hooks/check_posts_before_push.py",
+      "issue": "Running it with --help blocks on stdin until the 120 s timeout; there's no usage line saying it is a hook that reads JSON on stdin."
+    },
+    {
+      "file": "apps/jobshop-quote (private) services/ratecard/price-impact.ts",
+      "issue": "Per-foot pricing and 'quotes this changes' merged about 20 minutes apart, and the impact service never selected price_per_foot_cents. Neither run's tests crossed the two features. Fixed in private PR #443."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Private CI was starved (runner_id 0 on both jobs), so the merge rested on local checks rather than green CI",
+      "did": "Ran typecheck, unit 608/608, worker 277/277, e2e 03/05/13/14 and jobshop-site unit 42/42 locally, then merged private PR #443",
+      "result": "merged; output summarised in the PR body and in the report"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-machine-shop-material-prices-in-quotes.md (extended)",
+    "docs/reports/ventures-2026-11-27-jobshop-supplier-price-sheet.md"
+  ],
+  "goal": null,
+  "notes": "Bet #2 jobshop-quote, ROADMAP #15 part 2b. Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/443 merged (squash 7163bb86): supplier and list date on import history rows (migration 0038), per-row price moves and open quotes touched in the import preview (POST /rate-card/materials/price-impact/preview), and a per-foot fix in 'quotes this changes'. Another run extended the same customer post minutes earlier, so the post edit was redone on top of main's version and the duplicate section dropped.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d0a5d095-e498-58dc-b33a-6e8410eb8c6e",
+    "transcripts": 1,
+    "first": "2026-11-27T00:56:43Z",
+    "last": "2026-11-27T01:12:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 85,
+        "input": 160,
+        "output": 47253,
+        "thinking": 7155,
+        "cache_read": 11751091,
+        "cache_write_5m": 0,
+        "cache_write_1h": 163335,
+        "api_equivalent_usd": 4.6026,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 85,
+      "input": 160,
+      "output": 47253,
+      "thinking": 7155,
+      "cache_read": 11751091,
+      "cache_write_5m": 0,
+      "cache_write_1h": 163335,
+      "api_equivalent_usd": 4.6026,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 81,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.58,
+      "active_minutes": 15.58,
+      "model_minutes": 8.02,
+      "tool_minutes": 7.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "estimate: a senior full-stack engineer adding a schema column, an endpoint, preview UI and unit/worker/e2e tests to an existing app",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 217.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
