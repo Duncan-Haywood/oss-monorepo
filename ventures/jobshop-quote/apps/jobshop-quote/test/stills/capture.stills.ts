@@ -9,7 +9,8 @@
 // invented and the site's captions say so. The quote's figures are asserted against the hand check in
 // test/e2e/01-rfq-to-quote.spec.ts (same rate card, same part), so a still can never show a price the
 // arithmetic doesn't back.
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, type Page, test } from "@playwright/test";
@@ -203,9 +204,82 @@ test("stills of a made-up machine shop quote", async ({ page, browser }) => {
     caret: "hide",
     clip: { x: 0, y: top.y - 24, width: 390, height: end.y + end.height + 24 - (top.y - 24) },
   });
-  await toSite(p, "rate-card-desktop");
-  await toSite(p, "quote-line-desktop");
-  await toSite(p, "quote-phone");
   await phone.close();
+
+  // What the shop's customer sees: mark it sent, copy a customer link, open it with no session.
+  await page.goto(quoteUrl);
+  await page.getByRole("button", { name: "Mark sent" }).click();
+  await expect(page.getByRole("link", { name: "Sent PDF" })).toBeVisible();
+  const links = card(page, "Customer's answer online");
+  await links.getByRole("button", { name: "Copy a customer link" }).click();
+  const linkPath = new URL(await field(links, "The link (shown once: copy it now)").inputValue())
+    .pathname;
+  const buyer = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  });
+  const c = await buyer.newPage();
+  await c.goto(linkPath);
+  await expect(c.getByText("Example Precision", { exact: true })).toBeVisible();
+  // The customer's page carries the prices, never the costs behind them.
+  for (const unit of ["$46.40", "$26.80", "$25.85"])
+    await expect(c.getByText(unit).first()).toBeVisible();
+  await expect(c.getByText("$95.00")).toHaveCount(0);
+  await settle(c);
+  // Down to the "Sent with" line under the cards (the legal links below it are left out).
+  const sentWith = await c.getByText(/^Sent with /).boundingBox();
+  if (!sentWith) throw new Error("the customer page's footer line is missing");
+  await c.screenshot({
+    path: join(OUT, "customer-quote-phone.png"),
+    fullPage: true,
+    animations: "disabled",
+    caret: "hide",
+    clip: { x: 0, y: 0, width: 390, height: Math.ceil(sentWith.y + sentWith.height + 20) },
+  });
+
+  // The PDF as sent, first page, rasterised by poppler's pdftoppm (Chromium's headless mode has no
+  // PDF viewer). A US Letter page at 150 dpi is 1275 px wide; the still keeps its top 5 inches
+  // (header, customer, the priced part), since a one-part quote leaves the rest of the page blank.
+  const pdf = await c.request.get(`${linkPath.replace("/q/", "/api/quote-links/")}/pdf`);
+  expect(pdf.headers()["content-type"]).toBe("application/pdf");
+  mkdirSync(OUT, { recursive: true });
+  writeFileSync(join(OUT, "quote.pdf"), await pdf.body());
+  try {
+    execFileSync("pdftoppm", [
+      "-png",
+      "-r",
+      "150",
+      "-f",
+      "1",
+      "-l",
+      "1",
+      "-x",
+      "0",
+      "-y",
+      "0",
+      "-W",
+      "1275",
+      "-H",
+      "750",
+      "-singlefile",
+      join(OUT, "quote.pdf"),
+      join(OUT, "customer-pdf-page1"),
+    ]);
+  } catch (e) {
+    throw new Error(`pdftoppm (poppler-utils) is needed for the PDF still: ${String(e)}`);
+  }
+  renameSync(join(OUT, "customer-pdf-page1.png"), join(OUT, "customer-pdf.png"));
+  await buyer.close();
+
+  for (const name of [
+    "rate-card-desktop",
+    "quote-line-desktop",
+    "quote-phone",
+    "customer-quote-phone",
+    "customer-pdf",
+  ])
+    await toSite(page, name);
   expect(orgPath).toMatch(/^\/app\//);
 });
