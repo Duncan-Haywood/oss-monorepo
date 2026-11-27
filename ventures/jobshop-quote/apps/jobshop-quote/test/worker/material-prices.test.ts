@@ -9,6 +9,7 @@ import type {
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { materials } from "../../src/worker/db/schema";
+import { newId } from "../../src/worker/lib/ids";
 import { addMember, api, json, seedRateCard, setupTenant, testDb } from "./helpers";
 
 type T = { userId: string; path: (p?: string) => string };
@@ -210,5 +211,32 @@ describe("'Still good': confirming material prices", () => {
     expect((await confirm(a, [al], est)).status).toBe(403);
     expect((await confirm(b, [al])).status).toBe(404);
     expect((await history(a, al)).entries.map((e) => e.source)).toEqual(["create"]);
+  });
+
+  it("confirms more than 100 materials at once", async () => {
+    // D1 binds at most 100 parameters a statement; the request allows 500 ids. One `IN (...)` over
+    // every id answered 500 ("too many SQL variables") from about 99 materials on.
+    const t = await setupTenant();
+    const db = testDb();
+    const ids = Array.from({ length: 120 }, () => newId("mat"));
+    const [first, ...more] = ids.map((id, i) =>
+      db.insert(materials).values({
+        id,
+        orgId: t.orgId,
+        name: `Bar stock ${i}`,
+        pricingBasis: "per_lb",
+        pricePerLbCents: 300 + i,
+        priceSetAt: new Date(Date.now() - 400 * 86_400_000),
+      }),
+    );
+    if (first) await db.batch([first, ...more]);
+    const res = await confirm(t, ids);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ confirmed: 120 });
+    const after = (await card(t)).materials.filter((m) => ids.includes(m.id));
+    expect(after).toHaveLength(120);
+    for (const m of after) {
+      expect(Date.now() - Date.parse(m.priceSetAt ?? "")).toBeLessThan(60_000);
+    }
   });
 });
