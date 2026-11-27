@@ -231,3 +231,10 @@ test("a Customer ID column groups subscriptions into customers", () => {
   const s = summarize(backfill(subs, Date.UTC(2026, 3, 15), 3).months);
   assert.equal(s.customers, 2); assert.equal(s.mrr, 8000);
 });
+
+test("a negative amount (a refund or credit line) is skipped with a reason, not read as negative MRR", () => {
+  // Quality audit 2026-11-21, defect 5: removing the amount < 0 guard left every test green.
+  const { subs, skipped } = subsFromCsv("id,status,amount,interval,created\nsub_1,active,-29,month,2026-01-05\nsub_2,active,29,month,2026-01-05");
+  assert.deepEqual(subs.map((s) => s.id), ["sub_2"]);
+  assert.deepEqual(skipped, [{ line: 2, why: "amount is not a number" }]);
+});

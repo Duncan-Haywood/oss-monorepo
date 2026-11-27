@@ -39,6 +39,15 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
   incomplete-expired subscriptions (the first payment never succeeded), metered usage, tiered
   (graduated or volume) prices (the dashboard counts them), fixed-amount
   coupons. (`COUNT_PAST_DUE=false` also drops past-due.)
+- **Unpaid and paused-collection subscriptions in the rebuilt history**
+  (since 2026-11-27): they are not MRR today, but they paid before they
+  stopped. Stripe records no date for either change, so the backfill counts
+  them in every past month and books the churn in the current month (a
+  `stoppedAt` date, when a source has one, moves it there). Before, they were
+  left out of every month, so a customer who paid 5,000 for 22 months and then
+  went unpaid read 0 throughout and their churn was never booked (quality
+  audit 2026-11-21, defect 2). Stripe's own `paused` status only follows a
+  trial that ended without a payment method, so it never counts as revenue.
 - **Movements**: new, expansion, contraction, churned and reactivated MRR,
   from the difference between consecutive syncs, per Stripe customer (since
   2026-11-25): a customer who drops an add-on is *contraction*, one who swaps
