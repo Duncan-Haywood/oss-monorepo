@@ -11,6 +11,7 @@ import type {
   SovLineDto,
 } from "@shared/api/types";
 import { parsePlacement } from "@shared/gc-export/procore-placement";
+import { type LienBillingApp, type LienDeadlineResult, lienDeadline } from "@shared/lien-deadline";
 import {
   BLOCKING_WARNINGS,
   type ChangeOrderInput,
@@ -225,6 +226,11 @@ export function projectDto(p: ProjectRow): ProjectDto {
     billingDay: p.billingDay,
     gaNocFiled: p.gaNocFiled,
     gaNocContractor: p.gaNocContractor,
+    lienState: p.lienState,
+    lienResidential: p.lienResidential,
+    lastFurnishedOn: p.lastFurnishedOn,
+    workCompletedOn: p.workCompletedOn,
+    noticeOfCompletionOn: p.noticeOfCompletionOn,
     procoreSsov: parsePlacement(p.procoreSsov),
     status: p.status,
     opening: openingOf(p),
@@ -410,5 +416,32 @@ export function projectDetailDto(b: ProjectBundle): ProjectDetailDto {
     payApps: b.payApps.map((a, i) => payAppDto(a, b.computed[i], b.payments)),
     billingStarted: billingStarted(b),
     sovTotalCents: sovOriginalTotal(b.sov.map((l) => ({ ...l, originalCents: l.originalCents }))),
+    lienDeadline: projectLienDeadline(b),
   };
+}
+
+/** What the job's billing says about the last day of work, for the lien deadline's estimate. */
+export function lienBillingApps(b: Pick<ProjectBundle, "payApps" | "computed">): LienBillingApp[] {
+  return b.payApps.map((a, i) => ({
+    number: a.number,
+    status: a.status,
+    periodFrom: a.periodFrom,
+    periodTo: a.periodTo,
+    workThisPeriodCents: (b.computed[i]?.lines ?? []).reduce((s, l) => s + l.thisPeriodCents, 0),
+  }));
+}
+
+/** The job's lien deadline from its saved state and dates, else its billing (src/shared/lien-deadline.ts). */
+export function projectLienDeadline(
+  b: Pick<ProjectBundle, "project" | "payApps" | "computed">,
+): LienDeadlineResult {
+  const p = b.project;
+  return lienDeadline({
+    state: p.lienState,
+    residential: p.lienResidential,
+    lastFurnishedOn: p.lastFurnishedOn,
+    completedOn: p.workCompletedOn,
+    noticeOfCompletionOn: p.noticeOfCompletionOn,
+    apps: lienBillingApps(b),
+  });
 }

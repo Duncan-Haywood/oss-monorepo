@@ -36,6 +36,7 @@ import type { InsuranceRequirement, RequirementCheck } from "../insurance-requir
 import type { CommitmentKind, CostCategory, JobCostReport } from "../job-cost";
 import type { JobEventAction, JobEventData } from "../job-history";
 import type { LegalStatusDto } from "../legal";
+import type { LienDeadlineResult } from "../lien-deadline";
 import type { LowerTierPartyKind, LowerTierStatus, LowerTierSummary } from "../lower-tier-waivers";
 import type { PayAppEventAction, PayAppEventData } from "../pay-app-history";
 import type { ComputedApplication, Warning } from "../payapp-math";
@@ -132,6 +133,12 @@ export interface ProjectDto {
   gaNocFiled: boolean | null;
   /** Georgia: the contractor's name and address as the notice of commencement shows them, or null. */
   gaNocContractor: string | null;
+  /** Lien deadline inputs (src/shared/lien-deadline.ts): the property's state, or null. */
+  lienState: string | null;
+  lienResidential: boolean;
+  lastFurnishedOn: string | null;
+  workCompletedOn: string | null;
+  noticeOfCompletionOn: string | null;
   /** Where the job's lines sit under the GC's Procore SOV positions, or null when never saved. */
   procoreSsov: ProcoreSsovPlacement | null;
   status: "active" | "closed";
@@ -540,6 +547,8 @@ export interface ProjectDetailDto extends ProjectDto {
   /** True once a pay app was submitted: original SOV and contract sum are then locked. */
   billingStarted: boolean;
   sovTotalCents: number;
+  /** The last day to record a lien on the job, from its state and dates (src/shared/lien-deadline.ts). */
+  lienDeadline: LienDeadlineResult;
 }
 
 export interface PlanDto {

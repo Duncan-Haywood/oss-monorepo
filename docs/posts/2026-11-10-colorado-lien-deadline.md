@@ -2,11 +2,23 @@
 title: "Mechanics lien deadlines in ten states, now with North Carolina, New York and Ohio"
 seo_title: "Mechanics lien deadlines by state: NC, NY, OH, CA, TX, FL and 4 more"
 date: 2026-11-10
-tags: [construction, subcontractors, mechanics-lien, lien-waivers, pay-app-guides, for-customers]
-description: "Preliminary notice and lien filing deadlines for subcontractors in ten states, with the statute for each; North Carolina, New York and Ohio added 2026-11-25."
+tags: [construction, subcontractors, mechanics-lien, lien-waivers, pay-app-guides, payapps, for-customers]
+description: "Preliminary notice and lien filing deadlines for subcontractors in ten states, with the statute for each, and since 2026-11-27 kept on every job in PayApps with a warning 45 days ahead while money is owed."
 ---
 
 The free [mechanics lien deadline calculator](https://marisstella.app/mechanics-lien-deadline-calculator/) takes your first and last day on a job and shows the two dates that keep a lien alive: the early notice and the lien filing. It covers ten states.
+
+## The lien deadline on every job, in PayApps (added 2026-11-27)
+
+The calculator answers one job at a time, when you remember to ask. The deadline that matters is the one on the job where the GC is slow to pay, and lien rights end on that date whether anyone reminds you or not. Lien-tracking services sell this reminder on its own: SubLien starts at [$199 a month](https://www.saasworthy.com/product/sublien/pricing).
+
+[PayApps](https://payapps.marisstella.app/?signup&from=lien-deadline-post) now keeps the same ten states' lien dates on each job, on every plan, the free one included:
+
+- **On the job page**, enter the property's state and your last day on site. The panel shows the last day to record (or file) the lien, the rule it comes from and the statute section. California and Arizona also take the project's completion date and the day the owner recorded a notice of completion, which cuts California's time to 30 days and Arizona's to 60.
+- **Before you enter a last day**, PayApps estimates the date from your billing. It counts from the first day of the latest pay application period that billed work. Your last day of work was on or after that day, so the estimate can only come out early, never late, and the page says it is an estimate.
+- **On the cash page and in the weekly email**, a job that still owes you money (retainage counts) gets a line 45 days before the date: what to file, by when, under which section, and how much is still owed. After the date passes, the line says to ask a construction attorney what is left (a late lien, a payment bond claim, or suing on the contract) instead of telling you to file. A job that is still billing work every month gets no line until you enter your last day or the work is billed complete, because until then the estimate moves forward every month.
+
+The same limits as the calculator apply. A weekend date moves back to the Friday before it, and holidays are not counted. Public jobs (payment bond claims), third-tier claimants and contract terms are not covered. It is a date lookup, not legal advice.
 
 ## North Carolina, New York and Ohio (added 2026-11-25)
 

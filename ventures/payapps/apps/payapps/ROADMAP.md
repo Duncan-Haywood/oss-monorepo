@@ -1001,6 +1001,29 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   `services/payapps/notice-files.ts`; worker test `test/worker/ca-notice-files.test.ts`. Not done:
   listing the attached receipts on the § 8118 proof PDF, and the § 2015.5 perjury sentence.
 
+- Lien deadline per job (2026-11-27, every plan; job-lien-deadlines). The job page's "Lien deadline"
+  panel takes the property's state, whether the job is residential (where the state has a shorter
+  clock for a home), the day this company last furnished labor or materials and, for California and
+  Arizona, the project's completion and a recorded notice of completion (`projects.lien_state`,
+  `lien_residential`, `last_furnished_on`, `work_completed_on`, `notice_of_completion_on`, migration
+  0084, saved through the job's PATCH and listed in the job history). It shows the last day to record
+  or file the lien in ten states (AZ § 33-993, CA § 8414, CO § 38-22-109, FL § 713.08(5), GA
+  § 44-14-361.1, NC § 44A-12(b), NY Lien Law § 10, OH § 1311.06(B), TX § 53.052, WA § 60.04.091),
+  rules ported from the free mechanics-lien-deadline-calculator, whose timing was checked against the
+  statute text on 2026-11-25. Always the safe side: with no last-furnished date it counts from the
+  start of the latest application that bills work (the last day of work is on or after it) and says
+  so; a completion-based state with no completion date counts from last furnishing; a weekend date
+  moves back to the Friday. The cash page, its CSV ("Lien deadline" column) and the weekly email name
+  it on a job that still owes money (retainage included) within 45 days of the date and up to 30
+  after, once the date rests on an entered last day or the work is complete (an active job's
+  estimate moves every month, so it would only nag). Why: a sub's unpaid balance is only as safe as
+  its lien rights, and SubLien sells this tracking from $199/mo (bets.md). Rules in
+  `src/shared/lien-deadline.ts`; tests `src/shared/lien-deadline.test.ts` (every state's date by
+  hand), `test/worker/lien-deadline.test.ts`, `test/unit/lien-deadline-panel.test.tsx`. Also fixed:
+  the cash CSV's Total row was one column short since "Pay terms count from" was added, so its past
+  due total sat under that header. Not done: holidays, public jobs (bond claims), states beyond the
+  ten, the notice of intent dates (Colorado) as their own reminder, and a lien recorded on the job.
+
 - Notices of claim: Texas (2026-11-27, Crew and up, with lien waivers; texas-notice-of-claim). The
   job page's "Preliminary notice of right to lien" panel, for a Texas job, offers both of the notices a
   sub or supplier ("a claimant other than an original contractor") must send to keep a lien under

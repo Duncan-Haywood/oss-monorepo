@@ -13,6 +13,7 @@ import {
   closeoutReadiness,
   summarizeCloseout,
 } from "@shared/closeout";
+import type { LienDeadline, LienDeadlineResult } from "@shared/lien-deadline";
 import { centsToDecimal } from "@shared/money";
 import { type PunchItemFacts, summarizePunchList } from "@shared/punch-list";
 import type { WaiverFollowUpInput } from "@shared/waiver-followup";
@@ -27,11 +28,14 @@ import {
   punchItems,
 } from "../../db/schema";
 import { csvCell } from "../export/csv";
-import { loadBundle, type ProjectBundle, paymentsOf } from "./bundle";
+import { loadBundle, type ProjectBundle, paymentsOf, projectLienDeadline } from "./bundle";
 import { retainagePosition } from "./closeout";
 import { flMissingRecipients } from "./fl-notices";
 import { missingRecipients } from "./notices";
 import { followUpInput } from "./waivers";
+
+const lienOf = (r: LienDeadlineResult): LienDeadline | null =>
+  r.kind === "deadline" ? r.deadline : null;
 
 /** Today in UTC as YYYY-MM-DD (the report's "as of" date). */
 export const isoDay = (d: Date) => d.toISOString().slice(0, 10);
@@ -74,6 +78,7 @@ export function toCashInput(
         : null,
     flNotice:
       p.flFirstFurnishedOn && flMissing.length > 0 ? flNoticeDates(p.flFirstFurnishedOn) : null,
+    lienDeadline: lienOf(projectLienDeadline(b)),
     changeOrders: b.changeOrders.map((co) => ({
       id: co.id,
       number: co.number,
@@ -270,6 +275,7 @@ export function cashReportCsv(r: CashReport): string {
     "Waiting on the owner's payment (pay-when-paid)",
     "Pay-when-paid outer limit (days from the application date)",
     "Retainage waiting on close-out",
+    "Lien deadline",
   ];
   const rows = r.projects.map((p) => [
     p.name,
@@ -318,6 +324,9 @@ export function cashReportCsv(r: CashReport): string {
         ? "none: the close-out checklist is in"
         : p.closeout.blockers.join(" ")
       : null,
+    p.lienDeadline
+      ? `${p.lienDeadline.dueOn} (${p.lienDeadline.stateName}, ${p.lienDeadline.citation}${p.lienDeadline.basis === "estimated" ? "; estimated from billing" : ""})`
+      : null,
   ]);
   const t = r.totals;
   const total = [
@@ -338,6 +347,7 @@ export function cashReportCsv(r: CashReport): string {
     null,
     null,
     null,
+    null,
     amt(t.pastDueCents),
     amt(t.dueNext30Cents),
     t.waiversToSend || null,
@@ -349,6 +359,7 @@ export function cashReportCsv(r: CashReport): string {
     amt(t.awaitingOwnerCents),
     null,
     amt(t.retainageWaitingOnCloseoutCents),
+    null,
   ];
   const lines = [
     header,

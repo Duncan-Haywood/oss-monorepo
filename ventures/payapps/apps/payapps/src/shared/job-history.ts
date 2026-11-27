@@ -149,6 +149,11 @@ const JOB_FIELD_LABELS: Record<string, string> = {
   billingDay: "GC billing cutoff day",
   gaNocFiled: "Georgia notice of commencement filed",
   gaNocContractor: "contractor on the Georgia notice of commencement",
+  lienState: "lien deadline state",
+  lienResidential: "residential (lien deadline)",
+  lastFurnishedOn: "last day furnished (lien deadline)",
+  workCompletedOn: "project completion (lien deadline)",
+  noticeOfCompletionOn: "notice of completion recorded (lien deadline)",
   procoreSsov: "Procore SOV positions for the invoice sheet",
   status: "status",
 };
