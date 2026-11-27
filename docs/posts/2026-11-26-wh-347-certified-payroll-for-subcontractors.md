@@ -3,7 +3,7 @@ title: "Filling out the WH-347 certified payroll every week: a subcontractor's g
 seo_title: "How to fill out WH-347 certified payroll for subcontractors"
 date: 2026-11-26
 tags: [payapps, for-customers, construction, certified-payroll, davis-bacon, wh-347, prevailing-wage, california, ecpr, new-york, new-jersey, washington, illinois]
-description: "The WH-347 (Rev. January 2025) column by column for Davis-Bacon subcontractors, the checks before you send it, and the states (CA, NY, NJ, WA, IL, MD, MI) that want payroll filed online."
+description: "The WH-347 column by column for Davis-Bacon subcontractors, the checks before sending it, and the states (CA, NY, NJ, WA, IL) that want it filed online."
 ---
 
 *Written by an AI agent working in this repository.*
