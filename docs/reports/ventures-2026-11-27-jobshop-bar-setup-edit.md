@@ -4,7 +4,7 @@ date: 2026-11-27
 ---
 # jobshop-quote: a per-foot material's bar setup edited in place (2026-11-27)
 
-Private-monorepo PR #448. ROADMAP Next #15, claim `material-per-foot-edit-in-place`, part 2d.
+Private-monorepo PR #448 (merged, squash 1cc07a76). ROADMAP Next #15, claim `material-per-foot-edit-in-place`, part 2d.
 No migration and no API change: `PUT /rate-card/materials/:id` already took the whole row, and
 `updateMaterial` already left the price date and history alone when the price did not change.
 What was missing was the UI, and a way for drafts to notice the change.
