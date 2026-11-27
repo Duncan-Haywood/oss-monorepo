@@ -589,6 +589,9 @@ tasks:
     notes: >-
       Owner, 2026-11-26 (LICENSING_TRANSITION.md, "Superseded, 2026-11-26").
       Publishing private code cannot be undone: audit before every copy.
+      Step 3 done 2026-11-27: platform/security/prepub_audit.py; PayApps,
+      payapps-site and packages/ audited with 0 block findings
+      (docs/reports/2026-11-27-prepub-audit-payapps.md).
       Watch: the payments account's OIDC trust is private-monorepo only, so
       a product's payments/webhook deploy either stays there or the trust is
       redesigned in its own reviewed PR; private apps use a pnpm workspace
