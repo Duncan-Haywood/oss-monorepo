@@ -47,7 +47,7 @@ export const EARLY_ACCESS_HREF = 'custom-development/?kind=new#request';
 export const PRODUCTS = Object.freeze([
   Object.freeze({
     id: 'jobshop-quote',
-    name: 'Job-shop quoting: RFQ to priced quote',
+    name: 'Job Shop Quote: RFQ to priced quote',
     status: 'Open: free Early access plan',
     // The deployed app's sign-up page; `from` says which page sent the visitor.
     appUrl: 'https://jobshop-quote.marisstella.app/sign-up?from=industries/manufacturing',
@@ -55,10 +55,13 @@ export const PRODUCTS = Object.freeze([
     freePlan: '40 RFQs a month, 3 users, no card',
     for: 'CNC machine shops and fabricators who quote from drawings, CAD files and emails.',
     does: [
-      'Reads an RFQ (the email, the text of PDF drawings, STEP and DXF files) and drafts a priced quote.',
-      'Prices from your own shop rates, setup times and material costs, not a generic table.',
-      'Keeps every quote and its assumptions, so you can see why a job was priced the way it was.',
+      'Prices each part from your own shop rates, setup times and material costs, not a generic table.',
+      'Measures STEP and DXF files for blank size, cutting, drilling and bending times you can correct.',
+      'Builds the quote PDF, emails it when your estimator sends it, and keeps every quote and its assumptions in a won/lost log.',
     ],
+    note: 'Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet; until it is, you enter the parts yourself.',
+    // Its own marketing site at /jobshop/ (jobshop-site.mjs).
+    site: 'jobshop',
     problems: ['rfq-backlog', 'own-rates'],
     // The free tool whose real still (showcase/capture.mjs) shows under this card.
     still: 'cnc-machining-quote-calculator',
