@@ -50,7 +50,19 @@ writes the message to `.wrangler/tmp/email/`.
 
 ## Copy rules (tests enforce most of them: `test/site.test.mjs`)
 
-- Early access: nothing is sold; prices are "proposed"; no payment details asked.
+- One switch, `APP_URL` (with `PAID_PLANS_ON`) in `src/launch.mjs` or the build's env, sets the status
+  everywhere: header, footer, every page's closing call to action, the FAQ's availability and price
+  answers, the pricing page and `llms.txt`. Before launch (`null`) the site is **early access**: the
+  list form, "proposed" prices, nothing sold. Since 2026-11-27 it is set to
+  `https://seller-books.marisstella.app` (the app is live there; `../../DEPLOY.md`): every page says
+  **open now, free for one platform and up to 25 orders a month**, buttons go to
+  `<APP_URL>/signup?from=seller-books-site/<page>`, `/early-access` stays (noindex) for old links, and
+  paid plans read "not on sale yet" until `PAID_PLANS_ON`. `normaliseAppUrl` refuses a `workers.dev`
+  address (its subdomain names the Cloudflare account), plain http or a path, so a wrong value fails the
+  build. `test/launch.test.mjs` builds all three states.
+- The pricing page's plans are the app's own: `test/launch.test.mjs` reads
+  `apps/seller-books/src/shared/plans.ts` and fails if a price, annual price, order allowance, platform
+  limit or feature line differs. Change the app first, then `src/content.mjs`.
 - No testimonials, ratings, user counts or savings claims. The one worked example is labelled invented.
 - Not tax advice (said on every page). 1099-K only as fact: federal threshold over $20,000 and more
   than 200 transactions, some states lower; never as a scare.
@@ -68,6 +80,12 @@ unset, they are closed. Every read writes a row to `admin_audit_log` (`migration
 Unsubscribed rows stay as suppression records, so they count in `total` and `unsubscribed`. `ADMIN_METRICS_TOKEN` (same rules) is the agents' read-only credential: `/metrics` only; `/accounts` answers 403.
 
 ## Hosting and launch checklist (not deployed)
+
+The copy is launched (above); the site itself is not served yet (`https://marisstella.app/seller-books/`
+answers 404). Serving it as a static export copied by the catalogue build is the next step, following
+whichever of PayApps' two open approaches lands (PRs #19733 and #19736), so the two sites are served the
+same way. The early-access list API needs the Worker; a static copy needs only the open copy.
+
 
 Intended URL `https://marisstella.app/seller-books` (provisional, like grants at `/grants`). Before launch:
 

@@ -1,6 +1,8 @@
 # Seller Books pricing: proposed tiers and why
 
-Status: **proposal for early access** (2026-11-24). Nothing is charged; the site says so on every page.
+Status: **the app's prices, not yet charged** (2026-11-27). The app (`apps/seller-books`, `src/shared/plans.ts`)
+is open on its Free plan; the paid plans below are set up there but not on sale until Paddle checkout is
+live, and the site says so on every page (`src/launch.mjs`). Written 2026-11-24 as the early-access proposal.
 The tiers live in `src/content.mjs` (`TIERS`) and the site, llms.txt and tests read them from there.
 
 ## The proposal
@@ -66,7 +68,9 @@ better-sourced one.
 
 ## Copy rules for anything about price
 
-- Say "proposed" and "nothing is charged during early access" wherever a price appears.
+- Before launch: say "proposed" and "nothing is charged during early access" wherever a price appears.
+  Since the app opened: show the Free plan first and mark paid plans "not on sale yet" until
+  `PAID_PLANS_ON` (the launch switch writes both).
 - No savings claims ("saves you $X / N hours"), no comparisons with a competitor's price on the site,
   no testimonials, no ratings in JSON-LD.
 - Not tax advice. 1099-K: state the federal threshold ($20,000 and 200 transactions; some states lower)
