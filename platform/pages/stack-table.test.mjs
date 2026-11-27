@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { renderMarkdown, stackTable, STACK_MAX_ROWS } from '../devlog/markdown.mjs';
-import { STACK_TABLE_CSS, renderSiteStyle } from './site-nav.mjs';
+import { STACK_TABLE_CSS, STACK_TABLE_CHROME_CSS, renderSiteStyle } from './site-nav.mjs';
 
 const md = (head, rows) => [`| ${head.join(' | ')} |`, `|${head.map(() => '---').join('|')}|`, ...rows.map((r) => `| ${r.join(' | ')} |`)].join('\n');
 
@@ -53,4 +53,16 @@ test('a stacked cell keeps mixed inline content together (no grid or flex on the
   for (const rule of cellRules) assert.doesNotMatch(rule, /display:(grid|flex)/, rule);
   assert.match(STACK_TABLE_CSS, /table\.stack td\{[^}]*display:table[;}]/);
   assert.match(STACK_TABLE_CSS, /table\.stack td::before\{[^}]*display:table-cell/);
+});
+
+// Polish, 2026-11-27: a calculator's editable rows (`table.stack.fields`) become a card of
+// labelled inputs, three short fields to a line, instead of a 500 to 1,600 px sideways scroller.
+test('editable rows (stack fields) get a labelled field grid, phones only, and ventures still win', () => {
+  const phone = STACK_TABLE_CSS.slice(STACK_TABLE_CSS.indexOf('@media (max-width:600px)'));
+  assert.match(phone, /table\.stack\.fields tr\{display:grid;grid-template-columns:repeat\(auto-fill,minmax\(5em,1fr\)\)/);
+  assert.match(phone, /table\.stack\.fields td::before,table\.stack\.fields td:first-child::before\{content:attr\(data-label\)/, 'the first field keeps its label too');
+  assert.match(phone, /table\.stack\.fields td :is\(input[^{]*,select,textarea\)\{max-width:100%/, 'no field pushes past its card');
+  assert.match(phone, /td button\{overflow-wrap:normal;white-space:nowrap\}/, 'a Remove button does not break mid-word');
+  assert.doesNotMatch(STACK_TABLE_CHROME_CSS, /(^|[^(])table\.stack/, 'every chrome selector, fields included, sits in :where()');
+  assert.match(STACK_TABLE_CHROME_CSS, /:where\(table\.stack\.fields\) tr\{display:grid/);
 });

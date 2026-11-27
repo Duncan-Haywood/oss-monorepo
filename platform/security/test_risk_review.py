@@ -27,6 +27,25 @@ def ids(result):
     return {c["id"] for c in result["checks"]}
 
 
+class LicenceTests(unittest.TestCase):
+    def _relicense(self, text):
+        files = rr.parse_unified_diff(diff("ventures/x/LICENSE", ["new"], removed_at=[1]))
+        return rr.review(files, head_text=lambda p: text)["escalate"]
+
+    def test_the_all_rights_reserved_template_is_allowed(self):
+        text = (ROOT / "portfolio/monetization/licences/ALL-RIGHTS-RESERVED").read_text()
+        self.assertEqual(rr.licence_name(text), "LicenseRef-AllRightsReserved")
+        self.assertEqual(self._relicense(text), [])
+
+    def test_fsl_and_mit_stay_allowed(self):
+        self.assertEqual(self._relicense((ROOT / "LICENSE").read_text()), [])
+        self.assertEqual(self._relicense("Permission is hereby granted, free of charge, ..."), [])
+
+    def test_a_bare_all_rights_reserved_line_or_other_licence_is_not_enough(self):
+        self.assertTrue(self._relicense("Copyright (c) 2026 X. All rights reserved."))
+        self.assertTrue(self._relicense("GNU AFFERO GENERAL PUBLIC LICENSE Version 3"))
+
+
 class ParseTests(unittest.TestCase):
     def test_added_and_removed_lines_are_tracked_per_file(self):
         files = rr.parse_unified_diff(diff("a.md", ["x", "y"], removed_at=[7]) + diff("b.py", ["z"], new=True))

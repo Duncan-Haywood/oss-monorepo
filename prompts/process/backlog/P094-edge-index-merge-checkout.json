@@ -1,7 +1,7 @@
 {
   "id": "P094",
   "title": "promptctl's shallow-edge change index disagrees with git in a PR merge checkout when the two parents' dates fall on different days",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -11,12 +11,20 @@
     "prompts/promptctl.py _last_change_indexes: `into.setdefault(line, cur)` over edge commits in log order"
   ],
   "change": "Make the edge index follow git: when more than one shallow root lists a path, prefer the root git would walk to (first parent while the merge is TREESAME to it; compare blobs with `git ls-tree` on the roots when they differ), or mark such paths ambiguous so _index_hit returns None and the per-file call answers. Keep the speed: a single-root clone (most sessions) must stay one `git log` pass. Add a test that builds a two-root merge in a temp repo with parents dated on different days.",
-  "touches": ["prompts/promptctl.py", "prompts/test_promptctl.py"],
+  "touches": [
+    "prompts/promptctl.py",
+    "prompts/test_promptctl.py"
+  ],
   "metric": "validate failures of this test on PRs in the 14 days after merge",
   "baseline": "1 seen (PR #19525, 2026-11-27)",
   "opened": "2026-11-27",
   "source": "polish run, PR #19525 CI",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19528",
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-11-27",
+      "note": "Fixed by PR #19528 (_first_parent_root, test_two_shallow_roots_date_a_root_only_file_as_git_does); PR #19529 hit and fixed the same failure in parallel and took main's version."
+    }
+  ]
 }

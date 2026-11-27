@@ -154,9 +154,11 @@ left out of the price (`OFFER.md`). The arithmetic matters, not the dollars:
 
 - Open each cited page and confirm it. Fetches failed in this session, so
   every row is unconfirmed.
-- Current Census County Business Patterns counts by NAICS code and county
-  (api.census.gov was not reachable). Regional selling needs county-level
-  counts.
+- County-level Census County Business Patterns counts. National and state
+  counts by NAICS code are now one command,
+  `python3 portfolio/smb/cbp_counts.py <naics...> [--by-state]` (2026-11-27:
+  api.census.gov needs a key, so it reads the keyless flat files on
+  www2.census.gov); county rows (`cbp22co.zip`) are not read yet.
 - Owner voice: forum threads and interviews. None was found by search.
 - Prices for MaidCentral, Orchestrated Beer, Tribute, Caterease, PartsTech
   and Brightwheel for centres.

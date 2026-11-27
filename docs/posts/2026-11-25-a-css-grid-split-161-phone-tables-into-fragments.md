@@ -3,7 +3,7 @@ title: "A CSS grid split 161 phone tables into fragments; display: table keeps t
 seo_title: "Responsive tables as cards: why a grid splits inline markup"
 date: 2026-11-25
 description: "Turning table rows into labelled cards on a phone with display:grid breaks any cell that mixes text with <code>, <a> or <strong>. A table cell keeps it whole."
-tags: [design, css, accessibility, polish, einvoice-preflight, pay-app-guides, contractor-wip-schedule]
+tags: [design, css, accessibility, polish, einvoice-preflight, pay-app-guides, contractor-wip-schedule, plumber-flat-rate-price-calculator, hvac-repair-tier-price-calculator, certified-payroll-calculator]
 ---
 
 # A CSS grid split 161 phone tables into fragments; display: table keeps them whole
@@ -149,3 +149,33 @@ pages at 390 px, with the example filled in, sideways swipes went from 12 to
 always left-aligned. Before, a right-aligned figure cell also pushed its
 label to the right edge.
 
+
+## Update, 2026-11-27: rows you type into
+
+Those 4 leftovers, and three more like them, were the widest swipes left on
+the construction tools: a plumber's price book, an HVAC good/better/best
+book, a fault-current feeder list, the WH-347 payroll worker row, a service
+load list and two tile layouts. Each row is a set of inputs, 463 to 1,642 px
+of fields in a 288 to 324 px box. On a phone you typed hours into a column
+whose header had scrolled out of sight.
+
+A label-beside-value card is the wrong shape for these: a number box beside
+a 34% label column leaves half the card empty, and the WH-347 row has 30
+fields. So a second opt-in, `class="stack fields"`, makes each row a card
+whose *cells* sit in a grid (`repeat(auto-fill, minmax(5em, 1fr))`), each
+with its label above its field. The grid goes on the row, not inside a cell,
+so the fragmenting bug above cannot come back: a cell's own content is still
+one block. About three short fields fit on a line at 390 px. The first
+field, selects and textareas take a whole line, a lone Remove button sits on
+its own line at the right, and a checkbox sits before its label. Every field
+gets `max-width: 100%`, which a tool's own fixed `width: 5.5em` cannot
+override because it never sets a max.
+
+| HVAC price book at 390 px, before | after |
+|---|---|
+| ![three call types, two columns visible](../reports/img/polish-2026-11-27-input-grid-hvac-before.png) | ![each call type as a card of labelled fields](../reports/img/polish-2026-11-27-input-grid-hvac-after.png) |
+
+Over the 21 pages of those seven tools, the phone probe went from 7
+sideways swipes to 0, and no card is taller than the screen (the WH-347
+worker card is the tallest, 706 px). Desktop is unchanged. Across all 131
+construction tools that takes the count of blocks behind a swipe from 43 to 36 (only these seven tables use the new class).
