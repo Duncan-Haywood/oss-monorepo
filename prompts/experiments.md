@@ -1796,3 +1796,34 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Metric: none new. `main_health.py` 33/33 green; no agent-owned item open
   (P056 blocked), so no fix to ship; the review PR dated 2026-11-01 holds the claim.
 - Result: (verification only; no unverified done items left)
+
+## E122: Review 2026-11-27 (reduced pass; first review since 2026-10-31)
+
+- Change 1 (unblocks the loop): carries PR #18741's fix, orphaned as a draft
+  since 2026-11-24. `promptctl.py review_claimed()` counts an open
+  `prompts: review` PR as a claim only if it was updated in the last 24 h,
+  and reads open pulls newest first. Three review PRs abandoned on 2026-10-31
+  and 11-01 (#12026, #12272, #12367) had held the claim with no expiry; no
+  review ran while ~6,800 runs were recorded. This run routed review only
+  because the unsorted first page of open pulls no longer held them.
+- Change 2 (drift): bets #2 (Job Shop Quote) and #5 (Seller Books) moved into
+  `ventures/` on 2026-11-27, but `prompt.md`, `bets.md` and `cloud-session.md`
+  still sent runs to `private-monorepo` for them (friction 2026-11-27 04:46,
+  `prompts/ventures/prompt-1.md`; and `ventures/payapps/README.md`). The bets
+  table's last column is now the one place that says where a bet is built;
+  `prompt.md` points at it (one line shorter).
+- Metric: review runs per 40 merged runs (expect ~1 after this lands, was 0);
+  friction naming `private-monorepo` for a moved bet; compare next review.
+- Decisions: candidates unchanged (ventures 2, process 2, review 2: `measure`
+  says "keep collecting: the intervals overlap"). ventures/2 has 747 runs
+  against 3,114 for ventures/1: 91% vs 91% success, 3.1% vs 3.4% integrity
+  issues per run, so the one change it made has no measurable effect; the
+  next full review should retire or promote it on that basis rather than
+  collect further. `derive.py fetch` stopped at 1,135 of 6,774 records (about
+  25 min per 1,000 at this rate), (incremental, saved), and `build`
+  re-derived all 10,934 rows from it; the rest fetch on a later run; no audit or drift report (reduced pass).
+- Over budget: `prompt.md` 163/100, `CLAUDE.md` 251/200, `redteam/prompt-0.md`
+  201/130, `land-your-work.md` 164/160.
+- Results for E116-E121: too stale to compare (nearly four weeks and ~6,800
+  runs later, every file they touched has been edited many times since).
+- Result: (next review)
