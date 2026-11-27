@@ -30,7 +30,9 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "biome caught a TS parameter property that Node type stripping rejects (fixed); actions-secret-leak-check flagged a one-line key test + GITHUB_OUTPUT write (split into lines)"
+    "biome caught a TS parameter property that Node type stripping rejects (fixed); actions-secret-leak-check flagged a one-line key test + GITHUB_OUTPUT write (split into lines)",
+    "CI check_payment_keys flagged a placeholder pdl_live_ key string in a test (now built at run time)",
+    "CI check_next_page_host flagged url.replace(base) pagination copied from paddle-webhook.ts's pattern (now startsWith + slice, with a test)"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +43,10 @@
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "every PayApps Next item waits on demand and --bets pointed at einvoice #4, whose launch review says the deploy waits on two owner legal items; the real gap was found only by reading the deploy log and Paddle docs"
+    },
+    {
+      "file": "platform/ci/check_next_page_host.py",
+      "issue": "its fix hint names nextPagePath in ventures/payapps/packages/billing/src/paddle.ts, which no file in the tree defines; and the checker landed on main mid-run, so it ran only in CI"
     }
   ],
   "deviations": [
