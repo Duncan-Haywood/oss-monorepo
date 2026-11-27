@@ -59,7 +59,7 @@ describe("legal pages", () => {
     expect(refunds).toContain("<strong>full refund within 30 days</strong>");
     expect(site.get("acceptable-use.html")).toContain("<strong>false or inflated</strong>");
     // The version line becomes the lede; it is not repeated in the body.
-    expect(terms.match(/Version 2026-/g)?.length).toBe(1);
+    expect(String(terms).match(/Version 2026-/g)?.length).toBe(1);
   });
 
   it("link to the app's copy, which asks for acceptance", () => {
