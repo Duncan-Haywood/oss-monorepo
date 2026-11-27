@@ -257,14 +257,83 @@ export function ProjectPage() {
   };
   const mismatch = p.sovTotalCents !== p.originalContractSumCents;
 
+  const payAppsSection = (
+    <>
+      <section id="pay-apps" className="card scroll-mt-4 overflow-x-auto">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="font-semibold">Pay applications</h2>
+          <button
+            type="button"
+            className="btn"
+            disabled={newPayApp.isPending || p.payApps.at(-1)?.status === "draft"}
+            onClick={() => newPayApp.mutate()}
+          >
+            New pay application
+          </button>
+        </div>
+        <ErrorText error={newPayApp.error} />
+        <table className="w-full">
+          <thead>
+            <tr>
+              <th className="th">#</th>
+              <th className="th">Period</th>
+              <th className="th">Status</th>
+              <th className="th text-right">Current payment due</th>
+              <th className="th text-right">Certified</th>
+            </tr>
+          </thead>
+          <tbody>
+            {p.payApps.map((a) => (
+              <tr key={a.id}>
+                <td className="td">
+                  <Link
+                    to="/orgs/$orgId/projects/$projectId/pay-apps/$payAppId"
+                    params={{ orgId, projectId, payAppId: a.id }}
+                    className="font-medium underline"
+                  >
+                    #{a.number}
+                  </Link>
+                </td>
+                <td className="td">
+                  {a.periodFrom} – {a.periodTo}
+                </td>
+                <td className="td">{a.status}</td>
+                <td className="td text-right">{formatCents(a.currentPaymentDueCents)}</td>
+                <td className="td text-right">
+                  {a.certifiedAmountCents === null ? "" : formatCents(a.certifiedAmountCents)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {p.payTermsBasis === "owner_paid" && (
+        <OwnerPaymentsBulk
+          key={p.payApps.map((a) => `${a.id}:${a.status}:${a.ownerPaidOn ?? ""}`).join(",")}
+          base={projectPath(orgId, projectId, "/pay-apps")}
+          apps={p.payApps}
+          gcName={p.gcName}
+          onChanged={setData}
+        />
+      )}
+    </>
+  );
+  // A returning contractor opens a job to bill the month, so once a job has applications they come
+  // first; before that the schedule of values (which an application needs) comes first.
+  const payAppsFirst = p.payApps.length > 0;
+
   return (
     <div className="space-y-6">
       {p.isSample && (
         <div className="rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
           <p>
-            <strong>Sample job.</strong> Invented names and numbers, to try PayApps on: open an
-            application, fill in this month's draft, download a PDF or look at the cash report. It
-            does not count toward your plan, and every PDF says SAMPLE DATA.
+            <strong>Sample job.</strong> Invented names and numbers, to try PayApps on: open an{" "}
+            <a href="#pay-apps" className="underline">
+              application
+            </a>
+            , fill in this month's draft, download a PDF or look at the cash report. It does not
+            count toward your plan, and every PDF says SAMPLE DATA.
           </p>
           <button
             type="button"
@@ -405,7 +474,11 @@ export function ProjectPage() {
         </div>
       </div>
 
-      <section className="card overflow-x-auto">
+      <JumpBar payAppsFirst={payAppsFirst} />
+
+      {payAppsFirst && payAppsSection}
+
+      <section id="sov" className="card scroll-mt-4 overflow-x-auto">
         <h2 className="mb-2 font-semibold">Schedule of values</h2>
         {mismatch && (
           <p className="mb-2 text-sm text-red-700">
@@ -605,7 +678,9 @@ export function ProjectPage() {
 
       <OpeningBalance project={p} path={path("/opening")} onSaved={setData} />
 
-      <section className="card overflow-x-auto">
+      {!payAppsFirst && payAppsSection}
+
+      <section id="change-orders" className="card scroll-mt-4 overflow-x-auto">
         <h2 className="mb-2 font-semibold">Change orders</h2>
         <table className="w-full">
           <tbody>
@@ -830,7 +905,7 @@ export function ProjectPage() {
         )}
         <form
           ref={coForm}
-          className="mt-3 grid grid-cols-12 gap-2"
+          className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-12"
           onSubmit={(e) => {
             e.preventDefault();
             addCo.mutate();
@@ -851,7 +926,7 @@ export function ProjectPage() {
             required
           />
           <input
-            className="input col-span-2"
+            className="input col-span-1 sm:col-span-2"
             type="date"
             aria-label="Date sent to the GC (optional)"
             title="Date sent to the GC (optional)"
@@ -893,7 +968,7 @@ export function ProjectPage() {
             onChange={(e) => setCo({ ...co, days: e.target.value })}
           />
           <input
-            className={`input text-right ${co.target === "new" ? "col-span-1" : "col-span-2"}`}
+            className={`input col-span-1 text-right ${co.target === "new" ? "" : "sm:col-span-2"}`}
             placeholder="Amount ($)"
             inputMode="decimal"
             value={co.amount}
@@ -911,78 +986,27 @@ export function ProjectPage() {
         <ErrorText error={addCo.error} />
       </section>
 
-      <RfiLog
-        base={projectPath(orgId, projectId, "")}
-        job={p}
-        changeOrders={p.changeOrders}
-        from={from}
-        onStartChangeOrder={startFromRfi}
-      />
-
-      <JobSchedule base={projectPath(orgId, projectId, "")} job={p} />
-
-      <PunchList base={projectPath(orgId, projectId, "")} job={p} from={from} />
-
-      <Closeout base={projectPath(orgId, projectId, "")} job={p} from={from} />
-
-      <section className="card overflow-x-auto">
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="font-semibold">Pay applications</h2>
-          <button
-            type="button"
-            className="btn"
-            disabled={newPayApp.isPending || p.payApps.at(-1)?.status === "draft"}
-            onClick={() => newPayApp.mutate()}
-          >
-            New pay application
-          </button>
-        </div>
-        <ErrorText error={newPayApp.error} />
-        <table className="w-full">
-          <thead>
-            <tr>
-              <th className="th">#</th>
-              <th className="th">Period</th>
-              <th className="th">Status</th>
-              <th className="th text-right">Current payment due</th>
-              <th className="th text-right">Certified</th>
-            </tr>
-          </thead>
-          <tbody>
-            {p.payApps.map((a) => (
-              <tr key={a.id}>
-                <td className="td">
-                  <Link
-                    to="/orgs/$orgId/projects/$projectId/pay-apps/$payAppId"
-                    params={{ orgId, projectId, payAppId: a.id }}
-                    className="font-medium underline"
-                  >
-                    #{a.number}
-                  </Link>
-                </td>
-                <td className="td">
-                  {a.periodFrom} – {a.periodTo}
-                </td>
-                <td className="td">{a.status}</td>
-                <td className="td text-right">{formatCents(a.currentPaymentDueCents)}</td>
-                <td className="td text-right">
-                  {a.certifiedAmountCents === null ? "" : formatCents(a.certifiedAmountCents)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-
-      {p.payTermsBasis === "owner_paid" && (
-        <OwnerPaymentsBulk
-          key={p.payApps.map((a) => `${a.id}:${a.status}:${a.ownerPaidOn ?? ""}`).join(",")}
-          base={projectPath(orgId, projectId, "/pay-apps")}
-          apps={p.payApps}
-          gcName={p.gcName}
-          onChanged={setData}
+      <div id="rfis" className="scroll-mt-4">
+        <RfiLog
+          base={projectPath(orgId, projectId, "")}
+          job={p}
+          changeOrders={p.changeOrders}
+          from={from}
+          onStartChangeOrder={startFromRfi}
         />
-      )}
+      </div>
+
+      <div id="schedule" className="scroll-mt-4">
+        <JobSchedule base={projectPath(orgId, projectId, "")} job={p} />
+      </div>
+
+      <div id="punch-list" className="scroll-mt-4">
+        <PunchList base={projectPath(orgId, projectId, "")} job={p} from={from} />
+      </div>
+
+      <div id="closeout" className="scroll-mt-4">
+        <Closeout base={projectPath(orgId, projectId, "")} job={p} from={from} />
+      </div>
 
       <JobInsuranceRequirements
         orgId={orgId}
@@ -1210,5 +1234,31 @@ function LineRetainage(props: {
       </span>
       {save.error && <span className="text-xs text-red-700">{save.error.message}</span>}
     </span>
+  );
+}
+
+/**
+ * Links to the job page's sections. On a phone the page runs to several thousand pixels, and the
+ * pay applications, what a contractor opens the job for, were six screens down.
+ */
+function JumpBar({ payAppsFirst }: { payAppsFirst: boolean }) {
+  const sov: [string, string] = ["sov", "Schedule of values"];
+  const apps: [string, string] = ["pay-apps", "Pay applications"];
+  const links: [string, string][] = [
+    ...(payAppsFirst ? [apps, sov] : [sov, apps]),
+    ["change-orders", "Change orders"],
+    ["rfis", "RFIs"],
+    ["schedule", "Schedule"],
+    ["punch-list", "Punch list"],
+    ["closeout", "Close-out"],
+  ];
+  return (
+    <nav aria-label="On this page" className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
+      {links.map(([id, label]) => (
+        <a key={id} href={`#${id}`} className="text-slate-700 underline">
+          {label}
+        </a>
+      ))}
+    </nav>
   );
 }
