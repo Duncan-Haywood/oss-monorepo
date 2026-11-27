@@ -3,7 +3,7 @@ title: "Not paid on a state or city job? Bond claim deadlines in seventeen state
 seo_title: "Little Miller Act deadlines: state payment bond claims in 17 states"
 date: 2026-11-27
 tags: [for-customers, payapps, construction, pay-app-guides, public-jobs]
-description: "No lien on public work, so subs claim on the payment bond. The notice and suit deadlines in seventeen states, from TX, FL and NY to MD, MO and UT, from each state's statute."
+description: "No lien on public work, so subs claim on the payment bond. The notice and suit deadlines in 17 states, read from each state's statute."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: bond claim rights are lost

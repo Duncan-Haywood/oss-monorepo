@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyeyKQSS5xEStx8MXoL",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T22:38:38Z",
+  "ended": "2026-11-27T22:46:13Z",
+  "wall_minutes": 7.74,
+  "tokens_in": 6010072,
+  "tokens_out": 28605,
+  "cost_usd": 2.6911,
+  "tool_calls": 59,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19901",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First scripted insert of the four rules matched RETAINAGE_CAPS' MA/MI/VA keys (which come first in the file) instead of STATE_BOND_RULES; caught on the diff hunk headers and re-anchored before testing."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md",
+      "issue": "PR #19887 added five states to the app and guide but left the customer post saying 'eight states'; fixed here. A guide-vs-post state-count check would catch it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Free-choice slot spent on a ranked bet's roadmap extension (more states) rather than a novel idea, since the North star note prefers bet work and this one was finishable and testable in one run.",
+      "did": "Added ID, MD, MO, UT bond claim steps to PayApps plus guide and post.",
+      "result": "Merged-ready with all payapps and guide tests green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md (extended: 17-state table, a section on the four new states)"
+  ],
+  "goal": null,
+  "notes": "Idea: extend PayApps' state little-Miller-Act bond steps to the next states whose legislature sites answer through the proxy (probed ~30; GA via justia, PA, IL, CT, WV, WI refused/timed out). Tests: payapps unit 1566 pass/4 skip, worker 606 pass, tsc 0, biome clean; pay-app-guides page.test 34 pass; industry-construction.test 19 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c88e9410-9ad0-5737-8f2a-b8a74018d7c2",
+    "transcripts": 1,
+    "first": "2026-11-27T22:38:38Z",
+    "last": "2026-11-27T22:46:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 112,
+        "output": 28605,
+        "thinking": 5410,
+        "cache_read": 5892457,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117503,
+        "api_equivalent_usd": 2.6911,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 112,
+      "output": 28605,
+      "thinking": 5410,
+      "cache_read": 5892457,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117503,
+      "api_equivalent_usd": 2.6911,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.74,
+      "active_minutes": 7.74,
+      "model_minutes": 5.35,
+      "tool_minutes": 2.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
