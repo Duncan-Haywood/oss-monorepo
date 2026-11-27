@@ -252,23 +252,23 @@
       "move_order": 20
     },
     {
-      "venture": "sales-export-to-journal",
-      "source_lines": 6694,
+      "venture": "machine-shop-guides",
+      "source_lines": 6721,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
-      "model": "one-off",
-      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "model": "subscription",
+      "model_why": "runs a server-side part (pdf-parser-sync.test.mjs): a monthly cost per user",
       "third_party_licences": [],
       "moved": null,
       "move_order": 21
     },
     {
-      "venture": "machine-shop-guides",
-      "source_lines": 6446,
+      "venture": "sales-export-to-journal",
+      "source_lines": 6705,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
-      "model": "subscription",
-      "model_why": "runs a server-side part (pdf-parser-sync.test.mjs): a monthly cost per user",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
       "move_order": 22
