@@ -618,6 +618,31 @@ class ClaimRaceTest(unittest.TestCase):
         want = rc.spread(["RFIs", "estimating"], rc.hashlib.sha256(b"r1").hexdigest()[:10])[0]
         self.assertIn(f"Untouched topic: '{want}'", out)
 
+    def test_roadmap_done_counts_as_worked(self):
+        # 2026-11-27 explore run: payapps moved from private-monorepo without its claim branches,
+        # and --bets named 'estimating' and 'RFIs' untouched while its Done list held both.
+        roadmap = ("# R\n\n## Done\n\n- RFI log (2026-11-26, every plan, rfi-log): sent to the GC.\n"
+                   "  continued line about estimates\n"
+                   "- Estimates, part 1 (2026-11-26, estimates-part-1): the bid.\n"
+                   "- Job costing, part 1 (2026-11-26): costs.\n\n"
+                   "## Next\n\n- Estimating takeoff from PDFs\n\n"
+                   "## Open questions for the owner\n\n- RFIs priced?\n")
+        done = rc.roadmap_done(roadmap)
+        self.assertEqual(len(done), 3, done)
+        self.assertEqual(rc.topic_done("estimating", done), 1)
+        self.assertEqual(rc.topic_done("RFIs", done), 1)
+        self.assertEqual(rc.topic_done("job costing", done), 1)
+        self.assertEqual(rc.topic_done("subcontractor compliance documents", done), 0)
+        self.assertEqual(rc.topic_words("estimating"), rc.topic_words("estimates"))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc.growth_topics(1, "payapps", ["RFIs", "estimating", "subcontractor compliance documents"],
+                             None, 0.0, 3600.0, None, done)
+        out = buf.getvalue()
+        self.assertIn("RFIs (no live claim; 1 in ROADMAP Done)", out)
+        self.assertIn("Untouched topic: 'subcontractor compliance documents'", out)
+        self.assertIn("--slug subcontractor-compliance-documents-<part>", out)
+
     def test_growth_topic_with_merged_claims_is_not_untouched(self):
         # 2026-11-27 friction (eight runs): "Untouched topic: 'PDF to ZUGFeRD conversion'" in the
         # same output that listed 8 merged claims on it. Untouched now means no claim at all.
