@@ -119,7 +119,7 @@ export function poamRulesPage({ cite, statusBox, sourcesList, cta }) {
     path: POAM_PATH,
     kind: "faq",
     title: `Which CMMC requirements can go on a POA&M: all 110 · ${SITE_NAME}`,
-    description: `All 110 NIST SP 800-171 requirements with their points and whether an open one may sit on a CMMC Level 2 POA&M: ${c.yes} may, ${c.no + c.never} must be met first. From 32 CFR 170.21.`,
+    description: `All 110 NIST SP 800-171 requirements with their points and whether an open one may sit on a CMMC Level 2 POA&M: ${c.yes} may, ${c.no + c.never} may not (32 CFR 170.21).`,
     changefreq: "monthly",
     priority: 0.8,
     faq,

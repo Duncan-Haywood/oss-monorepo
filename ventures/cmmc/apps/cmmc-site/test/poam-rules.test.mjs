@@ -43,6 +43,7 @@ test("the page lists all 110 requirements and the other pages link to it", () =>
   const pages = buildPages();
   const page = pages.find((p) => p.path === POAM_PATH);
   assert.ok(page);
+  assert.ok(page.description.length <= 160, `description ${page.description.length} > 160`);
   assert.equal((page.body.match(/<tr><th scope="row">[A-Z]{2}\.L2-3\./g) ?? []).length, 110);
   for (const from of ["/sprs-score-calculator", "/cmmc-level-1-vs-level-2"])
     assert.ok(pages.find((p) => p.path === from).body.includes(`href="${POAM_PATH}"`), from);
