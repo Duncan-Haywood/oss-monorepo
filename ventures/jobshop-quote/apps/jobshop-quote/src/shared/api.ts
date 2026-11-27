@@ -611,7 +611,8 @@ export interface RfqFileDto {
   geometry: GeometryFeatures | null;
   /**
    * A STEP or DXF file over 1 MB is stored without measuring it (the upload stays fast and cannot
-   * run out of CPU); `POST .../files/:fileId/measure` measures it in a request of its own.
+   * run out of CPU); `POST .../files/:fileId/measure` measures it in a request of its own. Over 6 MB
+   * it is never pending: `conversionError` says it is too large to measure (docs/GEOMETRY-LIMITS.md).
    */
   geometryPending: boolean;
   createdAt: string;
