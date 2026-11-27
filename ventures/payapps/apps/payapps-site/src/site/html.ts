@@ -8,6 +8,7 @@ import {
   PAGES,
   PRODUCT_NAME,
   type PublicPage,
+  WARRANTY_NOTE,
 } from "@shared/site";
 import { type LaunchInput, launchOf, plansSentence, signupUrl } from "./launch";
 
@@ -159,7 +160,7 @@ ${main}
 <footer class="site-footer">
   <div class="wrap">
     <p>${statusLine(ctx)}</p>
-    <p class="fine">${NOT_AIA_NOTE}</p>
+    <p class="fine">${NOT_AIA_NOTE} ${WARRANTY_NOTE}</p>
     <p class="footer-links">
       <a href="${href(ctx, PAGES.features.path)}">Features</a>
       <a href="${href(ctx, PAGES.pricing.path)}">Pricing</a>

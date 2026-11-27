@@ -21,6 +21,8 @@ export const DEFAULT_SITE_URL = "https://marisstella.app/payapps";
 export const SITE_TAGLINE = "Monthly pay applications for subcontractors";
 /** One line used wherever the site talks about pay-app forms, waivers or retainage. */
 export const NOT_AIA_NOTE = `${PRODUCT_NAME} is not affiliated with the American Institute of Architects (AIA) and does not produce AIA Contract Documents. Nothing on this site is legal advice.`;
+/** The footer's limitation line (PRODUCT_PLAYBOOK.md §5b; the app's Terms of Service govern its use). */
+export const WARRANTY_NOTE = `${PRODUCT_NAME} is provided as is, with no warranty: check every figure before you send a pay application. Use of the app is governed by its Terms of Service.`;
 /** Date the public copy last changed (sitemap <lastmod>, feed <updated>). */
 export const CONTENT_UPDATED = "2026-11-27";
 

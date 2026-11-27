@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { buildPayappsSite, PAYAPPS_EXPORT, rebase } from './payapps-site.mjs';
+import { buildPayappsSite, PAYAPPS_EXPORT, rebase, relativise } from './payapps-site.mjs';
 import { renderSitemapIndex } from './build.mjs';
 
 test('copies the committed PayApps export to payapps/, pages and sitemap included', async () => {
@@ -21,6 +21,10 @@ test('copies the committed PayApps export to payapps/, pages and sitemap include
     assert.doesNotMatch(home.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, ''), /<script/);
     // Sign-up goes to the app.
     assert.match(home, /href="https:\/\/payapps\.marisstella\.app\/\?signup&amp;from=payapps-site"/);
+    // Links between its pages are relative, so the copy works under any base path.
+    assert.doesNotMatch(home, /(href|src)="\//);
+    assert.match(home, /href="\.\/pricing"/);
+    assert.match(home, /no warranty/i);
     await assert.rejects(buildPayappsSite(out), /already written/);
   } finally {
     rmSync(out, { recursive: true, force: true });
@@ -40,6 +44,10 @@ test('rebase moves only the site origin, never the app host', () => {
   const s = '<a href="https://marisstella.app/payapps/pricing"> <a href="https://payapps.marisstella.app/">';
   assert.equal(rebase(s, 'https://marisstella.app/'), s);
   assert.equal(rebase(s, 'http://localhost:8000/'), '<a href="http://localhost:8000/payapps/pricing"> <a href="https://payapps.marisstella.app/">');
+});
+
+test('relativise turns the site\'s root-relative links into ./ links, nothing else', () => {
+  assert.equal(relativise('<a href="/payapps/">x</a><link href="/payapps/styles.css"><a href="/other/">'), '<a href="./">x</a><link href="./styles.css"><a href="/other/">');
 });
 
 test('the sitemap index lists the copied site\'s sitemap', () => {

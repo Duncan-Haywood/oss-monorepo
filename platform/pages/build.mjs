@@ -14071,9 +14071,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // `noindex` and in no sitemap; see `engineering.mjs`.
   await buildEngineeringPage(outDir, base);
 
+  // PayApps' own marketing site (paid bet #1), copied in whole from the app's committed
+  // static export, without the catalogue chrome (`payapps-site.mjs`). Before the
+  // construction page, which links it.
+  const payappsSite = await buildPayappsSite(outDir, { baseUrl: base });
+  const extraSitemaps = payappsSite.filter((rel) => rel === 'payapps/sitemap.xml');
+
   // The construction industry landing page (`industry-construction.mjs`):
   // links only tools and research this build published.
   await buildConstructionPage(outDir, {
+    productSites: new Set(payappsSite.length ? ['payapps'] : []),
     baseUrl: base,
     disclaimer: disclaimerHtml('../../', surfaces),
     footer: renderSiteFooterNav({ toRoot: '../../' }),
@@ -14085,11 +14092,6 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     // Real stills of its free tools (showcase/capture.mjs), already limited to published ones.
     shots: showcase.shots,
   });
-
-  // PayApps' own marketing site (paid bet #1), copied in whole from the app's committed
-  // static export, without the catalogue chrome (`payapps-site.mjs`).
-  const payappsSite = await buildPayappsSite(outDir, { baseUrl: base });
-  const extraSitemaps = payappsSite.filter((rel) => rel === 'payapps/sitemap.xml');
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.

@@ -2339,7 +2339,10 @@ test('every published venture page routes back to the hub', async () => {
   const { outDir, surfaces } = await site();
   const pages = (await listFiles(outDir))
     .filter((f) => f.endsWith('.html'))
-    .filter((f) => path.dirname(f) !== outDir); // the hub and 404 are the destination
+    .filter((f) => path.dirname(f) !== outDir) // the hub and 404 are the destination
+    // PayApps' own marketing site (payapps-site.mjs): a product's site with its own header and
+    // footer, copied in without the catalogue chrome on purpose.
+    .filter((f) => !path.relative(outDir, f).startsWith(`payapps${path.sep}`));
 
   assert.ok(pages.length > surfaces.length, 'deep SEO pages are included, not just landing pages');
 

@@ -63,6 +63,8 @@ export const PRODUCTS = [
     paidOnly: ['lien waivers', 'QuickBooks Online sync', 'job costing and the WIP schedule'],
     planned: [],
     freeToday: ['pay-application-generator', 'pay-app-guides', 'retainage-cashflow-calculator', 'lien-waiver-checker'],
+    // Its own marketing site at /payapps/ (features and pricing), when the build copied it in.
+    site: 'payapps',
   },
   {
     id: 'residential-takeoff',
@@ -308,6 +310,8 @@ export function renderConstructionPage({
   researchSlugs = null,
   earlyAccessUrl = '',
   shots = [],
+  // The product sites this build copied in (`payapps` from payapps-site.mjs): their cards link them.
+  productSites = new Set(),
 } = {}) {
   // A tool is a venture slug (`pay-app-guides`) or a page inside one
   // (`pay-app-guides/retainage-tracker.html`); liveness is the venture's.
@@ -382,7 +386,8 @@ export function renderConstructionPage({
         <p>${escapeHtml(p.summary)}</p>${p.included?.length ? `
         <p class="ic-included">On the Free plan: ${escapeHtml(p.included.join(', '))}.</p>` : ''}${p.paidOnly?.length ? `
         <p class="ic-planned">In the paid plans, not on sale yet: ${escapeHtml(p.paidOnly.join(', '))}.</p>` : ''}${p.appUrl ? `
-        <p><a class="ic-start" href="${escapeHtml(p.appUrl)}">Start free in PayApps</a> (no card)</p>` : ''}${p.built?.length ? `
+        <p><a class="ic-start" href="${escapeHtml(p.appUrl)}">Start free in PayApps</a> (no card)</p>` : ''}${p.site && productSites.has(p.site) ? `
+        <p><a href="${escapeHtml(`${toRoot}${p.site}/`)}">PayApps features and pricing</a></p>` : ''}${p.built?.length ? `
         <p class="ic-built">Built, in testing (not open yet): ${escapeHtml(p.built.join(', '))}.</p>` : ''}${p.planned.length ? `
         <p class="ic-planned">Planned: ${escapeHtml(p.planned.join(', '))}.</p>` : ''}${openProduct && p.status === 'early-access' && EARLY_ACCESS_KEYS[p.id] ? `
         <p><a href="#early-access">Ask for early access</a></p>` : ''}${free.length ? `

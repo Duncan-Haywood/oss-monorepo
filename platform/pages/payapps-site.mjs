@@ -28,6 +28,15 @@ export function rebase(text, baseUrl) {
 }
 
 /**
+ * The export links its own pages from the host root (`href="/payapps/pricing"`); the catalogue may
+ * be served under a path (the GitHub Pages fallback) and check.mjs refuses root-relative links, so
+ * they become relative. Every page of the export sits in one directory, so `./` is always right.
+ */
+export function relativise(html) {
+  return html.replace(/(href|src)="\/payapps\//g, '$1="./');
+}
+
+/**
  * Copies the export into `<outDir>/payapps/`. Returns the files written (relative to outDir), or []
  * when the export is missing (a sparse checkout without the venture).
  */
@@ -46,7 +55,8 @@ export async function buildPayappsSite(outDir, { baseUrl = PRODUCTION, from = PA
       const target = path.join(dest, rel);
       await fs.mkdir(path.dirname(target), { recursive: true });
       if (TEXT.has(path.extname(entry.name))) {
-        await fs.writeFile(target, rebase(await fs.readFile(src, 'utf8'), baseUrl));
+        const text = rebase(await fs.readFile(src, 'utf8'), baseUrl);
+        await fs.writeFile(target, entry.name.endsWith('.html') ? relativise(text) : text);
       } else {
         await fs.copyFile(src, target);
       }
