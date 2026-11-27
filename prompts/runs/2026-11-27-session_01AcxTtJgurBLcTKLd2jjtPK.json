@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtJgurBLcTKLd2jjtPK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T06:06:50Z",
+  "ended": "2026-11-27T06:21:57Z",
+  "wall_minutes": 16.68,
+  "tokens_in": 12115056,
+  "tokens_out": 67142,
+  "cost_usd": 5.3083,
+  "tool_calls": 91,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19637",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Two wrong expectations in my own new worker test (48 h not 24 h on the line; a non-member gets 404 not 403), fixed before commit; the time CSV first used a 'Hours' header the certified payroll import reads as total hours, renamed 'Regular hours' after the round-trip test caught it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Every payapps, jobshop-quote, cmmc and einvoice Next item is gated 'if people ask'/'waits on demand' before launch, so --bets says 'no bet has a free, ungated item'; the useful output was the growth-path topic list, which pointed at job costing."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo result says to call register_repo_root, which does not exist here (already documented); the private clone was not needed after all since payapps moved here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "why": "All Next items wait on customer demand that cannot exist before launch; opened a new item from the bet's growth path (job costing) instead: crew timesheets, a standard suite module the competitors have.",
+      "did": "Claimed job-cost-timesheets-part-1 with --slug and built it end to end.",
+      "result": "Landed with tests; Next lists part 2."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: the feature has no public URL yet (deploy in progress elsewhere), so the marketing site features page and llms.txt were updated instead of a post.",
+      "did": "Site copy + docs/TIMESHEETS.md.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/payapps/apps/payapps/docs/TIMESHEETS.md",
+    "ventures/payapps/apps/payapps-site/src/site/pages.ts (features: timesheets)"
+  ],
+  "goal": null,
+  "notes": "Local verification: tsc clean; biome clean on new files; pnpm test:unit 139 files / 1295 passed, 1 skipped; pnpm test:worker 87 files / 550 passed (incl. new test/worker/timesheets.test.ts, 4); payapps-site tsc + tests 2 files / 10 passed. risk_review.py: nothing blocked; personal-data and claims checks answered in the PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "df245fb0-1d97-5e60-aa88-6790e61fa90b",
+    "transcripts": 1,
+    "first": "2026-11-27T06:06:50Z",
+    "last": "2026-11-27T06:23:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 86,
+        "input": 168,
+        "output": 67142,
+        "thinking": 10244,
+        "cache_read": 11917221,
+        "cache_write_5m": 0,
+        "cache_write_1h": 197667,
+        "api_equivalent_usd": 5.3083,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 86,
+      "input": 168,
+      "output": 67142,
+      "thinking": 10244,
+      "cache_read": 11917221,
+      "cache_write_5m": 0,
+      "cache_write_1h": 197667,
+      "api_equivalent_usd": 5.3083,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 91,
+    "tools": {
+      "Bash": 80,
+      "Write": 5,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__actions_list": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.68,
+      "active_minutes": 16.68,
+      "model_minutes": 10.8,
+      "tool_minutes": 5.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior full-stack dev: schema+migration, overtime logic, API, UI, tests, docs for a timesheet module",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 452.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
