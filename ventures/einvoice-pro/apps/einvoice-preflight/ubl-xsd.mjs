@@ -151,7 +151,7 @@ export function ublRoot(text) {
 /** True when the document's root is a UBL 2.1 Invoice or CreditNote in its own namespace. */
 export function looksLikeUblDocument(text) {
   const top = ublRoot(text);
-  return Boolean(top && top.ns === ROOT_NS[top.name]);
+  return Boolean(top && Object.hasOwn(ROOT_NS, top.name) && top.ns === ROOT_NS[top.name]);
 }
 
 /**
@@ -166,9 +166,10 @@ export function checkAgainstUblSchema(text) {
     return [finding("UBL-XSD-07", "The XML is not well formed: a tag is never closed or closes out of order, which is what a cut-off file looks like.",
       "Re-export the file; if it was edited by hand, close every tag in the order it was opened.", path)];
   }
-  if (top.ns !== ROOT_NS[top.name]) {
-    return [finding("UBL-XSD-06", `${top.name} is in ${nsName(top.ns)}, not ${ROOT_NS[top.name]}, so no UBL validator reads it as a UBL ${top.name}.`,
-      `Declare xmlns="${ROOT_NS[top.name]}" on ${top.name}.`, path)];
+  const rootNs = Object.hasOwn(ROOT_NS, top.name) ? ROOT_NS[top.name] : undefined;
+  if (top.ns !== rootNs) {
+    return [finding("UBL-XSD-06", `${top.name} is in ${nsName(top.ns)}, not ${rootNs}, so no UBL validator reads it as a UBL ${top.name}.`,
+      `Declare xmlns="${rootNs}" on ${top.name}.`, path)];
   }
   const type = schema.roots[top.name];
   return [...namespaceAndAttributeFindings(top, type, path), ...checkers[top.name](top, path)];

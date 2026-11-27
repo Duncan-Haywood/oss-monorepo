@@ -538,7 +538,7 @@ function hrExtensionXml(doc) {
 export function toUbl(doc) {
   const credit = doc.kind === "credit_note";
   const root = credit ? "CreditNote" : "Invoice";
-  const prof = PROFILES[doc.profile];
+  const prof = Object.hasOwn(PROFILES, doc.profile) ? PROFILES[doc.profile] : undefined;
   const cur = doc.currency;
   const o = [];
   o.push(`<?xml version="1.0" encoding="UTF-8"?>`);
@@ -703,7 +703,7 @@ function ciiParty(tag, p) {
 }
 
 export function toCii(doc) {
-  const prof = PROFILES[doc.profile];
+  const prof = Object.hasOwn(PROFILES, doc.profile) ? PROFILES[doc.profile] : undefined;
   const cur = doc.currency;
   const o = [];
   o.push(`<?xml version="1.0" encoding="UTF-8"?>`);

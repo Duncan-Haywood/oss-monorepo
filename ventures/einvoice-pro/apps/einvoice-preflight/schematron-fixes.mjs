@@ -288,7 +288,7 @@ for (const [rulePrefix, c] of Object.entries(VAT_CATEGORIES)) {
   const id = (n) => pre + String(n).padStart(2, "0");
   FIXES[id(1)] = `Add ${c.count} VAT breakdown (BG-23) with VAT category code (BT-118) ${c.code}; the invoice uses ${c.name} on a line, allowance or charge.`;
   if (rulePrefix !== "O") PLACES.forEach(([where], i) => {
-    FIXES[id(2 + i)] = `Because ${where} uses VAT category ${c.name}, give ${SELLER_IDS[c.ids]}.`;
+    FIXES[id(2 + i)] = `Because ${where} uses VAT category ${c.name}, give ${Object.hasOwn(SELLER_IDS, c.ids) ? SELLER_IDS[c.ids] : undefined}.`;
   });
   if (rulePrefix !== "O") {
     PLACES.forEach(([where, , bt], i) => {

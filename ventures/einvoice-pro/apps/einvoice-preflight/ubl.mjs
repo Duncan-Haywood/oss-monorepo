@@ -508,7 +508,7 @@ export function parseUblInvoice(source) {
     || descendants(tree, "CreditNote")[0]
     || descendants(tree, "DebitNote")[0];
   if (!root) throw new Error("UBL document root must be Invoice, CreditNote, or DebitNote");
-  const kind = DOCUMENT_ROOTS[root.name];
+  const kind = Object.hasOwn(DOCUMENT_ROOTS, root.name) ? DOCUMENT_ROOTS[root.name] : DOCUMENT_ROOTS.Invoice;
 
   const lines = descendants(root, kind.line).map((line) => {
     // A line can carry two categories (PINT MY: SST and the tourism tax, scheme AAL);

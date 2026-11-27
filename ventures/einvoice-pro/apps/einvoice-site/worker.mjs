@@ -147,7 +147,7 @@ function newId() {
 }
 
 async function sendConfirmation(env, base, row, token) {
-  const t = I18N[row.lang].ui;
+  const t = (Object.hasOwn(I18N, row.lang) ? I18N[row.lang] : I18N.en).ui;
   const confirmUrl = `${base}/api/early-access/confirm?token=${encodeURIComponent(token)}&lang=${row.lang}`;
   const del = await deleteToken(env.SIGNING_SECRET, row.id);
   const deleteUrl = `${base}/api/early-access/delete?token=${encodeURIComponent(del)}&lang=${row.lang}`;

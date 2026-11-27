@@ -27,7 +27,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 0,
+  "tests_added": 2,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
@@ -43,6 +43,14 @@
     {
       "file": ".github/prompts/cloud-session.md",
       "issue": "Says PayApps moved to ventures/payapps, but not that later moves should follow that layout instead of the top-level apps/ layout older open PRs use."
+    },
+    {
+      "file": "platform/security/baseline.yaml",
+      "issue": "The trivy entries for the einvoice Dockerfiles said the runtime stage deletes npm, npx, corepack and yarn; neither Dockerfile did. A reason in an exception list is not checked against the file it excuses."
+    },
+    {
+      "file": "prompts/test_promptctl.py",
+      "issue": "LastChangeIndexTest failed on this PR's merge-shaped history (index dated prompts/runs/*.json to the shallow edge, git log -1 to the merge); passes on main and on a plain branch."
     }
   ],
   "deviations": [
@@ -63,7 +71,7 @@
     "docs/reports/2026-11-27-move-einvoice-pro-public.md"
   ],
   "goal": "$10k MRR: bet #3's paid edition reaches a repository whose runners can deploy it ahead of the 2027-01-01 German mandate",
-  "notes": "Security queue empty; ideas inbox empty. Bet #1 (payapps) had 6 open PRs and a deploy run queued by another session; bets #2/#4 all Next items wait on demand. Bet #3's top Next item is its first deploy, impossible from private-monorepo. Local: pro 278/278, worker 9/9, checker 2,240 pass/149 skip/1 env fail (pdfdetach save refused in container), Python 445 OK, site 37/37, billing+admin-metrics 102/102, check_third_party ok, publish_surface ok, prepub audit block 0.",
+  "notes": "Security queue empty; ideas inbox empty. Bet #1 (payapps) had 6 open PRs and a deploy run queued by another session; bets #2/#4 all Next items wait on demand. Bet #3's top Next item is its first deploy, impossible from private-monorepo. Local: pro 278/278, worker 9/9, checker 2,240 pass/149 skip/1 env fail (pdfdetach save refused in container), Python 445 OK, site 37/37, billing+admin-metrics 102/102, check_third_party ok, publish_surface ok, prepub audit block 0. Repo-wide checks then found, and this PR fixed: a false 'code is under an MIT licence' line on the 106 moved pages and 4 generators; descriptions over the site limits (free edition's shorter texts ported); two auto-fit grids; a real windows-1252 decoding bug in pro/pdf-text.mjs (byte-exact now, with tests); 8 inherited-key lookups (Object.hasOwn); the opt-out registry line; and Dockerfiles that did not drop npm although the trivy baseline said they did. Gate exceptions re-keyed in PR #19643 (merges first). Private PR 485 carries the first round of fixes.",
   "corrections": [],
   "redteam": null
 }

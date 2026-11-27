@@ -1988,11 +1988,11 @@ const FIELD_T = {
 };
 
 /** @param {keyof typeof CT.en} k */
-const ct = (k) => CT[state.lang][k] ?? CT.en[k];
+const ct = (k) => (Object.hasOwn(CT, state.lang) ? CT[state.lang] : CT.en)[k] ?? CT.en[k];
 /** @param {string} path */
 const fieldLabel = (path) => {
   const key = /** @type {keyof typeof FIELD_T.en} */ (path.replace(/^(seller|buyer|payment)\./, ""));
-  return FIELD_T[state.lang][key] ?? FIELD_T.en[key] ?? path;
+  return (Object.hasOwn(FIELD_T, state.lang) ? FIELD_T[state.lang] : FIELD_T.en)[key] ?? FIELD_T.en[key] ?? path;
 };
 
 /** The convert screen's state, kept while the person edits: the answer, the draft, what is confirmed. */
