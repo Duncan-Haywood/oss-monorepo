@@ -1,3 +1,7 @@
+---
+kind: note
+date: 2026-11-27
+---
 # PayApps marketing site: one launch switch, and the name settled (2026-11-27)
 
 For the session that opens PayApps (bet #1) to the public.
