@@ -602,7 +602,11 @@ export const ALTERNATIVES: readonly Alternative[] = [
     name: "QuotedPart",
     kind: "Dedicated quoting software, priced per shop",
     price: "$199 a month per shop, as listed",
-    source: { label: "Toolradar", url: "https://toolradar.com/tools/quotedpart", read: "2026-11-24" },
+    source: {
+      label: "Toolradar",
+      url: "https://toolradar.com/tools/quotedpart",
+      read: "2026-11-24",
+    },
     fits: "Shops that want a flat per-shop price rather than per-seat fees.",
   },
   {
@@ -620,7 +624,11 @@ export const ALTERNATIVES: readonly Alternative[] = [
     name: "ProShop",
     kind: "Shop-floor ERP and quality system with quoting built in",
     price: "$650 to $715 a month, as listed",
-    source: { label: "G2 pricing page", url: "https://www.g2.com/products/proshop/pricing", read: "2026-11-24" },
+    source: {
+      label: "G2 pricing page",
+      url: "https://www.g2.com/products/proshop/pricing",
+      read: "2026-11-24",
+    },
     fits: "Shops that also want paperless work orders, quality records and traceability in the same place.",
   },
 ];
