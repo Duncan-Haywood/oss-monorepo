@@ -501,6 +501,10 @@ From [`2026-11-19-wall-framing-takeoff-r5.json`](../../../../portfolio/quality/a
    client-side token, a $29 "Job report" price in the catalogue's `residential-takeoff` row), then a
    sandbox purchase end to end; then update the free edition's bid-package page and the paid
    page's "Checkout is not open yet" note. Waits on the owner.
-2. Material lists from plan PDFs: the construction page names it as next; the free `pdf-plan-takeoff`
-   measures lengths and areas on a scaled drawing PDF, so the first slice reads its wall runs into a plan.
+2. Material lists from plan PDFs, part 2 (part 1 done 2026-11-27: the free `pdf-plan-takeoff` writes
+   the length runs labelled Walls, Doors and Windows on one sheet as a DXF in real inches,
+   `wallsDxf` in its `measure.mjs`, and this app opens it with `planFromDxf`; corners, tees and
+   openings survive, `pdf-takeoff-walls.test.mjs`): find the wall runs on a vector plan PDF without
+   clicking them (the parallel face-line pairs `pairDoubleLines` already reads in a DXF, taken from
+   the PDF's painted segments at the sheet's checked scale), if people use the hand-off.
 
