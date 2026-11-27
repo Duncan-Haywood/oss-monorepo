@@ -91,6 +91,43 @@ class T(unittest.TestCase):
         self.assertIn("notice: branch claude/bar-tool-1", out.getvalue())
         self.assertNotIn("no duplicate found", out.getvalue())
 
+    def test_own_claim_is_yours_rival_claim_is_notice(self):
+        import contextlib, io
+        from roadmap_claim import run_tag
+        tree = run(self.clone, "rev-parse", "HEAD^{tree}")
+        for name, sid in (("claim/app/zap-item", "me"), ("claim/app/zap-item-2", "other")):
+            os.environ["ROADMAP_CLAIM_RUN"] = sid
+            sha = run(self.clone, "commit-tree", tree, "-m", f"claim zap-item {{run {run_tag()}}}")
+            run(self.clone, "push", "origin", f"{sha}:refs/heads/{name}")
+        os.environ["ROADMAP_CLAIM_RUN"] = "me"
+        try:
+            self.assertEqual(slug_dupe.own_claims(["claim/app/zap-item", "claim/app/zap-item-2",
+                                                   "claude/zap-item"]), {"claim/app/zap-item"})
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(slug_dupe.main(["zap-item", "--no-fetch"]), 0)
+        finally:
+            del os.environ["ROADMAP_CLAIM_RUN"]
+        self.assertIn("yours: branch claim/app/zap-item is this session's own claim", out.getvalue())
+        self.assertIn("notice: branch claim/app/zap-item-2", out.getvalue())
+        self.assertEqual(slug_dupe.own_claims(["claim/app/zap-item"], tag=""), set())
+
+    def test_only_own_claim_says_no_duplicate(self):
+        import contextlib, io
+        from roadmap_claim import run_tag
+        os.environ["ROADMAP_CLAIM_RUN"] = "me"
+        try:
+            sha = run(self.clone, "commit-tree", run(self.clone, "rev-parse", "HEAD^{tree}"),
+                      "-m", f"claim solo-item {{run {run_tag()}}}")
+            run(self.clone, "push", "origin", f"{sha}:refs/heads/claim/app/solo-item")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(slug_dupe.main(["solo-item", "--no-fetch"]), 0)
+        finally:
+            del os.environ["ROADMAP_CLAIM_RUN"]
+        self.assertIn("yours: branch claim/app/solo-item", out.getvalue())
+        self.assertIn("solo-item: no duplicate found", out.getvalue())
+
     def test_unknown_slug_says_no_duplicate(self):
         import contextlib, io
         out = io.StringIO()

@@ -30,6 +30,9 @@ Exit 1: `ventures/<slug>` is already on origin/main, or a commit naming the
 slug landed there within --days, or a PR titled with it merged within --days. Extend that work instead of duplicating it.
 Exit 0: none of these; other branches whose name contains the slug, and open
 PRs titled with it, are listed as a notice (another session may be building it right now: check its PR).
+A `claim/*` branch this session pushed (roadmap_claim.py's `{run <hash>}` tag) is
+listed as yours, not as a rival: a run that claimed its item and then checked for
+duplicates was told to "check its PR" about its own claim (run record, 2026-11-27).
 """
 import argparse
 import datetime as dt
@@ -42,6 +45,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import fetch_ref  # noqa: E402
+from roadmap_claim import is_mine, run_tag  # noqa: E402
 
 
 def git(*args):
@@ -65,6 +69,26 @@ def check(slug, days=14, remote="origin", ref=None):
     _, cur = git("branch", "--show-current")
     # archive/* only preserves history (research/_mirror/archive.py); nobody is building there.
     return on_main, commits, [b for b in branches if b != cur.strip() and not b.startswith("archive/")]
+
+
+def own_claims(branches, remote="origin", tag=None):
+    """The `claim/*` branches among `branches` whose claim commit carries this session's run tag.
+
+    Fetches only those tips (tiny commits, depth 1) into refs/slug-dupe/; without a
+    session id, or when the fetch fails, nothing counts as ours and all stay notices."""
+    tag = tag if tag is not None else run_tag()
+    claims = [b for b in branches if b.startswith("claim/")]
+    if not tag or not claims:
+        return set()
+    specs = [f"+refs/heads/{b}:refs/slug-dupe/{b}" for b in claims]
+    if git("fetch", "-q", "--no-tags", "--depth=1", remote, *specs)[0] != 0:
+        return set()
+    mine = set()
+    for b in claims:
+        rc, msg = git("log", "-1", "--format=%s", f"refs/slug-dupe/{b}")
+        if rc == 0 and is_mine(msg, tag):
+            mine.add(b)
+    return mine
 
 
 def repo_of(remote="origin"):
@@ -185,9 +209,13 @@ def main(argv=None):
         print(f"merged recently: PR {m}")
     for o in open_:
         print(f"notice: open PR {o} names this slug; extend it unless it is your own")
+    mine = own_claims(branches, a.remote)
     for b in branches:
-        print(f"notice: branch {b} names this slug; check its PR before building")
-    if not (on_main or commits or branches or merged or open_):
+        if b in mine:
+            print(f"yours: branch {b} is this session's own claim")
+        else:
+            print(f"notice: branch {b} names this slug; check its PR before building")
+    if not (on_main or commits or set(branches) - mine or merged or open_):
         print(f"{a.slug}: no duplicate found")
     return 1 if (on_main or commits or merged) else 0
 
