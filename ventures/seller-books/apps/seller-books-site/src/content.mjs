@@ -34,7 +34,7 @@ import { launch } from "./launch.mjs";
 export const TAGLINE = "True profit and Schedule C books for resellers";
 
 const SUMMARY_BASE =
-  "Seller Books is bookkeeping for people who resell on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal and Venmo. It brings your sales from every platform into one ledger, takes out the fees each platform actually charged, matches what you paid for each item, logs your sourcing miles, and builds a Schedule C worksheet you or your tax preparer can work from.";
+  "Seller Books is bookkeeping for people who resell on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal and Venmo, and Grailed, StockX, Vinted or any other marketplace whose sales file you can download as CSV. It brings your sales from every platform into one ledger, takes out the fees each platform actually charged, matches what you paid for each item, logs your sourcing miles, and builds a Schedule C worksheet you or your tax preparer can work from.";
 
 /**
  * The Free plan, as apps/seller-books/src/shared/plans.ts sets it (test/site.test.mjs reads that file
@@ -265,6 +265,50 @@ export const PLATFORMS = [
     ],
     report: "the monthly statement CSV, from Statements > Download CSV",
   },
+  // Grailed, StockX and Vinted import through the column-mapped CSV (apps/seller-books/docs/IMPORTERS.md,
+  // "Column-mapped CSV"): none documents its export's columns, so the seller matches them once.
+  {
+    slug: "grailed",
+    name: "Grailed",
+    what: "menswear, streetwear and designer clothing",
+    fees: [
+      "Grailed's commission and payment processing, from the fee columns of your sales file that you mark as fees",
+      "Shipping labels you paid for, when your file has a column for them",
+    ],
+    quirks: [
+      "Grailed publishes no layout for a sales export, so Seller Books does not guess one. You choose the file and say once which column is the date, the price, each fee and the payout; the choice is saved for your next file.",
+      "Grailed collects sales tax as the marketplace in the states whose marketplace facilitator laws require it, so that tax is kept out of your income and off the tax you collected yourself.",
+    ],
+    report: "any CSV of your Grailed sales, with its columns matched once",
+  },
+  {
+    slug: "stockx",
+    name: "StockX",
+    what: "sneakers, streetwear, trading cards and collectibles, sold at an ask",
+    fees: [
+      "StockX's transaction and payment processing fees, from the fee columns of your sales history that you mark as fees",
+      "The payout StockX sent you, when you choose that column, to check the books against your deposits",
+    ],
+    quirks: [
+      "StockX Pro exports up to two years of sales history as CSV (Export History, above the sales table). StockX does not publish its columns, so you match them once and Seller Books saves the choice.",
+      "StockX collects the sales tax on its sales in most states, so that tax is kept out of your income and off the tax you collected yourself.",
+    ],
+    report: "the sales history CSV from StockX Pro (Export History), with its columns matched once",
+  },
+  {
+    slug: "vinted",
+    name: "Vinted",
+    what: "secondhand clothing, shoes and accessories",
+    fees: [
+      "Any fee your sales file lists for you as the seller, from the columns you mark as fees",
+      "Shipping labels you paid for, when your file has a column for them",
+    ],
+    quirks: [
+      "Vinted publishes no layout for a sales export, so Seller Books does not guess one. You choose the file and say once which column is which; the choice is saved for your next file.",
+      "Vinted says it calculates, collects and sends the sales tax itself in the states where marketplace facilitator laws require it, so that tax is kept out of your income.",
+    ],
+    report: "any CSV of your Vinted sales, with its columns matched once",
+  },
 ];
 /**
  * What the product does (home page and llms.txt). Every item is in the app today
@@ -274,7 +318,7 @@ export const FEATURES = [
   {
     key: "profit",
     title: "True profit per sale, across every platform",
-    body: "One ledger for eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal and Venmo. Each sale shows what the buyer paid, every fee the platform took, shipping you paid, and what the item cost you, so the number at the bottom is profit, not payout. Sales with no marketplace report (cash at a market, a local pickup paid by Cash App or Zelle) are typed in and counted the same way.",
+    body: "One ledger for eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal and Venmo. Grailed, StockX, Vinted and any other marketplace come in from their own CSV: you say once which column is which, and Seller Books keeps the choice. Each sale shows what the buyer paid, every fee the platform took, shipping you paid, and what the item cost you, so the number at the bottom is profit, not payout. Sales with no marketplace report (cash at a market, a local pickup paid by Cash App or Zelle) are typed in and counted the same way.",
   },
   {
     key: "fees",
@@ -396,7 +440,7 @@ export const TIERS = [
     platforms: "Every platform",
     for: "Reselling is your main work and you crosslist",
     includes: [
-      "Every platform: eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo",
+      "Every platform: eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo, and Grailed, StockX, Vinted or any other marketplace by matching its columns",
       "About 600 orders a month (going over never locks anything)",
       "Monthly profit by platform",
       "Year-end inventory at cost",

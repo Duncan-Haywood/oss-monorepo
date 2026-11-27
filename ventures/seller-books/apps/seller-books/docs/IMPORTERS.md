@@ -445,6 +445,46 @@ real export. **Before launch, run one real business-profile statement through it
 - **Bank statements:** with `venmo` a platform, a deposit named "VENMO" on a bank statement ("Did I import
   everything?") is set against the Venmo sales, and the check notes it may be friends-and-family money cashed out.
 
+## Column-mapped CSV: Grailed, StockX, Vinted and any other marketplace (added 2026-11-27)
+
+Imports page > "Another platform: match the columns yourself". For a marketplace with no fixed importer
+above, the seller chooses the file and says which of its columns is the sale date, the item price and,
+optionally, the title, order number, SKU, quantity, shipping the buyer paid, sales tax, shipping label,
+refund and net payout, plus up to six fee columns each filed under a fee kind. Code:
+`src/shared/column-mapping.ts` (fields, checks, the name-based prefill), `src/worker/services/importers/mapped.ts`
+(the reader), `POST /api/orgs/:orgId/imports/mapped` and `GET .../imports/mappings`.
+
+- **Why not fixed importers for these:** none of the three documents its export's columns. StockX Pro's
+  "Export History" gives "the past two years of your sales history in CSV format"
+  ([StockX, 2025-09-19](https://stockx.com/news/export-your-sales-history-in-stockx-pro/)) with no column
+  list; searches on 2026-11-27 found no official sales export for Grailed (only third-party scrapers) and no
+  column list for Vinted. An importer written against guessed headers would import wrong numbers with
+  confidence, so the seller names the columns instead.
+- **What is read:** only the chosen columns, matched like every importer (case, spaces and punctuation
+  ignored). The header row is the first of the first 30 rows holding both required columns, so a title line
+  above it is fine. A choice naming a column the file lacks, or one column chosen twice, is refused with a
+  400 that lists each problem.
+- **Rows:** one row is one sale. A negative item price is a refund (item plus shipping back, fees stored as
+  credits). A chosen refund column adds a refund beside the sale, dated on the sale date with a warning.
+  Fees are taken by absolute value as charges; nothing is derived from a rate. With no net column chosen a
+  warning says the payout check has nothing to compare.
+- **De-duplication:** the order number, or a key of date, title, SKU, price and net when there is none; the
+  n-th repeat inside one file gets `:n`, so re-importing the same file adds nothing.
+- **Saved columns:** once a file imports, its choices are saved for that shop and platform
+  (`import_mapping`: header names only, never file content; in the shop's JSON export) and offered for the
+  next file when that file still has those columns. Otherwise the form suggests columns from header names
+  alone (`suggestMapping`), and the seller checks each one.
+- **Sales tax:** Grailed, StockX and Vinted are counted as marketplaces that collect the tax themselves.
+  Sources: Vinted's own help article ([vinted.com/help/1014](https://www.vinted.com/help/1014), via search
+  excerpt, 2026-11-27); StockX and Grailed by secondary sources only
+  ([Zamp](https://zamp.com/blog/stockx-collect-sales-tax-sellers),
+  [OneShop, 2021](https://oneshop.com/blog/grailed-tax)), to re-check on their help pages.
+  **Another marketplace** is counted as the seller's, with a caveat on the sales tax report: the app cannot
+  know who collected it, and showing tax that is not the seller's is the safer mistake.
+- **Confidence:** nothing about any platform's layout is assumed, so there is nothing to verify per
+  platform. The test fixture `test/fixtures/mapped-any-marketplace.csv` is written for the test and is not
+  any platform's export.
+
 ## Your own sourcing sheet (inventory, not a marketplace report)
 
 `POST /api/orgs/:orgId/inventory/items/import`, on the Inventory page. Not a platform export: the columns are
