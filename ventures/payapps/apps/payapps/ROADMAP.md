@@ -1052,6 +1052,26 @@ nothing to copy. No customers yet. Paid plans are dark
   (Illinois and Pennsylvania's statute hosts did not answer from the session), and the free
   calculator, which still has ten.
 
+- Notices of claim: Texas, part 3, retainage (2026-11-27, Crew and up;
+  texas-notices-of-claim-part-3-retainage). Under the Texas log, "Retainage (§ 53.057)" saves the day
+  this company's contract was completed, terminated or abandoned and the day the original contract
+  (the GC's) ended, with which of the three (`projects.tx_contract_ended_on`, `tx_original_ended_on`,
+  `tx_original_ended_how`, migration 0089, `PUT .../notices/tx/retainage-dates`; a future date is
+  refused, since a planned date would start the clock early). From them `txRetainageDeadlines`
+  (`src/shared/tx-notices.ts`) gives the notice of claim for unpaid retainage, 30 days after the
+  company's contract ended or, if sooner, after the original contract was terminated or abandoned (a
+  completed original contract does not start it, § 53.057(a-1)(2)), and the lien affidavit for
+  retainage, the 15th day of the third month after the month the original contract ended
+  (§ 53.052(d)); both roll past weekends and Texas legal holidays (§ 53.003(e)). While the latest
+  sent pay app holds retainage, the cash page and weekly email remind about the notice from the day
+  its start is saved until both recipients have a retainage notice recorded (and for 30 days after a
+  missed date), and about the affidavit in the 30 days before its date; closed jobs included, since a
+  finished job holding retainage is when it matters. The text says the notice is not needed for
+  retainage already claimed in a monthly notice (§ 53.057(a)). Job history: dates set and cleared.
+  Tests: `src/shared/tx-notices.test.ts` (dates by hand from 1 January 2027, a Friday; the Memorial
+  Day and Sunday rolls; the windows) and `test/worker/tx-notice-log.test.ts` (the HTTP API, the
+  reminder stopping per recipient, refusals, history, role and tenant gates).
+
 - Notices of claim: Texas, part 2 (2026-11-27, Crew and up; texas-notices-of-claim-part-2). Under
   the Texas notices, "Notices of claim sent (Texas)": the job is tracked as a residential construction
   project or not (`projects.tx_project_kind`, migration 0084), which turns on the rest. The months
@@ -2495,6 +2515,39 @@ nothing to copy. No customers yet. Paid plans are dark
   second-tier sub most often misses, and the job already holds every fact it needs but the prime's
   address. Not done: a log of notices sent (as Texas and Florida keep), state bond-claim dates.
 
+- Public jobs, part 2b (2026-11-27, every plan, state-bond-claims-part-1): state "little Miller Act"
+  bond claim steps on a state or local public job, in Texas (Gov't Code ch. 2253), Florida (§ 255.05),
+  New York (State Fin. Law § 137), Virginia (§ 2.2-4341), Washington (RCW 39.08.030, .065), Arizona
+  (§ 34-223), North Carolina (§§ 44A-27, 44A-28) and Ohio (§ 153.56), each read on the legislature's
+  own site on 2026-11-27 (excerpts in `ventures/pay-app-guides/sources/state-bond-claims.txt`).
+  `stateBondClaim` in `src/shared/public-jobs.ts` lists each statute's steps in order: who takes it
+  (everyone, or only a claimant not in contract with the prime), what to do, the rule in words, the
+  citation, and a date where the statute counts from a day PayApps has: the saved last day, or the
+  public body's acceptance (a new date field on a state or local job, kept in `work_completed_on`, the
+  column California and Arizona use for completion, so no migration). Texas counts the 15th of the
+  2nd and 3rd months after the last month; New York's suit, Washington's notice and Ohio's statement
+  and suit count from acceptance; steps that run from the first day of work or the day a notice is
+  mailed (Florida's 45-day notice, Arizona's twenty-day notice, North Carolina's notice of public
+  subcontract, Ohio's notice of furnishing, Texas's suit) are listed undated with what they wait
+  for. Weekends move back to the Friday before. The "who you contracted with" choice the Miller Act
+  uses is now saved on state and local jobs too; not said shows the notices (the safe side), and
+  below the second tier a note says coverage turns on how the state reads "subcontractor". The
+  panel's summary line shows the next bond date. Tests: `src/shared/state-bond.test.ts` (dates worked
+  by hand from each statute) and `test/unit/lien-deadline-panel.test.tsx` (steps shown, acceptance
+  saved, unsupported state). The public guide `ventures/pay-app-guides/state-payment-bond-claims.html`
+  carries the same table. Not done: the cash page and weekly email naming a state bond date (as they
+  do the Miller Act's), California (its site refuses the proxy), and the other states.
+
+- Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
+  in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
+  due date to the last payment (`paidLateApps` in `src/shared/cash-report.ts`, on what was paid, net
+  of a balance closed short). The cash page lists each one paid in the last 365 days under "Interest
+  earned on late payments", with a draft email asking the GC to add it to the next payment
+  (`paidLateInterestEmail`), and the job's next steps name it. The cash CSV gains four columns at the
+  end (the rate, interest on past-due applications, interest on applications paid late, and which).
+  An application only marked paid, with payments short of what it paid, is left out: its pay date is
+  not known.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2539,11 +2592,10 @@ nothing to copy. No customers yet. Paid plans are dark
 
 ## Next (suite, by promise)
 
-- Late-payment interest, part 2 (part 1, the rate per job, the accrued interest on the cash report and
-  in the second request, done 2026-11-27): interest on an application that was paid late (the
-  accrual stops at the last payment, so it is billable after the check clears), an interest line on
-  the next pay application or a separate invoice to QuickBooks, and the cash CSV and weekly email
-  columns, if contractors ask.
+- Late-payment interest, part 3 (part 2, interest earned on applications paid late with its email
+  draft and the cash CSV columns, done 2026-11-27): an interest line on the next pay application or
+  a separate invoice to QuickBooks, a "billed" or "waived" mark per application so the list can be
+  cleared before its year is up, and the paid-late total in the weekly email, if contractors ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if
@@ -2619,10 +2671,10 @@ nothing to copy. No customers yet. Paid plans are dark
   the reminder, done 2026-11-27): files per record (the mail log or USPS tracking printout
   § 713.18(2)(c) says to keep), the company's tier so the contractor's copy joins the reminder, and
   § 713.18(3)'s returned-mail rule, if contractors use the log
-- Texas notices of claim, part 3 (part 2, the log, unpaid months from pay apps, the reminder and
-  legal holidays, done 2026-11-27): the retainage notice's 30 days from a saved completion date with
-  its own reminder, files per record (the certified mail receipt or proof of receipt), if
-  contractors use the log
+- Texas notices of claim, part 4 (part 3, the retainage notice and the retainage lien affidavit from
+  saved contract end dates with their reminder, done 2026-11-27): files per record (the certified mail
+  receipt or proof of receipt), a record that the retainage affidavit was filed (it stops that
+  reminder) and the § 53.055 notice of it, if contractors use the log
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask
@@ -2646,6 +2698,8 @@ nothing to copy. No customers yet. Paid plans are dark
   started as a ticket and a remote signature by email link, if contractors ask
 - Public jobs, part 2 (part 1 done 2026-11-27: the owner on the job, Miller Act dates, the 16-state
   retainage cap check; part 2a, the Miller Act notice drafted from the job, done 2026-11-27): a log of
-  Miller notices sent with the proof of delivery, if contractors use the draft; then state "little Miller Act" notice and suit dates for the states the lien deadline
-  covers (California's stop payment notice and bond claim, Florida § 255.05, Texas Gov't Code
-  ch. 2253 first), each read from the statute page, if contractors mark public jobs
+  Miller notices sent with the proof of delivery, if contractors use the draft; state bond claims
+  part 2 (part 1, eight states on the job page, done 2026-11-27): the next state bond date on the
+  cash page and weekly email 45 days ahead, as the Miller Act's is; California's stop payment notice
+  and bond claim once leginfo.legislature.ca.gov answers; more states, each read from the statute
+  page, if contractors mark public jobs

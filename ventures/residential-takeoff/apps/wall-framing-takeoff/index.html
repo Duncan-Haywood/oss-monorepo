@@ -467,7 +467,7 @@
   </section>
   <section class="card" aria-labelledby="h-pkg" id="pkgCard" hidden>
     <h2 id="h-pkg">Branded bid package</h2>
-    <p class="note">The proposal above on your letterhead, plus a quantities appendix with no unit prices, as one page you print or save as PDF. Unlock it with a licence key. The code is source-visible, so the key is an honest-buyer convenience, not copy protection; the free proposal above is unchanged. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p class="note">The proposal above on your letterhead, plus a quantities appendix with no unit prices, as one page you print or save as PDF. Unlock it with a Job report licence key: Buy opens Paddle's checkout and the key appears here when payment completes. The code is source-visible, so the key is an honest-buyer convenience, not copy protection; the free proposal above is unchanged. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded, and the key is checked in this browser, not sent anywhere.</p>
     <p id="buyRow" hidden><a id="buyLink" class="button" rel="noopener" target="_blank">Buy a licence key</a></p>
     <p><label>Licence key <input id="pkgKey" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pkgCheck">Check key</button> <span id="pkgState" role="status"></span></p>
     <div id="pkgFields" hidden>
@@ -628,8 +628,7 @@
     import { budget, budgetCsv, priceSheet } from "./budget.mjs";
     import { proposal, proposalText, proposalHtml } from "./bidletter.mjs";
     import { bidPackageHtml } from "./bidpackage.mjs";
-    import { buyLink, checkLicence } from "./licence.mjs";
-    import { CHECKOUT_URL, CHECKOUT_URLS, VALIDATE_URL, VARIANT_PLANS } from "./checkout.mjs";
+    import { checkLicence } from "./licence.mjs";
     import { materialList, materialListCsv } from "./materiallist.mjs";
     import { entitlement, allowed } from "./plans.mjs";
     import { isDark, createBillingProvider } from "./billing.mjs";
@@ -1714,11 +1713,11 @@
     };
     // The supplier material list: free while no checkout is live (plans.mjs); once one is, the Job report key
     // checked in the bid-package card unlocks it too.
-    const BILLING = { checkoutUrls: CHECKOUT_URLS, validateUrl: VALIDATE_URL, variantPlans: VARIANT_PLANS };
+    const BILLING = createBillingProvider();
     let paidVerdict = null;
     $("#mlCsv").addEventListener("click", () => {
       if (!(run() && last)) return;
-      const gate = allowed("material-list-export", entitlement({ dark: isDark(BILLING), valid: paidVerdict?.valid, plan: paidVerdict?.plan }));
+      const gate = allowed("material-list-export", entitlement({ dark: isDark(), valid: paidVerdict?.valid, plan: paidVerdict?.plan }));
       if (!gate.allowed) { $("#errors").textContent = gate.reason + " Enter it in the branded bid package card below."; $("#pkgCard").hidden = false; return; }
       const at = last;
       const sheathing = $("#sheath").checked ? sheathe({ ...at.plan, sheathing: { ...defaultSheathing(), ...($("#sheathH").checked ? { orientation: "horizontal" } : {}), ...($("#sheathO").checked ? { overhang: true } : {}), ...(Number($("#sheathR").value) > 0 ? { rimLap: Number($("#sheathR").value) } : {}) } }, at.result) : null;
@@ -1759,15 +1758,20 @@
     $("#priceText").addEventListener("input", () => { renderBudget(); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } });
     $("#bidText").addEventListener("input", renderBids);
     {
-      const buy = buyLink(CHECKOUT_URL);
-      if (buy) { $("#buyLink").href = buy; $("#buyRow").hidden = false; }
+      // Paddle's overlay checkout (nothing loads from Paddle until Buy is pressed); the key it earns is
+      // filled in and checked. Hidden while dark (checkout.mjs, from platform/billing/catalogue.mjs).
+      const buy = !!BILLING && BILLING.wireBuy($("#buyLink"), { onKey: (k) => { $("#pkgKey").value = k; $("#pkgCheck").click(); }, onStatus: (m) => { if (m) $("#pkgState").textContent = m; } });
+      $("#buyRow").hidden = !buy;
+      // A key accepted on an earlier visit is kept in this browser only, so the buyer need not paste it again.
+      try { const saved = localStorage.getItem(KEY + ".licence"); if (saved && BILLING) { $("#pkgKey").value = saved; setTimeout(() => $("#pkgCheck").click(), 0); } } catch (e) { /* optional */ }
       let logo = "";
       $("#pkgLogo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = String(r.result); }; r.readAsDataURL(f); });
       $("#pkgCheck").addEventListener("click", async () => {
         $("#pkgState").textContent = "Checking...";
-        const provider = createBillingProvider(BILLING);
-        const v = provider ? await provider.validate($("#pkgKey").value) : await checkLicence($("#pkgKey").value, { url: VALIDATE_URL });
+        const v = BILLING ? await BILLING.validate($("#pkgKey").value) : await checkLicence($("#pkgKey").value);
+        if (v.renewed) $("#pkgKey").value = v.renewed;
         paidVerdict = v;
+        try { if (v.valid) localStorage.setItem(KEY + ".licence", $("#pkgKey").value.trim()); } catch (e) { /* optional */ }
         $("#pkgState").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (no licence is on sale yet)");
         $("#pkgFields").hidden = !v.valid;
         if (v.valid) record("bid_package_unlocked");

@@ -487,6 +487,7 @@ Ticked items are on `main`.
 - 2026-11-10 (later): the CLI refuses `--drawings` beside `--json` or `--csv`. Before, the HTML shop drawings printed and the other format was dropped with no word. Found by running the CLI on a small plan with pairs of report flags. Test in `cli-flags.test.mjs`; CLI suites pass (66). Invented plan only.
 - 2026-11-10 (later): the CLI refuses `--drawings` beside `--pdf`. Before, the PDF printed and the HTML request was dropped with no word. Found by running the CLI on the example plan with pairs of report flags. Test in `cli-flags.test.mjs`. Invented plan only.
 - 2026-11-26: outline roof sheathing laid some courses short of their plane (outline-plane-depth-breaks, `outlinesheathing.mjs`). Two eave sides on one line facing the same way are one plane, split between them by a 45-degree line no roof line marks; where one side's share runs out, the other side's section turns, a kink that was not among the depths `bandArea`, `coursePieces` and `runEnds` sample (only the roof lines' heights were). Every plane's own depth is now a break too. Before: the four-column step the ROADMAP flagged (89 in columns 240/312/240/336 deep, 6:12, 18 in eave) counted 1004.18 sq ft of planes against the eave line's 1003.06 and was refused; worse, over 400 seeded comb outlines (steps on both long sides, heights from three values) the area check failed on 2 but 27 planes on 23 outlines had a course up to 96 in short of the plane's section with the check passing, so the sheet count was low with no warning. After: 0 and 0; the 200 stair-step outlines are unchanged apart from the one that now passes (6,963 to 6,927 sheets with cut-down triangles, 34 better, 81 cut down). Tests in `outlinesheathing.test.mjs` (the flagged outline, a cross-shaped outline, and the 400 comb outlines each checked course by course against `planeSection` at 19 depths; all three fail before the fix). Invented outlines only; no framer's takeoff compared.
+- 2026-11-27: Checkout on Paddle, part 1 (checkout-on-paddle-part-1). The Lemon Squeezy licence-key design (`licence.mjs` posting to a public validate URL, `checkout.mjs` with checkout links and variant ids) is replaced by the portfolio's shared Paddle path, `platform/billing/`, which the free edition's bid package already uses: the paid edition is its own catalogue product, `residential-takeoff`, a one-off "Job report" (`catalogue.mjs` gained `dir`, since this page lives under `apps/`; `sync.mjs` writes `paddle.mjs` and `checkout.mjs` here). Buy opens Paddle's overlay with a random claim code; the owner's billing Worker signs an Ed25519 key from Paddle's `transaction.completed` webhook; the page fetches it by claim code, checks it offline against the public key and keeps it in this browser. A valid key is the Job report plan (`billing.mjs` `PRODUCT_PLAN`), and the free edition's bid-package key is another product and unlocks nothing here. The ROADMAP's plan of a separate Worker that asks Paddle's API with an owner key, and its own deploy workflow, was dropped: the shared Worker needs no Paddle API key and already exists. Still dark: the catalogue has no Paddle values, so no Buy button and every feature open. Tests: `billing.test.mjs`, `licence.test.mjs` (the shared `testkit.mjs` contract), `licence-fuzz.test.mjs`, `checkout.test.mjs` (generated copy), `platform/billing/billing.test.mjs` (`ventureDir`). Not run against Paddle: the sandbox purchase is the owner's step.
 
 ## Known gaps (quality audit 2026-11-19)
 
@@ -499,11 +500,11 @@ From [`2026-11-19-wall-framing-takeoff-r5.json`](../../../../portfolio/quality/a
 
 ## Next
 
-1. Checkout on Paddle, part 1 (served dark 2026-11-27 at `/residential-takeoff/`): replace the
-   Lemon Squeezy licence-key design in `billing.mjs`/`licence.mjs` with Paddle (`prompts/goals.md`,
-   "Payments"): Paddle.js overlay with a public client-side token and price id, and a small Worker that
-   confirms a transaction id against Paddle's API with an owner-set key, so the page stays static.
-   Needs its own deploy workflow (allowlist PR first, as Seller Books did).
+1. Checkout on Paddle, part 2 (part 1 done 2026-11-27, see Milestones): the owner's steps in
+   `platform/billing/README.md`, "Going live" (one set for every pack: billing Worker, key pair,
+   client-side token, a $29 "Job report" price in the catalogue's `residential-takeoff` row), then a
+   sandbox purchase end to end; then update the free edition's bid-package page and the paid
+   page's "Checkout is not open yet" note. Waits on the owner.
 2. Material lists from plan PDFs, part 2 (part 1 done 2026-11-27: a vector plan PDF as the sketch
    underlay at its printed scale, with clicks snapping to its line ends; README, "Plan PDF underlay"):
    find the walls without clicking. `dxf.mjs` already pairs double lines into centre lines

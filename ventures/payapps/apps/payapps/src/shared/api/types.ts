@@ -760,6 +760,27 @@ export interface TxNoticeLogDto {
   methods: { id: TxDeliveryMethod; label: string }[];
   recipients: { id: TxNoticeRecipient; label: string }[];
   recipientPrefill: Partial<Record<TxNoticeRecipient, string>>;
+  /** The saved contract end dates and the retainage deadlines they give (§§ 53.057, 53.052(d)). */
+  retainage: TxRetainageDto;
+}
+
+export interface TxRetainageDto {
+  contractEndedOn: string | null;
+  originalEndedOn: string | null;
+  originalEndedHow: "completed" | "terminated" | "abandoned" | null;
+  /** The retainage held on the job's latest sent pay app, cents. */
+  retainageHeldCents: number;
+  /** § 53.057(a-1): null until a date that starts it is saved. */
+  notice: {
+    statutory: string;
+    due: string;
+    holidays: string[];
+    /** Which date set it: this company's contract, or a terminated or abandoned original contract. */
+    basis: "claimant" | "original";
+    missing: TxNoticeRecipient[];
+  } | null;
+  /** § 53.052(d): null until the original contract's end is saved. */
+  affidavit: { statutory: string; due: string; holidays: string[] } | null;
 }
 
 /** A Florida Notice to Owner, or a copy, recorded as served on one person. */

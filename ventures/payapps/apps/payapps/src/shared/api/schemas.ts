@@ -881,6 +881,21 @@ export const flNoticeDeliveredSchema = z.object({ deliveredOn: isoDate.nullable(
 export const txProjectKindSchema = z.object({
   projectKind: z.enum(["commercial", "residential"]).nullable(),
 });
+/**
+ * PUT /projects/:id/notices/tx/retainage-dates: when this company's contract and the original contract
+ * ended (§§ 53.057(a-1), 53.052(d)); null clears a date. How the original contract ended goes with its date.
+ */
+export const txRetainageDatesSchema = z
+  .object({
+    contractEndedOn: isoDate.nullable(),
+    originalEndedOn: isoDate.nullable(),
+    originalEndedHow: z.enum(["completed", "terminated", "abandoned"]).nullable(),
+  })
+  .refine((b) => (b.originalEndedOn === null) === (b.originalEndedHow === null), {
+    message: "Say whether the original contract was completed, terminated or abandoned",
+    path: ["originalEndedHow"],
+  });
+export type TxRetainageDatesBody = z.infer<typeof txRetainageDatesSchema>;
 /** POST /projects/:id/notices/tx/sends: a Texas notice of claim recorded as sent to one recipient. */
 export const txNoticeSendSchema = z
   .object({

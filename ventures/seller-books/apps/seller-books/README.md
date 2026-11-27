@@ -3,7 +3,9 @@
 Profit and Schedule C books for resellers on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify,
 Amazon (FBA or shipped yourself), TikTok Shop, Square (a card reader or the Square app at a market or flea
 market, from its Transactions CSV), PayPal (sales paid by PayPal off the marketplaces, from its Activity
-download) and Venmo (a local or Facebook Marketplace sale paid by Venmo, from its monthly statement CSV), plus the sales made off them (cash at a market or flea market, Facebook
+download) and Venmo (a local or Facebook Marketplace sale paid by Venmo, from its monthly statement CSV); Grailed,
+StockX, Vinted and any other marketplace import from their own CSV with the seller matching its columns once
+(the choices are saved for the next file); plus the sales made off them (cash at a market or flea market, Facebook
 Marketplace, a local pickup paid by Cash App or Zelle), which are typed in one at a time. You import the
 marketplaces' own reports, track cost of goods per item and per lot, and log mileage (typed in, or read from
 a mileage tracker app's CSV export). The app then shows
@@ -109,6 +111,8 @@ pnpm typecheck && pnpm test:unit && pnpm test:worker && pnpm build
 
   14. shop settings: the owner downloads the JSON export (the direct sale in it), then deletes the shop by
      typing its name and lands on the shop list with it gone.
+  16. another marketplace's file matched by hand: the column suggestions, the import as Grailed, and the
+     saved columns offered for the second file, which adds nothing.
 
   `scripts/e2e-run.sh <spec> -g <name>` runs one; `E2E_SERVER_LOGS=1` shows the server's output. CI runs
   it as the `e2e` job of `seller-books-ci`. It uses the preinstalled `/opt/pw-browsers` Chromium when

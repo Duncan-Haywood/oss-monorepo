@@ -34,8 +34,23 @@ export const CATALOGUE = {
     "einvoice-preflight": { name: "Branded audit pack", billing: "one-off", priceId: "" },
     "changepoint-detector": { name: "Branded change report", billing: "one-off", priceId: "" },
     "ai-bookkeeper": { name: "Branded close pack", billing: "one-off", priceId: "" },
+    // Bet #6's paid edition (portfolio/monetization/bets.md), served at /residential-takeoff/.
+    // `dir` is where its page lives under ventures/ when that is not ventures/<slug>.
+    "residential-takeoff": { name: "Job report", billing: "one-off", priceId: "", dir: "residential-takeoff/apps/wall-framing-takeoff" },
   },
 };
+
+/**
+ * The directory under ventures/ that serves a product's page: `dir` when set, else the slug.
+ * @param {string} product @param {typeof CATALOGUE} [cat]
+ */
+export function ventureDir(product, cat = CATALOGUE) {
+  const p = /** @type {Record<string, { dir?: string }>} */ (cat.products)[product];
+  if (!p) throw new Error("not in the catalogue: " + product);
+  const d = p.dir || product;
+  if (!/^[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)*$/.test(d)) throw new Error("bad venture dir for " + product + ": " + d);
+  return d;
+}
 
 /** The public config one venture's page needs. @param {string} product @param {typeof CATALOGUE} [cat] */
 export function productConfig(product, cat = CATALOGUE) {

@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 import { cleanKey, verifyLicence, onSale, newClaim, fetchKey, checkKey, wireBuy } from "./client.mjs";
 import { verifyPaddleSignature, signLicence, licenceForTransaction, handleBilling, claimHash, d1Store, TOLERANCE_SEC } from "./server.mjs";
 import worker from "./worker.mjs";
-import { CATALOGUE, productConfig, productForPrice } from "./catalogue.mjs";
+import { CATALOGUE, productConfig, productForPrice, ventureDir } from "./catalogue.mjs";
 import { plan, checkoutSource } from "./sync.mjs";
 
 const b64u = (buf) => Buffer.from(buf).toString("base64url");
@@ -307,7 +307,7 @@ test("the committed catalogue holds no secret, and is dark as committed or fully
   for (const [slug, p] of Object.entries(CATALOGUE.products)) {
     assert.ok(["one-off", "subscription"].includes(p.billing), slug);
     assert.ok(p.priceId === "" || /^pri_/.test(p.priceId), slug);
-    assert.ok(fs.existsSync(new URL(`../../ventures/${slug}/`, import.meta.url)), `ventures/${slug} exists`);
+    assert.ok(fs.existsSync(new URL(`../../ventures/${ventureDir(slug)}/`, import.meta.url)), `ventures/${ventureDir(slug)} exists`);
   }
   assert.equal(productForPrice("", CAT), null);
 });
@@ -328,9 +328,9 @@ test("sync.mjs on the command line: --check reports stale copies and writes noth
     fs.mkdirSync(bin, { recursive: true });
     for (const f of ["sync.mjs", "catalogue.mjs", "client.mjs"]) fs.copyFileSync(new URL(`./${f}`, import.meta.url), path.join(bin, f));
     const slugs = Object.keys(CATALOGUE.products);
-    for (const slug of slugs) fs.mkdirSync(path.join(tmp, "ventures", slug), { recursive: true });
+    for (const slug of slugs) fs.mkdirSync(path.join(tmp, "ventures", ventureDir(slug)), { recursive: true });
     const run = (...args) => spawnSync(process.execPath, [path.join(bin, "sync.mjs"), ...args], { cwd: tmp, encoding: "utf8" });
-    const files = slugs.flatMap((s) => [`ventures/${s}/paddle.mjs`, `ventures/${s}/checkout.mjs`]);
+    const files = slugs.flatMap((s) => [`ventures/${ventureDir(s)}/paddle.mjs`, `ventures/${ventureDir(s)}/checkout.mjs`]);
     const client = fs.readFileSync(new URL("./client.mjs", import.meta.url), "utf8");
 
     let r = run("--check");
@@ -343,8 +343,8 @@ test("sync.mjs on the command line: --check reports stale copies and writes noth
     assert.equal(r.status, 0, r.stderr);
     assert.equal(r.stdout, "wrote:\n  " + files.join("\n  ") + "\n");
     for (const s of slugs) {
-      assert.equal(fs.readFileSync(path.join(tmp, "ventures", s, "paddle.mjs"), "utf8"), client, s);
-      assert.equal(fs.readFileSync(path.join(tmp, "ventures", s, "checkout.mjs"), "utf8"), checkoutSource(s), s);
+      assert.equal(fs.readFileSync(path.join(tmp, "ventures", ventureDir(s), "paddle.mjs"), "utf8"), client, s);
+      assert.equal(fs.readFileSync(path.join(tmp, "ventures", ventureDir(s), "checkout.mjs"), "utf8"), checkoutSource(s), s);
     }
 
     r = run();
@@ -374,12 +374,27 @@ test("only catalogue products carry a paddle.mjs or checkout.mjs", () => {
   const ventures = new URL("../../ventures/", import.meta.url);
   const stray = [];
   for (const d of fs.readdirSync(ventures, { withFileTypes: true })) {
-    if (!d.isDirectory() || d.name in CATALOGUE.products) continue;
+    if (!d.isDirectory() || Object.keys(CATALOGUE.products).some((s) => ventureDir(s) === d.name)) continue;
     for (const f of ["paddle.mjs", "checkout.mjs"]) {
       if (fs.existsSync(new URL(`${d.name}/${f}`, ventures))) stray.push(`ventures/${d.name}/${f}`);
     }
   }
   assert.deepEqual(stray, [], "add the product to platform/billing/catalogue.mjs, or delete the copy");
+});
+
+test("ventureDir: a product's page directory is its slug unless the catalogue names a nested one", () => {
+  assert.equal(ventureDir("shed-designer"), "shed-designer");
+  assert.equal(ventureDir("residential-takeoff"), "residential-takeoff/apps/wall-framing-takeoff");
+  assert.throws(() => ventureDir("nope"), /not in the catalogue/);
+  // A dir that climbs out of ventures/ (or is absolute) would let the sync write anywhere.
+  for (const dir of ["../platform", "/etc", "a/../../b", "a//b", "A", ""]) {
+    const cat = { ...CATALOGUE, products: { x: { name: "x", billing: "one-off", priceId: "", dir } } };
+    if (dir === "") assert.equal(ventureDir("x", /** @type {any} */ (cat)), "x");
+    else assert.throws(() => ventureDir("x", /** @type {any} */ (cat)), /bad venture dir/, dir);
+  }
+  // The paid edition sells a one-off Job report under its own product, never the free tool's pack.
+  assert.equal(CATALOGUE.products["residential-takeoff"].billing, "one-off");
+  assert.notEqual(ventureDir("residential-takeoff"), ventureDir("wall-framing-takeoff"));
 });
 
 test("the billing store runs against its real schema (node:sqlite standing in for D1)", async (t) => {

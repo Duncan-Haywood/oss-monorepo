@@ -22,7 +22,7 @@ test("marketing page links the sample, says it is not on sale, and is in the sit
   assert.match(read("./sitemap.xml"), /branded-bid-package-for-framers/);
   assert.match(read("./llms.txt"), /branded-bid-package-for-framers/);
 });
-test("the page says not on sale only while no checkout link is set", async () => {
-  const { CHECKOUT_URL } = await import("./checkout.mjs");
-  assert.equal(CHECKOUT_URL, "", "when the owner sets the link, update the marketing page's 'not on sale yet' copy and this test");
+test("the page says not on sale only while the Job report is dark", async () => {
+  const { onSaleNow } = await import("./licence.mjs");
+  assert.equal(onSaleNow(), false, "when the owner fills the catalogue, update the marketing page's 'not on sale yet' copy and this test");
 });

@@ -3,7 +3,9 @@
 // turns on the reminder), the months the job's pay apps leave unpaid with each month's notice date
 // and who still needs one, and each notice recorded per recipient with how it went (§ 53.003(b)).
 // The cash page and the weekly email remind before each month's date. Recording and deleting land
-// in the job history. Crew plan and up, like the notice itself.
+// in the job history. Crew plan and up, like the notice itself. Retainage (part 3): the day this
+// company's contract and the original contract ended, saved with the job, give the 30-day retainage
+// notice (§ 53.057(a-1)) and the retainage lien affidavit (§ 53.052(d)) dates, and the reminder.
 import type { TxNoticeLogDto } from "@shared/api/types";
 import { formatCents } from "@shared/money";
 import { txMonthName } from "@shared/tx-notices";
@@ -24,6 +26,25 @@ export function TxNoticeLog(props: { base: string; log: TxNoticeLogDto }) {
   const saveKind = useMutation({
     mutationFn: (projectKind: string | null) =>
       api(`${base}/notices/tx/project-kind`, { method: "PUT", body: { projectKind } }),
+    onSuccess: refresh,
+  });
+
+  const r = log.retainage;
+  const [dates, setDates] = useState({
+    contractEndedOn: r.contractEndedOn ?? "",
+    originalEndedOn: r.originalEndedOn ?? "",
+    originalEndedHow: r.originalEndedHow ?? "",
+  });
+  const saveDates = useMutation({
+    mutationFn: () =>
+      api(`${base}/notices/tx/retainage-dates`, {
+        method: "PUT",
+        body: {
+          contractEndedOn: dates.contractEndedOn || null,
+          originalEndedOn: dates.originalEndedOn || null,
+          originalEndedHow: dates.originalEndedOn ? dates.originalEndedHow || null : null,
+        },
+      }),
     onSuccess: refresh,
   });
 
@@ -118,6 +139,93 @@ export function TxNoticeLog(props: { base: string; log: TxNoticeLogDto }) {
           ))}
         </ul>
       )}
+
+      <div className="grid gap-2 rounded border p-2">
+        <p className="font-medium">Retainage (§ 53.057)</p>
+        <p className="text-slate-600">
+          {r.retainageHeldCents > 0
+            ? `${formatCents(r.retainageHeldCents)} retainage is held on this job's latest pay app.`
+            : "No retainage is held on this job's latest sent pay app."}{" "}
+          The notice of claim for unpaid retainage is due 30 days after your contract is completed,
+          terminated or abandoned, or sooner if the original contract is terminated or abandoned.
+        </p>
+        <div className="grid gap-2 sm:grid-cols-3">
+          <label>
+            <span className="block text-slate-600">Your contract completed or ended</span>
+            <input
+              className="input"
+              type="date"
+              value={dates.contractEndedOn}
+              onChange={(e) => setDates((d) => ({ ...d, contractEndedOn: e.target.value }))}
+            />
+          </label>
+          <label>
+            <span className="block text-slate-600">Original contract (the GC's) ended</span>
+            <input
+              className="input"
+              type="date"
+              value={dates.originalEndedOn}
+              onChange={(e) => setDates((d) => ({ ...d, originalEndedOn: e.target.value }))}
+            />
+          </label>
+          <label>
+            <span className="block text-slate-600">How it ended</span>
+            <select
+              className="input"
+              value={dates.originalEndedHow}
+              disabled={!dates.originalEndedOn}
+              onChange={(e) => setDates((d) => ({ ...d, originalEndedHow: e.target.value }))}
+            >
+              <option value="">Choose</option>
+              <option value="completed">Completed</option>
+              <option value="terminated">Terminated</option>
+              <option value="abandoned">Abandoned</option>
+            </select>
+          </label>
+        </div>
+        <button
+          type="button"
+          className="btn w-auto justify-self-start"
+          disabled={saveDates.isPending}
+          onClick={() => saveDates.mutate()}
+        >
+          Save dates
+        </button>
+        {saveDates.error && <ErrorText error={saveDates.error} />}
+        {log.projectKind === null && (
+          <p className="text-slate-600">
+            The cash page and weekly email remind about these dates once the job is tracked above.
+          </p>
+        )}
+        {r.notice ? (
+          <p>
+            Retainage notice by <strong>{r.notice.due}</strong>
+            {r.notice.holidays.length > 0 ? ` (moved past ${r.notice.holidays.join(" and ")})` : ""}
+            , 30 days after{" "}
+            {r.notice.basis === "original"
+              ? "the original contract was terminated or abandoned"
+              : "your contract ended"}
+            .{" "}
+            {r.notice.missing.length === 0
+              ? "Recorded for both."
+              : `Not recorded for ${r.notice.missing.map((x) => label(x, log.recipients).toLowerCase()).join(" or ")}.`}
+          </p>
+        ) : (
+          <p className="text-slate-600">
+            Save the day your contract ended to get the notice date and a reminder.
+          </p>
+        )}
+        {r.affidavit && (
+          <p>
+            Lien affidavit for retainage, if still unpaid: file with the county clerk by{" "}
+            <strong>{r.affidavit.due}</strong>
+            {r.affidavit.holidays.length > 0
+              ? ` (moved past ${r.affidavit.holidays.join(" and ")})`
+              : ""}{" "}
+            (§ 53.052(d), the 15th day of the third month after the original contract ended).
+          </p>
+        )}
+      </div>
 
       {log.sends.length > 0 && (
         <ul className="grid gap-2">
