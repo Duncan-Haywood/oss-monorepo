@@ -38,9 +38,9 @@
     }
   },
   "counts": {
-    "ventures": 1443,
+    "ventures": 1444,
     "by_vertical": {
-      "construction": 165,
+      "construction": 166,
       "manufacturing-engineering": 8,
       "online-sellers": 105,
       "eu-einvoicing-accounting": 12,
@@ -55,7 +55,7 @@
       "other": 478
     },
     "front_doors_by_bet": {
-      "payapps": 154,
+      "payapps": 155,
       "jobshop-quote": 10,
       "einvoice": 12,
       "cmmc": 2,
@@ -64,7 +64,7 @@
       "grants": 9
     },
     "by_status": {
-      "front-door": 303,
+      "front-door": 304,
       "frozen": 1140
     }
   },
@@ -6897,6 +6897,14 @@
       "site_category": "evidence",
       "front_door_for": null,
       "status": "frozen"
+    },
+    {
+      "venture": "payapps",
+      "vertical": "construction",
+      "rule": "slug",
+      "site_category": "more",
+      "front_door_for": "payapps",
+      "status": "front-door"
     },
     {
       "venture": "payment-processor-fee-comparison-calculator",
