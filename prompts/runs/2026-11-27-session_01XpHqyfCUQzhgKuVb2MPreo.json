@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyfCUQzhgKuVb2MPreo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T14:37:55Z",
+  "ended": "2026-11-27T14:48:59Z",
+  "wall_minutes": 13.34,
+  "tokens_in": 9223577,
+  "tokens_out": 49905,
+  "cost_usd": 4.1943,
+  "tool_calls": 68,
+  "task": "einvoice-site in Dutch for Belgian accountants (bet #3, einvoice-preflight ROADMAP Next 7)",
+  "projects": [
+    "einvoice-pro"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19777",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first venture-preflight run failed check_table_headers/check_thin_pages",
+      "cause": "my local gitignored einvoice-site/dist build was scanned (de/en/fr failed identically)",
+      "fix": "deleted dist/, re-ran: preflight clean"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported every bet with 'free and not gated: none'; payapps (23 Next) and jobshop-quote are entirely demand-gated, so the first 10 minutes went to finding any ungated slice"
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "scans gitignored build output (apps/*/dist) left by a local build, so a dev build before preflight fails checks that CI would not see"
+    },
+    {
+      "file": "ventures/einvoice-pro/apps/einvoice-preflight/repair-facturx.test.mjs",
+      "issue": "'poppler opens the repaired PDF' always fails in the cloud container, whose pdfdetach wrapper disables saving; it should skip when pdfdetach -saveall is refused"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/einvoice-pro/apps/einvoice-preflight/ROADMAP.md",
+      "why": "item 7 said the Dutch einvoice-site page waits 'once the deploy has run'; the copy, routes and schema do not depend on the deploy, and Belgium's mandate is live now",
+      "did": "built the whole Dutch site before deploy; only the CTA to /app still waits on the deploy",
+      "result": "landed with tests; nothing in it needs the deploy"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-e-invoicing-deadlines-four-countries-official-sources.md (extended: 'Update, 27 November')",
+    "ventures/einvoice-pro/apps/einvoice-site/README.md ('Dutch')"
+  ],
+  "goal": "bet #3 traffic and leads: the market where the mandate is already in force, in its language",
+  "notes": "Security queue: 2 alerts, both claimed (exit 3). Ideas inbox empty. payapps and jobshop-quote had no ungated Next item, and PR #19767 already covered the einvoice deploy workflow, so this run took ROADMAP item 7's site half. einvoice-site: node --test test/*.test.mjs 39 pass 0 fail. run_venture_tests.py einvoice-pro: 2720 tests, 1 fail (repair-facturx poppler, container pdfdetach wrapper; untouched code). venture-preflight.mjs einvoice-pro: clean (EXIT 0) on the second run. Dutch is agent-drafted; native review is in the README pre-launch list.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "493a8842-d2eb-51e2-b5db-bee0acc17561",
+    "transcripts": 1,
+    "first": "2026-11-27T14:37:55Z",
+    "last": "2026-11-27T14:51:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 126,
+        "output": 49905,
+        "thinking": 7941,
+        "cache_read": 9050246,
+        "cache_write_5m": 0,
+        "cache_write_1h": 173205,
+        "api_equivalent_usd": 4.1943,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 126,
+      "output": 49905,
+      "thinking": 7941,
+      "cache_read": 9050246,
+      "cache_write_5m": 0,
+      "cache_write_1h": 173205,
+      "api_equivalent_usd": 4.1943,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.34,
+      "active_minutes": 13.34,
+      "model_minutes": 9.35,
+      "tool_minutes": 3.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "translating ~600 lines of site copy and 39 legal-deadline sentences into Dutch plus wiring, migration and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 238.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
