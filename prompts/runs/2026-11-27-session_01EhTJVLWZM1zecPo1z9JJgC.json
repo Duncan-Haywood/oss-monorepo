@@ -35,6 +35,10 @@
     {
       "file": "harness (Bash safety check)",
       "issue": "Bash heredocs containing JS template-literal text (backticks, dollar-brace) were refused as unparseable removals four times; writing the text with the Write tool and passing a file worked."
+    },
+    {
+      "file": "prompts/test_promptctl.py",
+      "issue": "validate failed on this PR from a date-boundary bug in promptctl's shallow-edge index (merge checkout, parents dated 11-26 -07:00 and 11-27 UTC), unrelated to the diff; filed as prompts/process/backlog/P094."
     }
   ],
   "deviations": [
