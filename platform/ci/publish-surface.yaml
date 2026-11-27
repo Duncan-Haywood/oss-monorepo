@@ -260,6 +260,13 @@ workflows:
 - workflow: priv-cloudflare-email.yml
   classification: none
   publishes: []
+- workflow: priv-cmmc-deploy.yml
+  classification: dispatch
+  publishes:
+  - job: deploy
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ github.ref == 'refs/heads/main' }}
 - workflow: priv-codeql.yml
   classification: none
   publishes: []

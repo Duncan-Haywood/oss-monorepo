@@ -54,7 +54,7 @@ cp .dev.vars.example .dev.vars && pnpm db:migrate:local && pnpm dev   # offline,
 node --test scripts/provision.test.mjs                                  # deploy provisioning
 ```
 
-Deploy: the `cmmc-deploy` workflow, by hand only, provisions D1 and R2, migrates, syncs the Paddle
+Deploy: the `cmmc-deploy` workflow (`.github/workflows/priv-cmmc-deploy.yml`), by hand only from `main`, provisions D1 and R2, migrates, syncs the Paddle
 catalog and smoke-tests `/api/health` ([docs/DEPLOY.md](docs/DEPLOY.md)). It has not run yet.
 
 ## API (all JSON; `/api/orgs/:orgId/*` is tenant-scoped)
