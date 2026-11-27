@@ -177,7 +177,11 @@ class CampaignTest(unittest.TestCase):
         # doc_friction 2026-11-25: --under <file> printed "(0 guarded files)"
         self.assertEqual(redteam.list_targets(self.repo, under="ventures/demo/calc.mjs"),
                          [self.target])
-        self.assertEqual(redteam.list_targets(self.repo, under="ventures/demo/calc"), [])
+
+    def test_targets_under_a_name_prefix(self):
+        # doc_friction 2026-11-25..26: --under ventures/ai-bookkeeper/salestax printed 0
+        self.assertEqual(redteam.list_targets(self.repo, under="ventures/demo/ca"), [self.target])
+        self.assertEqual(redteam.list_targets(self.repo, under="ventures/demo/x"), [])
 
     def test_campaign_catches_escapes_restores_then_rerun_proves_the_guard(self):
         camp = redteam.campaign(self.target, 10, seed=1, repo=self.repo)

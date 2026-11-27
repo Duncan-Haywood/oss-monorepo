@@ -75,6 +75,14 @@ def limits_line():
             f"once written: python3 platform/ci/check_posts.py (front matter, links, near-copies)")
 
 
+def over(field, value, cap):
+    """The too-long message, with the words past the cap quoted, so the first
+    edit cuts enough (doc_friction 2026-11-24 and 26: a 167-character
+    description took two rounds because the message gave only the length)."""
+    return (f"{field} is {len(value)} characters, {len(value) - cap} over; keep it to {cap} "
+            f"(past the cap: \"{value[cap:]}\")")
+
+
 def problems(name, text, today=None):
     m = re.match(r"---\n(.*?)\n---\n", text, re.S)
     if not m:
@@ -95,18 +103,18 @@ def problems(name, text, today=None):
         out.append(f"dated {prefix.group(0)}, after today ({limit}, UTC); date a post `date -u +%F` when it is written")
     desc = fields.get("description", "").strip("\"'")
     if len(desc) > LIMITS["description"]:  # writing.mjs throws on this; PR builds fail, so say so early
-        out.append(f"description is {len(desc)} characters; keep it to {LIMITS['description']}")
+        out.append(over("description", desc, LIMITS["description"]))
     # Search results cut a title near 60 characters and the longest 14 of 2,299 posts run
     # 111 to 122; posts from 2026-11-05 on keep to 110 so the part that gets cut is not the point.
     title = fields.get("title", "").strip("\"'")
     if prefix and prefix.group(0) >= "2026-11-05" and len(title) > LIMITS["title"]:
-        out.append(f"title is {len(title)} characters; keep it to {LIMITS['title']}")
+        out.append(over("title", title, LIMITS["title"]))
     if len(desc) < MIN_DESCRIPTION:  # a stub ("d", a filename) gives a search result or an answer engine nothing to quote
         out.append(f"description is {len(desc)} characters; write at least 60 so a result says what the post is")
     # writing.mjs throws on this too: three posts on 2026-10-29 broke every site build.
     seo = fields.get("seo_title", "").strip("\"'")
     if len(seo) > LIMITS["seo_title"]:
-        out.append(f"seo_title is {len(seo)} characters; keep it to {LIMITS['seo_title']}")
+        out.append(over("seo_title", seo, LIMITS["seo_title"]))
     # propose_seo_titles.py --check failed main four times in two days because only
     # main_health ran it: a title over 70 with no seo_title and no clean cut to 70.
     if not seo and len(title) > 70 and not _cut(title):
