@@ -263,8 +263,12 @@ def list_targets(repo: Path = REPO, under: str | None = None) -> list[Path]:
 # Running
 
 
-def run_suite(cmd: list[str], cwd: Path, timeout: int = TIMEOUT_SECONDS) -> tuple[bool, float]:
-    """(passed, seconds). A timeout counts as a failure: the suite noticed."""
+def run_suite(cmd: list[str], cwd: Path, timeout: int = TIMEOUT_SECONDS,
+              output: list[str] | None = None) -> tuple[bool, float]:
+    """(passed, seconds). A timeout counts as a failure: the suite noticed.
+
+    With `output`, the suite's stdout and stderr are appended to it as text.
+    """
     start = time.monotonic()
     try:
         # No .pyc written: a same-size mutant's pyc (mtime+size match) would
@@ -276,8 +280,10 @@ def run_suite(cmd: list[str], cwd: Path, timeout: int = TIMEOUT_SECONDS) -> tupl
         proc = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                 env=env, start_new_session=True)
         try:
-            proc.communicate(timeout=timeout)
+            out, err = proc.communicate(timeout=timeout)
             passed = proc.returncode == 0
+            if output is not None:
+                output.append(out.decode("utf-8", "replace") + err.decode("utf-8", "replace"))
         except subprocess.TimeoutExpired:
             passed = False
             try:
@@ -288,6 +294,28 @@ def run_suite(cmd: list[str], cwd: Path, timeout: int = TIMEOUT_SECONDS) -> tupl
     except OSError:
         passed = False
     return passed, round(time.monotonic() - start, 1)
+
+
+# How each runner reports skipped tests: node --test "# skipped 3" (TAP) or
+# "ℹ skipped 3" (the spec reporter, which CI gets), pytest
+# "2 passed, 3 skipped", unittest "OK (skipped=3)".
+_SKIPPED = (
+    re.compile(r"^(?:#|\u2139) skipped (\d+)\s*$", re.M),
+    re.compile(r"\b(\d+) skipped\b"),
+    re.compile(r"\bskipped=(\d+)\b"),
+)
+
+
+def skipped_tests(output: str) -> int:
+    """Tests a suite's output says it skipped (the largest count any runner line gives).
+
+    A skipped test catches no mutant, so a campaign over a suite that skips
+    tests here (missing optional dependencies, 2026-11-27: einvoice-preflight's
+    Peppol readiness tests skip without slimdom and fontoxpath, which CI
+    installs) measures a lower catch rate than CI would.
+    """
+    counts = [int(n) for rx in _SKIPPED for n in rx.findall(output)]
+    return max(counts, default=0)
 
 
 def mutated_before(runs: Path | None = None) -> set[str]:
@@ -359,7 +387,9 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
     original = target.read_bytes()
     text = original.decode()
 
-    ok, base_seconds = run_suite(cmd, cwd, timeout)
+    base_output: list[str] = []
+    ok, base_seconds = run_suite(cmd, cwd, timeout, output=base_output)
+    base_skipped = skipped_tests("".join(base_output))
     if not ok and base_seconds >= timeout:
         raise SystemExit(f"baseline timed out after {timeout}s: `{' '.join(cmd)}` may be slow, "
                          "not red. Re-run with a larger --timeout before calling it a defect.")
@@ -373,6 +403,11 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
           f"{round(base_seconds * n / 60, 1)} min. If a slow suite makes you kill this, "
           "run `git status` afterwards: a suite may rewrite tracked files outside the target.",
           file=sys.stderr)
+    if base_skipped:
+        print(f"warning: the baseline skipped {base_skipped} test(s). Skipped tests catch no "
+              "mutant, so an escape here may be caught in CI; install what they need (the "
+              "skip reason says) or check each escape against the skipped tests before "
+              "calling it a gap.", file=sys.stderr)
     rng = random.Random(seed)
     chosen = sorted(rng.sample(pool, min(mutants, len(pool))), key=lambda s: (s.line, s.col))
     results = []
@@ -401,7 +436,7 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
         "target": target.relative_to(repo).as_posix(),
         "test": " ".join(cmd) + (f"  (in {cwd.relative_to(repo).as_posix() or '.'})"),
         "seed": seed, "commit": _commit(repo), "sites": len(pool),
-        "baseline_seconds": base_seconds, "mutants": results,
+        "baseline_seconds": base_seconds, "baseline_skipped": base_skipped, "mutants": results,
     }
 
 

@@ -118,3 +118,41 @@ test("the CLI reports a folder and exits 1 when a file is newly rejected", { ski
   assert.match(out, /1 of 2 Peppol files pass 3\.0\.22 today/);
   assert.match(readFileSync(join(dir, "r.csv"), "utf8"), /b\.xml,newly-rejected,PEPPOL-COMMON-R040,fatal/);
 });
+
+// The verdict table without the plain rule runner, so it runs where slimdom and
+// fontoxpath are not installed (a red-team campaign, 2026-11-27, saw four mutants of
+// classifyFile, summarize and toCsv escape locally because the tests above skip).
+test("classifyFile, summarize and toCsv on hand-built runs, no rule runner needed", () => {
+  const sets = ["en16931", "peppol-next"];
+  const fatalNew = { rule: "PEPPOL-COMMON-R040", severity: "fatal", path: "/E", message: "x [New in Peppol BIS 3.1.0, rejected from 2027-02-24]", peppolNext: "new" };
+  const fatalOld = { rule: "BR-01", severity: "fatal", path: "/I", message: "old" };
+  const warnNew = { rule: "PEPPOL-COMMON-R062", severity: "warning", path: "/V", message: "w", peppolNext: "new" };
+  const run = (findings) => ({ status: "ok", sets, findings });
+  const rows = [
+    classifyFile("ready.xml", run([]), run([])),
+    classifyFile("new.xml", run([]), run([fatalNew])),
+    classifyFile("both.xml", run([fatalOld]), run([fatalOld])),
+    classifyFile("fixed.xml", run([fatalOld]), run([])),
+    classifyFile("warn.xml", run([]), run([warnNew])),
+    classifyFile("plain.xml", run([]), { status: "ok", sets: ["en16931"], findings: [] }),
+    classifyFile("unavail.xml", { status: "unavailable", sets: [], findings: [] }, run([])),
+    classifyFile("half.xml", run([]), { status: "unavailable", sets: [], findings: [] }),
+  ];
+  assert.deepEqual(rows.map((r) => r.verdict),
+    ["ready", "newly-rejected", "fails-both", "fixed-by-3.1.0", "new-warnings", "not-peppol", "unreadable", "unreadable"]);
+  assert.equal(rows[1].added[0].message, "x");
+  assert.deepEqual([rows[1].fatalNow, rows[1].fatalNext], [0, 1]);
+  const s = summarize(rows);
+  assert.deepEqual(s.counts, { "newly-rejected": 1, "fails-both": 1, "fixed-by-3.1.0": 1, "new-warnings": 1, ready: 1, "not-peppol": 1, unreadable: 2 });
+  assert.equal(s.peppol, 5);
+  assert.deepEqual(s.rules.map((r) => `${r.rule}:${r.severity}:${r.files.join("+")}`), ["PEPPOL-COMMON-R040:fatal:new.xml", "PEPPOL-COMMON-R062:warning:warn.xml"]);
+  const csv = toCsv(s);
+  assert.ok(csv.endsWith("\n") && !csv.endsWith("\n\n"));
+  assert.equal(csv.split("\n").length, 1 + 8 + 1);
+  assert.equal(csv.split("\n")[2], "new.xml,newly-rejected,PEPPOL-COMMON-R040,fatal,/E,x,");
+  const md = toMarkdown(s);
+  assert.match(md, /^# Peppol BIS 3\.1\.0 readiness\n/);
+  assert.match(md, /\| Passes 3\.0\.22 today, rejected under 3\.1\.0 \| 1 \|/);
+  assert.match(md, /- new\.xml: PEPPOL-COMMON-R040\n/);
+  assert.ok(md.endsWith(" will be accepted.\n"));
+});
