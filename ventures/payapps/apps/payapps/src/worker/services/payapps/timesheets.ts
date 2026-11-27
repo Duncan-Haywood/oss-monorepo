@@ -16,7 +16,9 @@ import type {
   TimesheetPostDto,
   TimesheetWeekDto,
 } from "@shared/api/types";
+import { type TimesheetCertifiedHours, timesheetCertifiedHours } from "@shared/timesheet-certified";
 import {
+  addDays,
   computeWeek,
   DEFAULT_WEEK_START_DAY,
   isWeekStart,
@@ -30,6 +32,7 @@ import {
   WEEK_DAY_NAMES,
   weekDates,
   weekEnding,
+  weekStartFor,
 } from "@shared/timesheets";
 import { and, asc, eq, gte, inArray, lte } from "drizzle-orm";
 import type { z } from "zod";
@@ -532,4 +535,27 @@ export async function postWeek(
     jobs: result,
     week: await getWeek(ctx, orgId, weekStart),
   };
+}
+
+/**
+ * One job's hours for the certified payroll week ending on `weekEndingDate`, from the workweeks it
+ * covers (one, or two when the payroll week straddles the company's workweek). The job is checked to
+ * be this company's by the caller (getProjectRow).
+ */
+export async function certifiedPayrollHours(
+  ctx: AppContext,
+  orgId: string,
+  projectId: string,
+  weekEndingDate: string,
+): Promise<TimesheetCertifiedHours> {
+  let first: string;
+  try {
+    first = addDays(weekEndingDate, -6);
+  } catch {
+    throw badRequest("weekEnding must be a date (YYYY-MM-DD)");
+  }
+  const day = await getWeekStartDay(ctx, orgId);
+  const starts = [...new Set([weekStartFor(first, day), weekStartFor(weekEndingDate, day)])];
+  const weeks = await Promise.all(starts.map((s) => getWeek(ctx, orgId, s)));
+  return timesheetCertifiedHours(weeks, projectId, weekEndingDate);
 }

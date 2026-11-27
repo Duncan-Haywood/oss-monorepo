@@ -1,0 +1,161 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVLf8XrPENdM5pPrkj2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T08:18:59Z",
+  "ended": "2026-11-27T08:26:30Z",
+  "wall_minutes": 45.96,
+  "tokens_in": 16061086,
+  "tokens_out": 47348,
+  "cost_usd": 5.576,
+  "tool_calls": 105,
+  "task": "Port Job Shop Quote's deploy workflow (bet #2); a parallel run landed it first, so this run shipped the owner decision row it needs",
+  "projects": [
+    "jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19683",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "adversarial_gate analyze --diff with an added file reported 0 findings (the blind spot open PR #19652 fixes); re-ran with --base/--head on a local commit, which found 14 secrets + a continue-on-error",
+    "Duplicate work: a parallel session (session_01AcxTtGJWArkJMMauryfaDY) merged the same allowlist as PR #19670 about 30 min after I claimed claim/jobshop-quote/deploy-workflow-port, and opened the workflow as PR #19682; my PR #19671 conflicted and was closed as superseded, and my local workflow PR was dropped (theirs adds a launch review and secrets inventory).",
+    "roadmap_claim.py --release and git push --delete of claim/jobshop-quote/deploy-workflow-port both failed ('remote end hung up'); the claim stays until its 6 h staleness."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Both bets in this repo (payapps 22 Next, jobshop-quote 13 Next) have every ROADMAP item gated 'waits on demand' or an owner step; roadmap_claim.py's suggested 'free and not gated' #11 needs a real Windows PC and Android phone. The useful unclaimed work (deploying bet #2) was only found in ventures/jobshop-quote/DEPLOY.md, not in any queue."
+    },
+    {
+      "file": "docs/reports/2026-11-27-state-certified-payroll-filing-systems.md",
+      "issue": "Says njwages.nj.gov 403 and lni.wa.gov 200; this session's proxy refused labor.illinois.gov and coconstruct.com outright (403 no rule) and njwages timed out, so the next state formats need a session with a wider network policy."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Push to no other branch' plus the two-PR allowlist pattern (gate reads allowlist from main) means PR 2 reuses the branch after PR 1 merges; worked, but nothing says so."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "The other run did not see (or ignored) my claim branch claim/jobshop-quote/deploy-workflow-port; a work: or claim name in PR titles alone did not prevent two allowlist PRs for the same new workflow within 30 minutes. A slug_dupe check right before opening PR 1 would have shown nothing either (theirs was opened in the same minutes). The adversarial-gate allowlist path is a natural lock key: slug_dupe could grep open PRs' changed allowlist paths."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/jobshop-quote/apps/jobshop-quote/docs/DEPLOY.md",
+      "why": "The private workflow fell back to the repository's shared ANTHROPIC_API_KEY; a public app spending a shared key is paid budget (CLAUDE.md: flag the owner for automation that spends paid budget).",
+      "did": "Port syncs only JOBSHOP_ANTHROPIC_API_KEY; AI extraction stays 503 until the owner sets it.",
+      "result": "Deploy can run now without committing owner spend; AI wedge waits on one owner secret."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No customer post: this run ships deploy plumbing with no user-facing change; a post about a CI workflow would be a thin dev post, which the owner asked to stop.",
+      "did": "No post; the shipped change is a decision-queue row.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "portfolio/ledger/asks.yaml row paid-app-deploy-settings (owner steps: R2 on the Cloudflare token; optional JOBSHOP_ANTHROPIC_API_KEY)"
+  ],
+  "goal": "$10k MRR: bet #2 deploy needs R2 on the Cloudflare token; the row puts that owner step in the queue",
+  "notes": "Security queue: 12 alerts, all claimed (exit 3). IDEAS.md empty. Route: ventures/1 (draw). payapps launch work (domain, links, site switch) and seller-books deploy were all in open PRs, so took the unclaimed jobshop-quote deploy port (claim/jobshop-quote/deploy-workflow-port). Original read from private-monorepo via the GitHub MCP (no clone). Local verification: gate analyze on PR 1 = 0 blocking/0 warnings; on the workflow commit, the only blocking findings were the 14 secrets PR 1 allowlists (continue-on-error removed); test_gate.py 124 passed; ci_policy_check.py passes after the CODEOWNERS line (/ventures/jobshop-quote/); validate_workflows.py all valid; in the app: pnpm install --frozen-lockfile, node --test provision + email-routing tests 19/19, pnpm build OK, check-no-client-maps OK, provision.mjs --dry-run --domain quote.marisstella.app writes the config and would create R2 jobshop-quote-files and D1 jobshop-quote; biome ci on the edited script clean. Not run: the workflow itself (needs main + secrets); expected first-run blocker is R2 permission on the Cloudflare token, as PayApps hit. UPDATE: PR #19671 superseded by #19670/#19682 (parallel run). Shipped instead: decision-queue row paid-app-deploy-settings (not in #19682), decision_queue.py --check schema OK, test_decision_queue.py passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "924c342f-162d-5773-bad0-6d592dd1dbec",
+    "transcripts": 1,
+    "first": "2026-11-27T08:18:59Z",
+    "last": "2026-11-27T09:04:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 105,
+        "input": 208,
+        "output": 47348,
+        "thinking": 8753,
+        "cache_read": 15879341,
+        "cache_write_5m": 0,
+        "cache_write_1h": 181537,
+        "api_equivalent_usd": 5.576,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 105,
+      "input": 208,
+      "output": 47348,
+      "thinking": 8753,
+      "cache_read": 15879341,
+      "cache_write_5m": 0,
+      "cache_write_1h": 181537,
+      "api_equivalent_usd": 5.576,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 105,
+    "tools": {
+      "Bash": 85,
+      "mcp__github__pull_request_read": 6,
+      "ToolSearch": 3,
+      "mcp__github__list_pull_requests": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__get_file_contents": 1,
+      "Write": 1,
+      "TaskStop": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 45.96,
+      "active_minutes": 22.41,
+      "model_minutes": 9.13,
+      "tool_minutes": 13.28,
+      "waiting_on_human_minutes": 23.55,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "port and verify a deploy workflow, then a queue row",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 35.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
