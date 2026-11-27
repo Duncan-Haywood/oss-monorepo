@@ -87,3 +87,24 @@ test("the invented example computes and the CSV is formula-safe", () => {
   const evil = ratesCsv(machineRates({ machines: [{ name: "=HYPERLINK(1)", hoursPerYear: "10", utilizationPct: "10" }] }));
   assert.match(evil, /\n'=HYPERLINK/);
 });
+
+test("commas are read by shape: thousands grouping kept, a decimal comma refused", () => {
+  const ok = machineRates({ machines: [{ name: "C", leasePerYear: "12,000", hoursPerYear: "1,000", utilizationPct: "100" }] });
+  assert.deepEqual(ok.errors, []);
+  close(ok.machines[0].withOperator, 12, "12,000 / 1,000");
+  assert.match(machineRates({ machines: [{ name: "D", leasePerYear: "29,99", hoursPerYear: "10", utilizationPct: "100" }] }).errors.join(), /not a number/);
+});
+
+test("CSV defuses every formula lead but keeps a plain negative number", () => {
+  // A leading tab or CR is trimmed off the machine name before it reaches the CSV.
+  for (const lead of ["=", "+", "-", "@"]) {
+    const csv = ratesCsv(machineRates({ machines: [{ name: lead + "X", hoursPerYear: "10", utilizationPct: "10" }] }));
+    assert.ok(csv.split("\n")[1].replace(/^"/, "").startsWith("'" + lead), JSON.stringify(lead));
+  }
+});
+
+test("a plain negative number is not defused", async () => {
+  // ratesCsv's cell() lets numbers through; the only text cell is the name.
+  const csv = ratesCsv({ machines: [{ name: "-12.50", billableHours: 1, perHour: {}, machineRate: 1, withOperator: 1, quoted: null }] });
+  assert.match(csv, /\n-12\.50,/);
+});

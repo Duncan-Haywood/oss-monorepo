@@ -19,7 +19,11 @@
 
 const num = (v) => {
   if (v === null || v === undefined) return null;
-  const s = String(v).trim().replace(/[$,\s]/g, "").replace(/%$/, "");
+  let s = String(v).trim().replace(/[$\s]/g, "").replace(/%$/, "");
+  // A comma is read by its shape: thousands grouping (12,500 or 1,250,000.50) is dropped; any
+  // other comma (a decimal comma such as 29,99) is refused rather than read as 2999.
+  if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,(?=\d{3})/g, "");
+  else if (s.includes(",")) return NaN;
   if (s === "") return null;
   const n = Number(s);
   return Number.isFinite(n) ? n : NaN;
@@ -139,7 +143,7 @@ export function machineRates(input) {
 // CSV with formula-safe cells: a cell that starts with = + - @ (or a tab or CR) is prefixed with '.
 const cell = (v) => {
   let s = v === null || v === undefined ? "" : typeof v === "number" ? (Math.round(v * 100) / 100).toString() : String(v);
-  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 

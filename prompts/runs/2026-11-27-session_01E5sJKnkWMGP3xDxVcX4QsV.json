@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKnkWMGP3xDxVcX4QsV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T07:10:22Z",
+  "ended": "2026-11-27T07:16:01Z",
+  "wall_minutes": 5.92,
+  "tokens_in": 4710178,
+  "tokens_out": 29815,
+  "cost_usd": 2.4621,
+  "tool_calls": 48,
+  "task": "bet #2 front door: machine hour rate calculator on machine-shop-guides",
+  "projects": [
+    "machine-shop-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19651",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "A venture-preflight started with a shell '&' inside a foreground call rather than run_in_background; it kept running but made its state harder to follow.",
+    "First venture-preflight failed two repository checks on my code: check_csv_formula_guard (plain negative numbers not let through exactly) and check_money_comma (stripped every comma). Fixed: commas read by shape, a decimal comma refused; formula guard per the checker's pattern; tests added."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Bets #1 and #2 had no free ungated Next item (everything 'waits on demand' or on an owner step); the only free one on payapps (#11) needs a real Windows PC and Android phone. Several parallel sessions were already on payapps launch work, so the useful move was the bet's public front door, which the tool does not suggest."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is the top bet (payapps); its Next list was all demand-gated and 8+ open PRs were on its launch, so I took bet #2's front door (a free page) instead, which the prompt allows when the bet's private work is not movable.",
+      "did": "Machine hour rate calculator feeding the job-shop quote calculator",
+      "result": "Merged-ready page with tests; no collision with open PRs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (update section, 27 Nov)"
+  ],
+  "goal": null,
+  "notes": "Security queue: 5 alerts, all claimed (exit 3). Ideas inbox empty. Venture tests: node --test *.test.mjs in machine-shop-guides, 278 pass. Playwright at 390px: example renders, no console errors, scrollWidth 390, quote-calculator link fills machineRate. risk_review.py: nothing blocked; checks answered in PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "21d4dbd1-0a6f-5f5d-b8a1-4fea822b3081",
+    "transcripts": 1,
+    "first": "2026-11-27T07:10:22Z",
+    "last": "2026-11-27T07:16:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 89,
+        "output": 29815,
+        "thinking": 4267,
+        "cache_read": 4591707,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118382,
+        "api_equivalent_usd": 2.4621,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 89,
+      "output": 29815,
+      "thinking": 4267,
+      "cache_read": 4591707,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118382,
+      "api_equivalent_usd": 2.4621,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 41,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.92,
+      "active_minutes": 5.92,
+      "model_minutes": 4.88,
+      "tool_minutes": 1.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a developer building a tested per-machine rate calculator page, wiring it into a 20-page site and writing the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 243.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
