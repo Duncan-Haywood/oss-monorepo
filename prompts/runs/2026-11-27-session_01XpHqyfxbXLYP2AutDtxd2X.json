@@ -1,0 +1,384 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyfxbXLYP2AutDtxd2X",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T06:39:10Z",
+  "ended": "2026-11-27T06:41:09Z",
+  "wall_minutes": 4.27,
+  "tokens_in": 2318074,
+  "tokens_out": 11161,
+  "cost_usd": 1.2462,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19641",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "targets --probe marked every pay-app-guides file '(red)' with the same 2.5 s; one failing page test makes the whole folder red, which reads as 20 separate problems until you run the suite"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: a red-team fix to a generator and tests tells a customer nothing new; the PR and this record carry the write-up (goals.md, 'Write about the work').",
+      "did": "record notes only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Bet #1 front door (pay-app-guides). Baseline red on main: fixed by running the state pages through cta.mjs in state-forms.mjs build(); new state-forms.test.mjs guard fails without it (3 pass / 2 fail on the old build). Campaigns: cta.mjs 5/8 caught, retlog.mjs 3/8; 6 gaps closed with tests (cta at-start block, CLI run on a temp copy; retlog completed-on-as-of, oldest-overdue none, per-GC job counts, paid-in-full not on the bill list), 1 equivalent (x.row never read). Catch rate 0.533 before, 1.0 after. Guard: the two CTA generators now share one code path, so cta.mjs's launch switch reaches the state pages. The class (two PRs each green on its own base, red together) needs branches up to date before merge or a merge queue; not changed here. Suite: node --test *.test.mjs in ventures/pay-app-guides, 303 pass, 0 fail.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-app-guides/cta.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 210333675,
+        "commit": "5016af6ca",
+        "sites": 21,
+        "baseline_seconds": 1.8,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/cta.mjs",
+            "line": 26,
+            "col": 29,
+            "operator": "false-to-true",
+            "before": "export const PAID_PLANS_ON = false;",
+            "after": "export const PAID_PLANS_ON = true;",
+            "line_text": "export const PAID_PLANS_ON = false;",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/cta.mjs",
+            "line": 60,
+            "col": 9,
+            "operator": "ge-to-gt",
+            "before": "if (at >= 0) {",
+            "after": "if (at > 0) {",
+            "line_text": "  if (at >= 0) {",
+            "caught": false,
+            "seconds": 2.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "cta.test.mjs: a status block at the very start of the section"
+          },
+          {
+            "file": "ventures/pay-app-guides/cta.mjs",
+            "line": 61,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "body = body.slice(0, at) + block + body.slice(body.indexOf(END) + END.length);",
+            "after": "body = body.slice(1, at) + block + body.slice(body.indexOf(END) + END.length);",
+            "line_text": "    body = body.slice(0, at) + block + body.slice(body.indexOf(END) + END.length);",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/cta.mjs",
+            "line": 70,
+            "col": 32,
+            "operator": "plus-to-minus",
+            "before": "return html.slice(0, m.index) + m[1] + body + m[3] + html.slice(m.index + m[0].length);",
+            "after": "return html.slice(0, m.index) - m[1] + body + m[3] + html.slice(m.index + m[0].length);",
+            "line_text": "  return html.slice(0, m.index) + m[1] + body + m[3] + html.slice(m.index + m[0].length);",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/cta.mjs",
+            "line": 70,
+            "col": 39,
+            "operator": "plus-to-minus",
+            "before": "return html.slice(0, m.index) + m[1] + body + m[3] + html.slice(m.index + m[0].length);",
+            "after": "return html.slice(0, m.index) + m[1] - body + m[3] + html.slice(m.index + m[0].length);",
+            "line_text": "  return html.slice(0, m.index) + m[1] + body + m[3] + html.slice(m.index + m[0].length);",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/cta.mjs",
+            "line": 70,
+            "col": 50,
+            "operator": "const-plus-one",
+            "before": "return html.slice(0, m.index) + m[1] + body + m[3] + html.slice(m.index + m[0].length);",
+            "after": "return html.slice(0, m.index) + m[1] + body + m[4] + html.slice(m.index + m[0].length);",
+            "line_text": "  return html.slice(0, m.index) + m[1] + body + m[3] + html.slice(m.index + m[0].length);",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/cta.mjs",
+            "line": 73,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "after": "if (process.argv[2] === fileURLToPath(import.meta.url)) {",
+            "line_text": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "cta.test.mjs: runs node cta.mjs on a temp copy; one update, then no change"
+          },
+          {
+            "file": "ventures/pay-app-guides/cta.mjs",
+            "line": 79,
+            "col": 12,
+            "operator": "neq-flip",
+            "before": "if (out !== html) { writeFileSync(file, out); console.log(`updated ${name}`); }",
+            "after": "if (out === html) { writeFileSync(file, out); console.log(`updated ${name}`); }",
+            "line_text": "    if (out !== html) { writeFileSync(file, out); console.log(`updated ${name}`); }",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "cta.test.mjs: runs node cta.mjs on a temp copy; one update, then no change"
+          }
+        ]
+      },
+      {
+        "target": "ventures/pay-app-guides/retlog.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 555943596,
+        "commit": "5016af6ca",
+        "sites": 159,
+        "baseline_seconds": 1.9,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 78,
+            "col": 20,
+            "operator": "and-to-or",
+            "before": "if (rate !== null && !(Number.isFinite(rate) && rate >= 0 && rate <= 100)) { out.errors.push(\"Cost of money must be a percent from 0 to 100, or blank.\"); return out; }",
+            "after": "if (rate !== null || !(Number.isFinite(rate) && rate >= 0 && rate <= 100)) { out.errors.push(\"Cost of money must be a percent from 0 to 100, or blank.\"); return out; }",
+            "line_text": "  if (rate !== null && !(Number.isFinite(rate) && rate >= 0 && rate <= 100)) { out.errors.push(\"Cost of money must be a percent from 0 to 100, or blank.\"); return out; }",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 96,
+            "col": 60,
+            "operator": "le-to-lt",
+            "before": "const isComplete = completed !== undefined && completed <= asOf;",
+            "after": "const isComplete = completed !== undefined && completed < asOf;",
+            "line_text": "    const isComplete = completed !== undefined && completed <= asOf;",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "retlog.test.mjs: completed on the as-of date"
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 98,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const x = { row: r + 1, job, gc, contract, held, released, outstanding, completed, requested, days, daysFromDefault: ownDays === undefined && days !== undefined, due, asOf, isComplete };",
+            "after": "const x = { row: r + 2, job, gc, contract, held, released, outstanding, completed, requested, days, daysFromDefault: ownDays === undefined && days !== undefined, due, asOf, isComplete };",
+            "line_text": "    const x = { row: r + 1, job, gc, contract, held, released, outstanding, completed, requested, days, daysFromDefault: ownDays === undefined && days !== undefined, due, asOf, isComplete };",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "x.row is never read: grep finds no .row in retlog.mjs or retainage-tracker.html"
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 102,
+            "col": 115,
+            "operator": "const-plus-one",
+            "before": "x.carrying = rate !== null && x.overdue > 0 && outstanding > 0 ? Math.round((outstanding * rate * x.overdue) / 36500) : 0;",
+            "after": "x.carrying = rate !== null && x.overdue > 0 && outstanding > 0 ? Math.round((outstanding * rate * x.overdue) / 36501) : 0;",
+            "line_text": "    x.carrying = rate !== null && x.overdue > 0 && outstanding > 0 ? Math.round((outstanding * rate * x.overdue) / 36500) : 0;",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 122,
+            "col": 68,
+            "operator": "const-plus-one",
+            "before": "oldestOverdue: overdue.reduce((m, x) => Math.max(m, x.overdue), 0),",
+            "after": "oldestOverdue: overdue.reduce((m, x) => Math.max(m, x.overdue), 1),",
+            "line_text": "    oldestOverdue: overdue.reduce((m, x) => Math.max(m, x.overdue), 0),",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "retlog.test.mjs: summary says none when nothing is overdue"
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 137,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "g.jobs += 1; g.outstanding += x.outstanding; if (x.overdue > 0) g.overdue += x.outstanding;",
+            "after": "g.jobs += 2; g.outstanding += x.outstanding; if (x.overdue > 0) g.overdue += x.outstanding;",
+            "line_text": "    g.jobs += 1; g.outstanding += x.outstanding; if (x.overdue > 0) g.overdue += x.outstanding;",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "retlog.test.mjs: per-GC job counts"
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 206,
+            "col": 59,
+            "operator": "gt-to-ge",
+            "before": "const unbilled = result.jobs.filter((x) => x.outstanding > 0 && x.isComplete && x.requested === undefined && !(x.overdue > 0));",
+            "after": "const unbilled = result.jobs.filter((x) => x.outstanding >= 0 && x.isComplete && x.requested === undefined && !(x.overdue > 0));",
+            "line_text": "  const unbilled = result.jobs.filter((x) => x.outstanding > 0 && x.isComplete && x.requested === undefined && !(x.overdue > 0));",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "retlog.test.mjs: paid-in-full completed job not listed to bill"
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 206,
+            "col": 94,
+            "operator": "eq-flip",
+            "before": "const unbilled = result.jobs.filter((x) => x.outstanding > 0 && x.isComplete && x.requested === undefined && !(x.overdue > 0));",
+            "after": "const unbilled = result.jobs.filter((x) => x.outstanding > 0 && x.isComplete && x.requested !== undefined && !(x.overdue > 0));",
+            "line_text": "  const unbilled = result.jobs.filter((x) => x.outstanding > 0 && x.isComplete && x.requested === undefined && !(x.overdue > 0));",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/state-forms.mjs",
+        "issue": "main red: page.test.mjs failed on all 12 state lien waiver pages. state-forms.mjs (PR #19626) wrote the pre-launch CTA sentence by hand and cta.mjs (PR #19631, merged after) wraps it in a generated block; each PR was green on its own base. When the launch switch flipped, the state pages would also have kept saying 'nothing is for sale' after sign-ups opened.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19641"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2f5a37dc-1994-52b0-9a23-aeef8bac5769",
+    "transcripts": 1,
+    "first": "2026-11-27T06:39:10Z",
+    "last": "2026-11-27T06:43:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 57,
+        "output": 11161,
+        "thinking": 2199,
+        "cache_read": 2246334,
+        "cache_write_5m": 0,
+        "cache_write_1h": 71683,
+        "api_equivalent_usd": 1.2462,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 57,
+      "output": 11161,
+      "thinking": 2199,
+      "cache_read": 2246334,
+      "cache_write_5m": 0,
+      "cache_write_1h": 71683,
+      "api_equivalent_usd": 1.2462,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.27,
+      "active_minutes": 4.27,
+      "model_minutes": 2.6,
+      "tool_minutes": 1.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "debug a red suite across two generators, plus 16 mutants triaged and 8 tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 240.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
