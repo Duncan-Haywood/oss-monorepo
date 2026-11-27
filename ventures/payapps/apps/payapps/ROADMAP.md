@@ -1125,6 +1125,25 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
   into its "$ This Period" column; the guide describes no billing upload, so none is built. The unit
   price SOV (five columns) is not built. Not checked against a live GCPay project or the GC's own
   template: if GCPay refuses the file, the panel says to paste the rows into the template GCPay offers.
+- GC portal exports, part 4: Trimble Pay's (Flashtract's) SOV bulk upload (2026-11-27, every plan). An
+  invited sub builds the SOV under the GC's contract by hand or with Bulk upload, which takes the
+  Flashtract template downloaded from the Upload Spreadsheet window: "Fill out columns A, B, and C
+  completely", rows 1 and 2 unchanged, no blank rows, no section header rows, no current period values;
+  lines must sum to the current contract value and every line needs a description; with accounting lines
+  each group sums to its value (Trimble help, "SOV - Upload a Template" and "Set up a Schedule of
+  Values", invited subcontractors, read 2026-11-27). The page does not name the three columns, so on the
+  job page "Trimble Pay SOV" takes the template itself (.xlsx, or .csv saved from it), keeps rows 1 and 2
+  cell for cell, reads which of A to C is item number, description and value from the header (row 2
+  decides, row 1 where row 2 is blank; a reading two columns share is dropped; the last role is
+  inferred when two are known), lets the person change each, and writes the lines from row 3 in the
+  same format. Checks: total against the current contract (original sum plus approved change orders,
+  change order lines included) or the original only, lines with no description or item number,
+  repeated numbers, and example rows the download replaces. Pure code
+  `src/shared/gc-export/trimble-pay-sov.ts` (tests beside it), UI
+  `src/client/components/trimble-pay-sov.tsx` (`test/unit/trimble-pay-sov.test.tsx`). Not checked
+  against a live Trimble Pay contract or a real Flashtract template; no billing upload is built (the
+  help describes none for subs). Not built: uploading into accounting-line groups one at a time (one
+  file per group) if a customer's GC uses them.
 - Lien waivers: Massachusetts (2026-11-26, Crew and up). Mass. Gen. Laws c. 254, § 32, read on the
   General Court's site (snapshot `packages/lien-waivers/sources/ma-254-32.txt`), voids agreements that
   bar filing a notice of contract or enforcing a lien, except four; the fourth is its "Partial Waiver
