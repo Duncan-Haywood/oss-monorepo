@@ -145,7 +145,7 @@ describe("GC billing contact", () => {
     );
     expect(e.body.startsWith("Hello Pat Lee,\n")).toBe(true);
     expect(e.to).toBe("ap@harborbuilders.example");
-    expect(mailtoHref(e)).toMatch(/^mailto:ap@harborbuilders\.com\?subject=Past%20due/);
+    expect(mailtoHref(e)).toMatch(/^mailto:ap@harborbuilders\.example\?subject=Past%20due/);
   });
 
   it("with only an address, keeps the accounts payable greeting", () => {

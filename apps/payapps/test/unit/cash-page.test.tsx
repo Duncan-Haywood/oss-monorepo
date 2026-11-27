@@ -207,12 +207,12 @@ it("addresses the draft to the job's GC billing contact", async () => {
   expect(body.startsWith("Hello Pat Lee,\n")).toBe(true);
   expect(screen.queryByRole("link", { name: "job page" })).toBeNull();
   expect(screen.getByRole("link", { name: "Open in my email" }).getAttribute("href")).toMatch(
-    /^mailto:ap@harborbuilders\.com\?subject=Second%20request/,
+    /^mailto:ap@harborbuilders\.example\?subject=Second%20request/,
   );
   // Changing the address in the draft changes the link.
   fireEvent.change(to, { target: { value: "pm@harborbuilders.example" } });
   expect(screen.getByRole("link", { name: "Open in my email" }).getAttribute("href")).toMatch(
-    /^mailto:pm@harborbuilders\.com\?/,
+    /^mailto:pm@harborbuilders\.example\?/,
   );
 });
 

@@ -202,7 +202,7 @@ describe("renewalEmails", () => {
       x.id === "p4" ? { ...x, gcPmEmail: "lee@sierra.example?bcc=x@y.com" } : x,
     );
     const e = renewalEmails(cert(), [cert(), old], j, from, today)[1];
-    expect(e && mailtoHref(e)).toMatch(/^mailto:lee@sierra\.com%3Fbcc%3Dx@y\.com\?subject=/);
+    expect(e && mailtoHref(e)).toMatch(/^mailto:lee@sierra\.example%3Fbcc%3Dx@y\.com\?subject=/);
   });
 });
 
