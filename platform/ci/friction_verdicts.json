@@ -415,6 +415,14 @@
    "by": "this PR",
    "at": "2026-11-27T14:01:25Z",
    "note": "a .mjs/.js argument's static imports are the roots"
+  },
+  {
+   "file": ".github/prompts/land-your-work.md",
+   "match": "stalled PR itself",
+   "verdict": "fixed",
+   "by": "this PR: land-your-work.md 'Ready PRs that stalled' says to re-land from your own branch when you cannot push to its branch",
+   "at": "2026-11-27T15:21:56Z",
+   "note": "the doc now names the harness push rule and the re-land path"
   }
  ]
 }
