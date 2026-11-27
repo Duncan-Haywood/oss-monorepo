@@ -2,7 +2,7 @@
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
 updated: 2026-11-27
-tags: [construction, subcontractors, electrical-contractors, hvac-contractors, drywall-contractors, concrete-contractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, insurance-certificates, pay-app-guides, for-customers]
+tags: [construction, subcontractors, electrical-contractors, hvac-contractors, drywall-contractors, concrete-contractors, site-work-contractors, roofing-contractors, masonry-contractors, painting-contractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, insurance-certificates, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and PayApps, now open free on one job."
 ---
 
@@ -625,7 +625,8 @@ browser and never uploaded.
 ## By trade
 
 Each trade bills the same monthly form differently, so the guides now have
-one page per trade (added 2026-11-27): what the GC checks, an example
+one page per trade (added 2026-11-27; site work, roofing, masonry and
+painting the same day): what the GC checks, an example
 schedule of values, and where that trade usually loses money.
 
 - [Electrical contractors](https://marisstella.app/pay-app-guides/electrical-contractor-billing.html):
@@ -640,6 +641,18 @@ schedule of values, and where that trade usually loses money.
 - [Concrete](https://marisstella.app/pay-app-guides/concrete-contractor-billing.html):
   unit-price billing by cubic yard, square foot and linear foot, overruns,
   and pump and standby tickets.
+- [Site work and excavation](https://marisstella.app/pay-app-guides/site-work-contractor-billing.html):
+  unit prices by cubic yard, linear foot and ton, rock on its own
+  line, load tickets and stored pipe.
+- [Commercial roofing](https://marisstella.app/pay-app-guides/roofing-contractor-billing.html):
+  roof areas and systems, material loaded ahead of install, deck
+  found at tear-off and the warranty retainage waits on.
+- [Masonry](https://marisstella.app/pay-app-guides/masonry-contractor-billing.html):
+  walls by area and material, pallets on site as stored materials,
+  the mockup and cold-weather protection.
+- [Commercial painting](https://marisstella.app/pay-app-guides/painting-contractor-billing.html):
+  floors and coats, damage by other trades on signed tickets, back
+  charges and punch lists.
 
 ## What exists now, free
 
