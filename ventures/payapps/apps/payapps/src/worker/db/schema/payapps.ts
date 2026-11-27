@@ -265,6 +265,12 @@ export const changeOrders = sqliteTable(
       .default("pending"),
     /** ISO date the GC approved it; it counts in pay apps whose period ends on/after this date. */
     approvedOn: text("approved_on"),
+    /**
+     * ISO date it counts from when the GC signed it on or before the end of a pay app already
+     * submitted (the day after that period); null: it counts from `approvedOn`. Keeps the true
+     * signing date without rewriting a submitted application.
+     */
+    countsFrom: text("counts_from"),
     /** ISO date the change order (request) went to the GC; null when not recorded. */
     submittedOn: text("submitted_on"),
     /** Calendar days of contract time requested; 0 = no change; null = not stated. */

@@ -214,6 +214,11 @@ export interface ChangeOrderDto {
   description: string;
   status: ChangeOrderStatus;
   approvedOn: string | null;
+  /**
+   * Set when it was approved on or before the end of a pay app already submitted: the day after
+   * that period, from which it counts; null: it counts from `approvedOn`.
+   */
+  countsFrom: string | null;
   /** Date the request went to the GC; null when not recorded. */
   submittedOn: string | null;
   /** Calendar days of contract time requested; 0 = no change; null = not stated. */

@@ -151,6 +151,7 @@ export function toChangeOrderInput(co: ProjectBundle["changeOrders"][number]): C
     number: co.number,
     status: co.status,
     approvedOn: co.approvedOn,
+    countsFrom: co.countsFrom,
     items: co.items.map((i) => ({ sovLineId: i.sovLineId, amountCents: i.amountCents })),
   };
 }
@@ -195,7 +196,10 @@ export function retainageLockedLines(b: Pick<ProjectBundle, "payApps" | "compute
   return out;
 }
 
-/** periodTo of the last pay app that left draft (change orders cannot be approved on/before it). */
+/**
+ * periodTo of the last pay app that left draft: a change order approved on or before it counts from
+ * the day after, so a submitted application never changes.
+ */
 export const lastLockedPeriodTo = (b: Pick<ProjectBundle, "payApps">): string | null =>
   b.payApps.filter((a) => a.status !== "draft").at(-1)?.periodTo ?? null;
 
@@ -408,6 +412,7 @@ export function projectDetailDto(b: ProjectBundle): ProjectDetailDto {
     description: co.description,
     status: co.status,
     approvedOn: co.approvedOn,
+    countsFrom: co.countsFrom,
     submittedOn: co.submittedOn,
     scheduleDays: co.scheduleDays,
     lastEmailedOn: co.lastEmailedOn,

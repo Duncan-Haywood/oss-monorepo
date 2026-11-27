@@ -15,6 +15,7 @@ const co = (over: Partial<ChangeOrderDto> = {}): ChangeOrderDto => ({
   description: "Add two exhaust fans",
   status: "pending",
   approvedOn: null,
+  countsFrom: null,
   submittedOn: null,
   scheduleDays: null,
   lastEmailedOn: null,

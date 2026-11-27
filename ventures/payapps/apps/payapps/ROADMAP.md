@@ -2446,6 +2446,18 @@ nothing to copy. No customers yet. Paid plans are dark
   your company" under the company they already had (now "Add another company", with what it is for).
   Next, if it earns its time: the change-order and second-application path, the sample job, and an
   invited PM through the email link.
+- Browser e2e suite, part 2 (2026-11-27, payapps-e2e-second-month): `test/e2e/04-second-month.spec.ts`
+  bills month 1 with board stored on site, has it paid, approves a change order that adds a line, then
+  bills month 2 and checks every G702 line and the continuation CSV by hand (column D carries only
+  work, the stored board moves into E when hung, line 2 carries the change order, line 7 the first
+  certificate). Found and fixed: approving a change order the GC signed on or before the end of a pay
+  app already submitted was refused ("Approval date must be after ..."), and the approval prompt
+  defaults to today while a new pay app's period ends today, so the first change order approved after
+  billing failed with the default date and could only go through with a false one. Now the true date
+  is kept and the change order bills from the day after the submitted period (`countsFrom`, migration
+  0090; the job page says "bills from ..."; the overbilling note names both dates), and the submitted
+  application, its PDF and its certificate stay as sent. Next, if it earns its time: the sample job and
+  an invited PM through the email link.
 
 - Crew timesheets, part 2a (2026-11-27, every plan, timesheets-part-2-certified-payroll-fill): the
   certified payroll page's "Fill hours from PayApps timesheets" reads the job's week straight from

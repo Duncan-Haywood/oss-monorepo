@@ -700,6 +700,14 @@ export function ProjectPage() {
                   <td className="td">
                     {c.status}
                     {c.approvedOn && ` ${c.approvedOn}`}
+                    {c.status === "approved" && c.countsFrom && (
+                      <div
+                        className="text-xs text-slate-500"
+                        title="Signed on or before the end of a pay application already submitted, which stays as it was sent"
+                      >
+                        bills from {c.countsFrom}, after the submitted period
+                      </div>
+                    )}
                     {c.status === "pending" && (
                       <div className="text-xs text-slate-500">
                         {c.submittedOn ? `sent to GC ${c.submittedOn}` : "date sent not recorded"}
