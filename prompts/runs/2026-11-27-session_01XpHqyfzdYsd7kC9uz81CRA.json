@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyfzdYsd7kC9uz81CRA",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T14:39:00Z",
+  "ended": "2026-11-27T14:46:22Z",
+  "wall_minutes": 7.55,
+  "tokens_in": 5202956,
+  "tokens_out": 28819,
+  "cost_usd": 2.6159,
+  "tool_calls": 47,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19775",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First generated meta descriptions ran 162-165 chars; page.test.mjs caught it (<=160) and they were shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Every payapps Next item is gated on demand ('if people ask'), so the bet's only free work is front-door SEO; --bets pointed at einvoice-preflight, whose deploy port was already claimed by open PR #19767 and whose launch waits on the owner's licence decision."
+    },
+    {
+      "file": "ventures/pay-app-guides/nav.mjs",
+      "issue": "The header says to re-run llms-answers.mjs; at 197 answers that now moves the answers to llms-answers.txt and rewrites llms.txt to questions only. That is by design, but it gives a 182-line deletion diff that no page comment warns about."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "Extended docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (By trade section, tags) instead of writing a new post, per the consolidated-posts direction."
+  ],
+  "goal": null,
+  "notes": "Bet #1 (payapps): every ROADMAP Next item waits on demand, so this run took distribution. Four trade landing pages (millwork, flooring/tile, glazing, steel) for trades that carry the most material before install, with CBP 2022 counts. Tests: pay-app-guides page+cta 39/39; 22 platform/pages tests 237/237; llms-answers --check current.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "82408daf-a51a-51f9-954e-985b7f70b6b7",
+    "transcripts": 1,
+    "first": "2026-11-27T14:39:00Z",
+    "last": "2026-11-27T14:46:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 87,
+        "output": 28819,
+        "thinking": 4671,
+        "cache_read": 5074845,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128024,
+        "api_equivalent_usd": 2.6159,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 87,
+      "output": 28819,
+      "thinking": 4671,
+      "cache_read": 5074845,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128024,
+      "api_equivalent_usd": 2.6159,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.55,
+      "active_minutes": 7.55,
+      "model_minutes": 5.83,
+      "tool_minutes": 1.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "four researched trade pages plus site-wide wiring, ~1.25 h each",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 191.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
