@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqydUayc6eYXrCa2AaRS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T09:39:08Z",
+  "ended": "2026-11-27T09:49:09Z",
+  "wall_minutes": 10.18,
+  "tokens_in": 5461072,
+  "tokens_out": 23339,
+  "cost_usd": 2.4747,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19696",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Bet #1's only free, ungated item (#11) needs a real Windows PC and Android phone, which a cloud session can't do, and bet #2 had none. The tool still says 'Start here: bet #1 payapps, item #11'. It should mark items that need hardware as not doable in a cloud session."
+    },
+    {
+      "file": "ventures/pay-app-guides/page.test.mjs",
+      "issue": "A new page has to be added by hand to FAQ_PAGES and nav.mjs GROUPS, besides the sitemap, llms.txt and the industry page. Five places, and the test names only one at a time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Every ROADMAP Next item for bets #1 and #2 waits on demand, an owner step or hardware. More features for a live product with no customers seemed worth less than traffic.",
+      "did": "Shipped the bet's unclaimed 'second wedge' from bets.md (the CoConstruct cut-off) as a front-door SEO guide with an honest fit table",
+      "result": "Guide merged once tests passed; no traffic measured yet"
+    }
+  ],
+  "writeups": [
+    "ventures/pay-app-guides/coconstruct-alternatives.html (customer guide)",
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (12 claimed). IDEAS empty. Source coconstruct.com/migration fetched 2026-11-27. Tests: pay-app-guides 328/0, platform/pages industry+llms-answers 72/0; phone render checked at 375px.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cfcdd22e-1138-5fbb-b698-f68c60becb39",
+    "transcripts": 1,
+    "first": "2026-11-27T09:39:08Z",
+    "last": "2026-11-27T09:49:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 99,
+        "output": 23339,
+        "thinking": 5005,
+        "cache_read": 5343625,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117348,
+        "api_equivalent_usd": 2.4747,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 99,
+      "output": 23339,
+      "thinking": 5005,
+      "cache_read": 5343625,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117348,
+      "api_equivalent_usd": 2.4747,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.18,
+      "active_minutes": 10.18,
+      "model_minutes": 5.08,
+      "tool_minutes": 5.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "research the cut-off, write a sourced guide page with tests and wiring",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 121.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

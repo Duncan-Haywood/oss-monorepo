@@ -14,7 +14,9 @@ import { fileURLToPath } from "node:url";
 
 const here = (f) => fileURLToPath(new URL(`./${f}`, import.meta.url));
 const MONTHS = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };
-const DATE_RE = /\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* (\d{4})\b/g;
+// A month is its three-letter abbreviation or its full English name ("Sept"
+// too); "1 Janx 2026" or "1 Junior 2026" is not a date.
+const DATE_RE = /\b(\d{1,2}) (Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?) (\d{4})\b/g;
 const HOST = "https://example.invalid/einvoice-preflight/";
 
 const stripTags = (s) => { let p; do { p = s; s = s.replace(/<[^>]+>/g, ""); } while (s !== p); return s; };
@@ -47,6 +49,8 @@ export function splitClauses(text) {
   });
 }
 
+const realDate = (iso) => { const d = new Date(iso + "T00:00:00Z"); return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === iso; };
+
 export function parseHub(html) {
   const body = html.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1] ?? "";
   const rows = [...body.matchAll(/<tr><th scope="row"><a href="([^"]+)">([^<]+)<\/a><\/th><td(?: class="prose")?>([\s\S]*?)<\/td><td>([\s\S]*?)<\/td>/g)];
@@ -58,7 +62,10 @@ export function parseHub(html) {
     const seen = new Set();
     for (const clause of clauses) {
       for (const m of clause.matchAll(DATE_RE)) {
-        const iso = `${m[3]}-${String(MONTHS[m[2]]).padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+        const iso = `${m[3]}-${String(MONTHS[m[2].slice(0, 3)]).padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+        // A day the month does not have ("31 Feb 2027") would be an invalid
+        // DTSTART and a DTEND days later: a typo in the hub fails the build.
+        if (!realDate(iso)) throw new Error(`${country}: "${m[0]}" is not a calendar date; fix e-invoicing-mandates-by-country.html`);
         const key = `${iso}|${clause}`;
         if (seen.has(key)) continue;
         seen.add(key);
