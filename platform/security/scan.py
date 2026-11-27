@@ -29,6 +29,12 @@ checksum in tools.yaml; `install` puts them in --tools-dir.
     python3 -I platform/security/scan.py install --tools-dir DIR
     python3 -I platform/security/scan.py pr --base-tree B --head-tree H --changed changed.txt --tools-dir DIR --out OUT
     python3 -I platform/security/scan.py repo --root . --tools-dir DIR --out OUT     # full-repo reading
+    python3 -I platform/security/scan.py repo ... --sarif OUT/scan.sarif           # and as SARIF
+
+The full-repo reading's blocking findings (what would fail a PR that added
+them) go to code scanning as SARIF from priv-security-scan-repo.yml, so they
+reach the file queue on `security-alerts` that sessions already work from
+(prompt.md, "0. Security alerts first") next to CodeQL's.
     python3 -I platform/security/scan.py versions --tools-dir DIR
 """
 
@@ -646,6 +652,46 @@ def report_md(result: dict, blocking: list[Finding], reported: list[Finding], to
     return "\n".join(out) + "\n"
 
 
+# SARIF 2.1.0 for code scanning. security-severity is the number GitHub maps
+# back to critical/high/medium/low (>= 9.0, >= 7.0, >= 4.0, else low), which
+# platform/ci/security_alerts.py orders the queue by.
+SARIF_LEVEL = {"critical": "error", "high": "error", "medium": "warning", "low": "note", "info": "note"}
+SARIF_SCORE = {"critical": "9.5", "high": "8.0", "medium": "5.5", "low": "2.0", "info": "0.0"}
+
+
+def sarif(findings: list[Finding], versions: dict[str, str] | None = None) -> dict:
+    """One run per tool, each with its own category, so a tool's alerts close
+    when a later upload of that tool no longer reports them. Messages carry no
+    secret text: parse_gitleaks redacts at the source."""
+    runs = []
+    for tool in sorted({f.tool for f in findings} | set(versions or {})):
+        mine = [f for f in findings if f.tool == tool]
+        rules: dict[str, dict] = {}
+        results = []
+        for f in mine:
+            rule = rules.setdefault(f.rule, {
+                "id": f.rule, "shortDescription": {"text": f"{tool} {f.rule}"[:1000]},
+                "properties": {"security-severity": SARIF_SCORE.get(f.severity, "5.5"), "tags": ["security", tool]},
+            })
+            if float(SARIF_SCORE.get(f.severity, "5.5")) > float(rule["properties"]["security-severity"]):
+                rule["properties"]["security-severity"] = SARIF_SCORE[f.severity]
+            loc = {"physicalLocation": {"artifactLocation": {"uri": f.path, "uriBaseId": "%SRCROOT%"}}}
+            if f.line:
+                loc["physicalLocation"]["region"] = {"startLine": int(f.line)}
+            res = {"ruleId": f.rule, "level": SARIF_LEVEL.get(f.severity, "warning"),
+                   "message": {"text": (f.message or f.rule)[:2000]}, "locations": [loc]}
+            if f.snippet_hash:
+                res["partialFingerprints"] = {"scanLineHash/v1": f.snippet_hash}
+            results.append(res)
+        runs.append({
+            "tool": {"driver": {"name": tool, "version": str((versions or {}).get(tool) or "unknown"),
+                                "rules": list(rules.values())}},
+            "automationDetails": {"id": f"security-scan-repo/{tool}/"},
+            "results": results,
+        })
+    return {"version": "2.1.0", "runs": runs}
+
+
 def failed_required(status: dict[str, str], tools: dict) -> list[str]:
     return [t for t, s in status.items() if (s.startswith("MISSING") or s.startswith("ERROR")) and (tools.get(t) or {}).get("required")]
 
@@ -670,6 +716,7 @@ def main(argv: list[str] | None = None) -> int:
             p.add_argument("--changed", required=True, type=Path, help="file listing changed paths, one per line")
         else:
             p.add_argument("--root", required=True, type=Path)
+            p.add_argument("--sarif", type=Path, help="also write the blocking findings as SARIF (code scanning)")
     args = ap.parse_args(argv)
     tools = load_tools()
     only = set(args.tools.split(",")) if getattr(args, "tools", None) else None
@@ -702,6 +749,11 @@ def main(argv: list[str] | None = None) -> int:
         "mode": args.cmd, "status": result["status"],
         "blocking": [asdict(f) for f in blocking], "reported": [asdict(f) for f in reported],
     }, indent=2), encoding="utf-8")
+    if getattr(args, "sarif", None):
+        # Every tool that ran gets a run, even with no results, so its old alerts close.
+        ran = {t: str((tools.get(t) or {}).get("version", "repo")) for t, st in result["status"].items() if st.startswith("ok")}
+        args.sarif.parent.mkdir(parents=True, exist_ok=True)
+        args.sarif.write_text(json.dumps(sarif(blocking, ran), indent=1), encoding="utf-8")
     md = report_md(result, blocking, reported, tools, args.cmd)
     (args.out / "summary.md").write_text(md, encoding="utf-8")
     if os.environ.get("GITHUB_STEP_SUMMARY"):
