@@ -157,6 +157,15 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
   Phase 2 [suspended 13 Jul 2026](https://smallgovcon.com/statutes-and-regulations/breakingdepartment-of-war-suspends-introduction-of-phase-two-of-cmmc/)
   but [L1/L2 self-assessments remain required](https://www.wiley.law/alert-DOD-Pauses-CMMC-2-0-Implementation-A-Big-Deal-with-Little-Immediate-Impact).
 - **Size:** DoD estimates [337,968 affected contractors, 229,818 small](https://www.venable.com/insights/publications/2025/09/the-cybersecurity-maturity-model-certification-is).
+  Of the machine shops among them, few sell to DoD directly: USAspending shows **432 distinct
+  small-business recipients** of DoD prime contracts coded NAICS 332710 active in FY2025 (1,205
+  contracts, median total award about $30k; Defense Logistics Agency and Navy place 9 in 10), 981
+  over FY2021–FY2025, and 729 in FY2025 with structural and sheet-metal fabrication (332312,
+  332322) added. Set against the 14,619 machine shops under 20 employees (bet #2), most defense
+  machining reaches small shops as subcontracts, so **the buyer reached is the sub a prime flows
+  CMMC down to**, not the prime. Contract NAICS, primes only, FY2026 incomplete (90-day DoD
+  delay). Read 2026-11-27 with `python3 portfolio/smb/dod_awards.py 332710 --fy 2025 --small`;
+  `docs/reports/2026-11-27-dod-machine-shop-prime-contracts.md`.
 - **Prices:** FutureFeed [$99/$399/mo](https://futurefeed.co/pricing); PreVeil Pass
   [$450/mo for 3 users](https://www.preveil.com/preveil-pass/); consultants charge
   [$3k–25k for the SSP and POA&M](https://secureframe.com/hub/cmmc/certification-cost).
