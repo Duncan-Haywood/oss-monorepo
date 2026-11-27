@@ -36,5 +36,30 @@ export default defineConfig({
     include: ["test/worker/**/*.test.ts", "src/worker/**/*.worker.test.ts"],
     setupFiles: ["./test/worker/setup.ts"],
     testTimeout: 30_000,
+    // Pre-bundle the heavy runtime deps once per run. Every test file gets a fresh isolate and
+    // re-imports the Worker's graph; unbundled, better-auth + zod + drizzle + hono are ~3 s of
+    // small-module loads per file (87 files). Bundled: suite 193-195 s -> 99-121 s on 4 cores,
+    // same 552 tests (docs/history/payapps-worker-tests-perf-2026-11-27.md). The list is the bare entry
+    // points src/ and test/ import; add one here when a new subpath import shows up as slow in
+    // `--experimental.importDurations.print`. node:* stays external (workerd's nodejs_compat).
+    deps: {
+      optimizer: {
+        ssr: {
+          enabled: true,
+          include: [
+            "better-auth/minimal",
+            "better-auth/adapters/drizzle",
+            "zod",
+            "drizzle-orm",
+            "drizzle-orm/sqlite-core",
+            "drizzle-orm/d1",
+            "hono",
+            "hono/factory",
+            "hono/http-exception",
+          ],
+          rolldownOptions: { external: [/^node:/] },
+        },
+      },
+    },
   },
 });
