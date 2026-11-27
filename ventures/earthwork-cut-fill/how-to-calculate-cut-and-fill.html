@@ -51,7 +51,7 @@
   <p>Equal cut and fill is not a balance: with 20% shrink the cut builds only 463.0 × 0.8 = 370.4 cu yd of fill, 92.6 short. That shortfall is 92.6 / 0.8 = <strong>115.7 cu yd</strong> of bank borrow, 144.7 cu yd loose at 25% swell, 13 loads in 12-yd trucks.</p>
   <p><strong>Balance elevation.</strong> With the pad at elevation <em>E</em>, the crossing is at <em>a</em> = 10(<em>E</em> − 100), fill is 5<em>a</em>² cu ft and cut is 5(100 − <em>a</em>)². Setting 0.8 × cut = fill gives <em>a</em> = 100√0.8 / (1 + √0.8) = 47.21 ft, so <strong>E = 104.72</strong>: 516.0 cu yd of cut building 412.8 cu yd of fill.</p>
   <p>The calculator gives the same figures from the 25 shots:</p>
-  <pre>node cli.mjs lot.csv --pad 105 --shrink 20 --swell 25 --truck 12
+  <pre data-phone-scroll-ok>node cli.mjs lot.csv --pad 105 --shrink 20 --swell 25 --truck 12
 Cut:  463.0 cu yd bank (deepest 5.00 ft)
 Fill: 463.0 cu yd compacted (deepest 5.00 ft)
 Import: 115.7 cu yd bank, 144.7 loose at 25% swell, about 13 truckloads (shrink 20%)

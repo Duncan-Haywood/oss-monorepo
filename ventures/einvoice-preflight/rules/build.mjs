@@ -163,7 +163,21 @@ export function official(rule) {
   return { syntaxes, messages: [...messages], flag: flag === "error" ? "fatal" : flag };
 }
 
-const STYLE = `:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}`;
+// An XML snippet as one block per line, so it wraps on a phone instead of hiding
+// most of each line behind a sideways swipe (polish, 2026-11-27: 390 such
+// swipes on these pages at 390 px). Each line keeps its leading spaces as text
+// and gets a hanging indent of its own depth plus two, so a wrapped line still
+// reads as part of its element; <wbr> before each tag that does not start the
+// line lets a long line break between "26.60" and "</cbc:TaxAmount>" rather
+// than mid-name. No newline characters between the blocks: a block boundary is
+// the line break, and the copied text (innerText) is the snippet exactly.
+// Desktop is unchanged: white-space stays `pre` above 700 px.
+export const xmlLines = (x) => String(x).split("\n").map((line) => {
+  const depth = line.length - line.trimStart().length;
+  return `<span class="ln" style="--i:${depth}">${esc(line).replace(/(\S)(&lt;)/g, "$1<wbr>$2")}</span>`;
+}).join("");
+
+const STYLE = `:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}`;
 
 const head = ({ lang, title, desc, path, alternates, ld }) => `<!doctype html>
 <html lang="${lang}"><head>
@@ -246,7 +260,7 @@ ${c.causes.map((x) => `<li>${esc(x)}</li>`).join("\n")}
 ${c.fix.map((x) => `<li>${esc(x)}</li>`).join("\n")}
 </ol>
 <h2>${esc(t.snippet)}</h2>
-${snippets.map(([syn, x]) => `<p><strong>${syn}</strong></p>\n<pre><code>${esc(x)}</code></pre>`).join("\n")}
+${snippets.map(([syn, x]) => `<p><strong>${syn}</strong></p>\n<pre><code>${xmlLines(x)}</code></pre>`).join("\n")}
 <p class="note">${esc(t.snippetNote)}</p>
 </section>
 ${ctas(t, "../../")}

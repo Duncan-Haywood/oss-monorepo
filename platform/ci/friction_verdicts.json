@@ -375,6 +375,14 @@
    "by": "this PR",
    "at": "2026-11-26T22:41:13Z",
    "note": "multi-word --until pattern with a log is read as --marker"
+  },
+  {
+   "file": ".github/prompts/cloud-session.md",
+   "match": "migration_regen",
+   "verdict": "fixed",
+   "by": "platform/ci/migration_regen.py",
+   "at": "2026-11-27T02:20:10Z",
+   "note": "repo_relative() accepts absolute and cwd-relative app paths inside --repo; test_absolute_and_cwd_relative_paths"
   }
  ]
 }

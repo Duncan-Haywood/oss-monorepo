@@ -12,7 +12,7 @@
 <meta property="og:title" content="PEPPOL-EN16931-R053: Peppol BIS erklärt">
 <meta property="og:description" content="PEPPOL-EN16931-R053: In UBL muss die Rechnung genau ein cac:TaxTotal mit Unterelementen cac:TaxSubtotal enthalten (die Umsatzsteuersumme BT-110 mit ihrer…">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was bedeutet PEPPOL-EN16931-R053?","acceptedAnswer":{"@type":"Answer","text":"In UBL muss die Rechnung genau ein cac:TaxTotal mit Unterelementen cac:TaxSubtotal enthalten (die Umsatzsteuersumme BT-110 mit ihrer Aufschlüsselung BG-23); keins oder zwei und mehr schlagen fehl. Ein zweites cac:TaxTotal ist nur ohne Aufschlüsselung erlaubt, für die Steuersumme in Buchungswährung. Die CII-Fassung prüft, dass in den Gesamtbeträgen genau ein ram:TaxTotalAmount in Rechnungswährung steht."}},{"@type":"Question","name":"Wie behebe ich PEPPOL-EN16931-R053?","acceptedAnswer":{"@type":"Answer","text":"Schreiben Sie ein einziges cac:TaxTotal mit dem Gesamtbetrag in cbc:TaxAmount und je einem cac:TaxSubtotal pro Steuerkategorie und Steuersatz. Behalten Sie es auch bei null Umsatzsteuer: TaxAmount 0.00 mit einer Aufschlüsselung für die befreite oder mit 0 % besteuerte Kategorie. In CII geben Sie ram:TaxTotalAmount einmal in Rechnungswährung in ram:SpecifiedTradeSettlementHeaderMonetarySummation an; ein zweiter ist nur für die Buchungswährung gedacht."}}]}</script>
-<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
 </head><body><main>
 <header>
 <p class="eyebrow">E-Rechnungs-Prüfregel erklärt · Peppol BIS</p>
@@ -47,39 +47,9 @@
 </ol>
 <h2>Korrigiertes XML (minimales Beispiel von uns)</h2>
 <p><strong>UBL</strong></p>
-<pre><code>&lt;cac:TaxTotal&gt;
-  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;26.00&lt;/cbc:TaxAmount&gt;
-  &lt;cac:TaxSubtotal&gt;
-    &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;100.00&lt;/cbc:TaxableAmount&gt;
-    &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;19.00&lt;/cbc:TaxAmount&gt;
-    &lt;cac:TaxCategory&gt;
-      &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
-      &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
-      &lt;cac:TaxScheme&gt;
-        &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
-      &lt;/cac:TaxScheme&gt;
-    &lt;/cac:TaxCategory&gt;
-  &lt;/cac:TaxSubtotal&gt;
-  &lt;cac:TaxSubtotal&gt;
-    &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;100.00&lt;/cbc:TaxableAmount&gt;
-    &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;7.00&lt;/cbc:TaxAmount&gt;
-    &lt;cac:TaxCategory&gt;
-      &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
-      &lt;cbc:Percent&gt;7&lt;/cbc:Percent&gt;
-      &lt;cac:TaxScheme&gt;
-        &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
-      &lt;/cac:TaxScheme&gt;
-    &lt;/cac:TaxCategory&gt;
-  &lt;/cac:TaxSubtotal&gt;
-&lt;/cac:TaxTotal&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;cac:TaxTotal&gt;</span><span class="ln" style="--i:2">  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;26.00<wbr>&lt;/cbc:TaxAmount&gt;</span><span class="ln" style="--i:2">  &lt;cac:TaxSubtotal&gt;</span><span class="ln" style="--i:4">    &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;100.00<wbr>&lt;/cbc:TaxableAmount&gt;</span><span class="ln" style="--i:4">    &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;19.00<wbr>&lt;/cbc:TaxAmount&gt;</span><span class="ln" style="--i:4">    &lt;cac:TaxCategory&gt;</span><span class="ln" style="--i:6">      &lt;cbc:ID&gt;S<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;cbc:Percent&gt;19<wbr>&lt;/cbc:Percent&gt;</span><span class="ln" style="--i:6">      &lt;cac:TaxScheme&gt;</span><span class="ln" style="--i:8">        &lt;cbc:ID&gt;VAT<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;/cac:TaxScheme&gt;</span><span class="ln" style="--i:4">    &lt;/cac:TaxCategory&gt;</span><span class="ln" style="--i:2">  &lt;/cac:TaxSubtotal&gt;</span><span class="ln" style="--i:2">  &lt;cac:TaxSubtotal&gt;</span><span class="ln" style="--i:4">    &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;100.00<wbr>&lt;/cbc:TaxableAmount&gt;</span><span class="ln" style="--i:4">    &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;7.00<wbr>&lt;/cbc:TaxAmount&gt;</span><span class="ln" style="--i:4">    &lt;cac:TaxCategory&gt;</span><span class="ln" style="--i:6">      &lt;cbc:ID&gt;S<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;cbc:Percent&gt;7<wbr>&lt;/cbc:Percent&gt;</span><span class="ln" style="--i:6">      &lt;cac:TaxScheme&gt;</span><span class="ln" style="--i:8">        &lt;cbc:ID&gt;VAT<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;/cac:TaxScheme&gt;</span><span class="ln" style="--i:4">    &lt;/cac:TaxCategory&gt;</span><span class="ln" style="--i:2">  &lt;/cac:TaxSubtotal&gt;</span><span class="ln" style="--i:0">&lt;/cac:TaxTotal&gt;</span></code></pre>
 <p><strong>CII</strong></p>
-<pre><code>&lt;ram:SpecifiedTradeSettlementHeaderMonetarySummation&gt;
-  &lt;ram:LineTotalAmount&gt;200.00&lt;/ram:LineTotalAmount&gt;
-  &lt;ram:TaxBasisTotalAmount&gt;200.00&lt;/ram:TaxBasisTotalAmount&gt;
-  &lt;ram:TaxTotalAmount currencyID=&quot;EUR&quot;&gt;26.00&lt;/ram:TaxTotalAmount&gt;
-  &lt;ram:GrandTotalAmount&gt;226.00&lt;/ram:GrandTotalAmount&gt;
-  &lt;ram:DuePayableAmount&gt;226.00&lt;/ram:DuePayableAmount&gt;
-&lt;/ram:SpecifiedTradeSettlementHeaderMonetarySummation&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;ram:SpecifiedTradeSettlementHeaderMonetarySummation&gt;</span><span class="ln" style="--i:2">  &lt;ram:LineTotalAmount&gt;200.00<wbr>&lt;/ram:LineTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:TaxBasisTotalAmount&gt;200.00<wbr>&lt;/ram:TaxBasisTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:TaxTotalAmount currencyID=&quot;EUR&quot;&gt;26.00<wbr>&lt;/ram:TaxTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:GrandTotalAmount&gt;226.00<wbr>&lt;/ram:GrandTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:DuePayableAmount&gt;226.00<wbr>&lt;/ram:DuePayableAmount&gt;</span><span class="ln" style="--i:0">&lt;/ram:SpecifiedTradeSettlementHeaderMonetarySummation&gt;</span></code></pre>
 <p class="note">Nur Beispielwerte. Ersetzen oder ergänzen Sie die Elemente in Ihrer Datei; die Reihenfolge der Elemente ist in beiden Syntaxen vorgeschrieben.</p>
 </section>
 <section>

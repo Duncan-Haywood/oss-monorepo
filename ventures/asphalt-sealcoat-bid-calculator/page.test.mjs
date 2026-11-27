@@ -66,3 +66,15 @@ test('index links one hop to the parking-lot-striping-bid-calculator sibling', (
   );
   assert.match(html, /parking lot striping bid calculator/i);
 });
+
+// Quality audit 2026-11-26: later-coat coverage had no field, and the
+// handicap stencil add-on was billed on every job with stalls.
+test('later-coat coverage is an editable field and the stencil add-on is opt-in', () => {
+  const html = page('index.html');
+  assert.match(html, /class="s-cover2"/);
+  assert.match(html, /secondCoatSqFtPerGal: row\.querySelector\('\.s-cover2'\)\.value/);
+  assert.doesNotMatch(html, /dataset\.secondCover/);
+  assert.match(html, /<input id="stencil" type="checkbox">/);
+  assert.match(html, /item\.id === 'handicap' && el\('stencil'\)\.checked/);
+  assert.doesNotMatch(html, /Number\(el\('stalls'\)\.value\) > 0\)/);
+});

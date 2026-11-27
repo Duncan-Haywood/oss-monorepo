@@ -176,3 +176,28 @@ above the table, linked with `aria-describedby`. The SPC signals list was only
 34 px too wide, and turning 60 rows into 60 cards would have made the page 60%
 longer, so it keeps its table with tighter cell padding instead (page height
 5,260 to 4,972 px). Details: `docs/reports/polish-2026-11-27-manufacturing-swipes.md`.
+
+## Update, 2026-11-27: the forms, and the last 43
+
+The 43 swipes left on the construction tools included the ones that matter most to a
+contractor using a tool rather than reading about it: the input grids. The fault current
+check asks for 17 fields per feeder in one row, 1,570 px wide; on a phone you saw the panel
+name, where it was fed from and the size, and had to swipe for length, conduit and the
+breaker rating. The certified payroll form put 20 fields per worker in a 288 px box.
+
+A `fields` variant of the same cards (`class="stack fields"`, added the same day) works on
+them. Each row becomes a card, each field gets the column's name beside it, and the Remove
+button sits at the bottom of the card. Nine input grids, nine
+script-filled results tables and fourteen guide tables took the class. Formulas in `pre`
+blocks now wrap. Four command-line examples and two charts keep their sideways scroll on
+purpose, marked as such: a command has to stay copyable as one line, and a chart squeezed to
+a third of its width would print its labels at about 6 px.
+
+| 131 construction front doors, 495 pages, 390 px | before | after |
+|---|---|---|
+| blocks that need a sideways swipe | 43 | 0 |
+| any phone-probe failure | 43 | 0 |
+
+That is 128 swipes to 0 over two days. A 320 px screen still
+finds 21 smaller ones, the next list. Run notes:
+`docs/reports/polish-2026-11-27-input-grids-stack.md`.

@@ -55,6 +55,27 @@
 #     routine's API trigger.
 #   - `deploy-settings`: the owner confirmed the old GitHub Pages address
 #     redirects to marisstella.app.
+# Rows gone 2026-11-27, answered by the owner; do not put them back:
+#   - `private-actions-billing`: the owner will not change the GitHub
+#     account ("not happening", 2026-11-26, private-monorepo
+#     docs/ci-on-aws.md). Two routes replace it: CodeBuild runners on AWS
+#     (platform/aws/stacks/ci-runners, live after aws-turnover steps 1-4) and
+#     moving the apps into this public repository, whose Actions minutes are
+#     free (task products-to-public-repo). Both are agent work.
+#   - `private-monorepo-clone`: "migrate this to public oss one instead"
+#     (owner, 2026-11-27). Same task, products-to-public-repo.
+# Rows `agent-inboxes-secrets`, `web-analytics-token` and
+# `publication-identity` are gone: answered by the owner on 2026-11-27.
+# Inboxes and analytics: "all iac stuff instead we will do on aws instead
+# once we fully move" and "we will set up more in depth there" -- both move
+# into `aws-turnover` (SES receives mail; analytics are built on AWS). Do not
+# ask for the Cloudflare MAIL_* secrets, the Cloudflare token's email or Web
+# Analytics permissions, or a site token again. Publication identity: dropped
+# ("more side project"); registry listings reach developers, none of the
+# ranked bets in `portfolio/monetization/bets.md` sells to developers, and the
+# row's own estimate was $16-$145/month. No registry signup, GitHub App
+# permission change or free-listing approval is pending; do not put it back
+# unless a ranked bet needs a registry to reach its buyers.
 # Row `print-atelier-stripe-checkout` is gone: the owner's 2026-10-15 rule
 # answers it (payment code is fine off by default on the deployer's keys;
 # `PRODUCT_PLAYBOOK.md` §6). Its Stripe code already works that way.
@@ -92,64 +113,6 @@
 
 decisions:
 
-- id: private-monorepo-clone
-  asks: []
-  prs: [18882]
-  gates: deployment
-  exposure: none
-  opened: "2026-11-25"
-  action: >-
-    Scheduled sessions attach private-monorepo with add_repo, then the
-    session's permission classifier refuses the `git clone` about two times
-    in three (28 of 42 run records on 2026-11-25 that mention the repo), so
-    those runs cannot touch the bets' product code. Fix once, in the
-    scheduled routine's environment settings on claude.ai/code: add
-    Duncan-Haywood/private-monorepo as a source repository so it is cloned
-    at container start (or add a permission allow rule for that one clone
-    command). Agents do not grant themselves this permission.
-  unlocks:
-    - >-
-      Every venture run can build the ranked bets (payapps, jobshop-quote,
-      ...) in private-monorepo instead of falling back to their public
-      pages, which crowded four parallel runs into pay-app-guides in one
-      hour on 2026-11-25.
-  blocked_by: []
-  note: >-
-    Added 2026-11-25 by a process run (backlog P076). Count from
-    prompts/runs/2026-11-25-*.json: records naming private-monorepo whose
-    text says the clone was refused, denied or blocked. No money, no new
-    account, reversible.
-
-- id: private-actions-billing
-  asks: []
-  prs: [18753]
-  gates: revenue
-  exposure: credential
-  opened: "2026-11-25"
-  action: >-
-    GitHub Actions in Duncan-Haywood/private-monorepo starts no jobs: every
-    run since at least 2026-11-24 23:52Z ends with no runner and GitHub's
-    annotation "The job was not started because recent account payments have
-    failed or your spending limit needs to be increased." Fix the payment
-    method or raise the Actions spending limit under GitHub Settings ->
-    Billing and plans. Private repositories use metered minutes; this public
-    repository does not. Remove this row once a private-monorepo run gets a
-    runner.
-  unlocks:
-    - >-
-      PayApps (bet #1) going live: its launch review is done and merged
-      (private-monorepo#444, apps/payapps/docs/LAUNCH-REVIEW.md, under
-      docs/legal/OPERATOR.md), and an agent dispatched payapps-deploy on
-      2026-11-27 (run 45921558751), which ended with no runner. Once a run
-      gets a runner, re-run that deploy: sign-ups open on workers.dev with
-      checkout still dark. Also every other paid app's deploy, the Paddle
-      catalog sync from private-monorepo#36, and CI on every private PR,
-      which agents now verify locally instead.
-  blocked_by: []
-  note: >-
-    Found 2026-11-25 on Duncan-Haywood/private-monorepo#36: runner_id 0 and
-    zero steps on all jobs. Needs a card or billing setting, so it is the
-    owner's.
 - id: payout-rail
   asks: [2]
   prs: []
@@ -186,43 +149,6 @@ decisions:
     so "the egress entry it needs" is no longer needed. The key-safety design
     stays `docs/reports/2026-10-30-billing-plan.md`, Option A: hosted
     checkout, no live key anywhere this repo or its agents can reach.
-- id: publication-identity
-  asks: [0, 1, 5]
-  prs: []
-  gates: distribution
-  exposure: legal-person
-  opened: "2026-08-19"
-  action: >-
-    Three related grants: one registry account signup (Packagist or RubyGems
-    preferred; not Docker Hub), one GitHub App permission change, and one
-    standing approval on whether an agent session may publish a *free* listing
-    -- no payment, no personal data, no compliance claim -- under this
-    portfolio's name.
-  unlocks:
-    - A demand measurement on a developer-buyer channel, and submission access to the git/PR-based channels.
-    - >-
-      (Added 2026-10-29.) crates.io is a registry this covers too: `cargo
-      install dupehound` for the Rust copy-paste detector in
-      ventures/dupehound, and later tools of the "dev tools in Rust"
-      direction. crates.io logs in with a GitHub account; publishing under
-      the portfolio's name is the owner's call. index.crates.io answered 200
-      from a cloud session on 2026-10-29, so egress is not the blocker there.
-  blocked_by: []
-  note: >-
-    Listed as blocked, and this is the correction the #139 table does not
-    carry. `CLAUDE.md` states it in prose -- "Ask 5 is currently inert" --
-    because every channel nominated as agent-listable (WordPress.org, Open
-    VSX, VS Code Marketplace, GitHub Marketplace) measured egress- or
-    scope-denied, verified twice on separate dates against a control host. So
-    granting the publish approval today publishes nothing. Per #218 a cold
-    listing carries roughly 5% odds of reaching the top decile, and per
-    #219/#225 the payoff at today's reachable-registry regime is $16-$145/month
-    -- a rounding error against the ceiling in `break-even.md`. Worth granting
-    after the egress decision, not before it. Unblocked 2026-10-31: the owner
-    granted the egress list and the re-probe that day found WordPress.org,
-    Open VSX, the VS Code Marketplace, Packagist and RubyGems all reachable
-    (`portfolio/research/egress-reachability/results-2026-10-31.json`).
-
 - id: search-engine-verification
   asks: []
   prs: [12907]
@@ -280,7 +206,7 @@ decisions:
 - id: aws-turnover
   asks: []
   prs: [18802]
-  gates: deployment
+  gates: revenue
   exposure: legal-person
   opened: "2026-11-24"
   action: >-
@@ -312,78 +238,24 @@ decisions:
       Spend guarded by code from the first apply: anomaly alerts, budgets
       at 50/80/100 %, a freeze SCP at the hard line, and a kill switch for
       the apps and sandbox accounts.
+    - >-
+      Private-monorepo CI and deploys get runners again: every workflow picks
+      a CodeBuild runner once `configure.sh --private-ci` sets
+      CODEBUILD_RUNNER (private-monorepo docs/ci-on-aws.md). First in line is
+      PayApps (bet #1): its launch review is merged (private-monorepo#444)
+      and its deploy (run 45921558751, 2026-11-27) ended with no runner. Then
+      every other paid app's deploy and the Paddle catalog sync.
+    - >-
+      Agent-managed inboxes (hello@, support@, privacy@, billing@) on SES and
+      real visitor analytics, both built on AWS (owner, 2026-11-27) in place
+      of the dropped Cloudflare rows. Working support and privacy addresses
+      are part of what Paddle's domain review in payout-rail looks for.
   blocked_by: []
   note: >-
-    Added 2026-11-24 by the aws-spend-guards follow-up (PR 18802) after PR
+    Owner, 2026-11-27: working on it now. Added 2026-11-24 by the aws-spend-guards follow-up (PR 18802) after PR
     18749 landed the stacks and the runbook. It costs money: AWS usage is
     billed to your card from step 1, Claude Platform bills through AWS
     Marketplace from step 5, and step 8 may need a paid domain transfer if
     Cloudflare is the registrar. The cloudflare-mail-and-ruleset row's
     Email Routing part becomes moot once SES receives mail; its ruleset
     part does not.
-
-- id: agent-inboxes-secrets
-  asks: []
-  prs: [19197]
-  gates: revenue
-  exposure: credential
-  opened: "2026-11-26"
-  action: >-
-    Turn on the agent-managed inboxes (platform/email/README.md, "Owner
-    steps"). (1) Add secrets to the `cloudflare` environment: MAIL_AGENT_TOKEN, MAIL_READ_TOKEN,
-    MAIL_OWNER_TOKEN and MAIL_UNSUBSCRIBE_SECRET (each `openssl rand -hex
-    32`) and EMAIL_FORWARD_TO (your personal address; it receives privacy@
-    and security@ copies, flag alerts and the daily digest). (2) Make sure
-    the Cloudflare token can do Workers Scripts Write, D1 Write, Zone Email
-    Routing Rules Edit, Zone Settings Edit, DNS Edit and Account Email
-    Routing Addresses Edit (R2 Write too if you enable R2, which Cloudflare
-    asks a payment method for; without it raw mail stays in D1). (3) Run
-    Actions -> email-deploy, then Actions -> Cloudflare email routing with
-    "apply" ticked, and click the verification link Cloudflare emails you.
-    (4) When agents should answer customers: onboard marisstella.app to
-    Cloudflare Email Service. Give agent sessions MAIL_AGENT_TOKEN and
-    MAIL_API_URL.
-  unlocks:
-    - >-
-      hello@, support@, privacy@, billing@ and the product addresses receive
-      mail (the Privacy Policy's contact has had no MX record), Paddle's
-      domain review sees working support and privacy contacts, and agents
-      can triage and answer support mail inside code-enforced guardrails.
-  blocked_by: []
-  note: >-
-    Owner, 2026-11-26: "we need agent managed inboxes for the domains."
-    Supersedes the last sentence of web-analytics-token (confirm hello@
-    receives mail). Every value is a secret only the owner holds; nothing
-    else is waiting on a person.
-- id: web-analytics-token
-  asks: []
-  prs: [18774]
-  gates: measurement
-  exposure: credential
-  opened: "2026-11-25"
-  action: >-
-    The site now ships Cloudflare Web Analytics (cookieless, free, on the
-    Cloudflare account the site already uses; platform/analytics/README.md)
-    and standard Privacy, Terms and Cookie pages. The deploy finds or creates
-    the Web Analytics site through the API, but the deploy token probably
-    cannot: on 2026-11-19 it could not even read zone analytics
-    (portfolio/usage/cloudflare-analytics.json). Do one of: (a) give
-    the deploy token (CLOUDFLARE_API_TOKEN) the account-level Account
-    Analytics / Web Analytics edit permission, and the next deploy
-    provisions itself; or (b) Cloudflare -> Analytics & Logs -> Web Analytics
-    -> Add a site -> marisstella.app, copy the site token (public by design)
-    into platform/analytics/site.json "token" (any session can commit it).
-    Until then the pages ship without the beacon and the legal pages say
-    analytics are off. Also confirm hello@marisstella.app receives mail: the
-    Privacy Policy names it as the contact for privacy requests, and the
-    2026-11-10 audit found the domain had no MX record.
-  unlocks:
-    - >-
-      Real visitor analytics (pages, referrers, countries, devices, Core Web
-      Vitals) for every page, the measurement the $10k MRR funnel work needs.
-  blocked_by: []
-  note: >-
-    Owner, 2026-11-25: "the privacy policies that are like no data gathered
-    kill those let's set up real analytics and standard privacy policies and
-    other legal docs." No money, no new account; the token permission is
-    reversible in the same page.

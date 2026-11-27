@@ -133,7 +133,7 @@ function addRow(w = {}) {
     const di = DAYS.indexOf(k);
     const v = di >= 0 ? (days[di] ?? w[k] ?? "") : (w[k] ?? "");
     const num = !["name", "idLast4", "classification"].includes(k);
-    return `<td><input data-k="${k}" aria-label="${k}" class="${WIDE.has(k) ? "wide" : di >= 0 ? "day" : ""}" ${num ? 'inputmode="decimal"' : k === "idLast4" ? 'inputmode="numeric" maxlength="4"' : ""} value="${esc(v)}" autocomplete="off"></td>`;
+    return `<td><input data-k="${k}" aria-label="${k}" class="${WIDE.has(k) ? "wide" : di >= 0 ? "day" : ""}" ${num ? 'inputmode="decimal"' : k === "idLast4" ? 'inputmode="numeric" maxlength="4"' : k === "name" ? 'placeholder="Worker name"' : ""} value="${esc(v)}" autocomplete="off"></td>`;
   }).join("") + '<td><button type="button" class="secondary rm" aria-label="Remove this worker">x</button></td>';
   tr.querySelector(".rm").addEventListener("click", () => tr.remove());
   body.appendChild(tr);

@@ -52,6 +52,8 @@ PREFIX = "claim/"
 DEFAULT_REPO = "/home/user/private-monorepo"
 HERE = Path(__file__).resolve().parents[2]
 BETS_MD = HERE / "portfolio" / "monetization" / "bets.md"
+TASKS_YAML = HERE / "portfolio" / "work" / "tasks.yaml"
+UNBLOCK_DIRECTION = "paid-bets"
 
 
 def repo_for(app: str, repo: str, here: Path = HERE) -> str:
@@ -700,7 +702,41 @@ def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, di
         print(f"  Every topic has a live claim: take a part none names (`roadmap_claim.py {app} --all`).")
 
 
-def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, probe: bool = True) -> int:
+def unblock_tasks(tasks_yaml: str, direction: str = UNBLOCK_DIRECTION) -> list[tuple[str, str]]:
+    """(id, title) of the open, unblocked tasks.yaml tasks under `direction`, in file order.
+
+    These unblock every bet at once (CI runners, the move to the public repository, checkout),
+    yet runs that start from --bets saw only each app's ROADMAP and kept adding features to an
+    app no stranger could reach (2026-11-27 run record, "ten-plus runs"). Owner, 2026-11-27:
+    "redirect don't block", so they are listed first, not enforced. Empty without PyYAML.
+    """
+    try:
+        import yaml  # workctl.py's dependency; a bare python3 may lack it
+    except ImportError:
+        return []
+    try:
+        data = yaml.safe_load(tasks_yaml) or {}
+    except yaml.YAMLError:
+        return []
+    return [(str(t["id"]), str(t.get("title", "")).strip()) for t in data.get("tasks") or []
+            if isinstance(t, dict) and t.get("id") and t.get("direction") == direction
+            and t.get("status") == "open" and not t.get("blocked_on")]
+
+
+def print_unblockers(tasks_yaml: Path, tag: str | None) -> None:
+    text = tasks_yaml.read_text(encoding="utf-8") if tasks_yaml.is_file() else ""
+    tasks = unblock_tasks(text)
+    if not tasks:
+        return
+    print(f"First look: work that unblocks every bet (portfolio/work/{tasks_yaml.name}, "
+          f"direction {UNBLOCK_DIRECTION}; `workctl.py next` ranks it, `[work:<id>]` in the PR title):")
+    for tid, title in spread(tasks, tag):
+        print(f"  - {tid}: {title}")
+    print("  Product items below are fine too; take one of these when it fits your session.")
+
+
+def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, probe: bool = True,
+                  tasks_yaml: Path | None = None) -> int:
     """One line per bet: free ungated items and live claims, then the first bet with work free.
 
     Six run records (2026-11-25..26) took "the top bet" into payapps while it held 20 to 30
@@ -721,6 +757,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
             print(f"git ls-remote failed in {r}: {ls.stderr.strip()}")
             return 2
         listed[r] = ls
+    print_unblockers(tasks_yaml or TASKS_YAML, tag)
     now = time.time()
     start = None
     present: list[tuple[int, int, str]] = []  # (live claims, rank, app) for apps in this clone
