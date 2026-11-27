@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtLNCmvVMVjWnknY3Nu",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T11:06:58Z",
+  "ended": "2026-11-27T11:21:05Z",
+  "wall_minutes": 19.89,
+  "tokens_in": 10642013,
+  "tokens_out": 30735,
+  "cost_usd": 3.9915,
+  "tool_calls": 83,
+  "task": "seller-books (bet #5) signups-open: point the online-sellers page, products/home and reseller tool CTAs at the live Free plan",
+  "projects": [
+    "seller-books",
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19719",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--claim takes the item number, so `--slug X --claim` errors; the slug claim is `--slug X --note ...` alone. Cost one retry."
+    },
+    {
+      "file": "platform/pages/business.test.mjs",
+      "issue": "'only Grant Autopilot is live' was stale: PayApps opened its Free plan 2026-11-27 (PR #19644) but business.mjs, home and /products/ still showed it as early access. Fixed here."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "The hub's no-paywall guard rejects the words 'paid plan' anywhere in visible copy, including the honest 'paid plans are not on sale yet'. I reworded the product lines rather than loosen the guard."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bets #1 and #2 had nothing free and not gated (payapps had 5 live claims, and its only free item needs a real Windows PC and Android phone). Bet #5 had a named next step in DEPLOY.md and no claim.",
+      "did": "Took bet #5's sign-up launch instead of the top bet.",
+      "result": "Seller Books is now linked from 11 front-door pages."
+    },
+    {
+      "file": "platform/pages/business.mjs",
+      "why": "Marking Seller Books live meant PayApps had to change too, otherwise the home page would say the older open app was early access.",
+      "did": "Marked both live, with links to their subdomains.",
+      "result": "Tests updated in the same PR, as the test comment asks."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (new section: Seller Books is open, free on one platform; stale early-access lines fixed)"
+  ],
+  "goal": "bet #5 first customer: sign-up links from every seller front door now the app is live",
+  "notes": "Health checked this run: seller-books.marisstella.app/api/health {ok, billing:false, email:true}; payapps.marisstella.app/api/health ok. Tests: platform/pages full suite 2169/2170 before the paywall-word fix (build.test sponsor-ask guard; fixed by rewording), then build+business+products+home 368/368; run_venture_tests.py for 6 venture slugs: 0 failed (ebay-fee-calculator 524, reseller-books 79). Features stated on the online-sellers page come from apps/seller-books/README.md; payout reconciliation is not claimed because the app does not do it.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9e8d598a-d31e-5da7-b33c-f727109de049",
+    "transcripts": 1,
+    "first": "2026-11-27T11:06:58Z",
+    "last": "2026-11-27T11:26:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 154,
+        "output": 30735,
+        "thinking": 4978,
+        "cache_read": 10481881,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159978,
+        "api_equivalent_usd": 3.9915,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 154,
+      "output": 30735,
+      "thinking": 4978,
+      "cache_read": 10481881,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159978,
+      "api_equivalent_usd": 3.9915,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 80,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.89,
+      "active_minutes": 19.89,
+      "model_minutes": 6.43,
+      "tool_minutes": 13.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "reading two apps' plans and READMEs, rewriting one industry page, 11 CTAs, tests and a post section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 100.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
