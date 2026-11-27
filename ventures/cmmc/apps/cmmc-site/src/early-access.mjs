@@ -16,7 +16,7 @@
 // is on the list.
 import { handleAdmin } from "./admin.mjs";
 import { CONSENT_VERSION } from "./site.mjs";
-import { applyToPage } from "./sprs.mjs";
+import { applyToPage, isCalcQuery } from "./sprs.mjs";
 
 const SPRS_PATH = "/sprs-score-calculator";
 
@@ -438,7 +438,7 @@ export const handler = {
     const assetUrl = new URL(url);
     assetUrl.pathname = path;
     const res = await env.ASSETS.fetch(new Request(assetUrl, request));
-    if (res.status === 200 && path === SPRS_PATH && url.search) {
+    if (res.status === 200 && path === SPRS_PATH && isCalcQuery(url.searchParams)) {
       // The calculator: score the GET form's query and write the result into the static page.
       const html = applyToPage(await res.text(), url.searchParams);
       const headers = new Headers(res.headers);

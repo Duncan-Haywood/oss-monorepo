@@ -9,10 +9,12 @@ import { browserSprs, build, SPRS_SCRIPT } from "../src/build.mjs";
 import { launchState } from "../src/launch.mjs";
 import {
   applyToPage,
+  isCalcQuery,
   MIN_SCORE,
   parseQuery,
   REQUIREMENTS,
   RESULT_MARKER,
+  renderForm,
   score,
 } from "../src/sprs.mjs";
 import worker from "../src/worker.mjs";
@@ -188,4 +190,36 @@ test("Worker: query scored into the page, not cached, CSP kept; bare URL served 
     env,
   );
   assert.equal(await bare.text(), page);
+});
+
+// Red team 2026-11-27: any query string (a utm-tagged link, ?ref=) used to be scored as "nothing
+// ticked", telling a visitor who ticked nothing "110 of 110, every requirement is met".
+test("a query with no form fields is not scored: utm and ref links get the page as built", async () => {
+  for (const query of ["utm_source=linkedin", "ref=newsletter&utm_campaign=x", "fbclid=abc"]) {
+    const params = new URLSearchParams(query);
+    assert.equal(isCalcQuery(params), false, query);
+    assert.equal(applyToPage(page, params), page, query);
+  }
+  for (const query of ["calc=1", "nm=3.1.1", "pc=3.5.3", "utm_source=x&calc=1"])
+    assert.equal(isCalcQuery(new URLSearchParams(query)), true, query);
+  const res = await worker.fetch(
+    new Request("https://marisstella.app/cmmc/sprs-score-calculator?utm_source=linkedin"),
+    env,
+  );
+  assert.equal(res.status, 200);
+  const body = await res.text();
+  assert.equal(body, page);
+  assert.doesNotMatch(body, /110 <span class="muted">of 110/);
+  assert.notEqual(res.headers.get("Cache-Control"), "no-store");
+  // The static host's script asks the same question before it writes a result.
+  assert.match(openFiles["sprs-page.js"], /isCalcQuery\(params\)/);
+  assert.match(openFiles["sprs.js"], /export function isCalcQuery/);
+});
+
+test("the form labels the SSP as no points and each scored requirement with its own points", () => {
+  const form = renderForm();
+  assert.match(form, /value="3\.12\.4"> <strong>3\.12\.4<\/strong> <span class="muted">\(no points; no SSP means no score\)/);
+  assert.match(form, /value="3\.1\.1"> <strong>3\.1\.1<\/strong> <span class="muted">\(5 pts\)/);
+  assert.match(form, /value="3\.1\.3"> <strong>3\.1\.3<\/strong> <span class="muted">\(1 pt\)/);
+  assert.equal((form.match(/no points; no SSP/g) ?? []).length, 1);
 });

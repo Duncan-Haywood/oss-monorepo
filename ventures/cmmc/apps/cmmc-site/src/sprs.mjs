@@ -68,6 +68,19 @@ const BY_ID = new Map(REQUIREMENTS.map((r) => [r.nistId, r]));
 
 export const MIN_SCORE = MAX_SCORE - REQUIREMENTS.reduce((s, r) => s + r.weight, 0);
 
+/** The conditional floor as a share of the maximum, for the prose (88 of 110 is 80%). */
+export const CONDITIONAL_MIN_PCT = Math.round((100 * CONDITIONAL_MIN_SCORE) / MAX_SCORE);
+
+/**
+ * Is this query the calculator form's? Only its own fields count (the button's calc=1, a ticked nm
+ * or pc), so a marketing link (?utm_source=..., ?ref=...) gets the page as built instead of a
+ * "110 of 110, every requirement met" result for a visitor who ticked nothing.
+ * @param {URLSearchParams} params
+ */
+export function isCalcQuery(params) {
+  return params.has("calc") || params.has("nm") || params.has("pc");
+}
+
 /**
  * Reads the form's query string. Unknown ids are ignored; a partial credit counts only for its own
  * requirement and only when that requirement is ticked as not met.
@@ -113,7 +126,7 @@ export function score(input) {
   const blockers = [];
   if (!ssp) blockers.push("no system security plan, so no score can be produced");
   else if (provisional < CONDITIONAL_MIN_SCORE)
-    blockers.push(`the score is below ${CONDITIONAL_MIN_SCORE} (80% of 110)`);
+    blockers.push(`the score is below ${CONDITIONAL_MIN_SCORE} (${CONDITIONAL_MIN_PCT}% of ${MAX_SCORE})`);
   const ineligible = deductions.filter((d) => !d.poam.eligible && d.nistId !== SSP_ID);
   if (ineligible.length)
     blockers.push(
@@ -220,10 +233,11 @@ self-assessment and the affirmation in SPRS. Change the ticks below and calculat
 }
 
 /**
- * Writes the result into the served page: ticks the boxes the visitor ticked, adds the result at the
+ * Writes the result into the served page (a query that is not the form's leaves it as built): ticks the boxes the visitor ticked, adds the result at the
  * marker and keeps result URLs out of search indexes.
  */
 export function applyToPage(html, params) {
+  if (!isCalcQuery(params)) return html;
   const input = parseQuery(params);
   let out = html;
   for (const id of input.notMet)
