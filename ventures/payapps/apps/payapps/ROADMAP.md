@@ -406,6 +406,25 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
   `convertibleToJpeg`/`convertedSize` in `src/shared/attachments.ts`; checked in Chromium with a real
   WebP (1200 x 800 to a JPEG the packet's `readJpeg` reads; 5000 x 4000 scaled to 3903 x 3123; an
   undecodable HEIC passed through unchanged). Not checked on a real iPhone yet.
+- HEIC photos from Chrome, Edge and Firefox (2026-11-27, Backup packets part 3, every plan): where the
+  browser cannot open a HEIC as an image, the upload form now decodes it with the browser's own HEVC
+  video decoder through WebCodecs (the device's decoder, so no HEVC code is bundled or licensed) and
+  converts it to JPEG as Safari's path does. `src/shared/heif.ts` reads the HEIF container with no
+  dependency: the primary item as one HEVC image or a grid of tiles (iPhones use 512 x 512), each
+  item's bytes from iloc (file or idat), and the hvcC, ispe, clap, irot and imir properties, with
+  limits (1,024 tiles, 16,384 pixels a side); it builds the WebCodecs codec string from the hvcC.
+  `src/client/lib/heic-webcodecs.ts` feeds each tile as a key frame, draws each decoded frame at its
+  grid place straight onto a canvas at the JPEG's size (so a 48-megapixel photo never needs a
+  48-megapixel canvas), then crops, turns and mirrors. If the browser has no VideoDecoder, says it
+  cannot decode the profile, or a tile fails or never comes out, the original HEIC is uploaded as
+  before; the packet's note now names Chrome and Edge too. Checked in Chromium by
+  `test/fixtures/pdf-sources/heic-webcodecs-check.cjs`: this Chromium has no HEVC decoder, so ffmpeg
+  decodes exactly the bytes our parser hands the stub decoder, and everything else is the real code;
+  on four libheif HEICs (3 x 2 grids plain, turned and transposed, and one single image) and the
+  64 x 48 clap fixture, ours matches libheif's decode at 40.9 to 48.1 dB PSNR at full size and 34.8
+  to 35.8 dB scaled to 37%, and the wrong orientation scores 8.4 dB. Not yet checked on a device
+  with a hardware HEVC decoder or with a real iPhone photo; colour profiles are not applied (an
+  iPhone's Display P3 shows a little less saturated).
 - Packet order (2026-11-25): the pay-app attachments panel lists the files ticked "In packet" under
   "Packet order"; drag a row (desktop) or use the up and down arrows (phone, keyboard) to put the
   backup in the order the GC asks for, and the download sends `?files=` in that order, so the
@@ -2130,8 +2149,8 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
   other portals (Trimble Pay/Flashtract, Siteline) if customers bill through
   them. Parts 1 to 3 (Procore SSOV and invoice sheet, Textura's two billing uploads, GCPay's SOV
   upload) are done
-- Backup packets, part 3: HEIC photos attached from Chrome or Firefox (no HEIC decoder there: one
-  in WebAssembly, or the Worker's); save a packet order with the pay
+- Backup packets, part 3 (HEIC from Chrome, Edge and Firefox through WebCodecs done 2026-11-27): check
+  it on a Windows PC and an Android phone with a real iPhone photo; save a packet order with the pay
   app if people ask for it to survive a reload
 - Getting started, part 6: once real companies are counted (part 5, 2026-11-26), change the step most of them
   stall on; per-step time from sign-up if counts alone do not say why
