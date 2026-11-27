@@ -15,6 +15,7 @@ import {
 } from "@shared/closeout";
 import { centsToDecimal } from "@shared/money";
 import { type PunchItemFacts, summarizePunchList } from "@shared/punch-list";
+import type { TxSendFacts } from "@shared/tx-notices";
 import type { WaiverFollowUpInput } from "@shared/waiver-followup";
 import { and, asc, eq } from "drizzle-orm";
 import type { AppContext } from "../../context";
@@ -25,6 +26,7 @@ import {
   lienWaivers,
   projects,
   punchItems,
+  txNoticeSends,
 } from "../../db/schema";
 import { csvCell } from "../export/csv";
 import { loadBundle, type ProjectBundle, paymentsOf } from "./bundle";
@@ -42,6 +44,7 @@ export function toCashInput(
   noticeSends: ReadonlyMap<string, { recipient: CaNoticeRecipient }[]> = new Map(),
   closeouts: ReadonlyMap<string, CloseoutReadiness> = new Map(),
   flSends: ReadonlyMap<string, { recipient: FlNoticeRecipient }[]> = new Map(),
+  txSends: ReadonlyMap<string, TxSendFacts[]> = new Map(),
 ): CashReportProjectInput {
   const p = b.project;
   const missing = p.caFirstFurnishedOn ? missingRecipients(noticeSends.get(p.id) ?? []) : [];
@@ -74,6 +77,9 @@ export function toCashInput(
         : null,
     flNotice:
       p.flFirstFurnishedOn && flMissing.length > 0 ? flNoticeDates(p.flFirstFurnishedOn) : null,
+    txNotice: p.txProjectKind
+      ? { residential: p.txProjectKind === "residential", sends: txSends.get(p.id) ?? [] }
+      : null,
     changeOrders: b.changeOrders.map((co) => ({
       id: co.id,
       number: co.number,
@@ -93,6 +99,7 @@ export function toCashInput(
           number: a.number,
           status: a.status,
           applicationDate: a.applicationDate,
+          periodFrom: a.periodFrom,
           periodTo: a.periodTo,
           submittedOn: a.submittedAt ? isoDay(a.submittedAt) : null,
           certifiedAmountCents: a.certifiedAmountCents,
@@ -181,10 +188,25 @@ export async function orgCashReport(
     list.push(r);
     flSends.set(r.projectId, list);
   }
+  const txRows = await ctx.db
+    .select({
+      projectId: txNoticeSends.projectId,
+      kind: txNoticeSends.kind,
+      workMonth: txNoticeSends.workMonth,
+      recipient: txNoticeSends.recipient,
+    })
+    .from(txNoticeSends)
+    .where(eq(txNoticeSends.orgId, orgId));
+  const txSends = new Map<string, TxSendFacts[]>();
+  for (const r of txRows) {
+    const list = txSends.get(r.projectId) ?? [];
+    list.push(r);
+    txSends.set(r.projectId, list);
+  }
   const asOf = isoDay(ctx.now());
   const closeouts = await closeoutReadinessByJob(ctx, orgId, bundles, asOf);
   return cashReport(
-    bundles.map((b) => toCashInput(b, waivers, noticeSends, closeouts, flSends)),
+    bundles.map((b) => toCashInput(b, waivers, noticeSends, closeouts, flSends, txSends)),
     asOf,
   );
 }

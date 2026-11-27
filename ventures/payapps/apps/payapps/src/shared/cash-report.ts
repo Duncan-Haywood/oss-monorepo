@@ -58,6 +58,7 @@ import {
 import { formatCents } from "./money";
 import type { ApplicationSummary, Totals } from "./payapp-math";
 import { expectedCents, type PaymentInput, paymentPosition } from "./payments";
+import { type TxSendFacts, type TxUnpaidMonth, txNoticeTexts, txUnpaidMonths } from "./tx-notices";
 import {
   type WaiverFollowUpInput,
   type WaiverToSend,
@@ -74,6 +75,8 @@ export interface CashReportAppInput {
   status: PayAppStatus;
   applicationDate: string; // YYYY-MM-DD
   periodTo: string; // YYYY-MM-DD
+  /** First day of the period (YYYY-MM-DD); the Texas notices read the months it covers. */
+  periodFrom?: string;
   /** The UTC day it left draft (src/shared/billing-cutoff.ts); null or absent for a draft. */
   submittedOn?: string | null;
   certifiedAmountCents: number | null;
@@ -169,6 +172,11 @@ export interface CashReportProjectInput {
    * entered or a notice to the owner is recorded.
    */
   flNotice?: { serveBy: string; mailBy: string } | null;
+  /**
+   * Texas notices of claim (src/shared/tx-notices.ts): set when the job is tracked (residential or
+   * not), with the notices recorded so far. Each unpaid month's § 53.056 notice is read from `apps`.
+   */
+  txNotice?: { residential: boolean; sends: TxSendFacts[] } | null;
   /** The GC's monthly billing cutoff, day of the month (src/shared/billing-cutoff.ts); null when not set. */
   billingDay?: number | null;
   /**
@@ -369,6 +377,22 @@ const positionOf = (a: CashReportAppInput) =>
     a.payments ?? [],
     a.status === "paid" ? (a.shortClose?.cents ?? null) : null,
   );
+
+/** A Texas job's unpaid months and who still needs a notice for each (empty when not tracked). */
+export function txUnpaidMonthsOf(p: CashReportProjectInput): TxUnpaidMonth[] {
+  if (!p.txNotice) return [];
+  return txUnpaidMonths(
+    p.apps.map((a) => ({
+      number: a.number,
+      sent: isSent(a.status),
+      periodFrom: a.periodFrom ?? a.periodTo,
+      periodTo: a.periodTo,
+      remainingCents: positionOf(a).remainingCents,
+    })),
+    p.txNotice.sends,
+    p.txNotice.residential,
+  );
+}
 
 /** Pending change orders of a job, oldest first (by age, then number). */
 export function pendingChanges(
@@ -717,6 +741,7 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
   if (caText) actions.push(caText);
   const flText = flNoticeText(p.status === "active" ? p.flNotice : null, asOf);
   if (flText) actions.push(flText);
+  if (p.status === "active") actions.push(...txNoticeTexts(txUnpaidMonthsOf(p), asOf));
   // The GC's billing cutoff: drafts count too (a draft dated before a passed cutoff is a missed one).
   if (p.billingDay && p.status === "active" && !workComplete) {
     const cutoff = billingCutoff(

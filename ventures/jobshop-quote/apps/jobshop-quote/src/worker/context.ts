@@ -15,6 +15,7 @@ import type { DocumentConverter } from "./ports/document-converter";
 import { createEmailSender, type EmailSender, FakeEmailSender } from "./ports/email";
 import { type FakeHandler, FakeLlm } from "./ports/fake-llm";
 import { allFakeHandlers } from "./ports/fake-llm-handlers";
+import { withFileStore } from "./ports/file-store";
 import { CadFeaturesGeometry, FakeGeometry, type GeometryExtractor } from "./ports/geometry";
 import type { LlmClient, LlmRequestBase, LlmUsage } from "./ports/llm";
 import { planLlmCapMicros } from "./services/billing";
@@ -74,8 +75,10 @@ export function assertRuntimeEnv(env: Pick<Env, "APP_ENV" | "TEST_SCHEMA_SQL">):
   }
 }
 
-export function createAppContext(env: Env, overrides: Partial<Omit<AppContext, "env">> = {}) {
-  assertRuntimeEnv(env);
+export function createAppContext(rawEnv: Env, overrides: Partial<Omit<AppContext, "env">> = {}) {
+  assertRuntimeEnv(rawEnv);
+  // FILES is R2 when bound, else D1 (ports/file-store.ts), so the app runs before R2 is switched on.
+  const env = withFileStore(rawEnv);
   const db = overrides.db ?? createDb(env.DB);
   const logger = overrides.logger ?? createLogger({ app: "jobshop-quote", env: env.APP_ENV });
   const fake = isFake(env);

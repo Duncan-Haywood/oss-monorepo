@@ -1,0 +1,96 @@
+// Compile the official Schematron into the plain JSON plain-schematron.mjs runs:
+//   node build-plain-rules.mjs [en16931-checkout]
+// Needs `npm i --no-save slimdom fontoxpath esbuild`, git. Fetches (shallow, temp folder):
+//   ConnectingEurope/eInvoicing-EN16931  base rules, the "preprocessed" Schematron (EUPL-1.2)
+//   itplr-kosit/xrechnung-schematron     XRechnung add-on (Apache-2.0)
+//   OpenPEPPOL/peppol-bis-invoice-3      Peppol BIS Billing 3 add-on (MPL-2.0)
+// Writes ./plain/ (committed: the rules are data, fontoxpath is MIT) with the
+// commit each set was built from in manifest.json. The manifest is merged, not
+// replaced: the PINT, ZATCA, CIUS-RO/PT and NLCIUS sets other build-*-rules.mjs
+// scripts add stay listed. EINVOICE_PLAIN_ONLY=peppol-ubl,peppol-cii rebuilds just
+// those sets and leaves the fontoxpath bundle alone (2026-11-14: Peppol BIS 3.0.22).
+// peppol-next-ubl/cii is the coming Peppol release (3.1.0, in force 2027-02-24) from
+// OpenPeppol's release branch, EINVOICE_PEPPOL_NEXT_BRANCH (schematron-core.mjs, PEPPOL_NEXT).
+// peppol-sb-ubl is Peppol BIS Self-Billing (UBL only; OpenPeppol keeps it on release
+// branches of the same repository, never on master): 3.0.2, in force since 2026-08-17,
+// from EINVOICE_PEPPOL_SB_BRANCH; peppol-sb-next-ubl is Self-Billing 3.1.0 (in force
+// 2027-02-24) from EINVOICE_PEPPOL_SB_NEXT_BRANCH (2026-11-18).
+import { execFileSync } from "node:child_process";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { compileSchematron } from "./plain-compile.mjs";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const out = join(here, "plain");
+const work = mkdtempSync(join(tmpdir(), "einvoice-plain-"));
+const git = (dir, ...args) => execFileSync("git", ["-C", dir, ...args], { encoding: "utf8" }).trim();
+const clone = (url, dir, branch) => {
+  execFileSync("git", ["clone", "--depth", "1", ...(branch ? ["--branch", branch] : []), url, dir], { stdio: "inherit", env: { ...process.env, GIT_LFS_SKIP_SMUDGE: "1" } });
+  return dir;
+};
+
+mkdirSync(out, { recursive: true });
+const en = process.argv[2] || clone("https://github.com/ConnectingEurope/eInvoicing-EN16931", join(work, "en16931"));
+const xr = clone("https://github.com/itplr-kosit/xrechnung-schematron", join(work, "xrechnung"));
+const pe = clone("https://github.com/OpenPEPPOL/peppol-bis-invoice-3", join(work, "peppol"));
+const nextBranch = process.env.EINVOICE_PEPPOL_NEXT_BRANCH || "2026-Q4-QA2";
+// CIUS-RO 1.0.9 is built on EN 16931 validation 1.3.8, so a Romanian file gets that
+// release as its base (schematron-core.mjs, ADDONS["cius-ro"].base). Tag validation-1.3.8.
+const only = (process.env.EINVOICE_PLAIN_ONLY || "").split(",").map((s) => s.trim()).filter(Boolean);
+const want = (name) => !only.length || only.includes(name);
+const en138 = !want("en16931-1.3.8-ubl") ? null : process.env.EINVOICE_EN138 || clone("https://github.com/ConnectingEurope/eInvoicing-EN16931", join(work, "en16931-1.3.8"), "validation-1.3.8");
+
+const peNext = want("peppol-next-ubl") || want("peppol-next-cii") ? clone("https://github.com/OpenPEPPOL/peppol-bis-invoice-3", join(work, "peppol-next"), nextBranch) : null;
+const sbBranch = process.env.EINVOICE_PEPPOL_SB_BRANCH || "selfbilling-2026-Q2-QA";
+const sbNextBranch = process.env.EINVOICE_PEPPOL_SB_NEXT_BRANCH || "selfbilling-2026-Q4-QA2";
+const peSb = want("peppol-sb-ubl") ? clone("https://github.com/OpenPEPPOL/peppol-bis-invoice-3", join(work, "peppol-sb"), sbBranch) : null;
+const peSbNext = want("peppol-sb-next-ubl") ? clone("https://github.com/OpenPEPPOL/peppol-bis-invoice-3", join(work, "peppol-sb-next"), sbNextBranch) : null;
+const sets = [
+  ["en16931-ubl", join(en, "ubl/schematron/preprocessed/EN16931-UBL-validation-preprocessed.sch"), en, "eInvoicing-EN16931 (EUPL-1.2)"],
+  ["en16931-cii", join(en, "cii/schematron/preprocessed/EN16931-CII-validation-preprocessed.sch"), en, "eInvoicing-EN16931 (EUPL-1.2)"],
+  ["xrechnung-ubl", join(xr, "src/validation/schematron/ubl/XRechnung-UBL-validation.sch"), xr, "xrechnung-schematron (Apache-2.0)"],
+  ["xrechnung-cii", join(xr, "src/validation/schematron/cii/XRechnung-CII-validation.sch"), xr, "xrechnung-schematron (Apache-2.0)"],
+  ["peppol-ubl", join(pe, "rules/sch/PEPPOL-EN16931-UBL.sch"), pe, "peppol-bis-invoice-3 (MPL-2.0)"],
+  ["peppol-cii", join(pe, "rules/sch/PEPPOL-EN16931-CII.sch"), pe, "peppol-bis-invoice-3 (MPL-2.0)"],
+  ["peppol-next-ubl", join(peNext || "", "rules/sch/PEPPOL-EN16931-UBL.sch"), peNext, `peppol-bis-invoice-3 branch ${nextBranch}, BIS Billing 3.1.0 (MPL-2.0)`],
+  ["peppol-next-cii", join(peNext || "", "rules/sch/PEPPOL-EN16931-CII.sch"), peNext, `peppol-bis-invoice-3 branch ${nextBranch}, BIS Billing 3.1.0 (MPL-2.0)`],
+  ["peppol-sb-ubl", join(peSb || "", "rules/sch/PEPPOL-EN16931-UBL-SB.sch"), peSb, `peppol-bis-invoice-3 branch ${sbBranch}, BIS Self-Billing 3.0.2 (MPL-2.0)`],
+  ["peppol-sb-next-ubl", join(peSbNext || "", "rules/sch/PEPPOL-EN16931-UBL-SB.sch"), peSbNext, `peppol-bis-invoice-3 branch ${sbNextBranch}, BIS Self-Billing 3.1.0 (MPL-2.0)`],
+  ["en16931-1.3.8-ubl", join(en138 || "", "ubl/schematron/preprocessed/EN16931-UBL-validation-preprocessed.sch"), en138, "eInvoicing-EN16931 validation-1.3.8 (EUPL-1.2), the base CIUS-RO 1.0.9 runs on"],
+];
+const manifestFile = join(out, "manifest.json");
+const manifest = existsSync(manifestFile) ? JSON.parse(readFileSync(manifestFile, "utf8")) : { sets: {} };
+manifest.built = new Date().toISOString().slice(0, 10);
+for (const [name, sch, repo, licence] of sets) {
+  if (!want(name)) continue;
+  if (!existsSync(sch)) throw new Error(`Missing ${sch}`);
+  const rules = compileSchematron(sch);
+  const checks = rules.patterns.reduce((n, p) => n + p.rules.reduce((m, r) => m + r.checks.length, 0), 0);
+  writeFileSync(join(out, `${name}.json`), JSON.stringify(rules) + "\n");
+  manifest.sets[name] = { source: licence, commit: git(repo, "rev-parse", "HEAD"), checks };
+  console.log(`${name}: ${checks} checks`);
+}
+if (only.length) {
+  writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + "\n");
+  console.log(`Wrote ${only.join(", ")} to ${out}`);
+  process.exit(0);
+}
+const fx = dirname(createRequire(import.meta.url).resolve("fontoxpath/package.json"));
+// fontoxpath's ESM build imports xspattern and prsc by bare name; bundle them in so the page can import() one file.
+const { build } = await import("esbuild");
+await build({ entryPoints: [join(fx, "dist/fontoxpath.esm.js")], bundle: true, format: "esm", minify: true, outfile: join(out, "fontoxpath.esm.js"), logLevel: "warning" });
+copyFileSync(join(fx, "LICENSE.md"), join(out, "fontoxpath.LICENSE.txt"));
+// The bundle also carries xspattern and prsc, whose MIT licences ask for their notices to travel with the code.
+const fxRequire = createRequire(join(fx, "package.json"));
+// Their `exports` hide package.json, so resolve the entry point and walk up to the package root.
+for (const dep of ["xspattern", "prsc"]) {
+  let dir = dirname(fxRequire.resolve(dep));
+  while (!existsSync(join(dir, "package.json"))) dir = dirname(dir);
+  copyFileSync(join(dir, "LICENSE"), join(out, `${dep}.LICENSE.txt`));
+}
+manifest.fontoxpath = JSON.parse(readFileSync(join(fx, "package.json"), "utf8")).version;
+writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + "\n");
+console.log(`Wrote ${out}`);

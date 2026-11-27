@@ -131,6 +131,9 @@ workflows:
 - workflow: einvoice-preflight-ci.yml
   classification: none
   publishes: []
+- workflow: einvoice-pro-ci.yml
+  classification: none
+  publishes: []
 - workflow: error-rate-disclosure-ci.yml
   classification: none
   publishes: []
@@ -357,7 +360,7 @@ workflows:
   classification: none
   publishes: []
 - workflow: priv-payapps-deploy.yml
-  classification: dispatch
+  classification: gated
   publishes:
   - job: deploy
     step: runs 'wrangler deploy'

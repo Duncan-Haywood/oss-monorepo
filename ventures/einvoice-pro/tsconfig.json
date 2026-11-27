@@ -1,0 +1,24 @@
+{
+  "//": "What platform/pages/typecheck.mjs checks for a JavaScript venture (its tscArgs), plus .ts import paths for packages/billing and packages/admin-metrics, which pro/ imports as source. With allowJs and no checkJs, tsc reports on the JavaScript files that opt in with // @ts-check and on the TypeScript they import. typecheck.mjs defers to this file; einvoice-pro-ci.yml runs it.",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "target": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["es2023", "dom", "dom.iterable"],
+    "types": ["node"],
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "types/*.d.ts",
+    "apps/einvoice-preflight/*.mjs",
+    "apps/einvoice-preflight/pro/**/*.mjs",
+    "apps/einvoice-preflight/pro/web/*.js",
+    "apps/einvoice-preflight/worker/*.mjs",
+    "apps/einvoice-site/*.mjs"
+  ],
+  "exclude": ["**/*.test.mjs", "**/node_modules", "**/dist"]
+}

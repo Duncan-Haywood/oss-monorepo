@@ -1,0 +1,114 @@
+name: einvoice-pro CI
+
+# PR and main checks for ventures/einvoice-pro: the paid edition of the e-invoice checker
+# (apps/einvoice-preflight, its checker suite, the paid layer in pro/ and the Worker build in
+# worker/), its marketing site (apps/einvoice-site) and the two packages they import as source
+# (packages/billing, packages/admin-metrics). Ported from private-monorepo's
+# einvoice-preflight-ci.yml and einvoice-site-ci.yml on 2026-11-27 (task
+# move-einvoice-pro-public). Nothing here has npm dependencies, so there is no install step: pro/
+# imports packages/billing's TypeScript through Node 22's type stripping. Read-only and
+# secret-free: deploying is a separate workflow (ventures/einvoice-pro/DEPLOY.md). The free edition
+# keeps its own einvoice-preflight-ci.yml.
+# Run locally: python3 platform/ci/run_workflow_locally.py einvoice-pro-ci.yml
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "ventures/einvoice-pro/**"
+      - ".github/workflows/einvoice-pro-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/einvoice-pro/**"
+      - ".github/workflows/einvoice-pro-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same pull request cancels the superseded run; `main`
+# keeps every run (platform/ci/validate_workflows.py, invariant 9).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  app:
+    name: einvoice-preflight (paid layer, worker, checker suite)
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ventures/einvoice-pro/apps/einvoice-preflight
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            ventures/einvoice-pro
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: Paid layer (fixes re-validate, explanations, API, tenant isolation)
+        run: node --test pro/*.test.mjs
+      - name: Worker deploy provisioning (config, wrangler output)
+        run: node --test worker/*.test.mjs
+      - name: Checker suite
+        run: node --test --test-concurrency=4 *.test.mjs
+
+  site:
+    name: einvoice-site (build, tests)
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ventures/einvoice-pro/apps/einvoice-site
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            ventures/einvoice-pro
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: Build (dev)
+        run: node build.mjs
+      - name: Tests
+        run: node --test test/*.test.mjs
+
+  packages:
+    name: packages (billing, admin-metrics)
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ventures/einvoice-pro
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            ventures/einvoice-pro
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: billing
+        run: node --test "packages/billing/src/**/*.test.ts"
+      - name: admin-metrics
+        run: node --test packages/admin-metrics/src/*.test.ts
+      # The // @ts-check files and the TypeScript they import. platform/pages/typecheck.mjs skips a
+      # venture with its own tsconfig.json, so this job runs it, with the same pinned typescript and
+      # @types/node, installed outside the tree.
+      - name: typecheck (tsconfig.json)
+        run: |
+          tools="$RUNNER_TEMP/tsc"
+          npm install --no-audit --no-fund --prefix "$tools" typescript@5.9.3 @types/node@22.18.0
+          "$tools/node_modules/.bin/tsc" -p tsconfig.json --typeRoots "$tools/node_modules/@types" --pretty false

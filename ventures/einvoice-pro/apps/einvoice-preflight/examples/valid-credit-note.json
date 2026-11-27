@@ -1,0 +1,13 @@
+{
+  "invoice_number": "CN-1001",
+  "issue_date": "2026-08-25",
+  "document_type": "credit_note",
+  "original_invoice": "INV-1001",
+  "currency": "EUR",
+  "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976"},
+  "customer": {"id": "DE456", "name": "Customer GmbH"},
+  "lines": [
+    {"description": "Consulting credit", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}
+  ],
+  "totals": {"net": 200, "tax": 38, "gross": 238}
+}

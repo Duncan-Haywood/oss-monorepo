@@ -247,6 +247,6 @@ describe("invitations need a confirmed address", () => {
 describe("health", () => {
   it("reports that tests keep mail in memory (nothing is delivered)", async () => {
     const res = await api("/api/health");
-    expect(await res.json()).toEqual({ ok: true, app: "jobshop-quote", email: false });
+    expect(await res.json()).toEqual({ ok: true, app: "jobshop-quote", email: false, files: "r2" });
   });
 });

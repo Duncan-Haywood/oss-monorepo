@@ -1,0 +1,429 @@
+// Format-neutral invoice checks. Mirrors src/einvoice_preflight/checks.py so
+// the browser page and the CLI report the same rule IDs, messages, and
+// cent-rounded arithmetic. This is an observation, not a legal validity claim.
+
+import { headerAdjustmentNetDelta, inspectHeaderAdjustments } from "./adjustment.mjs";
+import { inspectPaymentBic } from "./bic.mjs";
+import { breakdownTaxWithinTolerance, inspectTaxBreakdown } from "./breakdown.mjs";
+import { inspectDocumentType } from "./document.mjs";
+import { inspectPartyEndpoint, inspectPartyIdentifiers, inspectLineSchemedIds } from "./endpoint.mjs";
+import { inspectPaymentIban } from "./iban.mjs";
+import { inspectPaymentMeans } from "./means.mjs";
+import { inspectInvoicePeriod } from "./period.mjs";
+import { inspectCommercialReferences } from "./reference.mjs";
+import { inspectPaymentRemittance } from "./remittance.mjs";
+import { inspectTaxExemption } from "./tax.mjs";
+import { inspectAccountingCurrencyTax } from "./taxcurrency.mjs";
+import { inspectLineExtension } from "./lineext.mjs";
+import { inspectPaymentTerms } from "./terms.mjs";
+import { inspectNlVatShape, inspectPartyVat } from "./vat.mjs";
+import { acceptedLineNet, flatTaxTotal, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
+import { parseDecimal } from "./numbers.mjs";
+import { inspectXmlValues } from "./xmlvalues.mjs";
+
+// numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
+const parseNumber = parseDecimal;
+
+export function roundHalfUpToCents(value) {
+  if (!Number.isFinite(value)) return null;
+  const sign = value < 0 ? -1 : 1;
+  return (sign * Math.round(Number((Math.abs(value) * 100).toPrecision(15)))) / 100;
+}
+
+// Hungarian VAT is stated in whole forints, so a HUF invoice may round its tax
+// total to the unit instead of the cent. Accepted only when the stated total is
+// a whole number equal to the computed tax rounded half up to the unit.
+export function wholeUnitTaxAgrees(currency, stated, expected) {
+  if (currency !== "HUF" || stated === null || expected === null) return false;
+  return Number.isInteger(stated) && stated === Math.round(expected);
+}
+
+function money(value) {
+  const parsed = parseNumber(value);
+  return parsed === null ? null : roundHalfUpToCents(parsed);
+}
+
+function isoDate(value) {
+  if (typeof value !== "string" || value.length !== 10 || value[4] !== "-" || value[7] !== "-") {
+    return null;
+  }
+  const year = Number(value.slice(0, 4));
+  const month = Number(value.slice(5, 7));
+  const day = Number(value.slice(8, 10));
+  if (![year, month, day].every((part) => Number.isInteger(part))) return null;
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  return date;
+}
+
+// BT-110 equal to the breakdown rows' sum (BR-CO-14), each row within BR-CO-17's one-unit
+// tolerance (a missing or extra row is INV-038's, blocking): VAT rounded per line, which EN 16931 accepts. The
+// rows' own differences are reported by INV-038 as warnings.
+function breakdownTotalAgrees(invoice, taxTotal, expectedTax, perRate) {
+  const sum = breakdownTaxWithinTolerance(invoice);
+  return sum !== null && taxTotal === sum && Math.round(Math.abs(taxTotal - expectedTax) * 100) < 100 * Math.max(1, perRate.groups.size);
+}
+
+export function checkInvoice(invoice) {
+  const errors = [];
+  const fail = (rule, message, fix, path = "", severity) => {
+    errors.push(severity ? { rule, message, fix, path, severity } : { rule, message, fix, path });
+  };
+
+  if (invoice === null || typeof invoice !== "object" || Array.isArray(invoice)) {
+    return [{
+      rule: "INV-001",
+      message: "Invoice must be a JSON object.",
+      fix: "Provide the invoice object at the document root.",
+      path: "",
+    }];
+  }
+
+  for (const field of ["invoice_number", "issue_date", "currency", "supplier", "customer", "lines", "totals"]) {
+    if (!(field in invoice)) {
+      fail("INV-001", `Required field '${field}' is missing.`, `Add a '${field}' field.`, `/${field}`);
+    }
+  }
+
+  if (typeof invoice.invoice_number !== "string" || !invoice.invoice_number.trim()) {
+    fail("INV-002", "Invoice number is empty or not text.", "Provide a non-empty invoice number.", "/invoice_number");
+  }
+
+  const issueDate = isoDate(invoice.issue_date);
+  if (issueDate === null) {
+    fail("INV-003", "Issue date is not an ISO date.", "Use YYYY-MM-DD, for example 2026-08-24.", "/issue_date");
+  }
+
+  if ("due_date" in invoice && invoice.due_date !== null && invoice.due_date !== "") {
+    const dueDate = isoDate(invoice.due_date);
+    if (dueDate === null) {
+      fail("INV-020", "Due date is not an ISO date.", "Use YYYY-MM-DD, for example 2026-09-23.", "/due_date");
+    }
+    if (dueDate !== null && issueDate !== null && dueDate < issueDate) {
+      fail("INV-021", "Due date is earlier than the issue date.", "Set due date to the issue date or a later date.", "/due_date");
+    }
+  }
+
+  if (
+    typeof invoice.currency !== "string" ||
+    invoice.currency.length !== 3 ||
+    invoice.currency === invoice.currency.toLowerCase() ||
+    invoice.currency !== invoice.currency.toUpperCase()
+  ) {
+    fail("INV-004", "Currency is not a three-letter uppercase code.", "Use an ISO-style code such as EUR or GBP.", "/currency");
+  }
+
+  for (const partyName of ["supplier", "customer"]) {
+    const party = invoice[partyName];
+    // BT-46 (buyer identifier) is optional in EN 16931 and many real UBL and
+    // CII files leave it out. A parsed file may do so when the buyer is
+    // identified some other way (VAT id, legal registration, endpoint); a
+    // buyer known by name alone, or a draft JSON invoice, still needs one.
+    const idOptional = partyName === "customer" && typeof invoice.source_format === "string"
+      && Boolean(party && typeof party === "object" && (party.vat_id || party.legal_id || party.endpoint));
+    if (!idOptional && (!party || typeof party !== "object" || Array.isArray(party) || typeof party.id !== "string" || !party.id.trim())) {
+      fail("INV-005", `${capitalize(partyName)} identifier is missing.`, `Add the ${partyName} identifier from the source system.`, `/${partyName}/id`);
+    }
+    if (!party || typeof party !== "object" || Array.isArray(party) || typeof party.name !== "string" || !party.name.trim()) {
+      fail("INV-006", `${capitalize(partyName)} name is missing.`, `Add the ${partyName} name.`, `/${partyName}/name`);
+    }
+    if (party && typeof party === "object" && !Array.isArray(party)) {
+      const vatFindings = inspectPartyVat(party, partyName);
+      for (const finding of vatFindings) {
+        fail(finding.rule, finding.message, finding.fix, finding.path);
+      }
+      if (!vatFindings.some((f) => f.path === `/${partyName}/vat_id`)) {
+        for (const finding of inspectNlVatShape(party, partyName)) {
+          fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+        }
+      }
+      for (const finding of inspectPartyEndpoint(party, partyName)) {
+        fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+      }
+      for (const finding of inspectPartyIdentifiers(party, partyName)) {
+        fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+      }
+    }
+  }
+  // BG-10 payee and BG-11 tax representative: Peppol's PEPPOL-COMMON id
+  // contexts match their PartyIdentification/ID and CompanyID (UBL) and
+  // ID/GlobalID (CII) as they do the seller's and buyer's (added 2026-11-17;
+  // eval/party-id-peppol-differential.mjs).
+  for (const [key, label] of [["payee_party", "Payee"], ["tax_representative", "Tax representative"], ["delivery_party", "Deliver-to party"]]) {
+    for (const finding of inspectPartyIdentifiers(invoice[key], key, label)) {
+      fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+    }
+  }
+  // BT-63, the tax representative's VAT number (BR-56 requires one): read since
+  // 2026-11-17 and checked as the seller's is (INV-022/023, INV-064). Before,
+  // no reader kept it, so a mistyped one passed every built-in check.
+  const representative = invoice.tax_representative;
+  if (representative && typeof representative === "object" && !Array.isArray(representative)) {
+    const vatFindings = representative.vat_id === undefined || representative.vat_id === null || representative.vat_id === ""
+      ? [] : inspectPartyVat({ vat_id: representative.vat_id }, "tax_representative", "Tax representative");
+    for (const finding of vatFindings) fail(finding.rule, finding.message, finding.fix, finding.path);
+    if (!vatFindings.length) {
+      for (const finding of inspectNlVatShape(representative, "tax_representative", "Tax representative")) {
+        fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+      }
+    }
+  }
+  // Every other VAT number Peppol's R056-2 reads (a payee's, a deliver-to
+  // party's, a line party's, a second VAT scheme), kept by the readers as
+  // vat_registrations since 2026-11-17: INV-064, a warning as Peppol's is.
+  // EN 16931 gives these parties no VAT number, so INV-022/023 stay off them.
+  if (Array.isArray(invoice.vat_registrations)) {
+    invoice.vat_registrations.forEach((registration, index) => {
+      if (!registration || typeof registration !== "object") return;
+      const label = typeof registration.label === "string" && registration.label ? registration.label : "A party's";
+      for (const finding of inspectNlVatShape({ vat_id: registration.value }, `vat_registrations/${index}`, label)) {
+        fail(finding.rule, finding.message, finding.fix, `/vat_registrations/${index}/value`, finding.severity);
+      }
+    });
+  }
+  // INV-065 (2026-11-17): a value the reader trimmed a no-break space from;
+  // a receiver's validator cannot cast it (xmlvalues.mjs).
+  for (const finding of inspectXmlValues(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectPaymentIban(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectPaymentMeans(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectPaymentTerms(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectPaymentBic(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectPaymentRemittance(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+  }
+  for (const finding of inspectDocumentType(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectTaxExemption(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectAccountingCurrencyTax(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectLineExtension(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  // Factur-X / ZUGFeRD MINIMUM and BASIC WL carry totals and no lines, by design.
+  const linesOptional = /[:#](minimum|basicwl)$/i.test(String(invoice.specification_id || "").trim());
+  const noLines = !Array.isArray(invoice.lines) || invoice.lines.length === 0;
+  for (const finding of linesOptional && noLines ? [] : inspectTaxBreakdown(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+  }
+  for (const finding of inspectInvoicePeriod(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectCommercialReferences(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectHeaderAdjustments(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+
+  let lines = invoice.lines;
+  if (linesOptional && noLines) {
+    lines = [];
+  } else if (!Array.isArray(lines) || lines.length === 0) {
+    fail("INV-007", "Invoice has no line items.", "Add at least one line item.", "/lines");
+    lines = [];
+  }
+
+  let expectedNet = 0;
+  lines.forEach((line, index) => {
+    const n = index + 1;
+    if (!line || typeof line !== "object" || Array.isArray(line)) {
+      fail("INV-008", `Line ${n} is not an object.`, "Provide description, quantity, unit_price, and tax_percent.", `/lines/${index}`);
+      return;
+    }
+    for (const finding of inspectLineSchemedIds(line, index)) {
+      fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+    }
+    if (typeof line.description !== "string" || !line.description.trim()) {
+      fail("INV-008", `Line ${n} has no description.`, "Add a human-readable line description.", `/lines/${index}/description`);
+    }
+    const quantity = parseNumber(line.quantity);
+    const price = parseNumber(line.unit_price);
+    const tax = taxPercentOf(line);
+    // A negative quantity is a returned or credited line, which EN 16931 allows.
+    if (quantity === null) {
+      fail("INV-009", `Line ${n} quantity is invalid.`, "Use a numeric quantity; a credit line may be negative.", `/lines/${index}/quantity`);
+    }
+    if (price === null || price < 0) {
+      fail("INV-010", `Line ${n} unit price is invalid.`, "Use a non-negative numeric unit price.", `/lines/${index}/unit_price`);
+    }
+    if (tax === null || tax < 0 || tax > 100) {
+      fail(
+        "INV-011",
+        `Line ${n} tax percentage is invalid.`,
+        "Use the tax percentage supplied by your authoritative source; this tool does not choose it.",
+        `/lines/${index}/tax_percent`,
+      );
+    }
+    if (quantity !== null && price !== null && price >= 0) {
+      const supplied = money(line.net);
+      const lineNet = acceptedLineNet(line, supplied);
+      // Summed unrounded and rounded once below: baisa lines (linenet.mjs, summedLineNet).
+      expectedNet += summedLineNet(line, invoice);
+      if (supplied === null || supplied !== lineNet) {
+        fail(
+          "INV-012",
+          `Line ${n} net is missing or does not match quantity times unit price.`,
+          `Set line net to ${formatMoney(lineNet)} or correct the inputs.`,
+          `/lines/${index}/net`,
+        );
+      }
+    }
+  });
+  // VAT is worked out per rate on the summed taxable amount (EN 16931
+  // BR-CO-17), not per line, so lines that round differently still agree.
+  const perRate = taxGroups(invoice);
+  let expectedTax = 0;
+  for (const group of perRate.groups.values()) expectedTax = roundHalfUpToCents(expectedTax + group.tax);
+  // Where the lines state their own VAT (PINT Oman, BTOM-016), the tax total may be
+  // their sum per rate instead (ALIGNED-IBRP-S-09-OM); either reading is accepted.
+  let lineTaxTotal = null;
+  if ([...perRate.groups.values()].some((g) => g.lineTax !== null)) {
+    lineTaxTotal = 0;
+    for (const group of perRate.groups.values()) lineTaxTotal = roundHalfUpToCents(lineTaxTotal + (group.lineTax ?? group.tax));
+  }
+  // Flat-amount taxes beside VAT (Malaysia's tourism tax) add their stated amount;
+  // a row with no readable tax is INV-038's to report, so the total is not judged.
+  const flatTax = flatTaxTotal(invoice);
+  if (flatTax !== null && flatTax !== 0) {
+    expectedTax = roundHalfUpToCents(expectedTax + flatTax);
+    if (lineTaxTotal !== null) lineTaxTotal = roundHalfUpToCents(lineTaxTotal + flatTax);
+  }
+  expectedNet = roundHalfUpToCents(expectedNet + headerAdjustmentNetDelta(invoice));
+  const negativeInvoice = isNegativeInvoice(invoice);
+  if (expectedNet < 0 && !negativeInvoice) expectedNet = 0;
+
+  const totals = invoice.totals && typeof invoice.totals === "object" && !Array.isArray(invoice.totals)
+    ? invoice.totals
+    : {};
+  const net = money(totals.net);
+  const taxTotal = money(totals.tax);
+  const gross = money(totals.gross);
+
+  if (net === null || (net < 0 && !negativeInvoice)) {
+    fail("INV-013", "Invoice net total is missing or invalid.", "Provide a non-negative numeric net total.", "/totals/net");
+  } else if (net !== expectedNet && !(linesOptional && noLines)) {
+    if (invoice.adjustments) {
+      fail("INV-014", "Invoice net total does not match line items after header allowances and charges.", `Set net total to ${formatMoney(expectedNet)} or correct the line items and adjustments.`, "/totals/net");
+    } else {
+      fail("INV-014", "Invoice net total does not match its line items.", `Set net total to ${formatMoney(expectedNet)} or correct the line items.`, "/totals/net");
+    }
+  }
+  // BT-110 is absent on an invoice with no VAT at all (category O, for one).
+  const taxAbsent = (totals.tax === undefined || totals.tax === null || totals.tax === "") && expectedTax === 0 && !perRate.unattributed;
+  if (taxAbsent) {
+    // nothing to compare
+  } else if (taxTotal === null || (taxTotal < 0 && !negativeInvoice)) {
+    fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");
+  } else if (!(linesOptional && noLines) && !perRate.unattributed && flatTax !== null && taxTotal !== expectedTax && taxTotal !== lineTaxTotal && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax) && !breakdownTotalAgrees(invoice, taxTotal, expectedTax, perRate)) {
+    fail("INV-018", "Invoice tax total does not match its line tax percentages.", `Set tax total to ${formatMoney(expectedTax)} or correct the line inputs.`, "/totals/tax");
+  }
+  if (gross === null || (gross < 0 && !negativeInvoice)) {
+    fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.", "/totals/gross");
+  } else if (net !== null && (taxTotal !== null || taxAbsent) && gross !== roundHalfUpToCents(net + (taxTotal ?? 0))) {
+    fail("INV-017", "Gross total does not equal net plus tax.", `Set gross total to ${formatMoney(roundHalfUpToCents(net + (taxTotal ?? 0)))} or correct the totals.`, "/totals/gross");
+  }
+
+  const prepaid = optionalMoney(totals, "prepaid");
+  const due = optionalMoney(totals, "due");
+  // BT-114 (rounding) can be negative: BR-CO-16 is due = gross - prepaid + rounding.
+  const rounding = optionalMoney(totals, "rounding");
+  const roundingValue = rounding === undefined || rounding === null ? 0 : rounding;
+  // When prepayments exceed the gross, EN 16931 allows a negative amount due
+  // (a credit balance for the buyer) as long as the arithmetic is stated.
+  // A negative prepaid amount (a correction that adds to what is owed) is accepted
+  // only when the stated amount due works out from it.
+  const debitBalance = gross !== null && prepaid !== undefined && prepaid !== null && prepaid < 0
+    && due !== undefined && due !== null
+    && due === roundHalfUpToCents(gross - prepaid + roundingValue);
+  const creditBalance = gross !== null && gross >= 0 && prepaid !== undefined && prepaid !== null && prepaid > gross
+    && due !== undefined && due !== null
+    && due === roundHalfUpToCents(gross - prepaid + roundingValue);
+  if (prepaid !== undefined) {
+    if (prepaid === null || (prepaid < 0 && !debitBalance)) {
+      fail("INV-028", "Prepaid amount is missing or invalid.", "Provide a non-negative numeric prepaid amount, or omit totals.prepaid.", "/totals/prepaid");
+    } else if (gross !== null && gross >= 0 && prepaid > gross && !creditBalance) {
+      fail("INV-028", "Prepaid amount is greater than the invoice gross.", `Set prepaid to at most ${formatMoney(gross)} or correct the totals.`, "/totals/prepaid");
+    }
+  }
+  if (due !== undefined) {
+    if (due === null || (due < 0 && !creditBalance && !negativeInvoice)) {
+      fail("INV-029", "Amount due is missing or invalid.", "Provide a non-negative numeric amount due, or omit totals.due.", "/totals/due");
+    } else if (gross !== null && (gross >= 0 || negativeInvoice) && (prepaid === undefined || prepaid === null || prepaid >= 0)) {
+      const applied = prepaid !== undefined && prepaid !== null && prepaid >= 0 ? prepaid : 0;
+      let expectedDue = roundHalfUpToCents(gross - applied + roundingValue);
+      if (expectedDue < 0 && !creditBalance && !negativeInvoice) expectedDue = 0;
+      // MINIMUM has no prepaid field (BT-113), so a lower amount due is normal there.
+      const minimumProfile = /[:#]minimum$/i.test(String(invoice.specification_id || "").trim());
+      if (due !== expectedDue && !(minimumProfile && (prepaid === undefined || prepaid === null))) {
+        fail("INV-029", "Amount due does not equal gross minus prepaid.", `Set amount due to ${formatMoney(expectedDue)} or correct prepaid and gross.`, "/totals/due");
+      }
+    }
+  }
+
+  return errors;
+}
+
+function optionalMoney(totals, key) {
+  if (!(key in totals) || totals[key] === null || totals[key] === "") return undefined;
+  return money(totals[key]);
+}
+
+function capitalize(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function formatMoney(value) {
+  return value.toFixed(2);
+}
+
+// Two suppliers may both issue "1001"; the same supplier issuing it twice is
+// the duplicate-payment risk. Key on supplier identity + number (supplier id, VAT
+// id, or name; invoices with no seller identity share one bucket).
+function sellerKey(invoice) {
+  const seller = invoice.supplier && typeof invoice.supplier === "object" ? invoice.supplier : {};
+  for (const field of ["id", "vat_id", "name"]) {
+    if (typeof seller[field] === "string" && seller[field].trim()) {
+      return `${field}:${seller[field].trim().toLowerCase().replace(/\s+/g, " ")}`;
+    }
+  }
+  return "";
+}
+
+export function flagDuplicateInvoiceNumbers(invoices) {
+  const byNumber = new Map();
+  for (const { name, invoice } of invoices) {
+    if (invoice && typeof invoice === "object" && typeof invoice.invoice_number === "string") {
+      const number = invoice.invoice_number.trim();
+      if (!number) continue;
+      const key = `${sellerKey(invoice)}\u0000${number}`;
+      const list = byNumber.get(key) || [];
+      list.push(name);
+      byNumber.set(key, list);
+    }
+  }
+  const duplicates = new Set();
+  for (const names of byNumber.values()) {
+    if (names.length > 1) names.forEach((name) => duplicates.add(name));
+  }
+  return duplicates;
+}

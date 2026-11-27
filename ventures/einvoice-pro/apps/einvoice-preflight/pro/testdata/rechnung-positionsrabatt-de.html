@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Rechnung</title>
+<style>
+@page { size: A4; margin: 18mm 20mm; }
+body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 10pt; color: #000; }
+.sender { font-size: 7pt; text-decoration: underline; margin-top: 30mm; }
+.addr { margin-top: 3mm; line-height: 1.35; }
+.info { position: absolute; top: 40mm; right: 0; }
+.info td { padding: 1px 0 1px 12mm; }
+h1 { font-size: 14pt; margin-top: 18mm; }
+table.items { width: 100%; border-collapse: collapse; margin-top: 6mm; }
+table.items th, table.items td { padding: 4px 6px; border-bottom: 1px solid #999; text-align: left; }
+table.items .r { text-align: right; }
+table.sum { margin-left: auto; margin-top: 4mm; }
+table.sum td { padding: 2px 6px; }
+table.sum .r { text-align: right; padding-left: 20mm; }
+.foot { position: absolute; bottom: 0; left: 0; right: 0; font-size: 7pt; display: flex; justify-content: space-between; }
+table.items { font-size: 9pt; }
+table.items td.r, table.items th.r { white-space: nowrap; }
+table.items tr.disc td { border-bottom: 1px solid #999; font-style: italic; }
+</style></head><body>
+<div class="sender">Elektro Beispiel GmbH · Kabelweg 3 · 70173 Stuttgart</div>
+<div class="addr">Bürobau Muster GmbH<br>Frau Lea Exempel<br>Königstraße 12<br>70173 Stuttgart</div>
+<table class="info">
+<tr><td>Rechnungsnummer:</td><td>EB-2026-1132</td></tr>
+<tr><td>Rechnungsdatum:</td><td>24.11.2026</td></tr>
+<tr><td>Leistungsdatum:</td><td>20.11.2026</td></tr>
+<tr><td>Kundennummer:</td><td>40588</td></tr>
+</table>
+<h1>Rechnung</h1>
+<p>Sehr geehrte Frau Exempel,<br>für die Beleuchtung im 2. OG, Königstraße 12, berechnen wir:</p>
+<table class="items">
+<tr><th width="7%">Pos.</th><th width="41%">Bezeichnung</th><th class="r" width="10%">Menge</th><th width="10%">Einheit</th><th class="r" width="15%">Einzelpreis</th><th class="r" width="17%">Gesamt</th></tr>
+<tr><td>1</td><td>LED-Panel 60 x 60, 4000 K</td><td class="r">12</td><td>Stk</td><td class="r">89,00 €</td><td class="r">1.068,00 €</td></tr>
+<tr class="disc"><td></td><td colspan="4">abzgl. 8 % Rabatt</td><td class="r">-85,44 €</td></tr>
+<tr><td>2</td><td>Mantelleitung NYM-J 3 x 1,5</td><td class="r">100</td><td>m</td><td class="r">0,92 €</td><td class="r">92,00 €</td></tr>
+<tr><td>3</td><td>Elektroinstallation</td><td class="r">14</td><td>Std.</td><td class="r">58,00 €</td><td class="r">812,00 €</td></tr>
+<tr><td>4</td><td>Unterverteilung 3-reihig</td><td class="r">1</td><td>Stk</td><td class="r">245,00 €</td><td class="r">245,00 €</td></tr>
+<tr class="disc"><td></td><td colspan="4">abzgl. Sonderrabatt</td><td class="r">-20,00 €</td></tr>
+</table>
+<table class="sum">
+<tr><td>Nettobetrag</td><td class="r">2.111,56 €</td></tr>
+<tr><td>zzgl. 19 % USt</td><td class="r">401,20 €</td></tr>
+<tr><td><b>Rechnungsbetrag</b></td><td class="r"><b>2.512,76 €</b></td></tr>
+</table>
+<p>Zahlbar bis 08.12.2026 ohne Abzug.</p>
+<div class="foot">
+<div>Elektro Beispiel GmbH<br>Kabelweg 3<br>70173 Stuttgart<br>Tel. 0711 123456</div>
+<div>Geschäftsführerin: Mara Beispiel<br>Amtsgericht Stuttgart HRB 798765<br>USt-IdNr.: DE136695976</div>
+<div>Volksbank Beispiel<br>IBAN: DE02 1203 0000 0000 2020 51<br>BIC: BYLADEM1001<br>rechnung@elektro-beispiel.example</div>
+</div>
+</body></html>

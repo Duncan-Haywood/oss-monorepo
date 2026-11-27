@@ -150,3 +150,32 @@ table, and pass in any file order.
 3. **`test:unit` `isolate: false`**: Vitest estimates about 9 s on 149 files.
    React component files share happy-dom state, so it needs the same shuffled
    proof.
+
+## Third pass: the per-job `inArray` reads (item 1 above)
+
+A later perf run took item 1 of the second pass's list, since it is a customer-facing failure
+in bet #1 rather than CI time. Each of these bound one id per job (or per crew member, or per
+week's labour line) in a single `IN (...)`, so it hit D1's 100-parameter cap and answered 500
+once a company passed ~98 jobs:
+
+| Read | What the customer saw past ~98 jobs |
+| --- | --- |
+| `getting-started.ts` (3 queries: schedule lines, pay apps, payments per job) | the Projects page's checklist failed to load |
+| `timesheets.ts` `jobsFor` (lines of every active job) and posted-labour refs | the timesheet week would not open |
+| `daily-reports.ts` `companyDailyReportJobs` (first report per job) | the weekly digest's daily-report gaps failed for that company |
+| `daily-reports.ts`, `tm-tickets.ts` `userNames` (one id per author) | the same, only past ~100 authors on one job; chunked for the same price |
+
+New `src/worker/db/in-chunks.ts`: `chunks(xs, 90)` and `allInChunks(ids, query)`, which runs one
+statement per slice in turn and concatenates. Every caller groups or orders *per job*, and a job
+sits in one slice, so the rows are the ones a single statement would give. Not changed, being
+capped by their schema below 100: T&M tickets per change order (50), owner-paid batch (50),
+timesheet rows per worker-week (20). The local `chunk` copies in `price-list.ts`, `estimates.ts`,
+`job-cost.ts`, `job-cost-qbo.ts` and `insurance-holders.ts` already worked and were left alone;
+moving them onto the helper is a tidy-up for a run already in those files.
+
+Verification: `test/worker/many-jobs.test.ts` builds a company with 120 jobs (inserted 5 rows a
+statement, since even the fixture's inserts bind every column) and opens the checklist, the
+timesheet week and the digest's daily-report read. With the service changes stashed, all three
+fail (`too many SQL variables`); with them, they pass. Full worker suite: 569 passed in 31.8 s,
+and 569 passed under `--sequence.shuffle.files --sequence.seed=91`; `pnpm typecheck` clean;
+`biome ci` clean on the changed files.

@@ -38,9 +38,10 @@ was generated on the Worker; no `SELLER_BOOKS_*` secrets are set, so paid plans 
 
 The workflow now defaults `APP_DOMAIN` to `seller-books.marisstella.app` (as PayApps does with
 `payapps.marisstella.app`, PR #19642). The next run attaches it as a Workers custom domain and turns
-workers.dev off, so link to the custom domain, not the address above. The marketing site
-(`apps/seller-books-site`) still offers only the early-access list; pointing its CTAs at the app is
-the next step toward a first customer.
+workers.dev off, so link to the custom domain, not the address above. The marketing site's
+copy points at the app since 2026-11-27 (`apps/seller-books-site/src/launch.mjs`, `APP_URL`): open
+now, free on one platform, sign-up links tagged per page. Serving the site at
+`marisstella.app/seller-books` (404 today) is next: `apps/seller-books-site/README.md`, "Hosting".
 
 ## Then
 

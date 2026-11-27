@@ -1,0 +1,31 @@
+name: einvoice-pro
+description: >-
+  Hosted e-invoice fix-and-explain for accountants and small invoicing vendors: XRechnung,
+  ZUGFeRD/Factur-X, Peppol BIS and other EN 16931 invoices checked, each failed rule explained in
+  German, French, Dutch or English, safe fixes re-validated before they are offered, per-client
+  history and dashboard, PDF to ZUGFeRD conversion and a metered validation API, sold by
+  subscription (EUR 0/19/29/49 a month, API from a EUR 19 minimum; apps/einvoice-preflight/pro/plans.mjs).
+stage: prototype
+owner: duncan
+
+# Bet #3 in portfolio/monetization/bets.md. Moved from private-monorepo on 2026-11-27 (task
+# move-einvoice-pro-public); not deployed yet (DEPLOY.md). Free front door: ventures/einvoice-preflight.
+hypotheses:
+  - claim: German and French accountants will pay about EUR 19-49 a month for failed e-invoice rules explained in their language with a safely corrected file, per client.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: EUR
+  mrr: null
+  monthly_cost: null
+  customers: null
+budget:
+  monthly_cap: 50
+  protected: true
+kill_criteria:
+  - No paying customer after 90 days post-launch.
+  - Monthly cost exceeds MRR for 3 consecutive months past `revenue` stage.
+links:
+  production: null
+  analytics: null

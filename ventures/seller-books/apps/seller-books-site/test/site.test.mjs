@@ -120,19 +120,18 @@ describe("pages", () => {
     }
   });
 
-  test("early-access form on home, every platform page, pricing and the form page", () => {
-    const withForm = [
-      "/",
-      "/pricing",
-      "/early-access",
-      ...PLATFORMS.map((p) => `/platforms/${p.slug}`),
-    ];
-    for (const path of withForm) {
+  test("open: a sign-up link tagged with the page on home, every platform page and pricing", () => {
+    // The pre-launch form on these pages is checked in test/launch.test.mjs.
+    const withCta = ["/", "/pricing", ...PLATFORMS.map((p) => `/platforms/${p.slug}`)];
+    for (const path of withCta) {
       const html = htmlOf(pages.find((p) => p.path === path));
-      assert.match(html, /action="\/seller-books\/api\/early-access\/subscribe"/, path);
-      assert.match(html, new RegExp(`name="source" value="${path}"`), path);
-      assert.match(html, /name="website"[^>]*tabindex="-1"/, `${path} honeypot`);
+      const from = encodeURIComponent(`seller-books-site${path === "/" ? "/home" : path}`);
+      assert.ok(linksTo(html, `https://seller-books.marisstella.app/signup?from=${from}`), path);
+      assert.ok(!html.includes("/api/early-access/subscribe"), `${path}: no list form once open`);
     }
+    const ea = pages.find((p) => p.path === "/early-access");
+    assert.ok(ea.noindex, "the old early-access page is kept for links but not indexed");
+    assert.match(htmlOf(ea), /Early access is over/);
   });
 });
 
@@ -155,7 +154,10 @@ describe("crawler files", () => {
       assert.ok(sitemap.includes(`<loc>${m[1]}</loc>`), m[1]);
     }
     assert.match(txt, /^# Seller Books\n\n> /);
-    assert.match(txt, /early access/);
+    assert.match(txt, /open now/);
+    assert.match(txt, /not on sale yet/);
+    assert.match(txt, /Sign up at https:\/\/seller-books\.marisstella\.app\/signup\./);
+    assert.ok(!txt.includes("/early-access)"), "no link to the closed list");
     assert.match(txt, /not a tax adviser/);
     assert.match(txt, /working name/);
   });
@@ -180,10 +182,11 @@ describe("honesty rules", () => {
   const allText = () =>
     [...pages.map(htmlOf), read("llms.txt"), read("llms-full.txt")].join("\n").toLowerCase();
 
-  test("every page says early access and not tax advice", () => {
+  test("every page says what is open, what is not on sale, and not tax advice", () => {
     for (const page of pages) {
       const html = htmlOf(page);
-      assert.match(html, /early access/i, page.path);
+      assert.match(html, /is open now: free for one platform/, page.path);
+      assert.match(html, /not on sale yet/, page.path);
       assert.match(html, /not a tax adviser/, page.path);
     }
   });
@@ -551,10 +554,12 @@ describe("pricing tiers", () => {
     );
   });
 
-  test("pricing page shows every tier and says nothing is charged during early access", () => {
+  test("pricing page shows the Free plan, every tier, and says paid plans are not on sale", () => {
     const html = htmlOf(pages.find((p) => p.path === "/pricing"));
     for (const t of TIERS) assert.ok(html.includes(`$${t.monthly}`), t.key);
+    assert.match(html, /<h2>Free<\/h2>/);
+    assert.match(html, /not on sale yet/);
     assert.match(html, /nothing is charged/);
-    assert.match(html, /[Pp]roposed/);
+    assert.ok(!/[Pp]roposed/.test(html), "no 'proposed' once the prices are the app's");
   });
 });

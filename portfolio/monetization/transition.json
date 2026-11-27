@@ -5,16 +5,16 @@
     "mit-commons": 5,
     "mit-deployer-run": 1,
     "mit-lead-magnet": 1417,
-    "proprietary": 26
+    "proprietary": 27
   },
   "models": {
-    "subscription": 14,
+    "subscription": 15,
     "one-off": 12
   },
   "proprietary": [
     {
       "venture": "payapps",
-      "source_lines": 141586,
+      "source_lines": 142878,
       "track": "proprietary",
       "why": "flagship #1: the depth people pay for",
       "model": "subscription",
@@ -25,7 +25,7 @@
     },
     {
       "venture": "jobshop-quote",
-      "source_lines": 83623,
+      "source_lines": 83716,
       "track": "proprietary",
       "why": "flagship #2: the depth people pay for",
       "model": "subscription",
@@ -57,7 +57,7 @@
     },
     {
       "venture": "cmmc",
-      "source_lines": 52305,
+      "source_lines": 52400,
       "track": "proprietary",
       "why": "flagship #4: the depth people pay for",
       "model": "subscription",
@@ -68,7 +68,7 @@
     },
     {
       "venture": "seller-books",
-      "source_lines": 44397,
+      "source_lines": 45227,
       "track": "proprietary",
       "why": "flagship #5: the depth people pay for",
       "model": "subscription",
@@ -206,6 +206,21 @@
       "move_order": 16
     },
     {
+      "venture": "einvoice-pro",
+      "source_lines": 48618,
+      "track": "proprietary",
+      "why": "over 5000 lines of product code, more than a single-page tool",
+      "model": "subscription",
+      "model_why": "runs a server-side part (sync-from-private.sh): a monthly cost per user",
+      "third_party_licences": [
+        "ventures/einvoice-pro/apps/einvoice-preflight/LICENSE",
+        "ventures/einvoice-pro/apps/einvoice-preflight/eval/nfe-corpus/nfelib/LICENSE-nfelib",
+        "ventures/einvoice-pro/apps/einvoice-preflight/fixtures/hungary-nav/LICENCE-NAV.md"
+      ],
+      "moved": null,
+      "move_order": 17
+    },
+    {
       "venture": "ig-media-pipeline",
       "source_lines": 22479,
       "track": "proprietary",
@@ -214,7 +229,7 @@
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 17
+      "move_order": 18
     },
     {
       "venture": "shed-designer",
@@ -225,7 +240,7 @@
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 18
+      "move_order": 19
     },
     {
       "venture": "print-atelier",
@@ -238,7 +253,7 @@
         "ventures/print-atelier/site/LICENSE"
       ],
       "moved": null,
-      "move_order": 19
+      "move_order": 20
     },
     {
       "venture": "clothing-design-studio",
@@ -249,7 +264,7 @@
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 20
+      "move_order": 21
     },
     {
       "venture": "babysitting-business-kit",
@@ -260,7 +275,7 @@
       "model_why": "runs a server-side part (automations-server.mjs): a monthly cost per user",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 21
+      "move_order": 22
     },
     {
       "venture": "retail-pilot-intel",
@@ -271,7 +286,7 @@
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 22
+      "move_order": 23
     },
     {
       "venture": "real-estate-agent-photo-app",
@@ -284,18 +299,18 @@
         "ventures/real-estate-agent-photo-app/site/LICENSE"
       ],
       "moved": null,
-      "move_order": 23
+      "move_order": 24
     },
     {
       "venture": "machine-shop-guides",
-      "source_lines": 6897,
+      "source_lines": 7148,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
       "model_why": "runs a server-side part (pdf-parser-sync.test.mjs): a monthly cost per user",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 24
+      "move_order": 25
     },
     {
       "venture": "sales-export-to-journal",
@@ -306,18 +321,18 @@
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 25
+      "move_order": 26
     },
     {
       "venture": "pay-app-guides",
-      "source_lines": 5353,
+      "source_lines": 5360,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
-      "move_order": 26
+      "move_order": 27
     }
   ],
   "stay_mit": {

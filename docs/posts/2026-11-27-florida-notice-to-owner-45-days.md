@@ -110,8 +110,13 @@ work is due 15 June on a commercial job. A missed month costs the lien for that 
 the whole job.
 
 Two details differ from Florida. Texas moves a date that falls "on a Saturday, Sunday, or legal
-holiday" to the next business day (§ 53.003(e)), but chapter 53 never says which days are legal
-holidays, so plan on the unmoved 15th. And retainage has its own notice, due by the earlier of 30
+holiday" to the next day that is none of them (§ 53.003(e)). Chapter 53 does not list the legal
+holidays; the Government Code does. Section 662.021 says a legal holiday "includes only" the
+national holidays and the first six state holidays of § 662.003, so 24 and 26 December, though
+state holidays, do not move a date
+([Gov't Code ch. 662](https://statutes.capitol.texas.gov/Docs/GV/htm/GV.662.htm)). That matters
+more than it sounds: November 2026 work is due 15 February 2027, which is Presidents' Day, so the
+last day is Tuesday the 16th. Plan on the unmoved 15th anyway. And retainage has its own notice, due by the earlier of 30
 days after your contract ends or 30 days after the original contract is terminated or abandoned
 (§ 53.057(a-1)), much sooner than the monthly clock.
 
@@ -122,9 +127,15 @@ notice, the lien affidavit (§ 53.052), its five-day copies (§ 53.055) and the 
 § 53.254(g) statement for a homestead. Its tests check both forms and every quoted phrase against
 the statute text read on 2026-11-27. In PayApps, a Texas job's notice panel prints
 both forms from the job (date, project and address, your company, the GC), and "Texas deadlines"
-beside it lists each unpaid month's date, the retainage notice and both lien affidavit dates. It
-does not log the notices you send or remind you yet; the cash page already shows what each GC owes
-and for how long, which is the list a Texas notice starts from.
+beside it lists each unpaid month's date, the retainage notice and both lien affidavit dates. Mark
+the job as tracked (residential or not) and PayApps reads the months from the job's own pay apps:
+every month a sent pay app with a balance covers gets its notice date, rolled past weekends and
+the legal holidays above, and the names of whoever has no notice recorded for it yet. Record each
+notice as you send it, to the owner or the original contractor, by certified mail, in person or a
+traceable carrier (the three ways § 53.003(b) allows), with the mail number; PayApps says whether
+it went out by the date. From 30 days before each month's date, the cash page and the weekly email
+carry a line for it until both have one. It does not yet track the retainage notice's 30 days or
+keep the green card with the record.
 
 ## Free: the dates and the form in your browser
 
