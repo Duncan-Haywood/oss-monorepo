@@ -15,7 +15,7 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 - [Lien waiver log](https://marisstella.app/pay-app-guides/lien-waiver-log.html): track waivers given and collected.
 - [Mechanics lien deadline calculator](https://marisstella.app/mechanics-lien-deadline-calculator/): filing deadlines if the payment never arrives.
 
-Hosted pay-app billing for subcontractors (schedule of values, retainage, change orders and lien waivers) is in development, with early access; nothing is for sale yet: https://marisstella.app/industries/construction/
+PayApps, hosted pay-app billing for subcontractors (schedule of values, retainage, change orders and lien waivers), is open now: pay applications with retainage are free on one job with no card; lien waivers, QuickBooks and job costing are in paid plans that are not on sale yet: https://payapps.marisstella.app/?signup&from=lien-waiver-checker
 
 ## Answers
 
