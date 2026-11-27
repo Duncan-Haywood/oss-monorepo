@@ -14,6 +14,7 @@ import {
   readTimesheetReport,
   timesheetHours,
 } from "@shared/certified-payroll-import";
+import type { TimesheetCertifiedHours } from "@shared/timesheet-certified";
 import { describe, expect, it } from "vitest";
 import { addToOrg, api, call, createTestUser, grantPlan, setupTenant } from "./helpers";
 
@@ -206,6 +207,36 @@ describe("crew timesheets", () => {
     expect(read.entries).toHaveLength(1);
     expect(read.entries[0]?.ot).toEqual([0, 0, 0, 0, 600, 400, 0]);
     expect(read.entries[0]?.st).toEqual([0, 0, 0, 0, 0, 0, 0]);
+
+    // The certified payroll page reads the same hours straight from the timesheets (no CSV).
+    const direct = await call<TimesheetCertifiedHours>(
+      `${org}/projects/${b.id}/certified-payroll/timesheet-hours?weekEnding=2026-11-29`,
+      { as },
+    );
+    expect(direct.aligned).toBe(true);
+    expect(direct.entries.map((e) => [e.lastName, e.st, e.ot])).toEqual(
+      read.entries.map((e) => [e.lastName, e.st, e.ot]),
+    );
+    expect(direct.otherJobs).toEqual([{ name: "Ana Ruiz", hundredths: 4000 }]);
+    // Job A: Ana's 40 h straight and Cleo's 8 h.
+    const onA = await call<TimesheetCertifiedHours>(
+      `${org}/projects/${a.id}/certified-payroll/timesheet-hours?weekEnding=2026-11-29`,
+      { as },
+    );
+    expect(onA.entries.map((e) => [e.firstName, e.st.reduce((x, y) => x + y, 0)])).toEqual([
+      ["Cleo", 800],
+      ["Ana", 4000],
+    ]);
+    // A Saturday week ending straddles two Monday workweeks; a non-date is refused.
+    const sat = await call<TimesheetCertifiedHours>(
+      `${org}/projects/${a.id}/certified-payroll/timesheet-hours?weekEnding=2026-11-28`,
+      { as },
+    );
+    expect(sat).toMatchObject({ aligned: false, workweeksRead: ["2026-11-22", "2026-11-29"] });
+    await call(`${org}/projects/${a.id}/certified-payroll/timesheet-hours?weekEnding=2026-13-01`, {
+      as,
+      expect: 400,
+    });
   });
 
   it("refuses to post hours with no pay rate, and needs job costing to post", async () => {
@@ -255,5 +286,20 @@ describe("crew timesheets", () => {
       json: { rows: [{ projectId: a.id, hours: [800, 0, 0, 0, 0, 0, 0] }] },
     });
     await call(`${ts}/crew`, { as: other.as, expect: 404 });
+    // Nor this job's certified payroll hours, from either company's path.
+    await call(
+      `${other.org}/projects/${a.id}/certified-payroll/timesheet-hours?weekEnding=2026-11-29`,
+      {
+        as: other.as,
+        expect: 404,
+      },
+    );
+    // A viewer reads them, as viewers read the weeks.
+    await call(
+      `/api/orgs/${orgId}/projects/${a.id}/certified-payroll/timesheet-hours?weekEnding=2026-11-29`,
+      {
+        as: viewer.id,
+      },
+    );
   });
 });

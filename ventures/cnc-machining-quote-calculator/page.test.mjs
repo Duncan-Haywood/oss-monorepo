@@ -586,3 +586,14 @@ test("every .html file in the venture is listed in sitemap.xml", () => {
 test("index links one hop to the machine-shop-guides sibling", () => {
   assert.match(INDEX, /href="\.\.\/machine-shop-guides\/"/);
 });
+
+test("the answer for the numbers on screen shows without a button press, and does not count a use", () => {
+  // The prefilled numbers are a real job: show its answer on load and as the
+  // fields change, kept in view by the sticky strip while the form scrolls.
+  assert.match(INDEX, /id="live" hidden/);
+  assert.match(INDEX, /\.live \{ position: sticky; bottom: 0;/);
+  assert.match(INDEX, /addEventListener\("input", \(\) => \{\s*clearTimeout\(previewTimer\)/);
+  assert.match(INDEX, /\} else \{\s*preview\(\);\s*\}/);
+  const body = INDEX.slice(INDEX.indexOf("function preview()"), INDEX.indexOf("let previewTimer"));
+  assert.doesNotMatch(body, /recordUsage/, "a preview is not a use");
+});

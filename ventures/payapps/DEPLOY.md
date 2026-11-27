@@ -67,3 +67,12 @@ Edit to `CLOUDFLARE_API_TOKEN`.
   post to `mutate()` instead of reading component state inside `mutationFn`. Write new
   `mutationFn`s the same way when the button appears in the render that an async read (a file, OCR)
   sets.
+
+## Custom domain (2026-11-27, run 45963162134)
+
+PR #19642 made `payapps.marisstella.app` the default `APP_DOMAIN`. The token reaches the zone, so the
+run attached it as a Workers custom domain and, as `provision.mjs` does with a domain, turned
+workers.dev off: the workers.dev address above no longer answers. Smoke test:
+`https://payapps.marisstella.app/api/health` -> `{"ok":true,"app":"payapps","email":true}`, version
+`63e5c302-8959-4a38-a68e-5fc53ea9d49b`. Every guide CTA, the construction page and llms.txt now link
+to the custom domain.

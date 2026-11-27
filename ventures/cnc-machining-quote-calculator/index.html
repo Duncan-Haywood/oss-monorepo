@@ -53,6 +53,15 @@
     .pill.low { background: #e5e7ee; color: #353b47; }
     .pill.info { background: #e4e9ee; color: #1d3a5c; }
     .error { color: #8a2c0c; font-weight: 600; }
+    /* The answer for the numbers on screen, kept in view while the form is
+       scrolled: the form is ~4,000 px tall on a phone and the full results sit
+       below it. Sticky inside the form card only, so it leaves with the form. */
+    .live { position: sticky; bottom: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 18px; margin: 18px -22px -22px; padding: 10px 22px 12px; background: #1d3a5c; color: #fff; border-radius: 0 0 13px 13px; font-size: .86rem; font-variant-numeric: tabular-nums; }
+    .live[hidden] { display: none; }
+    .live b { font-size: 1.08rem; margin-left: 4px; }
+    .live a { color: #fff; font-weight: 700; margin-left: auto; }
+    .live a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    @media (max-width: 560px) { .live { margin: 18px -16px -16px; padding: 8px 16px 10px; gap: 0 14px; } .live a { margin-left: 0; } }
     footer { margin-top: 28px; border-top: 1px solid #d5dbe1; padding-top: 16px; }
     footer a, main a, section a { color: #1a4f7a; }
     @media (max-width: 560px) { body { padding: 20px 16px; } }
@@ -283,6 +292,12 @@
       <p class="note" id="link-status" role="status"></p>
       <p class="error" id="form-error" role="alert"></p>
     </form>
+    <p class="live" id="live" hidden>
+      <span>Cost per part<b id="live-cost"></b></span>
+      <span>At your target margin<b id="live-target"></b></span>
+      <span>Margin at your quote<b id="live-margin"></b></span>
+      <a href="#results">Full breakdown ↓</a>
+    </p>
   </section>
 
   <section class="card" id="results" hidden>
@@ -662,6 +677,10 @@
       renderBreakdown(result);
       renderBreaks(result);
       $("#results").hidden = false;
+      $("#live-cost").textContent = money(result.costPerPart);
+      $("#live-margin").textContent = $("#out-margin").textContent;
+      $("#live-target").textContent = money(result.targetPricePerPart);
+      $("#live").hidden = false;
     }
 
     function quote() {
@@ -675,6 +694,26 @@
       render(computeMachiningJob(values));
       recordUsage("quote");
     }
+
+    // The same arithmetic, without counting a use or scolding a half-typed
+    // field: it runs once for the numbers already on screen and again as they
+    // change, so the answer is never a button press away. A quantity being
+    // retyped keeps the last good answer on screen.
+    function preview() {
+      const values = readInputs();
+      if (!Number.isFinite(values.quantity) || values.quantity < 1) return;
+      try {
+        render(computeMachiningJob(values));
+      } catch {
+        /* a half-typed number is not worth an error; the button still reports one */
+      }
+    }
+
+    let previewTimer = 0;
+    $("#job-form").addEventListener("input", () => {
+      clearTimeout(previewTimer);
+      previewTimer = setTimeout(preview, 250);
+    });
 
     $("#job-form").addEventListener("submit", (event) => {
       event.preventDefault();
@@ -765,6 +804,8 @@
       writeInputs(formValues(fromLink));
       $("#link-status").textContent = "Opened a shared quote. Review the numbers before you use them.";
       quote();
+    } else {
+      preview();
     }
 
     showStockFields();

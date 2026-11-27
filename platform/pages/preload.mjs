@@ -176,3 +176,141 @@ export async function addModulePreloads(outDir, { listFiles, minDepth = MIN_DEPT
   }
   return { pages, links, deepest };
 }
+
+// Module workers: the same waterfall, which modulepreload cannot reach.
+//
+// A Web Worker has its own module map, so the page's modulepreload links do
+// nothing for it: `new Worker("./x-worker.mjs", { type: "module" })` fetches
+// x-worker.mjs, parses it, fetches its imports, parses those, and so on, one
+// round trip per import level, each a revalidation on the live site
+// (`max-age=0, must-revalidate`). league-schedule-generator's bowling worker is
+// six levels deep: about 0.9 s of round trips on a 150 ms phone link before the
+// worker can run (docs/history/worker-graph-perf-2026-11-27.md).
+//
+// So the built copy of each module-worker entry gets one side-effect import
+// per module of its static graph that it does not import already, appended
+// after its own imports. A browser requests all of a module's imports at once,
+// so the whole graph arrives in two rounds. Evaluation order is unchanged:
+// imports evaluate depth-first in the order they are written, the entry's own
+// imports come first and already reach every module listed, so by the time
+// the appended lines are reached each module has been evaluated and they do
+// nothing. Only the copy in the built site changes, never the source.
+
+/** Workers whose graph is at most this deep (the entry is level 1) already
+ *  fetch everything below the entry in one round. */
+export const WORKER_MIN_DEPTH = 3;
+export const WORKER_FLAT_MARKER = '// Pages build (preload.mjs, flattenWorkerGraphs): the worker graph at depth 1, one fetch round.';
+
+// `new Worker("./w.mjs", ...)`, `new Worker(new URL("w.mjs", import.meta.url), ...)`,
+// `new SharedWorker(...)`; the options are checked for type "module" separately.
+const WORKER_RE = /new\s+(?:Shared)?Worker\s*\(\s*(?:new\s+URL\s*\(\s*)?(['"])([^'"\n]+?\.m?js)\1([^;]{0,240})/g;
+
+/**
+ * Static import specifiers, read strictly: comments removed and only
+ * statements that start a line or follow a `;`. The appended imports evaluate
+ * a module, so a specifier the browser would not load (one in a comment, or a
+ * string that merely looks like an import) must not be listed; missing one
+ * only leaves a level of the waterfall in place.
+ */
+export function strictStaticImports(source) {
+  const code = source.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:\\'"`])\/\/[^\n]*/g, '$1');
+  const re = /(?:^|;)[ \t]*(?:import|export)\s*(?:[\w$*{}\s,]+?\s*from\s*)?(['"])([^'"\n]+)\1/gm;
+  const out = [];
+  for (const m of code.matchAll(re)) if (!out.includes(m[2])) out.push(m[2]);
+  return out;
+}
+
+/** Module-worker entry files a page or module names, resolved under outDir. */
+export function workerEntries(source, fromFile, outDir) {
+  const out = [];
+  for (const m of source.matchAll(WORKER_RE)) {
+    if (!/type\s*:\s*['"]module['"]/.test(m[3])) continue;
+    let spec = m[2];
+    if (!/^(?:\.{1,2}\/|\/)/.test(spec)) {
+      if (/^[a-z][\w+.-]*:/i.test(spec)) continue; // https:, data:, blob:
+      spec = `./${spec}`;
+    }
+    const file = resolveSpecifier(spec, path.dirname(fromFile), outDir);
+    if (file && !out.includes(file)) out.push(file);
+  }
+  return out;
+}
+
+/**
+ * The static graph below one module, in first-visit order, and its depth
+ * (the entry alone is 1). `readModule(file)` returns source or null.
+ */
+export function workerGraph(entry, outDir, readModule, cache = new Map()) {
+  const importsOf = (file) => {
+    if (!cache.has(file)) {
+      const src = readModule(file);
+      cache.set(file, src == null ? null : strictStaticImports(src)
+        .map((s) => resolveSpecifier(s, path.dirname(file), outDir))
+        .filter(Boolean));
+    }
+    return cache.get(file);
+  };
+  const files = [];
+  const depthOf = new Map();
+  const visit = (file, stack) => {
+    if (stack.has(file)) return 0;
+    if (depthOf.has(file)) return depthOf.get(file);
+    const deps = importsOf(file);
+    if (deps == null) return 0;
+    if (file !== entry && !files.includes(file)) files.push(file);
+    stack.add(file);
+    let d = 0;
+    for (const dep of deps) d = Math.max(d, visit(dep, stack));
+    stack.delete(file);
+    depthOf.set(file, d + 1);
+    return d + 1;
+  };
+  const depth = visit(entry, new Set());
+  return { files, direct: importsOf(entry) || [], depth };
+}
+
+/** The entry's source with the graph's missing imports appended, or null when there is nothing to add. */
+export function flattenWorkerSource(source, entry, graph) {
+  if (source.includes(WORKER_FLAT_MARKER)) return null;
+  const add = graph.files.filter((f) => !graph.direct.includes(f));
+  if (!add.length) return null;
+  const lines = add.map((f) => `import ${JSON.stringify(hrefFor(f, entry))};`);
+  return `${source.replace(/\s*$/, '')}\n\n${WORKER_FLAT_MARKER}\n${lines.join('\n')}\n`;
+}
+
+/**
+ * Flatten every module-worker entry named by a page or module under outDir
+ * whose graph is at least WORKER_MIN_DEPTH deep. Run after addModulePreloads
+ * (so the pages' preload lists are computed from the unchanged modules) and
+ * before the offline layer, which hashes the finished files.
+ */
+export async function flattenWorkerGraphs(outDir, { listFiles, minDepth = WORKER_MIN_DEPTH } = {}) {
+  const files = (await listFiles(outDir)).filter((f) => /\.(?:html|m?js)$/.test(f));
+  const readModule = (file) => {
+    if (!/\.m?js$/.test(file)) return null;
+    try { return readFileSync(file, 'utf8'); } catch { return null; }
+  };
+  const entries = new Set();
+  for (const file of files) {
+    const src = readFileSync(file, 'utf8');
+    if (!/new\s+(?:Shared)?Worker\b/.test(src)) continue;
+    for (const e of workerEntries(src, file, outDir)) entries.add(e);
+  }
+  const cache = new Map();
+  let workers = 0;
+  let imports = 0;
+  let deepest = 0;
+  for (const entry of [...entries].sort()) {
+    const src = readModule(entry);
+    if (src == null) continue;
+    const graph = workerGraph(entry, outDir, readModule, cache);
+    if (graph.depth < minDepth) continue;
+    const out = flattenWorkerSource(src, entry, graph);
+    if (out == null) continue;
+    writeFileSync(entry, out);
+    workers += 1;
+    imports += graph.files.filter((f) => !graph.direct.includes(f)).length;
+    deepest = Math.max(deepest, graph.depth);
+  }
+  return { workers, imports, deepest };
+}

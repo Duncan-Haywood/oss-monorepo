@@ -94,7 +94,7 @@ NYSDOL's own sample validates against its XSD with xmllint, and so does PayApps'
 required by the XSD though the guide marks it optional. njwages.nj.gov still answered 403 from this
 session, so New Jersey's CSV template is the next to fetch; lni.wa.gov answered 200.
 
-## Update, later on 2026-11-27: Illinois built (part 3c)
+## Update, later on 2026-11-27: Illinois built (part 3d)
 
 labor.illinois.gov answered 200 through the proxy, and its Certified Transcript of Payroll page
 (`/laws-rules/conmed/certifiedtranscriptofpayroll.html`) links the Full Import template

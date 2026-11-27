@@ -20,6 +20,7 @@ export const GROUPS = [
     ["front-loading-schedule-of-values.html", "Front-loading check (balanced SOV)"],
     ["pay-if-paid-clauses.html", "Pay-if-paid clause reader"],
     ["how-to-write-an-rfi.html", "RFI drafter and how to write an RFI"],
+    ["punch-list.html", "Punch list tracker and back-check email"],
   ]],
   ["Billing guides", [
     ["how-to-fill-out-a-pay-application.html", "How to fill out a pay application"],
@@ -39,6 +40,7 @@ export const GROUPS = [
     ["conditional-vs-unconditional-lien-waivers.html", "Conditional vs unconditional lien waivers"],
     ["lien-waiver-forms-by-state.html", "Lien waiver forms by state"],
     ["california-preliminary-notice.html", "California 20-day preliminary notice"],
+    ["florida-notice-to-owner.html", "Florida Notice to Owner (45 days)"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],
     ["paid-short.html", "Paid short? Reconcile the check"],
