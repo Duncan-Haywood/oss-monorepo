@@ -144,6 +144,24 @@ class SignalsTest(unittest.TestCase):
         self.assertEqual(m.unmarked_fixes([a], "medium"), [])
 
 
+class TouchedTest(unittest.TestCase):
+    """Fixes landed outside quality rounds without fixed_by; `touched` asks the PR that made them."""
+
+    def test_lists_open_defects_under_touched_subjects_only(self):
+        url = "https://example.test/pull/2"
+        a = audit(subject="ventures/sales-agent", fix_prs=[url],
+                  defects=[{"severity": "low", "what": "open low"}, {"severity": "high", "what": "done", "fixed_by": url}])
+        b = audit(subject="ventures/sales", _file="2026-11-07-sales.json", defects=[{"severity": "high", "what": "other"}])
+        rows = m.touched([a, b], ["ventures/sales-agent/calc.mjs", "docs/posts/x.md"])
+        self.assertEqual([r["what"] for r in rows], ["open low"])  # every severity; not the prefix-sharing subject
+        self.assertEqual(m.touched([a, b], ["portfolio/quality/audits/x.json"]), [])
+        self.assertEqual(m.touched([a, b], []), [])
+        text = "\n".join(m.touched_lines(rows))
+        self.assertIn("2026-11-07-sales-agent.json#0", text)
+        self.assertIn("mark-fixed", text)
+        self.assertEqual(m.touched_lines([]), [])
+
+
 class FixLoopTest(unittest.TestCase):
     """Reflection 2 (2026-11-17): fixes were recorded but never re-checked, and the mutation share saturated."""
     URL = "https://example.test/pull/7"

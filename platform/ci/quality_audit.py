@@ -12,6 +12,7 @@ numbers (share meeting the bar, with Wilson intervals, by stratum and round).
     python3 platform/ci/quality_audit.py metrics [--md]   # detailed: gates, defect taxonomy, mutations, fixes, coverage
     python3 platform/ci/quality_audit.py census | queue | mode | coverage   # see quality_metrics.py
     python3 platform/ci/quality_audit.py claim <subject> [--note N | --release]   # before fixing a queue row
+    python3 platform/ci/quality_audit.py touched [BASE]   # open defects in the subjects your diff touches
 
 Standard library only, so it runs in a bare container. It lives in platform/ci
 (tests: platform/ci/test_quality_audit.py) beside post_merge_review.py; the
@@ -28,6 +29,7 @@ import random
 import re
 import secrets
 import statistics
+import subprocess
 import sys
 from pathlib import Path
 
@@ -259,6 +261,18 @@ def parse_round_titles(titles) -> list[tuple[int, str | None]]:
         if m := PR_ROUND_RE.match(t.strip()):
             out.append((int(m.group(1)), m.group(2)))
     return out
+
+
+def diff_paths(base: str = "origin/main", root: Path = ROOT) -> list[str] | None:
+    """Files the working tree changes since its merge base with `base` (committed or not), or None with no base."""
+    def git(*a):
+        return subprocess.run(["git", *a], cwd=root, capture_output=True, text=True)
+    mb = git("merge-base", base, "HEAD")
+    if mb.returncode != 0 or not mb.stdout.strip():
+        return None
+    out = git("diff", "--name-only", mb.stdout.strip()).stdout.split("\n")
+    out += git("ls-files", "--others", "--exclude-standard").stdout.split("\n")
+    return sorted({p for p in out if p})
 
 
 def fetch_main(timeout: int = 60) -> bool:
@@ -641,6 +655,8 @@ def main(argv: list[str] | None = None) -> int:
     mf.add_argument("--all", action="store_true", help="every defect that has no fixed_by yet")
     mf.add_argument("--force", action="store_true", help="replace a different fixed_by")
     mf.add_argument("--dry-run", action="store_true")
+    to = sub.add_parser("touched", help="open defects in the subjects your diff touches, to mark the ones it fixed")
+    to.add_argument("base", nargs="?", default="origin/main", help="diff from the merge base with this ref")
     cl = sub.add_parser("claim", help="claim a subject before fixing its defects (create-only branch; exit 4 if taken)")
     cl.add_argument("subject", help="as queue prints it, e.g. research/energy-store-hx")
     cl.add_argument("--note", default="", help="which defects this session fixes")
@@ -714,6 +730,16 @@ def main(argv: list[str] | None = None) -> int:
         import quality_claim
         return quality_claim.claim(args.subject, args.note, args.release)
     audits = load_audits()
+    if args.cmd == "touched":
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_metrics
+        paths = diff_paths(args.base)
+        if paths is None:
+            print(f"(no merge base with {args.base}: git fetch origin main, then re-run)", file=sys.stderr)
+            return 2
+        lines = quality_metrics.touched_lines(quality_metrics.touched(audits, paths))
+        print("\n".join(lines) if lines else f"No open quality defects in the subjects this diff touches ({len(paths)} file(s)).")
+        return 0
     if args.cmd == "census" and not args.seed:
         # The date alone gave every census session on a day the same draw (doc_friction, 2026-11-15T07:08).
         args.seed = claim_seed(dt.date.today().isoformat())
