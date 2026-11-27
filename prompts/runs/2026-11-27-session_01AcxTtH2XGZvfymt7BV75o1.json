@@ -55,7 +55,7 @@
     "docs/reports/redteam-2026-11-27-checkout-token-invalid-expiry.md"
   ],
   "goal": null,
-  "notes": "Campaigns: paddle-webhook.ts 6/8, checkout-token.ts 7/8. Catch rate 0.867 -> 1.0. Guard used: platform/ci/check_billing_copies.py failed on the payapps-only fix, passes after porting. All five billing suites green.",
+  "notes": "Campaigns: paddle-webhook.ts 6/8, checkout-token.ts 7/8. Catch rate 0.867 -> 1.0. Guard used: platform/ci/check_billing_copies.py failed on the payapps-only fix, passes after porting. All five billing suites green. CI changed-ventures went red on pay-app-guides, pre-existing on main (nav not regenerated after two same-day page PRs); fixed in this PR with node nav.mjs.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -310,6 +310,12 @@
       {
         "file": "ventures/payapps/packages/billing/src/checkout-token.ts",
         "issue": "resolveCheckoutToken checked expiry as expiresAt.getTime() <= now, so a row whose expiresAt is an Invalid Date (NaN) never expired: a fail-open on a security check. Latent: the app's insert path always writes a valid date, so not reachable today. Rewritten as !(expiresAt > now), with a failing-first test.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19875"
+      },
+      {
+        "file": "ventures/pay-app-guides/change-order-template.html",
+        "issue": "main red: PR #19870 (change-order template) and PR #19840 (state bond claims) each added a guide page the same day without the other in the all-guides nav, so page.test.mjs 'every page is in the all-guides list' failed on main and on every PR touching pay-app-guides' readers. Fixed by running node nav.mjs.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19875"
       }
