@@ -4,7 +4,8 @@
 // on (`PUT /v1/account/digest`). Proprietary (see ../LICENSE, part 2). No npm dependencies.
 //
 // Sending is a platform admin call, `POST /v1/admin/digest/send` with ADMIN_TOKEN, like the
-// month-end usage settlement: nothing here runs on a timer. Each account and period
+// month-end usage settlement, or, on the Worker, worker/digest-clock.mjs's hourly alarm once the
+// owner sets DIGEST_SCHEDULE=on. Each account and period
 // ("2026-W48", "2026-11") is claimed in the store before the send, so a repeated call sends
 // nothing twice; a failed send releases its claim and the next call retries it.
 //
