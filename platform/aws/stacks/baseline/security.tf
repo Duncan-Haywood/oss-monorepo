@@ -142,11 +142,19 @@ resource "aws_config_configuration_aggregator" "org" {
 
 # --- IAM Access Analyzer: external access across the organisation ----------
 
+# An organization analyzer needs Access Analyzer's service-linked role in the
+# management account, even though the analyzer lives in the delegated admin
+# (ConflictException on the first apply, run 45925800126).
+resource "aws_iam_service_linked_role" "access_analyzer" {
+  count            = local.single ? 0 : 1
+  aws_service_name = "access-analyzer.amazonaws.com"
+}
+
 resource "aws_accessanalyzer_analyzer" "org" {
   provider      = aws.security
   analyzer_name = local.single ? "account" : "organization"
   type          = local.single ? "ACCOUNT" : "ORGANIZATION"
-  depends_on    = [aws_organizations_delegated_administrator.this]
+  depends_on    = [aws_organizations_delegated_administrator.this, aws_iam_service_linked_role.access_analyzer]
 }
 
 # --- Single-account mode: Security Hub standards on the account itself -----
