@@ -134,9 +134,15 @@ in order:
      boundary of the roof layer's lines, ridges and hips inside ignored; the overhang measured
      against the wall loop, one distance all round or refused side by side; moved in by the typed
      overhang with no wall loop; CLI `--roof-layer=`, `--eave-overhang=`, the page fills the outline
-     and the overhang; `roofdxf.test.mjs`, `eval-roof-plan-click.mjs`). Next: gable rakes on the
-     roof layer (a side with a ridge ending on it is a gable, not an eave), and checked on a real
-     architect's roof plan once one with a licence we can keep turns up;
+     and the overhang; `roofdxf.test.mjs`, `eval-roof-plan-click.mjs`). Gable rakes on the roof layer:
+     **done 2026-11-27** (gable-rakes-dxf-roof-layer: `gableEnds` in `roofdxf.mjs`, a ridge run square
+     into a side away from its corners and meeting another roof line marks a rake; eave and rake
+     overhangs measured apart, `--rake-overhang=` with no wall loop; framed as the gable roof with its
+     ends where drawn, `roofFromOutline`'s `gableEnds`, or as a hip when ridges are drawn and none
+     ends on the eave line; the page fills the gable form). Next: checked on a real architect's roof
+     plan once one with a licence we can keep turns up; a half-hip (gable at one end, hip at the other)
+     and gable ends on the all-hip outline framing (`hipframe.mjs`) for outlines the gable model
+     cannot split;
    - the IFC path returns no exterior loop on the Schultz model (0 exterior walls), so
      no roof outline and no wall sheathing there yet.
    - siding on the material list: **done 2026-11-26** (`materiallist.mjs` "Siding" section from

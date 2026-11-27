@@ -1824,11 +1824,30 @@
               const ev = eaveFromDxf(await file.text());
               if (ev.ok && ev.eave) {
                 let typed = 12; try { typed = parseLength($("#rfOver").value); } catch { /* keep 12 */ }
-                const fe = outlineFromEave(ev.eave, { walls: outside, overhang: Number.isFinite(typed) ? typed : 12 });
+                let typedRake = typed; try { typedRake = parseLength($("#rfRake").value); } catch { /* keep the eave's */ }
+                const fe = outlineFromEave(ev.eave, { walls: outside, overhang: Number.isFinite(typed) ? typed : 12, gableOverhang: Number.isFinite(typedRake) ? typedRake : undefined, ridgeEnds: ev.ridgeEnds, inner: ev.inner });
                 if (fe.ok && fe.outline) {
                   $("#rfOutline").value = fe.outline.map((q) => [q.x, q.y].map((v) => formatLength(Math.round(v * 16) / 16)).join(", ")).join("\n");
                   if (fe.measured && fe.overhang !== undefined) $("#rfOver").value = formatLength(fe.overhang);
-                  dxfNote = dxfNote.slice(0, dxfNote.lastIndexOf(" Roof outline filled from the exterior walls", wallsNoteEnd) >= 0 ? dxfNote.lastIndexOf(" Roof outline filled from the exterior walls", wallsNoteEnd) : wallsNoteEnd) + ` Roof outline filled from the roof layer's eave line; pick the "outline" roof shape to use it. ${ev.notes[0]} ${fe.notes.join(" ")}`;
+                  // gable ends on the roof layer: the all-hip "outline" shape is the wrong roof, so fill the gable form (main roof and wings) when it fits
+                  let gableNote = "";
+                  if (fe.shape === "gable" && fe.gableEnds) {
+                    const { roofFromOutline } = await import("./roofoutline.mjs");
+                    const g = roofFromOutline(fe.outline.map((q) => [q.x, q.y]), { pitch: Number($("#rfPitch").value) || 6, overhang: fe.overhang, gableOverhang: fe.gableOverhang, gableEnds: fe.gableEnds.map((q) => [q.x, q.y]) });
+                    if (g.ok && g.roof) {
+                      const rr = g.roof;
+                      $("#rfShape").value = "gable"; $("#rfHipBox").hidden = true;
+                      $("#rfW").value = formatLength(rr.width); $("#rfL").value = formatLength(rr.length);
+                      $("#rfOver").value = formatLength(rr.overhang ?? 12); $("#rfRake").value = formatLength(rr.gableOverhang ?? 12);
+                      $("#rfWing").value = rr.wing ? "1" : "0";
+                      if (rr.wing) { $("#rfWingW").value = formatLength(rr.wing.width); $("#rfWingP").value = formatLength(rr.wing.projection); $("#rfWingAt").value = formatLength(rr.wing.at); $("#rfWingSide").value = rr.wing.side || "right"; }
+                      $("#rfWing2").value = rr.wing2 ? "1" : "0";
+                      if (rr.wing2) { $("#rfWing2W").value = formatLength(rr.wing2.width); $("#rfWing2P").value = formatLength(rr.wing2.projection); $("#rfWing2At").value = formatLength(rr.wing2.at); $("#rfWing2Side").value = rr.wing2.side || "right"; }
+                      syncWing();
+                      gableNote = ` The roof layer draws gable ends, so the gable roof form is filled from it: ${formatLength(rr.width)} wide, ${formatLength(rr.length)} along the ridge${rr.wing ? `, ${rr.wing2 ? "two cross wings" : "a cross wing"}` : ""}, ${formatLength(rr.overhang ?? 12)} eaves and ${formatLength(rr.gableOverhang ?? 12)} rakes.`;
+                    } else gableNote = ` The roof layer draws gable ends, which the all-hip "outline" shape does not have: ${g.errors.join(" ")}`;
+                  }
+                  dxfNote = dxfNote.slice(0, dxfNote.lastIndexOf(" Roof outline filled from the exterior walls", wallsNoteEnd) >= 0 ? dxfNote.lastIndexOf(" Roof outline filled from the exterior walls", wallsNoteEnd) : wallsNoteEnd) + ` Roof outline filled from the roof layer's eave line${gableNote.startsWith(" The roof layer draws gable ends, so") ? "" : '; pick the "outline" roof shape to use it'}. ${ev.notes.join(" ")} ${fe.notes.join(" ")}${gableNote}`;
                   record("dxf_roof_layer");
                 } else dxfNote += ` The roof layer's eave line was not used: ${fe.errors.join(" ")}`;
               }
