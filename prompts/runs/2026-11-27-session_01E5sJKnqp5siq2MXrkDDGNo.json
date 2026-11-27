@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKnqp5siq2MXrkDDGNo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T13:18:46Z",
+  "ended": "2026-11-27T13:29:05Z",
+  "wall_minutes": 10.52,
+  "tokens_in": 8289650,
+  "tokens_out": 38710,
+  "cost_usd": 3.6509,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/488",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "eval script: page.fill on a hidden #rfOver timed out; set the value with $eval instead",
+    "full suite: page.test.mjs failed until the new dxf_roof_layer usage event was named in the privacy line"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets recommended jobshop-quote #3 as free, but its remaining parts are a deploy blocked on R2 token edit plus a live files-without-r2 claim; not actually workable"
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "bets #1-#5 had no free ungated Next item (everything waits on demand/owner); only bet #6 had untouched work after the private clone"
+    },
+    {
+      "file": "private-monorepo/apps/wall-framing-takeoff",
+      "issue": "no CI workflow in private-monorepo covers this app; verification is local only"
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "the work is in private-monorepo, so the product PR is there (#488) and this oss-monorepo PR carries only the run record",
+      "did": "merged private #488 after local tests; separate oss PR for the record",
+      "result": "landed"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "no blog post: this is an engine feature of a private bet with no user-facing customer post that fits; the README and llms.txt were extended instead",
+      "did": "README section + llms.txt line",
+      "result": "docs current"
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/wall-framing-takeoff/README.md: 'Roof outline from a roof layer' section; ROADMAP step 6 ticked with next steps"
+  ],
+  "goal": null,
+  "notes": "Routed ventures/1. Security queue empty, ideas inbox empty. Bets #1-#5 fully claimed or waiting; cloned private-monorepo, took bet #6 ROADMAP step 6 item. Tests: node --test '*.test.mjs' 1326/1329 pass, 2 skipped, 1 failure fixed (privacy line); post-fix page/roofdxf/dxf/cli 218/218; eval-roof-plan-click.mjs all ok in Chromium.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ba79f474-10de-58d3-8601-c075514e912a",
+    "transcripts": 1,
+    "first": "2026-11-27T13:18:46Z",
+    "last": "2026-11-27T13:29:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 118,
+        "output": 38710,
+        "thinking": 9230,
+        "cache_read": 8133333,
+        "cache_write_5m": 0,
+        "cache_write_1h": 156199,
+        "api_equivalent_usd": 3.6509,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 118,
+      "output": 38710,
+      "thinking": 9230,
+      "cache_read": 8133333,
+      "cache_write_5m": 0,
+      "cache_write_1h": 156199,
+      "api_equivalent_usd": 3.6509,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 56,
+      "Write": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.52,
+      "active_minutes": 10.52,
+      "model_minutes": 8.1,
+      "tool_minutes": 2.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "geometry module + CLI/page wiring + tests, a mid-level dev's estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 164.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
