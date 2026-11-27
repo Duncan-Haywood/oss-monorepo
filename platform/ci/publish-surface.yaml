@@ -71,6 +71,9 @@ workflows:
 - workflow: ci-profile-ci.yml
   classification: none
   publishes: []
+- workflow: cmmc-ci.yml
+  classification: none
+  publishes: []
 - workflow: coverage-drop-check-ci.yml
   classification: none
   publishes: []

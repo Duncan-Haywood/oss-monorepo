@@ -112,7 +112,7 @@ export async function deletePoam(ctx: AppContext, orgId: string, actorUserId: st
 export function poamCsv(rows: ReturnType<typeof annotate>[]): string {
   const cell = (v: unknown) => {
     let s = v == null ? "" : String(v);
-    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const header = [

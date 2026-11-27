@@ -355,7 +355,7 @@ export function personnelCsv(rows: PersonCsvRow[], today: string, refreshMonths:
   const cell = (v: unknown) => {
     let s = v == null ? "" : String(v);
     // Spreadsheet formula injection: a leading =, +, - or @ is read as a formula.
-    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const yn = (b: boolean) => (b ? "Yes" : "No");

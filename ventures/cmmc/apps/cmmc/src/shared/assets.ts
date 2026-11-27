@@ -217,7 +217,7 @@ export interface AssetCsvRow extends AssetLike {
 export function assetsCsv(rows: AssetCsvRow[]): string {
   const cell = (v: unknown) => {
     let s = v == null ? "" : String(v);
-    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const header = [

@@ -36,11 +36,15 @@ const HOSTNAME = /^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2
 
 export function parseArgs(argv) {
   const args = { writeConfig: null, from: BUILD_CONFIG, domain: "", dryRun: false };
+  const value = (flag, v) => {
+    if (v === undefined) throw new Error(`${flag} needs a value`);
+    return v;
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === "--write-config") args.writeConfig = argv[++i];
-    else if (a === "--from") args.from = argv[++i];
-    else if (a === "--domain") args.domain = (argv[++i] ?? "").trim().toLowerCase();
+    if (a === "--write-config") args.writeConfig = value(a, argv[++i]);
+    else if (a === "--from") args.from = value(a, argv[++i]);
+    else if (a === "--domain") args.domain = value(a, argv[++i]).trim().toLowerCase();
     else if (a === "--dry-run") args.dryRun = true;
     else throw new Error(`unknown argument: ${a}`);
   }

@@ -153,8 +153,9 @@ export function renderForm() {
           r.weight === 0
             ? "no points; no SSP means no score"
             : `${r.weight} pt${r.weight === 1 ? "" : "s"}`;
-        const partial = PARTIAL[r.nistId]
-          ? `<label class="partial"><input type="checkbox" name="pc" value="${r.nistId}"> Partly: ${esc(PARTIAL[r.nistId])} (3 pts instead of 5)</label>`
+        const partialWhy = Object.hasOwn(PARTIAL, r.nistId) ? PARTIAL[r.nistId] : null;
+        const partial = partialWhy
+          ? `<label class="partial"><input type="checkbox" name="pc" value="${r.nistId}"> Partly: ${esc(partialWhy)} (3 pts instead of 5)</label>`
           : "";
         return `<li><label><input type="checkbox" name="nm" value="${r.nistId}"> <strong>${r.nistId}</strong> <span class="muted">(${pts})</span> ${esc(r.text)}</label>${partial}</li>`;
       })
@@ -196,7 +197,7 @@ ${r.conditional.blockers.map(esc).join("; ")}.</p>`;
 ${worst
   .map(
     (d) =>
-      `<tr><td><strong>${d.nistId}</strong> ${esc(d.text)}${d.points === 3 && PARTIAL[d.nistId] ? ` <span class="muted">(partial credit)</span>` : ""}</td><td>${d.points ? `−${d.points}` : "0"}</td><td>${d.poam.eligible ? "Yes" : `No: ${esc(d.poam.reason)}`}</td></tr>`,
+      `<tr><td><strong>${d.nistId}</strong> ${esc(d.text)}${d.points === 3 && Object.hasOwn(PARTIAL, d.nistId) ? ` <span class="muted">(partial credit)</span>` : ""}</td><td>${d.points ? `−${d.points}` : "0"}</td><td>${d.poam.eligible ? "Yes" : `No: ${esc(d.poam.reason)}`}</td></tr>`,
   )
   .join("\n")}
 </tbody></table></div>`

@@ -476,7 +476,7 @@ export function checkSuppliers(list: SupplierLike[], today: string): SupplierChe
 
 const csvCell = (v: string) => {
   // A cell that a spreadsheet would read as a formula is prefixed with an apostrophe.
-  const guarded = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+  const guarded = /^[=+\-@\t\r]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v) ? `'${v}` : v;
   return /[",\n\r]/.test(guarded) ? `"${guarded.replace(/"/g, '""')}"` : guarded;
 };
 
