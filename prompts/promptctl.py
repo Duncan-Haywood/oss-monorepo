@@ -1312,6 +1312,10 @@ def _last_change_indexes() -> tuple[dict[str, tuple[str, str]], dict[str, tuple[
     into: dict[str, tuple[str, str]] = idx
     cur: tuple[str, str] | None = None
     edge = _shallow_boundary()
+    # With several shallow roots (CI's depth-2 clone of a PR merge: main's head and the PR's
+    # head), `git log -1` follows the first parent to its root, not the newest root in log order
+    # (2026-11-27: a PR head dated a day after main's turned prompts-ci red).
+    first_root = _first_parent_root() if len(edge) > 1 else None
     for line in out.splitlines():
         if line.startswith("@"):
             sha, _, when = line[1:].partition(" ")
@@ -1319,8 +1323,21 @@ def _last_change_indexes() -> tuple[dict[str, tuple[str, str]], dict[str, tuple[
             cur = (sha, when)
             into = edge_idx if sha in edge else idx
         elif line and cur:
-            into.setdefault(line, cur)
+            if cur[0] == first_root:
+                into[line] = cur
+            else:
+                into.setdefault(line, cur)
     return idx, edge_idx
+
+
+def _first_parent_root() -> str | None:
+    """The commit HEAD's first-parent chain ends at (one `git rev-list`, ~10 ms)."""
+    try:
+        out = subprocess.run(["git", "rev-list", "--first-parent", "HEAD"], cwd=ROOT.parent,
+                             capture_output=True, text=True, timeout=60).stdout.split()
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return out[-1] if out else None
 
 
 def _changed_note(path: str) -> tuple[str, str]:

@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "prompts-ci validate went red on this PR: test_lookups_without_a_git_call_match_the_per_file_call dated a shallow-root-only file 2026-11-27 (the index) vs 2026-11-26 (git log -1). Cause: PR #19499's one-pass index takes the newest shallow root in log order, but CI's depth-2 clone of a PR merge has two roots and git follows the first parent. Any PR whose head is dated after main's head hit it. Fixed in this PR."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -51,7 +53,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue empty (security_next exit 3); ideas inbox empty; routed process/1 by weighted draw. The backlog had only owner or blocked rows, so this was a Critique run on friction_rank --live --ungated --days 3. Fixed cluster 4: redteam.py --under now reads a name prefix. Tests: cd prompts && python3 -m unittest test_redteam (25 OK); targets --under ventures/ai-bookkeeper/salestax lists 2 files; promptctl validate ok; main_health 330/330 on main; risk_review nothing blocked. No backlog ids touched.",
+  "notes": "Security queue empty (security_next exit 3); ideas inbox empty; routed process/1 by weighted draw. The backlog had only owner or blocked rows, so this was a Critique run on friction_rank --live --ungated --days 3. Fixed cluster 4: redteam.py --under now reads a name prefix. Tests: cd prompts && python3 -m unittest test_redteam (25 OK); targets --under ventures/ai-bookkeeper/salestax lists 2 files; promptctl validate ok; main_health 330/330 on main; risk_review nothing blocked. No backlog ids touched. Second fix: promptctl._last_change_indexes prefers HEAD's first-parent shallow root (one git rev-list, only when there are 2+ roots). Reproduced in a two-root depth-2 clone; new test test_two_shallow_roots_date_a_root_only_file_as_git_does fails without the fix and passes with it; full prompts suite OK.",
   "corrections": [],
   "redteam": null,
   "usage": {
