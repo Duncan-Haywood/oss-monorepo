@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtLDvCqyTS4wGKMtDDE",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T17:06:16Z",
+  "ended": "2026-11-27T17:18:28Z",
+  "wall_minutes": 12.93,
+  "tokens_in": 16676634,
+  "tokens_out": 60507,
+  "cost_usd": 6.2538,
+  "tool_calls": 116,
+  "task": "seller-books (bet #5): automatic-renewal compliance before live checkout (launch review open check)",
+  "projects": [
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19817",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named einvoice-preflight #4 as 'free and not gated', but all three of its asks are gated (owner agreement for the cron, DPA notice for names, 'if accountants ask'): the gate reading misses gates stated in the item's prose. It cost a detour."
+    },
+    {
+      "file": "ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md",
+      "issue": "The open check pointed to 'OPERATOR.md, open checks', but seller-books has no OPERATOR.md. The text lives in ventures/payapps/docs/legal/OPERATOR.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer post: a post about our own renewal reminders answers no search a reseller makes, and the site already has the reseller tax pages. Wrote an agent doc (docs/reports/2026-11-27-automatic-renewal-laws-for-paid-apps.md) so the other paid apps can port it.",
+      "did": "agent doc instead of a post",
+      "result": "doc landed with the PR"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Every ranked bet's roadmap item was gated on demand, so I took an unclaimed launch blocker from seller-books' own launch review (renewal laws before live checkout) instead of a growth-path feature.",
+      "did": "claimed seller-books auto-renewal-notices by slug",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-automatic-renewal-laws-for-paid-apps.md",
+    "ventures/seller-books/apps/seller-books/docs/BILLING.md (Automatic renewal section)"
+  ],
+  "goal": null,
+  "notes": "Verification: packages/billing node --test 90/90; app typecheck clean; test:unit 346/346 (renewal-notice.test.ts 10); test:worker 149/149 (new renewal-notices.test.ts 6, billing.test.ts +2); test:e2e 18/18, with spec 02 asserting the terms text and the button disabled until the consent tick. Statute reading: Colorado text via colorado.public.law (current through fall 2025) and the SB25-145 introduced PDF from leg.colorado.gov; California's leginfo page returned 403, so I relied on law-firm summaries (Barnes & Thornburg, DWT). Also fixed the broken /orgs/ link in the estimated-tax reminder email.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1f8f089e-6665-5285-a30a-9ae08d48cbe6",
+    "transcripts": 1,
+    "first": "2026-11-27T17:06:16Z",
+    "last": "2026-11-27T17:19:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 106,
+        "input": 203,
+        "output": 60507,
+        "thinking": 13330,
+        "cache_read": 16457513,
+        "cache_write_5m": 0,
+        "cache_write_1h": 218918,
+        "api_equivalent_usd": 6.2538,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 106,
+      "input": 203,
+      "output": 60507,
+      "thinking": 13330,
+      "cache_read": 16457513,
+      "cache_write_5m": 0,
+      "cache_write_1h": 218918,
+      "api_equivalent_usd": 6.2538,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 116,
+    "tools": {
+      "Bash": 98,
+      "WebFetch": 7,
+      "Write": 5,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.93,
+      "active_minutes": 12.93,
+      "model_minutes": 10.35,
+      "tool_minutes": 2.58,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "statute reading across two states plus Paddle API check (~3h), cron notice service with claim table and tests (~4h), checkout consent, cancel deep link, UI and e2e updates, privacy/terms (~3h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 159.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
