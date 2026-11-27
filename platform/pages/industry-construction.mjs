@@ -51,7 +51,10 @@ export const PRODUCTS = [
     for: 'Specialty subcontractors and small general contractors',
     summary:
       'Monthly pay applications in the G702/G703 format from your schedule of values, retainage tracked line by line until release, lien waivers collected and checked against each payment, and change orders logged so approved work reaches the next bill.',
-    planned: ['QuickBooks sync', 'Job costing', 'RFIs', 'Estimating'],
+    // `built`: modules in the app's ROADMAP "Done" list (ventures/payapps/apps/payapps/ROADMAP.md),
+    // written but not yet deployed, so shown as "built, in testing", never as available.
+    built: ['QuickBooks Online sync', 'job costing and the WIP schedule', 'RFI and submittal logs', 'estimates', 'daily reports', 'insurance certificates'],
+    planned: [],
     freeToday: ['pay-application-generator', 'pay-app-guides', 'retainage-cashflow-calculator', 'lien-waiver-checker'],
   },
   {
@@ -343,7 +346,8 @@ export function renderConstructionPage({
         <h3>${escapeHtml(p.name)}</h3>
         <p><span class="ic-status ic-${escapeHtml(p.status)}">${escapeHtml(STATUS_LABELS[p.status])}</span></p>
         <p class="ic-who">${escapeHtml(p.for)}</p>
-        <p>${escapeHtml(p.summary)}</p>${p.planned.length ? `
+        <p>${escapeHtml(p.summary)}</p>${p.built?.length ? `
+        <p class="ic-built">Built, in testing (not open yet): ${escapeHtml(p.built.join(', '))}.</p>` : ''}${p.planned.length ? `
         <p class="ic-planned">Planned: ${escapeHtml(p.planned.join(', '))}.</p>` : ''}${free.length ? `
         <p class="ic-free">Try the free version of part of it now: ${free.map(toolLink).join(', ')}.</p>` : ''}${shot && shot !== leadShot ? figure(shot, 'ic-still', true, '(max-width: 640px) calc(100vw - 66px), 440px') : ''}
       </article>`;
