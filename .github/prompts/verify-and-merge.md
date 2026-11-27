@@ -60,6 +60,10 @@ python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt
 python3 -m unittest discover -s platform/business-template -v   # the generator: a repo per preset, each passing its own check
 d=$(mktemp -d) && python3 platform/business-template/new_business.py --name T --idea T --out "$d/b" && (cd "$d/b" && python3 -m unittest discover -s ops)  # platform/business-template/template/ops: runs in a generated copy, not in place
 (cd research/<project> && PYTHONPATH=$(ls -d ../*/src | tr '\n' :) python3 -m pytest tests -q)  # research/ changes: one project at a time
+(cd apps/einvoice-preflight && PYTHONPATH=src python3 -m unittest discover -s tests)  # the paid e-invoice app's Python CLI tests (einvoice-pro-ci.yml)
+(cd apps/einvoice-preflight && node --test pro/*.test.mjs && node --test worker/*.test.mjs)  # paid layer; needs packages/billing and packages/admin-metrics in the tree
+(cd apps/einvoice-preflight && node --test --test-concurrency=4 *.test.mjs)  # apps/einvoice-preflight/*.test.mjs, the paid app's copy of the checker suite (>2 min: run_in_background)
+(cd apps/einvoice-site && node --test test/*.test.mjs)  # apps/einvoice-site/test/*.test.mjs, from the app directory (fixtures are cwd-relative)
 python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches (>2 min: run_in_background; docs-only diff or 100+ workflows reached: it stalls on site-builder tests, so name the reached workflows: `run_workflow_locally.py <file>.yml`, `--list` shows steps)
 python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now? (>10 min: background)
 ```
