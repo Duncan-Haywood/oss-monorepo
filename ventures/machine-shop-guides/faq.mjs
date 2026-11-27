@@ -114,6 +114,14 @@ export const FAQ = {
     ["What is the difference between markup and margin?",
       "Markup is on cost: price = cost × (1 + markup). Margin is on price. A 25% markup on cost is a 20% margin on price."],
   ],
+  "machining-quote-template.html": [
+    ["Is there a free machining quote template for Excel?",
+      "Yes: a two-sheet .xlsx with no macros. The quote worksheet prices material with scrap, setup, programming spread over the lots expected, cycle time, up to six other operations and markup at six quantity breaks, from your own rates. The customer quote sheet shows price each and extended price only."],
+    ["Why is the price each rounded up to the cent?",
+      "So the quote never comes in under the calculated price, and so the extended price is the quoted price each times the quantity and the quote adds up line by line."],
+    ["Should the cost lines go on the quote I send?",
+      "No. Material, setup, machining and markup are your internal numbers. The template keeps them on the quote worksheet; the customer quote sheet carries part number and revision, quantities, price each, extended price, lead time, validity and terms."],
+  ],
   "how-to-price-a-machined-part.html": [
     ["How do I work out a machine shop rate?",
       "From your books: the year's overhead (rent, utilities, insurance, software, equipment payments or depreciation, indirect wages) plus direct labour, divided by the hours you actually bill, not the hours the doors are open. Many shops keep separate rates per machine type."],
