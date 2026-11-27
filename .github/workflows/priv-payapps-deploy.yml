@@ -9,7 +9,8 @@
 # (workflow_dispatch), from main only. The launch review is recorded
 # (apps/payapps/docs/LAUNCH-REVIEW.md, under private-monorepo docs/legal/OPERATOR.md), so an agent
 # may run it and open sign-ups on the Free plan. Paid plans stay dark: checkout turns on only when
-# the owner sets PAYAPPS_BILLING_PROVIDER=paddle and the two Paddle secrets (apps/payapps/docs/BILLING.md).
+# PAYAPPS_BILLING_PROVIDER=paddle is set. The Paddle key is the owner's; the catalog and the
+# notification destination (with its signing secret) are made by this workflow (apps/payapps/docs/BILLING.md).
 # The push trigger was added 2026-11-27 after seven good manual runs (45949861746 to 45964339988):
 # merges were reaching main but not the live app until someone dispatched it. Markdown-only changes
 # (ROADMAP, docs) do not deploy. A push run always runs the full checks (skip_checks is a dispatch input).
@@ -215,6 +216,37 @@ jobs:
           version="$(jq -r 'select(.type=="deploy") | .version_id // empty' "$WRANGLER_OUTPUT_FILE_PATH" 2>/dev/null | tail -1 || true)"
           echo "version_id=$version" >>"$GITHUB_OUTPUT"
 
+      # The notification destination as code: found or created at <APP_URL>/api/billing/webhook for the
+      # events the app reads, inactive until PAYAPPS_BILLING_PROVIDER=paddle (the Worker answers the
+      # webhook 503 while checkout is dark). Its signing secret goes to the Worker as
+      # BILLING_WEBHOOK_SECRET through a 0600 file the next step deletes; it is never printed or
+      # passed as a step output. An owner-set PAYAPPS_BILLING_WEBHOOK_SECRET wins and skips this.
+      # Like the catalog sync, a failure warns and the deploy goes on (checkout stays dark).
+      - name: Paddle notification destination
+        id: paddle_webhook
+        env:
+          BILLING_API_KEY: ${{ secrets.PAYAPPS_BILLING_API_KEY || secrets.BILLING_API_KEY || secrets.PADDLE_API_KEY }}
+          HAS_OWNER_SECRET: ${{ secrets.PAYAPPS_BILLING_WEBHOOK_SECRET != '' }}
+          BILLING_PROVIDER: ${{ vars.PAYAPPS_BILLING_PROVIDER || 'none' }}
+          APP_URL: ${{ steps.urls.outputs.app_url }}
+        run: |
+          if [[ -z "$BILLING_API_KEY" ]]; then echo "No Paddle key: no notification destination"; echo "state=no key" >>"$GITHUB_OUTPUT"; exit 0; fi
+          if [[ "$HAS_OWNER_SECRET" == "true" ]]; then echo "PAYAPPS_BILLING_WEBHOOK_SECRET is set: using it, not managing the destination"; echo "state=owner secret" >>"$GITHUB_OUTPUT"; exit 0; fi
+          if [[ "$APP_URL" == *.workers.dev* ]]; then echo "::warning title=No notification destination::$APP_URL is a workers.dev address; the destination waits for the custom domain."; echo "state=skipped (workers.dev)" >>"$GITHUB_OUTPUT"; exit 0; fi
+          active=false
+          [[ "$BILLING_PROVIDER" == "paddle" ]] && active=true
+          umask 077
+          out="$RUNNER_TEMP/paddle-webhook.json"
+          if node ../../packages/billing/scripts/paddle-webhook.ts --app payapps --app-url "$APP_URL" --active "$active" --apply --secret-out "$out" \
+             && [[ -s "$out" ]]; then
+            echo "::add-mask::$(jq -r .BILLING_WEBHOOK_SECRET "$out")"
+            { echo "secret_file=$out"; echo "state=$( [[ $active == true ]] && echo active || echo inactive)"; } >>"$GITHUB_OUTPUT"
+          else
+            rm -f "$out"
+            echo "::warning title=Paddle notification destination failed::The app still deploys; checkout stays dark until BILLING_WEBHOOK_SECRET is set (see the log above for the permission the key needs)."
+            echo "state=failed" >>"$GITHUB_OUTPUT"
+          fi
+
       - name: Sync secrets from GitHub (non-empty only)
         env:
           CONFIG: ${{ steps.provision.outputs.config }}
@@ -225,16 +257,24 @@ jobs:
           S_QBO_CLIENT_ID: ${{ secrets.PAYAPPS_QBO_CLIENT_ID }}
           S_QBO_CLIENT_SECRET: ${{ secrets.PAYAPPS_QBO_CLIENT_SECRET }}
           S_QBO_TOKEN_KEY: ${{ secrets.PAYAPPS_QBO_TOKEN_KEY }}
+          # Written by the step above (0600), only when no owner-set webhook secret exists.
+          WEBHOOK_FILE: ${{ steps.paddle_webhook.outputs.secret_file }}
         run: |
           umask 077
           file="$RUNNER_TEMP/worker-env.json"
-          trap 'rm -f "$file"' EXIT
+          trap 'rm -f "$file" ${WEBHOOK_FILE:+"$WEBHOOK_FILE"}' EXIT
           node -e '
+            const fs = require("node:fs");
             const out = {};
             for (const [k, v] of Object.entries(process.env)) {
               if (k.startsWith("S_") && v && v.trim()) out[k.slice(2)] = v;
             }
-            require("node:fs").writeFileSync(process.argv[1], JSON.stringify(out));
+            const hook = process.env.WEBHOOK_FILE;
+            if (!out.BILLING_WEBHOOK_SECRET && hook && fs.existsSync(hook)) {
+              const v = JSON.parse(fs.readFileSync(hook, "utf8")).BILLING_WEBHOOK_SECRET;
+              if (typeof v === "string" && v.startsWith("pdl_ntfset_")) out.BILLING_WEBHOOK_SECRET = v;
+            }
+            fs.writeFileSync(process.argv[1], JSON.stringify(out));
             console.log(`syncing ${Object.keys(out).length} secret(s): ${Object.keys(out).sort().join(", ") || "none"}`);
           ' "$file"
           if [[ "$(jq 'length' "$file")" -gt 0 ]]; then
@@ -285,11 +325,13 @@ jobs:
           APP_URL: ${{ steps.urls.outputs.app_url }}
           VERSION: ${{ steps.deploy.outputs.version_id }}
           R2: ${{ steps.provision.outputs.r2_enabled }}
+          HOOK_STATE: ${{ steps.paddle_webhook.outputs.state }}
         run: |
           {
             echo "### payapps-deploy"
             echo "- url: ${APP_URL:-n/a}"
             echo "- attachments (R2): ${R2:-n/a}"
+            echo "- Paddle notification destination: ${HOOK_STATE:-n/a}"
             echo "- version: \`${VERSION:-n/a}\` (rollback: \`pnpm exec wrangler rollback <version-id> --name payapps\`)"
             echo "- commit: \`$GITHUB_SHA\`"
           } >>"$GITHUB_STEP_SUMMARY"
