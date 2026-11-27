@@ -171,9 +171,11 @@ export function PnlPage() {
   const year = new Date().getFullYear();
   const [from, setFrom] = useState(`${year}-01-01`);
   const [to, setTo] = useState(`${year}-12-31`);
+  // The dates come from text inputs: encode them so the query string stays a query string.
+  const range = new URLSearchParams({ from, to }).toString();
   const q = useQuery({
     queryKey: ["pnl", orgId, from, to],
-    queryFn: () => api<PnlReport>(orgPath(orgId, `/reports/pnl?from=${from}&to=${to}`)),
+    queryFn: () => api<PnlReport>(orgPath(orgId, `/reports/pnl?${range}`)),
   });
   const t = q.data?.total;
   return (
@@ -195,7 +197,7 @@ export function PnlPage() {
         </label>
         <a
           className="btn-secondary"
-          href={apiUrl(orgPath(orgId, `/reports/sales-ledger.csv?from=${from}&to=${to}`))}
+          href={apiUrl(orgPath(orgId, `/reports/sales-ledger.csv?${range}`))}
           title="Every sale, refund and marketplace charge behind these figures, one row each"
         >
           Download sales ledger (CSV)
