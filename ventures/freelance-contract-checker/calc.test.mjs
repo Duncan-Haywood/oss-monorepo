@@ -68,3 +68,54 @@ test("multi-digit day counts are read whole, with no 'payment' before them", () 
   assert.equal(r.extracted.days, 90);
   assert.notEqual(r.verdict, "no-red-flags");
 });
+
+// Quality audit 2026-11-26 (portfolio/quality/audits/2026-11-26-freelance-contract-checker.json), defects 1-3, 6, 7, 12:
+// phrase pairs are tested inside one sentence, so a cap or condition elsewhere no longer clears a clause.
+const BASE = "This Services Agreement is between Client and Contractor for a brochure for a fee of $3,000. A 50% deposit is due on signing. Invoices are payable net 15. Late invoices accrue 1.5% per month. Two rounds of revisions are included; further work needs a written change order. Deliverables are deemed accepted after 5 days. The prevailing party recovers reasonable attorney fees.";
+
+test("liability that expands damages is not read as a liability limit (defect 1)", () => {
+  assert.ok(ids(analyze(BASE, {})).includes("no-liability-limit"));
+  assert.ok(ids(analyze(BASE + " Contractor shall be liable for all damages, including consequential damages and lost profits.", {})).includes("no-liability-limit"));
+  assert.ok(ids(analyze(BASE + " Contractor is liable for any loss caused by the work.", {})).includes("no-liability-limit"));
+  for (const cap of [
+    " Each party's liability is limited to fees paid.",
+    " Contractor's total liability shall not exceed the fees paid under this Agreement.",
+    " In no event shall either party be liable for indirect or consequential damages.",
+    " Neither party is liable for consequential damages.",
+    " Both parties waive any claim for consequential or incidental damages.",
+  ]) assert.ok(!ids(analyze(BASE + cap, {})).includes("no-liability-limit"), cap);
+});
+
+test("an unrelated money limit does not cap an indemnity (defect 2)", () => {
+  const ind = " Contractor shall indemnify and hold harmless Client from all claims arising from the work.";
+  assert.ok(ids(analyze(BASE + ind, {})).includes("uncapped-indemnity"));
+  assert.ok(ids(analyze(BASE + ind + " Reimbursable expenses are limited to $200 per month.", {})).includes("uncapped-indemnity"));
+  assert.ok(ids(analyze(BASE + ind + " Each party's liability is limited to fees paid.", {})).includes("uncapped-indemnity"), "a general liability cap that does not name the indemnity often carves it out");
+  assert.ok(ids(analyze(BASE + " Contractor shall indemnify Client, limited to third-party claims caused by Contractor's breach.", {})).includes("uncapped-indemnity"), "a scope limit is not a money cap");
+  assert.ok(!ids(analyze(BASE + " Contractor shall indemnify Client for third-party claims, in an amount not to exceed the fees paid.", {})).includes("uncapped-indemnity"));
+});
+
+test("'upon payment' elsewhere does not make an assignment payment-conditional (defect 3)", () => {
+  const assign = " Contractor hereby assigns to Client all rights in the deliverables upon creation.";
+  assert.ok(ids(analyze(BASE + assign + " Contractor will begin work upon payment of the deposit.", {})).includes("ip-before-payment"));
+  assert.ok(!ids(analyze(BASE + " Contractor assigns the deliverables to Client upon full payment of all invoices.", {})).includes("ip-before-payment"));
+});
+
+test("a late-fee day count is not the payment term (defect 6)", () => {
+  assert.equal(paymentDays("Invoices are payable net 15. Invoices that remain unpaid after 60 days accrue a late fee of 1.5% per month."), 15);
+  assert.equal(paymentDays("Late payment: interest accrues on invoices not paid within 45 days of invoice."), null);
+  assert.equal(paymentDays("Payment is due within 45 days of invoice, after which interest accrues."), 45);
+  assert.equal(paymentDays("Client shall pay the outstanding balance within 30 days of invoice."), 30);
+  const r = analyze(BASE.replace("Late invoices accrue 1.5% per month.", "Invoices that remain unpaid after 60 days accrue a late fee of 1.5% per month."), {});
+  assert.ok(!ids(r).includes("slow-payment"), ids(r).join());
+});
+
+test("'all revisions Client requests' is open-ended (defect 7)", () => {
+  assert.ok(ids(analyze(BASE.replace("Two rounds of revisions are included; further", "Contractor will make all revisions Client requests; further"), {})).includes("unlimited-revisions"));
+});
+
+test("a parsed 0 days shows as 0, not 'not found' (defect 12)", () => {
+  const r = analyze(BASE.replace("net 15", "net 0"), {});
+  assert.equal(r.extracted.days, 0);
+  assert.match(summaryText(r), /Payment due in the text: 0 days/);
+});
