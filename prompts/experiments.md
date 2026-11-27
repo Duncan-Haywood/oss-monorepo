@@ -1905,7 +1905,7 @@ subscription, should a scheduled venture run default to launch work
 - Metric: slug_dupe friction about the run's own claim branch goes to zero.
 - Result: (next review)
 
-## E125: Review 2026-11-27, fourth session (reduced pass)
+## E126: Review 2026-11-27, fifth session (reduced pass)
 
 - Routed by `review_when_due` (47 merged runs since E124 by `measure`'s count).
 - Decisions: candidates unchanged, all three "keep collecting: the intervals
@@ -1929,3 +1929,22 @@ subscription, should a scheduled venture run default to launch work
 - Metric: `--bets` friction reports that say they read ROADMAPs by hand to
   find why nothing is free; compare the next review.
 - Result: (next review)
+
+## E127: Review 2026-11-27, sixth session (reduced pass)
+
+- Routed by `review_when_due` (54 merged runs since E126, about 3.5 hours
+  after it; the sixth review today).
+- Change: `review_every` 40 to 120 in `prompts/routing.json`. Asked three
+  times (E93 2026-10-26: "raise `review_every` (e.g. to 150) if four reduced
+  reviews a day add little"; E126 today: "the next review could weigh
+  `review_every = 120`"). Today's reviews E122 to E126 all returned the same
+  candidate verdict ("keep collecting: the intervals overlap") and each could
+  only grade the last one as "too few runs". At about 15 merged runs an hour,
+  40 gives a review every 3 hours; 120 gives about three a day, each with
+  enough runs since the last to grade its predecessor. Also renumbered the
+  second E125 heading (two sessions both wrote E125) to E126.
+- Metric: reviews per day (target about 3, from 6 on 2026-11-27) and the
+  share of review entries whose "Result" for the previous entry is "too few
+  runs" (from 5 of 5 today). Compare over 2026-11-28 to 2026-11-30.
+- Result: (next review)
+

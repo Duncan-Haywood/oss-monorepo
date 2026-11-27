@@ -1,5 +1,5 @@
 {
-  "review_every": 40,
+  "review_every": 120,
   "review_when_due": 0.25,
   "tracks": {
     "ventures": {"weight": 0.61, "champion": 1, "candidate": 2, "candidate_share": 0.2},
