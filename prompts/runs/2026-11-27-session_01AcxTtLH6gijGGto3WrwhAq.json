@@ -35,6 +35,10 @@
     {
       "what": "first worker run failed: test/worker/poam-import.test.ts pinned the old wrong citation 170.21(a)(2)(iv)",
       "fix": "updated that test and PoamImport.test.tsx to (a)(2)(iii)"
+    },
+    {
+      "what": "PR CI 'test' failed on platform/pages/llms-answers.test.mjs: ventures/pay-app-guides/llms-answers.txt stale on main after PRs #19869/#19887",
+      "fix": "regenerated with node platform/pages/llms-answers.mjs ventures/pay-app-guides in this PR (main was red too)"
     }
   ],
   "integrity_issues": [],
@@ -60,6 +64,12 @@
       "why": "quality_mutate.py could not run a vitest baseline here",
       "did": "seeded 4 mutants by hand in place, restoring from a backup each time",
       "result": "all 4 caught (all had survived in the audit)"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "main was red on an unrelated generated file and blocked this PR",
+      "did": "fixed forward in this PR instead of a separate one",
+      "result": "llms-answers test 7/7 pass locally"
     }
   ],
   "writeups": [
