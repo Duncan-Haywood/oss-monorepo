@@ -80,6 +80,17 @@ private repo's docs.
 - **Regenerated:** `portfolio/monetization/transition.json` and `verticals.json` (the new venture,
   classified as PayApps is), `THIRD_PARTY.md`.
 
+- **The Python CLI is not in this copy.** CodeQL raised `py/clear-text-logging-sensitive-data` (high)
+  on `src/einvoice_preflight/cli.py`'s `print(report)`, the CLI showing the user the report on their own
+  invoice; the free edition's identical line is triaged as intended (#34), but alerts are per path,
+  sessions cannot dismiss them, and the ruleset blocks a high one. The paid edition never runs the
+  Python CLI (the Worker and the Node container run the JavaScript checker), so `src/`, `tests/*.py`
+  and `pyproject.toml` were dropped from the copy rather than suppressed; the free edition keeps the
+  CLI and its tests, `tests/endpoint_peppol_cases.json` stays because the JavaScript tests share it,
+  and `sync-from-private.sh` drops the same files on a refresh. The private copy's newer Python
+  changes (`test_br_co_17.py` and the five modules that differ from the free edition) remain in
+  `private-monorepo` to port to the free edition.
+
 Whatever the CodeQL gate still reports after these is in the PR and the run record.
 
 ## Verification (this session, Node 22.23.5, Python 3)

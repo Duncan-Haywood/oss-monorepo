@@ -32,6 +32,9 @@ git -C "$src" archive HEAD "${paths[@]}" | tar -x -C "$here"
 grep -rlZ '@private-monorepo/' "$here/packages" | xargs -0 -r sed -i 's#@private-monorepo/#@einvoice-pro/#g'
 sed -i 's/@\([Kk]\)anzlei\.de/@\1anzlei.example/g' "$here/apps/einvoice-site/test/worker.test.mjs"
 sed -i "s#see the repository's root LICENSE.#see ventures/einvoice-pro/LICENSE.#" "$here/apps/einvoice-preflight/LICENSE"
+# The Python CLI stays in the free edition (README.md); the JavaScript tests' shared fixture stays.
+rm -rf "$here/apps/einvoice-preflight/src" "$here/apps/einvoice-preflight/pyproject.toml"
+rm -f "$here"/apps/einvoice-preflight/tests/*.py
 # NEXT.md's links were written two levels up from ventures/einvoice-preflight; here they sit four up.
 sed -i 's#](\.\./\.\./portfolio/#](../../../../portfolio/#g' "$here/apps/einvoice-preflight/NEXT.md"
 rm -f "$here/.prepub-audit.md"

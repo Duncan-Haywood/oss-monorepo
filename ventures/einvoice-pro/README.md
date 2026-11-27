@@ -48,11 +48,15 @@ cd ventures/einvoice-pro/apps/einvoice-preflight
 node --test pro/*.test.mjs              # paid layer
 node --test worker/*.test.mjs           # Worker provisioning
 node --test --test-concurrency=4 *.test.mjs   # checker suite (a few minutes)
-PYTHONPATH=src python3 -m unittest discover -s tests   # the Python CLI
 cd ../einvoice-site && node build.mjs && node --test test/*.test.mjs
 ```
 
 CI runs the same from [`.github/workflows/einvoice-pro-ci.yml`](../../.github/workflows/einvoice-pro-ci.yml).
+
+The Python CLI the checker started as is not in this copy: the paid edition never runs it, and it
+stays in the free edition, [`ventures/einvoice-preflight`](../einvoice-preflight/) (MIT), with its
+tests. `tests/endpoint_peppol_cases.json` stays here because the JavaScript tests share it. The
+private copy's later Python changes are still in `private-monorepo` for porting to the free edition.
 
 ## Where the work happens
 

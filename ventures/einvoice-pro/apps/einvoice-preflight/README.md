@@ -1,5 +1,9 @@
 # E-invoice preflight
 
+> **In ventures/einvoice-pro (2026-11-27):** the Python CLI described below (`src/`, `tests/*.py`,
+> `pyproject.toml`) is not in this copy. It lives in the free edition, `ventures/einvoice-preflight`;
+> the paid edition runs only the JavaScript checker. See `../../README.md`.
+
 **Validate a structured invoice before submission.** After using this, you can
 now see which fields, totals, VAT digits, or payment instructions would fail a
 local preflight — in the browser or in CI — which used to mean waiting for a

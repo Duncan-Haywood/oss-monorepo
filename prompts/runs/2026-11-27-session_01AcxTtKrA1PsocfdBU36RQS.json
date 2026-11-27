@@ -65,13 +65,19 @@
       "why": "Two other sessions' PRs (#19574, #19575) do the same move but in a layout main no longer has; adopting either would mean rewriting most of it.",
       "did": "Redid the move from a newer private commit in main's ventures/<name> layout, reusing the unmerged cq-einvoice CodeQL fixes, and pointed at both PRs in the report.",
       "result": "pending CI"
+    },
+    {
+      "file": "prompt.md (\"never suppress the rule\")",
+      "why": "CodeQL's high py/clear-text-logging alert on the moved cli.py is the CLI printing the user's own report (triaged as intended on the free edition's copy, #34); agents cannot dismiss alerts and the ruleset blocks a high one.",
+      "did": "Dropped the Python CLI from the paid copy, which never runs it; the free edition keeps it. No suppression comment, no weakened test.",
+      "result": "pending CI"
     }
   ],
   "writeups": [
     "docs/reports/2026-11-27-move-einvoice-pro-public.md"
   ],
   "goal": "$10k MRR: bet #3's paid edition reaches a repository whose runners can deploy it ahead of the 2027-01-01 German mandate",
-  "notes": "Security queue empty; ideas inbox empty. Bet #1 (payapps) had 6 open PRs and a deploy run queued by another session; bets #2/#4 all Next items wait on demand. Bet #3's top Next item is its first deploy, impossible from private-monorepo. Local: pro 278/278, worker 9/9, checker 2,240 pass/149 skip/1 env fail (pdfdetach save refused in container), Python 445 OK, site 37/37, billing+admin-metrics 102/102, check_third_party ok, publish_surface ok, prepub audit block 0. Repo-wide checks then found, and this PR fixed: a false 'code is under an MIT licence' line on the 106 moved pages and 4 generators; descriptions over the site limits (free edition's shorter texts ported); two auto-fit grids; a real windows-1252 decoding bug in pro/pdf-text.mjs (byte-exact now, with tests); 8 inherited-key lookups (Object.hasOwn); the opt-out registry line; and Dockerfiles that did not drop npm although the trivy baseline said they did. Gate exceptions re-keyed in PR #19643 (merges first). Private PR 485 carries the first round of fixes.",
+  "notes": "Security queue empty; ideas inbox empty. Bet #1 (payapps) had 6 open PRs and a deploy run queued by another session; bets #2/#4 all Next items wait on demand. Bet #3's top Next item is its first deploy, impossible from private-monorepo. Local: pro 278/278, worker 9/9, checker 2,240 pass/149 skip/1 env fail (pdfdetach save refused in container), Python 445 OK, site 37/37, billing+admin-metrics 102/102, check_third_party ok, publish_surface ok, prepub audit block 0. Repo-wide checks then found, and this PR fixed: a false 'code is under an MIT licence' line on the 106 moved pages and 4 generators; descriptions over the site limits (free edition's shorter texts ported); two auto-fit grids; a real windows-1252 decoding bug in pro/pdf-text.mjs (byte-exact now, with tests); 8 inherited-key lookups (Object.hasOwn); the opt-out registry line; and Dockerfiles that did not drop npm although the trivy baseline said they did. Gate exceptions re-keyed in PR #19643 (merges first). Private PR 485 carries the first round of fixes. Python CLI dropped from the paid copy after CodeQL flagged cli.py's print(report) (free edition keeps it).",
   "corrections": [],
   "redteam": null
 }
