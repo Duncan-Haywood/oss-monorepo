@@ -1,19 +1,18 @@
 // Code-based routes. Route components live in src/client/routes/*; this file only wires paths.
-import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
+// The pages a signed-out visitor reaches (home, sign-in/up, account-email, legal, onboarding,
+// invite) are static. Every signed-in page, the org layout and the customer quote page load on
+// first visit (lazyRouteComponent), so a shop signing up downloads the sign-up page, not the
+// whole app (docs/history/jobshop-quote-app-first-load-perf-2026-11-27.md).
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  lazyRouteComponent,
+  Outlet,
+} from "@tanstack/react-router";
 import { ForgotPasswordPage, ResetPasswordPage, VerifyEmailPage } from "./routes/account";
-import { BillingPage } from "./routes/billing";
-import { CustomerQuotePage } from "./routes/customer-quote";
-import { OrgLayout } from "./routes/layout";
 import { LegalPage } from "./routes/legal";
 import { AuthPage, HomePage, InvitePage, OnboardingPage } from "./routes/public";
-import { QuoteDetailPage } from "./routes/quote-detail";
-import { QuoteLogPage } from "./routes/quote-log";
-import { RateCardPage } from "./routes/rate-card";
-import { RfqDetailPage } from "./routes/rfq-detail";
-import { RfqsPage } from "./routes/rfqs";
-import { RoutingsPage } from "./routes/routings";
-import { TeamPage } from "./routes/team";
-import { WinLossPage } from "./routes/win-loss";
 
 const root = createRootRoute({
   component: Outlet,
@@ -67,42 +66,58 @@ const invite = createRoute({
 const customerQuote = createRoute({
   getParentRoute: () => root,
   path: "/q/$token",
-  component: CustomerQuotePage,
+  component: lazyRouteComponent(() => import("./routes/customer-quote"), "CustomerQuotePage"),
 });
 
-const org = createRoute({ getParentRoute: () => root, path: "/app/$orgId", component: OrgLayout });
-const quoteLog = createRoute({ getParentRoute: () => org, path: "/", component: QuoteLogPage });
+const org = createRoute({
+  getParentRoute: () => root,
+  path: "/app/$orgId",
+  component: lazyRouteComponent(() => import("./routes/layout"), "OrgLayout"),
+});
+const quoteLog = createRoute({
+  getParentRoute: () => org,
+  path: "/",
+  component: lazyRouteComponent(() => import("./routes/quote-log"), "QuoteLogPage"),
+});
 const rateCard = createRoute({
   getParentRoute: () => org,
   path: "/rate-card",
-  component: RateCardPage,
+  component: lazyRouteComponent(() => import("./routes/rate-card"), "RateCardPage"),
 });
 const routingsPage = createRoute({
   getParentRoute: () => org,
   path: "/routings",
-  component: RoutingsPage,
+  component: lazyRouteComponent(() => import("./routes/routings"), "RoutingsPage"),
 });
-const rfqs = createRoute({ getParentRoute: () => org, path: "/rfqs", component: RfqsPage });
+const rfqs = createRoute({
+  getParentRoute: () => org,
+  path: "/rfqs",
+  component: lazyRouteComponent(() => import("./routes/rfqs"), "RfqsPage"),
+});
 const rfq = createRoute({
   getParentRoute: () => org,
   path: "/rfqs/$rfqId",
-  component: RfqDetailPage,
+  component: lazyRouteComponent(() => import("./routes/rfq-detail"), "RfqDetailPage"),
 });
 const quote = createRoute({
   getParentRoute: () => org,
   path: "/quotes/$quoteId",
-  component: QuoteDetailPage,
+  component: lazyRouteComponent(() => import("./routes/quote-detail"), "QuoteDetailPage"),
 });
 const winLoss = createRoute({
   getParentRoute: () => org,
   path: "/win-loss",
-  component: WinLossPage,
+  component: lazyRouteComponent(() => import("./routes/win-loss"), "WinLossPage"),
 });
-const team = createRoute({ getParentRoute: () => org, path: "/team", component: TeamPage });
+const team = createRoute({
+  getParentRoute: () => org,
+  path: "/team",
+  component: lazyRouteComponent(() => import("./routes/team"), "TeamPage"),
+});
 const billing = createRoute({
   getParentRoute: () => org,
   path: "/billing",
-  component: BillingPage,
+  component: lazyRouteComponent(() => import("./routes/billing"), "BillingPage"),
 });
 
 const routeTree = root.addChildren([
