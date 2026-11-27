@@ -14,7 +14,7 @@
 // Listing) sends the rates from this page's own REGIONS table, imported rather
 // than restated.
 
-import { REGIONS, BOOST_RATE } from './calc.mjs';
+import { REGIONS, BOOST_RATES } from './calc.mjs';
 
 const SHARED_FIELDS = ['itemPrice', 'buyerShipping', 'labelCost', 'itemCost', 'otherCost'];
 const TARGET_NAME = {
@@ -38,7 +38,7 @@ function rateOverrides(input) {
   const boosted = input.boosted === true;
   if (region === 'us' && !boosted) return {};
   return {
-    commissionRate: schedule.sellingRate + (boosted ? BOOST_RATE : 0),
+    commissionRate: schedule.sellingRate + (boosted ? BOOST_RATES[region] : 0),
     paymentRate: schedule.processingRate,
     paymentFixed: schedule.processingFixed,
   };
