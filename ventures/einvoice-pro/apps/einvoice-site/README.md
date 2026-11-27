@@ -73,6 +73,7 @@ open these sites, so each statement was first matched against search excerpts an
 * note saying so. On 2026-11-27 the BMF FAQ, both BMF letters (15 October 2025 and 15 October 2026)
 and the impots.gouv.fr page, start-up guide and FAQ PDF answered, and every German and French
 statement was re-read against the official text (`checkedVia: "direct"`, and a test keeps it so).
+The quotes are in `docs/SOURCE-RECHECK-2026-11-27.md`.
 What the re-read changed:
 
 - Germany, 31 December 2026: the transition rule now says that paper is always allowed but a PDF or

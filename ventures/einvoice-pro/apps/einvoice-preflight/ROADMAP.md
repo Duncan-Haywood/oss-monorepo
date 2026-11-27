@@ -201,7 +201,8 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
 - ~~Re-check each official deadline source directly~~ done 2026-11-27
   (launch-re-check-each-official-deadline): every German and French statement re-read against the
   BMF and impots.gouv.fr text itself, two wordings corrected, all sources `checkedVia: "direct"`
-  (einvoice-site README, "Germany and France, read directly on 2026-11-27").
+  (einvoice-site README, "Germany and France, read directly on 2026-11-27"; the quote behind every
+  statement in `apps/einvoice-site/docs/SOURCE-RECHECK-2026-11-27.md`).
 
 - Dutch explanations, part 1 (2026-11-27, dutch-explanations-part-1): the wedge in bets.md promises
   "plain German, French or Dutch", and the app had no Dutch. Every rule except the KSeF ones (111 ids)

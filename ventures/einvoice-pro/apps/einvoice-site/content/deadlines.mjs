@@ -7,7 +7,9 @@
 // matched against search excerpts. On 2026-11-27 the BMF and impots.gouv.fr pages and PDFs answered
 // and every German and French statement was re-read against the official text itself
 // (`checkedVia: "direct"`). economie.gouv.fr still answered 403, so nothing cites it any more: the
-// French dates now come from impots.gouv.fr. `checkedVia: "search-excerpt"` stays allowed for a
+// French dates now come from impots.gouv.fr: the receiving date, the 2027 issuing date (with
+// e-reporting and voluntary early entry) and the new mentions from DGFiP's FAQ (questions 5.1, 8.1,
+// 1.3, 3.4), which states each of them; docs/SOURCE-RECHECK-2026-11-27.md quotes every sentence. `checkedVia: "search-excerpt"` stays allowed for a
 // future source that cannot be opened, and the pages mark it with a *.
 
 /** Official hosts a source may live on. Anything else fails the build test. */
@@ -59,7 +61,7 @@ export const SOURCES = {
   },
   frImpotsFaq: {
     publisher: "DGFiP (impots.gouv.fr)",
-    title: "Foire aux questions : je découvre la facturation électronique",
+    title: "Foire aux questions : je découvre la facturation électronique (version du 1er septembre 2026)",
     url: "https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/faq---fe_je-decouvre-la-facturation-electronique.pdf",
     checked: "2026-11-27",
     checkedVia: "direct",
@@ -223,7 +225,7 @@ export const COUNTRIES = [
       {
         date: "2026-09-01",
         kind: "receive",
-        source: "frImpotsGuide",
+        source: "frImpotsFaq",
         text: {
           de: "Alle Unternehmen, unabhängig von ihrer Größe, müssen E-Rechnungen empfangen können, und zwar über eine zugelassene Plattform (plateforme agréée).",
           fr: "Toutes les entreprises, quelle que soit leur taille, doivent être en capacité de recevoir des factures électroniques, par l'intermédiaire d'une plateforme agréée.",
@@ -245,7 +247,7 @@ export const COUNTRIES = [
       {
         date: "2027-09-01",
         kind: "issue",
-        source: "frImpotsGuide",
+        source: "frImpotsFaq",
         text: {
           de: "Kleine und mittlere Unternehmen (PME) und Kleinstunternehmen müssen spätestens ab diesem Tag E-Rechnungen ausstellen und das E-Reporting übermitteln. Ein freiwilliger früherer Einstieg ist möglich.",
           fr: "Les PME et les micro-entreprises doivent émettre leurs factures au format électronique, et transmettre leur e-reporting, au plus tard à cette date. Elles peuvent entrer volontairement plus tôt.",
@@ -267,10 +269,10 @@ export const COUNTRIES = [
       {
         source: "frImpotsFaq",
         text: {
-          de: "Vier neue Pflichtangaben: die SIREN des Kunden, die Art des Umsatzes (Lieferung, Dienstleistung oder beides), gegebenenfalls die Option zur Besteuerung nach vereinbarten Entgelten (TVA sur les débits) und die Lieferadresse, wenn sie von der Rechnungsadresse abweicht.",
-          fr: "Quatre nouvelles mentions obligatoires : le SIREN du client, la catégorie de l'opération (livraison de biens, prestation de services ou les deux), l'option pour le paiement de la TVA d'après les débits le cas échéant, et l'adresse de livraison si elle diffère de l'adresse de facturation.",
-          en: "Four new mandatory details: the customer's SIREN, the category of the transaction (goods, services or both), the option to pay VAT on debits where it applies, and the delivery address when it differs from the billing address.",
-          nl: "Vier nieuwe verplichte vermeldingen: het SIREN-nummer van de klant, de categorie van de handeling (levering van goederen, dienstverrichting of beide), waar van toepassing de keuze om de btw te voldoen op basis van de facturering (TVA sur les débits), en het leveringsadres als dat afwijkt van het factuuradres.",
+          de: "Vier neue Pflichtangaben ab dem 1. September 2026: die SIREN des Kunden, die Art des Umsatzes (Lieferung, Dienstleistung oder beides), gegebenenfalls die Option zur Besteuerung nach vereinbarten Entgelten (TVA sur les débits) und die Lieferadresse, wenn sie von der Rechnungsadresse abweicht.",
+          fr: "Quatre nouvelles mentions obligatoires à compter du 1er septembre 2026 : le SIREN du client, la catégorie de l'opération (livraison de biens, prestation de services ou les deux), l'option pour le paiement de la TVA d'après les débits le cas échéant, et l'adresse de livraison si elle diffère de l'adresse de facturation.",
+          en: "Four new mandatory details from 1 September 2026: the customer's SIREN, the category of the transaction (goods, services or both), the option to pay VAT on debits where it applies, and the delivery address when it differs from the billing address.",
+          nl: "Vier nieuwe verplichte vermeldingen vanaf 1 september 2026: het SIREN-nummer van de klant, de categorie van de handeling (levering van goederen, dienstverrichting of beide), waar van toepassing de keuze om de btw te voldoen op basis van de facturering (TVA sur les débits), en het leveringsadres als dat afwijkt van het factuuradres.",
         },
       },
     ],
