@@ -17,12 +17,13 @@ import sys
 from pathlib import Path
 
 FIXTURE_DOMAINS = ("builder", "supplier", "harborbuilders", "peakgc", "sierra")
-EMAIL = re.compile(r"@(" + "|".join(FIXTURE_DOMAINS) + r")\.com\b", re.I)
+# The optional backslash catches the same address inside a test's regex literal (`@sierra\.com`).
+EMAIL = re.compile(r"@(" + "|".join(FIXTURE_DOMAINS) + r")(\\?)\.com\b", re.I)
 SUFFIXES = {".ts", ".tsx", ".mjs", ".js", ".json", ".md"}
 
 
 def rewrite(text: str) -> str:
-    return EMAIL.sub(lambda m: f"@{m.group(1)}.example", text)
+    return EMAIL.sub(lambda m: f"@{m.group(1)}{m.group(2)}.example", text)
 
 
 def main(root: str) -> int:

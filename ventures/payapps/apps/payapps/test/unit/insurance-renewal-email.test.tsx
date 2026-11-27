@@ -98,7 +98,7 @@ it("drafts one email a GC of the renewed certificate, addressed from the job's P
   expect(body).toContain("Policy number: GL-2");
   const link = screen.getAllByRole("link", { name: "Open in my email" })[0] as HTMLAnchorElement;
   expect(link.getAttribute("href")).toMatch(
-    /^mailto:pm@peakgc\.com\?subject=Renewed%20certificate/,
+    /^mailto:pm@peakgc\.example\?subject=Renewed%20certificate/,
   );
 });
 

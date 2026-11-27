@@ -49,7 +49,13 @@ const jobs: RenewalEmailJob[] = [
     gcPmEmail: "Dana@PeakGC.example",
   },
   { id: "p3", name: "Main St Lofts", number: "77", gcPmName: null, gcPmEmail: null },
-  { id: "p4", name: "Harbor Office", number: null, gcPmName: "Lee", gcPmEmail: "lee@sierra.example" },
+  {
+    id: "p4",
+    name: "Harbor Office",
+    number: null,
+    gcPmName: "Lee",
+    gcPmEmail: "lee@sierra.example",
+  },
 ];
 const from = { name: "Sam Ortiz", company: "Ortiz Electric" };
 const today = "2026-11-26";
@@ -196,7 +202,7 @@ describe("renewalEmails", () => {
       x.id === "p4" ? { ...x, gcPmEmail: "lee@sierra.example?bcc=x@y.com" } : x,
     );
     const e = renewalEmails(cert(), [cert(), old], j, from, today)[1];
-    expect(e && mailtoHref(e)).toMatch(/^mailto:lee@sierra\.com%3Fbcc%3Dx@y\.com\?subject=/);
+    expect(e && mailtoHref(e)).toMatch(/^mailto:lee@sierra\.example%3Fbcc%3Dx@y\.com\?subject=/);
   });
 });
 
