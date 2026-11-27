@@ -196,11 +196,19 @@ export async function removeSignup(db: D1Database, token: string): Promise<Remov
   return res.meta.changes > 0 ? "removed" : "invalid";
 }
 
-/** Cron: delete never-confirmed sign-ups older than the retention window. Returns rows deleted. */
+/**
+ * Cron: delete never-confirmed sign-ups older than the retention window whose newest confirmation
+ * link has also expired (the email promises 7 days, so a link re-sent on day 29 still works on day
+ * 35). Returns rows deleted.
+ */
 export async function purgePending(db: D1Database, now: Date): Promise<number> {
+  const t = now.getTime();
   const res = await db
-    .prepare("DELETE FROM early_access_signups WHERE status = 'pending' AND created_at < ?")
-    .bind(now.getTime() - PENDING_RETENTION_MS)
+    .prepare(
+      `DELETE FROM early_access_signups WHERE status = 'pending' AND created_at < ?
+         AND (confirm_expires_at IS NULL OR confirm_expires_at <= ?)`,
+    )
+    .bind(t - PENDING_RETENTION_MS, t)
     .run();
   return res.meta.changes;
 }

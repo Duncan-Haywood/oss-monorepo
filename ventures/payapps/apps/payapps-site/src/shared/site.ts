@@ -21,6 +21,8 @@ export const DEFAULT_SITE_URL = "https://marisstella.app/payapps";
 export const SITE_TAGLINE = "Monthly pay applications for subcontractors";
 /** One line used wherever the site talks about pay-app forms, waivers or retainage. */
 export const NOT_AIA_NOTE = `${PRODUCT_NAME} is not affiliated with the American Institute of Architects (AIA) and does not produce AIA Contract Documents. Nothing on this site is legal advice.`;
+/** The footer's limitation line (PRODUCT_PLAYBOOK.md §5b; the app's Terms of Service govern its use). */
+export const WARRANTY_NOTE = `${PRODUCT_NAME} is provided as is, with no warranty: check every figure before you send a pay application. Use of the app is governed by its Terms of Service.`;
 /** Date the public copy last changed (sitemap <lastmod>, feed <updated>). */
 export const CONTENT_UPDATED = "2026-11-27";
 
@@ -132,6 +134,36 @@ export const PAGES = {
 
 export type PageKey = keyof typeof PAGES;
 export const PAGE_LIST: readonly PublicPage[] = Object.values(PAGES);
+
+/**
+ * The pages that exist only with the early-access list (the Worker's `/api/early-access`). The
+ * catalogue copy (`pnpm export:catalogue`, served as static files on marisstella.app/payapps) has no
+ * Worker behind it, so it leaves these out; the app is open, so nobody needs the list to start.
+ */
+export const EARLY_ACCESS_PAGES: readonly PageKey[] = [
+  "earlyAccess",
+  "checkEmail",
+  "confirmed",
+  "removed",
+];
+
+/** The privacy page of a build with no early-access list: there is nothing on the site to store. */
+export const PRIVACY_NO_LIST: PublicPage = {
+  ...PAGES.privacy,
+  description:
+    "The PayApps website has no forms, cookies or analytics. What the host sees when you load a page, and where your PayApps account's own privacy policy is.",
+};
+
+/** The page keys a build writes: all of them, or all but the early-access pages. */
+export function pageKeys(earlyAccess: boolean): PageKey[] {
+  const keys = Object.keys(PAGES) as PageKey[];
+  return earlyAccess ? keys : keys.filter((k) => !EARLY_ACCESS_PAGES.includes(k));
+}
+
+/** A page's metadata in a build with or without the early-access list. */
+export function publicPage(key: PageKey, earlyAccess: boolean): PublicPage {
+  return key === "privacy" && !earlyAccess ? PRIVACY_NO_LIST : PAGES[key];
+}
 
 /** "/payapps" from "https://marisstella.app/payapps"; "" at the host root. */
 export function basePathOf(siteUrl: string): string {

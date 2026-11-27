@@ -1,0 +1,170 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtGJWArkJMMauryfaDY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T08:17:09Z",
+  "ended": "2026-11-27T09:02:53Z",
+  "wall_minutes": 46.03,
+  "tokens_in": 23036646,
+  "tokens_out": 63872,
+  "cost_usd": 7.8556,
+  "tool_calls": 140,
+  "task": "Port Job Shop Quote's deploy workflow (bet #2) here with its launch review: allowlist PR, then workflow + legal review",
+  "projects": [
+    "jobshop-quote",
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19682",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First gate run used `analyze --diff` on an uncommitted diff and reported 0 findings for a new workflow (the gap open PR #19652 fixes); committing and using --base/--head showed the 14 real blocks",
+    "A sequential cherry-pick with `git cherry-pick -q origin/main..branch` silently applied nothing, so one gate run tested the wrong tree; redone commit by commit",
+    "After #19670 merged the remote session branch was deleted; --force-with-lease then failed with 'stale info' until the upstream was unset"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "For a paid-app workspace venture (no index.html, like payapps) it demands a launched.json date and a catalogue category, which the catalogue build never uses for it; cost time to confirm they were false positives"
+    },
+    {
+      "file": "ventures/jobshop-quote/DEPLOY.md",
+      "issue": "The port recipe did not mention docs/security/secrets-inventory.yaml; only the preflight's main_health run found the nine missing entries (seller-books PR #19662 hit the same gap via CODEOWNERS)"
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "Two sessions started the same jobshop-quote deploy port within a minute (#19670, #19671); a claim branch for repo-level tasks like workflow ports (as roadmap_claim does for ROADMAP items) would have prevented it"
+    },
+    {
+      "file": "docs/reports/2026-11-27-state-certified-payroll-filing-systems.md",
+      "issue": "L&I's PWIA step-by-step PDF shows on-screen entry only; the XML upload has its own guide and schema (found by PR #19673 in parallel). This session nearly recorded Washington as having no upload; corrected before merge"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bet #1 payapps had one free item (needs a Windows PC and Android phone) and several parallel sessions; its next certified-payroll formats (NJ, WA) had no reachable spec. Bet #2's deploy, the step before its first sign-up, was unclaimed when picked",
+      "did": "Took bet #2's deploy port and launch review; wrote the NJ/WA spec findings for bet #1 into the state report",
+      "result": "#19670 merged; #19682 carries the workflow and review"
+    },
+    {
+      "file": "private-monorepo .github/workflows/jobshop-quote-deploy.yml",
+      "why": "Its fallback to the shared ANTHROPIC_API_KEY would start paid LLM spend for free sign-ups (up to $200/day) without an owner decision",
+      "did": "The port reads only JOBSHOP_ANTHROPIC_API_KEY; the review asks the owner to set GLOBAL_DAILY_LLM_CAP_USD first",
+      "result": "AI off on first deploy; no spend without the owner"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new customer post: a deploy port and a policy review tell a machine shop nothing new",
+      "did": "Writeups are the launch review, DEPLOY.md and the certified-payroll state report update",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/jobshop-quote/apps/jobshop-quote/docs/LAUNCH-REVIEW.md",
+    "ventures/jobshop-quote/DEPLOY.md",
+    "docs/reports/2026-11-27-state-certified-payroll-filing-systems.md"
+  ],
+  "goal": null,
+  "notes": "Local: gate.py analyze (base = allowlist) 0 blocking, 3 warnings; ci_policy_check ok; validate_workflows 144 valid; secrets_inventory 52 ok; publish_surface --check ok; jobshop-quote biome ci, typecheck, unit 633/633, worker 282/282. #19670 CI all green (adversarial-gate took ~35 min to get a runner). Next run: once the owner gives the Cloudflare token R2 edit, dispatch jobshop-quote-deploy on main and record the URL in ventures/jobshop-quote/DEPLOY.md. Merge with main: CODEOWNERS and secrets-inventory conflicted with the Seller Books port (#19662); kept both and re-applied the jobshop entries (inventory 56 secrets ok). #19683 (parallel session) already put R2 on the token in the decision queue.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "04e8d6f4-5fd6-5d39-9962-45b757407d11",
+    "transcripts": 1,
+    "first": "2026-11-27T08:17:09Z",
+    "last": "2026-11-27T09:03:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 130,
+        "input": 252,
+        "output": 63872,
+        "thinking": 10919,
+        "cache_read": 22783845,
+        "cache_write_5m": 0,
+        "cache_write_1h": 252549,
+        "api_equivalent_usd": 7.8556,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 130,
+      "input": 252,
+      "output": 63872,
+      "thinking": 10919,
+      "cache_read": 22783845,
+      "cache_write_5m": 0,
+      "cache_write_1h": 252549,
+      "api_equivalent_usd": 7.8556,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 140,
+    "tools": {
+      "Bash": 116,
+      "mcp__github__pull_request_read": 9,
+      "ToolSearch": 3,
+      "WebSearch": 2,
+      "Write": 2,
+      "Edit": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__get_file_contents": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 46.03,
+      "active_minutes": 29.47,
+      "model_minutes": 12.65,
+      "tool_minutes": 16.82,
+      "waiting_on_human_minutes": 16.56,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "port and harden a secrets-bearing deploy workflow, allowlist and inventory, launch review of four legal pages against 37 tables and 11 email sends, two spec hunts",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 63.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

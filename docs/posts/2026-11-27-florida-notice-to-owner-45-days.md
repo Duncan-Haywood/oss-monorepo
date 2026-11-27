@@ -120,8 +120,11 @@ lists the date for each unpaid month with any weekend or holiday extension besid
 notice, the lien affidavit (§ 53.052), its five-day copies (§ 53.055) and the one-year suit date
 (§ 53.158(a)), and drafts the § 53.056(a-2) or § 53.057(a-2) form word for word, with the
 § 53.254(g) statement for a homestead. Its tests check both forms and every quoted phrase against
-the statute text read on 2026-11-27. PayApps does not yet track Texas notices; its cash page
-already shows what each GC owes and for how long, which is the list a Texas notice starts from.
+the statute text read on 2026-11-27. In PayApps, a Texas job's notice panel prints
+both forms from the job (date, project and address, your company, the GC), and "Texas deadlines"
+beside it lists each unpaid month's date, the retainage notice and both lien affidavit dates. It
+does not log the notices you send or remind you yet; the cash page already shows what each GC owes
+and for how long, which is the list a Texas notice starts from.
 
 ## Free: the dates and the form in your browser
 

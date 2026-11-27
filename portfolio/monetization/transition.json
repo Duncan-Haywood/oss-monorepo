@@ -4,17 +4,17 @@
   "counts": {
     "mit-commons": 5,
     "mit-deployer-run": 1,
-    "mit-lead-magnet": 1418,
-    "proprietary": 25
+    "mit-lead-magnet": 1417,
+    "proprietary": 26
   },
   "models": {
     "subscription": 14,
-    "one-off": 11
+    "one-off": 12
   },
   "proprietary": [
     {
       "venture": "payapps",
-      "source_lines": 142116,
+      "source_lines": 141586,
       "track": "proprietary",
       "why": "flagship #1: the depth people pay for",
       "model": "subscription",
@@ -68,7 +68,7 @@
     },
     {
       "venture": "seller-books",
-      "source_lines": 45219,
+      "source_lines": 44397,
       "track": "proprietary",
       "why": "flagship #5: the depth people pay for",
       "model": "subscription",
@@ -307,6 +307,17 @@
       "third_party_licences": [],
       "moved": null,
       "move_order": 25
+    },
+    {
+      "venture": "pay-app-guides",
+      "source_lines": 5353,
+      "track": "proprietary",
+      "why": "over 5000 lines of product code, more than a single-page tool",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "moved": null,
+      "move_order": 26
     }
   ],
   "stay_mit": {
@@ -321,5 +332,5 @@
       "sales-agent"
     ]
   },
-  "lead_magnets": 1418
+  "lead_magnets": 1417
 }

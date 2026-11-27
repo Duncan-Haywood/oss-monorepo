@@ -1,30 +1,18 @@
-import { createRootRoute, createRoute, createRouter } from "@tanstack/react-router";
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  lazyRouteComponent,
+} from "@tanstack/react-router";
 import { Layout } from "./components/layout";
 import { ForgotPasswordPage, ResetPasswordPage, VerifyEmailPage } from "./pages/account";
-import { BillingPage } from "./pages/billing";
-import { CashPage } from "./pages/cash";
-import { CertifiedPayrollPage } from "./pages/certified-payroll";
-import { CrewsPage } from "./pages/crews";
-import { DailyReportsPage } from "./pages/daily-reports";
-import { DocumentsPage } from "./pages/documents";
-import { EstimatePage, EstimatesPage } from "./pages/estimates";
 import { HomePage } from "./pages/home";
-import { InsurancePage } from "./pages/insurance";
-import { JobCostPage } from "./pages/job-cost";
 import { LegalPage } from "./pages/legal";
-import { OrgPage } from "./pages/org";
-import { PayAppPage } from "./pages/pay-app";
-import { PriceListPage } from "./pages/price-list";
-import { ProjectPage } from "./pages/project";
-import { QuickBooksPage } from "./pages/quickbooks";
-import { SubmittalsPage } from "./pages/submittals";
-import { SwornStatementPage } from "./pages/sworn-statement";
-import { TeamPage } from "./pages/team";
-import { TimesheetsPage } from "./pages/timesheets";
-import { TmTicketsPage } from "./pages/tm-tickets";
 import { UnsubscribePage } from "./pages/unsubscribe";
-import { WipPage } from "./pages/wip";
 
+// The sign-in page (home), the account-email links, legal and unsubscribe load with the app; every
+// signed-in page loads on first visit (lazyRouteComponent), so a visitor signing up downloads the
+// shell and the home page, not all of the app's pages (docs/history/payapps-app-first-load-perf-2026-11-27.md).
 const rootRoute = createRootRoute({ component: Layout });
 const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: "/", component: HomePage });
 const forgotPasswordRoute = createRoute({
@@ -63,107 +51,107 @@ const legalRoute = createRoute({
 const orgRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId",
-  component: OrgPage,
+  component: lazyRouteComponent(() => import("./pages/org"), "OrgPage"),
 });
 const cashRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/cash",
-  component: CashPage,
+  component: lazyRouteComponent(() => import("./pages/cash"), "CashPage"),
 });
 const billingRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/billing",
-  component: BillingPage,
+  component: lazyRouteComponent(() => import("./pages/billing"), "BillingPage"),
 });
 const quickbooksRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/quickbooks",
-  component: QuickBooksPage,
+  component: lazyRouteComponent(() => import("./pages/quickbooks"), "QuickBooksPage"),
 });
 const insuranceRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/insurance",
-  component: InsurancePage,
+  component: lazyRouteComponent(() => import("./pages/insurance"), "InsurancePage"),
 });
 const documentsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/documents",
-  component: DocumentsPage,
+  component: lazyRouteComponent(() => import("./pages/documents"), "DocumentsPage"),
 });
 const teamRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/team",
-  component: TeamPage,
+  component: lazyRouteComponent(() => import("./pages/team"), "TeamPage"),
 });
 const projectRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/projects/$projectId",
-  component: ProjectPage,
+  component: lazyRouteComponent(() => import("./pages/project"), "ProjectPage"),
 });
 const jobCostRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/projects/$projectId/job-cost",
-  component: JobCostPage,
+  component: lazyRouteComponent(() => import("./pages/job-cost"), "JobCostPage"),
 });
 const certifiedPayrollRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/projects/$projectId/certified-payroll",
-  component: CertifiedPayrollPage,
+  component: lazyRouteComponent(() => import("./pages/certified-payroll"), "CertifiedPayrollPage"),
 });
 const swornStatementRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/projects/$projectId/sworn-statement",
-  component: SwornStatementPage,
+  component: lazyRouteComponent(() => import("./pages/sworn-statement"), "SwornStatementPage"),
 });
 const submittalsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/projects/$projectId/submittals",
-  component: SubmittalsPage,
+  component: lazyRouteComponent(() => import("./pages/submittals"), "SubmittalsPage"),
 });
 const estimatesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/estimates",
-  component: EstimatesPage,
+  component: lazyRouteComponent(() => import("./pages/estimates"), "EstimatesPage"),
 });
 const priceListRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/price-list",
-  component: PriceListPage,
+  component: lazyRouteComponent(() => import("./pages/price-list"), "PriceListPage"),
 });
 const estimateRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/estimates/$estimateId",
-  component: EstimatePage,
+  component: lazyRouteComponent(() => import("./pages/estimates"), "EstimatePage"),
 });
 const dailyReportsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/projects/$projectId/daily-reports",
-  component: DailyReportsPage,
+  component: lazyRouteComponent(() => import("./pages/daily-reports"), "DailyReportsPage"),
 });
 const tmTicketsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/projects/$projectId/tm-tickets",
-  component: TmTicketsPage,
+  component: lazyRouteComponent(() => import("./pages/tm-tickets"), "TmTicketsPage"),
 });
 const crewsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/crews",
-  component: CrewsPage,
+  component: lazyRouteComponent(() => import("./pages/crews"), "CrewsPage"),
 });
 const timesheetsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/timesheets",
-  component: TimesheetsPage,
+  component: lazyRouteComponent(() => import("./pages/timesheets"), "TimesheetsPage"),
 });
 const wipRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/wip",
-  component: WipPage,
+  component: lazyRouteComponent(() => import("./pages/wip"), "WipPage"),
 });
 const payAppRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/projects/$projectId/pay-apps/$payAppId",
-  component: PayAppPage,
+  component: lazyRouteComponent(() => import("./pages/pay-app"), "PayAppPage"),
 });
 
 export const router = createRouter({

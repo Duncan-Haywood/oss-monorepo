@@ -63,6 +63,8 @@ export const PRODUCTS = [
     paidOnly: ['lien waivers', 'QuickBooks Online sync', 'job costing and the WIP schedule'],
     planned: [],
     freeToday: ['pay-application-generator', 'pay-app-guides', 'retainage-cashflow-calculator', 'lien-waiver-checker'],
+    // Its own marketing site at /payapps/ (features and pricing), when the build copied it in.
+    site: 'payapps',
   },
   {
     id: 'residential-takeoff',
@@ -114,6 +116,10 @@ export const PROBLEMS = [
       ['pay-app-guides/pay-application-checker.html', 'Pay application checker', 'Paste last month’s approved SOV and this month’s draft; see the carry-forward and retainage errors a GC would send back.'],
       ['pay-app-guides/schedule-of-values-template.html', 'Schedule of values template (Excel)', 'A free continuation-sheet spreadsheet and a filled-in example.'],
       ['pay-app-guides/how-to-fill-out-a-pay-application.html', 'How to fill out a pay application', 'The continuation sheet column by column and the summary page line by line.'],
+      ['pay-app-guides/electrical-contractor-billing.html', 'Pay apps for electrical contractors', 'An SOV by area and phase, switchgear and fixtures as stored materials, extras on signed tickets, certified payroll on public jobs.'],
+      ['pay-app-guides/mechanical-contractor-billing.html', 'Pay apps for HVAC and plumbing', 'Equipment as stored materials, start-up and balancing as their own lines, and the close-out package retainage waits on.'],
+      ['pay-app-guides/drywall-contractor-billing.html', 'Pay apps for drywall and framing', 'An SOV by floor and phase, stocked board, extras from other trades, back charges and punch lists.'],
+      ['pay-app-guides/concrete-contractor-billing.html', 'Pay apps for concrete (unit prices)', 'Billing by cubic yard, square foot and linear foot: quantities each month, overruns, pump and standby tickets.'],
       ['pay-app-guides/front-loading-schedule-of-values.html', 'Front-loading check', 'Compare each schedule of values line’s markup with the job’s, see what a reviewer sees, and get a balanced SOV.'],
       ['pay-app-guides/stored-materials-billing.html', 'Billing stored materials', 'The monthly stored-materials rollforward, so installed material is billed once, and the backup reviewers ask for.'],
       ['pay-app-guides/retainage-explained.html', 'Retainage explained, with state caps', 'How retainage is calculated and released, and public retainage caps for 16 states, each linked to the statute.'],
@@ -308,6 +314,8 @@ export function renderConstructionPage({
   researchSlugs = null,
   earlyAccessUrl = '',
   shots = [],
+  // The product sites this build copied in (`payapps` from payapps-site.mjs): their cards link them.
+  productSites = new Set(),
 } = {}) {
   // A tool is a venture slug (`pay-app-guides`) or a page inside one
   // (`pay-app-guides/retainage-tracker.html`); liveness is the venture's.
@@ -382,7 +390,8 @@ export function renderConstructionPage({
         <p>${escapeHtml(p.summary)}</p>${p.included?.length ? `
         <p class="ic-included">On the Free plan: ${escapeHtml(p.included.join(', '))}.</p>` : ''}${p.paidOnly?.length ? `
         <p class="ic-planned">In the paid plans, not on sale yet: ${escapeHtml(p.paidOnly.join(', '))}.</p>` : ''}${p.appUrl ? `
-        <p><a class="ic-start" href="${escapeHtml(p.appUrl)}">Start free in PayApps</a> (no card)</p>` : ''}${p.built?.length ? `
+        <p><a class="ic-start" href="${escapeHtml(p.appUrl)}">Start free in PayApps</a> (no card)</p>` : ''}${p.site && productSites.has(p.site) ? `
+        <p><a href="${escapeHtml(`${toRoot}${p.site}/`)}">PayApps features and pricing</a></p>` : ''}${p.built?.length ? `
         <p class="ic-built">Built, in testing (not open yet): ${escapeHtml(p.built.join(', '))}.</p>` : ''}${p.planned.length ? `
         <p class="ic-planned">Planned: ${escapeHtml(p.planned.join(', '))}.</p>` : ''}${openProduct && p.status === 'early-access' && EARLY_ACCESS_KEYS[p.id] ? `
         <p><a href="#early-access">Ask for early access</a></p>` : ''}${free.length ? `

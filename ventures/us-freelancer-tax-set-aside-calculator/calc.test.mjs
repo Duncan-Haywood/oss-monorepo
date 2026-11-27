@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { compute, seTax, incomeTax, marginalRate, SAMPLE, summaryText } from "./calc.mjs";
 
+const r2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 const run = (o) => compute({ ...SAMPLE, ...o });
 
 test("SE tax: 15.3% of 92.35% of profit, under the wage base", () => {
@@ -158,12 +159,54 @@ test("next $1,000 on the worked example adds $351.34 (by hand)", () => {
 test("zero profit gives 0% of profit, not NaN", () => {
   assert.equal(run({ revenue: "1000", expenses: "5000" }).setAsideOfNet, 0);
 });
-test("HoH QBI deduction stops once taxable income passes $201,750", () => {
-  const r = run({ filingStatus: "hoh", revenue: "10000", expenses: "0", stateRate: "0", w2Wages: "216033.92" });
-  assert.equal(r.agi, 225900.01); // taxable before QBI 201,750.01
-  assert.equal(r.qbi, 0);
-  const under = run({ filingStatus: "hoh", revenue: "10000", expenses: "0", stateRate: "0", w2Wages: "216000" });
-  assert.ok(under.qbi > 0);
+test("HoH QBI deduction starts phasing out once taxable income passes $201,750, and is gone past $276,750", () => {
+  // Wages pass the SS base, so SE tax is Medicare only: half = 133.91; QBI base 9,866.09.
+  // Below the threshold the full 20% stands: 1,973.22.
+  const at = run({ filingStatus: "hoh", revenue: "10000", expenses: "0", stateRate: "0", w2Wages: "216000" });
+  assert.equal(at.qbi, 1973.22);
+  const top = run({ filingStatus: "hoh", revenue: "10000", expenses: "0", stateRate: "0", w2Wages: "291033.92" });
+  assert.equal(r2(top.taxable + top.qbi), 276750.01);
+  assert.equal(top.qbi, 0);
+  const inside = run({ filingStatus: "hoh", revenue: "10000", expenses: "0", stateRate: "0", w2Wages: "253533.92" });
+  // Halfway through the $75,000 range (excess 37,500.01): about half of 1,973.22.
+  assert.equal(inside.qbi, 986.61);
+});
+
+// Quality audit 2026-11-20, defects 3 and 5 (fixed 2026-11-27).
+test("QBI phases in over $75,000 above the threshold (IRC 199A(b)(3), (d)(3)), not a cliff: $250k single by hand", () => {
+  // SE earnings 230,875; SE tax 22,878 + 6,695.38 = 29,573.38, half 14,786.69.
+  // AGI 235,213.31; before QBI 219,113.31; excess 17,363.31 of 75,000.
+  // 20% x 235,213.31 x (1 - 17,363.31 / 75,000) = 36,151.78.
+  const r = run({ revenue: "250000", expenses: "0", stateRate: "0" });
+  assert.equal(r.agi, 235213.31);
+  assert.equal(r.qbi, 36151.78);
+  assert.ok(r.findings.some((f) => /phases out between there and \$276,750: this tool takes \$36151\.78/.test(f.title)));
+  // Next $1,000 near the threshold is no longer a ~$10k jump.
+  const edge = run({ revenue: "232400", expenses: "0", stateRate: "0" });
+  assert.ok(edge.marginalPer1000 < 700, String(edge.marginalPer1000));
+});
+test("joint filers phase out over $150,000 above $403,500", () => {
+  const r = run({ filingStatus: "mfj", revenue: "500000", expenses: "0", stateRate: "0" });
+  const before = r2(r.taxable + r.qbi);
+  const base = r2(r.agi); // no other income, so QBI base = net - half SE = AGI
+  assert.equal(r.qbi, r2(base * 0.2 * (1 - (before - 403500) / 150000)));
+  assert.ok(r.qbi > 60000 && r.qbi < 70000);
+});
+test("Additional Medicare with W-2 wages uses only the threshold the wages leave", () => {
+  // 150,000 of wages leaves 50,000 of the 200,000 threshold: (92,350 - 50,000) x 0.9% = 381.15.
+  assert.equal(seTax(100000, 150000, "single").additional, 381.15);
+  assert.equal(run({ w2Wages: "150000" }).se.additional, 381.15);
+});
+test("with a large prior-year tax the 1040-ES target is 90% of this year's federal tax", () => {
+  // Worked example: SE 14,129.55 + federal 8,235 = 22,364.55; 90% = 20,128.10.
+  const f = run({ priorYearTax: "99999" }).findings.find((x) => /1040-ES/.test(x.title));
+  assert.match(f.title, /at least \$20128\.10 in total \(90% of this year's federal tax\)/);
+});
+test("head of household 12% and 22% brackets (Rev. Proc. 2025-32 Table 2)", () => {
+  assert.equal(incomeTax(17700, "hoh"), 1770);
+  assert.equal(incomeTax(67450, "hoh"), 1770 + 49750 * 0.12);
+  assert.equal(marginalRate(67449, "hoh"), 0.12);
+  assert.equal(marginalRate(67450, "hoh"), 0.22);
 });
 
 // Red-team 2026-11-20 real defects.

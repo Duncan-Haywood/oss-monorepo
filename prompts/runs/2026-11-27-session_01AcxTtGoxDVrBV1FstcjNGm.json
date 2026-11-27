@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtGoxDVrBV1FstcjNGm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T12:06:59Z",
+  "ended": "2026-11-27T12:15:28Z",
+  "wall_minutes": 8.68,
+  "tokens_in": 9923217,
+  "tokens_out": 39023,
+  "cost_usd": 3.9054,
+  "tool_calls": 79,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19734",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/cmmc/apps/cmmc/src/shared/plans.test.ts",
+      "issue": "Margin test priced a draft at 8k input tokens, but the field limits in routes/org allow ~14k; corrected to 20k. Other apps' margin tests may make the same assumption."
+    },
+    {
+      "file": "ventures/cmmc/apps/cmmc/docs/BILLING.md",
+      "issue": "Turning-it-on step 1 still said counsel reviews the legal pages before launch, contradicting docs/legal/OPERATOR.md (2026-11-26). Fixed."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "'Bets #3-#5 have no review yet' was stale (seller-books had one); updated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: this is launch-gating work (review, spend cap, legal text) with no new customer-facing feature to write up. The review itself is the agent doc, in the product tree.",
+      "did": "Wrote apps/cmmc/docs/LAUNCH-REVIEW.md and linked it from DEPLOY.md, BILLING.md and bets.md.",
+      "result": "Record in place for the deploy-port PR."
+    },
+    {
+      "file": "ventures/jobshop-quote (pattern)",
+      "why": "Job Shop Quote's global cap is $30/day; copying it would allow ~$900/month against CMMC's $50 budget_cap in VENTURE.yaml.",
+      "did": "Default $1.50/day, turned into a draft count at the model's worst-case price, counted from existing audit rows (no new table).",
+      "result": "Tests pass; fits dozens of paid shops at full allowance."
+    }
+  ],
+  "writeups": [
+    "ventures/cmmc/apps/cmmc/docs/LAUNCH-REVIEW.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; ideas inbox empty. Bets #1 and #4 roadmaps had every item waiting on demand, so took the CMMC launch review (unblocks the first deploy once cmmc-deploy is ported). Verified locally: pnpm typecheck clean; unit 494/494, worker 159/159; biome clean on changed files.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "60802079-f246-5eb7-8893-3f4b5f503cef",
+    "transcripts": 1,
+    "first": "2026-11-27T12:06:59Z",
+    "last": "2026-11-27T12:15:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 146,
+        "output": 39023,
+        "thinking": 8634,
+        "cache_read": 9776956,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146115,
+        "api_equivalent_usd": 3.9054,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 146,
+      "output": 39023,
+      "thinking": 8634,
+      "cache_read": 9776956,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146115,
+      "api_equivalent_usd": 3.9054,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 73,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.68,
+      "active_minutes": 8.68,
+      "model_minutes": 6.76,
+      "tool_minutes": 1.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: launch review of 4 legal pages against ~30 tables, plus a spend guard with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 153.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

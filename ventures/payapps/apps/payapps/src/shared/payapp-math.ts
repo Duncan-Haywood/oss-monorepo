@@ -18,6 +18,8 @@
 //   (line 6 of the previous application) · 8 current payment due (6 − 7)
 //   9 balance to finish, including retainage (3 − 6)
 
+import { formatCents } from "./money";
+
 export const BPS_DENOMINATOR = 10_000;
 
 /** amount × bps / 10 000, rounded half away from zero to whole cents. */
@@ -242,7 +244,8 @@ export function summarizeChangeOrders(
   return s;
 }
 
-const fmtUsd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+/** The checks are read by people: "$1,500.00", as the rest of the page and the PDF show money. */
+const fmtUsd = formatCents;
 
 /**
  * Computes every pay application of a project, in order. `periods` must be sorted by `number`.

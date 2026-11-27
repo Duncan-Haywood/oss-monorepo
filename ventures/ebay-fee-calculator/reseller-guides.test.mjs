@@ -28,7 +28,10 @@ for (const f of GUIDES) {
     for (const q of schema.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
   });
   test(`${f}: honest product status and no 1099-K fear`, () => {
-    assert.match(html, /in development &mdash; early access/);
+    assert.match(html, /free on one platform/);
+    assert.match(html, /paid plans are not on sale yet/);
+    assert.match(html, /href="https:\/\/seller-books\.marisstella\.app\/signup\?from=ebay-fee-calculator%2F[a-z-]+"/);
+    assert.doesNotMatch(html, /early access/);
     assert.match(html, /href="https:\/\/marisstella\.app\/industries\/online-sellers\/"/);
     assert.doesNotMatch(html, /\$600(?![.,\d])/, 'the federal 1099-K threshold is $20,000 and 200 transactions, not $600');
     assert.match(html, /irs\.gov/);

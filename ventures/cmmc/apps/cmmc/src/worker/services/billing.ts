@@ -52,6 +52,7 @@ import {
 import { AppError, badRequest, paymentRequired } from "../lib/errors";
 import { newId } from "../lib/ids";
 import type { Tenant } from "../types";
+import { assertServiceDraftCapacity } from "./ai-capacity";
 import { notifyOwnerNewPaid } from "./owner-notify";
 
 type SubscriptionRow = typeof subscriptions.$inferSelect;
@@ -156,6 +157,9 @@ export async function assertCanDraft(ctx: AppContext, orgId: string, controlId: 
       `The ${plan.name} plan includes ${plural(plan.draftsPerMonth, "AI draft")} a month, and this month's are used. They reset on ${nextPeriodStart(ctx.now()).toISOString().slice(0, 10)} (UTC). You can still write it yourself, or upgrade on the Billing page.`,
     );
   }
+  // The service-wide daily cap (services/ai-capacity.ts), after the plan's own allowance so a shop
+  // at its monthly limit is told about its plan first.
+  await assertServiceDraftCapacity(ctx);
 }
 
 /** Before an evidence upload: the plan's storage. */

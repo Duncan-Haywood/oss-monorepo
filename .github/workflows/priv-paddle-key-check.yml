@@ -1,0 +1,100 @@
+# "Is the Paddle key the right type?" (owner, 2026-11-27: "there is a paddle secret don't know if
+# it's the right type") for every paid app's deploy in this repository, in one click.
+#
+# Manual only (workflow_dispatch), from main only. For each Paddle API key name a deploy here reads,
+# it prints whether the secret is set, its kind (live, sandbox, legacy, or another Paddle credential
+# pasted by mistake: a Paddle.js client token or a notification secret) and which catalog calls
+# Paddle refuses, using ventures/payapps/packages/billing/scripts/paddle-key-check.ts. It never
+# changes the Paddle account: list calls ask for one item, and the create calls send an empty body
+# Paddle refuses before creating anything (src/paddle-key.ts). Only a key's public prefix
+# (pdl_live_apikey_ ...) is ever printed. Ported from private-monorepo's paddle-key-check.yml, whose
+# runs get no runner; the deploys moved here on 2026-11-27.
+#
+# Each job runs in the same GitHub environment as that app's deploy job and checks the three names
+# the deploy reads, in its order: <APP>_BILLING_API_KEY, then the shared BILLING_API_KEY, then
+# PADDLE_API_KEY. An environment secret is invisible outside its environment, so this is what the
+# deploy will actually see. One shared key reaches every app; catalog items stay per app (tagged
+# custom_data.app).
+name: paddle-key-check
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  payapps:
+    name: payapps (payapps-production)
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: payapps-production
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          sparse-checkout: ventures/payapps/packages/billing
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: Report each key payapps-deploy reads
+        env:
+          K_PAYAPPS_BILLING_API_KEY: ${{ secrets.PAYAPPS_BILLING_API_KEY }}
+          K_BILLING_API_KEY: ${{ secrets.BILLING_API_KEY }}
+          K_PADDLE_API_KEY: ${{ secrets.PADDLE_API_KEY }}
+          NAMES: PAYAPPS_BILLING_API_KEY BILLING_API_KEY PADDLE_API_KEY
+          APP: payapps
+        run: |
+          # The script exits 0 (every probed call allowed), 1 (a call refused) or 2 (no usable key).
+          # Each is a finding to report, not a reason to stop checking the other names.
+          out="$RUNNER_TEMP/key-report.txt"
+          used=""
+          echo "## $APP: Paddle keys (the deploy uses the first one set)" >>"$GITHUB_STEP_SUMMARY"
+          for name in $NAMES; do
+            var="K_$name"
+            if BILLING_API_KEY="${!var}" node ventures/payapps/packages/billing/scripts/paddle-key-check.ts \
+              --label "$name" >"$out"; then rc=0; else rc=$?; fi
+            case "$rc" in 0) verdict="ready for the catalog sync" ;; 1) verdict="set, but Paddle refuses a catalog call" ;; *) verdict="not usable" ;; esac
+            if [[ -z "$used" && -n "${!var}" ]]; then used="$name"; fi
+            cat "$out"
+            { echo '```'; cat "$out"; echo '```'; echo "**$name: $verdict**"; echo; } >>"$GITHUB_STEP_SUMMARY"
+          done
+          echo "**$APP-deploy would use: ${used:-none (paid plans stay dark)}**" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  seller_books:
+    name: seller-books (seller-books-production)
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: seller-books-production
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          sparse-checkout: ventures/payapps/packages/billing
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: Report each key seller-books-deploy reads
+        env:
+          K_SELLER_BOOKS_BILLING_API_KEY: ${{ secrets.SELLER_BOOKS_BILLING_API_KEY }}
+          K_BILLING_API_KEY: ${{ secrets.BILLING_API_KEY }}
+          K_PADDLE_API_KEY: ${{ secrets.PADDLE_API_KEY }}
+          NAMES: SELLER_BOOKS_BILLING_API_KEY BILLING_API_KEY PADDLE_API_KEY
+          APP: seller-books
+        run: |
+          # The script exits 0 (every probed call allowed), 1 (a call refused) or 2 (no usable key).
+          # Each is a finding to report, not a reason to stop checking the other names.
+          out="$RUNNER_TEMP/key-report.txt"
+          used=""
+          echo "## $APP: Paddle keys (the deploy uses the first one set)" >>"$GITHUB_STEP_SUMMARY"
+          for name in $NAMES; do
+            var="K_$name"
+            if BILLING_API_KEY="${!var}" node ventures/payapps/packages/billing/scripts/paddle-key-check.ts \
+              --label "$name" >"$out"; then rc=0; else rc=$?; fi
+            case "$rc" in 0) verdict="ready for the catalog sync" ;; 1) verdict="set, but Paddle refuses a catalog call" ;; *) verdict="not usable" ;; esac
+            if [[ -z "$used" && -n "${!var}" ]]; then used="$name"; fi
+            cat "$out"
+            { echo '```'; cat "$out"; echo '```'; echo "**$name: $verdict**"; echo; } >>"$GITHUB_STEP_SUMMARY"
+          done
+          echo "**$APP-deploy would use: ${used:-none (paid plans stay dark)}**" | tee -a "$GITHUB_STEP_SUMMARY"
