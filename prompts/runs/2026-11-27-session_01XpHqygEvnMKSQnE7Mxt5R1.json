@@ -46,6 +46,10 @@
     {
       "file": "portfolio/monetization/transition.py",
       "issue": "transition.json stores source line counts, so nearly any product PR makes it stale for others, and the 5,000-line rule silently re-tracks a free front door as proprietary; validate went red on an unrelated PR"
+    },
+    {
+      "file": "ventures/pay-app-guides/nav.mjs",
+      "issue": "parallel PRs each add a guide page and merge green against a stale base, so the all-guides block on main is repeatedly out of date (punch-list, florida-notice-to-owner, coconstruct-alternatives, texas-lien-notice in one day); this PR had to rerun nav.mjs/cta.mjs three times. A merge queue or a nav that does not need every page rewritten would stop it"
     }
   ],
   "deviations": [
