@@ -443,7 +443,8 @@ export function buildEcpr(
         zip: ca.zip,
         ssn: /^\d{9}$/.test(ssn) ? ssn : "",
         itin: /^\d{9}$/.test(itin) && !/^\d{9}$/.test(ssn) ? itin : "",
-        notes: ca.notes.replace(/<[^>]*>/g, ""),
+        // Tags out, then any stray angle bracket, so "<<b>script>" cannot leave "<script>".
+        notes: ca.notes.replace(/<[^>]*>/g, "").replace(/[<>]/g, ""),
         classifications,
         travelSubsCents: ca.travelSubsCents,
         deductions,

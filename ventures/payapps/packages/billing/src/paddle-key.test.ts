@@ -98,7 +98,7 @@ describe("probePaddleKey", () => {
     assert.equal(p.environment, "sandbox");
     assert.equal(p.baseUrl, "https://sandbox-api.paddle.com");
     assert.equal(keyProbeOk(p), true);
-    assert.ok(f.calls.every((c) => c.includes("sandbox-api.paddle.com")));
+    assert.ok(f.calls.every((c) => /^[A-Z]+ sandbox-api\.paddle\.com\//.test(c)));
     assert.equal(f.calls.length, 4);
   });
 

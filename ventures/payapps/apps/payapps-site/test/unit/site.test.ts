@@ -117,4 +117,10 @@ describe("html helpers", () => {
       ),
     ).toBe("## Hi\n\nA [link](/x) & **bold**\n\n- one");
   });
+
+  it("cannot be tricked into leaving a tag by nesting one inside another", () => {
+    const md = htmlToMarkdown("<p>a<scr<script>x</script>ipt>alert(1)</script>b</p><<b>script>");
+    expect(md).not.toMatch(/[<>]/);
+    expect(md).not.toContain("alert(1)</");
+  });
 });
