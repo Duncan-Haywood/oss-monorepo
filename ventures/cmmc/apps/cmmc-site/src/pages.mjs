@@ -4,6 +4,7 @@
 
 import { appLegalUrl, launchState, signinUrl, signupUrl } from "./launch.mjs";
 import { publicPlans } from "./plans.mjs";
+import { poamRulesPage } from "./poam-rules.mjs";
 import {
   CONSENT_TEXT,
   JOBSHOP,
@@ -114,7 +115,7 @@ const sprsFaq = [
   },
   {
     q: "Which requirements can go on a POA&M?",
-    a: "Only 1-point requirements, plus 3.13.11 when CUI is encrypted but the encryption is not FIPS-validated. Six can never be on a POA&M: 3.1.20, 3.1.22, 3.12.4, 3.10.3, 3.10.4 and 3.10.5 (32 CFR 170.21(a)(2)).",
+    a: "Only 1-point requirements, plus 3.13.11 when CUI is encrypted but the encryption is not FIPS-validated. Six can never be on a POA&M: 3.1.20, 3.1.22, 3.12.4, 3.10.3, 3.10.4 and 3.10.5 (32 CFR 170.21(a)(2)). All 110, one by one, are on the POA&M eligibility page.",
   },
   {
     q: "Does a partly met requirement count?",
@@ -222,7 +223,8 @@ encryption can cost 5 points each, and without an SSP the assessment cannot be c
 <h2>What do the SSP and POA&amp;M have to say?</h2>
 <p>The System Security Plan describes the boundary of the system that handles FCI or CUI (which machines, people, rooms and
 cloud services), and for each requirement how it is met. The Plan of Action and Milestones lists each requirement that is not
-met yet, what you will do and by when.</p>
+met yet, what you will do and by when. Not every requirement may be on it: see
+<a href="/cmmc-poam-eligible-requirements">which requirements can go on a POA&amp;M</a>, all 110 listed.</p>
 <h2>Where does the rollout stand?</h2>
 <p>Phase 1, in effect since 10 Nov 2025, mainly brings Level 1 and Level 2 self-assessments into contracts (${cite("dod-cio-cmmc", "DoD CIO")}).
 Phase 2 would have made third-party Level 2 assessments a general contract condition from 10 Nov 2026; it was suspended on
@@ -334,7 +336,8 @@ ${cta}`,
       body: `<h1>Free SPRS score calculator</h1>
 <p class="lead">Tick the NIST SP 800-171 requirements your shop does not fully meet yet. You get the score you would post in
 SPRS under the ${cite("dod-methodology", "DoD Assessment Methodology")}, which gaps cost the most points, and whether the
-open items could sit on a POA&amp;M for a Conditional Level 2 (Self) status (${cite("cfr-170-21", "32 CFR 170.21")}).
+open items could sit on a POA&amp;M for a Conditional Level 2 (Self) status (${cite("cfr-170-21", "32 CFR 170.21")};
+<a href="/cmmc-poam-eligible-requirements">every requirement's POA&amp;M rule</a>).
 No sign-up, and nothing you tick is stored.</p>
 ${statusBox()}
 ${RESULT_MARKER}
@@ -354,6 +357,7 @@ ${sprsFaq.map((f) => `<details><summary>${f.q}</summary><p>${f.a}</p></details>`
 ${sourcesList(["dod-methodology", "cfr-170", "cfr-170-21", "nist-800-171r2", "dfars-7012"])}
 ${cta}`,
     },
+    poamRulesPage({ cite, statusBox, sourcesList, cta }),
     open
       ? pricingPage(launch)
       : {
