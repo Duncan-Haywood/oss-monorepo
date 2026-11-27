@@ -324,6 +324,7 @@ test("Miller Act page: inputs labelled, statute and FAR linked with a read date,
 const FAQ_PAGES = [
   "california-preliminary-notice.html", "florida-notice-to-owner.html", "texas-lien-notice.html", "certificate-of-insurance-for-subcontractors.html", "change-order-log.html", "change-orders-schedule-of-values.html",
   "conditional-vs-unconditional-lien-waivers.html", "gc-portal-billing.html",
+  "electrical-contractor-billing.html", "mechanical-contractor-billing.html", "drywall-contractor-billing.html", "concrete-contractor-billing.html",
   "front-loading-schedule-of-values.html", "how-to-fill-out-a-pay-application.html", "progress-billing.html",
   "how-to-write-an-rfi.html", "index.html", "joint-checks.html", "lien-waiver-forms-by-state.html",
   "lien-waiver-log.html", "miller-act-payment-bond-claims.html",
