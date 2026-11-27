@@ -2,6 +2,7 @@
 // Links inside bodies use site paths ("/pricing"); the build prefixes the base path.
 // Copy rules: see the header of site.mjs and docs/CLAIMS.md.
 
+import { dfarsClausesPage } from "./dfars-clauses.mjs";
 import { appLegalUrl, launchState, signinUrl, signupUrl } from "./launch.mjs";
 import { level1RequirementsPage } from "./level1-requirements.mjs";
 import { level2RequirementsPage } from "./level2-requirements.mjs";
@@ -217,7 +218,8 @@ ${statusBox()}
 <p>Look at what you receive. Purchase orders, delivery schedules and ordinary contract paperwork are FCI, which means Level 1.
 Drawings, specifications or data marked CUI (often with a distribution statement and a CUI banner) mean Level 2.
 All 15 Level 1 requirements, with the objectives an assessment checks, are on the <a href="/cmmc-level-1-requirements">Level 1 requirements</a> page.
-The solicitation names the level; when in doubt, ask your prime or the contracting officer in writing.</p>
+The solicitation names the level (DFARS 252.204-7025); what each cyber clause on the order asks is on
+<a href="/dfars-cybersecurity-clauses">DFARS cybersecurity clauses explained</a>. When in doubt, ask your prime or the contracting officer in writing.</p>
 <h2>What is an SPRS score?</h2>
 <p>It is the number you post in the Supplier Performance Risk System for a Level 2 self-assessment. Start at 110 and subtract
 1, 3 or 5 points for each of the 110 requirements you do not meet. Missing multi-factor authentication or FIPS-validated
@@ -364,6 +366,7 @@ ${cta}`,
     poamRulesPage({ cite, statusBox, sourcesList, cta }),
     level1RequirementsPage({ cite, statusBox, sourcesList, cta }),
     level2RequirementsPage({ cite, statusBox, sourcesList, cta }),
+    dfarsClausesPage({ cite, statusBox, sourcesList, cta }),
     open
       ? pricingPage(launch)
       : {

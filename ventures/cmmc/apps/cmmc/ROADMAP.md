@@ -472,6 +472,14 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   qualityDue })`, `QualityDatesCard`; unit, component and worker tests (stages, grouping, windows,
   order, no titles in the file or link, cross-tenant).
 
+- DFARS cyber clauses page (2026-11-27, cmmc-site): `/dfars-cybersecurity-clauses` on the marketing site
+  takes the eight clauses a defense PO lists (FAR 52.204-21; DFARS 252.204-7008, -7012, -7019, -7020,
+  -7021, -7024, -7025): provision or clause, what each asks, the clocks (72 hours, 90 days, 3 years,
+  14 business days, 1 year / 3 years / 180 days, 10 Nov 2028 from DFARS 204.7504) and what flows down,
+  each quotation checked word for word against the eCFR text saved in `apps/cmmc-site/fixtures/dfars/`
+  (hashes pinned, `test/dfars-clauses.test.mjs`). The Level 1 vs Level 2 explainer links to it. A front
+  door for "DFARS 7019 vs 7020" style searches, ending on the free Level 1 sign-up.
+
 ## Next
 
 - Internal audits, part 3 (calendar dates and the dashboard card done 2026-11-27): an audit report
