@@ -8,7 +8,7 @@ import type { BlockTemplate, FieldSpec } from "./types.ts";
  * in substantially the following form", so each form is printed whole, word for word, its
  * "_______________" lines filled from the job or left as a rule.
  *
- * Wording copied from the Texas Legislature's Property Code chapter 53 (fetched 2026-11-27; snapshot
+ * Wording copied from the Texas Legislature's Property Code chapter 53 (read 2026-11-27; snapshot
  * in sources/tx-53-notices.txt, with §§ 53.001, 53.003 and 53.052). Where a line is a caption under
  * a rule ("(Claimant's contact person)"), the caption became the field's label and a signature
  * line's label. test/tx-notice.test.ts checks both whole forms, and every phrase the notes quote,
