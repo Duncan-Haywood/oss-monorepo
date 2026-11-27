@@ -72,6 +72,31 @@ export interface ActivationFunnel {
   cohorts: ActivationCohort[];
 }
 
+/** One front door's accounts: sign-ups that arrived from it, and how far their companies got. */
+export interface SignupSourceRow {
+  /** Our own page name, e.g. "pay-app-guides/punch-list"; "(none)" for accounts with no source. */
+  source: string;
+  /** The top-level site or tool it belongs to, e.g. "pay-app-guides". */
+  site: string;
+  signups: number;
+  /** Of those, signed up inside the window. */
+  lastWindow: number;
+  verified: number;
+  /** Accounts that belong to at least one company. */
+  withCompany: number;
+  /** Accounts whose company sent at least one application (or other first real outcome). */
+  reachedOutcome: number;
+  /** Accounts whose company is on a paid plan now. */
+  paying: number;
+}
+
+export interface SignupSources {
+  /** What a source, the outcome and "paying" mean in this product, in words. */
+  definition: string;
+  /** Sorted by signups, then source; the "(none)" row is last. */
+  rows: SignupSourceRow[];
+}
+
 /** GET /api/admin/metrics for a product app (signed-in accounts + Paddle subscriptions). */
 export interface ProductAdminMetrics {
   contractVersion: typeof ADMIN_CONTRACT_VERSION;
@@ -139,6 +164,11 @@ export interface ProductAdminMetrics {
    * (never tenant content: counts only). Absent or null when the product has no such steps.
    */
   activation?: ActivationFunnel | null;
+  /**
+   * Which of our own pages new accounts arrived from (the `from` on "Start free" links), with how
+   * far each group got. Absent or null when the product does not record a source.
+   */
+  sources?: SignupSources | null;
 }
 
 /** GET /api/admin/metrics for a marketing site's early-access list. */

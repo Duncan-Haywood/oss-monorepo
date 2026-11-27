@@ -87,8 +87,8 @@ away.
 
 ## Update, later the same day: the reader sets up a job in the suite
 
-That last sentence is now true. The hosted pay-app suite, still in
-development and not yet for sale, can start a job from the same spreadsheet.
+That last sentence is now true. The hosted pay-app suite (PayApps,
+then in development; open on its Free plan since 2026-11-27) can start a job from the same spreadsheet.
 On a job's schedule of values there is an "Import from Excel or CSV" button.
 The contractor chooses the bid breakdown, SOV tab or continuation sheet they
 already have. The file is read in the browser, as on the free page, and is
@@ -161,7 +161,7 @@ certificates and $9,000 due.
 
 The opening can be changed until the first application is made in the
 suite. After that it is locked, like the original schedule of values. The
-suite is still in development and not for sale. The import does not yet
+import does not yet
 fill the opening from the spreadsheet itself: the sheet's "to date" column
 mixes stored materials into completed work, and that needs splitting out
 first.
@@ -200,7 +200,7 @@ $44,500 of switchgear stored), the fill gives line 6 as $125,662.72 and
 line 5a as $9,512.53, both matching the printed form, with no warnings. The
 free template printed by LibreOffice gives its line 6 ($71,865.00) from the
 PDF. Its .xlsx cannot, because that file's formulas were saved without
-results. The suite is still in development and not for sale.
+results.
 
 ## Update: retainage that was already released before the move
 
@@ -230,5 +230,8 @@ application.
 
 The fill from the last continuation sheet does not guess this figure. The
 sheet's retainage column shows what is held, not why it is lower than the
-rate, and a different rate earlier in the job gives the same picture. The
-suite is still in development and not for sale.
+rate, and a different rate earlier in the job gives the same picture.
+
+PayApps is open now: free on one active job, with no card
+([start free](https://payapps.marisstella.app/?signup&from=pay-application-generator)). Lien waivers, QuickBooks and job costing are in the
+paid plans, which are not on sale yet.

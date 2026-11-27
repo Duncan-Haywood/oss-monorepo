@@ -708,6 +708,23 @@ tasks:
       (2026-11-27, private-monorepo PR 486, synced here:
       apps/seller-books/docs/LAUNCH-REVIEW.md), so the first deploy may open
       sign-ups.
+  - id: move-cmmc-public
+    direction: paid-bets
+    title: Move CMMC Workspace and the packages it imports into this repository (step 4 of products-to-public-repo, bet #4)
+    done_when: >-
+      ventures/cmmc/ holds the app and its site under the all-rights-reserved
+      notice, with the packages they import, CI ported to this repository's
+      workflows and passing, the audit's output in the PR, and the deploy
+      path written down; the private copy is removed in a private-monorepo
+      PR once the public one deploys.
+    hours: 8
+    status: open
+    added: 2026-11-27
+    notes: >-
+      Part 1 (copy, audit, CI) from private 5f0757c7
+      (docs/reports/2026-11-27-move-cmmc-public.md). Next:
+      priv-cmmc-deploy.yml after PayApps' deploy port shows the pattern, a
+      deploy for apps/cmmc-site, then the private copy removed.
   - id: inboxes-without-owner
     direction: paid-bets
     title: Turn the agent inboxes on with no owner-pasted secrets

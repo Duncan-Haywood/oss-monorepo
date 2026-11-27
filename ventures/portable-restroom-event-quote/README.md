@@ -80,10 +80,20 @@ dependency, so it is testable and auditable on its own. See
 
 ## Starting rates and fleet estimates
 
-Daily rents, pump-out prices, and the people-per-restroom table ship as
-common ballpark figures. **They are not a published tariff, a health-code
-table, a benchmark, or a guarantee.** Real yards replace them with their own
-book. Picking a unit type never overwrites a rent or service price the
+Daily rents and pump-out prices ship as common ballpark figures. **They are
+not a published tariff, a benchmark, or a guarantee.** Real yards replace them
+with their own book.
+
+The fleet estimate is the **PSAI Special Event Chart** (Portable Sanitation
+Association International, Extended Breakdown: units required when no pumping
+service is provided, 50/50 men and women, about 200 uses per unit;
+[copy](https://www.henniker.org/sites/g/files/vyhlif5391/f/uploads/portable_sanitation_chart.pdf)),
+transcribed into `PSAI_SPECIAL_EVENT_CHART` in [`calc.mjs`](calc.mjs) and pinned
+row by row in the tests. Hours round up to a whole column; a crowd between rows
+is interpolated; below 500 people, above 100,000 or past 10 hours the nearest
+row or column is scaled in proportion, and the result is flagged as outside the
+chart. Alcohol adds 20%, the top of PSAI's "add 10-20 percent more units". It is
+an industry planning chart, not a health-code table. Picking a unit type never overwrites a rent or service price the
 operator has already changed.
 
 ## Privacy
@@ -106,12 +116,10 @@ Events counted: `quote_calculated`, `unit_added`, `unit_removed`,
   the crowd hits the restrooms at once.
 - Restroom trailers are a unit type, not a separate labor-and-generator model.
 - Local permit, placement, and accessibility rules are out of scope.
-- **Known gap (quality round 109, [audit](../../portfolio/quality/audits/2026-11-26-portable-restroom-event-quote.json)):**
-  the people-per-unit table in `calc.mjs` has no cited source and suggests 2 to
-  4 times the units of the PSAI special-event chart (500 people for 4 hours:
-  10 against PSAI's 5; 1,000 for 8 hours: 34 against 12), so the "fleet looks
-  light" warning fires on a PSAI-sized fleet. Re-basing it changes the numbers
-  the pages pin, so it needs its own change.
+- The PSAI chart assumes no pumping during the event. A multi-day event with
+  service visits can run fewer units; this tool does not model that trade.
+  (Until 2026-11-27 the estimate used an uncited table that gave 2 to 4 times
+  PSAI's counts: [quality round 109 audit](../../portfolio/quality/audits/2026-11-26-portable-restroom-event-quote.json).)
 - Extra service visits are priced per unit and add no truck mileage.
 
 ## Disclaimer

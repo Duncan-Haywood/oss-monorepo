@@ -70,6 +70,17 @@ keeps the apps/grants rules: one bare address per recipient, the subject flatten
 and logs that never carry an address, link or token. Pricing, limits, SPF/DKIM and the beta caveat:
 `apps/grants/docs/EMAIL.md`.
 
+## Estimated-tax reminders
+
+The one email that is not account mail, and only for those who ask: an owner or admin ticks "Email me a week
+before each due date" on the Estimated tax page, and the Worker's daily cron (14:00 UTC) mails them once per
+1040-ES due date, from seven days before it, with what is still to pay from the books and the year's saved
+figures (`services/books/estimate-reminders.ts`). The subject is fixed text and the date; the shop's name only
+appears in the escaped body. Each email carries `List-Unsubscribe` and `List-Unsubscribe-Post` (RFC 8058) to
+`/api/unsubscribe/estimate-reminder?o=&u=&t=`, an HMAC-SHA256 under `AUTH_SECRET` of the list, shop and member
+(`lib/unsubscribe-token.ts`); without `AUTH_SECRET` (local dev) the email has no stop link and tells the reader
+to turn it off on the page. GET on the link changes nothing; POST turns it off.
+
 ## Turning it on (the deploy, once it exists)
 
 Seller Books has no deploy workflow yet (`docs/ARCHITECTURE.md`, "Gaps / next"). When it gets one:

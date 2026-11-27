@@ -170,11 +170,13 @@ export const PROBLEMS = [
       ['pay-app-guides/joint-checks.html', 'Joint check splitter', 'Split a check payable to you and your supplier, see what an endorsing supplier risks, and write the split letter and waivers.'],
       ['pay-app-guides/california-preliminary-notice.html', 'California 20-day preliminary notice', 'Working a private California job? Who gets the notice, the last day by delivery method, what a late one covers, and a printable draft.'],
       ['pay-app-guides/florida-notice-to-owner.html', 'Florida Notice to Owner', 'Sub or supplier on a private Florida job? The 45-day date, the 40-day certified-mail date, who gets a copy, and the statutory form to print.'],
+      ['pay-app-guides/texas-lien-notice.html', 'Texas lien notice deadlines', 'Not paid on a private Texas job? The notice date for each unpaid month, weekend and holiday extensions, the retainage notice, the lien affidavit, and the statutory form.'],
       ['pay-app-guides/miller-act-payment-bond-claims.html', 'Miller Act bond claim deadlines', 'Not paid on a federal job? Who can claim on the payment bond, the 90-day notice date, the one-year limit, and a notice to the prime.'],
       ['pay-app-guides/pay-app-cash-forecast.html', 'When will I get paid? Cash forecast', 'Each job’s pay-app cutoff and pay terms in; the week each payment lands, late money and your first short week out.'],
       ['pay-app-guides/how-to-write-an-rfi.html', 'How to write an RFI', 'One question, the sheet and spec section, a proposed answer and a needed-by date: draft an RFI the GC answers fast, and catch answers that should be change orders.'],
       ['pay-app-guides/certificate-of-insurance-for-subcontractors.html', 'Certificates of insurance', 'What a GC checks on your ACORD 25, the endorsement pages that prove additional insured and waiver of subrogation, and renewals that don’t stall a pay app.'],
       ['pay-app-guides/pay-application-software-compared.html', 'Pay application software compared', 'Spreadsheet, QuickBooks, Knowify, PayAppHub, Trimble Pay and Siteline, and what GC portals charge the sub.'],
+      ['pay-app-guides/coconstruct-alternatives.html', 'CoConstruct closing: your options', 'No new CoConstruct projects after 31 March 2027: where each kind of builder or sub can go, and how to move a half-billed job.'],
     ],
   },
   {

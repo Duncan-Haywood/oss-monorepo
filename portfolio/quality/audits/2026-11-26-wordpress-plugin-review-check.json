@@ -176,7 +176,8 @@
       "what": "Any License value passes (License: Proprietary -> ok true), though README.md:19 says a GPL-compatible licence must be declared and PCP raises invalid_license / license_mismatch; Guideline 1 is the directory's first hard rule.",
       "where": "ventures/wordpress-plugin-review-check/scan.mjs:30",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19701"
     },
     {
       "severity": "medium",
@@ -197,7 +198,8 @@
       "what": "License URI is treated as a required readme field and missing it fails the check with 'hard requirement' text, but the readme docs mark License URI optional and PCP does not check it.",
       "where": "ventures/wordpress-plugin-review-check/scan.mjs:32",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19701"
     },
     {
       "severity": "medium",
@@ -225,7 +227,8 @@
       "what": "Claims: 'Plugin review looks for a nonce check anywhere in a file' (WPCS checks function scope) and 'License URI ... hard requirement' are not backed by WordPress.org sources.",
       "where": "ventures/wordpress-plugin-review-check/index.html:323",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19701"
     },
     {
       "severity": "low",
@@ -236,6 +239,6 @@
       "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19370"
     }
   ],
-  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19370"],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19370", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19701"],
   "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2, median 2); finished (completeness 3). Every feature it lists runs end to end, the 72 tests pass, and the core Stable tag vs Version compare agrees with Plugin Check's stable_tag_mismatch rule. Against Plugin Check's own source, WPCS and core get_file_data(), all fetched this session, the surrounding rules go wrong both ways. It passes plugins Plugin Check rejects: Stable tag trunk, a proprietary licence, echo sanitize_text_field($_GET[...]), a nonce call only in a comment. It fails plugins WordPress accepts: '#' or one-line headers, a missing License URI (optional per the readme docs), a stray header in a subdirectory. It also skips readme checks a reviewer hits early (5-tag limit, 150-character short description). 3 of 7 seeded mutants survive, and two tests lock in the departures. Disclaimers, the no-upload claim and the Plugin Check comparison are honest. Two page claims (trunk is valid, file-level nonce is how review checks) contradict the sources. It is a demoted free tool that does not lead to any paid product."
 }
