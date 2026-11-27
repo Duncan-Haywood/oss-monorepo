@@ -99,7 +99,8 @@ no new endpoint, secret, dependency, outbound host or stored data.
 - Sign-ups open on the Worker's URL (or `CMMC_DOMAIN` if set) once the deploy workflow is ported.
 - Production requires email verification. If `/api/health` answers `"email": false`, nobody can
   finish signing up; the next step is docs/EMAIL.md, not a second deploy.
-- R2 is required for evidence (docs/DEPLOY.md, step 3).
+- R2 is no longer required (2026-11-27, cmmc-files-without-r2): without the bucket, evidence is kept
+  in D1 and `/api/health` answers `"files": "d1"` (docs/DEPLOY.md, step 3).
 - AI drafts need `CMMC_ANTHROPIC_API_KEY` (or the shared key); without it a draft answers 503
   `llm_not_configured` and everything else works. The daily cap applies from the first call.
 - Paid plans stay dark (above).

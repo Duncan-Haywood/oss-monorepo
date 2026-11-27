@@ -415,9 +415,19 @@ Bet #4 in the public repository's `portfolio/monetization/bets.md`. Claim an ite
   With document control, this makes the site's Level 2 + Quality line (document control, internal
   audits and corrective actions) true.
 
+- Evidence without R2 (2026-11-27, cmmc-files-without-r2): the shared Cloudflare token is refused on
+  R2 ("Authentication error [code: 10000]", PayApps run 45947552522), and `provision.mjs` stopped the
+  deploy there, so `cmmc-deploy` could not have succeeded. Now `ctx.files` is R2 when `FILES` is bound,
+  else D1's `file_blobs` (1 MiB chunks written in one batch, a torn read refused; migration 0018);
+  reads fall back to D1 after R2 is bound, so nothing is copied. `provision.mjs` deploys without the
+  bucket on "not enabled" or code 10000 and writes `files=r2|d1` to the job output; `/api/health`
+  answers `"files": "r2" | "d1"`. Ported from Job Shop Quote (PR #19749), live that way since its first
+  deploy. `test/worker/file-store.test.ts` uploads, downloads and deletes evidence with no bucket.
+
 ## Must do before a public launch
 
-- Owner: run `cmmc-deploy` once (by hand; [docs/DEPLOY.md](docs/DEPLOY.md)) and, at launch, let it
+- Run `cmmc-deploy` once (by hand; [docs/DEPLOY.md](docs/DEPLOY.md); R2 no longer blocks it, and the
+  launch review is done, docs/LAUNCH-REVIEW.md, so an agent may dispatch it as Job Shop Quote's was) and, at launch, let it
   run on every merge (`push: branches: [main]`)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on")
 - Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is

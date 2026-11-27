@@ -17,7 +17,8 @@
 - Size cap 25 MB; types limited to PDF, PNG, JPEG, TXT, CSV, DOCX, XLSX. SHA-256 stored for integrity.
 - Downloads: `Content-Disposition: attachment`, `Content-Security-Policy: default-src 'none'; sandbox`,
   `nosniff`, `Cache-Control: private, no-store`. Each download is written to the audit log.
-- Cloudflare R2 encrypts objects at rest by default. File contents are never logged.
+- Cloudflare R2 encrypts objects at rest by default, and so does D1, where evidence is kept while no R2
+  bucket is bound (`ports/file-store.ts`). File contents are never logged.
 
 ## Spreadsheet import
 

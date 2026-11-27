@@ -9,7 +9,7 @@ README, "Deploy (owner)", lists the wrangler steps.
 
 [`.github/workflows/priv-cmmc-deploy.yml`](../../.github/workflows/priv-cmmc-deploy.yml) was ported from
 private-monorepo's `cmmc-deploy.yml`, which never ran because that repository's Actions start no jobs.
-It follows `priv-seller-books-deploy.yml` and the Job Shop Quote port (R2 required), after an
+It follows `priv-seller-books-deploy.yml` and the Job Shop Quote port (R2 optional since 2026-11-27: evidence goes to D1 without it), after an
 allowlist PR for its secrets (PR #19741, the pattern Seller Books followed in PRs #19653 and #19662).
 It runs by hand only (`workflow_dispatch`), refuses any ref but `main`, and uses the
 `cmmc-production` environment. `/ventures/cmmc/` now has a code owner, because the deploy job runs

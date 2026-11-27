@@ -6,6 +6,7 @@ import { AppError, badRequest } from "../lib/errors";
 import { validate } from "../lib/validate";
 import { requireUser } from "../middleware/session";
 import { createBillingProvider } from "../ports/billing";
+import { fileStoreKind } from "../ports/file-store";
 import { acceptLegal, legalStatus } from "../services/legal";
 import { createOrg, listOrgsForUser } from "../services/orgs";
 import type { AppEnv } from "../types";
@@ -13,8 +14,9 @@ import type { AppEnv } from "../types";
 /**
  * `app` lets the deploy's smoke test tell this Worker from another one on the same host; `billing` says
  * whether paid plans are on sale (false while they ship dark); `email` whether account mail leaves the
- * Worker (without it nobody can confirm an address, so nobody can finish signing up). Nothing secret:
- * no key, id or address is shown.
+ * Worker (without it nobody can confirm an address, so nobody can finish signing up); `files` where new
+ * evidence goes, "r2", or "d1" until the bucket is bound (ports/file-store.ts). Nothing secret: no key,
+ * id or address is shown.
  */
 export const health = new Hono<AppEnv>().get("/", (c) =>
   c.json({
@@ -22,6 +24,7 @@ export const health = new Hono<AppEnv>().get("/", (c) =>
     app: "cmmc-workspace",
     billing: createBillingProvider(c.env) !== null,
     email: c.var.ctx.email.delivers,
+    files: fileStoreKind(c.env),
   }),
 );
 

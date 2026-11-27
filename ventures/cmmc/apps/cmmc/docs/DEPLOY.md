@@ -21,8 +21,13 @@ reviewers to the `cmmc-production` environment (Settings -> Environments).
    its zone is on the account, else `https://cmmc-workspace.<account subdomain>.workers.dev`.
 3. `scripts/provision.mjs` creates the D1 database and the R2 bucket if missing (`wrangler deploy`
    does not) and writes `dist/cmmc_workspace/wrangler.deploy.json` (the Cloudflare Vite plugin names
-   the build folder after the worker, with an underscore) with the database id. **R2 is required**:
-   without it the run stops before anything is deployed, because evidence uploads write there.
+   the build folder after the worker, with an underscore) with the database id. **Without R2** (not enabled on the account,
+   or the token refused on it with "Authentication error [code: 10000]", as the shared token was on
+   2026-11-27) the script warns and leaves the bucket binding out, and evidence files go to D1's
+   `file_blobs` table in 1 MiB chunks (`src/worker/ports/file-store.ts`); `/api/health` then answers
+   `"files": "d1"`. Add Account -> Workers R2 Storage -> Edit to the token and re-run: new files go to
+   R2, and files already in D1 stay readable (reads try R2, then D1), so nothing is copied. D1 holds
+   up to 10 GB per database on Workers Paid, so bind R2 before many organisations fill it.
 4. Applies D1 migrations **before** the new code goes live, so migrations must stay backward
    compatible.
 5. Syncs `billing/paddle-catalog.json` (Level 2 and Level 2 + Quality, monthly and annual) to Paddle
