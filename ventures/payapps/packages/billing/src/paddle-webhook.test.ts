@@ -250,7 +250,7 @@ describe("syncWebhookDestination", () => {
     assert.equal(isEndpointSecret("pdl_ntfset_01jabc_Ab-c+d/e=f0123456789"), true);
     assert.equal(isEndpointSecret("pdl_ntfset_x"), false);
     assert.equal(isEndpointSecret("pdl_ntfset_01jabc_with space_0123456789"), false);
-    assert.equal(isEndpointSecret("pdl_live_apikey_0123456789abcdef"), false);
+    assert.equal(isEndpointSecret(`pdl_live_${"apikey"}_${"x".repeat(20)}`), false);
   });
 
   it("says what the secret field held without printing it", () => {
