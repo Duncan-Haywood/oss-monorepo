@@ -197,7 +197,7 @@ ${c.families
     (
       f,
     ) => `<h3 id="family-${f.code.toLowerCase()}">${f.name} (${f.code}): ${f.requirements} requirements, ${f.objectives} objectives</h3>
-<p><strong>What a small shop usually shows:</strong> ${esc(FAMILY_SHOWS[f.code])}</p>
+<p><strong>What a small shop usually shows:</strong> ${esc(Object.hasOwn(FAMILY_SHOWS, f.code) ? FAMILY_SHOWS[f.code] : "")}</p>
 ${reqs
   .filter((r) => r.family === f.code)
   .map(requirementBlock)
