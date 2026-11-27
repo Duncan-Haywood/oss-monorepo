@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   runoffDepth, idfIntensity, alternatingBlock, excessIncrements, triangularUH, convolve, hydrograph,
-  pondStorage, pondArea, orificeFlow, weirFlow, route, analyze, parseInput, sampleInput, reportCsv, CFS_HR_PER_INCH_SQMI,
+  pondStorage, pondArea, orificeFlow, weirFlow, weirEffectiveLength, outletFlow, route, analyze, parseInput, sampleInput, reportCsv, CFS_HR_PER_INCH_SQMI,
 } from "./detention.mjs";
 
 const close = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ""} ${a} vs ${b} (tol ${tol})`);
@@ -256,4 +256,73 @@ test("an overshoot far below display precision is not flagged as over the allowa
   // a visible overshoot still is
   const b = analyze({ ...base, smallAllow: String(floor / 1.01) });
   assert.ok(b.findings.some((f) => /over the allowable/.test(f.title)));
+});
+
+// --- quality round 108 fixes (2026-11-27) -----------------------------------
+
+test("contracted weir by Francis, by hand: L' = L - 0.2 H for two end contractions", () => {
+  // 4 ft weir, 0.5 ft head: L' = 3.9 ft, Q = 3.33 x 3.9 x 0.5^1.5 = 4.5916 cfs (suppressed 4.7093)
+  close(weirFlow(3.5, 3, 4, 3.33, 2), 3.33 * 3.9 * 0.5 ** 1.5, 1e-12);
+  close(weirFlow(3.5, 3, 4, 3.33, 2), 4.5916, 1e-4);
+  close(weirFlow(3.5, 3, 4, 3.33, 0), 4.7093, 1e-4);
+  // the example's suppressed-weir case: 0.62 ft weir, 2.27 ft head
+  close(weirEffectiveLength(0.62, 2.27), 0.31, 1e-12, "held at L/2 past H = 2.5 L");
+  close(weirEffectiveLength(1, 1), 0.8, 1e-12);
+  // outletFlow defaults to contracted and honours "suppressed"
+  const o = { orificeDiameter: 0, weirCrest: 1, weirLength: 2 };
+  close(outletFlow(2, o), 3.33 * 1.8, 1e-12);
+  close(outletFlow(2, { ...o, weirType: "suppressed" }), 3.33 * 2, 1e-12);
+  // the rating still rises with stage far past the L/2 floor
+  let prev = 0;
+  for (let h = 1.01; h < 20; h += 0.37) { const q = weirFlow(h, 1, 0.5, 3.33, 2); assert.ok(q > prev, `rising at ${h}`); prev = q; }
+});
+
+test("a contracted weir must be longer than a suppressed one for the same allowable", () => {
+  const c = analyze(sampleInput()), s = analyze({ ...sampleInput(), weirType: "suppressed" });
+  assert.equal(c.outlet.weirType, "contracted");
+  assert.ok(c.outlet.weirLengthFt > s.outlet.weirLengthFt + 0.3, `${c.outlet.weirLengthFt} vs ${s.outlet.weirLengthFt}`);
+  close(c.storms[1].peakOut, c.storms[1].allow, 1e-3 * c.storms[1].allow);
+  assert.match(analyze({ ...sampleInput(), weirType: "broad" }).error, /Weir type/);
+  assert.equal(parseInput({ ...sampleInput(), weirType: "" }).weirType, "contracted");
+});
+
+test("the weir-head warning fires exactly when H > L/3", () => {
+  const title = /Weir head is large/;
+  for (const extra of [{}, { length: "300", width: "200" }, { largeA: "50" }, { weirType: "suppressed", length: "400", width: "300" }]) {
+    const a = analyze({ ...sampleInput(), ...extra });
+    assert.ok(!a.error, a.error);
+    const head = a.storms[1].peakStage - a.outlet.weirCrestFt;
+    const want = a.outlet.weirLengthFt > 0 && head > a.outlet.weirLengthFt / 3;
+    assert.equal(a.findings.some((f) => title.test(f.title)), want, JSON.stringify({ extra, head, L: a.outlet.weirLengthFt }));
+  }
+  assert.ok(analyze(sampleInput()).findings.some((f) => title.test(f.title)), "the example's narrow slot is flagged");
+});
+
+test("time-step warning follows NEH-630 ch. 16, D = 0.133 Tc of the developed site", () => {
+  const coarse = (x) => analyze({ ...sampleInput(), ...x }).findings.some((f) => /Time step is coarse/.test(f.title));
+  // Tc 0.2 h = 12 min: limit 1.6 min
+  assert.equal(coarse({ dtMin: "1.5" }), false);
+  assert.equal(coarse({ dtMin: "2" }), true);
+  // Tc 0.5 h = 30 min: limit 4 min
+  assert.equal(coarse({ postTcHr: "0.5", dtMin: "4" }), false);
+  assert.equal(coarse({ postTcHr: "0.5", dtMin: "5" }), true);
+  assert.equal(analyze(sampleInput()).findings.some((f) => /Time step/.test(f.title)), false, "the example's step is fine");
+});
+
+test("small-orifice warning below 3 in, and none for the example", () => {
+  const small = (x) => analyze({ ...sampleInput(), ...x }).findings.some((f) => /Small orifice/.test(f.title));
+  assert.equal(small({}), false);
+  const a = analyze({ ...sampleInput(), smallAllow: "0.1" });
+  assert.ok(a.outlet.orificeDiameterIn < 3, String(a.outlet.orificeDiameterIn));
+  assert.equal(small({ smallAllow: "0.1" }), true);
+  const b = analyze({ ...sampleInput(), smallAllow: "0.6" });
+  assert.ok(b.outlet.orificeDiameterIn >= 3 && b.outlet.orificeDiameterIn < 4.6, String(b.outlet.orificeDiameterIn));
+  assert.equal(small({ smallAllow: "0.6" }), false);
+});
+
+test("an orifice search that hits its bound says the diameter is not a design value", () => {
+  const a = analyze({ ...sampleInput(), smallAllow: "20" });
+  assert.equal(a.outlet.orificeAtCap, true);
+  assert.ok(a.findings.some((f) => /not a design value/.test(f.title)));
+  assert.equal(analyze(sampleInput()).outlet.orificeAtCap, false);
 });
