@@ -40,11 +40,15 @@ test('a paid product is never a front door to itself', () => {
 });
 
 test('copy states real status and claims no price or result', () => {
-  for (const [id, { product, status, label }] of Object.entries(FRONT_DOORS.industries)) {
-    assert.match(status, /early access/i, id);
+  for (const [id, { product, status, label, open }] of Object.entries(FRONT_DOORS.industries)) {
+    // An open app may say exactly what its free plan is (business.mjs 'open-free', backed by the
+    // app's plans.ts); nothing else may say "free".
+    if (open) assert.match(status, /^Open — free on one (job|platform)$/, id);
+    else assert.match(status, /early access/i, id);
     assert.ok(label && product.length <= 160, id);
-    assert.doesNotMatch(`${product} ${status}`, /[$€£]|\b(free|best|#1|guarantee\w*|save \d)/i, id);
+    assert.doesNotMatch(`${product} ${open ? '' : status}`, /[$€£]|\b(free|best|#1|guarantee\w*|save \d)/i, id);
   }
+  assert.deepEqual(Object.keys(FRONT_DOORS.industries).filter((id) => FRONT_DOORS.industries[id].open).sort(), ['construction', 'online-sellers']);
 });
 
 test('the rules: hand lists, whole-word tokens, category limits, exclusions', () => {
@@ -90,8 +94,12 @@ test('a tool door renders only for a mapped tool whose industry page is live', (
   const html = renderToolDoor({ slug: 'roofing-bid-calculator', toRoot: '../', live });
   assert.match(html, /href="\.\.\/industries\/construction\/"/);
   assert.match(html, new RegExp(`${DOOR_ATTR}="construction"`));
-  assert.match(html, /In development — early access/);
+  assert.match(html, /Open — free on one job/);
+  assert.match(html, /start free, or see what it does →/);
   assert.match(html, /this tool stays free/);
+  const early = renderToolDoor({ slug: 'cnc-machining-quote-calculator', toRoot: '../', live: new Set(['manufacturing']) });
+  assert.match(early, /In development — early access/);
+  assert.match(early, /see what is being built →/);
   assert.equal(renderToolDoor({ slug: 'ebay-fee-calculator', toRoot: '../', live }), '', 'industry page not live');
   assert.equal(renderToolDoor({ slug: 'rmd-calculator', toRoot: '../', live: new Set(INDUSTRY_SLUGS) }), '', 'unmapped');
 });
