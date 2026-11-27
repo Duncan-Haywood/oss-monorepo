@@ -30,10 +30,16 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "Edited a single-quoted TS string with unescaped apostrophes (Gov't, Texas'); whole suite failed to parse until escaped."
+    "Edited a single-quoted TS string with unescaped apostrophes (Gov't, Texas'); whole suite failed to parse until escaped.",
+    "Did not run payapps' biome lint before the first push; the packages CI job failed on formatting of the two edited files, fixed with biome check --write."
   ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 5 says run the target's suite; for a payapps package the CI job also runs biome lint and tsc, which the run missed until CI failed. Worth naming `pnpm lint` for pnpm workspaces."
+    }
+  ],
   "deviations": [
     {
       "file": "CLAUDE.md",

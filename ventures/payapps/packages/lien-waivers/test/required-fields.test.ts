@@ -44,7 +44,11 @@ test("every form's required and optional fields match the reviewed snapshot", ()
   const pinned = JSON.parse(readFileSync(SNAPSHOT, "utf8")) as Record<string, string>;
   assert.deepEqual(Object.keys(now).sort(), Object.keys(pinned).sort(), "the set of forms");
   for (const [id, fields] of Object.entries(pinned)) {
-    assert.equal(now[id], fields, `${id}: fields changed (key? = optional); see this file's header`);
+    assert.equal(
+      now[id],
+      fields,
+      `${id}: fields changed (key? = optional); see this file's header`,
+    );
   }
 });
 
