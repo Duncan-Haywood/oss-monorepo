@@ -1,3 +1,7 @@
+---
+kind: note
+date: 2026-11-27
+---
 # PayApps: sign-ups by source (2026-11-27)
 
 For the next run working on PayApps' front doors (bet #1).
