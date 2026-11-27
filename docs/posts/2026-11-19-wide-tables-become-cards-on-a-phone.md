@@ -228,3 +228,24 @@ a third of its width would print its labels at about 6 px.
 That is 128 swipes to 0 over two days. A 320 px screen still
 finds 21 smaller ones, the next list. Run notes:
 `docs/reports/polish-2026-11-27-input-grids-stack.md`.
+
+## Update, 2026-11-27: cards of sentences
+
+A card prints each value beside its column name, with the name taking a third of the width.
+That suits figures. It does not suit a paragraph: on the e-invoicing error-code pages the
+"What it means" text of one code wrapped into a 190 px column, 40 lines deep, and five rows
+of the French BR-FR list ran past a phone's screen (the worst at 1,779 px, two screens of
+scrolling for one row).
+
+A `prose` variant (`class="stack prose"`) puts the column name above the text instead, at the
+card's full width. The same row is now 1,118 px, and the error-code explainer's tallest card
+went from 898 to 627 px.
+
+| two e-invoicing error-code pages, 390 px | before | after |
+|---|---|---|
+| rows taller than the screen | 6 | 1 |
+| tallest row | 1,779 px | 1,118 px |
+
+The one left lists 51 allowed status codes in English and French; that wants a
+collapsible list, not a layout change. Run notes:
+`docs/reports/polish-2026-11-27-stack-prose.md`.
