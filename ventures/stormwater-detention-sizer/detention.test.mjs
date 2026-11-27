@@ -288,7 +288,8 @@ test("a contracted weir must be longer than a suppressed one for the same allowa
 
 test("the weir-head warning fires exactly when H > L/3", () => {
   const title = /Weir head is large/;
-  for (const extra of [{}, { length: "300", width: "200" }, { largeA: "50" }, { weirType: "suppressed", length: "400", width: "300" }]) {
+  // 200 x 100: H/L about 0.44; 240 x 100: about 0.31, either side of 1/3
+  for (const extra of [{}, { length: "200", width: "100" }, { length: "240", width: "100" }, { length: "300", width: "200" }, { largeA: "50" }, { weirType: "suppressed", length: "400", width: "300" }]) {
     const a = analyze({ ...sampleInput(), ...extra });
     assert.ok(!a.error, a.error);
     const head = a.storms[1].peakStage - a.outlet.weirCrestFt;
