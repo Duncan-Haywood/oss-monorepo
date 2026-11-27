@@ -19,6 +19,11 @@ sends nothing, and each email has a one-click stop link.
 Expenses can be typed in or read from a bank or card statement CSV, each line with a suggested category and
 the ones that are really inventory, marketplace fees or fuel left unticked with the reason; a merchant filed
 before starts with the seller's own latest category.
+The deposits on a bank statement can be checked against the payouts the books expect ("Did I import everything?" on
+the Imports page): each deposit that names a platform is set against that platform's sales and shipping, less refunds,
+fees and postage, month by month, so a month whose report was never imported shows up as deposits with no sales
+behind them; matched deposits are listed and any that is not a payout (a refund of a purchase) can be unticked. The
+statement is read on the server and not saved (`src/shared/reconcile-payouts.ts`).
 A platform's Form 1099-K can be checked against the books: box 1a (and the monthly boxes) next to the books'
 item sales, with and without shipping and the sales tax the platform collected, and the months that do not
 match named (nothing typed is saved).

@@ -357,6 +357,45 @@ Nothing typed into the check is saved. It is a comparison of your records
 with the form, not tax advice, and it does not tell you what to report:
 your income is what the books show, whether or not the form agrees.
 
+## Did you import every month? Your bank statement knows (added 2026-11-27)
+
+The 1099-K check above only helps once a form arrives, and only for a
+platform that sends one. A month whose report you never imported is
+invisible in your books' own totals: nothing is wrong with the numbers that
+are there. It is not invisible on your bank statement, because the platform
+still paid you.
+
+Seller Books' Imports page now reads the CSV statement of the account your
+payouts go to and sets each platform's deposits against what the books say
+that platform should have paid out: sales and the shipping buyers paid, less
+refunds, marketplace fees and postage (the sales tax a platform collected is
+left out, since it never reaches you). It works month by month and keeps a
+running difference, then names what usually explains a gap:
+
+- **Deposits in a month with no sales in the books that month or the one
+  before.** That month's report is most likely missing. (The month before
+  counts because a sale on the 30th is often paid out in the next month.)
+- **Deposits from a platform with no sales imported at all.** Import its
+  report for the period.
+- **Books ahead of deposits.** Usually money still on the platform at the
+  statement's end, payouts to a second account, the same report imported
+  twice, or postage and subscriptions billed to a card instead of taken from
+  the balance.
+- **Money in that names no platform.** If some of it is Venmo, Zelle or
+  cash from local sales, those belong in the books as sales made off the
+  marketplaces.
+
+Deposits are matched by a word in the description that starts with the
+platform's name ("EBAY COMMERCE", "Etsy, Inc."), so "Zelle from Betsy" is
+not read as Etsy, and a line naming two platforms matches neither. We have
+not seen each platform's payout wording on a real statement, so every match
+is listed and any of them can be unticked; Amazon, PayPal, Square and
+Shopify get a reminder, because a refund of something you bought can carry
+the same name. A gap counts as one worth a look above $25 and above 15% of
+what the books expect, roughly a few days of payouts still held. The
+statement is not saved, and the check is a comparison of two sets of your
+own records, not tax or accounting advice.
+
 ## Your own Shopify store, in the same books (added 2026-11-26)
 
 Plenty of resellers run a Shopify store beside the marketplaces, for repeat
@@ -801,8 +840,8 @@ not tax advice.
 Each of the ten tool pages now ends with a short "track true profit across
 every platform" section. It points to the
 [online sellers page](https://marisstella.app/industries/online-sellers/),
-where Seller Books, a hosted product that does all three steps from your
-payout files, is listed as in development, with early access. Until then, the
+where Seller Books, the hosted product that does all three steps from your
+payout files, is open on its Free plan (see the update at the top). The
 free in-browser [Reseller Books tool](../../ventures/reseller-books/)
 already groups eBay, Etsy, Poshmark, Whatnot and Shopify exports into
 Schedule C lines.
