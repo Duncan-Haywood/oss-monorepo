@@ -1,0 +1,72 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtHUUibcsSm5N8nX8y9",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T01:15:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "polish: online-seller front doors' wide tables become phone cards; stack-overflowing.mjs --scripted",
+  "projects": [
+    "platform/pages",
+    "whatnot-sales-report-analyzer",
+    "shopify-fee-calculator",
+    "ebay-fee-calculator",
+    "amazon-fba-calculator",
+    "tiktok-shop-fee-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19543",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First run_venture_tests.py --changed failed amazon-fba-calculator and tiktok-shop-fee-calculator: 10 page-test regexes matched '<table id=\"x\">' exactly; widened to accept the stack class.",
+    "First before/after screenshot clipped viewport coordinates against a full-page shot (wrong region); retaken with page coordinates."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish_next.py",
+      "issue": "Printed polish-2026-11-26-unseparated-money.md as newest, whose items were all taken; the real next list was two notes later (raw-money-formatters-static.md), whose item 2 was itself already done. Cost several calls reading notes."
+    },
+    {
+      "file": "platform/pages/stack-overflowing.mjs",
+      "issue": "Its docstring still refused script-filled tables although STACK_LABELS_JS (runtime labeller) had landed the same day; the 26th's notes asked for the labeller but nobody revisited the tool. Fixed with --scripted."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Flags 'Personal data, tracking or forms changed' on a dev-only Playwright script (stack-overflowing.mjs) that clicks buttons; a false positive."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the full-site survey: the polish notes name the next item and the probe measures it directly",
+      "did": "built only the 57 online-seller front doors and ran phone-probe-check before and after",
+      "result": "195 -> 9 swipes measured on two fresh builds"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-27-online-seller-tables-stack.md",
+    "docs/posts/2026-11-19-wide-tables-become-cards-on-a-phone.md (extended: 'Update, 2026-11-27: the online-seller tools')"
+  ],
+  "goal": null,
+  "notes": "phone-probe-check --industry online-sellers at 390x844: 195 -> 9 sideways swipes (57 slugs, 235 pages). 190 tables stacked in 101 pages by stack-overflowing.mjs --scripted. No card > 760 px, no unlabelled cell in stacked tables (Playwright check). run_venture_tests --changed: all pass after regex fix. stack-overflowing.test.mjs 8/8.",
+  "corrections": [],
+  "redteam": null
+}
