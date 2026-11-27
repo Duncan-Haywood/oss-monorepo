@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "A sed meant for the two new configs also matched payapps' vitest.worker.config.ts comment; caught in the grep output and reverted with git checkout before committing."
+    "A sed meant for the two new configs also matched payapps' vitest.worker.config.ts comment; caught in the grep output and reverted with git checkout before committing.",
+    "changed-ventures went red on check_post_links.py because of a retired-host link a post on main already had (not from this diff); fixed in this PR."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -51,7 +52,7 @@
     "docs/history/bet-worker-tests-perf-2026-11-27.md"
   ],
   "goal": null,
-  "notes": "Metric: pnpm test:worker wall time (Vitest Duration), 4-core cloud container, one suite at a time, cold means node_modules/.vite removed. jobshop-quote: before 114.4 s and 112.2 s; after 67.7 s cold, 91.2 s warm, 91.6 s cold (45 files / 282 tests on both sides). seller-books: before 59.7 s; after 29.3 s cold, 29.5 s warm (25 files / 133 tests). biome ci passes on both changed files. Pool reading: ci_profile.py --runs 600 --top 15 at 09:57 UTC.",
+  "notes": "Metric: pnpm test:worker wall time (Vitest Duration), 4-core cloud container, one suite at a time, cold means node_modules/.vite removed. jobshop-quote: before 114.4 s and 112.2 s; after 67.7 s cold, 91.2 s warm, 91.6 s cold (45 files / 282 tests on both sides). seller-books: before 59.7 s; after 29.3 s cold, 29.5 s warm (25 files / 133 tests). biome ci passes on both changed files. Pool reading: ci_profile.py --runs 600 --top 15 at 09:57 UTC. Also fixed forward: docs/posts/2026-11-27-florida-notice-to-owner-45-days.md linked the retired payapps workers.dev host, which made check_post_links.py (changed-ventures job) red for every PR.",
   "corrections": [],
   "redteam": null,
   "usage": {
