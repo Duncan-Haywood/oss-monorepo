@@ -242,7 +242,7 @@ last followed up on a bid. The budget split goes down to the five cost types, no
 codes, and a sub quote on the estimate does not yet become a subcontract commitment on the job,
 because the estimate does not keep the sub's name.
 
-We are building hosted pay-app billing for specialty subcontractors. It covers estimates,
+PayApps is our hosted pay-app billing for specialty subcontractors. It covers estimates,
 schedules of values, change orders, pay applications, retainage, lien waivers, RFIs,
-submittals and job costing. It is in development, with early access, and nothing is for sale
-yet: [construction tools and early access](https://marisstella.app/industries/construction/).
+submittals and job costing. It is open and free on one active job, with no card:
+[start free](https://marisstella.app/industries/construction/). Lien waivers and job costing are on the paid plans, which are not on sale yet.
