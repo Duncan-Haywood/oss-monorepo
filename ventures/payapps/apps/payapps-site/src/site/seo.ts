@@ -115,18 +115,16 @@ function planPrices(): string {
   ).join("; ");
 }
 
-/** Applies a stripping step until nothing changes, so a nested "<scr<script></script>ipt>" cannot reassemble. */
-function untilStable(s: string, step: (s: string) => string): string {
-  for (let prev = ""; prev !== s; ) {
-    prev = s;
-    s = step(s);
-  }
-  return s;
-}
-
 /** The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only. */
 export function htmlToMarkdown(input: string): string {
-  return untilStable(input, (s) => s.replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, ""))
+  // Repeat until nothing changes, so a nested "<scr<script></script>ipt>" cannot reassemble.
+  let html = input;
+  let prev: string;
+  do {
+    prev = html;
+    html = html.replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, "");
+  } while (html !== prev);
+  let md = html
     .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, "\n# $1\n\n")
     .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, "\n## $1\n\n")
     .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, "\n### $1\n\n")
@@ -134,8 +132,12 @@ export function htmlToMarkdown(input: string): string {
     .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, "\n- $1")
     .replace(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, "[$2]($1)")
     .replace(/<(strong|b)>([\s\S]*?)<\/\1>/gi, "**$2**")
-    .replace(/<\/(p|ul|ol|div|section|article|details)>/gi, "\n\n")
-    .replace(/<[^>]+>/g, "")
+    .replace(/<\/(p|ul|ol|div|section|article|details)>/gi, "\n\n");
+  do {
+    prev = md;
+    md = md.replace(/<[^>]*>/g, "");
+  } while (md !== prev);
+  return md
     .replace(/[<>]/g, "")
     .replace(/&#39;/g, "'")
     .replace(/&quot;/g, '"')

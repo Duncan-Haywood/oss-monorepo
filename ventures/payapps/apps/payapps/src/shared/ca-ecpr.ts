@@ -443,8 +443,7 @@ export function buildEcpr(
         zip: ca.zip,
         ssn: /^\d{9}$/.test(ssn) ? ssn : "",
         itin: /^\d{9}$/.test(itin) && !/^\d{9}$/.test(ssn) ? itin : "",
-        // Tags out, then any stray angle bracket, so "<<b>script>" cannot leave "<script>".
-        notes: ca.notes.replace(/<[^>]*>/g, "").replace(/[<>]/g, ""),
+        notes: stripTags(ca.notes),
         classifications,
         travelSubsCents: ca.travelSubsCents,
         deductions,
@@ -651,3 +650,14 @@ export function ecprNextWeek(w: EcprWorkerInput): EcprWorkerInput {
 
 export const ECPR_NOTICE =
   "Prepared with PayApps in the California DIR eCPR XML format, schema version 2.0 (read from dir.ca.gov, November 2026). Not a Department of Industrial Relations product and not legal advice. Upload it as a draft first where the portal offers one, and check every figure against your payroll records: DIR stores the totals as you send them.";
+
+/** Tags out, repeated until nothing changes, then any stray angle bracket: "<<b>script>" leaves no "<script>". */
+function stripTags(text: string): string {
+  let out = text;
+  let prev: string;
+  do {
+    prev = out;
+    out = out.replace(/<[^>]*>/g, "");
+  } while (out !== prev);
+  return out.replace(/[<>]/g, "");
+}

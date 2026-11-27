@@ -32,7 +32,8 @@
   "errors": [
     "First paddle-key test edit assumed the fake's call log held URLs; it holds 'METHOD host/path', so new URL() would throw; caught by reading the fake, then a TS2532 on split()[1] fixed with an anchored regex.",
     "CI changed-ventures red: pay-app-guides was already red on main because cta.mjs and state-forms.mjs wrote different CTA markup (the cta-status markers). Fixed by having state-forms.mjs pass its pages through cta.mjs's apply; both generators now leave the tree unchanged and the suite passes 296/296.",
-    "CI validate red: test_promptctl LastChangeIndexTest disagrees with git when the PR merge commit differs from both parents under prompts/ (a run record on each side). Filed P095; worked around by merging main into the branch."
+    "CI validate red: test_promptctl LastChangeIndexTest disagrees with git when the PR merge commit differs from both parents under prompts/ (a run record on each side). Filed P095; worked around by merging main into the branch.",
+    "codeql gate still flagged js/incomplete-multi-character-sanitization: neither a chained .replace(/[<>]/g) nor a callback-based untilStable helper is recognised. Rewrote both as inline do/while fixed-point loops."
   ],
   "integrity_issues": [],
   "doc_friction": [
