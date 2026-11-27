@@ -2,7 +2,8 @@
 // § 29-10-101(a) notice prefilled from the job and printed with the blank waiver it says is
 // attached, California's §§ 8102/8202 notice prefilled from the job (estimate = contract sum with
 // approved change orders), Florida's § 713.06(2)(c) Notice to Owner prefilled with the contractor
-// as the first copy, field errors, states with no notice, and tenant isolation.
+// as the first copy, Texas' two notices of claim (§§ 53.056, 53.057) prefilled with the original
+// contractor, field errors, states with no notice, and tenant isolation.
 
 import type { NoticeOverviewDto, ProjectDetailDto, ProjectDto } from "@shared/api/types";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -46,7 +47,7 @@ describe("preliminary notices", () => {
   it("on Free: the overview loads, printing needs Crew (402)", async () => {
     const o = await call<NoticeOverviewDto>(`${base}/notices?state=WY`, { as });
     expect(o.enabled).toBe(false);
-    expect(o.states).toEqual(["CA", "FL", "WY"]);
+    expect(o.states).toEqual(["CA", "FL", "TX", "WY"]);
     const res = await print({
       state: "WY",
       formId: "WY/preliminary-notice/statutory",
@@ -248,8 +249,64 @@ describe("preliminary notices", () => {
     expect(body).toContain("1 Harbour Pl");
   });
 
+  it("Texas: both notices of claim, prefilled, printed word for word", async () => {
+    const o = await call<NoticeOverviewDto>(`${base}/notices?state=tx`, { as });
+    expect(o.state).toBe("TX");
+    expect(o.notices.map((n) => n.citation)).toEqual([
+      "Tex. Prop. Code § 53.056",
+      "Tex. Prop. Code § 53.057",
+    ]);
+    expect(o.notices[0]?.sendTo).toBe("the owner or reputed owner and the original contractor");
+    expect(o.prefill).toMatchObject({
+      originalContractor: "Teton Builders",
+      projectDescription: "Jackson Clinic Addition, 455 W Broadway, Jackson WY",
+    });
+    expect(o.prefill.claimantName).toBeTruthy();
+    expect(o.prefill.noticeDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(o.prefill).not.toHaveProperty("claimAmount");
+    expect(o.ca).toBeNull();
+    expect(o.fl).toBeNull();
+
+    const fields = {
+      noticeDate: "2026-06-10",
+      projectDescription: "Lamar Office Shell, 1200 S Lamar Blvd, Austin, TX 78704",
+      claimantName: "Hill Country Electric LLC",
+      workType: "Electrical labor and materials",
+      originalContractor: "Capitol Builders Inc.",
+      contactPerson: "Dana Ruiz",
+      claimantAddress: "88 E 5th St, Austin, TX 78701",
+    };
+    const labor = await print({
+      state: "TX",
+      formId: o.notices[0]?.id,
+      fields: { ...fields, claimAmount: "$18,400.00" },
+    });
+    expect(labor.status).toBe(200);
+    expect(labor.headers.get("Content-Disposition")).toContain("preliminary-notice-TX.pdf");
+    const text = await labor.text();
+    expect(text).toContain("NOTICE OF CLAIM FOR UNPAID LABOR OR MATERIALS");
+    expect(text).toContain("Capitol Builders Inc.");
+    expect(text).toContain("18,400.00");
+
+    const ret = await print({
+      state: "TX",
+      formId: o.notices[1]?.id,
+      fields: { ...fields, retainageUnpaid: "$9,250.00" },
+    });
+    expect(ret.status).toBe(200);
+    expect(await ret.text()).toContain("NOTICE OF CLAIM FOR UNPAID RETAINAGE");
+
+    // The retainage form's amount is its own field: the labor form's key does not fill it.
+    const wrong = await print({
+      state: "TX",
+      formId: o.notices[1]?.id,
+      fields: { ...fields, claimAmount: "$9,250.00" },
+    });
+    expect(wrong.status).toBe(400);
+  });
+
   it("a state with no encoded notice lists none", async () => {
-    const o = await call<NoticeOverviewDto>(`${base}/notices?state=TX`, { as });
+    const o = await call<NoticeOverviewDto>(`${base}/notices?state=CO`, { as });
     expect(o.notices).toEqual([]);
   });
 
