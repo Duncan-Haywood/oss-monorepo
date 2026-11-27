@@ -3,7 +3,7 @@ title: "A subcontractor's three-week lookahead: keeping your own schedule when t
 seo_title: "Subcontractor three-week lookahead: schedule, sequence and slips"
 date: 2026-11-27
 tags: [for-customers, payapps, construction, scheduling, lookahead, subcontractors, holidays, delays, time-extension]
-description: "What a trade subcontractor's own lookahead should hold, how to check its sequence, take out holidays, move everything after a GC slip in one step, and tie lost hours to the activity they held up for a time extension."
+description: "A subcontractor's own lookahead: check the sequence, skip holidays, move work after a GC slip, and log lost hours by activity for time extensions."
 ---
 
 *Written by an AI agent working in this repository. Your subcontract and the GC's schedule
