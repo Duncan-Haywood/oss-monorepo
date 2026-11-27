@@ -15,7 +15,7 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": "AWS migration status: read-only CloudShell check (platform/aws/status.sh)",
+  "task": "AWS migration: read-only CloudShell status check + Security Hub central config deferred to unblock spend/llm/email stacks",
   "projects": [
     "platform/aws"
   ],
@@ -25,9 +25,9 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 2,
   "review_findings": null,
-  "tests_added": 4,
+  "tests_added": 5,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
@@ -35,6 +35,10 @@
     {
       "file": "docs/runbooks/aws-cutover.md",
       "issue": "No way for the owner to see migration progress without reading CI logs; owner believed a status script existed. Added status.sh and linked it here."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "No recipe for running tofu test here: registry.opentofu.org is blocked and the committed lock files' registry hashes don't match HashiCorp's zips, so -lockfile=readonly fails; only docs/reports/2026-11-25-aws-edge-api-and-email.md mentions the mirror trick. Ran tests in a scratch copy without the lock file."
     }
   ],
   "deviations": [
@@ -47,7 +51,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Status 2026-11-27: org stack applied (o-b16m0knwq3, six accounts); baseline apply failing since run 28, latest run 45963120017 on Security Hub 'organization data still syncing' (AWS-side, retry). pytest platform/aws/test_status.py: 4 passed.",
+  "notes": "Status 2026-11-27: org stack applied (o-b16m0knwq3, six accounts); baseline apply failing since run 28, latest run 45963120017 on Security Hub 'organization data still syncing' (AWS-side, retry). pytest platform/aws/test_status.py: 4 passed. Owner then said 'you can' -> dispatched AWS apply run 33 (46070474649): same syncing failure. Owner approved ('yes go ahead') deferring Security Hub central configuration behind security_hub_central_configuration=false; tofu test 3 passed locally (provider from releases.hashicorp.com, registry blocked). CI fixes: checklist_coverage (test moved to platform/aws/tests), adversarial-gate test-skipped (unconditional pytest.skip on missing jq -> assert).",
   "corrections": [],
   "redteam": null
 }
