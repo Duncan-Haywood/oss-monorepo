@@ -12,7 +12,7 @@
 // objectives are what an assessment checks, and the shop's senior official decides what is met.
 
 import official from "../../cmmc/src/shared/controls/official-text.json" with { type: "json" };
-import { SITE_NAME } from "./site.mjs";
+import { SHORT_NAME } from "./site.mjs";
 import { FAMILIES } from "./sprs.mjs";
 
 export const LEVEL1_PATH = "/cmmc-level-1-requirements";
@@ -225,7 +225,7 @@ export function level1RequirementsPage({ cite, statusBox, sourcesList, cta }) {
   return {
     path: LEVEL1_PATH,
     kind: "faq",
-    title: `CMMC Level 1 requirements: all 15, with objectives · ${SITE_NAME}`,
+    title: `CMMC Level 1 requirements and objectives · ${SHORT_NAME}`,
     description: `The ${c.requirements} CMMC Level 1 requirements (FAR 52.204-21) with all ${c.objectives} assessment objectives, what a small shop usually shows for each, and the annual SPRS affirmation.`,
     changefreq: "monthly",
     priority: 0.9,

@@ -35,6 +35,10 @@
     {
       "what": "eCFR API returned 'Your IP address has been blocked' from the cloud proxy",
       "fix": "used 32 CFR 170.15/170.22 wording already quoted in apps/cmmc (read 2026-11-25), dated the sources 2026-11-25"
+    },
+    {
+      "what": "venture-preflight failed platform/pages/title-length.test.mjs: the new page's title was 77 characters (over 70)",
+      "fix": "shortened to 'CMMC Level 1 requirements and objectives \u00b7 Compliance Workspace' (63)"
     }
   ],
   "integrity_issues": [],
@@ -46,6 +50,10 @@
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "the 'free' items per bet are nearly all 'waits on demand': the bottleneck is traffic, and the tool could suggest front-door/SEO pages for the least-covered bet site when nothing is free"
+    },
+    {
+      "file": "platform/pages/title-length.test.mjs",
+      "issue": "it scans a locally built ventures/cmmc/apps/cmmc-site/dist/ too, so the existing POA&M page (title over 70) fails it only when dist/ exists on disk; cmmc-site's own tests cap description length but not title length, so the 70-char rule is not visible until the preflight"
     }
   ],
   "deviations": [
