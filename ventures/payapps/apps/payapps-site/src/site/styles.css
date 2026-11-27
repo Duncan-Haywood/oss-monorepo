@@ -476,6 +476,13 @@ textarea {
   }
 }
 
+/* Two laptop stills side by side: the job and the cash report. */
+@media (min-width: 52rem) {
+  .shots-pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .shot {
   margin: 0;
   min-width: 0;
@@ -515,6 +522,11 @@ textarea {
   color: var(--neutral-600);
   font-size: 0.92rem;
   margin-top: 0.7rem;
+}
+
+.feature .shot {
+  margin-top: 1.25rem;
+  max-width: 52rem;
 }
 
 /* hero worked example (src/site/example.ts) */

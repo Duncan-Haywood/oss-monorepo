@@ -98,6 +98,42 @@ export function homeFaq(ctx: SiteContext): readonly Faq[] {
   ];
 }
 
+/** A laptop-width still of the app (public/shots/), 1280 x 860, captured by apps/payapps `pnpm stills`. */
+interface WideShot {
+  file: string;
+  alt: string;
+  caption: string;
+}
+
+const SHOT_PAY_APP: WideShot = {
+  file: "pay-app-2-desktop.webp",
+  alt: "PayApps on a laptop: pay application #2 for the job Harbor Clinic Fit-out, period October 1 to 31, 2026. The continuation sheet lists four lines (rough-in, switchgear and panels, lighting fixtures, trim and close-out) with this period's work and stored materials typed in, and totals of $102,100.00 completed and stored to date and $10,210.00 retainage.",
+  caption:
+    "The continuation sheet (open it for full size). Type this month's work and stored materials on each line; completed to date, percent complete, balance to finish and retainage are worked out as you type.",
+};
+
+const SHOT_JOB: WideShot = {
+  file: "job-desktop.webp",
+  alt: "The job page for Harbor Clinic Fit-out (E-2409): GC Example Builders, contract $210,000.00, retainage 10%, original SOV locked because billing has started. The schedule of values lists rough-in $84,000.00, switchgear and panels $62,000.00, lighting fixtures $41,000.00 and trim, test and close-out $23,000.00, total $210,000.00, with buttons for the Procore subcontractor SOV, the GCPay SOV (Excel) and the Trimble Pay SOV, and a form to add a change order below.",
+  caption:
+    "The job: its schedule of values, locked once the first application went out, the exports GC portals ask for, and change orders below.",
+};
+
+const SHOT_CASH: WideShot = {
+  file: "cash-desktop.webp",
+  alt: "The Cash and retainage report: owed on sent applications $0.00, retainage held $5,840.00, paid $52,560.00 of $52,560.00 applied, past due $0.00, and one row for Harbor Clinic Fit-out, 27.8% complete, with $5,840.00 retainage held. A form below sets up a weekly email of money to chase.",
+  caption:
+    "Cash and retainage across every job: application #1 is paid, so what is left is the 10% held on it, and the report says how long it has been held.",
+};
+
+function wideShot(ctx: SiteContext, s: WideShot): Html {
+  const src = href(ctx, `/shots/${s.file}`);
+  return html`<figure class="shot shot-wide">
+      <a class="shot-link" href="${src}"><img src="${src}" width="1280" height="860" loading="lazy" decoding="async" alt="${s.alt}"></a>
+      <figcaption>${s.caption}</figcaption>
+    </figure>`;
+}
+
 /**
  * Screenshots of the app itself (public/shots/), captured from a local copy of apps/payapps by
  * `pnpm stills` there, with the worked example's made-up job, so the two agree to the cent. The
@@ -108,14 +144,15 @@ function appShots(ctx: SiteContext): Html {
   <h2 id="shots-h">What it looks like in the app</h2>
   <p>Screenshots of ${PRODUCT_NAME} itself, with the same made-up electrical job as the worked example, so the figures match. Nothing here is a customer's job.</p>
   <div class="shots">
-    <figure class="shot shot-wide">
-      <a class="shot-link" href="${href(ctx, "/shots/pay-app-2-desktop.webp")}"><img src="${href(ctx, "/shots/pay-app-2-desktop.webp")}" width="1280" height="860" loading="lazy" decoding="async" alt="PayApps on a laptop: pay application #2 for the job Harbor Clinic Fit-out, period October 1 to 31, 2026. The continuation sheet lists four lines (rough-in, switchgear and panels, lighting fixtures, trim and close-out) with this period's work and stored materials typed in, and totals of $102,100.00 completed and stored to date and $10,210.00 retainage."></a>
-      <figcaption>The continuation sheet (open it for full size). Type this month's work and stored materials on each line; completed to date, percent complete, balance to finish and retainage are worked out as you type.</figcaption>
-    </figure>
+    ${wideShot(ctx, SHOT_PAY_APP)}
     <figure class="shot shot-phone">
       <img src="${href(ctx, "/shots/pay-app-2-summary-phone.webp")}" width="358" height="569" loading="lazy" decoding="async" alt="The application summary on a phone: contract sum $210,000.00, completed and stored to date $102,100.00, retainage $8,980.00 on completed work and $1,230.00 on stored materials, less previous certificates $52,560.00, current payment due $39,330.00.">
       <figcaption>The summary on a phone, for checking the numbers from the truck before you send it.</figcaption>
     </figure>
+  </div>
+  <div class="shots shots-pair">
+    ${wideShot(ctx, SHOT_JOB)}
+    ${wideShot(ctx, SHOT_CASH)}
   </div>
 </section>`;
 }
@@ -228,6 +265,8 @@ interface Feature {
   status: FeatureStatus;
   body: string;
   bullets: readonly string[];
+  /** A still of this part of the app, shown under the bullets. */
+  shot?: WideShot;
 }
 
 export const STATUS_LABEL: Record<FeatureStatus, string> = {
@@ -240,6 +279,7 @@ export const STATUS_LABEL: Record<FeatureStatus, string> = {
 export const FEATURES: readonly Feature[] = [
   {
     id: "schedule-of-values",
+    shot: SHOT_JOB,
     title: "Schedule of values per job",
     status: "built",
     body: "Each job starts from the SOV in your subcontract, with the contract sum and retainage terms. Every pay app is built from it, so lines, scheduled values and totals stay the same from month to month, and the SOV locks once the first pay app goes out.",
@@ -254,6 +294,7 @@ export const FEATURES: readonly Feature[] = [
   },
   {
     id: "monthly-pay-app",
+    shot: SHOT_PAY_APP,
     title: "The monthly pay app",
     status: "built",
     body: "Enter work completed this period and materials presently stored per line; the continuation-sheet columns follow: total completed and stored, percent complete, balance to finish and retainage.",
@@ -303,6 +344,7 @@ export const FEATURES: readonly Feature[] = [
   },
   {
     id: "cash",
+    shot: SHOT_CASH,
     title: "What you're owed, across every job",
     status: "built",
     body: "One report of every application sent: billed, paid, still owed and retainage held, sorted by money owed, as a page and a CSV.",
@@ -570,6 +612,7 @@ function features(ctx: SiteContext): BuiltPage {
     <h2>${f.title}</h2>
     <p>${f.body}</p>
     <ul>${f.bullets.map((b) => html`<li>${b}</li>`)}</ul>
+    ${f.shot ? wideShot(ctx, f.shot) : ""}
   </section>`,
   )}
   <section class="feature">
