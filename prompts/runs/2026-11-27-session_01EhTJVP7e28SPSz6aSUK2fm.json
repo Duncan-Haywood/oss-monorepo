@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVP7e28SPSz6aSUK2fm",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T15:56:52Z",
+  "ended": "2026-11-27T16:01:41Z",
+  "wall_minutes": 11.44,
+  "tokens_in": 5360207,
+  "tokens_out": 25946,
+  "cost_usd": 2.6088,
+  "tool_calls": 49,
+  "task": "bet #1 front door: one page per state certified payroll file PayApps writes (CA, NY, WA, IL)",
+  "projects": [
+    "certified-payroll-calculator",
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19797",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "venture-preflight failed once: new page meta descriptions exceeded 160 characters; fixed in the second commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "payapps' 23 Next items all wait on demand, and --bets points at 'RFIs' as untouched while the ROADMAP already has RFIs parts 1-2 done; the growth-topic match is by claim slug only, so it called a shipped topic untouched."
+    },
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "says 'A bet's product code lives in private-monorepo' while bets.md says #1-#3 and #5 moved into ventures/ on 2026-11-27; stale."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "default is to land a working slice of the product; every payapps Next item waits on customer demand and the product has zero customers, so more features would not move MRR",
+      "did": "built search front-door pages for four state filing formats the product already ships, each with a tagged sign-up link",
+      "result": "merged; traffic effect unmeasured until search console/usage readings exist"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "'Writing goes to consolidated posts': no new post; the WH-347 customer post's state table was extended with links instead",
+      "did": "extended docs/posts/2026-11-26-wh-347-certified-payroll-for-subcontractors.md",
+      "result": "one post, four new landing pages linked from it"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-wh-347-certified-payroll-for-subcontractors.md (extended)"
+  ],
+  "goal": "$10k MRR: traffic to bet #1's paid product",
+  "notes": "Facts on the pages come only from PayApps' source headers (src/shared/{ca-ecpr,ny-cpr,wa-cpr,il-ctp}.ts), its ROADMAP Done entries and docs/reports/2026-11-27-state-certified-payroll-filing-systems.md; no agency host was fetched this run. Each page states that PayApps' output has not yet been through a live agency upload. Venture tests: node --test *.test.mjs 60 pass 0 fail. Preflight: first run failed on platform/pages description-length (descriptions over 160 chars); shortened, rerun clean (\"preflight clean for certified-payroll-calculator\").",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "abefe91f-feff-5ab9-8d87-251445c913d1",
+    "transcripts": 1,
+    "first": "2026-11-27T15:56:52Z",
+    "last": "2026-11-27T16:08:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 89,
+        "output": 25946,
+        "thinking": 4268,
+        "cache_read": 5229665,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130453,
+        "api_equivalent_usd": 2.6088,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 89,
+      "output": 25946,
+      "thinking": 4268,
+      "cache_read": 5229665,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130453,
+      "api_equivalent_usd": 2.6088,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 45,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.44,
+      "active_minutes": 11.44,
+      "model_minutes": 4.7,
+      "tool_minutes": 6.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "four researched landing pages plus tests and links, ~1.25 h each for a technical writer with the sources in hand",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 191.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
