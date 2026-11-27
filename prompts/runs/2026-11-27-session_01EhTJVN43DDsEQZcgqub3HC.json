@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVN43DDsEQZcgqub3HC",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "How's aws migration progress / We have script for status check on how migration going run in cloud console",
+  "input_sha256": "bc28ebfbe1ae7149fc0f73c3b33b34198e97d8b70881df463086c0903c6fe20e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T21:23:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "AWS migration status: read-only CloudShell check (platform/aws/status.sh)",
+  "projects": [
+    "platform/aws"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19883",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/runbooks/aws-cutover.md",
+      "issue": "No way for the owner to see migration progress without reading CI logs; owner believed a status script existed. Added status.sh and linked it here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Owner-directed question and request in chat, not a routed run; recorded under explore.",
+      "did": "answered status, built the asked-for script",
+      "result": "script merged with tests"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Status 2026-11-27: org stack applied (o-b16m0knwq3, six accounts); baseline apply failing since run 28, latest run 45963120017 on Security Hub 'organization data still syncing' (AWS-side, retry). pytest platform/aws/test_status.py: 4 passed.",
+  "corrections": [],
+  "redteam": null
+}
