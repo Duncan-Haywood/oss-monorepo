@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First push failed cmmc-ci's `biome ci` (two long lines in the new tests); run_workflow_locally.py --for-changes caught it, fixed with biome format in a follow-up commit. run_venture_tests.py does not run biome, so its pass was not the whole CI."
+    "First push failed cmmc-ci's `biome ci` (two long lines in the new tests); run_workflow_locally.py --for-changes caught it, fixed with biome format in a follow-up commit. run_venture_tests.py does not run biome, so its pass was not the whole CI.",
+    "PR CI's portfolio-pages test was red from main: PR #19887 changed the pay-app-guides bond-claim FAQ without regenerating ventures/pay-app-guides/llms-answers.txt; merged main and regenerated it here (node platform/pages/llms-answers.mjs ventures/pay-app-guides)."
   ],
   "integrity_issues": [],
   "doc_friction": [
