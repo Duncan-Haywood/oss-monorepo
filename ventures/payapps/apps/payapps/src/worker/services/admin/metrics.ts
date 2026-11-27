@@ -187,6 +187,17 @@ export async function productMetrics(
   };
 }
 
+/** Org ids per owner lookup: under D1's 100 bound parameters a statement, with room for the role. */
+const OWNER_LOOKUP_CHUNK = 90;
+
+interface OwnerRow {
+  orgId: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  joined: Date;
+}
+
 export async function accountList(
   ctx: AppContext,
   list: AdminAccountList,
@@ -242,9 +253,14 @@ export async function accountList(
             .limit(limit)
             .all();
 
-  // The org's owner (earliest owner membership): name + email only.
-  const owners = rows.length
-    ? await db
+  // The org's owner (earliest owner membership): name + email only. D1 caps a statement at 100
+  // bound parameters, and `limit` goes to 200, so the org ids go in chunks (one more parameter
+  // binds the role). Every membership of an org lands in the same chunk, so "earliest" holds.
+  const orgIds = rows.map((r) => r.orgId);
+  const owners: OwnerRow[] = [];
+  for (let i = 0; i < orgIds.length; i += OWNER_LOOKUP_CHUNK) {
+    owners.push(
+      ...(await db
         .select({
           orgId: member.organizationId,
           name: user.name,
@@ -256,17 +272,15 @@ export async function accountList(
         .innerJoin(user, eq(user.id, member.userId))
         .where(
           and(
-            inArray(
-              member.organizationId,
-              rows.map((r) => r.orgId),
-            ),
+            inArray(member.organizationId, orgIds.slice(i, i + OWNER_LOOKUP_CHUNK)),
             eq(member.role, "owner"),
           ),
         )
         .orderBy(member.createdAt)
-        .all()
-    : [];
-  const ownerOf = new Map<string, (typeof owners)[number]>();
+        .all()),
+    );
+  }
+  const ownerOf = new Map<string, OwnerRow>();
   for (const o of owners) if (!ownerOf.has(o.orgId)) ownerOf.set(o.orgId, o);
 
   const items: AdminAccountDto[] = rows.map((r) => {
