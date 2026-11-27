@@ -62,7 +62,8 @@ jobs:
       - name: No source maps in the public assets
         run: node ../../scripts/check-no-client-maps.mjs dist/client
       - name: Deploy provisioning script
-        run: node --test scripts/provision.test.mjs
+        working-directory: .
+        run: node --test ventures/payapps/apps/payapps/scripts/provision.test.mjs
       - name: D1 migrations in sync with schema
         run: |
           pnpm exec drizzle-kit check
