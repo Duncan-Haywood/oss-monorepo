@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "changed-ventures failed on this PR from a red main: pay-app-guides page.test (12 state pages built by state-forms.mjs without cta.mjs's markers, PRs #19626 and #19631 crossed); fixed here"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "docs/reports/2026-11-27-payapps-launch-switch-for-the-guides.md",
       "issue": "Launch-day steps say to read the URL from the deploy summary and set APP_URL; they do not say the workers.dev host contains the account owner's name, which only appears as a 'Not done' aside"
+    },
+    {
+      "file": "ventures/pay-app-guides/cta.mjs",
+      "issue": "cta.mjs rewrites every .html, but state-forms.mjs regenerated 12 of them without its markers, so the two generators undid each other and main's page.test went red"
     }
   ],
   "deviations": [
@@ -59,7 +65,7 @@
     "ventures/payapps/apps/payapps/docs/DEPLOY.md (PAYAPPS_DOMAIN default)"
   ],
   "goal": null,
-  "notes": "Security queue empty (exit 3); ideas inbox empty; routed ventures/1 to bet #1 PayApps. Found deploy run 45949861746 live on payapps.<owner-name>.workers.dev and the guide CTA switch (PR #19631) waiting for a URL. Changed priv-payapps-deploy.yml so APP_DOMAIN defaults to payapps.marisstella.app (falls back to workers.dev with a warning if the token cannot read the zone) and the smoke test waits 300 s for a new certificate. validate_workflows: 142 valid; adversarial gate local: control-plane, 0 blocking, 0 warnings; risk_review: nothing blocked.",
+  "notes": "Security queue empty (exit 3); ideas inbox empty; routed ventures/1 to bet #1 PayApps. Found deploy run 45949861746 live on payapps.<owner-name>.workers.dev and the guide CTA switch (PR #19631) waiting for a URL. Changed priv-payapps-deploy.yml so APP_DOMAIN defaults to payapps.marisstella.app (falls back to workers.dev with a warning if the token cannot read the zone) and the smoke test waits 300 s for a new certificate. validate_workflows: 142 valid; adversarial gate local: control-plane, 0 blocking, 0 warnings; risk_review: nothing blocked. Fixed main's red pay-app-guides suite: state-forms.mjs now runs each page through cta.mjs apply; node --test *.test.mjs 296 pass 0 fail.",
   "corrections": [],
   "redteam": null,
   "usage": {
