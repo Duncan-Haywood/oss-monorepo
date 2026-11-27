@@ -19,7 +19,7 @@ export const meQuery = {
 // Public, no session needed; the same list the Billing page and the marketing site read.
 export const plansQuery = {
   queryKey: ["billing-plans"],
-  queryFn: () => api<{ items: PlanDto[] }>("/api/billing/plans").then((r) => r.items),
+  queryFn: () => api<{ items: PlanDto[]; checkoutAvailable?: boolean }>("/api/billing/plans"),
   staleTime: 5 * 60_000,
 };
 
