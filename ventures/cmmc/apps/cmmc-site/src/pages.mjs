@@ -317,7 +317,8 @@ ${
     ? `<p>This marketing site stores nothing about you: no forms, no cookies, no tracking scripts. The free SPRS calculator runs in
 your browser and sends nothing. See the <a href="/privacy">privacy notice</a>.</p>`
     : `<p>This marketing site stores only the early-access list: your email address, the level and shop size you chose, the wording you
-agreed to, and a salted hash of your IP address for abuse limits. Unconfirmed sign-ups are deleted after 30 days. See the
+agreed to, and a salted hash of your IP address for abuse limits. Unconfirmed sign-ups are deleted after 30 days, or once the last
+confirmation link has expired if that is later (a link works for 7 days). See the
 <a href="/privacy">privacy notice</a>.</p>`
 }
 <h2>Reporting a security issue</h2>
@@ -456,7 +457,8 @@ except with the services that run the site (Cloudflare for hosting, the database
 <p>Only the people who run ${SITE_NAME} can see the list: your email address, the page you signed up on, whether you
 confirmed, and the date. Each time they view it, that view is logged.</p>
 <h2>How long</h2>
-<p>Unconfirmed addresses are deleted after 30 days. Confirmed addresses stay until you leave the list or the early-access
+<p>Unconfirmed addresses are deleted after 30 days, or once the last confirmation link has expired if that is later (a link
+works for 7 days). Confirmed addresses stay until you leave the list or the early-access
 program ends.</p>
 <h2>Leaving</h2>
 <p>Every email has a link that deletes your entry. You can also reply to any email and ask.</p>

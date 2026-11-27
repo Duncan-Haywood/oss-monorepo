@@ -106,6 +106,13 @@ test("admin defaults and bounds: 30-day window, 1-day minimum, 50-row page, 200 
   assert.equal(one.status, 200);
   assert.equal((await one.json()).windowDays, 1);
   assert.equal((await get("/api/admin/metrics?days=0", auth)).status, 400);
+  // Upper bound: a year (leap year included) is the widest window; one more day is refused.
+  assert.equal((await get("/api/admin/metrics?days=366", auth)).status, 200);
+  assert.equal((await get("/api/admin/metrics?days=367", auth)).status, 400);
+  // An admin path that names no endpoint is a 404, not a 405 (GET is the right method).
+  const unknown = await get("/api/admin/nope", auth);
+  assert.equal(unknown.status, 404);
+  assert.equal((await unknown.json()).error.code, "not_found");
   const accounts = await get("/api/admin/accounts", auth);
   assert.equal(accounts.status, 200);
   assert.equal((await accounts.json()).limit, 50);

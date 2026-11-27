@@ -9,6 +9,7 @@
 //   POST {base}/api/early-access/leave    delete the entry -> 303 left / link-expired
 //   GET  {base}/api/admin/metrics|accounts  owner console only (admin.mjs; service token)
 //   scheduled (daily)                     delete never-confirmed rows older than 30 days
+//                                         whose newest confirmation link has expired
 //
 // Privacy: never log an email address or a token; IPs are stored only as a salted hash. A valid
 // sign-up gets the same answer whatever the address's state, so the form cannot be used to learn who
@@ -215,13 +216,13 @@ export function renderConfirmEmail({ confirmUrl, leaveUrl, siteUrl }) {
 Confirm your address (the link works for 7 days):
 ${confirmUrl}
 
-If you did not ask for this, ignore this email: nothing more is sent and the address is deleted after 30 days.
+If you did not ask for this, ignore this email: nothing more is sent and the address is deleted after 30 days, or once this link expires if that is later.
 Remove it now: ${leaveUrl}
 `;
   const html = `<p>Someone (hopefully you) asked to join the early-access list for the
 <a href="${escapeHtml(siteUrl)}/">Shop Compliance Workspace</a>.</p>
 <p><a href="${escapeHtml(confirmUrl)}">Confirm your address</a> (the link works for 7 days).</p>
-<p>If you did not ask for this, ignore this email: nothing more is sent and the address is deleted after 30 days.
+<p>If you did not ask for this, ignore this email: nothing more is sent and the address is deleted after 30 days, or once this link expires if that is later.
 <a href="${escapeHtml(leaveUrl)}">Remove it now</a>.</p>`;
   return { subject, text, html };
 }
@@ -353,11 +354,16 @@ export async function leave(env, token) {
   return true;
 }
 
+/**
+ * Deletes never-confirmed rows older than PENDING_RETENTION_MS whose newest confirmation link has
+ * also expired: the email promises 7 days, so a link re-sent on day 29 still works on day 35.
+ */
 export async function purgePending(env, now = Date.now()) {
   const res = await env.DB.prepare(
-    "DELETE FROM early_access_signups WHERE status = 'pending' AND created_at < ?",
+    `DELETE FROM early_access_signups WHERE status = 'pending' AND created_at < ?
+       AND (confirm_token_expires_at IS NULL OR confirm_token_expires_at <= ?)`,
   )
-    .bind(now - PENDING_RETENTION_MS)
+    .bind(now - PENDING_RETENTION_MS, now)
     .run();
   return res.meta?.changes ?? 0;
 }
