@@ -566,6 +566,36 @@ class ClaimRaceTest(unittest.TestCase):
         want = rc.spread(["RFIs", "estimating"], rc.hashlib.sha256(b"r1").hexdigest()[:10])[0]
         self.assertIn(f"Untouched topic: '{want}'", out)
 
+    def test_growth_topic_with_merged_claims_is_not_untouched(self):
+        # 2026-11-27 friction (eight runs): "Untouched topic: 'PDF to ZUGFeRD conversion'" in the
+        # same output that listed 8 merged claims on it. Untouched now means no claim at all.
+        bets = Path(self.tmp.name) / "bets.md"
+        bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                        "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n"
+                        "\n"
+                        "### 1. Pay apps\n\n- **Wedge:** pay apps.\n"
+                        "- **Growth path:** job costing and estimating.\n"
+                        "- **Risks:** none\n")
+        for n in ("1", "2", "3"):
+            self.assertEqual(self.main(self.b, "--claim", n)[0], 0)
+        self.assertEqual(self.main(self.b, "--claim", "0", "--slug", "job-cost-codes")[0], 0)
+        self.merge("payapps: job cost codes (job-cost-codes) (#40)")
+        for run in ("s0", "s1", "s2", "s3"):
+            code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None, run=run)
+            self.assertEqual(code, 0, out)
+            self.assertIn("job costing (no live claim; 1 merged)", out)
+            self.assertIn("Untouched topic: 'estimating'", out)
+            self.assertNotIn("Untouched topic: 'job costing'", out)
+        # Once every free topic has merged work, name the least-worked one, with its count.
+        self.assertEqual(self.main(self.b, "--claim", "0", "--slug", "estimating-takeoff")[0], 0)
+        self.merge("payapps: estimating takeoff (estimating-takeoff) (#41)")
+        self.assertEqual(self.main(self.b, "--claim", "0", "--slug", "estimating-bid-forms")[0], 0)
+        self.merge("payapps: estimating bid forms (estimating-bid-forms) (#42)")
+        _, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertNotIn("Untouched topic", out)
+        self.assertIn("Least-worked topic (1 merged claim(s)", out)
+        self.assertIn("'job costing'", out)
+
     def test_bets_overview_sends_a_run_to_the_least_crowded_wedge(self):
         # 2026-11-26 friction (6 runs): every bet's Next items waited, the fallback named a
         # "growth path" bets.md does not have, and three runs piled onto payapps.

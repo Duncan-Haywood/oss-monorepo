@@ -44,3 +44,15 @@ test("linked from the tool page and the France page, in the sitemap and llms.txt
   }
   assert.match(fs.readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /<loc>[^<]*br-fr-error-codes\.html<\/loc>/);
 });
+
+test("long allowed-code lists fold into <details>, codes still in the page; short lists stay inline", async () => {
+  const { cell } = await import("./build-br-fr-codes-page.mjs");
+  const long = `Not allowed: ${Array.from({ length: 12 }, (_, i) => `"C${i}"`).join(", ")}. Fix it.`;
+  const out = cell(long, "en");
+  assert.match(out, /<details class="codes"><summary>Show the 12 allowed codes<\/summary>/);
+  assert.match(out, /<code>C11<\/code><\/details>Fix it\./);
+  assert.match(cell(long, "fr"), /Afficher les 12 codes autorisés/);
+  assert.equal(cell('Only "A", "B" & "C".', "en"), "Only &quot;A&quot;, &quot;B&quot; &amp; &quot;C&quot;.");
+  assert.match(html, /Show the 51 allowed codes/);
+  assert.match(html, /<code>IRR_NOM_F<\/code>/);
+});

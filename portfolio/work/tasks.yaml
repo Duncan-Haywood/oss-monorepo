@@ -612,7 +612,7 @@ tasks:
     direction: paid-bets
     title: Pre-publication audit script for a private app (step 3 of products-to-public-repo)
     done_when: >-
-      platform/security/prepublish_audit.py, run against a directory of a
+      platform/security/prepub_audit.py, run against a directory of a
       private-monorepo clone, reports likely secrets, personal data (emails,
       phone numbers, names outside the operator's), client or customer data,
       internal hostnames and account ids, and security notes, with a nonzero
@@ -662,6 +662,28 @@ tasks:
       (docs/reports/2026-11-27-move-jobshop-quote-public.md). Next: the
       Playwright job, priv-jobshop-quote-deploy.yml after PayApps' deploy
       port shows the pattern, then the private copy removed.
+  - id: move-seller-books-public
+    direction: paid-bets
+    title: Move Seller Books (bet #5) and the packages it imports into this repository (step 4 of products-to-public-repo)
+    done_when: >-
+      ventures/seller-books/ holds the app and its marketing site under the
+      all-rights-reserved notice, with the packages it imports, its CI ported
+      to this repository's workflows and passing, the audit's clean output in
+      the PR, and the deploy path written down. The private copy is removed
+      in a private-monorepo PR once the public one deploys.
+    hours: 8
+    status: open
+    added: 2026-11-27
+    notes: >-
+      Part 1 done 2026-11-27: ventures/seller-books holds apps/seller-books,
+      apps/seller-books-site, packages/billing and packages/admin-metrics
+      (private-monorepo 5d974943), all rights reserved, with
+      .github/workflows/seller-books-ci.yml and the audit in
+      docs/reports/2026-11-27-move-seller-books-public.md. Left
+      (ventures/seller-books/DEPLOY.md, "Not yet"): an allowlist PR and then
+      priv-seller-books-deploy.yml, the legal pages confirmed (no launch
+      review yet, unlike PayApps), then remove the private copy and repoint
+      models.yaml, bets.md and roadmap_claim.py.
   - id: inboxes-without-owner
     direction: paid-bets
     title: Turn the agent inboxes on with no owner-pasted secrets

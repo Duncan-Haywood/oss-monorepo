@@ -9,6 +9,7 @@ import {
   parseJson,
   R2_NOT_ENABLED,
   RESOURCES,
+  r2Unavailable,
 } from "./provision.mjs";
 
 const build = {
@@ -80,4 +81,23 @@ test("wrangler output parsing", () => {
   assert.ok(
     R2_NOT_ENABLED.test("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
   );
+});
+
+test("r2Unavailable: R2 off or refused degrades, anything else fails the deploy", () => {
+  assert.equal(
+    r2Unavailable("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
+    "not-enabled",
+  );
+  // The first oss-monorepo deploy (run 45947552522): the token had no R2 permission.
+  assert.equal(
+    r2Unavailable(
+      "creating r2 bucket payapps-files failed:\n✘ [ERROR] A request to the Cloudflare API (/accounts/x/r2/buckets) failed.\n\n  Authentication error [code: 10000]",
+    ),
+    "no-access",
+  );
+  assert.equal(
+    r2Unavailable("A request to the Cloudflare API failed. Internal error [code: 10001]"),
+    "",
+  );
+  assert.equal(r2Unavailable("spawnSync pnpm ENOENT"), "");
 });
