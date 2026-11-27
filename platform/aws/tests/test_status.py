@@ -11,8 +11,6 @@ import stat
 import subprocess
 from pathlib import Path
 
-import pytest
-
 HERE = Path(__file__).resolve().parent.parent
 SCRIPT = HERE / "status.sh"
 
@@ -37,8 +35,8 @@ print(err, file=sys.stderr); sys.exit(254)
 
 
 def run(tmp_path, responses, *extra):
-    if shutil.which("jq") is None:
-        pytest.skip("jq not installed")
+    # status.sh needs jq (CloudShell and the CI runners have it); fail loudly without it.
+    assert shutil.which("jq"), "jq is required to run status.sh"
     bindir = tmp_path / "bin"
     bindir.mkdir()
     fake = bindir / "aws"
