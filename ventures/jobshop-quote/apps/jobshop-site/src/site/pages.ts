@@ -37,7 +37,7 @@ export function primaryCta(ctx: RenderContext, cls = "btn btn-primary"): Html {
 
 /** Said wherever the site describes AI reading, while the hosted app has it switched off. */
 export const AI_OFF =
-  "Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet; until it is, you enter those values yourself.";
+  "Reading RFQ emails and PDF drawings with AI is built but not switched on in the hosted app yet. Until it is, the app reads them by fixed rules: labelled lines (Part number, Qty, Material, Finish, Due) and parts tables with a header row, each value shown with the line it came from. You check those and enter the rest yourself.";
 const INBOUND_OFF =
   "RFQs by email to a shop address are not switched on in the hosted app yet: upload the files instead.";
 

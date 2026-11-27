@@ -38,8 +38,10 @@ who joins by the link and finds the rate card and team read-only, in the page an
 offline server measures CAD files with the real parser (only the worker tests use the fake). Pass a spec or `-g` to run part of it; `E2E_BASE_URL=http://localhost:5199` points it
 at a running demo instead. CI runs it on every PR that touches the app (`jobshop-quote-ci`, job `e2e`).
 
-Real extraction needs `ANTHROPIC_API_KEY` (secret) and Workers AI; the model is `LLM_MODEL`
-(`claude-haiku-5-5`). Copy `.dev.vars.example` to `.dev.vars` for `pnpm dev`.
+AI extraction needs `ANTHROPIC_API_KEY` (secret) and Workers AI; the model is `LLM_MODEL`
+(`claude-haiku-5-5`). Without the key, "Extract" reads the RFQ with the rule reader
+(`src/shared/rule-reader.ts`: labelled lines, tables with a header row, "25 pcs of P/N" lines), through
+the same verification, at no AI cost and without counting against the plan's RFQ allowance. Copy `.dev.vars.example` to `.dev.vars` for `pnpm dev`.
 
 AI spend is capped before every Claude call (`services/guards/llm-budget.ts`, same guard as grants):
 `ORG_MONTHLY_LLM_CAP_USD` (default 25 per shop per UTC month; extraction then answers 402 and the

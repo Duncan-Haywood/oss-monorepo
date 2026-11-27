@@ -35,6 +35,11 @@ export interface AppContext {
   env: Env;
   db: Db;
   llm: LlmClient;
+  /**
+   * Who reads an RFQ on "Extract": "ai" (the model, or the fake in tests) or "rules"
+   * (src/shared/rule-reader.ts), used when a real deployment has no Anthropic key.
+   */
+  rfqReader: "ai" | "rules";
   converter: DocumentConverter;
   geometry: GeometryExtractor;
   /** Account mail (verify address, reset password); services/auth/emails.ts. */
@@ -56,6 +61,8 @@ export const testFakes = {
   llmHandlers: new Map<string, FakeHandler>(),
   /** When set, the fake LLM is wrapped in BudgetedLlm with this guard (spend-cap route tests). */
   llmBudget: null as LlmBudgetGuard | null,
+  /** When set, tests read RFQs with this reader instead of the fake model ("rules" tests). */
+  rfqReader: null as "ai" | "rules" | null,
   /** Account mail in tests and the offline demo, kept in memory across requests. */
   email: new FakeEmailSender(),
 };
@@ -130,10 +137,15 @@ export function createAppContext(rawEnv: Env, overrides: Partial<Omit<AppContext
           )
         : notConfiguredLlm);
 
+  const rfqReader =
+    overrides.rfqReader ??
+    (fake ? (testFakes.rfqReader ?? "ai") : env.ANTHROPIC_API_KEY ? "ai" : "rules");
+
   const ctx: AppContext = {
     env,
     db,
     llm,
+    rfqReader,
     converter:
       overrides.converter ?? (fake ? new FakeDocumentConverter() : new WorkersAiConverter(env.AI)),
     // The CAD parser is local TypeScript, not an outside service: only the worker tests (which
