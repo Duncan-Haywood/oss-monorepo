@@ -63,6 +63,8 @@ describe("static export", () => {
       expect(doc, rel).toContain("No warranty");
     }
     expect(files.has("404.html")).toBe(false);
+    // The catalogue's chrome adds the BreadcrumbList for its own visible trail.
+    for (const [rel, doc] of files) expect(doc, rel).not.toContain("BreadcrumbList");
   });
 
   it("says the pages store nothing and points to the app's own privacy policy", () => {

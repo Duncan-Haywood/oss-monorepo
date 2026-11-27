@@ -15,7 +15,12 @@ export function buildSite(ctx: SiteContext): Map<string, string> {
   const files = new Map<string, string>();
   const built: BuiltPage[] = pageKeys(ctx).map((k) => buildPage(ctx, k));
   for (const b of built) {
-    files.set(b.page.file, pageShell(ctx, { page: b.page, main: b.main, jsonLd: b.jsonLd }));
+    // On the catalogue its chrome writes the BreadcrumbList that matches the trail it shows
+    // (platform/pages/build.mjs, injectChrome), and it skips a page that already names one.
+    const jsonLd = ctx.staticHost
+      ? b.jsonLd.filter((n) => n["@type"] !== "BreadcrumbList")
+      : b.jsonLd;
+    files.set(b.page.file, pageShell(ctx, { page: b.page, main: b.main, jsonLd }));
   }
   files.set("sitemap.xml", sitemapXml(ctx));
   files.set("robots.txt", robotsTxt(ctx));
