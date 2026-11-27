@@ -522,3 +522,8 @@ allow:
     contains: EINVOICE_ADMIN_TOKEN
     reason: "optional operator token for POST /v1/admin/accounts on the einvoice-pro Worker, pushed with wrangler secret bulk when set, never logged"
     added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-security-scan-repo.yml
+    contains: upload/security-events:write
+    reason: the upload job of the full-repo scanner reading sends its SARIF to code scanning (github/codeql-action/upload-sarif, the pinned SHA priv-codeql.yml already uses); it runs no repository code, only download-artifact and the upload action, while the scan itself runs in a read-only job; manual dispatch only (task sec-codeowners-scan-gate, docs/reports/2026-11-27-full-repo-security-scan.md lands with it)
+    added: 2026-11-27
