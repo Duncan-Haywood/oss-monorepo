@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtJKmNqHrUk2bL78wbj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T01:07:22Z",
+  "ended": "2026-11-27T01:12:20Z",
+  "wall_minutes": 10.99,
+  "tokens_in": 8899899,
+  "tokens_out": 26089,
+  "cost_usd": 3.2079,
+  "tool_calls": 80,
+  "task": "Bet #1 PayApps: the OPERATOR.md launch review, then the first production deploy",
+  "projects": [
+    "private-monorepo/apps/payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19546",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    "payapps-deploy run 45921558751 (dispatched 2026-11-27T01:15Z) ended in 7 s with runner_id 0: private-monorepo Actions still blocked on billing (asks.yaml private-actions-billing)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "private-monorepo apps/payapps/docs/DEPLOY.md",
+      "issue": "Said the legal pages are drafts awaiting the owner and counsel; docs/legal/OPERATOR.md (2026-11-26) already lets agents launch after a recorded review. Fixed in private-monorepo#444. The same stale wording is still in the header comment of .github/workflows/payapps-deploy.yml, which I left alone because it is a workflow file."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py --bets",
+      "issue": "Every bet showed no free, ungated ROADMAP item (payapps #1 was claimed minutes earlier), and nothing pointed at the launch list ('Must do before a public launch'), which held the most valuable work for bet #1. The tool could also list a bet's launch items."
+    },
+    {
+      "file": "apps/payapps/ROADMAP.md",
+      "issue": "The status line still says 'Not deployed, not for sale', and nothing says the launch has been agent-approved since 2026-11-26, so ten-plus runs added features to an app no stranger can reach."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is the top free ROADMAP item. None were free for any bet, and PayApps had never been deployed, which matters more for MRR than another feature.",
+      "did": "Did the launch review OPERATOR.md requires (and fixed six gaps in the legal pages), then dispatched the deploy myself under that authority.",
+      "result": "The review merged (private-monorepo#444). The deploy is blocked on runners, and the owner has been notified."
+    },
+    {
+      "file": "portfolio/ledger/check_ledger_only.py",
+      "why": "This PR is a ledger edit plus a run record; the product work is in private-monorepo#444.",
+      "did": "Landed the ledger update here so the owner's queue shows PayApps one re-run away from live.",
+      "result": "private-actions-billing heads the decision queue as a revenue gate."
+    },
+    {
+      "file": "CLAUDE.md (write about the work)",
+      "why": "No post: the launch has not happened. A 'PayApps is live' customer post would claim something that isn't true yet.",
+      "did": "Nothing written.",
+      "result": "The next run writes the post after a deploy that succeeds."
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/payapps/docs/LAUNCH-REVIEW.md (agent doc: the review record)"
+  ],
+  "goal": null,
+  "notes": "private-monorepo CI starved (runner_id 0). Ran payapps-ci locally with run_workflow_locally.py --repo-root: 10/10 run steps passed (the checkout and setup uses: steps did not run). Also ran pnpm typecheck (exit 0), the legal and plans unit tests (14/14) and the worker legal and auth-email tests (14/14). risk_review.py: nothing blocked on either PR. Next step: once Actions gets a runner, re-run payapps-deploy, check that /api/health says email true, then update the ROADMAP status and write the customer post.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5b61c9f2-6b04-58da-9d4b-fdaf28d4d321",
+    "transcripts": 1,
+    "first": "2026-11-27T01:07:22Z",
+    "last": "2026-11-27T01:18:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 152,
+        "output": 26089,
+        "thinking": 6071,
+        "cache_read": 8783647,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116100,
+        "api_equivalent_usd": 3.2079,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 152,
+      "output": 26089,
+      "thinking": 6071,
+      "cache_read": 8783647,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116100,
+      "api_equivalent_usd": 3.2079,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 66,
+      "mcp__github__actions_list": 5,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1,
+      "mcp__github__actions_run_trigger": 1,
+      "PushNotification": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.99,
+      "active_minutes": 10.99,
+      "model_minutes": 5.12,
+      "tool_minutes": 5.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "read four legal pages against a 60-table schema, fix them, write the review, run CI locally, dispatch the deploy",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 124.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

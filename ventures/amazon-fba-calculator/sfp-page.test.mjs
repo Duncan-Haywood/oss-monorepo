@@ -119,7 +119,7 @@ test("index surfaces compareSfp on the listing itself", () => {
   assert.match(index, /compareSfp/);
   assert.match(index, /sfp_compared/);
   assert.match(index, /id="sfpShippingCost"/);
-  const table = index.match(/<table id="sfpTable">[\s\S]*?<\/table>/);
+  const table = index.match(/<table(?: class="stack")? id="sfpTable">[\s\S]*?<\/table>/);
   assert.ok(table, "index.html is missing the SFP comparison table");
   const columns = table[0].match(/<th\b/g).length;
   assert.equal(columns, 5, "SFP table should have five columns");

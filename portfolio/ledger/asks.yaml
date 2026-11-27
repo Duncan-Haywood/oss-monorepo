@@ -123,7 +123,7 @@ decisions:
 - id: private-actions-billing
   asks: []
   prs: [18753]
-  gates: deployment
+  gates: revenue
   exposure: credential
   opened: "2026-11-25"
   action: >-
@@ -137,11 +137,14 @@ decisions:
     runner.
   unlocks:
     - >-
-      Every deploy of the paid apps (grants-deploy has not run; payapps-deploy,
-      bet #1, exists since private-monorepo#63 and is a manual "Run workflow"
-      once the legal drafts are confirmed), and with it the Paddle catalog
-      sync from private-monorepo#36; plus CI on every private PR, which agents
-      now verify locally instead.
+      PayApps (bet #1) going live: its launch review is done and merged
+      (private-monorepo#444, apps/payapps/docs/LAUNCH-REVIEW.md, under
+      docs/legal/OPERATOR.md), and an agent dispatched payapps-deploy on
+      2026-11-27 (run 45921558751), which ended with no runner. Once a run
+      gets a runner, re-run that deploy: sign-ups open on workers.dev with
+      checkout still dark. Also every other paid app's deploy, the Paddle
+      catalog sync from private-monorepo#36, and CI on every private PR,
+      which agents now verify locally instead.
   blocked_by: []
   note: >-
     Found 2026-11-25 on Duncan-Haywood/private-monorepo#36: runner_id 0 and
