@@ -111,10 +111,13 @@ rewrite.
 
 **Cron triggers.** Cloudflare allows 5 cron triggers per account on the free
 plan (1,000 on Workers Paid), and every schedule on every Worker counts.
-`python3 platform/ci/cron_budget.py` lists them (on 2026-11-27: 3 on
-workflow-deployed Workers, 8 configured) and fails CI when the deployed ones
-exceed [`cloudflare-plan.json`](cloudflare-plan.json); it only warns about
-Workers not deployed yet, until a PR adds their deploy workflow.
+`python3 platform/ci/cron_budget.py --strict` lists them and fails CI when the
+configured ones exceed [`cloudflare-plan.json`](cloudflare-plan.json) (on
+2026-11-27, after P098: 5 configured, 4 on workflow-deployed Workers, so none
+spare). A new daily or hourly job goes on a Durable Object alarm instead, which
+is not a cron trigger and works on the free plan (SQLite-backed objects): the
+three landing sites' sign-up purges do this (`ventures/*/apps/*-site`,
+`purge-clock.mjs` / `purge-clock.ts`).
 
 **Terms users see.** Hosted surfaces carry the no-warranty and no-SLA copy
 in [`PRODUCT_PLAYBOOK.md`](../../PRODUCT_PLAYBOOK.md) §5b; the Pages build

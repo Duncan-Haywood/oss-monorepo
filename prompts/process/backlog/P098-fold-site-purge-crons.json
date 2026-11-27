@@ -1,7 +1,7 @@
 {
   "id": "P098",
   "title": "Fold the three landing-site purge crons before their Workers get deploy workflows, so the account stays within 5 cron triggers",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -21,7 +21,12 @@
   "baseline": "8 configured, 3 deployed, 5 allowed (2026-11-27)",
   "opened": "2026-11-27",
   "source": "process run (P097)",
-  "pr": null,
+  "pr": "pending",
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-11-27",
+      "note": "Done without the owner step and without a scheduler Worker: each site's purge moved to a SQLite Durable Object alarm (purge-clock.mjs / .ts), which is not a cron trigger and is on the Free plan (cloudflare-docs partials/durable-objects/do-plans-note.mdx, read 2026-11-27). Any request to the Worker arms it once per isolate; the alarm re-arms a day out before each purge. Configured schedules 8 -> 5; CI now runs cron_budget.py --strict."
+    }
+  ]
 }
