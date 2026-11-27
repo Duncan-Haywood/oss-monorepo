@@ -66,12 +66,30 @@ export const paidFrom = (s) => Math.max(s.created || 0, s.trialEnd || 0);
 const NEVER_PAID_STATUS = new Set(["incomplete", "incomplete_expired"]);
 const neverPaid = (s) => NEVER_PAID_STATUS.has(s.status) || Boolean(s.endedAt && s.endedAt <= paidFrom(s));
 
-export function mapAt(subs, t) {
+// When a subscription that is not paying now (unpaid, paused) and has no
+// ended_at stopped paying. Stripe records no date for either change, so it is
+// `stoppedAt` when the source knows one, otherwise "now": the subscription
+// paid until the sync that found it stopped and churns in the current month.
+// Before, it was dropped from every month, so 22 months of 5000 read 0 and its
+// churn was never booked (quality audit 2026-11-21, defect 2). Stripe's own
+// `paused` status only follows a trial that ended with no payment method, so
+// a CSV row marked paused with a trial end stopped there and never paid.
+const STOPPED_STATUS = new Set(["unpaid", "paused"]);
+export function stoppedAt(s, now) {
+  if (s.stoppedAt != null) return s.stoppedAt;
+  // A Stripe pause_collection keeps Stripe's status active (stripe.mjs reads it
+  // as paused with collectionPaused): it paid after any trial, so not this rule.
+  if (s.status === "paused" && s.trialEnd && !s.collectionPaused) return s.trialEnd;
+  return now;
+}
+
+export function mapAt(subs, t, now = Infinity) {
   const out = {};
   for (const s of subs) {
     if (!(s.mrr > 0) || !s.created || paidFrom(s) > t || NEVER_PAID_STATUS.has(s.status)) continue;
     if (s.endedAt && s.endedAt <= t) continue;
-    if (!s.endedAt && !["active", "past_due", "canceled"].includes(s.status)) continue;
+    if (!s.endedAt && STOPPED_STATUS.has(s.status)) { if (stoppedAt(s, now) <= t) continue; }
+    else if (!s.endedAt && !["active", "past_due", "canceled"].includes(s.status)) continue;
     add(out, customerKey(s), s.mrr);
   }
   return out;
@@ -114,10 +132,10 @@ export function backfill(subs, now, months = 12) {
   const ever = {};
   const out = [];
   const d0 = new Date(now);
-  let prev = mapAt(subs, Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() - months + 1, 1) - 1);
+  let prev = mapAt(subs, Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() - months + 1, 1) - 1, now);
   for (const id of Object.keys(prev)) put(ever, id, 1);
   for (const { month, t } of monthEnds(now, months)) {
-    const cur = mapAt(subs, t);
+    const cur = mapAt(subs, t, now);
     const row = { ...emptyMonth(month), ...movements(prev, cur, ever), mrr: sum(cur), customers: Object.keys(cur).length, startMrr: sum(prev), startCustomers: Object.keys(prev).length, approximate: true };
     for (const id of Object.keys(cur)) put(ever, id, 1);
     out.push(row);
