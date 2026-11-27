@@ -39,6 +39,14 @@
     {
       "what": "let row used before declaration in an early-return path (TDZ)",
       "fix": "declared at the top of buildNjCpr"
+    },
+    {
+      "what": "Edited docs/legal/privacy.md without running node docs/legal/sync-documents.mjs; payapps-ci's legal documents test failed locally",
+      "fix": "regenerated src/worker/services/legal/documents.ts"
+    },
+    {
+      "what": "Merged origin/main while run_workflow_locally --for-changes was running, voiding five workflow verdicts (UNSTABLE CHECKOUT)",
+      "fix": "reran the voided workflows on a still tree"
     }
   ],
   "integrity_issues": [],
@@ -70,7 +78,7 @@
     "docs/posts/2026-11-26-wh-347-certified-payroll-for-subcontractors.md (extended: New Jersey section)"
   ],
   "goal": null,
-  "notes": "Unit suite: 1386 passed, 4 skipped; tsc clean; biome 0 errors. NJ_MW562=<NJDOL MW-562 2/25> fill verified by our reader and pypdf, rendered with pdftoppm. NJDOL's own page-2 check box appearances lack a ZapfDingbats resource, so poppler draws an odd glyph there; this is in their form and Acrobat draws a check. venture-preflight run in background; result noted in the PR.",
+  "notes": "Unit suite: 1386 passed, 4 skipped; tsc clean; biome 0 errors. NJ_MW562=<NJDOL MW-562 2/25> fill verified by our reader and pypdf, rendered with pdftoppm. NJDOL's own page-2 check box appearances lack a ZapfDingbats resource, so poppler draws an odd glyph there; this is in their form and Acrobat draws a check. venture-preflight run in background; result noted in the PR. Preflight: failed only on check_post_links (a retired workers.dev signup link in the Florida NTO post, already on main); fixed in this PR, check_post_links now 0 broken.",
   "corrections": [],
   "redteam": null,
   "usage": {
