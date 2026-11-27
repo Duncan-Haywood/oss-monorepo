@@ -43,8 +43,12 @@ run "no_webhook_before_the_connection_handshake" {
   command = apply
 
   assert {
-    condition     = length(aws_codebuild_webhook.ci) == 0
-    error_message = "the webhook must wait for connection_ready (AWS cannot register it on a pending connection)"
+    condition     = length(aws_codebuild_webhook.ci) == 0 && length(aws_codebuild_project.ci) == 0
+    error_message = "the projects and webhook must wait for connection_ready (AWS refuses both on a pending connection)"
+  }
+  assert {
+    condition     = output.project_name == null && output.docker_project_name == null
+    error_message = "the runner names are null until the projects exist"
   }
   assert {
     condition     = output.connection_status == "PENDING"
@@ -120,7 +124,8 @@ run "no_docker_runner_when_turned_off" {
   command = plan
 
   variables {
-    docker_runner = false
+    docker_runner    = false
+    connection_ready = true
   }
 
   assert {

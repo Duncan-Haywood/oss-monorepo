@@ -135,8 +135,13 @@ resource "aws_iam_role_policy" "ci" {
   policy = data.aws_iam_policy_document.ci.json
 }
 
+# Created only once the connection is AVAILABLE (var.connection_ready), like
+# the webhook below: CreateProject with a CODECONNECTIONS source on a PENDING
+# connection fails with "OAuthProviderException: User is not authorized to
+# access connection" (apply run 46077947617, 2026-11-27), and because the apply
+# stops at the first failing stack, that also held back stacks/spend.
 resource "aws_codebuild_project" "ci" {
-  for_each               = local.projects
+  for_each               = var.connection_ready ? local.projects : {}
   name                   = each.key
   description            = "Ephemeral GitHub Actions runners for ${var.github_repository}${each.value.privileged ? " (Docker: service containers)" : ""}"
   service_role           = aws_iam_role.ci.arn
@@ -179,11 +184,10 @@ resource "aws_codebuild_project" "ci" {
   }
 }
 
-# One build per queued workflow job. Created only after the connection is
-# AVAILABLE (var.connection_ready), since AWS cannot register a webhook on a
-# pending connection.
+# One build per queued workflow job. Exists only once the projects do (both
+# wait for var.connection_ready).
 resource "aws_codebuild_webhook" "ci" {
-  for_each     = var.connection_ready ? aws_codebuild_project.ci : {}
+  for_each     = aws_codebuild_project.ci
   project_name = each.value.name
   build_type   = "BUILD"
 
