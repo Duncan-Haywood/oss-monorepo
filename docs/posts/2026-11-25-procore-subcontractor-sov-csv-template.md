@@ -1,10 +1,10 @@
 ---
-title: "Procore, Textura and GCPay for subcontractors: filling the GC's templates and invoices without retyping"
-seo_title: "Procore SOV import, Textura billing upload, GCPay SOV: what to enter"
+title: "Procore, Textura, GCPay and Trimble Pay for subs: filling the GC's templates and invoices without retyping"
+seo_title: "Procore, Textura, GCPay and Trimble Pay SOV uploads: what to enter"
 date: 2026-11-25
-tags: [payapps, for-customers, construction, schedule-of-values, procore, textura, gcpay, invoicing]
-updated: 2026-11-26
-description: "Procore SSOV import rules, Procore invoice columns, Textura's billing upload template and GCPay's three-column SOV upload, filled from your pay app."
+tags: [payapps, for-customers, construction, schedule-of-values, procore, textura, gcpay, trimble-pay, invoicing]
+updated: 2026-11-27
+description: "Procore SSOV import and invoice, Textura billing upload, GCPay SOV upload and Trimble Pay's Flashtract template, filled from your pay app."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -232,6 +232,48 @@ published guide and has not been tried on a live GCPay project; the guide is fro
 screens may have moved since. If GCPay refuses the file, paste the rows into the template it
 offers.
 
+## If the GC is on Trimble Pay: the Flashtract template
+
+Trimble Pay (Flashtract before Trimble bought it) invites you to the GC's contract, and before your
+first pay application you build the schedule of values under it, by hand or with a bulk upload.
+Trimble's help for invited subcontractors sets the rules
+([SOV - Upload a Template](https://help.trimble.com/en/trimble-pay/trimble-pay/invited-subcontractors/schedule-of-values/sov---upload-a-template)
+and [Set up a Schedule of Values](https://help.trimble.com/doc/trimble-pay/trimble-pay/invited-subcontractors/quick-start/set-up-a-schedule-of-values),
+read 2026-11-27):
+
+- open the contract, go to the SOV and click **Bulk upload** (on a contract with accounting lines,
+  the Bulk Upload icon at the top of the schedule or in the accounting line's own section);
+- download the Flashtract template from that window, "fill out columns A, B, and C completely" and
+  leave the row 1 and row 2 headers unchanged;
+- no blank rows between line items, no section header rows, and no current period values: billing
+  comes later, on the pay application;
+- the lines must add up to the current contract value, and every line needs a description, or the
+  contract shows "Schedule of values incomplete". With accounting lines (cost code groups), the
+  lines in each group must add up to that group's value.
+
+Trimble's page does not say which of A, B and C is which, and the template is the GC's own
+download, so the safe way is to fill the file Trimble Pay gives you rather than build a new one.
+
+## Doing it in PayApps
+
+The job page has a **Trimble Pay SOV** button next to the GCPay one. Choose the Flashtract template
+you downloaded (.xlsx, or a .csv if you saved it that way); PayApps keeps its first two rows exactly
+as they are, reads from the header which column is the item number, the description and the value
+(you can change each one, and it asks when the header does not say), and writes your lines from row
+3 down with no gaps. Before you download it says:
+
+- whether the lines add up to the contract value, or how far over or under they are. A job with
+  change orders lets you choose the current contract (approved change orders included, each as its
+  own line) or the original contract only, for a GC that adds change orders on its side;
+- which lines have no description (Trimble Pay needs one on each) or no item number, and which item
+  numbers repeat;
+- whether the template already had rows under the header (example lines): the download replaces
+  them.
+
+The file is made in your browser. It follows Trimble's published help and has not been tried on a
+live Trimble Pay contract. If the GC uses accounting lines, upload each group's lines into that
+group, so check the grouping first.
+
 PayApps is in early access: pay applications, retainage, change orders, lien waivers and
-QuickBooks for subcontractors. Not affiliated with Procore, Oracle or GCPay. This is general information, not legal
+QuickBooks for subcontractors. Not affiliated with Procore, Oracle, GCPay or Trimble. This is general information, not legal
 or accounting advice.
