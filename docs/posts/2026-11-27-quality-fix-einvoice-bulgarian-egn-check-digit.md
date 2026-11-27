@@ -3,7 +3,7 @@ title: "Quality fix: a Bulgarian VAT check digit no test was guarding"
 seo_title: "Bulgarian 10-digit VAT number (EGN) check digit: the remainder-10 rule"
 date: 2026-11-27
 tags: [quality-audit, einvoice-preflight, for-customers, e-invoicing, vat]
-description: "When the EGN weighted sum leaves 10, the check digit is 0. Our e-invoice pre-check got this right, but changing the rule left every test green. Now one test fails."
+description: "When the EGN weighted sum leaves 10, the check digit is 0. Our e-invoice pre-check had it right, but changing the rule left every test green. Now a test fails."
 ---
 
 Bulgarian VAT numbers come in two lengths. A 10-digit one is usually a
