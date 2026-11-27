@@ -2383,6 +2383,29 @@ nothing to copy. No customers yet. Paid plans are dark
   `src/shared/timesheet-certified.ts`) instead of the time.csv export and import; two workweeks when
   the payroll week straddles them; other jobs' hours and missing trades named. docs/TIMESHEETS.md.
 
+- Public jobs, part 1 (2026-11-27, every plan, public-jobs-part-1): the lien deadline panel asks who
+  owns the job (a private owner, a state or local public body, the federal government). Public
+  property cannot be liened, so a public job no longer shows or reminds about a lien date that does
+  not apply. A federal job counts the Miller Act payment bond instead (40 U.S.C. § 3133(b), rules
+  ported from pay-app-guides' `millerbond.mjs`): the 90-day written notice to the prime when the
+  company contracted with one of the prime's subcontractors (or did not say: sending it never hurts),
+  the first day to sue (day 91) and the one-year limit; a first-tier sub gets the suit limit as its
+  date, and a claimant below the second tier is told the bond does not cover it (J.W. Bateson, 1978).
+  The date is estimated from billing until the last day is entered, moves back to the Friday on a
+  weekend, and reaches the cash page, its CSV and the weekly email 45 days ahead like a lien date.
+  A state or local job checks the job's retainage (the latest application's work and stored rates,
+  and any line's own rate) against the state's cap on public work in the 16 states of the
+  retainage-explained guide's table, each with its statute linked: over, above the cap but allowed
+  in a stated case (New York without bonds), within the cap but above a lower stage (after 50%
+  complete, a $5M+ Texas prime), or within; it says whether the statute also limits what the prime
+  holds from its subs. Migration 0087 (`public_owner`, `miller_tier`). Rules
+  `src/shared/public-jobs.ts`; tests `src/shared/public-jobs.test.ts` (dates by hand), the Miller
+  Act case in `test/worker/lien-deadline.test.ts` and `test/unit/lien-deadline-panel.test.tsx`.
+  Why: public work is where retainage caps and bond claims decide whether a sub gets paid, and the
+  cap check names money the GC may be holding without a right to. Not done: state bond-claim
+  ("little Miller Act") notice and suit dates, the Miller Act notice drafted from the job, prompt
+  payment interest on public jobs.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2521,3 +2544,9 @@ nothing to copy. No customers yet. Paid plans are dark
   files per ticket with the "PDF + photos" and "CO backup + photos" packets, and ticket rows in the
   job history): a rate sheet copied from another job or a company default, a daily report's crew
   started as a ticket and a remote signature by email link, if contractors ask
+- Public jobs, part 2 (part 1 done 2026-11-27: the owner on the job, Miller Act dates, the 16-state
+  retainage cap check): the Miller Act notice drafted from the job (claimant, prime, the sub it
+  worked for, the unpaid amount from the cash report; pay-app-guides' `noticeLetter` is the
+  template), then state "little Miller Act" notice and suit dates for the states the lien deadline
+  covers (California's stop payment notice and bond claim, Florida § 255.05, Texas Gov't Code
+  ch. 2253 first), each read from the statute page, if contractors mark public jobs

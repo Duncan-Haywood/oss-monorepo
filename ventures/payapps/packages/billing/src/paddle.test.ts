@@ -116,6 +116,35 @@ describe("PaddleBillingProvider.parseWebhook", () => {
     }
   });
 
+  it("rejects a correctly signed but non-numeric ts, which would skip the replay window", async () => {
+    const body = "{}";
+    for (const ts of ["abc", "1e9", ""]) {
+      const h1 = await hmacSha256Hex(SECRET, `${ts}:${body}`);
+      await assert.rejects(
+        verifyPaddleSignature(`ts=${ts};h1=${h1}`, body, SECRET, { nowMs: NOW }),
+        /Malformed/,
+      );
+    }
+  });
+
+  it("holds the 5-minute tolerance exactly at its edge, both directions", async () => {
+    const body = "{}";
+    const nowSec = Math.floor(NOW / 1000);
+    for (const ts of [nowSec - 300, nowSec + 300]) {
+      await verifyPaddleSignature(await signPaddleWebhook(body, SECRET, ts), body, SECRET, {
+        nowMs: NOW,
+      });
+    }
+    for (const ts of [nowSec - 301, nowSec + 301]) {
+      await assert.rejects(
+        verifyPaddleSignature(await signPaddleWebhook(body, SECRET, ts), body, SECRET, {
+          nowMs: NOW,
+        }),
+        /Stale/,
+      );
+    }
+  });
+
   it("ignores a crafted custom_data.orgId and reads subscription_id on transaction events", () => {
     const crafted = provider().normalize({
       event_id: "evt_02",
@@ -202,6 +231,8 @@ describe("paddleSubscriptionPrice (MRR source)", () => {
       { ...item, price: { ...item.price, billing_cycle: { interval: "fortnight", frequency: 1 } } },
       { ...item, price: { ...item.price, billing_cycle: { interval: "month" } } },
       { ...item, quantity: -1 },
+      { ...item, price: { ...item.price, unit_price: { amount: "2900", currency_code: "usdd" } } },
+      { ...item, price: { ...item.price, unit_price: { amount: "2900", currency_code: "u$d" } } },
       { price: { id: "pri_std_m" } },
       null,
     ];
@@ -216,6 +247,44 @@ describe("paddleSubscriptionPrice (MRR source)", () => {
     assert.equal(ev.subscription?.price?.unitAmountMinor, 2900);
     const noPrice = provider().normalize(subscriptionEvent);
     assert.equal(noPrice.subscription?.price, undefined);
+  });
+});
+
+describe("own-key lookups (no Object.prototype names)", () => {
+  it("refuses a plan key or status that only exists on Object.prototype", async () => {
+    let calls = 0;
+    const fetchFn = (async () => {
+      calls++;
+      return Response.json({ data: { product_id: "pro_1", checkout: { url: "https://x" } } });
+    }) as typeof fetch;
+    const p = provider(fetchFn);
+    for (const planKey of ["toString", "constructor", "__proto__", "hasOwnProperty"]) {
+      await assert.rejects(
+        p.createCheckout({
+          planKey,
+          customerEmail: "a@example.com",
+          checkoutToken: "t",
+          providerCustomerId: "ctm_1",
+        } as Parameters<typeof p.createCheckout>[0]),
+        /no price id configured/,
+      );
+      await assert.rejects(
+        p.chargeUsage({
+          planKey,
+          providerSubscriptionId: "sub_1",
+          amountMinor: 100,
+          currency: "USD",
+          name: "n",
+          description: "d",
+        } as Parameters<typeof p.chargeUsage>[0]),
+        /no price id configured/,
+      );
+    }
+    assert.equal(calls, 0);
+    for (const status of ["constructor", "toString", "__proto__"]) {
+      const ev = p.normalize({ ...subscriptionEvent, data: { ...subscriptionEvent.data, status } });
+      assert.equal(ev.subscription, undefined);
+    }
   });
 });
 
