@@ -13,13 +13,15 @@ This file says what the move to this repository changes (task `move-einvoice-pro
 - The pre-publication audit and the fixes the public checks forced:
   [docs/reports/2026-11-27-move-einvoice-pro-public.md](../../docs/reports/2026-11-27-move-einvoice-pro-public.md).
 
-## Not yet: the deploy workflow
+## Done on 2026-11-27, later: the deploy workflow
 
-`private-monorepo/.github/workflows/einvoice-preflight-deploy.yml` is not ported. A port is a
-`priv-einvoice-pro-deploy.yml` here, because it holds secrets and writes to Cloudflare, so it goes
-through the control-plane tier of `adversarial-gate` in its own PR, as `priv-payapps-deploy.yml` did
-(split so no product code runs next to the Cloudflare token). It reads, in an
-`einvoice-production` environment limited to `main`:
+`.github/workflows/priv-einvoice-pro-deploy.yml` (Actions -> `einvoice-pro-deploy`), ported from
+`private-monorepo/.github/workflows/einvoice-preflight-deploy.yml` with the hardening
+`priv-payapps-deploy.yml` made (SHA-pinned actions, sparse checkout without persisted credentials,
+main-only job guard, secrets used as stored). Still manual only, as the private one was: no push
+trigger until a first run has been checked. What changed and why:
+[docs/reports/2026-11-27-einvoice-pro-deploy-workflow.md](../../docs/reports/2026-11-27-einvoice-pro-deploy-workflow.md).
+It reads, in an `einvoice-production` environment (limit it to `main`):
 
 | Name | Kind | Status here |
 | --- | --- | --- |
@@ -35,7 +37,7 @@ The D1 database is created in the EU jurisdiction by `apps/einvoice-preflight/wo
 
 ## Then
 
-1. Port the deploy workflow (its own PR), run it once by hand, record the URL, and point
+1. Run `einvoice-pro-deploy` once by hand from `main`, record the URL, and point
    einvoice-site's call to action at the Worker's `/app` (ROADMAP "Next" 1 and 2).
 2. Remove `apps/einvoice-preflight` and `apps/einvoice-site` from `private-monorepo` in a PR there,
    leaving a pointer here.

@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqycMDhbT9NntCdNcjeB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T14:38:54Z",
+  "ended": "2026-11-27T14:46:39Z",
+  "wall_minutes": 19.07,
+  "tokens_in": 6898276,
+  "tokens_out": 33482,
+  "cost_usd": 3.0895,
+  "tool_calls": 61,
+  "task": "bet #1 PayApps: Paddle notification destination as code (step 2 of docs/reports/2026-11-27-one-paddle-key-for-every-deploy.md)",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19776",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "first draft of webhookUrl accepted https://127.0.0.1 (the new test caught it); node:assert types in packages/billing lack assert.fail and the 3-arg throws, fixed in the test"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "Next list is ~40 items, nearly all 'if people ask'; the concrete next step toward revenue (webhook as code) was only in a docs/reports agent doc, not the roadmap or 'Must do before a public launch'"
+    },
+    {
+      "file": "platform/ci/adversarial_gate/gate.py",
+      "issue": "analyze --out writes verdict.json, not summary.md as its help says; the one-line stdout is the result"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: this is deploy plumbing with no customer-facing reader; extended the agent doc instead",
+      "did": "extended docs/reports/2026-11-27-one-paddle-key-for-every-deploy.md and apps/payapps/docs/BILLING.md",
+      "result": "next run knows what to check on the first deploy after merge"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs not run: no page, route or user-facing surface changed (billing package, deploy workflow, docs only)",
+      "did": "ran package tests, workspace typecheck, biome ci, adversarial gate, run_workflow_locally --for-changes",
+      "result": "all green"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-one-paddle-key-for-every-deploy.md (extended: 'Step 2 done for PayApps')",
+    "ventures/payapps/apps/payapps/docs/BILLING.md (step 4 rewritten)"
+  ],
+  "goal": "$10k MRR: removes the last dashboard step (webhook destination + secret) between the owner's live Paddle key and PayApps checkout; the switch PAYAPPS_BILLING_PROVIDER=paddle is now the only step left",
+  "notes": "Verification: packages/billing node --test 98/98 (12 new); pnpm typecheck all workspace packages clean; biome ci . clean (27 pre-existing warnings); adversarial gate analyze: tier control-plane, 0 blocking, 0 warnings; risk_review.py: nothing blocked; secret-merge snippet simulated with a fake file; run_workflow_locally --for-changes: ci-policy 2/2, control-plane-guard 2/2, secrets-inventory 3/3, doc-refs 3/3, conflict-markers 2/2, workflow-self-audit 2/2, agent-permission-harness 5/5, pages 6/6, ventures-tests 5/5, portfolio-validate 103/103 (codeql gate UNRUN locally, needs an artifact). PR CI green on every completed check incl. payapps CI, risk-review, security-scan, adversarial-rules. Unknown until the first deploy after merge: whether PADDLE_API_KEY has notification_setting.read/write; the step warns and names the permission if not. Next: same for seller-books-deploy.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9c4dbf49-7884-5264-b817-b12af12c5079",
+    "transcripts": 1,
+    "first": "2026-11-27T14:38:54Z",
+    "last": "2026-11-27T14:57:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 110,
+        "output": 33482,
+        "thinking": 6987,
+        "cache_read": 6764866,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133300,
+        "api_equivalent_usd": 3.0895,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 110,
+      "output": 33482,
+      "thinking": 6987,
+      "cache_read": 6764866,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133300,
+      "api_equivalent_usd": 3.0895,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 54,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.07,
+      "active_minutes": 19.07,
+      "model_minutes": 6.95,
+      "tool_minutes": 12.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: Paddle notification-settings API, planner + client + CLI, tests, deploy workflow wiring and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 194.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
