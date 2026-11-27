@@ -39,5 +39,6 @@ The D1 database is created in the EU jurisdiction by `apps/einvoice-preflight/wo
    einvoice-site's call to action at the Worker's `/app` (ROADMAP "Next" 1 and 2).
 2. Remove `apps/einvoice-preflight` and `apps/einvoice-site` from `private-monorepo` in a PR there,
    leaving a pointer here.
-3. Repoint `bets.md` row 3, `portfolio/monetization/models.yaml` and `roadmap_claim.py` at
-   `ventures/einvoice-pro/apps/einvoice-preflight`, as PayApps' did.
+3. Repoint `portfolio/monetization/models.yaml` at `ventures/einvoice-pro/apps/einvoice-preflight`,
+   as PayApps' did. `bets.md` row 3 points here (2026-11-27, the PR that landed this move), and
+   `roadmap_claim.py` already prefers `ventures/*/apps/einvoice-preflight` over the private copy.

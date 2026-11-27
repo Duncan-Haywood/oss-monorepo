@@ -1,5 +1,5 @@
 {
-  "id": "P096",
+  "id": "P097",
   "title": "promptctl's change index still disagrees with git for a glob the PR itself adds files under (P094's residual case)",
   "status": "done",
   "owner": "agent",
