@@ -8,7 +8,8 @@ import { htmlToMarkdown } from "@site/seo";
 import { describe, expect, it } from "vitest";
 
 const SITE = "https://marisstella.app/payapps";
-const files = buildSite({ siteUrl: SITE });
+// The pre-launch build (APP_URL null), whatever the constants in src/shared/site.ts say today.
+const files = buildSite({ siteUrl: SITE, appUrl: null });
 const page = (file: string) => {
   const f = files.get(file);
   if (!f) throw new Error(`missing ${file}`);
@@ -91,7 +92,7 @@ describe("built site", () => {
     expect(robots).toContain(`Sitemap: ${SITE}/sitemap.xml`);
 
     const llms = page("llms.txt");
-    expect(llms).toMatch(/^# PayPencil\n\n> /);
+    expect(llms).toMatch(/^# PayApps\n\n> /);
     expect(llms).toContain(`(${SITE}${PAGES.pricing.path})`);
     expect(llms).toContain("not available yet");
 

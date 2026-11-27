@@ -20,7 +20,7 @@ export interface EmailSendBinding {
 
 const HEADER_UNSAFE = /[\r\n]/;
 
-/** "PayPencil <no-reply@example.org>" or a bare address → the binding's `from`. */
+/** "PayApps <no-reply@example.org>" or a bare address → the binding's `from`. */
 export function parseFrom(from: string): string | EmailAddress {
   const m = /^\s*"?([^"<>]*?)"?\s*<([^<>\s]+)>\s*$/.exec(from);
   const email = (m?.[2] ?? from).trim();
