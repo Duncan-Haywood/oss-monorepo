@@ -3,14 +3,24 @@ title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
 updated: 2026-11-27
 tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, insurance-certificates, pay-app-guides, for-customers]
-description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and the product we are building. In development."
+description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and PayApps, now open free on one job."
 ---
 
 Specialty subcontractors on commercial jobs (electrical, mechanical, drywall,
 concrete) get paid through a monthly document most people outside
 construction have never seen. This post is about that paperwork, what people already pay to make it easier, and the
-product this portfolio is building for it. That product is **in development**.
-It is not for sale and has no customers yet.
+product this portfolio is building for it, PayApps.
+
+**Open now (2026-11-27):** PayApps takes sign-ups on its Free plan: one
+active job, one user, no card. That covers the schedule of values (typed,
+pasted, or imported from your Excel, CSV or PDF), change orders, retainage, the
+application summary and continuation sheet as PDF and CSV, the cash and
+retainage report, and the RFI, submittal, estimate and daily-report logs.
+Lien waivers, QuickBooks Online and job costing are in the paid plans, which
+are **not on sale yet**: checkout is off until payments are set up. It has
+no customers yet. [Start free in PayApps](https://payapps.marisstella.app/?signup&from=docs/posts/pay-applications).
+Check every figure before you send it to a GC: PayApps does the arithmetic,
+you sign the application.
 
 ## The problem
 
@@ -268,9 +278,11 @@ payroll report would both cover the same weeks, so take labor from one of
 them and not both. (Added 2026-11-26; in development, not for sale, and
 not yet tried against a live QuickBooks company.)
 
-### Where it stands (updated 2026-11-25)
+### Where it stands (updated 2026-11-27)
 
-Still in development and not for sale. Built and tested so far:
+Open on the Free plan since 2026-11-27 (above); paid plans not on sale yet.
+The notes "still in development" further down are dated: each described a
+feature when it was added, before launch. Built and tested so far:
 
 - monthly pay applications from a schedule of values, with change orders, retainage and PDF and CSV exports;
 - schedule-of-values import from the contractor's own spreadsheet, and a start partway through a job;

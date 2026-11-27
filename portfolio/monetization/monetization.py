@@ -42,6 +42,8 @@ NO_AGENT_STEP = re.compile(r"\bnothing agent-doable is left\b|\bagent steps (?:a
 # A paid bet (portfolio/monetization/bets.md, 2026-11-24) is built in the
 # private repository and named by `app:` instead of `venture:`. Its row adds:
 APP_PREFIX = "private-monorepo/apps/"
+# A bet whose code moved to this repository (PayApps, 2026-11-27) names its public path.
+APP_PATH = re.compile(r"^(private-monorepo/apps|ventures/[a-z0-9][a-z0-9-]*/apps)/[a-z0-9][a-z0-9-]*$")
 BET_REQUIRED = ["bet", "billing", "tiers", "cost_drivers", "rail", "checkout"]
 BILLING = ["subscription", "one-off"]
 CHECKOUT = ["dark", "live"]
@@ -72,7 +74,7 @@ def row_name(row: dict, i: int = 0) -> str:
     if row.get("venture"):
         return str(row["venture"])
     if row.get("app"):
-        return "app:" + str(row["app"]).removeprefix(APP_PREFIX)
+        return "app:" + str(row["app"]).rstrip("/").rsplit("/", 1)[-1]
     return f"row {i}"
 
 
@@ -195,8 +197,8 @@ def check_bet_row(row: dict, where: str) -> list[str]:
     that say they are proposals until a sale is recorded (no invented prices)."""
     errors = []
     app = str(row.get("app"))
-    if not app.startswith(APP_PREFIX) or len(app) == len(APP_PREFIX):
-        errors.append(f"{where}: `app` must be {APP_PREFIX}<slug>")
+    if not APP_PATH.match(app):
+        errors.append(f"{where}: `app` must be {APP_PREFIX}<slug> or ventures/<venture>/apps/<slug>")
     for key in BET_REQUIRED:
         if key not in row:
             errors.append(f"{where}: missing `{key}`")

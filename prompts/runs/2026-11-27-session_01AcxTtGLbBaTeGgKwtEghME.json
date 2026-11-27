@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtGLbBaTeGgKwtEghME",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T07:07:12Z",
+  "ended": "2026-11-27T07:17:44Z",
+  "wall_minutes": 12.33,
+  "tokens_in": 8264370,
+  "tokens_out": 47805,
+  "cost_usd": 3.8295,
+  "tool_calls": 70,
+  "task": "payapps bet #1: Florida Notice to Owner part 2 (ROADMAP Next #16, claim notice-to-owner-florida-part-2-part-1): notices served per person, saved first day, 45-day reminder on the cash page and weekly email",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19650",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "The Next item called the § 713.08 filing a 'notice of nonpayment'; § 713.08 is the claim of lien (Florida's notice of nonpayment is § 713.23 on bonded jobs). The part 3 item was rewritten without it."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "The 'guaranteed' marketing-claim check is set off by the USPS service name 'Global Express Guaranteed', which § 713.18 itself names; answered in the PR body."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight treats payapps (a paid product moved here from private-monorepo) as a free-tools catalogue entry and fails on launched.json and CATEGORY_RULES, which are unrelated to a feature change inside the app."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "why": "Florida notices were stored in their own table (fl_notice_sends) instead of reusing California's lien_notice_sends. The two states have different recipients, methods and service rules, and the CA reminder and file code read that table with no state filter, so sharing it could have mixed Florida rows into California reminders.",
+      "did": "Separate table and routes; files per record left for part 3",
+      "result": "CA tests unchanged and green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-florida-notice-to-owner-45-days.md (extended: the service table and the reminder)"
+  ],
+  "goal": null,
+  "notes": "Security queue: 5 alerts, all claimed (exit 3). IDEAS and requests were empty. Route: ventures/1. Local checks: lien-waivers node --test 252/252; payapps tsc clean; biome no new diagnostics; pnpm test unit 1335 passed (1 skipped), worker 559 passed (88 files), including the new test/worker/fl-notice-log.test.ts (7 tests); venture-preflight payapps: FAILED before the build on two site-wide listing checks this diff does not touch (payapps has no launch date in launched.json; it would land in the catch-all 'More free tools' section, a 6th entry). Both come from payapps moving into this repository on 2026-11-27, not from this change; left for a catalogue run, since adding a paid product to the free-tools catalogue is a listing decision, not part of this feature.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d5086b90-b032-5ba2-8118-dceb7db5c8ca",
+    "transcripts": 1,
+    "first": "2026-11-27T07:07:12Z",
+    "last": "2026-11-27T07:19:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 126,
+        "output": 47805,
+        "thinking": 6055,
+        "cache_read": 8107830,
+        "cache_write_5m": 0,
+        "cache_write_1h": 156414,
+        "api_equivalent_usd": 3.8295,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 126,
+      "output": 47805,
+      "thinking": 6055,
+      "cache_read": 8107830,
+      "cache_write_5m": 0,
+      "cache_write_1h": 156414,
+      "api_equivalent_usd": 3.8295,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 66,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.33,
+      "active_minutes": 12.33,
+      "model_minutes": 7.42,
+      "tool_minutes": 4.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "statute reading, schema+migration, service, routes, UI, tests and post for one feature slice",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 261.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

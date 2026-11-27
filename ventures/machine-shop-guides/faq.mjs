@@ -114,6 +114,14 @@ export const FAQ = {
     ["What is the difference between markup and margin?",
       "Markup is on cost: price = cost × (1 + markup). Margin is on price. A 25% markup on cost is a 20% margin on price."],
   ],
+  "machining-quote-template.html": [
+    ["Is there a free machining quote template for Excel?",
+      "Yes: a two-sheet .xlsx with no macros. The quote worksheet prices material with scrap, setup, programming spread over the lots expected, cycle time, up to six other operations and markup at six quantity breaks, from your own rates. The customer quote sheet shows price each and extended price only."],
+    ["Why is the price each rounded up to the cent?",
+      "So the quote never comes in under the calculated price, and so the extended price is the quoted price each times the quantity and the quote adds up line by line."],
+    ["Should the cost lines go on the quote I send?",
+      "No. Material, setup, machining and markup are your internal numbers. The template keeps them on the quote worksheet; the customer quote sheet carries part number and revision, quantities, price each, extended price, lead time, validity and terms."],
+  ],
   "how-to-price-a-machined-part.html": [
     ["How do I work out a machine shop rate?",
       "From your books: the year's overhead (rent, utilities, insurance, software, equipment payments or depreciation, indirect wages) plus direct labour, divided by the hours you actually bill, not the hours the doors are open. Many shops keep separate rates per machine type."],
@@ -145,6 +153,14 @@ export const FAQ = {
       "252.204-7012 (protecting CUI to NIST SP 800-171), 252.204-7019 and -7020 (a current SPRS score), 252.204-7021 (a CMMC level), 252.225-7009 (specialty metals) and 252.225-7048 (export control), alongside FAR 52.246-11 (a named quality standard) and 52.211-15 (DPAS-rated orders)."],
     ["Do ISO 9001 and AS9100 require contract review?",
       "Both ask for a review of the requirements before you commit to supply, in clause 8.2.3 (review of the requirements for products and services)."],
+  ],
+  "machine-hour-rate.html": [
+    ["How do I calculate a CNC machine hour rate?",
+      "Add up what the machine costs a year (depreciation or lease, the cost of money tied up in it, floor space, maintenance and its share of shop overhead) and divide by the hours you can bill, then add the per-hour costs: power, tooling and, for an attended hour, the operator. This page does that per machine from your own numbers."],
+    ["Why does utilization change the machine rate so much?",
+      "Most of an hour's cost is yearly cost spread over billable hours, so the same machine billing fewer hours costs more per hour. The page shows each machine's rate at 10 points more and less utilization, so an optimistic guess is easy to see."],
+    ["Should a machine shop have one shop rate or a rate per machine?",
+      "A rate per machine prices work more accurately when the machines cost very different amounts to own and run: a single blended rate undercharges hours on the expensive machines and overcharges hours on the cheap ones. The page gives both the per-machine rates and the blended one."],
   ],
   "drawing-review.html": [
     ["What should I check on a part drawing before quoting?",

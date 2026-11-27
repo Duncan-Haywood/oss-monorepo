@@ -152,6 +152,9 @@ workflows:
 - workflow: ig-media-pipeline-ci.yml
   classification: none
   publishes: []
+- workflow: jobshop-quote-ci.yml
+  classification: none
+  publishes: []
 - workflow: jwt-verification-misuse-check-ci.yml
   classification: none
   publishes: []
@@ -201,6 +204,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: pages.yml
+  classification: none
+  publishes: []
+- workflow: payapps-ci.yml
   classification: none
   publishes: []
 - workflow: photo-editing-ci.yml
@@ -340,6 +346,13 @@ workflows:
 - workflow: priv-opencode-high-throughput.yml
   classification: none
   publishes: []
+- workflow: priv-payapps-deploy.yml
+  classification: dispatch
+  publishes:
+  - job: deploy
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ github.ref == 'refs/heads/main' }}
 - workflow: priv-portfolio-pages.yml
   classification: gated
   publishes:
@@ -439,6 +452,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: secrets-inventory-ci.yml
+  classification: none
+  publishes: []
+- workflow: seller-books-ci.yml
   classification: none
   publishes: []
 - workflow: shed-designer-browser.yml

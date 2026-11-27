@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVLNLVP9d7T8MZNfzUh",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T08:21:02Z",
+  "ended": "2026-11-27T08:26:11Z",
+  "wall_minutes": 5.27,
+  "tokens_in": 4730468,
+  "tokens_out": 18296,
+  "cost_usd": 1.9355,
+  "tool_calls": 57,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19672",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to build with build.mjs and screenshot 'a local build' but not where the output lands; it is platform/pages/dist/, found with find."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "The last note's next item (BR-FR row heights) was self-described as 'fine under a screen' on bet #3; bet #2's free front door had a bigger first-view weakness (no answer until a button ~3,700 px down on a phone).",
+      "did": "Took the CNC quote calculator instead of polish_next's item 1.",
+      "result": "Answer shown on load and live; tests pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (dated update)",
+    "docs/reports/polish-2026-11-27-cnc-live-answer.md"
+  ],
+  "goal": null,
+  "notes": "Security queue: 12 alerts, all claimed (exit 3). Ideas inbox empty. Routed polish/0 by weighted draw. run_venture_tests cnc-machining-quote-calculator: ok (104 tests), site page checks ok. 48 venture pages share the results-hidden-until-button pattern; listed as next item.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6afa5b4e-27dd-5440-b180-9ab4b638473e",
+    "transcripts": 1,
+    "first": "2026-11-27T08:21:02Z",
+    "last": "2026-11-27T08:26:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 110,
+        "output": 18296,
+        "thinking": 3318,
+        "cache_read": 4650472,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79886,
+        "api_equivalent_usd": 1.9355,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 110,
+      "output": 18296,
+      "thinking": 3318,
+      "cache_read": 4650472,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79886,
+      "api_equivalent_usd": 1.9355,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 50,
+      "Read": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.27,
+      "active_minutes": 5.26,
+      "model_minutes": 3.39,
+      "tool_minutes": 1.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

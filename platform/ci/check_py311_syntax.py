@@ -35,6 +35,14 @@ import repo_files  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 FSTRING = sys.version_info >= (3, 12)
+try:  # the C tokenizer tokenize.generate_tokens wraps; see _tokens
+    from _tokenize import TokenizerIter as _TokenizerIter
+except ImportError:
+    _TokenizerIter = None
+STRING, COMMENT, NL, NEWLINE = tokenize.STRING, tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE
+FSTRING_START = getattr(tokenize, "FSTRING_START", None)
+FSTRING_MIDDLE = getattr(tokenize, "FSTRING_MIDDLE", None)
+FSTRING_END = getattr(tokenize, "FSTRING_END", None)
 FSTRING_PREFIX = re.compile(r"(?<![\w])(?:[fF][rR]?|[rR][fF])[\"']")
 
 
@@ -69,54 +77,84 @@ def problems(src: str) -> list[tuple[int, int, str, tuple]]:
     promote = set()        # outermost f-strings to triple-quote
     outer_end = {}
     try:
-        toks = list(tokenize.generate_tokens(io.StringIO(src).readline))
+        toks = _tokens(src)
     except (tokenize.TokenError, SyntaxError) as e:
         return [(0, 0, f"does not tokenize: {e}", ())]
-    for t in toks:
-        typ = t.type
-        if typ == tokenize.FSTRING_END:
+    # Each token is (type, string, start, end, line), the fields of
+    # tokenize.TokenInfo in its order, read by position (see _tokens).
+    for typ, string, start, end, _ in toks:
+        if typ == FSTRING_END:
             if stack:
                 stack.pop()
                 st = starts.pop()
                 if not stack:
-                    outer_end[st.start] = t
+                    outer_end[st] = end
             continue
-        if typ == tokenize.FSTRING_MIDDLE:
+        if typ == FSTRING_MIDDLE:
             # literal text; it is an expression part of every f-string but the innermost
-            if len(stack) >= 2 and "\\" in t.string:
-                out.append((*t.start, "backslash in a nested f-string inside an expression", ()))
+            if len(stack) >= 2 and "\\" in string:
+                out.append((*start, "backslash in a nested f-string inside an expression", ()))
             continue
         if stack:
-            if typ in (tokenize.STRING, tokenize.FSTRING_START):
-                q = _quote(t.string)
+            if typ == STRING or typ == FSTRING_START:
+                q = _quote(string)
                 if _clashes(q, stack):
                     fix = ()
-                    if typ == tokenize.STRING and len(q) == 1 and t.start[0] == t.end[0]:
-                        inner = t.string[t.string.index(q) + 1:-1]
+                    if typ == STRING and len(q) == 1 and start[0] == end[0]:
+                        inner = string[string.index(q) + 1:-1]
                         for alt in ("'", '"'):
                             if alt != q and alt not in inner and "\\" not in inner \
                                     and not _clashes(alt, stack):
-                                fix = (t.start, t.end, q, alt)
+                                fix = (start, end, q, alt)
                                 break
                         if not fix and len(stack[0]) == 1 and len(stack) >= 2:
-                            promote.add(starts[0].start)
-                    out.append((*t.start, f"string quoted {q} inside an f-string quoted with it", fix))
-                if typ == tokenize.STRING and "\\" in t.string:
-                    out.append((*t.start, "backslash in an f-string expression", ()))
-            elif typ == tokenize.COMMENT:
-                out.append((*t.start, "comment in an f-string expression", ()))
-            elif typ in (tokenize.NL, tokenize.NEWLINE) and any(len(o) == 1 for o in stack):
-                out.append((*t.start, "line break in a single-quoted f-string's expression", ()))
-        if typ == tokenize.FSTRING_START:
-            stack.append(_quote(t.string))
-            starts.append(t)
-    for t0 in toks:
-        if t0.type == tokenize.FSTRING_START and t0.start in promote and t0.start in outer_end:
-            e = outer_end[t0.start]
-            if t0.start[0] == e.end[0]:
-                out.append((*t0.start, "(fixable: triple-quote this f-string)",
-                            ("promote", t0.start, e.end, _quote(t0.string))))
+                            promote.add(starts[0])
+                    out.append((*start, f"string quoted {q} inside an f-string quoted with it", fix))
+                if typ == STRING and "\\" in string:
+                    out.append((*start, "backslash in an f-string expression", ()))
+            elif typ == COMMENT:
+                out.append((*start, "comment in an f-string expression", ()))
+            elif (typ == NL or typ == NEWLINE) and any(len(o) == 1 for o in stack):
+                out.append((*start, "line break in a single-quoted f-string's expression", ()))
+        if typ == FSTRING_START:
+            stack.append(_quote(string))
+            starts.append(start)
+    for typ, string, start, _, _ in toks:
+        if typ == FSTRING_START and start in promote and start in outer_end:
+            e_end = outer_end[start]
+            if start[0] == e_end[0]:
+                out.append((*start, "(fixable: triple-quote this f-string)",
+                            ("promote", start, e_end, _quote(string))))
     return out
+
+
+def _public_tokens(src: str) -> list[tuple]:
+    """Every token of `src` through tokenize's public API, as plain tuples."""
+    return [tuple(t) for t in tokenize.generate_tokens(io.StringIO(src).readline)]
+
+
+def _tokens(src: str) -> list[tuple]:
+    """The same tokens as _public_tokens, read straight from the C tokenizer.
+
+    Why (2026-11-27): under 3.12 the check tokenizes every tracked .py file,
+    9.2 M tokens, and 60% of its 10 s went to tokenize.py's generator wrapping
+    each C tuple in a TokenInfo namedtuple (`TokenInfo._make`), not to the
+    tokenizer. `generate_tokens(readline)` is
+    `_generate_tokens_from_c_tokenizer(readline, extra_tokens=True)`, which
+    yields `TokenInfo._make(info)` for each `info` of
+    `_tokenize.TokenizerIter(readline, extra_tokens=True)` (3.12 to 3.14), so
+    reading that iterator gives the same tuples without the wrapper.
+    `_tokenize` is private: when it is missing, its signature differs, or it
+    raises (a file that does not tokenize), this falls back to the public API,
+    so errors keep tokenize's own TokenError text. test_check_py311_syntax
+    pins both paths to the same tokens on its fixtures and every 40th tracked
+    file (all 10,906 matched under 3.12 and 3.13 on 2026-11-27)."""
+    if _TokenizerIter is not None:
+        try:
+            return list(_TokenizerIter(io.StringIO(src).readline, extra_tokens=True))
+        except Exception:  # noqa: BLE001 - the public path below decides
+            pass
+    return _public_tokens(src)
 
 
 def apply_fixes(src: str, probs) -> str:

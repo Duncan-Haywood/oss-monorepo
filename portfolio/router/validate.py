@@ -133,6 +133,8 @@ def check(venture_dir, data, errors):
 
 
 APP_PREFIX = "private-monorepo/apps/"
+# A bet whose code moved here (PayApps, 2026-11-27) names its public path instead.
+APP_PATH = re.compile(r"^(private-monorepo/apps|ventures/[a-z0-9][a-z0-9-]*/apps)/[a-z0-9][a-z0-9-]*$")
 
 
 def check_bet_order(errors, rows):
@@ -154,9 +156,9 @@ def check_bet_order(errors, rows):
                               "(bet rows are numbered 1..N in file order).")
             expect = (e["bet"] if isinstance(e["bet"], int) else expect) + 1
             app = str(e.get("app") or "")
-            if not (app.startswith(APP_PREFIX) and len(app) > len(APP_PREFIX)):
+            if not APP_PATH.match(app):
                 errors.append(f"flagships.yaml: bet {name} needs `app: {APP_PREFIX}<slug>` "
-                              "(where its deepening work happens).")
+                              "or `app: ventures/<venture>/apps/<slug>` (where its deepening work happens).")
             if e.get("demoted"):
                 errors.append(f"flagships.yaml: {name} is a bet and `demoted:` at once.")
         else:

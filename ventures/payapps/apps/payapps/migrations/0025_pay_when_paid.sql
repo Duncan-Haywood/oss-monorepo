@@ -1,0 +1,1 @@
+ALTER TABLE `pay_apps` ADD `owner_paid_on` text;

@@ -328,6 +328,34 @@ process itself took the runner's own unit tests from 17.0 s to 12.5 s.
 Notes:
 [`docs/history/ci-perf-2026-11-27-runner-poll-and-lookup-scan.md`](/docs/history/ci-perf-2026-11-27-runner-poll-and-lookup-scan.md).
 
+## Same day: a schedule checker preloaded seven tools nobody had pressed
+
+The [XER schedule checker](/xer-schedule-check/) opens a Primavera P6 file
+and runs the DCMA 14-point check the moment it loads. Below that sit a dozen
+more tools: a Microsoft Project export, a collapsed as-built delay analysis,
+a look-ahead, a monthly narrative, and a windows analysis across many
+updates. Seven of those modules only ever ran after their own button was
+pressed, yet the page imported them up front, and the site build preloads
+every static import. Loading them on the first press instead cut the first
+visit from 221 kB to 155 kB of compressed modules (37 to 28 requests), and
+the time until the page can be used from 1,941 ms to 1,556 ms on a slow
+phone connection (150 ms round trip, 1.6 Mbit/s, CPU 4x slower, median of 7,
+old and new page interleaved). Every button gives the same files as before.
+Notes:
+[`docs/history/xer-schedule-check-page-perf-2026-11-27.md`](/docs/history/xer-schedule-check-page-perf-2026-11-27.md).
+
+## Same day: a test suite loaded the same login library 87 times
+
+PayApps' integration tests run each of their 87 files inside a fresh
+Cloudflare Workers runtime, so every file loads the whole app again,
+including its login, validation, database and routing libraries. Those
+libraries ship as hundreds of small files, and loading them took about
+3.2 seconds per test file before a single test ran. One test setting
+tells the test runner to bundle them into a few files once per run, and
+every file then reuses that bundle. The suite went from 193-195 seconds to
+99-121 seconds on four cores, with the same 552 tests passing. Notes:
+[`docs/history/payapps-worker-tests-perf-2026-11-27.md`](/docs/history/payapps-worker-tests-perf-2026-11-27.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running

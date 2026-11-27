@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVLiwimAimvVrDP13xQ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T06:56:02Z",
+  "ended": "2026-11-27T06:58:23Z",
+  "wall_minutes": 2.51,
+  "tokens_in": 1850258,
+  "tokens_out": 9098,
+  "cost_usd": 1.0633,
+  "tool_calls": 25,
+  "task": "security queue step 0: code-scanning alert #1444 (js/incomplete-url-substring-sanitization) in payapps billing paddle-key.test.ts",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19646",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "a python call of security_next.claim() for #1444-#1448 returned None for all five; ls-remote then showed all five claim branches at origin/main's sha (be3287652), not at claim commits. Pushing a claim commit for #1444 fast-forwarded that branch. Whether another run had claimed them by pushing origin/main directly could not be told"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/security_next.py",
+      "issue": "the queue offered #1445-#1448 as workable although open PR #19632 already fixes all four (it was opened before CodeQL saw them on main and has no security-fix/ claim branches). A check of open PRs touching the alert's file would have saved the dupe search"
+    },
+    {
+      "file": "platform/ci/security_next.py",
+      "issue": "--claim takes only the top alert, but alerts/<n>.md asks a run to batch every queued alert in the same file and rule and claim each; there is no flag to claim a list"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md (Write about the work)",
+      "why": "no post: a test-only security fix has no reader-facing story",
+      "did": "recorded in the PR body and this record",
+      "result": "n/a"
+    },
+    {
+      "file": "security-alerts alerts/1444.md (batch the same rule)",
+      "why": "#1445-#1448 are already fixed by open PR #19632; a second fix would conflict",
+      "did": "fixed only #1444, the alert no PR covers",
+      "result": "no overlap with #19632"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Fake Paddle records parsed url.host per request; the test compares exactly. node --test src/paddle-key.test.ts: 14 pass. risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1c88ca10-68aa-5478-b0af-3199145afd5f",
+    "transcripts": 1,
+    "first": "2026-11-27T06:56:02Z",
+    "last": "2026-11-27T06:58:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 24,
+        "input": 48,
+        "output": 9098,
+        "thinking": 3041,
+        "cache_read": 1784683,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65527,
+        "api_equivalent_usd": 1.0633,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 24,
+      "input": 48,
+      "output": 9098,
+      "thinking": 3041,
+      "cache_read": 1784683,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65527,
+      "api_equivalent_usd": 1.0633,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 25,
+    "tools": {
+      "Bash": 20,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.51,
+      "active_minutes": 2.51,
+      "model_minutes": 1.83,
+      "tool_minutes": 0.68,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "an engineer reading the alert, checking for overlapping PRs and fixing one test assertion",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 47.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

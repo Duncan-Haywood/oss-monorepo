@@ -86,7 +86,7 @@ def test_bets_come_first_in_order_and_others_say_why(tmp_path):
     p = tmp_path / "flagships.yaml"
     good = ("flagships:\n"
             "  - venture: a\n    bet: 1\n    app: private-monorepo/apps/a\n    next: ok\n"
-            "  - venture: b\n    bet: 2\n    app: private-monorepo/apps/b\n    next: ok\n"
+            "  - venture: b\n    bet: 2\n    app: ventures/b/apps/b\n    next: ok\n"
             "  - venture: c\n    demoted: no bet in bets.md\n    next: ok\n")
     p.write_text(good)
     errors = []

@@ -4,6 +4,7 @@ seo_title: "E-invoice Preflight adds Japan"
 date: 2026-10-26
 description: "A new Japan page checks a qualified-invoice registration number in the browser and shows the 80% to 50% transitional credit step on 1 October 2026."
 tags: [einvoice-preflight, e-invoicing, japan]
+folded_into: einvoice-preflight/japan-invoice-system-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a page for [Japan](../../ventures/einvoice-preflight/japan-invoice-system-e-invoice-mandate.html), the 37th in the all-countries table. Japan has no clearance mandate. Since 1 October 2023 a buyer claims the consumption-tax credit only on a qualified invoice carrying the seller's registration number, the letter T and 13 digits. Vendor guides report that the transitional credit for unregistered sellers is 80% until 30 September 2026 and 50% after, so the step is this week.

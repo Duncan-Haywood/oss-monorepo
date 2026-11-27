@@ -95,3 +95,8 @@ test('advice money carries thousands separators, like the results table', async 
   const text = plan(sampleInput()).advice.join(' ');
   assert.doesNotMatch(text, /\$\d{4,}/, text);
 });
+
+test("toCsv keeps a negative net position a plain number", () => {
+  const csv = toCsv(plan(base()));
+  for (const line of csv.trim().split("\n").slice(1)) assert.match(line, /^[a-z_]+,-?\d+(\.\d+)?$/, line);
+});

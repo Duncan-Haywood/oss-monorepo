@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVPQwLD8FNRDiaoWJ1U",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T03:56:05Z",
+  "ended": "2026-11-27T04:05:36Z",
+  "wall_minutes": 14.3,
+  "tokens_in": 4327371,
+  "tokens_out": 18521,
+  "cost_usd": 1.9257,
+  "tool_calls": 52,
+  "task": "perf: Page integrity workflow drops full-history checkout; history blobs become pinned fixtures",
+  "projects": [
+    "platform/webcheck",
+    ".github/workflows/page-integrity-ci.yml"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19599",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "run_workflow_locally.py --for-changes ran past a 300 s timeout (it reached unrelated suites that hit 403 hosts)",
+      "fix": "relied on the targeted local checks plus PR CI"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 4 (front door weight) is mostly exhausted for bet #1: pay-app-guides pages are all under 23 kB gzip and its suite runs in 5 s; the runner pool reading (item 2) found the real target. Worth noting so later runs skip straight to item 2."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`run_workflow_locally.py --for-changes` on a diff touching platform/webcheck plus a workflow ran well past 120 s and into unrelated suites with blocked hosts; the doc does not warn that it can be that broad."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "No short post in docs/posts/: a CI checkout setting is not of interest to a reader of the customer-first blog (CLAUDE.md, 2026-11-24/25 consolidation).",
+      "did": "docs/history write-up only",
+      "result": "history doc carries the reading, change, verification and next-run list"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-27-page-integrity-shallow.md"
+  ],
+  "goal": "CI runner-pool throughput (perf track)",
+  "notes": "Metric: Page integrity checkout. Before: ci_profile.py --runs 300 (2026-11-27 03:35-03:56Z) checkout median 39 s of a 60 s median job (65%), fetch-depth 0 blob-less sparse. Local fetch benchmark (fresh repo, git fetch of main through proxy, no checkout): full blob-less 18.5 s / 131 MB vs depth=1 blob-less 1.2 s / 3.6 MB. After: this PR's page-integrity job (run 45937892505, one sample): checkout 27 s, job 44 s (vs medians 39 s / 60 s). The remaining 27 s is the sparse blob checkout of ~500 MB of working tree, which both configurations pay. Verification: node --test platform/webcheck/*.test.mjs 66/66, 0 skipped (with history fetched; was 65/65); one-byte fixture mutation fails 2 tests; check_pages.mjs 4527 pages sound. Security queue empty (exit 3); IDEAS empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5ab2b993-a068-505c-81af-d1a2a02465a2",
+    "transcripts": 1,
+    "first": "2026-11-27T03:56:05Z",
+    "last": "2026-11-27T04:10:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 95,
+        "output": 18521,
+        "thinking": 3625,
+        "cache_read": 4238892,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88384,
+        "api_equivalent_usd": 1.9257,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 95,
+      "output": 18521,
+      "thinking": 3625,
+      "cache_read": 4238892,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88384,
+      "api_equivalent_usd": 1.9257,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 42,
+      "mcp__github__get_commit": 5,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__actions_get": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.3,
+      "active_minutes": 14.3,
+      "model_minutes": 3.58,
+      "tool_minutes": 10.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "engineer: profile CI, vendor and pin six blobs, change workflow, verify, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 155.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+Statement Date,Statement ID,Payment ID,Status,Currency,Type,Order/adjustment ID,SKU ID,Quantity,Order created date,Total settlement amount,Net sales,Gross sales,Gross sales refund,Seller discount,Seller discount refund,Shipping,TikTok Shop shipping fee,Customer-paid shipping fee,Fees,Referral fee,Transaction fee,Refund administration fee,Affiliate commission,Adjustment amount,Sales tax payment
+2026/03/20,7350000000000000001,,Paid,USD,Order,576100000000000001,1729000000000000001,1,2026/03/14,18.18,32.00,40.00,0.00,-8.00,0.00,-5.50,-5.50,0.00,-8.32,-1.92,0.00,0.00,-6.40,0.00,2.56
+2026/03/20,7350000000000000001,,Paid,USD,Order,576100000000000002,1729000000000000002,2,2026/03/15,23.50,25.00,25.00,0.00,0.00,0.00,0.00,-4.99,4.99,-1.50,-1.50,0.00,0.00,0.00,0.00,1.75
+2026/04/02,7350000000000000002,,Paid,USD,Order,576100000000000003,1729000000000000003,1,2026/03/16,-5.36,0.00,30.00,-30.00,0.00,0.00,-5.00,-5.00,0.00,-0.36,0.00,0.00,-0.36,0.00,0.00,0.00
+2026/04/02,7350000000000000002,,Paid,USD,Logistics reimbursement,880000000000000001,,,,3.25,,,,,,,,,,,,,,3.25,
+2026/04/02,7350000000000000002,,Paid,USD,Deductions incurred by seller,880000000000000002,,,,-2.00,,,,,,,,,,,,,,-2.00,
+2026/04/02,7350000000000000002,,Paid,GBP,Order,576100000000000004,1729000000000000004,1,2026/03/17,10.00,10.00,10.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00
+2026/04/02,7350000000000000002,,Paid,USD,Reserve,,,,,-4.00,,,,,,,,,,,,,,,

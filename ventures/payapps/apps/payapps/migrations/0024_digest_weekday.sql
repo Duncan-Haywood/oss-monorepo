@@ -1,0 +1,1 @@
+ALTER TABLE `cash_digest_subscriptions` ADD `weekday` integer DEFAULT 1 NOT NULL;

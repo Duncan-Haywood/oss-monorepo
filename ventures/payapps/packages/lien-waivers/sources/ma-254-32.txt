@@ -1,0 +1,35 @@
+# Mass. Gen. Laws c. 254, § 32, text as published by the General Court of the Commonwealth of Massachusetts.
+# Source: https://malegislature.gov/Laws/GeneralLaws/PartIII/TitleIV/Chapter254/Section32
+# ("Section 32: Void and unenforceable covenants, promises, etc.; exceptions").
+# Fetched: 2026-11-26 from the page's HTML (tags stripped, <br> as line breaks, the page's
+# <pwrule> blanks written as "____", runs of spaces collapsed; wording and punctuation unchanged).
+# Public law. Used by test/ma.test.ts and test/whole-form.test.ts to check the encoded form.
+Section 32. A covenant, promise, agreement of understanding in, or in connection with or collateral to, a contract or agreement relative to the construction, alteration, repair or maintenance of a building, structure, appurtenance and appliance or other improvement to real property, including moving, demolition, professional services and excavating connected therewith, purporting to bar the filing of a notice of contract or the taking of any steps to enforce a lien as set forth in this chapter or purporting to subordinate such rights to the rights of other persons is against public policy and is void and unenforceable, but this section shall not apply to:
+(1) waivers of liens given by any person named as a principal on a lien bond provided under section twelve in connection with an interim or final payment received by such persons;
+(2) statements by persons entitled to file documents under this chapter of amounts due or paid to them;
+(3) dissolutions of liens under section ten;
+(4) partial waivers and subordinations of liens given by persons who have filed or recorded notices of contract under section two substantially in the following form with no material deviation therefrom:
+Partial Waiver and Subordination of Lien
+COMMONWEALTH OF MASSACHUSETTS: Date: _____________
+__________ COUNTY Application for Payment No: ____________
+OWNER: _______________________________
+CONTRACTOR: _________________________
+LENDER/MORTGAGEE: ________________
+1. Original Contract Amount: _________
+2. Approved Change Orders: _________
+3. Adjusted Contract Amount: _________
+(line 1 plus 2)
+4. Completed to Date: _________
+5. Less Retainage: _________
+6. Total Payable to Date: _________
+(line 4 less line 5)
+7. Less Previous Payments: _________
+8. Current Amount Due: _________
+(line 6 less line 7)
+9. Pending Change Orders: _________
+10. Disputed Claims: _________
+The undersigned who has a contract with ___ for furnishing labor or materials or both labor and materials or rental equipment, appliances or tools for the erection, alteration, repair or removal of a building or structure or other improvement of real property known and identified as ___ located in ___ (city or town), ___ County, Commonwealth of Massachusetts and owned by ____, upon receipt of ___ ($___) in payment of an invoice/requisition/application for payment dated ___ does hereby:
+(a) waive any and all liens and right of lien on such real property for labor or materials, or both labor and materials, or rental equipment, appliances or tools, performed or furnished through the following date: ___ (payment period), except for retainage, unpaid agreed or pending change orders, and disputed claims as stated above; and
+(b) subordinate any and all liens and right of lien to secure payment for such unpaid, agreed or pending change orders and disputed claims, and such further labor or materials, or both labor and materials, or rental equipment, appliances or tools, except for retainage, performed or furnished at any time through the twenty-fifth day after the end of the above payment period, to the extent of the amount actually advanced by the above lender/mortgagee through such twenty-fifth day.
+Signed under the penalties of perjury this ___ day of ____, ____.
+The giving of a partial waiver and subordination of lien by any contractor under this section shall not affect the lien rights of any other person claiming a lien under any section of this chapter.

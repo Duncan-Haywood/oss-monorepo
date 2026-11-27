@@ -249,3 +249,44 @@ went from 898 to 627 px.
 The one left lists 51 allowed status codes in English and French; that wants a
 collapsible list, not a layout change. Run notes:
 `docs/reports/polish-2026-11-27-stack-prose.md`.
+
+## Update, 2026-11-27 (later): the 51-code list folds away
+
+That last row, BR-FR-CDV-CL-09/MDT-113, now shows its sentence and a "Show the 51 allowed
+codes" toggle (`<details>`) in each language; opened, the codes sit as small chips. Five
+shorter lists of 12 to 26 codes on the same page fold the same way. The codes stay in the page,
+so a browser's find and a search engine still see them.
+
+| `br-fr-error-codes.html`, 390 px | before | after |
+|---|---|---|
+| rows taller than the screen | 1 | 0 |
+| that row | 1,118 px | 324 px |
+| tallest row on the page | 1,118 px | 693 px |
+
+Run notes: `docs/reports/polish-2026-11-27-code-list-details.md`.
+
+## Update, 2026-11-27 (evening): one long column, the rest short
+
+The e-invoicing mandates table has 93 countries and five columns. One column, "Key dates", is
+a sentence ("Receive since 1 Jan 2025; issue from 1 Jan 2027 (prior-year turnover above EUR
+800,000) and 1 Jan 2028 (everyone), domestic B2B"); the other three are a word or two. With
+plain cards the dates wrapped into the narrow right-hand column. Whole-table `prose` fixed
+that but put every short value ("Yes") on a line of its own under its name, and the page grew
+by 7%.
+
+So `prose` now also works on one cell, `<td class="prose">`: that cell gets the full width
+under its name, and the short ones stay beside theirs.
+
+| mandates table, 390 px | plain cards | whole-table `prose` | `prose` on Key dates |
+|---|---|---|---|
+| sum of the 93 cards | 33,903 px | 36,306 px | 30,185 px |
+| tallest card | 602 px | 546 px | 494 px |
+| Germany's card | 265 px | 330 px | 246 px |
+
+At 1,280 px nothing changes (12,165 px either way).
+
+The same pass found the page miscounting itself: the opening line said "Seventy-six
+countries" and the search description said 88, while the table held 93. Each number was
+right when it was written, and nothing tied it to the table. A test now fails when any
+"N countries" on the page differs from the row count. Run notes:
+`docs/reports/polish-2026-11-27-mandates-key-dates.md`.

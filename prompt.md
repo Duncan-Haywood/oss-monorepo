@@ -53,12 +53,11 @@ a scheduled venture run takes the top bet in
 [`portfolio/monetization/bets.md`](portfolio/monetization/bets.md) it can move
 toward a paying customer: vertical software for small and medium businesses,
 chosen by promise rather than by how much code exists (`goals.md`, "Where
-effort goes"). The bets' code lives in `private-monorepo`: try one clone
-([`cloud-session.md`](.github/prompts/cloud-session.md), "Reaching
-`private-monorepo`"); if it works, build there, and if it is refused (final for
-the session, no retry) take the bet's public side here (its
-front-door page or free tool, SEO and marketing pages, a research engine it
-uses). Free tools get work only as a front door to a bet.
+effort goes"). The ranking's last column says where each bet is built: several
+have moved into `ventures/` (build them here); for one still in
+`private-monorepo`, try one clone ([`cloud-session.md`](.github/prompts/cloud-session.md),
+"Reaching `private-monorepo`"), and if it is refused (final for the session) take
+the bet's public side here (front door, SEO and marketing pages). Free tools get work only as a front door to a bet.
 
 **Website requests and flagships come after the bets** (owner, 2026-11-02, a
 "custom free dev shop for businesses", now ranked below the 2026-11-24
@@ -91,7 +90,7 @@ It names the sub-prompt to follow, its version, the commit trailer and, for
 product, research and free-choice runs, a one-line focus. Read
 that file and follow it for the rest of the run.
 [`prompts/goals.md`](prompts/goals.md) holds the goals and guardrails, and no
-sub-prompt can relax them. It is ~870 lines: read "Guardrails" (and "Research
+sub-prompt can relax them. It is long (~1,600 lines): read "Guardrails" (and "Research
 guardrails" for research) plus the section your task touches
 (`grep -n '^## ' prompts/goals.md`), not the whole file. `promptctl.py map
 --track <track>` lists the rest of what your track reads, by layer
@@ -105,7 +104,7 @@ deviation (step 3). That is how the defaults improve
 ([`prompts/steering.md`](prompts/steering.md)).
 
 The router picks the review track itself once enough runs have merged since
-the last review (`review_when_due`). If an open pull request titled `prompts: review` already
+the last review (`review_when_due`). If an open pull request titled `prompts: review`, updated in the last day, already
 exists, another run has claimed that review; route again with `--skip-review`.
 
 `explore` (free choice), `creative` (stories, podcasts), `polish` (design, SEO

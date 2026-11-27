@@ -351,7 +351,7 @@ export function scheduleText(s) {
 /** The schedule as a spreadsheet file: one row per activity in start order, then the slips. Text only; no figures beyond the schedule's own.
  * @param {any} s */
 export function scheduleCsv(s) {
-  const q = (/** @type {any} */ v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  const q = (/** @type {any} */ v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236): a cell starting = + - @ tab or CR runs as a formula in a spreadsheet
   if (!s || typeof s !== "object") throw new TypeError("scheduleCsv needs a schedule result");
   if (!s.ok) return s.errors.map((/** @type {string} */ e) => q("error: " + e)).join("\n") + "\n";
   const rows = [["id", "name", "crew", "days", "start", "finish", "slack", "critical", "note"],

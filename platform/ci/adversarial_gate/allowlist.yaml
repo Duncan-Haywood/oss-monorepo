@@ -154,28 +154,28 @@ allow:
     contains: 'variables.REGIONS == "us-east-1,us-west-2"'
     reason: 'the kill switch now sweeps the allowed regions of the new home region, us-east-2 and us-east-1 (the test asserts that list)'
   - rule: obfuscated-payload
-    path: apps/einvoice-preflight/plain/fontoxpath.esm.js
-    reason: the published minified ES module of fontoxpath (MIT, Fonto Group BV; licence in plain/fontoxpath.LICENSE.txt, listed in THIRD_PARTY.md), byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220); vendored so the XPath engine needs no install
+    path: ventures/einvoice-pro/apps/einvoice-preflight/plain/fontoxpath.esm.js
+    reason: the published minified ES module of fontoxpath (MIT, Fonto Group BV; licence in plain/fontoxpath.LICENSE.txt, listed in THIRD_PARTY.md), byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app to ventures/einvoice-pro (PR #19635; first moved in PR #19220); vendored so the XPath engine needs no install
     added: 2026-11-26
   - rule: test-skipped
-    path: apps/einvoice-preflight/schematron.test.mjs
+    path: ventures/einvoice-pro/apps/einvoice-preflight/schematron.test.mjs
     contains: saxon-js not installed
-    reason: a conditional skip, taken only when the optional saxon-js dependency is absent (runSchematron returns status unavailable); byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    reason: a conditional skip, taken only when the optional saxon-js dependency is absent (runSchematron returns status unavailable); byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app to ventures/einvoice-pro (PR #19635; first moved in PR #19220)
     added: 2026-11-26
   - rule: test-skipped
-    path: apps/einvoice-preflight/schematron.test.mjs
+    path: ventures/einvoice-pro/apps/einvoice-preflight/schematron.test.mjs
     contains: run build-schematron.mjs
-    reason: a conditional skip, taken only when the compiled Peppol SEF file has not been built; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    reason: a conditional skip, taken only when the compiled Peppol SEF file has not been built; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app to ventures/einvoice-pro (PR #19635; first moved in PR #19220)
     added: 2026-11-26
   - rule: test-skipped
-    path: apps/einvoice-preflight/plain-schematron.test.mjs
+    path: ventures/einvoice-pro/apps/einvoice-preflight/plain-schematron.test.mjs
     contains: saxon-js not installed
-    reason: a conditional skip, taken only when the optional saxon-js dependency is absent; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    reason: a conditional skip, taken only when the optional saxon-js dependency is absent; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app to ventures/einvoice-pro (PR #19635; first moved in PR #19220)
     added: 2026-11-26
   - rule: test-skipped
-    path: apps/einvoice-preflight/official-good-cases.test.mjs
+    path: ventures/einvoice-pro/apps/einvoice-preflight/official-good-cases.test.mjs
     contains: npm i --no-sa
-    reason: a conditional skip, taken only when the optional plain Schematron files are not installed; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    reason: a conditional skip, taken only when the optional plain Schematron files are not installed; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app to ventures/einvoice-pro (PR #19635; first moved in PR #19220)
     added: 2026-11-26
   - rule: aws-guardrail-weakened
     path: platform/aws/stacks/org/rcps.tf
@@ -201,4 +201,179 @@ allow:
     path: platform/aws/stacks/baseline/tests/mock.tftest.hcl
     contains: "condition     = aws_guardduty_detector.security.enable && length(aws_securityhub_standards_subscription.single) == 2"
     reason: the same single-account assert, re-indexed to aws_guardduty_detector.security[0] when the resource gains count; it still requires the detector enabled, and a new organization-mode assert requires the adopted detector
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: CLOUDFLARE_API_TOKEN
+    reason: "the Cloudflare deploy token under the spelling priv-email-deploy.yml and priv-edge-deploy.yml already read; deploys PayApps (bet #1, launch review private-monorepo#444) with wrangler from main only, by hand (D1, R2, Workers); masked and exported only after install, tests and build"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: CLOUDFLAREAPITOKEN
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys PayApps (bet #1, launch review private-monorepo#444) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: CLOUDFLARERESTRICTEDAPIKEY
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys PayApps (bet #1, launch review private-monorepo#444) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: CLOUDFLARE_ACCOUNT_ID
+    reason: "the Cloudflare account id wrangler needs, as priv-email-deploy.yml reads it; deploys PayApps (bet #1, launch review private-monorepo#444) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: CLOUDFLAREACCOUNTID
+    reason: "alias of CLOUDFLARE_ACCOUNT_ID the owner saved, as priv-email-deploy.yml reads it; deploys PayApps (bet #1, launch review private-monorepo#444) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_AUTH_SECRET
+    reason: "optional override of the session-signing key, pushed to the payapps Worker with wrangler secret bulk from a 0600 temp file deleted in the same step, never logged; when unset the workflow generates one on the Worker"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_BILLING_API_KEY
+    reason: "the owner's Paddle key, read only when set, to sync billing/paddle-catalog.json to Paddle and push it to the payapps Worker (wrangler secret bulk, never logged); when unset paid plans stay dark"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_BILLING_PRICE_IDS
+    reason: "fallback Paddle price ids (not credentials) pushed to the payapps Worker when the catalog sync gives none; wrangler secret bulk, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_BILLING_WEBHOOK_SECRET
+    reason: "the Paddle webhook signing secret the payapps Worker verifies notifications with; pushed with wrangler secret bulk when set, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_QBO_CLIENT_ID
+    reason: "the owner's Intuit app client id for the QuickBooks connection, pushed to the payapps Worker when set (wrangler secret bulk, never logged)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_QBO_CLIENT_SECRET
+    reason: "the owner's Intuit app client secret for the QuickBooks connection, pushed to the payapps Worker when set (wrangler secret bulk, never logged)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PAYAPPS_QBO_TOKEN_KEY
+    reason: "the key the payapps Worker encrypts stored QuickBooks tokens with, pushed when set (wrangler secret bulk, never logged)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-seller-books-deploy.yml
+    contains: CLOUDFLARE_API_TOKEN
+    reason: "the Cloudflare deploy token under the spelling priv-payapps-deploy.yml and priv-email-deploy.yml already read; deploys Seller Books (bet #5, launch review ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md) with wrangler from main only, by hand (D1, Workers); masked and exported only after install, tests and build"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-seller-books-deploy.yml
+    contains: CLOUDFLAREAPITOKEN
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys Seller Books (bet #5, launch review ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-seller-books-deploy.yml
+    contains: CLOUDFLARERESTRICTEDAPIKEY
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys Seller Books (bet #5, launch review ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-seller-books-deploy.yml
+    contains: CLOUDFLARE_ACCOUNT_ID
+    reason: "the Cloudflare account id wrangler needs, as priv-payapps-deploy.yml reads it; deploys Seller Books (bet #5, launch review ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-seller-books-deploy.yml
+    contains: CLOUDFLAREACCOUNTID
+    reason: "alias of CLOUDFLARE_ACCOUNT_ID the owner saved, as priv-payapps-deploy.yml reads it; deploys Seller Books (bet #5, launch review ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-seller-books-deploy.yml
+    contains: SELLER_BOOKS_AUTH_SECRET
+    reason: "optional override of the session-signing key, pushed to the seller-books Worker with wrangler secret bulk from a 0600 temp file deleted in the same step, never logged; when unset the workflow generates one on the Worker"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-seller-books-deploy.yml
+    contains: SELLER_BOOKS_BILLING_API_KEY
+    reason: "the owner's Paddle key, read only when set, to sync billing/paddle-catalog.json to Paddle and push it to the seller-books Worker (wrangler secret bulk, never logged); when unset paid plans stay dark"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-seller-books-deploy.yml
+    contains: SELLER_BOOKS_BILLING_PRICE_IDS
+    reason: "fallback Paddle price ids (not credentials) pushed to the seller-books Worker when the catalog sync gives none; wrangler secret bulk, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-seller-books-deploy.yml
+    contains: SELLER_BOOKS_BILLING_WEBHOOK_SECRET
+    reason: "the Paddle webhook signing secret the seller-books Worker verifies notifications with; pushed with wrangler secret bulk when set, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLARE_API_TOKEN
+    reason: "the Cloudflare deploy token under the spelling priv-payapps-deploy.yml and priv-seller-books-deploy.yml already read; deploys Job Shop Quote (bet #2, launch review ventures/jobshop-quote/apps/jobshop-quote/docs/LAUNCH-REVIEW.md before the first run) with wrangler from main only, by hand (D1, R2, Workers, Workers AI); used as stored and exported only after install, tests and build"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLAREAPITOKEN
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys Job Shop Quote (bet #2) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLARERESTRICTEDAPIKEY
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys Job Shop Quote (bet #2) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLARE_ACCOUNT_ID
+    reason: "the Cloudflare account id wrangler needs, as priv-payapps-deploy.yml reads it; deploys Job Shop Quote (bet #2) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLAREACCOUNTID
+    reason: "alias of CLOUDFLARE_ACCOUNT_ID the owner saved, as priv-payapps-deploy.yml reads it; deploys Job Shop Quote (bet #2) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLARE_EMAIL_ROUTING_TOKEN
+    reason: "optional narrower Cloudflare token (Email Routing Rules and Zone Settings edit) for the inbound-RFQ routing step only, which runs only when the variable JOBSHOP_INBOUND_EMAIL=on; exported inside that one step, never logged; applies the reviewed apps/jobshop-quote/email-routing.json"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_ANTHROPIC_API_KEY
+    reason: "the app's own Anthropic key for RFQ extraction, pushed to the jobshop-quote Worker with wrangler secret bulk when the owner sets it (no fallback to the shared ANTHROPIC_API_KEY, so no LLM spend starts without that choice); per-shop and global daily caps in wrangler.jsonc bound it"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_AUTH_SECRET
+    reason: "optional override of the session-signing key, pushed to the jobshop-quote Worker with wrangler secret bulk from a 0600 temp file deleted in the same step, never logged; when unset the workflow generates one on the Worker"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_BILLING_API_KEY
+    reason: "the owner's Paddle key, read only when set, to sync billing/paddle-catalog.json to Paddle and push it to the jobshop-quote Worker (wrangler secret bulk, never logged); when unset paid plans stay dark"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_BILLING_PRICE_IDS
+    reason: "fallback Paddle price ids (not credentials) pushed to the jobshop-quote Worker when the catalog sync gives none; wrangler secret bulk, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_BILLING_WEBHOOK_SECRET
+    reason: "the Paddle webhook signing secret the jobshop-quote Worker verifies notifications with; pushed with wrangler secret bulk when set, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_QBO_CLIENT_ID
+    reason: "the owner's Intuit app client id for the QuickBooks connection, pushed to the jobshop-quote Worker when set (wrangler secret bulk, never logged)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_QBO_CLIENT_SECRET
+    reason: "the owner's Intuit app client secret for the QuickBooks connection, pushed to the jobshop-quote Worker when set (wrangler secret bulk, never logged)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_QBO_TOKEN_KEY
+    reason: "the key the jobshop-quote Worker encrypts stored QuickBooks tokens with, pushed when set (wrangler secret bulk, never logged)"
     added: 2026-11-27

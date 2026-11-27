@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVL8kg4SQa7wUf39ZVh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T06:56:12Z",
+  "ended": "2026-11-27T07:00:14Z",
+  "wall_minutes": 4.22,
+  "tokens_in": 1980559,
+  "tokens_out": 12438,
+  "cost_usd": 1.077,
+  "tool_calls": 28,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19648",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "Ran vitest without --config vitest.unit.config.ts in payapps-site; it failed on the @shared/plans alias until rerun with the unit config.",
+    "CI validate failed once in test_promptctl.test_lookups_without_a_git_call_match_the_per_file_call (shallow-clone edge note vs a 2026-11-27 commit); it passed locally, so it looks like it depends on the checkout's shape."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/README.md",
+      "issue": "Still says private-monorepo/apps/payapps is where scheduled runs build, but cloud-session.md says PayApps moved here on 2026-11-27. I had to check both to know whether the fix would survive a sync."
+    },
+    {
+      "file": "platform/ci/security_next.py",
+      "issue": "Another session claimed #1444 between my read of the queue and my claim push. A batch claim (claim every alert in a file in one call) would shrink that race."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "Three parallel sessions fixed the same payapps CodeQL findings within an hour (this PR, #19632, the #1444 claimant). security_next.py only knows about claim branches, so it could not see that #19632, an ordinary product PR, was fixing the same lines. Re-running slug_dupe on the file paths before every CI wait would have caught it sooner."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Step 0 (security queue) comes before routing, so the drawn ventures focus (the top bet) was not followed.",
+      "did": "Fixed alerts #1445-#1448 in payapps (bet #1), which is still product work on the top bet.",
+      "result": "merged with tests"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: a security hardening fix has nothing a customer reader needs.",
+      "did": "Wrote the explanation in the PR body and commit message.",
+      "result": "n/a"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "A run with nothing to merge commits no record, but this run found a real CI flake worth a backlog item.",
+      "did": "Merged only the P095 evidence and the run record after main superseded the code fixes.",
+      "result": "P095 is in the backlog for a process run"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Fixed CodeQL alerts #1445-#1448 (payapps seo.ts, ca-ecpr.ts, paddle.test.ts) with tests, but PR #19632 fixed the same four on main while this PR waited on CI (it replaced htmlToMarkdown with a tokenizer and added its own stripTags), so main's versions were kept in the merge and this PR lands only that P095 evidence and this record. Along the way: the CodeQL gate flagged a fixed-point loop written as a callback (untilStable(text, s => s.replace(...))) as still js/incomplete-multi-character-sanitization; an inline do/while loop passed in ca-ecpr.ts. Main's red pay-app-guides suite (PRs #19626/#19631 collided) was fixed here and by redteam PR #19641 at the same moment; main's version was kept. prompts-ci validate failed twice in test_promptctl's shallow-edge lookup for prompts/ and prompts/runs/*.json, then passed after main was merged in: added as a second sighting to P095 (another run had filed it minutes earlier from PR #19644).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "52fdbf6c-9332-5e35-aff9-4ac398238c5c",
+    "transcripts": 1,
+    "first": "2026-11-27T06:56:12Z",
+    "last": "2026-11-27T07:00:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 53,
+        "output": 12438,
+        "thinking": 3355,
+        "cache_read": 1925128,
+        "cache_write_5m": 0,
+        "cache_write_1h": 55378,
+        "api_equivalent_usd": 1.077,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 53,
+      "output": 12438,
+      "thinking": 3355,
+      "cache_read": 1925128,
+      "cache_write_5m": 0,
+      "cache_write_1h": 55378,
+      "api_equivalent_usd": 1.077,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 26,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.22,
+      "active_minutes": 4.22,
+      "model_minutes": 2.29,
+      "tool_minutes": 1.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "four small sanitiser/test fixes with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 139.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

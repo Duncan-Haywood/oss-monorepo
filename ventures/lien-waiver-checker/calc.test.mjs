@@ -122,3 +122,14 @@ test("extractDates skips a day the month does not have instead of reporting 2026
   assert.deepEqual(extractDates("Through 2/30/2026 and 2026-04-31 and February 30, 2026"), []);
   assert.deepEqual(extractDates("Through 2/29/2024").map((d) => d.iso), ["2024-02-29"]);
 });
+
+test("January dates parse and zero dollars has no minus sign", () => {
+  assert.deepEqual(extractDates("through 01/15/2026").map((d) => d.iso), ["2026-01-15"]);
+  assert.equal(throughDate("labor furnished through January 31, 2026"), "2026-01-31");
+  assert.equal(dollars(0), "$0.00");
+});
+
+test("any retainage held, even one cent, needs an exception on a progress waiver", () => {
+  const r = analyze(GOOD.replace("This release does not cover retention or items furnished after that date.", ""), { retainageHeld: "0.01" });
+  assert.ok(ids(r).includes("retainage-not-excepted"), ids(r).join(","));
+});

@@ -2,8 +2,8 @@
 title: "Filling out the WH-347 certified payroll every week: a subcontractor's guide"
 seo_title: "How to fill out WH-347 certified payroll for subcontractors"
 date: 2026-11-26
-tags: [payapps, for-customers, construction, certified-payroll, davis-bacon, wh-347, prevailing-wage, california, ecpr]
-description: "The WH-347 (Rev. January 2025) column by column for Davis-Bacon subcontractors: computed columns, the six statements, and checks before you send it."
+tags: [payapps, for-customers, construction, certified-payroll, davis-bacon, wh-347, prevailing-wage, california, ecpr, new-york, new-jersey, washington, illinois]
+description: "The WH-347 column by column for Davis-Bacon subcontractors, the checks before sending it, and the states (CA, NY, NJ, WA, IL) that want it filed online."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -124,6 +124,69 @@ upload. What changed, from DIR's XSD and "eCPR XML Guidelines V2" (read 2026-11-
 The one thing the WH-347 can't give you is the full Social Security number. DOL says never put it on
 the federal form; DIR's file requires it. Keep the two apart.
 
+## New York public work: the NYSDOL bulk upload file
+
+On New York public work under Labor Law Article 8, the payroll goes into NYSDOL's Certified Payroll
+portal, required since 1 January 2026. You can type each worker in, or upload one XML file per
+project per week. NYSDOL publishes an XSD ("XML SCHEMA for electronic New York Certified Payroll
+Records Version 2.0"), a sample file, a Bulk Upload Formatting Guide and the list of classification
+names the file must use (all read on dol.ny.gov on 2026-11-27). What the file wants that the WH-347
+does not give you:
+
+- **The project's PRC number** (prevailing rate case number, 10 characters), from your portal
+  dashboard. A PRC that doesn't match the project you picked, or a week ending date that doesn't
+  match the week you picked, fails the upload.
+- **The worker's home address, with the state spelled out.** "NY" is rejected ("State is
+  invalid"); write "New York".
+- **The last four digits of the SSN, or else the date of birth.** One or the other, never both:
+  the guide lists "both" as a common error.
+- **Whether the worker is a New York registered apprentice** (true or false).
+- **A classification from NYSDOL's list, spelled exactly as printed.** "Electrician" alone is not
+  on it; "Electrician – Building/Wireman" is, with its en dash. A name that doesn't match is
+  rejected ("Work Category is invalid"). A worker with two classifications is one employee with two
+  work weeks. Listing the same worker twice is rejected as a duplicate.
+- **Deductions by type** (up to 10, each under $10,000) and **supplements by type**: Health/Welfare,
+  Vacation/Holiday, Apprenticeship/Training, Pension or "Other Benefit (Type)". Each supplement is
+  tied to a classification and has its own straight-time and overtime hourly rate. An "Other" one
+  needs an explanation, and the other types must leave the explanation empty.
+- **Limits:** 500 employees per file, one project and one week per file, wage rates up to $999.99
+  in the XSD (the guide's table says $9,999.99; the portal validates against the XSD).
+
+NYSDOL suggests a small test upload first. Whatever you upload goes into its system of record,
+so test with a real week you're ready to file, not dummy data.
+
+## Other states where certified payroll is filed online
+
+California is no longer the only state that wants the payroll in its own system. On a **state or
+local** prevailing-wage job, the payroll you hand the GC may also have to go to the state labor
+department, in that state's portal and format. On a purely federal Davis-Bacon job the WH-347 to the
+GC is usually the whole duty (Maryland says so outright). Where we could find a state's rule, as the
+agencies describe it:
+
+| State | Where it goes | Since | How you can send it |
+|---|---|---|---|
+| California | DIR Public Works portal, eCPR (Labor Code § 1776) | SB 854 (2014) | Online form or eCPR XML; version 2.0 only from 13 Jan 2027 |
+| New York | NYSDOL Electronic Certified Payroll Submissions (MPWR portal), all Article 8 public work | 1 Jan 2026 | At least every 30 days, up to five weekly payrolls per cycle; online entry or a bulk XML upload checked against DOL's published XSD. No API |
+| New Jersey | NJ Wage Hub, for registered public works contractors (P.L. 2023, c.138) | Pay periods ending on or after 15 Aug 2024 | Typed in, an electronically filled MW-562, the Hub's CSV template (DOL suggests CSV past 10 employees), or a copy of last week edited; hard copy to the public body still owed |
+| Washington | L&I's Prevailing Wage Intents and Affidavits system, all public works | 1 Jan 2020 | Weekly payrolls filed online at least monthly; an XML upload takes several at once |
+| Illinois | IDOL Certified Transcript of Payroll portal (Illinois Public ID login) | in force | Typed in or a CSV on IDOL's template; the address must match the project's |
+| Maryland | Division of Labor and Industry online system, state-funded public works | in force | The prime files its own and its subs' site payrolls within 14 days of each pay period; $10 a day late. Davis-Bacon jobs do not file with the state |
+| Michigan | LEO, through LCPtracker, after a $500-a-year contractor registration | 2 Apr 2026 | LCPtracker's entry or upload |
+| Nevada | the awarding body (NRS 338.070), monthly, by the 15th | in force | Whatever system that awarding body uses; NDOT uses LCPtracker |
+
+Read on 2026-11-27 from the agencies' own pages as published (NYSDOL's electronic payroll FAQ and
+bulk upload formatting guide, NJDOL's Wage Hub FAQ and contractor user guide, L&I's public works
+contractor pages, IDOL's Certified Transcript of Payroll page, Maryland's prevailing wage
+instructions, LEO's prevailing wage page and Nevada's NRS 338 overview). Rules change and the dates
+above are the agencies' own. Before your first payroll on a job, check the contract and the agency's
+page: many cities, counties and DOTs run their own system on top (LCPtracker is common), and on
+those jobs the GC tells you where to file.
+
+What it means for your week: the hours, rates, fringes and deductions are the same numbers as on
+the WH-347. Only the wrapper changes (a form, a CSV, an XML file). Keep one set of numbers, compute
+the totals once, and produce each state's file from them rather than retyping the week into a
+second portal.
+
 ## Doing it in PayApps
 
 PayApps, our pay-app billing for specialty subcontractors, added certified payroll on 2026-11-26.
@@ -149,9 +212,18 @@ It sits on the job, next to that job's pay applications:
   rules before you download, and the output validates against DIR's published XSD. The file is
   built in your browser. Full SSNs and ITINs are held only while the page is open: they are not
   saved with the draft and never sent to us.
+- **New York public work (added 2026-11-27):** tick the New York box and the same week downloads
+  as NYSDOL's bulk upload XML. You add the PRC number, addresses, and each row's classification,
+  picked from NYSDOL's own list of 261 names (a near miss like "Laborer - Building" with a hyphen
+  is matched to the list's spelling). The SSN's last four come from the WH-347 ID number when it is
+  four digits. Otherwise you enter the date of birth, which is held only while the page is open.
+  Fringe plans become supplements of the type you pick, at time and a half on overtime where your
+  rate schedule says so. Cash in lieu is reported as "Other Benefit (Type)" with an explanation.
+  State and local tax are split out of the withholding, and disability/PFL and dues out of
+  "other", so the PDF and the XML agree. The output validates against NYSDOL's XSD.
 
 Not yet: hours straight from a QuickBooks Time or payroll connection, the crew saved with the job
-instead of the browser, other states' prevailing-wage formats, and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
+instead of the browser, the other states' files in the table above (New Jersey's Wage Hub CSV and Washington's XML next, once their templates are read), and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
 contractors ask for them.
 
 PayApps is in early access and not yet offered for sale:

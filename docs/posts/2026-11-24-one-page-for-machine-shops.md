@@ -803,3 +803,77 @@ with no total. A machine or finish since removed from the rate card is
 printed as removed, not silently dropped. Next, if shops ask: a saved job
 with its own number and status, and a barcode on each operation so time on
 the floor can be checked against the quote.
+
+## Update, 27 November 2026: the quote as a free Excel template
+
+A lot of shops quote in a spreadsheet, and many search for one before they
+search for software. So the [machining quote
+template](https://marisstella.app/machine-shop-guides/machining-quote-template.html)
+is now a free `.xlsx` with two sheets. The quote worksheet holds your setup,
+programming and machine rates, markup, scrap allowance, the part, optional
+calibration factors, up to six other operations and six quantity breaks. The
+customer quote sheet holds what the buyer sees: price each, extended price,
+part number and revision, validity date, lead time and terms. None of the
+cost lines go on it.
+
+Its formulas match the browser
+[quote calculator](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html)
+exactly. The test fills both with the same invented numbers, recalculates the
+workbook in LibreOffice and compares every line at every break with the
+calculator's code. The price each on the quote is rounded up to the cent the
+same way, so the template and the calculator never quote different prices
+for the same inputs. The file ships with no rates, prices or markup: only the
+quantity breaks (1, 5, 10, 25, 50, 100) are filled in. A "before you send
+it" row lists what a buyer would send back, such as a missing revision,
+validity or lead time, or a larger lot that costs less in total than the
+smaller one before it.
+
+The template is built by code with no spreadsheet library
+(`ventures/machine-shop-guides/quote-template.mjs`), and
+`node quote-template.mjs --check` fails if the committed file is stale. A
+spreadsheet is fine for a few quotes a week. It gets slow when you have to
+look up the last revision you quoted, follow up on open quotes, or turn an
+emailed drawing into the inputs. That is the work the RFQ-to-quote product in
+development is for.
+
+## Update, 27 November 2026: a rate for each machine, not one for the shop
+
+Every quote tool here asks for a machine rate and none of them worked one
+out. The new [machine hour rate
+calculator](https://marisstella.app/machine-shop-guides/machine-hour-rate.html)
+does, per machine, from the shop's own numbers: ownership (a yearly lease,
+or straight-line depreciation plus the cost of money on the average
+investment), floor space at the building's cost per square foot,
+maintenance, and the shop's overhead shared by billable hours, all divided
+by scheduled hours times utilization; then power (kW times average load
+times price), tooling per spindle hour and, for an attended hour, the
+operator's loaded wage divided by the machines one person runs and by
+utilization.
+
+A hand-checked case from its tests: a machine bought for $100,000, sold
+for $20,000 after 8 years, money at 6%, 150 sq ft at $12, $4,000 of
+maintenance and 2,000 billable hours out of 4,000 carries $19,400 a year,
+$9.70 an hour. Add $1.50 of power and $5 of tooling and the machine hour is
+$16.20; an operator at $40 an hour running two of them at 50% utilization
+adds $40 more. At 60% utilization the same machine and operator cost
+$47.92; at 40%, $68.63. That spread, from one number most shops guess, is
+why the page shows each machine's rate at 10 points either side.
+
+Two things it will not do: ship a figure of its own (every field starts
+empty, and the example is labelled invented) or say what the market pays
+for an hour. The rate links straight into the [job-shop quote
+calculator](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html)
+(`?machineRate=`), and the paid quoting app keeps the same rate per
+machine on its rate card.
+
+## Update, 27 November 2026: the quote calculator answers before you press anything
+
+The free [CNC machining quote calculator](https://marisstella.app/cnc-machining-quote-calculator/)
+opens with a real job already filled in (a turned part from 12 ft bar, 50 off, quoted at $38 each),
+but until today it showed nothing until you pressed "Cost this job", and on a phone that
+button sits about 3,700 pixels below the headline. Now the page works the job out as it
+loads and again as you change any field, and a strip pinned to the bottom of the screen
+while you scroll the form shows the three numbers a quote turns on: cost per part ($16.17
+for the example), the price at your target margin ($24.88) and the margin at the price you
+were about to quote (57.4%). The full breakdown and the lot-size curve are still below the
+form. Working it out as you type is not counted as a use; only the button is.

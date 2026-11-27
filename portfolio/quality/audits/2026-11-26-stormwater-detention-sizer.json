@@ -195,7 +195,8 @@
       "what": "Weir flow uses the suppressed Francis equation at any length and head, so the sizer reports physically implausible short weirs: the example's 0.62 ft weir runs 2.27 ft deep (H/L 3.7). With standard end contractions the same opening passes 3.18 cfs, not 8.21, and the 100-yr stage is 5.23 ft, 0.90 ft above the reported 4.33 ft (depth 6.23 vs 5.33 ft). No contraction, minimum length or orifice transition for the riser opening, and no finding warning when H/L is large.",
       "where": "ventures/stormwater-detention-sizer/detention.mjs:161",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19656"
     },
     {
       "severity": "medium",
@@ -217,37 +218,42 @@
       "what": "The orifice search silently returns its 8 ft upper bound when the small storm needs no detention (`--smallAllow 20` prints 'Orifice: 96.0 in').",
       "where": "ventures/stormwater-detention-sizer/detention.mjs:314",
       "category": "input-handling",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19656"
     },
     {
       "severity": "low",
       "what": "Coarse-time-step warning uses 0.29 Tp, not traceable to the cited NEH-630 ch.16 (D about 0.133 Tc, about 0.2 Tp); the example's 2 min step passes a check NEH would flag at 1.6 min.",
       "where": "ventures/stormwater-detention-sizer/detention.mjs:291",
       "category": "source-data",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19656"
     },
     {
       "severity": "low",
       "what": "The two professional warnings (coarse step, small orifice) are untested: mutating either threshold leaves all 31 tests green.",
       "where": "ventures/stormwater-detention-sizer/detention.mjs:343",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19656"
     },
     {
       "severity": "low",
       "what": "README and page describe the weir only as 'sharp-crested, Cw 3.33', with no suppressed/no-contraction assumption or validity range, so the headline 0.62 ft weir reads as a design value.",
       "where": "ventures/stormwater-detention-sizer/README.md:25",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19656"
     },
     {
       "severity": "low",
       "what": "Listed as a front door for the payapps bet (portfolio/monetization/verticals.json), but the page links only to two free calculators; no path to any paid product.",
       "where": "ventures/stormwater-detention-sizer/index.html:154",
       "category": "scope-gap",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19656"
     }
   ],
-  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19225"],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19225", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19656"],
   "verdict": "Meets the bar narrowly, as a screening tool. Every output recomputed (rain depth, TR-55 runoff, NEH-630 UH peak, orifice+weir at peak stage, and a full independent modified-Puls run) matches to 4 decimals, the tests are strong (31 pass, core routing and orifice mutants caught) and every page number is pinned to the engine. It falls short where a site PE would look first: the reported weir is the suppressed Francis equation at H/L 3.7, and with end contractions the example's 100-yr stage rises 0.90 ft, eating the freeboard; depth is taken from the last storm not the highest; and there are no NRCS 24-h distributions. As a free front door it leads to no paid product."
 }

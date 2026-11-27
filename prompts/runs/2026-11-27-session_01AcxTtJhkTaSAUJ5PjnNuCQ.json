@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtJhkTaSAUJ5PjnNuCQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T03:06:23Z",
+  "ended": "2026-11-27T03:21:37Z",
+  "wall_minutes": 15.48,
+  "tokens_in": 10986006,
+  "tokens_out": 39742,
+  "cost_usd": 4.1526,
+  "tool_calls": 94,
+  "task": "move-payapps-public (part 1)",
+  "projects": [
+    "payapps"
+  ],
+  "pr": 19586,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 3,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "partial",
+  "errors": [
+    "First fixture-email rewrite missed addresses inside regex literals (@sierra\\.com); 4 unit tests failed until rewrite_public.py handled the escaped dot.",
+    "Moving a workspace in tripped seven repo-wide checks the private repo never ran: calendar-date rollover (2 real: xerDay, day counters), CSV guard defusing negative numbers, literal U+FEFF, unguarded trailing CLI flag, third-party inventory, missing VENTURE.yaml, publish-surface snapshot, and the agent-permission harness (job working-directory ignored when resolving script paths). All fixed in the PR."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/work/tasks.yaml",
+      "issue": "public-repo-audit was still status: open though its notes on products-to-public-repo said step 3 was done, so workctl next ranked a finished task first; done_when also names prepublish_audit.py while the script is prepub_audit.py."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported no free ungated item on any bet (every Next item waits on demand or an owner step); the useful work was the cross-bet task list it prints first, which is easy to skip past."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "No checklist for moving an app into ventures/: the checks it must pass (VENTURE.yaml, transition.json, verticals.json, third_party.json, publish-surface.yaml, the harness snapshot, unwired_checks.py) were found one CI round at a time; run `python3 platform/ci/unwired_checks.py` and `portfolio/router/validate.py` before the first push."
+    },
+    {
+      "file": "prompts/test_promptctl.py",
+      "issue": "LastChangeIndexTest fails on a PR whose merge commit changes a directory (prompts/, prompts/runs/*.json) as the shallow edge; not required, and filed as P095 by another session (PR 19588)."
+    },
+    {
+      "file": "portfolio/pipeline/probes/agent-permission-harness/harness.py",
+      "issue": "R1-missing-referenced-script resolves a step's script path from the repo root and ignores the job's defaults.run.working-directory, so `node --test scripts/x.test.mjs` under a working-directory is reported missing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Every bet's ROADMAP item was claimed or waiting on demand, so instead of opening a new feature item I took the cross-bet task that unblocks deploying bet #1 (moving PayApps here, where Actions runners start jobs).",
+      "did": "Copied PayApps, its site and packages into ventures/payapps with the ported CI; left the deploy workflow for its own control-plane PR.",
+      "result": "Code and CI landed; deploy is still pending."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-move-payapps-public.md",
+    "ventures/payapps/README.md",
+    "ventures/payapps/DEPLOY.md"
+  ],
+  "goal": "Unblock bet #1's deploy (PayApps) toward its first paying subscriber",
+  "notes": "Security queue empty (security_next exit 3); ideas inbox empty. Local verification: app unit 1279 passed/1 skipped, worker 546, provision 4, lien-waivers 240, site all passed, packages all passed; full app suite re-run after the rewrite. prepub_audit block 0 before and after. No customer blog post: this is infrastructure for the product, and the product's own site carries its marketing; a post saying 'moved repos' would tell customers nothing. Repo-wide checks then found real bugs in the moved code (30 February accepted by xerDay and the day/workday counters; CSV guard turning -12.50 into text); fixed with 8 new tests here. The same patch landed in private-monorepo PR 465 (verified there: unit 1286/1 skipped, worker 546, provision 5), so a later sync-from-private.sh refresh keeps the fixes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f846a857-30a8-5a77-9a36-c321321f983d",
+    "transcripts": 1,
+    "first": "2026-11-27T03:06:23Z",
+    "last": "2026-11-27T03:21:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 172,
+        "output": 39742,
+        "thinking": 10076,
+        "cache_read": 10837126,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148708,
+        "api_equivalent_usd": 4.1526,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 172,
+      "output": 39742,
+      "thinking": 10076,
+      "cache_read": 10837126,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148708,
+      "api_equivalent_usd": 4.1526,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 94,
+    "tools": {
+      "Bash": 86,
+      "Write": 5,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.48,
+      "active_minutes": 15.48,
+      "model_minutes": 7.34,
+      "tool_minutes": 8.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "copying a 970-file workspace, porting four CI workflows, auditing and verifying",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 144.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

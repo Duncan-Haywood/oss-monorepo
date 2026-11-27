@@ -11,8 +11,9 @@ hydrograph and level-pool routing. Nothing is uploaded.
 
 After using this, you can **lay out a basin and its two-stage outlet before a full model run, and check a model
 someone else ran**: in the built-in example (5 acres, CN 61 to 85, 100 x 60 ft bottom, 3:1 sides), a 4.6 in
-orifice and a 0.62 ft weir at 2.05 ft hold the 2-year peak to 0.76 cfs and the 100-year to 8.21 cfs in a basin
-5.33 ft deep. The example's storm coefficients are illustrative and belong to no real place.
+orifice and a 1.10 ft contracted weir at 2.05 ft hold the 2-year peak to 0.77 cfs and the 100-year to 8.30 cfs in a basin
+5.26 ft deep, and the tool warns that the weir's 2.21 ft head is past the range of the weir formula, so the second
+stage should be checked as an orifice. The example's storm coefficients are illustrative and belong to no real place.
 
 ## Model
 
@@ -22,26 +23,31 @@ orifice and a 0.62 ft weir at 2.05 ft hold the 2-year peak to 0.76 cfs and the 1
   so it carries exactly 1 inch; ordinates are step means of the triangle, so volume is conserved exactly.
 - Basin: rectangular bottom with side slopes z:1, exact prismoidal storage L W h + (L + W) z h² + 4/3 z² h³.
 - Outlet: circular orifice at the invert, Cd A √(2g(h - d/2)) above the crown and scaled by (h/d)^1.5 below it;
-  sharp-crested weir Cw L (h - crest)^1.5, Cw 3.33.
+  sharp-crested weir by Francis, Cw L' (h - crest)^1.5, Cw 3.33, with L' = L - 0.2 H for a contracted weir (two end
+  contractions, the default: a notch or riser slot) or L' = L for a suppressed one (`--weirType suppressed`). L' is held
+  at L/2 past H = 2.5 L so the rating keeps rising. A finding warns when the large storm's head exceeds L/3, the usual
+  limit of Francis's formula (Brater and King, *Handbook of Hydraulics*); there the opening acts as an orifice.
 - Routing: storage-indication (modified Puls), each step solved for the level by bisection (no table interpolation).
 - Sizing: orifice by bisection so the small storm's peak out equals its allowable; weir crest at that storm's peak
   level; weir length by bisection so the large storm's peak out equals its allowable; depth = the highest peak level
   of any storm + freeboard.
   Allowable = the pre-development peak of the same storm unless entered.
+- Checks: time step against NEH-630 ch. 16's unit duration D = 0.133 Tc (from Tp = D/2 + 0.6 Tc and Tc + D = 1.7 Tp,
+  post-development Tc); an orifice under 3 in; an orifice search that hits its 96 in bound (the small storm does not
+  control the low outlet, so the diameter is not a design value).
 
 Not modelled: NRCS 24-hour distributions and Atlas 14 temporal patterns, multiple subareas and reaches, infiltration,
 tailwater, barrel or culvert control, the emergency spillway, water-quality and channel-protection volumes, metric units.
 
 ## Known gaps
 
-From [quality round 108](../../portfolio/quality/audits/2026-11-26-stormwater-detention-sizer.json):
+From [quality round 108](../../portfolio/quality/audits/2026-11-26-stormwater-detention-sizer.json), after the
+2026-11-27 fix (contracted weir, H/L warning, NEH step check, orifice-cap finding, tests for each warning):
 
-- **The weir has no end contractions and no head-to-length check.** Francis without contractions is a suppressed
-  weir (crest as wide as its channel). The worked example sizes a 0.62 ft weir running 2.27 ft deep (H/L about 3.7),
-  where a contracted rectangular weir, L' = L - 0.2 H, passes about 3.2 cfs, not 8.2, and the 100-year stage is about
-  0.9 ft higher. Treat the weir length as a screening number until contractions and a riser or slot option land.
+- **No orifice or riser-slot model for the upper stage.** When the weir head passes L/3 the tool warns but still
+  sizes a weir; the example's own second stage (2.21 ft over a 1.10 ft slot) is such a case. A rectangular-orifice
+  stage, with the transition from weir to orifice flow as the water tops the opening, is the next fix.
 - **No NRCS Type II/III 24-hour distribution**; the hyetograph is an alternating block from the IDF.
-- Neither warning threshold (coarse time step, small orifice) has a test.
 
 ## Spec sources
 

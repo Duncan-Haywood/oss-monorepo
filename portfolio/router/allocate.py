@@ -867,10 +867,17 @@ def next_task(v: Venture) -> str:
                 f"(same tool with `--field buildable`, capped at {FLAGSHIP_BUILDABLE_MAX} characters; "
                 "drop the field when nothing buildable is left)."
             )
-        where = (f"Work in {v.flagship_app} (attach private-monorepo with add_repo, push access; if the clone is refused, "
-                 "that is final: do this bet's public side here instead; "
-                 "the paid bet's model is its `app:` row in portfolio/monetization/models.yaml). "
-                 if v.flagship_app else "")
+        if v.flagship_app and v.flagship_app.startswith("ventures/"):
+            # PayApps moved here on 2026-11-27: no private clone needed, and its private copy goes stale.
+            where = (f"Work in {v.flagship_app} in this repository (claim with "
+                     f"`platform/ci/roadmap_claim.py {v.flagship_app.rsplit('/', 1)[-1]}`; "
+                     "the paid bet's model is its `app:` row in portfolio/monetization/models.yaml). ")
+        elif v.flagship_app:
+            where = (f"Work in {v.flagship_app} (attach private-monorepo with add_repo, push access; if the clone is refused, "
+                     "that is final: do this bet's public side here instead; "
+                     "the paid bet's model is its `app:` row in portfolio/monetization/models.yaml). ")
+        else:
+            where = ""
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {where}{milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "

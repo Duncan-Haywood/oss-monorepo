@@ -19,7 +19,12 @@
 // - Routing: storage-indication (modified Puls) level-pool routing, same
 //   book, section 8.2.
 // - Orifice Q = Cd A sqrt(2 g h); sharp-crested rectangular weir
-//   Q = Cw L H^1.5 with Cw = 3.33 (US units).
+//   Q = Cw L' H^1.5 with Cw = 3.33 (US units), Francis's formula. By default
+//   the weir is contracted (a notch or riser slot narrower than the box it
+//   sits in), with L' = L - 0.1 n H for n = 2 end contractions; "suppressed"
+//   (crest as wide as its channel) uses L' = L. Francis fitted heads well under
+//   the crest length, L >= 3H being the usual limit (Brater and King, Handbook
+//   of Hydraulics), and the sizer warns past it.
 //
 // Pure functions; no imports, clocks or randomness, so the page, the CLI and
 // the tests all compute the same numbers.
@@ -156,14 +161,29 @@ export function orificeFlow(h, d, cd = 0.6) {
   return full(d) * (h / d) ** 1.5;
 }
 
-export function weirFlow(h, crest, length, cw = 3.33) {
+// Effective crest length of a weir under head H. Contracted (two end
+// contractions): L' = L - 0.2 H. Past H = 2.5 L, where L' has fallen to L/2,
+// it is held at L/2 so the rating keeps rising with stage (routing needs
+// that); such heads are far outside Francis's range and the sizer flags them.
+export function weirEffectiveLength(length, head, contractions = 2) {
+  if (contractions === 0) return length;
+  const reduced = length - 0.1 * contractions * head;
+  return Math.max(reduced, length / 2);
+}
+
+export function weirFlow(h, crest, length, cw = 3.33, contractions = 0) {
   if (length <= 0 || h <= crest) return 0;
-  return cw * length * (h - crest) ** 1.5;
+  const head = h - crest;
+  return cw * weirEffectiveLength(length, head, contractions) * head ** 1.5;
+}
+
+export function weirContractions(type) {
+  return type === "suppressed" ? 0 : 2;
 }
 
 export function outletFlow(h, outlet) {
   return orificeFlow(h, outlet.orificeDiameter, outlet.cd ?? 0.6) +
-    weirFlow(h, outlet.weirCrest ?? Infinity, outlet.weirLength ?? 0, outlet.cw ?? 3.33);
+    weirFlow(h, outlet.weirCrest ?? Infinity, outlet.weirLength ?? 0, outlet.cw ?? 3.33, weirContractions(outlet.weirType));
 }
 
 // --- routing --------------------------------------------------------------------
@@ -233,12 +253,18 @@ export function sampleInput() {
     areaAc: "5",
     preCN: "61", preTcHr: "0.5",
     postCN: "85", postTcHr: "0.2",
-    durationHr: "24", dtMin: "2",
+    durationHr: "24", dtMin: "1.5",
     smallLabel: "2-year", smallA: "40", smallB: "10", smallN: "0.8", smallAllow: "",
     largeLabel: "100-year", largeA: "85", largeB: "10", largeN: "0.8", largeAllow: "",
     length: "100", width: "60", sideSlope: "3",
-    freeboard: "1", cd: "0.6", cw: "3.33", prf: "484",
+    freeboard: "1", cd: "0.6", cw: "3.33", weirType: "contracted", prf: "484",
   };
+}
+
+function weirTypeOf(v) {
+  const t = v === undefined || v === null || String(v).trim() === "" ? "contracted" : String(v).trim().toLowerCase();
+  if (t !== "contracted" && t !== "suppressed") throw new Error("Weir type: contracted or suppressed");
+  return t;
 }
 
 export function parseInput(raw) {
@@ -250,7 +276,7 @@ export function parseInput(raw) {
     postCN: num(x.postCN, "Post-development curve number", { min: 30, max: 100 }),
     postTcHr: num(x.postTcHr, "Post-development time of concentration", { min: 0.05, max: 24 }),
     durationHr: num(x.durationHr, "Storm duration", { min: 0.25, max: 72, allowBlank: true, fallback: 24 }),
-    dtMin: num(x.dtMin, "Time step", { min: 0.25, max: 30, allowBlank: true, fallback: 2 }),
+    dtMin: num(x.dtMin, "Time step", { min: 0.25, max: 30, allowBlank: true, fallback: 1.5 }),
     length: num(x.length, "Basin bottom length", { min: 1, max: 5000 }),
     width: num(x.width, "Basin bottom width", { min: 1, max: 5000 }),
     sideSlope: num(x.sideSlope, "Side slope", { min: 0, max: 20 }),
@@ -258,6 +284,7 @@ export function parseInput(raw) {
     cd: num(x.cd, "Orifice coefficient", { min: 0.3, max: 1, allowBlank: true, fallback: 0.6 }),
     cw: num(x.cw, "Weir coefficient", { min: 2, max: 4, allowBlank: true, fallback: 3.33 }),
     prf: num(x.prf, "Peak rate factor", { min: 100, max: 700, allowBlank: true, fallback: 484 }),
+    weirType: weirTypeOf(x.weirType),
     storms: [],
   };
   if (Math.abs(Math.round((p.durationHr * 60) / p.dtMin) * p.dtMin - p.durationHr * 60) > 1e-6) {
@@ -287,10 +314,11 @@ export function size(p) {
   const pond = { length: p.length, width: p.width, sideSlope: p.sideSlope };
   const S = (h) => pondStorage(h, pond);
   const findings = [];
-  const postUH = triangularUH(p.areaAc, p.postTcHr, p.dtMin, p.prf);
-  const lagLimit = 0.29 * postUH.tp * 60;
-  if (p.dtMin > lagLimit) {
-    findings.push({ severity: "medium", title: "Time step is coarse for this site", detail: `NRCS guidance keeps the step under about 0.29 x Tp (${lagLimit.toFixed(1)} min here); a ${p.dtMin} min step can understate the peaks.` });
+  // NEH-630 ch. 16: with Tp = D/2 + 0.6 Tc and Tc + D = 1.7 Tp, the unit
+  // duration is D = 0.133 Tc (about 0.2 Tp); use the faster (post) Tc.
+  const stepLimit = (0.02 / 0.15) * p.postTcHr * 60;
+  if (p.dtMin > stepLimit * (1 + 1e-9)) {
+    findings.push({ severity: "medium", title: "Time step is coarse for this site", detail: `NEH-630 chapter 16 takes the unit duration as about 0.133 x Tc (${stepLimit.toFixed(2)} min for the developed site's ${(p.postTcHr * 60).toFixed(0)} min Tc); a ${p.dtMin} min step can misstate the peaks. Use a step of ${stepLimit.toFixed(2)} min or less that divides the storm duration.` });
   }
   const storms = p.storms.map((st) => {
     const rain = alternatingBlock(st.idf, p.durationHr * 60, p.dtMin);
@@ -301,7 +329,7 @@ export function size(p) {
     return { ...st, rain, depth, pre, post, allow, peakIntensity: Math.max(...rain) / (p.dtMin / 60) };
   });
 
-  const outlet = { orificeDiameter: 0, weirCrest: Infinity, weirLength: 0, cd: p.cd, cw: p.cw };
+  const outlet = { orificeDiameter: 0, weirCrest: Infinity, weirLength: 0, cd: p.cd, cw: p.cw, weirType: p.weirType };
   const runWith = (o, st) => route(st.post.flow, p.dtMin, S, (h) => outletFlow(h, o));
 
   // stage 1: orifice on the small storm
@@ -311,7 +339,12 @@ export function size(p) {
   }
   const peak1 = (d) => runWith({ ...outlet, orificeDiameter: d }, s1).peakOut;
   if (s1.allow <= 0) throw new Error("The small storm's allowable outflow is zero: the pre-development site makes no runoff in it. Enter an allowable outflow.");
-  outlet.orificeDiameter = bisectIncreasing(peak1, s1.allow, 0.01, 8, 40);
+  const ORIFICE_MAX_FT = 8;
+  outlet.orificeDiameter = bisectIncreasing(peak1, s1.allow, 0.01, ORIFICE_MAX_FT, 40);
+  const orificeAtCap = outlet.orificeDiameter >= ORIFICE_MAX_FT;
+  if (orificeAtCap) {
+    findings.push({ severity: "medium", title: "Orifice size is not a design value", detail: `Even a ${ORIFICE_MAX_FT * 12} in orifice keeps the ${s1.label} peak under its allowable, so the search stopped at its upper bound. The ${s1.label} storm does not control the low outlet here: set the orifice from another rule (a water-quality drawdown or the manual's minimum) and treat the weir crest that follows from it as provisional.` });
+  }
   const r1 = runWith(outlet, s1);
   s1.routed = r1;
   outlet.weirCrest = r1.peakStage;
@@ -331,6 +364,10 @@ export function size(p) {
       if (outlet.weirLength >= 500) findings.push({ severity: "info", title: "Weir length capped at 500 ft", detail: `Even a 500 ft weir keeps the ${s2.label} peak under its allowable; the basin is larger than this storm needs.` });
     }
     s2.routed = runWith(outlet, s2);
+    const head = s2.routed.peakStage - outlet.weirCrest;
+    if (outlet.weirLength > 0 && head > outlet.weirLength / 3) {
+      findings.push({ severity: "medium", title: "Weir head is large for its length", detail: `The ${s2.label} storm runs ${head.toFixed(2)} ft over a ${outlet.weirLength.toFixed(2)} ft crest (H/L ${(head / outlet.weirLength).toFixed(2)}). Francis's formula is fitted for heads up to about a third of the crest length; past that, and once the water tops the riser opening, it acts as an orifice. Check the opening as an orifice, or widen the basin or the weir.` });
+    }
   }
   // depth from the highest routed stage of any storm, not the last one: with
   // the storms out of order the last can peak lower (quality round 108)
@@ -353,7 +390,7 @@ export function size(p) {
       peakOut: st.routed.peakOut, peakStage: st.routed.peakStage, peakStorageFt3: st.routed.peakStorage,
       rain: st.rain, inflow: st.post.flow, outflow: st.routed.outflow, stage: st.routed.stage, preFlow: st.pre.flow,
     })),
-    outlet: { orificeDiameterFt: outlet.orificeDiameter, orificeDiameterIn: outlet.orificeDiameter * 12, weirCrestFt: storms[1] ? outlet.weirCrest : null, weirLengthFt: storms[1] ? outlet.weirLength : null },
+    outlet: { orificeDiameterFt: outlet.orificeDiameter, orificeDiameterIn: outlet.orificeDiameter * 12, orificeAtCap, weirType: p.weirType, weirCrestFt: storms[1] ? outlet.weirCrest : null, weirLengthFt: storms[1] ? outlet.weirLength : null },
     requiredDepthFt: requiredDepth,
     topLengthFt: p.length + 2 * p.sideSlope * requiredDepth,
     topWidthFt: p.width + 2 * p.sideSlope * requiredDepth,

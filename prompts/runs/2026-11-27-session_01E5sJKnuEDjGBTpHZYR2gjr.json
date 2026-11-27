@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKnuEDjGBTpHZYR2gjr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T06:09:52Z",
+  "ended": "2026-11-27T06:21:15Z",
+  "wall_minutes": 11.58,
+  "tokens_in": 8635426,
+  "tokens_out": 25902,
+  "cost_usd": 3.3331,
+  "tool_calls": 71,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19636",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First full worker run failed on waiver-followup.test.ts: a CSV row regex anchored on the old last column; fixed in the same PR."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Many sessions overlap on PayApps (7 open PRs, 4 claims); roadmap_claim.py --bets correctly reported no free ungated Next item, so I opened a part-3 slug. Worked, but the Next list is all 'if people ask' items with no customers yet to ask."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps-site/README.md",
+      "issue": "Says the site deploys to marisstella.app/payapps, but no deploy workflow exists in this repo yet and marisstella.app is blocked by the session proxy (403), so it could not be checked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No new blog post: this is a small slice of an in-app report. The customer copy went into the payapps-site features list and llms.txt instead.",
+      "did": "Updated the marketing copy and llms.txt; no post.",
+      "result": "Copy matches the shipped feature; site tests pass."
+    }
+  ],
+  "writeups": [
+    "ventures/payapps/apps/payapps/ROADMAP.md (Done: Close-out, part 3)",
+    "ventures/payapps/apps/payapps-site/src/site/pages.ts, seo.ts (features and llms.txt)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); ideas inbox empty; routed ventures/1 to bet #1 PayApps. Deploy run 45949861746 was in progress from another session and was left alone. Verification: typecheck clean; biome clean; unit 1289 passed; worker 547 passed after the CSV-regex fix (waiver-followup, short-close, change-order-emailed rerun 15/15); payapps-site unit 21 passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "355385f2-db3c-501a-be2e-cefc930b56dd",
+    "transcripts": 1,
+    "first": "2026-11-27T06:09:52Z",
+    "last": "2026-11-27T06:21:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 132,
+        "output": 25902,
+        "thinking": 4729,
+        "cache_read": 8495879,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139415,
+        "api_equivalent_usd": 3.3331,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 132,
+      "output": 25902,
+      "thinking": 4729,
+      "cache_read": 8495879,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139415,
+      "api_equivalent_usd": 3.3331,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 66,
+      "mcp__github__actions_list": 2,
+      "ToolSearch": 1,
+      "mcp__github__actions_get": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.58,
+      "active_minutes": 11.58,
+      "model_minutes": 6.34,
+      "tool_minutes": 5.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior dev: design, worker query, UI/digest/CSV, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 120.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

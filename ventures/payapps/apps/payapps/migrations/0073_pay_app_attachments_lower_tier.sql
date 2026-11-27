@@ -1,0 +1,1 @@
+ALTER TABLE `pay_app_attachments` ADD `lower_tier_waiver_id` text;

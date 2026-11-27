@@ -38,11 +38,11 @@
     }
   },
   "counts": {
-    "ventures": 1444,
+    "ventures": 1447,
     "by_vertical": {
-      "construction": 165,
-      "manufacturing-engineering": 9,
-      "online-sellers": 105,
+      "construction": 166,
+      "manufacturing-engineering": 10,
+      "online-sellers": 106,
       "eu-einvoicing-accounting": 12,
       "nonprofits": 10,
       "freelancers": 156,
@@ -55,16 +55,16 @@
       "other": 478
     },
     "front_doors_by_bet": {
-      "payapps": 154,
-      "jobshop-quote": 10,
+      "payapps": 155,
+      "jobshop-quote": 11,
       "einvoice": 12,
       "cmmc": 3,
-      "seller-books": 105,
+      "seller-books": 106,
       "residential-takeoff": 11,
       "grants": 9
     },
     "by_status": {
-      "front-door": 304,
+      "front-door": 307,
       "frozen": 1140
     }
   },
@@ -5323,6 +5323,14 @@
       "why": "a job shop's scheduling problem; its users are the quoting bet's buyers"
     },
     {
+      "venture": "jobshop-quote",
+      "vertical": "manufacturing-engineering",
+      "rule": "description",
+      "site_category": "more",
+      "front_door_for": "jobshop-quote",
+      "status": "front-door"
+    },
+    {
       "venture": "json-ld-rich-result-validator",
       "vertical": "other",
       "rule": "category:ci",
@@ -6905,6 +6913,14 @@
       "site_category": "evidence",
       "front_door_for": null,
       "status": "frozen"
+    },
+    {
+      "venture": "payapps",
+      "vertical": "construction",
+      "rule": "slug",
+      "site_category": "more",
+      "front_door_for": "payapps",
+      "status": "front-door"
     },
     {
       "venture": "payment-processor-fee-comparison-calculator",
@@ -8730,6 +8746,14 @@
       "site_category": "logistics",
       "front_door_for": null,
       "status": "frozen"
+    },
+    {
+      "venture": "seller-books",
+      "vertical": "online-sellers",
+      "rule": "description",
+      "site_category": "more",
+      "front_door_for": "seller-books",
+      "status": "front-door"
     },
     {
       "venture": "seller-net-sheet",
