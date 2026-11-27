@@ -28,8 +28,11 @@ for (const f of GUIDES) {
     for (const q of schema.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
   });
   test(`${f}: honest product status and no 1099-K fear`, () => {
-    assert.match(html, /in development &mdash; early access/);
-    assert.match(html, /href="https:\/\/marisstella\.app\/industries\/online-sellers\/"/);
+    // Seller Books opened its Free plan on 2026-11-27; the sentence is written by
+    // ventures/reseller-books/seller-books-cta.mjs, which has its own tests.
+    assert.match(html, /<strong>open now<\/strong>: free for one platform/);
+    assert.match(html, /href="https:\/\/seller-books\.marisstella\.app\/signup\?from=ebay-fee-calculator%2F/);
+    assert.doesNotMatch(html, /in development &mdash; early access/);
     assert.doesNotMatch(html, /\$600(?![.,\d])/, 'the federal 1099-K threshold is $20,000 and 200 transactions, not $600');
     assert.match(html, /irs\.gov/);
   });

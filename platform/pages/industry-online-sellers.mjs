@@ -9,12 +9,17 @@
 // seller calculators, each a door for one search ("ebay fee calculator").
 // This page is the room behind those doors: it names the problems a
 // multi-platform seller actually has, says which product is being built for
-// them (and that it is in development), and picks the strongest free tools
-// as the way in today.
+// them (open on its Free plan since 2026-11-27), and picks the strongest free
+// tools as the way in.
 //
 // Honesty rules this page keeps (from the brief and bets.md):
-//   - The hosted product is in development; the page says so and takes no
-//     money. The free Reseller Books tool is what works today.
+//   - The hosted product is open on its Free plan (seller-books-deploy run
+//     45973427499, 2026-11-27): the page says what Free does, using the app's
+//     own limits (apps/seller-books/src/shared/plans.ts), and that paid plans
+//     are not on sale; no price while checkout is dark. The same sentence is
+//     on the free tools (ventures/reseller-books/seller-books-cta.mjs).
+//   - Problem lines say what the app does today only where its README says it
+//     ships; the rest stay "will".
 //   - Not tax advice, on the page and in the FAQ data.
 //   - No 1099-K fear: the federal threshold is stated plainly as $20,000 and
 //     200 transactions, with the IRS's own page as the source.
@@ -49,7 +54,10 @@ export const ONLINE_SELLERS_SOURCES = Object.freeze({
  */
 export const ONLINE_SELLERS_PRODUCT = Object.freeze({
   name: 'Seller Books',
-  status: 'In development (early access)',
+  status: 'Open · free on one platform',
+  // The deployed app; `from` names this page for a later sign-up source report.
+  appUrl: 'https://seller-books.marisstella.app/signup?from=industries%2Fonline-sellers',
+  free: 'The Free plan is one platform, one user and up to 25 orders a month, with no card, and every report on it: profit by platform and month, the stock report, the Schedule C worksheet and the exports for your preparer. Plans for more platforms and more orders are not on sale yet.',
   pitch: 'One set of books for everywhere you sell. Drop in the payout and sales reports from each marketplace; get fees split out, cost of goods and mileage tracked, and a profit and loss grouped the way Schedule C asks for it.',
   does: [
     'Reads the sales and payout reports you download from eBay, Etsy, Poshmark, Mercari, Whatnot and Depop. No bank link and no marketplace login needed.',
@@ -72,7 +80,7 @@ export const ONLINE_SELLERS_PROBLEMS = Object.freeze([
     id: 'true-profit',
     q: '“I sold $3,000 last month. What did I actually make?”',
     body: 'Every marketplace takes its cut differently: a final value fee here, a flat fee under a price line there, payment processing, promoted listings, shipping labels bought through the platform. The sales figure on the dashboard is not what lands in your bank, and what lands in your bank is not profit until the cost of the item comes out.',
-    product: 'Seller Books will put every channel into one ledger and shows what each one really keeps of a sales dollar, after fees, ads, postage and refunds.',
+    product: 'Seller Books puts every channel into one ledger and shows profit by platform and by month, after fees, postage, refunds and what each item cost you.',
     tools: ['ebay-fee-calculator', 'poshmark-fee-calculator', 'marketplace-fee-compare'],
   },
   {
@@ -93,14 +101,14 @@ export const ONLINE_SELLERS_PROBLEMS = Object.freeze([
     id: 'mileage',
     q: '“Do my sourcing trips count?”',
     body: 'Driving to estate sales, thrift stores and the post office for the business is business mileage, and a deduction is only as good as the log behind it.',
-    product: 'Seller Books will log trips and price them for the year.',
+    product: 'Seller Books logs trips (typed in, or read from a mileage tracker app\'s CSV) and prices each at the IRS standard rate on the day it was driven.',
     tools: ['mileage-log', 'mileage-deduction-calculator'],
   },
   {
     id: 'schedule-c',
     q: '“Tax time: which number goes where?”',
     body: 'A preparer wants gross receipts, returns, cost of goods sold and expenses by category, not five marketplace exports in five shapes.',
-    product: 'Seller Books will group the year under Schedule C lines and hand over one worksheet, with the judgment calls marked for you or your preparer.',
+    product: 'Seller Books groups the year under Schedule C lines and hands over one worksheet, with the judgment calls marked for you or your preparer.',
     tools: ['1099k-reconciliation-worksheet'],
   },
   {
@@ -108,7 +116,7 @@ export const ONLINE_SELLERS_PROBLEMS = Object.freeze([
     q: '“Will I get a 1099-K, and do I owe sales tax in other states?”',
     body: 'For federal Form 1099-K, a marketplace reports you when your payments pass $20,000 and 200 transactions in a year, per the IRS. Some states set lower reporting thresholds. Either way, the form is a report, not a tax: income is income whether a form arrives or not. Selling on your own store can also create sales tax obligations in other states once your sales there pass that state\'s threshold.',
     source: 'irs1099k',
-    product: 'Seller Books will keep the totals each platform reports beside your own, so a 1099-K, when one comes, reconciles to your books.',
+    product: 'Seller Books checks a platform\'s 1099-K against your books, box 1a and each month, and names the months that do not match.',
     tools: ['1099-k-threshold-checker', 'economic-nexus-threshold-tracker'],
   },
 ]);
@@ -149,12 +157,12 @@ export const ONLINE_SELLERS_AUDIENCES = Object.freeze([
 
 /** Plain-text questions and answers, shown on the page and repeated as FAQPage data. */
 export const ONLINE_SELLERS_FAQ = Object.freeze([
-  ['Can I use Seller Books today?', 'Not yet: it is in development and not open for sign-ups or payment. The free Reseller Books tool on this site already reads eBay, Etsy, Poshmark, Whatnot and Shopify reports together in your browser and gives a monthly profit and loss and a Schedule C style worksheet.'],
-  ['Which platforms does it cover?', 'The free tool reads eBay, Etsy, Poshmark, Whatnot and Shopify reports today. Mercari and Depop are planned, and the free fee calculators cover Mercari, Depop and more for single sales.'],
+  ['Can I use Seller Books today?', 'Yes. It is open on a Free plan: one platform, one user and up to 25 orders a month, with no card. Plans for more platforms are not on sale yet. The free Reseller Books tool on this site also reads several marketplaces\' reports together in your browser, with no account.'],
+  ['Which platforms does it cover?', 'Seller Books imports reports from eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop and Square, and takes cash and local sales typed in one at a time. The free fee calculators cover single sales on these and more.'],
   ['Do I need to connect my bank or marketplace accounts?', 'No. It works from the reports each marketplace lets you download, so nothing needs your login or a bank link.'],
   ['Is this tax advice?', 'No. It organises your numbers and groups them the way Schedule C asks for them. What to deduct and how to file is for you or a tax professional to decide.'],
   ['When does a marketplace send a 1099-K?', 'Federally, when your payments on that platform pass $20,000 and 200 transactions in a calendar year, according to the IRS. Some states report at lower amounts. Income is taxable whether or not a form is sent.'],
-  ['How do I get early access?', 'Tell us where you sell and which reports you download, using the form linked on this page. Early access is being shaped around real sellers\' files.'],
+  ['What if a report does not import?', 'Tell us which platform and report it is, using the feedback link on this page. Importers are checked against real reports, so a file that will not read is the most useful thing to send.'],
 ]);
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -202,7 +210,7 @@ export function renderOnlineSellersPage({ baseUrl, surfaces = [], shell }) {
   const product = ONLINE_SELLERS_PRODUCT;
   const freeShipped = shipped.has(product.freeSlug) || surfaces.some((s) => s.slug === product.freeSlug);
   const freeUrl = `${toRoot}${product.freeSlug}/`;
-  const earlyUrl = `${toRoot}feedback/?type=idea&tool=${product.freeSlug}`;
+  const feedbackUrl = `${toRoot}feedback/?type=idea&tool=${product.freeSlug}`;
   const src = ONLINE_SELLERS_SOURCES;
 
   const title = 'Bookkeeping and profit tools for online sellers and resellers';
@@ -238,10 +246,10 @@ export function renderOnlineSellersPage({ baseUrl, surfaces = [], shell }) {
     <header class="pf-hero">
       <p class="eyebrow">For online sellers and resellers</p>
       <h1>Know what you actually made, on every platform you sell on.</h1>
-      <p class="lede">You list on eBay, Poshmark, Mercari, Etsy, Whatnot, Depop, maybe your own Shopify store or Amazon. Each one pays out on its own schedule, takes its fees its own way and hands you a report in its own shape. ${esc(product.name)} is being built to turn all of that into one set of books: real profit after fees and cost of goods, payouts that reconcile, mileage logged, and a Schedule C-ready summary at the end of the year.</p>
-      <p class="os-cta">${freeShipped ? `
-        <a href="${esc(freeUrl)}">Try the free version now</a>` : ''}
-        <a href="${esc(earlyUrl)}">Ask for early access</a>
+      <p class="lede">You list on eBay, Poshmark, Mercari, Etsy, Whatnot, Depop, maybe your own Shopify store or Amazon. Each one pays out on its own schedule, takes its fees its own way and hands you a report in its own shape. ${esc(product.name)} turns all of that into one set of books: real profit after fees and cost of goods, mileage logged, a 1099-K checked against your books, and a Schedule C worksheet at the end of the year.</p>
+      <p class="os-cta">
+        <a href="${esc(product.appUrl)}">Start free in ${esc(product.name)}</a>${freeShipped ? `
+        <a href="${esc(freeUrl)}">Try the in-browser tool, no account</a>` : ''}
         <a href="#free-tools">Free seller calculators</a>
       </p>
     </header>
@@ -255,7 +263,8 @@ export function renderOnlineSellersPage({ baseUrl, surfaces = [], shell }) {
       <ul>${product.does.map((d) => `
         <li>${esc(d)}</li>`).join('')}
       </ul>
-      <p>It is not open for sign-up or payment yet, and no price is set. ${freeShipped ? `The free <a href="${esc(freeUrl)}">Reseller Books</a> tool already does the core of it in your browser: it reads eBay, Etsy, Poshmark, Whatnot and Shopify reports together and gives a monthly profit and loss, what each channel keeps of a sales dollar, and a Schedule C style worksheet. ` : ''}To help shape the paid version, <a href="${esc(earlyUrl)}">tell us where you sell and which reports you download</a>.</p>
+      <p>${esc(product.free)} <a href="${esc(product.appUrl)}">Start free in ${esc(product.name)}</a>.</p>
+      <p>${freeShipped ? `Rather not make an account? The free <a href="${esc(freeUrl)}">Reseller Books</a> tool does the core of it in your browser, with nothing uploaded. ` : ''}A report that will not import, or a platform we do not read yet: <a href="${esc(feedbackUrl)}">tell us which</a>.</p>
 
       <h2 id="free-tools">Free tools for sellers</h2>
       <p>Each answers one question on one sale or one report, free, with no account.</p>

@@ -49,10 +49,14 @@ test('covers the problems the brief names', () => {
   for (const id of ['true-profit', 'payouts', 'cogs', 'mileage', 'schedule-c', 'thresholds']) assert.ok(ids.includes(id), id);
 });
 
-test('says in development, takes no money, and is not tax advice', () => {
+test('says Free is open with the app\'s own limits, takes no money, and is not tax advice', () => {
+  // Seller Books opened its Free plan on 2026-11-27 (seller-books-deploy run 45973427499).
   const html = renderOnlineSellersPage({ baseUrl: base, surfaces: all, shell });
-  assert.match(html, /In development \(early access\)/);
-  assert.match(html, /not open for sign-up or payment yet/);
+  assert.match(html, /Open · free on one platform/);
+  assert.match(html, /href="https:\/\/seller-books\.marisstella\.app\/signup\?from=industries%2Fonline-sellers">Start free in Seller Books/);
+  assert.match(html, /up to 25 orders a month, with no card/);
+  assert.match(html, /not on sale yet/);
+  assert.doesNotMatch(html, /early access|In development/i);
   assert.match(html, /Not tax advice/);
   assert.doesNotMatch(html, /\$\d+(\.\d\d)?\s*(\/|per )\s*mo/i, 'no price is set, so none is shown');
   assert.match(html, /No warranty/);
@@ -71,7 +75,7 @@ test('tools the build did not publish are left out, never linked dead', () => {
   assert.deepEqual(onlineSellersTools(some).map((t) => t.slug), ['ebay-fee-calculator']);
   const html = renderOnlineSellersPage({ baseUrl: base, surfaces: some, shell });
   assert.ok(!html.includes('href="../../poshmark-fee-calculator/"'));
-  assert.ok(!html.includes('Try the free version now'));
+  assert.ok(!html.includes('Try the in-browser tool, no account'));
 });
 
 test('FAQ data matches the page, escaped and parseable', () => {

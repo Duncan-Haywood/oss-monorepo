@@ -199,9 +199,8 @@ stores, and a test fails if the code and the policy drift apart:
   sales it created; an owner can delete the whole shop.
 
 The Refund Policy offers a full refund within 30 days of the first paid
-payment, once paid plans open. Seller Books is still in development; the
-[online sellers page](https://marisstella.app/industries/online-sellers/)
-has early access.
+payment, once paid plans open. (Since 2026-11-27 Seller Books is open on its
+Free plan; see "Seller Books is open" below.)
 
 ## The sale-by-sale backup behind the worksheet (added 2026-11-26)
 
@@ -754,13 +753,31 @@ limit applies per item, so one row for a shelving unit and a camera bought
 together can hide which side of $2,500 each one is on. This is a worksheet,
 not tax advice.
 
-## What comes next
+## Seller Books is open (added 2026-11-27)
 
-Each of the ten tool pages now ends with a short "track true profit across
-every platform" section. It points to the
-[online sellers page](https://marisstella.app/industries/online-sellers/),
-where Seller Books, a hosted product that does all three steps from your
-payout files, is listed as in development, with early access. Until then, the
-free in-browser [Reseller Books tool](../../ventures/reseller-books/)
-already groups eBay, Etsy, Poshmark, Whatnot and Shopify exports into
-Schedule C lines.
+Seller Books, the hosted version of everything above, is open for sign-up at
+[seller-books.marisstella.app](https://seller-books.marisstella.app/signup?from=post%2Freseller-payouts).
+The Free plan is one platform, one user and up to 25 orders a month. It needs
+no card, and every report is on it: profit by platform and month, the stock
+report, the sales ledger, the 1099-K check, quarterly estimates and the
+Schedule C worksheet with the year-end lists for your preparer. Plans for
+more platforms and more orders are built but not on sale yet, so nothing can
+be charged. When they open, going over a paid plan's order guide in a busy
+month never locks anything, and on any plan you can download every record
+the shop holds.
+
+Which plan to start on: if you sell mostly on one platform and ship fewer
+than about 25 orders a month, Free covers the whole year's books. If you sell
+on two or more, import the platform that makes most of your sales first, so
+you can see the profit and the Schedule C lines before you decide anything.
+Free refuses an import that would take a month over 25 orders. It refuses
+the whole file and names the month, so nothing is half-imported.
+
+Rather not make an account? The free in-browser
+[Reseller Books tool](../../ventures/reseller-books/) still reads eBay,
+Etsy, Poshmark, Mercari, Depop, Whatnot and Shopify exports together. It
+forgets them when you close the tab, which is the difference: Seller Books
+keeps the year. Each of the seller tool pages now ends with the same
+sentence and a sign-up link, written from one file
+(`ventures/reseller-books/seller-books-cta.mjs`) so none of them can keep
+saying "in development" by mistake.

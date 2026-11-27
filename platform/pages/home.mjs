@@ -151,7 +151,7 @@ export function renderFinder({
     .map((c) => `        <label for="${esc(id(c.slug))}" title="${esc(c.who)}">${esc(c.name)}</label>`)
     .join('\n');
   const problemLink = (l, problem) => {
-    const href = l.status === 'live' && l.href ? l.href : `${industryHref(l.industry)}#${l.id}`;
+    const href = l.status === 'live' && l.href && !/^https:\/\//.test(l.href) ? l.href : `${industryHref(l.industry)}#${l.id}`; // an app on its own origin: its industry page says what Free does
     return `            <li><a href="${esc(href)}" data-funnel-product="${esc(l.id)}"><span class="pb-text">${esc(problem)}</span><span class="pb-to">${esc(l.name)} · ${esc(statusLabel(l.status))} →</span></a></li>`;
   };
   const more = `<a href="${esc(askHref)}">Ask the assistant</a> · <a href="${esc(customHref)}">Describe your problem and it may get built</a>`;

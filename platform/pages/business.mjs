@@ -11,8 +11,11 @@
 // Honesty rules this file is held to (prompts/goals.md, hard limits; checked
 // by business.test.mjs):
 //   * `status: 'live'` only for a product a visitor can open and use today.
-//     On 2026-11-24 that is Grant Autopilot alone (served at /grants/ by the
-//     site Worker). Everything else is 'early-access' (software being built,
+//     On 2026-11-24 that was Grant Autopilot alone (served at /grants/ by the
+//     site Worker). On 2026-11-27 PayApps (payapps-deploy run 45949861746)
+//     and Seller Books (seller-books-deploy run 45973427499) opened sign-ups
+//     on their Free plans; their paid plans are dark, which `plan` says.
+//     Everything else is 'early-access' (software being built,
 //     the free tools beside it are live) or 'long-term' (hardware designs;
 //     nothing has been physically built).
 //   * Problems are the customer's jobs in plain words. No percentages, no
@@ -25,7 +28,10 @@
 //   problems  3 or 4 jobs that customer most often struggles with
 //   product   one sentence: what the product does for them
 //   status    'live' | 'early-access' | 'long-term'
-//   href      site-relative link to the product when live, else null
+//   href      link to the product when live, else null: site-relative, or the
+//             app's own https origin for a product on its own subdomain
+//   plan      optional, live lines: what a visitor gets today, in one sentence
+//             (a Free plan's limits, paid plans not on sale while checkout is dark)
 //   industry  an INDUSTRIES slug, or null (hardware lines)
 //   kind      'software' | 'hardware'
 //   tools     slugs of free tools on this site that do part of the job today
@@ -243,7 +249,7 @@ const line = (o) => Object.freeze({ ...o, problems: Object.freeze([...o.problems
 export const PRODUCT_LINES = Object.freeze([
   line({
     id: 'contractor-billing',
-    name: 'Contractor billing',
+    name: 'PayApps',
     customer: 'Specialty subcontractors and small general contractors',
     problems: [
       'Getting the monthly pay application (AIA-style G702/G703) right before the general contractor’s cutoff',
@@ -252,8 +258,11 @@ export const PRODUCT_LINES = Object.freeze([
       'Getting approved change orders onto the next bill',
     ],
     product: 'Pay applications, retainage, lien waivers and change orders in one place, growing into a suite for running the whole job.',
-    status: 'early-access',
-    href: null,
+    status: 'live',
+    href: 'https://payapps.marisstella.app/?signup&from=products',
+    // apps/payapps/src/shared/plans.ts (cta.mjs says the same). The home page's no-paywall guard
+    // (build.test.mjs) refuses "paid plan", so the larger plans are named that way.
+    plan: 'Free on one job, no card: pay applications with retainage and change orders. Lien waivers, QuickBooks and job costing come with the larger plans, which are not on sale yet.',
     industry: 'construction',
     kind: 'software',
     tools: ['pay-application-generator', 'retainage-cashflow-calculator', 'lien-waiver-checker', 'mechanics-lien-deadline-calculator'],
@@ -293,7 +302,7 @@ export const PRODUCT_LINES = Object.freeze([
   }),
   line({
     id: 'seller-books',
-    name: 'Reseller profit and books',
+    name: 'Seller Books',
     customer: 'Resellers on eBay, Poshmark, Mercari, Whatnot and Depop',
     problems: [
       'Knowing your real profit after every platform’s fees',
@@ -302,8 +311,10 @@ export const PRODUCT_LINES = Object.freeze([
       'Getting a Schedule C-ready profit and loss at tax time',
     ],
     product: 'Payout reports from each platform in, fees split out, a Schedule C-ready profit and loss out.',
-    status: 'early-access',
-    href: null,
+    status: 'live',
+    href: 'https://seller-books.marisstella.app/signup?from=products',
+    // apps/seller-books/src/shared/plans.ts; the same words as ventures/reseller-books/seller-books-cta.mjs.
+    plan: 'Free for one platform and up to 25 orders a month, no card, with every report. Plans for more platforms are not on sale yet.',
     industry: 'online-sellers',
     kind: 'software',
     tools: ['reseller-books', 'ebay-fee-calculator', 'poshmark-fee-calculator', 'ebay-payout-to-journal'],
@@ -386,6 +397,18 @@ export const PRODUCT_LINES = Object.freeze([
     tools: ['open-tennis-robots'],
   }),
 ]);
+
+/** "A", "A and B", "A, B and C". */
+export function listNames(names) {
+  if (names.length < 2) return names[0] ?? 'None';
+  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+}
+
+/** Where a line's `href` points from a page `toRoot` below the site root (an app on its own origin as is). */
+export function lineHref(l, toRoot = '') {
+  if (!l.href) return null;
+  return /^https:\/\//.test(l.href) ? l.href : toRoot + l.href;
+}
 
 /** Software lines first, live before early access, otherwise in file order (bets.md's ranking). */
 export function softwareLines(lines = PRODUCT_LINES) {
