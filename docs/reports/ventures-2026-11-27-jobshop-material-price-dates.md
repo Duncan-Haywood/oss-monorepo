@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-27
+---
 # jobshop-quote: material price lists, part 1 (2026-11-27)
 
 Private-monorepo PR #437 (merged). Bet #2 growth topic "material price lists", which had no claims
