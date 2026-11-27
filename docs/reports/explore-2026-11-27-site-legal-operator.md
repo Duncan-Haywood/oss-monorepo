@@ -1,7 +1,7 @@
 ---
 kind: brief
 date: 2026-11-27
-subjects: [legal, payout-rail]
+subjects: [pages, payapps]
 title: The site's Privacy, Terms and Cookie pages named the wrong company and state
 description: marisstella.app's own legal pages said "Mary Stella Labs, LLC" under New Mexico law while every paid product names Maris Stella Labs LLC, a Colorado LLC; fixed and held together by a test.
 ---
