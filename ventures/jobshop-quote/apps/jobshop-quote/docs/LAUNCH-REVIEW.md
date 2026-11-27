@@ -81,9 +81,10 @@ or data flow.
 
 ## 4. What the first deploy does and does not turn on
 
-- Sign-ups open on `https://jobshop-quote.<account subdomain>.workers.dev` (or `JOBSHOP_DOMAIN`).
-- **R2 is required.** PayApps' first deploy found the Cloudflare token without R2 edit; until the owner
-  adds Workers R2 Storage edit, `scripts/provision.mjs` stops the run before anything is deployed.
+- Sign-ups open on `https://jobshop-quote.marisstella.app` (the workflow's default `JOBSHOP_DOMAIN`
+  since 2026-11-27, as PayApps and Seller Books), or on workers.dev if the token cannot reach the zone.
+- **R2 is not required** (corrected 2026-11-27; this line said the run stops without it). Without the
+  bucket, files go to D1's `file_blobs` and `/api/health` answers `"files": "d1"` (docs/DEPLOY.md).
 - Production requires email verification. If `/api/health` answers `"email": false`, nobody can finish
   signing up; the next step is docs/EMAIL.md, not a second deploy. The sender
   `no-reply@marisstella.app` already delivers for PayApps.

@@ -54,8 +54,11 @@ jobs:
         working-directory: ventures/jobshop-quote/apps/jobshop-quote
     env:
       WRANGLER_SEND_METRICS: "false"
-      # Optional custom domain (zone on the same Cloudflare account); empty = workers.dev.
-      APP_DOMAIN: ${{ vars.JOBSHOP_DOMAIN }}
+      # Custom domain (zone on the same Cloudflare account). Defaults to a subdomain of the catalogue's
+      # own domain, as PayApps and Seller Books do: the workers.dev address carries the account's
+      # subdomain (a person's name), which is not a link for marketing pages. If the token cannot reach
+      # the zone, "Resolve URL" warns and deploys on workers.dev. Set JOBSHOP_DOMAIN to change it.
+      APP_DOMAIN: ${{ vars.JOBSHOP_DOMAIN || 'jobshop-quote.marisstella.app' }}
     steps:
       - name: Cloudflare credentials present
         working-directory: .
