@@ -3,7 +3,7 @@ title: "Florida's Notice to Owner for subcontractors: the form, the 45 days and 
 seo_title: "Florida Notice to Owner: 45-day deadline, form text, how to serve it"
 date: 2026-11-27
 tags: [payapps, for-customers, construction, subcontractors, lien-waivers, florida, notice-to-owner]
-description: "What Fla. Stat. § 713.06 asks of a sub or supplier: who serves a Notice to Owner, the 45-day deadline, the statutory form, copies, and § 713.18's service-on-mailing rule."
+description: "Fla. Stat. § 713.06 for subs and suppliers: who serves a Notice to Owner, the 45-day deadline, the form, copies, and the 40-day mailing rule."
 ---
 
 In Florida, a subcontractor, sub-subcontractor or supplier who has no contract with the property
