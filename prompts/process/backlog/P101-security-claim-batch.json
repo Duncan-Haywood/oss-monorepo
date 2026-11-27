@@ -1,5 +1,5 @@
 {
-  "id": "P099",
+  "id": "P101",
   "title": "security_next.py --claim takes only the top alert, while each alert file asks a run to fix and claim its whole same-file batch",
   "status": "done",
   "owner": "agent",
@@ -22,5 +22,10 @@
   "source": "process run, promptctl measure doc friction",
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19748",
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-11-27",
+      "note": "renumbered from P099 (duplicate id with P099-edge-index-pr-side-glob; P100 taken by PR #19762's renumber)"
+    }
+  ]
 }
