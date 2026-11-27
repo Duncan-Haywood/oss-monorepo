@@ -15,6 +15,15 @@ import { fileURLToPath } from "node:url";
 const APP = new URL("../", import.meta.url);
 export const OUT = new URL("./files.generated.mjs", import.meta.url);
 
+/**
+ * Rule sets the hosted (paid) build leaves out: PROVENANCE.md, "Shipped with the checker", says to keep
+ * them out of the paid build until their licence is checked (Croatia's HR-CIUS states none; ZATCA's is
+ * LGPL-3.0), and neither is needed for the DE/FR product. The free page still ships them. A file that
+ * names one of these profiles is answered "unavailable" on the Worker, never judged on the base alone
+ * (plain-schematron.mjs runSets). Launch review, docs/LAUNCH-REVIEW.md section 2.
+ */
+export const EXCLUDED = new Set(["plain/cius-hr-ubl.json", "plain/zatca-en16931-ubl.json", "plain/zatca-ksa-ubl.json"]);
+
 /** The folders the Worker needs, each with the file names it takes. */
 export const SOURCES = /** @type {const} */ ([
   { dir: "pro/web", match: /^(index\.html|app\.js|app\.css|workspace-lib\.mjs)$/, binary: false },
@@ -23,6 +32,10 @@ export const SOURCES = /** @type {const} */ ([
   { dir: "pro/legal/fr", match: /^(terms|privacy|dpa)\.md$/, binary: false },
   { dir: "fonts", match: /^[A-Za-z0-9-]+\.ttf$/, binary: true },
   { dir: "plain", match: /^[\w.-]+\.json$/, binary: false },
+  // The third-party notices, served at /app/notices (pro/server.mjs): the rule sets' licences
+  // (EUPL-1.2, MPL-2.0, Apache-2.0) and the bundled code's and fonts' (MIT, OFL) ask for them.
+  { dir: "plain", match: /^(NOTICE|[\w-]+\.LICENSE)\.txt$/, binary: false },
+  { dir: "fonts", match: /^OFL\.txt$/, binary: false },
 ]);
 
 /** @returns {{ text: Record<string, string>, base64: Record<string, string> }} */
@@ -35,6 +48,7 @@ export function collect() {
     for (const name of readdirSync(new URL(`${s.dir}/`, APP)).sort()) {
       if (!s.match.test(name)) continue;
       const rel = `${s.dir}/${name}`;
+      if (EXCLUDED.has(rel)) continue;
       const bytes = readFileSync(new URL(rel, APP));
       if (s.binary) base64[rel] = bytes.toString("base64");
       else text[rel] = bytes.toString("utf8");

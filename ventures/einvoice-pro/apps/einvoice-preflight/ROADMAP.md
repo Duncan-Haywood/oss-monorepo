@@ -180,6 +180,15 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   any paid release that ships or serves them.
 - Owner: Paddle secrets and a notification destination ([docs/BILLING.md](docs/BILLING.md),
   "Turning it on"); a domain; the operator name and contact on the site's privacy pages.
+- Launch review done 2026-11-27 ([docs/LAUNCH-REVIEW.md](docs/LAUNCH-REVIEW.md),
+  einvoice-pro-launch-review): margins re-derived on the Worker, no model key at launch, legal pages
+  read against the code; fixed in the same PR: Croatian and ZATCA sets kept out of the Worker build
+  (`worker/build.mjs` EXCLUDED, as PROVENANCE.md asked), a file naming a missing add-on answered
+  "unavailable" instead of passing on the EU base, `/app/notices` for the EUPL/MPL/Apache/MIT/OFL
+  notices, Terms §2 and §3 (Dutch, Polish, the converter), an error log cut to 200 characters.
+  **The first deploy waits on two owner items** (LAUNCH-REVIEW.md section 4): a postal address for an
+  Impressum (§ 5 DDG, LCEN art. 6 III), then an `/app/impressum` page from it; and a GDPR Art. 27 EU
+  representative, named in the Privacy Policy and DPA.
 - A native German and a native French reviewer for the explanation templates and the site
   copy (both say they are unreviewed); a native Polish reviewer for the KSeF templates and the
   workspace page's Polish text before KSeF is marketed in Polish.

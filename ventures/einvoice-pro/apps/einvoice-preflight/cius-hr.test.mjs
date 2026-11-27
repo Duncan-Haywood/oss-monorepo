@@ -83,3 +83,20 @@ test("an exempt line: the base's exemption-reason warning says to keep it, and H
   assert.ok(!hr(r).includes("HR-BR-36"));
   assert.ok(hr(await runPlain(exempt.replace(/<cbc:TaxExemptionReason>[^<]*<\/cbc:TaxExemptionReason>/, ""))).includes("HR-BR-36"));
 });
+
+// The hosted build leaves the Croatian set out until its licence is checked (worker/build.mjs
+// EXCLUDED, docs/LAUNCH-REVIEW.md). A copy without it must not pass a Croatian file on the EU base.
+test("a copy without the Croatian rules answers unavailable for an HR-CIUS file, never a base-only pass", { skip }, async () => {
+  const { createRequire } = await import("node:module");
+  const require = createRequire(import.meta.url);
+  const { createPlainRunner } = await import("./plain-schematron.mjs");
+  const runner = createPlainRunner({ fontoxpath: require("fontoxpath"), parseXml: require("slimdom").parseXmlDocument });
+  const file = (f) => new URL(`./plain/${f}`, import.meta.url);
+  const load = async (f) => (f === "cius-hr-ubl.json" || !existsSync(file(f)) ? null : JSON.parse(readFileSync(file(f), "utf8")));
+  const r = await runner.run(sample, load);
+  assert.equal(r.status, "unavailable");
+  assert.deepEqual(r.findings, []);
+  // A plain EN 16931 file is unaffected by the missing add-on.
+  const eu = await runner.run(read("ubl-invoice.xml").replace(/<cbc:CustomizationID>[^<]*</, "<cbc:CustomizationID>urn:cen.eu:en16931:2017<"), load);
+  assert.equal(eu.status, "ok");
+});

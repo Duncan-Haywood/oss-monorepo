@@ -217,3 +217,25 @@ test("GET /app/de/* and /app/fr/* serve the translations; an unknown language is
   assert.match(fr.text, /Annexe III/);
   assert.notEqual((await s.call("GET", "/app/es/terms")).status, 200);
 });
+
+test("GET /app/notices serves the third-party notices; a host without the Croatian and ZATCA sets says so", async (t) => {
+  const s = await serve();
+  t.after(s.close);
+  const r = await s.call("GET", "/app/notices");
+  assert.equal(r.status, 200);
+  assert.match(r.headers.get("content-type"), /text\/plain/);
+  for (const needle of ["EUPL-1.2", "MPL-2.0", "Apache-2.0", "==== plain/fontoxpath.LICENSE.txt ====", "==== fonts/OFL.txt ===="]) assert.ok(r.text.includes(needle), needle);
+  // The container has every set on disk, so nothing is listed as left out.
+  assert.doesNotMatch(r.text, /Not run on this host/);
+  const { collect } = await import("../worker/build.mjs");
+  const { provideAppFiles } = await import("./app-files.mjs");
+  const { noticesText } = await import("./server.mjs");
+  const built = collect();
+  provideAppFiles(new Map(Object.entries(built.text)));
+  try {
+    assert.match(noticesText(), /Not run on this host: Croatia's HR-CIUS rules and ZATCA's rules\. A file that names them is reported as not checked\./);
+    assert.match(noticesText(), /==== plain\/NOTICE\.txt ====/);
+  } finally {
+    provideAppFiles(null);
+  }
+});

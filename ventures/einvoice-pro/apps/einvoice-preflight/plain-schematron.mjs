@@ -398,8 +398,13 @@ export function createPlainRunner({ fontoxpath, parseXml, xmlWhitespace = true }
     const sets = [baseName];
     const seen = new Set(findings.map((f) => `${f.rule}|${f.path}`));
     for (const [name, addon] of matchingAddons(xml, syntax, opts)) {
-      const rules = await load(PLAIN_ADDON_FILES[name][syntax]);
-      if (!rules) continue;
+      const addonFile = PLAIN_ADDON_FILES[name]?.[syntax];
+      if (!addonFile) continue;
+      const rules = await load(addonFile);
+      // The file names this national or network profile and this copy lacks its rules (the hosted
+      // build leaves some out, worker/build.mjs EXCLUDED): unavailable, as for PINT and the extended
+      // bases above, never a pass on the EN 16931 base alone.
+      if (!rules) return { status: "unavailable", syntax, findings: [], sets: [] };
       const nextOf = name === "peppol" ? PEPPOL_NEXT : name === "peppol-sb" ? { ...PEPPOL_NEXT, ...PEPPOL_NEXT.selfBilling, label: "Peppol BIS Self-Billing" } : null;
       if (nextOf && opts.peppolNext) {
         const next = await load(nextOf.files[syntax]);

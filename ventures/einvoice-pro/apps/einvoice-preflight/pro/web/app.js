@@ -41,6 +41,7 @@ const T = {
     terms: "Terms of Service",
     privacy: "Privacy Policy",
     dpa: "Data Processing Agreement (GDPR Art. 28)",
+    notices: "Third-party notices",
     termsChanged: "The Terms changed while this page was open. Read them again and accept.",
     keysH: "API keys",
     keysP: "Each key signs in here and works with the API. Give each person or integration its own key, and revoke one you no longer use.",
@@ -172,6 +173,7 @@ const T = {
     terms: "Nutzungsbedingungen",
     privacy: "Datenschutzerklärung",
     dpa: "Auftragsverarbeitungsvertrag (Art. 28 DSGVO)",
+    notices: "Hinweise zu Drittanbieter-Lizenzen",
     termsChanged: "Die Nutzungsbedingungen haben sich geändert, während diese Seite offen war. Bitte lesen und erneut akzeptieren.",
     keysH: "API-Schlüssel",
     keysP: "Jeder Schlüssel meldet hier an und funktioniert mit der API. Geben Sie jeder Person oder Integration einen eigenen Schlüssel und widerrufen Sie Schlüssel, die Sie nicht mehr nutzen.",
@@ -303,6 +305,7 @@ const T = {
     terms: "Conditions d'utilisation",
     privacy: "Politique de confidentialité",
     dpa: "Accord de sous-traitance (art. 28 RGPD)",
+    notices: "Mentions des licences tierces",
     termsChanged: "Les conditions d'utilisation ont changé pendant que cette page était ouverte. Relisez-les et acceptez-les à nouveau.",
     keysH: "Clés d'API",
     keysP: "Chaque clé permet de se connecter ici et fonctionne avec l'API. Donnez une clé à chaque personne ou intégration, et révoquez celles que vous n'utilisez plus.",
@@ -435,6 +438,7 @@ const T = {
     terms: "Regulamin (Terms of Service)",
     privacy: "Polityka prywatności (Privacy Policy)",
     dpa: "Umowa powierzenia przetwarzania danych (art. 28 RODO)",
+    notices: "Informacje o licencjach stron trzecich",
     termsChanged: "Regulamin zmienił się, gdy ta strona była otwarta. Przeczytaj go ponownie i zaakceptuj.",
     keysH: "Klucze API",
     keysP: "Każdy klucz loguje tutaj i działa z API. Daj każdej osobie lub integracji własny klucz i unieważnij te, których już nie używasz.",
@@ -566,6 +570,7 @@ const T = {
     terms: "Gebruiksvoorwaarden (Terms of Service)",
     privacy: "Privacybeleid (Privacy Policy)",
     dpa: "Verwerkersovereenkomst (AVG art. 28, Data Processing Agreement)",
+    notices: "Licentievermeldingen van derden",
     termsChanged: "De voorwaarden zijn gewijzigd terwijl deze pagina openstond. Lees ze opnieuw en ga akkoord.",
     keysH: "API-sleutels",
     keysP: "Met elke sleutel kunt u zich hier aanmelden en de API gebruiken. Geef elke persoon of koppeling een eigen sleutel en trek een sleutel in die u niet meer gebruikt.",
@@ -908,7 +913,7 @@ function withLegalLinks(text) {
 }
 
 const footer = () =>
-  h("footer", {}, h("p", { class: "small" }, t("disclaimer")), h("p", { class: "small" }, legalLink("terms"), " · ", legalLink("privacy"), " · ", legalLink("dpa")));
+  h("footer", {}, h("p", { class: "small" }, t("disclaimer")), h("p", { class: "small" }, legalLink("terms"), " · ", legalLink("privacy"), " · ", legalLink("dpa"), " · ", h("a", { href: "/app/notices", target: "_blank", rel: "noopener" }, t("notices"))));
 
 // ---------- signed out ----------
 

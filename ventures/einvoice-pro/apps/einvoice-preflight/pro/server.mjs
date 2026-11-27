@@ -20,6 +20,7 @@
 //   GET    /app/terms, /app/privacy, /app/dpa  the Terms of Service, Privacy Policy and Data Processing
 //                                            Agreement (pro/legal/*.md); /app/de/... and /app/fr/...
 //                                            serve the translations (the English text governs)
+//   GET    /app/notices                      the third-party notices and licences (rule sets, code, fonts), text
 //   GET    /v1/legal                         -> {terms: {title, version, url}, privacy: {...}, dpa: {...}}   (public)
 //   POST   /v1/signup                        {name, acceptTerms: true, termsVersion?} -> 201 {account, apiKey}  (public trial
 //                                            sign-up; the account records the terms version accepted, and a stale
@@ -96,7 +97,7 @@ import { generateFacturX } from "../facturx-pdf.mjs";
 import { generateInvoice } from "../generate.mjs";
 import { isBlocking } from "../report.mjs";
 import { AdminError, adminRead } from "./admin.mjs";
-import { readAppFile } from "./app-files.mjs";
+import { readAppFile, readAppText } from "./app-files.mjs";
 import { BillingError, createBilling } from "./billing.mjs";
 import { checkInvoice, sha256 } from "./check.mjs";
 import { buildDashboard, dashboardCsv, dashboardDays, runsSince } from "./dashboard.mjs";
@@ -138,6 +139,30 @@ const web = () =>
       return [path, { type, body: Buffer.from(bytes) }];
     }),
   ));
+/** The notices and licences of the third-party rule sets, code and fonts the Service runs, in the order shown. */
+export const NOTICE_FILES = ["plain/NOTICE.txt", "plain/fontoxpath.LICENSE.txt", "plain/xspattern.LICENSE.txt", "plain/prsc.LICENSE.txt", "fonts/OFL.txt"];
+/** Rule sets a host may leave out (worker/build.mjs EXCLUDED); the notices page says which are not run. */
+const OPTIONAL_SETS = [["plain/cius-hr-ubl.json", "Croatia's HR-CIUS rules"], ["plain/zatca-ksa-ubl.json", "ZATCA's rules"]];
+/**
+ * GET /app/notices: the attribution the rule sets' licences ask for (EUPL-1.2 and MPL-2.0 count use over
+ * a network; Apache-2.0, MIT and the OFL ask for their notices), with a line on the sets this host leaves out.
+ */
+export function noticesText() {
+  const left = OPTIONAL_SETS.filter(([f]) => readAppFile(f) === null).map(([, what]) => what);
+  const head = [
+    "Third-party notices: E-invoice Fix & Explain (Maris Stella Labs LLC)",
+    "",
+    "The checks run the official e-invoicing rules below, unmodified, compiled from their published Schematron.",
+    "Each file's source and licence follow. The rule files themselves are published with this product's source code.",
+    ...(left.length ? ["", `Not run on this host: ${left.join(" and ")}. A file that names them is reported as not checked.`] : []),
+  ];
+  const parts = NOTICE_FILES.map((f) => {
+    const text = readAppText(f);
+    return text === null ? null : `\n==== ${f} ====\n\n${text.trim()}\n`;
+  }).filter(Boolean);
+  return `${head.join("\n")}\n${parts.join("")}`;
+}
+
 /** @type {ReturnType<typeof loadLegal> | null} */
 let legalCache = null;
 /** The Terms and Privacy Policy (pro/legal/*.md), rendered once; sign-up records the terms version. */
@@ -506,6 +531,13 @@ export function createProHandler(deps = {}) {
         status: 200,
         raw: Buffer.from(shown.page),
         headers: { "content-type": "text/html; charset=utf-8", "content-security-policy": WEB_CSP, "referrer-policy": "no-referrer", "cache-control": "no-cache" },
+      };
+    }
+    if (method === "GET" && p === "/app/notices") {
+      return {
+        status: 200,
+        raw: Buffer.from(noticesText()),
+        headers: { "content-type": "text/plain; charset=utf-8", "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", "cache-control": "no-cache" },
       };
     }
     if (method === "GET" && p === "/v1/legal") {
@@ -881,7 +913,8 @@ export function createProHandler(deps = {}) {
     } catch (e) {
       if (e instanceof HttpError || e instanceof BillingError || e instanceof AdminError) out = { status: e.status, body: { error: { code: e.code, message: e.message } } };
       else {
-        console.error("einvoice-pro: internal error", e instanceof Error ? e.message : "unknown");
+        // Cut short, as the other logs are: a parser's message can quote the invoice it read.
+        console.error("einvoice-pro: internal error", e instanceof Error ? e.message.slice(0, 200) : "unknown");
         out = { status: 500, body: { error: { code: "internal", message: "Internal error." } } };
       }
     }
