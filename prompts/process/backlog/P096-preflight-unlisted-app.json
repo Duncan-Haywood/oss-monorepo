@@ -20,7 +20,7 @@
   "baseline": "6 reports in 3 days (2026-11-25 to 27); `venture-preflight.mjs payapps` exit 1 before, exit 0 after (2026-11-27)",
   "opened": "2026-11-27",
   "source": "process run, promptctl measure doc friction",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19687",
   "result": null,
   "history": []
 }
