@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parent.parent
 SCRIPT = HERE / "status.sh"
 
 FAKE_AWS = r'''#!/usr/bin/env python3

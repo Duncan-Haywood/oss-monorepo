@@ -22,7 +22,7 @@ Bedrock is the documented alternative (`stacks/llm/bedrock.tf`, off).
 
 ```
 bootstrap/bootstrap.yaml   the one thing the owner runs (CloudFormation, from CloudShell)
-status.sh                  read-only progress check, pasted into CloudShell (test_status.py)
+status.sh                  read-only progress check, pasted into CloudShell (tests/test_status.py)
 github/configure.sh        GitHub environments, variables and OIDC subject template, as code (repo admin)
 modules/account-baseline   what every account gets
 modules/workload-boundary  the permissions boundary (single-account mode: also what the SCPs denied)
