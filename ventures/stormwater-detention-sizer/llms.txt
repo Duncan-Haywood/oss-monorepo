@@ -1,6 +1,6 @@
 # Detention Pond Sizer
 
-> Free, open-source stormwater detention basin sizer for site civil work in US units: NRCS curve-number runoff, the NRCS triangular unit hydrograph, an alternating-block design storm from an IDF curve (i = a/(t+b)^n), storage-indication routing through a rectangular basin with sloped sides, and a two-stage outlet (bottom orifice, weir above it) sized by bisection so each storm's post-development peak outflow equals its allowable (the pre-development peak unless entered). Reports orifice diameter, weir length and crest, peak stages and storage, basin depth with freeboard, and every step's hydrograph as CSV. Runs in the browser; nothing is uploaded.
+> Free, open-source stormwater detention basin sizer for site civil work in US units: NRCS curve-number runoff, the NRCS triangular unit hydrograph, an alternating-block design storm from an IDF curve (i = a/(t+b)^n), storage-indication routing through a rectangular basin with sloped sides, and a two-stage outlet (bottom orifice, Francis weir above it, contracted by default with L' = L - 0.2 H or suppressed) sized by bisection so each storm's post-development peak outflow equals its allowable (the pre-development peak unless entered). Reports orifice diameter, weir length and crest, peak stages and storage, basin depth with freeboard, and every step's hydrograph as CSV. Runs in the browser; nothing is uploaded.
 
 Free to use and source available (FSL-1.1-MIT). A screening calculation, not engineering advice; the local drainage manual and a licensed engineer decide the design.
 
@@ -13,7 +13,7 @@ Free to use and source available (FSL-1.1-MIT). A screening calculation, not eng
 
 - Drainage area (acres); curve number and time of concentration (hours) before and after development.
 - Small storm and optional large storm: name, IDF a, b (minutes), n, optional allowable outflow (cfs); storm duration (hours, default 24) and time step (minutes, default 2).
-- Basin bottom length and width (ft), side slope (H:1V), freeboard (ft); orifice Cd 0.6, weir Cw 3.33, peak rate factor 484.
+- Basin bottom length and width (ft), side slope (H:1V), freeboard (ft); orifice Cd 0.6, weir Cw 3.33, weir ends contracted or suppressed, peak rate factor 484. Findings warn when the weir head exceeds a third of its length (the opening is acting as an orifice, not modelled), when the time step exceeds NEH-630's 0.133 Tc, when the orifice is under 3 in, and when the orifice search hits its 96 in bound.
 
 ## How it is checked
 
