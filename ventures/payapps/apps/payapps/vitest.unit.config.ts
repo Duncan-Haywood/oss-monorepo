@@ -10,5 +10,8 @@ export default defineConfig({
     environment: "node",
     setupFiles: ["./test/unit/setup.ts"],
     css: false,
+    // Above the 10 s async-util timeout in test/unit/setup.ts, so a slow wait
+    // fails with its own message, not a bare test timeout.
+    testTimeout: 20_000,
   },
 });

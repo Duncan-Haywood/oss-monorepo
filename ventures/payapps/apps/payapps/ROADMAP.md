@@ -1,11 +1,9 @@
 # PayApps — Roadmap
 
-Status: **launch-approved, waiting on a runner** (2026-11-27). The launch review is merged
-(#444, [docs/LAUNCH-REVIEW.md](docs/LAUNCH-REVIEW.md), under `docs/legal/OPERATOR.md`): agents may
-deploy and open sign-ups without asking. The first deploy (run 45921558751) got no runner, because
-this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runners are on
-(`private-monorepo` `docs/ci-on-aws.md`) or the app moves to oss-monorepo (task
-`products-to-public-repo`). Not deployed yet, no customers. Paid plans are dark
+Status: **live on the Free plan** (2026-11-27). `payapps-deploy` run 45949861746 (commit 5f432ae0,
+from oss-monorepo) deployed https://payapps.duncan-andrew-haywood.workers.dev and its smoke test answered
+`{"ok":true,"app":"payapps","email":true}`, so sign-up email works. Attachments (R2) are off until the
+Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are dark
 (`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.
 
 ## Done (this MVP)
@@ -2070,9 +2068,9 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
 
 ## Must do before a public launch
 
-- Deploy sets `EMAIL_FROM` and checks `GET /api/health` answers `"email": true` (docs/EMAIL.md)
-- Run the deploy workflow once (`payapps-deploy`, by hand; [docs/DEPLOY.md](docs/DEPLOY.md)) and, at
-  launch, let it run on every merge (`push: branches: [main]`)
+- Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
+  `"email": true` (docs/EMAIL.md); the deploy workflow ran once by hand (`priv-payapps-deploy.yml` in
+  oss-monorepo). Next: let it run on every merge (`push: branches: [main]`, a control-plane PR)
 - Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
   agent-approved under `docs/legal/OPERATOR.md` (no attorney review; open checks listed there)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on"); the

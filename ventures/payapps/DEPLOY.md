@@ -52,3 +52,18 @@ that like R2 not enabled (deploy without attachments, with a warning naming the 
 so the next run gets past it. Owner step to turn attachments on: add Account -> Workers R2 Storage ->
 Edit to `CLOUDFLARE_API_TOKEN`.
 
+
+## Second run: live (2026-11-27, run 45949861746)
+
+Dispatched on `main` at 5f432ae0 (PR #19625). Every step passed: checks, build, D1 provisioning and
+migrations, deploy (version `e9f3df29-1349-4b1e-8656-4d67ffc12631`), `AUTH_SECRET` generated on the
+Worker, and the smoke test: `https://payapps.duncan-andrew-haywood.workers.dev/api/health` answered
+`{"ok":true,"app":"payapps","email":true}`. Attachments are off (`R2: false`, the token above).
+
+## Third run: a flaky test, nothing deployed (run 45950799211)
+
+Dispatched at 6e69be0e, no PayApps change since the second run. The checks step failed on one
+unit test, `sov-import.test.tsx` "previews the sheet ... posts only the contract lines": its
+`waitFor` ran out at the 3 s async timeout on the runner (the test took 3,087 ms). The live version
+was not touched. `test/unit/setup.ts` now waits up to 10 s (a passing wait returns at once) and
+`vitest.unit.config.ts` sets a 20 s test timeout above it, so a slow runner no longer blocks a deploy.
