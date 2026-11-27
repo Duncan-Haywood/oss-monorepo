@@ -169,6 +169,7 @@ export const PROBLEMS = [
       ['pay-app-guides/paid-short.html', 'Paid short? Reconcile the check', 'Split the gap between the pay app and the check into the certification cut, backcharges and the unexplained rest, and send the right waiver.'],
       ['pay-app-guides/joint-checks.html', 'Joint check splitter', 'Split a check payable to you and your supplier, see what an endorsing supplier risks, and write the split letter and waivers.'],
       ['pay-app-guides/california-preliminary-notice.html', 'California 20-day preliminary notice', 'Working a private California job? Who gets the notice, the last day by delivery method, what a late one covers, and a printable draft.'],
+      ['pay-app-guides/florida-notice-to-owner.html', 'Florida Notice to Owner', 'Sub or supplier on a private Florida job? The 45-day date, the 40-day certified-mail date, who gets a copy, and the statutory form to print.'],
       ['pay-app-guides/miller-act-payment-bond-claims.html', 'Miller Act bond claim deadlines', 'Not paid on a federal job? Who can claim on the payment bond, the 90-day notice date, the one-year limit, and a notice to the prime.'],
       ['pay-app-guides/pay-app-cash-forecast.html', 'When will I get paid? Cash forecast', 'Each job’s pay-app cutoff and pay terms in; the week each payment lands, late money and your first short week out.'],
       ['pay-app-guides/how-to-write-an-rfi.html', 'How to write an RFI', 'One question, the sheet and spec section, a proposed answer and a needed-by date: draft an RFI the GC answers fast, and catch answers that should be change orders.'],
@@ -186,6 +187,7 @@ export const PROBLEMS = [
     tools: [
       ['pay-app-guides/change-order-log.html', 'Change order log', 'Approved, pending and rejected totals, the revised contract sum, billing on unsigned changes flagged, approved changes written as SOV lines.'],
       ['pay-app-guides/tm-tickets.html', 'T&M ticket log', 'Price time-and-material tickets at your own markups, flag unsigned ones and signed ones with no change order, and draft the change order request.'],
+      ['pay-app-guides/punch-list.html', 'Punch list tracker', 'Paste the punch list from the walk-through: open, overdue, done and accepted items, the retainage still waiting on it, and one back-check email to the GC.'],
       ['pay-app-guides/change-orders-schedule-of-values.html', 'Change orders and the schedule of values', 'How approved and deductive changes enter the SOV and the summary page.'],
       ['change-order-margin-calculator', 'Change order margin calculator', 'Price added work and see what a markup cap actually leaves you.'],
       ['scope-creep-change-order-calculator', 'Scope creep change order calculator', 'Price the small extra requests before they add up.'],
@@ -338,8 +340,18 @@ export function renderConstructionPage({
           <figcaption>${escapeHtml(shot.caption)}. The free <a href="${escapeHtml(toolHref(toRoot, shot.slug))}">${escapeHtml(toolName.get(shot.slug) || shot.slug)}</a>, with its example loaded.</figcaption>
         </figure>`;
   };
-  const leadShot = still.get(byId['pay-apps'].freeToday.find((slug) => still.has(slug)));
   const toolLink = (slug) => `<a href="${escapeHtml(toolHref(toRoot, slug))}">${escapeHtml(toolName.get(slug) || slug)}</a>`;
+  // The hero's first action is the open product, not the waitlist: a visitor
+  // who reads "PayApps is open" should find the way in before any form.
+  const openProduct = PRODUCTS.find((p) => p.status === 'open-free' && p.appUrl);
+  const firstFree = openProduct?.freeToday.find(live);
+  const heroCta = openProduct ? `
+      <div class="ic-hero-cta">
+        <a class="ic-start ic-start-lg" href="${escapeHtml(openProduct.appUrl)}">Start free in PayApps</a>
+        <span class="ic-hero-alt">One active job, no card.${firstFree ? ` Or try the ${toolLink(firstFree)} with no account.` : ''}</span>
+      </div>` : '';
+  const waitlist = PRODUCTS.filter((p) => p.status === 'early-access' && EARLY_ACCESS_KEYS[p.id]);
+  const leadShot = still.get(byId['pay-apps'].freeToday.find((slug) => still.has(slug)));
 
   const problemHtml = PROBLEMS.map((p) => {
     const tools = p.tools.filter(([slug]) => live(slug));
@@ -370,7 +382,8 @@ export function renderConstructionPage({
         <p class="ic-planned">In the paid plans, not on sale yet: ${escapeHtml(p.paidOnly.join(', '))}.</p>` : ''}${p.appUrl ? `
         <p><a class="ic-start" href="${escapeHtml(p.appUrl)}">Start free in PayApps</a> (no card)</p>` : ''}${p.built?.length ? `
         <p class="ic-built">Built, in testing (not open yet): ${escapeHtml(p.built.join(', '))}.</p>` : ''}${p.planned.length ? `
-        <p class="ic-planned">Planned: ${escapeHtml(p.planned.join(', '))}.</p>` : ''}${free.length ? `
+        <p class="ic-planned">Planned: ${escapeHtml(p.planned.join(', '))}.</p>` : ''}${openProduct && p.status === 'early-access' && EARLY_ACCESS_KEYS[p.id] ? `
+        <p><a href="#early-access">Ask for early access</a></p>` : ''}${free.length ? `
         <p class="ic-free">Try the free version of part of it now: ${free.map(toolLink).join(', ')}.</p>` : ''}${shot && shot !== leadShot ? figure(shot, 'ic-still', true, '(max-width: 640px) calc(100vw - 66px), 440px') : ''}
       </article>`;
   }).join('');
@@ -408,8 +421,8 @@ export function renderConstructionPage({
 <meta name="description" content="${escapeHtml(description)}">
 ${social}<script type="application/ld+json">${jsonLd(ld)}</script>
 <style>
-:root{--ic-ink:var(--pfs-ink,#1d2530);--ic-muted:var(--pfs-muted,#4a5666);--ic-line:var(--pfs-line,#d3dce6);--ic-accent:var(--pfs-accent,#1f4e8c);--ic-panel:var(--pfs-panel,#fff);--ic-bg:#f6f7f9;--ic-amber:#8a5300;--ic-amber-bg:#fff3df}
-@media (prefers-color-scheme:dark){:root{--ic-bg:#12171d;--ic-amber:#f5c37a;--ic-amber-bg:#3a2a12}}
+:root{--ic-ink:var(--pfs-ink,#1d2530);--ic-muted:var(--pfs-muted,#4a5666);--ic-line:var(--pfs-line,#d3dce6);--ic-accent:var(--pfs-accent,#1f4e8c);--ic-panel:var(--pfs-panel,#fff);--ic-bg:#f6f7f9;--ic-amber:#8a5300;--ic-amber-bg:#fff3df;--ic-green:#1d6b35;--ic-green-bg:#e3f4e8}
+@media (prefers-color-scheme:dark){:root{--ic-bg:#12171d;--ic-amber:#f5c37a;--ic-amber-bg:#3a2a12;--ic-green:#8fdca6;--ic-green-bg:#173322}}
 body{margin:0;background:var(--ic-bg);color:var(--ic-ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .ic-wrap{max-width:960px;margin:0 auto;padding:24px 16px 48px}
 .ic-wrap h1{font-size:clamp(1.6rem,4vw,2.3rem);line-height:1.2;margin:.2em 0 .4em}
@@ -421,6 +434,14 @@ body{margin:0;background:var(--ic-bg);color:var(--ic-ink);font:16px/1.55 system-
 .ic-problem,.ic-product{background:var(--ic-panel);border:1px solid var(--ic-line);border-radius:8px;padding:14px 16px}
 .ic-who{color:var(--ic-muted);font-size:.93rem;margin:0 0 .5em}
 .ic-status{display:inline-block;font-size:.8rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--ic-amber-bg);color:var(--ic-amber)}
+.ic-status.ic-open-free{background:var(--ic-green-bg);color:var(--ic-green)}
+.ic-wrap a.ic-start{display:inline-block;background:var(--ic-accent);color:#fff;padding:8px 14px;border-radius:6px;text-decoration:none;font-weight:600}
+.ic-wrap a.ic-start:hover{filter:brightness(1.1)}
+.ic-wrap a.ic-start:focus-visible{outline:3px solid var(--ic-accent);outline-offset:2px}
+.ic-wrap a.ic-start-lg{padding:12px 20px;font-size:1.05rem}
+@media (prefers-color-scheme:dark){.ic-wrap a.ic-start{color:#0b1622}}
+.ic-hero-cta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:18px 0 4px}
+.ic-hero-alt{color:var(--ic-muted)}
 .ic-tools{padding-left:1.2em;margin:.3em 0 0}
 .ic-tools li{margin:.25em 0}
 .ic-free{margin-bottom:0}
@@ -445,7 +466,8 @@ body{margin:0;background:var(--ic-bg);color:var(--ic-ink);font:16px/1.55 system-
       <h1>${escapeHtml(title)}</h1>
       <p class="ic-lede">For specialty subcontractors, small general contractors, remodelers, roofers, framers, estimators and schedulers: software for the paperwork that decides whether a job gets paid on time.</p>
       <p class="ic-note"><strong>PayApps, the pay-app suite, is open</strong> on its Free plan: one active job, no card. Its paid plans, and the other products on this page, are <strong>in development</strong>; none is on sale yet. The free tools linked below work today, in your browser, with no account.</p>
-      ${earlyAccess}${leadShot ? figure(leadShot, 'ic-still ic-lead-still', false, '(max-width: 752px) calc(100vw - 32px), 720px') : ''}
+${heroCta}${openProduct ? '' : `
+      ${earlyAccess}`}${leadShot ? figure(leadShot, 'ic-still ic-lead-still', false, '(max-width: 752px) calc(100vw - 32px), 720px') : ''}
 
       <h2>The jobs that eat the week</h2>
       <div class="ic-grid">${problemHtml}
@@ -455,7 +477,11 @@ body{margin:0;background:var(--ic-bg);color:var(--ic-ink);font:16px/1.55 system-
       <p>One contractor suite, started from its sharpest job, monthly pay apps, and grown job by job. Each product below shows its real status.</p>
       <div class="ic-grid">${productHtml}
       </div>
-
+${openProduct && waitlist.length ? `
+      <h2 id="early-access">Early access: ${escapeHtml(waitlist.map((p) => p.name).join(', '))}</h2>
+      <p>Not open yet. Leave a work email and we write once when it opens.</p>
+      ${earlyAccess}
+` : ''}
       <h2>Why construction</h2>
       <ul>${factsHtml}
       </ul>

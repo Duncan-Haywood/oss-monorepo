@@ -9,9 +9,15 @@
 //     item price plus buyer-paid shipping, plus a flat $0.45 per sale.
 //   - UK: 0% selling fee. A processing fee of 2.9% of the item price plus
 //     buyer-paid shipping, plus a flat £0.30 per sale.
-//   - Rest of world (selling in a currency other than USD or GBP): a flat
-//     10% selling fee on the item price plus buyer-paid shipping, with no
-//     separate processing fee broken out.
+//   - Australia (AUD sales, from 22 July 2026): 0% selling fee. A processing
+//     fee of 2.6% of the item price plus buyer-paid shipping, plus a flat
+//     A$0.30 per sale (Depop's AU announcement; rate as reported by fee
+//     guides citing the Help Centre, see README "Sources").
+//   - Rest of world (any other currency): a 10% selling fee on the item
+//     price plus buyer-paid shipping, PLUS a payment-processing fee that
+//     varies by country and payment provider. This tool does not know that
+//     rate, so it models only the 10% and says so in a note; a seller who
+//     knows their processing rate adds it as an "other cost".
 //
 // The thing this tool exists to correct: Depop ran a flat 10% selling fee
 // worldwide for years, and "Depop takes 10%" is still the number most
@@ -30,7 +36,8 @@
 // (a sliding scale we cannot see precisely) because a specific wrong number
 // is worse than a plainly-labelled unknown.
 //
-// Boosted Listings add a further 12% fee on top, charged only on sales that
+// Boosted Listings add a further fee on top (12% in the US and UK, 8%
+// elsewhere, per Depop's Boosted Listings policy), charged only on sales that
 // went through while the listing was boosted; this tool models that fee's
 // base as the item price alone, since Depop's own description ties it to
 // "the sale price" rather than the shipping-inclusive processing-fee base --
@@ -41,11 +48,21 @@
 export const REGIONS = Object.freeze({
   us: { label: 'United States (USD)', currency: '$', sellingRate: 0, processingRate: 3.3, processingFixed: 0.45 },
   uk: { label: 'United Kingdom (GBP)', currency: '£', sellingRate: 0, processingRate: 2.9, processingFixed: 0.30 },
-  row: { label: 'Rest of world (flat fee, local currency)', currency: '$', sellingRate: 10, processingRate: 0, processingFixed: 0 },
+  au: { label: 'Australia (AUD)', currency: 'A$', sellingRate: 0, processingRate: 2.6, processingFixed: 0.30 },
+  // currency '' because rest-of-world sales are in EUR, CAD, NZD and others;
+  // processingKnown false because Depop charges processing here too, at a
+  // rate this tool does not have.
+  row: { label: 'Rest of world (10% selling fee + processing not included)', currency: '', sellingRate: 10, processingRate: 0, processingFixed: 0, processingKnown: false },
 });
 
-/** Boosted Listings fee, percent of the item price (not shipping), on a sale made while boosted. */
-export const BOOST_RATE = 12;
+/** Boosted Listings fee by region, percent of the item price (not shipping), on a sale made while boosted. */
+export const BOOST_RATES = Object.freeze({ us: 12, uk: 12, au: 8, row: 8 });
+/** The US/UK boost rate, kept for callers that predate per-region rates. */
+export const BOOST_RATE = BOOST_RATES.us;
+
+function boostRateOf(region) {
+  return Object.prototype.hasOwnProperty.call(BOOST_RATES, region) ? BOOST_RATES[region] : BOOST_RATES.us;
+}
 
 // Every seller-supplied numeric field, in the order the form presents them.
 export const INPUT_IDS = Object.freeze([
@@ -85,7 +102,7 @@ export function feeFor({ itemPrice, buyerShipping = 0, region = 'us', boosted = 
   const base = itemPrice + buyerShipping;
   const sellingFee = base * (sellingRate / 100);
   const processingFee = itemPrice > 0 || buyerShipping > 0 ? base * (processingRate / 100) + processingFixed : 0;
-  const boostFee = boosted ? itemPrice * (BOOST_RATE / 100) : 0;
+  const boostFee = boosted ? itemPrice * (boostRateOf(region) / 100) : 0;
   return { sellingFee, processingFee, boostFee, depopFee: sellingFee + processingFee + boostFee };
 }
 
@@ -101,7 +118,7 @@ export function priceForTargetPayout(targetPayout, { buyerShipping = 0, labelCos
   if (!Number.isFinite(targetPayout)) return null;
   const { sellingRate, processingRate, processingFixed } = regionOf(region);
   const shipRate = (sellingRate + processingRate) / 100;
-  const itemRate = shipRate + (boosted ? BOOST_RATE / 100 : 0);
+  const itemRate = shipRate + (boosted ? boostRateOf(region) / 100 : 0);
   if (itemRate >= 1) return null;
   const price = (targetPayout - buyerShipping * (1 - shipRate) + processingFixed + labelCost) / (1 - itemRate);
   return price >= 0 ? price : null;
@@ -117,7 +134,7 @@ export function priceForTargetPayout(targetPayout, { buyerShipping = 0, labelCos
  * @param {number} [input.itemCost]       What you originally paid for the item.
  * @param {number} [input.otherCost]      Packaging / prep cost on this sale.
  * @param {number} [input.targetProfit]   Desired profit above cost; used to solve for an item price.
- * @param {string} [input.region]         'us', 'uk', or 'row'.
+ * @param {string} [input.region]         'us', 'uk', 'au', or 'row'.
  * @param {boolean} [input.boosted]       Whether this sale came through a Boosted Listing.
  */
 export function calculateSale(input) {
@@ -153,19 +170,19 @@ export function calculateSale(input) {
   const priceForTarget = priceForTargetPayout(targetPayout, { buyerShipping, labelCost, region, boosted });
 
   const notes = [];
-  if (region !== 'row' && REGIONS[region].sellingRate === 0) {
+  if (REGIONS[region].processingKnown !== false && REGIONS[region].sellingRate === 0) {
     notes.push(
       `Depop's selling fee for ${REGIONS[region].label} sellers is 0% -- the ${processingFee.toFixed(2) === '0.00' ? '' : `${currency}${processingFee.toFixed(2)} `}fee above is entirely payment processing, not a "Depop cut" on top of that. If you are still budgeting for the old flat 10% selling fee, this sale keeps more than that number implies.`,
     );
   }
   if (region === 'row') {
     notes.push(
-      `Rest-of-world listings still run Depop's older flat ${REGIONS.row.sellingRate}% selling fee on the item price plus buyer-paid shipping, with no separate processing fee broken out.`,
+      `Rest-of-world sales still pay Depop's ${REGIONS.row.sellingRate}% selling fee on the item price plus buyer-paid shipping, and Depop also charges a payment-processing fee on them that varies by country and payment provider. That processing fee is NOT included above, so the real payout is lower than shown: add it as an other cost if you know your rate. Amounts are in your local currency.`,
     );
   }
   if (boosted) {
     notes.push(
-      `This sale is modelled as coming from a Boosted Listing: an extra ${BOOST_RATE}% of the ${currency}${itemPrice.toFixed(2)} item price (${currency}${boostFee.toFixed(2)}), on top of the region's normal fee. Boost fees only apply to a sale that happened while the listing was boosted.`,
+      `This sale is modelled as coming from a Boosted Listing: an extra ${boostRateOf(region)}% of the ${currency}${itemPrice.toFixed(2)} item price (${currency}${boostFee.toFixed(2)}), on top of the region's normal fee. Boost fees only apply to a sale that happened while the listing was boosted.`,
     );
   }
   notes.push(
@@ -200,7 +217,7 @@ export function calculateSale(input) {
 }
 
 /**
- * The same sale priced in all three regions, so a seller who is not sure
+ * The same sale priced in every region, so a seller who is not sure
  * which schedule actually applies to their account -- or who is curious
  * whether the old "10% everywhere" reputation still holds anywhere -- can
  * see the spread on one specific sale rather than three separate lookups.
@@ -212,6 +229,9 @@ export function compareRegions(input) {
     if (!result.ok) return { ok: false, errors: result.errors };
     results[region] = result;
   }
-  const best = Object.entries(results).reduce((a, b) => (b[1].payout > a[1].payout ? b : a));
+  // Rest of world is left out of "best": its payout omits a processing fee
+  // Depop does charge, so on a small sale it would win only by that omission.
+  const ranked = Object.entries(results).filter(([region]) => REGIONS[region].processingKnown !== false);
+  const best = ranked.reduce((a, b) => (b[1].payout > a[1].payout ? b : a));
   return { ok: true, errors: [], results, bestRegion: best[0] };
 }

@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKkt6h6MRG1p8nZKCxf",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T08:18:37Z",
+  "ended": "2026-11-27T08:40:54Z",
+  "wall_minutes": 22.49,
+  "tokens_in": 7221926,
+  "tokens_out": 39000,
+  "cost_usd": 3.1795,
+  "tool_calls": 73,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19675",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 4 suggests module-weight/module-exclusive for each venture, but `grep <slug>` over docs/history misses passes titled by another name (einvoice-preflight's are 'einvoice-page-perf' / 'ci-perf-...-einvoice'); I nearly picked a venture with 6 earlier passes. suite_file_times lists them; a page-side equivalent would help."
+    },
+    {
+      "file": "platform/perf/revalidate-serve.mjs",
+      "issue": "HTTP/1.1 only, so Chromium's six-connection limit hides part of any gain from parallel fetching; the live site is HTTP/2."
+    },
+    {
+      "file": "ventures/league-schedule-generator/eval/browser-bowling.mjs",
+      "issue": "Its small server calls writeHead twice when a read fails after the 200 header (ERR_HTTP_HEADERS_SENT), so it crashes when served a built page that requests site-chrome files; I ran it with the source HTML."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/worker-graph-perf-2026-11-27.md",
+    "docs/posts/2026-11-23-the-changepoint-page-waited-for-its-own-worker.md (extended with a 2026-11-27 follow-up)"
+  ],
+  "goal": null,
+  "notes": "Metric: module-worker graph load time, from new Worker() to the last module request answered, measured against platform/perf/revalidate-serve.mjs (150 ms per request, live-site headers) in headless Chromium, median of 5, cold and warm (304). Before = build of origin/main 0ef08aacd, after = this branch; same 3-venture --only build. Cold: league bowling 1089->777 ms, practice 1085->621, suggest 939->627, round-check 930->624, carryover 782->473, race 622->470; changepoint analyze 1248->1074, consensus 1082->779; shift-roster roster 647->481. Warm is within about 15 ms of cold. Request counts are unchanged. Full build: 14 workers flattened, 110 imports; an acorn check gives 0 mismatches. ai-bookkeeper suite timed per file first (119.8 s summed, 31.7 s wall at 4 jobs, max 3.7 s): no outlier, so it was not changed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2dd0bc71-2321-57c0-b732-f30574255617",
+    "transcripts": 1,
+    "first": "2026-11-27T08:18:37Z",
+    "last": "2026-11-27T08:41:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 132,
+        "output": 39000,
+        "thinking": 11792,
+        "cache_read": 7099411,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122383,
+        "api_equivalent_usd": 3.1795,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 132,
+      "output": 39000,
+      "thinking": 11792,
+      "cache_read": 7099411,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122383,
+      "api_equivalent_usd": 3.1795,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 69,
+      "Edit": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.49,
+      "active_minutes": 22.49,
+      "model_minutes": 7.97,
+      "tool_minutes": 14.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior web perf engineer: diagnose worker waterfall, build pass, tests, browser bench, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 188.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

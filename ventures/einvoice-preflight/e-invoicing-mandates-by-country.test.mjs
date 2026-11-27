@@ -53,3 +53,27 @@ test("FAQPage schema is valid JSON and matches visible h3 headings", () => {
     assert.ok(html.includes(q.acceptedAnswer.text));
   }
 });
+
+test("every country count the page states matches the table (polish, 2026-11-27)", () => {
+  // The lede said seventy-six and the meta and share descriptions 88 while the
+  // table held 93 rows: each count was right when written, and none moved with it.
+  const rows = (html.match(/<tbody>[\s\S]*<\/tbody>/)[0].match(/<tr>/g) || []).length;
+  const words = { 93: "Ninety-three" };
+  const said = [...html.matchAll(/\b(\d+) countries\b/g)].map((m) => Number(m[1]));
+  assert.ok(said.length >= 2, "the meta and share descriptions state a count");
+  for (const n of said) assert.equal(n, rows, `"${n} countries" with ${rows} rows`);
+  const lede = html.match(/<p class="lede">([A-Z][a-z]+(?:-[a-z]+)?) countries/);
+  assert.ok(lede, "the lede opens with the count in words");
+  assert.equal(lede[1], words[rows] ?? lede[1], `lede says ${lede[1]} with ${rows} rows`);
+  assert.ok(words[rows], `add ${rows} in words to this test and the lede`);
+});
+
+test("the Key dates cell of every row is prose (label above on a phone); the short cells stay beside their labels", () => {
+  assert.match(html, /<table class="stack">/);
+  const rows = html.match(/<tbody>[\s\S]*<\/tbody>/)[0].match(/<tr>[\s\S]*?<\/tr>/g);
+  for (const r of rows) {
+    const tds = r.match(/<td\b[^>]*>/g);
+    assert.equal(tds[0], '<td class="prose">', r.slice(0, 120));
+    assert.equal(tds.filter((t) => t.includes("prose")).length, 1, r.slice(0, 120));
+  }
+});
