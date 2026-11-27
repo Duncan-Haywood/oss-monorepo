@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, mobile]
+topics: [design]
 date: 2026-11-27
 ---
 
