@@ -17,6 +17,7 @@ import {
 import { catalog } from "@shared/plans";
 import { and, count, desc, eq, gte, inArray, isNotNull, like, or, sql } from "drizzle-orm";
 import type { AppContext } from "../../context";
+import { allInChunks } from "../../db/in-chunks";
 import {
   billingEvents,
   llmCalls,
@@ -255,9 +256,13 @@ export async function accountList(
             .limit(limit)
             .all();
 
-  // The org's owner (earliest owner membership): name + email only.
-  const owners = rows.length
-    ? await db
+  // The org's owner (earliest owner membership): name + email only. In slices of org ids: `limit`
+  // allows 200 and D1 binds at most 100 parameters a statement. An org's memberships all sit in
+  // one slice, so "earliest owner" per org is the same as one statement would give.
+  const owners = await allInChunks(
+    rows.map((r) => r.orgId),
+    (orgIds) =>
+      db
         .select({
           orgId: member.organizationId,
           name: user.name,
@@ -267,18 +272,10 @@ export async function accountList(
         })
         .from(member)
         .innerJoin(user, eq(user.id, member.userId))
-        .where(
-          and(
-            inArray(
-              member.organizationId,
-              rows.map((r) => r.orgId),
-            ),
-            eq(member.role, "owner"),
-          ),
-        )
+        .where(and(inArray(member.organizationId, orgIds), eq(member.role, "owner")))
         .orderBy(member.createdAt)
-        .all()
-    : [];
+        .all(),
+  );
   const ownerOf = new Map<string, (typeof owners)[number]>();
   for (const o of owners) if (!ownerOf.has(o.orgId)) ownerOf.set(o.orgId, o);
 
