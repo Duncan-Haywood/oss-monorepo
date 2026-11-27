@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtM1px2fSBipptUdwZd",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T05:07:19Z",
+  "ended": "2026-11-27T05:33:23Z",
+  "wall_minutes": 26.24,
+  "tokens_in": 8167178,
+  "tokens_out": 27828,
+  "cost_usd": 3.0515,
+  "tool_calls": 84,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19623",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "pages suite time said ~22 min (2026-10-18); measured 5.5 min cold today; fixed in this PR"
+    },
+    {
+      "file": "platform/ci/sparse_checkout_verify.py",
+      "issue": "builds cone-mode trees only, so a workflow needing a *.md pattern (anything that runs agent-permission-harness) has to be verified by hand"
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "item 4 front doors for top bets (pay-app-guides, machine-shop-guides incl. drawing-review) all already have perf passes; a quick grep of docs/history by page name misses passes titled by feature (drawing-review-perf)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no new post in docs/posts: a sparse-checkout change of a few job-minutes an hour does not interest a reader; the agent doc in docs/history carries it",
+      "did": "history doc only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-27-error-rate-disclosure-sparse.md"
+  ],
+  "goal": null,
+  "notes": "Metric: error-rate-disclosure CI checkout. Before: median checkout 46 s of 64 s job (ci_profile.py --runs 1500, 04:13-05:09Z, 3 jobs). After: expected ~8 s (same-shape sparse set on agent-permission-harness went 44->8 s); read from this PR's CI run. Files checked out 82,403 -> 14,397. Same answers: 25 tests OK, measure.py JSON and every probe render cmp-identical vs clean full worktree. Site-builder re-read: suite 334 s wall/1,025 s CPU cold, 2,182 pass; buildSite 143 s cold cards vs 52 s warm; profile flat; card hardlink 0.6 s vs copy 1.8 s (not changed). Local: run_workflow_locally --for-changes 11/11 passed, priv-codeql/priv-security-gate no verdict locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7482ee95-2f6d-5f5d-8b4d-95bc3ffbc789",
+    "transcripts": 1,
+    "first": "2026-11-27T05:07:19Z",
+    "last": "2026-11-27T05:33:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 157,
+        "output": 27828,
+        "thinking": 6761,
+        "cache_read": 8056648,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110373,
+        "api_equivalent_usd": 3.0515,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 157,
+      "output": 27828,
+      "thinking": 6761,
+      "cache_read": 8056648,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110373,
+      "api_equivalent_usd": 3.0515,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 80,
+      "Edit": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.24,
+      "active_minutes": 26.24,
+      "model_minutes": 5.55,
+      "tool_minutes": 20.68,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "profile CI pool and pages build, verify sparse checkout three ways, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 65.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
