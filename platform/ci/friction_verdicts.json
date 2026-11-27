@@ -455,6 +455,14 @@
    "by": "PR #19850",
    "at": "2026-11-27T19:22:28Z",
    "note": "ranking table names ventures/cmmc"
+  },
+  {
+   "file": "platform/ci/roadmap_claim.py",
+   "match": "takes only an item number",
+   "verdict": "fixed",
+   "by": "roadmap-claim-slug-arg",
+   "at": "2026-11-27T23:42:10Z",
+   "note": "--claim <slug> now claims it as --slug"
   }
  ]
 }

@@ -561,6 +561,16 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(code, 2, out)
         self.assertIn("pass --slug", out)
 
+    def test_claim_with_a_slug_is_a_slug_only_claim(self):
+        # 2026-11-26..27 friction (8 sessions): `--claim my-part` died on argparse's
+        # "invalid int value"; a slug given to --claim now claims it as --slug would.
+        code, out = self.main(self.a, "--claim", "new-thing", "--note", "x")
+        self.assertEqual(code, 0, out)
+        self.assertIn("not an item number", out)
+        self.assertIn("claim/payapps/new-thing", out)
+        with self.assertRaises(SystemExit):
+            self.main(self.b, "--claim", "one-slug", "--slug", "another-slug")
+
     def test_number_used_twice_needs_a_slug(self):
         # jobshop-quote's Next numbered two items 15 (2026-11-27); --claim 15 took the second.
         roadmap = self.a / "apps" / "payapps" / "ROADMAP.md"

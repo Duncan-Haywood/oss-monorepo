@@ -21,7 +21,7 @@ instead, whatever --repo says, so its claims live on this repository's origin. A
 shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since the run
 that made it has ended. A claim whose slug a later commit subject on origin/main names
 (the PR title, punctuation ignored) is shown as MERGED and is no sibling, unless the subject leads with an app of another venture (jobshop-quote's [files-without-r2] is not payapps'). A claim records a hash of the session id, so re-running --claim on
-your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md, or work not on its Next list, takes --slug alone (`--claim 0 --slug X` means the same). A number the Next list uses twice is refused unless --slug names the one meant. A free item whose text says it waits ("if people ask", "once real companies are counted", "once ... reachable", "the owner runs", "if those ever exist", "on a Windows PC", "a real iPhone photo")
+your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md, or work not on its Next list, takes --slug alone (`--claim 0 --slug X` and `--claim X` mean the same). A number the Next list uses twice is refused unless --slug names the one meant. A free item whose text says it waits ("if people ask", "once real companies are counted", "once ... reachable", "the owner runs", "if those ever exist", "on a Windows PC", "a real iPhone photo")
 is listed as gated with the phrase quoted (an item that mixes asks is gated only when every
 open ask waits; the listing names the open one), and the listing ends with the free, ungated item numbers. A --slug whose
 words match a fresh rival claim's (pages-shop-time-zone vs page-dates-shop-time-zone) is
@@ -1043,11 +1043,19 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
     return 0
 
 
+def _claim_arg(value: str) -> int | str:
+    """An item number, or a slug (kept as text, turned into a --slug claim by main)."""
+    v = value.strip().lstrip("#")
+    return int(v) if v.isdigit() else v
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("app", nargs="?", help="app directory under apps/, e.g. payapps")
     ap.add_argument("--repo", default=DEFAULT_REPO)
-    ap.add_argument("--claim", type=int, metavar="N", help="claim Next item N (as listed); a slug-only claim passes --slug alone")
+    ap.add_argument("--claim", type=_claim_arg, metavar="N",
+                    help="claim Next item N (as listed); a slug (--claim my-new-part) is a slug-only claim, "
+                         "the same as --slug alone")
     ap.add_argument("--slug", help="claim under this slug instead (one part of an item, or an "
                                    "app whose ROADMAP has no Next list); works without --claim")
     ap.add_argument("--note", default="", help="what exactly this run builds")
@@ -1063,6 +1071,16 @@ def main(argv: list[str] | None = None) -> int:
                     help="do not probe the hosts items name (offline, or to save the few seconds)")
     ap.add_argument("--bets-md", type=Path, default=BETS_MD, help=argparse.SUPPRESS)
     a = ap.parse_args(argv)
+    if isinstance(a.claim, str):
+        # --claim <slug> was the most reported friction of 2026-11-26..27 (8 sessions in
+        # friction_rank): argparse's "invalid int value" did not say a slug-only claim is
+        # --slug alone. A slug given to --claim now means exactly that.
+        if a.slug and slugify(a.slug) != slugify(a.claim):
+            ap.error(f"--claim {a.claim!r} is a slug and --slug {a.slug!r} is another: pass one "
+                     f"(--claim N --slug X claims part X of Next item N)")
+        print(f"--claim {a.claim!r} is not an item number: claiming it as a new slug "
+              f"(the same as --slug {a.claim}).")
+        a.slug, a.claim = a.claim, None
     if not a.bets and not a.app:
         ap.error("name an app, or pass --bets")
 
