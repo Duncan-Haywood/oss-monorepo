@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtHQ7XxhvLw6w8Hq8Dz",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T10:06:36Z",
+  "ended": "2026-11-27T10:24:49Z",
+  "wall_minutes": 18.39,
+  "tokens_in": 20160346,
+  "tokens_out": 74057,
+  "cost_usd": 7.362,
+  "tool_calls": 120,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19706",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "biome format failure on a new test file in the first full run; fixed with biome --write",
+    "two existing tests asserted Texas had no notice (notices.test.ts in the package and the worker); updated"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Bet #1's only 'free and not gated' item (#11) needs a real Windows PC and Android phone, which a cloud session cannot do, and 21 of the other 22 wait on demand. So the suggested pick was unworkable, and a new item had to come from the bet's evidence (Texas is the #3 state by establishments)."
+    },
+    {
+      "file": "docs/posts/2026-11-27-florida-notice-to-owner-45-days.md",
+      "issue": "Its signup link pointed at the workers.dev host, which returns 404 since the custom-domain cutover (PR #19642). No check catches dead CTA links in posts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "why": "Every Next item was gated on demand or needed hardware. I opened a new item (Texas notices of claim) from the bet's evidence instead of taking a gated one.",
+      "did": "Built Texas notices of claim end to end (package, app, reminder, post)",
+      "result": "Landed with full suite green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-texas-notice-of-claim-for-subcontractors.md (new customer post)",
+    "docs/posts/2026-11-27-florida-notice-to-owner-45-days.md (dead CTA fixed)",
+    "ventures/payapps/apps/payapps/ROADMAP.md Done entry"
+  ],
+  "goal": null,
+  "notes": "Statute text from tcss.legis.texas.gov chapter file (Last-Modified 2026-04-10) and capitol.texas.gov HB02237F. Local: lien-waivers 266 pass; payapps unit 1379 pass/3 skip, worker 566 pass; payapps-site 32 pass; biome no errors; typecheck clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cf753f45-ca97-5326-b7ce-6359b1a1f085",
+    "transcripts": 1,
+    "first": "2026-11-27T10:06:36Z",
+    "last": "2026-11-27T10:25:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 113,
+        "input": 216,
+        "output": 74057,
+        "thinking": 14252,
+        "cache_read": 19923215,
+        "cache_write_5m": 0,
+        "cache_write_1h": 236915,
+        "api_equivalent_usd": 7.362,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 113,
+      "input": 216,
+      "output": 74057,
+      "thinking": 14252,
+      "cache_read": 19923215,
+      "cache_write_5m": 0,
+      "cache_write_1h": 236915,
+      "api_equivalent_usd": 7.362,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 120,
+    "tools": {
+      "Bash": 110,
+      "Write": 8,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.39,
+      "active_minutes": 18.39,
+      "model_minutes": 12.51,
+      "tool_minutes": 5.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "statute reading and form encoding (3h), schema/service/routes/UI (6h), tests (3h), post (2h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 190.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
