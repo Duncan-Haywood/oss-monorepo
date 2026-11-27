@@ -1,0 +1,163 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtJ1KMdPBQKtp59CyTQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T05:07:19Z",
+  "ended": "2026-11-27T05:14:53Z",
+  "wall_minutes": 7.86,
+  "tokens_in": 9242489,
+  "tokens_out": 33411,
+  "cost_usd": 3.6096,
+  "tool_calls": 83,
+  "task": "move-seller-books-public",
+  "projects": [
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19618",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First CI draft named scripts/provision.test.mjs relative to the app dir; agent-permission-harness R1 flagged it (fixed).",
+    "Forgot the generated transition.json/verticals.json on the first commit (fixed)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets said 'no free, ungated item' for every bet and pointed at einvoice growth topics; the real blocker for bets 1-6 is that private-monorepo's Actions start no jobs (deploy run 45921558751, runner_id 0), and it does not list the per-bet products-to-public-repo moves already in flight, which took a dozen lookups to map."
+    },
+    {
+      "file": "ventures/payapps/README.md",
+      "issue": "its run steps say 'cp .dev.vars.example .dev.vars'; seller-books has no such file, so copying the pattern gave a wrong step (fixed in ventures/seller-books/README.md)."
+    },
+    {
+      "file": "portfolio/work/tasks.yaml",
+      "issue": "only move-payapps-public exists as a per-app move task on main; the jobshop, cmmc and einvoice moves live only in open PR titles, and two duplicate einvoice move PRs (#19574, #19575) are open at once."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "run_workflow_locally --for-changes and run_venture_tests did not surface the security-scan, adversarial-gate or pages grid failures a 340-file move triggers (scanner tools and the gate need artifacts); a move PR should expect one CI round of findings."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Every PayApps ROADMAP item was claimed or gated on demand and bets 1-4 already had move PRs.",
+      "did": "Took the unclaimed step-4 move for bet #5 (the work that unblocks its deploy) instead of a product feature.",
+      "result": "Move ready with local checks green; deploy port is the next PR."
+    },
+    {
+      "file": "prompt.md",
+      "why": "A code move has nothing new to tell a customer.",
+      "did": "Wrote the agent doc docs/reports/2026-11-27-move-seller-books-public.md, no blog post.",
+      "result": "next run has the audit, rewrites and next steps in one file"
+    },
+    {
+      "file": ".github/workflows/seller-books-ci.yml",
+      "why": "The private e2e job installs Chromium with --with-deps every run.",
+      "did": "Did not port the Playwright job; DEPLOY.md says to run pnpm test:e2e locally.",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-move-seller-books-public.md"
+  ],
+  "goal": "Bet #5 Seller Books moved from private-monorepo (no runners, cannot deploy) into ventures/seller-books, all rights reserved, CI ported, so its deploy can be ported next.",
+  "notes": "Local verification: apps/seller-books biome/typecheck/unit 306/worker 133/provision 4/build/no source maps/drizzle no changes; site build 24 pages, 56 tests; billing 86; admin-metrics, scripts pass. prepub_audit block 0 before (review 11) and after (review 19, each explained). risk_review: nothing blocked. Private clone via add_repo worked first time. run_workflow_locally --for-changes found 3 failures, all fixed: test_xff_rightmost on the site worker's leftmost X-Forwarded-For (also fixed in private PR 481, merged), stale transition.json/verticals.json (regenerated), and agent-permission-harness R1 on a relative script path in seller-books-ci.yml. run_venture_tests.py --since origin/main then found 4 more in the moved code (calendar date rollover, trailing flag, literal BOM, thin SPA shell) plus third_party.json coverage; all fixed with tests, mirrored in private PR 483 (merged). PR CI round 1 then failed on security-scan (semgrep false positive on RegExp.exec of a template; rewritten as String.match), adversarial-gate (SPA shell without disclaimer; footer added), pages grid-min-reflow (minmax(260px) on the site; min(260px,100%)) and publish_surface (new workflow; --write). All fixed and mirrored in private.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "066f7365-551e-5280-bbf6-1cc831853272",
+    "transcripts": 1,
+    "first": "2026-11-27T05:07:19Z",
+    "last": "2026-11-27T05:15:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 150,
+        "output": 33411,
+        "thinking": 6742,
+        "cache_read": 9102299,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140040,
+        "api_equivalent_usd": 3.6096,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 150,
+      "output": 33411,
+      "thinking": 6742,
+      "cache_read": 9102299,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140040,
+      "api_equivalent_usd": 3.6096,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 73,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__actions_list": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__actions_get": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.86,
+      "active_minutes": 7.86,
+      "model_minutes": 6.12,
+      "tool_minutes": 1.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer auditing, copying, porting CI and verifying a 340-file app move",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 138.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
