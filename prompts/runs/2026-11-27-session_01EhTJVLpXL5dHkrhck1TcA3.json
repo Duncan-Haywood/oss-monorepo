@@ -1,0 +1,442 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVLpXL5dHkrhck1TcA3",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T21:56:48Z",
+  "ended": "2026-11-27T21:57:44Z",
+  "wall_minutes": 3.81,
+  "tokens_in": 2975202,
+  "tokens_out": 13859,
+  "cost_usd": 1.5168,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19890",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First push failed cmmc-ci's `biome ci` (two long lines in the new tests); run_workflow_locally.py --for-changes caught it, fixed with biome format in a follow-up commit. run_venture_tests.py does not run biome, so its pass was not the whole CI.",
+    "PR CI's portfolio-pages test was red from main: PR #19887 changed the pay-app-guides bond-claim FAQ without regenerating ventures/pay-app-guides/llms-answers.txt; merged main and regenerated it here (node platform/pages/llms-answers.mjs ventures/pay-app-guides)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Flags 'new outbound hosts' and 'email sending' on a test file whose only triggers are the repo's own marisstella.app URL and the word 'newsletter' in a query string; cost a minute to rule out"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post or agent doc: a fixed utm-link bug and six prose pins tell a reader nothing new; the record and PR body carry it",
+      "did": "wrote it up in the PR body and this record only",
+      "result": "nothing lost; the guard lives in tests"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Targets: cmmc-site sprs.mjs and poam-rules.mjs (bet #4 front door; payapps already had ~12 red-team runs today). Catch rate 14/20 -> 20/20. Real defect: any query string was scored as nothing-ticked, showing 110/110 all met for ?utm_source= links; fixed with isCalcQuery in Worker, applyToPage and static sprs-page.js. Guard (4b): the tests run in ventures-tests on every PR; a repo-wide lint was not added because a grep found no other venture with the same trigger. Verification: run_venture_tests.py cmmc 88 tests 0 failed. Local CI: run_workflow_locally.py --for-changes: cmmc-ci 15/15 after the biome fix; ventures-tests 6/6; priv-* gates not runnable locally.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/cmmc/apps/cmmc-site/src/sprs.mjs",
+        "test": "node --test ventures/cmmc/**/*.test.mjs  (in .)",
+        "seed": 674678766,
+        "commit": "bb7323dc8",
+        "sites": 50,
+        "baseline_seconds": 0.7,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/sprs.mjs",
+            "line": 17,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "export const CONDITIONAL_MIN_SCORE = 88;",
+            "after": "export const CONDITIONAL_MIN_SCORE = 89;",
+            "line_text": "export const CONDITIONAL_MIN_SCORE = 88;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/sprs.mjs",
+            "line": 57,
+            "col": 39,
+            "operator": "eq-flip",
+            "before": "const fam = FAMILIES.find(([n]) => n === r.nistId.split(\".\")[1]);",
+            "after": "const fam = FAMILIES.find(([n]) => n !== r.nistId.split(\".\")[1]);",
+            "line_text": "  const fam = FAMILIES.find(([n]) => n === r.nistId.split(\".\")[1]);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/sprs.mjs",
+            "line": 69,
+            "col": 69,
+            "operator": "plus-to-minus",
+            "before": "export const MIN_SCORE = MAX_SCORE - REQUIREMENTS.reduce((s, r) => s + r.weight, 0);",
+            "after": "export const MIN_SCORE = MAX_SCORE - REQUIREMENTS.reduce((s, r) => s - r.weight, 0);",
+            "line_text": "export const MIN_SCORE = MAX_SCORE - REQUIREMENTS.reduce((s, r) => s + r.weight, 0);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/sprs.mjs",
+            "line": 94,
+            "col": 38,
+            "operator": "true-to-false",
+            "before": "if (points <= 1) return { eligible: true, reason: \"1-point requirement\" };",
+            "after": "if (points <= 1) return { eligible: false, reason: \"1-point requirement\" };",
+            "line_text": "  if (points <= 1) return { eligible: true, reason: \"1-point requirement\" };",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/sprs.mjs",
+            "line": 110,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "const lost = deductions.reduce((s, d) => s + d.points, 0);",
+            "after": "const lost = deductions.reduce((s, d) => s + d.points, 1);",
+            "line_text": "  const lost = deductions.reduce((s, d) => s + d.points, 0);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/sprs.mjs",
+            "line": 111,
+            "col": 32,
+            "operator": "minus-to-plus",
+            "before": "const provisional = MAX_SCORE - lost;",
+            "after": "const provisional = MAX_SCORE + lost;",
+            "line_text": "  const provisional = MAX_SCORE - lost;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/sprs.mjs",
+            "line": 117,
+            "col": 75,
+            "operator": "neq-flip",
+            "before": "const ineligible = deductions.filter((d) => !d.poam.eligible && d.nistId !== SSP_ID);",
+            "after": "const ineligible = deductions.filter((d) => !d.poam.eligible && d.nistId === SSP_ID);",
+            "line_text": "  const ineligible = deductions.filter((d) => !d.poam.eligible && d.nistId !== SSP_ID);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/sprs.mjs",
+            "line": 135,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "conditional: { meets: blockers.length === 0, blockers, ineligible },",
+            "after": "conditional: { meets: blockers.length === 1, blockers, ineligible },",
+            "line_text": "    conditional: { meets: blockers.length === 0, blockers, ineligible },",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/sprs.mjs",
+            "line": 151,
+            "col": 64,
+            "operator": "const-plus-one",
+            "before": "const reqs = REQUIREMENTS.filter((r) => r.nistId.split(\".\")[1] === n);",
+            "after": "const reqs = REQUIREMENTS.filter((r) => r.nistId.split(\".\")[2] === n);",
+            "line_text": "    const reqs = REQUIREMENTS.filter((r) => r.nistId.split(\".\")[1] === n);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/sprs.mjs",
+            "line": 155,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "r.weight === 0",
+            "after": "r.weight === 1",
+            "line_text": "          r.weight === 0",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "SSP row label in renderForm: new test pins \"no points\" on 3.12.4 only and \"1 pt\"/\"5 pts\" elsewhere"
+          }
+        ]
+      },
+      {
+        "target": "ventures/cmmc/apps/cmmc-site/src/poam-rules.mjs",
+        "test": "node --test ventures/cmmc/**/*.test.mjs  (in .)",
+        "seed": 264253063,
+        "commit": "bb7323dc8",
+        "sites": 50,
+        "baseline_seconds": 0.8,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/poam-rules.mjs",
+            "line": 48,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "fivePoint: v.filter((r) => r.weight === 5).length,",
+            "after": "fivePoint: v.filter((r) => r.weight === 6).length,",
+            "line_text": "    fivePoint: v.filter((r) => r.weight === 5).length,",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/poam-rules.mjs",
+            "line": 49,
+            "col": 41,
+            "operator": "eq-flip",
+            "before": "threePoint: v.filter((r) => r.weight === 3).length,",
+            "after": "threePoint: v.filter((r) => r.weight !== 3).length,",
+            "line_text": "    threePoint: v.filter((r) => r.weight === 3).length,",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/poam-rules.mjs",
+            "line": 52,
+            "col": 47,
+            "operator": "eq-flip",
+            "before": "onePointExcluded: v.filter((r) => r.weight === 1 && r.status === \"never\").length,",
+            "after": "onePointExcluded: v.filter((r) => r.weight !== 1 && r.status === \"never\").length,",
+            "line_text": "    onePointExcluded: v.filter((r) => r.weight === 1 && r.status === \"never\").length,",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/poam-rules.mjs",
+            "line": 57,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "maxOpenWithEncryption: 1 + Math.min(budget - 3, yes.length),",
+            "after": "maxOpenWithEncryption: 2 + Math.min(budget - 3, yes.length),",
+            "line_text": "    maxOpenWithEncryption: 1 + Math.min(budget - 3, yes.length),",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/poam-rules.mjs",
+            "line": 72,
+            "col": 51,
+            "operator": "eq-flip",
+            "before": "const rows = REQUIREMENTS.filter((r) => r.family === code)",
+            "after": "const rows = REQUIREMENTS.filter((r) => r.family !== code)",
+            "line_text": "  const rows = REQUIREMENTS.filter((r) => r.family === code)",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/poam-rules.mjs",
+            "line": 134,
+            "col": 80,
+            "operator": "const-plus-one",
+            "before": "<li><strong>Score at least ${CONDITIONAL_MIN_SCORE} of ${MAX_SCORE}</strong> (80%) with the open items counted, scored by the",
+            "after": "<li><strong>Score at least ${CONDITIONAL_MIN_SCORE} of ${MAX_SCORE}</strong> (81%) with the open items counted, scored by the",
+            "line_text": "  <li><strong>Score at least ${CONDITIONAL_MIN_SCORE} of ${MAX_SCORE}</strong> (80%) with the open items counted, scored by the",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Rule fact in page prose no test read; new test \"the page's rule prose states the rule's numbers\" pins it [rerun: line changed; triage by hand]; line changed by the fix (the literal 80% is now ${CONDITIONAL_MIN_PCT}); re-applied by hand as (81%): poam-rules.test.mjs fails 1 of 4, so caught"
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/poam-rules.mjs",
+            "line": 136,
+            "col": 100,
+            "operator": "const-plus-one",
+            "before": "<li><strong>Only 1-point requirements may be open.</strong> The ${c.fivePoint} requirements worth 5 points and the",
+            "after": "<li><strong>Only 1-point requirements may be open.</strong> The ${c.fivePoint} requirements worth 6 points and the",
+            "line_text": "  <li><strong>Only 1-point requirements may be open.</strong> The ${c.fivePoint} requirements worth 5 points and the",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Rule fact in page prose no test read; new test \"the page's rule prose states the rule's numbers\" pins it"
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/poam-rules.mjs",
+            "line": 141,
+            "col": 108,
+            "operator": "const-plus-one",
+            "before": "physical access logs, managing physical access devices). Five of the six are 1-point requirements, so the 1-point rule",
+            "after": "physical access logs, managing physical access devices). Five of the six are 1-point requirements, so the 2-point rule",
+            "line_text": "  physical access logs, managing physical access devices). Five of the six are 1-point requirements, so the 1-point rule",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Rule fact in page prose no test read; new test \"the page's rule prose states the rule's numbers\" pins it"
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/poam-rules.mjs",
+            "line": 143,
+            "col": 104,
+            "operator": "const-plus-one",
+            "before": "<li><strong>Close within 180 days.</strong> A close-out assessment of the open items must pass within 180 days of the",
+            "after": "<li><strong>Close within 180 days.</strong> A close-out assessment of the open items must pass within 181 days of the",
+            "line_text": "  <li><strong>Close within 180 days.</strong> A close-out assessment of the open items must pass within 180 days of the",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Rule fact in page prose no test read; new test \"the page's rule prose states the rule's numbers\" pins it"
+          },
+          {
+            "file": "ventures/cmmc/apps/cmmc-site/src/poam-rules.mjs",
+            "line": 148,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "<caption>The ${c.total} Level 2 requirements, if each were open</caption>",
+            "after": "<caption>The ${c.total} Level 3 requirements, if each were open</caption>",
+            "line_text": "  <caption>The ${c.total} Level 2 requirements, if each were open</caption>",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Rule fact in page prose no test read; new test \"the page's rule prose states the rule's numbers\" pins it"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/cmmc/apps/cmmc-site/src/early-access.mjs",
+        "issue": "The SPRS calculator scored any query string: /sprs-score-calculator?utm_source=linkedin (Worker, early-access.mjs:441, `url.search`) and the static host's sprs-page.js (`params.toString() !== \"\"`) both rendered '110 of 110 ... Every requirement is met' to a visitor who ticked nothing, plus a noindex. On the CMMC front door, a marketing link told visitors they were fully compliant. Fixed with isCalcQuery (calc, nm or pc present) in sprs.mjs, used by the Worker, applyToPage and sprs-page.js.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6034311f-1e4b-5bd0-8eab-aca588ea09e7",
+    "transcripts": 1,
+    "first": "2026-11-27T21:56:48Z",
+    "last": "2026-11-27T22:00:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 68,
+        "output": 13859,
+        "thinking": 2841,
+        "cache_read": 2892534,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82600,
+        "api_equivalent_usd": 1.5168,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 68,
+      "output": 13859,
+      "thinking": 2841,
+      "cache_read": 2892534,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82600,
+      "api_equivalent_usd": 1.5168,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.81,
+      "active_minutes": 3.81,
+      "model_minutes": 2.65,
+      "tool_minutes": 1.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reading two modules, 20-mutant triage, repro + fix + tests for one defect",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 197.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

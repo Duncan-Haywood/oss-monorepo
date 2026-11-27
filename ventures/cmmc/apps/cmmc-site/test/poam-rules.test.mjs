@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { buildPages } from "../src/pages.mjs";
 import { POAM_PATH, poamCounts, poamVerdict } from "../src/poam-rules.mjs";
-import { poamEligible, REQUIREMENTS } from "../src/sprs.mjs";
+import { CONDITIONAL_MIN_SCORE, MAX_SCORE, poamEligible, REQUIREMENTS } from "../src/sprs.mjs";
 
 test("counts: 46 one-pointers may go on a POA&M, 63 may not, 3.13.11 only on partial credit", () => {
   const c = poamCounts();
@@ -47,4 +47,17 @@ test("the page lists all 110 requirements and the other pages link to it", () =>
   assert.equal((page.body.match(/<tr><th scope="row">[A-Z]{2}\.L2-3\./g) ?? []).length, 110);
   for (const from of ["/sprs-score-calculator", "/cmmc-level-1-vs-level-2"])
     assert.ok(pages.find((p) => p.path === from).body.includes(`href="${POAM_PATH}"`), from);
+});
+
+// Red team 2026-11-27: the page's prose quoted rule facts no test read, so a typo in "80%",
+// "5 points", "1-point rule", "180 days" or "Level 2" would ship unnoticed.
+test("the page's rule prose states the rule's numbers", () => {
+  const body = buildPages().find((p) => p.path === POAM_PATH).body;
+  const pct = Math.round((100 * CONDITIONAL_MIN_SCORE) / MAX_SCORE);
+  assert.equal(pct, 80);
+  assert.ok(body.includes(`<strong>Score at least 88 of 110</strong> (80%)`), "80% floor");
+  assert.ok(body.includes("The 44 requirements worth 5 points and the\n  14 worth 3 must be met"));
+  assert.ok(body.includes("so the 1-point rule\n  alone does not catch them"));
+  assert.ok(body.includes("must pass within 180 days of the"), "close-out window");
+  assert.ok(body.includes("<caption>The 110 Level 2 requirements, if each were open</caption>"));
 });

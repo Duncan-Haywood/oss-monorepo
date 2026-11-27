@@ -234,7 +234,10 @@ def hosts_in(text: str) -> list[str]:
 
 
 def probe_hosts(hosts, timeout: int = 6) -> dict[str, str]:
-    """{host: "ok" | "blocked" | "no answer"} through this session's proxy, in parallel.
+    """{host: "ok" | "blocked" | "refused" | "no answer"} through this session's proxy, in parallel.
+
+    "refused" is the site's own 401/403/429 or bot check (egress_probe.classify): a run that
+    trusts "ok" there plans work on pages it cannot read (2026-11-27, leginfo's Cloudflare check).
 
     ROADMAP_CLAIM_PROBE=off (or --no-probe) skips it, for tests and offline runs.
     """

@@ -23,20 +23,25 @@ export function parseScale(text) {
   }
   // Engineering: 1" = 20'  (or 1" = 20'-0")
   m = /^1\s*"\s*=\s*(\d+(?:\.\d+)?)\s*'\s*(?:-?\s*0\s*"?)?$/.exec(body);
-  if (m) return { ratio: Number(m[1]) * 12, system: 'imperial', label: body };
+  if (m) { const ft = Number(m[1]); if (ft > 0) return { ratio: ft * 12, system: 'imperial', label: body }; }
   // Full size inches: 1" = 1"; 3" = 1" is a detail enlargement (ratio < 1)
   m = /^(\d+(?:\/\d+)?)\s*"\s*=\s*(\d+(?:\/\d+)?)\s*"$/.exec(body);
   if (m) { const a = inchesNumber(m[1]), b = inchesNumber(m[2]); if (a > 0 && b > 0) return { ratio: b / a, system: 'imperial', label: body }; }
   // Metric: 1:100, 1 : 50
-  m = /^1\s*:\s*(\d+(?:[.,]\d+)?)$/.exec(body);
-  if (m) { const r = Number(m[1].replace(',', '.')); if (r > 0) return { ratio: r, system: 'metric', label: body }; }
+  m = /^1\s*:\s*(\d+(?:[.,]\d+)*)$/.exec(body);
+  if (m) {
+    // 1:1,000 and 1:2.500 group thousands (site plans); 1:12.5 and 1:7,5 carry a decimal
+    const s = /^\d{1,3}(?:([.,])\d{3})(?:\1\d{3})*$/.test(m[1]) ? m[1].replace(/[.,]/g, '') : m[1].replace(',', '.');
+    const r = Number(s);
+    if (r > 0) return { ratio: r, system: 'metric', label: body };
+  }
   return null;
 }
 
 function inchesNumber(s) {
   s = s.trim();
   let m = /^(\d+)[ -](\d+)\/(\d+)$/.exec(s);
-  if (m) return Number(m[1]) + Number(m[2]) / Number(m[3]);
+  if (m) return Number(m[3]) ? Number(m[1]) + Number(m[2]) / Number(m[3]) : 0;
   m = /^(\d+)\/(\d+)$/.exec(s);
   if (m) return Number(m[2]) ? Number(m[1]) / Number(m[2]) : 0;
   return Number(s);
@@ -47,12 +52,15 @@ export function parseFeetInches(text) {
   const t = String(text).replace(/[′’]/g, "'").replace(/[″”“]/g, '"').replace(/\s+/g, ' ').trim();
   let m = /^(-?\d+)\s*'\s*(?:-?\s*(\d+(?:\.\d+)?)?(?:\s*(\d+)\/(\d+))?\s*")?$/.exec(t);
   if (m && (m[2] !== undefined || m[3] !== undefined || !/"/.test(t))) {
-    const ft = Number(m[1]);
+    if (m[4] !== undefined && !Number(m[4])) return null;
+    const ft = Math.abs(Number(m[1]));
     const inch = (m[2] ? Number(m[2]) : 0) + (m[3] ? Number(m[3]) / Number(m[4]) : 0);
     if (inch >= 12) return null;
-    return ft * 12 + inch;
+    // -3' 6" is three and a half feet below: the sign covers the inches too
+    return (m[1].startsWith('-') ? -1 : 1) * (ft * 12 + inch) || 0;
   }
   m = /^(\d+(?:\.\d+)?)?(?:\s*(\d+)\/(\d+))?\s*"$/.exec(t);
+  if (m && m[3] !== undefined && !Number(m[3])) return null;
   if (m && (m[1] || m[2])) return (m[1] ? Number(m[1]) : 0) + (m[2] ? Number(m[2]) / Number(m[3]) : 0);
   return null;
 }
