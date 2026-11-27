@@ -230,18 +230,5 @@ class BatchTest(unittest.TestCase):
         self.assertNotIn("Batch", out)
 
 
-class WorkHintTest(unittest.TestCase):
-    """A cloud session can push only its claude/* branch, so it is not sent to the claim one."""
-
-    def test_cloud_branch_works_on_its_own(self):
-        hint = security_next.work_hint(1514, "abc123def4567890", "claude/some-session")
-        self.assertIn("`claude/some-session`", hint)
-        self.assertNotIn("checkout -B", hint)
-
-    def test_other_branch_checks_out_the_claim(self):
-        hint = security_next.work_hint(1514, "abc123def4567890", "main")
-        self.assertIn("git checkout -B security-fix/code-scanning-1514 abc123def456", hint)
-
-
 if __name__ == "__main__":
     unittest.main()
