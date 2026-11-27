@@ -535,7 +535,7 @@ export function cmmcPage(ctx: RenderContext): Html {
     <p>${SITE_NAME} early access is not set up to hold CUI or export-controlled technical data. Contractors
     that store covered defense information with a cloud service are expected to use one that meets
     security requirements equivalent to the FedRAMP Moderate baseline
-    (<a class="link" href="https://www.acquisition.gov/dfars/252.204-7012-safeguarding-covered-defense-information-and-cyber-incident-reporting">DFARS 252.204-7012</a>),
+    (<a class="link" href="https://www.acquisition.gov/dfars/252.204-7012-safeguarding-covered-defense-information-and-cyber-incident-reporting.">DFARS 252.204-7012</a>),
     and export-controlled drawings have their own rules. We don't claim either, so please use early
     access only for commercial RFQs and drawings with no CUI or export-control markings.</p>
     <p>If you're not sure whether a drawing is controlled, treat it as controlled and leave it out. ${
