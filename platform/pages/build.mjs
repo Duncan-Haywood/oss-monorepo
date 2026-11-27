@@ -40,6 +40,7 @@ import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.
 import { buildManufacturingPage } from './industry-manufacturing.mjs';
 import { buildConstructionPage, CONSTRUCTION_PATH } from './industry-construction.mjs';
 import { buildPayappsSite } from './payapps-site.mjs';
+import { buildSellerBooksSite } from './seller-books-site.mjs';
 import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
@@ -8916,11 +8917,12 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions
  * chrome script (which counts usage) handed in, so the module stays free of a
  * build.mjs import.
  */
-export function renderOnlineSellersIndustryPage({ surfaces = [], baseUrl }) {
+export function renderOnlineSellersIndustryPage({ surfaces = [], baseUrl, productSite = false }) {
   const toRoot = '../../';
   return renderOnlineSellersPage({
     baseUrl,
     surfaces,
+    productSite,
     shell: {
       head: customDevHead,
       disclaimer: disclaimerHtml(toRoot, surfaces),
@@ -12770,7 +12772,7 @@ export function renderSitemapIndex(surfaces, baseUrl, extraSitemaps = []) {
     surfaces.map(
       (surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`,
     ),
-    // Sites this build copies in whole, with a sitemap of their own (payapps-site.mjs).
+    // Sites this build copies in whole, with a sitemap of their own (payapps-site.mjs, seller-books-site.mjs).
     extraSitemaps.map((rel) => `  <sitemap><loc>${baseUrl}${rel}</loc></sitemap>`),
   );
 
@@ -13986,7 +13988,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // The online sellers industry page (industry-online-sellers.mjs): resellers'
   // problems, Seller Books in development, and the best free seller tools.
   await fs.mkdir(path.join(outDir, ONLINE_SELLERS_PATH), { recursive: true });
-  await fs.writeFile(path.join(outDir, ONLINE_SELLERS_PATH, 'index.html'), renderOnlineSellersIndustryPage({ surfaces, baseUrl: base }));
+  await fs.writeFile(path.join(outDir, ONLINE_SELLERS_PATH, 'index.html'), renderOnlineSellersIndustryPage({ surfaces, baseUrl: base, productSite: sellerBooksSite.length > 0 }));
   industryPages.push(ONLINE_SELLERS_PATH);
   // The open hardware designs as future products for businesses (see `hardware-page.mjs`).
   const hardwareDir = path.join(outDir, HARDWARE_PATH);
@@ -14084,7 +14086,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // static export, without the catalogue chrome (`payapps-site.mjs`). Before the
   // construction page, which links it.
   const payappsSite = await buildPayappsSite(outDir, { baseUrl: base });
-  const extraSitemaps = payappsSite.filter((rel) => rel === 'payapps/sitemap.xml');
+  // Seller Books' marketing site (paid bet #5), built by its own dependency-free builder and
+  // copied in the same way (`seller-books-site.mjs`). Before the online sellers page, which links it.
+  const sellerBooksSite = await buildSellerBooksSite(outDir, { baseUrl: base });
+  const extraSitemaps = [...payappsSite, ...sellerBooksSite]
+    .filter((rel) => rel === 'payapps/sitemap.xml' || rel === 'seller-books/sitemap.xml');
 
   // The construction industry landing page (`industry-construction.mjs`):
   // links only tools and research this build published.

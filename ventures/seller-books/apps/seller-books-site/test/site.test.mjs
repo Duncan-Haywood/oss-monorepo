@@ -188,6 +188,9 @@ describe("honesty rules", () => {
       assert.match(html, /is open now: free for one platform/, page.path);
       assert.match(html, /not on sale yet/, page.path);
       assert.match(html, /not a tax adviser/, page.path);
+      // The catalogue's check.mjs refuses a page without it (PRODUCT_PLAYBOOK.md §5b).
+      assert.match(html, /no warranty/i, page.path);
+      assert.match(html, /href="https:\/\/seller-books\.marisstella\.app\/legal\/terms"/, page.path);
     }
   });
 

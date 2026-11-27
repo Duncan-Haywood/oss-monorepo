@@ -6,6 +6,7 @@ import {
   EARLY_ACCESS_CONSENT_TEXT,
   EARLY_ACCESS_CONSENT_VERSION,
   FREE_PLAN,
+  NO_WARRANTY,
   NOT_TAX_ADVICE,
   PLATFORMS,
   SITE_NAME,
@@ -13,7 +14,7 @@ import {
   statusSentence,
   VOLUME_BANDS,
 } from "./content.mjs";
-import { launch, signinUrl, signupUrl } from "./launch.mjs";
+import { appTermsUrl, launch, signinUrl, signupUrl } from "./launch.mjs";
 
 const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 
@@ -101,6 +102,7 @@ ${page.body}
     <div>
       <p><strong>${esc(SITE_NAME)}</strong> ${esc(statusSentence().replace(/^It is /, "is "))} “${esc(SITE_NAME)}” is a working name.</p>
       <p class="muted">${esc(NOT_TAX_ADVICE)}</p>
+      <p class="muted">${esc(NO_WARRANTY)}${appTermsUrl() ? ` Use of the app is governed by its <a href="${esc(appTermsUrl())}">Terms of Service</a>.` : ""}</p>
     </div>
     <nav aria-label="Platforms">
       <p class="footer-head">Platforms</p>

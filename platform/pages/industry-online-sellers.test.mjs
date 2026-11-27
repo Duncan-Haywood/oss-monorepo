@@ -104,3 +104,11 @@ test('build wiring: real head and chrome script; the sitemap lists it as an indu
   assert.ok(!/content="noindex"/.test(html));
   assert.match(renderHubSitemap(base, [], [], [], [], [ONLINE_SELLERS_PATH]), new RegExp(`${base}${ONLINE_SELLERS_PATH}`));
 });
+
+test('links the Seller Books site only when the build copied it in (seller-books-site.mjs)', () => {
+  const without = renderOnlineSellersPage({ baseUrl: base, surfaces: all, shell });
+  assert.doesNotMatch(without, /href="\.\.\/\.\.\/seller-books\//);
+  const withSite = renderOnlineSellersPage({ baseUrl: base, surfaces: all, shell, productSite: true });
+  assert.match(withSite, /href="\.\.\/\.\.\/seller-books\/"/);
+  assert.match(withSite, /href="\.\.\/\.\.\/seller-books\/pricing"/);
+});

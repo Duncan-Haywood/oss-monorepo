@@ -56,6 +56,11 @@ export function statusSentence() {
 /** The product summary with its current status (home lead, JSON-LD, llms.txt). */
 export const summary = () => `${SUMMARY_BASE} ${statusSentence()}`;
 
+/** The limitation every page's footer carries (PRODUCT_PLAYBOOK.md §5b; the catalogue's check.mjs
+ * refuses a page without "no warranty"). */
+export const NO_WARRANTY =
+  "Seller Books is provided as is, with no warranty: check every figure against your own records before you rely on it.";
+
 export const NOT_TAX_ADVICE =
   "Seller Books is bookkeeping software, not a tax adviser. It organises your numbers; what you deduct and how you file is your decision, or your tax professional's.";
 
