@@ -17,56 +17,56 @@
 accepted:
   - tool: trivy-image
     rule: CVE-2026-102276
-    path: apps/einvoice-preflight/Dockerfile*
-    reason: "brace-expansion 2.0.2 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it. The same base is already on main in ventures/einvoice-preflight/Dockerfile."
+    path: ventures/einvoice-pro/apps/einvoice-preflight/Dockerfile*
+    reason: "brace-expansion 2.0.2 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it (that step is added to both Dockerfiles by PR #19635). The same base is already on main in ventures/einvoice-preflight/Dockerfile."
     added: 2026-11-26
   - tool: trivy-image
     rule: CVE-2026-102278
-    path: apps/einvoice-preflight/Dockerfile*
-    reason: "brace-expansion 2.0.2 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it. The same base is already on main in ventures/einvoice-preflight/Dockerfile."
+    path: ventures/einvoice-pro/apps/einvoice-preflight/Dockerfile*
+    reason: "brace-expansion 2.0.2 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it (that step is added to both Dockerfiles by PR #19635). The same base is already on main in ventures/einvoice-preflight/Dockerfile."
     added: 2026-11-26
   - tool: trivy-image
     rule: CVE-2026-13149
-    path: apps/einvoice-preflight/Dockerfile*
-    reason: "brace-expansion 2.0.2 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it. The same base is already on main in ventures/einvoice-preflight/Dockerfile."
+    path: ventures/einvoice-pro/apps/einvoice-preflight/Dockerfile*
+    reason: "brace-expansion 2.0.2 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it (that step is added to both Dockerfiles by PR #19635). The same base is already on main in ventures/einvoice-preflight/Dockerfile."
     added: 2026-11-26
   - tool: trivy-image
     rule: CVE-2026-14257
-    path: apps/einvoice-preflight/Dockerfile*
-    reason: "brace-expansion 2.0.2 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it. The same base is already on main in ventures/einvoice-preflight/Dockerfile."
+    path: ventures/einvoice-pro/apps/einvoice-preflight/Dockerfile*
+    reason: "brace-expansion 2.0.2 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it (that step is added to both Dockerfiles by PR #19635). The same base is already on main in ventures/einvoice-preflight/Dockerfile."
     added: 2026-11-26
   - tool: trivy-image
     rule: CVE-2026-69152
-    path: apps/einvoice-preflight/Dockerfile*
-    reason: "brace-expansion 2.0.2 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it. The same base is already on main in ventures/einvoice-preflight/Dockerfile."
+    path: ventures/einvoice-pro/apps/einvoice-preflight/Dockerfile*
+    reason: "brace-expansion 2.0.2 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it (that step is added to both Dockerfiles by PR #19635). The same base is already on main in ventures/einvoice-preflight/Dockerfile."
     added: 2026-11-26
   - tool: trivy-image
     rule: CVE-2026-69192
-    path: apps/einvoice-preflight/Dockerfile*
-    reason: "ip-address 10.1.0 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it. The same base is already on main in ventures/einvoice-preflight/Dockerfile."
+    path: ventures/einvoice-pro/apps/einvoice-preflight/Dockerfile*
+    reason: "ip-address 10.1.0 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it (that step is added to both Dockerfiles by PR #19635). The same base is already on main in ventures/einvoice-preflight/Dockerfile."
     added: 2026-11-26
   - tool: trivy-image
     rule: CVE-2026-9496
-    path: apps/einvoice-preflight/Dockerfile*
-    reason: "pacote 19.0.2 and 20.0.1 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it. The same base is already on main in ventures/einvoice-preflight/Dockerfile."
+    path: ventures/einvoice-pro/apps/einvoice-preflight/Dockerfile*
+    reason: "pacote 19.0.2 and 20.0.1 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it (that step is added to both Dockerfiles by PR #19635). The same base is already on main in ventures/einvoice-preflight/Dockerfile."
     added: 2026-11-26
   - tool: trivy-image
     rule: CVE-2026-33671
-    path: apps/einvoice-preflight/Dockerfile*
-    reason: "picomatch 4.0.3 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it. The same base is already on main in ventures/einvoice-preflight/Dockerfile."
+    path: ventures/einvoice-pro/apps/einvoice-preflight/Dockerfile*
+    reason: "picomatch 4.0.3 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it (that step is added to both Dockerfiles by PR #19635). The same base is already on main in ventures/einvoice-preflight/Dockerfile."
     added: 2026-11-26
   - tool: trivy-image
     rule: CVE-2026-48815
-    path: apps/einvoice-preflight/Dockerfile*
-    reason: "sigstore 3.1.0 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it. The same base is already on main in ventures/einvoice-preflight/Dockerfile."
+    path: ventures/einvoice-pro/apps/einvoice-preflight/Dockerfile*
+    reason: "sigstore 3.1.0 inside npm's own bundled dependencies in node:22-alpine (usr/local/lib/node_modules/npm); the build stage runs npm only to install saxon-js and its peers, and the runtime stage deletes npm, npx, corepack and yarn, so the shipped image does not contain it (that step is added to both Dockerfiles by PR #19635). The same base is already on main in ventures/einvoice-preflight/Dockerfile."
     added: 2026-11-26
   - tool: semgrep
     rule: js-child-process-dynamic
-    path: apps/einvoice-preflight/plain/fontoxpath.esm.js
+    path: ventures/einvoice-pro/apps/einvoice-preflight/plain/fontoxpath.esm.js
     reason: "the vendored, published minified fontoxpath ES module (MIT, THIRD_PARTY.md), byte-identical to ventures/einvoice-preflight/plain/fontoxpath.esm.js on main; the match is an XPath engine's own .exec method, and the module imports no child_process."
     added: 2026-11-26
   - tool: semgrep
     rule: js-child-process-dynamic
-    path: apps/einvoice-preflight/pro/sql-store.mjs
-    reason: "SqlStore.init's this.db.exec is the D1/SQLite database's exec, not child_process (the module imports none); the ALTER TABLE template is filled only from the module's own constant ADDED_COLUMNS list, never from input. Moving with the paid app (PR #19574)."
+    path: ventures/einvoice-pro/apps/einvoice-preflight/pro/sql-store.mjs
+    reason: "SqlStore.init's this.db.exec is the D1/SQLite database's exec, not child_process (the module imports none); the ALTER TABLE template is filled only from the module's own constant ADDED_COLUMNS list, never from input. Moving with the paid app to ventures/einvoice-pro (PR #19635)."
     added: 2026-11-27

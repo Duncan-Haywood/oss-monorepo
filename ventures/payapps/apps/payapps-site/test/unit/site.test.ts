@@ -117,4 +117,13 @@ describe("html helpers", () => {
       ),
     ).toBe("## Hi\n\nA [link](/x) & **bold**\n\n- one");
   });
+
+  it("leaves no markup when a removed block joins the halves of a tag", () => {
+    const md = htmlToMarkdown("<p>a<scr<script>x</script>ipt>alert(1)</p><style>p{}</style>b");
+    expect(md).not.toMatch(/[<>]/);
+    expect(md).not.toContain("p{}");
+    expect(htmlToMarkdown("<p>keep &lt;tag&gt; escaped</p><nav>menu")).toBe(
+      "keep &lt;tag&gt; escaped",
+    );
+  });
 });
