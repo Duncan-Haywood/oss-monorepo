@@ -159,6 +159,7 @@ test('PayApps CTAs link the open sign-up with their source and no longer say ear
 const STATE_PAGES = [
   'california-ecpr-xml-upload',
   'new-york-certified-payroll-bulk-upload',
+  'new-jersey-certified-payroll-wage-hub-mw562',
   'washington-prevailing-wage-xml-upload',
   'illinois-certified-transcript-of-payroll-csv',
 ];
