@@ -17,7 +17,7 @@
 //     on its free plan today, while its paid plans are not on sale (checkout
 //     dark until the owner's Paddle account is set). Its `appUrl` is the
 //     deployed app's sign-up page; the deploy record that proves it answers
-//     is named beside it. On 2026-11-27: PayApps and Seller Books.
+//     is named beside it. On 2026-11-27: PayApps, Job Shop Quote and Seller Books.
 //   * Everything else is 'early-access' (software being built, the free tools
 //     beside it are live) or 'long-term' (hardware designs; nothing has been
 //     physically built).
@@ -281,8 +281,12 @@ export const PRODUCT_LINES = Object.freeze([
       'Fitting new work around the jobs already on the floor',
     ],
     product: 'RFQ in, priced quote out, using your shop’s own rates and setup times.',
-    status: 'early-access',
+    status: 'open-free',
     href: null,
+    appName: 'Job Shop Quote',
+    // Deployed from ventures/jobshop-quote (jobshop-quote-deploy run 46018975911, 2026-11-27, health ok);
+    // the same origin as ventures/machine-shop-guides/cta.mjs and industry-manufacturing.mjs.
+    appUrl: 'https://jobshop-quote.marisstella.app/sign-up?from=products',
     industry: 'manufacturing',
     kind: 'software',
     tools: ['cnc-machining-quote-calculator', 'job-shop-scheduler'],

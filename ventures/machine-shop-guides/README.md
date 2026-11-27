@@ -1,9 +1,10 @@
 # Machine shop guides
 
 Free tools and guides for small machine shops that quote parts and work on
-defense contracts. The front door to two products in development for the same
-shops: an RFQ-to-quote assistant and a CMMC Level 1/2 + ISO 9001 workspace
-(`portfolio/monetization/bets.md`, bets #2 and #4).
+defense contracts. The front door to two products for the same shops: Job Shop Quote, the
+RFQ-to-quote app (open on free early access since 2026-11-27,
+<https://jobshop-quote.marisstella.app>), and a CMMC Level 1/2 + ISO 9001
+workspace still in development (`portfolio/monetization/bets.md`, bets #2 and #4).
 
 **Live:** <https://marisstella.app/machine-shop-guides/>
 
@@ -46,7 +47,12 @@ re-read from the official host in the building session.
 ### Why a shop would use the stock-size page
 
 Today an estimator opens the customer's model in CAD (SolidWorks, Fusion, a free viewer such as eDrawings) and measures it, or an online quoting platform reads it after the file is uploaded to them. This reads it in a browser tab without installing anything or uploading a confidential model, sizes round and rectangular stock with the shop's own allowances, and hands the material cost to the quote. It is the first piece of the RFQ-to-quote product (bet #2).
-- Products are "in development — early access", linking to
+- Every page's CTA card is written by `cta.mjs` (one launch switch per product,
+  `JOBSHOP_APP_URL` and `CMMC_APP_URL`, run `node cta.mjs` after changing one;
+  `page.test.mjs` fails on drift). Job Shop Quote is open, so each page links to
+  `https://jobshop-quote.marisstella.app/sign-up?from=machine-shop-guides/<page>`
+  and says what the free plan covers and what is off (paid plans, AI reading);
+  the CMMC workspace still links to
   <https://marisstella.app/industries/manufacturing/>.
 
 ## Disclaimer
