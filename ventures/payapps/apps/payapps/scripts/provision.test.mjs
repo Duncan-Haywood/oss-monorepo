@@ -8,6 +8,7 @@ import {
   parseArgs,
   parseJson,
   R2_NOT_ENABLED,
+  r2Unavailable,
   RESOURCES,
 } from "./provision.mjs";
 
@@ -80,4 +81,20 @@ test("wrangler output parsing", () => {
   assert.ok(
     R2_NOT_ENABLED.test("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
   );
+});
+
+test("R2 unavailable: not enabled, not permitted, or a real failure", () => {
+  assert.equal(
+    r2Unavailable("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
+    "not-enabled",
+  );
+  // Verbatim shape from run 45947552522: a token without R2 edit.
+  assert.equal(
+    r2Unavailable(
+      "creating r2 bucket payapps-files failed:\n✘ [ERROR] A request to the Cloudflare API (/accounts/x/r2/buckets) failed.\n\n  Authentication error [code: 10000]",
+    ),
+    "not-permitted",
+  );
+  assert.equal(r2Unavailable("fetch failed: ECONNRESET"), "");
+  assert.equal(r2Unavailable("The bucket name is invalid [code: 10005]"), "");
 });
