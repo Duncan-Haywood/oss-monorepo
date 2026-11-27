@@ -586,3 +586,72 @@ describe("work billed against a change order not yet approved", () => {
     expect(plain?.code).toBe("overbilled_line");
   });
 });
+
+describe("a line released in full, then the rate is cut", () => {
+  // Item 1 finishes in application 1 and its $1,000 is released in application 2. At half
+  // complete the GC cuts retainage to 5% (application 3), then to 0% for the final billing.
+  const lines: SovLineInput[] = [
+    {
+      id: "A",
+      itemNumber: "1",
+      description: "Underground",
+      originalCents: 1_000_000,
+      sortOrder: 1,
+    },
+    { id: "B", itemNumber: "2", description: "Rough-in", originalCents: 3_000_000, sortOrder: 2 },
+  ];
+  const at = (n: number, periodTo: string, bps: number, entries: PeriodInput["lines"]) => ({
+    id: `R${n}`,
+    number: n,
+    periodTo,
+    retainagePctBps: bps,
+    storedRetainagePctBps: bps,
+    lines: entries,
+  });
+  const p = [
+    at(1, "2026-01-31", 1000, { A: line(1_000_000), B: line(500_000) }),
+    at(2, "2026-02-28", 1000, { A: line(0, 0, 100_000), B: line(500_000) }),
+    at(3, "2026-03-31", 500, { B: line(500_000) }),
+    at(4, "2026-04-30", 0, { B: line(1_500_000) }),
+  ];
+  const apps = computeApplications({ originalContractSumCents: 4_000_000 }, lines, [], p);
+
+  it("keeps the released line at zero instead of negative, with no blocking warning", () => {
+    const a3 = apps[2];
+    expect(a3?.lines.find((l) => l.sovLineId === "A")?.retainageCents).toBe(0);
+    // 5% of $15,000 on item 2 only; nothing on stored materials.
+    expect(a3?.summary.totalRetainageCents).toBe(75_000);
+    expect(a3?.summary.retainageOnStoredMaterialsCents).toBe(0);
+    // $25,000 earned less $750, less application 2's $19,000.
+    expect(a3?.summary.currentPaymentDueCents).toBe(525_000);
+    expect(a3?.warnings).toEqual([]);
+  });
+
+  it("the final application at 0% holds nothing and pays out exactly what was held", () => {
+    const a4 = apps[3];
+    expect(a4?.summary.totalRetainageCents).toBe(0);
+    expect(a4?.warnings).toEqual([]);
+    const paid = apps.reduce((s, a) => s + a.summary.currentPaymentDueCents, 0);
+    expect(paid).toBe(4_000_000);
+  });
+
+  it("raising the rate again does not bring back retainage already released", () => {
+    const back = computeApplications(
+      { originalContractSumCents: 4_000_000 },
+      lines,
+      [],
+      [...p.slice(0, 3), at(4, "2026-04-30", 1000, { B: line(0) })],
+    );
+    expect(back[3]?.lines.find((l) => l.sovLineId === "A")?.retainageCents).toBe(0);
+  });
+
+  it("a release this period above what the line now holds is still flagged", () => {
+    const over = computeApplications(
+      { originalContractSumCents: 4_000_000 },
+      lines,
+      [],
+      [p[0] as PeriodInput, at(2, "2026-02-28", 500, { A: line(0, 0, 100_000) })],
+    );
+    expect(over[1]?.warnings.map((w) => w.code)).toContain("retainage_release_exceeds_held");
+  });
+});

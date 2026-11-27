@@ -2596,6 +2596,16 @@ nothing to copy. No customers yet. Paid plans are dark
   end (the rate, interest on past-due applications, interest on applications paid late, and which).
   An application only marked paid, with payments short of what it paid, is left out: its pay date is
   not known.
+- Fix, retainage rate cut after a line's release (2026-11-27, retainage-rate-cut): a line whose
+  retainage was released in full (10% of $10,000, $1,000 released) went to -$500 when a later
+  application cut the rate to 5% (the common "5% after half complete") or to 0% for the final
+  billing. Line 5b showed the -$500 with no stored materials, the current payment due paid it out a
+  second time, and the blocking "released exceeds held" warning stopped the application from being
+  submitted. Now a release an earlier application held enough to cover is capped at what the line
+  holds at the new rate (`acceptedReleased` in `src/shared/payapp-math.ts`), so the line stays at
+  zero; a release entered this period, or an opening release never checked, above what the line
+  holds is still flagged. Four tests in `payapp-math.test.ts` ("a line released in full, then the
+  rate is cut"), including a 0% final application paying exactly the contract sum.
 
 ## Must do before a public launch
 
