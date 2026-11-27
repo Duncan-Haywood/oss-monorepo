@@ -92,6 +92,18 @@ describe("cashDigest", () => {
     ]);
   });
 
+  it("says how much of the finished jobs' retainage waits on close-out", () => {
+    const d = cashDigest(
+      report([job({ id: "a", actions: ["Close out."] })], {
+        retainageOnCompleteJobsCents: 80_000,
+        retainageWaitingOnCloseoutCents: 50_000,
+      }),
+    );
+    expect(d?.summary).toEqual([
+      "Retainage on finished work: $800.00, of which $500.00 is waiting on close-out (punch items or documents still open).",
+    ]);
+  });
+
   it("caps the jobs and counts the rest", () => {
     const jobs = Array.from({ length: 5 }, (_, i) => job({ id: `j${i}`, actions: ["x"] }));
     const d = cashDigest(report(jobs), 2);

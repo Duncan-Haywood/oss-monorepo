@@ -83,7 +83,7 @@ export const HOME_FAQ: readonly Faq[] = [
   },
   {
     q: "Does it replace my GC's billing portal?",
-    a: "No. Your GC decides how pay apps are submitted. It keeps your numbers and backup in one place and gives you the PDF and CSV, so the portal step is copying finished figures, not redoing them. For Procore, Oracle Textura and GCPay it also fills the SOV and billing files those portals take; you still submit them in the portal yourself.",
+    a: "No. Your GC decides how pay apps are submitted. It keeps your numbers and backup in one place and gives you the PDF and CSV, so the portal step is copying finished figures, not redoing them. For Procore, Oracle Textura, GCPay and Trimble Pay it also fills the SOV and billing files those portals take; you still submit them in the portal yourself.",
   },
   {
     q: "Is it an AIA G702/G703 form?",
@@ -141,7 +141,7 @@ function home(ctx: SiteContext): BuiltPage {
       <li><strong>Set up a job once.</strong> Import the schedule of values from your own spreadsheet or the PDF bid breakdown, with the contract sum, retainage rate and pay terms. Already billing the job? Start from your last application.</li>
       <li><strong>Update progress each month.</strong> Work this period and stored materials per line; the continuation-sheet math, retainage and "less previous certificates" are calculated for you.</li>
       <li><strong>Send it with its backup.</strong> The application and continuation sheet as PDF and CSV for the GC's portal or email, the waiver it needs, and the backup attached.</li>
-      <li><strong>Get paid and keep the books straight.</strong> Record each check, see what is past due across every job, send the invoice and payment to QuickBooks Online, and bill the retainage when the work is done.</li>
+      <li><strong>Get paid and keep the books straight.</strong> Record each check, see what is past due across every job, send the invoice and payment to QuickBooks Online, and bill the retainage when the work is done, with the punch items and close-out documents it still waits on named job by job.</li>
     </ol>
     <p>All four steps work in the app today and are being tested before it opens to the public. The <a href="${href(ctx, PAGES.features.path)}">features page</a> marks what is built and what comes next.</p>
   </div>
@@ -285,7 +285,8 @@ export const FEATURES: readonly Feature[] = [
     bullets: [
       "Prints the state's statutory form where we have checked the text against the statute: Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah and Wyoming, plus Missouri's residential final waiver and Massachusetts' partial waiver and subordination of lien (its pay-app lines filled from the application); a general form in states with no statutory form",
       "Once a payment arrives, a reminder for the unconditional waiver you now owe, for the amount actually paid",
-      "Preliminary notices from the job page where the statute sets the wording or contents: California (private works) and Wyoming so far, prefilled from the job",
+      "Preliminary notices from the job page where the statute sets the wording or contents: California (private works), Florida's Notice to Owner and Wyoming so far, prefilled from the job",
+      "Florida: the § 713.06 Notice to Owner word for word, with the 45-day last day to serve it and the 40-day last day to mail it so service counts on mailing (§ 713.18), from the day you first furnished work",
       "California: record each preliminary notice you give, see the 20-day deadline from the day you first furnished work, get a reminder until the owner and GC have one, print the § 8118 proof of notice declaration, and keep the mailing receipt and return receipt with each notice",
       "We don't tell you which waiver to sign or what it means for your rights: that is a question for your attorney",
     ],
@@ -406,6 +407,20 @@ export const FEATURES: readonly Feature[] = [
     ],
   },
   {
+    id: "timesheets",
+    title: "Crew timesheets that land on job cost",
+    status: "built",
+    body: "Your foreman knows who worked where; job cost usually finds out after payroll, weeks later. Enter each worker's hours by day on a job and a schedule-of-values line, and post the week: the labor goes on each job's costs, so an over-running line shows while it can still be fixed.",
+    bullets: [
+      "Your crew list with each worker's trade and hourly rate; a worker with past hours is made inactive, not deleted",
+      "One week per screen, a row per job and line, hours by day; your company's workweek (Monday or any other day) is kept fixed once hours are entered",
+      "Overtime past 40 hours in the workweek at time and a half, on the hours worked after the 40th, so the job worked on Saturday carries it",
+      "Post to job costs: one labor cost per job and line, wages plus the burden percent you type (none is assumed); a week posted twice adds nothing",
+      "A payroll CSV (straight time, overtime, rate and gross per worker) for your payroll service, and a time detail CSV the certified payroll page reads back for a prevailing-wage week",
+      "Hours on every plan; posting them to job costs comes with job costing (Crew and up). Federal overtime only: state daily overtime, double time and prevailing wages are for your payroll service",
+    ],
+  },
+  {
     id: "job-schedule",
     title: "Your schedule on each job, and the lookahead for the GC's meeting",
     status: "built",
@@ -478,6 +493,7 @@ export const FEATURES: readonly Feature[] = [
       "Procore: the subcontractor SOV template filled from your lines, and each month's invoice amounts by line or totalled under the GC's own SOV positions",
       "Oracle Textura: the This Period or To Date billing upload template, downloaded from Textura and given back filled",
       "GCPay: the schedule of values as the Excel file its Upload button takes, lump-sum or unit-price",
+      "Trimble Pay: the Flashtract template from its Bulk upload, given back with your lines in columns A to C and its header rows untouched, checked against the contract value",
       'Each job\'s billing cutoff ("by the 25th"), with a reminder the week before when nothing has gone out',
       "Built from each portal's published help, not yet tried on a live project. Submitting into the portal stays your step: we prepare the numbers and files",
     ],

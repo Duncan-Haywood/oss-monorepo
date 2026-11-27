@@ -69,6 +69,19 @@ Open `index.html` through any static server. Tests:
 `python3 platform/ci/run_venture_tests.py pay-app-guides` (or
 `node --test *.test.mjs` in this directory).
 
+## The PayApps call to action
+
+Each page ends with a card about PayApps, the paid pay-app billing app these
+guides are the front door to (`ventures/payapps`). The heading and the
+sentence about what it does for that page's job are written per page; the
+lead ("We are building hosted" / "PayApps is hosted") and the status sentence
+with its link come from `cta.mjs`. Before launch (`APP_URL = null`) they say
+"in development" and link to the construction industry page. On launch day,
+set `APP_URL` to the deployed app and run `node cta.mjs`: every page then says
+"open now, free on one job" and links to `<APP_URL>/?signup&from=pay-app-guides/<page>`,
+which opens the app on "Create an account". `PAID_PLANS_ON` adds the prices
+once checkout is live. `page.test.mjs` fails if a page is out of date.
+
 ## No warranty
 
 This tool is provided free and as-is, without warranty of any kind, express

@@ -1,0 +1,18 @@
+{
+  "Payment": {
+    "Id": "2210",
+    "SyncToken": "0",
+    "TxnDate": "2026-12-15",
+    "CustomerRef": { "value": "58", "name": "Mesa Ridge Builders" },
+    "PaymentRefNum": "CHK-4471",
+    "TotalAmt": 20000.0,
+    "UnappliedAmt": 0,
+    "Line": [
+      {
+        "Amount": 20000.0,
+        "LinkedTxn": [{ "TxnId": "1047", "TxnType": "Invoice" }]
+      }
+    ]
+  },
+  "time": "2026-11-24T10:00:07.000-08:00"
+}
