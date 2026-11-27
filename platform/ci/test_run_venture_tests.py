@@ -215,7 +215,7 @@ class FakeVentures(unittest.TestCase):
         self.assertEqual([c for _, c in rvt.js_run_elsewhere("ws")],
                          ["pnpm test:unit", "pnpm test:worker", "pnpm exec playwright test",
                           'node --test "packages/b/src/**/*.test.ts"'])
-        with mock.patch("sys.stdout") as out:
+        with mock.patch.object(rvt, "ON_ACTIONS", False), mock.patch("sys.stdout") as out:
             self.assertEqual(rvt.main(["--no-elsewhere", "ws"]), 0)
         printed = "".join(c.args[0] for c in out.write.call_args_list if c.args)
         self.assertIn("PART ws", printed)
