@@ -298,6 +298,19 @@ the browser's built-in decoder, did the rest. That set now reads in 1.4 s in
 the browser instead of 2.1 s, with every segment and text run identical.
 Notes: [`docs/history/pdf-plan-takeoff-perf-2026-11-26.md`](/docs/history/pdf-plan-takeoff-perf-2026-11-26.md).
 
+## Next day: a long note was tidied once per line
+
+The free [drawing review](/ventures/machine-shop-guides/drawing-review.html)
+reads a part drawing's numbered notes, and a note that wraps onto more lines
+was glued together line by line, tidying the spacing of the *whole* note
+again after every line. On a sheet dense with text the last note runs on for
+thousands of pieces, so that tidying grew with the square of its length.
+Gluing first and tidying once gives exactly the same text (spacing rules do
+not care where the joins were), and a drawing with 4,000 extra labels now
+reads in 18 ms instead of 45 ms, 16,000 in 66 ms instead of 158 ms, every
+field identical. Notes:
+[`docs/history/drawing-review-perf-2026-11-27-notes-cleaned-once.md`](/docs/history/drawing-review-perf-2026-11-27-notes-cleaned-once.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running
