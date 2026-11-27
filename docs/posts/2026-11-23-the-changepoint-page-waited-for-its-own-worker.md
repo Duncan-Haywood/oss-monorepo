@@ -66,7 +66,7 @@ instead of one level at a time. The entry's own imports still run first and
 reach every module on that list, so the code runs in the same order as
 before. The source files don't change.
 
-It applies to 14 workers across seven tools, including the league scheduler
+It applies to 14 workers across eight tools, including the league scheduler
 and the shift roster builder. On the same 150 ms test server, the league
 scheduler's bowling worker now loads in 777 ms instead of 1,089 ms, and its
 practice worker in 621 ms instead of 1,085 ms. That server allows six
