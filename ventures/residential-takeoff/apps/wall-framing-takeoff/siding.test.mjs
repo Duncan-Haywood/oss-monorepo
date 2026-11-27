@@ -1,0 +1,326 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { layoutSiding, validateSiding, sidingText } from "./siding.mjs";
+
+// stud 92.625 + 3 x 1.5 = 97.125 -> rounds to 96 in (8 ft)
+const plan = (walls) => ({ studLength: 92.625, defaultHeaderHeight: 82, walls });
+
+test("a plain 12 ft wall, by hand", () => {
+  const s = layoutSiding({ waste: 0, exposure: 8, stock: 144 }, plan([{ id: "A", length: 144 }]));
+  assert.equal(s.height, 96);
+  assert.equal(s.courses, 12); // 96 / 8
+  assert.equal(s.boards, 12); // one 12 ft board per course
+  assert.ok(Math.abs(s.netSqFt - 96) < 1e-9); // 12 x 8
+  assert.equal(s.wrapRolls, 1); // 105.6 sq ft in a 1350 roll
+});
+
+test("a window splits only the courses it cuts", () => {
+  // 120 in wall, 8 courses of 12 in; window 36 wide at x 40, sill 36, head 72 -> cuts courses 3..5 (y 36..72)
+  const p = plan([{ id: "A", length: 120, openings: [{ kind: "window", offset: 40, width: 36, height: 36, headerHeight: 72 }] }]);
+  const s = layoutSiding({ waste: 0, exposure: 12, stock: 144 }, p);
+  assert.equal(s.courses, 8);
+  // 5 full runs of 120, 3 courses of 40 + 44 = 84 each: 5*120 + 3*84 = 852 in
+  assert.ok(Math.abs(s.runFeet - 852 / 12) < 1e-9);
+  assert.ok(Math.abs(s.openingSqFt - 9) < 1e-9);
+  // five 120 in runs take a board each; the six 40 and 44 in runs pack two boards (40+44+40 | 44+40+44)
+  assert.equal(s.boards, 5 + 2);
+});
+
+test("interior walls are skipped; no exterior wall is an error", () => {
+  const s = layoutSiding({}, plan([{ id: "A", length: 100 }, { id: "B", length: 500, sheathed: false }]));
+  assert.equal(s.walls, 1);
+  assert.equal(layoutSiding({}, plan([{ id: "B", length: 100, sheathed: false }])).ok, false);
+});
+
+test("corner boards, wrap laps, prices, text and bad input", () => {
+  const s = layoutSiding({ waste: 0, corners: 4, cornerStock: 120, wrapLap: 0.1, wrapRollSqFt: 100, boardPrice: 10, wrapPrice: 100, cornerPrice: 20 }, plan([{ id: "A", length: 144 }]));
+  assert.equal(s.cornerBoards, 8); // 8 pieces of 96 in, one per 120 in board
+  assert.equal(s.wrapRolls, Math.ceil(96 * 1.1 / 100)); // 2
+  assert.equal(s.cost, s.boards * 10 + 2 * 100 + 8 * 20);
+  assert.ok(sidingText(s).length >= 4);
+  assert.equal(validateSiding({ exposure: 1 }).length, 1);
+  assert.equal(validateSiding({ corners: 2.5 }).length, 1);
+  assert.equal(layoutSiding({ waste: 0.9 }, plan([{ id: "A", length: 100 }])).ok, false);
+});
+
+test("a gable end counts its triangle, by hand", () => {
+  // 120 in wide, 6:12, peak at 60: rise 30 in over 8 ft eave (96 in); exposure 6 -> 21 courses (126 / 6)
+  const s = layoutSiding({ waste: 0, exposure: 6, stock: 240 }, plan([{ id: "G", length: 120, gable: { pitch: 6 } }]));
+  assert.equal(s.courses, 21);
+  assert.ok(Math.abs(s.netSqFt - (120 * 96 + 0.5 * 120 * 30) / 144) < 1e-9);
+  // 16 courses to the eave at 120; triangle courses at 96, 102, ..., 120 above: widths 120 - 2*(up/0.5) = 120 - 4 up
+  // up = 0, 6, 12, 18, 24: 120, 96, 72, 48, 24
+  assert.ok(Math.abs(s.runFeet * 12 - (16 * 120 + 120 + 96 + 72 + 48 + 24)) < 1e-9);
+});
+
+test("an opening that rises into the gable triangle cuts its courses and the wrap, by hand (2026-11-01)", () => {
+  // 120 wide, 6:12, eave 96, rise 30; window x 50..70, y 84..108 (head 108 is 12 in into the triangle)
+  const p = plan([{ id: "G", length: 120, gable: { pitch: 6 }, openings: [{ kind: "window", offset: 50, width: 20, height: 24, headerHeight: 108 }] }]);
+  const s = layoutSiding({ waste: 0, exposure: 6, stock: 240 }, p);
+  // courses y 0..78 (13): whole 120. Course 78..84: whole. Courses 84..90, 90..96: cut -> 50 + 50 each.
+  // triangle: up 0 (y96..102): left 0, right 120 -> 50 + 50; up 6 (102..108): left 12, right 108 -> 38 + 38;
+  // up 12 (108..114): head at 108 so not cut -> width 72; up 18: 48; up 24: 24
+  const expect = 14 * 120 + 2 * 100 + 100 + 76 + 72 + 48 + 24;
+  assert.ok(Math.abs(s.runFeet * 12 - expect) < 1e-9, `${s.runFeet * 12} vs ${expect}`);
+  // wall area less the full window (20 x 24), now that none of it is clipped away
+  assert.ok(Math.abs(s.netSqFt - (120 * 96 + 0.5 * 120 * 30 - 20 * 24) / 144) < 1e-9);
+});
+
+test("an off-centre peak: the far side has the steeper-or-shallower pitch to the same peak", () => {
+  // 100 wide, peak at 25, 12:12 -> rise 25; far slope 25/75; up=10 -> 100 - 10 - 30 = 60
+  const s = layoutSiding({ waste: 0, exposure: 10, stock: 240, height: 96 }, plan([{ id: "G", length: 100, gable: { pitch: 12, peak: 25 } }]));
+  assert.ok(Math.abs(s.netSqFt - (100 * 96 + 0.5 * 100 * 25) / 144) < 1e-9);
+  // 13 courses: ten full (one straddles the eave line), then up = 4, 14, 24 -> 100 - up - 3 up = 84, 44, 4
+  assert.equal(s.courses, 13);
+  assert.ok(Math.abs(s.runFeet * 12 - (1000 + 84 + 44 + 4)) < 1e-9);
+});
+
+test("opening trim: head, jambs and a window sill, packed by hand (2026-10-30)", () => {
+  const p = plan([{ id: "A", length: 240, openings: [
+    { kind: "window", offset: 20, width: 36, height: 36, headerHeight: 72 },
+    { kind: "door", offset: 120, width: 36, height: 80, headerHeight: 80 },
+  ] }]);
+  const off = layoutSiding({ waste: 0 }, p);
+  assert.equal(off.trim, null); // off by default: earlier totals do not move
+  const s = layoutSiding({ waste: 0, openingTrim: true, trimStock: 96, trimPrice: 10 }, p);
+  // 3.5 in boards: window head and sill 43, jambs 36 x2; door head 43, jambs 80 x2
+  // pieces 80 80 43 43 43 36 36 = 361 in; first fit decreasing into 96 in: [80] [80] [43 43] [43 36] [36] = 5 boards
+  assert.equal(s.trim.doors, 1); assert.equal(s.trim.windows, 1);
+  assert.ok(Math.abs(s.trim.feet - 361 / 12) < 1e-9);
+  assert.equal(s.trim.boards, 5);
+  assert.equal(s.cost, 50);
+  assert.ok(sidingText(s).some((x) => x.includes("Opening trim: 1 door(s)")));
+  assert.equal(layoutSiding({ trimWidth: 9 }, p).ok, false);
+});
+
+test("vertical siding: columns, pieces round an opening, gable and refusal, by hand (2026-10-30)", () => {
+  // 120 in wall, 8 ft high, 12 in boards: 10 columns; window x 40..76 (36 wide), y 36..72 touches columns 3,4,5,6 (x 36..84)
+  const p = plan([{ id: "A", length: 120, openings: [{ kind: "window", offset: 40, width: 36, height: 36, headerHeight: 72 }] }]);
+  const s = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 96 }, p);
+  assert.equal(s.style, "vertical");
+  assert.equal(s.courses, 10);
+  // 6 full 96 in boards + 4 columns x (36 below + 24 above) = 576 + 240 = 816 in
+  assert.ok(Math.abs(s.runFeet * 12 - 816) < 1e-9);
+  // 6 boards of 96; the eight pieces of 36 and 24 pack into 96 in boards: 36+36+24 | 36+36+24 | 24+24 -> 3 boards
+  assert.equal(s.boards, 6 + 3);
+  assert.ok(sidingText(s)[0].includes("Siding (vertical)"));
+  // gable: 120 wide, 6:12, 12 in columns; the column holding the peak (x 60) is 96 + 30 long; first column 96 + 0.5 * 12 = 102
+  const g = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 144 }, plan([{ id: "G", length: 120, gable: { pitch: 6 } }]));
+  assert.ok(g.ok); assert.ok(Math.abs(g.runFeet * 12 - 2 * (102 + 108 + 114 + 120 + 126)) < 1e-9);
+  assert.equal(layoutSiding({ style: "vertical", stock: 72 }, plan([{ id: "A", length: 100 }])).ok, false);
+  assert.equal(validateSiding({ style: "slate" }).length, 1);
+  assert.equal(validateSiding({ boardWidth: 1 }).length, 1);
+});
+
+test("vertical siding battens: one per seam, cut at an opening and by the gable line, by hand (2026-10-30)", () => {
+  // 120 in wall, 12 in columns: 9 seams at x = 12..108; window x 40..76 y 36..72 crosses seams 48, 60, 72
+  const p = plan([{ id: "A", length: 120, openings: [{ kind: "window", offset: 40, width: 36, height: 36, headerHeight: 72 }] }]);
+  const s = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 96, battens: true, battenPrice: 2 }, p);
+  assert.equal(s.battens.pieces, 6 + 3 * 2);
+  assert.ok(Math.abs(s.battens.feet * 12 - (6 * 96 + 3 * 60)) < 1e-9);
+  // six 96s, then six 36s and 24s: 36+36+24 | 36+24+24 | 24 ... 3 x 36 + 3 x 24 = 180 in -> 2 boards
+  assert.equal(s.battens.boards, 6 + 2);
+  assert.equal(s.cost, 2 * s.battens.boards);
+  assert.equal(layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 96 }, p).battens, null);
+  // gable 120 wide, 6:12: seams at 12..108 stand 96 + 0.5 x, 96 + 0.5 x(120-x)
+  const g = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 144, battens: true }, plan([{ id: "G", length: 120, gable: { pitch: 6 } }]));
+  assert.ok(Math.abs(g.battens.feet * 12 - (2 * (102 + 108 + 114 + 120) + 126)) < 1e-9);
+  assert.ok(sidingText(s).some((x) => x.includes("Battens:")));
+  assert.equal(validateSiding({ battenStock: 10 }).length, 1);
+});
+
+test("starter strip: one run along each exterior wall, packed into stock by hand (2026-10-31)", () => {
+  // walls of 240, 168 and 100 in, the last unsheathed: 408 in of strip in 240 in boards, whole pieces: [240] [168] = 2 boards
+  const p = plan([{ id: "A", length: 240 }, { id: "B", length: 168 }, { id: "C", length: 100, sheathed: false }]);
+  assert.equal(layoutSiding({ waste: 0 }, p).starter, null); // off by default: earlier totals do not move
+  const s = layoutSiding({ waste: 0, starter: true, starterPrice: 5, stock: 240 }, p);
+  assert.equal(s.starter.walls, 2);
+  assert.ok(Math.abs(s.starter.feet - 408 / 12) < 1e-9);
+  assert.equal(s.starter.boards, 2); // 240 and 168 do not share a 240 in board
+  assert.equal(s.cost, 10);
+  assert.ok(sidingText(s).some((x) => x.includes("Starter strip: 34 ft along the base of 2 wall(s)")));
+  assert.equal(layoutSiding({ starter: true, style: "vertical" }, p).ok, false);
+  assert.equal(layoutSiding({ starter: "yes" }, p).ok, false);
+});
+
+test("head flashing: one piece run per opening, packed by hand (2026-10-31)", () => {
+  // openings of 36 and 60 in with 2 in past each jamb: 40 and 64 in; in 72 in stock 40 + 64 do not share a piece: 2 pieces
+  const p = plan([{ id: "A", length: 240, openings: [{ kind: "window", offset: 20, width: 36, height: 48 }, { kind: "door", offset: 100, width: 60, height: 80 }] }]);
+  assert.equal(layoutSiding({ waste: 0 }, p).flashing, null); // off by default: earlier totals do not move
+  const s = layoutSiding({ waste: 0, headFlashing: true, flashingStock: 72, flashingPrice: 4 }, p);
+  assert.equal(s.flashing.openings, 2);
+  assert.ok(Math.abs(s.flashing.feet - 104 / 12) < 1e-9);
+  assert.equal(s.flashing.pieces, 2);
+  assert.equal(s.cost, 8);
+  assert.ok(sidingText(s).some((x) => x.includes("Head flashing: 2 opening(s), 9 ft")));
+  assert.equal(layoutSiding({ headFlashing: "yes" }, p).ok, false);
+  assert.equal(layoutSiding({ headFlashing: true, flashingExtend: 20 }, p).ok, false);
+});
+
+test("opening tape: sill and jamb runs summed by hand, whole rolls (2026-10-31)", () => {
+  // 36 x 48 window: 36+4 = 40 sill + 2 x (48+2) = 100 jamb = 140 in; 60 x 80 door: 64 + 2 x 82 = 228 in; total 368 in
+  const p = plan([{ id: "A", length: 240, openings: [{ kind: "window", offset: 20, width: 36, height: 48 }, { kind: "door", offset: 100, width: 60, height: 80 }] }]);
+  assert.equal(layoutSiding({ waste: 0 }, p).tape, null);
+  const s = layoutSiding({ waste: 0, openingTape: true, tapeRollFeet: 20, tapePrice: 12 }, p);
+  assert.equal(s.tape.openings, 2);
+  assert.ok(Math.abs(s.tape.feet - 368 / 12) < 1e-9); // 30.67 ft in 20 ft rolls
+  assert.equal(s.tape.rolls, 2);
+  assert.equal(s.cost, 24);
+  assert.ok(sidingText(s).some((x) => x.includes("Opening tape: 2 opening(s), 31 ft")));
+  assert.equal(layoutSiding({ openingTape: 1 }, p).ok, false);
+  assert.equal(layoutSiding({ openingTape: true, tapeRollFeet: 5 }, p).ok, false);
+});
+
+test("siding nails by hand: 12 courses of 144 in at 16 in, 1 row, waste 0", () => {
+  const p = plan([{ id: "A", length: 144 }]);
+  const off = layoutSiding({ waste: 0, exposure: 8, stock: 144 }, p);
+  assert.equal(off.nails, null);
+  const s = layoutSiding({ waste: 0, exposure: 8, stock: 144, nails: true, nailBoxPrice: 30 }, p);
+  assert.equal(s.nails.count, 12 * 144 / 16 + 12); // 108 along the runs, one per board end
+  assert.ok(Math.abs(s.nails.lb - 120 / 200) < 1e-9);
+  assert.equal(s.nails.boxes, 1);
+  assert.match(sidingText(s).join("\n"), /Siding nails: 120/);
+  const v = layoutSiding({ waste: 0, style: "vertical", stock: 96, nails: true, nailSpacing: 12, nailRows: 3, nailsPerLb: 100, nailBoxLb: 1 }, p);
+  assert.equal(v.nails.rows, 3);
+  assert.equal(v.nails.boxes, Math.ceil(v.nails.count / 100 / 1 - 1e-9));
+  assert.ok(validateSiding({ nails: "yes" }).length && validateSiding({ nailRows: 0 }).length);
+});
+
+test("caulk: opening perimeters and corner board edges by hand, whole tubes (2026-11-05)", () => {
+  // 36 x 48 window: 168 in; 60 x 80 door: 280 in; openings 448 in. Corners: 4 x 2 edges x wall height.
+  const p = plan([{ id: "A", length: 240, openings: [{ kind: "window", offset: 20, width: 36, height: 48 }, { kind: "door", offset: 100, width: 60, height: 80 }] }]);
+  assert.equal(layoutSiding({ waste: 0 }, p).caulk, null);
+  const s = layoutSiding({ waste: 0, caulk: true, corners: 0, caulkPrice: 5 }, p);
+  assert.ok(Math.abs(s.caulk.feet - 448 / 12) < 1e-9); // 37.33 ft
+  // 10.1 oz x 1.8047 = 18.23 cu in; 1/4 in fillet = 0.03125 sq in -> 583.3 in = 48.6 ft per tube -> 1 tube
+  assert.ok(Math.abs(s.caulk.feetPerTube - 48.61) < 0.01);
+  assert.equal(s.caulk.tubes, 1);
+  assert.equal(s.cost, 5);
+  const c = layoutSiding({ waste: 0, caulk: true, corners: 4 }, p);
+  assert.ok(Math.abs(c.caulk.feet - (448 + 8 * c.height) / 12) < 1e-9);
+  assert.equal(c.caulk.tubes, Math.ceil(c.caulk.feet / c.caulk.feetPerTube - 1e-9));
+  assert.ok(sidingText(s).some((x) => x.includes("Caulk: 37 ft")));
+  assert.equal(layoutSiding({ caulk: 1 }, p).ok, false);
+  assert.equal(layoutSiding({ caulk: true, caulkBead: 3 }, p).ok, false);
+});
+
+// gables: "roof" (2026-11-26): the triangle comes from the framed roof's pitch and width, not a typed `gable`
+const roofPlan = (walls, roof) => ({ ...plan(walls), roof });
+const box = () => [{ id: "Front", length: 240 }, { id: "Right", length: 120 }, { id: "Back", length: 240 }, { id: "Left", length: 120 }];
+
+test("gables from the roof: the two walls as long as the roof is wide get its pitch, and match typed gables exactly", () => {
+  const roof = { width: 120, length: 240, pitch: 6 };
+  const s = layoutSiding({ waste: 0, exposure: 6, stock: 240, gables: "roof" }, roofPlan(box(), roof));
+  assert.equal(s.ok, true);
+  assert.deepEqual(s.gableWalls.map((g) => [g.wall, g.pitch, g.rise, g.from]), [["Right", 6, 30, "roof"], ["Left", 6, 30, "roof"]]);
+  // by hand: walls 2 x 240 x 96 + 2 x 120 x 96 = 69120 sq in; two triangles 2 x 0.5 x 120 x 30 = 3600; 72720 / 144 = 505 sq ft
+  assert.ok(Math.abs(s.netSqFt - 505) < 1e-9);
+  // the same house with the gables typed on the walls gives the same order, board for board
+  const typed = box().map((w) => (w.length === 120 ? { ...w, gable: { pitch: 6 } } : w));
+  const t = layoutSiding({ waste: 0, exposure: 6, stock: 240 }, plan(typed));
+  for (const k of ["courses", "runFeet", "boards", "netSqFt", "wrapRolls"]) assert.equal(s[k], t[k], k);
+  assert.deepEqual(t.gableWalls.map((g) => g.from), ["typed", "typed"]);
+  // and without `gables` the roof is ignored: level walls only
+  const level = layoutSiding({ waste: 0, exposure: 6, stock: 240 }, roofPlan(box(), roof));
+  assert.ok(Math.abs(level.netSqFt - 480) < 1e-9);
+  assert.deepEqual(level.gableWalls, []);
+  assert.ok(sidingText(s).some((l) => l.includes("Gable end Right: 6:12, 2.50 ft rise above the eave line (from the framed roof)")));
+});
+
+test("gables from the roof: a hip or outline roof adds none; ambiguous walls are refused with the fix", () => {
+  const hip = layoutSiding({ gables: "roof" }, roofPlan(box(), { width: 120, length: 240, pitch: 6, shape: "hip" }));
+  assert.equal(hip.ok, true);
+  assert.deepEqual(hip.gableWalls, []);
+  assert.match(hip.gableNotes[0], /all hip/);
+  const outline = layoutSiding({ gables: "roof" }, roofPlan(box(), { outline: [[0, 0], [240, 0], [240, 120], [0, 120]], pitch: 6 }));
+  assert.deepEqual(outline.gableWalls, []);
+  // a square house: four walls match the width, so the gable ends must be named
+  const sq = [{ id: "A", length: 120 }, { id: "B", length: 120 }, { id: "C", length: 120 }, { id: "D", length: 120 }];
+  const amb = layoutSiding({ gables: "roof" }, roofPlan(sq, { width: 120, length: 120, pitch: 6 }));
+  assert.equal(amb.ok, false);
+  assert.match(amb.errors[0], /4 sheathed wall\(s\).*roof\.gableWalls/);
+  const named = layoutSiding({ gables: "roof" }, roofPlan(sq, { width: 120, length: 120, pitch: 6, gableWalls: ["B", "D"] }));
+  assert.deepEqual(named.gableWalls.map((g) => g.wall), ["B", "D"]);
+  // no roof, a wrong wall, a wall of the wrong length, a bad setting
+  assert.match(layoutSiding({ gables: "roof" }, plan(box())).errors[0], /need the plan's `roof`/);
+  assert.match(layoutSiding({ gables: "roof" }, roofPlan(box(), { width: 120, length: 240, pitch: 6, gableWalls: ["Nope"] })).errors[0], /"Nope", which is not a sheathed wall/);
+  assert.match(layoutSiding({ gables: "roof" }, roofPlan(box(), { width: 120, length: 240, pitch: 6, gableWalls: ["Front"] })).errors[0], /240 in long but the roof is 120 in wide/);
+  assert.deepEqual(validateSiding({ gables: "yes" }), ['Siding gables are "roof" (gable triangles from the framed roof) or left out.']);
+});
+
+test("gables from the roof: a typed gable wins, interior walls are skipped, a named wing gable takes the wing's pitch", () => {
+  const walls = [...box().map((w) => (w.id === "Left" ? { ...w, gable: { pitch: 12 } } : w)), { id: "Int", length: 120, sheathed: false }];
+  const s = layoutSiding({ gables: "roof" }, roofPlan(walls, { width: 120, length: 240, pitch: 6 }));
+  assert.equal(s.ok, true);
+  assert.deepEqual(s.gableWalls.map((g) => [g.wall, g.pitch, g.from]), [["Right", 6, "roof"], ["Left", 12, "typed"]]);
+  assert.ok(s.gableNotes.some((n) => n.includes('"Left" keeps the gable typed')));
+  // a wing 96 in wide at 8:12 whose gable wall is named: rise 48 x 8 / 12 = 32 in
+  const wingWalls = [...box(), { id: "Wing end", length: 96 }];
+  const w = layoutSiding({ gables: "roof" }, roofPlan(wingWalls, { width: 120, length: 240, pitch: 6, wing: { width: 96, projection: 120, pitch: 8, gableWall: "Wing end" } }));
+  assert.deepEqual(w.gableWalls.map((g) => [g.wall, g.pitch, g.rise]), [["Right", 6, 30], ["Left", 6, 30], ["Wing end", 8, 32]]);
+  // an unnamed wing is said, not guessed
+  const un = layoutSiding({ gables: "roof" }, roofPlan(wingWalls, { width: 120, length: 240, pitch: 6, wing: { width: 96, projection: 120 } }));
+  assert.ok(un.gableNotes.some((n) => n.includes("roof.wing.gableWall")));
+});
+
+// rakeHeel (2026-11-26): the band between the top plate and the underside of the rake on every gable wall
+test("the band under the rake: each gable wall gets rakeHeel x its length under the triangle, by hand", () => {
+  const roof = { width: 120, length: 240, pitch: 6 };
+  const d = { waste: 0, exposure: 6, stock: 240, gables: "roof" };
+  const s0 = layoutSiding(d, roofPlan(box(), roof));
+  const s = layoutSiding({ ...d, rakeHeel: 6 }, roofPlan(box(), roof));
+  assert.equal(s.ok, true);
+  // walls 69120 + two bands 2 x 120 x 6 = 1440 + two triangles 3600 = 74160 sq in / 144 = 515 sq ft
+  assert.ok(Math.abs(s.netSqFt - 515) < 1e-9);
+  assert.ok(Math.abs(s.bandSqFt - 10) < 1e-9);
+  // courses: level walls 96 / 6 = 16 each; gable walls (96 + 6 + 30) / 6 = 22 each, one more than without the band
+  assert.equal(s.courses, 2 * 16 + 2 * 22);
+  assert.equal(s0.courses, 2 * 16 + 2 * 21);
+  // a gable wall's runs: 17 full 120 in courses (y0 0..96 < 102), then the triangle at up 0, 6, 12, 18, 24:
+  // 120 - 4 x up = 120 + 96 + 72 + 48 + 24; without the band 16 full courses and the same triangle, so 120 in more per wall
+  assert.ok(Math.abs(s.runFeet - s0.runFeet - 2 * 120 / 12) < 1e-9);
+  assert.deepEqual(s.gableWalls.map((g) => [g.wall, g.heel]), [["Right", 6], ["Left", 6]]);
+  assert.ok(sidingText(s).some((l) => l.includes("Gable end Right: 6:12, 2.50 ft rise above a band 6 in tall under the rake")));
+  assert.ok(sidingText(s).some((l) => l.startsWith("  Band under the rake: 6 in above the top plate on 2 gable wall(s), 10.0 sq ft")));
+  assert.ok(sidingText(s0).some((l) => l.includes("Band under the rake: not counted")));
+  // level walls, corner boards and caulk keep the wall height
+  assert.equal(s.height, 96);
+  assert.equal(s.cornerBoards, s0.cornerBoards);
+});
+
+test("the band under the rake: zero or left out changes nothing; no gable wall, no band; typed gables get it too", () => {
+  const roof = { width: 120, length: 240, pitch: 6 };
+  const d = { waste: 0, exposure: 6, stock: 240, gables: "roof" };
+  const a = layoutSiding(d, roofPlan(box(), roof)), z = layoutSiding({ ...d, rakeHeel: 0 }, roofPlan(box(), roof));
+  for (const k of ["courses", "runFeet", "boards", "netSqFt", "wrapRolls"]) assert.equal(a[k], z[k], k);
+  const level = layoutSiding({ waste: 0, exposure: 6, stock: 240, rakeHeel: 12 }, plan(box()));
+  assert.ok(Math.abs(level.netSqFt - 480) < 1e-9);
+  assert.equal(level.bandSqFt, 0);
+  assert.ok(!sidingText(level).some((l) => l.includes("Band under the rake")));
+  const typed = box().map((w) => (w.length === 120 ? { ...w, gable: { pitch: 6 } } : w));
+  const t = layoutSiding({ waste: 0, exposure: 6, stock: 240, rakeHeel: 6 }, plan(typed));
+  const r = layoutSiding({ ...d, rakeHeel: 6 }, roofPlan(box(), roof));
+  for (const k of ["courses", "runFeet", "boards", "netSqFt", "bandSqFt"]) assert.equal(t[k], r[k], k);
+});
+
+test("the band under the rake: vertical columns and battens reach it, and an opening may rise into it", () => {
+  const g = [{ id: "G", length: 120, gable: { pitch: 6 } }];
+  const v = (heel) => layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, battens: true, stock: 240, rakeHeel: heel }, plan(g));
+  const v0 = v(0), v6 = v(6);
+  // 10 columns and 9 seams, each 6 in taller
+  assert.equal(v6.courses, 10);
+  assert.ok(Math.abs(v6.runFeet - v0.runFeet - 10 * 6 / 12) < 1e-9);
+  assert.ok(Math.abs(v6.battens.feet - v0.battens.feet - 9 * 6 / 12) < 1e-9);
+  // a vent 12 wide x 4 tall with its head 100 in up sits in the band (96..102): cut out of it, not clipped at the plate
+  const vent = [{ id: "G", length: 120, gable: { pitch: 6 }, openings: [{ kind: "window", offset: 54, width: 12, height: 4, headerHeight: 100 }] }];
+  const o = layoutSiding({ waste: 0, exposure: 6, stock: 240, rakeHeel: 6 }, plan(vent));
+  const n = layoutSiding({ waste: 0, exposure: 6, stock: 240, rakeHeel: 6 }, plan(g));
+  assert.ok(Math.abs(o.openingSqFt - 48 / 144) < 1e-9);
+  assert.ok(Math.abs(n.netSqFt - o.netSqFt - 48 / 144) < 1e-9);
+});
+
+test("the band under the rake: refused outside 0 to 36 in, and as text", () => {
+  assert.deepEqual(validateSiding({ rakeHeel: 40 }), ["The band under the rake (`rakeHeel`) must be between 0 and 36 inches above the top plate."]);
+  assert.deepEqual(validateSiding({ rakeHeel: -1 }), ["The band under the rake (`rakeHeel`) must be between 0 and 36 inches above the top plate."]);
+  assert.equal(layoutSiding({ rakeHeel: "6" }, plan(box())).ok, false);
+});

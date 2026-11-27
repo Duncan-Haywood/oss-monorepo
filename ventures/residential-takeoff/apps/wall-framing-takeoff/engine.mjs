@@ -1,0 +1,1737 @@
+// @ts-check
+// Wall framing takeoff: from a list of walls and openings to a stud layout,
+// a cut list and the cheapest lumber order that covers it.
+//
+// Everything is in inches. Lumber is nominal 2x: 1.5 in thick, 3.5 in (2x4)
+// or 5.5 in (2x6) deep. A wall is laid out from its start end: an end stud,
+// then studs centred on every multiple of the spacing, then an end stud.
+// Openings replace the layout studs they cover with king and jack studs, a
+// header and cripples kept on layout. Plates longer than the longest board
+// are spliced over a full-length stud, with the cap plate's joints kept a
+// set distance from the top plate's.
+//
+// The order is a cutting-stock problem over the boards the user can buy
+// (several lengths, each with its own price): Gilmore-Gomory column
+// generation gives an LP lower bound on the cost, sequential rounding of the
+// LP gives the order, and first-fit-decreasing is kept as a fallback. The
+// result reports both the cost and the bound, so the gap is visible.
+//
+// Header sizes and jack counts are inputs. Nothing here checks them against
+// a span table or a building code.
+
+export const THICK = 1.5;
+export const DEPTH = { "2x4": 3.5, "2x6": 5.5, "2x8": 7.25, "2x10": 9.25, "2x12": 11.25 };
+const STEP = 16; // cutting resolution: 1/16 in
+export const EPS = 1e-9;
+
+/** The method the lumber order uses, cited for `tools.mjs describe`. */
+export const PAPERS = [
+  {
+    citation: "Gilmore, P. C. & Gomory, R. E. (1961). A linear programming approach to the cutting-stock problem. Operations Research 9(6), 849-859. doi:10.1287/opre.9.6.849",
+    implemented: "Column generation for the LP relaxation, with a bounded knapsack (dynamic programming in 1/16 in) as the pricing problem, over several board lengths with their own prices; the LP value is reported as a lower bound.",
+    departs: "Integer orders come from sequential rounding of the LP and re-solving the remainder, compared with first-fit-decreasing; small groups are solved exactly by dynamic programming over the demand vector instead.",
+  },
+];
+
+/** Precut stud lengths sold for 8, 9 and 10 ft walls (one bottom, two top plates). */
+export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
+
+/**
+ * @typedef {{ kind: "window"|"door", offset: number, width: number, height: number,
+ *   headerHeight?: number, header?: string, headerPlies?: number, jacks?: number,
+ *   kings?: number, sillPlies?: number, label?: string }} Opening
+ * @typedef {{ id: string, length: number, stud?: "2x4"|"2x6", treatedPlate?: boolean,
+ *   bearing?: boolean, corner?: boolean, tees?: number[], tee?: { wall: string, at: number, end?: "start"|"end" }, openings?: Opening[], sheathed?: boolean, freeEnds?: 0|1|2, gable?: { pitch: number, peak?: number }, studLength?: number }} Wall
+ * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
+ * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
+ *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
+ *   blocking?: { rows?: number, fire?: boolean, stagger?: boolean }, plateLaps?: boolean, advanced?: { twoStudCorners?: boolean, ladderTees?: boolean, singleTopPlate?: boolean }, stock: Stock[], walls: Wall[] }} Plan
+ * @typedef {{ kind: string, x: number, y: number, w: number, h: number, size: string,
+ *   length: number, orient: "v"|"h", label: string, sloped?: boolean }} Member
+ */
+
+/** A small invented house (a 40 x 28 ft ranch), for the page's example. Not a real plan. */
+export function samplePlan() {
+  const ft = (f, i = 0) => f * 12 + i;
+  /** @type {Plan} */
+  const plan = {
+    studSpacing: 16,
+    studLength: PRECUT["8ft"],
+    kerf: 0.125,
+    topPlateLap: 24,
+    cornerExtraStuds: 2,
+    teeExtraStuds: 2,
+    defaultHeaderHeight: 82.5,
+    stock: defaultStock(),
+    walls: [
+      {
+        id: "Front", length: ft(40), stud: "2x4", treatedPlate: true, corner: true, tees: [ft(14), ft(26)],
+        openings: [
+          { kind: "door", label: "Entry", offset: ft(17), width: 38, height: 82.5, header: "2x10" },
+          { kind: "window", label: "Living", offset: ft(4), width: 72, height: 60, header: "2x10", jacks: 2 },
+          { kind: "window", label: "Bed 1", offset: ft(31), width: 36, height: 48, header: "2x10" },
+        ],
+      },
+      {
+        id: "Right", length: ft(28), stud: "2x4", treatedPlate: true, corner: true, tees: [ft(12)],
+        openings: [{ kind: "window", label: "Bed 1 side", offset: ft(4), width: 36, height: 48, header: "2x10" }],
+      },
+      {
+        id: "Back", length: ft(40), stud: "2x4", treatedPlate: true, corner: true, tees: [ft(14), ft(26)],
+        openings: [
+          { kind: "door", label: "Patio", offset: ft(6), width: 74, height: 82.5, header: "2x12", jacks: 2 },
+          { kind: "window", label: "Kitchen", offset: ft(19), width: 48, height: 36, header: "2x10" },
+          { kind: "window", label: "Bath", offset: ft(30), width: 24, height: 36, header: "2x10" },
+        ],
+      },
+      {
+        id: "Left", length: ft(28), stud: "2x4", treatedPlate: true, corner: true, tees: [ft(14)],
+        openings: [{ kind: "window", label: "Bed 2", offset: ft(8), width: 36, height: 48, header: "2x10" }],
+      },
+      {
+        id: "Hall", sheathed: false, length: ft(37), stud: "2x4", tees: [ft(11), ft(23)],
+        openings: [
+          { kind: "door", label: "Bed 1", offset: ft(3), width: 32, height: 82.5, header: "2x4", headerPlies: 2 },
+          { kind: "door", label: "Bath", offset: ft(15), width: 30, height: 82.5, header: "2x4", headerPlies: 2 },
+          { kind: "door", label: "Bed 2", offset: ft(28), width: 32, height: 82.5, header: "2x4", headerPlies: 2 },
+        ],
+      },
+      { id: "Bed 1 / Bath", sheathed: false, length: ft(13, 3), stud: "2x4" },
+      { id: "Bath / Bed 2", sheathed: false, length: ft(13, 3), stud: "2x4", openings: [{ kind: "door", label: "Closet", offset: 40, width: 50, height: 82.5, header: "2x4", headerPlies: 2 }] },
+      { id: "Kitchen", sheathed: false, length: ft(12), stud: "2x4" },
+    ],
+  };
+  return plan;
+}
+
+/**
+ * Board lengths and prices used until the user types their own: 8 to 16 ft
+ * in every size, plus the precut stud for the wall height. Price is 1 per
+ * linear foot, so the default order minimises the length bought; type your
+ * lumberyard's prices to minimise cost.
+ * @param {number} studLength
+ */
+export function defaultStock(studLength = PRECUT["8ft"]) {
+  /** @type {Stock[]} */
+  const out = [];
+  for (const size of ["2x4", "2x4 PT", "2x6", "2x6 PT", "2x8", "2x10", "2x12"]) {
+    for (const f of [8, 10, 12, 14, 16]) out.push({ size, length: f * 12, price: f });
+  }
+  for (const size of ["2x4", "2x6"]) out.push({ size, length: studLength, price: Math.round((studLength / 12) * 100) / 100, label: "precut stud" });
+  return out;
+}
+
+/** The example plan: `tools.mjs call wall-framing-takeoff takeoff --input` lays its object over this. */
+export const DEFAULTS = samplePlan();
+
+/**
+ * Parse a length typed as feet and inches: `12' 6-1/2"`, `12ft 6in`, `150.5`, `150 1/2`, `12'`.
+ * A bare number is inches. Returns NaN when it cannot read the text.
+ * @param {string|number} text
+ */
+export function parseLength(text) {
+  if (typeof text === "number") return text;
+  // Metric from a European plan: "2500mm", "250 cm", "2.5m", "2,5 m" -> inches (exact 25.4 mm).
+  const metric = String(text).trim().toLowerCase().match(/^(\d+(?:[.,]\d+)?)\s*(mm|cm|m)$/);
+  if (metric) return Number(metric[1].replace(",", ".")) * { mm: 1, cm: 10, m: 1000 }[metric[2]] / 25.4;
+  let s = String(text).trim().toLowerCase().replace(/feet|foot|ft/g, "'").replace(/inches|inch|in/g, '"').replace(/[″”“]/g, '"').replace(/[′’‘]/g, "'");
+  // Phone keyboards type curly quotes and one-glyph fractions (6½").
+  const GLYPH = { "½": "1/2", "¼": "1/4", "¾": "3/4", "⅛": "1/8", "⅜": "3/8", "⅝": "5/8", "⅞": "7/8" };
+  s = s.replace(/(\d)?([½¼¾⅛⅜⅝⅞])/g, (_, d, g) => (d ? `${d} ${GLYPH[g]}` : GLYPH[g]));
+  // Thousands separators in a long run ("1,200", "1,200'"): only exact 3-digit groups, so "1,5" stays refused.
+  if (/^\d{1,3}(,\d{3})+(?=\D|$)/.test(s)) s = s.replace(/^\d{1,3}(,\d{3})+/, (g) => g.replace(/,/g, ""));
+  if (!s) return NaN;
+  let feet = 0;
+  const fm = s.match(/^(\d+(?:\.\d+)?)\s*'/);
+  if (fm) {
+    feet = Number(fm[1]);
+    s = s.slice(fm[0].length).trim().replace(/^-\s*/, "");
+  }
+  s = s.replace(/"$/, "").trim();
+  if (!s) return fm ? feet * 12 : NaN;
+  const m = s.match(/^(\d+)\/(\d+)$/) ? [s, undefined, ...s.split("/")] : s.match(/^(\d+(?:\.\d+)?)(?:[\s-]+(\d+)\/(\d+))?$/);
+  if (!m || (m[1] === undefined && m[2] === undefined)) return NaN;
+  let inches = m[1] ? Number(m[1]) : 0;
+  if (m[2]) {
+    if (Number(m[3]) === 0) return NaN;
+    inches += Number(m[2]) / Number(m[3]);
+  }
+  return feet * 12 + inches;
+}
+
+/** Format inches as feet-inches to the nearest 1/16: 150.5 -> 12' 6-1/2". */
+export function formatLength(inches) {
+  let sixteenths = Math.round(inches * 16);
+  const neg = sixteenths < 0;
+  sixteenths = Math.abs(sixteenths);
+  const ft = Math.floor(sixteenths / 192);
+  const rest = sixteenths - ft * 192;
+  const whole = Math.floor(rest / 16);
+  let num = rest - whole * 16;
+  let den = 16;
+  while (num && num % 2 === 0) { num /= 2; den /= 2; }
+  const frac = num ? `${whole ? `${whole}-` : ""}${num}/${den}` : `${whole}`;
+  return `${neg ? "-" : ""}${ft ? `${ft}' ` : ""}${frac}"`;
+}
+
+/** Format inches as a plain inch figure to the nearest 1/16: 92.625 -> 92-5/8". */
+export function formatInches(inches) {
+  const s = Math.round(inches * 16);
+  const whole = Math.floor(s / 16);
+  let num = s - whole * 16;
+  let den = 16;
+  while (num && num % 2 === 0) { num /= 2; den /= 2; }
+  if (!num) return `${whole}"`;
+  return whole ? `${whole}-${num}/${den}"` : `${num}/${den}"`;
+}
+
+/**
+ * Check a plan and list every problem in it, in words a framer would use.
+ * @param {Plan} plan
+ * @returns {string[]}
+ */
+export function validatePlan(plan) {
+  const errors = [];
+  if (!plan || !Array.isArray(plan.walls) || !plan.walls.length) return ["Add at least one wall."];
+  // Shape first: a hand-typed or generated plan can hold null, a number or a string where the engine expects a record or a list.
+  const isRec = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+  const shape = [];
+  if (plan.stock !== undefined && (!Array.isArray(plan.stock) || !plan.stock.every(isRec))) shape.push("\"stock\" must be a list of boards, each with a size, length and price.");
+  plan.walls.forEach((w, i) => {
+    const at = isRec(w) && w.id ? `Wall ${w.id}` : `Wall number ${i + 1}`;
+    if (!isRec(w)) { shape.push(`${at} must be an object with an id, a length and openings.`); return; }
+    if (w.tees !== undefined && !Array.isArray(w.tees)) shape.push(`${at}: "tees" must be a list of distances from the wall start.`);
+    if (w.openings !== undefined && (!Array.isArray(w.openings) || !w.openings.every(isRec))) shape.push(`${at}: "openings" must be a list of objects, each with an offset, width and height.`);
+  });
+  // A string or boolean passes a bare >= comparison by coercion ("16" >= 8, true >= 0) and null or "x" in an offset or header height
+  // reaches the layout as NaN, which throws a raw Error out of takeoff. Numbers must be real numbers.
+  const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+  for (const [key, label] of [["studSpacing", "Stud spacing"], ["studLength", "Stud length"], ["kerf", "Saw kerf"], ["topPlateLap", "Top plate joint offset"], ["defaultHeaderHeight", "Default header height"]]) {
+    if (key === "defaultHeaderHeight" && plan[key] === undefined && !plan.walls.some((w) => isRec(w) && Array.isArray(w.openings) && w.openings.some((op) => isRec(op) && op.headerHeight === undefined))) continue;
+    if (!isNum(plan[key])) shape.push(`${label} must be a number of inches.`);
+  }
+  plan.walls.forEach((w, i) => {
+    if (!isRec(w)) return;
+    const at = `Wall ${w.id || i + 1}`;
+    if (Array.isArray(w.openings)) w.openings.forEach((op) => {
+      if (!isRec(op)) return;
+      for (const k of ["offset", "width", "height"]) if (!isNum(op[k])) shape.push(`${at}, ${op.label || op.kind || "opening"}: "${k}" must be a number of inches.`);
+      if (op.headerHeight !== undefined && !isNum(op.headerHeight)) shape.push(`${at}, ${op.label || op.kind || "opening"}: "headerHeight" must be a number of inches.`);
+      if (op.label !== undefined && typeof op.label !== "string") shape.push(`${at}, opening: "label" must be text.`);
+    });
+    if (!isNum(w.length)) shape.push(`${at}: "length" must be a number of inches.`);
+    if (w.studLength !== undefined && !isNum(w.studLength)) shape.push(`${at}: "studLength" must be a number of inches.`);
+    else if (w.studLength !== undefined && !(w.studLength >= 24 && w.studLength <= 240)) errors.push(`${at}: stud length must be between 24 and 240 inches.`);
+    if (Array.isArray(w.tees) && !w.tees.every(isNum)) shape.push(`${at}: every tee must be a number of inches from the wall start.`);
+  });
+  if (Array.isArray(plan.stock)) plan.stock.forEach((st, i) => { if (!isRec(st)) return; if (st.label !== undefined && typeof st.label !== "string") shape.push(`Lumber list entry ${i + 1}: "label" must be text.`); for (const k of ["length", "price"]) if (st[k] !== undefined && !isNum(st[k])) shape.push(`Lumber list entry ${i + 1}: "${k}" must be a number.`); });
+  if (shape.length) return shape;
+  if (!(plan.studSpacing >= 8 && plan.studSpacing <= 48)) errors.push("Stud spacing must be between 8 and 48 inches.");
+  if (!(plan.studLength >= 24 && plan.studLength <= 240)) errors.push("Stud length must be between 24 and 240 inches.");
+  if (!(plan.kerf >= 0 && plan.kerf <= 0.5)) errors.push("Saw kerf must be between 0 and 1/2 inch.");
+  if (!(plan.topPlateLap >= 0 && plan.topPlateLap <= 96)) errors.push("Top plate joint offset must be between 0 and 96 inches.");
+  for (const [key, label] of [["cornerExtraStuds", "Corner backing studs"], ["teeExtraStuds", "Tee backing studs"]]) {
+    const v = plan[key];
+    if (v !== undefined && !(Number.isInteger(v) && v >= 0 && v <= 6)) errors.push(`${label} must be a whole number from 0 to 6 (a value like 1e9 would never finish).`);
+  }
+  if (plan.blocking !== undefined && plan.blocking !== null) {
+    if (!isRec(plan.blocking)) errors.push("\"blocking\" must be an object like { rows: 1, fire: true, stagger: false }.");
+    else if (plan.blocking.rows !== undefined && !(Number.isInteger(plan.blocking.rows) && plan.blocking.rows >= 0 && plan.blocking.rows <= 20)) errors.push("Blocking rows must be a whole number from 0 to 20 (a value like 1e9 would never finish).");
+  }
+  if (Array.isArray(plan.stock) && plan.stock.some((st) => Number(st.length) > 1200)) errors.push("A board in the lumber list is over 1200 inches (100 ft) long; check the length is in inches (a value like 1e9 would exhaust memory).");
+  const sizes = new Set((plan.stock || []).filter((s) => s.length > 0 && s.price >= 0).map((s) => s.size));
+  const ids = new Set();
+  for (const wall of plan.walls) {
+    const name = `Wall ${typeof wall.id === "string" ? wall.id || "?" : "?"}`;
+    if (typeof wall.id !== "string" || !wall.id.trim()) errors.push("Every wall needs a name (text, not a number or object).");
+    else if (ids.has(wall.id)) errors.push(`${name}: two walls have this name.`);
+    ids.add(wall.id);
+    if (!(wall.length >= 12)) { errors.push(`${name}: length must be at least 12 inches.`); continue; }
+    if (wall.length > 12000) { errors.push(`${name}: length must be at most 12000 inches (1000 ft).`); continue; }
+    const stud = wall.stud || "2x4";
+    if (!Object.hasOwn(DEPTH, stud) || (stud !== "2x4" && stud !== "2x6")) errors.push(`${name}: studs must be 2x4 or 2x6.`);
+    if (!sizes.has(plateSize(wall))) errors.push(`${name}: no ${plateSize(wall)} boards in the lumber list.`);
+    if (!sizes.has(stud)) errors.push(`${name}: no ${stud} boards in the lumber list.`);
+    for (const t of wall.tees || []) {
+      if (!(t >= THICK && t <= wall.length - THICK)) errors.push(`${name}: a tee at ${formatLength(t)} is off the wall.`);
+    }
+    if (wall.tee) {
+      const through = plan.walls.find((w) => w.id === wall.tee.wall);
+      if (!through || through === wall) errors.push(`${name}: its tee lap names a wall that is not in the plan.`);
+      else if (!(wall.tee.at >= THICK && wall.tee.at <= through.length - THICK)) errors.push(`${name}: its tee lap is off wall ${through.id}.`);
+      if (wall.tee.end && wall.tee.end !== "start" && wall.tee.end !== "end") errors.push(`${name}: a tee lap end is "start" or "end".`);
+    }
+    if (wall.gable) {
+      const g = wall.gable;
+      if (!(g.pitch > 0 && g.pitch <= 24)) errors.push(`${name}: a gable pitch is the rise per 12 inches of run, more than 0 and at most 24.`);
+      if (g.peak !== undefined && !(g.peak >= 2 * THICK + EPS && (g.peak <= wall.length - 2 * THICK - EPS || Math.abs(g.peak - wall.length) < EPS))) errors.push(`${name}: a gable peak is the distance from the wall start, clear of both end studs (or equal to the wall length for a single slope).`);
+    }
+    const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
+    let prevEnd = -Infinity;
+    let prevName = "";
+    const vzones = framingZones(ops, wall.length);
+    for (const [oi, op] of ops.entries()) {
+      const on = `${name}, ${op.label || op.kind} at ${formatLength(op.offset)}`;
+      if (op.kind !== "window" && op.kind !== "door") { errors.push(`${on}: kind must be "window" or "door" (got ${JSON.stringify(op.kind)}); a garage door is a door with a wide opening.`); continue; }
+      if (!(op.width > 0)) { errors.push(`${on}: rough opening width must be more than zero.`); continue; }
+      if (!(op.height > 0)) { errors.push(`${on}: rough opening height must be more than zero.`); continue; }
+      if (op.jacks !== undefined && !(Number.isInteger(op.jacks) && op.jacks >= 0 && op.jacks <= 6)) { errors.push(`${on}: jacks must be a whole number from 0 to 6.`); continue; }
+      if (op.headerPlies !== undefined && !(Number.isInteger(op.headerPlies) && op.headerPlies >= 1 && op.headerPlies <= 4)) { errors.push(`${on}: header plies must be a whole number from 1 to 4.`); continue; }
+      if (op.kings !== undefined && !(Number.isInteger(op.kings) && op.kings >= 0 && op.kings <= 6)) { errors.push(`${on}: kings must be a whole number from 0 to 6.`); continue; }
+      const z = vzones[oi];
+      if (z.start < THICK - EPS || z.end > wall.length - THICK + EPS) {
+        errors.push(`${on}: the king studs run past the end studs. Move the opening at least ${formatInches(THICK * (z.jacks + 1))} from the wall end (its jacks must clear the end stud), or frame this end by hand.`);
+      }
+      if (z.start < prevEnd - EPS) errors.push(`${on}: its king studs overlap the ${prevName}, and the ${formatInches(op.offset - (ops[oi - 1].offset + ops[oi - 1].width))} between them is too narrow to share kings. Make them one wider opening, or move them at least ${formatInches(THICK * ((ops[oi - 1].jacks ?? 1) + (op.jacks ?? 1) + Math.max(ops[oi - 1].kings ?? 1, op.kings ?? 1)))} apart.`);
+      prevEnd = z.end;
+      prevName = op.label || op.kind;
+      const g = openingGeometry(plan, wall, op);
+      if (!Object.hasOwn(DEPTH, op.header)) errors.push(`${on}: header must be one of ${Object.keys(DEPTH).join(", ")}.`);
+      else if (!sizes.has(op.header)) errors.push(`${on}: no ${op.header} boards in the lumber list.`);
+      if (wall.gable && g.topCripple < -EPS) {
+        // On a gable wall the header may rise into the triangle: it must clear the sloped plate at the end where the roof is lowest.
+        const rise = gableRiseAt(wall);
+        const hs = op.offset - THICK * (op.jacks ?? 1);
+        const he = op.offset + op.width + THICK * (op.jacks ?? 1);
+        const room = g.topCripple + Math.min(rise(hs), rise(he));
+        if (room < -EPS) errors.push(`${on}: the header does not fit under the sloped top plate (${formatInches(-room)} too tall at its lower end). Lower the header height or use a shallower header.`);
+      } else if (g.topCripple < -EPS) errors.push(`${on}: the header does not fit under the top plates (${formatInches(-g.topCripple)} too tall). Lower the header height or use a shallower header.`);
+      if (op.kind === "window" && g.bottomCripple < -EPS) errors.push(`${on}: the window sill is below the bottom plate. Raise the header height or shorten the window.`);
+      if (op.kind === "door" && g.roBottom < -EPS) errors.push(`${on}: the door opening is ${formatInches(-g.roBottom)} taller than its header height, so it would end below the floor. Raise the header height or shorten the opening.`);
+      if (op.kind === "door" && g.roBottom > THICK + EPS) errors.push(`${on}: a door opening should reach the floor; check the header height and opening height.`);
+    }
+    // A tee wall cannot land inside an opening, and two tees closer than a stud
+    // thickness are one tee listed twice: either would double the backing studs or drop one under a header.
+    const tees = [...(wall.tees || [])].filter((t) => t >= THICK && t <= wall.length - THICK).sort((a, b) => a - b);
+    for (let ti = 0; ti < tees.length; ti++) {
+      const t = tees[ti];
+      if (ti > 0 && t - tees[ti - 1] < THICK - EPS) errors.push(`${name}: tees at ${formatLength(tees[ti - 1])} and ${formatLength(t)} are closer than a stud thickness; list each tee wall once.`);
+      for (const [oi, op] of ops.entries()) {
+        if (op.width > 0 && t > op.offset - EPS && t < op.offset + op.width + EPS) {
+          errors.push(`${name}: a tee at ${formatLength(t)} falls inside the ${op.label || op.kind} at ${formatLength(op.offset)}. Move the tee wall clear of the opening.`);
+          break;
+        }
+      }
+    }
+  }
+  return errors;
+}
+
+/** Rise of a gable wall's roof line above the eave line at x inches from the wall start. */
+function gableRiseAt(wall) {
+  const L = wall.length;
+  const mid = wall.gable.peak ?? L / 2;
+  const slopeL = wall.gable.pitch / 12;
+  const slopeR = L - mid < EPS ? 0 : (slopeL * mid) / (L - mid);
+  return (x) => (x <= mid ? slopeL * x : slopeR * (L - x));
+}
+
+function plateSize(wall) {
+  const stud = wall.stud || "2x4";
+  return wall.treatedPlate ? `${stud} PT` : stud;
+}
+
+/** Extent of the kings and jacks around an opening, from the wall start. */
+function framingZone(op) {
+  const jacks = op.jacks ?? 1;
+  const kings = op.kings ?? 1;
+  const reach = THICK * (jacks + kings);
+  return { start: op.offset - reach, end: op.offset + op.width + reach, reach, jacks, kings, leftKings: kings, rightKings: kings, sharedWith: null };
+}
+
+/**
+ * Zones for a wall's openings in offset order. Two openings whose kings would
+ * overlap share one set of kings between them when the gap fits both pairs of
+ * jacks plus those kings (the larger of the two king counts): the shared kings
+ * sit against the left opening's jacks, and the right opening has none on that
+ * side. Closer than that, the zones stay overlapped and validatePlan says so.
+ */
+function framingZones(ops, length) {
+  const zones = ops.map((op) => framingZone(op));
+  // Near a wall end the end stud (or the corner's) does a king's work: drop the kings that do not fit, down to none,
+  // as long as the jacks still clear the end stud.
+  for (const [i, z] of zones.entries()) {
+    const op = ops[i];
+    const fit = (room) => Math.max(0, Math.floor((room - THICK * z.jacks + EPS) / THICK));
+    if (z.start < THICK - EPS && op.offset - THICK >= THICK * z.jacks - EPS) {
+      z.leftKings = Math.min(z.kings, fit(op.offset - THICK));
+      z.start = op.offset - THICK * (z.jacks + z.leftKings);
+      z.endStudKing = "start";
+    }
+    if (length !== undefined && z.end > length - THICK + EPS && length - THICK - (op.offset + op.width) >= THICK * z.jacks - EPS) {
+      z.rightKings = Math.min(z.kings, fit(length - THICK - (op.offset + op.width)));
+      z.end = op.offset + op.width + THICK * (z.jacks + z.rightKings);
+      z.endStudKing = z.endStudKing ? "both" : "end";
+    }
+  }
+  for (let i = 0; i + 1 < zones.length; i++) {
+    const a = zones[i];
+    const b = zones[i + 1];
+    if (a.end <= b.start + EPS) continue;
+    const gap = ops[i + 1].offset - (ops[i].offset + ops[i].width);
+    const k = Math.max(a.kings, b.kings);
+    if (gap < THICK * (a.jacks + b.jacks + k) - EPS) continue;
+    a.rightKings = k;
+    a.end = ops[i].offset + ops[i].width + THICK * (a.jacks + k);
+    b.leftKings = 0;
+    b.start = ops[i + 1].offset - THICK * b.jacks;
+    a.sharedWith = ops[i + 1];
+    b.sharedWith = ops[i];
+    a.sharedGap = b.sharedGap = gap - THICK * (a.jacks + b.jacks + k);
+  }
+  return zones;
+}
+
+/** The plan as one wall sees it: a wall's own `studLength` (a 9 ft first-floor wall beside 8 ft ones) replaces the plan's. */
+function planFor(plan, wall) {
+  return wall && wall.studLength !== undefined ? { ...plan, studLength: wall.studLength } : plan;
+}
+
+export function openingGeometry(plan, wall, op) {
+  plan = planFor(plan, wall);
+  const top = THICK + plan.studLength; // underside of the top plate, from the bottom of the bottom plate
+  const headerHeight = op.headerHeight ?? plan.defaultHeaderHeight;
+  const depth = (Object.hasOwn(DEPTH, op.header) ? DEPTH[op.header] : undefined) ?? DEPTH["2x10"];
+  const sillPlies = op.kind === "window" ? op.sillPlies ?? 1 : 0;
+  const roBottom = headerHeight - op.height;
+  return {
+    headerHeight,
+    depth,
+    sillPlies,
+    roBottom,
+    jack: headerHeight - THICK,
+    topCripple: top - headerHeight - depth,
+    bottomCripple: roBottom - sillPlies * THICK - THICK,
+  };
+}
+
+/**
+ * Lay out every member in one wall: plates, studs, kings, jacks, headers,
+ * sills and cripples, with positions from the wall start.
+ * @param {Plan} plan
+ * @param {Wall} wall
+ */
+export function layoutWall(plan, wall) {
+  if (!plan || typeof plan !== "object" || !wall || typeof wall !== "object") {
+    throw new TypeError("layoutWall needs a plan object and a wall object");
+  }
+  plan = planFor(plan, wall);
+  if (wall.gable) return layoutGable(plan, wall);
+  const L = wall.length;
+  const stud = wall.stud || "2x4";
+  const s = plan.studSpacing;
+  const top = THICK + plan.studLength;
+  const single = Boolean(plan.advanced?.singleTopPlate);
+  const height = top + (single ? 1 : 2) * THICK;
+  /** @type {Member[]} */
+  const members = [];
+  const notes = [];
+  const spacers = [];
+  const nonBearing = [];
+  const shortCripples = [];
+  const shimGaps = [];
+  const add = (kind, x, y, w, h, size, orient, label) =>
+    members.push({ kind, x, y, w, h, size, length: orient === "v" ? h : w, orient, label });
+
+  // Layout positions: left edges of the end studs and of a stud centred on every multiple of the spacing.
+  const layout = [0];
+  for (let k = 1; k * s + THICK / 2 <= L - THICK - EPS; k++) {
+    const x = k * s - THICK / 2;
+    if (x + THICK <= L - THICK + EPS) layout.push(x);
+  }
+  if (L - THICK > layout[layout.length - 1] + EPS) layout.push(L - THICK);
+
+  const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
+  const zones = framingZones(ops, wall.length).map((z, i) => ({ op: ops[i], ...z, g: openingGeometry(plan, wall, ops[i]) }));
+  for (const z of zones) if (z.sharedWith && z.sharedWith.offset > z.op.offset) notes.push(`${z.op.label || z.op.kind} and ${z.sharedWith.label || z.sharedWith.kind} are ${formatInches(z.sharedWith.offset - (z.op.offset + z.op.width))} apart: they share ${z.rightKings} king stud${z.rightKings > 1 ? "s" : ""}${z.sharedGap > EPS ? ` (${formatInches(z.sharedGap)} left open beside the second opening's jack: block it)` : ""}.`);
+  for (const z of zones) if (z.endStudKing) notes.push(`${z.op.label || z.op.kind} is close to the wall end: the end stud serves as its king${z.endStudKing === "both" ? " on both sides" : ""}${z.leftKings < z.kings && z.endStudKing !== "end" ? `, ${z.leftKings} of ${z.kings} extra king${z.kings > 1 ? "s" : ""} on the left` : ""}.`);
+  const overlaps = (x, a, b) => x < b - EPS && x + THICK > a + EPS;
+  const inside = (x, a, b) => x >= a - EPS && x + THICK <= b + EPS;
+
+  const fullStudX = [];
+  for (const x of layout) {
+    const z = zones.find((zz) => overlaps(x, zz.start, zz.end));
+    if (!z) {
+      fullStudX.push(x);
+      add("stud", x, THICK, THICK, plan.studLength, stud, "v", x === 0 || x === L - THICK ? "end stud" : "stud");
+    }
+  }
+  for (const z of zones) {
+    const { op, g } = z;
+    const name = op.label || op.kind;
+    const hStart = op.offset - THICK * z.jacks;
+    const hEnd = op.offset + op.width + THICK * z.jacks;
+    const kingLabel = z.sharedWith && z.sharedWith.offset > op.offset ? `shared king, ${name} and ${z.sharedWith.label || z.sharedWith.kind}` : `king, ${name}`;
+    for (let i = 0; i < z.leftKings; i++) {
+      const xl = z.start + i * THICK;
+      fullStudX.push(xl);
+      add("king", xl, THICK, THICK, plan.studLength, stud, "v", `king, ${name}`);
+    }
+    for (let i = 0; i < z.rightKings; i++) {
+      const xr = z.end - (i + 1) * THICK;
+      fullStudX.push(xr);
+      add("king", xr, THICK, THICK, plan.studLength, stud, "v", kingLabel);
+    }
+    for (let i = 0; i < z.jacks; i++) {
+      add("jack", hStart + i * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
+      add("jack", hEnd - (i + 1) * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
+    }
+    const plies = op.headerPlies ?? (wall.bearing === false ? 1 : stud === "2x6" ? 3 : 2);
+    if (wall.bearing === false && op.headerPlies === undefined) nonBearing.push(name);
+    for (let i = 0; i < plies; i++) add("header", hStart, g.headerHeight, hEnd - hStart, g.depth, op.header, "h", `header ply, ${name}`);
+    if (wall.bearing !== false && plies * THICK < DEPTH[stud] - EPS && Object.hasOwn(DEPTH, op.header) && DEPTH[op.header] > DEPTH["2x4"]) spacers.push(`${name} (${formatInches(DEPTH[stud] - plies * THICK)})`);
+    if (g.topCripple > 0.5) {
+      for (const x of layout) if (inside(x, hStart, hEnd)) add("cripple", x, g.headerHeight + g.depth, THICK, g.topCripple, stud, "v", `top cripple, ${name}`);
+      const room = g.topCripple + g.depth;
+      const deeper = Object.entries(DEPTH).filter(([, d]) => d > g.depth && d <= room + EPS).pop();
+      if (g.topCripple < 6 && deeper) shortCripples.push(`${name} (${formatInches(g.topCripple)}; a ${deeper[0]} header would leave ${formatInches(room - deeper[1])})`);
+    } else if (g.topCripple > EPS) {
+      shimGaps.push(`${name} (${formatInches(g.topCripple)})`);
+    }
+    if (op.kind === "window") {
+      for (let i = 0; i < g.sillPlies; i++) add("sill", op.offset, g.roBottom - (i + 1) * THICK, op.width, THICK, stud, "h", `rough sill, ${name}`);
+      if (g.bottomCripple > 0.5) {
+        const xs = [op.offset, op.offset + op.width - THICK];
+        for (const x of layout) {
+          if (inside(x, op.offset, op.offset + op.width) && !xs.some((e) => overlaps(x, e, e + THICK))) xs.push(x);
+        }
+        for (const x of xs.sort((a, b) => a - b)) add("cripple", x, THICK, THICK, g.bottomCripple, stud, "v", `bottom cripple, ${name}`);
+      }
+    }
+  }
+  // Corner and tee backing: extra full studs, each nudged to the nearest spot clear of the studs already placed.
+  const backing = (target, kind, label) => {
+    const clear = (x) =>
+      x >= -EPS && x + THICK <= L + EPS &&
+      !members.some((m) => m.kind !== "plate" && overlaps(x, m.x, m.x + m.w)) &&
+      !zones.some((z) => overlaps(x, z.start, z.end));
+    for (let d = 0; d <= 48 * 16; d++) {
+      for (const x of d ? [target + d / 16, target - d / 16] : [target]) {
+        if (clear(x)) {
+          add(kind, x, THICK, THICK, plan.studLength, stud, "v", label);
+          fullStudX.push(x);
+          return;
+        }
+      }
+    }
+    notes.push(`No room for ${label} near ${formatLength(target)}; add it by hand.`);
+  };
+  const adv = plan.advanced || {};
+  const cornerBacking = adv.twoStudCorners ? Math.min(1, plan.cornerExtraStuds) : plan.cornerExtraStuds;
+  if (wall.corner) for (let i = 0; i < cornerBacking; i++) backing(THICK * (i + 1), "corner", "corner backing");
+  /** Ladder blocking at tees: [x0, x1] gaps between the full-height studs either side of the tee. */
+  const ladders = [];
+  for (const t of wall.tees || []) {
+    if (adv.ladderTees) {
+      const tall = members.filter((m) => m.orient === "v" && Math.abs(m.y - THICK) < EPS && Math.abs(m.h - plan.studLength) < EPS);
+      // by centre, so a stud the tee lands on (centred on it, as on a 16 or 24 in layout mark) bounds the ladder instead of sitting inside it
+      const left = tall.filter((m) => m.x + THICK / 2 <= t + EPS).sort((a, b) => b.x - a.x)[0];
+      const right = tall.filter((m) => m.x + THICK / 2 > t + EPS).sort((a, b) => a.x - b.x)[0];
+      if (left && right) {
+        const x0 = left.x + THICK;
+        const x1 = right.x;
+        if (x1 - x0 >= 1 - EPS && x1 - x0 <= plan.studSpacing + EPS && !ops.some((op) => x0 < op.offset + op.width - EPS && x1 > op.offset + EPS)) {
+          ladders.push([x0, x1, t]);
+          continue;
+        }
+      }
+      notes.push(`Ladder blocking at ${formatLength(t)} does not fit between studs; standard tee backing used.`);
+    }
+    for (let i = 0; i < plan.teeExtraStuds; i++) backing(t - (plan.teeExtraStuds * THICK) / 2 + i * THICK, "tee", `tee backing at ${formatLength(t)}`);
+  }
+
+  // Plates. Joints sit on the centre of a full-length stud.
+  const centres = [...new Set(fullStudX.map((x) => Math.round((x + THICK / 2) * 16) / 16))].sort((a, b) => a - b);
+  const pSize = plateSize(wall);
+  const gaps = ops.filter((o) => o.kind === "door").map((o) => [o.offset, o.offset + o.width]);
+  let at = 0;
+  const bottomSegs = [];
+  for (const [a, b] of gaps) {
+    if (a > at + EPS) bottomSegs.push([at, a]);
+    at = b;
+  }
+  if (L > at + EPS) bottomSegs.push([at, L]);
+  const stockFor = (size) => (plan.stock || []).filter((st) => st.size === size && st.length > 0 && !st.label);
+  const bottomJoints = [];
+  for (const [a, b] of bottomSegs) {
+    const cut = splitPlate(a, b, centres, stockFor(pSize), []);
+    if (!cut) notes.push(`Bottom plate ${formatLength(a)} to ${formatLength(b)}: no way to splice it over studs with the boards listed; it is shown as one piece.`);
+    const joints = cut || [];
+    bottomJoints.push(...joints);
+    let p = a;
+    for (const j of [...joints, b]) {
+      add("plate", p, 0, j - p, THICK, pSize, "h", "bottom plate");
+      p = j;
+    }
+  }
+  const studStock = stockFor(stud);
+  const lap = plateLaps(plan, wall);
+  const [topA, topB] = [lap.topStart, L + lap.topEnd];
+  const [capA, capB] = [lap.capStart, L + lap.capEnd];
+  let topJoints = splitPlate(topA, topB, centres, studStock, []);
+  // Fallback: a header carries the plates across an opening, so a joint over it is sound framing. Candidate points every 16 in inside each opening.
+  const headerPts = [];
+  for (const o of ops) for (let x = o.offset + 16; x < o.offset + o.width - EPS; x += 16) headerPts.push(x);
+  const withHeaders = [...centres, ...headerPts].sort((p, q) => p - q);
+  let usedHeader = false;
+  // The cap plate is cut where a partition's cap plate runs over this wall (tee laps); each run is spliced on its own.
+  const capSegs = [];
+  let capAt = capA;
+  for (const [lo, hi] of [...lap.capGaps].sort((x, y) => x[0] - y[0])) {
+    if (lo > capAt + EPS) capSegs.push([capAt, lo]);
+    capAt = Math.max(capAt, hi);
+  }
+  if (capB > capAt + EPS) capSegs.push([capAt, capB]);
+  const forbidden = topJoints ? topJoints.map((j) => [j - plan.topPlateLap, j + plan.topPlateLap]) : [];
+  let capRuns = topJoints ? capSegs.map(([a, b]) => splitPlate(a, b, centres, studStock, forbidden)) : [null];
+  if (!topJoints || !capRuns.every(Boolean)) {
+    const t2 = splitPlate(topA, topB, withHeaders, studStock, []);
+    if (t2) {
+      const f2 = t2.map((j) => [j - plan.topPlateLap, j + plan.topPlateLap]);
+      const c2 = capSegs.map(([a, b]) => splitPlate(a, b, withHeaders, studStock, f2));
+      if (c2.every(Boolean)) { topJoints = t2; capRuns = c2; usedHeader = true; }
+    }
+  }
+  if (usedHeader) notes.push("Top plates: no splice over studs alone fit the boards listed; joints also sit over a header (it carries the plates). Check this against the engineer's design.");
+  const capJoints = capRuns.every(Boolean) ? capRuns.flat() : null;
+  if (!topJoints || !capJoints) notes.push(`Top plates: no way to splice them over studs with joints ${formatInches(plan.topPlateLap)} apart using the boards listed; shown as one piece each.`);
+  const pieces = (a, b, joints) => {
+    const out = [];
+    let p = a;
+    for (const j of [...joints, b]) {
+      out.push([p, j]);
+      p = j;
+    }
+    return out;
+  };
+  const topPieces = pieces(topA, topB, topJoints || []);
+  const capPieces = capJoints ? capSegs.flatMap(([a, b], k) => pieces(a, b, capRuns[k])) : capSegs.map(([a, b]) => [a, b]);
+  /** @type {[string, number, number[][]][]} */
+  const plateRuns = single ? [["top plate", top, topPieces]] : [["top plate", top, topPieces], ["cap plate", top + THICK, capPieces]];
+  // A single top plate has nothing lapping its joints, so each joint, corner and tee takes a steel tie instead (IRC R602.3.2 exception).
+  const ties = single ? (topJoints || []).length + (wall.corner ? 1 : 0) + (wall.tees || []).length : 0;
+  if (single) notes.push(`single top plate: roof or floor framing must sit within 1 in of the stud centres, and ${ties} steel plate tie${ties === 1 ? "" : "s"} (not in the takeoff) go at ${[...(topJoints || []).map(formatLength), ...(wall.corner ? ["the corner"] : []), ...(wall.tees || []).map((t) => `the tee at ${formatLength(t)}`)].join(", ") || "no joints"}. Whether this is allowed here is the code and engineer's call.`);
+  for (const [label, y, list] of plateRuns) {
+    for (const [a, b] of list) add("plate", a, y, b - a, THICK, stud, "h", label);
+  }
+  // Ladder blocking at tees: flat 2x between the studs either side of the tee, 24 in apart, for the partition to nail to.
+  for (const [x0, x1, t] of ladders) {
+    for (let y = THICK + 24 - THICK / 2; y + THICK / 2 < THICK + plan.studLength - EPS; y += 24) {
+      add("blocking", x0, y, x1 - x0, THICK, stud, "h", `ladder blocking at ${formatLength(t)}`);
+    }
+  }
+  // Blocking: flat 2x between neighbouring full-height studs at evenly spaced heights, never across an opening.
+  const rows = blockingRows(plan);
+  if (rows > 0) {
+    const tall = members
+      .filter((m) => m.orient === "v" && Math.abs(m.y - THICK) < EPS && Math.abs(m.h - plan.studLength) < EPS)
+      .sort((a, b) => a.x - b.x);
+    for (let r = 1; r <= rows; r++) {
+      const y = THICK + (plan.studLength * r) / (rows + 1) - THICK / 2;
+      for (let i = 0; i + 1 < tall.length; i++) {
+        const x0 = tall[i].x + THICK;
+        const x1 = tall[i + 1].x;
+        if (x1 - x0 < 1 - EPS) continue;
+        if (ops.some((op) => x0 < op.offset + op.width - EPS && x1 > op.offset + EPS)) continue;
+        // Staggered: alternate bays sit THICK above and below the row line, so each block's end can be face-nailed through the stud.
+        const dy = plan.blocking?.stagger ? (i % 2 ? THICK : -THICK) : 0;
+        add("blocking", x0, y + dy, x1 - x0, THICK, stud, "h", plan.blocking?.fire ? "fire blocking" : "blocking");
+      }
+    }
+  } else if (plan.studLength > 120 + EPS) {
+    notes.push(`the studs are ${formatInches(plan.studLength)}: fire blocking is needed at most 10 ft apart (set blocking.fire).`);
+  }
+  // A wide opening left on the default one jack and one king per side: the default is a convenience, not a code answer.
+  const wideDefault = zones.filter((z) => z.op.width > 48 + EPS && z.op.jacks === undefined && z.op.kings === undefined).map((z) => `${z.op.label || z.op.kind} (${formatInches(z.op.width)})`);
+  if (wideDefault.length) notes.push(`${wideDefault.join(", ")} wider than 4 ft framed with the default 1 jack and 1 king per side: wide headers usually need more jacks (set jacks and kings per opening from your span table or engineer).`);
+  if (shortCripples.length) notes.push(`short top cripples over ${shortCripples.join(", ")}. Header sizes are yours to check.`);
+  if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
+  if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
+  if (nonBearing.length) notes.push(`single-ply headers (wall marked non-bearing) over ${nonBearing.join(", ")}: no load above is assumed. A doubled header is the default wherever the wall carries a roof or floor; confirm with your engineer.`);
+  return { id: wall.id, length: L, height, stud, members, notes, layout, lapped: !!plan.plateLaps, ...(single ? { singleTopPlate: true, plateTies: ties } : {}), joints: { bottom: bottomJoints, top: topJoints || [], cap: single ? [] : capJoints || [] } };
+}
+
+
+/**
+ * A gable (rake) end wall: level bottom plate, studs cut to a sloped top
+ * plate that rises from both wall ends (the eaves, where the studs are
+ * plan.studLength) to a peak, in the middle unless wall.gable.peak (inches from
+ * the wall start) says otherwise. wall.gable.pitch is the rise per 12 inches of
+ * run on the start side; an off-centre peak keeps both eaves level, so the far
+ * side's pitch is whatever reaches the same peak height. Stud lengths are the long point of the angled cut; plate lengths are
+ * along the slope, with joints over studs. Openings are framed as in a level
+ * wall (header under the eave-line top plate; kings and cripples run up to the
+ * slope). No blocking.
+ * @param {Plan} plan
+ * @param {Wall} wall
+ */
+function layoutGable(plan, wall) {
+  const L = wall.length;
+  const stud = wall.stud || "2x4";
+  const s = plan.studSpacing;
+  const mid = wall.gable.peak ?? L / 2;
+  const slopeL = wall.gable.pitch / 12;
+  const slopeR = L - mid < EPS ? 0 : (slopeL * mid) / (L - mid);
+  const secL = Math.sqrt(1 + slopeL * slopeL);
+  const secR = Math.sqrt(1 + slopeR * slopeR);
+  const rise = (x) => (x <= mid ? slopeL * x : slopeR * (L - x));
+  const base = THICK + plan.studLength; // underside of the top plate at the eaves
+  const maxRise = rise(mid);
+  /** @type {Member[]} */
+  const members = [];
+  const notes = ["gable wall: stud lengths are the long point of the angled cut, plates are measured along the slope, and the plate ends at the peak are mitred by hand."];
+  const add = (kind, x, y, w, h, size, orient, label, length) =>
+    members.push({ kind, x, y, w, h, size, length: length ?? (orient === "v" ? h : w), orient, label, ...(orient === "h" && kind === "plate" && label !== "bottom plate" ? { sloped: true } : {}) });
+  const layout = [0];
+  for (let k = 1; k * s + THICK / 2 <= L - THICK - EPS; k++) {
+    const x = k * s - THICK / 2;
+    if (x + THICK <= L - THICK + EPS) layout.push(x);
+  }
+  if (L - THICK > layout[layout.length - 1] + EPS) layout.push(L - THICK);
+  const studAt = (x, kind, label) => {
+    // A stud straddling the peak reaches the peak itself, higher than either of its edges.
+    const len = plan.studLength + Math.max(rise(x), rise(x + THICK), x < mid && x + THICK > mid ? maxRise : 0);
+    add(kind, x, THICK, THICK, len, stud, "v", label);
+  };
+  const overlaps = (x, a, b) => x < b - EPS && x + THICK > a + EPS;
+  const inside = (x, a, b) => x >= a - EPS && x + THICK <= b + EPS;
+  const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
+  const zones = framingZones(ops, wall.length).map((z, i) => ({ op: ops[i], ...z, g: openingGeometry(plan, wall, ops[i]) }));
+  for (const z of zones) if (z.sharedWith && z.sharedWith.offset > z.op.offset) notes.push(`${z.op.label || z.op.kind} and ${z.sharedWith.label || z.sharedWith.kind} are ${formatInches(z.sharedWith.offset - (z.op.offset + z.op.width))} apart: they share ${z.rightKings} king stud${z.rightKings > 1 ? "s" : ""}${z.sharedGap > EPS ? ` (${formatInches(z.sharedGap)} left open beside the second opening's jack: block it)` : ""}.`);
+  const fullStudX = [];
+  for (const x of layout) {
+    if (zones.some((zz) => overlaps(x, zz.start, zz.end))) continue;
+    fullStudX.push(x);
+    studAt(x, "stud", x === 0 || x === L - THICK ? "end stud" : "stud");
+  }
+  const spacers = [];
+  const nonBearing = [];
+  const shimGaps = [];
+  for (const z of zones) {
+    const { op, g } = z;
+    const name = op.label || op.kind;
+    const hStart = op.offset - THICK * z.jacks;
+    const hEnd = op.offset + op.width + THICK * z.jacks;
+    const kingLabel = z.sharedWith && z.sharedWith.offset > op.offset ? `shared king, ${name} and ${z.sharedWith.label || z.sharedWith.kind}` : `king, ${name}`;
+    for (let i = 0; i < z.leftKings; i++) {
+      const xl = z.start + i * THICK;
+      fullStudX.push(xl);
+      studAt(xl, "king", `king, ${name}`);
+    }
+    for (let i = 0; i < z.rightKings; i++) {
+      const xr = z.end - (i + 1) * THICK;
+      fullStudX.push(xr);
+      studAt(xr, "king", kingLabel);
+    }
+    for (let i = 0; i < z.jacks; i++) {
+      add("jack", hStart + i * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
+      add("jack", hEnd - (i + 1) * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
+    }
+    const plies = op.headerPlies ?? (wall.bearing === false ? 1 : stud === "2x6" ? 3 : 2);
+    if (wall.bearing === false && op.headerPlies === undefined) nonBearing.push(name);
+    for (let i = 0; i < plies; i++) add("header", hStart, g.headerHeight, hEnd - hStart, g.depth, op.header, "h", `header ply, ${name}`);
+    if (wall.bearing !== false && plies * THICK < DEPTH[stud] - EPS && Object.hasOwn(DEPTH, op.header) && DEPTH[op.header] > DEPTH["2x4"]) spacers.push(`${name} (${formatInches(DEPTH[stud] - plies * THICK)})`);
+    // Each cripple runs to the long point of the sloped plate above it; a header that rises above the
+    // eave line gets cripples only where the roof has climbed clear of it (and none if it never does).
+    const crippleXs = layout.filter((x) => inside(x, hStart, hEnd));
+    const lens = crippleXs.map((x) => g.topCripple + Math.max(rise(x), rise(x + THICK)));
+    const tall = lens.filter((l) => l > 0.5);
+    if (tall.length) {
+      crippleXs.forEach((x, i) => { if (lens[i] > 0.5) add("cripple", x, g.headerHeight + g.depth, THICK, lens[i], stud, "v", `top cripple, ${name}`); });
+      if (lens.some((l) => l > EPS && l <= 0.5)) shimGaps.push(`${name} (${formatInches(Math.min(...lens.filter((l) => l > EPS && l <= 0.5)))})`);
+    } else if (lens.some((l) => l > EPS)) {
+      shimGaps.push(`${name} (${formatInches(Math.max(...lens))})`);
+    }
+    if (g.topCripple < -EPS) notes.push(`${name}: the header tops out ${formatInches(-g.topCripple)} above the eave line, in the triangle; check its size for the roof load above it.`);
+    if (op.kind === "window") {
+      for (let i = 0; i < g.sillPlies; i++) add("sill", op.offset, g.roBottom - (i + 1) * THICK, op.width, THICK, stud, "h", `rough sill, ${name}`);
+      if (g.bottomCripple > 0.5) {
+        const xs = [op.offset, op.offset + op.width - THICK];
+        for (const x of layout) {
+          if (inside(x, op.offset, op.offset + op.width) && !xs.some((e) => overlaps(x, e, e + THICK))) xs.push(x);
+        }
+        for (const x of xs.sort((a, b) => a - b)) add("cripple", x, THICK, THICK, g.bottomCripple, stud, "v", `bottom cripple, ${name}`);
+      }
+    }
+  }
+  const backing = (target, kind, label) => {
+    const clear = (x) => x >= -EPS && x + THICK <= L + EPS && !members.some((m) => m.orient === "v" && overlaps(x, m.x, m.x + m.w)) && !zones.some((z) => overlaps(x, z.start, z.end));
+    for (let d = 0; d <= 48 * 16; d++) {
+      for (const x of d ? [target + d / 16, target - d / 16] : [target]) {
+        if (clear(x)) { fullStudX.push(x); return studAt(x, kind, label); }
+      }
+    }
+    notes.push(`No room for ${label} near ${formatLength(target)}; add it by hand.`);
+  };
+  if (wall.corner) for (let i = 0; i < plan.cornerExtraStuds; i++) backing(THICK * (i + 1), "corner", "corner backing");
+  for (const t of wall.tees || []) {
+    for (let i = 0; i < plan.teeExtraStuds; i++) backing(t - (plan.teeExtraStuds * THICK) / 2 + i * THICK, "tee", `tee backing at ${formatLength(t)}`);
+  }
+  const centres = [...new Set(fullStudX.map((x) => Math.round((x + THICK / 2) * 16) / 16))].sort((a, b) => a - b);
+  const pSize = plateSize(wall);
+  const stockFor = (size) => (plan.stock || []).filter((st) => st.size === size && st.length > 0 && !st.label);
+  // The bottom plate is cut out across each door.
+  const bottomSegs = [];
+  let segAt = 0;
+  for (const o of ops.filter((o) => o.kind === "door")) {
+    if (o.offset > segAt + EPS) bottomSegs.push([segAt, o.offset]);
+    segAt = o.offset + o.width;
+  }
+  if (L > segAt + EPS) bottomSegs.push([segAt, L]);
+  const bottomJoints = [];
+  for (const [a, b] of bottomSegs) {
+    const cut = splitPlate(a, b, centres, stockFor(pSize), []);
+    if (!cut) notes.push(`Bottom plate ${formatLength(a)} to ${formatLength(b)}: no way to splice it over studs with the boards listed; shown as one piece.`);
+    bottomJoints.push(...(cut || []));
+    let p = a;
+    for (const j of [...(cut || []), b]) {
+      add("plate", p, 0, j - p, THICK, pSize, "h", "bottom plate");
+      p = j;
+    }
+  }
+  // Sloped plates: a board of length B covers B / sec of run, so split with the stock shortened to match.
+  const flatL = stockFor(stud).map((st) => ({ ...st, length: st.length / secL }));
+  const flatR = stockFor(stud).map((st) => ({ ...st, length: st.length / secR }));
+  const side = (a, b, flat) => ({ a, b, flat });
+  const topJoints = [];
+  const capJoints = [];
+  const forbidden = [];
+  for (const { a, b, flat } of [side(0, mid, flatL), side(mid, L, flatR)]) {
+    if (b - a < EPS) continue;
+    const j = splitPlate(a, b, centres, flat, []);
+    if (!j) { notes.push("Top plate: no way to splice it over studs with the boards listed; shown as one piece per slope."); continue; }
+    topJoints.push(...j);
+    forbidden.push(...j.map((x) => [x - plan.topPlateLap, x + plan.topPlateLap]));
+  }
+  for (const { a, b, flat } of [side(0, mid, flatL), side(mid, L, flatR)]) {
+    if (b - a < EPS) continue;
+    const j = splitPlate(a, b, centres, flat, forbidden);
+    if (!j) { notes.push(`Cap plate: no way to splice it over studs with joints ${formatInches(plan.topPlateLap)} from the top plate's; shown as one piece per slope.`); continue; }
+    capJoints.push(...j);
+  }
+  const vtL = THICK * secL; // vertical thickness of a plate lying on the slope
+  const vtR = THICK * secR;
+  for (const [label, offL, offR, joints] of /** @type {[string, number, number, number[]][]} */ ([["top plate", 0, 0, topJoints], ["cap plate", vtL, vtR, capJoints]])) {
+    for (const [a, b, sec, vt, off] of [[0, mid, secL, vtL, offL], [mid, L, secR, vtR, offR]]) {
+      if (b - a < EPS) continue;
+      const js = joints.filter((x) => x > a + EPS && x < b - EPS).sort((x, y) => x - y);
+      let q = a;
+      for (const j of [...js, b]) {
+        const lo = Math.min(rise(q), rise(j));
+        const hi = Math.max(rise(q), rise(j));
+        add("plate", q, base + lo + off, j - q, hi - lo + vt, stud, "h", label, (j - q) * sec);
+        q = j;
+      }
+    }
+  }
+  if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
+  if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
+  if (nonBearing.length) notes.push(`single-ply headers (wall marked non-bearing) over ${nonBearing.join(", ")}: no load above is assumed. A doubled header is the default wherever the wall carries a roof or floor; confirm with your engineer.`);
+  return { id: wall.id, length: L, height: base + maxRise + 2 * Math.max(vtL, vtR), stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peak: mid, peakRise: maxRise, eave: base, ...(mid !== L / 2 ? { farPitch: slopeR * 12 } : {}) }, joints: { bottom: bottomJoints, top: topJoints, cap: capJoints } };
+}
+
+function wall_studMin(w) {
+  return Math.min(...w.members.filter((m) => m.orient === "v").map((m) => m.h));
+}
+
+/** Rows of blocking: the asked-for count, or what fire blocking needs so no stud run exceeds 10 ft. */
+export function blockingRows(plan) {
+  const b = plan.blocking || {};
+  // a staggered row can sit THICK off its line either way, so a run can grow by 2 * THICK
+  const fire = b.fire ? Math.max(0, Math.ceil((plan.studLength + 2 * THICK + (b.stagger ? 2 * THICK : 0)) / 120 - EPS) - 1) : 0;
+  return Math.max(Math.floor(b.rows || 0), fire);
+}
+
+/**
+ * Corner plate laps (plan.plateLaps). The walls are read as a closed loop in
+ * the order listed: a wall with `corner: true` meets the end of the wall
+ * before it (the first wall meets the last). At each such corner the top plate
+ * of the earlier wall runs through, past its end by the later wall's depth,
+ * and the later wall's top plate stops short of its start by the earlier
+ * wall's depth; the cap plate laps the other way. Lengths shift, totals do not.
+ * A wall with `tee: {wall, at, end}` is a partition whose `end` ("start" or "end") butts the face of
+ * wall `wall` at offset `at` along it: its cap plate runs over the through wall by that wall's depth,
+ * and the through wall's cap plate is cut for the partition's depth (the cap total grows by the
+ * through wall's depth minus the partition's depth).
+ * Offsets are signed inches from the wall's start and end (end offsets are
+ * added to the wall length).
+ */
+export function plateLaps(plan, wall) {
+  const none = { topStart: 0, topEnd: 0, capStart: 0, capEnd: 0, capGaps: [] };
+  const walls = plan.walls || [];
+  const i = walls.indexOf(wall);
+  if (!plan.plateLaps || i < 0 || walls.length < 2) return none;
+  const depthOf = (w) => DEPTH[w.stud || "2x4"] ?? 3.5;
+  const prev = walls[(i - 1 + walls.length) % walls.length];
+  const next = walls[(i + 1) % walls.length];
+  const lap = { ...none };
+  if (wall.corner) {
+    lap.topStart = depthOf(prev);
+    lap.capStart = -depthOf(prev);
+  }
+  if (next.corner) {
+    lap.topEnd = depthOf(next);
+    lap.capEnd = -depthOf(next);
+  }
+  // Tee laps: a partition (wall.tee) butts the face of a through wall; its cap plate runs over the
+  // through wall's top plate by that wall's depth, and the through wall's cap plate is cut for it.
+  if (wall.tee) {
+    const through = walls.find((w) => w.id === wall.tee.wall);
+    if (through) lap[wall.tee.end === "start" ? "capStart" : "capEnd"] = (wall.tee.end === "start" ? -1 : 1) * depthOf(through);
+  }
+  for (const w of walls) {
+    if (w !== wall && w.tee && w.tee.wall === wall.id) lap.capGaps.push([w.tee.at - depthOf(w) / 2, w.tee.at + depthOf(w) / 2]);
+  }
+  return lap;
+}
+
+/**
+ * Choose splice points for a plate from a to b at stud centres so every
+ * piece fits a board, minimising the price of buying each piece on its own
+ * board and then the number of pieces. Joints inside a forbidden interval
+ * are not allowed. Returns the joint positions, or null when no split works.
+ */
+function splitPlate(a, b, centres, stock, forbidden) {
+  if (!stock.length) return null;
+  const fits = (len) => {
+    let best = Infinity;
+    for (const st of stock) if (st.length + EPS >= len) best = Math.min(best, st.price);
+    return best;
+  };
+  if (Number.isFinite(fits(b - a))) return [];
+  const pts = [a, ...centres.filter((c) => c > a + EPS && c < b - EPS && !forbidden.some(([lo, hi]) => c > lo + EPS && c < hi - EPS)), b];
+  const n = pts.length;
+  const cost = new Array(n).fill(Infinity);
+  const pieces = new Array(n).fill(Infinity);
+  const prev = new Array(n).fill(-1);
+  cost[0] = 0;
+  pieces[0] = 0;
+  for (let j = 1; j < n; j++) {
+    for (let i = j - 1; i >= 0; i--) {
+      const len = pts[j] - pts[i];
+      const c = fits(len);
+      if (!Number.isFinite(c)) {
+        if (len > Math.max(...stock.map((st) => st.length)) + EPS) break;
+        continue;
+      }
+      const tc = cost[i] + c;
+      const tp = pieces[i] + 1;
+      if (tc < cost[j] - 1e-9 || (Math.abs(tc - cost[j]) <= 1e-9 && tp < pieces[j])) {
+        cost[j] = tc;
+        pieces[j] = tp;
+        prev[j] = i;
+      }
+    }
+  }
+  if (!Number.isFinite(cost[n - 1])) return null;
+  const joints = [];
+  for (let j = prev[n - 1]; j > 0; j = prev[j]) joints.push(pts[j]);
+  return joints.reverse();
+}
+
+/**
+ * Check a laid-out wall the way a framer would eyeball it: every member
+ * inside the wall, no two members in the same space, every rough opening
+ * clear, every opening with a header over it and a stud at each end of the
+ * wall. Returns a list of problems (empty when the layout is sound).
+ * @param {ReturnType<typeof layoutWall>} w
+ * @param {Wall} wall
+ */
+export function verifyWall(/** @type {any} */ w, wall) {
+  const problems = [];
+  const ms = w.members;
+  for (const m of ms) {
+    const lapOK = m.kind === "plate" && w.lapped; // laid-out plates may pass the wall ends at a lapped corner
+    if ((!lapOK && (m.x < -EPS || m.x + m.w > w.length + EPS)) || m.y < -EPS || m.y + m.h > w.height + EPS) problems.push(`${m.label} at ${formatLength(m.x)} leaves the wall`);
+    if (!(m.length > 0)) problems.push(`${m.label} at ${formatLength(m.x)} has no length`);
+  }
+  for (let i = 0; i < ms.length; i++) {
+    for (let j = i + 1; j < ms.length; j++) {
+      const a = ms[i];
+      const b = ms[j];
+      if (a.kind === "header" && b.kind === "header") continue; // plies stack through the wall's depth
+      if (a.kind === "plate" && b.kind === "plate" && a.label !== b.label) continue;
+      if (a.sloped || b.sloped) continue; // a sloped plate's box overlaps the studs it sits on
+      const ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+      const oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+      if (ox > 1e-6 && oy > 1e-6) problems.push(`${a.label} at ${formatLength(a.x)} overlaps ${b.label} at ${formatLength(b.x)}`);
+    }
+  }
+  for (const op of wall.openings || []) {
+    const name = op.label || op.kind;
+    const x0 = op.offset;
+    const x1 = op.offset + op.width;
+    const top = ms.find((m) => m.kind === "header" && m.label.endsWith(`, ${name}`));
+    if (!top) { problems.push(`${name} has no header`); continue; }
+    const y1 = top.y;
+    const y0 = y1 - op.height;
+    for (const m of ms) {
+      if (m.sloped) continue; // a sloped plate's box spans the triangle, and its underside clearing the header is checked when the plan is validated
+      const ox = Math.min(m.x + m.w, x1) - Math.max(m.x, x0);
+      const oy = Math.min(m.y + m.h, y1) - Math.max(m.y, Math.max(y0, op.kind === "door" ? 0 : y0));
+      if (ox > 1e-6 && oy > 1e-6) problems.push(`${m.label} at ${formatLength(m.x)} sits in the ${name} opening`);
+    }
+    if (top.x > x0 + EPS || top.x + top.w < x1 - EPS) problems.push(`the ${name} header does not span its opening`);
+  }
+  const full = ms.filter((m) => m.orient === "v" && Math.abs(m.y - THICK) < EPS && (w.gable ? m.h >= wall_studMin(w) - EPS : Math.abs(m.y + m.h - (w.height - (w.singleTopPlate ? 1 : 2) * THICK)) < EPS));
+  if (!full.some((m) => m.x < EPS)) problems.push("no stud at the wall start");
+  if (!full.some((m) => m.x + m.w > w.length - EPS)) problems.push("no stud at the wall end");
+  const centres = full.map((m) => m.x + THICK / 2);
+  for (const [k, list] of Object.entries(w.joints)) {
+    for (const j of list) if (!centres.some((c) => Math.abs(c - j) < 1 / 32) && !(wall.openings || []).some((o) => j > o.offset + EPS && j < o.offset + o.width - EPS)) problems.push(`${k} plate joint at ${formatLength(j)} is not over a full stud`);
+  }
+  return problems;
+}
+
+/**
+ * Collect every piece to cut from a laid-out house, grouped by lumber size
+ * and length (to 1/16 in).
+ * @param {ReturnType<typeof layoutWall>[]} walls
+ */
+export function cutList(walls) {
+  const map = new Map();
+  for (const w of walls) {
+    for (const m of w.members) {
+      const len = Math.round(m.length * 16) / 16;
+      const kind = m.kind === "plate" ? m.label : m.kind;
+      const key = `${m.size}|${len}|${kind}`;
+      const row = map.get(key) || { size: m.size, length: len, kind, qty: 0, walls: new Set() };
+      row.qty++;
+      row.walls.add(w.id);
+      map.set(key, row);
+    }
+  }
+  return [...map.values()]
+    .map((r) => ({ ...r, walls: [...r.walls] }))
+    .sort((a, b) => a.size.localeCompare(b.size) || b.length - a.length || a.kind.localeCompare(b.kind));
+}
+
+/** Add extra pieces to a cut list, joining rows of the same size, length and kind. */
+export function mergeCuts(cuts, extra) {
+  const map = new Map(cuts.map((c) => [`${c.size}|${c.length}|${c.kind}`, { ...c, walls: [...c.walls] }]));
+  for (const e of extra) {
+    const key = `${e.size}|${e.length}|${e.kind}`;
+    const row = map.get(key) || { size: e.size, length: e.length, kind: e.kind, qty: 0, walls: [] };
+    row.qty += e.qty;
+    for (const w of e.walls) if (!row.walls.includes(w)) row.walls.push(w);
+    map.set(key, row);
+  }
+  return [...map.values()].sort((a, b) => a.size.localeCompare(b.size) || b.length - a.length || a.kind.localeCompare(b.kind));
+}
+
+// ---------------------------------------------------------------- cutting stock
+
+/**
+ * Bounded knapsack on integer weights: maximise sum(value*count) with
+ * sum(weight*count) <= cap and count <= bound. Returns { value, counts }.
+ */
+export function boundedKnapsack(weights, values, bounds, cap) {
+  return boundedKnapsackMulti(weights, values, bounds, [cap])[0];
+}
+
+// Scratch for boundedKnapsackMulti's keep rows (see there); grows, never shrinks.
+let keepScratch = new Uint8Array(0);
+
+/**
+ * The same knapsack for several capacities at once: one table filled to the largest
+ * capacity holds the best value for every smaller one (best[c] is the best within c),
+ * so each capacity needs only its own walk back. Returns [{ value, counts }] in the
+ * order of `caps`.
+ */
+export function boundedKnapsackMulti(weights, values, bounds, caps) {
+  // Every weight is a multiple of g, so only multiples of g are reachable and best[c] is a
+  // step function of floor(c / g): fill the table on weights / g and look each capacity up at
+  // floor(cap / g). The same additions run in the same order, so values and counts are
+  // identical; the table is g times shorter (g is 2 when every piece is a whole number of
+  // eighths and the kerf is 1/8 in, the default).
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const g = weights.reduce(gcd, 0) || 1;
+  if (g > 1) return boundedKnapsackMulti(weights.map((w) => w / g), values, bounds, caps.map((c) => Math.floor(c / g)));
+  const top = Math.max(...caps);
+  const chunks = [];
+  weights.forEach((w, i) => {
+    let left = Math.min(bounds[i], Math.floor(top / w));
+    for (let k = 1; left > 0; k *= 2) {
+      const take = Math.min(k, left);
+      chunks.push({ i, n: take, w: w * take, v: values[i] * take });
+      left -= take;
+    }
+  });
+  const best = new Float64Array(top + 1);
+  // The keep rows live in one shared scratch buffer, row k at k * (top + 1), reused across
+  // calls and never cleared: the fill writes every cell c >= w of a row (1 if it improved
+  // best[c], else 0) and the walk back reads only those cells, so stale bytes are never
+  // read. A fresh zeroed Uint8Array per chunk was a third of this function's time.
+  // A chunk with no positive value never improves best[], so it has no row (has[k] = 0).
+  const stride = top + 1;
+  if (keepScratch.length < chunks.length * stride) keepScratch = new Uint8Array(Math.max(chunks.length * stride, keepScratch.length * 2));
+  const keep = keepScratch;
+  const has = chunks.map((ch) => ch.v > 0);
+  for (let k = 0; k < chunks.length; k++) {
+    if (!has[k]) continue;
+    const base = k * stride;
+    const w = chunks[k].w;
+    const v = chunks[k].v;
+    for (let c = top; c >= w; c--) {
+      const cand = best[c - w] + v;
+      if (cand > best[c] + 1e-12) {
+        best[c] = cand;
+        keep[base + c] = 1;
+      } else {
+        keep[base + c] = 0;
+      }
+    }
+  }
+  return caps.map((cap) => {
+    const counts = new Array(weights.length).fill(0);
+    let c = cap;
+    for (let k = chunks.length - 1; k >= 0; k--) {
+      if (has[k] && c >= chunks[k].w && keep[k * stride + c]) {
+        counts[chunks[k].i] += chunks[k].n;
+        c -= chunks[k].w;
+      }
+    }
+    return { value: best[cap], counts };
+  });
+}
+
+/**
+ * Maximise b.y subject to A y <= c, y >= 0, with c >= 0 (so the origin is
+ * feasible). A is rows x cols. Dense tableau simplex with Bland's rule; on more than 150 rows (Bland's
+ * rule crawls on the degenerate LPs of a pooled panel order) the most negative
+ * reduced cost enters (Dantzig), with Bland's rule back after a run of
+ * degenerate pivots so it cannot cycle.
+ * Returns { value, y, x }, where x are the duals of the rows: the optimal
+ * solution of min c.x subject to A^T x >= b, x >= 0.
+ */
+export function simplexMaxLE(A, b, c) {
+  const lp = lpStart(A, b, c, 0);
+  lpPrimal(lp);
+  return lpResult(lp);
+}
+
+/**
+ * The same LP as a tableau that can take more rows. `spare` is how many rows may be added
+ * with `lpAddRow` before the caller must start over.
+ */
+function lpStart(A, b, c, spare) {
+  const m = A.length;
+  const n = b.length;
+  const W = n + m + spare + 1;
+  const T = [];
+  for (let r = 0; r < m; r++) {
+    const row = new Float64Array(W);
+    for (let j = 0; j < n; j++) row[j] = A[r][j];
+    row[n + r] = 1;
+    row[W - 1] = c[r];
+    T.push(row);
+  }
+  const z = new Float64Array(W);
+  for (let j = 0; j < n; j++) z[j] = -b[j];
+  const basis = Array.from({ length: m }, (_, r) => n + r);
+  return { m, n, W, T, z, basis, cap: m + spare, nzIdx: new Int32Array(W) };
+}
+
+function lpPivot(lp, leave, enter) {
+  const { m, W, T, z, nzIdx } = lp;
+  const pr = T[leave];
+  const pv = pr[enter];
+  // The pivot row of a cutting-stock tableau is mostly zeros: touch only its nonzero
+  // columns (subtracting f * 0 changes nothing, so the result is identical).
+  let nz = 0;
+  for (let j = 0; j < W; j++) {
+    if (pr[j] !== 0) { pr[j] /= pv; nzIdx[nz++] = j; }
+  }
+  for (let r = 0; r < m; r++) {
+    if (r === leave) continue;
+    const row = T[r];
+    const f = row[enter];
+    if (f !== 0) for (let k = 0; k < nz; k++) { const j = nzIdx[k]; row[j] -= f * pr[j]; }
+  }
+  const f = z[enter];
+  for (let k = 0; k < nz; k++) { const j = nzIdx[k]; z[j] -= f * pr[j]; }
+  lp.basis[leave] = enter;
+}
+
+/** Primal simplex from a primal-feasible tableau. */
+function lpPrimal(lp) {
+  const { m, W, T, z, basis } = lp;
+  let stall = 0;
+  for (let iter = 0; iter < 50000; iter++) {
+    let enter = -1;
+    if (m <= 150 || stall > 20) {
+      for (let j = 0; j < W - 1; j++) if (z[j] < -1e-10) { enter = j; break; }
+    } else {
+      let low = -1e-10;
+      for (let j = 0; j < W - 1; j++) if (z[j] < low) { low = z[j]; enter = j; }
+    }
+    if (enter < 0) break;
+    let leave = -1;
+    let ratio = Infinity;
+    for (let r = 0; r < m; r++) {
+      const a = T[r][enter];
+      if (a > 1e-12) {
+        const q = T[r][W - 1] / a;
+        if (q < ratio - 1e-12 || (Math.abs(q - ratio) <= 1e-12 && basis[r] < basis[leave])) {
+          ratio = q;
+          leave = r;
+        }
+      }
+    }
+    if (leave < 0) throw new Error("LP unbounded: a piece is longer than every board");
+    stall = ratio <= 1e-12 ? stall + 1 : 0;
+    lpPivot(lp, leave, enter);
+  }
+}
+
+/**
+ * Add the row `counts . y <= c` to an optimal tableau (so the duals stay feasible) and
+ * restore primal feasibility with dual simplex pivots. Returns false when the tableau has
+ * no spare room or the pivots did not settle: the caller starts over with `lpStart`.
+ */
+function lpAddRow(lp, counts, c, settle = true) {
+  const { n, W, T, basis } = lp;
+  if (lp.m >= lp.cap) return false;
+  const row = new Float64Array(W);
+  for (let j = 0; j < n; j++) row[j] = counts[j];
+  row[n + lp.m] = 1;
+  row[W - 1] = c;
+  for (let r = 0; r < lp.m; r++) {
+    const v = basis[r];
+    const f = v < n ? counts[v] : 0;
+    if (f !== 0) { const tr = T[r]; for (let j = 0; j < W; j++) if (tr[j] !== 0) row[j] -= f * tr[j]; }
+  }
+  T.push(row);
+  basis.push(n + lp.m);
+  lp.m++;
+  return settle ? lpDualSettle(lp) : true;
+}
+
+/** Dual simplex pivots until every right-hand side is nonnegative; false if they did not settle. */
+function lpDualSettle(lp) {
+  const { W, T } = lp;
+  const { z } = lp;
+  for (let iter = 0; iter < 20000; iter++) {
+    let leave = -1;
+    let score = 0;
+    for (let r = 0; r < lp.m; r++) {
+      const v = T[r][W - 1];
+      if (v >= -1e-9) continue;
+      // Approximate dual steepest edge: infeasibility squared over the row's norm squared.
+      const tr = T[r];
+      let nn = 1;
+      for (let j = 0; j < W - 1; j++) if (tr[j] !== 0) nn += tr[j] * tr[j];
+      const sc = (v * v) / nn;
+      if (sc > score) { score = sc; leave = r; }
+    }
+    if (leave < 0) return true;
+    let enter = -1;
+    let best = Infinity;
+    for (let j = 0; j < W - 1; j++) {
+      const a = T[leave][j];
+      if (a < -1e-12) {
+        const q = Math.max(0, z[j]) / -a;
+        if (q < best - 1e-12) { best = q; enter = j; }
+      }
+    }
+    if (enter < 0) return false;
+    lpPivot(lp, leave, enter);
+  }
+  return false;
+}
+
+function lpResult(lp) {
+  const { m, n, W, T, z, basis } = lp;
+  const y = new Array(n).fill(0);
+  basis.forEach((v, r) => { if (v < n) y[v] = T[r][W - 1]; });
+  const x = Array.from({ length: m }, (_, r) => Math.max(0, z[n + r]));
+  return { value: z[W - 1], y, x };
+}
+
+/**
+ * Gilmore-Gomory column generation for the LP relaxation of cutting stock
+ * with several board lengths. Items are integer weights (length + kerf in
+ * 1/16 in) with demands; boards have integer capacity (length + kerf) and a
+ * price. Returns the LP bound and the patterns with their LP values.
+ */
+const FARLEY_GAP = 1e-4;
+function columnGeneration(items, boards) {
+  const n = items.length;
+  /** @type {{ board: number, counts: number[] }[]} */
+  const patterns = [];
+  const seen = new Set();
+  const addPattern = (board, counts) => {
+    const key = `${board}:${counts.join(",")}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    patterns.push({ board, counts });
+    return true;
+  };
+  items.forEach((it, i) => {
+    let best = -1;
+    boards.forEach((bd, k) => {
+      if (bd.cap >= it.w && (best < 0 || bd.price / Math.min(it.d, Math.floor(bd.cap / it.w)) < boards[best].price / Math.min(it.d, Math.floor(boards[best].cap / it.w)))) best = k;
+    });
+    if (best < 0) throw new Error("a piece is longer than every board");
+    const counts = new Array(n).fill(0);
+    counts[i] = Math.min(it.d, Math.floor(boards[best].cap / it.w));
+    addPattern(best, counts);
+  });
+  let lp = { value: 0, y: [], x: [] };
+  // Farley's bound: the duals y scaled down by the largest value-to-price ratio any board's
+  // knapsack reaches are dual feasible, so lp.value over that ratio is a lower bound on the
+  // true LP optimum at every round. Stop when the two are within FARLEY_GAP: on a whole house
+  // (900+ pieces, 180+ lengths) the last 0.01% took thousands of columns and over 12 minutes.
+  let farley = 0;
+  let lastAdded = 0;
+  let stopped = false;
+  let tab = null;
+  let tabRows = 0;
+  for (let round = 0; round < 400; round++) {
+    // Keep the LP small: once the pool is three times the item count, drop patterns the LP
+    // does not use (they are re-found by the knapsack if they are wanted again). The
+    // newest columns stay so the next solve has what this round priced in.
+    if (patterns.length > 3 * n + 60) {
+      const keepFrom = patterns.length - lastAdded;
+      const kept = patterns.filter((_, j) => j >= keepFrom || lp.x[j] > 1e-9);
+      if (kept.length < patterns.length) {
+        tab = null;
+        patterns.length = 0;
+        seen.clear();
+        for (const p of kept) { patterns.push(p); seen.add(`${p.board}:${p.counts.join(",")}`); }
+      }
+    }
+    // Warm start: the patterns found last round are new rows on the previous optimal tableau
+    // (dual simplex), not a fresh solve. A pruned pool, a full tableau or a stalled pivot
+    // run starts over cold.
+    const demand = items.map((it) => it.d);
+    let ok = tab && tabRows <= patterns.length;
+    if (ok) {
+      for (let j = tabRows; j < patterns.length && ok; j++) ok = lpAddRow(tab, patterns[j].counts, boards[patterns[j].board].price, false);
+      if (ok) ok = lpDualSettle(tab);
+    }
+    if (!ok) {
+      tab = lpStart(patterns.map((p) => p.counts), demand, patterns.map((p) => boards[p.board].price), 4 * n + 200);
+      lpPrimal(tab);
+    }
+    tabRows = patterns.length;
+    lp = lpResult(tab);
+    let added = 0;
+    let ratio = 0;
+    const priced = boundedKnapsackMulti(items.map((it) => it.w), lp.y, items.map((it) => it.d), boards.map((bd) => bd.cap));
+    boards.forEach((bd, k) => {
+      const ks = priced[k];
+      if (bd.price > 0) ratio = Math.max(ratio, ks.value / bd.price);
+      if (ks.value > bd.price * (1 + 1e-9) + 1e-9 && addPattern(k, ks.counts)) added++;
+    });
+    lastAdded = added;
+    if (!added) break;
+    if (ratio > 1) farley = Math.max(farley, lp.value / ratio);
+    if (farley > 0 && lp.value - farley <= FARLEY_GAP * lp.value) { stopped = true; break; }
+  }
+  return { bound: stopped ? farley : lp.value, patterns, x: lp.x };
+}
+
+/** First fit decreasing onto the longest board, then each bar shrunk to the cheapest board that holds it. */
+function firstFitDecreasing(items, boards) {
+  const longest = boards.reduce((a, b, k) => (b.cap > boards[a].cap || (b.cap === boards[a].cap && b.price < boards[a].price) ? k : a), 0);
+  const pieces = [];
+  items.forEach((it, i) => { for (let k = 0; k < it.d; k++) pieces.push(i); });
+  pieces.sort((a, b) => items[b].w - items[a].w);
+  const bars = [];
+  for (const i of pieces) {
+    const bar = bars.find((bb) => bb.used + items[i].w <= boards[longest].cap);
+    if (bar) { bar.used += items[i].w; bar.pieces.push(i); }
+    else bars.push({ board: longest, used: items[i].w, pieces: [i] });
+  }
+  return bars.map((bar) => shrink(bar, boards));
+}
+
+function shrink(bar, boards) {
+  let best = bar.board;
+  boards.forEach((bd, k) => {
+    if (bd.cap >= bar.used && (bd.price < boards[best].price - 1e-12 || (Math.abs(bd.price - boards[best].price) <= 1e-12 && bd.cap < boards[best].cap))) best = k;
+  });
+  return { ...bar, board: best };
+}
+
+const costOf = (bars, boards) => bars.reduce((s, b) => s + boards[b.board].price, 0);
+
+/**
+ * Cheapest set of boards (of the lengths and prices given) to cut every
+ * piece from, for one lumber size.
+ * @param {{ length: number, qty: number, ref?: any }[]} pieces
+ * @param {{ length: number, price: number, label?: string }[]} stock
+ * @param {number} kerf
+ */
+export function optimizeStock(pieces, stock, kerf = 0.125) {
+  const k16 = Math.round(kerf * STEP);
+  const byLen = new Map();
+  for (const p of pieces) {
+    if (!(p.qty > 0)) continue;
+    const w = Math.ceil(p.length * STEP - 1e-6);
+    const row = byLen.get(w) || { w: w + k16, length: w / STEP, d: 0, refs: [] };
+    row.d += p.qty;
+    row.refs.push(...Array(p.qty).fill(p.ref));
+    byLen.set(w, row);
+  }
+  const items = [...byLen.values()].sort((a, b) => b.w - a.w);
+  const boards = stock.filter((s) => s.length > 0 && s.price >= 0).map((s) => ({ ...s, cap: Math.floor(s.length * STEP + 1e-6) + k16 }));
+  if (!items.length) return { bars: [], cost: 0, bound: 0, lpBound: 0, proven: true, method: "none", ffdCost: 0, lpCost: 0 };
+  if (!boards.length) throw new Error("no boards listed");
+  const tooLong = items.find((it) => !boards.some((b) => b.cap >= it.w));
+  if (tooLong) throw new Error(`a ${formatInches(tooLong.length)} piece is longer than every board listed`);
+
+  const core = solveStockMemo(items, boards);
+  const { bars, method, exactCost, firstBound, lpCost, ffdCost } = core;
+  const cost = costOf(bars, boards);
+  // Ceiling of the LP bound when every price is a whole number: a real order cannot cost less.
+  const bound = boards.every((b) => Number.isInteger(b.price)) ? Math.ceil(firstBound - 1e-6) : firstBound;
+  const refsLeft = items.map((it) => [...it.refs]);
+  const out = bars.map((b) => {
+    const bd = boards[b.board];
+    const cuts = b.pieces.map((i) => ({ length: items[i].length, ref: refsLeft[i].shift() })).sort((x, y) => y.length - x.length);
+    const used = cuts.reduce((s, c) => s + c.length + kerf, 0);
+    return { length: bd.length, price: bd.price, label: bd.label, cuts, offcut: Math.max(0, bd.length - used) };
+  });
+  out.sort((a, b) => b.length - a.length || b.cuts.length - a.cuts.length);
+  return { bars: out, cost, bound: exactCost !== null ? exactCost : bound, lpBound: firstBound, proven: exactCost !== null || cost <= bound + 1e-9, method, ffdCost, lpCost };
+}
+
+// The solver below reads only each item's integer width `w` and demand `d` and each board's
+// integer capacity `cap` and `price`, in order, so its answer (which board each bar is and
+// which item indices it holds) is a pure function of those numbers. A takeoff re-solves the
+// same problem whenever an edit leaves a lumber size's cut list alone (the page recomputes
+// on every keystroke; the mutation sweep test runs ~800 takeoffs of one plan), so recent
+// answers are kept. Entries are frozen and read-only; labels, refs and lengths are mapped
+// on afterwards by the caller. (perf, 2026-11-13)
+const STOCK_MEMO_MAX = 128;
+const stockMemo = new Map();
+function solveStockMemo(items, boards) {
+  const key = `${items.map((it) => `${it.w}x${it.d}`).join(",")}|${boards.map((b) => `${b.cap}@${b.price}`).join(",")}`;
+  const hit = stockMemo.get(key);
+  if (hit) {
+    stockMemo.delete(key);
+    stockMemo.set(key, hit);
+    return hit;
+  }
+  const res = solveStock(items, boards);
+  res.bars.forEach((b) => Object.freeze(b.pieces));
+  Object.freeze(res.bars);
+  stockMemo.set(key, Object.freeze(res));
+  if (stockMemo.size > STOCK_MEMO_MAX) stockMemo.delete(stockMemo.keys().next().value);
+  return res;
+}
+
+function solveStock(items, boards) {
+  const first = columnGeneration(items, boards);
+  // Sequential rounding: take the whole part of the LP, re-solve what is left.
+  const demand = items.map((it) => it.d);
+  /** @type {{ board: number, counts: number[] }[]} */
+  const chosen = [];
+  let cg = first;
+  for (let guard = 0; demand.some((d) => d > 0) && guard < 500; guard++) {
+    let took = false;
+    cg.patterns.forEach((p, j) => {
+      const times = Math.floor(cg.x[j] + 1e-9);
+      for (let t = 0; t < times; t++) {
+        if (!p.counts.some((c, i) => c > 0 && demand[i] > 0)) break;
+        chosen.push(p);
+        p.counts.forEach((c, i) => { demand[i] = Math.max(0, demand[i] - c); });
+        took = true;
+      }
+    });
+    if (!demand.some((d) => d > 0)) break;
+    if (!took) {
+      let jbest = -1;
+      cg.patterns.forEach((p, j) => {
+        if (p.counts.some((c, i) => c > 0 && demand[i] > 0) && (jbest < 0 || cg.x[j] > cg.x[jbest])) jbest = j;
+      });
+      const p = cg.patterns[jbest];
+      chosen.push(p);
+      p.counts.forEach((c, i) => { demand[i] = Math.max(0, demand[i] - c); });
+    }
+    const left = items.map((it, i) => ({ ...it, d: demand[i] })).filter((it) => it.d > 0);
+    if (!left.length) break;
+    const idx = items.map((it, i) => i).filter((i) => demand[i] > 0);
+    const sub = columnGeneration(left, boards);
+    cg = {
+      bound: sub.bound,
+      x: sub.x,
+      patterns: sub.patterns.map((p) => {
+        const counts = new Array(items.length).fill(0);
+        p.counts.forEach((c, k) => { counts[idx[k]] = c; });
+        return { board: p.board, counts };
+      }),
+    };
+  }
+  // Turn patterns into bars, dropping pieces beyond demand, then shrink each bar.
+  const need = items.map((it) => it.d);
+  let lpBars = chosen.map((p) => {
+    const ps = [];
+    p.counts.forEach((c, i) => { for (let t = 0; t < c; t++) if (need[i] > 0) { ps.push(i); need[i]--; } });
+    return { board: p.board, pieces: ps, used: ps.reduce((s, i) => s + items[i].w, 0) };
+  }).filter((b) => b.pieces.length).map((b) => shrink(b, boards));
+  const ffd = firstFitDecreasing(items, boards);
+  const lpCost = costOf(lpBars, boards);
+  const ffdCost = costOf(ffd, boards);
+  // The LP bound is a floor on any order, so a cover that already meets it is optimal and
+  // the exact search cannot improve it (it would only restate the cost as the bound).
+  const lpFloor = boards.every((b) => Number.isInteger(b.price)) ? Math.ceil(first.bound - 1e-6) : first.bound;
+  const atBound = Math.min(lpCost, ffdCost) <= lpFloor + 1e-9;
+  const exact = atBound ? null : exactStock(items, boards);
+  let bars = lpCost <= ffdCost + 1e-9 ? lpBars : ffd;
+  let method = lpCost <= ffdCost + 1e-9 ? "column generation" : "first fit decreasing";
+  if (exact && exact.cost < costOf(bars, boards) - 1e-9) {
+    bars = exact.bars.map((b) => shrink(b, boards));
+    method = "exact";
+  }
+  return {
+    bars: bars.map((b) => ({ board: b.board, pieces: [...b.pieces] })),
+    method,
+    exactCost: exact ? exact.cost : null,
+    firstBound: first.bound,
+    lpCost,
+    ffdCost,
+  };
+}
+
+/**
+ * Exact cheapest cover for small groups, by dynamic programming over the
+ * vector of pieces still to cut: f(d) = min over patterns p <= d of
+ * price(p) + f(d - p). Returns null when the instance is too big to finish
+ * quickly (the work limit is states x patterns).
+ */
+export function exactStock(items, boards, workLimit = 3e7) {
+  const n = items.length;
+  const radix = items.map((it) => it.d + 1);
+  let states = 1;
+  for (const r of radix) { states *= r; if (states > 2e5) return null; }
+  const pats = [];
+  for (let k = 0; k < boards.length; k++) {
+    const c = new Array(n).fill(0);
+    const rec = (i, room) => {
+      if (pats.length * states > workLimit) return;
+      if (i === n) {
+        if (c.some((v) => v)) pats.push({ board: k, counts: [...c], price: boards[k].price });
+        return;
+      }
+      for (let v = 0; v <= items[i].d && v * items[i].w <= room; v++) {
+        c[i] = v;
+        rec(i + 1, room - v * items[i].w);
+      }
+      c[i] = 0;
+    };
+    rec(0, boards[k].cap);
+  }
+  if (pats.length * states > workLimit) return null;
+  // The same counts fit every board at least as long, so each cut shows up once per board
+  // that holds it. Only the cheapest copy (the first one, on a price tie) can win a state:
+  // both reach the same remainder, and the dearer copy is a whole price step behind. The
+  // work limit above still counts every copy, so which instances run is unchanged.
+  // (perf, 2026-11-19: 4.1x fewer patterns on the sheathing tests' walls, 485k to 117k)
+  {
+    const cheapest = new Map();
+    for (const p of pats) {
+      const key = p.counts.join(",");
+      const kept = cheapest.get(key);
+      if (!kept || p.price < kept.price - 1e-12) cheapest.set(key, p);
+    }
+    if (cheapest.size < pats.length) {
+      const keep = new Set(cheapest.values());
+      let o = 0;
+      for (const p of pats) if (keep.has(p)) pats[o++] = p;
+      pats.length = o;
+    }
+  }
+  const mult = [];
+  let m = 1;
+  for (const r of radix) { mult.push(m); m *= r; }
+  const patIdx = pats.map((p) => p.counts.reduce((s, v, i) => s + v * mult[i], 0));
+  const P = pats.length;
+  const price = Float64Array.from(pats, (p) => p.price);
+  const step = Int32Array.from(patIdx);
+  // Pattern j fits state d when counts[i] <= d[i] for every item. As bitsets:
+  // fit[i][v] holds the patterns with counts[i] <= v, and a state's fitting set
+  // is the AND over its digits. Digits advance like an odometer, so only the
+  // digits that changed are re-ANDed (suf[i] = fit[i][d[i]] & suf[i + 1]).
+  // Bits are visited lowest first, the same order as a plain j loop, so ties
+  // resolve to the same pattern.
+  const W = (P + 31) >>> 5;
+  const fitOff = [];
+  let fitLen = 0;
+  for (let i = 0; i < n; i++) { fitOff.push(fitLen); fitLen += radix[i] * W; }
+  const fit = new Uint32Array(fitLen);
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < P; j++) {
+      const word = j >>> 5;
+      const bit = (1 << (j & 31)) >>> 0;
+      for (let v = pats[j].counts[i]; v < radix[i]; v++) fit[fitOff[i] + v * W + word] |= bit;
+    }
+  }
+  const suf = new Uint32Array((n + 1) * W);
+  for (let j = 0; j < P; j++) suf[n * W + (j >>> 5)] |= (1 << (j & 31)) >>> 0;
+  const d = new Int32Array(n);
+  for (let i = n - 1; i >= 0; i--) for (let w = 0; w < W; w++) suf[i * W + w] = fit[fitOff[i] + w] & suf[(i + 1) * W + w];
+  const f = new Float64Array(states).fill(Infinity);
+  const how = new Int32Array(states).fill(-1);
+  f[0] = 0;
+  for (let idx = 1; idx < states; idx++) {
+    let k = 0;
+    d[0]++;
+    while (d[k] === radix[k]) { d[k] = 0; k++; d[k]++; }
+    for (let i = k; i >= 0; i--) {
+      const fo = fitOff[i] + d[i] * W;
+      const so = i * W;
+      const no = so + W;
+      for (let w = 0; w < W; w++) suf[so + w] = fit[fo + w] & suf[no + w];
+    }
+    let best = Infinity;
+    let arg = -1;
+    for (let w = 0; w < W; w++) {
+      let b = suf[w];
+      while (b !== 0) {
+        const low = b & -b;
+        const j = (w << 5) + 31 - Math.clz32(low);
+        b ^= low;
+        const v = price[j] + f[idx - step[j]];
+        if (v < best - 1e-12) { best = v; arg = j; }
+      }
+    }
+    f[idx] = best;
+    how[idx] = arg;
+  }
+  const bars = [];
+  for (let idx = states - 1; idx > 0; idx -= patIdx[how[idx]]) {
+    const p = pats[how[idx]];
+    const pieces = [];
+    p.counts.forEach((v, i) => { for (let t = 0; t < v; t++) pieces.push(i); });
+    bars.push({ board: p.board, pieces, used: pieces.reduce((s, i) => s + items[i].w, 0) });
+  }
+  return { cost: f[states - 1], bars };
+}
+
+// ---------------------------------------------------------------- whole house
+
+/**
+ * Lay out every wall and buy the lumber for it.
+ * @param {Plan} plan
+ * @param {{size: string, length: number, kind: string, qty: number, walls: string[]}[]} [extraCuts] pieces that are not wall members (sheathing nailers), bought with the rest
+ */
+export function takeoff(plan, extraCuts = []) {
+  const errors = validatePlan(plan);
+  if (errors.length) return { ok: false, errors };
+  const walls = plan.walls.map((w) => layoutWall(plan, w));
+  const cuts = mergeCuts(cutList(walls), extraCuts);
+  const sizes = [...new Set(cuts.map((c) => c.size))];
+  const orders = [];
+  for (const size of sizes) {
+    const stock = plan.stock.filter((s) => s.size === size);
+    const pieces = cuts.filter((c) => c.size === size).map((c) => ({ length: c.length, qty: c.qty, ref: c.kind }));
+    const longest = Math.max(0, ...stock.filter((s) => s.length > 0).map((s) => s.length));
+    const over = pieces.filter((p) => p.qty > 0 && p.length > longest + 1e-6);
+    if (over.length) {
+      const kinds = [...new Set(over.map((p) => p.ref))].join(", ");
+      const worst = Math.max(...over.map((p) => p.length));
+      return { ok: false, errors: [`${size}: ${over.length === 1 ? "a" : over.length} piece${over.length === 1 ? "" : "s"} (${kinds}) up to ${formatInches(worst)} ${over.length === 1 ? "is" : "are"} longer than the longest ${size} board listed (${longest ? formatInches(longest) : "none"}). Add a longer board to "stock" (a beam, LVL or glulam length for a wide header), or split the opening.`] };
+    }
+    const res = optimizeStock(pieces, stock, plan.kerf);
+    const lines = new Map();
+    for (const b of res.bars) {
+      const key = `${b.length}|${b.label || ""}`;
+      const row = lines.get(key) || { size, length: b.length, label: b.label || "", price: b.price, qty: 0 };
+      row.qty++;
+      lines.set(key, row);
+    }
+    const bought = res.bars.reduce((s, b) => s + b.length, 0);
+    const needed = pieces.reduce((s, p) => s + p.length * p.qty, 0);
+    orders.push({ size, ...res, lines: [...lines.values()].sort((a, b) => b.length - a.length), bought, needed, naive: naiveCost(pieces, stock) });
+  }
+  const cull = cullAllowance(/** @type {any} */ (plan).culls, orders);
+  if (cull.errors.length) return { ok: false, errors: cull.errors };
+  const cost = orders.reduce((s, o) => s + o.cost, 0);
+  const bound = orders.reduce((s, o) => s + o.bound, 0);
+  const bought = orders.reduce((s, o) => s + o.bought, 0);
+  const needed = orders.reduce((s, o) => s + o.needed, 0);
+  const naive = orders.reduce((s, o) => s + o.naive, 0);
+  const lf = plan.walls.reduce((s, w) => s + w.length, 0) / 12;
+  const verticals = walls.reduce((s, w) => s + w.members.filter((m) => m.orient === "v" && m.kind !== "cripple" && m.kind !== "jack").length, 0);
+  return {
+    ok: true,
+    walls,
+    cuts,
+    orders,
+    culls: cull.lines,
+    summary: {
+      walls: walls.length,
+      wallFeet: lf,
+      pieces: cuts.reduce((s, c) => s + c.qty, 0),
+      boards: orders.reduce((s, o) => s + o.bars.length, 0),
+      fullHeightMembers: verticals,
+      cost,
+      bound,
+      gap: bound > 0 ? (cost - bound) / bound : 0,
+      naiveCost: naive,
+      ...(cull.lines.length ? { cullBoards: cull.boards, cullCost: cull.cost, costWithCulls: cost + cull.cost } : {}),
+      waste: bought > 0 ? (bought - needed) / bought : 0,
+      boughtFeet: bought / 12,
+      neededFeet: needed / 12,
+    },
+    notes: walls.flatMap((w) => w.notes.map((n) => `${w.id}: ${n}`)),
+  };
+}
+
+/**
+ * Spare boards for crooked, twisted or split lumber a framer sets aside at the yard or on site.
+ * Typed, never assumed: plan `culls: {pct, bySize?: {"2x4": pct}}` adds ceil(boards x pct) of each ordered
+ * line (same length and price) and reports them apart, so the cut-list order and its LP bound stay the
+ * pure layout. Whole boards only; the rate is the builder's own experience, no industry figure is shipped.
+ * @param {any} culls @param {any[]} orders
+ */
+function cullAllowance(culls, orders) {
+  const out = { errors: /** @type {string[]} */ ([]), lines: /** @type {any[]} */ ([]), boards: 0, cost: 0 };
+  if (culls == null) return out;
+  if (typeof culls !== "object" || Array.isArray(culls)) { out.errors.push("culls must be an object: {pct, bySize}."); return out; }
+  const ok = (v) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 0.5;
+  if (culls.pct != null && !ok(culls.pct)) out.errors.push("culls.pct must be a fraction from 0 to 0.5 (0.05 = 5%).");
+  const by = culls.bySize || {};
+  for (const [k, v] of Object.entries(by)) if (!ok(v)) out.errors.push(`culls.bySize["${k}"] must be a fraction from 0 to 0.5.`);
+  if (out.errors.length) return out;
+  for (const o of orders) {
+    const pct = by[o.size] ?? culls.pct ?? 0;
+    if (!(pct > 0)) continue;
+    for (const l of o.lines) {
+      const qty = Math.ceil(l.qty * pct - 1e-9);
+      if (qty < 1) continue;
+      out.lines.push({ size: o.size, length: l.length, label: l.label, price: l.price, qty, pct, cost: qty * l.price });
+      out.boards += qty;
+      out.cost += qty * l.price;
+    }
+  }
+  return out;
+}
+
+/** Buying every piece on its own cheapest board that fits: the no-planning baseline. */
+function naiveCost(pieces, stock) {
+  let total = 0;
+  for (const p of pieces) {
+    let best = Infinity;
+    for (const s of stock) if (s.length + 1e-9 >= p.length && s.price < best) best = s.price;
+    total += best * p.qty;
+  }
+  return total;
+}
+
+/** CSV of the order and the cut list, for a lumberyard or a spreadsheet. */
+export function toCsv(result) {
+  if (!result.ok) return "";
+  const q = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  const rows = [["section", "size", "length_in", "length", "qty", "detail"]];
+  for (const o of result.orders) for (const l of o.lines) rows.push(["order", o.size, String(l.length), formatLength(l.length), String(l.qty), l.label || `price ${l.price}`]);
+  for (const l of result.culls || []) rows.push(["cull", l.size, String(l.length), formatLength(l.length), String(l.qty), `spare for culls (${(100 * l.pct).toFixed(1)}%)`]);
+  for (const c of result.cuts) rows.push(["cut", c.size, String(c.length), formatInches(c.length), String(c.qty), `${c.kind} (${c.walls.join("; ")})`]);
+  for (const o of result.orders) {
+    o.bars.forEach((b, i) => rows.push(["board", o.size, String(b.length), formatLength(b.length), "1", `#${i + 1}: ${b.cuts.map((c) => `${formatInches(c.length)} ${c.ref}`).join(" + ")}; offcut ${formatInches(b.offcut)}`]));
+  }
+  return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
+}

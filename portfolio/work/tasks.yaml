@@ -684,6 +684,26 @@ tasks:
       Left (ventures/einvoice-pro/DEPLOY.md, "Then"): priv-einvoice-pro-deploy.yml
       in its own PR, deploy once, repoint bets.md, models.yaml and
       roadmap_claim.py, remove the private copy.
+  - id: move-wall-framing-takeoff-public
+    direction: paid-bets
+    title: Move Residential Takeoff, the paid Wall Framing Takeoff (bet #6), into this repository (step 4 of products-to-public-repo)
+    done_when: >-
+      ventures/residential-takeoff/ holds the paid edition under the
+      all-rights-reserved notice, its tests run in ventures-tests.yml and
+      pass, the audit's output is in the PR, and where the paid page is
+      served and how it checks out (Paddle, not the licence-key draft) is
+      written down. The private copy is removed in a private-monorepo PR.
+    hours: 6
+    status: open
+    added: 2026-11-27
+    notes: >-
+      Part 1 done 2026-11-27: ventures/residential-takeoff/apps/wall-framing-takeoff
+      from private-monorepo 71e2b6c, audit block 0, 1,329 tests via
+      run_venture_tests.py, 16 inherited-key lookups guarded
+      (docs/reports/2026-11-27-move-wall-framing-takeoff-public.md). Left:
+      hosting (likely the estimating module in PayApps), Paddle checkout,
+      models.yaml repoint, private copy removed. Refresh meanwhile with
+      ventures/residential-takeoff/sync-from-private.sh.
   - id: move-seller-books-public
     direction: paid-bets
     title: Move Seller Books (bet #5) and the packages it imports into this repository (step 4 of products-to-public-repo)

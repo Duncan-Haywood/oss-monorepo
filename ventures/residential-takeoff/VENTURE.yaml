@@ -1,0 +1,33 @@
+name: residential-takeoff
+description: >-
+  Paid edition of Wall Framing Takeoff for remodelers, framers and small builders: a house typed,
+  drawn or read from IFC/DXF in the browser gives the stud layout, cut list, cheapest board order with
+  a lower bound, wall and roof sheathing, outline and hip roofs, and one supplier material list. Sold
+  per house as a $29 Job report (apps/wall-framing-takeoff/docs/PRICING.md); dark until a checkout
+  link is set.
+stage: prototype
+owner: duncan
+
+# Bet #6 in portfolio/monetization/bets.md. Moved from private-monorepo/apps/wall-framing-takeoff on
+# 2026-11-27 (task move-wall-framing-takeoff-public); not served, not on sale (README.md, "Status").
+# Free front door: ventures/wall-framing-takeoff (MIT, live), whose pages and calculators link here
+# once the Job report is on sale.
+hypotheses:
+  - claim: Remodelers, framers and owner-builders will pay about $29 a house for a supplier material list counted from a laid-out plan instead of an allowance.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No paid Job report within 90 days of the checkout link being set.
+  - A user reports a material list that misses members the layout placed, which the self-check passed.
+links:
+  production: null
+  analytics: null
