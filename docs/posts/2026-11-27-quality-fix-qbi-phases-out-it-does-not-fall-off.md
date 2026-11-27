@@ -1,8 +1,8 @@
 ---
 title: "Quality fix: our freelancer tax set-aside dropped the QBI deduction off a cliff"
-seo_title: "QBI deduction phase-out 2026: $201,750 to $276,750 single, $403,500 to $553,500 joint"
+seo_title: "QBI deduction phase-out 2026: how it shrinks above $201,750"
 date: 2026-11-27
-tags: [quality-audit, us-freelancer-tax-set-aside-calculator, for-customers, freelancers, taxes]
+tags: [quality-audit, us-freelancer-tax-set-aside-calculator, for-customers, freelancers, tax]
 description: "Above $201,750 of taxable income our set-aside calculator took no QBI deduction at all. The 2026 law phases it out over $75,000. Fixed, with the hand check."
 ---
 
