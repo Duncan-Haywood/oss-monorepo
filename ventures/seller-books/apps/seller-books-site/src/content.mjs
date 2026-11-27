@@ -317,6 +317,11 @@ export const FEATURES = [
     body: "Upload the statement of the bank account your payouts go to. Each deposit that names a platform is set against what your books say that platform should have paid you (sales and shipping, less refunds, fees and postage), month by month. A month with Mercari deposits and no Mercari sales in your books is a report you haven't imported; deposits running behind your books usually mean money still on the platform or paid to another account. You see every deposit it matched and can untick one that isn't a payout, such as a refund of something you bought. The statement isn't saved.",
   },
   {
+    key: "sales-tax",
+    title: "The sales tax you collected yourself, by month and quarter",
+    body: "Sales tax a marketplace collected on your sales there was sent on by the marketplace, and Seller Books keeps it out of your income. Tax on the sales you rang up yourself is different: Square at a market booth, PayPal and Venmo payments, your own Shopify store, and the cash sales you type in with their tax. No marketplace sent it on, so Seller Books lists it apart, by month and channel with quarter totals and the tax you handed back on refunds, and downloads it as a CSV to fill your sales tax return from. Which sales are taxable, and in which state, is for you or your tax preparer.",
+  },
+  {
     key: "quickbooks",
     title: "Monthly journal entries for QuickBooks Online",
     body: "Already keep your books in QuickBooks Online, or your accountant does? Download your sales as journal entries for its journal-entry import: one entry per platform per month, with sales, shipping charged, refunds, fees, ads, postage and subscriptions on their own accounts and the net on a clearing account for each platform, so a payout is a transfer from that account to your bank. You name the accounts; cost of goods can go against an inventory account if that is how your books work. Sales tax a platform collected stays out.",

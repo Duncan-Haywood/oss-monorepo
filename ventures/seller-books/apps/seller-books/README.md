@@ -30,6 +30,14 @@ match named (nothing typed is saved).
 A refunded item that came back goes back in stock from the refund's row, at its cost and dated the return,
 without counting as a purchase or changing the year it first sold; the refund's month then shows that cost
 coming back in the P&L, the sales ledger and the QuickBooks journal.
+Sales tax is never income, and the books say who collected it (`src/shared/sales-tax.ts`): the
+marketplaces (eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Amazon, TikTok Shop) send their sales' tax on
+themselves, while the tax on sales the seller rang up (Square, PayPal and Venmo payments, their own Shopify store, a
+direct sale typed in with its tax) is theirs to report. The P&L page lists that second part as "Sales tax you
+collected", by month and channel with quarter totals and the tax handed back on refunds (Square's refund
+rows, direct refunds), and downloads it as `GET .../reports/sales-tax.csv?from&to` to fill a sales tax return
+from. Shopify's orders export has one Taxes column, so tax on Shop-channel orders (which Shopify collects)
+is in it and the report says to take those out. Nothing decides what a state taxes.
 A sales ledger CSV lists every sale, refund and fee behind those figures, one row each, for the seller's records or
 their accountant.
 The same rows also download as QuickBooks Online journal entries: one balanced summary entry per platform

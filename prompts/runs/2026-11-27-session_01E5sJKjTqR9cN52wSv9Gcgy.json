@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjTqR9cN52wSv9Gcgy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T18:18:41Z",
+  "ended": "2026-11-27T18:29:45Z",
+  "wall_minutes": 11.25,
+  "tokens_in": 13465632,
+  "tokens_out": 43455,
+  "cost_usd": 4.9322,
+  "tool_calls": 97,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19836",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--release of a dropped claim (claim/seller-books/reseller-sales-tax-page) failed 5 times with 'send-pack: unexpected disconnect' from the cloud proxy, while normal pushes worked; the claim is left to go stale after 6 h."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Bets #1 to #4 had nothing free and ungated: every payapps and jobshop-quote Next item waits on demand, and einvoice-pro's first deploy waits on two owner items (Impressum address, GDPR Art. 27 representative). roadmap_claim.py --bets said so quickly, which saved time."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "State tax sites (comptroller.texas.gov, cdtfa.ca.gov, tax.ny.gov, streamlinedsalestax.org, mtc.gov) are outside the session's network allowlist (403 from the proxy, ENOTFOUND from WebFetch), so a sourced sales-tax SEO page could not be written; worth listing under 'Outbound hosts'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new post: the planned sales-tax SEO page could not be sourced (state tax hosts blocked), and writing one from search snippets would break the never-fabricate rule.",
+      "did": "Shipped the product feature, plus a feature card on the seller-books-site that makes no state-law claims.",
+      "result": "Feature merged with tests; the site carries the card."
+    }
+  ],
+  "writeups": [
+    "ventures/seller-books/apps/seller-books/README.md (sales tax paragraph)",
+    "ventures/seller-books/apps/seller-books/docs/IMPORTERS.md (Square refunds)",
+    "seller-books-site feature card 'sales-tax'"
+  ],
+  "goal": null,
+  "notes": "Local verification: typecheck clean; unit 354 passed; worker 152 passed in 29 files; build ok; biome 3 warnings already on main; seller-books-site 74 tests passed. Fixed a misstatement on the P&L page (all sales tax called marketplace-remitted).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0d7afe8e-4a90-5268-a61d-151454cb9026",
+    "transcripts": 1,
+    "first": "2026-11-27T18:18:41Z",
+    "last": "2026-11-27T18:29:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 93,
+        "input": 178,
+        "output": 43455,
+        "thinking": 7723,
+        "cache_read": 13289907,
+        "cache_write_5m": 0,
+        "cache_write_1h": 175547,
+        "api_equivalent_usd": 4.9322,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 93,
+      "input": 178,
+      "output": 43455,
+      "thinking": 7723,
+      "cache_read": 13289907,
+      "cache_write_5m": 0,
+      "cache_write_1h": 175547,
+      "api_equivalent_usd": 4.9322,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 85,
+      "WebFetch": 5,
+      "ToolSearch": 2,
+      "Write": 2,
+      "WebSearch": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.25,
+      "active_minutes": 11.25,
+      "model_minutes": 8.2,
+      "tool_minutes": 3.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior engineer: shared module, P&L split, importer change, route, UI and tests, about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 202.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
