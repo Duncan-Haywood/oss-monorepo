@@ -86,7 +86,15 @@ export function toCashInput(
       p.flFirstFurnishedOn && flMissing.length > 0 ? flNoticeDates(p.flFirstFurnishedOn) : null,
     lienDeadline: lienOf(projectLienDeadline(b)),
     txNotice: p.txProjectKind
-      ? { residential: p.txProjectKind === "residential", sends: txSends.get(p.id) ?? [] }
+      ? {
+          residential: p.txProjectKind === "residential",
+          sends: txSends.get(p.id) ?? [],
+          retainage: {
+            contractEndedOn: p.txContractEndedOn ?? null,
+            originalEndedOn: p.txOriginalEndedOn ?? null,
+            originalEndedHow: p.txOriginalEndedHow ?? null,
+          },
+        }
       : null,
     changeOrders: b.changeOrders.map((co) => ({
       id: co.id,

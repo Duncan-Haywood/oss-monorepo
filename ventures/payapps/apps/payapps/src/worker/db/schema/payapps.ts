@@ -156,6 +156,17 @@ export const projects = sqliteTable(
      */
     txProjectKind: text("tx_project_kind", { enum: ["commercial", "residential"] }),
     /**
+     * Texas retainage (Tex. Prop. Code §§ 53.057(a-1), 53.052(d), migration 0089): the day this
+     * company's contract was completed, terminated or abandoned, and the day the original contract
+     * (the GC's with the owner) was, with which of the three it was. They give the 30-day retainage
+     * notice and the retainage lien affidavit dates (src/shared/tx-notices.ts); null when not entered.
+     */
+    txContractEndedOn: text("tx_contract_ended_on"),
+    txOriginalEndedOn: text("tx_original_ended_on"),
+    txOriginalEndedHow: text("tx_original_ended_how", {
+      enum: ["completed", "terminated", "abandoned"],
+    }),
+    /**
      * Georgia: whether a notice of commencement (O.C.G.A. § 44-14-361.5) was filed for the job (true
      * filed, false not filed, null not known), and the contractor's name and address as that notice
      * shows them. They preselect the answer on an affidavit of nonpayment's copy to the contractor
