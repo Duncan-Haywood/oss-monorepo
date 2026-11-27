@@ -1,5 +1,6 @@
 """Tests for roadmap_claim.py: parsing, and create-only claims against a real local remote."""
 import contextlib
+import importlib.util
 import io
 import os
 import re
@@ -454,11 +455,8 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("nowhere: not in this clone", out)
         self.assertRegex(out, r"Start here: bet #3 jobshop-quote, item #[34] ")
 
+    @unittest.skipUnless(importlib.util.find_spec("yaml"), "unblock_tasks reads tasks.yaml with PyYAML")
     def test_unblock_tasks_lists_open_unblocked_paid_bet_tasks(self):
-        try:
-            import yaml  # noqa: F401
-        except ImportError:
-            self.skipTest("PyYAML not installed")
         text = ("tasks:\n"
                 "  - {id: a, direction: paid-bets, title: Move it, status: open}\n"
                 "  - {id: b, direction: paid-bets, title: Wait, status: open, blocked_on: x}\n"
