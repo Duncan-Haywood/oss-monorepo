@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqye1hz8xVTuv39eyXZ8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T06:39:11Z",
+  "ended": "2026-11-27T08:12:10Z",
+  "wall_minutes": 94.05,
+  "tokens_in": 25268525,
+  "tokens_out": 57272,
+  "cost_usd": 7.7566,
+  "tool_calls": 183,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19663",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "First PR #19645 (open the funnel: guide CTAs, construction page, banner) duplicated PR #19644, opened and merged by a parallel session while #19645 waited on CI and three merge conflicts; closed as superseded",
+    "ci-policy (required) failed on #19645: platform/pages imported a venture file, so privileged site-build jobs would run un-owned code",
+    "GitHub API rate limit for 14 minutes while waiting to merge",
+    "force-push of the reset branch was refused; used merge -s ours of the old tip instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "Searched by my slug (launch-open-guide-ctas / launch) before starting; the parallel session's PR #19644 used launch-signups-open and opened after my check, and the roadmap_claim slugs differed, so neither tool saw the overlap. A claim keyed on the work item (e.g. the launch-day steps of a report) rather than free-text slugs would have."
+    },
+    {
+      "file": "platform/ci/ci_policy_check.py",
+      "issue": "An import from platform/pages into a venture file trips the privileged-code rule; it surfaced only in CI. Worth a line in platform/pages docs: run ci_policy_check.py locally."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "Status said 'waiting on a runner' an hour after run 45949861746 had deployed; only the Actions log had the URL."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Every session lands its own work: my main deliverable was superseded, so I shipped the one gap I found in the merged work (a domain deploy would have broken all published sign-up links) rather than a re-landed duplicate.",
+      "did": "Closed #19645, opened #19663 from current main.",
+      "result": "pending merge"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No new post: the customer post was already updated by #19644; this PR is a deploy-safety fix.",
+      "did": "Recorded the reason in DEPLOY.md instead.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/payapps/DEPLOY.md (section: workers.dev stays on beside a custom domain)"
+  ],
+  "goal": null,
+  "notes": "Verified live: /api/health on workers.dev ok, email true (after deploy run 6). provision.test.mjs 6/6. Earlier work in closed #19645: payapps unit 1338 + worker 552 green, pay-app-guides suite green.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "77181524-009e-50c3-b22b-3ae81339e4f3",
+    "transcripts": 1,
+    "first": "2026-11-27T06:39:11Z",
+    "last": "2026-11-27T08:13:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 165,
+        "input": 313,
+        "output": 57272,
+        "thinking": 9491,
+        "cache_read": 25068692,
+        "cache_write_5m": 0,
+        "cache_write_1h": 199520,
+        "api_equivalent_usd": 7.7566,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 165,
+      "input": 313,
+      "output": 57272,
+      "thinking": 9491,
+      "cache_read": 25068692,
+      "cache_write_5m": 0,
+      "cache_write_1h": 199520,
+      "api_equivalent_usd": 7.7566,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.992,
+    "tool_calls": 183,
+    "tools": {
+      "Bash": 152,
+      "mcp__github__merge_pull_request": 8,
+      "mcp__github__pull_request_read": 7,
+      "mcp__github__actions_list": 4,
+      "mcp__github__get_job_logs": 3,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__update_pull_request": 2
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 94.05,
+      "active_minutes": 94.05,
+      "model_minutes": 14.5,
+      "tool_minutes": 79.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "deploy config fix + docs; the superseded launch work not counted",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 12.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
