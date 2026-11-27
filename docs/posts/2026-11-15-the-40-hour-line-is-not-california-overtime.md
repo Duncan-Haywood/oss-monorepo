@@ -2,7 +2,7 @@
 title: "The 40-hour line is not California overtime: our free time clock now prices the week"
 seo_title: "Overtime, double time and meal breaks from a free time clock"
 date: 2026-11-15
-tags: [scheduling, time-clock, overtime, california, payroll, small-business, open-source, shift-roster-builder]
+tags: [scheduling, time-clock, overtime, california, payroll, small-business, open-source, shift-roster-builder, for-customers, quality-audit]
 description: "The team hub's timesheet flagged hours over 40. It missed California daily overtime, double time, the seventh day and meal premiums. Now it applies them."
 ---
 
@@ -32,6 +32,39 @@ No hour is paid as overtime twice. Weekly overtime counts only the regular hours
 Gross pay uses the federal **regular rate**: straight-time pay divided by hours worked (29 CFR 778.115). So when someone works stretches at two different rates, their overtime is priced at the blend. For example, 30 hours at $10 plus 20 hours at $20 gives a regular rate of $14, and the 10 overtime hours add $70 on top of $700. That makes $770, not the $800 you would get by paying the higher rate's premium.
 
 **Rounding** is optional (`PUNCH_ROUND_MIN` = 5, 6 or 15). The federal rule (29 CFR 785.48(b)) allows rounding only if it averages out over time, so the page shows each person's net minutes gained or lost. A total that keeps leaning against staff is the warning sign. Under California rules the tool refuses to round at all: the state's Supreme Court held in *Donohue v. AMN Services* (2021) that meal-period punches may not be rounded.
+
+## Update, 2026-11-27: the planner now splits overnight shifts at midnight too
+
+The timesheet above counted an overnight shift's hours by calendar day. The
+roster *planner*, the part that prices a week before you post it, did not.
+It put every hour of a shift on the day the shift started. Quality audit
+round 84 ([audit file](../../portfolio/quality/audits/2026-11-19-shift-roster-builder-r4.json))
+caught the mismatch. Take a Saturday 8pm to Sunday 6am shift at $20 an hour,
+with daily overtime after 8 hours. The planner priced it at $220, with 2
+overtime hours. The timesheet split it into 4 hours on Saturday and 6 on
+Sunday, so no day went over 8 and there was no overtime: $200. The same
+shift got two different prices, depending on which screen you looked at.
+
+The planner now splits a shift at midnight the same way. Here is what it
+gives now. Each figure is worked out by hand and pinned in a test:
+
+| shift (daily overtime after 8 h, $20/h) | hours by day | overtime | cost |
+|---|---|---|---|
+| Sat 8pm-6am | Sat 4, Sun 6 | 0 h | $200 (was $220) |
+| Mon 2pm-6am | Mon 10, Tue 6 | 2 h | $340 |
+| Mon 2pm-6am, with a 1 h unpaid meal | Mon 9.375, Tue 5.625 | 1.375 h | $313.75 |
+| Fri 8pm-6am plus Sat 8am-2pm | Fri 4, Sat 12 | 4 h | $360 |
+| Sun 8pm-6am | Sun 10 (the week's last day) | 2 h | $220 |
+
+Two choices are ours, and you should know about them. First, an unpaid meal
+comes off the two parts of the shift in proportion to their length, since
+the plan does not know when the break is taken. Second, the hours after
+Sunday midnight stay on Sunday, because Monday belongs to next week's
+roster. The timesheet makes the same choice. Your payroll may define the
+workday differently: California lets an employer fix any regular 24-hour
+period as the workday. If yours starts at 6am rather than midnight, these
+figures will not match your payroll. Because the search optimises cost, it
+may now give an overnight close to someone it used to avoid giving it to.
 
 ## What it is not
 

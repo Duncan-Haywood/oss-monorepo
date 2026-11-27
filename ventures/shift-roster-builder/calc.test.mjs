@@ -527,6 +527,27 @@ test("daily overtime: California 8/12 pays 1.5x over 8 and 2x over 12, and weekl
   assert.equal(w.otHours, 5);
 });
 
+test("daily overtime splits an overnight shift at midnight, as the timesheet does (quality audit round 84)", () => {
+  const staff = staffOf("Ana, 20, 60, 0, any");
+  const opts = { dailyOtAfter: 8, minRestHours: 0 };
+  // Sat 8pm-6am: 4 h Saturday + 6 h Sunday, no day over 8, so no overtime (was 2 OT h, $220, before 2026-11-27)
+  const sat = buildRoster(staff, slotsOf("Sat, 20, 6, 1, x"), opts);
+  assert.equal(sat.otHours, 0);
+  assert.equal(sat.cost, 20 * 10);
+  // Mon 2pm-6am: 10 h Monday (2 OT) + 6 h Tuesday
+  const mon = buildRoster(staff, slotsOf("Mon, 14, 6, 1, x"), opts);
+  assert.equal(mon.otHours, 2);
+  assert.equal(mon.cost, 20 * (14 + 2 * 1.5));
+  // an unpaid hour comes off both parts in proportion: 15 paid h, Monday 9.375 -> 1.375 OT
+  const meal = buildRoster(staff, slotsOf("Mon, 14, 6, 1, x"), { ...opts, mealAfter: 5, mealMin: 60 });
+  assert.ok(Math.abs(meal.otHours - 1.375) < 1e-9);
+  // the tail adds to the next day's own shift: Fri 8pm-6am + Sat 8am-2pm = Fri 4 h, Sat 12 h -> 4 OT
+  const two = buildRoster(staff, slotsOf("Fri, 20, 6, 1, x\nSat, 8, 14, 1, y"), opts);
+  assert.equal(two.otHours, 4);
+  // Sunday night's tail stays on Sunday (the week's last day): 10 h, 2 OT
+  assert.equal(buildRoster(staff, slotsOf("Sun, 20, 6, 1, x"), opts).otHours, 2);
+});
+
 test("daily overtime steers the search to split a long day across two people", () => {
   const staff = staffOf("Ana, 20, 40, 0, any\nBen, 20, 40, 0, any");
   const slots = slotsOf("Mon, 6, 14, 1, a\nMon, 14, 22, 1, b");
