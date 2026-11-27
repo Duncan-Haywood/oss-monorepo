@@ -95,8 +95,20 @@ describe("lienDeadline: completion states (California, Arizona)", () => {
     expect(d.statutoryOn).toBe("2026-12-14");
     expect(d.usedLastFurnishingAsCompletion).toBe(false);
   });
-  it("a completion date before last furnishing is not used (it cannot be)", () => {
+  it("a completion date entered before last furnishing is used: the earlier date is the safe one", () => {
+    // Completion (owner acceptance, say) can come before a sub's punch work; the statute still
+    // counts from completion, as the free calculator does (ventures/mechanics-lien-deadline-calculator).
     const d = deadline({ state: "CA", lastFurnishedOn: "2026-09-01", completedOn: "2026-08-01" });
+    expect(d.statutoryOn).toBe("2026-10-30");
+    expect(d.usedLastFurnishingAsCompletion).toBe(false);
+    expect(d.rule).not.toContain("cannot be later than completion");
+    const az = deadline({ state: "AZ", lastFurnishedOn: "2026-09-01", completedOn: "2026-08-01" });
+    expect(az.statutoryOn).toBe("2026-11-29"); // 120 days after 08-01
+    const ut = deadline({ state: "UT", lastFurnishedOn: "2026-09-01", completedOn: "2026-08-01" });
+    expect(ut.statutoryOn).toBe("2027-01-28"); // 180 days after 08-01
+  });
+  it("Nevada counts from the later of completion and your last day, so an earlier completion is not used", () => {
+    const d = deadline({ state: "NV", lastFurnishedOn: "2026-09-01", completedOn: "2026-08-01" });
     expect(d.statutoryOn).toBe("2026-11-30");
     expect(d.usedLastFurnishingAsCompletion).toBe(true);
   });

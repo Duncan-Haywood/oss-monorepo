@@ -74,6 +74,27 @@ describe("planPayAppInvoice", () => {
     assert.equal(plan.summary.netCents, 1_600_000 - 140_000);
   });
 
+  it("lists held lines highest rate first, whatever order the work lines came in", () => {
+    const plan = planPayAppInvoice({
+      applicationNumber: 2,
+      retainageItemId: RET,
+      retainageRateBps: 1000,
+      workLines: [
+        { itemId: "b", description: "Stored lumber", amountCents: 400_000, retainageRateBps: 500 },
+        { itemId: "d", description: "Steel on site", amountCents: 300_000, retainageRateBps: 250 },
+        { itemId: "a", description: "Labor", amountCents: 1_000_000 },
+      ],
+    });
+    assert.deepEqual(
+      plan.lines.filter((l) => l.itemId === RET).map((l) => l.description),
+      [
+        "Retainage held (10%), pay application #2",
+        "Retainage held (5%), pay application #2",
+        "Retainage held (2.5%), pay application #2",
+      ],
+    );
+  });
+
   it("formats fractional rates", () => {
     const plan = planPayAppInvoice({
       applicationNumber: 1,

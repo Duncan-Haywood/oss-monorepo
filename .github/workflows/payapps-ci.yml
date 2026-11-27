@@ -12,11 +12,13 @@ on:
     branches: [main]
     paths:
       - "ventures/payapps/**"
+      - "ventures/mechanics-lien-deadline-calculator/calc.mjs"
       - ".github/workflows/payapps-ci.yml"
   push:
     branches: [main]
     paths:
       - "ventures/payapps/**"
+      - "ventures/mechanics-lien-deadline-calculator/calc.mjs"
       - ".github/workflows/payapps-ci.yml"
   workflow_dispatch:
 
@@ -42,9 +44,12 @@ jobs:
         with:
           persist-credentials: false
           filter: blob:none
+          # The lien calculator is checked out for src/shared/lien-deadline-parity.test.ts, which
+          # holds the app's lien clock to the free tool it was ported from.
           sparse-checkout: |
             .github
             ventures/payapps
+            ventures/mechanics-lien-deadline-calculator
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           package_json_file: ventures/payapps/package.json

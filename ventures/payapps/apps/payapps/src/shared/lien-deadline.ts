@@ -74,6 +74,12 @@ type Rule =
       nocDays: number;
       /** What completes, in the statute's words (default: the work of improvement). */
       completionWhat?: string;
+      /**
+       * The statute counts from the LATER of completion and the claimant's own last furnishing
+       * (Nevada), so a completion entered before the last day is not used. Elsewhere an entered
+       * completion is used whatever its order: an earlier one gives an earlier date (safe side).
+       */
+      latestOfOwn?: boolean;
     }
   /**
    * The earlier of a count from the claimant's own last furnishing (from the last day of that month
@@ -210,7 +216,7 @@ export const LIEN_DEADLINE_RULES: Record<LienDeadlineState, StateRule> = {
     name: "Nevada",
     citation: "Nev. Rev. Stat. § 108.226(1)",
     act: "record a notice of lien",
-    commercial: { type: "completion", completionDays: 90, nocDays: 40 },
+    commercial: { type: "completion", completionDays: 90, nocDays: 40, latestOfOwn: true },
     notes: [
       "The statute counts 90 days from the latest of completion of the work of improvement and your own last furnishing or work, or 40 days after a valid notice of completion is recorded and served (§§ 108.226(1), 108.228).",
     ],
@@ -465,7 +471,10 @@ export function lienDeadline(input: LienDeadlineInput): LienDeadlineResult {
       words = `the 15th day of the ${ORD[rule.months] ?? `${rule.months}th`} month after the month of ${from}`;
       break;
     case "completion": {
-      const completed = input.completedOn && input.completedOn >= fromOn ? input.completedOn : null;
+      const completed =
+        input.completedOn && (!rule.latestOfOwn || input.completedOn >= fromOn)
+          ? input.completedOn
+          : null;
       usedLast = !completed;
       const byCompletion = addDays(completed ?? fromOn, rule.completionDays);
       const noc = input.noticeOfCompletionOn ?? null;
