@@ -55,3 +55,12 @@ would be hardening, not a fix for a defect.
   of 0 or more first.
 - `redteam.py` could run a venture's typecheck along with its tests for TypeScript
   targets, so type-only mutants count as caught when CI would catch them.
+
+## Also in this PR
+
+- `packages/billing` has four more copies, in `cmmc`, `einvoice-pro`, `jobshop-quote` and
+  `seller-books`, and `platform/ci/check_billing_copies.py` fails when their sources drift.
+  `app-origin.ts` and the new `paddle-checkout-page.ts` are ported to all four, each with the
+  digit-host assertion, and every copy's suite passes.
+- A real defect: `pay-app-guides` was red on `main`. PRs #19840 and #19870 landed at the same
+  time, so two pages had a stale all-guides nav block. Running `node nav.mjs` regenerated it.

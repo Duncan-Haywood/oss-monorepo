@@ -35,6 +35,10 @@
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "Type-only mutants (inside a TS type) escape node --test yet are caught by the venture's tsc typecheck in CI; the prompt has no triage word for 'caught by another CI step', so I used equivalent with a note."
+    },
+    {
+      "file": "platform/ci/check_billing_copies.py",
+      "issue": "payapps/packages/billing is one of five copies (cmmc, einvoice-pro, jobshop-quote, seller-books); nothing in the payapps tree says so, and I learned it only from a red changed-ventures job. A one-line header in each copy would save a CI round."
     }
   ],
   "deviations": [
@@ -49,7 +53,7 @@
     "docs/reports/redteam-2026-11-27-payapps-billing-host-check.md"
   ],
   "goal": null,
-  "notes": "Guard: shared appOriginWith helper for webhookUrl and payPageUrl, with digit/hyphen host tests. packages/billing: node --test 128 pass 0 fail; tsc --noEmit clean. Security queue empty (security_next exit 3); ideas inbox empty.",
+  "notes": "Guard: shared appOriginWith helper for webhookUrl and payPageUrl, with digit/hyphen host tests. packages/billing: node --test 128 pass 0 fail; tsc --noEmit clean. Security queue empty (security_next exit 3); ideas inbox empty. Ported app-origin.ts and paddle-checkout-page.ts to the four other billing copies (check_billing_copies 0 drift; each copy's suite green). Fixed red-on-main pay-app-guides nav.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -423,7 +427,14 @@
         ]
       }
     ],
-    "real_defects": []
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/change-order-template.html",
+        "issue": "pay-app-guides suite red on main: PRs #19840 and #19870 landed concurrently and the all-guides nav block in change-order-template.html and state-payment-bond-claims.html was stale (page.test.mjs 'every page is in the all-guides list'). Regenerated with node nav.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19878"
+      }
+    ]
   },
   "usage": {
     "measured_by": "prompts/runcost.py v1",
