@@ -123,7 +123,9 @@ describe("PaddleBillingProvider.parseWebhook", () => {
     const ts = Math.floor(NOW / 1000);
     // WebCrypto refuses a zero-length HMAC key, so "" cannot sign; a whitespace key can.
     for (const blank of ["", " ", "\n", "\t \r\n"]) {
-      const forged = blank ? await signPaddleWebhook(body, blank, ts) : `ts=${ts};h1=${"0".repeat(64)}`;
+      const forged = blank
+        ? await signPaddleWebhook(body, blank, ts)
+        : `ts=${ts};h1=${"0".repeat(64)}`;
       await assert.rejects(
         verifyPaddleSignature(forged, body, blank, { nowMs: NOW }),
         /No webhook secret/,
