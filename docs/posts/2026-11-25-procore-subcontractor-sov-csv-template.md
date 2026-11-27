@@ -274,6 +274,7 @@ The file is made in your browser. It follows Trimble's published help and has no
 live Trimble Pay contract. If the GC uses accounting lines, upload each group's lines into that
 group, so check the grouping first.
 
-PayApps is in early access: pay applications, retainage, change orders, lien waivers and
-QuickBooks for subcontractors. Not affiliated with Procore, Oracle, GCPay or Trimble. This is general information, not legal
+PayApps is open: pay applications, retainage, change orders and the GC portal files above are
+free on one active job, with no card ([start free](https://marisstella.app/industries/construction/)). Lien waivers and QuickBooks are on the
+paid plans, which are not on sale yet. Not affiliated with Procore, Oracle, GCPay or Trimble. This is general information, not legal
 or accounting advice.
