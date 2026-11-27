@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqycCoRZ5AK5s9PHV7gM",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T07:38:59Z",
+  "ended": "2026-11-27T07:47:12Z",
+  "wall_minutes": 8.42,
+  "tokens_in": 3482726,
+  "tokens_out": 13786,
+  "cost_usd": 1.5717,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19657",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "review_claimed() treated three PRs abandoned on 2026-10-31/11-01 as a live claim forever; no review ran for ~6,800 runs. The fix sat as an orphaned draft (PR #18741) for 3 days because its body said the owner must review promptctl.py, which land-your-work.md no longer lists as owner-only."
+    },
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "derive.py fetch is called incremental at 2-5 min, but after a month without a review it had 6,774 records to fetch at ~40/min (~2.5 h); stopped at 1,135 and built from what was saved."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Said 'the bets' code lives in private-monorepo' after bets #1, #2 and #5 had moved into ventures/; fixed here to point at the bets table."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "An orphaned draft (#18741) should be marked ready and merged, but the session may push only its own branch.",
+      "did": "Cherry-picked its two commits (fix + its run record) into this review PR and close #18741 as superseded.",
+      "result": "tests 165 OK, validate ok"
+    },
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Scheduled run; derive fetch would take ~2.5 h.",
+      "did": "Reduced pass (steps 1, 3, 7, 8 and two fixes); no audit, no drift report; partial derive fetch committed.",
+      "result": "candidates unchanged per measure"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "Most PRs carry a post; this one carries #18741's post (docs/posts/2026-11-24-a-review-claim-that-never-expired.md) and writes no new one, per the consolidate-posts direction.",
+      "did": "no new post",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-a-review-claim-that-never-expired.md (carried from PR #18741)",
+    "prompts/experiments.md E122"
+  ],
+  "goal": null,
+  "notes": "python3 -m unittest discover -s prompts: 165 tests OK; promptctl.py validate ok; risk_review.py: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "22915d53-8447-5d69-a190-c1a3fb24af04",
+    "transcripts": 1,
+    "first": "2026-11-27T07:38:59Z",
+    "last": "2026-11-27T07:47:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 13786,
+        "thinking": 4053,
+        "cache_read": 3405837,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76806,
+        "api_equivalent_usd": 1.5717,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 13786,
+      "thinking": 4053,
+      "cache_read": 3405837,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76806,
+      "api_equivalent_usd": 1.5717,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.42,
+      "active_minutes": 8.42,
+      "model_minutes": 3.86,
+      "tool_minutes": 4.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "measure, diagnose stale claim, doc drift fix, log",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 190.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
