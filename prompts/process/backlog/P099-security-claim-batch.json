@@ -20,7 +20,7 @@
   "baseline": "5 reports in 3 days to 2026-11-27 (1 naming the batch directly)",
   "opened": "2026-11-27",
   "source": "process run, promptctl measure doc friction",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19748",
   "result": null,
   "history": []
 }
