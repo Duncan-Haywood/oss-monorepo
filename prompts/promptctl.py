@@ -1373,6 +1373,9 @@ def _index_hit(path: str) -> tuple[str, str] | None:
             return None
         return _glob_hit(path) or _NO_COMMIT
     if full.is_dir():
+        # A directory is a glob over its files: the same rule (P096).
+        if len(_shallow_boundary()) > 1:
+            return None
         return _dir_hit(path)
     if not full.exists():
         return _NO_COMMIT  # no visible commit names it, so git names none either

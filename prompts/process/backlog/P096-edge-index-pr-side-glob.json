@@ -24,7 +24,11 @@
   "history": [
     {
       "date": "2026-11-27",
-      "note": "_index_hit returns None for a glob when the clone has more than one shallow root, so `git log -1` answers (globs are a handful of lookups). Made in PR #19635, where it blocked prompts-ci; test_promptctl passes (local clone has 10 shallow roots)."
+      "note": "_index_hit returns None for a glob or a directory when the clone has more than one shallow root, so `git log -1` answers (globs are a handful of lookups). Made in PR #19635, where it blocked prompts-ci; test_promptctl passes (local clone has 10 shallow roots)."
+    },
+    {
+      "date": "2026-11-27",
+      "note": "First push fixed the glob subtest; prompts-ci (head c6a16b66) then failed the same way for 'prompts/', a directory the PR itself changed. Directories take the same rule."
     }
   ]
 }
