@@ -23,6 +23,7 @@ Settings it needs in this repository (names only; values are never in the tree),
 | `CMMC_DOMAIN`, `CMMC_EMAIL_FROM`, `CMMC_BILLING_PROVIDER` | variables |
 | `CMMC_ANTHROPIC_API_KEY` (or the shared `ANTHROPIC_API_KEY`), `CMMC_AUTH_SECRET` (optional) | secrets |
 | `CMMC_BILLING_API_KEY`, `CMMC_BILLING_WEBHOOK_SECRET`, `CMMC_BILLING_PRICE_IDS` | secrets, paid plans only |
+| `CMMC_GLOBAL_DAILY_LLM_CAP_USD` → Worker `GLOBAL_DAILY_LLM_CAP_USD` | optional variable; unset keeps the code's $1.50 a day (`apps/cmmc/docs/LAUNCH-REVIEW.md`, section 1) |
 
 Payments: the Paddle webhook is served by the app's own Worker, so nothing payments-side has to stay
 in `private-monorepo` except the secrets inventory and owner checklists (task
@@ -30,6 +31,9 @@ in `private-monorepo` except the secrets inventory and owner checklists (task
 account's OIDC trust, so that trust is not affected.
 
 ## Then
+
+The product side of launch is reviewed: [`apps/cmmc/docs/LAUNCH-REVIEW.md`](apps/cmmc/docs/LAUNCH-REVIEW.md)
+(2026-11-27), the record `docs/legal/OPERATOR.md` asks for before an agent deploys and opens sign-ups.
 
 1. Deploy once by hand; `/api/health` answers ok.
 2. Remove `private-monorepo/apps/cmmc` and `apps/cmmc-site` in a private PR, repoint

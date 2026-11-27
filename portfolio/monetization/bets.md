@@ -128,7 +128,8 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
   plans keep 42–53% at their full AI ceiling, the legal pages match the code,
   and the global AI cap is $30 a day for launch. An agent may now run
   `jobshop-quote-deploy` and open sign-ups (Actions runners permitting);
-  checkout stays dark until Paddle verification. Bets #3–#5 have no review yet.
+  checkout stays dark until Paddle verification. Bet #4 has its review (below) and #5 its own
+  (`ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md`); #3 has none yet.
 
 ### 3. E-invoice fix-and-explain
 
@@ -165,6 +166,13 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
   control, AS9100 additions, supplier flow-down.
 - **Risks:** policy swings; never claim certification (not a C3PAO); customers
   expect strong handling of their documents.
+- **Launch:** the launch review OPERATOR.md asks for is done (2026-11-27,
+  `ventures/cmmc/apps/cmmc/docs/LAUNCH-REVIEW.md`): paid plans keep 59–69% at
+  a re-derived worst case (20k tokens in per draft, Opus prices), the legal
+  pages now cover ISO 9001 and computed dates and match the code, and a
+  service-wide AI cap of $1.50 a day keeps the free plan inside the venture's
+  $50 budget. The deploy waits only on porting `cmmc-deploy` here
+  (`ventures/cmmc/DEPLOY.md`); checkout stays dark until Paddle verification.
 
 ### 5. Reseller profit and Schedule C books
 

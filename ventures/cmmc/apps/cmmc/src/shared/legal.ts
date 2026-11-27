@@ -18,7 +18,7 @@
 // "2026-11-26.14": the Privacy Policy now lists the controlled-document master list among stored records.
 // "2026-11-26.15": the Privacy Policy now lists internal audits and corrective actions among stored records.
 // "2026-11-27.1": the Privacy Policy now says the calendar link also carries ISO 9001 dates (document reviews, audits, corrective actions; a count per date, no titles).
-export const POLICY_VERSION = "2026-11-27.1";
+export const POLICY_VERSION = "2026-11-27.2";
 
 export const LEGAL_DOC_KEYS = ["terms", "privacy", "refunds", "acceptable-use"] as const;
 export type LegalDocKey = (typeof LEGAL_DOC_KEYS)[number];

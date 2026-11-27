@@ -1,6 +1,6 @@
 # Terms of Service
 
-**Version 2026-11-26** · Maris Stella Labs LLC
+**Version 2026-11-27** · Maris Stella Labs LLC
 
 ## 1. Who we are
 
@@ -8,13 +8,15 @@ CMMC Workspace (the "Service") is operated by **Maris Stella Labs LLC**, a Color
 
 ## 2. The Service
 
-The Service helps small defense and aerospace suppliers **prepare** their own CMMC Level 1 and Level 2 self-assessment working documents: a status, owner, notes and evidence for each requirement of FAR 52.204-21 and NIST SP 800-171 Rev. 2, a System Security Plan (SSP) built from the statements you accept, a Plan of Action and Milestones (POA&M), and the DoD Assessment Methodology score that your answers produce.
+The Service helps small defense and aerospace suppliers **prepare** their own CMMC Level 1 and Level 2 self-assessment working documents: a status, owner, notes and evidence for each requirement of FAR 52.204-21 and NIST SP 800-171 Rev. 2, a System Security Plan (SSP) built from the statements you accept, a Plan of Action and Milestones (POA&M), and the DoD Assessment Methodology score that your answers produce. It also keeps the records around them: SPRS affirmation dates and reminders, an asset inventory and network diagram, external service providers, written security policies with their review dates, personnel and training records, subcontractors and the CMMC level flowed down to each, and an ISO 9001:2015 clause checklist with a controlled-document list, internal audits and corrective actions. It can import your own spreadsheets, export CSV and Markdown copies, and give you a calendar link for the dates you record.
 
 ## 3. Not a certification
 
 - **We do not certify, assess or approve anything.** We are not a CMMC Third-Party Assessment Organization (C3PAO), not a Registered Practitioner organization, and not affiliated with or endorsed by the Department of Defense, the Cyber AB or any government body. Nothing the Service produces is a CMMC certification, an assessment result or a determination of your CMMC status.
 - **You make the self-assessment.** The score, SSP and POA&M are computed from the answers you and your colleagues enter. Your affirming official decides what to enter and affirm in SPRS, and is responsible for its accuracy. The Service never submits anything to SPRS or to anyone else.
 - **AI drafts are drafts.** The Service can use an AI model to draft an implementation statement, or the procedure for one requirement of a security policy, from your own notes. A draft may be wrong or incomplete, and it is marked unreviewed until one of your people edits and accepts it; only accepted statements reach the SSP, and a procedure draft reaches a policy only when one of your people puts it in and saves, after which the policy still needs an admin's approval. Read every statement before you rely on it.
+- **ISO 9001 is not a registration.** The clause checklist, readiness figures and gap report are your own working records. We are not a certification body, not affiliated with ISO, and nothing the Service produces is an ISO 9001 or AS9100 certificate or audit result.
+- **Suggestions and dates are worked out from what you type.** The CMMC level suggested for a supplier, the dates for affirmations, policy reviews, training refreshers, document reviews and audits, and the reminders sent for them are computed from the facts and dates you enter. Check them against your contracts and the regulations; a missed or wrong reminder does not change when anything is due.
 - **The regulations govern.** The requirement text in the Service was checked against the official sources, but the regulations, the contract clauses that apply to you and the official guidance govern, not this Service. Rules and deadlines change.
 - **No legal, compliance or security advice.** Nothing in the Service is legal, contracting, compliance, cybersecurity or other professional advice. For decisions about your obligations, consult a qualified professional.
 
