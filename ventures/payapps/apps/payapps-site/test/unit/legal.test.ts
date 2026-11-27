@@ -49,12 +49,12 @@ describe("legal pages", () => {
   });
 
   it("carry each document's sections and its contact line", () => {
-    const terms = site.get("terms.html") ?? "";
+    const terms = String(site.get("terms.html") ?? "");
     expect(terms).toContain("<h2>1. Who we are</h2>");
     expect(terms).toContain("<h2>14. Governing law</h2>");
     expect(terms).toContain("<strong>State of Colorado</strong>");
     expect(terms).toContain('<a href="mailto:hello@marisstella.app">hello@marisstella.app</a>');
-    const refunds = site.get("refunds.html") ?? "";
+    const refunds = String(site.get("refunds.html") ?? "");
     expect(refunds).toContain("<h2>30-day money-back guarantee</h2>");
     expect(refunds).toContain("<strong>full refund within 30 days</strong>");
     expect(site.get("acceptable-use.html")).toContain("<strong>false or inflated</strong>");
