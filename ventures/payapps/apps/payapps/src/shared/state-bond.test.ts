@@ -22,19 +22,23 @@ const dueOf = (r: ReturnType<typeof checked>, citation: string) =>
   r.steps.find((s) => s.citation === citation)?.dueOn;
 
 describe("state bond claims", () => {
-  it("covers the thirteen states read, each with a statute link on its legislature's site", () => {
+  it("covers the seventeen states read, each with a statute link on its legislature's site", () => {
     expect(STATE_BOND_STATES).toEqual([
       "AZ",
       "FL",
+      "ID",
       "MA",
+      "MD",
       "MI",
       "MN",
+      "MO",
       "NC",
       "NV",
       "NY",
       "OH",
       "OR",
       "TX",
+      "UT",
       "VA",
       "WA",
     ]);
@@ -132,6 +136,42 @@ describe("state bond claims", () => {
     expect(dueOf(nv, "NRS 339.035(2)(b)")).toBe("2026-10-08");
     expect(dueOf(nv, "NRS 339.055(2)")).toBe("2027-07-09");
     expect(checked("NV", "first").steps.map((s) => s.citation)).toEqual(["NRS 339.055(2)"]);
+  });
+
+  it("Idaho and Maryland: a 90-day notice for a sub's sub; Maryland's suit runs from acceptance", () => {
+    const id = checked("ID", "second");
+    expect(dueOf(id, "Idaho Code § 54-1927")).toBe("2026-10-08");
+    // One year from 10 July 2026 is Saturday 10 July 2027: the Friday before.
+    expect(dueOf(id, "Idaho Code § 54-1927 (limitation)")).toBe("2027-07-09");
+    expect(checked("ID", "first").steps.map((s) => s.who)).toEqual(["all"]);
+    const md = checked("MD", "second", ACCEPTED);
+    expect(dueOf(md, "Md. Code, State Fin. & Proc. § 17-108(b)")).toBe("2026-10-08");
+    // One year after Monday 14 December 2026 is Tuesday 14 December 2027.
+    expect(dueOf(md, "Md. Code, State Fin. & Proc. § 17-109(b)")).toBe("2027-12-14");
+    const noAcceptance = checked("MD", "first").steps;
+    expect(noAcceptance.map((s) => s.citation)).toEqual([
+      "Md. Code, State Fin. & Proc. § 17-109(b)",
+    ]);
+    expect(noAcceptance[0]?.dueOn).toBeNull();
+    expect(noAcceptance[0]?.waitsFor).toMatch(/accepted/);
+  });
+
+  it("Missouri: only a remote supplier gives notice, and the section states no suit limit", () => {
+    expect(dueOf(checked("MO", "second"), "Mo. Rev. Stat. § 107.170.2")).toBe("2026-10-08");
+    expect(checked("MO", "first").steps).toEqual([]);
+    expect(checked("MO", "first").notes.join(" ")).toMatch(/no suit deadline/);
+  });
+
+  it("Utah: everyone files a preliminary notice with the registry; suit within a year of the last day", () => {
+    const ut = checked("UT", "first");
+    expect(ut.steps.map((s) => s.citation)).toEqual([
+      "Utah Code § 38-1b-202(1)",
+      "Utah Code § 63G-6a-1103(4)(c)",
+    ]);
+    expect(ut.steps[0]?.dueOn).toBeNull();
+    expect(ut.steps[0]?.waitsFor).toMatch(/started work/);
+    expect(dueOf(ut, "Utah Code § 63G-6a-1103(4)(c)")).toBe("2027-07-09");
+    expect(ut.dated.map((s) => s.citation)).toEqual(["Utah Code § 63G-6a-1103(4)(c)"]);
   });
 
   it("Minnesota and Oregon: everyone gives the notice, first-tier subs included", () => {

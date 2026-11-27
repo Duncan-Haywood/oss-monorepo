@@ -1,9 +1,9 @@
 ---
-title: "Not paid on a state or city job? Bond claim deadlines in eight states, read from the statutes"
-seo_title: "Little Miller Act deadlines: state payment bond claims in 8 states"
+title: "Not paid on a state or city job? Bond claim deadlines in seventeen states, read from the statutes"
+seo_title: "Little Miller Act deadlines: state payment bond claims in 17 states"
 date: 2026-11-27
 tags: [for-customers, payapps, construction, pay-app-guides, public-jobs]
-description: "No lien on public work, so subs claim on the payment bond. The notice and suit deadlines in TX, FL, NY, VA, WA, AZ, NC and OH, from each state's statute."
+description: "No lien on public work, so subs claim on the payment bond. The notice and suit deadlines in seventeen states, from TX, FL and NY to MD, MO and UT, from each state's statute."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: bond claim rights are lost
@@ -16,12 +16,12 @@ contractor had to buy, under the state's own bond law (a "little Miller Act", af
 one). The bond pays when the prime or a sub above you does not. It pays only if your notices go out
 on time and you sue before the limit, and each state counts those dates its own way.
 
-We read the bond statutes of eight states on each legislature's own site on 2026-11-27 and put them
+We read the bond statutes of seventeen states on each legislature's own site on 2026-11-27 and put them
 in a new free guide,
 [state payment bond claims on public jobs](https://marisstella.app/pay-app-guides/state-payment-bond-claims.html).
 The guide links every statute it summarises.
 
-## What the eight statutes say
+## What the seventeen statutes say
 
 | State | If you contracted with one of the prime's subs | Everyone | Suit |
 | --- | --- | --- | --- |
@@ -33,6 +33,15 @@ The guide links every statute it summarises.
 | Arizona (§ 34-223) | preliminary twenty-day notice; ninety-day notice to the contractor | none | within one year of your last day |
 | North Carolina (§§ 44A-27, 44A-28) | notice of claim within 120 days; notice of public subcontract for claims over $20,000 | none | the later of one year from your last day or from final settlement |
 | Ohio (§ 153.56) | notice of furnishing on work over $30,000 | statement to the sureties within 90 days of acceptance | within one year of acceptance |
+| Massachusetts (ch. 149, § 29) | notice to the contractor within 65 days of your last day | none | a petition within one year of your last day |
+| Michigan (MCL 129.207, .209) | notice within 30 days of first furnishing; notice of claim to the prime and the governmental unit within 90 days | none | within one year of final payment to the prime |
+| Minnesota (§ 574.31) | the same as everyone | sworn notice to the surety and the contractor within 120 days of your last day | within one year of your last day |
+| Nevada (NRS 339.035, .055) | notice within 30 days of first furnishing; notice of claim within 90 days | none | within one year of your last day |
+| Oregon (ORS 279C.600-.610) | the same as everyone | notice of claim to the contractor and the agency within 180 days | within two years of your last day |
+| Idaho (§ 54-1927) | notice to the contractor within 90 days of your last day, registered or certified mail | none | within one year of your last day (a sub of the prime: of final payment due under its subcontract) |
+| Maryland (State Fin. & Proc. §§ 17-108, 17-109) | notice to the contractor within 90 days of your last day, certified mail | none | within 1 year of the public body's final acceptance |
+| Missouri (§ 107.170) | remote material suppliers only: notice of nonpayment within 90 days of the last supply | none | not stated in the section |
+| Utah (§§ 63G-6a-1103, 38-1b-202) | the same as everyone | preliminary notice to the State Construction Registry within 20 days of starting | within one year of your last day |
 
 ## Three things that catch subs out
 
@@ -44,13 +53,13 @@ public body within 30 days after it accepts the work, and in Ohio the statement 
 due within 90 days of acceptance. Acceptance is the public body's act, often a board vote, so ask
 for the date instead of guessing it.
 
-**The start-of-job notices matter.** Florida, North Carolina, Ohio, Arizona and Washington reward a
+**The start-of-job notices matter.** Florida, North Carolina, Ohio, Arizona, Michigan, Nevada, Utah and Washington reward a
 notice sent when you start. Sent late, it limits what you can recover or ends the claim.
 
 ## In PayApps
 
 PayApps, our pay-app billing for subcontractors, now lists these steps on every job marked as a state
-or local public job in those eight states. Each step comes in the statute's order, with its citation
+or local public job in those seventeen states. Each step comes in the statute's order, with its citation
 and a date. The date is counted from the last day on the job you save, or from the acceptance date
 you enter, wherever the statute counts from one of them. Steps that run from a day PayApps cannot
 know, such as your first day of work or the day you mail a Texas notice, are listed with the day
@@ -72,3 +81,13 @@ job you are still billing every month does not get nagged.
 
 California is still missing: its statute site refused our requests on the day. It is next on the
 PayApps roadmap.
+
+**Added later on 2026-11-27.** Massachusetts, Michigan, Minnesota, Nevada and Oregon came next, then
+Idaho, Maryland, Missouri and Utah, each read the same way. Two of the last four differ from the
+rest. Missouri's section asks a notice only of a remote material supplier (one selling to a
+second-tier sub or to another supplier) and names no suit limit, so PayApps shows that notice alone
+and says the limit is not in the statute. Utah asks for no notice to the prime at all. Instead every
+subcontractor not in contract with the owner, first tier included, files a preliminary notice with
+the State Construction Registry within 20 days of starting work. Filed late, it covers only the work
+from five days after filing. Since 6 May 2026 Utah's facilities division may also skip the payment
+bond on contracts it runs, so ask whether there is one before you count on it.

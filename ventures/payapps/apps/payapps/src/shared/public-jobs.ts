@@ -5,7 +5,7 @@
 //    dates PayApps counts here: the 90-day notice a second-tier claimant gives the prime, and the
 //    one-year limit on the suit. They take the lien deadline's place on the job page, the cash page
 //    and the weekly email. State and local jobs have each state's own bond law ("little Miller
-//    Act"): there it shows no lien date, and lists the bond claim steps in the thirteen states of
+//    Act"): there it shows no lien date, and lists the bond claim steps in the seventeen states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
 //    checked against the cap in the 16 states the public guide lists.
@@ -449,6 +449,17 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "The contractor can shorten the time to sue to 60 days by recording and serving a notice of contest of your claim (§ 255.05(2)(a)1).",
     ],
   },
+  ID: {
+    name: "Idaho",
+    law: "Idaho Code § 54-1927",
+    url: "https://legislature.idaho.gov/statutesrules/idstat/Title54/T54CH19/SECT54-1927/",
+    checkedOn: "2026-11-27",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day. The notice goes by registered or certified mail to the contractor's office, place of business or residence, and states the amount claimed and who you worked for.",
+      "A subcontractor of the contractor sues within one year from the day final payment under its subcontract became due, a day PayApps does not know; PayApps shows one year from your last day, usually the earlier one.",
+      "The contracting body gives a certified copy of the bond and the contract to anyone who submits an affidavit that they are unpaid.",
+    ],
+  },
   MA: {
     name: "Massachusetts",
     law: "Mass. Gen. Laws ch. 149, § 29",
@@ -459,6 +470,29 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "The 65-day notice goes by registered or certified mail to the contractor's office, place of business or residence, or as civil process may be served, and states the amount claimed and who you worked for.",
       "Specially fabricated material is covered only if the sub's supplier tells the contractor of the order and its amount within 20 days after the written final approval to use it.",
       "The bond is required on public works contracts over $25,000. A decree for a claimant includes reasonable legal fees.",
+    ],
+  },
+  MD: {
+    name: "Maryland",
+    law: "Md. Code, State Fin. & Proc. §§ 17-108, 17-109",
+    url: "https://mgaleg.maryland.gov/mgawebsite/Laws/StatuteText?article=gsf&section=17-108&enactments=false",
+    checkedOn: "2026-11-27",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day (§ 17-108(a)).",
+      "The notice goes by certified mail to the contractor's residence or a place where it has an office or does business, and states with substantial accuracy the amount claimed and who you worked for (§ 17-108(b)(2)).",
+      "A contract term that waives the right to sue on the bond, or makes it wait on the public body paying, is void (§ 17-108(d)).",
+      "These sections govern payment security on contracts subject to the subtitle. A county or city job's bond may rest on local law: read the bond.",
+    ],
+  },
+  MO: {
+    name: "Missouri",
+    law: "Mo. Rev. Stat. § 107.170",
+    url: "https://revisor.mo.gov/main/OneSection.aspx?section=107.170",
+    checkedOn: "2026-11-27",
+    notes: [
+      "Only a remote supplier gives a notice: a material supplier in contract with a second-tier or lower subcontractor, or with another supplier (§ 107.170.2). Subcontractors at any tier give none.",
+      "This section states no suit deadline; read the bond and ask a construction attorney.",
+      "The bond is required on public works estimated to cost more than $50,000 (§ 107.170.2).",
     ],
   },
   MI: {
@@ -547,6 +581,17 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "A sub of a sub whose contract provides for retainage must also tell the prime so by the 15th day of the 2nd month after it starts work (§ 2253.047(b)).",
       "A suit may be brought if the claim is unpaid on the 61st day after the notice is mailed (§ 2253.073).",
       "Payment bonds are required on contracts over $25,000, or over $50,000 for a municipality (§ 2253.021).",
+    ],
+  },
+  UT: {
+    name: "Utah",
+    law: "Utah Code §§ 63G-6a-1103, 38-1b-202",
+    url: "https://le.utah.gov/xcode/Title63G/Chapter6a/63G-6a-S1103.html",
+    checkedOn: "2026-11-27",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day, in a county where the contract was to be performed; the prevailing party gets reasonable attorney fees (§ 63G-6a-1103(4)).",
+      "The preliminary notice is filed with the State Construction Registry, not mailed, and is required of every subcontractor except one in contract with the owner and a laborer paid wages. Filed late, it covers only work from five days after filing (§ 38-1b-202(4), (5)).",
+      "Since 6 May 2026 the Division of Facilities Construction and Management need not take a payment bond on contracts it administers (§ 63G-6a-1103(5)): ask whether there is one.",
     ],
   },
   VA: {
@@ -673,6 +718,70 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
           },
           L,
           addOneYear,
+          LAST,
+        ),
+      ];
+    case "ID":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of your claim",
+            citation: "Idaho Code § 54-1927",
+            rule: `within 90 days from ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "Idaho Code § 54-1927 (limitation)",
+            rule: `within one year from ${LAST} (a sub of the prime: from the day final payment under the subcontract became due)`,
+          },
+          L,
+          addOneYear,
+          LAST,
+        ),
+      ];
+    case "MD":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of your claim",
+            citation: "Md. Code, State Fin. & Proc. § 17-108(b)",
+            rule: `within 90 days after ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "Md. Code, State Fin. & Proc. § 17-109(b)",
+            rule: "within 1 year after the public body finally accepts the work",
+          },
+          A,
+          addOneYear,
+          ACCEPTED,
+        ),
+      ];
+    case "MO":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Remote material suppliers: give the contractor written notice that you have not been paid",
+            citation: "Mo. Rev. Stat. § 107.170.2",
+            rule: `within ninety days of ${LAST}`,
+          },
+          L,
+          days(90),
           LAST,
         ),
       ];
@@ -940,6 +1049,31 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
           null,
           null,
           "the day you mail the notice",
+        ),
+      ];
+    case "UT":
+      return [
+        step(
+          {
+            who: "all",
+            act: "File a preliminary notice with the State Construction Registry",
+            citation: "Utah Code § 38-1b-202(1)",
+            rule: "by the later of 20 days after you start work and 20 days after the notice of commencement is filed",
+          },
+          null,
+          null,
+          "the day you started work",
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "Utah Code § 63G-6a-1103(4)(c)",
+            rule: `within one year after ${LAST}`,
+          },
+          L,
+          addOneYear,
+          LAST,
         ),
       ];
     case "VA":
