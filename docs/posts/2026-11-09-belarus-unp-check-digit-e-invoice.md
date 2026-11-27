@@ -4,6 +4,7 @@ seo_title: "Belarus UNP check digit validator for e-invoices"
 date: 2026-11-09
 tags: [einvoice-preflight, tax-id, belarus]
 description: "einvoice-preflight now checks the check digit of a 9-digit Belarusian UNP, pinned on python-stdnum's published example."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 Belarus identifies a taxpayer on an invoice by its 9-character UNP.

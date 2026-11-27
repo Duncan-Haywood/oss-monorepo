@@ -4,6 +4,7 @@ seo_title: "Morocco ICE, Montenegro PIB, North Macedonia EDB validator"
 date: 2026-11-10
 tags: [einvoice-preflight, tax-id, morocco, montenegro, north-macedonia]
 description: "einvoice-preflight now checks the control digits of a Moroccan ICE, a Montenegrin PIB and a North Macedonian EDB, not only their length."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 Three party tax IDs were checked for length only. They all carry a control

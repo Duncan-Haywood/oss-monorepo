@@ -4,6 +4,7 @@ seo_title: "A mistyped ABN, IRD or PIB now fails before sending"
 date: 2026-11-08
 tags: [einvoice, validation, einvoice-preflight]
 description: "einvoice-preflight now checks the check digits of Australian ABNs, New Zealand IRD numbers and Serbian PIBs, offline."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 A tax number with one wrong digit is rejected late, often after the invoice has gone out. einvoice-preflight already caught that for EU, UK, Norwegian and Swiss VAT numbers. It now does the same for three more.

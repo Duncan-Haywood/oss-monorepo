@@ -4,6 +4,7 @@ seo_title: "Uruguay RUT and Vietnam MST check digit in an e-invoice validator"
 date: 2026-11-09
 tags: [einvoice-preflight, e-invoicing, validation]
 description: "einvoice-preflight now tests the check digit of a Uruguayan RUT and a Vietnamese tax code when they appear as a party's VAT id in an invoice file."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 The Uruguay and Vietnam pages of einvoice-preflight already had a check-digit

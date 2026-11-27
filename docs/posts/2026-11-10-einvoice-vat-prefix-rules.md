@@ -4,6 +4,7 @@ seo_title: "VAT number validation: BE, IT, RO, CZ and LV prefix rules"
 date: 2026-11-10
 tags: [einvoice-preflight, testing]
 description: "Random numbers vs python-stdnum found Belgian, Italian, Romanian, Czech and Latvian VAT numbers our checker wrongly passed. Fixed."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 After the letters bug, the reverse test still showed five countries where we passed numbers python-stdnum rejects. Each was a rule about how a number starts, not its check digit:

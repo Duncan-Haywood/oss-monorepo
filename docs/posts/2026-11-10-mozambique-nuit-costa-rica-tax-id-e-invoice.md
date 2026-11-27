@@ -4,6 +4,7 @@ seo_title: "Mozambique NUIT and Costa Rica tax ID validator for e-invoices"
 date: 2026-11-10
 tags: [einvoice-preflight, tax-id, mozambique, costa-rica]
 description: "einvoice-preflight now check-digit-tests a Mozambique NUIT and shape-checks a Costa Rican tax ID on an invoice party."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 Neither country was known to the party tax-ID check, so a mistyped ID passed

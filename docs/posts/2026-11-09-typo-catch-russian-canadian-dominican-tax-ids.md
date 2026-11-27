@@ -4,6 +4,7 @@ seo_title: "Check Russian INN, Canadian GST/HST and Dominican RNC check digits"
 date: 2026-11-09
 tags: [einvoice-preflight, tax-id]
 description: "The free e-invoice preflight now tests the check digits of Russian INN, Canadian business numbers and Dominican RNC party ids, offline."
+folded_into: writing/vat-number-check-digits-by-country/
 ---
 
 A tax id with one wrong digit is a common reason an invoice is rejected or a
