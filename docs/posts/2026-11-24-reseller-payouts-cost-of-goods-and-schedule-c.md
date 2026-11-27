@@ -3,7 +3,7 @@ title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
 tags: [resellers, ebay, amazon, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
-description: "Three guides for multi-platform resellers: bridge a payout back to sales, cost a mixed lot by resale value, and map the year onto Schedule C. Seller Books, the hosted books, is open on a free plan."
+description: "Resellers: bridge a payout back to sales, cost a mixed lot by resale value, map the year onto Schedule C. Seller Books, the hosted books, is open free."
 ---
 
 **Update, 2026-11-27: Seller Books is open.** The hosted books this post

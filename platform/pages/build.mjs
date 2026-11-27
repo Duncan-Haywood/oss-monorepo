@@ -13203,7 +13203,7 @@ ${full ? `Built for ${INDUSTRIES}. A business with a problem software could solv
   const live = LIVE_PRODUCTS.map((p) => `${p.name}, for ${p.audience}`);
   return `# ${SITE_NAME}
 
-> ${SITE_NAME} ${COMPANY_SUMMARY}. Live: ${listProse(live)}${OPEN_FREE.length ? `; open on a free plan: ${listProse(OPEN_FREE.map((p) => `${p.name}, for ${p.audience}`))}` : ''}; more products are in development for construction, manufacturing and other small businesses. Free: ${formatCount(surfaces.length)} source-available tools${researchProjects ? ` and ${formatCount(researchProjects)} research projects` : ''}, MIT licensed.
+> ${SITE_NAME} ${COMPANY_SUMMARY}. Live: ${listProse(live)}${OPEN_FREE.length ? `; open on a free plan: ${listProse(OPEN_FREE.map((p) => p.name))}` : ''}; more products are in development for construction, manufacturing and other small businesses. Free: ${formatCount(surfaces.length)} source-available tools${researchProjects ? ` and ${formatCount(researchProjects)} research projects` : ''}, MIT licensed.
 
 ${products}
 ${audienceSection ? `${audienceSection}\n` : ''}## Free tools
