@@ -1687,6 +1687,26 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   step 4 and 5 messages checked, several weeks in one file (the schema allows it), and an amendment
   flag.
 
+- Certified payroll, part 3d: Illinois IDOL Certified Transcript of Payroll CSV (2026-11-27,
+  certified-payroll-il-ctp-upload, every plan). An "Illinois public works" section on the certified
+  payroll page makes the same week as the CSV the IDOL CTP portal takes by Full Import, in the 102
+  columns of IDOL's own template (`Full-CTP-Upload.xlsx` on labor.illinois.gov, read 2026-11-27, its
+  misspelt "Wednsday"/"Satday" headers and repeated names kept, since the portal wants the template's
+  column names and order). One row per worker per classification (IDOL FAQ 7); each day's hours
+  under its own weekday whatever day the week ends (FAQ 13); hours on other projects that week as
+  the "non-prevailing" columns, their gross as 7B less 7A, net split by gross unless typed; fringe
+  credits by IDOL's five hourly columns (guessed from the plan, changeable); double time, AddOT15 and
+  AddOT20 where typed; dates MM/DD/YYYY as the training slides show. Checks the slides' required
+  fields (project county, contractor contact, phone and email, the public body). Race, ethnicity,
+  gender and veteran status (asked by the Act; FAQ 15) are held in the page's memory only; the other
+  extras are saved with the draft in the browser (Privacy Policy sentence added; no POLICY_VERSION
+  bump, as for New York). `src/shared/il-ctp.ts`, `src/client/components/il-ctp-section.tsx`; tests
+  `src/shared/il-ctp.test.ts`, `test/unit/certified-payroll-page.test.tsx`. Not yet checked against
+  a real upload: IDOL's template does not list the race, ethnicity and gender values its portal
+  accepts (its sample row has "Chinese" / "Y" / "M"), so those are typed as the worker gives them.
+  Next, if Illinois customers ask: the accepted values from a real upload's errors, and IDOL's
+  classification names offered as a list from the county's rate sheet.
+
 - Getting started, part 5 (2026-11-26): where companies stall, in the owner's metrics.
   `GET /api/admin/metrics` now carries `activation`: for every company, and for those that signed
   up inside the window, how many reached each checklist step (job, schedule of values, pay
@@ -2409,7 +2429,8 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   CSV, if people ask (a by-day CSV fills the week since 2026-11-26), save the crew and rates with the job instead of the
   browser if people ask, other states' prevailing-wage formats once their official specs are read (California's DIR eCPR
   XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b;
-  Washington's L&I XML done 2026-11-27: part 3c; New Jersey's Wage Hub CSV next, once njwages.nj.gov answers), and the upload formats of the compliance
+  Washington's L&I XML done 2026-11-27: part 3c; Illinois' IDOL CTP CSV done 2026-11-27: part 3d;
+  New Jersey's Wage Hub CSV next, once njwages.nj.gov answers), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
 - Notice to Owner, Florida, part 3 (part 2, the notices served per person, the saved first day and

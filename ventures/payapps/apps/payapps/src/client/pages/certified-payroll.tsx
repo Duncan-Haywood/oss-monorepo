@@ -17,6 +17,7 @@ import {
   MAX_FRINGE_PLANS,
   weekDays,
 } from "@shared/certified-payroll";
+import { type IlId, type IlWorkerInput, ilNextWeek } from "@shared/il-ctp";
 import { centsToDecimal, formatCents, parseDollarsToCents } from "@shared/money";
 import { type NyId, type NyWorkerInput, nyNextWeek } from "@shared/ny-cpr";
 import { type WaId, type WaWorkerInput, waNextWeek } from "@shared/wa-cpr";
@@ -26,6 +27,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CaEcprSection, type EcprDraftJob } from "../components/ca-ecpr-section";
 import { ErrorText } from "../components/error";
 import { HoursCell } from "../components/hours-cell";
+import { IlCtpSection, type IlDraftJob } from "../components/il-ctp-section";
 import { meQuery } from "../components/layout";
 import { MoneyInput } from "../components/money-input";
 import { NyCprSection, type NyDraftJob } from "../components/ny-cpr-section";
@@ -40,6 +42,8 @@ type DraftRow = CertifiedPayrollRow & { uid?: string };
  * `ca`: the California eCPR extras (src/shared/ca-ecpr.ts), saved with the draft; never SSNs.
  * `ny`: the New York NYSDOL extras (src/shared/ny-cpr.ts), saved with the draft; never birth dates.
  * `wa`: the Washington L&I extras (src/shared/wa-cpr.ts), saved with the draft; never SSNs.
+ * `il`: the Illinois IDOL extras (src/shared/il-ctp.ts), saved with the draft; never race,
+ *   ethnicity, gender or veteran status.
  */
 type DraftWorker = Omit<CertifiedPayrollWorker, "rows"> & {
   uid?: string;
@@ -47,12 +51,14 @@ type DraftWorker = Omit<CertifiedPayrollWorker, "rows"> & {
   ca?: EcprWorkerInput;
   ny?: NyWorkerInput;
   wa?: WaWorkerInput;
+  il?: IlWorkerInput;
 };
 type Draft = Omit<CertifiedPayrollInput, "workers"> & {
   workers: DraftWorker[];
   ca?: EcprDraftJob;
   ny?: NyDraftJob;
   wa?: WaDraftJob;
+  il?: IlDraftJob;
 };
 
 let uidCounter = 0;
@@ -132,6 +138,7 @@ export function nextWeek(d: Draft): Draft {
       ...(w.ca ? { ca: ecprNextWeek(w.ca) } : {}),
       ...(w.ny ? { ny: nyNextWeek(w.ny) } : {}),
       ...(w.wa ? { wa: waNextWeek(w.wa) } : {}),
+      ...(w.il ? { il: ilNextWeek(w.il) } : {}),
     })),
     ...(d.ca ? { ca: { ...d.ca, nonPerformance: false } } : {}),
     ...(d.wa ? { wa: { ...d.wa, noWork: false } } : {}),
@@ -219,6 +226,8 @@ export function CertifiedPayrollPage() {
   const [nyIds, setNyIds] = useState<Record<string, NyId>>({});
   /** Full SSNs for the Washington file: this page's memory only, never saved. */
   const [waIds, setWaIds] = useState<Record<string, WaId>>({});
+  /** Race, ethnicity, gender and veteran status for the Illinois file: this page's memory only. */
+  const [ilIds, setIlIds] = useState<Record<string, IlId>>({});
 
   useEffect(() => {
     if (draft || !q.data) return;
@@ -947,6 +956,18 @@ export function CertifiedPayrollPage() {
         onId={(k, id) => setWaIds((m) => ({ ...m, [k]: id }))}
       />
 
+      <IlCtpSection
+        job={draft.il}
+        onJob={(il) => set({ il })}
+        workers={draft.workers}
+        onWorker={(wi, il) => setWorker(wi, { il })}
+        plans={plans}
+        days={days}
+        payroll={parsed?.success ? parsed.data : null}
+        ids={ilIds}
+        onId={(k, id) => setIlIds((m) => ({ ...m, [k]: id }))}
+      />
+
       <section className="card grid gap-2">
         {computed && (
           <p className="text-sm">
@@ -994,6 +1015,7 @@ export function CertifiedPayrollPage() {
                 setEcprIds({});
                 setNyIds({});
                 setWaIds({});
+                setIlIds({});
                 setDraft(null);
               }
             }}

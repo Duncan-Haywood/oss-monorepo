@@ -3,6 +3,7 @@ import { certifiedPayrollSchema, weekDays } from "@shared/certified-payroll";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { CaEcprSection } from "../../src/client/components/ca-ecpr-section";
+import { IlCtpSection } from "../../src/client/components/il-ctp-section";
 import { NyCprSection } from "../../src/client/components/ny-cpr-section";
 import { WaCprSection } from "../../src/client/components/wa-cpr-section";
 import { blankWorker, lastSaturday, nextWeek } from "../../src/client/pages/certified-payroll";
@@ -339,6 +340,110 @@ describe("certified payroll page helpers", () => {
     expect(button()).toHaveProperty("disabled", true);
     expect(screen.getByText(/requires all 9 digits/)).toBeTruthy();
     rerender(<WaCprSection {...props} ids={{ w1: { ssn: "123-45-6789" } }} />);
+    expect(button()).toHaveProperty("disabled", false);
+  });
+
+  it("carries the Illinois extras into next week, and never posts them with the PDF", () => {
+    const w = blankWorker();
+    w.lastName = "Doe";
+    w.firstName = "John";
+    if (w.rows[0]) w.rows[0].classification = "Carpenter";
+    const il = {
+      address: "900 S Spring St",
+      city: "Springfield",
+      state: "IL",
+      zip: "62704",
+      otherHours: [0, 0, 0, 0, 0, 0, 800],
+      rows: [{ classType: "BLD" as const }],
+    };
+    const next = nextWeek({
+      projectName: "Capitol Complex",
+      payrollNo: "4",
+      businessName: "Sangamon Drywall",
+      businessAddress: "Springfield",
+      projectLocation: "Sangamon County, IL",
+      wageDeterminations: "IDOL Sangamon County",
+      weekEnding: "2026-08-01",
+      workers: [{ ...w, il }],
+      il: { on: true, publicBodyName: "Capital Development Board" },
+    });
+    const nw = next.workers[0];
+    expect(nw?.il?.address).toBe("900 S Spring St");
+    expect(nw?.il?.rows?.[0]?.classType).toBe("BLD");
+    expect(nw?.il?.otherHours).toEqual([0, 0, 0, 0, 0, 0, 0]);
+    expect(next.il?.publicBodyName).toBe("Capital Development Board");
+    const parsed = certifiedPayrollSchema.parse(next);
+    expect(JSON.stringify(parsed)).not.toContain("Spring St");
+    expect(Object.keys(parsed)).not.toContain("il");
+  });
+
+  it("the Illinois section offers the download only once IDOL's fields are complete", () => {
+    const payroll = certifiedPayrollSchema.parse({
+      projectName: "Capitol Complex",
+      projectNumber: "PP-555",
+      payrollNo: "4",
+      businessName: "Sangamon Drywall",
+      businessAddress: "Springfield",
+      projectLocation: "Sangamon County, IL",
+      wageDeterminations: "IDOL Sangamon County",
+      weekEnding: "2026-08-01",
+      workers: [
+        {
+          lastName: "Doe",
+          firstName: "John",
+          idNo: "1234",
+          rows: [
+            {
+              classification: "Carpenter",
+              status: "J",
+              st: [0, 800, 800, 800, 800, 800, 0],
+              ot: [0, 0, 0, 0, 0, 0, 0],
+              stRateCents: 5_000,
+              otRateCents: 7_500,
+            },
+          ],
+        },
+      ],
+    });
+    const addr = { address: "900 S Spring St", city: "Springfield", state: "IL", zip: "62704" };
+    const worker = {
+      uid: "w1",
+      lastName: "Doe",
+      firstName: "John",
+      idNo: "1234",
+      rows: [{ classification: "Carpenter", status: "J" as const }],
+      il: addr,
+    };
+    const props = {
+      job: {
+        on: true,
+        project: { ...addr, county: "Sangamon" },
+        contactFirstName: "Pat",
+        contactLastName: "Owner",
+        contractor: addr,
+        phone1: "217-555-0100",
+        email1: "office@example.com",
+        publicBodyName: "Capital Development Board",
+        publicBody: addr,
+      },
+      onJob: () => {},
+      workers: [worker],
+      onWorker: () => {},
+      plans: [],
+      days: weekDays("2026-08-01"),
+      payroll,
+      onId: () => {},
+    };
+    const { rerender } = render(<IlCtpSection {...props} ids={{}} />);
+    const button = () => screen.getByRole("button", { name: "Download IDOL CSV" });
+    expect(button()).toHaveProperty("disabled", true);
+    expect(screen.getByText(/Enter race, ethnicity, gender and veteran status/)).toBeTruthy();
+    rerender(
+      <IlCtpSection
+        {...props}
+        ids={{ w1: { race: "White", ethnicity: "Not Hispanic", gender: "M", veteran: false } }}
+      />,
+    );
     expect(button()).toHaveProperty("disabled", false);
   });
 });
