@@ -37,6 +37,7 @@ Flip a field when the app changes, then `pnpm export:catalogue` and commit `cata
 | `/pricing` | Free Early access plan + paid plans from $199/mo (not on sale yet), cost-plus (see `docs/PRICING.md`) |
 | `/for-cmmc-shops` | No CUI / ITAR / EAR drawings during early access; CMMC workspace "coming" |
 | `/compare` | Machine shop quoting software compared: spreadsheet, Paperless Parts, QuotedPart, JobBOSS², ProShop, with each price's source and read date (`ALTERNATIVES` in `src/site/pages.ts`; re-check a price before changing it), and what this app does not do |
+| `/machine-shop-hourly-rate` | Guide: a machine's hourly rate from its cost, upkeep, power, floor space, burdened operator and overhead over billable hours; worked example and utilization table computed in `src/site/hourly-rate.ts` (made-up shop; the two public figures, IRS employer FICA and EIA commercial power, carry source and read date) |
 | `/faq` | FAQ (FAQPage JSON-LD built from the same list) |
 | `/early-access` | Closed site only: the form (posts to `/api/early-access`, stored in D1) |
 | `/early-access/thanks` | Closed site only: after a successful post (noindex, not in the sitemap) |

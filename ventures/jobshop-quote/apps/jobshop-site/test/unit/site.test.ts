@@ -1,6 +1,14 @@
 // The SEO/AEO contract (same checks as apps/grants' scripts/check-seo.mjs) plus the copy rules.
 import { AI_CRAWLERS, buildSite, fileFor, mainText, resolveBuildOptions } from "@site/build";
 import { CMMC_SITE_URL, LAUNCH, type Launch } from "@site/config";
+import {
+  COMMERCIAL_POWER,
+  EMPLOYER_FICA,
+  EXAMPLE,
+  machineHourlyRate,
+  usd,
+  VARIANTS,
+} from "@site/hourly-rate";
 import { esc } from "@site/html";
 import { statusLine } from "@site/layout";
 import { AI_OFF, ALTERNATIVES, SHOTS } from "@site/pages";
@@ -255,5 +263,45 @@ describe("/compare", () => {
     expect(page).toContain("What it does not do");
     expect(page).toContain(esc(AI_OFF));
     expect(page).toContain("not on sale yet");
+  });
+});
+
+describe("/machine-shop-hourly-rate", () => {
+  const page = pages.find((p) => p.route.path === "/machine-shop-hourly-rate")?.html ?? "";
+  it("is built, in the sitemap, and linked from how it works", () => {
+    expect(page).toContain("<h1>How to work out a machine shop hourly rate</h1>");
+    expect(files.get("sitemap.xml")).toContain(`${SITE}/machine-shop-hourly-rate`);
+    expect(pages.find((p) => p.route.path === "/how-it-works")?.html).toContain(
+      'href="/jobshop/machine-shop-hourly-rate"',
+    );
+  });
+  it("adds up: the lines sum to the total, per year and per hour", () => {
+    const r = machineHourlyRate(EXAMPLE);
+    const year = r.lines.reduce((s, l) => s + l.perYear, 0);
+    expect(Math.abs(year - r.totalPerYear)).toBeLessThan(0.01);
+    expect(r.totalPerYear).toBeCloseTo(125_653.54, 2);
+    expect(r.perHour).toBe(83.77);
+    // by hand: (120000-30000)/7 + 6000 + 1500*8*0.1427 + 300*12 + 28*2000*(1+0.0765+0.2) + 30000
+    expect(r.lines.find((l) => l.key === "labor")?.perYear).toBe(71_484);
+    expect(r.lines.find((l) => l.key === "power")?.perYear).toBe(1_712.4);
+    expect(page).toContain(usd(r.perHour));
+  });
+  it("gets dearer as billable hours fall, and cheaper when one operator runs two machines", () => {
+    const rates = VARIANTS.slice(0, 4).map((v) => machineHourlyRate(v.inputs).perHour);
+    for (let i = 1; i < rates.length; i++) expect(rates[i]).toBeGreaterThan(rates[i - 1] ?? 0);
+    expect(machineHourlyRate(VARIANTS[4]?.inputs ?? EXAMPLE).perHour).toBeLessThan(83.77);
+    for (const v of VARIANTS) expect(page).toContain(usd(machineHourlyRate(v.inputs).perHour));
+  });
+  it("cites the two public figures it uses and calls the rest made up", () => {
+    for (const s of [EMPLOYER_FICA.source, COMMERCIAL_POWER.source]) {
+      expect(s.read).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(page).toContain(esc(s.url));
+    }
+    expect(page).toContain("made-up shop");
+    expect(page).toContain("not accounting or tax");
+  });
+  it("refuses inputs that would divide by zero", () => {
+    expect(() => machineHourlyRate({ ...EXAMPLE, billableHours: 0 })).toThrow();
+    expect(() => machineHourlyRate({ ...EXAMPLE, lifeYears: 0 })).toThrow();
   });
 });
