@@ -84,9 +84,11 @@ export function SovImport({
     enabled: open && source === "copy",
   });
   const others = (jobs.data?.items ?? []).filter((x) => x.id !== project.id);
+  // Like save below: the job and the amounts toggle are passed to mutate(), not read from this
+  // render's closure, so a submit right after changing either uses the new values.
   const copy = useMutation({
-    mutationFn: async () =>
-      copyFromJob(await api<ProjectDetailDto>(projectPath(orgId, copyFrom)), withAmounts),
+    mutationFn: async ({ jobId, amounts }: { jobId: string; amounts: boolean }) =>
+      copyFromJob(await api<ProjectDetailDto>(projectPath(orgId, jobId)), amounts),
     onSuccess: setResult,
   });
   const [fileName, setFileName] = useState("");
@@ -237,7 +239,7 @@ export function SovImport({
           onSubmit={(e) => {
             e.preventDefault();
             save.reset();
-            copy.mutate();
+            copy.mutate({ jobId: copyFrom, amounts: withAmounts });
           }}
         >
           <label>
