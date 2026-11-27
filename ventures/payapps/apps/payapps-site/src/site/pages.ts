@@ -13,6 +13,7 @@ import {
   PRODUCT_NAME,
   type PublicPage,
 } from "@shared/site";
+import { examplePanel } from "./example";
 import { type Html, hasEarlyAccess, href, html, primaryCta, type SiteContext } from "./html";
 import { launchOf, plansSentence } from "./launch";
 
@@ -102,11 +103,14 @@ function home(ctx: SiteContext): BuiltPage {
   const faq = homeFaq(ctx);
   const main = html`
 <section class="hero">
-  <div class="wrap">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
     <p class="eyebrow">${l.open ? "Open now · free on one job" : "Early access · in development"}</p>
     <h1>The monthly pay app, without the spreadsheet scramble.</h1>
     <p class="lede">${PRODUCT_NAME} is ${l.open ? "a hosted pay-application tool" : "a pay-application tool we are building"} for subcontractors: your schedule of values, retainage, change orders and lien waivers in one place, so each month's pay app is a review instead of a rebuild.</p>
     <p class="cta-row">${primaryCta(ctx, "home")} <a class="link-strong" href="${href(ctx, PAGES.features.path)}">${l.open ? "See what it does" : "See what we're building"}</a></p>
+    </div>
+    ${examplePanel()}
   </div>
 </section>
 

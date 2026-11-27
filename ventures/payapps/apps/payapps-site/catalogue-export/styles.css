@@ -23,10 +23,48 @@
   --neutral-600: #57514a;
   --neutral-700: #443f39;
   --neutral-900: #1f1c19;
+  /* Roles, so dark mode can move links and buttons apart (one hue cannot be both a dark-surface
+     link and a white-text button). */
+  --link: var(--brand-700);
+  --link-hover: var(--brand-800);
+  --focus: var(--brand-600);
+  --btn: var(--brand-700);
+  --btn-hover: var(--brand-800);
+  --on-btn: #ffffff;
+  --ex-fill: var(--brand-600);
+  color-scheme: light dark;
   --radius: 10px;
   --wrap: 68rem;
   --font:
     ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/*
+  Dark mode: the same roles on warm near-black surfaces. Contrast on the card surface #1f1d1b:
+    neutral-900 #f4f2ee 15.0:1 · neutral-700 #d6d0c7 11.0:1 · neutral-600 #b3aca2 7.5:1 ·
+    link #9fc3ec 9.2:1 (8.9:1 on the band) · white on btn #2f6299 6.3:1, on hover #3a72ad 5.0:1 ·
+    neutral-900 on accent-100 #4a3b14 9.7:1 (docs/reports/polish-2026-11-27-payapps-site.md).
+*/
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand-50: #18212c;
+    --brand-100: #283647;
+    --accent-100: #4a3b14;
+    --neutral-0: #1f1d1b;
+    --neutral-50: #161514;
+    --neutral-100: #1b1a18;
+    --neutral-200: #35322e;
+    --neutral-300: #4a4640;
+    --neutral-600: #b3aca2;
+    --neutral-700: #d6d0c7;
+    --neutral-900: #f4f2ee;
+    --link: #9fc3ec;
+    --link-hover: #c4dbf5;
+    --focus: #9fc3ec;
+    --btn: #2f6299;
+    --btn-hover: #3a72ad;
+    --ex-fill: #6f9fd6;
+  }
 }
 
 * {
@@ -73,16 +111,16 @@ p {
 }
 
 a {
-  color: var(--brand-700);
+  color: var(--link);
   text-underline-offset: 0.15em;
 }
 
 a:hover {
-  color: var(--brand-800);
+  color: var(--link-hover);
 }
 
 :focus-visible {
-  outline: 3px solid var(--brand-600);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -155,7 +193,7 @@ nav[aria-label="Main"] a:not(.btn) {
 }
 
 nav[aria-label="Main"] a[aria-current="page"] {
-  color: var(--brand-700);
+  color: var(--link);
   text-decoration: underline;
 }
 
@@ -182,8 +220,8 @@ nav[aria-label="Main"] a[aria-current="page"] {
 /* buttons */
 .btn {
   display: inline-block;
-  background: var(--brand-700);
-  color: var(--neutral-0);
+  background: var(--btn);
+  color: var(--on-btn);
   border: 0;
   border-radius: var(--radius);
   padding: 0.75rem 1.25rem;
@@ -194,8 +232,8 @@ nav[aria-label="Main"] a[aria-current="page"] {
 }
 
 .btn:hover {
-  background: var(--brand-800);
-  color: var(--neutral-0);
+  background: var(--btn-hover);
+  color: var(--on-btn);
 }
 
 .btn-small {
@@ -422,6 +460,185 @@ textarea {
 
 .prose {
   max-width: 44rem;
+}
+
+/* hero worked example (src/site/example.ts) */
+.hero-grid {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (min-width: 62rem) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  }
+}
+
+.example {
+  margin: 0;
+  background: var(--neutral-50);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.2rem 1rem;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 8px 24px -12px rgb(0 0 0 / 0.18);
+  font-size: 0.92rem;
+  min-width: 0;
+}
+
+.example figcaption {
+  color: var(--neutral-600);
+  margin-bottom: 0.75rem;
+}
+
+.ex-tag {
+  display: inline-block;
+  background: var(--accent-100);
+  color: var(--neutral-900);
+  border-radius: 999px;
+  padding: 0 0.55rem;
+  margin-right: 0.35rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.ex-sheet {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.ex-sheet th,
+.ex-sheet td {
+  padding: 0.4rem 0.3rem;
+  border-bottom: 1px solid var(--neutral-200);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ex-sheet thead th {
+  color: var(--neutral-600);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ex-sheet th:first-child {
+  text-align: left;
+  white-space: normal;
+  font-weight: 600;
+  color: var(--neutral-900);
+}
+
+.ex-sheet thead th:first-child {
+  color: var(--neutral-600);
+  font-weight: 700;
+}
+
+.ex-item {
+  color: var(--neutral-600);
+  font-weight: 700;
+  margin-right: 0.2rem;
+}
+
+.ex-bar {
+  display: inline-block;
+  width: 2.6rem;
+  height: 0.4rem;
+  margin-right: 0.45rem;
+  border-radius: 999px;
+  background: var(--neutral-200);
+  vertical-align: middle;
+  overflow: hidden;
+}
+
+.ex-fill {
+  display: block;
+  height: 100%;
+  background: var(--ex-fill);
+}
+
+.ex-fill-0 {
+  width: 0;
+}
+.ex-fill-1 {
+  width: 10%;
+}
+.ex-fill-2 {
+  width: 20%;
+}
+.ex-fill-3 {
+  width: 30%;
+}
+.ex-fill-4 {
+  width: 40%;
+}
+.ex-fill-5 {
+  width: 50%;
+}
+.ex-fill-6 {
+  width: 60%;
+}
+.ex-fill-7 {
+  width: 70%;
+}
+.ex-fill-8 {
+  width: 80%;
+}
+.ex-fill-9 {
+  width: 90%;
+}
+.ex-fill-10 {
+  width: 100%;
+}
+
+.ex-summary {
+  margin: 0.85rem 0 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.ex-summary div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.2rem 0.3rem;
+}
+
+.ex-summary dt {
+  color: var(--neutral-700);
+}
+
+.ex-summary dd {
+  margin: 0;
+  color: var(--neutral-900);
+  font-weight: 600;
+}
+
+.ex-summary .ex-due {
+  margin-top: 0.4rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: 8px;
+  background: var(--brand-50);
+  border: 1px solid var(--brand-100);
+}
+
+.ex-due dt,
+.ex-due dd {
+  color: var(--neutral-900);
+  font-weight: 800;
+}
+
+.ex-due dd {
+  font-size: 1.15rem;
+}
+
+.ex-note {
+  margin: 0.75rem 0 0;
+  color: var(--neutral-600);
+  font-size: 0.82rem;
 }
 
 @media (max-width: 40rem) {

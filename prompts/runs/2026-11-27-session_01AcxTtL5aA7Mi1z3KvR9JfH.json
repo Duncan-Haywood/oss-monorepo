@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtL5aA7Mi1z3KvR9JfH",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T14:06:14Z",
+  "ended": "2026-11-27T14:12:27Z",
+  "wall_minutes": 6.4,
+  "tokens_in": 5123829,
+  "tokens_out": 24005,
+  "cost_usd": 2.2691,
+  "tool_calls": 60,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19766",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First worked-example note said lines 2 and 3 carried stored materials; only line 3 does on application #2. Caught on the screenshot and fixed before commit.",
+    "Report first claimed nothing would catch catalogue-export drift; payapps-ci's site job already runs on every ventures/payapps change. Corrected."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish_next.py",
+      "issue": "Named item 1 of the last note, but open PR #19758 already covered items 1 and 2; only slug_dupe.py showed it. polish_next could check open PRs titled with the note's slug."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps-site/README.md",
+      "issue": "Pages use absolute /payapps/ paths, so serving catalogue-export/ straight from its folder (as the polish prompt suggests) 404s the stylesheet; it has to be served from a parent with a payapps/ link."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Last note's next items were claimed by open PR #19758",
+      "did": "Took the newly served bet #1 marketing site (payapps-site) instead",
+      "result": "Hero example + dark mode shipped; catalogue drift from PR #19750 fixed"
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "No new docs/posts post: owner prefers consolidated posts, and a site polish isn't customer content",
+      "did": "docs/reports note with before/after screenshots only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-27-payapps-site.md"
+  ],
+  "goal": null,
+  "notes": "Local checks in payapps-site: biome ci, tsc, unit 34/34, worker 11/11, build; node --test platform/pages/payapps-site.test.mjs passed. scrollWidth 390/1280 light+dark on home, pricing, features.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "70bdf516-3683-5f1e-ab6c-c8f255f5dae5",
+    "transcripts": 1,
+    "first": "2026-11-27T14:06:14Z",
+    "last": "2026-11-27T14:12:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 105,
+        "output": 24005,
+        "thinking": 3957,
+        "cache_read": 5025801,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97923,
+        "api_equivalent_usd": 2.2691,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 105,
+      "output": 24005,
+      "thinking": 3957,
+      "cache_read": 5025801,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97923,
+      "api_equivalent_usd": 2.2691,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 49,
+      "Read": 8,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.4,
+      "active_minutes": 6.4,
+      "model_minutes": 5.04,
+      "tool_minutes": 1.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "front-end dev: hero component from app math, dark theme tokens, screenshots, report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 176.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
