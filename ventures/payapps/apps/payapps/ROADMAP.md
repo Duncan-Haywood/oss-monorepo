@@ -2426,6 +2426,24 @@ nothing to copy. No customers yet. Paid plans are dark
   cap check names money the GC may be holding without a right to. Not done: state bond-claim
   ("little Miller Act") notice and suit dates, the Miller Act notice drafted from the job, prompt
   payment interest on public jobs.
+- Public jobs, part 2a (2026-11-27, Crew and up, public-jobs-part-2-miller-notice): the Miller Act
+  90-day notice drafted from a federal job. In the lien deadline panel, once the job is federal and
+  the company did not contract with the prime itself (second tier, or not saved: sending it never
+  hurts), "Draft the notice" fills the company, the job, the GC on the job as the party the work was
+  furnished to (on a second-tier job, the prime's sub it bills), the saved last day and the unpaid
+  amount from the cash report (billed and not paid plus retainage held, shown separately so it can
+  be corrected), and the user types the prime's name and address; it prints as a PDF through the
+  notice printer. The statute sets contents, not a form, so, as with California's notice, each
+  heading is § 3133(b)(2)'s or (b)(4)'s own phrase and the title, layout and one-sentence statement
+  of the claim are PayApps' wording, which the notes say; the notes quote who needs it, when, what it
+  must say, how to serve it ((b)(2)(A)-(B)), the certified bond copy ((a)) and the suit. Wording in
+  `packages/lien-waivers/src/us-miller.ts`, checked against a GPO snapshot
+  (`sources/us-40-3133.txt`, read 2026-11-27) in `test/miller-notice.test.ts`; endpoints
+  `GET .../notices/miller` and `POST .../notices/miller.pdf` (`services/payapps/miller-notice.ts`,
+  `test/worker/miller-notice.test.ts`: tiers, prefill, plan gate, PDF, field errors, a non-federal
+  job refused, tenant isolation). Printing saves nothing. Why: the 90-day notice is the step a
+  second-tier sub most often misses, and the job already holds every fact it needs but the prime's
+  address. Not done: a log of notices sent (as Texas and Florida keep), state bond-claim dates.
 
 ## Must do before a public launch
 
@@ -2571,8 +2589,7 @@ nothing to copy. No customers yet. Paid plans are dark
   job history): a rate sheet copied from another job or a company default, a daily report's crew
   started as a ticket and a remote signature by email link, if contractors ask
 - Public jobs, part 2 (part 1 done 2026-11-27: the owner on the job, Miller Act dates, the 16-state
-  retainage cap check): the Miller Act notice drafted from the job (claimant, prime, the sub it
-  worked for, the unpaid amount from the cash report; pay-app-guides' `noticeLetter` is the
-  template), then state "little Miller Act" notice and suit dates for the states the lien deadline
+  retainage cap check; part 2a, the Miller Act notice drafted from the job, done 2026-11-27): a log of
+  Miller notices sent with the proof of delivery, if contractors use the draft; then state "little Miller Act" notice and suit dates for the states the lien deadline
   covers (California's stop payment notice and bond claim, Florida § 255.05, Texas Gov't Code
   ch. 2253 first), each read from the statute page, if contractors mark public jobs
