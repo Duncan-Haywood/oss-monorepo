@@ -185,6 +185,47 @@ class ParseTest(unittest.TestCase):
         self.assertEqual(rc.parse_claims(ls, "payapps"), {"history-part-3": (2, "b")})
 
 
+LAUNCH = """## Done
+- Shipped
+
+## Must do before a public launch
+
+- Run `app-deploy` once (by hand; docs/DEPLOY.md; an agent may dispatch it) and, at launch,
+  let it run on every merge
+- Owner: Paddle secrets and a notification destination
+- Done 2026-11-26: operator filled in
+- Done 2026-11-27 (site-open): the guides point at sign-up. Left: set `PAID_PLANS_ON` the day
+  checkout is live
+- Dutch explanations, part 1 (2026-11-27, dutch-part-1): every rule has a Dutch template
+- A native German reviewer for the explanation templates
+
+## Next
+- Billing, part 2 if people ask
+"""
+
+
+class LaunchListTest(unittest.TestCase):
+    """2026-11-27: thirty-odd runs found every Next item gated while launch work sat unlisted."""
+
+    def test_launch_items_drop_done_owner_and_shipped_entries(self):
+        items = rc.launch_items(LAUNCH)
+        self.assertEqual(len(items), 3, items)
+        self.assertTrue(items[0].startswith("Run `app-deploy` once"))
+        self.assertIn("let it run on every merge", items[0])
+        self.assertEqual(items[1], "set `PAID_PLANS_ON` the day checkout is live")
+        self.assertIn("native German", items[2])
+        self.assertEqual(rc.launch_items(ROADMAP), [])
+
+    def test_launch_marks_gate_and_free(self):
+        rows = rc.launch_marks(rc.launch_items(LAUNCH), {}, {}, 0.0, 3600)
+        self.assertEqual([m.split(":")[0] for _, _, m in rows],
+                         ["free", "waits on a source", "waits on a person"])
+        self.assertEqual(rows[0][0], "run-app-deploy-once-by")
+        live = {"app-deploy-first-run": (100, "claim")}
+        rows = rc.launch_marks(rc.launch_items(LAUNCH)[:1], live, {}, 200.0, 3600)
+        self.assertEqual(rows[0][2], "claimed: app-deploy-first-run")
+
+
 class ClaimRaceTest(unittest.TestCase):
     """Two clones of one remote: the second claim of an item loses; a stale one is retaken."""
 
@@ -581,6 +622,19 @@ class ClaimRaceTest(unittest.TestCase):
             self.assertEqual(sorted(out), opts)
             self.assertEqual(out[3:], [4, 5])
         self.assertEqual(rc.spread(opts, "0000000004"), rc.spread(opts, "0000000004"))
+
+    def test_bets_overview_starts_on_a_free_launch_item(self):
+        bets = Path(self.tmp.name) / "bets.md"
+        bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                        "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n")
+        (self.a / "apps" / "payapps" / "ROADMAP.md").write_text(LAUNCH)
+        code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertEqual(code, 0, out)
+        self.assertIn("payapps: 1 Next, free and not gated: none", out)
+        self.assertIn("launch list [free] Run `app-deploy` once", out)
+        self.assertIn('launch list [waits on a person: "native German reviewer', out)
+        self.assertIn("Start here: bet #1 payapps, its launch list", out)
+        self.assertIn("--slug launch-run-app-deploy-once-by", out)
 
     def test_bets_overview_spreads_parallel_runs(self):
         bets = Path(self.tmp.name) / "bets.md"
