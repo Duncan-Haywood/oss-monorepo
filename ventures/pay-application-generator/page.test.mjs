@@ -123,3 +123,17 @@ test("the template's own page is linked, honest about the AIA, sends nothing and
   assert.doesNotMatch(suite, /\$\s?\d/);
   assert.match(page("sitemap.xml"), /pay-application-template\.html/);
 });
+
+// docs/reports/polish-2026-11-27-payapp-live.md: a pasted schedule is worked out as it is edited.
+test("the live preview fills a strip, does not scroll or announce, and counts no usage", () => {
+  const html = page("index.html");
+  const script = /<script type="module">([\s\S]*?)<\/script>/.exec(html)[1];
+  assert.match(html, /<p class="live" id="live" hidden><\/p>\s*<\/section>/);
+  assert.match(script, /report\.setAttribute\("aria-live", quiet \? "off" : "polite"\)/);
+  assert.match(script, /if \(!quiet\) report\.scrollIntoView/);
+  const preview = /const preview = async \(\) => \{([\s\S]*?)\n    \};/.exec(script)[1];
+  assert.doesNotMatch(preview, /record\(/);
+  assert.match(preview, /run\(text, true\)/);
+  assert.match(preview, /if \(\$\("#file"\)\.files\[0\]\) return;/);
+  assert.match(script, /\$\("#inputs"\)\.addEventListener\("input"/);
+});
