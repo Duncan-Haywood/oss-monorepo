@@ -59,7 +59,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Project: hearth-and-horizon, shelf little-lamps. Piece: bonaventure-and-the-name-at-the-bedside (1,485 words, BIBLE proposal claimed with a Drafting commit first). Facts checked against the proposal's own checklist and web search snippets (SEP entry citing Legenda maior prol. 3 and Legenda minor lec. 8; Bosco ai Frati convent page for the hat tradition). The 'O buona ventura' naming legend left out; hat on the tree told as 'an old story'. node --test in ventures/hearth-and-horizon: 22 pass, 0 fail.",
+  "notes": "Project: hearth-and-horizon, shelf little-lamps. Piece: bonaventure-and-the-name-at-the-bedside (1,485 words, BIBLE proposal claimed with a Drafting commit first). Facts checked against the proposal's own checklist and web search snippets (SEP entry citing Legenda maior prol. 3 and Legenda minor lec. 8; Bosco ai Frati convent page for the hat tradition). The 'O buona ventura' naming legend left out; hat on the tree told as 'an old story'. node --test in ventures/hearth-and-horizon: 22 pass, 0 fail. CI's changed-ventures job failed on pay-app-guides: main's punch-list.html CTA was stale after PR #19669 (page.test.mjs 'CTA out of date'). Fixed forward here with node cta.mjs; pay-app-guides 312 pass, 0 fail.",
   "corrections": [],
   "redteam": null,
   "usage": {
