@@ -1,0 +1,12 @@
+# The paid apps (apps/) and the packages they share (packages/), moved here from
+# the private repository (task products-to-public-repo). The free catalogue in
+# ventures/ uses npm and is not part of this workspace.
+packages:
+  - "apps/*"
+  - "packages/*"
+
+onlyBuiltDependencies:
+  - "@biomejs/biome"
+  - esbuild
+  - workerd
+  - sharp

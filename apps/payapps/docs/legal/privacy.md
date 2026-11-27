@@ -1,0 +1,80 @@
+# Privacy Policy
+
+**Version 2026-11-27** · Maris Stella Labs LLC
+
+This policy explains what information PayApps (operated by Maris Stella Labs LLC, "we") collects, why, who processes it, and the choices you have.
+
+## What we collect
+
+- **Account information:** name, email address, whether the address is verified, sign-in sessions (passwords are stored only as secure hashes), company memberships and roles, and invitations sent to an email address.
+- **Your company's billing records:** jobs (names, general contractor and the billing contact and project manager you enter for it, with their email addresses, contract sums, retainage rates), schedules of values, change orders, requests for information (RFIs) you send a general contractor (the question, references, your proposed solution, dates, the answer and the name you enter for who answered it), the submittal log you keep for a job (what was submitted, spec sections, the dates sent, due back and returned, the general contractor's action, lead times and notes), the punch list items you enter for a job (the item, its location, who listed it, the dates listed, due, fixed and accepted, the names you enter for who fixed and who accepted it, and any note on why an item is not yours), the close-out documents you list for a job (the kind and name of each document, where the requirement comes from, the dates due, sent and accepted, the name you enter for who accepted it, and any note on why it is not required), the daily reports you write for a job (the date, the weather and temperatures you type, hours lost, the companies and trades on site with worker counts and hours, the work done, delays, equipment, deliveries, visitors and inspections, safety notes and other notes, including any names you enter in them, and which member wrote and last changed each report), the time-and-material (T&M) tickets you write for a job's extra work (the ticket number, the date and description of the work, the location, who directed it and the reference you type, the labor, material and equipment lines with their rates and markups, notes, and which member wrote and last changed each ticket), the T&M rate sheet you keep for a job (the labor, equipment and material rates and markups, the source you type for them, and which member last changed it), the signature of the general contractor's representative on a T&M ticket (their name, title and the date you enter, and, when they sign on your device, the image of the signature they draw, which is stored privately for your company, printed on that ticket's PDF and deleted when the signature is taken off, the ticket is deleted or the job is deleted), pay applications and their status, opening balances, payments you record (and, on pay-when-paid jobs, the date you record that the owner paid the general contractor), lien waivers (including the names and addresses you enter on them), the preliminary notices you record for a job (who each notice went to, with the name and address you enter, how and where it was given, the date and any mail tracking number, and which member recorded it), the lower-tier lien waivers you track for a pay application from your own suppliers and sub-subcontractors (their names and the email address you enter for each, the kind of waiver, the through date and amount, the dates you asked for and received each one, and your notes), the insurance certificates you enter (coverage, insurer, policy numbers, dates, limits, the endorsements shown and notes, and which of your jobs' general contractors hold each one, with the date you sent it), the insurance each job's subcontract requires that you enter (coverages, minimum limits and endorsements), your company's licenses and compliance documents that you enter (the kind of document, its name, the state or city, license class, license or certification number, issuer, dates and notes; for a W-9, only the date you signed it, never the taxpayer identification number as a typed field; a signed W-9 file you choose to attach is covered under "Files you attach" below), the job costs, cost budgets, cost-to-complete estimates and purchase orders and subcontracts you enter (dates, amounts, cost categories, the schedule-of-values line, vendor and subcontractor names, PO or subcontract numbers, descriptions and references, and which commitment a cost is billed against), the estimates (bids) you price before a job (the job's name and location, the general contractor and the contact name and email address you enter, dates, cost lines, markups and tax rates, alternates, inclusions, exclusions and notes, and whether the bid was won or lost), and your company's price list (the material prices, labor and equipment rates and subcontractor quotes you enter or import, with any code and source note, and when each price was last changed), and the schedule you keep for a job (each activity's name, the trade, crew or names you enter for it, its start and finish dates, percent complete, the activity it waits for and any lag, your notes, and, for an activity imported from a general contractor's Primavera P6 schedule, its P6 activity ID).
+- **Files you attach:** documents and photos you attach to a pay application, a change order, an RFI, a submittal, a daily report, a T&M ticket, a close-out document, a notice record, one of your insurance certificates or one of your company documents (for example invoices, payroll reports, certificates of insurance and their endorsements, license cards, bonding letters, a signed W-9 if you choose to keep one here (it shows your taxpayer identification number, and is kept only after you confirm that it may be), supplier quotes, time-and-material tickets, marked-up drawings, product data and shop drawings, delivery tickets and inspection reports, warranty letters, O&M manuals and as-built drawings, job photos, the GC's responses and signed applications or change orders), with their file names, sizes and who added them. They are stored privately for your company and are deleted when you delete them, the draft pay application, the change order, the RFI, the submittal, the daily report, the T&M ticket, the close-out document, the notice record, the insurance certificate or the job.
+- **Spreadsheets and schedules you import:** a schedule-of-values spreadsheet, and a general contractor's Primavera P6 schedule (.xer) imported into a job's schedule, are read **in your browser**. The file itself is never uploaded; only the lines or activities you confirm are saved.
+- **Certified payrolls you print:** the week's payroll you type on a job's certified payroll page (workers' names and identifying numbers, classifications, hours, pay rates, fringe benefits and deductions, and the certifying official's name and contact details) is sent to the Service only to check it and produce the PDF, and is **not stored** on our servers. The draft is kept in your browser's local storage on your device, so next week can start from it, until you clear it. A time report you load there to fill in the week's hours is read in your browser and is not sent to the Service. **California eCPR file:** if you make the DIR eCPR XML file for a California public work, the details only that file needs (workers' home addresses, check numbers, deduction breakdowns, crafts, and your PWCR and DIR project ID) are kept with the draft in your browser's local storage, and workers' full Social Security numbers and ITINs are held only in the open page's memory, never saved in the browser and never sent to the Service. The file is built in your browser and downloaded; you upload it to DIR yourself.
+- **QuickBooks Online connection (only if your admin connects it):** the QuickBooks company ID and the access and refresh tokens Intuit issues, stored encrypted, plus a record of which pay applications were sent and as which invoice, and of the payments and short-paid balances (as credit memos) sent against those invoices. If you link a job to a QuickBooks customer or job to read its costs, we store that customer's ID and name with the job, and, for each expense line you choose to import, its date, amount, vendor name, memo, transaction number and QuickBooks reference, as one of the job's costs. Expense lines you do not import are read for display and not stored.
+- **Billing:** your plan, subscription status, and payment events from the merchant of record. We do not receive or store card numbers.
+- **Technical data:** the IP address and browser user-agent of each sign-in session (used to secure your account), short-lived counters of sign-in, sign-up and password-reset attempts per IP address and per account (to stop password guessing and abuse; each expires within an hour, and expired counters are deleted), and security logs.
+- **Acceptance records:** which version of these policies each user accepted, and when.
+
+## Why we use it
+
+- To provide the Service: compute and produce your pay applications, waivers and reports.
+- To send account emails: confirming your address, resetting your password and delivering invitations, and, only if you turn it on for a company, a weekly email listing what to chase from that company's records: money owed and retainage from the cash report, insurance certificates and company documents to renew, RFIs and submittals waiting on the general contractor, signed T&M tickets not yet billed, lower-tier waivers still out and weekdays without a daily report. When you create your first company we send one welcome email with the steps to a first pay application. The company's owners may then get up to two reminders in its first two months: one if no job is added after three days, and one if a job exists but no application is marked sent after five days. Each reminder has a one-click link that stops them. We do not send marketing email from the app. Follow-up emails the app drafts for you (to a general contractor about an RFI, or to a supplier for a lower-tier waiver) open in your own email program or are copied by you; we do not send them.
+- To secure the Service, prevent abuse and investigate problems.
+- To bill you and apply plan limits.
+- To support you when you ask us to.
+- To meet legal obligations.
+
+## Subprocessors
+
+We share data only with service providers that process it on our behalf to run the Service:
+
+| Subprocessor | Purpose |
+| --- | --- |
+| Cloudflare, Inc. | Hosting, database, file storage and sending account emails |
+| Paddle (merchant of record) | Checkout, payments, invoicing and sales tax |
+
+**Services you connect.** If an admin of your company connects QuickBooks Online, we send Intuit, at your direction, the invoices you choose to send: the general contractor's name, the job name, the application's dates and amounts, and the line descriptions of your schedule of values; and, when you choose, the payments you record against those invoices and any balance you close short (a backcharge, dispute or write-off) as a credit memo with its amount and a note. Intuit handles that data under its own terms and privacy statement as your provider, not as ours. When you read a job's costs from QuickBooks, we read your company's customer list and its bills, checks, card charges, vendor credits and purchase orders in the dates you choose, at your direction, and keep with each cost or commitment you import which QuickBooks line (and, for a bill made from a purchase order, which order) it came from; nothing is written to QuickBooks for that. Disconnecting stops any further sending and deletes the stored tokens; invoices already in QuickBooks stay there.
+
+We will update this list before adding a new subprocessor. PayApps does not send your data to any AI model provider.
+
+## What we do not do
+
+- We do **not sell** personal information or company data.
+- We do **not use your data for advertising**.
+- We do **not share your billing records with other customers**, or with your general contractor or anyone else, unless you send them yourself.
+
+## Retention
+
+- Your data is kept while your company's account is active.
+- When you ask us to close your company's account, we delete its data from our database. Provider backups and logs roll off on their normal schedules.
+- We keep billing records the merchant of record or the law requires.
+
+## Security
+
+- Encryption in transit (HTTPS) and at rest (provider-managed storage encryption).
+- Tenant isolation: every record belongs to one company and is checked against your membership on every request.
+- Role-based access within each company (admin, editor, viewer).
+- Operator access: our platform administrators (the people who run the service) can see account data across companies: company names, account owners' names and email addresses, sign-up dates, plan, subscription status and the price billed. Each such view is logged. These operator tools do not show your jobs, pay applications, waivers or attachments.
+- Submitted applications are kept as an unchangeable history.
+
+No system is perfectly secure. We will notify affected customers of a security incident involving their data as required by law.
+
+## Your rights and choices
+
+- **Access and export:** download any application as PDF or CSV, and reports as CSV, at any time.
+- **Correction:** edit your name, jobs and draft applications at any time. Submitted applications are kept as sent; record a correction on the next application.
+- **Deletion:** contact us to delete your account or your company's data.
+- Depending on where you live, you may have additional rights. Contact us to exercise them.
+
+## Children
+
+The Service is for businesses and is not directed to children under 13.
+
+## Changes
+
+We will post updates with a new version date and ask you to accept material changes the next time you sign in.
+
+## Contact
+
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app

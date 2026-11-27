@@ -1,0 +1,1 @@
+ALTER TABLE `daily_reports` ADD `delay_activity_id` text REFERENCES `schedule_activities`(`id`) ON UPDATE no action ON DELETE set null;

@@ -1,0 +1,1 @@
+ALTER TABLE `lower_tier_waivers` ADD `party_email` text;

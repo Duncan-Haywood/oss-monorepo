@@ -1,0 +1,62 @@
+# PR checks for apps/payapps-site (the PayApps marketing site, moved from the
+# private repository; task products-to-public-repo). Read-only, no secrets.
+name: payapps-site-ci
+on:
+  pull_request:
+    paths:
+      - "apps/payapps-site/**"
+      # The pricing page mirrors these (test/unit/plans-sync.test.ts).
+      - "apps/payapps/src/shared/plans.ts"
+      - "packages/billing/src/pricing.ts"
+      - ".github/workflows/payapps-site-ci.yml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "biome.json"
+  push:
+    branches: [main]
+    paths:
+      - "apps/payapps-site/**"
+      - "apps/payapps/src/shared/plans.ts"
+      - "packages/billing/src/pricing.ts"
+      - ".github/workflows/payapps-site-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: payapps-site-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: apps/payapps-site
+
+jobs:
+  check:
+    name: payapps-site lint, types, tests, build
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            apps/payapps
+            apps/payapps-site
+            packages
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --filter "{./apps/payapps-site}..."
+      - run: pnpm exec biome ci .
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+      - run: pnpm test:worker
+      - run: pnpm build

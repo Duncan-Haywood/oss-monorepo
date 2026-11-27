@@ -1,0 +1,12 @@
+# Headers for every static file (Workers static assets). Worker responses (/api/*) set the same
+# set in src/worker/security.ts; keep the two in sync.
+# The pages have no inline <script> (JSON-LD blocks are data, not executed, and CSP does not block
+# them), no inline styles and no third-party requests. The early-access form posts same-origin.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'none'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), usb=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin
