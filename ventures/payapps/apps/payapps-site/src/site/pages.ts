@@ -339,6 +339,8 @@ export const FEATURES: readonly Feature[] = [
       "Apprenticeship programs and fringe benefit plans on page 2, with an addendum page when they run over",
       "Fill the week's hours from a time report (QuickBooks time activities, a time-card export from Gusto, ADP or Paychex): each day's straight time and overtime on its day, workers matched by name, read in your browser",
       "California public works: the same week as the DIR eCPR XML file (schema 2.0, which DIR requires from 13 January 2027) for the Public Works portal, with doubletime, the craft, the apprentice period, fringe by DIR category and deductions split into federal and state tax, SDI, dues and the rest; checked against DIR's rules before you download it. Full SSNs are typed for that file only and never leave your browser",
+      "New York public work: the same week as the NYSDOL Certified Payroll portal's bulk-upload XML (required for Article 8 public work since 1 January 2026), with each row's classification picked from NYSDOL's list and supplements by NYSDOL type",
+      "Washington public works: the same week as the XML file for L&I's PWIA upload, with L&I's trade code and county per row, apprentice registration and step, fringe in L&I's benefit fields and double time apart; full SSNs are typed for that file only and never leave your browser",
       "Next week starts from this week's crew; workers' names and ID numbers stay in your browser and the download, never on our servers",
       "Every plan. Not a Department of Labor product and not legal advice: you check the figures and sign",
     ],
