@@ -87,6 +87,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/machine-shop-hourly-rate",
+      label: "Machine shop hourly rate",
+      title: `How to work out a machine shop hourly rate · ${SITE_NAME}`,
+      description:
+        "Work out a CNC or machine shop hourly rate from your own costs: machine ownership, overhead, operator burden and billable hours, with a worked example.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
       path: "/faq",
       label: "FAQ",
       title: `Frequently asked questions · ${SITE_NAME}`,
