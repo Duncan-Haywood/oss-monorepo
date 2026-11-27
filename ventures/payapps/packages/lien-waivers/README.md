@@ -18,6 +18,16 @@ The pay-app billing app is meant to import it.
 
 ## Current status: Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah and Wyoming encoded and verified, Missouri's one residential form and Massachusetts' partial waiver as alternatives; no listed state pending
 
+**2026-11-27: the Miller Act 90-day notice.** `src/us-miller.ts` holds `millerActNotice()`, the written
+notice a sub-subcontractor or a supplier to a subcontractor gives the prime contractor on a federal job
+(40 U.S.C. § 3133(b)(2)), rendered by `renderNotice` like the state notices. It is not offered by
+`noticeForms` (it is federal, not a state's): callers take it directly. The statute prescribes the
+notice's contents, not a form, so, as with California's notice, each heading is the statute's own
+phrase (`MILLER_PHRASES`) and the title, layout and one-sentence statement of the claim are this
+package's wording, which its notes say. Text from GPO's United States Code, 2023 edition
+(`sources/us-40-3133.txt`, read 2026-11-27); `test/miller-notice.test.ts` checks every heading phrase and
+every quotation in the notes against it.
+
 **2026-11-27: Texas notices of claim.** Besides Texas' four § 53.284 waivers, `src/tx-notice.ts` holds
 the two notices a subcontractor or supplier sends to keep a Texas lien (Tex. Prop. Code §§ 53.056(a-2) and
 53.057(a-2), as amended by H.B. 2237 for original contracts from 2022-01-01), offered by

@@ -12,6 +12,7 @@ import {
   flFirstFurnishedSchema,
   flNoticeDeliveredSchema,
   flNoticeSendSchema,
+  millerNoticePdfSchema,
   noticePdfSchema,
   openingSchema,
   procoreSsovSchema,
@@ -90,6 +91,7 @@ import {
   setFlNoticeDelivered,
 } from "../../services/payapps/fl-notices";
 import { jobHistoryCsv, listJobEvents, recordJobEvents } from "../../services/payapps/job-history";
+import { millerNoticeOverview, renderMillerNotice } from "../../services/payapps/miller-notice";
 import {
   addNoticeFile,
   deleteNoticeFile,
@@ -517,6 +519,31 @@ routes.post("/:projectId/notices/notice.pdf", validate("json", noticePdfSchema),
     },
   });
 });
+
+// The Miller Act 90-day notice drafted from a federal job (Crew and up to print; nothing is saved).
+routes.get("/:projectId/notices/miller", async (c) =>
+  c.json(await millerNoticeOverview(c.var.ctx, c.var.tenant.orgId, c.req.param("projectId"))),
+);
+
+routes.post(
+  "/:projectId/notices/miller.pdf",
+  validate("json", millerNoticePdfSchema),
+  async (c) => {
+    const { document, sample } = await renderMillerNotice(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("projectId"),
+      c.req.valid("json"),
+    );
+    return new Response(noticePdf(document, { sample }).slice().buffer, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": 'attachment; filename="miller-act-notice.pdf"',
+        "Cache-Control": "no-store",
+      },
+    });
+  },
+);
 
 // California preliminary notices given: the first-furnished date, each notice recorded as given,
 // and its § 8118 proof of notice declaration (Crew and up; editors record, anyone prints).
