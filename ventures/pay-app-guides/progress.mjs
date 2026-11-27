@@ -163,6 +163,7 @@ export function compute(text, settings = {}) {
 
 const c2 = (c) => (c / 100).toFixed(2);
 
+// csvCell (colog.mjs) is the formula-injection guard: a cell starting = + - @ tab or CR gets an apostrophe.
 export function scheduleCsv(result) {
   const head = ["Stage", "Share of contract", "Value", "Deposit credit", "Retainage", "Net due", "Status"];
   const rows = result.stages.map((s) => [s.name, `${(s.pctOfContract * 100).toFixed(2)}%`, c2(s.value), c2(s.credit), c2(s.retainage), c2(s.net), s.status === "billed" ? "billed" : s.status === "done" ? "bill now" : "not reached"]);

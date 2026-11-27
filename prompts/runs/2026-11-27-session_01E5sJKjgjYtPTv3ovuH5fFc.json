@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First invoice text put two figures on one line; sumview.mjs splits on the colon and showed them wrong in the browser. Split into one figure per line before merge."
+    "First invoice text put two figures on one line; sumview.mjs splits on the colon and showed them wrong in the browser. Split into one figure per line before merge.",
+    "changed-ventures CI failed on two tree checks not in the venture's own tests: an agent-session phrase on the page ('this session could not load') and check_csv_formula_guard.py not seeing a guard imported as csvCell from colog.mjs. Reworded and added a comment naming the guard; unwired_checks.py 304/307 pass, 3 skipped."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,10 @@
     {
       "file": ".github/prompts/cloud-session.md",
       "issue": "marisstella.app, leginfo.legislature.ca.gov and statutes.capitol.texas.gov are refused by this session's proxy, so the live site cannot be smoke-tested and statute pages cannot be sourced from here."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "run_venture_tests.py <slug> passes locally while CI's changed-ventures also runs unwired tree checks (agent text on pages, CSV formula guard); its note says so, but the 90 s unwired_checks.py is worth running before the first push for any new page or CSV export."
     }
   ],
   "deviations": [
