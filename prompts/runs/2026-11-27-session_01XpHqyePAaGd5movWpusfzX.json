@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "zod 4 .default({}) on a nested object does not apply the inner defaults; fixed with a factory default"
+    "zod 4 .default({}) on a nested object does not apply the inner defaults; fixed with a factory default",
+    "First merge attempt hit conflicts: the Washington PR (part 3c) landed meanwhile touching the same page, test, privacy line, ROADMAP and post; resolved by re-applying the Illinois additions on main's files, Illinois renumbered part 3d"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,14 @@
     {
       "file": "portfolio/monetization/bets.md",
       "issue": "Bet #1 had 7 open PRs from parallel sessions; the slug_dupe pass across several keywords was needed to find an unclaimed slice"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight for payapps fails on main independently of this diff (no launched.json date; payapps would be a 6th tool in the catch-all 'More free tools' section); not fixed here since it touches the catalog builder"
+    },
+    {
+      "file": "prompts/test_promptctl.py",
+      "issue": "validate job failed on LastChangeIndexTest at the shallow-clone edge, unrelated to the diff; the second run of validate passed"
     }
   ],
   "deviations": [
@@ -56,7 +65,7 @@
     "docs/reports/2026-11-27-state-certified-payroll-filing-systems.md (Illinois update)"
   ],
   "goal": null,
-  "notes": "Security queue: 12 alerts, all claimed (exit 3). Ideas inbox empty. Routed ventures/1. Unit suite 1361 passed / 2 skipped; tsc clean; biome clean on changed files; venture-preflight run locally (see PR).",
+  "notes": "Security queue: 12 alerts, all claimed (exit 3). Ideas inbox empty. Routed ventures/1. Unit suite 1361 passed / 2 skipped; tsc clean; biome clean on changed files; venture-preflight run locally (see PR). After merging main: unit 150 files, 1381 passed / 3 skipped; worker 559 passed; tsc and biome clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
