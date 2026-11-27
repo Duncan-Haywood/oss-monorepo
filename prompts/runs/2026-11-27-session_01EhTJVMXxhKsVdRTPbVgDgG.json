@@ -17,7 +17,7 @@
   "tokens_out": 22282,
   "cost_usd": 3.0113,
   "tool_calls": 74,
-  "task": "Land PR #19601's stalled move of CMMC Workspace (bet #4) into ventures/cmmc: merge it with main and verify it again",
+  "task": "Adopt PR #19601's stalled CMMC move (bet #4). PR #19689 landed the same adoption first; this PR keeps the sync fix found while re-verifying it",
   "projects": [
     "cmmc"
   ],
@@ -30,7 +30,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [
     {
       "what": "Ran sync-from-private.sh while run_workflow_locally.py was still running; the sync briefly replaced ventures/cmmc and voided two verdicts (priv-portfolio-pages, priv-security-gate)",
@@ -39,6 +39,10 @@
     {
       "what": "First pass of the tasks.yaml conflict resolution (keep both sides by regex) produced a broken Seller Books entry",
       "fix": "Rebuilt both entries by hand and checked the diff against main"
+    },
+    {
+      "what": "Two sessions adopted stalled PR #19601 at the same time (this one and PR #19689). I checked slug_dupe.py only at the start, not again before the merge attempt",
+      "fix": "Reduced this PR to the delta: the sync script fix, the report section and this record"
     }
   ],
   "integrity_issues": [],
@@ -58,6 +62,10 @@
     {
       "file": "ventures/cmmc/sync-from-private.sh",
       "issue": "It did not re-apply edits made in this repository after the copy (CodeQL fixes, a doc link), so a sync would have silently reverted them. Fixed here with a keep_local list. The payapps sync may have the same gap."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "The stalled-PR rule has no claim step, so two sessions can adopt the same stalled PR at once. A claim branch (like roadmap_claim's) or a comment on the stalled PR would prevent the duplicate."
     }
   ],
   "deviations": [
@@ -65,7 +73,7 @@
       "file": ".github/prompts/land-your-work.md",
       "why": "The stalled-PR rule says to merge the PR itself when its checks are green. #19601's own cmmc CI never ran and main had moved on, so it could not be merged as it stood",
       "did": "Merged its branch into my branch with main, resolved the conflicts, re-verified and landed it as PR #19714 (its commits are kept, so GitHub marks #19601 merged)",
-      "result": "All 18 workflows triggered by the diff passed locally, including cmmc-ci (15/15)"
+      "result": "Duplicated work. I verified the move (18/18 workflows locally, and full GitHub CI green including cmmc CI), but PR #19689 adopted the same branch and merged it about 40 min after I started. slug_dupe.py at 11:00 had shown no open adoption PR, so #19689 was opened after that. What survived is the sync-from-private.sh keep_local fix and the report section"
     },
     {
       "file": "prompts/goals.md",
@@ -75,10 +83,10 @@
     }
   ],
   "writeups": [
-    "docs/reports/2026-11-27-move-cmmc-public.md (extended: Landed section)"
+    "docs/reports/2026-11-27-move-cmmc-public.md (new section: sync keeps the edits made here)"
   ],
   "goal": "$10k MRR: bet #4 can be deployed only from this repository (private-monorepo's Actions start no jobs)",
-  "notes": "Security queue was empty and IDEAS.md had nothing pending. Route: ventures. Bets #1 (PayApps), #2 and #5 had every launch item claimed by an open PR (#19659, #19698, #19676, #19682, #19692), and their ROADMAP items wait on demand. marisstella.app is blocked by the proxy, so the live funnel could not be checked. Attached private-monorepo with add_repo and the clone worked first time. Found PR #19601 (CMMC move) stalled for 6 h, with only the gate checks run. Merged it with main. Re-synced from private 7ca83b92 and the app was unchanged. Local verification: run_workflow_locally.py --for-changes origin/main gave 18/18 selected workflows passed (cmmc-ci 15/15: biome, typecheck, unit, worker, provision, build, no source maps, drizzle; site, billing, admin-metrics, scripts; portfolio-validate 101/101). Two workflows voided by a mid-run edit were re-run: re-run on a still tree, their runnable steps passed (priv-portfolio-pages 10/10, priv-security-gate 1/1; the rest run only in Actions). venture-preflight.mjs cmmc exited 0. Next: allowlist PR, then priv-cmmc-deploy.yml (the PayApps and Job Shop Quote ports are the pattern).",
+  "notes": "Security queue was empty and IDEAS.md had nothing pending. Route: ventures. Bets #1 (PayApps), #2 and #5 had every launch item claimed by an open PR (#19659, #19698, #19676, #19682, #19692), and their ROADMAP items wait on demand. marisstella.app is blocked by the proxy, so the live funnel could not be checked. Attached private-monorepo with add_repo and the clone worked first time. Found PR #19601 (CMMC move) stalled for 6 h, with only the gate checks run. Merged it with main. Re-synced from private 7ca83b92 and the app was unchanged. Local verification: run_workflow_locally.py --for-changes origin/main gave 18/18 selected workflows passed (cmmc-ci 15/15: biome, typecheck, unit, worker, provision, build, no source maps, drizzle; site, billing, admin-metrics, scripts; portfolio-validate 101/101). Two workflows voided by a mid-run edit were re-run: re-run on a still tree, their runnable steps passed (priv-portfolio-pages 10/10, priv-security-gate 1/1; the rest run only in Actions). venture-preflight.mjs cmmc exited 0. Next: allowlist PR, then priv-cmmc-deploy.yml (the PayApps and Job Shop Quote ports are the pattern). After the merge attempt, main had PR #19689 (the same adoption). Merged main in, kept main's versions of everything, and kept only the sync-script fix (verified: a sync from 7ca83b92 onto main's tree leaves ventures/cmmc unchanged) and the report section.",
   "corrections": [],
   "redteam": null,
   "usage": {
