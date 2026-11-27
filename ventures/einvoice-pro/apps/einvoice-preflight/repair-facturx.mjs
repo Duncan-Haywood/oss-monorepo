@@ -89,8 +89,12 @@ async function withInvoice(data, payload) {
 // The newest cross-reference section starts at startxref. When that offset
 // holds "N G obj << /Type /XRef ... >>" the file is cross-reference-stream
 // based (PDF 1.5+); return its dictionary text, else null (classic table).
+// No fixed window: a long /Index array can push "stream" past any fixed byte count
+// (a 4096-byte window misread such files as classic tables, red team 2026-11-27).
 function readXrefStream(text, at) {
-  const m = /^\s*(\d+)\s+(\d+)\s+obj\s*(<<[\s\S]*?>>)\s*stream/.exec(text.slice(at, at + 4096));
+  const re = /\s*(\d+)\s+(\d+)\s+obj\s*(<<[\s\S]*?>>)\s*stream/y;
+  re.lastIndex = at;
+  const m = re.exec(text);
   return m && /\/Type\s*\/XRef\b/.test(m[3]) ? { dict: m[3] } : null;
 }
 

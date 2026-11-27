@@ -5,8 +5,9 @@ name: einvoice-pro CI
 # worker/), its marketing site (apps/einvoice-site) and the two packages they import as source
 # (packages/billing, packages/admin-metrics). Ported from private-monorepo's
 # einvoice-preflight-ci.yml and einvoice-site-ci.yml on 2026-11-27 (task
-# move-einvoice-pro-public). Nothing here has npm dependencies, so there is no install step: pro/
-# imports packages/billing's TypeScript through Node 22's type stripping. Read-only and
+# move-einvoice-pro-public). The app has no package.json: pro/ imports packages/billing's
+# TypeScript through Node 22's type stripping, and the only install is the two pinned packages the
+# official-rules tests need (below). Read-only and
 # secret-free: deploying is a separate workflow (ventures/einvoice-pro/DEPLOY.md). The free edition
 # keeps its own einvoice-preflight-ci.yml.
 # Run locally: python3 platform/ci/run_workflow_locally.py einvoice-pro-ci.yml
@@ -56,6 +57,12 @@ jobs:
         run: node --test pro/*.test.mjs
       - name: Worker deploy provisioning (config, wrangler output)
         run: node --test worker/*.test.mjs
+      # The official-rules route (plain-schematron, PINT, CIUS-RO/PT/HR, BR-FR and others) needs
+      # slimdom and fontoxpath; without them 134 checker tests skip (measured 2026-11-27: 150
+      # skipped without, 16 with). The free edition's einvoice-preflight-ci.yml installs the same
+      # pins. Not saved to a lockfile; --ignore-scripts so no package runs code at install.
+      - name: Official-rules route dependencies (pinned)
+        run: npm i --no-save --no-package-lock --no-audit --no-fund --ignore-scripts slimdom@4.3.5 fontoxpath@3.34.0
       - name: Checker suite
         run: node --test --test-concurrency=4 *.test.mjs
 
