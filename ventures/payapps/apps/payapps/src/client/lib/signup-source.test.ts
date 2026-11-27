@@ -47,6 +47,15 @@ describe("signup source in the browser", () => {
     expect(s.m.has(SIGNUP_SOURCE_KEY)).toBe(false);
   });
 
+  it("keeps nothing under Do Not Track or Global Privacy Control", () => {
+    const s = memory();
+    rememberSignupSource("?from=lien-waiver-checker", s, 1, { doNotTrack: "1" });
+    rememberSignupSource("?from=lien-waiver-checker", s, 1, { globalPrivacyControl: true });
+    expect(s.m.size).toBe(0);
+    rememberSignupSource("?from=lien-waiver-checker", s, 1, { doNotTrack: "0" });
+    expect(pendingSignupSource(s, 2)).toBe("lien-waiver-checker");
+  });
+
   it("does nothing when storage is blocked", () => {
     const blocked = {
       getItem: () => {

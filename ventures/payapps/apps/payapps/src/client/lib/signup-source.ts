@@ -18,10 +18,24 @@ export function browserStore(): Store | null {
   }
 }
 
-/** Remember the page this visit came from, unless one is already waiting. */
-export function rememberSignupSource(search: string, store: Store | null, now = Date.now()): void {
+/** Do Not Track or Global Privacy Control is on: nothing is kept, as on the free tools. */
+export function optedOut(
+  nav: { doNotTrack?: string | null; globalPrivacyControl?: boolean } | undefined,
+): boolean {
+  return !!nav && (nav.doNotTrack === "1" || nav.globalPrivacyControl === true);
+}
+
+/** Remember the page this visit came from, unless one is already waiting or the visitor opted out. */
+export function rememberSignupSource(
+  search: string,
+  store: Store | null,
+  now = Date.now(),
+  nav: Parameters<typeof optedOut>[0] = typeof navigator === "undefined"
+    ? undefined
+    : (navigator as Parameters<typeof optedOut>[0]),
+): void {
   const source = signupSourceFromSearch(search);
-  if (!source || !store) return;
+  if (!source || !store || optedOut(nav)) return;
   try {
     if (pendingSignupSource(store, now)) return;
     store.setItem(SIGNUP_SOURCE_KEY, JSON.stringify({ source, at: now }));

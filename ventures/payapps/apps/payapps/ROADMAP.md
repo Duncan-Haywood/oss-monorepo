@@ -1658,7 +1658,8 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   confirmation email), posts it once after sign-in (`POST /api/me/signup-source`), and the account
   keeps it in `signup_source` (one row per user, only while the account is under 14 days old, never
   replaced). Only our own page names in shape (`[a-z0-9._/-]`, no `..`, at most 80) are taken:
-  never a URL, a referrer header or a cookie. `GET /api/admin/metrics` carries `sources`: per page,
+  never a URL, a referrer header or a cookie; nothing is kept under Do Not Track or Global Privacy
+  Control. `GET /api/admin/metrics` carries `sources`: per page,
   sign-ups (all and in the window), verified, with a company, whose company sent a pay application
   on a real job, and paying now, with "(none)" last; ids, statuses and page names only (a test
   checks job, GC and email never appear). Privacy Policy says so (`POLICY_VERSION` 2026-11-27.5).
