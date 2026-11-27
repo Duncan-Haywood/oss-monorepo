@@ -61,8 +61,13 @@ const sub = (planKey: string, id: string, customer: string, status = "active" as
 
 describe("plans and limits", () => {
   it("lists public plans without signing in, never the complimentary plan", async () => {
-    const { items } = await call<{ items: PlanDto[] }>("/api/billing/plans");
+    const { items, checkoutAvailable } = await call<{
+      items: PlanDto[];
+      checkoutAvailable: boolean;
+    }>("/api/billing/plans");
     expect(items.map((p) => p.key)).toEqual(["free", "solo", "crew", "company"]);
+    // The test worker has the fake billing provider, so checkout is available, as on the Billing page.
+    expect(checkoutAvailable).toBe(true);
     expect(items.find((p) => p.key === "solo")?.priceCents).toBe(9_900);
   });
 

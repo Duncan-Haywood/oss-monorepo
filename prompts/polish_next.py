@@ -11,6 +11,14 @@ note says it picked ("Picked item 2 of "Still weakest" in `polish-...md`").
 
     python3 prompts/polish_next.py          # newest note, its list, taken items
     python3 prompts/polish_next.py -n 3     # the three newest notes
+    python3 prompts/polish_next.py --no-fetch   # skip refreshing origin/main
+
+It refreshes origin/main first (a cloud clone's is hours stale, and a note that
+landed since was missed, 2026-11-27); a note that cites another is placed above
+it whatever git says; and the output ends with the first item, newest note
+first, that no later note took ("Next open item"), since seven runs on
+2026-11-26..27 found the printed list's top items taken and read older notes by
+hand for the live one.
 
 Marking is best effort: it reads the citing sentence, so an item a run took
 without citing it, or an open PR, is not seen. Search open PRs as well.
@@ -30,6 +38,17 @@ HEADING = re.compile(r"^#+\s*Still weakest.*$", re.M)
 CITE = re.compile(
     r"[Ii]tems?\s+(\d+(?:\s*(?:,|and|&)\s*\d+)*)\s+of\s+(?:the\s+)?\"Still weakest[^\"]*\""
     r"(?:\s+list)?[^`]{0,40}?\bin\s+`(?:docs/reports/)?(polish-[^`]+?\.md)`")
+
+
+def refresh(root: Path = ROOT) -> None:
+    """Best effort: fetch origin/main's last day (platform/ci/fetch_ref.py)."""
+    try:
+        sys.path.insert(0, str(root / "platform" / "ci"))
+        import fetch_ref
+        fetch_ref.fetch_ref("main", days=1.0, cwd=root, out=sys.stderr, timeout=90)
+    except Exception as e:  # noqa: BLE001 - a stale ref only costs freshness
+        print(f"polish_next: could not refresh origin/main ({e}); reading the local ref",
+              file=sys.stderr)
 
 
 def shallow_boundary(root: Path = ROOT) -> set[str]:
@@ -86,7 +105,47 @@ def ordered_notes(reports: Path = REPORTS, history: list[str] | None = None) -> 
                   reverse=True)
     dated = known[0].name[:17] if known else ""
     fresh = [p for p in rest if p.name[:17] >= dated]
-    return fresh + known + [p for p in rest if p not in fresh]
+    return cited_below(fresh + known + [p for p in rest if p not in fresh])
+
+
+def cited_below(notes: list[Path]) -> list[Path]:
+    """Move each note above every note it cites: a citing note was written later.
+
+    Commit order can disagree (a note added by a merge whose branch began before
+    the cited one landed, or one past a shallow boundary); 2026-11-27 printed
+    online-seller-tables-stack as newest though einvoice-xml-wrap took its items."""
+    order = list(notes)
+    for _ in range(len(order)):
+        moved = False
+        for p in list(order):
+            flat = re.sub(r"\s+", " ", p.read_text(encoding="utf-8", errors="replace"))
+            cited = {c for _, c in CITE.findall(flat)} - {p.name}
+            pos = [i for i, q in enumerate(order) if q.name in cited]
+            if pos and min(pos) < order.index(p):
+                order.remove(p)
+                order.insert(min(pos), p)
+                moved = True
+        if not moved:
+            break
+    return order
+
+
+ITEM = re.compile(r"^(\d+)\.\s+(.*)$", re.M)
+
+
+def items(section: str) -> list[tuple[int, str]]:
+    """(number, first line) of each numbered item in a "Still weakest" section."""
+    return [(int(n), t.strip()) for n, t in ITEM.findall(section)]
+
+
+def next_open(notes: list[Path], marks: dict[str, dict[int, str]]) -> tuple[str, int, str] | None:
+    """(note, item number, first line) of the first untaken item, newest note first."""
+    for p in notes:
+        body = still_weakest(p.read_text(encoding="utf-8", errors="replace")) or ""
+        for n, text in items(body):
+            if n not in marks.get(p.name, {}):
+                return p.name, n, text
+    return None
 
 
 def still_weakest(text: str) -> str | None:
@@ -114,7 +173,10 @@ def taken(notes: list[Path]) -> dict[str, dict[int, str]]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("-n", type=int, default=1, help="how many of the newest notes to print")
+    ap.add_argument("--no-fetch", action="store_true", help="do not refresh origin/main first")
     args = ap.parse_args(argv)
+    if not args.no_fetch:
+        refresh()
     notes = ordered_notes()
     if not notes:
         print("no polish notes in docs/reports/: survey instead (prompt-0.md)")
@@ -127,6 +189,12 @@ def main(argv: list[str] | None = None) -> int:
         for n, by in sorted(marks.get(p.name, {}).items()):
             print(f"   item {n}: taken by {by}")
         print()
+    nxt = next_open(notes, marks)
+    if nxt:
+        print(f"Next open item: {nxt[1]} of docs/reports/{nxt[0]}: {nxt[2]}")
+        print("(cited items only; search open PRs too)")
+    else:
+        print("Next open item: none in any note's list: survey instead (prompt-0.md)")
     return 0
 
 

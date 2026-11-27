@@ -1,11 +1,9 @@
 # PayApps — Roadmap
 
-Status: **launch-approved, waiting on a runner** (2026-11-27). The launch review is merged
-(#444, [docs/LAUNCH-REVIEW.md](docs/LAUNCH-REVIEW.md), under `docs/legal/OPERATOR.md`): agents may
-deploy and open sign-ups without asking. The first deploy (run 45921558751) got no runner, because
-this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runners are on
-(`private-monorepo` `docs/ci-on-aws.md`) or the app moves to oss-monorepo (task
-`products-to-public-repo`). Not deployed yet, no customers. Paid plans are dark
+Status: **live on the Free plan** (2026-11-27). `payapps-deploy` run 45949861746 (commit 5f432ae0,
+from oss-monorepo) deployed https://payapps.duncan-andrew-haywood.workers.dev and its smoke test answered
+`{"ok":true,"app":"payapps","email":true}`, so sign-up email works. Attachments (R2) are off until the
+Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are dark
 (`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.
 
 ## Done (this MVP)
@@ -1023,6 +1021,31 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
   45-day reminder in the cash page and the weekly email, the combined notice to contractor on bonded
   and public jobs (§ 255.05, § 713.23), and the notice of nonpayment and claim of lien (§ 713.08).
 
+- Notice to Owner: Florida, part 2 (2026-11-27, Crew and up;
+  notice-to-owner-florida-part-2-part-1). Under the Florida notice, "Notices served (Florida)": the
+  first day of work is saved with the job (`projects.fl_first_furnished_on`, migration 0082), so the
+  45-day serve-by and 40-day mail-by dates stay put, and each notice or copy is recorded per person
+  (`fl_notice_sends`): the owner, the contractor, the subcontractor (from a supplier to a sub-sub), the
+  notice of commencement's designee, the lender (§ 713.06(2)(a), (b), (d)); how it went (certified,
+  registered or Global Express Guaranteed mail, hand delivery, common carrier, posting, § 713.18(1));
+  the day sent, the delivery date from the evidence of delivery, and the mail or tracking number. The
+  package's `flNoticeService` (`packages/lien-waivers/src/fl-service.ts`) says when each counts as
+  served: on mailing for the three mail services within the 40 days (§ 713.18(2)), otherwise on
+  delivery, entered later on the record (PATCH) when the green card or tracking comes back; on time
+  against the 45 days, or late with § 713.06(2)(a)'s "complete defense" sentence. Moving the first day
+  re-reads every record. The cash page and weekly email remind until a notice to the owner is recorded
+  (`flNoticeText` in `src/shared/cash-report.ts`), worded for three windows: mail by day 40, serve by
+  day 45 (hand delivery or a carrier is safer then), and past day 45 (what is lost, and clear the date
+  if you contract with the owner directly). The contractor's copy does not hold the reminder open:
+  only a sub-sub or a supplier to a sub owes it, which PayApps cannot know, so the reminder names it.
+  Job history: first day set or cleared, recorded, delivery date set, deleted. Tests:
+  `packages/lien-waivers/test/fl-service.test.ts` (every quoted phrase against the snapshot, each
+  rule) and `test/worker/fl-notice-log.test.ts` (dates, reminder wordings, mailing vs delivery,
+  re-reading, history, plan and role gates, tenant isolation). Not done: files per record (the mail
+  log or tracking printout § 713.18(2)(c) says to keep, as California's records hold receipts),
+  § 713.18(3)'s returned-mail rule, and a company setting for its tier so the contractor's copy can
+  join the reminder.
+
 - GC portal exports, part 1: Procore's subcontractor SOV template (2026-11-25). On the job page, under
   the schedule of values, "Procore subcontractor SOV": choose the CSV template the GC's Procore
   commitment gives (Subcontractor Schedule of Values tab, Edit SSOV, Import CSV, Download CSV
@@ -1564,6 +1587,31 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
   addresses and SSNs from a payroll export instead of typing them each session, and the portal's
   draft-upload errors checked against a real upload (DIR's classification names are not published:
   an unrecognized one becomes "Other").
+
+- Certified payroll, part 3b: New York NYSDOL bulk-upload XML (2026-11-27, certified-payroll-ny-nysdol-xml,
+  every plan). A "New York public work" section on the certified payroll page makes the same week
+  as the XML file the NYSDOL Certified Payroll portal takes by bulk upload (electronic filing required
+  for Article 8 public work since 1 January 2026). Read from dol.ny.gov on 2026-11-27: the XSD
+  ("Version 2.0", NYDOL_CertPayroll UPDATED.xsd), the sample, the Bulk Upload Formatting Guide and its
+  XML Work Classification List (261 names, vendored as `src/shared/ny-classifications.ts`; the portal
+  rejects any other name). Adds what NYSDOL asks and the WH-347 does not: the PRC number (10
+  characters), the worker's address with the state spelled out (two letters are expanded), the SSN's
+  last four (from the WH-347 ID no. when it is four digits) or else the date of birth, never both, the
+  New York registered-apprentice flag (from RA, changeable), a classification from the list per row
+  (hyphen/en-dash and case near misses matched to the list's spelling), deductions by type (state and
+  local tax out of the withholding, disability/PFL and dues out of "other", the rest under the
+  WH-347's description) and supplements per classification by NYSDOL type (guessed from the plan,
+  changeable; overtime rate the same or time and a half per plan; cash in lieu as "Other Benefit
+  (Type)" with an explanation). Checks the XSD's limits (lengths, 999.99 wage rates, 9,999.99 per
+  deduction, 10 deductions, 50 supplements, 500 employees) and the guide's common errors (duplicate
+  employee, both identifiers). Gross in the file is the WH-347's 7B and net its column 9, so they
+  agree with the PDF. Dates of birth are held in the page's memory only; the other extras are saved
+  with the draft in the browser (Privacy Policy sentence added; data stays on the device, so no
+  POLICY_VERSION bump). Output validates against NYSDOL's XSD with xmllint (`NY_CPR_XSD=<path> pnpm
+  test:unit`; the XSD is NYSDOL's file and not vendored). `src/shared/ny-cpr.ts`,
+  `src/client/components/ny-cpr-section.tsx`; tests `src/shared/ny-cpr.test.ts`,
+  `test/unit/certified-payroll-page.test.tsx`. Next, if New York customers ask: a real test upload's
+  errors checked, and the classification list refreshed when NYSDOL republishes it.
 
 - Getting started, part 5 (2026-11-26): where companies stall, in the owner's metrics.
   `GET /api/admin/metrics` now carries `activation`: for every company, and for those that signed
@@ -2156,9 +2204,9 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
 
 ## Must do before a public launch
 
-- Deploy sets `EMAIL_FROM` and checks `GET /api/health` answers `"email": true` (docs/EMAIL.md)
-- Run the deploy workflow once (`payapps-deploy`, by hand; [docs/DEPLOY.md](docs/DEPLOY.md)) and, at
-  launch, let it run on every merge (`push: branches: [main]`)
+- Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
+  `"email": true` (docs/EMAIL.md); the deploy workflow ran once by hand (`priv-payapps-deploy.yml` in
+  oss-monorepo). Next: let it run on every merge (`push: branches: [main]`, a control-plane PR)
 - Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
   agent-approved under `docs/legal/OPERATOR.md` (no attorney review; open checks listed there)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on"); the
@@ -2166,11 +2214,16 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
 - Owner: an Intuit developer app, its keys and redirect URI, and `QBO_TOKEN_KEY`
   (docs/QUICKBOOKS.md, "Turning it on"); check one invoice in a sandbox company first
 - Marketing site with the pricing table (`apps/payapps-site`, PR #18) reading `/api/billing/plans`
-- At launch, point the free guides at sign-up: set `APP_URL` in `ventures/pay-app-guides/cta.mjs` to the
-  deployed origin and run `node cta.mjs` there (30 pages' CTAs switch from "in development" to "open
-  now, free on one job" and link to `/?signup&from=pay-app-guides/<page>`, which opens "Create an
-  account", `src/client/lib/auth-mode.ts`); set `PAID_PLANS_ON` once checkout is live. Update the
-  "Can I buy the pay-app suite today?" answer in `platform/pages/industry-construction.mjs` the same day
+- Done 2026-11-27 (launch-signups-open): the free guides point at sign-up (`APP_URL` in
+  `ventures/pay-app-guides/cta.mjs` is the workers.dev origin; 42 pages say "open now", name what the
+  Free plan leaves out and link to `/?signup&from=pay-app-guides/<page>`; `state-forms.mjs` now runs
+  its pages through `cta.mjs` so a rebuild cannot revert them); the construction industry page shows
+  the suite as "Open · free on one job" with a Start free link and the paid-only modules; the in-app
+  strip reads the public plan list (`src/client/lib/launch-notice.ts`) instead of saying "not yet
+  offered". Left: set `PAID_PLANS_ON` in cta.mjs once checkout is live (the strip follows by itself);
+  the marketing site `apps/payapps-site` still says early access and is not deployed; a custom domain
+  (`PAYAPPS_DOMAIN`, e.g. payapps.marisstella.app) means changing `APP_URL` and the industry page's
+  `appUrl` the same day
 
 ## Next (suite, by promise)
 
@@ -2240,14 +2293,14 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
 - Certified payroll, part 3: the hours from a QuickBooks Time or payroll connection instead of a
   CSV, if people ask (a by-day CSV fills the week since 2026-11-26), save the crew and rates with the job instead of the
   browser if people ask, other states' prevailing-wage formats once their official specs are read (California's DIR eCPR
-  XML, schema 2.0, done 2026-11-26: part 3a), and the upload formats of the compliance
+  XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b; New
+  Jersey's Wage Hub CSV next, then Washington's XML), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
-- Notice to Owner, Florida, part 2 (part 1, the § 713.06(2)(c) form and the 45/40-day dates, done
-  2026-11-27): the notices served recorded per person (owner, contractor, the notice of
-  commencement's designee) with how and when, the first-day date saved with the job, and the 45-day
-  reminder on the cash page and in the weekly email, as California's log does; then the notice of
-  nonpayment (§ 713.08) if contractors use it
+- Notice to Owner, Florida, part 3 (part 2, the notices served per person, the saved first day and
+  the reminder, done 2026-11-27): files per record (the mail log or USPS tracking printout
+  § 713.18(2)(c) says to keep), the company's tier so the contractor's copy joins the reminder, and
+  § 713.18(3)'s returned-mail rule, if contractors use the log
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask

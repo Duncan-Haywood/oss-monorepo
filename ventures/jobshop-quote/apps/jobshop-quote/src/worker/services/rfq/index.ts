@@ -27,13 +27,23 @@ export const MAX_FILE_BYTES = 15 * 1024 * 1024;
 export const MAX_FILES = 10;
 /**
  * CAD files up to this size are measured inside the upload request; larger STEP and DXF files are
- * stored at once and measured on request (`measureFile`, one file per request). Parsing is CPU work
- * inside the request, and an RFQ upload may carry up to MAX_FILES files: measured at about 0.5 ms
- * per KB (76 ms for a 166 KB STEP, packages/cad-features/scripts/measure.ts), ten 1 MB files stay
- * near 5 s of the Worker's 30 s CPU limit, while one 15 MB STEP could take most of it on its own.
- * A request that runs out of CPU fails whole, so a slow STEP must never be able to fail the upload.
+ * stored at once and measured on request (`measureFile`, one file per request). Parsing is CPU and
+ * memory inside the request, and an RFQ upload may carry up to MAX_FILES files. Timed in workerd on
+ * 15 real STEP files from 0.4 to 12.9 MB (2026-11-27, docs/GEOMETRY-LIMITS.md): 0.03 to 0.19 ms per
+ * KB, so ten 1 MB files stay under 2 s of the Worker's 30 s CPU limit. A request that runs out of
+ * CPU or memory fails whole, so a slow STEP must never be able to fail the upload.
  */
 export const INLINE_GEOMETRY_MAX_BYTES = 1024 * 1024;
+/**
+ * The largest CAD file measured at all. Memory, not CPU, is the limit: a Worker isolate has 128 MB,
+ * and measuring a STEP holds its text, the parsed instances and the sampled edges at once. On 12
+ * real files every one up to 6 MB measured in at most 78 MB of V8 heap, while an 8 MB and a 12.9 MB
+ * file needed 124 and 132 MB, which with the app's own heap and the file's bytes cannot fit
+ * (docs/GEOMETRY-LIMITS.md). A file over this is stored and marked TOO_LARGE_TO_MEASURE at upload,
+ * never offered "Measure" (a request killed for memory could not record that it failed, so the
+ * button would fail on every click).
+ */
+export const MAX_MEASURE_BYTES = 6 * 1024 * 1024;
 /** Characters of RFQ text sent to the model (drawings can be long; title blocks come first). */
 export const MAX_SOURCE_CHARS = 60_000;
 
@@ -136,7 +146,9 @@ async function addFile(ctx: AppContext, orgId: string, rfqId: string, f: Uploade
     mimeType === "application/pdf" ? await countPdfPages(new Uint8Array(f.bytes)) : null;
   if (isCadFile(f.name)) {
     // Larger STEP/DXF files wait for "Measure" (geometryPending); the upload never parses them.
-    if (f.bytes.byteLength <= INLINE_GEOMETRY_MAX_BYTES) {
+    if (isMeasuredCadFile(f.name) && f.bytes.byteLength > MAX_MEASURE_BYTES) {
+      conversionError = TOO_LARGE_TO_MEASURE;
+    } else if (f.bytes.byteLength <= INLINE_GEOMETRY_MAX_BYTES) {
       try {
         geometry = await ctx.geometry.extract({ name: f.name, bytes: f.bytes });
       } catch (e) {
@@ -543,10 +555,15 @@ export function geometryPending(f: {
   return (
     isMeasuredCadFile(f.fileName) &&
     f.sizeBytes > INLINE_GEOMETRY_MAX_BYTES &&
+    f.sizeBytes <= MAX_MEASURE_BYTES &&
     !f.geometry &&
     !f.conversionError
   );
 }
+
+/** Stored at upload on a CAD file over MAX_MEASURE_BYTES; the file itself is kept for download. */
+export const TOO_LARGE_TO_MEASURE =
+  "Over 6 MB, too large to measure here; enter the blank size and operations by hand, or send the part on its own, without the assembly or PMI, which is usually smaller";
 
 /** Stored on a file whose measuring was tried and gave nothing (so "Measure" is not offered again). */
 export const MEASURE_FAILED =

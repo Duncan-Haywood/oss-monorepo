@@ -79,3 +79,17 @@ Reading: subs already pay $49–$175 a month for certified payroll alone. PayApp
 every plan (ROADMAP, part 1), so on the pricing page it is a reason to pick the $99 plan over a
 pay-app tool plus a certified payroll tool, and the state files are where that bundle beats the
 $49 tools (one listing notes its product is federal-only).
+
+## Update, later on 2026-11-27: New York built (part 3b)
+
+A later ventures run could fetch dol.ny.gov with curl through the proxy (the 301 to
+`/bizserve/ep` follows), so the spec files above were read whole: the XSD
+(`dol.ny.gov/certpayrollxsd`, a zip dated 2026-10-01), the sample (`certpayrollsamplexml`), the
+formatting guide (`/bizserve/ep/guide/buf`) and the classification list it links
+(`/electronic-payroll-xml-work-classification-list`, a PDF of 261 names; `pdftotext -layout` reads it).
+NYSDOL's own sample validates against its XSD with xmllint, and so does PayApps' output
+(`NY_CPR_XSD=<path> pnpm test:unit`). Differences worth knowing: the XSD says
+`deductionsGrossEarnings` (the guide's table says `deductionGrossEarnings`) and caps wage rates at
+999.99 (the guide says 9,999.99); a deduction amount is at most four integer digits; `country` is
+required by the XSD though the guide marks it optional. njwages.nj.gov still answered 403 from this
+session, so New Jersey's CSV template is the next to fetch; lni.wa.gov answered 200.

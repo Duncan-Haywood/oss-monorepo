@@ -33,7 +33,8 @@ class PolishNextTest(unittest.TestCase):
 
     def test_uncommitted_note_is_newest(self):
         names = [p.name for p in pn.ordered_notes(self.dir, ["polish-2026-11-25-old.md"])]
-        self.assertEqual(names[0], "polish-2026-11-26-zeta.md")
+        # both are uncommitted and alpha cites zeta, so alpha is the newer
+        self.assertEqual(names[:2], ["polish-2026-11-26-alpha.md", "polish-2026-11-26-zeta.md"])
 
     def test_section_stops_at_next_heading(self):
         body = pn.still_weakest((self.dir / "polish-2026-11-26-zeta.md").read_text())
@@ -50,6 +51,26 @@ class PolishNextTest(unittest.TestCase):
         p.write_text('Picked items 1 and 3 of "Still weakest" in `docs/reports/polish-2026-11-26-alpha.md`.')
         marks = pn.taken([p])
         self.assertEqual(sorted(marks["polish-2026-11-26-alpha.md"]), [1, 3])
+
+    def test_citing_note_goes_above_the_note_it_cites(self):
+        # Git says zeta is newer, but alpha cites zeta, so alpha was written later.
+        history = ["polish-2026-11-26-zeta.md", "polish-2026-11-26-alpha.md"]
+        names = [p.name for p in pn.ordered_notes(self.dir, history)]
+        self.assertEqual(names[:2], ["polish-2026-11-26-alpha.md", "polish-2026-11-26-zeta.md"])
+
+    def test_next_open_skips_taken_items(self):
+        (self.dir / "polish-2026-11-26-alpha.md").write_text(
+            "# A\n\nPicked item 1 of \"Still weakest\" in `polish-2026-11-26-zeta.md`.\n")
+        notes = pn.ordered_notes(self.dir, ["polish-2026-11-26-alpha.md", "polish-2026-11-26-zeta.md"])
+        got = pn.next_open(notes, pn.taken(notes))
+        self.assertEqual(got, ("polish-2026-11-26-zeta.md", 2, "zeta two"))
+
+    def test_next_open_none_when_all_taken(self):
+        (self.dir / "polish-2026-11-26-alpha.md").write_text(
+            "# A\n\nPicked items 1 and 2 of \"Still weakest\" in `polish-2026-11-26-zeta.md`.\n")
+        notes = pn.ordered_notes(self.dir, ["polish-2026-11-26-alpha.md", "polish-2026-11-26-zeta.md"])
+        self.assertIsNone(pn.next_open(notes, pn.taken(notes)))
+
 
     def test_shallow_boundary_commit_adds_are_skipped(self):
         # a shallow clone's boundary commit "adds" every note; only real adds count
