@@ -136,12 +136,21 @@ resource "aws_iam_role_policy" "plan_deny_data" {
 
 # --- Role the spend kill switch (stacks/spend) assumes -----------------------
 
+# The management account's root as principal, narrowed to the one role by
+# aws:PrincipalArn: IAM refuses a trust policy naming a role that does not
+# exist yet (MalformedPolicyDocument, apply run 45929949287), and
+# spend-kill-switch is created by stacks/spend, which applies after this.
 data "aws_iam_policy_document" "kill_switch_trust" {
   statement {
     actions = ["sts:AssumeRole"]
     principals {
       type        = "AWS"
-      identifiers = ["arn:${data.aws_partition.this.partition}:iam::${var.management_account_id}:role/spend-guard/spend-kill-switch"]
+      identifiers = ["arn:${data.aws_partition.this.partition}:iam::${var.management_account_id}:root"]
+    }
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:PrincipalArn"
+      values   = ["arn:${data.aws_partition.this.partition}:iam::${var.management_account_id}:role/spend-guard/spend-kill-switch"]
     }
   }
 }
