@@ -52,7 +52,6 @@ import { loadResearchRegistry } from './research-registry.mjs';
 import { decodeEntities } from './entities.mjs';
 import { completeArticleNode } from './article-ld.mjs';
 import { softwareLines } from './business.mjs';
-import { stubPage } from './redirect-stubs.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -1776,9 +1775,45 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
  * `PAGES_SKIP_BAD_POSTS=1` (the deploy on `main`) it is skipped with a warning
  * instead, like a malformed post, and pull requests stay strict.
  */
+/**
+ * The page at a folded post's old URL. The same three signals as
+ * `redirect-stubs.mjs` (canonical, zero-second refresh, `location.replace`)
+ * plus what `check.mjs` asks of every page: its own title, one <h1>, and,
+ * under writing/, the disclaimer. `check.mjs` (`isRedirectPage`) knows a
+ * noindex page whose refresh names its canonical is a redirect, so the
+ * canonical may point off the page.
+ */
+export function foldedStub(title, target) {
+  const t = esc(target);
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>${esc(title)} (moved)</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="${t}">
+<meta http-equiv="refresh" content="0; url=${t}">
+<script>location.replace(${JSON.stringify(target).replace(/</g, '\\u003c')} + location.search + location.hash);</script>
+</head>
+<body>
+<h1>${esc(title)}</h1>
+<p>This post is now part of <a href="${t}">${t}</a>.</p>
+<p><a href="../../" data-pf-to="hub">All tools</a> · Provided as is, with no warranty.</p>
+</body>
+</html>
+`;
+}
+
 async function writeFolded(outDir, live, { root, baseUrl, published }) {
   const liveSlugs = new Set(live.map((p) => p.slug));
+  let unbuilt = 0;
   for (const p of loadFoldedPosts(root)) {
+    // A build that does not publish the target's venture (a fixture or partial
+    // build) skips the stub; a target missing from the tree fails the build.
+    if (foldTargetProblem(p.foldedInto, { root, live: liveSlugs }) === '' && foldTargetProblem(p.foldedInto, { root, live: liveSlugs, published })) {
+      unbuilt++;
+      continue;
+    }
     const problem = foldTargetProblem(p.foldedInto, { root, live: liveSlugs, published });
     if (problem) {
       const msg = `${p.source}: folded_into ${problem}`;
@@ -1789,9 +1824,9 @@ async function writeFolded(outDir, live, { root, baseUrl, published }) {
     const target = baseUrl ? `${baseUrl}${p.foldedInto}` : `../../${p.foldedInto}`;
     const dir = path.join(outDir, WRITING_PATH, p.slug);
     await fs.mkdir(dir, { recursive: true });
-    // check.mjs holds every page under writing/ to the disclaimer, stubs included.
-    await fs.writeFile(path.join(dir, 'index.html'), stubPage(target).replace('</body>', `<p>${esc(p.title)} is now part of that page. Provided as is, with no warranty.</p>\n</body>`));
+    await fs.writeFile(path.join(dir, 'index.html'), foldedStub(p.title, target));
   }
+  if (unbuilt) console.warn(`writing: ${unbuilt} folded post(s) point into ventures this build does not publish; no redirect written for them`);
 }
 
 // `published` holds the slugs the site serves at `<slug>/`, so a project page links its tool.

@@ -25,12 +25,21 @@ The value is a site path relative to the site root: `<venture>/<page>`
 
 - the post leaves the blog index, topic and project pages, feeds, the search
   index, the podcast, llms.txt and the sitemap (`loadPosts` no longer returns it);
-- its URL `writing/<slug>/` becomes a redirect stub (canonical, zero-second
-  refresh, `location.replace`: the same stub `redirect-stubs.mjs` gives the old
-  GitHub Pages origin), `noindex`, with the "no warranty" line `check.mjs`
-  requires on every writing page;
-- the target must resolve: a live post, or a file under `ventures/<venture>/`
-  whose venture the site publishes. Otherwise the build fails on a PR (on
+- its URL `writing/<slug>/` becomes a redirect page (`foldedStub`: canonical,
+  zero-second refresh and `location.replace` to the target, as
+  `redirect-stubs.mjs` does for the old GitHub Pages origin), `noindex`, with
+  what the site checks ask of every page: its own title ("<title> (moved)"),
+  one `<h1>`, a `data-pf-to="hub"` link and the "no warranty" line;
+- `check.mjs` (`isRedirectPage`) and `build.test.mjs` accept a canonical that
+  points off the page only when the page is noindex and its zero-second
+  refresh names that same canonical, and it must still be on this site. The
+  first CI run failed 55 checker problems and 9 tests on plain stubs (no
+  `<h1>`, a repeated "Moved" title, the canonical rule): reuse `foldedStub`,
+  not `stubPage`;
+- a build that does not publish the target's venture (the custom-domain test
+  fixtures) writes no redirect and warns once;
+- the target must resolve: a live post, or a file under `ventures/<venture>/`.
+  A missing one fails the build on a PR (on
   `main`, with `PAGES_SKIP_BAD_POSTS=1`, it warns and skips the stub). The
   value must match a strict path pattern, so a post cannot become an open
   redirect (`writing-fold.test.mjs`).

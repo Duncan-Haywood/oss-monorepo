@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { isRedirectPage } from './check.mjs';
 import { buildWriting, foldTargetProblem, loadFoldedPosts, loadPosts, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/';
@@ -77,6 +78,9 @@ test('buildWriting writes a redirect at the old URL and leaves it out of the pag
   assert.match(stub, /http-equiv="refresh" content="0; url=https:\/\/example\.test\/tool\/cyprus-page"/);
   assert.match(stub, /noindex/);
   assert.match(stub, /no warranty/i); // check.mjs refuses a writing page without it
+  assert.match(stub, /<title>Thin \(moved\)<\/title>/); // titles must not repeat across pages
+  assert.equal(stub.match(/<h1>/g).length, 1);
+  assert.ok(isRedirectPage(stub, 'https://example.test/tool/cyprus-page'));
   assert.match(readFileSync(path.join(out, WRITING_PATH, 'into-post/index.html'), 'utf8'), /href="https:\/\/example\.test\/writing\/kept\/"/);
   // Gone from the index, the feed and the search index.
   for (const f of ['index.html', 'feed.xml']) {
@@ -96,4 +100,12 @@ test('a target that does not resolve fails the build, or is skipped on main', as
   } finally {
     delete process.env.PAGES_SKIP_BAD_POSTS;
   }
+});
+
+test('isRedirectPage needs noindex and a zero-second refresh to the canonical itself', () => {
+  const page = (robots, refresh) => `<head>${robots ? '<meta name="robots" content="noindex">' : ''}<link rel="canonical" href="https://a.test/x">${refresh ? `<meta http-equiv="refresh" content="0; url=${refresh}">` : ''}</head>`;
+  assert.ok(isRedirectPage(page(true, 'https://a.test/x'), 'https://a.test/x'));
+  assert.ok(!isRedirectPage(page(false, 'https://a.test/x'), 'https://a.test/x'));
+  assert.ok(!isRedirectPage(page(true, ''), 'https://a.test/x'));
+  assert.ok(!isRedirectPage(page(true, 'https://a.test/other'), 'https://a.test/x'));
 });
