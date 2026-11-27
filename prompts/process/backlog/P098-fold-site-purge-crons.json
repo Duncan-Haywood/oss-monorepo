@@ -21,7 +21,7 @@
   "baseline": "8 configured, 3 deployed, 5 allowed (2026-11-27)",
   "opened": "2026-11-27",
   "source": "process run (P097)",
-  "pr": "pending",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19754",
   "result": null,
   "history": [
     {

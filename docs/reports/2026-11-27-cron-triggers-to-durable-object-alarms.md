@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-27
+---
 # Cron triggers to Durable Object alarms (P098)
 
 For the next run that adds a scheduled job to a Worker.

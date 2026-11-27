@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKkzg5QwwFPYP3WhEYT",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T13:18:55Z",
+  "ended": "2026-11-27T13:30:34Z",
+  "wall_minutes": 11.91,
+  "tokens_in": 8093195,
+  "tokens_out": 40471,
+  "cost_usd": 3.4245,
+  "tool_calls": 72,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19754",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/backlog/",
+      "issue": "Open PR #19738 adds a second backlog item with id P098 (roadmap_claim) while main already has P098-fold-site-purge-crons.json from PR #19732. promptctl validate catches it on that PR, but it cost me a check to see the two were different items; slug_dupe P098 lists both PRs as if they were one."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "The verify-from-cloud tip covers duncan-haywood.github.io only; developers.cloudflare.com does not resolve here either, but raw.githubusercontent.com/cloudflare/cloudflare-docs/production/src/content/... serves the same pages (partials included)."
+    },
+    {
+      "file": "ventures/cmmc/sync-from-private.sh",
+      "issue": "cmmc is still synced from private-monorepo, so every edit to cmmc-site here has to be added to keep_local by hand or a sync silently reverts it; nothing checks that the files edited since the last sync appear there."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No customer post: this is an infrastructure change to sign-up retention plumbing, with nothing for a product's readers.",
+      "did": "Wrote the agent doc docs/reports/2026-11-27-cron-triggers-to-durable-object-alarms.md instead.",
+      "result": "n/a"
+    },
+    {
+      "file": "prompts/process/backlog/P098-fold-site-purge-crons.json",
+      "why": "Its change offered the owner's $5/month upgrade or one scheduler Worker calling the sites over service bindings; both couple deploys or spend money.",
+      "did": "Moved each purge to a per-site Durable Object alarm (no cron, no cross-Worker coupling, Free plan).",
+      "result": "8 -> 5 configured schedules; verified under wrangler dev --local"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-cron-triggers-to-durable-object-alarms.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: P097 already landed (#19732); took P098 (agent-owned, open). main_health.py 331/331 green before the change. Verification: seller-books-site node --test 63 pass, cmmc-site 42 pass; payapps-site typecheck clean, unit 31 pass, worker 11 pass; wrangler deploy --dry-run lists the PURGE_CLOCK Durable Object; wrangler dev --local of seller-books-site armed the clock and logged early_access.purge deleted:0 about 60 s later. cron_budget.py --strict exits 0 (5 configured, 4 deployed); test_cron_budget OK. Free-plan DO availability read from cloudflare-docs partials/durable-objects/do-plans-note.mdx via raw.githubusercontent.com (developers.cloudflare.com did not resolve). risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bf8d2bcc-bb33-560c-b550-9721a3c181b7",
+    "transcripts": 1,
+    "first": "2026-11-27T13:18:55Z",
+    "last": "2026-11-27T13:30:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 139,
+        "output": 40471,
+        "thinking": 11969,
+        "cache_read": 7965371,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127685,
+        "api_equivalent_usd": 3.4245,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 139,
+      "output": 40471,
+      "thinking": 11969,
+      "cache_read": 7965371,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127685,
+      "api_equivalent_usd": 3.4245,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__pull_request_read": 1,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.91,
+      "active_minutes": 11.91,
+      "model_minutes": 8.62,
+      "tool_minutes": 3.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer reading Cloudflare limits, designing an alarm replacement for three Workers, tests in two toolchains and a local workerd check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 146.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
