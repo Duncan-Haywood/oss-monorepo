@@ -106,3 +106,13 @@ test("page: disclaimers, no network, no share link, ids exist", () => {
   const m = /<script type="module">([\s\S]*?)<\/script>/.exec(page);
   assert.doesNotThrow(() => new Function(m[1].replace(/^\s*import .*$/gm, "")));
 });
+
+test("toCsv defuses a worker name a spreadsheet would run as a formula (CWE-1236)", () => {
+  const input = sampleReport();
+  input.workers[0].name = "=HYPERLINK(\"http://x\",\"pay\")";
+  input.workers[0].classification = "@SUM(A1)";
+  const r = buildReport(input);
+  const row = toCsv(r).split("\n")[1];
+  assert.ok(row.startsWith("\"'=HYPERLINK"), row);
+  assert.match(row, /,'@SUM\(A1\),/);
+});
