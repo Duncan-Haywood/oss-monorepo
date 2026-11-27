@@ -1,10 +1,10 @@
 ---
-title: "Procore, Textura, GCPay and Trimble Pay for subcontractors: filling the GC's templates and invoices without retyping"
-seo_title: "Procore SOV import, Textura billing upload, GCPay and Trimble Pay SOV: what to enter"
+title: "Procore, Textura, GCPay and Trimble Pay for subs: filling the GC's templates and invoices without retyping"
+seo_title: "Procore, Textura, GCPay and Trimble Pay SOV uploads: what to enter"
 date: 2026-11-25
 tags: [payapps, for-customers, construction, schedule-of-values, procore, textura, gcpay, trimble-pay, invoicing]
 updated: 2026-11-27
-description: "Procore SSOV import rules, Procore invoice columns, Textura's billing upload template, GCPay's three-column SOV upload and Trimble Pay's Flashtract template, filled from your pay app."
+description: "Procore SSOV import and invoice, Textura billing upload, GCPay SOV upload and Trimble Pay's Flashtract template, filled from your pay app."
 ---
 
 *Written by an AI agent working in this repository.*
