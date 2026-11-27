@@ -1,0 +1,157 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtGzq4raGKUhCiFCZ3z",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T11:07:07Z",
+  "ended": "2026-11-27T11:16:27Z",
+  "wall_minutes": 71.39,
+  "tokens_in": 20403007,
+  "tokens_out": 48021,
+  "cost_usd": 6.664,
+  "tool_calls": 128,
+  "task": "Shared Paddle key fallback for the payapps and seller-books deploys, and the paddle-key-check workflow ported to this repository (owner's 2026-11-27 question: is the Paddle secret the right type?)",
+  "projects": [
+    "payapps",
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19731",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First key-check version had no environment, so it could not see the per-app keys stored in payapps-production / seller-books-production; secrets_inventory.py caught it locally and the workflow now runs one job per deploy environment.",
+    "Agent doc front matter used subjects that are not directories (billing, paddle); check_post_frontmatter caught it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Every ranked bet's ROADMAP Next is gated (waits on demand/owner/source) or claimed; about 25 minutes went to finding uncrowded work. The real blocker to revenue (Paddle key reaching the deploys) lived in an unmerged PR body (#19553), not in a ROADMAP or tasks.yaml item."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Two runs claimed the same seller-books signups-open task within the same second (claim/seller-books/launch-signups-open and claim/seller-books/signups-open, both 11:09:41Z); the claim tool does not detect same-topic claims under different slugs."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "A two-PR gate change (allowlist first, then the workflow) means waiting about 50 minutes for PR 1 CI on a busy runner pool; the run waited with wait_for.py --until false because CI success does not always wake the session."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "why": "The top bets' items were all gated or claimed by parallel runs; the 'agent work' queued in PR #19553's payout-rail note (deploys fall back to the shared Paddle key) unblocks checkout for bets #1 and #5 at once.",
+      "did": "Built that instead of a ROADMAP item, as two PRs (allowlist #19717, then #19731).",
+      "result": "merged allowlist; workflow PR verified locally"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No customer post: this is control-plane billing plumbing with nothing a customer reads.",
+      "did": "Wrote an agent doc in docs/reports instead.",
+      "result": "docs/reports/2026-11-27-one-paddle-key-for-every-deploy.md"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-one-paddle-key-for-every-deploy.md"
+  ],
+  "goal": null,
+  "notes": "Verification: adversarial gate.py on both diffs (PR 1: 0 blocking; PR 2: 0 blocking, 2 warnings for the intended environment use); test_gate.py 125 passed; secrets_inventory.py and its tests OK; ci_policy_check ok; publish_surface --check clean. run_workflow_locally --for-changes: payapps-ci 22/22, seller-books-ci 18/18, pages 6/6, agent-permission-harness 5/5, doc-refs 3/3; secrets-inventory and post front matter failures were fixed in later commits; ventures-tests failure is pay-app-guides page.test.mjs (coconstruct-alternatives nav), which this diff does not touch and which fails on the base. Simulated the key-check step locally with no key, a client token and a notification secret.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "295bde16-1e43-5c1e-91b0-48bc3b57f718",
+    "transcripts": 1,
+    "first": "2026-11-27T11:07:07Z",
+    "last": "2026-11-27T12:18:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 127,
+        "input": 243,
+        "output": 48021,
+        "thinking": 14013,
+        "cache_read": 20194811,
+        "cache_write_5m": 0,
+        "cache_write_1h": 207953,
+        "api_equivalent_usd": 6.664,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 127,
+      "input": 243,
+      "output": 48021,
+      "thinking": 14013,
+      "cache_read": 20194811,
+      "cache_write_5m": 0,
+      "cache_write_1h": 207953,
+      "api_equivalent_usd": 6.664,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 128,
+    "tools": {
+      "Bash": 110,
+      "mcp__github__pull_request_read": 6,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__subscribe_pr_activity": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "ReadNotifications": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 71.39,
+      "active_minutes": 71.38,
+      "model_minutes": 10.76,
+      "tool_minutes": 60.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an engineer porting a CI workflow, adding secret fallbacks through a two-PR security gate and updating the inventory",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 60.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
