@@ -6,6 +6,9 @@ import {
   CA_NOTICE_RECIPIENTS,
   FL_NOTICE_RECIPIENTS,
   FL_SERVICE_METHODS,
+  TX_DELIVERY_METHODS,
+  TX_NOTICE_KINDS,
+  TX_NOTICE_RECIPIENTS,
 } from "@lien-waivers";
 import { ATTACHMENT_CATEGORIES } from "@shared/attachments";
 import {
@@ -131,6 +134,12 @@ export const projects = sqliteTable(
      * reminder; null when not entered (migration 0082).
      */
     flFirstFurnishedOn: text("fl_first_furnished_on"),
+    /**
+     * Texas notices of claim (Tex. Prop. Code § 53.056): whether the job is a residential
+     * construction project (§ 53.001(10), second month) or not (third month). Setting it turns on
+     * the per-month reminder from the job's unpaid pay apps; null when not tracked (migration 0084).
+     */
+    txProjectKind: text("tx_project_kind", { enum: ["commercial", "residential"] }),
     /**
      * Georgia: whether a notice of commencement (O.C.G.A. § 44-14-361.5) was filed for the job (true
      * filed, false not filed, null not known), and the contractor's name and address as that notice
@@ -576,6 +585,37 @@ export const flNoticeSends = sqliteTable(
     createdAt: createdAt(),
   },
   (t) => [index("fl_notice_sends_project_idx").on(t.orgId, t.projectId)],
+);
+
+/**
+ * A Texas notice of claim the company recorded as sent, one row per recipient (the owner or reputed
+ * owner, the original contractor, §§ 53.056(a-1), 53.057(a-1)) and, for § 53.056, per month of
+ * unpaid work, with how it went (§ 53.003(b)) and the mail or tracking number (migration 0084).
+ */
+export const txNoticeSends = sqliteTable(
+  "tx_notice_sends",
+  {
+    id: text("id").primaryKey(),
+    orgId: orgId(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    kind: text("kind", { enum: TX_NOTICE_KINDS }).notNull(),
+    /** YYYY-MM of the unpaid labor or materials (§ 53.056); null for a retainage notice. */
+    workMonth: text("work_month"),
+    recipient: text("recipient", { enum: TX_NOTICE_RECIPIENTS }).notNull(),
+    recipientNameAddress: text("recipient_name_address").notNull(),
+    method: text("method", { enum: TX_DELIVERY_METHODS }).notNull(),
+    /** ISO date mailed, handed to the carrier or delivered in person. */
+    sentOn: text("sent_on").notNull(),
+    /** Certified mail number or the carrier's tracking number. */
+    tracking: text("tracking"),
+    /** Claim amount as stated on the notice, cents; null when not entered. */
+    amountCents: cents("amount_cents"),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("tx_notice_sends_project_idx").on(t.orgId, t.projectId)],
 );
 
 /**

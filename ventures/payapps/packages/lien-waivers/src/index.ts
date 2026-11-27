@@ -86,17 +86,28 @@ export {
 export { normalizeState, US_STATES, type UsState } from "./states.ts";
 export { STATUTORY_STATES } from "./statutory.ts";
 export {
+  TX_DELIVERY_METHOD_LABELS,
+  TX_DELIVERY_METHODS,
   TX_HB2237_FROM,
+  TX_NOTICE_KINDS,
+  TX_NOTICE_RECIPIENT_LABELS,
+  TX_NOTICE_RECIPIENTS,
   TX_RETAINAGE_NOTICE_DAYS,
   type TxDeadline,
+  type TxDeliveryMethod,
   type TxMonthlyNotice,
+  type TxNoticeKind,
+  type TxNoticeRecipient,
+  type TxSendTiming,
+  txLegalHoliday,
   txLienAffidavitDue,
   txMonthlyNoticeDue,
   txMonthOf,
-  txNextWeekday,
+  txNextBusinessDay,
   txNoticeSchedule,
   txRetainageAffidavitDue,
   txRetainageNoticeDue,
+  txSendTiming,
 } from "./tx-dates.ts";
 export { TX_LABOR_NOTICE_ID, TX_RETAINAGE_NOTICE_ID } from "./tx-notice.ts";
 export * from "./types.ts";

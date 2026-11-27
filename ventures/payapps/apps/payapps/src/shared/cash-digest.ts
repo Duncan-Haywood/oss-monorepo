@@ -7,8 +7,8 @@
 //   pay-when-paid with no owner payment recorded after 30 days,
 //   retainage to bill on finished work, unconditional waivers owed, change orders waiting past 30
 //   days, a disputed balance, a closed job still owed money, a California preliminary notice due
-//   or late, a Florida Notice to Owner due or late, the GC's billing cutoff within a week or
-//   missed). Their sentences are the report's own.
+//   or late, a Florida Notice to Owner due or late, a Texas notice of claim due or missed, the
+//   GC's billing cutoff within a week or missed). Their sentences are the report's own.
 // - The company's own insurance certificates that are expired or expire within
 //   INSURANCE_EXPIRING_DAYS of the report's date (src/shared/insurance.ts) are listed too, soonest
 //   first and capped at MAX_DIGEST_CERTIFICATES: many GCs hold payment while the certificate on file
