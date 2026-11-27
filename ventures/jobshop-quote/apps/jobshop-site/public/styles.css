@@ -411,6 +411,37 @@ summary:focus-visible {
   font-size: 1.4rem;
 }
 
+/* Comparison table (/compare): scrolls inside its box on a phone, never the page */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table.compare {
+  width: 100%;
+  min-width: 40rem;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+table.compare caption {
+  caption-side: bottom;
+  text-align: left;
+  padding-top: 0.5rem;
+}
+table.compare th,
+table.compare td {
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--n-200);
+  text-align: left;
+  vertical-align: top;
+}
+table.compare thead th {
+  background: var(--n-50);
+  color: var(--n-900);
+}
+table.compare tbody tr:last-child {
+  background: var(--brand-50);
+}
+
 /* Quote illustration */
 .mock {
   margin: 0;

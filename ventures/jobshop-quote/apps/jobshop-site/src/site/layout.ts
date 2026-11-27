@@ -18,6 +18,7 @@ const NAV: readonly { path: string; label: string }[] = [
   { path: "/how-it-works", label: "How it works" },
   { path: "/pricing", label: "Pricing" },
   { path: "/for-cmmc-shops", label: "Defense shops" },
+  { path: "/compare", label: "Compare" },
   { path: "/faq", label: "FAQ" },
 ];
 

@@ -12,6 +12,7 @@ Paid plans (not on sale yet): Shop $199/month for up to 125 RFQs; Shop Plus $399
 - [How it works](https://marisstella.app/jobshop/how-it-works): How Job Shop Quote turns an RFQ into a quote: your rate card, the parts and CAD files, pricing by your rules, and your estimator's check before sending.
 - [Pricing](https://marisstella.app/jobshop/pricing): Start free on the Early access plan, up to 40 RFQs a month. Paid plans from $199 a month, sized by RFQs quoted, priced from what it costs to run.
 - [For CMMC-conscious shops](https://marisstella.app/jobshop/for-cmmc-shops): What Job Shop Quote means for shops that handle CUI or export-controlled drawings today, and the CMMC workspace we're building alongside it.
+- [Compare](https://marisstella.app/jobshop/compare): Paperless Parts, QuotedPart, JobBOSS², ProShop or a spreadsheet: published prices with sources, what each fits, and where Job Shop Quote fits.
 - [FAQ](https://marisstella.app/jobshop/faq): Answers about Job Shop Quote: what it reads, who sets the prices, whether it sends quotes, your drawings and AI training, ERP links and the free plan.
 - [Privacy](https://marisstella.app/jobshop/privacy): This site stores nothing about you: no forms, no cookies, no analytics scripts. The Job Shop Quote app has its own privacy policy, linked here.
 
