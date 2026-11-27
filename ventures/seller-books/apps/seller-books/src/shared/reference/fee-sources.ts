@@ -147,4 +147,11 @@ export const FEE_SOURCES: PlatformFeeSource[] = [
     rules: [],
     note: "The Activity Download gives PayPal's fee on every payment in its Fee column (field reference: \u201cThe localized fee amount that is associated with the transaction\u201d, developer.paypal.com, read 2026-11-27); dispute and chargeback fees arrive as rows of their own. Rates depend on how the buyer paid and the account type, so none is recorded.",
   },
+  {
+    platform: "venmo",
+    officialPages: ["https://help.venmo.com/cs/articles/business-profile-transaction-fees-vhel221"],
+    feesFromReport: ["payment_processing"],
+    rules: [],
+    note: "The statement CSV has an Amount (fee) column per payment (seen empty on a personal statement; not confirmed on a business profile's). Venmo's help centre gives business-profile payments a standard rate of 1.9% + $0.10 of the payment total, deducted from it (read through a search excerpt, 2026-11-27); rates differ for tap-to-pay and personal goods-and-services payments, so none is recorded.",
+  },
 ];

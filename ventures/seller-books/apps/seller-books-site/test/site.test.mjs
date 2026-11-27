@@ -77,6 +77,7 @@ describe("pages", () => {
         "TikTok Shop",
         "Square",
         "PayPal",
+        "Venmo",
       ],
     );
     for (const f of ["llms.txt", "llms-full.txt", "sitemap.xml", "robots.txt", "404.html"]) {
