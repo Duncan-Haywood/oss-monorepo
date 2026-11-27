@@ -18,7 +18,7 @@ test("at launch: open now, free on one job, sign-up link that names the guide", 
   const live = apply(pre, "lien-waiver-log.html", "https://app.example.com/");
   assert.match(live, /<p>PayApps is hosted pay-app billing/);
   assert.doesNotMatch(live, /We are building|nothing is for sale yet|early access/);
-  assert.match(live, /<strong>open now<\/strong>: free on one job, no card; paid plans for more jobs are not on sale yet\./);
+  assert.match(live, /<strong>open now<\/strong>: pay applications with retainage and change orders, free on one job, no card\. Lien waivers, QuickBooks and job costing are in the paid plans, which are not on sale yet\./);
   assert.match(live, /href="https:\/\/app\.example\.com\/\?signup&amp;from=pay-app-guides%2Flien-waiver-log">Start free in PayApps<\/a>/);
   assert.equal(apply(live, "lien-waiver-log.html", "https://app.example.com/"), live, "idempotent");
   // and back again, should the app be taken down

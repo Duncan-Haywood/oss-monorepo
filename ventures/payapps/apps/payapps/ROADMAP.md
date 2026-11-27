@@ -2099,11 +2099,16 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
 - Owner: an Intuit developer app, its keys and redirect URI, and `QBO_TOKEN_KEY`
   (docs/QUICKBOOKS.md, "Turning it on"); check one invoice in a sandbox company first
 - Marketing site with the pricing table (`apps/payapps-site`, PR #18) reading `/api/billing/plans`
-- At launch, point the free guides at sign-up: set `APP_URL` in `ventures/pay-app-guides/cta.mjs` to the
-  deployed origin and run `node cta.mjs` there (30 pages' CTAs switch from "in development" to "open
-  now, free on one job" and link to `/?signup&from=pay-app-guides/<page>`, which opens "Create an
-  account", `src/client/lib/auth-mode.ts`); set `PAID_PLANS_ON` once checkout is live. Update the
-  "Can I buy the pay-app suite today?" answer in `platform/pages/industry-construction.mjs` the same day
+- Done 2026-11-27 (launch-signups-open): the free guides point at sign-up (`APP_URL` in
+  `ventures/pay-app-guides/cta.mjs` is the workers.dev origin; 42 pages say "open now", name what the
+  Free plan leaves out and link to `/?signup&from=pay-app-guides/<page>`; `state-forms.mjs` now runs
+  its pages through `cta.mjs` so a rebuild cannot revert them); the construction industry page shows
+  the suite as "Open · free on one job" with a Start free link and the paid-only modules; the in-app
+  strip reads the public plan list (`src/client/lib/launch-notice.ts`) instead of saying "not yet
+  offered". Left: set `PAID_PLANS_ON` in cta.mjs once checkout is live (the strip follows by itself);
+  the marketing site `apps/payapps-site` still says early access and is not deployed; a custom domain
+  (`PAYAPPS_DOMAIN`, e.g. payapps.marisstella.app) means changing `APP_URL` and the industry page's
+  `appUrl` the same day
 
 ## Next (suite, by promise)
 
