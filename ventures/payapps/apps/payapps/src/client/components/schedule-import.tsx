@@ -88,14 +88,12 @@ export function ScheduleImport({
     }
   };
 
+  // The body is built at the click and passed to mutate(): useMutation takes new options in an
+  // effect, so a mutationFn reading `read` could see the render before the file was read (as the
+  // SOV import's did, deploy run 45950799211).
   const save = useMutation({
-    mutationFn: () => {
-      if (!read?.ok) throw new Error("Choose a P6 .xer file first");
-      return api<ScheduleImportDto>(`${url}/import`, {
-        method: "POST",
-        body: scheduleImportBody(read.activities, keep, onJob, trade),
-      });
-    },
+    mutationFn: (body: ReturnType<typeof scheduleImportBody>) =>
+      api<ScheduleImportDto>(`${url}/import`, { method: "POST", body }),
     onSuccess: async (r) => {
       setDone(`Added ${r.added} and updated ${r.updated} from the GC's schedule.`);
       setRead(null);
@@ -256,7 +254,10 @@ export function ScheduleImport({
                 type="button"
                 className="btn"
                 disabled={keep.size === 0 || save.isPending}
-                onClick={() => save.mutate()}
+                onClick={() => {
+                  if (read?.ok)
+                    save.mutate(scheduleImportBody(read.activities, keep, onJob, trade));
+                }}
               >
                 Import {keep.size}
                 {updating > 0 ? ` (${updating} update what is here)` : ""}

@@ -52,3 +52,15 @@ that like R2 not enabled (deploy without attachments, with a warning naming the 
 so the next run gets past it. Owner step to turn attachments on: add Account -> Workers R2 Storage ->
 Edit to `CLOUDFLARE_API_TOKEN`.
 
+
+## Runs 2 and 3 (2026-11-27)
+
+- Run 45949861746 (after PR #19625) **deployed**: provisioning, D1 migrations, the deploy and the
+  `/api/health` smoke test all passed, with no attachments (R2) and paid plans dark.
+- Run 45950799211 (on `6e69be0e`) stopped in Checks: `test/unit/sov-import.test.tsx` timed out
+  waiting for the import to post. Cause: `useMutation` takes new options in an effect, so a click
+  landing between the render that shows the preview and that effect ran the earlier render's
+  `mutationFn`, which saw no result. The SOV import and the P6 schedule import now pass what they
+  post to `mutate()` instead of reading component state inside `mutationFn`. Write new
+  `mutationFn`s the same way when the button appears in the render that an async read (a file, OCR)
+  sets.
