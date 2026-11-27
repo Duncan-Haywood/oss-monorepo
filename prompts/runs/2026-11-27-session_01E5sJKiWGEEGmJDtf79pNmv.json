@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKiWGEEGmJDtf79pNmv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T09:09:48Z",
+  "ended": "2026-11-27T09:17:07Z",
+  "wall_minutes": 7.56,
+  "tokens_in": 7407845,
+  "tokens_out": 18437,
+  "cost_usd": 2.8012,
+  "tool_calls": 69,
+  "task": "adopt stalled PR #19601 (CMMC Workspace, bet #4, moved into ventures/cmmc): merge main in, resolve generated-file conflicts, verify, land",
+  "projects": [
+    "cmmc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19689",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "`git add -A portfolio` after resolving two conflicts also staged transition.json, which still had conflict markers (git listed only the third_party.json conflict when the first commit failed)",
+      "fix": "regenerated transition.json from main's copy with --write in a follow-up commit; grepped the diff for conflict markers"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "issue": "bet #1 had 10+ open PRs from parallel runs, and my first fix (two retired workers.dev sign-up links) was already in redteam PR #19686 under another slug. slug_dupe could not see that, so I found it only by reading each open PR's file list"
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py --bets",
+      "issue": "says bets #3/#4 have no free items, but does not mention their open, stalled move PRs (#19601, #19635), which are the real unblockers"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md (Ready PRs that stalled)",
+      "issue": "says to merge a stalled PR only when it is mergeable, and has no step for one that is green but conflicted. Pushing to another session's branch is off-limits, so I re-opened it from my own branch"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "bet #1's free ROADMAP items all wait on demand, and its launch items were claimed by open PRs; bet #4's move PR was green but conflicted, and stalled 4 h",
+      "did": "adopted PR #19601 onto my branch with main merged in, instead of a new feature",
+      "result": "local cmmc CI all green; merged via PR #19689"
+    },
+    {
+      "file": "prompts/goals.md (Write about the work)",
+      "why": "a code move changes nothing customers see; the move's agent doc already exists (docs/reports/2026-11-27-move-cmmc-public.md)",
+      "did": "no new post",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-move-cmmc-public.md (from PR #19601, unchanged)"
+  ],
+  "goal": null,
+  "notes": "Security queue: 12 alerts, all claimed (exit 3). No ideas. Local verification on the merged tree: ventures/cmmc pnpm install --frozen-lockfile; apps/cmmc biome ci, typecheck, unit 490/490, worker 156/156, provision test, build, no client maps, drizzle-kit check; cmmc-site 37 pass; billing typecheck + 86 pass; admin-metrics 16 pass; scripts 4 pass. pytest test_transition/test_verticals/test_publish_surface 94 passed; verticals/transition/publish_surface --check clean; check_third_party clean. The private-monorepo clone worked via add_repo (not needed in the end).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f1429ba4-7e39-5a78-87ce-c2775d533995",
+    "transcripts": 1,
+    "first": "2026-11-27T09:09:48Z",
+    "last": "2026-11-27T09:17:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 130,
+        "output": 18437,
+        "thinking": 4660,
+        "cache_read": 7285872,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121843,
+        "api_equivalent_usd": 2.8012,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 130,
+      "output": 18437,
+      "thinking": 4660,
+      "cache_read": 7285872,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121843,
+      "api_equivalent_usd": 2.8012,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 60,
+      "mcp__github__pull_request_read": 5,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.56,
+      "active_minutes": 7.56,
+      "model_minutes": 4.87,
+      "tool_minutes": 2.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "an engineer merging main into a 125k-line move PR, resolving 4 generated-file conflicts and running its CI locally",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 53.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

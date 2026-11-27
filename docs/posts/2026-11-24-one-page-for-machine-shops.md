@@ -888,3 +888,32 @@ birch-ply coasters, earning $278.01 per laser hour; the powder coating page show
 piece, $5.04 per square foot and $705.00 for 40 parts. Change the order to 200 and the strip
 moves to $3.89 and $16.76 a piece. A half-typed materials line shows what is wrong in the
 strip instead of an old price.
+
+## Update, 27 November 2026: one fallout figure for the whole shop
+
+To ship 100 good parts when about 3% of a run usually ends up as scrap, a
+shop starts 104. Every scrapped part has already used its cycle time, its
+material and its per-part finishing, so those costs go on the 104 parts
+started, not the 100 shipped. The free [pricing
+guide](https://marisstella.app/machine-shop-guides/how-to-price-a-machined-part.html)
+gives the rule: start q / (1 − fallout), rounded up. The RFQ-to-quote app
+(bet #2, not yet on sale) has priced a fallout figure typed on each quote
+line since 26 November. The estimator still had to type it on every line,
+though, and a line left blank was priced as if no part would ever be
+scrapped.
+
+The shop settings now have a **Default fallout %**. Every new quote line
+starts with it, whether it comes from an RFQ or is added by hand, and the
+estimator can change it on any line (0 means none). A line copied from a won
+quote for the same part keeps that quote's figure, because the part's own
+history beats a shop average. The settings spreadsheet carries the figure
+too: a row labelled "Default fallout", "Fallout %" or "Reject rate" imports
+it. A row labelled "Yield" is refused with a note ("a 97% yield is 3%
+fallout"): a yield is the share of good parts, the opposite of a fallout,
+so the sheet has to say which one it means. "Scrap" on its own is refused as well, because in a
+shop it can mean scrapped parts or the saw kerf and facing on every blank,
+and those are entered in different places.
+
+What it does not do: it does not learn the figure from the shop's own jobs.
+The figure is whatever the shop types, and the free guide says to take it
+from your history on similar parts, not from a rule of thumb.

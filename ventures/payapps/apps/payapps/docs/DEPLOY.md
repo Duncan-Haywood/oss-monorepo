@@ -21,7 +21,8 @@ every merge ships. To gate each run, add required reviewers to the `payapps-prod
    and writes `dist/payapps/wrangler.deploy.json` with the database id. Without R2 enabled on the account,
    or with a token that has no R2 permission (Cloudflare answers "Authentication error [code: 10000]",
    as on the first run here, 45947552522), the deploy goes on without the `FILES` binding and warns:
-   attachments read as empty and uploads answer 503. Add Workers R2 Storage: Edit to the token and re-run.
+   attachments read as empty and uploads answer 503; `/api/health` then answers `"files": false`
+   and every plan's storage line reads "(not switched on yet)". Add Workers R2 Storage: Edit to the token and re-run.
 4. Applies D1 migrations **before** the new code goes live, so migrations must stay backward compatible.
 5. Syncs `billing/paddle-catalog.json` to Paddle when `PAYAPPS_BILLING_API_KEY` is set and reads the
    price ids back (never pasted by hand).

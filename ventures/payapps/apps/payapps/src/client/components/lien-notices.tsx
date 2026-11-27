@@ -1,6 +1,8 @@
 // The job's preliminary notice of right to lien, where the state's statute prescribes one
-// (California's §§ 8102 and 8202 for private works, Florida's Notice to Owner, § 713.06(2)(c), and
-// Wyoming's § 29-10-101(a) today, from packages/lien-waivers). The values come from the job and the company; the user checks them, adds
+// (California's §§ 8102 and 8202 for private works, Florida's Notice to Owner, § 713.06(2)(c), Texas'
+// notices of claim for unpaid labor or materials and for unpaid retainage, §§ 53.056 and 53.057, and
+// Wyoming's § 29-10-101(a) today, from packages/lien-waivers). Where a state has more than one, the
+// user picks which to print; Texas also gets its monthly deadlines (tx-notice-dates.tsx). The values come from the job and the company; the user checks them, adds
 // what the job does not know (the work, the legal description) and prints the notice (Wyoming's
 // with the blank lien waiver form it says is attached). Printing saves nothing; for California the
 // notices given are recorded below it (ca-notice-log.tsx), and for Florida the notices served, with
@@ -14,8 +16,14 @@ import { api, downloadPost } from "../lib/api";
 import { CaNoticeLog } from "./ca-notice-log";
 import { ErrorText } from "./error";
 import { FlNoticeLog } from "./fl-notice-log";
+import { TxNoticeDates } from "./tx-notice-dates";
 
-const STATE_NAMES: Record<string, string> = { CA: "California", FL: "Florida", WY: "Wyoming" };
+const STATE_NAMES: Record<string, string> = {
+  CA: "California",
+  FL: "Florida",
+  TX: "Texas",
+  WY: "Wyoming",
+};
 
 export function LienNoticesPanel(props: { orgId: string; base: string }) {
   const { orgId, base } = props;
@@ -23,7 +31,8 @@ export function LienNoticesPanel(props: { orgId: string; base: string }) {
   const url = `${base}/notices${state.length === 2 ? `?state=${state}` : ""}`;
   const q = useQuery({ queryKey: ["notices", url], queryFn: () => api<NoticeOverviewDto>(url) });
   const o = q.data;
-  const notice = o?.notices[0];
+  const [formId, setFormId] = useState("");
+  const notice = o?.notices.find((n) => n.id === formId) ?? o?.notices[0];
   const [values, setValues] = useState<Record<string, string>>({});
   useEffect(() => {
     if (!notice || !o) return;
@@ -88,6 +97,23 @@ export function LienNoticesPanel(props: { orgId: string; base: string }) {
         )}
         {o?.enabled && notice && (
           <>
+            {o.notices.length > 1 && (
+              <label>
+                <span className="text-slate-600">Notice</span>{" "}
+                <select
+                  className="input w-fit"
+                  value={notice.id}
+                  onChange={(e) => setFormId(e.target.value)}
+                  aria-label="Which notice to print"
+                >
+                  {o.notices.map((n) => (
+                    <option key={n.id} value={n.id}>
+                      {n.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <div>
               <p className="font-medium">
                 {notice.title} · {notice.citation}
@@ -123,6 +149,7 @@ export function LienNoticesPanel(props: { orgId: string; base: string }) {
                           "directContractor",
                           "lender",
                           "copiesTo",
+                          "claimantAddress",
                         ].includes(f.key)
                           ? 3
                           : 2
@@ -157,6 +184,7 @@ export function LienNoticesPanel(props: { orgId: string; base: string }) {
             {print.error && <ErrorText error={print.error} />}
             {o.ca && <CaNoticeLog base={base} log={o.ca} />}
             {o.fl && <FlNoticeLog base={base} log={o.fl} />}
+            {o.state === "TX" && <TxNoticeDates />}
           </>
         )}
         <p className="text-xs text-slate-500">

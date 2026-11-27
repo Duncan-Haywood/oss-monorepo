@@ -3,7 +3,9 @@
 Status: **live on the Free plan** (2026-11-27). Live at https://payapps.marisstella.app since run 45963162134 (PR #19642,
 custom domain; workers.dev is off). The first live deploy, run 45949861746, was on workers.dev. The smoke test answered
 `{"ok":true,"app":"payapps","email":true}`, so sign-up email works. Attachments (R2) are off until the
-Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are dark
+Cloudflare token gets Workers R2 Storage edit; until then `/api/health` answers `"files": false`, and the
+plan lists (`/api/billing/plans`, the Billing page) mark each storage line "(not switched on yet)"
+instead of selling space nobody can use (2026-11-27). No customers yet. Paid plans are dark
 (`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.
 
 ## Done (this MVP)
@@ -999,6 +1001,28 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   `services/payapps/notice-files.ts`; worker test `test/worker/ca-notice-files.test.ts`. Not done:
   listing the attached receipts on the § 8118 proof PDF, and the § 2015.5 perjury sentence.
 
+- Notices of claim: Texas (2026-11-27, Crew and up, with lien waivers; texas-notice-of-claim). The
+  job page's "Preliminary notice of right to lien" panel, for a Texas job, offers both of the notices a
+  sub or supplier ("a claimant other than an original contractor") must send to keep a lien under
+  Tex. Prop. Code ch. 53 as amended by H.B. 2237 (original contracts from 2022-01-01), with a picker:
+  the monthly NOTICE OF CLAIM FOR UNPAID LABOR OR MATERIALS (§ 53.056(a-2)) and the NOTICE OF CLAIM
+  FOR UNPAID RETAINAGE (§ 53.057(a-2)), each the statute's whole form word for word (its two warnings
+  bold, the seven lines, the contact person and address under their captions). Prefilled: today's
+  date, the job and its address, the company, the GC as original contractor. Below them, "Texas
+  deadlines" (browser only, nothing saved): one notice date per unpaid month (15th of the third month
+  after, second on a residential construction project, § 53.001(10)), the lien affidavit date
+  (§ 53.052(b)-(c)), the retainage notice (30 days, § 53.057(a-1)) and the retainage affidavit
+  (§ 53.052(d)); each moved past a weekend per § 53.003(e) but not past a legal holiday (so a date
+  can be early, never late). Snapshot `packages/lien-waivers/sources/tx-53-notices.txt` (§§ 53.001
+  excerpt, 53.003, 53.052, 53.056, 53.057, Texas Legislature chapter file read 2026-11-27);
+  `src/tx-notice.ts`, `src/tx-dates.ts` (aliased `@lien-waivers/tx-dates` for the browser),
+  `test/tx-notice.test.ts` (both whole forms and every quoted phrase against the snapshot, the dates
+  by hand; two one-phrase mutants fail it), worker case in `test/worker/notices.test.ts`. Why: Texas
+  has the third most specialty-trade establishments (34,243, bets.md) and the notice is monthly, so
+  every unpaid month is a deadline a sub can miss. Not done: a log of notices sent with reminders on
+  the cash page (as Florida's), the months filled from the job's unpaid pay apps, Texas legal
+  holidays, pre-2022 contracts, public-works bond claims (Gov't Code ch. 2253), the lien affidavit.
+
 - Notice to Owner: Florida (2026-11-27, Crew and up, with lien waivers; florida-notice-to-owner).
   The job page's "Preliminary notice of right to lien" panel prints Fla. Stat. § 713.06(2)(c)'s
   Notice to Owner, the notice a sub, sub-sub or supplier not in privity with the owner must serve
@@ -1651,6 +1675,22 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   `packages/admin-metrics` (optional, so other products send nothing until they have steps); code
   `services/admin/activation.ts`. Why: the onboarding emails (parts 2 to 4) exist to move people
   past a step; this is how the owner sees which step to fix first once strangers sign up.
+- Sign-ups by source (2026-11-27, signup-source): which of our pages brings accounts that bill. The
+  42 pay-app guides, the free construction tools and the marketing site link to
+  `/?signup&from=<page>`; until now the app read `signup` and dropped `from`. The browser keeps the
+  first `from` in local storage (14 days; sign-up usually finishes in another tab through the
+  confirmation email), posts it once after sign-in (`POST /api/me/signup-source`), and the account
+  keeps it in `signup_source` (one row per user, only while the account is under 14 days old, never
+  replaced). Only our own page names in shape (`[a-z0-9._/-]`, no `..`, at most 80) are taken:
+  never a URL, a referrer header or a cookie; nothing is kept under Do Not Track or Global Privacy
+  Control. `GET /api/admin/metrics` carries `sources`: per page,
+  sign-ups (all and in the window), verified, with a company, whose company sent a pay application
+  on a real job, and paying now, with "(none)" last; ids, statuses and page names only (a test
+  checks job, GC and email never appear). Privacy Policy says so (`POLICY_VERSION` 2026-11-27.5).
+  Contract: `SignupSources` in `packages/admin-metrics` (optional). Code `shared/signup-source.ts`,
+  `client/lib/signup-source.ts`, `services/signup-source.ts`, `services/admin/sources.ts`. Next:
+  the owner console (private-monorepo) shows `sources` as a table next to "Getting started"; until
+  then it is in the JSON the agents' `ADMIN_METRICS_TOKEN` reads.
 - RFI log (2026-11-26, every plan, rfi-log): requests for information to the GC, numbered per job
   (one past the highest used; a deleted number is not reused), with the subject, the question, the
   sheet/detail/spec reference, the contractor's proposed solution, the date sent, the response date
@@ -2228,6 +2268,16 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   docs/TIMESHEETS.md, privacy policy 2026-11-27.4, marketing site features page and llms.txt. Why:
   payroll reports and QuickBooks bring labor in weeks after it is worked, and time tracking is a
   standard module of the suites the bet compares against (JobTread, Contractor Foreman, Knowify).
+- Browser e2e suite, part 1 (2026-11-27, payapps-e2e-suite): `pnpm test:e2e` (Playwright, offline,
+  README "Browser tests") walks a stranger's first pay application from the guides' sign-up link to a
+  paid application, keeps two companies apart by page and API, and holds every page on that path to a
+  390 px phone width; CI job `payapps (browser e2e)`. Found and fixed on the way: the company page was
+  859 px wide on a phone (ten links in one unwrapped row) and the job page 567 px (three tables with no
+  scroll box), so a new user's first screen scrolled sideways; the pre-submit checks printed money as
+  "$250000.00" (now "$250,000.00", as the page and PDF do); a returning user's home page offered "Add
+  your company" under the company they already had (now "Add another company", with what it is for).
+  Next, if it earns its time: the change-order and second-application path, the sample job, and an
+  invited PM through the email link.
 
 - Crew timesheets, part 2a (2026-11-27, every plan, timesheets-part-2-certified-payroll-fill): the
   certified payroll page's "Fill hours from PayApps timesheets" reads the job's week straight from
@@ -2246,17 +2296,21 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   deploy workflow runs the Paddle catalog sync
 - Owner: an Intuit developer app, its keys and redirect URI, and `QBO_TOKEN_KEY`
   (docs/QUICKBOOKS.md, "Turning it on"); check one invoice in a sandbox company first
-- Marketing site with the pricing table (`apps/payapps-site`, PR #18) reading `/api/billing/plans`
+- Marketing site with the pricing table (`apps/payapps-site`, PR #18) reading `/api/billing/plans`.
+  Done 2026-11-27: the site is "PayApps" (no longer "PayPencil") and has the launch switch the guides
+  have: `APP_URL`/`PAID_PLANS_ON` in `apps/payapps-site/src/shared/site.ts` (or the build's env) turn
+  every page from early access into "open now, free on one job" with sign-up links tagged
+  `from=payapps-site/<page>`; a workers.dev address is refused. `APP_URL` is set to
+  https://payapps.marisstella.app (the app's custom domain, PR #19642), so the built site says "open
+  now". Next: serve it (a deploy workflow, or the static pages on marisstella.app/payapps); set
+  `PAID_PLANS_ON` here and in `cta.mjs` the day checkout is live
 - Done 2026-11-27 (launch-signups-open): the free guides point at sign-up (`APP_URL` in
-  `ventures/pay-app-guides/cta.mjs` is the workers.dev origin; 42 pages say "open now", name what the
-  Free plan leaves out and link to `/?signup&from=pay-app-guides/<page>`; `state-forms.mjs` now runs
-  its pages through `cta.mjs` so a rebuild cannot revert them); the construction industry page shows
-  the suite as "Open · free on one job" with a Start free link and the paid-only modules; the in-app
-  strip reads the public plan list (`src/client/lib/launch-notice.ts`) instead of saying "not yet
-  offered". Left: set `PAID_PLANS_ON` in cta.mjs once checkout is live (the strip follows by itself);
-  the marketing site `apps/payapps-site` still says early access and is not deployed; a custom domain
-  (`PAYAPPS_DOMAIN`, e.g. payapps.marisstella.app) means changing `APP_URL` and the industry page's
-  `appUrl` the same day
+  `ventures/pay-app-guides/cta.mjs`, now https://payapps.marisstella.app; 42 pages say "open now", name
+  what the Free plan leaves out and link to `/?signup&from=pay-app-guides/<page>`; `state-forms.mjs`
+  runs its pages through `cta.mjs` so a rebuild cannot revert them); the construction industry page
+  shows the suite as "Open · free on one job" with a Start free link and the paid-only modules; the
+  in-app strip reads the public plan list (`src/client/lib/launch-notice.ts`). Left: set
+  `PAID_PLANS_ON` in cta.mjs once checkout is live (the strip follows by itself)
 
 ## Next (suite, by promise)
 
@@ -2334,6 +2388,11 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   the reminder, done 2026-11-27): files per record (the mail log or USPS tracking printout
   § 713.18(2)(c) says to keep), the company's tier so the contractor's copy joins the reminder, and
   § 713.18(3)'s returned-mail rule, if contractors use the log
+- Texas notices of claim, part 2 (part 1, both statutory forms and the deadlines, done 2026-11-27):
+  a log of the notices sent per month and per recipient (owner and GC, § 53.056(a-1)) with the
+  delivery method and tracking (§ 53.003(b)), the unpaid months read from the job's pay apps, and a
+  reminder on the cash page and in the weekly email before each 15th; Texas legal holidays for
+  § 53.003(e)
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask

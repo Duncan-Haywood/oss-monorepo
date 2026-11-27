@@ -95,3 +95,18 @@ test("admin accounts: newest first, contract fields only", async () => {
   assert.equal((await get("/api/admin/accounts?limit=500", auth)).status, 400);
   assert.equal((await audits())[0].action, "admin.accounts_read");
 });
+
+test("admin defaults and bounds: 30-day window, 1-day minimum, 50-row page, 200 OK", async () => {
+  const m = await get("/api/admin/metrics", auth);
+  assert.equal(m.status, 200);
+  const body = await m.json();
+  assert.equal(body.windowDays, 30);
+  assert.equal(body.byDay.length, 30);
+  const one = await get("/api/admin/metrics?days=1", auth);
+  assert.equal(one.status, 200);
+  assert.equal((await one.json()).windowDays, 1);
+  assert.equal((await get("/api/admin/metrics?days=0", auth)).status, 400);
+  const accounts = await get("/api/admin/accounts", auth);
+  assert.equal(accounts.status, 200);
+  assert.equal((await accounts.json()).limit, 50);
+});

@@ -84,6 +84,7 @@ const card: RateCardDto = {
     quoteTerms: null,
     emailSignature: null,
     prefillRepeatParts: true,
+    defaultFalloutBps: null,
     timeZone: null,
     currency: null,
     hasLogo: false,

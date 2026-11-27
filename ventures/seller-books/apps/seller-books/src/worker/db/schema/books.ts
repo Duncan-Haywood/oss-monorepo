@@ -285,3 +285,22 @@ export const estimateSettings = sqliteTable(
   },
   (t) => [uniqueIndex("estimate_settings_org_year_idx").on(t.orgId, t.year)],
 );
+
+/**
+ * Who asked for the 1040-ES reminder email (services/books/estimate-reminders.ts): one row per member per
+ * shop, owner and admins only (the amount in it comes from their saved figures). `lastSentDue` is the due
+ * date last reminded of, claimed with a conditional update before sending so two runs never mail twice.
+ * Deleting the row turns the email off; it goes with the shop or the user.
+ */
+export const estimateReminders = sqliteTable(
+  "estimate_reminder",
+  {
+    orgId: orgId(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    lastSentDue: text("last_sent_due"),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("estimate_reminder_org_user_idx").on(t.orgId, t.userId)],
+);

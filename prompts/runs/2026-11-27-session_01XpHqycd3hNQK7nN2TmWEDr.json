@@ -1,0 +1,401 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqycd3hNQK7nN2TmWEDr",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T09:38:34Z",
+  "ended": "2026-11-27T09:39:41Z",
+  "wall_minutes": 5.69,
+  "tokens_in": 4039176,
+  "tokens_out": 19502,
+  "cost_usd": 1.9337,
+  "tool_calls": 45,
+  "task": "redteam: seller-books early-access (bet #5) + sibling fix in payapps (bet #1)",
+  "projects": [
+    "seller-books",
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19694",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 3,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/seller-books/README.md",
+      "issue": "'Where the work happens' still says private-monorepo is where scheduled runs build and this copy is a snapshot refreshed by sync-from-private.sh; .github/prompts/cloud-session.md says bets #1/#2/#5 moved here on 2026-11-27 and are built here. Same in ventures/payapps/README.md. I followed cloud-session.md; a sync from private would undo this PR's fixes."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "redteam.py targets under ventures/seller-books lists only the 12 seller-books-site .mjs files; the TypeScript app and packages (pnpm + vitest) are not reachable by a campaign, so the bet's core code can't be mutation-tested by this tool."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post or agent doc. This is a two-line retention fix plus tests in a red-team run; a post would be thin, and the owner asked for consolidated posts rather than one per PR.",
+      "did": "Wrote the details in the PR body and this record.",
+      "result": "nothing lost; the defect is described here and in the code comments"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated class guard. A repo-wide lint for 'retention purge ignores a live token' would be brittle SQL pattern matching over two files.",
+      "did": "Fixed both copies (the whole class found by grep) with a regression test in each product's own suite, which CI runs.",
+      "result": "both suites go red if the bug comes back"
+    }
+  ],
+  "writeups": [],
+  "goal": "bets #5 and #1: the early-access funnel keeps the confirmation-link promise its email makes",
+  "notes": "seller-books-site node --test: 58/58. payapps-site: vitest worker 11/11 (the new test fails 1/11 on the old code), unit 22/22, tsc --noEmit clean, biome clean. Catch rate 0.467 -> 1.0 (1 equivalent). Guard added: purge regression tests in both early-access suites. Also fixed two checks red on main (after #19686): pay-app-guides CTA/nav blocks stale (node cta.mjs && node nav.mjs, suite 330/330) and portfolio/monetization/transition.json stale (transition.py --write). Third main-red fix: docs/posts/2026-11-27-florida-notice-to-owner-45-days.md linked the retired payapps workers.dev host (check_post_links).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+        "test": "node --test ventures/seller-books/**/*.test.mjs  (in .)",
+        "seed": 714402554,
+        "commit": "6bd04ca78",
+        "sites": 82,
+        "baseline_seconds": 0.4,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 17,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "export const CONFIRM_RESEND_MIN_INTERVAL_MS = 10 * MINUTE;",
+            "after": "export const CONFIRM_RESEND_MIN_INTERVAL_MS = 11 * MINUTE;",
+            "line_text": "export const CONFIRM_RESEND_MIN_INTERVAL_MS = 10 * MINUTE;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "resend boundary at exactly 10 minutes now asserted allowed (11-minute constant fails it)"
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 32,
+            "col": 19,
+            "operator": "neq-flip",
+            "before": "if (typeof email !== \"string\" || email.length > 254) return false;",
+            "after": "if (typeof email === \"string\" || email.length > 254) return false;",
+            "line_text": "  if (typeof email !== \"string\" || email.length > 254) return false;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 45,
+            "col": 71,
+            "operator": "eq-flip",
+            "before": "return typeof v === \"string\" ? v : Array.isArray(v) && typeof v[0] === \"string\" ? v[0] : \"\";",
+            "after": "return typeof v === \"string\" ? v : Array.isArray(v) && typeof v[0] !== \"string\" ? v[0] : \"\";",
+            "line_text": "    return typeof v === \"string\" ? v : Array.isArray(v) && typeof v[0] === \"string\" ? v[0] : \"\";",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "parseSubscribe with one-item array fields (JSON body) now asserted"
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 114,
+            "col": 4,
+            "operator": "false-to-true",
+            "before": "false,",
+            "after": "true,",
+            "line_text": "    false,",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "importKey extractable flag: the CryptoKey is created and used inside hmac() and never exported or returned, so extractable=true changes nothing a caller or user can observe."
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 127,
+            "col": 32,
+            "operator": "or-to-and",
+            "before": "if (typeof token !== \"string\" || !token.startsWith(UNSUBSCRIBE_PREFIX)) return null;",
+            "after": "if (typeof token !== \"string\" && !token.startsWith(UNSUBSCRIBE_PREFIX)) return null;",
+            "line_text": "  if (typeof token !== \"string\" || !token.startsWith(UNSUBSCRIBE_PREFIX)) return null;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "verifyUnsubscribeToken: other prefix and non-string tokens now asserted null"
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 135,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "return diff === 0 ? id : null;",
+            "after": "return diff === 1 ? id : null;",
+            "line_text": "  return diff === 0 ? id : null;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 145,
+            "col": 19,
+            "operator": "ge-to-gt",
+            "before": "allowed: since >= CONFIRM_RESEND_MIN_INTERVAL_MS && countInWindow < CONFIRM_MAX_SENDS_PER_DAY,",
+            "after": "allowed: since > CONFIRM_RESEND_MIN_INTERVAL_MS && countInWindow < CONFIRM_MAX_SENDS_PER_DAY,",
+            "line_text": "    allowed: since >= CONFIRM_RESEND_MIN_INTERVAL_MS && countInWindow < CONFIRM_MAX_SENDS_PER_DAY,",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same 10-minute boundary test: > instead of >= refuses the exact boundary"
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+            "line": 320,
+            "col": 38,
+            "operator": "minus-to-plus",
+            "before": "const cutoff = deps.now().getTime() - PENDING_RETENTION_MS;",
+            "after": "const cutoff = deps.now().getTime() + PENDING_RETENTION_MS;",
+            "line_text": "  const cutoff = deps.now().getTime() - PENDING_RETENTION_MS;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+        "test": "node --test ventures/seller-books/**/*.test.mjs  (in .)",
+        "seed": 132355572,
+        "commit": "6bd04ca78",
+        "sites": 43,
+        "baseline_seconds": 0.4,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 39,
+            "col": 10,
+            "operator": "eq-flip",
+            "before": "if (raw === null || raw === \"\") return def;",
+            "after": "if (raw !== null || raw === \"\") return def;",
+            "line_text": "  if (raw === null || raw === \"\") return def;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 56,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "if (!presented) return error(401, \"unauthorized\", \"Service token required\");",
+            "after": "if (!presented) return error(402, \"unauthorized\", \"Service token required\");",
+            "line_text": "  if (!presented) return error(401, \"unauthorized\", \"Service token required\");",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 72,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "const days = intParam(url.searchParams.get(\"days\"), 30, 1, 366);",
+            "after": "const days = intParam(url.searchParams.get(\"days\"), 31, 1, 366);",
+            "line_text": "    const days = intParam(url.searchParams.get(\"days\"), 30, 1, 366);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default 30-day window now asserted"
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 72,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "const days = intParam(url.searchParams.get(\"days\"), 30, 1, 366);",
+            "after": "const days = intParam(url.searchParams.get(\"days\"), 30, 2, 366);",
+            "line_text": "    const days = intParam(url.searchParams.get(\"days\"), 30, 1, 366);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "days=1 now asserted accepted"
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 116,
+            "col": 14,
+            "operator": "neq-flip",
+            "before": "if (scope !== \"full\") return error(403, \"forbidden\", \"Aggregate metrics only\");",
+            "after": "if (scope === \"full\") return error(403, \"forbidden\", \"Aggregate metrics only\");",
+            "line_text": "    if (scope !== \"full\") return error(403, \"forbidden\", \"Aggregate metrics only\");",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 117,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "const limit = intParam(url.searchParams.get(\"limit\"), 50, 1, 200);",
+            "after": "const limit = intParam(url.searchParams.get(\"limit\"), 51, 1, 200);",
+            "line_text": "    const limit = intParam(url.searchParams.get(\"limit\"), 50, 1, 200);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default 50-row page now asserted"
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 118,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "if (limit === null) return error(400, \"bad_request\", \"limit: 1-200\");",
+            "after": "if (limit === null) return error(401, \"bad_request\", \"limit: 1-200\");",
+            "line_text": "    if (limit === null) return error(400, \"bad_request\", \"limit: 1-200\");",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/seller-books/apps/seller-books-site/src/admin.mjs",
+            "line": 143,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "return json(200, body);",
+            "after": "return json(201, body);",
+            "line_text": "    return json(200, body);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "accounts 200 status now asserted"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/seller-books/apps/seller-books-site/src/early-access.mjs",
+        "issue": "purgePending deleted pending rows by created_at alone, so a signup created 25+ days ago whose confirmation link was re-sent (the email promises it works for 7 days) was deleted before the link expired; clicking it then said 'This link doesn't work'. Fixed: purge also requires the newest link to have expired; privacy page, llms text and docs/EARLY_ACCESS.md updated to say so.",
+        "patched": true
+      },
+      {
+        "file": "ventures/payapps/apps/payapps-site/src/worker/signups.ts",
+        "issue": "Same purge bug as seller-books (sibling copy of the early-access design): purgePending deleted pending sign-ups by created_at alone, so a link re-sent on day 25+ ('works for 7 days') was deleted before it expired. Fixed the same way; regression test in test/worker/early-access.test.ts fails on the old code (1 failed / 10 passed) and passes with the fix; email and page wording updated.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ae8059a5-6934-58cf-aebe-bedebddf1806",
+    "transcripts": 1,
+    "first": "2026-11-27T09:38:34Z",
+    "last": "2026-11-27T09:44:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 19502,
+        "thinking": 4714,
+        "cache_read": 3944795,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94298,
+        "api_equivalent_usd": 1.9337,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 19502,
+      "thinking": 4714,
+      "cache_read": 3944795,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94298,
+      "api_equivalent_usd": 1.9337,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.69,
+      "active_minutes": 5.69,
+      "model_minutes": 4.55,
+      "tool_minutes": 1.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reading two signup flows, writing 7 tests, fixing 2 purges",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 155.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

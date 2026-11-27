@@ -1,0 +1,1 @@
+ALTER TABLE `shop_settings` ADD `default_fallout_bps` integer;

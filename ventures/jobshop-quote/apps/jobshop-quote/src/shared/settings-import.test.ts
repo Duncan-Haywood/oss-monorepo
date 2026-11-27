@@ -6,6 +6,7 @@ import {
   matchSettingLabel,
   planSettingsImport,
   readDaysCell,
+  readFalloutCell,
   readQuantitiesCell,
   readSettingsSheet,
   readTextCell,
@@ -28,6 +29,7 @@ const current: ShopSettingsDto = {
   quoteTerms: null,
   emailSignature: null,
   prefillRepeatParts: true,
+  defaultFalloutBps: null,
   timeZone: null,
   currency: null,
   hasLogo: false,
@@ -199,7 +201,7 @@ describe("exportSettingsCsv", () => {
     expect(csv.startsWith("\uFEFFSetting,Value\r\n")).toBe(true);
     const s = readSettingsSheet(parseCsv(csv.replace(/^\uFEFF/, "")));
     expect(s.errors).toEqual([]);
-    expect(s.rows).toHaveLength(8);
+    expect(s.rows).toHaveLength(9);
     const plan = planSettingsImport(s.rows, odd);
     expect(plan.patch).toEqual({});
     expect(plan.rows.every((r) => r.changes.length === 0)).toBe(true);
@@ -298,7 +300,7 @@ describe("lead time and terms", () => {
       const csv = exportSettingsCsv(odd);
       const s = readSettingsSheet(parseCsv(csv.replace(/^\uFEFF/, "")));
       expect(s.errors).toEqual([]);
-      expect(s.rows).toHaveLength(8);
+      expect(s.rows).toHaveLength(9);
       expect(planSettingsImport(s.rows, odd).patch).toEqual({});
     }
     expect(exportSettingsCsv(current)).toContain("Quote terms,(none)");
@@ -318,5 +320,54 @@ describe("settings in the shop's currency", () => {
     const byLabel = readSettingsSheet([["Minimum line charge (USD)", "150"]], "GBP");
     expect(byLabel.rows).toEqual([]);
     expect(byLabel.errors[0]?.message).toMatch(/USD but the rate card is in GBP/);
+  });
+});
+
+describe("default fallout", () => {
+  it.each([
+    ["Default fallout", "defaultFalloutBps"],
+    ["Fallout %", "defaultFalloutBps"],
+    ["Reject rate", "defaultFalloutBps"],
+    ["Expected yield loss", "defaultFalloutBps"],
+  ])("maps %s", (label, field) => {
+    expect(matchSettingLabel(label)).toEqual({ field });
+  });
+
+  it.each([
+    ["Yield", /97% yield is 3% fallout/],
+    ["Scrap %", /kerf and drop/],
+    ["Scrap", /kerf and drop/],
+  ])("refuses %s with what to write", (label, reason) => {
+    const m = matchSettingLabel(label);
+    expect(m && "refuse" in m && m.refuse).toMatch(reason);
+  });
+
+  it("reads a percentage, 0 and (none) as no default, and refuses over 50%", () => {
+    expect(readFalloutCell("3%")).toEqual({ ok: true, value: 300 });
+    expect(readFalloutCell("2.5")).toEqual({ ok: true, value: 250 });
+    expect(readFalloutCell("0")).toEqual({ ok: true, value: null });
+    expect(readFalloutCell("60%")).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/over 50%/),
+    });
+    expect(readFalloutCell("0.03")).toMatchObject({ ok: false });
+    const s = readSettingsSheet([
+      ["Default fallout", "(none)"],
+      ["Labor markup", "15%"],
+    ]);
+    expect(s.errors).toEqual([]);
+    expect(s.rows.find((r) => r.field === "defaultFalloutBps")?.value).toBeNull();
+  });
+
+  it("plans the change and exports it so it reads back unchanged", () => {
+    const s = readSettingsSheet([["Default fallout", "3%"]]);
+    const plan = planSettingsImport(s.rows, current);
+    expect(plan.patch).toEqual({ defaultFalloutBps: 300 });
+    expect(plan.rows[0]?.changes).toEqual(["(none) → 3%"]);
+    const withFallout = { ...current, defaultFalloutBps: 250 };
+    const csv = exportSettingsCsv(withFallout);
+    expect(csv).toContain("Default fallout,2.5%");
+    const back = readSettingsSheet(parseCsv(csv.replace(/^\uFEFF/, "")));
+    expect(planSettingsImport(back.rows, withFallout).patch).toEqual({});
   });
 });

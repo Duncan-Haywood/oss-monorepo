@@ -189,6 +189,19 @@ describe("cross-tenant reads", () => {
       ].sort(),
     );
   });
+
+  it("lists 200 orgs with their owners, past D1's 100 bound parameters a statement", async () => {
+    // The owner lookup once bound every listed org id in one IN (...): with 100 or more orgs on
+    // the page D1 refused the statement and the console got a 500.
+    const tenants = [];
+    for (let i = 0; i < 120; i++) tenants.push(await setupTenant());
+    const page = await call<AdminAccountsPage>("/api/admin/accounts?list=recent&limit=200", {
+      headers: bearer,
+    });
+    expect(page.items.length).toBeGreaterThanOrEqual(120);
+    const byId = new Map(page.items.map((i) => [i.orgId, i]));
+    for (const t of tenants) expect(byId.get(t.orgId)?.owner?.email).toBe(t.user.email);
+  });
 });
 
 describe("metrics from webhooks", () => {

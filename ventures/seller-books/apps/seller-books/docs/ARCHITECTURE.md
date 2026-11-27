@@ -484,7 +484,21 @@ apps/jobshop-quote, apps/payapps and apps/cmmc):
   depreciation and carryovers) and a business area that changes mid-year. Line 30 in the quarterly
   estimates by the months used to each period end is done (2026-11-26).
 - Quarterly estimates (2026-11-26) save the seller's own figures and the payments sent per year in D1
-  since 2026-11-27 (above, "Saved figures"). Next: a reminder email a week before each due date to the
-  owner and admins who ask for it (the saved row now holds what was paid, so a date already covered sends
-  nothing), and, if sellers ask, state estimated payments.
+  since 2026-11-27 (above, "Saved figures"). The reminder email since 2026-11-27
+  (`services/books/estimate-reminders.ts`, `src/shared/estimate-reminder.ts`, table `estimate_reminder`,
+  migration 0010): an owner or admin ticks "Email me a week before each due date" on the Estimated tax page
+  (`GET/PUT /api/orgs/:orgId/reports/estimated-tax/reminder`, per member, admin role and up). The Worker's
+  daily cron (`0 14 * * *`, `scheduled` in `src/worker/index.ts`) finds the due date within seven days
+  (January's belongs to the year before), reads the books and that year's saved figures as the page does on
+  that day, and mails each member once per date (claimed by a conditional update of `last_sent_due`, put back
+  if the send fails). A date the saved figures show as covered (`stillToPay` 0, or under $1,000 after
+  withholding) sends nothing and is checked again the next day; with no figures saved the email says so and
+  carries no amount. Only a verified address of a member who is still owner or admin is mailed. Each email
+  has a signed RFC 8058 stop link (`lib/unsubscribe-token.ts`, `routes/unsubscribe.ts`, page `/unsubscribe`,
+  ported from apps/payapps). Privacy Policy line added, `POLICY_VERSION` 2026-11-27.3. Tests:
+  `test/unit/estimate-reminder.test.ts`, `test/worker/estimate-reminders.test.ts`. **Cron budget:** the
+  Workers Free plan allows 5 cron triggers per account, and with this one the repository's Workers configure
+  6 (payapps, payapps-site, seller-books, seller-books-site, jobshop-quote, platform/email); the last to deploy
+  fails its trigger update until one is folded into another or the account is on Workers Paid. Next, if
+  sellers ask: state estimated payments.
 - Depop refunds have no separate date in the download, so they are booked on the sale date (with a warning).

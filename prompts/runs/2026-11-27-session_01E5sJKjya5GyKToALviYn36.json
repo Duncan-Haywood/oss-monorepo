@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjya5GyKToALviYn36",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T11:18:37Z",
+  "ended": "2026-11-27T11:27:05Z",
+  "wall_minutes": 8.65,
+  "tokens_in": 2944090,
+  "tokens_out": 15296,
+  "cost_usd": 1.4454,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19722",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "changed-ventures CI red on pay-app-guides, pre-existing on main (nav.mjs not rerun after two new pages); fixed in this PR"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/apps/payapps/vite.config.ts",
+      "issue": "comment names scripts/check-no-client-maps.mjs as the guard for client source maps; the script does not exist in this tree"
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "item 4's module-weight.mjs/page-bench.mjs target the static catalogue; for a Vite SPA venture the quickest reading was pnpm build plus a source-map size sum, worth a line"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/payapps-app-first-load-perf-2026-11-27.md",
+    "docs/posts/2026-10-20-we-almost-rewrote-it-in-rust.md (new section)"
+  ],
+  "goal": null,
+  "notes": "Metric: PayApps app entry script at first load (sign-in page). Before 1,400,560 B raw / 398,798 B gzip -9; after 363,594 B / 113,864 B (from pnpm build, gzip -9 of dist/client/assets/index-*.js). Time until 'Sign in' text: median 2,982 ms before, 1,407 ms after (both dist/client builds served by one static gzip server with /api 401, Chromium with 150 ms RTT, 1.6 Mbit/s and 4x CPU, 7 runs interleaved). Verification: tsc clean, biome clean, test:unit 1368 passed 3 skipped, Playwright on vite preview: lazy routes load on direct visits and client-side navigation with no page errors. Also fixed forward a red main: pay-app-guides page.test 'every page is in the all-guides list' failed because coconstruct-alternatives.html and texas-lien-notice.html (merged earlier today) skipped node nav.mjs; reran it, suite 344/344.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f61da1ff-977b-5c82-b720-784d07054b80",
+    "transcripts": 1,
+    "first": "2026-11-27T11:18:37Z",
+    "last": "2026-11-27T11:27:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 15296,
+        "thinking": 2211,
+        "cache_read": 2873452,
+        "cache_write_5m": 0,
+        "cache_write_1h": 70566,
+        "api_equivalent_usd": 1.4454,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 72,
+      "output": 15296,
+      "thinking": 2211,
+      "cache_read": 2873452,
+      "cache_write_5m": 0,
+      "cache_write_1h": 70566,
+      "api_equivalent_usd": 1.4454,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.65,
+      "active_minutes": 8.65,
+      "model_minutes": 3.54,
+      "tool_minutes": 5.11,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile bundle, code-split router, measure throttled load, verify in browser",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 207.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

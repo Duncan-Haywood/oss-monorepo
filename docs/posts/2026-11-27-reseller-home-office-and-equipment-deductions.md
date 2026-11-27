@@ -12,8 +12,9 @@ Most resellers run the business from home: a spare room of bins, shelving in the
 and a label printer on the desk. Two parts of Schedule C cover exactly that. Line 30 is the
 business use of your home. Equipment you buy and keep has its own rules for when it can be
 deducted. Both are now built into the Schedule C worksheet in Seller Books, our bookkeeping app
-for resellers, which is in development with early access
-([online sellers](https://marisstella.app/industries/online-sellers/)). It also has a new page
+for resellers, which is open on a free plan of one platform and 25 orders a month
+([sign up](https://seller-books.marisstella.app/signup); paid plans not on sale yet;
+[online sellers](https://marisstella.app/industries/online-sellers/)). It also has a new page
 explaining both rules.
 
 ## The storage room: line 30

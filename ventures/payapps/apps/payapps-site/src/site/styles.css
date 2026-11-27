@@ -1,5 +1,5 @@
 /*
-  PayPencil marketing site. Hand-written CSS, no build step, system fonts, no url() (strict CSP).
+  PayApps marketing site. Hand-written CSS, no build step, system fonts, no url() (strict CSP).
 
   Tokens follow apps/grants' approach (docs/DESIGN.md there): one brand hue for actions and links,
   one accent used sparingly, warm stone neutrals. Contrast checked on white:
