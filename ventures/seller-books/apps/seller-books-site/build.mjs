@@ -108,7 +108,7 @@ Facts to keep straight: federal Form 1099-K reporting applies when a platform's 
 
 ## Product
 
-${["/", "/schedule-c-worksheet", "/1099-k", "/cost-of-goods-sold", "/mileage-deduction", "/home-office-and-equipment", "/quarterly-estimated-tax", "/pricing", "/faq", ...(launch().open ? [] : ["/early-access"])].map(link).join("\n")}
+${["/", "/schedule-c-worksheet", "/1099-k", "/cost-of-goods-sold", "/mileage-deduction", "/home-office-and-equipment", "/reseller-tax-deductions", "/quarterly-estimated-tax", "/pricing", "/faq", ...(launch().open ? [] : ["/early-access"])].map(link).join("\n")}
 
 ## Platforms
 
