@@ -11,8 +11,10 @@ const PAGES = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWi
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
     const html = page(name);
-    assert.match(html, /No warranty\./, name);
-    assert.match(html, /not legal/, name);
+    // Spanish pages (es-*.html) carry the same clauses in Spanish.
+    const es = /<html lang="es"/.test(html);
+    assert.match(html, es ? /Sin garantía\./ : /No warranty\./, name);
+    assert.match(html, es ? /No es asesoría legal/ : /not legal/, name);
     assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/, name);
     assert.match(html, /id="optout"/, name);
     // The CTA's lead and status come from cta.mjs (one switch at launch); run `node cta.mjs`.
@@ -38,7 +40,7 @@ test("no page sends anything anywhere or loads remote scripts", () => {
 test("pages that mention the AIA say they are not the AIA form", () => {
   for (const name of PAGES) {
     const html = page(name);
-    if (/G702/.test(html)) assert.match(html, /Not affiliated with the American Institute of Architects/, name);
+    if (/G702/.test(html)) assert.match(html, /Not affiliated with the American Institute of Architects|Sin afiliación con el American Institute of Architects/, name);
   }
 });
 
@@ -336,6 +338,7 @@ const FAQ_PAGES = [
   "retainage-in-quickbooks.html", "retainage-release.html", "retainage-tracker.html",
   "schedule-of-values-template.html", "stored-materials-billing.html",
   "sworn-statement.html", "tm-tickets.html", "punch-list.html",
+  "es-como-llenar-una-solicitud-de-pago.html",
   // state-forms.mjs: one page per state with statutory waiver forms
   ...["arizona", "california", "florida", "georgia", "massachusetts", "michigan", "mississippi", "missouri", "nevada", "texas", "utah", "wyoming"].map((s) => `${s}-lien-waiver-forms.html`),
 ];
@@ -391,4 +394,24 @@ test("punch list page: inputs labelled, wired to punch.mjs, linked from retainag
   assert.match(html, /does not say your subcontract's conditions for payment or retainage are met/);
   assert.match(page("retainage-release.html"), /href="punch-list\.html"/);
   assert.match(readFileSync(new URL("../../platform/pages/industry-construction.mjs", import.meta.url), "utf8"), /pay-app-guides\/punch-list\.html/);
+});
+
+test("each Spanish page is paired with its English page and says the app is in English", () => {
+  const pairs = { "es-como-llenar-una-solicitud-de-pago.html": "how-to-fill-out-a-pay-application.html" };
+  for (const name of PAGES.filter((f) => f.startsWith("es-"))) {
+    const html = page(name);
+    const en = pairs[name];
+    assert.ok(en, `${name}: add its English page to pairs`);
+    assert.match(html, /^<!doctype html>\s*<html lang="es">/, name);
+    assert.ok(html.includes(`<link rel="alternate" hreflang="en" href="./${en}">`), name);
+    assert.ok(html.includes(`<link rel="alternate" hreflang="es" href="./${name}">`), name);
+    assert.ok(page(en).includes(`<link rel="alternate" hreflang="es" href="./${name}">`), `${en} lacks its es alternate`);
+    assert.ok(page(en).includes(`<link rel="alternate" hreflang="en" href="./${en}">`), `${en} lacks its en self alternate`);
+    assert.match(html, /La aplicación está en inglés por ahora\./, name);
+    assert.match(html, /sin revisión de un hablante nativo/, name);
+    // Same worked example as the English guide: the summary page figures must not drift.
+    for (const n of ["$158,500", "$79,850", "$7,985", "$71,865", "$31,500", "$40,365", "$86,635"]) {
+      assert.ok(html.includes(n) && page(en).includes(n), `${name}: ${n}`);
+    }
+  }
 });
