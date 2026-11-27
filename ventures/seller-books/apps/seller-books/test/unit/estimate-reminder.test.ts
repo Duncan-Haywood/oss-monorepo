@@ -34,7 +34,11 @@ describe("reminderTarget", () => {
       quarter: 3,
       daysLeft: 6,
     });
-    expect(reminderTarget("2027-01-08")).toMatchObject({ due: "2027-01-15", year: 2026, quarter: 3 });
+    expect(reminderTarget("2027-01-08")).toMatchObject({
+      due: "2027-01-15",
+      year: 2026,
+      quarter: 3,
+    });
     expect(reminderTarget("2026-12-31")).toBeNull();
   });
 

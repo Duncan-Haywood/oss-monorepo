@@ -39,6 +39,10 @@
     {
       "what": "documents.test.ts pins the Cloudflare subprocessor wording 'sending account emails'; my Privacy edit reworded it.",
       "fix": "kept the phrase, added the reminder after it, and pinned the new lines in the test"
+    },
+    {
+      "what": "biome ci failed on test/unit/estimate-reminder.test.ts: I had run biome --write on the worker test only.",
+      "fix": "formatted it; biome ci clean"
     }
   ],
   "integrity_issues": [],
@@ -75,7 +79,7 @@
     "prompts/process/backlog/P097-cron-trigger-budget.json"
   ],
   "goal": "North star: retention feature for a paid bet (Seller Books, bet #5)",
-  "notes": "Local verification (ventures/seller-books/apps/seller-books): pnpm typecheck clean; test:unit 32 files / 315 tests passed; test:worker 26 files / 138 tests passed; vite build ok; after the Privacy fix, legal unit tests 10/10 and worker legal + estimate-reminders 16/16. Cloudflare limits page read 2026-11-27: 'Number of Cron Triggers per account | 5 | 1,000'. With this PR the repo configures 6 cron schedules (payapps, payapps-site, seller-books, seller-books-site, jobshop-quote, platform/email). Playwright e2e (pnpm test:e2e): 18 passed (1.2m), including 15-estimates-saved.",
+  "notes": "Local verification (ventures/seller-books/apps/seller-books): pnpm typecheck clean; test:unit 32 files / 315 tests passed; test:worker 26 files / 138 tests passed; vite build ok; after the Privacy fix, legal unit tests 10/10 and worker legal + estimate-reminders 16/16. Cloudflare limits page read 2026-11-27: 'Number of Cron Triggers per account | 5 | 1,000'. With this PR the repo configures 6 cron schedules (payapps, payapps-site, seller-books, seller-books-site, jobshop-quote, platform/email). Playwright e2e (pnpm test:e2e): 18 passed (1.2m), including 15-estimates-saved. run_workflow_locally.py --for-changes: seller-books-ci 17/18 before the format fix (biome), then biome ci clean; ventures-tests' check_post_links.py fails on main too (docs/posts/2026-11-27-florida-notice-to-owner-45-days.md links the retired payapps workers.dev host), not this PR's file. The sweep hit my 580 s timeout during priv-portfolio-pages.",
   "corrections": [],
   "redteam": null,
   "usage": {
