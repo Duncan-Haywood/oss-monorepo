@@ -1,11 +1,11 @@
 output "project_name" {
-  description = "Set the private repository's Actions variable CODEBUILD_RUNNER to this; workflows then run on these runners."
-  value       = aws_codebuild_project.ci[var.project_name].name
+  description = "Set the private repository's Actions variable CODEBUILD_RUNNER to this; workflows then run on these runners. Null until connection_ready."
+  value       = try(aws_codebuild_project.ci[var.project_name].name, null)
 }
 
 output "docker_project_name" {
-  description = "Set CODEBUILD_RUNNER_DOCKER to this (jobs with service containers), or null when docker_runner is false."
-  value       = var.docker_runner ? aws_codebuild_project.ci["${var.project_name}-docker"].name : null
+  description = "Set CODEBUILD_RUNNER_DOCKER to this (jobs with service containers); null when docker_runner is false or before connection_ready."
+  value       = try(aws_codebuild_project.ci["${var.project_name}-docker"].name, null)
 }
 
 output "connection_arn" {

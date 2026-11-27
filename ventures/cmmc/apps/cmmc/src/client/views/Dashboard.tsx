@@ -10,7 +10,7 @@ import type { ReviewState } from "@shared/security-policies";
 import { SUPPLIER_DUE_SOON_DAYS, type SupplierAttention } from "@shared/suppliers";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
-import type { OrgInfo, ScoreResponse } from "../lib/types";
+import type { ObjectiveConflictView, OrgInfo, ScoreResponse } from "../lib/types";
 import { btnCls, btnGhostCls, Card, ErrorText, STATUS_LABEL } from "../ui";
 import { DeadlineList } from "./Affirmations";
 
@@ -97,6 +97,11 @@ export function Dashboard({
         </p>
       )}
       <ErrorText error={score.error} />
+      <ObjectiveConflicts
+        conflicts={
+          score.data?.level2?.objectiveConflicts ?? score.data?.level1?.objectiveConflicts ?? []
+        }
+      />
       {score.data?.level2 && (
         <div className="grid gap-4 md:grid-cols-3">
           <Card title="SPRS score (self-assessed)">
@@ -695,5 +700,34 @@ export function QualityDatesCard({
         </>
       )}
     </Card>
+  );
+}
+
+/**
+ * 32 CFR 170.24(b)(2): a requirement is NOT MET when any applicable objective is not satisfied, so a
+ * requirement recorded as implemented with an objective marked "Not met" is scored as not met.
+ */
+function ObjectiveConflicts({ conflicts }: { conflicts: readonly ObjectiveConflictView[] }) {
+  if (conflicts.length === 0) return null;
+  return (
+    <div
+      role="status"
+      className="rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+    >
+      <p>
+        {conflicts.length} requirement(s) are marked implemented or not applicable but have an
+        assessment objective marked <strong>Not met</strong>. A requirement is met only when every
+        objective is met (32 CFR 170.24(b)(2)), so they are scored as not met. Correct the status or
+        re-assess the objective:
+      </p>
+      <ul className="mt-1 list-disc pl-5">
+        {conflicts.slice(0, 8).map((c) => (
+          <li key={c.id}>
+            {c.id}: objective {c.objectives.join(", ")}
+          </li>
+        ))}
+        {conflicts.length > 8 && <li>…and {conflicts.length - 8} more</li>}
+      </ul>
+    </div>
   );
 }

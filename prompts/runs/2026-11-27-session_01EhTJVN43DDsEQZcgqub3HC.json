@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVN43DDsEQZcgqub3HC",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "How's aws migration progress / We have script for status check on how migration going run in cloud console",
+  "input_sha256": "bc28ebfbe1ae7149fc0f73c3b33b34198e97d8b70881df463086c0903c6fe20e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T21:23:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "AWS migration: read-only CloudShell status check + Security Hub central config deferred to unblock spend/llm/email stacks",
+  "projects": [
+    "platform/aws"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19883",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 2,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/runbooks/aws-cutover.md",
+      "issue": "No way for the owner to see migration progress without reading CI logs; owner believed a status script existed. Added status.sh and linked it here."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "No recipe for running tofu test here: registry.opentofu.org is blocked and the committed lock files' registry hashes don't match HashiCorp's zips, so -lockfile=readonly fails; only docs/reports/2026-11-25-aws-edge-api-and-email.md mentions the mirror trick. Ran tests in a scratch copy without the lock file."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Owner-directed question and request in chat, not a routed run; recorded under explore.",
+      "did": "answered status, built the asked-for script",
+      "result": "script merged with tests"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Status 2026-11-27: org stack applied (o-b16m0knwq3, six accounts); baseline apply failing since run 28, latest run 45963120017 on Security Hub 'organization data still syncing' (AWS-side, retry). pytest platform/aws/test_status.py: 4 passed. Owner then said 'you can' -> dispatched AWS apply run 33 (46070474649): same syncing failure. Owner approved ('yes go ahead') deferring Security Hub central configuration behind security_hub_central_configuration=false; tofu test 3 passed locally (provider from releases.hashicorp.com, registry blocked). CI fixes: checklist_coverage (test moved to platform/aws/tests), adversarial-gate test-skipped (unconditional pytest.skip on missing jq -> assert). Follow-up: apply run 34 (46077947617) after #19883 applied org, baseline, llm, email, app-identity, cutover-access; failed on ci-runners (CodeBuild CreateProject refused on the PENDING GitHub connection), which still held back spend. Second PR gates the projects on connection_ready like the webhook; ci-runners tofu test 8 passed.",
+  "corrections": [],
+  "redteam": null
+}

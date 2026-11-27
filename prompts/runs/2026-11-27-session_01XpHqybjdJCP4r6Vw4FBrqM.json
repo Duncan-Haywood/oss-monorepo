@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqybjdJCP4r6Vw4FBrqM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T22:39:30Z",
+  "ended": "2026-11-27T22:44:28Z",
+  "wall_minutes": 5.16,
+  "tokens_in": 3384507,
+  "tokens_out": 21809,
+  "cost_usd": 1.9299,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19899",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets offered jobshop-quote item #3 (launch) as 'free and not gated', but everything left in it is an owner step (sender domain, inbound email token, R2, Paddle). That cost a read of the ROADMAP and DEPLOY.md before I moved to traffic work."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "slug_dupe found no duplicate when I picked the task. A parallel run made a claim branch for the same slug (claim/jobshop-quote/how-to-quote-cnc-machining, 22:42 UTC) while I was writing, and I only saw it on the second check before opening the PR. My run never claimed the slug: claiming early would have prevented the collision."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The top bets' ROADMAP items all wait on demand or on the owner, and with no customers yet, traffic to the live bet #2 app was the next lever.",
+      "did": "Shipped an SEO guide on the bet #2 marketing site instead of a product feature, with its example checked against the app's real costing engine.",
+      "result": "Merged guide page linking to sign-up."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The guide is itself the customer-facing write-up, so no separate blog post.",
+      "did": "No new blog post.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/jobshop-quote/apps/jobshop-site: /how-to-quote-cnc-machining (customer guide page)"
+  ],
+  "goal": null,
+  "notes": "Local checks: jobshop-site vitest unit 71/71, typecheck for both apps, biome clean, and the cross-check test against computeCost passes. Playwright at 1280 and 390 px showed no overflow. risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2f50538b-2307-5274-8628-e7d53afd54bc",
+    "transcripts": 1,
+    "first": "2026-11-27T22:39:30Z",
+    "last": "2026-11-27T22:44:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 68,
+        "output": 21809,
+        "thinking": 3275,
+        "cache_read": 3279758,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104681,
+        "api_equivalent_usd": 1.9299,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 68,
+      "output": 21809,
+      "thinking": 3275,
+      "cache_read": 3279758,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104681,
+      "api_equivalent_usd": 1.9299,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 31,
+      "Write": 1,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.16,
+      "active_minutes": 5.15,
+      "model_minutes": 3.71,
+      "tool_minutes": 1.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an estimator-marketer writing and checking one guide page with a computed worked example",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 207.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,8 +1,10 @@
 // Change orders adjust schedule-of-values lines (existing ones, or new lines they create). Pending
 // change orders do not count; approved ones count in every pay app whose period ends on/after the
-// approval date. Approved change orders are immutable, and cannot be dated into a period that was
-// already submitted (submitted applications never change).
+// approval date. Approved change orders are immutable. One signed on or before the end of a period
+// already submitted keeps its true date and counts from the day after that period (`countsFrom`),
+// so submitted applications never change.
 import type { ChangeOrderInputBody } from "@shared/api/schemas";
+import { addDays } from "@shared/lien-deadline";
 import { and, eq, max, ne } from "drizzle-orm";
 import type { AppContext } from "../../context";
 import { changeOrderItems, changeOrders, payAppLines, payApps, sovLines } from "../../db/schema";
@@ -100,15 +102,14 @@ export async function approveChangeOrder(
   approvedOn: string,
 ) {
   await getPending(ctx, orgId, projectId, coId);
+  // GCs often sign a change order during a month already billed (or the day the pay app went in).
+  // The signing date is kept as it is, and the change order counts from the day after the last
+  // submitted period, so the submitted application, its PDF and its certificate never change.
   const locked = lastLockedPeriodTo(await loadBundle(ctx, orgId, projectId));
-  if (locked && approvedOn <= locked) {
-    throw badRequest(
-      `Approval date must be after ${locked}, the end of the last submitted pay application`,
-    );
-  }
+  const countsFrom = locked && approvedOn <= locked ? addDays(locked, 1) : null;
   await ctx.db
     .update(changeOrders)
-    .set({ status: "approved", approvedOn })
+    .set({ status: "approved", approvedOn, countsFrom })
     .where(and(eq(changeOrders.id, coId), eq(changeOrders.orgId, orgId)));
 }
 

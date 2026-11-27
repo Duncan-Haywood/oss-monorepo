@@ -103,7 +103,114 @@ describe("scoreLevel2 — worked examples", () => {
   });
 });
 
+describe("objective results decide MET (32 CFR 170.24(b)(2))", () => {
+  const ac311 = LEVEL2_REQUIREMENTS.find((r) => r.nistId === "3.1.1");
+  const objIds = ac311?.objectives.map((o) => o.id) ?? [];
+
+  it("3.1.1 has assessment objectives to record against", () => {
+    expect(objIds.length).toBeGreaterThan(1);
+  });
+
+  it("implemented with one objective not met scores as not met: 110 - 5 = 105, and is flagged", () => {
+    const s = scoreLevel2(
+      states({
+        "3.1.1": {
+          status: "implemented",
+          objectiveResults: { [objIds[0] as string]: "met", [objIds[1] as string]: "not_met" },
+        },
+      }),
+    );
+    expect(s.score).toBe(105);
+    expect(s.deductions).toEqual([
+      expect.objectContaining({ nistId: "3.1.1", points: 5, status: "implemented" }),
+    ]);
+    expect(s.objectiveConflicts).toEqual([
+      { id: id("3.1.1"), nistId: "3.1.1", status: "implemented", objectives: [objIds[1]] },
+    ]);
+  });
+
+  it("objectives all met or not applicable leave the requirement met", () => {
+    const s = scoreLevel2(
+      states({
+        "3.1.1": {
+          status: "implemented",
+          objectiveResults: {
+            [objIds[0] as string]: "met",
+            [objIds[1] as string]: "not_applicable",
+          },
+        },
+      }),
+    );
+    expect(s.score).toBe(110);
+    expect(s.objectiveConflicts).toEqual([]);
+  });
+
+  it("a not-met objective on the SSP requirement blocks the score", () => {
+    const ssp = LEVEL2_REQUIREMENTS.find((r) => r.nistId === "3.12.4");
+    const o = ssp?.objectives[0]?.id as string;
+    const s = scoreLevel2(
+      states({ "3.12.4": { status: "implemented", objectiveResults: { [o]: "not_met" } } }),
+    );
+    expect(s.score).toBeNull();
+    expect(s.sspImplemented).toBe(false);
+  });
+
+  it("a 1-point requirement implemented with an objective not met becomes a POA&M item, not met", () => {
+    const one = LEVEL2_REQUIREMENTS.find((r) => r.nistId === "3.1.8");
+    const o = one?.objectives[0]?.id as string;
+    const m = states({ "3.1.8": { status: "implemented", objectiveResults: { [o]: "not_met" } } });
+    const r = conditionalReadiness(m);
+    expect(r.score).toBe(109);
+    expect(r.allMet).toBe(false);
+    expect(r.meetsPoamRules).toBe(true);
+  });
+
+  it("Level 1: implemented with an objective not met is not met", () => {
+    const m = new Map<string, ControlState>(
+      LEVEL1_REQUIREMENTS.map((r) => [r.id, { status: "implemented" }]),
+    );
+    const first = LEVEL1_REQUIREMENTS[0];
+    const o = first?.objectives[0]?.id as string;
+    m.set(first?.id as string, { status: "implemented", objectiveResults: { [o]: "not_met" } });
+    const r = scoreLevel1(m);
+    expect(r).toMatchObject({ met: 14, allMet: false, notMet: [first?.id] });
+    expect(r.objectiveConflicts).toHaveLength(1);
+  });
+});
+
 describe("POA&M rules (32 CFR 170.21)", () => {
+  it("rejects 3-point requirements other than 3.13.11 not-FIPS, citing (a)(2)(ii)", () => {
+    for (const n of ["3.1.5", "3.8.8"]) {
+      expect(LEVEL2_REQUIREMENTS.find((r) => r.nistId === n)?.weight).toBe(3);
+      const e = poamEligibility(n, { status: "not_implemented" });
+      expect(e.eligible).toBe(false);
+      expect(e.reason).toContain("170.21(a)(2)(ii)");
+    }
+    expect(poamEligibility("3.1.20", { status: "not_implemented" }).reason).toContain(
+      "170.21(a)(2)(iii)",
+    );
+  });
+
+  it("score exactly 88 with only POA&M-eligible gaps meets the rules", () => {
+    const ones = LEVEL2_REQUIREMENTS.filter(
+      (r) =>
+        r.weight === 1 && !["3.1.20", "3.1.22", "3.10.3", "3.10.4", "3.10.5"].includes(r.nistId),
+    ).slice(0, 22);
+    const m = states();
+    for (const r of ones) m.set(r.id, { status: "not_implemented" });
+    const res = conditionalReadiness(m);
+    expect(res.score).toBe(88);
+    expect(res.meetsPoamRules).toBe(true);
+    expect(res.allMet).toBe(false);
+  });
+
+  it("allMet is true only when every requirement is met", () => {
+    expect(conditionalReadiness(states()).allMet).toBe(true);
+    expect(conditionalReadiness(states({ "3.1.8": { status: "not_assessed" } })).allMet).toBe(
+      false,
+    );
+  });
+
   it("allows 1-point requirements and 3.13.11 not-FIPS; rejects higher weights and the excluded six", () => {
     expect(poamEligibility("3.1.8", { status: "not_implemented" }).eligible).toBe(true);
     expect(poamEligibility("3.1.1", { status: "not_implemented" }).eligible).toBe(false);

@@ -2753,6 +2753,29 @@ class ResearchTests(unittest.TestCase):
         self.assertEqual(runner.research_tests(["docs/posts/x.md"], repo=self.repo), 0)
 
 
+class QualityTouchedNote(unittest.TestCase):
+    """--for-changes names open quality defects in the subjects the diff touches."""
+
+    def setUp(self):
+        self.repo = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.repo, True)
+        d = os.path.join(self.repo, "portfolio", "quality", "audits")
+        os.makedirs(d)
+        with open(os.path.join(d, "2026-11-20-widget.json"), "w") as f:
+            json.dump({"date": "2026-11-20", "subject": "ventures/widget", "fix_prs": [],
+                       "defects": [{"severity": "medium", "what": "rounds the wrong way"}]}, f)
+
+    def test_note_names_the_defect(self):
+        note = runner.quality_touched_note(["ventures/widget/calc.mjs"], repo=self.repo)
+        self.assertIn("2026-11-20-widget.json#0", note)
+        self.assertEqual(runner.quality_touched_note(["README.md"], repo=self.repo), "")
+
+    def test_errors_are_silent(self):
+        with open(os.path.join(self.repo, "portfolio", "quality", "audits", "bad.json"), "w") as f:
+            f.write("{")
+        self.assertEqual(runner.quality_touched_note(["ventures/widget/x"], repo=self.repo), "")
+
+
 class PostPrecheck(unittest.TestCase):
     """A diff's post over a front-matter cap stops --for-changes before the sweep."""
 

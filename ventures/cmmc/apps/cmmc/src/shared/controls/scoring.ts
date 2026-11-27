@@ -3,8 +3,11 @@
 // Level 2 score (for SPRS entry): NIST SP 800-171 DoD Assessment Methodology v1.2.1, section 2 and
 // Annex A, as adopted by 32 CFR 170.24: start at 110 and subtract each NOT fully implemented
 // requirement's point value (5, 3 or 1). A requirement counts only when every one of its assessment
-// objectives is met; "partially implemented" scores as not implemented except for the two partial-credit
-// cases the methodology names:
+// objectives is met (32 CFR 170.24(b)(2): NOT MET when "one or more applicable objectives for the
+// security requirement is not satisfied"), so a requirement recorded as implemented or not applicable
+// with any objective recorded "not_met" scores as not implemented and is listed in
+// `objectiveConflicts`; "partially implemented" scores as not implemented except for the two
+// partial-credit cases the methodology names:
 //   - 3.5.3 (MFA): subtract 5 if MFA is not implemented; subtract 3 if it is implemented for remote and
 //     privileged users but not for all general (non-privileged network) users.
 //   - 3.13.11 (FIPS cryptography): subtract 5 if no encryption is employed; subtract 3 if encryption is
@@ -12,13 +15,14 @@
 // 3.12.4 (SSP) has no point value: without a system security plan an assessment cannot be completed,
 // so no score is produced. Not applicable requirements count as met. Range: 110 down to -203.
 //
-// POA&M rules for Conditional Level 2 (Self) status, 32 CFR 170.21(a)(2): score >= 88 (80% of 110);
-// only 1-point requirements may be on the POA&M, except 3.13.11 when encryption is employed but not
-// FIPS-validated (the 3-point partial case); and these may never be on a POA&M: 3.1.20, 3.1.22, 3.12.4,
-// 3.10.3, 3.10.4, 3.10.5. POA&M closeout within 180 days of the conditional status date (170.21(b)).
+// POA&M rules for Conditional Level 2 (Self) status, 32 CFR 170.21(a)(2): score >= 88 (80% of 110)
+// ((a)(2)(i)); only 1-point requirements may be on the POA&M, except 3.13.11 when encryption is
+// employed but not FIPS-validated (the 3-point partial case) ((a)(2)(ii)); and these may never be on a
+// POA&M: 3.1.20, 3.1.22, 3.12.4, 3.10.3, 3.10.4, 3.10.5 ((a)(2)(iii)). POA&M closeout within 180 days of the conditional status date (170.21(b)).
 // Level 1 allows no POA&M: every requirement must be met.
 //
 // See ./sources.ts for citations and the verification caveat.
+import type { ObjectiveResult } from "../enums";
 import { LEVEL1_REQUIREMENTS } from "./level1";
 import { LEVEL2_BY_NIST_ID, LEVEL2_REQUIREMENTS, type Level2Requirement } from "./level2";
 
@@ -63,7 +67,7 @@ export const PARTIAL_CREDIT_RULES: readonly PartialCreditRule[] = [
 export const MAX_SCORE = 110;
 export const CONDITIONAL_MIN_SCORE = 88;
 export const POAM_CLOSEOUT_DAYS = 180;
-/** 32 CFR 170.21(a)(2)(iv): never allowed on a POA&M. */
+/** 32 CFR 170.21(a)(2)(iii): never allowed on a POA&M. */
 export const POAM_EXCLUDED_NIST_IDS = [
   "3.1.20",
   "3.1.22",
@@ -77,15 +81,34 @@ export const SSP_NIST_ID = "3.12.4";
 export interface ControlState {
   status: ImplementationStatus;
   partialCredit?: PartialCreditKey | null;
+  /** SP 800-171A objective id -> result, as recorded on the requirement. */
+  objectiveResults?: Readonly<Record<string, ObjectiveResult>> | null;
 }
 
 /** Whether a status counts as satisfied for scoring. */
 export const isSatisfied = (s: ImplementationStatus) =>
   s === "implemented" || s === "not_applicable";
 
-/** Points subtracted for one Level 2 requirement in the given state (0 when satisfied). */
+/** Objective ids recorded "not_met" on this requirement, sorted. */
+export function objectivesNotMet(state: ControlState | undefined): string[] {
+  const r = state?.objectiveResults;
+  if (!r) return [];
+  return Object.keys(r)
+    .filter((k) => r[k] === "not_met")
+    .sort();
+}
+
+/**
+ * Whether the requirement is MET: its status says implemented or not applicable AND no assessment
+ * objective is recorded "not_met" (32 CFR 170.24(b)(2)).
+ */
+export function isMet(state: ControlState | undefined): boolean {
+  return !!state && isSatisfied(state.status) && objectivesNotMet(state).length === 0;
+}
+
+/** Points subtracted for one Level 2 requirement in the given state (0 when met). */
 export function deductionFor(req: Level2Requirement, state: ControlState | undefined): number {
-  if (state && isSatisfied(state.status)) return 0;
+  if (isMet(state)) return 0;
   if (state?.status === "partially_implemented" && state.partialCredit) {
     const rule = PARTIAL_CREDIT_RULES.find(
       (r) => r.nistId === req.nistId && r.key === state.partialCredit,
@@ -115,6 +138,30 @@ export interface Level2Score {
   counts: Record<ImplementationStatus, number>;
   /** Requirements nobody has assessed yet; they are scored as not implemented. */
   unassessed: number;
+  /**
+   * Requirements recorded as implemented or not applicable that have an objective recorded "not_met".
+   * They are scored as NOT MET (full deduction); the status should be corrected or the objective
+   * re-assessed before the score is entered in SPRS.
+   */
+  objectiveConflicts: ObjectiveConflict[];
+}
+
+export interface ObjectiveConflict {
+  id: string;
+  /** NIST number for Level 2, the CMMC id for Level 1. */
+  nistId: string;
+  status: ImplementationStatus;
+  objectives: string[];
+}
+
+function conflictOf(
+  id: string,
+  nistId: string,
+  state: ControlState | undefined,
+): ObjectiveConflict | null {
+  if (!state || !isSatisfied(state.status)) return null;
+  const objectives = objectivesNotMet(state);
+  return objectives.length ? { id, nistId, status: state.status, objectives } : null;
 }
 
 const emptyCounts = (): Record<ImplementationStatus, number> => ({
@@ -131,13 +178,16 @@ export const MIN_SCORE = MAX_SCORE - LEVEL2_REQUIREMENTS.reduce((s, r) => s + r.
 export function scoreLevel2(states: ReadonlyMap<string, ControlState>): Level2Score {
   const counts = emptyCounts();
   const deductions: Deduction[] = [];
+  const objectiveConflicts: ObjectiveConflict[] = [];
   let total = 0;
   for (const req of LEVEL2_REQUIREMENTS) {
     const state = states.get(req.id);
     const status = state?.status ?? "not_assessed";
     counts[status]++;
     const points = deductionFor(req, state);
-    if (!isSatisfied(status)) {
+    const conflict = conflictOf(req.id, req.nistId, state);
+    if (conflict) objectiveConflicts.push(conflict);
+    if (!isMet(state)) {
       deductions.push({
         id: req.id,
         nistId: req.nistId,
@@ -149,7 +199,7 @@ export function scoreLevel2(states: ReadonlyMap<string, ControlState>): Level2Sc
     total += points;
   }
   const ssp = LEVEL2_BY_NIST_ID.get(SSP_NIST_ID);
-  const sspImplemented = !!ssp && isSatisfied(states.get(ssp.id)?.status ?? "not_assessed");
+  const sspImplemented = !!ssp && isMet(states.get(ssp.id));
   const provisionalScore = MAX_SCORE - total;
   return {
     score: sspImplemented ? provisionalScore : null,
@@ -160,6 +210,7 @@ export function scoreLevel2(states: ReadonlyMap<string, ControlState>): Level2Sc
     deductions,
     counts,
     unassessed: counts.not_assessed,
+    objectiveConflicts,
   };
 }
 
@@ -175,7 +226,7 @@ export function poamEligibility(nistId: string, state: ControlState | undefined)
   if ((POAM_EXCLUDED_NIST_IDS as readonly string[]).includes(nistId)) {
     return {
       eligible: false,
-      reason: "32 CFR 170.21(a)(2)(iv) excludes this requirement from POA&Ms",
+      reason: "32 CFR 170.21(a)(2)(iii) excludes this requirement from POA&Ms",
     };
   }
   const points = deductionFor(req, state);
@@ -186,7 +237,7 @@ export function poamEligibility(nistId: string, state: ControlState | undefined)
   }
   return {
     eligible: false,
-    reason: `Point value ${points} is greater than 1; 32 CFR 170.21(a)(2)(iii) allows only 1-point requirements`,
+    reason: `Point value ${points} is greater than 1; 32 CFR 170.21(a)(2)(ii) allows only 1-point requirements`,
   };
 }
 
@@ -237,18 +288,22 @@ export interface Level1Result {
   met: number;
   allMet: boolean;
   notMet: string[];
+  /** Requirements recorded as met that have an objective recorded "not_met"; counted as not met. */
+  objectiveConflicts: ObjectiveConflict[];
 }
 
 /** Level 1: pass/fail per requirement, no points, no POA&M (32 CFR 170.15, 170.21). */
 export function scoreLevel1(states: ReadonlyMap<string, ControlState>): Level1Result {
-  const notMet = LEVEL1_REQUIREMENTS.filter(
-    (r) => !isSatisfied(states.get(r.id)?.status ?? "not_assessed"),
-  ).map((r) => r.id);
+  const notMet = LEVEL1_REQUIREMENTS.filter((r) => !isMet(states.get(r.id))).map((r) => r.id);
+  const objectiveConflicts = LEVEL1_REQUIREMENTS.map((r) =>
+    conflictOf(r.id, r.id, states.get(r.id)),
+  ).filter((c): c is ObjectiveConflict => c !== null);
   return {
     total: LEVEL1_REQUIREMENTS.length,
     met: LEVEL1_REQUIREMENTS.length - notMet.length,
     allMet: notMet.length === 0,
     notMet,
+    objectiveConflicts,
   };
 }
 

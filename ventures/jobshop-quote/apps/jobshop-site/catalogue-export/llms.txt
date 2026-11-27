@@ -14,6 +14,7 @@ Paid plans (not on sale yet): Shop $199/month for up to 125 RFQs; Shop Plus $399
 - [For CMMC-conscious shops](https://marisstella.app/jobshop/for-cmmc-shops): What Job Shop Quote means for shops that handle CUI or export-controlled drawings today, and the CMMC workspace we're building alongside it.
 - [Compare](https://marisstella.app/jobshop/compare): Paperless Parts, QuotedPart, JobBOSS², ProShop or a spreadsheet: published prices with sources, what each fits, and where Job Shop Quote fits.
 - [Machine shop hourly rate](https://marisstella.app/jobshop/machine-shop-hourly-rate): Work out a CNC or machine shop hourly rate from your own costs: machine ownership, overhead, operator burden and billable hours, with a worked example.
+- [How to quote a CNC machining job](https://marisstella.app/jobshop/how-to-quote-cnc-machining): Quote a machined part step by step: blank and material, setup, cycle time, outside processes, fallout, markup and quantity breaks, with a worked example.
 - [FAQ](https://marisstella.app/jobshop/faq): Answers about Job Shop Quote: what it reads, who sets the prices, whether it sends quotes, your drawings and AI training, ERP links and the free plan.
 - [Privacy](https://marisstella.app/jobshop/privacy): This site stores nothing about you: no forms, no cookies, no analytics scripts. The Job Shop Quote app has its own privacy policy, linked here.
 

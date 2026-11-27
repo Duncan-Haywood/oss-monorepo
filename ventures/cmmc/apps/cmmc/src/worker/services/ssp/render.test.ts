@@ -62,6 +62,26 @@ describe("renderSsp", () => {
     expect(md).toContain("No lockout \\| yet");
   });
 
+  it("scores a requirement implemented with an objective not met as not met, and says so", () => {
+    const md = renderSsp({
+      ...base,
+      records: [
+        ...base.records,
+        {
+          controlId: "AC.L2-3.1.2",
+          status: "implemented",
+          partialCredit: null,
+          objectiveResults: { "3.1.2[a]": "not_met" },
+          statement: "Role-based access.",
+          draftStatement: null,
+          ownerName: null,
+        },
+      ],
+    });
+    expect(md).toContain("AC.L2-3.1.2 (3.1.2[a])");
+    expect(md).toContain("scored as not met");
+  });
+
   it("says no score can be produced without an SSP", () => {
     const md = renderSsp({ ...base, records: [] });
     expect(md).toContain("not computable");
