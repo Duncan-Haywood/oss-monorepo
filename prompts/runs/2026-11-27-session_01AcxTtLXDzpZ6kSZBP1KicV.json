@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtLXDzpZ6kSZBP1KicV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T02:07:21Z",
+  "ended": "2026-11-27T02:13:33Z",
+  "wall_minutes": 6.56,
+  "tokens_in": 5995537,
+  "tokens_out": 27058,
+  "cost_usd": 2.7427,
+  "tool_calls": 54,
+  "task": "Bet #4 (CMMC) public side: a free CMMC flow-down to subcontractors guide in machine-shop-guides, with every quote pinned to eCFR text read 2026-11-27",
+  "projects": [
+    "machine-shop-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19567",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "The first preflight failed on two site checks: the meta description was over 160 characters, and llms.txt Answers was stale after the new FAQ entries. Fixed by shortening the description and running llms-answers.mjs."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py --bets",
+      "issue": "Every bet's Next list is gated on demand, an owner step or a source. Its suggested fallback, an untouched growth topic ('evidence per control'), already has a merged claim, and supplier flow-down already had two merged private PRs. Picking real public-side work meant a manual check of posts and guide pages."
+    },
+    {
+      "file": "ventures/machine-shop-guides/llms.txt",
+      "issue": "The Answers section is generated from faq.mjs by platform/pages/llms-answers.mjs, but faq.mjs's header only says to run `node faq.mjs`. Only preflight caught the missing second step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md step 3 / goals.md 'Write about the work'",
+      "why": "No new post. A flow-down section already exists in docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md, and the 2026-11-24 consolidation direction says to extend it.",
+      "did": "Added a paragraph to that section linking the new guide page; deleted a drafted standalone post.",
+      "result": "One post on the topic instead of two competing ones."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md (flow-down section extended)",
+    "ventures/machine-shop-guides/cmmc-subcontractor-flow-down.html (SEO guide page)"
+  ],
+  "goal": null,
+  "notes": "Security queue: none workable (exit 3). Ideas inbox empty. private-monorepo cloned first time via add_repo. No bet had a free ungated ROADMAP item, so this run did bet #4's public side: an SEO page for the 'CMMC flow-down to subcontractors' search. eCFR API answered for 32 CFR 170.23 and 48 CFR 252.204-7021 once curl used --compressed; dodcio.defense.gov returned 403, so the Phase 2 status is cited from the 24 Nov check. Tests: node --test *.test.mjs in machine-shop-guides 257/257 pass; platform/pages description-length and llms-answers tests 12/12 pass after the fix; venture-preflight.mjs machine-shop-guides clean (exit 0) after the fix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "add2e258-20b8-53e5-a11c-8595a3c800b3",
+    "transcripts": 1,
+    "first": "2026-11-27T02:07:21Z",
+    "last": "2026-11-27T02:13:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 102,
+        "output": 27058,
+        "thinking": 4908,
+        "cache_read": 5866969,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128466,
+        "api_equivalent_usd": 2.7427,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 102,
+      "output": 27058,
+      "thinking": 4908,
+      "cache_read": 5866969,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128466,
+      "api_equivalent_usd": 2.7427,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 50,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.56,
+      "active_minutes": 6.56,
+      "model_minutes": 4.84,
+      "tool_minutes": 1.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a compliance writer reading two regulations and writing one sourced guide page with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 145.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
