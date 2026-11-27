@@ -132,7 +132,7 @@
     th:first-child, td:first-child { text-align: left; white-space: normal; min-width: 11rem; }
     thead th { font-size: .82rem; color: var(--muted); }
     tbody tr.best { background: color-mix(in srgb, var(--accent) 12%, transparent); }
-    tbody tr.best td:first-child::after { content: " — best"; color: var(--accent); font-weight: 700; }
+    tbody tr.best th[scope=row]::after { content: " — best"; color: var(--accent); font-weight: 700; }
     .profit-good { color: var(--good); font-weight: 700; }
     .profit-bad { color: var(--bad); font-weight: 700; }
     .verdict { font-size: 1.05rem; margin: 0 0 .4rem; }
@@ -157,6 +157,12 @@
     .handoff .best-link { font-weight: 600; }
     .handoff .rank { color: var(--muted); font-size: .87rem; }
     @media (max-width: 640px) { .wrap { padding: 1.2rem .8rem 3rem; } }
+    /* Phone cards (the chrome's table.stack): one card per channel, so a card's
+       figures may wrap and its channel name needs no 11rem column. */
+    @media (max-width: 600px) {
+      table.stack th, table.stack td { white-space: normal; min-width: 0; }
+      table.stack tbody tr.best { border-color: var(--accent); }
+    }
   </style>
   <!-- select-track:start -->
   <style>
@@ -226,7 +232,7 @@
       <h2>What each channel leaves you</h2>
       <p id="verdict" class="verdict"></p>
       <div class="scroll">
-        <table>
+        <table class="stack">
           <thead>
             <tr>
               <th scope="col">Channel</th>

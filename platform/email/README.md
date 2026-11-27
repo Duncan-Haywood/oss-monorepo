@@ -20,6 +20,7 @@ This directory is that, as code with an apply step:
 | `mime.mjs` | MIME parsing and building, Worker-safe |
 | `cli.mjs` | The agents' CLI, and `cli.mjs mcp`, a stdio MCP server with the same commands |
 | `aws/ses-inbound.mjs` | SES receipt event → the same `ingest` call |
+| `aws/dynamo-store.mjs` | The store port on DynamoDB (rows) + S3 (raw MIME), for the SES route |
 | `schema.sql`, `wrangler.toml` | D1 schema; Worker config (no secrets, no addresses) |
 
 ## How mail flows
@@ -118,8 +119,14 @@ a product has its own domain.
 1. **Inbound**: the email-ops SES receipt rule already writes to S3 and reads
    its recipients from the generated `email-routing.json`;
    `aws/ses-inbound.mjs` turns that event into the same `ingest` call.
-2. **Store**: a DynamoDB + S3 implementation of `store.mjs`'s port, passing
-   `storeContract` in `store.test.mjs`. **Not written yet.**
+2. **Store**: `aws/dynamo-store.mjs`, `dynamoS3Store({ call, table, bucket })`:
+   one on-demand DynamoDB table (`pk` + `sk`, no secondary index, TTL on
+   `expires_at`) for rows and `s3Bucket(...)` for raw MIME, both over the
+   zero-dependency SigV4 client in `platform/edge/aws/sigv4.mjs`. It passes
+   `storeContract` and runs the service end to end in
+   `aws/dynamo-store.test.mjs`. Keys built from header text are hashed; a
+   message's text is cut at 300 KB in the row (the whole message is in S3).
+   **Next:** the table and bucket in the email-ops stack, and step 4.
 3. **Sender**: `portSender(sesSender({...}))` from `senders.mjs`; the SES
    sender applies the same consent policy and footer itself
    (`addsCompliance: true`).

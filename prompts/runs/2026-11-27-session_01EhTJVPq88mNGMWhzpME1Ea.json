@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVPq88mNGMWhzpME1Ea",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T03:55:59Z",
+  "ended": "2026-11-27T03:59:41Z",
+  "wall_minutes": 3.85,
+  "tokens_in": 3152857,
+  "tokens_out": 16812,
+  "cost_usd": 1.6541,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19597",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "A multi-line --old string (newline in the argument) reported 'does not occur in the file'; single-line strings worked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-27-quality-fix-a-taller-gate-costs-more.md"
+  ],
+  "goal": null,
+  "notes": "Quality mode fix (seeded; 9 open highs). Queue seed 2026-11-27-6663. Subject ventures/automatic-driveway-gate-bid-calculator, defect #0 (high, logic-error: leaf height priced nothing). Fixed: leaf $ and hang hours scale by leafHeightFt/rateHeightFt (5 ft default, editable). Verification: node --test 145/145; run_venture_tests.py ok; 2 seeded mutants (drop heightFactor in gateMaterial, in hoursGate) both caught; Playwright: default job $6,505.58 -> $8,524.06 at 10 ft, delta $2,018.48 = hand calc (1020+4.2*55.44)*1.16/0.72. Recomputed 6 ft preset figures on the $4,500 page, guide and README. Share meeting the bar: n/a (fix mode, no scoring). fix_prs: PR #19597 (mark-fixed index 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "21f9171a-5e0f-5b49-a13c-b763650f043b",
+    "transcripts": 1,
+    "first": "2026-11-27T03:55:59Z",
+    "last": "2026-11-27T03:59:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 69,
+        "output": 16812,
+        "thinking": 3288,
+        "cache_read": 3064713,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88075,
+        "api_equivalent_usd": 1.6541,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 69,
+      "output": 16812,
+      "thinking": 3288,
+      "cache_read": 3064713,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88075,
+      "api_equivalent_usd": 1.6541,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 31,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.85,
+      "active_minutes": 3.85,
+      "model_minutes": 2.99,
+      "tool_minutes": 0.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "estimate: senior dev fixing a pricing rule, recomputing page figures and writing a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 181.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

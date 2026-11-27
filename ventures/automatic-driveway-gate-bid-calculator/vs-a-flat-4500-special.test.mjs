@@ -66,24 +66,24 @@ test('the worked-example figures match calc.mjs on the shipped default shop rate
 
   const hard = priceJob(JOB_PRESETS[1]);
   assert.match(JOB_PRESETS[1].label, /where the special loses/);
-  assert.equal(hard.totalCost.toFixed(2), '14716.71');
-  assert.equal(hard.price.toFixed(2), '20439.88');
-  assert.equal(hard.totalHours.toFixed(2), '42.89');
-  assert.equal(hard.materialCost.toFixed(2), '10024.00');
+  assert.equal(hard.totalCost.toFixed(2), '15278.85');
+  assert.equal(hard.price.toFixed(2), '21220.62');
+  assert.equal(hard.totalHours.toFixed(2), '44.62');
+  assert.equal(hard.materialCost.toFixed(2), '10412.80');
   assert.equal(hard.operators, 2);
   assert.equal(hard.columns, 3);
-  assert.equal((4500 - hard.totalCost).toFixed(2), '-10216.71');
-  assert.equal((4500 / hard.totalHours).toFixed(2), '104.92');
+  assert.equal((4500 - hard.totalCost).toFixed(2), '-10778.85');
+  assert.equal((4500 / hard.totalHours).toFixed(2), '100.86');
 
   assert.ok((4500 - cheap.totalCost) < 0, 'the flat $4,500 special should already be a loss on the cheapest job');
   assert.ok((4500 - hard.totalCost) < 0, 'the flat $4,500 special should be a much larger loss on the harder job');
-  assert.equal((hard.price - cheap.price).toFixed(2), '13934.30');
+  assert.equal((hard.price - cheap.price).toFixed(2), '14715.04');
 
-  for (const figure of ['$4,684.02', '$6,505.58', '$3,035.00', '$14,716.71', '$20,439.88', '$10,024.00', '$347.49', '$104.92', '$13,934.30']) {
+  for (const figure of ['$4,684.02', '$6,505.58', '$3,035.00', '$15,278.85', '$21,220.62', '$10,412.80', '$347.49', '$100.86', '$14,715.04']) {
     assert.ok(html.includes(figure), `worked-example figure ${figure} is missing from the page`);
   }
   assert.match(html, /&minus;\$184\.02|-\$184\.02/, 'the $184.02 shortfall on the cheap-end job is missing from the page');
-  assert.match(html, /&minus;\$10,216\.71|-\$10,216\.71/, 'the $10,216.71 shortfall on the harder job is missing from the page');
+  assert.match(html, /&minus;\$10,778\.85|-\$10,778\.85/, 'the $10,778.85 shortfall on the harder job is missing from the page');
 });
 
 test('the comparison page is linked from the tool page, not orphaned', () => {
