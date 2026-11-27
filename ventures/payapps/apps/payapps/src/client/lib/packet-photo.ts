@@ -1,6 +1,8 @@
 // HEIC and WebP photos converted to JPEG in the browser before upload, so they go in the one-PDF
 // backup packet, which takes PDFs, JPEGs and PNGs only (packetTypeProblem). The browser does the
-// decoding: Safari reads HEIC (where iPhone photos come from), every current browser reads WebP.
+// decoding: Safari reads HEIC (where iPhone photos come from), every current browser reads WebP, and
+// Chrome, Edge and Firefox read a HEIC through their HEVC video decoder where they have one
+// (heic-webcodecs.ts, Backup packets part 3).
 // When the browser cannot decode the file, the original is uploaded unchanged, as before, and the
 // packet lists it with its usual "send separately" note. Nothing is sent anywhere to convert.
 //
@@ -32,6 +34,7 @@ import {
   photoCaptureTime,
   readCaptureTime,
 } from "@shared/photo-exif";
+import { webCodecsHeic } from "./heic-webcodecs";
 
 /** JPEG quality for converted photos: close to a phone camera's own. */
 export const JPEG_QUALITY = 0.9;
@@ -66,7 +69,7 @@ async function canvasJpeg(
 }
 
 /** createImageBitmap first (applies EXIF orientation by default), then an <img> element. */
-export const browserDecoder: Decoder = async (file) => {
+const nativeDecoder: Decoder = async (file) => {
   if (typeof createImageBitmap === "function") {
     try {
       const bmp = await createImageBitmap(file);
@@ -98,6 +101,20 @@ export const browserDecoder: Decoder = async (file) => {
     };
   } catch {
     URL.revokeObjectURL(url);
+    return null;
+  }
+};
+
+/**
+ * The browser's image decoder, then, for a HEIC it cannot open as an image (Chrome, Edge, Firefox),
+ * its HEVC video decoder through WebCodecs (heic-webcodecs.ts).
+ */
+export const browserDecoder: Decoder = async (file) => {
+  const decoded = await nativeDecoder(file);
+  if (decoded) return decoded;
+  try {
+    return await webCodecsHeic(file);
+  } catch {
     return null;
   }
 };

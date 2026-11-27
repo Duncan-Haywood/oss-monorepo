@@ -1,0 +1,27 @@
+// Seller Books — Cloudflare Worker configuration. D1 is auto-provisioned by `wrangler deploy`.
+// Use full-line comments only: test/unit/wrangler-config.test.ts strips nothing else.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "seller-books",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "preview_urls": false,
+  "upload_source_maps": true,
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  // Cloudflare Email Service (account mail; docs/EMAIL.md). Mail goes out only once EMAIL_FROM is set
+  // (a var on the deploy) and the sender domain is onboarded; until then it is logged as not sent.
+  "send_email": [{ "name": "EMAIL" }],
+  "d1_databases": [
+    { "binding": "DB", "database_name": "seller-books", "migrations_dir": "migrations" }
+  ],
+  "vars": {
+    "APP_ENV": "development",
+    "APP_URL": "http://localhost:5173",
+    "FAKE_EXTERNALS": "false"
+  }
+}

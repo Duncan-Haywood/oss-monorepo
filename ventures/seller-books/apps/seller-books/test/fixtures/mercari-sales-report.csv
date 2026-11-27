@@ -1,0 +1,7 @@
+"Item Id","Sold Date","Canceled Date","Completed Date","Item Title","Order Status","Shipped to State","Shipped from State","Item Price","Buyer Shipping Fee","Seller Shipping Fee","Mercari Selling Fee","Payment Processing Fee","Shipping Adjustment Fee","Net Seller Proceeds","Sales Tax Charged to Buyer","Merchant Fees Charged to Buyer","Service Fee Charged to Buyer","Buyer Protection Charged to Buyer","Payment Processing Fee Charged to Buyer"
+"m11111111111","2026-02-01","","2026-02-05","Nintendo DS Lite (pink)","Completed","CA","TX","45.00","0.00","7.50","4.50","0.00","0.00","33.00","3.60","0.00","0.00","1.62","0.00"
+"m22222222222","2026-02-03","","2026-02-08","Lego minifig lot","Completed","NY","TX","20.00","5.99","0.00","2.60","0.00","1.25","16.15","1.60","0.00","0.00","0.72","9.99"
+"m33333333333","2026-02-09","2026-02-10","","Cancelled item","Canceled","OH","TX","10.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00"
+"m44444444444","Feb 30 2026","","Feb 31 2026","Bad date row","Completed","WA","TX","10.00","0.00","0.00","1.00","0.00","0.00","9.00","0.00","0.00","0.00","0.00","0.00"
+"m55555555555","2026-02-27","","","Pokemon binder (in transit)","In Progress","FL","TX","30.00","0.00","6.00","3.00","0.00","0.00","21.00","2.10","0.00","0.00","1.08","0.00"
+"b66666666666","2025-12-30","","2026-01-03","Vintage tee, sold over New Year","Completed","IL","TX","15.00","0.00","5.00","1.50","0.00","0.00","8.50","1.20","0.00","0.00","0.54","0.00"

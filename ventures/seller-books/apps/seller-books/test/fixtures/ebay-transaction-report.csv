@@ -1,0 +1,14 @@
+"Transaction report"
+"Start date: Jan 1, 2026","End date: Feb 28, 2026"
+"Seller: example_seller"
+
+"Transaction creation date","Type","Order number","Legacy order ID","Buyer username","Buyer name","Ship to city","Ship to province/region/state","Ship to zip","Ship to country","Net amount","Payout currency","Payout date","Payout ID","Payout method","Payout status","Reason for hold","Item ID","Transaction ID","Item title","Custom label","Quantity","Item subtotal","Shipping and handling","Seller collected tax","eBay collected tax","Final Value Fee - fixed","Final Value Fee - variable","Regulatory operating fee","Very high ""item not as described"" fee","Below standard performance fee","International fee","Gross transaction amount","Transaction currency","Exchange rate","Reference ID","Description"
+"Jan 5, 2026","Order","01-11111-22222","123456789012-0","buyer_one","A Buyer","Austin","TX","78701","US","38.66","USD","Jan 7, 2026","PO1","Bank","Paid","--","123456789012","T-1001","Vintage Levi's 501 jeans 32x30","SKU-JEANS-1","1","40.00","5.00","--","3.30","-0.40","-5.94","--","--","--","--","48.30","USD","--","--","--"
+"Jan 18, 2026","Order","02-33333-44444","--","buyer_two","B Buyer","Boston","MA","02110","US","$1,062.72","USD","Jan 20, 2026","PO2","Bank","Paid","--","223456789012","T-1002","Pyrex Butterprint bowl set ""rare""","SKU-PYREX-2","2","1,250.00","0.00","--","78.13","-0.40","-168.13","--","--","--","-18.75","1,328.13","USD","--","--","--"
+"Feb 2, 2026","Refund","01-11111-22222","123456789012-0","buyer_one","A Buyer","Austin","TX","78701","US","-39.06","USD","--","--","--","--","--","123456789012","T-1003","Vintage Levi's 501 jeans 32x30","SKU-JEANS-1","1","--","--","--","-3.30","0.00","5.94","--","--","--","--","-48.30","USD","--","--","Return accepted"
+"Jan 6, 2026","Shipping label","01-11111-22222","--","--","--","--","--","--","--","-8.75","USD","--","--","--","--","--","--","T-1004","--","--","--","--","--","--","--","--","--","--","--","--","--","-8.75","USD","--","--","USPS Ground Advantage"
+"Jan 31, 2026","Other fee","--","--","--","--","--","--","--","--","-12.40","USD","--","--","--","--","--","--","T-1005","--","--","--","--","--","--","--","--","--","--","--","--","--","-12.40","USD","--","--","Promoted Listings - General fee"
+"Jan 20, 2026","Payout","--","--","--","--","--","--","--","--","-1137.71","USD","Jan 20, 2026","PO2","Bank","Paid","--","--","T-1006","--","--","--","--","--","--","--","--","--","--","--","--","--","--","USD","--","--","--"
+"Feb 3, 2026","Order","03-55555-66666","--","buyer_three","C Buyer","Leeds","--","LS1","GB","10.00","GBP","--","--","--","--","--","323456789012","T-1007","Item sold abroad","--","1","12.00","0.00","--","--","-0.40","-1.60","--","--","--","--","12.00","GBP","--","--","--"
+
+"Report generated on Feb 28, 2026"
