@@ -177,7 +177,7 @@ const JOB_FIELD_LABELS: Record<string, string> = {
   workCompletedOn: "project completion (lien deadline)",
   noticeOfCompletionOn: "notice of completion recorded (lien deadline)",
   publicOwner: "public job (owner)",
-  millerTier: "who you contracted with (Miller Act)",
+  millerTier: "who you contracted with (bond claim)",
   procoreSsov: "Procore SOV positions for the invoice sheet",
   status: "status",
 };

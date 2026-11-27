@@ -3,7 +3,8 @@
 // is entered, estimated from the billing (src/shared/lien-deadline.ts). Saved through the job's PATCH;
 // the cash page and the weekly email name the date once money is owed and it is near. A public job
 // (src/shared/public-jobs.ts) has no lien: a federal one shows the Miller Act bond-claim dates in its
-// place, and a state or local one shows the state's retainage cap on public work instead.
+// place, and a state or local one shows the state's payment bond claim steps (the eight states in
+// STATE_BOND_RULES) and its retainage cap on public work instead.
 import type { ProjectDetailDto } from "@shared/api/types";
 import {
   daysUntil,
@@ -19,6 +20,9 @@ import {
   RETAINAGE_CAP_STATES,
   RETAINAGE_CAPS,
   retainageCapCheck,
+  STATE_BOND_RULES,
+  STATE_BOND_STATES,
+  stateBondClaim,
 } from "@shared/public-jobs";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -72,16 +76,18 @@ export function LienDeadlinePanel(props: {
       const s = state.trim().toUpperCase();
       if (s && !/^[A-Z]{2}$/.test(s)) throw new Error("Enter the state's two-letter code, like CA");
       const fields = owner ? null : lienDateFields(s);
+      // A state or local job keeps the public body's acceptance in the completion column.
+      const keepsCompletion = !!fields?.completion || owner === "state_local";
       return api<ProjectDetailDto>(path, {
         method: "PATCH",
         body: {
           lienState: s || null,
           lienResidential: residential,
           lastFurnishedOn: last || null,
-          workCompletedOn: fields?.completion ? completed || null : null,
+          workCompletedOn: keepsCompletion ? completed || null : null,
           noticeOfCompletionOn: fields?.noticeOfCompletion ? noc || null : null,
           publicOwner: owner || null,
-          millerTier: owner === "federal" ? tier || null : null,
+          millerTier: owner ? tier || null : null,
         },
       });
     },
@@ -104,6 +110,20 @@ export function LienDeadlinePanel(props: {
     ...(p.sovLines ?? []).map((l) => l.retainagePctBps ?? 0),
   ];
   const cap = p.publicOwner === "state_local" ? retainageCapCheck(p.lienState, rates) : null;
+  const bond =
+    p.publicOwner === "state_local"
+      ? stateBondClaim(p.lienState, {
+          tier: p.millerTier ?? null,
+          lastFurnishedOn: p.lastFurnishedOn ?? null,
+          acceptedOn: p.workCompletedOn ?? null,
+        })
+      : null;
+  // The next bond date still ahead (else the latest passed one) leads the summary.
+  const bondNext =
+    bond?.kind === "checked"
+      ? (bond.dated.find((x) => daysUntil(today(), x.dueOn as string) >= 0) ?? bond.dated.at(-1))
+      : undefined;
+  const summaryOn = d?.dueOn ?? bondNext?.dueOn ?? null;
   const title =
     p.publicOwner === "federal"
       ? "Payment bond claim (Miller Act)"
@@ -114,14 +134,18 @@ export function LienDeadlinePanel(props: {
   return (
     <details
       className="card max-w-3xl"
-      open={d !== null || (cap?.kind === "checked" && cap.verdict !== "within")}
+      open={
+        d !== null ||
+        bondNext !== undefined ||
+        (cap?.kind === "checked" && cap.verdict !== "within")
+      }
     >
       <summary className="cursor-pointer font-semibold">
         {title}
-        {d && (
+        {summaryOn && (
           <span className="font-normal text-slate-600">
             {" "}
-            · {d.dueOn} ({whenText(d.dueOn)})
+            · {summaryOn} ({whenText(summaryOn)})
           </span>
         )}
       </summary>
@@ -137,8 +161,9 @@ export function LienDeadlinePanel(props: {
           <p className="text-slate-600">
             Public property cannot be liened, so PayApps shows no lien date on this job. Your
             security is the prime's payment bond under the state's own bond law (a "little Miller
-            Act"), whose notice and suit dates PayApps does not count yet: read the bond and the
-            statute for them.
+            Act"). PayApps lists its notice and suit steps for{" "}
+            {STATE_BOND_STATES.map((s) => STATE_BOND_RULES[s]?.name).join(", ")}; elsewhere, read
+            the bond and the statute for them.
           </p>
         ) : (
           <p className="text-slate-600">
@@ -149,6 +174,64 @@ export function LienDeadlinePanel(props: {
           </p>
         )}
 
+        {bond?.kind === "checked" && (
+          <div className="rounded border border-slate-200 p-3">
+            <p className="font-medium">
+              Payment bond claim: {bond.rule.law}{" "}
+              <a
+                className="font-normal underline"
+                href={bond.rule.url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                (read it)
+              </a>
+            </p>
+            <ol className="mt-1 grid list-decimal gap-1 pl-5">
+              {bond.steps.map((x) => (
+                <li
+                  key={x.citation + x.act}
+                  className={
+                    x.dueOn && daysUntil(today(), x.dueOn) <= 45 && daysUntil(today(), x.dueOn) >= 0
+                      ? "text-amber-800"
+                      : ""
+                  }
+                >
+                  <span className="font-medium">
+                    {x.act}
+                    {x.dueOn ? ` by ${x.dueOn} (${whenText(x.dueOn)})` : ""}
+                  </span>
+                  {x.who === "not-prime" && (
+                    <span className="text-slate-600">
+                      {" "}
+                      · if you are not in contract with the prime
+                    </span>
+                  )}
+                  <br />
+                  <span className="text-slate-600">
+                    {x.rule} ({x.citation})
+                    {x.statutoryOn &&
+                      x.dueOn &&
+                      x.statutoryOn !== x.dueOn &&
+                      `. The statute's date, ${x.statutoryOn}, is a weekend, so this is the Friday before it`}
+                    {x.waitsFor && !x.dueOn && `. Not dated: PayApps needs ${x.waitsFor}`}.
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <ul className="mt-1 list-disc pl-5 text-slate-600">
+              {bond.notes.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {bond?.kind === "unsupported" && (
+          <p>
+            PayApps does not list {bond.state}'s bond claim steps yet. It does for{" "}
+            {STATE_BOND_STATES.map((s) => STATE_BOND_RULES[s]?.name).join(", ")}.
+          </p>
+        )}
         {cap?.kind === "checked" && (
           <div
             className={`rounded border p-3 ${cap.verdict === "over" ? "border-red-400 bg-red-50" : cap.verdict === "within" ? "border-slate-200" : "border-amber-400 bg-amber-50"}`}
@@ -253,7 +336,7 @@ export function LienDeadlinePanel(props: {
                 <option value="federal">The federal government</option>
               </select>
             </label>
-            {owner === "federal" && (
+            {owner && (
               <label className="grid">
                 <span className="text-slate-600">You contracted</span>
                 <select
@@ -304,6 +387,22 @@ export function LienDeadlinePanel(props: {
               </label>
             )}
           </div>
+          {owner === "state_local" && (
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="grid">
+                <span className="text-slate-600">
+                  Public body accepted the work (completion and acceptance), if it has
+                </span>
+                <input
+                  className="input"
+                  type="date"
+                  value={completed}
+                  onChange={(e) => setCompleted(e.target.value)}
+                  aria-label="Day the public body accepted the work"
+                />
+              </label>
+            </div>
+          )}
           {fields?.completion && (
             <div className="flex flex-wrap items-end gap-3">
               <label className="grid">
@@ -338,11 +437,12 @@ export function LienDeadlinePanel(props: {
           {save.error && <ErrorText error={save.error} />}
         </form>
         <p className="text-xs text-slate-500">
-          A date lookup, not legal advice. It does not cover state and local bond claims, a
-          sub-subcontractor's supplier, contract terms or holidays, and a lien or bond claim also
-          needs the notices the law requires and the right content and service. Retainage caps are
-          summaries of public-work statutes with exceptions not shown. Confirm with a construction
-          attorney or the statute before relying on it.
+          A date lookup, not legal advice. State bond claim steps are read from each statute's text
+          only (court rulings, the bond's own terms and other statutes can change them). It does not
+          cover a sub-subcontractor's supplier, contract terms or holidays, and a lien or bond claim
+          also needs the notices the law requires and the right content and service. Retainage caps
+          are summaries of public-work statutes with exceptions not shown. Confirm with a
+          construction attorney or the statute before relying on it.
         </p>
       </div>
     </details>

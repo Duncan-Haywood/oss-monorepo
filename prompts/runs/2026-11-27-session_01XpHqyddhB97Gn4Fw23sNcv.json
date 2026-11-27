@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyddhB97Gn4Fw23sNcv",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md (scheduled)",
+  "input_sha256": "20453bb101005f0b2b7a2bbd00593c1743d9646a6ac22be06239cc431a0993d8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T18:39:10Z",
+  "ended": "2026-11-27T18:52:39Z",
+  "wall_minutes": 13.71,
+  "tokens_in": 14288701,
+  "tokens_out": 59054,
+  "cost_usd": 5.6045,
+  "tool_calls": 94,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19840",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "payapps-site tests run without --config vitest.unit.config.ts fail on '@site/*' aliases (my mistake, rerun with the config passed)",
+    "post description 161 chars, trimmed after heading-order test failed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported every payapps, jobshop, cmmc Next item as 'waits on demand' and pointed at einvoice launch items already done; picking work took reading three ROADMAPs by hand. The state bond item was listed in payapps' Next as 'if contractors mark public jobs', yet it was the clearest gap (the code itself said 'does not count yet')."
+    },
+    {
+      "file": "ventures/pay-app-guides/nav.mjs",
+      "issue": "Header says to run llms-answers.mjs after adding a page, but llms.txt's own FAQ line format invites a hand edit that the generator then owns; I added it by hand first and had to delete it."
+    },
+    {
+      "file": "https://leginfo.legislature.ca.gov",
+      "issue": "403 through the proxy again, so California (the biggest state) could not be read; recorded as next step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "why": "Its 'Start here' pointed at einvoice launch items whose free parts were done and the rest wait on owner/native reviewers; took a demand-gated PayApps Next item instead because public-job subs lose money on missed bond dates and the job page showed nothing for them.",
+      "did": "Built state bond claim part 1 for bet #1 (8 states) plus its front-door guide page.",
+      "result": "Shipped with tests; usefulness unmeasured until a customer marks a public job."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md",
+    "ventures/pay-app-guides/state-payment-bond-claims.html",
+    "ventures/payapps/apps/payapps/ROADMAP.md (Public jobs part 2b)"
+  ],
+  "goal": null,
+  "notes": "Statutes read 2026-11-27 directly: tcss.legis.texas.gov (GV.2253), leg.state.fl.us 255.05 (2026 ed.), nysenate.gov STF 137, law.lis.virginia.gov 2.2-4341, app.leg.wa.gov 39.08.030/.065, azleg.gov 34-223, ncleg.gov 44A-27/28, codes.ohio.gov 153.56. Verification: payapps unit 1490 pass/4 skip; tsc clean; biome clean; pay-app-guides 346 pass; payapps-site unit 50 pass; industry-construction + llms-answers 26 pass; heading-order + post-table-phone 5 pass; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b29e2258-7d0d-5360-b4b0-145866eb4b36",
+    "transcripts": 1,
+    "first": "2026-11-27T18:39:10Z",
+    "last": "2026-11-27T18:52:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 93,
+        "input": 177,
+        "output": 59054,
+        "thinking": 11412,
+        "cache_read": 14087879,
+        "cache_write_5m": 0,
+        "cache_write_1h": 200645,
+        "api_equivalent_usd": 5.6045,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 93,
+      "input": 177,
+      "output": 59054,
+      "thinking": 11412,
+      "cache_read": 14087879,
+      "cache_write_5m": 0,
+      "cache_write_1h": 200645,
+      "api_equivalent_usd": 5.6045,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 94,
+    "tools": {
+      "Bash": 90,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.71,
+      "active_minutes": 13.71,
+      "model_minutes": 10.16,
+      "tool_minutes": 3.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "statute reading for 8 states, a pure date module with hand-worked tests, UI wiring, a guide page and a post: about 10 hours for a construction-software engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 178.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
