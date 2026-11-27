@@ -28,7 +28,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
@@ -43,6 +43,10 @@
     {
       "file": "platform/ci/slug_dupe.py",
       "issue": "PR #19625 was titled as a workflow port when I checked, then retitled after it took the same R2 fix; a title search cannot catch duplicates that change scope mid-flight."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Three sessions fixed the same two deploy blockers within an hour; nothing claims a failed deploy run, so every watcher of payapps-deploy races to fix it. A claim branch per failing run id (like security-fix/*) would stop it."
     }
   ],
   "deviations": [
@@ -63,7 +67,7 @@
     "ventures/payapps/apps/payapps/docs/DEPLOY.md (extended)"
   ],
   "goal": null,
-  "notes": "Bet #1. First deploy (run 45947552522) failed on R2 auth; I patched provision.mjs, but PR #19625 landed the same fix first and run 45949861746 deployed PayApps (Free plan, no attachments) to https://payapps.duncan-andrew-haywood.workers.dev, smoke test passed. My duplicate was resolved to main's version. The next dispatch (45950799211) stopped on a race in the SOV import: useMutation's mutationFn read `result` from a stale closure ('Nothing to import' shown beside the preview). Fixed by passing the input as the mutation argument. Unit suite 1286 passed, typecheck and biome clean. 12 parallel loaded runs did not reproduce the race on the old code; the failed run's DOM is the evidence. Follow-up: other components may close over state in mutationFn the same way.",
+  "notes": "Bet #1. First deploy (run 45947552522) failed on R2 auth; I patched provision.mjs, but PR #19625 landed the same fix first and run 45949861746 deployed PayApps (Free plan, no attachments) to https://payapps.duncan-andrew-haywood.workers.dev, smoke test passed. My duplicate was resolved to main's version. The next dispatch (45950799211) stopped on a race in the SOV import: useMutation's mutationFn read `result` from a stale closure ('Nothing to import' shown beside the preview). Fixed by passing the input as the mutation argument. Unit suite 1286 passed, typecheck and biome clean. 12 parallel loaded runs did not reproduce the race on the old code; the failed run's DOM is the evidence. Follow-up: other components may close over state in mutationFn the same way. Superseded twice: PR #19625 landed the R2 fix and PR #19639 the save-mutation fix while this PR waited on CI. What this PR still adds: the copy-from-another-job mutation takes its job id and amounts toggle as arguments (the same stale-closure class #19639 left in place).",
   "corrections": [],
   "redteam": null,
   "usage": {
