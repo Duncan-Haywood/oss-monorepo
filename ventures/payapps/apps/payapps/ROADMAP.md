@@ -2572,6 +2572,20 @@ nothing to copy. No customers yet. Paid plans are dark
   within two years). Thirteen states in `STATE_BOND_RULES`; the cash page and weekly email pick them up
   with no other change. Worked dates in `src/shared/state-bond.test.ts` (Massachusetts' Sunday, the
   Oregon two-year suit); the public guide gains five rows, its test checks each link's host.
+- Public jobs, part 2e (2026-11-27, every plan, state-bond-claims-id-md-mo-ut): four more states'
+  bond claim steps, read on each legislature's own site on 2026-11-27 (excerpts appended to
+  `ventures/pay-app-guides/sources/state-bond-claims.txt`): Idaho (§ 54-1927: the 90-day notice for a
+  sub's sub; suit within a year of the last day, or for a sub of the prime a year from final payment
+  due under the subcontract, which PayApps does not have, so it shows the earlier last-day date),
+  Maryland (State Fin. & Proc. §§ 17-108, 17-109: the 90-day notice; suit within a year of final
+  acceptance), Missouri (§ 107.170.2: a 90-day notice from remote material suppliers only; the section
+  names no suit limit, and a note says so) and Utah (§ 63G-6a-1103(4): suit within a year of the last
+  day; § 38-1b-202: every sub not in contract with the owner files a preliminary notice with the State
+  Construction Registry within 20 days of starting, listed undated; a note on the 2026 amendment that
+  lets the facilities division skip the bond). Seventeen states in `STATE_BOND_RULES`. Worked dates in
+  `src/shared/state-bond.test.ts`; the public guide and the customer post gain the rows. Not done:
+  California (claimed separately), Georgia, Pennsylvania, Illinois and Connecticut (their sites
+  refused or timed out through the proxy on 2026-11-27), New Jersey, Colorado and the rest.
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
