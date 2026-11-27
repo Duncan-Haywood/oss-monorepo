@@ -6,6 +6,7 @@ import {
   followUpKind,
   mailtoHref,
   needsFollowUp,
+  paidLateInterestEmail,
 } from "./follow-up-email";
 
 const job = (over: Partial<FollowUpJob> = {}): FollowUpJob => ({
@@ -276,5 +277,63 @@ describe("late-payment interest in the drafts", () => {
     expect(followUpEmail(job({ lateInterest: tx }), balanceNotDue, from).body).not.toContain(
       "interest",
     );
+  });
+});
+
+describe("the interest email for an application paid late", () => {
+  const paid = {
+    payAppId: "pa_1",
+    number: 4,
+    applicationDate: "2026-01-31",
+    periodTo: "2026-01-31",
+    dueOn: "2026-03-02",
+    paidOn: "2026-04-01",
+    daysLate: 30,
+    paidCents: 2_700_000,
+    interestCents: 33_500,
+  };
+  const tx = {
+    bps: 150,
+    per: "month" as const,
+    method: "prorata" as const,
+    source: "Subcontract § 5.3",
+  };
+
+  it("states the dates, the rate and its source, and asks for it on the next payment", () => {
+    const e = paidLateInterestEmail(
+      job({ lateInterest: tx, gcBillingName: "Pat Lee", gcBillingEmail: "ap@harbor.example" }),
+      paid,
+      from,
+    );
+    expect(e.to).toBe("ap@harbor.example");
+    expect(e.subject).toBe(
+      "Harbor Warehouse (job 24-031): interest on late payment of pay application #4, $335.00",
+    );
+    expect(e.body).toBe(
+      [
+        "Hello Pat Lee,",
+        "",
+        "Thank you for the payment of our pay application #4 on Harbor Warehouse (job 24-031) (dated 2026-01-31, for work through 2026-01-31). It was due on 2026-03-02 under our subcontract's pay terms (30 days), and the last of the $27,000.00 came in on 2026-04-01, 30 days later.",
+        "",
+        "Under Subcontract § 5.3, a late payment carries interest at 1.5% a month. On the balance unpaid each day from 2026-03-02 to 2026-04-01 that comes to $335.00.",
+        "",
+        "Could you include the $335.00 with the next payment on this job, or let me know if you would rather we invoice it separately? If you count the dates differently, tell me which and I will check them against our records.",
+        "",
+        "Thank you,",
+        "Dana Ruiz",
+        "Ruiz Electric LLC",
+      ].join("\n"),
+    );
+  });
+
+  it("without a source or contact: our subcontract, accounts payable, no recipient", () => {
+    const e = paidLateInterestEmail(job({ lateInterest: { ...tx, source: null } }), paid, {
+      name: "",
+      company: "",
+    });
+    expect(e.to).toBeNull();
+    expect(e.body).toContain("Hello Harbor Builders accounts payable,");
+    expect(e.body).toContain("Under our subcontract, a late payment");
+    expect(e.body).toContain("[your name]\n[your company]");
   });
 });

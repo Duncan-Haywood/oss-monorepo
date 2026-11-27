@@ -2495,6 +2495,16 @@ nothing to copy. No customers yet. Paid plans are dark
   second-tier sub most often misses, and the job already holds every fact it needs but the prime's
   address. Not done: a log of notices sent (as Texas and Florida keep), state bond-claim dates.
 
+- Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
+  in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
+  due date to the last payment (`paidLateApps` in `src/shared/cash-report.ts`, on what was paid, net
+  of a balance closed short). The cash page lists each one paid in the last 365 days under "Interest
+  earned on late payments", with a draft email asking the GC to add it to the next payment
+  (`paidLateInterestEmail`), and the job's next steps name it. The cash CSV gains four columns at the
+  end (the rate, interest on past-due applications, interest on applications paid late, and which).
+  An application only marked paid, with payments short of what it paid, is left out: its pay date is
+  not known.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2539,11 +2549,10 @@ nothing to copy. No customers yet. Paid plans are dark
 
 ## Next (suite, by promise)
 
-- Late-payment interest, part 2 (part 1, the rate per job, the accrued interest on the cash report and
-  in the second request, done 2026-11-27): interest on an application that was paid late (the
-  accrual stops at the last payment, so it is billable after the check clears), an interest line on
-  the next pay application or a separate invoice to QuickBooks, and the cash CSV and weekly email
-  columns, if contractors ask.
+- Late-payment interest, part 3 (part 2, interest earned on applications paid late with its email
+  draft and the cash CSV columns, done 2026-11-27): an interest line on the next pay application or
+  a separate invoice to QuickBooks, a "billed" or "waived" mark per application so the list can be
+  cleared before its year is up, and the paid-late total in the weekly email, if contractors ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if

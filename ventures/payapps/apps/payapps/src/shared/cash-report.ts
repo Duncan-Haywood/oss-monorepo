@@ -55,7 +55,7 @@ import {
   gaClockText,
   gaWaiverClocks,
 } from "./ga-waiver-clock";
-import { type LateInterestTerms, lateInterest } from "./late-interest";
+import { type LateInterestTerms, lateInterest, rateLabel } from "./late-interest";
 import { type LienDeadline, lienDeadlineText } from "./lien-deadline";
 import { formatCents } from "./money";
 import type { ApplicationSummary, Totals } from "./payapp-math";
@@ -229,6 +229,93 @@ export interface OutstandingApp {
   interestCents?: number | null;
 }
 
+/**
+ * Applications paid in full after their due date, at most this many days ago, are listed with the
+ * interest the late payment earned. Older ones drop off: the report is a to-do list, and a claim for
+ * interest on a payment over a year old is one the contractor has already decided on.
+ */
+export const PAID_LATE_WINDOW_DAYS = 365;
+
+/**
+ * A sent application paid in full after its due date, on a job with a late-payment rate: the
+ * interest that accrued from the due date to the last payment (src/shared/late-interest.ts). The
+ * accrual stops at the payment, so the figure is final and can be billed once the check clears.
+ */
+export interface PaidLateApp {
+  payAppId: string;
+  number: number;
+  applicationDate: string;
+  periodTo: string;
+  dueOn: string;
+  /** The last payment received: the day the balance reached zero. */
+  paidOn: string;
+  /** Whole days from dueOn to paidOn. */
+  daysLate: number;
+  /** What was paid (expected less any balance closed short): the balance the interest ran on. */
+  paidCents: number;
+  interestCents: number;
+}
+
+/**
+ * Interest earned on applications paid late: each paid application whose recorded payments cover it,
+ * whose last payment came after its due date and within PAID_LATE_WINDOW_DAYS of `asOf`. A balance
+ * closed short earns nothing (it was never paid, and a backcharge was never owed); an application
+ * only marked paid, with payments short of what it paid, is left out because its pay date is not
+ * known.
+ */
+export function paidLateApps(
+  terms: LateInterestTerms | null,
+  payTermsDays: number | null,
+  basis: PayTermsBasis,
+  outerDays: number | null,
+  apps: readonly CashReportAppInput[],
+  asOf: string,
+): PaidLateApp[] {
+  if (!terms || payTermsDays === null) return [];
+  const out: PaidLateApp[] = [];
+  for (const a of apps) {
+    if (a.status !== "paid") continue;
+    const pos = positionOf(a);
+    const payments = a.payments ?? [];
+    const received = payments.reduce((s, x) => s + x.amountCents, 0);
+    const paidOn = pos.lastReceivedOn;
+    if (pos.paidCents <= 0 || received < pos.paidCents || paidOn === null) continue;
+    const dueOn = payDueOn(payTermsDays, basis, a, outerDays);
+    if (dueOn === null || paidOn <= dueOn || paidOn > asOf) continue;
+    if (daysBetween(paidOn, asOf) > PAID_LATE_WINDOW_DAYS) continue;
+    const interest = lateInterest(terms, dueOn, pos.paidCents, payments, paidOn);
+    if (!interest || interest.interestCents <= 0) continue;
+    out.push({
+      payAppId: a.id,
+      number: a.number,
+      applicationDate: a.applicationDate,
+      periodTo: a.periodTo,
+      dueOn,
+      paidOn,
+      daysLate: interest.daysLate,
+      paidCents: pos.paidCents,
+      interestCents: interest.interestCents,
+    });
+  }
+  return out.sort((x, y) => x.number - y.number);
+}
+
+/** The cash page's next step for interest earned on applications paid late on one job. */
+export function paidLateText(
+  apps: readonly PaidLateApp[],
+  terms: LateInterestTerms,
+  gcName: string,
+): string | null {
+  if (apps.length === 0) return null;
+  const total = apps.reduce((s, a) => s + a.interestCents, 0);
+  const which =
+    apps.length === 1
+      ? `Application #${apps[0]?.number} was paid ${apps[0]?.daysLate} days late (due ${apps[0]?.dueOn}, paid ${apps[0]?.paidOn})`
+      : `${apps.length} applications were paid late (${apps.map((a) => `#${a.number}, ${a.daysLate} days`).join("; ")})`;
+  const source = terms.source?.trim() ? ` (${terms.source.trim()})` : "";
+  return `${which}: at the job's late-payment rate of ${rateLabel(terms)}${source}, ${formatCents(total)} of interest accrued until the payment came in. If the subcontract or statute lets you collect it, bill it to ${gcName} on the next application or a separate invoice; the draft email below states the figures.`;
+}
+
 export interface CashReportProject {
   id: string;
   name: string;
@@ -255,6 +342,10 @@ export interface CashReportProject {
   interestCents: number;
   /** The job's late-payment rate, or null when not tracked. */
   lateInterest: LateInterestTerms | null;
+  /** Applications paid late in the last PAID_LATE_WINDOW_DAYS, with the interest each earned. */
+  paidLate: PaidLateApp[];
+  /** Interest earned on those applications (0 without a late-payment rate). */
+  paidLateInterestCents: number;
   /** Still owed and due within 30 days of the report date (0 without pay terms). */
   dueNext30Cents: number;
   /** Pay-when-paid: still owed on applications whose owner payment is not recorded yet. */
@@ -309,6 +400,8 @@ export interface CashReport {
     pastDueCents: number;
     /** Interest accrued on past-due applications at each job's late-payment rate. */
     interestCents: number;
+    /** Interest earned on applications paid late in the last PAID_LATE_WINDOW_DAYS, across jobs. */
+    paidLateInterestCents: number;
     dueNext30Cents: number;
     /** Owed on jobs with no pay terms set: left out of past due and the 30-day forecast. */
     noTermsOutstandingCents: number;
@@ -736,6 +829,10 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
     );
   });
   for (const w of toSend) actions.push(waiverToSendText(w, p.gcName));
+  const paidLate = paidLateApps(p.lateInterest ?? null, terms, basis, outerDays, sent, asOf);
+  const paidLateInterestCents = paidLate.reduce((s, a) => s + a.interestCents, 0);
+  const paidLateAction = p.lateInterest ? paidLateText(paidLate, p.lateInterest, p.gcName) : null;
+  if (paidLateAction) actions.push(paidLateAction);
   // Georgia's 90 days (and a filed affidavit's copy to the owner): money recorded on the application against each sent Georgia waiver.
   const gaDeadlines = sent
     .flatMap((a) => gaWaiverClocks(a, positionOf(a).paidCents, a.waivers ?? [], asOf))
@@ -818,6 +915,8 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
     pastDueCents,
     interestCents,
     lateInterest: p.lateInterest ?? null,
+    paidLate,
+    paidLateInterestCents,
     dueNext30Cents,
     awaitingOwnerCents,
     retainageHeldCents,
@@ -866,6 +965,7 @@ export function cashReport(projects: CashReportProjectInput[], asOf: string): Ca
       ),
       pastDueCents: sum((r) => r.pastDueCents),
       interestCents: sum((r) => r.interestCents),
+      paidLateInterestCents: sum((r) => r.paidLateInterestCents),
       dueNext30Cents: sum((r) => r.dueNext30Cents),
       noTermsOutstandingCents: sum((r) => (r.payTermsDays === null ? r.outstandingCents : 0)),
       awaitingOwnerCents: sum((r) => r.awaitingOwnerCents),
