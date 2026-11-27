@@ -171,6 +171,21 @@ describe("early access", () => {
     expect((await row("pm@example.org"))?.status).toBe("confirmed");
   });
 
+  it("keeps an old pending sign-up while its re-sent confirmation link still works", async () => {
+    await call("/api/early-access", form(valid));
+    const start = clock.getTime();
+    // Day 25: the person asks again and gets a fresh 7-day link.
+    clock = new Date(start + 25 * 86_400_000);
+    await call("/api/early-access", form(valid));
+    expect(sender.sent).toHaveLength(2);
+    // Day 31 is past the 30-day mark, but the day-25 link works until day 32.
+    expect(await purgePending(env.DB, new Date(start + 31 * 86_400_000))).toBe(0);
+    expect((await row("owner@acme-drywall.example"))?.status).toBe("pending");
+    expect(
+      await purgePending(env.DB, new Date(start + 25 * 86_400_000 + CONFIRM_TOKEN_TTL_MS)),
+    ).toBe(1);
+  });
+
   it("sets security headers and answers health", async () => {
     const res = await call("/payapps/api/health");
     expect(res.status).toBe(200);

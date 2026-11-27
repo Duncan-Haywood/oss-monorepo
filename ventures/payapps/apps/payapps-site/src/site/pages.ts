@@ -743,7 +743,7 @@ function privacy(ctx: SiteContext): BuiltPage {
   <h2>Why</h2>
   <p>To email you about ${PRODUCT_NAME} early access and to decide what to build first. We do not sell or share the list, and we do not add you to any other mailing list.</p>
   <h2>Confirmation</h2>
-  <p>We send one email with a confirmation link. Until you use it you are not on the list, and an unconfirmed sign-up is deleted after 30 days.</p>
+  <p>We send one email with a confirmation link. Until you use it you are not on the list, and an unconfirmed sign-up is deleted after 30 days, or once its newest confirmation link has expired if that is later.</p>
   <h2>Removing your sign-up</h2>
   <p>Every email we send has a link that deletes your sign-up and your answers straight away.</p>
   <h2>Who can see it</h2>

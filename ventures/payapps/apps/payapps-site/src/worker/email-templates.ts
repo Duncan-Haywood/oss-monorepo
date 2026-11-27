@@ -9,7 +9,7 @@ export function confirmEmail(links: { confirmUrl: string; removeUrl: string }) {
 Confirm your sign-up (link works for 7 days):
 ${links.confirmUrl}
 
-Not you, or changed your mind? Ignore this email and the sign-up is deleted after 30 days, or delete it now:
+Not you, or changed your mind? Ignore this email and the sign-up is deleted after 30 days (or when its newest link expires, if later), or delete it now:
 ${links.removeUrl}
 
 ${PRODUCT_NAME} is a pay-application tool for subcontractors, in development. We will only email you about early access.
@@ -18,7 +18,7 @@ ${PRODUCT_NAME} is a pay-application tool for subcontractors, in development. We
 <p>Someone (hopefully you) asked to join ${esc(PRODUCT_NAME)} early access with this address.</p>
 <p><a href="${esc(links.confirmUrl)}" style="display:inline-block;background:#1d3a5c;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:700">Confirm my sign-up</a></p>
 <p>The link works for 7 days.</p>
-<p>Not you, or changed your mind? Ignore this email and the sign-up is deleted after 30 days, or <a href="${esc(links.removeUrl)}">delete it now</a>.</p>
+<p>Not you, or changed your mind? Ignore this email and the sign-up is deleted after 30 days (or when its newest link expires, if later), or <a href="${esc(links.removeUrl)}">delete it now</a>.</p>
 <p style="color:#57514a;font-size:14px">${esc(PRODUCT_NAME)} is a pay-application tool for subcontractors, in development. We will only email you about early access.</p>
 </body></html>`;
   return { subject, text, html };

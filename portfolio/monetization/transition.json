@@ -14,7 +14,7 @@
   "proprietary": [
     {
       "venture": "payapps",
-      "source_lines": 141578,
+      "source_lines": 141586,
       "track": "proprietary",
       "why": "flagship #1: the depth people pay for",
       "model": "subscription",
@@ -68,7 +68,7 @@
     },
     {
       "venture": "seller-books",
-      "source_lines": 44389,
+      "source_lines": 44397,
       "track": "proprietary",
       "why": "flagship #5: the depth people pay for",
       "model": "subscription",
@@ -310,7 +310,7 @@
     },
     {
       "venture": "pay-app-guides",
-      "source_lines": 5323,
+      "source_lines": 5353,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",
