@@ -364,6 +364,7 @@ export function decompose(p) {
  * The `roof` object roof.mjs frames, from an outline: a rectangle (gable or hip), or a
  * gable main roof with up to two cross wings. Every other setting in `base` (rafter
  * size, spacing, roofing...) is kept. Returns the candidates it tried when none fits.
+ * `base.gableEnds` (points, from roofdxf.mjs) keeps only the framing with its gable ends there.
  * @param {unknown} raw @param {Record<string, any>} base must hold `pitch`
  * @param {(r: any) => string[]} [validate] roof checks to pick a framing that passes (validateRoof with the plan)
  */
@@ -375,13 +376,33 @@ export function roofFromOutline(raw, base, validate = () => []) {
     return { ok: false, errors: r.errors, roof: null };
   }
   const tries = decompose(r.points);
+  // gable ends read from a drawing (roofdxf.mjs): where each gable wall's ridge line meets it. Only a framing with its
+  // gable ends at those points is kept (none drawn: a hip roof on a rectangle), so the ridge runs the way the drawing has it.
+  const drawn = Array.isArray(base.gableEnds) ? base.gableEnds.map((q) => ({ x: num(Array.isArray(q) ? q[0] : q?.x), y: num(Array.isArray(q) ? q[1] : q?.y) })).filter((q) => Number.isFinite(q.x) && Number.isFinite(q.y)) : null;
+  /** @param {typeof tries[0]} t */
+  const endsOf = (t) => {
+    const mid = (t.main.b0 + t.main.b1) / 2;
+    const ab = [{ a: t.main.a0, b: mid }, { a: t.main.a1, b: mid }, ...t.wings.map((w) => ({ a: (w.a0 + w.a1) / 2, b: w.side === "left" ? w.b0 : w.b1 }))];
+    return ab.map((q) => (t.axis === "x" ? { x: q.a, y: q.b } : { x: q.b, y: q.a }));
+  };
+  /** @param {typeof tries[0]} t */
+  const matches = (t) => {
+    if (!drawn) return true;
+    if (!drawn.length) return !t.wings.length;
+    const want = endsOf(t);
+    return want.length === drawn.length && want.every((w) => drawn.some((d) => Math.hypot(d.x - w.x, d.y - w.y) <= 2)) && drawn.every((d) => want.some((w) => Math.hypot(d.x - w.x, d.y - w.y) <= 2));
+  };
   if (!tries.length) return { ok: false, errors: ["This outline is not one rectangle with at most two narrower rectangles on its long sides, so the gable and hip framing model does not take it; squares, eave length and the all-hip roof lines (ridge, hip and valley lengths) are still given, and that all-hip roof is framed on those lines (hipframe.mjs) when the stock allows."], roof: null };
-  const { outline: _drop, ...rest } = base;
+  const { outline: _drop, gableEnds: _ends, ...rest } = base;
+  if (drawn && drawn.length) rest.shape = "gable";
+  if (drawn && !drawn.length) rest.shape = "hip";
+  const fit = tries.filter(matches);
+  if (drawn && !fit.length) return { ok: false, errors: [drawn.length ? `The gable ends drawn on the roof layer (${drawn.map((q) => `${Math.round(q.x * 100) / 100}, ${Math.round(q.y * 100) / 100}`).join("; ")} in) are not where a gable roof on this outline puts them (each end of one main roof, and the outer end of up to two cross wings), so the gable and hip framing model does not take it.` : "The roof layer draws a hip roof (ridges, but no gable end), and a hip roof is framed on a rectangle only; the all-hip roof lines are framed instead (hipframe.mjs) when the stock allows."], roof: null };
   /** @type {{ roof: any, errors: string[], wings: number, width: number }[]} */
   const built = [];
-  for (const t of tries) {
+  for (const t of fit) {
     const width = t.main.b1 - t.main.b0, length = t.main.a1 - t.main.a0;
-    if (!t.wings.length && width > length) continue; // a rectangle's ridge runs the long way; the other axis is tried too
+    if (!t.wings.length && width > length && !(drawn && drawn.length)) continue; // a rectangle's ridge runs the long way (unless a drawing's gable ends say otherwise); the other axis is tried too
     /** @type {any} */
     const roof = { ...rest, width, length };
     if (t.wings.length > 2) continue;

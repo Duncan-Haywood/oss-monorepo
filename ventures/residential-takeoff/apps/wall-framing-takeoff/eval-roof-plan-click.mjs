@@ -155,6 +155,31 @@ else console.log(`note: this DXF has no closed exterior loop (${status.slice(0, 
   const dims = await page.$$eval("#roofPlan svg text", (ts) => ts.map((t) => t.textContent));
   check(dims.includes(`43' 0"`) && dims.includes(`38' 0"`), `eave sides 18 in out on the roof plan (${dims.join(", ")})`);
 }
+// gable ends on the roof layer (2026-11-27): a ridge run square into the eave line fills the gable form, rake measured apart
+{
+  const g = (c, v) => `${c}\n${v}\n`, ft = (n) => n * 12;
+  const W = [[0, 0], [ft(40), 0], [ft(40), ft(28)], [0, ft(28)]];
+  const E = [[-6, -12], [ft(40) + 6, -12], [ft(40) + 6, ft(28) + 12], [-6, ft(28) + 12]];
+  const line = (layer, a, b) => g(0, "LINE") + g(8, layer) + g(10, a[0]) + g(20, a[1]) + g(30, 0) + g(11, b[0]) + g(21, b[1]) + g(31, 0);
+  let d = g(0, "SECTION") + g(2, "HEADER") + g(9, "$INSUNITS") + g(70, 1) + g(0, "ENDSEC") + g(0, "SECTION") + g(2, "ENTITIES");
+  W.forEach((a, i) => { d += line("A-WALL", a, W[(i + 1) % W.length]); });
+  d += line("A-ROOF", [-6, ft(14)], [ft(40) + 6, ft(14)]); // the ridge, gable end to gable end
+  d += g(0, "LWPOLYLINE") + g(8, "A-ROOF") + g(90, E.length) + g(70, 1) + E.map(([x, y]) => g(10, x) + g(20, y)).join("");
+  d += g(0, "ENDSEC") + g(0, "EOF");
+  await page.selectOption("#rfShape", "outline");
+  await page.fill("#rfPitch", "4");
+  await page.setInputFiles("#openPlan", { name: "gable-house-roof.dxf", mimeType: "application/dxf", buffer: Buffer.from(d) });
+  await page.waitForFunction(() => /Opened gable-house/.test(document.querySelector("#status").textContent), null, { timeout: 15000 });
+  const st = await page.textContent("#status");
+  check(/Gable ends read from the roof layer/.test(st) && /12 in at the eaves and 6 in at the rakes/.test(st) && /gable roof form is filled/.test(st), `status names the gable ends and both overhangs (${st.slice(-260)})`);
+  check((await page.inputValue("#rfShape")) === "gable", `roof shape switched to gable (${await page.inputValue("#rfShape")})`);
+  check((await page.inputValue("#rfW")) === `28' 0"` && (await page.inputValue("#rfL")) === `40' 0"`, `width and length filled (${await page.inputValue("#rfW")} x ${await page.inputValue("#rfL")})`);
+  check((await page.inputValue("#rfRake")) === `6"` && (await page.inputValue("#rfOver")) === `1' 0"`, `rake and eave overhangs filled (${await page.inputValue("#rfRake")}, ${await page.inputValue("#rfOver")})`);
+  await page.check("#rfOn");
+  await page.click("#run");
+  await page.waitForTimeout(400);
+  check(/12" eave and 6" rake overhang/.test(await page.textContent("#roofOut")), "the gable roof is framed with the drawn rake");
+}
 check(errors.length === 0, `no page errors ${errors.join("; ")}`);
 await browser.close();
 server.close();

@@ -110,7 +110,7 @@ Usage:
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
   node cli.mjs plan.json --roof      with roof "outline": [[x, y], ...] (square corners, outside of the walls) and "pitch": a rectangle, L, T or U is framed as above; any outline gets its all-hip squares and eave length
   node cli.mjs house.dxf --roof-pitch=6  roof from the drawing's exterior wall loop at that pitch (implies the roof)
-  node cli.mjs house.dxf --roof-pitch=6 --roof-layer=ROOF  the eave line drawn on a roof layer instead (default layers matching roof|eave|fascia|drip are read when present): its overhang is measured against the exterior walls, or --eave-overhang=N in moves it in when the drawing has no wall loop
+  node cli.mjs house.dxf --roof-pitch=6 --roof-layer=ROOF  the eave line drawn on a roof layer instead (default layers matching roof|eave|fascia|drip are read when present): its overhang is measured against the exterior walls, or --eave-overhang=N in moves it in when the drawing has no wall loop; a ridge drawn square into the eave line marks a gable end (a rake, measured apart, or --rake-overhang=N in), and the roof is framed as that gable roof, or as a hip roof when ridges are drawn and none ends there
   node cli.mjs plan.json --material-list  one supplier list: boards by size and length, members, wall and roof sheathing, roofing, ridge/hip/valley/eave/rake lengths (add --csv or --json; --priced shows cost from your stock prices; --job=NAME heads it)
   node cli.mjs plan.json --material-list --licence=KEY  the paid export, once a checkout is live (docs/PRICING.md); while it is not, the list is free
   node cli.mjs plan.json --fasteners   count nails by connection (plan fasteners: studEndNails, plateSpacing, edgeSpacing, nailsPerBox, price; add --sheathing for sheathing nails)
@@ -204,7 +204,7 @@ let runOpts = {};
 // Every flag the CLI reads. A flag outside this list used to be ignored, so a misspelt option
 // quietly printed the plain order. cli-flags.test.mjs checks this list against the flags in this file.
 export const BARE_FLAGS = ["--budget", "--material-list", "--priced", "--csv", "--deck", "--doors-to-floor", "--dormer", "--double-line", "--drawings", "--drilling", "--drywall", "--eaves", "--electrical", "--example", "--fasteners", "--fireblock", "--fixed-plan", "--floor", "--flooring", "--foundation", "--gang", "--gutters", "--headers", "--help", "--horizontal", "--hvac", "--insulation", "--json", "--level-bids", "--openings", "--orders", "--overhang", "--paint", "--panel-order", "--panel-sheets", "--paver", "--pdf", "--plan-only", "--plumbing", "--proposal", "--pull-lists", "--risk", "--roof", "--schedule", "--schedule-template", "--sensitivity", "--shallow-headers", "--sheathing", "--siding", "--single-line", "--skip-refused", "--stairs", "--stucco", "--trim", "--trim-openings", "--ventilation", "--wall-tile", "--whole-house"];
-export const VALUE_FLAGS = ["--add-board", "--job", "--licence", "--roof-pitch", "--compare", "--door-layer", "--eave-overhang", "--roof-layer", "--ifc-json", "--orders", "--panel-max", "--rim-lap", "--sheathing-psf", "--stack", "--storey", "--swing", "--units", "--wall-layer", "--window-layer"];
+export const VALUE_FLAGS = ["--add-board", "--job", "--licence", "--roof-pitch", "--compare", "--door-layer", "--eave-overhang", "--rake-overhang", "--roof-layer", "--ifc-json", "--orders", "--panel-max", "--rim-lap", "--sheathing-psf", "--stack", "--storey", "--swing", "--units", "--wall-layer", "--window-layer"];
 
 /** @param {string} a @param {string} b @returns {number} */
 function editDistance(a, b) {
@@ -323,10 +323,14 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
         if (overArg !== undefined && !(typedOver >= 0 && typedOver <= 60)) return { code: 1, out: "--eave-overhang= is the eave overhang, 0 to 60 in (or a length like 1'6\")." };
         const eave = /\.ifc$/i.test(args[0]) ? null : eaveFromDxf(readInput(args[0]), { units: /** @type {any} */ (units), ...(roofLayerArg ? { roofLayer: layerPattern(roofLayerArg) } : {}), ...(layerOptions(argv).wallLayer ? { wallLayer: layerOptions(argv).wallLayer } : {}) });
         if (roofLayerArg && eave && !eave.ok) return { code: 2, out: `Could not read the roof layer: ${eave.errors.join(" ")}` };
-        const fromEave = eave && eave.ok && eave.eave ? outlineFromEave(eave.eave, { walls: outside, overhang: typedOver ?? 12 }) : null;
+        const rakeArg = argv.find((a) => a.startsWith("--rake-overhang="))?.slice(16);
+        const typedRake = rakeArg === undefined ? undefined : parseLength(rakeArg);
+        if (rakeArg !== undefined && !(typedRake >= 0 && typedRake <= 48)) return { code: 1, out: "--rake-overhang= is the rake (gable) overhang, 0 to 48 in (or a length like 1'6\")." };
+        const fromEave = eave && eave.ok && eave.eave ? outlineFromEave(eave.eave, { walls: outside, overhang: typedOver ?? 12, ...(typedRake !== undefined ? { gableOverhang: typedRake } : {}), ridgeEnds: eave.ridgeEnds, inner: eave.inner }) : null;
         if (fromEave && !fromEave.ok) return { code: 2, out: `Could not use the roof layer's eave line: ${fromEave.errors.join(" ")}` };
         if (fromEave && fromEave.ok && fromEave.outline) {
-          if (!plan.roof) plan.roof = { outline: fromEave.outline.map((p) => [Math.round(p.x * 16) / 16, Math.round(p.y * 16) / 16]), pitch, overhang: fromEave.overhang };
+          // the shape read from the roof layer: gable ends where its ridges meet the eave line, or a hip roof (roofdxf.mjs)
+          if (!plan.roof) plan.roof = { outline: fromEave.outline.map((p) => [Math.round(p.x * 16) / 16, Math.round(p.y * 16) / 16]), pitch, overhang: fromEave.overhang, ...(fromEave.shape ? { shape: fromEave.shape, gableEnds: (fromEave.gableEnds ?? []).map((p) => [p.x, p.y]) } : {}), ...(fromEave.gableOverhang !== undefined ? { gableOverhang: fromEave.gableOverhang } : {}) };
           r.notes.push(.../** @type {string[]} */ (eave?.notes ?? []), ...fromEave.notes);
           if (!fromEave.measured && typedOver === undefined) r.notes.push("The overhang was not typed: 12 in was used. Pass --eave-overhang= to change it.");
         } else {
@@ -527,7 +531,10 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     if (!roof.ok && roofOutline) { roofOutline.notes.push(`Not framed from the outline: ${roof.errors.join(" ")}`); roof = null; plan.roof = undefined; }
     else if (!roof.ok) return { code: 1, out: `The roof has problems:\n${roof.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
-  if (roofOutline && !roof && typedRoof) {
+  if (roofOutline && !roof && typedRoof && Array.isArray(typedRoof.gableEnds) && typedRoof.gableEnds.length) {
+    // the drawing has gable ends: an all-hip framing would be the wrong roof, so only its squares are listed
+    roofOutline.notes.push("Not framed as an all-hip roof either: the roof layer draws gable ends. The squares above are the all-hip roof's; frame this roof by typing it (width, length, wings), or redraw the outline as one main roof with up to two cross wings.");
+  } else if (roofOutline && !roof && typedRoof) {
     // the framing model could not frame this outline: frame its all-hip roof on the roof lines instead (hipframe.mjs)
     roofFrame = frameOutlineRoof(roofOutline.points, roofOutline.eaveLine, roofOutline.lines, { id: typedRoof.id || "Roof", pitch: roofOutline.pitch, spacing: typedRoof.spacing, rafter: typedRoof.rafter, hip: typedRoof.hip, valley: typedRoof.valley, ridge: typedRoof.ridge, stock: plan.stock || [] });
     if (roofFrame.ok) roofOutline.notes.push("Framed instead as the all-hip roof on these roof lines: its rafters, hips, valleys and ridge boards are in the lumber order.");
