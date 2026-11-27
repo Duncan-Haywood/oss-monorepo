@@ -1,6 +1,7 @@
 # Organisation CloudTrail to a write-once bucket in the log-archive account
-# (docs/reports/2026-11-24-cloud-provider-comparison.md §7). AWS Config in
-# every account delivers to the same bucket under config/.
+# (docs/reports/2026-11-24-cloud-provider-comparison.md §7). AWS Config
+# delivers to its own bucket (config_logs.tf): Config cannot deliver to a
+# bucket with Object Lock default retention.
 
 locals {
   log_bucket = "${local.accounts["log-archive"]}-org-logs-${var.region}"
@@ -209,36 +210,6 @@ data "aws_iam_policy_document" "log_bucket" {
       test     = "StringEquals"
       variable = "aws:SourceArn"
       values   = [local.trail_arn]
-    }
-  }
-
-  statement {
-    sid       = "ConfigAclCheck"
-    actions   = ["s3:GetBucketAcl", "s3:ListBucket"]
-    resources = [aws_s3_bucket.logs.arn]
-    principals {
-      type        = "Service"
-      identifiers = ["config.amazonaws.com"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceAccount"
-      values   = local.all_ids
-    }
-  }
-
-  statement {
-    sid       = "ConfigWrite"
-    actions   = ["s3:PutObject"]
-    resources = [for id in local.all_ids : "${aws_s3_bucket.logs.arn}/config/AWSLogs/${id}/Config/*"]
-    principals {
-      type        = "Service"
-      identifiers = ["config.amazonaws.com"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceAccount"
-      values   = local.all_ids
     }
   }
 }
