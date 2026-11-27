@@ -377,3 +377,48 @@ allow:
     contains: JOBSHOP_QBO_TOKEN_KEY
     reason: "the key the jobshop-quote Worker encrypts stored QuickBooks tokens with, pushed when set (wrangler secret bulk, never logged)"
     added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-paddle-key-check.yml
+    contains: BILLING_API_KEY
+    reason: "the Paddle API key BILLING_API_KEY read by the key check (priv-paddle-key-check.yml): manual, main-only, contents: read; passes the secret only to packages/billing/scripts/paddle-key-check.ts, which prints set/unset, the kind and the public prefix (pdl_live_apikey_), probes catalog calls without writing (src/paddle-key.ts), never the value; answers the owner's 2026-11-27 question whether the Paddle secret is the right type"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-paddle-key-check.yml
+    contains: PADDLE_API_KEY
+    reason: "the Paddle API key PADDLE_API_KEY read by the key check (priv-paddle-key-check.yml): manual, main-only, contents: read; passes the secret only to packages/billing/scripts/paddle-key-check.ts, which prints set/unset, the kind and the public prefix (pdl_live_apikey_), probes catalog calls without writing (src/paddle-key.ts), never the value; answers the owner's 2026-11-27 question whether the Paddle secret is the right type"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-paddle-key-check.yml
+    contains: PAYAPPS_BILLING_API_KEY
+    reason: "the Paddle API key PAYAPPS_BILLING_API_KEY read by the key check (priv-paddle-key-check.yml): manual, main-only, contents: read; passes the secret only to packages/billing/scripts/paddle-key-check.ts, which prints set/unset, the kind and the public prefix (pdl_live_apikey_), probes catalog calls without writing (src/paddle-key.ts), never the value; answers the owner's 2026-11-27 question whether the Paddle secret is the right type"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-paddle-key-check.yml
+    contains: SELLER_BOOKS_BILLING_API_KEY
+    reason: "the Paddle API key SELLER_BOOKS_BILLING_API_KEY read by the key check (priv-paddle-key-check.yml): manual, main-only, contents: read; passes the secret only to packages/billing/scripts/paddle-key-check.ts, which prints set/unset, the kind and the public prefix (pdl_live_apikey_), probes catalog calls without writing (src/paddle-key.ts), never the value; answers the owner's 2026-11-27 question whether the Paddle secret is the right type"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-paddle-key-check.yml
+    contains: JOBSHOP_BILLING_API_KEY
+    reason: "the Paddle API key JOBSHOP_BILLING_API_KEY read by the key check (priv-paddle-key-check.yml): manual, main-only, contents: read; passes the secret only to packages/billing/scripts/paddle-key-check.ts, which prints set/unset, the kind and the public prefix (pdl_live_apikey_), probes catalog calls without writing (src/paddle-key.ts), never the value; answers the owner's 2026-11-27 question whether the Paddle secret is the right type"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: BILLING_API_KEY
+    reason: "the shared Paddle API key, read only when the app's own key is unset (the owner holds one Paddle secret, 2026-11-27), for the same catalog sync and wrangler secret bulk push to the payapps Worker as its own key; never logged; catalog items stay tagged custom_data.app=payapps"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-payapps-deploy.yml
+    contains: PADDLE_API_KEY
+    reason: "the shared Paddle API key, read only when the app's own key is unset (the owner holds one Paddle secret, 2026-11-27), for the same catalog sync and wrangler secret bulk push to the payapps Worker as its own key; never logged; catalog items stay tagged custom_data.app=payapps"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-seller-books-deploy.yml
+    contains: BILLING_API_KEY
+    reason: "the shared Paddle API key, read only when the app's own key is unset (the owner holds one Paddle secret, 2026-11-27), for the same catalog sync and wrangler secret bulk push to the seller-books Worker as its own key; never logged; catalog items stay tagged custom_data.app=seller-books"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-seller-books-deploy.yml
+    contains: PADDLE_API_KEY
+    reason: "the shared Paddle API key, read only when the app's own key is unset (the owner holds one Paddle secret, 2026-11-27), for the same catalog sync and wrangler secret bulk push to the seller-books Worker as its own key; never logged; catalog items stay tagged custom_data.app=seller-books"
+    added: 2026-11-27

@@ -14,9 +14,9 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 
 test("inputs have labels and the page never sends drawings anywhere", () => {
   const html = page("index.html");
-  for (const id of ["files", "skipLayers", "defaultQty", "sheetW", "sheetH", "gap", "margin", "rotations", "res", "maxSheets", "search", "remnantFiles", "stockList", "fullAfter"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  for (const id of ["files", "skipLayers", "defaultQty", "sheetW", "sheetH", "gap", "margin", "rotations", "res", "maxSheets", "search", "remnantFiles", "stockList", "fullAfter", "machineRate", "cutSpeed", "pierceSeconds", "markSpeed", "sheetPrice", "materialBasis", "handlingMinutes", "setupMinutes", "markupPct", "minimumCharge"]) assert.match(html, new RegExp(`<label for="${id}">`));
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
-  for (const f of ["job.mjs", "nest.mjs", "dxf.mjs", "geom.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon/);
+  for (const f of ["job.mjs", "nest.mjs", "dxf.mjs", "geom.mjs", "quote.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon/);
 });
 
 test("page states what is not modelled", () => {
@@ -48,4 +48,13 @@ test("sibling links resolve to real ventures", () => {
 test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
+});
+
+test("the pricing step has no built-in rates: every rate field starts empty", () => {
+  const html = page("index.html");
+  for (const id of ["machineRate", "cutSpeed", "pierceSeconds", "markSpeed", "sheetPrice", "handlingMinutes", "setupMinutes", "markupPct", "minimumCharge"]) {
+    const tag = new RegExp(`<input[^>]*id="${id}"[^>]*>`).exec(html)[0];
+    assert.doesNotMatch(tag, /\svalue=/, id);
+  }
+  assert.match(html, /In development — early access/);
 });

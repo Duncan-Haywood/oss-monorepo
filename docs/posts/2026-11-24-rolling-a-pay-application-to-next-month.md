@@ -53,12 +53,14 @@ Three properties are tested in
 ## What it does not do
 
 It does not save jobs, track retainage until release, write lien waivers or
-handle several jobs at once. Those are the jobs of the hosted pay-app suite
-we are building for subcontractors, which is **in development**, not on sale
-and not priced (the
+handle several jobs at once. Those are the jobs of PayApps, our hosted
+pay-app billing for subcontractors (the
 [earlier post](2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md)
-has the competitor prices and the plan). The tool page now says so and links
-to the site's public feedback form for early access.
+has the competitor prices and the plan). PayApps opened on 2026-11-27: free
+on one active job, with no card, and it reads the generator's Excel download
+as a job's schedule of values and opening balance, so a job rolled forward
+here can carry on there ([start free](https://payapps.marisstella.app/?signup&from=pay-application-generator)). Lien waivers, QuickBooks and
+job costing are in the paid plans, which are not on sale yet.
 
 The page is not the AIA G702/G703 form and is not affiliated with the AIA.
 It does the arithmetic on your figures. Your contract decides the retainage

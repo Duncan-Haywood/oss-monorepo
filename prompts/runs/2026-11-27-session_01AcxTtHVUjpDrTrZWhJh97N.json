@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtHVUjpDrTrZWhJh97N",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T04:07:19Z",
+  "ended": "2026-11-27T04:13:51Z",
+  "wall_minutes": 6.7,
+  "tokens_in": 6023383,
+  "tokens_out": 27954,
+  "cost_usd": 2.7672,
+  "tool_calls": 55,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19601",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Merged another session's private-monorepo PR #476 (seller-books estimates-saved-payments) by mistake: a merge call was sent in the same batch as create_pull_request with a guessed number; the new PR was #477. Not reverted (the author's verification had passed; the full Playwright suite was still running); a comment on #476 tells the author session to check it and fix forward."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets said 'Start here: bet #3 einvoice-preflight (0 live claims)' but einvoice already had two open move PRs (19574, 19575) in this repo; it counts claim branches only, not open [work:...] move PRs, so the suggestion pointed at a crowded bet."
+    },
+    {
+      "file": "portfolio/work/tasks.yaml",
+      "issue": "products-to-public-repo had a subtask only for PayApps (move-payapps-public); the jobshop and cmmc moves had to add their own task entries, and two PRs each for payapps and einvoice show runs are not seeing each other's moves."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "Nothing warns against sending merge_pull_request in parallel with create_pull_request: the number is not known until create returns, and a guess merged another session's PR (private #476). Merge only with the number create returned."
+    },
+    {
+      "file": "private-monorepo (moved apps)",
+      "issue": "The public repo's checks (tree checks, gitleaks, CodeQL, adversarial gate's disclaimer rule) never ran on private code, so a move surfaces dozens of findings at once; seven fix rounds here, each ported back (private #470, #471, #473, #474, #477)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is a ROADMAP item on the top bet in private-monorepo; every bet's free items were gated on demand, and the real block to a paying customer is that no private app can deploy.",
+      "did": "Took step 4 of the owner-chosen products-to-public-repo task for bet #4 (the only bet with no open move PR).",
+      "result": "CMMC copied, audited (block 0), CI ported, all local checks green."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No customer post this run: the move changes no feature a customer sees; the agent doc is the deliverable write-up.",
+      "did": "Wrote docs/reports/2026-11-27-move-cmmc-public.md only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-move-cmmc-public.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: cmmc unit 490 passed, worker 156 passed, site 37 passed, build/no-maps/drizzle drift clean, billing/admin-metrics/scripts pass; prepub audit block 0 (source and copy). CI rounds on PR 19601: harness R1 path, dead links, stale-closure race in four import panels, four tree checks, publish surface, verticals.json, two gitleaks false positives, shell disclaimer, 28 CodeQL alerts (18 xss-through-dom from the org picker's DOM value, 5 Markdown cell escapes, 3 tag-strip/decoding, 2 test host checks). Each fix ported to private-monorepo.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "21eb7f51-5c59-5e19-aad8-0fb15ce68623",
+    "transcripts": 1,
+    "first": "2026-11-27T04:07:19Z",
+    "last": "2026-11-27T04:14:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 105,
+        "output": 27954,
+        "thinking": 2732,
+        "cache_read": 5894688,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128590,
+        "api_equivalent_usd": 2.7672,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 105,
+      "output": 27954,
+      "thinking": 2732,
+      "cache_read": 5894688,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128590,
+      "api_equivalent_usd": 2.7672,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 51,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.7,
+      "active_minutes": 6.7,
+      "model_minutes": 4.86,
+      "tool_minutes": 1.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer copying a 52k-line workspace, auditing it, porting CI and writing the report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 216.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

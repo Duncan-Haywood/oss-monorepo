@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtHGyv9EuQ6QaE6vY6m",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T11:07:08Z",
+  "ended": "2026-11-27T11:20:57Z",
+  "wall_minutes": 14.26,
+  "tokens_in": 10830077,
+  "tokens_out": 38701,
+  "cost_usd": 4.2808,
+  "tool_calls": 81,
+  "task": "bets #1 and #5: the site said PayApps and Seller Books were 'in development, no sign-ups' after both deployed; make the catalogue, front doors, online-sellers page, free tool and customer posts say they are open on a free plan and link sign-up",
+  "projects": [
+    "seller-books",
+    "payapps",
+    "reseller-books",
+    "platform-pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19716",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "two JS string literals with unescaped apostrophes in industry-online-sellers.mjs, and an over-long llms blockquote and post description",
+      "fixed": "caught by node --check and build.test.mjs before push of the second commit"
+    },
+    {
+      "what": "CI pages.yml check_pages_links: reseller-books linked ../industries/online-sellers/, which the legacy GitHub Pages build does not produce; site-builder test 'no paywall language' matched 'Paid plans' in the open-free card note on the hub",
+      "fixed": "absolute https://marisstella.app/industries/online-sellers/ link; note reworded to 'Nothing is sold yet.'; full platform/pages suite 2193/2193"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/business.mjs",
+      "issue": "Its honesty header said only 'live' or 'early-access' exist, so a deployed free-plan app had no truthful status; the construction industry page had invented its own 'open-free' locally (industry-construction.mjs) while business.mjs, company.mjs and front-doors-map.mjs still said early access. Three sources of product status that disagree; added 'open-free' to business.mjs and company.mjs OPEN_FREE, but industry pages still keep their own copies."
+    },
+    {
+      "file": "ventures/seller-books/DEPLOY.md",
+      "issue": "Says the next step is pointing apps/seller-books-site's CTAs at the app, but that marketing site is not deployed anywhere (marisstella.app/seller-books/ 404s); the live doors are platform/pages' online-sellers page and front doors, which DEPLOY.md does not mention."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says seller-books has 'no ROADMAP.md'; payapps' free items mostly wait on demand, so the tool pointed at #11 (needs a real Windows PC and Android phone), which a cloud session cannot do."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is a slice of the top bet's product; PayApps has 5 live claims and its free item needs physical devices. The highest-leverage gap toward a first paying customer for bets #1 and #5 was that the site told visitors both apps were closed.",
+      "did": "Fixed the site-wide status and CTAs rather than app code.",
+      "result": "tests green; sign-up links on /products/, home, About, llms.txt, 186 tool front doors, the online-sellers page and the free Reseller Books tool"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new post: owner asked for consolidated posts.",
+      "did": "Extended the consolidated reseller customer post with a lead 'Seller Books is open' section and fixed stale lines in two other customer posts.",
+      "result": "0 broken post links"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (extended)",
+    "docs/posts/2026-11-24-reseller-mileage-on-schedule-c-line-9.md (corrected)",
+    "docs/posts/2026-11-27-reseller-home-office-and-equipment-deductions.md (corrected)"
+  ],
+  "goal": "bets #5 and #1: every visitor from 186 front-door tool pages, /products/, the home page and the online-sellers page now reaches a working Start free link instead of 'nothing to sign up for'",
+  "notes": "Verified locally: node --test industry-online-sellers, front-doors, business, products, share, home, industry-construction: 107/107; build.test.mjs subset (llms|About|home|industry|front door|product|post): 36/36; ventures/reseller-books page.test.mjs 9/9; check_post_links 0 broken; front-doors-map regenerated (construction 129, online-sellers 57 tools). Live checks: https://seller-books.marisstella.app/api/health -> ok, billing false, email true; /signup -> 200. Not done: sign-up attribution (neither app stores ?from=); apps/seller-books-site is not deployed. Full platform/pages node --test: 2193/2193 after the fixes. venture-preflight reseller-books: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "87732c02-a6e1-54b9-8de7-360eff903dac",
+    "transcripts": 1,
+    "first": "2026-11-27T11:07:08Z",
+    "last": "2026-11-27T11:21:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 148,
+        "output": 38701,
+        "thinking": 7162,
+        "cache_read": 10658114,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171815,
+        "api_equivalent_usd": 4.2808,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 148,
+      "output": 38701,
+      "thinking": 7162,
+      "cache_read": 10658114,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171815,
+      "api_equivalent_usd": 4.2808,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 78,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.26,
+      "active_minutes": 14.26,
+      "model_minutes": 7.44,
+      "tool_minutes": 6.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "auditing status claims across 5 page modules, rewriting the online-sellers page and tests, three posts",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 140.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

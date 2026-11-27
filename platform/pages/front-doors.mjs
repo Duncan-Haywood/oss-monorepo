@@ -6,7 +6,8 @@
 // and hand lists, with the reasons). Unmapped pages get nothing.
 //
 // Honesty (owner, 2026-11-24): the line says what the product is and its real
-// status ("in development — early access"), and that it is separate from the
+// status ("in development — early access", or "open — free on one job" for a
+// hosted app with a free plan and no paid plan on sale), and that it is separate from the
 // free tool, which stays free. It never implies the free tool is part of it.
 //
 // A door renders only when its industry page is in the built site, so a door
@@ -52,7 +53,7 @@ function doorBody(id, toRoot, map) {
   // `data-pf-to` rides the chrome's existing local click counter
   // (`cross_tool_click:industry:<id>`), so a door's clicks are measured with
   // no new script.
-  return `<strong>${escapeHtml(industry.status)}:</strong> ${escapeHtml(industry.product)}. <a href="${escapeHtml(href)}" data-pf-to="${escapeHtml(`industry:${id}`)}">${escapeHtml(industry.label)}: see what is being built →</a>`;
+  return `<strong>${escapeHtml(industry.status)}:</strong> ${escapeHtml(industry.product)}. <a href="${escapeHtml(href)}" data-pf-to="${escapeHtml(`industry:${id}`)}">${escapeHtml(industry.label)}: ${industry.open ? 'start free, or see what it does' : 'see what is being built'} →</a>`;
 }
 
 /** The footer line on a mapped tool page, or '' (unmapped, or industry page not live). */

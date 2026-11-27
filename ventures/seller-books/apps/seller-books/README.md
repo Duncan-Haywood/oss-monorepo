@@ -12,7 +12,9 @@ line 30 included when the seller saves the space they use at home (the simplifie
 home is the usual reseller case). The quarterly estimates page turns the
 profit to each Form 2210 period's end into what to have paid by each 1040-ES due date, by the regular and
 the annualized (Schedule AI) methods (an estimate, not tax advice); the owner's own figures there (wages,
-last year's tax, the payments sent) are saved to the shop for its owner and admins.
+last year's tax, the payments sent) are saved to the shop for its owner and admins. An owner or admin can ask for a
+reminder email a week before each due date, carrying what is still to pay by then; a date already covered
+sends nothing, and each email has a one-click stop link.
 Expenses can be typed in or read from a bank or card statement CSV, each line with a suggested category and
 the ones that are really inventory, marketplace fees or fuel left unticked with the reason; a merchant filed
 before starts with the seller's own latest category.

@@ -7,6 +7,8 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 ## Pages
 
 - [The tool](https://marisstella.app/reseller-books/)
+- [Seller Books](https://seller-books.marisstella.app/signup): the separate hosted app for keeping these books month to month in an account (reports uploaded and saved); open on a free plan of one platform and 25 orders a month, paid plans not on sale yet.
+- [For online sellers](https://marisstella.app/industries/online-sellers/): the problems, Seller Books and the free seller tools on one page.
 
 ## Source
 
