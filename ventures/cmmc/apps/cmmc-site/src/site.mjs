@@ -108,6 +108,22 @@ export const SOURCES = [
     note: "The affirming official affirms continuing compliance in SPRS after every assessment and annually thereafter.",
   },
   {
+    id: "cfr-170-16",
+    title: "32 CFR 170.16, CMMC Level 2 self-assessment and affirmation requirements",
+    url: "https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.16",
+    publisher: "eCFR",
+    checked: "2026-11-27",
+    note: "Level 2 (Self): assessed against NIST SP 800-171A every three years, results in SPRS, affirmed at each assessment and annually; a POA&M closed out within 180 days. Read on the LII copy of the eCFR.",
+  },
+  {
+    id: "cfr-170-24",
+    title: "32 CFR 170.24, CMMC Scoring Methodology",
+    url: "https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.24",
+    publisher: "eCFR",
+    checked: "2026-11-27",
+    note: "A requirement is MET only when all applicable objectives are satisfied by evidence in final form; an objective that is N/A counts as MET. Read on the LII copy of the eCFR.",
+  },
+  {
     id: "nist-800-171a",
     title:
       "NIST SP 800-171A, Assessing Security Requirements for Controlled Unclassified Information",

@@ -174,3 +174,39 @@ the same weights and the same −203 floor, and adds the POA&M rules of
 32 CFR 170.21: whether the open items could support a Conditional Level 2
 (Self) status. It works out the score in your browser, and nothing you tick
 is sent anywhere.
+
+## Update, 27 November 2026: every requirement and objective on one page
+
+The score counts requirements, but an assessment checks objectives. NIST
+SP 800-171A splits the 110 requirements into 320 assessment objectives, and a
+requirement is MET only when every applicable objective under it is satisfied
+by evidence in final form ([32 CFR 170.24(b)](https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.24)).
+The new [CMMC Level 2 requirements page](https://marisstella.app/cmmc/cmmc-level-2-requirements)
+lists all 110 word for word, family by family, each with its point value,
+its POA&M rule and all of its objectives, read from the same extract of
+NIST's files the calculator uses.
+
+Counting the extract shows the work is not spread the way the points are:
+
+| Family | Requirements | Objectives | Points at stake |
+|---|---|---|---|
+| Access Control (AC) | 22 | 70 | 54 |
+| Configuration Management (CM) | 9 | 44 | 33 |
+| System and Communications Protection (SC) | 16 | 41 | 42 |
+| Audit and Accountability (AU) | 9 | 29 | 19 |
+| System and Information Integrity (SI) | 7 | 20 | 31 |
+| Maintenance (MA) | 6 | 10 | 18 |
+
+(The other eight families are on the page; the points of all fourteen add up
+to 313, which is where the −203 floor comes from.)
+
+Configuration Management has 44 objectives across nine requirements, and one
+of them, 3.4.7 ("Restrict, disable, or prevent the use of nonessential programs,
+functions, ports, protocols, and services"), has 15 objectives on its own, the most of any requirement.
+Audit and Accountability has 29 objectives but only 19 points. Maintenance
+is the other way round: 18 points on 10 objectives. A shop that plans its
+time by the score alone will underestimate the inventory, baseline and
+logging work, which is where the objectives pile up.
+
+The page also gives one plain example per family of the evidence a small
+shop usually shows. Those examples are ours, not part of the rule.

@@ -159,7 +159,8 @@ for (const [mode, launch] of MODES) {
     /\bguaranteed (?:score|pass|compliance|certification)/i,
     /\b(?:we|it) guarantees?\b/i,
     /\bendorsed by\b(?! the DoD or the Cyber AB)/i,
-    /\b(?:approved|authorized|accredited) (?:by|C3PAO)\b/i,
+    // NIST SP 800-171A 3.12.4[c], quoted word for word on the Level 2 requirements page.
+    /\b(?:approved|authorized|accredited) (?:by|C3PAO)\b(?! the designated authority as non-applicable)/i,
     /\bC3PAO (?:partner|approved)\b/i,
     /\bofficial (?:CMMC|DoD) (?:tool|partner|software)\b/i,
     /\btestimonial(?!s,)\b/i,
