@@ -165,16 +165,21 @@ jobs:
       # Products and prices as code: billing/paddle-catalog.json is synced to Paddle and the price ids
       # are read back, never pasted. Skipped (and checkout stays dark) without the Paddle key. Only items
       # tagged custom_data.app=payapps are touched; nothing is deleted.
+      # A Paddle problem must not block shipping the app: a failed sync warns and leaves price_ids empty,
+      # so the secret sync below falls back to PAYAPPS_BILLING_PRICE_IDS (or checkout stays dark).
       - name: Sync the Paddle catalog
         id: paddle
-        continue-on-error: true # a Paddle problem must not block shipping the app
         env:
           BILLING_API_KEY: ${{ secrets.PAYAPPS_BILLING_API_KEY }}
         run: |
           if [[ -z "$BILLING_API_KEY" ]]; then echo "PAYAPPS_BILLING_API_KEY not set: paid plans stay dark"; exit 0; fi
           out="$RUNNER_TEMP/paddle-price-ids.json"
-          node ../../packages/billing/scripts/paddle-catalog.ts --catalog billing/paddle-catalog.json --apply --price-ids-out "$out"
-          echo "price_ids=$(jq -c . "$out")" >>"$GITHUB_OUTPUT"
+          if node ../../packages/billing/scripts/paddle-catalog.ts --catalog billing/paddle-catalog.json --apply --price-ids-out "$out" \
+             && ids="$(jq -c . "$out")"; then
+            echo "price_ids=$ids" >>"$GITHUB_OUTPUT"
+          else
+            echo "::warning title=Paddle catalog sync failed::The app still deploys; price ids fall back to PAYAPPS_BILLING_PRICE_IDS if set."
+          fi
 
       - name: Deploy
         id: deploy
@@ -208,7 +213,7 @@ jobs:
           S_QBO_TOKEN_KEY: ${{ secrets.PAYAPPS_QBO_TOKEN_KEY }}
         run: |
           umask 077
-          file="$RUNNER_TEMP/worker-secrets.json"
+          file="$RUNNER_TEMP/worker-env.json"
           trap 'rm -f "$file"' EXIT
           node -e '
             const out = {};
