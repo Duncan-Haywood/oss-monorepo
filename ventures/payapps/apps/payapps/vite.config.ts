@@ -30,7 +30,7 @@ const OCR_FILES: Record<string, string> = {
   "ocr/lang/eng.traineddata.gz": join(dirname(engData), "4.0.0_best_int/eng.traineddata.gz"),
 };
 
-function ocrAssets(): Plugin {
+export function ocrAssets(): Plugin {
   return {
     name: "payapps-ocr-assets",
     configureServer(server) {

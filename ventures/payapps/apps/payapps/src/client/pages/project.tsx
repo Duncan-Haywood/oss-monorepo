@@ -393,7 +393,7 @@ export function ProjectPage() {
         </div>
       </div>
 
-      <section className="card">
+      <section className="card overflow-x-auto">
         <h2 className="mb-2 font-semibold">Schedule of values</h2>
         {mismatch && (
           <p className="mb-2 text-sm text-red-700">
@@ -593,7 +593,7 @@ export function ProjectPage() {
 
       <OpeningBalance project={p} path={path("/opening")} onSaved={setData} />
 
-      <section className="card">
+      <section className="card overflow-x-auto">
         <h2 className="mb-2 font-semibold">Change orders</h2>
         <table className="w-full">
           <tbody>
@@ -913,7 +913,7 @@ export function ProjectPage() {
 
       <Closeout base={projectPath(orgId, projectId, "")} job={p} from={from} />
 
-      <section className="card">
+      <section className="card overflow-x-auto">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="font-semibold">Pay applications</h2>
           <button
