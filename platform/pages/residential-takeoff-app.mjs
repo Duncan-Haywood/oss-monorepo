@@ -4,11 +4,11 @@
  *
  * The app is static (it runs in the browser; nothing is uploaded), so serving it is a copy: the
  * page, the modules it imports (followed import by import, so test files, benches, fixtures and the
- * CLI stay out), the IFC reader's .wasm, and the two bid-package pages. The paid path stays dark
+ * CLI stay out) and the IFC reader's .wasm. The paid path stays dark
  * (`checkout.mjs` has no links), so every feature is open until the owner sets a checkout.
  *
  * The paid folder also carries copies of the free edition's ~60 calculator pages. Those are not
- * copied: they would duplicate the free edition's pages at /wall-framing-takeoff/, which stay the
+ * copied (nor the bid-package pages, which the free edition serves too): they would duplicate the free edition's pages at /wall-framing-takeoff/, which stay the
  * ones search engines index, so links to them are pointed there. Like the other product sites the
  * hub does not list it as a tool; the construction page and the free edition link it.
  */
@@ -23,7 +23,8 @@ export const RESIDENTIAL_TAKEOFF_APP = path.join(ROOT, 'ventures', 'residential-
 export const FREE_EDITION_DIR = 'wall-framing-takeoff';
 const PRODUCTION = 'https://marisstella.app/';
 // Pages of the paid folder that are the paid edition's own (not free-edition copies).
-export const OWN_PAGES = ['index.html', 'branded-bid-package-for-framers.html', 'sample-bid-package.html'];
+// The bid-package pages are served by the free edition already (same titles), so only the app page.
+export const OWN_PAGES = ['index.html'];
 const ASSETS = ['ifc-engine.wasm'];
 
 /** `./x.mjs` specifiers a page or module imports, statically or with `import()`. */
@@ -56,7 +57,8 @@ export function rewritePage(html, rel, { baseUrl = PRODUCTION, copied = new Set(
   const out = html.replace(/href="(\.\/)?([\w-]+\.html)(#[\w-]*)?"/g, (whole, _dot, file, hash = '') =>
     copied.has(file) ? whole : `href="../${FREE_EDITION_DIR}/${file}${hash}"`)
     .replace(/href="LICENSE"/g, 'href="LICENSE.txt"');
-  const canonical = `${baseUrl}${RESIDENTIAL_TAKEOFF_DIR}/${rel === 'index.html' ? '' : rel}`;
+  // The host serves `page.html` as `page`, so a canonical names it without the extension.
+  const canonical = `${baseUrl}${RESIDENTIAL_TAKEOFF_DIR}/${rel === 'index.html' ? '' : rel.replace(/\.html$/, '')}`;
   return out.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${canonical}">`);
 }
 
@@ -74,8 +76,8 @@ Limits: quantities come from the plan the user typed or drew. Nothing checks hea
 ## Pages
 
 - [The app](${at}): walls, openings, roof, sheathing, siding, the material list and the bid package.
-- [Branded bid package for framers](${at}branded-bid-package-for-framers.html): the proposal on your letterhead with a quantities appendix and no unit prices.
-- [Sample bid package](${at}sample-bid-package.html): the package for an invented house.
+- [Branded bid package for framers](${baseUrl}${FREE_EDITION_DIR}/branded-bid-package-for-framers.html): the proposal on your letterhead with a quantities appendix and no unit prices.
+- [Sample bid package](${baseUrl}${FREE_EDITION_DIR}/sample-bid-package.html): the package for an invented house.
 - [Free edition: Wall Framing Takeoff](${baseUrl}${FREE_EDITION_DIR}/): stud layout, cut list, board order and the building calculators, free and MIT licensed.
 `;
 }
@@ -104,9 +106,7 @@ export async function buildResidentialTakeoffApp(outDir, { baseUrl = PRODUCTION,
   const licence = path.join(app, '..', '..', 'LICENSE');
   if (existsSync(licence)) await put('LICENSE.txt', await fs.readFile(licence));
   await put('llms.txt', llmsTxt(baseUrl));
-  // The sample package is an invented customer proposal: reachable, but not a search landing page.
-  const urls = pages.filter((f) => f !== 'sample-bid-package.html')
-    .map((f) => `  <url><loc>${baseUrl}${RESIDENTIAL_TAKEOFF_DIR}/${f === 'index.html' ? '' : f}</loc></url>`);
+  const urls = pages.map((f) => `  <url><loc>${baseUrl}${RESIDENTIAL_TAKEOFF_DIR}/${f === 'index.html' ? '' : f.replace(/\.html$/, '')}</loc></url>`);
   await put('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`);
   return written.sort();
 }

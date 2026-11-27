@@ -12,7 +12,7 @@ test('copies the app, its imported modules and the wasm, and leaves tests and ca
   const out = tmp();
   try {
     const written = await buildResidentialTakeoffApp(out);
-    for (const f of ['index.html', 'branded-bid-package-for-framers.html', 'sample-bid-package.html', 'engine.mjs', 'materiallist.mjs', 'roofplan.mjs', 'hipframe.mjs', 'checkout.mjs', 'ifc-engine.wasm', 'LICENSE.txt', 'llms.txt', 'sitemap.xml']) {
+    for (const f of ['index.html', 'engine.mjs', 'materiallist.mjs', 'roofplan.mjs', 'hipframe.mjs', 'checkout.mjs', 'ifc-engine.wasm', 'LICENSE.txt', 'llms.txt', 'sitemap.xml']) {
       assert.ok(written.includes(`residential-takeoff/${f}`), f);
       assert.ok(existsSync(path.join(out, 'residential-takeoff', f)), f);
     }
@@ -21,7 +21,8 @@ test('copies the app, its imported modules and the wasm, and leaves tests and ca
     const home = readFileSync(path.join(out, 'residential-takeoff/index.html'), 'utf8');
     assert.match(home, /<link rel="canonical" href="https:\/\/marisstella\.app\/residential-takeoff\/">/);
     assert.match(home, /href="\.\.\/wall-framing-takeoff\/roof-calculator\.html"/);
-    assert.match(home, /href="branded-bid-package-for-framers\.html"/);
+    assert.match(home, /href="\.\.\/wall-framing-takeoff\/branded-bid-package-for-framers\.html"/);
+    assert.ok(!written.includes('residential-takeoff/sample-bid-package.html'), 'the free edition serves the bid-package pages');
     assert.match(home, /href="LICENSE\.txt"/);
     assert.match(home, /no warranty/i);
     assert.match(home, /paid edition/i);
@@ -29,7 +30,6 @@ test('copies the app, its imported modules and the wasm, and leaves tests and ca
     for (const rel of localImports(home)) assert.ok(existsSync(path.join(out, 'residential-takeoff', rel)), rel);
     const sitemap = readFileSync(path.join(out, 'residential-takeoff/sitemap.xml'), 'utf8');
     assert.match(sitemap, /<loc>https:\/\/marisstella\.app\/residential-takeoff\/<\/loc>/);
-    assert.doesNotMatch(sitemap, /sample-bid-package/);
     assert.match(readFileSync(path.join(out, 'residential-takeoff/llms.txt'), 'utf8'), /Checkout is not open/);
     await assert.rejects(buildResidentialTakeoffApp(out), /already written/);
   } finally {
