@@ -44,6 +44,15 @@ describe("checkout tokens", () => {
       assert.equal(parseCheckoutToken(bad), null);
     }
     assert.equal(await verifyCheckoutToken(SECRET, `${ID}.${"0".repeat(64)}`, "org_a"), false);
+    // verifyCheckoutToken is exported on its own: malformed input must fail it too, not only parse
+    // (red team 2026-11-27: `if (!parsed) return true` passed every earlier test).
+    for (const bad of ["", "org_a", `${ID}.`, `${token}.x`, "x".repeat(500), 42, null]) {
+      assert.equal(await verifyCheckoutToken(SECRET, bad as string, "org_a"), false, String(bad));
+    }
+  });
+
+  it("accepts checkout tokens for 24 hours", () => {
+    assert.equal(CHECKOUT_TOKEN_TTL_MS, 24 * 60 * 60 * 1000);
   });
 
   it("generates well-formed random checkout ids and refuses to sign malformed ones", async () => {
@@ -51,6 +60,17 @@ describe("checkout tokens", () => {
     assert.equal(ids.size, 200);
     for (const id of ids) assert.ok(isCheckoutId(id), id);
     await assert.rejects(signCheckoutToken(SECRET, "org_a", "org_a"), /checkout id/);
+  });
+
+  it("rejects random bytes >= 252 so every id character is uniform", (t) => {
+    // 252 = 7 x 36; byte 252 would map to "0" and bias it. Feed 252 first, then 1s.
+    t.mock.method(crypto, "getRandomValues", (a: Uint8Array) => {
+      a.fill(1);
+      a[0] = 252;
+      a[1] = 255;
+      return a;
+    });
+    assert.equal(newCheckoutId(), `pco_${"1".repeat(20)}`);
   });
 });
 
