@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin, priceForProfit, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS, compareShopSale, shopSaleNote, SHOP_SALE_DEFAULTS, compareFreeShipping, freeShippingNote, FREE_SHIPPING_DEFAULTS, calculateListingRenewal, listingRenewalNote, compareEtsyLabels, etsyLabelsNote, etsyLabelsSummary, ETSY_LABELS_DEFAULTS } from './calc.mjs';
+import { calculateOrder, priceForMargin, priceForProfit, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS, compareShopSale, shopSaleNote, SHOP_SALE_DEFAULTS, compareFreeShipping, freeShippingNote, FREE_SHIPPING_DEFAULTS, calculateListingRenewal, listingFeesInWindow, listingRenewalNote, compareEtsyLabels, etsyLabelsNote, etsyLabelsSummary, ETSY_LABELS_DEFAULTS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -961,39 +961,63 @@ const renewalInput = {
   renewalMonths: 4,
 };
 
-test('allocates the listing fee across sales in one renewal window', () => {
+test('each sale auto-renews the listing, so five sales pay five listing fees', () => {
+  // Etsy Help Center, "Fees and Listing Multiple Quantities": a sale from a
+  // listing with stock left auto-renews it for $0.20. Hand check: revenue
+  // $35, transaction 6.5% = $2.275, payment 3% + $0.25 = $1.30, costs $11,
+  // contribution $20.425; five sales leave 5 x 20.425 - 5 x 0.20 = $101.125.
   const result = calculateListingRenewal({ ...renewalInput, expectedSales: 5 });
   const withoutListing = calculateOrder({ ...renewalInput, listingFee: 0 });
-  assert.equal(result.listingPerSale, 0.04);
+  assert.equal(Number(withoutListing.profit.toFixed(3)), 20.425);
+  assert.equal(result.listingFeesInPeriod, 1);
+  assert.equal(result.listingPerSale, 0.2);
   assert.equal(result.contributionExListing, withoutListing.profit);
-  assert.equal(result.periodProfitAfterListing, withoutListing.profit * 5 - 0.2);
-  assert.equal(Number(result.annualListingCost.toFixed(2)), 0.6);
-  assert.equal(result.overstatedInPeriod, 0.8);
+  assert.equal(Number(result.periodProfitAfterListing.toFixed(3)), 101.125);
+  assert.equal(Number(result.annualListingCost.toFixed(2)), 3);
+  assert.equal(result.missedByPerOrder, 0);
+  assert.equal(result.periodProfitAfterListing, result.scenarios[3].periodProfitIfListingPerOrder);
   assert.equal(result.coversListing, true);
   assert.equal(result.unpaidRenewal, false);
-  assert.equal(result.profitIfAllocated, calculateOrder({ ...renewalInput, listingFee: 0.04 }).profit);
+  assert.equal(result.profitIfAllocated, calculateOrder({ ...renewalInput, listingFee: 0.2 }).profit);
+});
+
+test('two sales pay $0.40 in listing fees, not one $0.20 fee split in half', () => {
+  const result = calculateListingRenewal({ ...renewalInput, expectedSales: 2 });
+  assert.equal(result.listingFeesInPeriod, 0.4);
+  assert.equal(result.listingPerSale, 0.2);
+  assert.equal(Number(result.periodProfitAfterListing.toFixed(2)), 40.45);
+  assert.equal(result.salesToRecover, 1);
 });
 
 test('keeps the listing fee on a listing that sells nothing', () => {
   const result = calculateListingRenewal({ ...renewalInput, expectedSales: 0 });
   assert.equal(result.listingPerSale, null);
   assert.equal(result.profitIfAllocated, null);
+  assert.equal(result.listingFeesInPeriod, 0.2);
   assert.equal(result.periodProfitAfterListing, -0.2);
+  assert.equal(result.missedByPerOrder, 0.2);
+  assert.equal(Number(result.annualListingCost.toFixed(2)), 0.6);
   assert.equal(result.coversListing, false);
   assert.equal(result.unpaidRenewal, true);
   assert.equal(result.scenarios[0].periodProfitAfterListing, -0.2);
+  assert.equal(result.scenarios[0].listingFees, 0.2);
   assert.equal(result.scenarios[0].periodProfitIfListingPerOrder, 0);
 });
 
-test('counts how many sales recover the listing fee from leftover contribution', () => {
-  const result = calculateListingRenewal({ ...renewalInput, expectedSales: 2 });
-  assert.equal(result.salesToRecover, 1);
-  assert.ok(result.contributionExListing > 0.2);
-  assert.equal(Number(result.periodProfitAfterListing.toFixed(2)), 40.65);
-  assert.equal(result.listingPerSale, 0.1);
+test('a sale every eight months pays an expiry renewal plus a sale renewal', () => {
+  // 0.5 sales per 4-month window: each 8-month gap holds one expiry renewal
+  // at month 4 and the sale's own renewal, $0.40 a sale, $0.20 a window.
+  assert.equal(listingFeesInWindow(0.2, 0.5), 0.2);
+  assert.equal(Number(listingFeesInWindow(0.2, 0.25).toFixed(4)), 0.2);
+  assert.equal(Number(listingFeesInWindow(0.2, 0.4).toFixed(4)), 0.24);
+  const half = calculateListingRenewal({ ...renewalInput, expectedSales: 0.5 });
+  assert.equal(half.listingPerSale, 0.4);
+  assert.equal(Number(half.missedByPerOrder.toFixed(4)), 0.1);
+  assert.equal(listingFeesInWindow(0.2, 1), 0.2);
+  assert.equal(listingFeesInWindow(0.2, 3), 0.2 * 3);
 });
 
-test('reports that a losing order never recovers the listing fee', () => {
+test('a sale earning less than its renewal fee never covers listing cost', () => {
   const result = calculateListingRenewal({
     ...renewalInput,
     price: 5,
@@ -1004,6 +1028,10 @@ test('reports that a losing order never recovers the listing fee', () => {
   });
   assert.equal(result.salesToRecover, null);
   assert.equal(result.coversListing, false);
+  const thin = calculateListingRenewal({ ...renewalInput, otherCost: 21.3, expectedSales: 10 });
+  assert.ok(thin.contributionExListing > 0 && thin.contributionExListing < 0.2);
+  assert.equal(thin.salesToRecover, null);
+  assert.equal(thin.coversListing, false);
 });
 
 test('rejects a zero or invalid renewal window', () => {
@@ -1011,16 +1039,20 @@ test('rejects a zero or invalid renewal window', () => {
   assert.throws(() => calculateListingRenewal({ ...renewalInput, expectedSales: -1 }), /non-negative/);
 });
 
-test('listingRenewalNote names unpaid renewals and overstated per-order fees', () => {
+test('listingRenewalNote names unpaid renewals and per-sale renewals', () => {
   const unpaid = listingRenewalNote(calculateListingRenewal({ ...renewalInput, expectedSales: 0 }));
   assert.match(unpaid, /\$0\.20/);
   assert.match(unpaid, /even if nothing sells/);
   assert.match(unpaid, /\$0\.60/);
   const two = listingRenewalNote(calculateListingRenewal({ ...renewalInput, expectedSales: 2 }));
-  assert.match(two, /\$40\.65/);
-  assert.match(two, /\$0\.10/);
-  assert.match(two, /1 sale recovers/);
-  assert.match(two, /\$0\.20/);
+  assert.match(two, /\$40\.45/);
+  assert.match(two, /\$0\.40 in listing fees/);
+  assert.match(two, /each sale auto-renews/);
+  assert.doesNotMatch(two, /overstates/);
+  const one = listingRenewalNote(calculateListingRenewal({ ...renewalInput, expectedSales: 1 }));
+  assert.match(one, /^1 sale in/);
+  const half = listingRenewalNote(calculateListingRenewal({ ...renewalInput, expectedSales: 0.5 }));
+  assert.match(half, /misses \$0\.10/);
 });
 
 test('Etsy label defaults match the $6 / $5.10 / 4 min example', () => {
@@ -1188,4 +1220,11 @@ test('Offsite Ads fee stops at Etsy\'s $100 per-order cap', async () => {
   assert.ok(Math.abs(calculateOrder({ price: 40, shippingCharged: 5, offsiteAdRate: 15 }).fees.offsiteAd - 6.75) < 1e-9);
   // With more than $100 of organic profit, no rate pushes the order below $0.
   assert.equal(maxAffordableOffsiteRate({ price: 990, shippingCharged: 10 }), Infinity);
+});
+
+test('maxAffordableOffsiteRate at a floor exactly equal to organic profit is 0%, not null', () => {
+  // Quality audit 2026-11-26 defect 5: '<' -> '<=' at this boundary survived.
+  const input = { price: 30, shippingCharged: 5, shippingCost: 6, materialCost: 4, otherCost: 1 };
+  const organic = calculateOrder({ ...input, offsiteAdRate: 0 });
+  assert.equal(maxAffordableOffsiteRate(input, organic.profit), 0);
 });
