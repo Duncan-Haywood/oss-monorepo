@@ -6,7 +6,7 @@ each field accepts several known spellings. Position never matters. The header r
 missing field and the spellings accepted for it. A changed export therefore fails loudly instead of importing
 wrong numbers.
 
-**Verification status (2026-11-24; Mercari, Whatnot and Etsy's file menus re-checked on official pages 2026-11-26; Shopify added 2026-11-26 from its own column lists; Amazon added 2026-11-26 from no live page, see its section; TikTok Shop added 2026-11-26 from a column dictionary and TikTok's field definitions, see its section; Square added 2026-11-26 from a seller-quoted header row and Square's glossary, see its section).** This environment could not open the marketplaces' help pages. The column
+**Verification status (2026-11-24; Mercari, Whatnot and Etsy's file menus re-checked on official pages 2026-11-26; Shopify added 2026-11-26 from its own column lists; Amazon added 2026-11-26 from no live page, see its section; TikTok Shop added 2026-11-26 from a column dictionary and TikTok's field definitions, see its section; Square added 2026-11-26 from a seller-quoted header row and Square's glossary, see its section; PayPal added 2026-11-27 from PayPal's own field reference, see its section).** This environment could not open the marketplaces' help pages. The column
 names below come from search-engine excerpts of those pages, from seller and community posts that quote the
 headers, and, where noted, only from the help page's own field descriptions. **No platform's full, ordered
 header row was confirmed.** The fixtures in `test/fixtures/` were written to match these names; they are not
@@ -344,6 +344,55 @@ through it.**
   other than payment or refund; amounts in a currency other than dollars (the amount does not parse).
 - **Ids:** `Transaction ID`, `Payment ID` and the event type (a hash of the row without them). Two refunds of
   one payment are told apart by amount, then by their order among equals, so the same file again adds nothing.
+
+## PayPal: Activity download (sales paid by PayPal off the marketplaces)
+
+paypal.com > Activity > Statements > Activity download, CSV, for up to 12 months at a time. Added 2026-11-27
+for the sales a reseller is paid for in PayPal without a marketplace payout behind them: a local pickup or a
+Facebook Marketplace or Instagram sale paid by PayPal goods and services, or a site whose buyers pay into the
+seller's PayPal account. Until then these had to be typed in one at a time as direct sales. One row is one
+balance entry.
+
+**How sure we are: high on the names and meanings, medium on the `Type` labels, low on the signs of refund
+fees.** Every column name and its meaning comes from PayPal's own field reference, "Activity Download report"
+(developer.paypal.com/reports/activity-download, read 2026-11-27): `Gross` is "the localized gross amount of
+the transaction, including fees", `Fee` "the localized fee amount that is associated with the transaction",
+`Balance Impact` "`Debit`, `Credit`, or `Memo`", `Status` one of `Completed`, `Denied`, `Reversed`, `Pending`
+and others, and `Type` "the transaction event code (T-code) description" (the list at
+developer.paypal.com/reports/reference/t-codes, read the same day). The fixture
+`test/fixtures/paypal-activity-download.csv` uses the reference's column order with the default columns; it is
+not a real export, and how the CSV spells each T-code description (for example "Express Checkout Payment" for
+T0006, "Express Checkout payment" in the reference) is not confirmed, so types are matched by words, not
+exact labels. A Tiller community thread reports downloads with `Amount` in place of `Gross`; both are accepted.
+**Before launch, run one real download through it.**
+
+- **Required:** `Date`, `Type`, `Status`, `Gross` (or `Amount`).
+- **Also read:** `Fee`, `Net`, `Currency`, `Name` (only to spot marketplace payouts, never stored),
+  `Transaction ID`, `Reference Txn ID`, `Item Title`, `Subject`, `Quantity`, `Shipping and Handling Amount`,
+  `Insurance Amount`, `Sales Tax`, `Balance Impact`.
+- **Payments received** (a type naming a payment, checkout or purchase, credited): a sale. Item income is
+  `Gross` less shipping and handling, insurance and sales tax; shipping and insurance are shipping charged;
+  `Sales Tax` is kept out of income. `Fee` → payment processing. `Net` is not stored as the report's net,
+  because it includes the tax. The title is `Item Title`, else the payer's `Subject`. A warning says that every
+  payment received is counted as a sale, so money from friends, a loan repaid or a personal item sold at a loss
+  must be left out or deleted afterwards: PayPal's file cannot tell them apart.
+- **Marketplace payouts:** a payment whose `Name` is eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify,
+  Amazon, TikTok or Square is skipped (and so is a refund of it), with a warning to import that platform's own
+  report, so its sales are not counted twice.
+- **Refunds** (refund, reversal or chargeback, debited): a refund of `Gross` less its sales tax, dated on its
+  own date, with `Fee` read as PayPal signs it (positive on a refund = fee given back). A refund whose
+  `Reference Txn ID` is a payment left out (not completed, a marketplace payout) is left out too; one whose
+  payment is not in the file is imported, with a warning to check the sale is in the books.
+- **Fee rows** (a type naming a fee: a chargeback or dispute fee, a fee reversal): an account-level charge
+  (`other` for chargeback and dispute fees, else payment processing), negative when PayPal gave it back. A fee
+  row for a payment whose own `Fee` cell already holds a fee is skipped, so a fee is never counted twice.
+- **Skipped, each with its reason:** a status other than `Completed`; `Memo` rows; holds, releases, reserves
+  and authorisations; withdrawals, transfers, deposits and currency conversions (money between the seller's
+  own accounts); payments the seller sent (a warning totals them: stock goes in Inventory, supplies and
+  postage in Expenses); refunds and reversals credited to the seller; rows in a currency other than USD
+  (counted in a warning); anything else, with its type named.
+- **Ids:** `Transaction ID` (PayPal's unique 17-character id), or a hash of the date, type, amounts and name
+  without one, so the same file again adds nothing.
 
 ## Your own sourcing sheet (inventory, not a marketplace report)
 
