@@ -9559,7 +9559,7 @@ export function renderHub(
   // The product lines (business.mjs). Tools the build did not publish drop out of the cards.
   const publishedTools = new Map(surfaces.map((s) => [s.slug, cardName(s.title)]));
   const liveLines = PRODUCT_LINES.filter((l) => l.status === 'live');
-  const liveNames = liveLines.map((l) => l.name).join(' and ') || 'None';
+  const liveNames = joinNames(liveLines.map((l) => l.name)) || 'None';
 
   return `<!doctype html>
 <html lang="en">
@@ -11698,6 +11698,11 @@ export function relatedToolsTable(surfaces, limit = 4) {
 // no content images either.
 export const SOCIAL_CARD_FILE = 'social-card.png';
 
+/** "A", "A and B", "A, B and C". */
+export function joinNames(names) {
+  return names.length < 3 ? names.join(' and ') : `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`;
+}
+
 /**
  * The site card's footer line: the live product lines by name, how many
  * software lines are in early access, and the free tool count. Hardware
@@ -11707,7 +11712,7 @@ export function siteCardFooter(lines, toolCount) {
   const live = lines.filter((l) => l.status === 'live').map((l) => l.name);
   const early = lines.filter((l) => l.status === 'early-access').length;
   const parts = [];
-  if (live.length) parts.push(`${live.join(' and ')} live`);
+  if (live.length) parts.push(`${joinNames(live)} live`);
   if (early) parts.push(`${formatCount(early)} in early access`);
   parts.push(`${formatCount(toolCount)} free tools`);
   return parts.join(' · ');

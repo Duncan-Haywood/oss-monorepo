@@ -63,7 +63,7 @@ test('the finder goes business -> problem -> product, and only says live of what
   }
   // Every software problem is a link to its product.
   for (const l of PRODUCT_LINES.filter((x) => x.kind === 'software' && x.industry)) {
-    const href = l.status === 'live' ? l.href : `industries/${l.industry}/#${l.id}`;
+    const href = (l.status === 'live' ? l.href : `industries/${l.industry}/#${l.id}`).replace(/&/g, '&amp;');
     for (const p of l.problems) assert.ok(html.includes(`href="${href}" data-funnel-product="${l.id}"`), `${l.id}: ${p}`);
   }
   assert.equal((html.match(/· live →/g) || []).length, PRODUCT_LINES.filter((l) => l.status === 'live' && l.industry).reduce((n, l) => n + l.problems.length, 0));

@@ -77,12 +77,14 @@ export function renderProductCard(l, { toRoot = '', published = null, heading = 
   // `published` may be a Map of slug to the tool's short name; a Set or nothing falls back to the slug.
   const toolNames = (slug) => (published instanceof Map && published.get(slug)) || slug.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
   const status = STATUS[l.status];
+  // An app on its own subdomain has an absolute href; a page on this site a relative one.
+  const hrefOf = (h) => (/^https:\/\//.test(h) ? h : toRoot + h);
   const title = l.href
-    ? `<a href="${esc(toRoot + l.href)}" data-pf-to="${esc(l.id)}">${esc(l.name)}</a>`
+    ? `<a href="${esc(hrefOf(l.href))}" data-pf-to="${esc(l.id)}">${esc(l.name)}</a>`
     : anchor ? `<a href="${esc(`${toRoot}${PRODUCTS_PATH}#${l.id}`)}">${esc(l.name)}</a>` : esc(l.name);
   const toolLabel = l.kind === 'hardware' ? 'The design' : 'Free tools that do part of it today';
   const cta = l.status === 'live'
-    ? `<a class="pl-go" data-status="live" href="${esc(toRoot + l.href)}" data-pf-to="${esc(l.id)}">Open ${esc(l.name)}</a>`
+    ? `<a class="pl-go" data-status="live" href="${esc(hrefOf(l.href))}" data-pf-to="${esc(l.id)}">Open ${esc(l.name)}</a>`
     : l.status === 'early-access'
       ? `<a class="pl-go" href="${esc(earlyAccessHref(l))}">Ask for early access</a>`
       : '';

@@ -49,10 +49,13 @@ test('covers the problems the brief names', () => {
   for (const id of ['true-profit', 'payouts', 'cogs', 'mileage', 'schedule-c', 'thresholds']) assert.ok(ids.includes(id), id);
 });
 
-test('says in development, takes no money, and is not tax advice', () => {
+test('open on the Free plan, links the sign-up, takes no money, and is not tax advice', () => {
   const html = renderOnlineSellersPage({ baseUrl: base, surfaces: all, shell });
-  assert.match(html, /In development \(early access\)/);
-  assert.match(html, /not open for sign-up or payment yet/);
+  assert.match(html, /Open · free on one platform/);
+  assert.match(html, /href="https:\/\/seller-books\.marisstella\.app\/signup\?from=industries\/online-sellers"/);
+  assert.match(html, /Paid plans for more platforms and orders are not on sale yet/);
+  assert.doesNotMatch(html, /workers\.dev/, 'link the custom domain; workers.dev is off');
+  assert.doesNotMatch(html, /will be built|is being built|early access/i);
   assert.match(html, /Not tax advice/);
   assert.doesNotMatch(html, /\$\d+(\.\d\d)?\s*(\/|per )\s*mo/i, 'no price is set, so none is shown');
   assert.match(html, /No warranty/);

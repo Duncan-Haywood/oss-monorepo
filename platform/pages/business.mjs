@@ -11,8 +11,11 @@
 // Honesty rules this file is held to (prompts/goals.md, hard limits; checked
 // by business.test.mjs):
 //   * `status: 'live'` only for a product a visitor can open and use today.
-//     On 2026-11-24 that is Grant Autopilot alone (served at /grants/ by the
-//     site Worker). Everything else is 'early-access' (software being built,
+//     On 2026-11-24 that was Grant Autopilot alone (served at /grants/ by the
+//     site Worker); on 2026-11-27 PayApps and Seller Books joined it, each open
+//     on its Free plan at its own subdomain (payapps-deploy run 45949861746,
+//     seller-books-deploy run 45973427499; their paid plans are not on sale).
+//     Everything else is 'early-access' (software being built,
 //     the free tools beside it are live) or 'long-term' (hardware designs;
 //     nothing has been physically built).
 //   * Problems are the customer's jobs in plain words. No percentages, no
@@ -25,7 +28,8 @@
 //   problems  3 or 4 jobs that customer most often struggles with
 //   product   one sentence: what the product does for them
 //   status    'live' | 'early-access' | 'long-term'
-//   href      site-relative link to the product when live, else null
+//   href      link to the product when live, else null: site-relative, or an
+//             absolute https:// URL for an app on its own subdomain
 //   industry  an INDUSTRIES slug, or null (hardware lines)
 //   kind      'software' | 'hardware'
 //   tools     slugs of free tools on this site that do part of the job today
@@ -251,9 +255,9 @@ export const PRODUCT_LINES = Object.freeze([
       'Collecting lien waivers, and not missing a lien deadline',
       'Getting approved change orders onto the next bill',
     ],
-    product: 'Pay applications, retainage, lien waivers and change orders in one place, growing into a suite for running the whole job.',
-    status: 'early-access',
-    href: null,
+    product: 'PayApps: pay applications, retainage and change orders in one place, free on one job with no card. Lien waivers, QuickBooks and job costing are in paid plans, not on sale yet.',
+    status: 'live',
+    href: 'https://payapps.marisstella.app/?signup&from=products',
     industry: 'construction',
     kind: 'software',
     tools: ['pay-application-generator', 'retainage-cashflow-calculator', 'lien-waiver-checker', 'mechanics-lien-deadline-calculator'],
@@ -301,9 +305,9 @@ export const PRODUCT_LINES = Object.freeze([
       'Combining several platforms’ payout reports into one set of books',
       'Getting a Schedule C-ready profit and loss at tax time',
     ],
-    product: 'Payout reports from each platform in, fees split out, a Schedule C-ready profit and loss out.',
-    status: 'early-access',
-    href: null,
+    product: 'Seller Books: each platform\'s reports in, fees and cost of goods split out, a Schedule C worksheet out. Free on one platform with no card; paid plans are not on sale yet.',
+    status: 'live',
+    href: 'https://seller-books.marisstella.app/signup?from=products',
     industry: 'online-sellers',
     kind: 'software',
     tools: ['reseller-books', 'ebay-fee-calculator', 'poshmark-fee-calculator', 'ebay-payout-to-journal'],
