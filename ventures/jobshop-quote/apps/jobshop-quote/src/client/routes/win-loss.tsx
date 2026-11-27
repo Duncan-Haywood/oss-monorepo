@@ -46,7 +46,7 @@ export function WinLossPage() {
           </Select>
           {r && r.quoteCount > 0 && (
             <a
-              href={orgApi(orgId, `/quotes/analytics.csv?window=${range}`)}
+              href={orgApi(orgId, `/quotes/analytics.csv?window=${encodeURIComponent(range)}`)}
               download
               className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-800 hover:bg-stone-50"
             >

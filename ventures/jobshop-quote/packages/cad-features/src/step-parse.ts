@@ -161,7 +161,7 @@ export function parseStep(text: string): StepFile {
   const schema = schemaMatch ? (schemaMatch[1] as string).trim() : "";
   const instances = new Map<number, Instance>();
   let errors = 0;
-  const dataStart = text.search(/\bDATA\s*(\([^)]*\))?\s*;/);
+  const dataStart = text.search(/\bDATA\s*(?:\([^)]*\)\s*)?;/);
   if (dataStart < 0) return { schema, instances, errors: 1 };
   const cur = new Cursor(text);
   cur.i = text.indexOf(";", dataStart) + 1;

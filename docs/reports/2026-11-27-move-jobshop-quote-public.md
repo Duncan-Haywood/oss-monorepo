@@ -57,6 +57,11 @@ the private copy goes or gets the same patch (the checks will say so):
   path with a space); now `pathToFileURL`.
 - gitleaks (`security-scan`) read the inbound-address alphabet constant `TOKEN_ALPHABET = "0123…xyz"`
   as a generic API key; renamed `ADDRESS_ALPHABET` and built from two parts (same string, no secret).
+- CodeQL's PR gate (six findings on the new lines, all in moved code): the win/loss CSV link encodes
+  the window value; the currency-symbol regex escapes every metacharacter, backslash included; the
+  site's `mainText` (llms-full.txt) strips blocks and tags until nothing matches; two billing tests
+  compare the Paddle host exactly instead of by substring; the STEP `DATA` regex no longer
+  backtracks polynomially on runs of tabs (test with 50,000 tabs).
 - Nine literal U+FEFF characters written as `\uFEFF` escapes (same string).
 - The app's SPA shell `index.html` and a site test fixture are marked `noindex` (thin-page check;
   the shell is a sign-in app, the marketing pages are `apps/jobshop-site`).

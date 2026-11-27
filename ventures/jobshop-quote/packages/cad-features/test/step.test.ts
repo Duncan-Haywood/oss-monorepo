@@ -225,3 +225,19 @@ describe("STEP solids", () => {
     assert.equal(r.fieldConfidence.boundingBox, "low");
   });
 });
+
+describe("parseStep on hostile input", () => {
+  it("finds no DATA section in a long run of tabs quickly (no polynomial backtracking)", () => {
+    const text = `ISO-10303-21;\nDATA${"\t".repeat(50_000)}`;
+    const t0 = performance.now();
+    const f = parseStep(text);
+    assert.equal(f.errors, 1);
+    assert.ok(performance.now() - t0 < 500, "parse took too long");
+  });
+
+  it("still reads DATA with or without a section name", () => {
+    const body = "#1=CARTESIAN_POINT('',(0.,0.,0.));\nENDSEC;\nEND-ISO-10303-21;\n";
+    assert.equal(parseStep(`ISO-10303-21;\nDATA;\n${body}`).instances.size, 1);
+    assert.equal(parseStep(`ISO-10303-21;\nDATA ('s1') \t;\n${body}`).instances.size, 1);
+  });
+});

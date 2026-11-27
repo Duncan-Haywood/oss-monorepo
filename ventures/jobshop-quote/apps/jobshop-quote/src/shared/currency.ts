@@ -167,7 +167,8 @@ const SYMBOLS: [string, readonly string[]][] = [
   ["kr", KRONE],
 ];
 
-const esc = (s: string) => s.replace(/[.$]/g, "\\$&");
+/** Every regex metacharacter escaped, backslash included. */
+const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const SYMBOL_ALT = SYMBOLS.map(([s]) => esc(s)).join("|");
 const CODE_ALT = "[A-Za-z]{3}";
 const PREFIX_RE = new RegExp(`^(${SYMBOL_ALT}|${CODE_ALT})\\s*(?=[\\d.,])`, "i");
