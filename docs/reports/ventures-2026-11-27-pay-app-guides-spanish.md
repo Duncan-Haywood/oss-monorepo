@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-27
+---
 # pay-app-guides: the first Spanish page, and how to add the next (2026-11-27)
 
 Bet #1 (PayApps) had every ROADMAP Next item waiting on demand, so this run took a front-door slice
