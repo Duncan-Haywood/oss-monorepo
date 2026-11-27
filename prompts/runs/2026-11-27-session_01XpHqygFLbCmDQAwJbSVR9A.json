@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 11,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "main red in ventures/pay-app-guides (nav block missing on coconstruct-alternatives.html, PR #19696); fixed forward here"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -53,13 +55,19 @@
       "why": "Its suggested item (#11) needs real devices; the Texas notices were an untouched part of the Growth path's 'subcontractor compliance documents' topic for the third-largest state.",
       "did": "claimed a new slug texas-notice-of-claim",
       "result": "Shipped both statutory forms, the deadlines and a customer post in one PR."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Consolidated posts over one post per PR: a parallel PR had already put Texas in the Florida post.",
+      "did": "deleted this PR's new Texas post and extended the existing section",
+      "result": "one Texas section, linking the free guide and the paid feature"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-27-texas-notice-of-claim-for-subcontractors.md"
+    "docs/posts/2026-11-27-florida-notice-to-owner-45-days.md (its Texas section, which PR #19697 added, now says PayApps prints both notices)"
   ],
   "goal": "$10k MRR: deepen the paid PayApps suite (Crew plan feature) and add a customer post for the 'Texas notice of claim' search",
-  "notes": "Security queue empty (7 claimed). No ideas or requests. private-monorepo clone refused (final). Seller Books and Job Shop Quote were already being worked by open PRs (#19692, #19682, #19703). Texas statute text came from tcss.legis.texas.gov's chapter 53 file (200) and H.B. 2237's enrolled PDF (Sec. 37 applicability). Local checks: lien-waivers node --test 262/262; payapps typecheck, test:unit, worker notices.test.ts 8/8, build; payapps-site test:unit 22/22 and build; biome clean. Not run: the Playwright e2e suite (the UI change is a select and a date helper with no server calls). Preflight result is appended below if it finished. Merge was first held by Security gate pending behind a queued run for the superseded first commit (cancelled it, run 45985737749); a local adversarial-gate run then showed one block (above), fixed in a third commit.",
+  "notes": "Security queue empty (7 claimed). No ideas or requests. private-monorepo clone refused (final). Seller Books and Job Shop Quote were already being worked by open PRs (#19692, #19682, #19703). Texas statute text came from tcss.legis.texas.gov's chapter 53 file (200) and H.B. 2237's enrolled PDF (Sec. 37 applicability). Local checks: lien-waivers node --test 262/262; payapps typecheck, test:unit, worker notices.test.ts 8/8, build; payapps-site test:unit 22/22 and build; biome clean. Not run: the Playwright e2e suite (the UI change is a select and a date helper with no server calls). Preflight result is appended below if it finished. Merge was first held by Security gate pending behind a queued run for the superseded first commit (cancelled it, run 45985737749); a local adversarial-gate run then showed one block (above), fixed in a third commit. After merging main: PR #19697 (a parallel run) had shipped the free Texas guide page (pay-app-guides/texas-lien-notice.html) and folded Texas into the Florida post, so this PR's separate Texas post was dropped in favour of that section (consolidated posts), and the guide page now says PayApps prints both notices. Main was red in pay-app-guides (coconstruct-alternatives.html from PR #19696 missing the nav block); fixed forward with node nav.mjs (344/344 pass).",
   "corrections": [],
   "redteam": null,
   "usage": {
