@@ -114,53 +114,54 @@ function planPrices(): string {
   ).join("; ");
 }
 
-/**
- * Cuts every script, style, form and nav element, opening tag to matching closing tag, by
- * scanning rather than one regex pass (which can join the halves of a removed tag). An element
- * left open drops the rest of the text.
- */
-function dropBlocks(html: string): string {
-  const lower = html.toLowerCase();
-  const open = /<(script|style|form|nav)\b/gi;
-  let out = "";
-  let at = 0;
-  for (let m = open.exec(html); m; m = open.exec(html)) {
-    out += html.slice(at, m.index);
-    const close = `</${(m[1] ?? "").toLowerCase()}>`;
-    const end = lower.indexOf(close, m.index);
-    if (end < 0) return out;
-    at = end + close.length;
-    open.lastIndex = at;
-  }
-  return out + html.slice(at);
-}
+const SKIP = new Set(["script", "style", "form", "nav"]);
+const HEADING: Record<string, string> = { h1: "# ", h2: "## ", h3: "### ", summary: "### " };
+const BLOCK_END = new Set(["p", "ul", "ol", "div", "section", "article", "details"]);
 
-/** The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only. */
+/**
+ * The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only.
+ * One pass over tag and text tokens (no regex replace on markup, so no removal can join the
+ * halves of a tag); script, style, form and nav elements are dropped with their content, and a
+ * stray angle bracket never reaches the output. &lt; and &gt; stay encoded (Markdown shows them
+ * as < and >).
+ */
 export function htmlToMarkdown(input: string): string {
-  const text = dropBlocks(input);
-  return (
-    text
-      .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, "\n# $1\n\n")
-      .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, "\n## $1\n\n")
-      .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, "\n### $1\n\n")
-      .replace(/<summary[^>]*>([\s\S]*?)<\/summary>/gi, "\n### $1\n\n")
-      .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, "\n- $1")
-      .replace(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, "[$2]($1)")
-      .replace(/<(strong|b)>([\s\S]*?)<\/\1>/gi, "**$2**")
-      .replace(/<\/(p|ul|ol|div|section|article|details)>/gi, "\n\n")
-      .replace(/<[^>]+>/g, "")
-      .replace(/[<>]/g, "")
-      .replace(/&#39;/g, "'")
-      .replace(/&quot;/g, '"')
-      // &lt; and &gt; stay encoded (Markdown renders them as < and >): decoding them after the
-      // tags are gone could rebuild markup from escaped text (CodeQL js/incomplete-multi-character-sanitization).
-      .replace(/&amp;(?!lt;|gt;)/g, "&")
-      .split("\n")
-      .map((l) => l.replace(/\s+/g, " ").trim())
-      .join("\n")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim()
-  );
+  let out = "";
+  let skip = "";
+  let href = "";
+  for (const [token] of input.matchAll(/<\/?[a-zA-Z][^<>]*>|[^<]+|</g)) {
+    const tag = /^<(\/?)([a-zA-Z][a-zA-Z0-9]*)/.exec(token);
+    if (!tag) {
+      if (!skip && token !== "<") out += token.replace(/>/g, "");
+      continue;
+    }
+    const closing = tag[1] === "/";
+    const name = (tag[2] ?? "").toLowerCase();
+    if (skip) {
+      if (closing && name === skip) skip = "";
+      continue;
+    }
+    if (!closing && SKIP.has(name)) skip = name;
+    else if (HEADING[name]) out += closing ? "\n\n" : `\n${HEADING[name]}`;
+    else if (name === "li" && !closing) out += "\n- ";
+    else if (name === "a") {
+      if (closing) out += href ? `](${href})` : "";
+      else {
+        href = /\shref="([^"]*)"/.exec(token)?.[1] ?? "";
+        if (href) out += "[";
+      }
+    } else if (name === "strong" || name === "b") out += "**";
+    else if (closing && BLOCK_END.has(name)) out += "\n\n";
+  }
+  return out
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;(?!lt;|gt;)/g, "&")
+    .split("\n")
+    .map((l) => l.replace(/\s+/g, " ").trim())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 /** Root-relative links (/payapps/pricing) become absolute in the Markdown copies. */

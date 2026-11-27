@@ -65,6 +65,10 @@
     {
       "file": "CLAUDE.md (Duplicate PRs)",
       "issue": "'run slug_dupe again before opening a PR' is not enough when a PR sits in CI for hours: the 45-min CodeQL JS analysis on a 960-file PR let a parallel session open and merge the same move (#19586 opened after #19571). A long-running PR should re-run slug_dupe (or check the work: tag) before each push"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "each CodeQL JS round on a PR touching ventures/payapps takes ~45 min, and js/incomplete-multi-character-sanitization moves to the next regex in a replace chain after each fix: rewrite such converters as a tokenizer on the first finding instead of patching one replace at a time"
     }
   ],
   "deviations": [
@@ -83,7 +87,7 @@
   ],
   "writeups": [],
   "goal": "$10k MRR: PayApps is launch-approved but could not deploy because the private repo's Actions start no jobs; this repo's do",
-  "notes": "PR #19571 moved PayApps to top-level apps/ (private 0c4bf8e8, prepub audit 0 block) and went green on everything but CodeQL after fixing BOMs, gate-tripping comment text, harness paths, publish-surface, third-party, check_code_refs; CodeQL JS then found 4 high alerts in the moved code. Meanwhile #19586 (ventures/payapps) merged, so #19571 was closed as superseded. This PR applies the fixes to ventures/payapps: ca-ecpr notes and payapps-site htmlToMarkdown strip in a fixpoint loop and drop stray brackets, htmlToMarkdown no longer decodes &lt;/&gt; after stripping (llms-full.txt had none, so output unchanged), paddle.test compares the parsed host. Local: payapps-site biome/tsc/unit 21/worker 10; payapps biome/tsc/ca-ecpr tests 9+1 skipped; billing node tests 86 pass. CodeQL still flagged the fixpoint-loop regex in htmlToMarkdown (it does not recognise that loop with a backreference), so blocks are now cut by an exec/indexOf scan (dropBlocks), with a test for a removed block joining the halves of a tag; site unit 22, worker 10.",
+  "notes": "PR #19571 moved PayApps to top-level apps/ (private 0c4bf8e8, prepub audit 0 block) and went green on everything but CodeQL after fixing BOMs, gate-tripping comment text, harness paths, publish-surface, third-party, check_code_refs; CodeQL JS then found 4 high alerts in the moved code. Meanwhile #19586 (ventures/payapps) merged, so #19571 was closed as superseded. This PR applies the fixes to ventures/payapps: ca-ecpr notes and payapps-site htmlToMarkdown strip in a fixpoint loop and drop stray brackets, htmlToMarkdown no longer decodes &lt;/&gt; after stripping (llms-full.txt had none, so output unchanged), paddle.test compares the parsed host. Local: payapps-site biome/tsc/unit 21/worker 10; payapps biome/tsc/ca-ecpr tests 9+1 skipped; billing node tests 86 pass. CodeQL still flagged the fixpoint-loop regex in htmlToMarkdown (it does not recognise that loop with a backreference), so blocks are now cut by an exec/indexOf scan (dropBlocks), with a test for a removed block joining the halves of a tag; site unit 22, worker 10. CodeQL then flagged the next regex in the chain, so htmlToMarkdown is now a single tag/text tokenizer with a small state machine (no regex replace on markup); the built llms-full.txt is byte-identical to main's (37,595 bytes).",
   "corrections": [],
   "redteam": null,
   "usage": {
