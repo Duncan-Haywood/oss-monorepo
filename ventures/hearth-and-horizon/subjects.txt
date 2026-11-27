@@ -129,3 +129,7 @@ for-other-minds | Dunning-Kruger | a confidence that is highest where skill is l
 for-other-minds | publication bias, file drawer | the studies that found nothing never printed, so the printed ones overstate
 for-other-minds | mediation, mediator | the new bus route raises attendance through earlier arrival, not through the route itself
 for-other-minds | omitted variable | a regression that credits the hymn books with what the new heating did
+for-other-minds | Lord's paradox | two honest analyses of the same before-and-after weights reach opposite verdicts on a school dinner change
+for-other-minds | Campbell's law | a parish visiting scheme scored on visits made, and the visits get shorter as the count climbs
+for-other-minds | Stein's paradox, shrinkage | ranking a diocese's small parishes by one year's collection rewards the ones with the fewest people
+for-other-minds | look-elsewhere | a cluster of illness on one street, found by searching every street in the town
