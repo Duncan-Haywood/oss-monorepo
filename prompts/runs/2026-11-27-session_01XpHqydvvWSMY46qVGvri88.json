@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqydvvWSMY46qVGvri88",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T23:39:01Z",
+  "ended": "2026-11-27T23:46:37Z",
+  "wall_minutes": 7.83,
+  "tokens_in": 3575081,
+  "tokens_out": 35888,
+  "cost_usd": 2.3095,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19917",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py printed /usr/bin/python3.13 (no numpy) while /usr/bin/python3 had numpy; bare python3 in the scratchpad dir also lacked numpy. Had to probe interpreters by hand."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "For Other Minds 'Next up' was empty, so the run had to write and claim a proposal first; overlap.mjs --unused made that quick. Two of its six unused subjects (look-elsewhere, Campbell's law) are close to finished stories (Toss It Again, The Forty Cuts; Ninety-Seven Visits), which --unused cannot see because it matches subject words, not ideas."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (581 MB of 400 MB), so the story is text only, as the prompt directs.",
+      "did": "Landed text, pages, feeds and llms.txt without audio.",
+      "result": "Tests pass; page lists without audio."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: the deliverable is a story on the fiction shelf, and the 2026-11-24 direction is to consolidate posts rather than add one per PR.",
+      "did": "Wrote the story with a full model note instead; no post.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/hearth-and-horizon/stories/two-walls-in-september.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, For Other Minds shelf. Piece: two-walls-in-september (Lord's paradox: gain scores vs ANCOVA on apprentice layout tests at an invented Wisconsin builder; setting nods to the construction bets' customers). Proposal written and claimed in BIBLE.md first (draft PR), then marked Done; DONE.md and timeline updated by bible_done.mjs. Numbers simulated with numpy (seed 164 from a disclosed search; 34.0% of 2,000 null datasets give a significant ANCOVA). Re-read caught one false claim (Natalie 'the only apprentice' to score lower in June; four did) and an intake-size inconsistency with '14 places'; both fixed. Verification: node --test in ventures/hearth-and-horizon 22/22 pass; run_venture_tests.py hearth-and-horizon 1 suite, 0 failed; risk_review: nothing blocked, page scripts identical to existing story pages (opt-in usage toggle only).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "33df8684-420a-5763-a133-2bf3bdd0eb99",
+    "transcripts": 1,
+    "first": "2026-11-27T23:39:01Z",
+    "last": "2026-11-27T23:46:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 68,
+        "output": 35888,
+        "thinking": 17350,
+        "cache_read": 3462646,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112367,
+        "api_equivalent_usd": 2.3095,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 68,
+      "output": 35888,
+      "thinking": 17350,
+      "cache_read": 3462646,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112367,
+      "api_equivalent_usd": 2.3095,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.83,
+      "active_minutes": 7.83,
+      "model_minutes": 7.01,
+      "tool_minutes": 0.81,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a skilled writer drafting a 3,700-word story plus working the statistics and simulation",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 259.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
