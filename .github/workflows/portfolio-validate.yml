@@ -322,8 +322,10 @@ jobs:
 
       # Cloudflare counts cron triggers per account (Free: 5). Over it, the
       # last deploy's trigger update fails and nothing earlier says so (P097).
+      # --strict: every configured schedule counts, so the PR adding a sixth fails
+      # here, not the later one that wires its deploy (P098 brought it to 5).
       - name: Cron triggers fit the Cloudflare plan
-        run: python3 platform/ci/cron_budget.py
+        run: python3 platform/ci/cron_budget.py --strict
 
       - name: Cron-budget unit tests
         working-directory: platform/ci

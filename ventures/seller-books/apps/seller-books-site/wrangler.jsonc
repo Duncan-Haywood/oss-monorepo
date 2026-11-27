@@ -34,10 +34,11 @@
       "simple": { "limit": 5, "period": 60 }
     }
   ],
-  "triggers": {
-    // 04:23 UTC daily: delete early-access signups never confirmed within 30 days.
-    "crons": ["23 4 * * *"]
-  },
+  // Daily: delete early-access signups never confirmed within 30 days. PurgeClock's alarm does it
+  // (src/purge-clock.mjs), not a cron trigger: the Free plan allows 5 cron triggers per account
+  // (platform/ci/cron_budget.py).
+  "durable_objects": { "bindings": [{ "name": "PURGE_CLOCK", "class_name": "PurgeClock" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PurgeClock"] }],
   // TOKEN_SECRET (HMAC for unsubscribe links and IP hashes) is a secret: `wrangler secret put
   // TOKEN_SECRET`. With APP_ENV=production and no secret, sign-ups answer 503 (fail closed).
   // EMAIL_FROM is a PLACEHOLDER: set a verified sender on an onboarded domain before launch.

@@ -1,6 +1,6 @@
 // Build-time settings. Production builds (`node build.mjs --prod`) refuse to run with a missing value,
 // so a placeholder can never ship. Everything comes from the environment; nothing secret is here.
-export const LANGS = ["de", "fr", "en"];
+export const LANGS = ["de", "fr", "en", "nl"];
 export const DEFAULT_LANG = "en"; // x-default target is the language chooser at "/", not a language
 
 /** Working product name. Change it here only; every page, llms.txt and email reads it. */

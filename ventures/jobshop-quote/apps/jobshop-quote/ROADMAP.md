@@ -6,10 +6,12 @@ fabrication job shops. Pricing and the paid path stay dark until the items marke
 Status: **live on the free Early access plan** (2026-11-27). First production deploy: jobshop-quote-deploy
 run 46013246899 (manual, main at e8be3de0f), on the account's workers.dev address; the smoke test answered
 `{"ok":true,"app":"jobshop-quote","email":true,"files":"d1"}`, so sign-up email works and files are kept
-in D1 (no R2 yet). The second run (46018975911, main at 7d776bb68, PR #19764) moved it to
-**https://jobshop-quote.marisstella.app** with the same health answer, and since 2026-11-27 every merge
-to main touching `ventures/jobshop-quote/` deploys (push trigger, full checks on every push run). AI extraction is off (no `JOBSHOP_ANTHROPIC_API_KEY`; the owner's choice, LAUNCH-REVIEW.md
-section 1), inbound RFQ email is off, paid plans are dark. No customers yet.
+in D1 (no R2 yet). Live at **https://jobshop-quote.marisstella.app** since run 46018975911 (PR #19764's
+default host; same health answer), and since 2026-11-27 every merge to main touching
+`ventures/jobshop-quote/` deploys (push trigger, full checks on every push run). AI extraction is off (no
+`JOBSHOP_ANTHROPIC_API_KEY`; the owner's choice, LAUNCH-REVIEW.md section 1), inbound RFQ email is off, paid
+plans are dark. The manufacturing industry page links to `/sign-up`, and `platform/ci/live_funnel_check.mjs`
+checks the pair. No customers yet.
 
 ## Done (v0.1, this core)
 
