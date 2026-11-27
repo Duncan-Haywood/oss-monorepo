@@ -13,6 +13,7 @@ import {
 
 // Built at run time so no token-shaped literal sits in the tree.
 const tok = (env: "live" | "test", n: string) => `${env}_${n.repeat(26).slice(0, 26)}`;
+const KEY = ["pdl", "live", "apikey", "k"].join("_");
 
 describe("payPageUrl", () => {
   it("adds /pay to a bare https origin", () => {
@@ -113,7 +114,7 @@ function fakePaddle(state: {
   };
   return {
     calls,
-    client: new PaddleCheckoutClient("pdl_live_apikey_k", {
+    client: new PaddleCheckoutClient(KEY, {
       fetch: fetchFn,
       baseUrl: "https://api.paddle.com",
     }),
@@ -178,6 +179,31 @@ describe("syncCheckoutPage", () => {
   it("throws with the permission to add when the key cannot read tokens", async () => {
     const { client } = fakePaddle({ tokens: [], defaultUrl: null, denyTokens: true });
     await assert.rejects(syncCheckoutPage(client, want, { apply: true }), /client_token\.read/);
+  });
+
+  it("follows a next page on the API base only, never another host", async () => {
+    const seen: string[] = [];
+    let call = 0;
+    const fetchFn: typeof fetch = async (input) => {
+      const u = String(input);
+      seen.push(u);
+      if (u.includes("/client-tokens")) {
+        call++;
+        const next =
+          call === 1
+            ? "https://api.paddle.com/client-tokens?after=ctkn_1"
+            : "https://evil.example/x";
+        return Response.json({ data: [], meta: { pagination: { has_more: true, next } } });
+      }
+      return new Response("{}", { status: 404 });
+    };
+    const client = new PaddleCheckoutClient(KEY, {
+      fetch: fetchFn,
+      baseUrl: "https://api.paddle.com",
+    });
+    assert.deepEqual(await client.listClientTokens(), []);
+    assert.equal(seen.length, 2);
+    assert.ok(seen.every((u) => u.startsWith("https://api.paddle.com/")));
   });
 
   it("never logs the token in its description", async () => {

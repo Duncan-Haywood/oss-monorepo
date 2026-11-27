@@ -152,7 +152,8 @@ export class PaddleCheckoutClient {
       out.push(...((json.data as PaddleClientToken[]) ?? []));
       const pagination = ((json.meta as Json)?.pagination ?? {}) as Json;
       const url = pagination.has_more ? String(pagination.next ?? "") : "";
-      next = url ? url.replace(this.base, "") : null;
+      // Only a next page on our own API base: any other host would get the key.
+      next = url.startsWith(`${this.base}/`) ? url.slice(this.base.length) : null;
     }
     return out;
   }
