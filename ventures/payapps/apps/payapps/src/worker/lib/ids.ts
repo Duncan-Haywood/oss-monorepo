@@ -40,7 +40,9 @@ export type IdPrefix =
   | "pli"
   | "dly"
   | "tmt"
-  | "tmr";
+  | "tmr"
+  | "crw"
+  | "tme";
 
 export function newId(prefix: IdPrefix): string {
   const bytes = new Uint8Array(20);

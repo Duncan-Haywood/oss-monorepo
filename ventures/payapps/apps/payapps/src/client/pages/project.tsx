@@ -38,6 +38,7 @@ import { PunchList } from "../components/punch-list";
 import { RfiLog } from "../components/rfis";
 import { DelayBackup } from "../components/schedule-delays";
 import { SovImport } from "../components/sov-import";
+import { TrimblePaySov } from "../components/trimble-pay-sov";
 import { api, projectPath } from "../lib/api";
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -585,6 +586,7 @@ export function ProjectPage() {
           <>
             <ProcoreSsov project={p} path={path("/procore-ssov")} onSaved={setData} />
             <GcpaySov project={p} />
+            <TrimblePaySov project={p} />
           </>
         )}
       </section>
