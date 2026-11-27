@@ -34,7 +34,7 @@ resource "aws_iam_user" "worker" {
   permissions_boundary = local.boundary
   tags = {
     spend-guard  = "deny-on-budget"
-    transitional = "delete when products run on AWS (aws-move-products)"
+    transitional = "delete when products run on AWS - task aws-move-products"
   }
 }
 
