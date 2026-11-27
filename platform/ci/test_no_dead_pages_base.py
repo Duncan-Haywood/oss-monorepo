@@ -65,6 +65,28 @@ class NoDeadPagesBase(unittest.TestCase):
                 hits.append(p.relative_to(ROOT).as_posix())
         self.assertEqual(hits, [], "dead Pages base in a venture file; use https://marisstella.app/<slug>/")
 
+    def test_venture_files_do_not_link_a_retired_app_host(self):
+        """Red-team 2026-11-27: an app's workers.dev address 404s once provisioning attaches its custom
+        domain. A guide page or llms.txt that still links it sends a sign-up click nowhere. DEPLOY.md
+        files are deploy history and keep the old address on purpose."""
+        import sys
+        sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+        from check_post_links import RETIRED_HOSTS
+        tracked = subprocess.run(["git", "ls-files", "ventures"], cwd=ROOT, capture_output=True, text=True,
+                                 check=True).stdout.splitlines()
+        hits = []
+        for rel in tracked:
+            p = ROOT / rel
+            if p.name == "DEPLOY.md" or not p.is_file() or p.suffix in {".png", ".jpg", ".woff2", ".ico", ".pdf", ".stl", ".gz", ".xlsx"}:
+                continue
+            try:
+                text = p.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, OSError):
+                continue
+            if RETIRED_HOSTS.search(text):
+                hits.append(rel)
+        self.assertEqual(hits, [], "retired app host; link the app's custom domain (check_post_links.RETIRED_HOSTS)")
+
 
 if __name__ == "__main__":
     unittest.main()

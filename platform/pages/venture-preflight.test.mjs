@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, localOnlyFiles, localOnlySummary, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckArgs, treeCheckProblem } from './venture-preflight.mjs';
+import { buildProblem, localOnlyFiles, localOnlySummary, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, notListedNote, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckArgs, treeCheckProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -202,4 +202,25 @@ test('localOnlySummary groups local-only files by their first two directory leve
   ];
   assert.equal(localOnlySummary(files, 'v'), 'Where: eval/IDS/ (835), covid-data/ (2), notes.ppt (1).');
   assert.equal(localOnlySummary(files, 'v', 1), 'Where: eval/IDS/ (835), +2 more.');
+});
+
+test('notListedNote names the app\'s own CI workflow when it has one, else the venture runner', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'preflight-note-'));
+  await fs.mkdir(path.join(root, '.github', 'workflows'), { recursive: true });
+  await fs.writeFile(path.join(root, '.github', 'workflows', 'some-app-ci.yml'), 'name: x\n');
+  const withCi = notListedNote('some-app', root);
+  assert.match(withCi, /no catalogue entry/);
+  assert.match(withCi, /run_workflow_locally\.py some-app-ci/);
+  const without = notListedNote('other-app', root);
+  assert.match(without, /run_venture_tests\.py other-app/);
+  assert.doesNotMatch(without, /run_workflow_locally/);
+});
+
+test('the moved paid apps are not catalogue entries, so preflight skips their launch date and placement', async () => {
+  const site = await import('./build.mjs');
+  const slugs = new Set((await site.discoverSurfaces(path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..', 'ventures'))).map((s) => s.slug));
+  for (const app of ['payapps', 'jobshop-quote']) {
+    try { await fs.access(path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..', 'ventures', app)); } catch { continue; }
+    assert.equal(slugs.has(app), false, `${app} is listed; the preflight would demand a launch date for it`);
+  }
 });
