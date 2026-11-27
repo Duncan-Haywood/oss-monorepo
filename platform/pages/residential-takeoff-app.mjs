@@ -5,7 +5,7 @@
  * The app is static (it runs in the browser; nothing is uploaded), so serving it is a copy: the
  * page, the modules it imports (followed import by import, so test files, benches, fixtures and the
  * CLI stay out) and the IFC reader's .wasm. The paid path stays dark
- * (`checkout.mjs` has no links), so every feature is open until the owner sets a checkout.
+ * (`checkout.mjs`, generated from platform/billing/catalogue.mjs, has no Paddle values yet), so every feature is open until the owner fills the catalogue.
  *
  * The paid folder also carries copies of the free edition's ~60 calculator pages. Those are not
  * copied (nor the bid-package pages, which the free edition serves too): they would duplicate the free edition's pages at /wall-framing-takeoff/, which stay the

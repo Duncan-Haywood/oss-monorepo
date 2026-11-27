@@ -39,7 +39,8 @@ wording before acting on them.
 
 ## Open questions for the owner
 
-1. Lemon Squeezy (fits the static page) or Paddle (what grants and the suite use)? Paddle
-   would need a small worker for webhooks; Lemon Squeezy needs none.
+1. ~~Lemon Squeezy or Paddle?~~ Answered by the owner on 2026-11-24 (Paddle is the merchant of
+   record, `prompts/goals.md`, "Payments") and built on 2026-11-27: the shared
+   `platform/billing/` path, whose one billing Worker serves every pack (PRICING.md).
 2. Should a Job report key also work inside the suite for 30 days after it launches?
    Not promised anywhere yet.

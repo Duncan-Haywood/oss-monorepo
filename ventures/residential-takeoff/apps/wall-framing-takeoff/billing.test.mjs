@@ -1,15 +1,23 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { PLANS, PAID_FEATURES, entitlement, allowed, isPlanKey } from "./plans.mjs";
-import { planOf, isDark, createBillingProvider, fakeBillingProvider } from "./billing.mjs";
-import { CHECKOUT_URLS, VALIDATE_URL, VARIANT_PLANS } from "./checkout.mjs";
+import { PRODUCT_PLAN, isDark, createBillingProvider, fakeBillingProvider } from "./billing.mjs";
+import { PADDLE } from "./checkout.mjs";
+import { signLicence } from "../../../../platform/billing/server.mjs";
 
-const lit = { checkoutUrls: { report: "https://shop.example.com/checkout/report", pro: "" }, validateUrl: "https://shop.example.com/v1/licenses/validate", variantPlans: { 101: "report", 202: "pro" } };
+const b64u = (buf) => Buffer.from(buf).toString("base64url");
+async function keyPair() {
+  const pair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
+  return { publicKey: b64u(await crypto.subtle.exportKey("raw", pair.publicKey)), priv: b64u(await crypto.subtle.exportKey("pkcs8", pair.privateKey)) };
+}
+// Every public value set, all made up: what the page holds once the owner fills the catalogue.
+const litWith = (publicKey) => ({ ...PADDLE, priceId: "pri_" + "0".repeat(26), clientToken: "test_" + "a".repeat(27), publicKey, edge: "https://billing.example" });
 
-test("the shipped build is dark: no checkout link, no provider, every feature open", () => {
-  const shipped = { checkoutUrls: CHECKOUT_URLS, validateUrl: VALIDATE_URL, variantPlans: VARIANT_PLANS };
-  assert.equal(isDark(shipped), true);
-  assert.equal(createBillingProvider(shipped), null);
+test("the shipped build is dark: no public Paddle values, no provider, every feature open", () => {
+  assert.equal(PADDLE.product, "residential-takeoff", "sold as its own product, not the free tool's pack");
+  assert.equal(isDark(), true);
+  assert.equal(isDark(PADDLE), true);
+  assert.equal(createBillingProvider(), null);
   const ent = entitlement({ dark: true });
   for (const f of PAID_FEATURES) assert.equal(allowed(f, ent).allowed, true, f);
 });
@@ -22,6 +30,7 @@ test("prices sit inside the bets.md norms: $13-38 per report, $149-299 a month",
   assert.ok(PLANS.pro.priceUsd >= 149 && PLANS.pro.priceUsd <= 299);
   assert.deepEqual(PLANS.free.features, []);
   for (const p of Object.values(PLANS)) for (const f of p.features) assert.ok(PAID_FEATURES.includes(f));
+  assert.equal(PRODUCT_PLAN, "report");
 });
 
 test("lit: no key or a bad verdict is the free plan, and the lock names what to buy", () => {
@@ -37,42 +46,46 @@ test("lit: no key or a bad verdict is the free plan, and the lock names what to 
   assert.equal(isPlanKey("constructor"), false);
 });
 
-test("planOf maps the merchant's variant id and never guesses", () => {
-  assert.equal(planOf({ meta: { variant_id: 101 } }, lit.variantPlans), "report");
-  assert.equal(planOf({ meta: { variant_id: "202" } }, lit.variantPlans), "pro");
-  for (const j of [null, {}, { meta: null }, { meta: { variant_id: 999 } }, { meta: { variant_id: {} } }, { meta: { variant_id: "toString" } }]) assert.equal(planOf(j, lit.variantPlans), null, JSON.stringify(j));
-  assert.equal(planOf({ meta: { variant_id: 1 } }, { 1: "free" }), null);
-});
-
-test("isDark: only a plain https link lights the paid path", () => {
-  assert.equal(isDark({ ...lit, checkoutUrls: { report: "http://shop.example.com/x" } }), true);
-  assert.equal(isDark({ ...lit, checkoutUrls: { report: "https://u:p@shop.example.com/x" } }), true);
+test("isDark: any missing or malformed public value keeps the paid path dark", async () => {
+  const lit = litWith("A".repeat(43));
   assert.equal(isDark(lit), false);
+  for (const [k, v] of [["priceId", ""], ["priceId", "price_123"], ["clientToken", ""], ["clientToken", "pdl_live_apikey_" + "x".repeat(20)], ["publicKey", ""], ["edge", "http://billing.example"], ["edge", ""], ["environment", "live"]]) {
+    assert.equal(isDark({ ...lit, [k]: v }), true, `${k}=${v}`);
+    assert.equal(createBillingProvider({ ...lit, [k]: v }), null, `${k}=${v}`);
+  }
 });
 
-test("the Lemon Squeezy provider validates once, reads the plan from the variant and never throws", async () => {
-  const calls = [];
-  const answer = (j) => async (u, init) => { calls.push({ u, body: init.body }); return { json: async () => j }; };
-  let p = createBillingProvider(lit, { fetch: answer({ valid: true, license_key: { status: "active" }, meta: { variant_id: 101 } }) });
-  assert.equal(p.name, "lemonsqueezy");
-  assert.equal(p.checkoutUrl("report"), lit.checkoutUrls.report);
-  assert.equal(p.checkoutUrl("pro"), null);
-  assert.equal(p.checkoutUrl("__proto__"), null);
-  assert.deepEqual(await p.validate(" ABCD-1234-EFGH "), { valid: true, reason: "", plan: "report" });
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].u, lit.validateUrl);
-  assert.equal(calls[0].body, `license_key=${["ABCD", "1234", "EFGH"].join("-")}`); // made-up key, split so secret scanners do not read it as one
-  // a valid key for another product unlocks nothing
-  p = createBillingProvider(lit, { fetch: answer({ valid: true, meta: { variant_id: 999 } }) });
-  assert.deepEqual(await p.validate("ABCD-1234-EFGH"), { valid: false, reason: "this key is for a product this page does not sell", plan: null });
-  p = createBillingProvider(lit, { fetch: answer({ valid: true, license_key: { status: "expired" }, meta: { variant_id: 101 } }) });
-  assert.equal((await p.validate("ABCD-1234-EFGH")).valid, false);
-  p = createBillingProvider(lit, { fetch: async () => { throw new Error("offline"); } });
-  assert.match((await p.validate("ABCD-1234-EFGH")).reason, /could not reach/);
-  calls.length = 0;
-  p = createBillingProvider(lit, { fetch: answer({ valid: true, meta: { variant_id: 101 } }) });
-  assert.equal((await p.validate("bad key!")).valid, false);
-  assert.equal(calls.length, 0, "a malformed key never reaches the network");
+test("the Paddle provider: a key signed for this product is the Job report; any other key unlocks nothing", async () => {
+  const { publicKey, priv } = await keyPair();
+  const p = createBillingProvider(litWith(publicKey));
+  assert.ok(p);
+  assert.equal(p.name, "paddle");
+  const now = 1_800_000_000;
+  const good = await signLicence({ v: 1, p: "residential-takeoff", t: "one-off", s: "txn_job1", iat: now }, priv);
+  assert.deepEqual(await p.validate(" " + good + "\n"), { valid: true, reason: "", plan: "report" });
+  // The free tool's bid-package key is another product: it must not unlock the paid edition.
+  const otherTool = await signLicence({ v: 1, p: "wall-framing-takeoff", t: "subscription", s: "sub_x", iat: now, exp: now + 1e9 }, priv);
+  const o = await p.validate(otherTool);
+  assert.equal(o.valid, false);
+  assert.equal(o.plan, null);
+  assert.match(o.reason, /another tool/);
+  // A key signed by someone else's private key, a tampered key and junk all fail.
+  const stranger = await keyPair();
+  assert.equal((await p.validate(await signLicence({ v: 1, p: "residential-takeoff", t: "one-off", s: "txn_x", iat: now }, stranger.priv))).valid, false);
+  const [pre, body, sig] = good.split(".");
+  assert.equal((await p.validate([pre, body, sig.slice(0, -2) + (sig.endsWith("AA") ? "BA" : "AA")].join("."))).valid, false);
+  for (const junk of ["", "ABCD-1234-EFGH", "ms1.x.y", "<script>", null]) assert.equal((await p.validate(/** @type {any} */ (junk))).valid, false, String(junk));
+});
+
+test("the Paddle provider wires the Buy link only while lit", async () => {
+  const { publicKey } = await keyPair();
+  let wired = 0;
+  const el = { hidden: true, tagName: "A", getAttribute: () => null, setAttribute() {}, addEventListener: () => { wired++; } };
+  const p = createBillingProvider(litWith(publicKey));
+  assert.equal(p.wireBuy(/** @type {any} */ (el), { onKey() {} }), true);
+  assert.equal(el.hidden, false);
+  assert.equal(wired, 1);
+  assert.equal(p.wireBuy(null, { onKey() {} }), false);
 });
 
 test("the fake provider maps keys to plans without the network", async () => {
@@ -81,5 +94,4 @@ test("the fake provider maps keys to plans without the network", async () => {
   assert.equal((await p.validate("FREE-KEY-00001")).valid, false);
   assert.equal((await p.validate("OTHER-KEY-0001")).valid, false);
   assert.equal((await p.validate("x")).valid, false);
-  assert.equal(p.checkoutUrl("report"), "https://checkout.example.com/report");
 });

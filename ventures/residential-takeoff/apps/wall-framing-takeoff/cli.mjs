@@ -9,7 +9,7 @@ import { sheatheOutlineRoof, outlineSheathingText, outlineSheathingCuts } from "
 import { materialList, materialListCsv, materialListText } from "./materiallist.mjs";
 import { entitlement, allowed } from "./plans.mjs";
 import { isDark, createBillingProvider } from "./billing.mjs";
-import { CHECKOUT_URLS, VALIDATE_URL, VARIANT_PLANS } from "./checkout.mjs";
+import { PADDLE } from "./checkout.mjs";
 import { expandSteppedWalls } from "./stepwall.mjs";
 import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
 import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
@@ -236,14 +236,14 @@ export function unknownFlag(argv) {
   return "";
 }
 
-/** The billing settings this build ships with (checkout.mjs); dark while every checkout link is empty. */
-export const BILLING = { checkoutUrls: CHECKOUT_URLS, validateUrl: VALIDATE_URL, variantPlans: VARIANT_PLANS };
+/** The billing settings this build ships with (checkout.mjs, from platform/billing/catalogue.mjs); dark while any public Paddle value is empty. */
+export const BILLING = PADDLE;
 
 /**
  * @param {string[]} argv
  * @param {(p: string) => string} [readInput]
  * @param {{ billing?: import("./billing.mjs").BillingConfig, licence?: { valid: boolean, plan: string | null } }} [opts]
- *   licence: the verdict on --licence=KEY, checked before main runs (the check needs the network; main does not)
+ *   licence: the verdict on --licence=KEY, checked before main runs (the check is async, and may ask the billing Worker to renew a subscription key; main is sync)
  */
 export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"), opts = {}) {
   runOpts = opts;
@@ -807,7 +807,8 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  // a licence key is checked with the merchant only when the paid path is lit (otherwise nothing is locked)
+  // a licence key is checked only when the paid path is lit (otherwise nothing is locked); the check is
+  // offline against the public key, and reaches the billing Worker only to renew a lapsed subscription key
   const key = process.argv.find((a) => a.startsWith("--licence="))?.slice(10);
   const provider = key ? createBillingProvider(BILLING) : null;
   const licence = provider && key ? await provider.validate(key) : undefined;

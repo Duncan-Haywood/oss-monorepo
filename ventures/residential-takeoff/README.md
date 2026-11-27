@@ -36,12 +36,16 @@ package), with the subscription kept for the contractor suite ([`docs/PRICING.md
 - **Served, not on sale** (2026-11-27). The catalogue build copies the app into
   https://marisstella.app/residential-takeoff/ (`platform/pages/residential-takeoff-app.mjs`: the page, the
   modules it imports, the IFC wasm and the bid-package pages; the calculator copies stay on the free
-  edition). Every checkout link in `apps/wall-framing-takeoff/checkout.mjs` is empty, so the paid path is
-  dark and every feature is open (`plans.mjs`); the page says so.
-- **Before the first sale** (`apps/wall-framing-takeoff/docs/STEP4_NOTES.md`): pick the hosting for the
-  paid page, move the checkout from the licence-key design (written for a static page against Lemon
-  Squeezy) to the owner's merchant of record, Paddle (`prompts/goals.md`, "Payments"), and read one real
-  export end to end.
+  edition). The checkout is Paddle's, through the portfolio's shared path (`platform/billing/`,
+  product `residential-takeoff`, a one-off $29 Job report): Buy opens Paddle's overlay, the owner's
+  billing Worker signs a licence key from Paddle's webhook, and the page checks the key offline
+  against a public key. `apps/wall-framing-takeoff/checkout.mjs` is generated from
+  `platform/billing/catalogue.mjs` and holds no Paddle values yet, so the paid path is dark, no Buy
+  button shows and every feature is open (`plans.mjs`); the page says so.
+- **Before the first sale** (owner steps, `platform/billing/README.md`, "Going live"): the billing
+  Worker on its own account, the key pair, the client-side token, and a "Job report" product at $29
+  whose `pri_...` id goes in the catalogue's `residential-takeoff` row; then one sandbox purchase
+  end to end, and read one real export.
 - The roadmap is [`apps/wall-framing-takeoff/ROADMAP.md`](apps/wall-framing-takeoff/ROADMAP.md);
   `python3 platform/ci/roadmap_claim.py wall-framing-takeoff` claims from it here.
 
