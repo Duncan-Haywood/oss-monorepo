@@ -612,7 +612,7 @@ tasks:
     direction: paid-bets
     title: Pre-publication audit script for a private app (step 3 of products-to-public-repo)
     done_when: >-
-      platform/security/prepublish_audit.py, run against a directory of a
+      platform/security/prepub_audit.py, run against a directory of a
       private-monorepo clone, reports likely secrets, personal data (emails,
       phone numbers, names outside the operator's), client or customer data,
       internal hostnames and account ids, and security notes, with a nonzero
