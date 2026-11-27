@@ -83,18 +83,21 @@ test("wrangler output parsing", () => {
   );
 });
 
-test("R2 unavailable: not enabled, not permitted, or a real failure", () => {
+test("r2Unavailable: R2 off or refused degrades, anything else fails the deploy", () => {
   assert.equal(
     r2Unavailable("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
     "not-enabled",
   );
-  // Verbatim shape from run 45947552522: a token without R2 edit.
+  // The first oss-monorepo deploy (run 45947552522): the token had no R2 permission.
   assert.equal(
     r2Unavailable(
       "creating r2 bucket payapps-files failed:\n✘ [ERROR] A request to the Cloudflare API (/accounts/x/r2/buckets) failed.\n\n  Authentication error [code: 10000]",
     ),
-    "not-permitted",
+    "no-access",
   );
-  assert.equal(r2Unavailable("fetch failed: ECONNRESET"), "");
-  assert.equal(r2Unavailable("The bucket name is invalid [code: 10005]"), "");
+  assert.equal(
+    r2Unavailable("A request to the Cloudflare API failed. Internal error [code: 10001]"),
+    "",
+  );
+  assert.equal(r2Unavailable("spawnSync pnpm ENOENT"), "");
 });

@@ -10,8 +10,7 @@
 // this the hard way), so this script creates them, tolerating "already exists":
 //   - D1 `payapps`, whose id goes into the deploy config so migrations run before the new code is live;
 //   - R2 `payapps-files` (private; no public URL). If R2 is not enabled on the account the deploy goes on
-//     without the FILES binding: the attachment list still reads and uploads answer 503. The same holds
-//     when the token has no R2 permission (Authentication error, code 10000), with its own warning.
+//     without the FILES binding: the attachment list still reads and uploads answer 503.
 //
 // --write-config <out> derives the deploy config from the Vite build output (dist/payapps/wrangler.json;
 // override with --from). <out> must sit next to it, since paths in it are relative. --domain <host> adds a
@@ -108,15 +107,18 @@ export function d1IdFrom(list, name) {
 export const ALREADY_EXISTS =
   /already exists|already taken|already in use|duplicate|\[code: (10004|11009)\]/i;
 export const R2_NOT_ENABLED = /enable R2|10042/i;
-// The token can reach the account but has no R2 permission (run 45947552522, 2026-11-27): the same
-// fallback as R2 not enabled, with a warning that names the missing permission. Only the R2 call is
-// read this way; a D1 or deploy auth error still fails the run.
-export const R2_NOT_PERMITTED = /Authentication error|\[code: 10000\]/i;
+/**
+ * The token cannot use R2 (no "Workers R2 Storage: Edit" on it): Cloudflare answers the bucket call with
+ * "Authentication error [code: 10000]", as on the first deploy from oss-monorepo (run 45947552522,
+ * 2026-11-27). Like R2 not enabled, the deploy goes on without attachments rather than not at all.
+ * Only the R2 call's error is tested against this, so it never hides a D1 or deploy failure.
+ */
+export const R2_NO_ACCESS = /Authentication error|\[code: 10000\]/i;
 
-/** Why R2 can't be used ("not-enabled", "not-permitted"), or "" when the error is something else. */
+/** Why the bucket is unavailable, or "" when the error is something else (which must fail the deploy). */
 export function r2Unavailable(message) {
   if (R2_NOT_ENABLED.test(message)) return "not-enabled";
-  if (R2_NOT_PERMITTED.test(message)) return "not-permitted";
+  if (R2_NO_ACCESS.test(message)) return "no-access";
   return "";
 }
 
@@ -171,7 +173,7 @@ function main() {
     console.log(
       why === "not-enabled"
         ? "::warning title=R2 not enabled::Attachments are off until R2 is enabled (Cloudflare dashboard -> R2 Object Storage). Re-run the deploy afterwards."
-        : "::warning title=R2 not permitted::The Cloudflare token has no R2 permission, so attachments are off (uploads answer 503). Add Workers R2 Storage: Edit to CLOUDFLARE_API_TOKEN and re-run the deploy.",
+        : "::warning title=Token has no R2 access::Attachments are off: the Cloudflare token was refused on R2 (Authentication error, code 10000). Add Account -> Workers R2 Storage -> Edit to CLOUDFLARE_API_TOKEN and re-run the deploy.",
     );
   }
 

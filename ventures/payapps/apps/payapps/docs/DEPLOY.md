@@ -18,11 +18,10 @@ every merge ships. To gate each run, add required reviewers to the `payapps-prod
 2. Checks the Cloudflare token, picks the URL: `https://<PAYAPPS_DOMAIN>` when that variable is set and
    its zone is on the account, else `https://payapps.<account subdomain>.workers.dev`.
 3. `scripts/provision.mjs` creates the D1 database and R2 bucket if missing (`wrangler deploy` does not)
-   and writes `dist/payapps/wrangler.deploy.json` with the database id. Without R2 enabled on the account
-   the deploy goes on without the `FILES` binding: attachments read as empty and uploads answer 503.
-   A token with no R2 permission (`Authentication error [code: 10000]` on the bucket call, as in run
-   45947552522) gets the same fallback and a warning naming the missing permission; a D1 or deploy
-   auth error still fails the run.
+   and writes `dist/payapps/wrangler.deploy.json` with the database id. Without R2 enabled on the account,
+   or with a token that has no R2 permission (Cloudflare answers "Authentication error [code: 10000]",
+   as on the first run here, 45947552522), the deploy goes on without the `FILES` binding and warns:
+   attachments read as empty and uploads answer 503. Add Workers R2 Storage: Edit to the token and re-run.
 4. Applies D1 migrations **before** the new code goes live, so migrations must stay backward compatible.
 5. Syncs `billing/paddle-catalog.json` to Paddle when `PAYAPPS_BILLING_API_KEY` is set and reads the
    price ids back (never pasted by hand).

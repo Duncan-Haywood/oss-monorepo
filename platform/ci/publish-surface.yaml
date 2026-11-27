@@ -448,6 +448,9 @@ workflows:
 - workflow: secrets-inventory-ci.yml
   classification: none
   publishes: []
+- workflow: seller-books-ci.yml
+  classification: none
+  publishes: []
 - workflow: shed-designer-browser.yml
   classification: none
   publishes: []
