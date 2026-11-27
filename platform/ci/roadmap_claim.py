@@ -659,11 +659,17 @@ def app_home(app: str, repo: str) -> tuple[str, Path]:
 
 
 def bet_apps(bets_md: str) -> list[tuple[int, str, str]]:
-    """(rank, bet name, app dir) from bets.md's ranking table; the app is the last cell's path."""
+    """(rank, bet name, app dir) from bets.md's ranking table; the app is the last cell's path.
+
+    The cell can name other files too (bet #3's names its deploy workflow after the app), so the
+    app is the first quoted path with an `apps/` part, else the last quoted name (2026-11-27).
+    """
     out = []
     for line in bets_md.splitlines():
         m = re.match(r"^\|\s*(\d+)\s*\|\s*\*\*(.+?)\*\*", line)
         where = re.findall(r"`([^`]+)`", line.rsplit("|", 2)[-2]) if m and line.count("|") > 3 else []
+        apps = [w for w in where if re.search(r"(?:^|/)apps/[^/]", w)]
+        where = apps[:1] or where
         if m and where:
             out.append((int(m.group(1)), m.group(2), where[-1].rstrip("/").rsplit("/", 1)[-1]))
     return out
