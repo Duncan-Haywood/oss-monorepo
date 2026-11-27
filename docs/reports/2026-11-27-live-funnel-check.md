@@ -47,3 +47,20 @@ sign-up URL (`?signup` for PayApps, `/signup` for Seller Books), not just to its
 - Worth considering: run this script as the last step of each product's deploy workflow, after the
   health wait. That edits a control-plane workflow, so it is a separate PR through
   `adversarial-gate`.
+
+## Unreachable is SKIP, not FAIL (later on 2026-11-27)
+
+A scheduled cloud session ran the check and got FAIL on both products: every page "could not
+load (net::ERR_TUNNEL_CONNECTION_FAILED)" and every front door "answered 0". That was the
+session's egress proxy refusing the CONNECT to marisstella.app (`curl` got `CONNECT tunnel failed,
+response 403`), not the site. A run reading that as a broken funnel would have paged the owner, or
+"fixed" something that works.
+
+Now a page or front door whose error says the host was never reached
+(`ERR_TUNNEL_CONNECTION_FAILED`, `ERR_PROXY_CONNECTION_FAILED`, `ERR_NAME_NOT_RESOLVED`,
+`ENOTFOUND` and the like, `UNREACHABLE` in the script) is listed as "unreachable from this
+machine". A product whose every problem is of that kind prints `SKIP`; one real finding beside them
+still makes it `FAIL`. Exit codes: 0 all ok, 1 a real failure, 2 no browser, **3 nothing failed
+but a host was unreachable**. A timeout or a certificate error is still a failure: those happen on
+the site's side. If you get 3 in a cloud session, the check did not run; say so rather than
+reporting the funnel healthy.
