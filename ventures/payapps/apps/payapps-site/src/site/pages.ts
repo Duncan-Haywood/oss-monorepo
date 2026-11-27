@@ -729,6 +729,8 @@ function earlyAccess(ctx: SiteContext): BuiltPage {
 
 function privacy(ctx: SiteContext): BuiltPage {
   const page = PAGES.privacy;
+  const appUrl = launchOf(ctx).appUrl;
+  if (ctx.staticHost && appUrl) return staticPrivacy(ctx, appUrl);
   const main = html`
 <section class="page-head">
   <div class="wrap narrow">
@@ -750,6 +752,31 @@ function privacy(ctx: SiteContext): BuiltPage {
   <p>Only the people who run ${PRODUCT_NAME} can see the list: your email address, the page you signed up from, whether you confirmed, and the date. Each time they view it, that view is logged.</p>
   <h2>Where it's kept</h2>
   <p>The site and the list run on Cloudflare (Workers, D1 database, Email Service), in the United States.</p>
+</div>`;
+  return { page, main, jsonLd: [webPage(ctx, page), breadcrumbs(ctx, page)] };
+}
+
+/** The static host has no form and no list: this site stores nothing; the app has its own policy. */
+function staticPrivacy(ctx: SiteContext, appUrl: string): BuiltPage {
+  const page = {
+    ...PAGES.privacy,
+    description:
+      "This PayApps website stores nothing about you: no form, no cookies, no analytics. The app's own privacy policy covers your account.",
+  };
+  const policy = `${appUrl}/legal/privacy`;
+  const main = html`
+<section class="page-head">
+  <div class="wrap narrow">
+    <p class="eyebrow">Privacy</p>
+    <h1>Privacy notice for this website</h1>
+    <p class="lede">Last updated ${CONTENT_UPDATED}. This covers these marketing pages only.</p>
+  </div>
+</section>
+<div class="wrap narrow section prose">
+  <h2>What this site stores</h2>
+  <p>Nothing about you. These pages are plain files: there is no form on them, they set no cookies and they run no analytics or advertising scripts. Like any web host, the server that delivers them (Cloudflare, in the United States) handles your IP address to send the page.</p>
+  <h2>The ${PRODUCT_NAME} app</h2>
+  <p>The sign-up and sign-in links go to the app at <a href="${`${appUrl}/`}">${new URL(appUrl).host}</a>. What the app stores when you create an account and use it is in its own <a href="${policy}">privacy policy</a>.</p>
 </div>`;
   return { page, main, jsonLd: [webPage(ctx, page), breadcrumbs(ctx, page)] };
 }

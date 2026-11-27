@@ -30,10 +30,12 @@ export const AI_CRAWLERS = [
   "CCBot",
 ] as const;
 
-export const indexablePages = () => PAGE_LIST.filter((p) => p.indexable);
+/** Pages listed in sitemap.xml and llms.txt; a static host has no early-access page to list. */
+export const indexablePages = (ctx: Pick<SiteContext, "staticHost"> = {}) =>
+  PAGE_LIST.filter((p) => p.indexable && !(ctx.staticHost && p === PAGES.earlyAccess));
 
 export function sitemapXml(ctx: SiteContext): string {
-  const urls = indexablePages()
+  const urls = indexablePages(ctx)
     .map(
       (p) => `  <url>
     <loc>${esc(absoluteUrl(ctx.siteUrl, p.path))}</loc>
@@ -57,7 +59,8 @@ ${urls}
  */
 export function robotsTxt(ctx: SiteContext): string {
   const base = basePathOf(ctx.siteUrl);
-  const disallow = [`${base}/api/`, `${base}/early-access/check-your-email`];
+  // A static host has no API and no early-access pages to keep crawlers out of.
+  const disallow = ctx.staticHost ? [] : [`${base}/api/`, `${base}/early-access/check-your-email`];
   const group = (agent: string) =>
     [`User-agent: ${agent}`, `Allow: ${base}/`, ...disallow.map((d) => `Disallow: ${d}`)].join(
       "\n",
@@ -111,7 +114,7 @@ Facts an assistant can rely on:
 
 ## Pages
 
-${[PAGES.home, PAGES.features, PAGES.pricing, PAGES.earlyAccess].map(link).join("\n")}
+${[PAGES.home, PAGES.features, PAGES.pricing, ...(ctx.staticHost ? [] : [PAGES.earlyAccess])].map(link).join("\n")}
 
 ## Optional
 
@@ -205,6 +208,10 @@ export interface FeedEntry {
 /** Product updates. Add an entry when something real happens (never a made-up milestone). */
 export function feedEntries(ctx: SiteContext): readonly FeedEntry[] {
   if (!launchOf(ctx).open) return FEED_ENTRIES;
+  // A static host has no early-access page for the old entry to link to.
+  const older = ctx.staticHost
+    ? FEED_ENTRIES.filter((e) => e.path !== PAGES.earlyAccess.path)
+    : FEED_ENTRIES;
   return [
     {
       id: "app-open",
@@ -213,7 +220,7 @@ export function feedEntries(ctx: SiteContext): readonly FeedEntry[] {
       path: PAGES.pricing.path,
       summary: `Subcontractors can sign up and run one job's pay applications free, with no card. ${plansSentence(launchOf(ctx))}`,
     },
-    ...FEED_ENTRIES,
+    ...older,
   ];
 }
 

@@ -37,6 +37,23 @@ a person's name), a path, or plain http, so a wrong value fails the build instea
 APP_URL=https://payapps.marisstella.app pnpm build     # one-off, without changing the constant
 ```
 
+## Where it is served (2026-11-27)
+
+As static pages at **https://marisstella.app/payapps/**, through the catalogue build
+(`platform/pages/build.mjs` publishes `ventures/payapps/site/` as `/payapps/` on every merge). That copy
+is written by
+
+```
+pnpm export:static     # src/site/static-export.ts -> ventures/payapps/site/
+```
+
+and `test/unit/static-export.test.ts` fails when it drifts from the source, so run it after any copy
+change. The static copy leaves out the early-access form and its status pages (they post to the
+Worker's `/api/early-access`), has a privacy notice for pages that store nothing (linking the app's
+own policy), and no `_headers` (the catalogue sets its own). It is only built once `APP_URL` is set.
+The Worker below (`wrangler.jsonc`) is still the way to bring the early-access list back; it has no
+deploy workflow.
+
 ## Stack (same family as apps/grants)
 
 | Concern | Choice |

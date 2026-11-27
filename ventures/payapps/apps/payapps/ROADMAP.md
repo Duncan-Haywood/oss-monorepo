@@ -2270,7 +2270,10 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   every page from early access into "open now, free on one job" with sign-up links tagged
   `from=payapps-site/<page>`; a workers.dev address is refused. `APP_URL` is set to
   https://payapps.marisstella.app (the app's custom domain, PR #19642), so the built site says "open
-  now". Next: serve it (a deploy workflow, or the static pages on marisstella.app/payapps); set
+  now". Served since 2026-11-27 (payapps-site-static-export) as static pages at https://marisstella.app/payapps/:
+  `pnpm export:static` writes `ventures/payapps/site/`, which the catalogue build publishes on every merge
+  (no early-access form there, since it needs the Worker; a unit test fails when the copy drifts). Next: the
+  Worker deploy only if the early-access list is wanted again; set
   `PAID_PLANS_ON` here and in `cta.mjs` the day checkout is live
 - Done 2026-11-27 (launch-signups-open): the free guides point at sign-up (`APP_URL` in
   `ventures/pay-app-guides/cta.mjs`, now https://payapps.marisstella.app; 42 pages say "open now", name

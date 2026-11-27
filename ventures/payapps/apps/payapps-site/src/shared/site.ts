@@ -133,6 +133,20 @@ export const PAGES = {
 export type PageKey = keyof typeof PAGES;
 export const PAGE_LIST: readonly PublicPage[] = Object.values(PAGES);
 
+/** The pages that only work with the Worker's early-access API behind them. */
+export const EARLY_ACCESS_PAGES: ReadonlySet<PageKey> = new Set([
+  "earlyAccess",
+  "checkEmail",
+  "confirmed",
+  "removed",
+]);
+
+/** The page keys a build writes: all of them, or without the early-access ones on a static host. */
+export function pageKeys(opts: { staticHost?: boolean } = {}): PageKey[] {
+  const keys = Object.keys(PAGES) as PageKey[];
+  return opts.staticHost ? keys.filter((k) => !EARLY_ACCESS_PAGES.has(k)) : keys;
+}
+
 /** "/payapps" from "https://marisstella.app/payapps"; "" at the host root. */
 export function basePathOf(siteUrl: string): string {
   return new URL(siteUrl).pathname.replace(/\/+$/, "");

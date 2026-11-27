@@ -1,0 +1,42 @@
+# PayApps marketing site
+User-agent: *
+Allow: /payapps/
+
+# AI search and answer crawlers: welcome on public pages.
+User-agent: GPTBot
+Allow: /payapps/
+
+User-agent: OAI-SearchBot
+Allow: /payapps/
+
+User-agent: ChatGPT-User
+Allow: /payapps/
+
+User-agent: ClaudeBot
+Allow: /payapps/
+
+User-agent: Claude-SearchBot
+Allow: /payapps/
+
+User-agent: Claude-User
+Allow: /payapps/
+
+User-agent: PerplexityBot
+Allow: /payapps/
+
+User-agent: Google-Extended
+Allow: /payapps/
+
+User-agent: Applebot-Extended
+Allow: /payapps/
+
+User-agent: Bingbot
+Allow: /payapps/
+
+User-agent: DuckAssistBot
+Allow: /payapps/
+
+User-agent: CCBot
+Allow: /payapps/
+
+Sitemap: https://marisstella.app/payapps/sitemap.xml

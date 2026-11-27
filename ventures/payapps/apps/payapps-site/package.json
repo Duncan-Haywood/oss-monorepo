@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "scripts": {
     "build": "tsx scripts/build.ts",
+    "export:static": "tsx scripts/export-static.ts",
     "dev": "pnpm build && wrangler dev",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "pnpm test:unit && pnpm test:worker",

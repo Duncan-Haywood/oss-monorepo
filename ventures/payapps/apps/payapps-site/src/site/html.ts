@@ -14,6 +14,13 @@ import { type LaunchInput, launchOf, plansSentence, signupUrl } from "./launch";
 export interface SiteContext extends LaunchInput {
   /** Origin + base path, e.g. "https://marisstella.app/payapps". */
   siteUrl: string;
+  /**
+   * Served as plain static files with no Worker in front (the catalogue at marisstella.app/payapps,
+   * `scripts/export-static.ts`): the early-access form and its status pages need the Worker's API, so
+   * they are left out. Only allowed once the app is open (APP_URL set); before launch the early-access
+   * list is the only call to action and needs the Worker.
+   */
+  staticHost?: boolean;
 }
 
 /** A string that is already safe HTML. */
