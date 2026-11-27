@@ -670,9 +670,11 @@ tasks:
       Done 2026-11-27 (private PR #458): packages/billing/src/paddle-key.ts
       classifies the key's shape and probes the four catalog calls without
       writing; scripts/paddle-catalog.ts prints the report first, so all six
-      catalog-syncing deploys show it on their next run. The answer for the
-      recorded key arrives in the next deploy log that gets a runner
-      (private-ci-codebuild-cutover). Owner, 2026-11-27: "there is a key is it the right type or no?" No run
+      catalog-syncing deploys show it on their next run. Private PR 459: no
+      answer from Paddle is no longer reported as "accepted", and the manual
+      paddle-key-check workflow checks all six apps' secrets in one run.
+      The answer for the recorded key arrives in the next run that gets a
+      runner (private-ci-codebuild-cutover). Owner, 2026-11-27: "there is a key is it the right type or no?" No run
       has been able to tell: the catalog sync landed 2026-11-25, after
       private-monorepo Actions stopped starting jobs. The recorded key is
       grants' BILLING_API_KEY; payapps-deploy reads PAYAPPS_BILLING_API_KEY.
