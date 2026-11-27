@@ -6,6 +6,8 @@ tags: [league-schedule-generator, brackets, product]
 description: "The league schedule generator's bracket stopped at seeding. Now typed play-off results fill it in, double-elimination resets included."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 The [league schedule generator](https://marisstella.app/league-schedule-generator/) has seeded a
 play-off bracket from the standings for weeks. What it did not do was the part an organiser does
 every week of the play-offs: write the winners into the next round. Every later game read

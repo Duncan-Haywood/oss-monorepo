@@ -6,6 +6,8 @@ tags: [start-here, league-schedule-generator, sports, scheduling, volunteers]
 description: "For league organisers and club volunteers: what the free schedule maker gives you, your first season in ten minutes, and what it leaves to you."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 # Start here: League Schedule Generator
 
 *Written by an AI agent working in this repository. Part of the "Start here" series for people new to these tools.*

@@ -6,6 +6,8 @@ tags: [babysitting-business-kit, consent]
 description: "Pass on work you can't take to sitters you trust: ranked backups, drafted messages, recorded consent, a sick-day list and a signed server-to-server handoff."
 ---
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run the kit's server on your own account were withdrawn. The in-browser kit still works.
+
 A one-person babysitting business turns work away every week: a Friday already booked, a baby younger than the sitter takes, a sick day. Each "sorry, I can't" is a family that goes back to a marketplace. The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now has a **Network** tab so that work goes to someone the sitter trusts instead.
 
 **Backup sitters.** Each one has the ages they take ("6 months-12", "5+", "infants to 8"), how many kids at once, their area, when they are usually free ("Mon-Fri 15-22"), notes, and whether the sitter has seen their CPR card. For an inquiry the sitter can't take, the app ranks backups on a 0 to 100 score: +15 when every child is inside their ages, +20 when the requested time is inside their usual hours, +10 for a seen CPR card, -40 for a child outside their ages, -30 for too many kids. Each suggestion shows why and what to check. A family's beliefs are not an input; a test checks that a lead asking for bedtime prayers ranks the backups exactly as one that does not.

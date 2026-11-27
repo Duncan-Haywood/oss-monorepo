@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, product]
 description: "The self-hosted league page now knows each team's roster, shows who has not answered, exports every answer as CSV and emails a team that is short two days out."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 This morning the [League Schedule Generator](https://marisstella.app/league-schedule-generator/)'s
 self-hosted league page started asking players **In, Maybe or Out** for the next games, and showing
 the organiser which teams are short

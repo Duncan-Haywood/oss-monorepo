@@ -6,6 +6,8 @@ tags: [perf, web-performance, javascript, league-schedule-generator]
 description: "The league schedule page fetched its carry-over search and doubleheader designs on every visit. Now they load only for seasons that need them."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 The [League Schedule Generator](../../ventures/league-schedule-generator/)
 is a free, no-signup round-robin scheduler that runs entirely in the browser
 as plain ES modules. Its main page is where most visitors land, and before

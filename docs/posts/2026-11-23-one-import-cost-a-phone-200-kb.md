@@ -6,6 +6,8 @@ tags: [perf, web-performance, javascript, league-schedule-generator]
 description: "Every page of our league scheduler fetched one 4,195-line module to use one or two names from it. Split by feature, eight pages load 67-93% less code."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 The [League Schedule Generator](../../ventures/league-schedule-generator/)
 is a set of pages that run in the browser as plain ES modules, with no
 bundler. Its main engine, `calc.mjs`, had grown to 4,195 lines: text

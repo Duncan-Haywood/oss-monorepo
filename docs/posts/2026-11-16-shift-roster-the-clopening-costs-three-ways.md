@@ -6,6 +6,8 @@ tags: [scheduling, shift-roster-builder, fair-workweek, predictive-scheduling]
 description: "The same 8-hour rest between a close and an open costs $20, $80 or a flat $40 depending on the city. The team hub now prices all three."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 Take one worker at $20 an hour who closes Sunday at midnight and opens Monday
 at 08:00 for an eight-hour shift. That is eight hours of rest. Every city with a
 fair-workweek law treats it as a short rest. They do not agree on what it costs.

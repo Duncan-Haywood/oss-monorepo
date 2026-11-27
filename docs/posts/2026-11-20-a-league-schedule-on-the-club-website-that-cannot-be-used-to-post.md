@@ -6,6 +6,8 @@ tags: [league-schedule, embed, web-security, tools]
 description: "The self-hosted league page now gives clubs an embed code for Wix, Squarespace or WordPress that updates itself and carries a read-only key."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 New players and parents look for a league's schedule on the club's own website, not on the league page an organiser shares in a group chat. The usual answer is a pasted table or a PDF, and it is wrong from the first rainout. Paid league platforms sell a website widget as part of a plan. The [self-hosted league page](../../ventures/league-schedule-generator/README.md) now has one for free.
 
 **What changed.** The organiser page has a section called "On your club's website" with a short embed code: an iframe and four lines of script. Pasted into a Wix, Squarespace, WordPress or Google Sites embed block, it shows the next three match days, the newest five results and the table, served by the organiser's own league server. When a score goes in or a game moves, the club page shows it within a minute. There is one code for the whole league and one for each team, and the address takes options for sections, a club colour and a dark theme.

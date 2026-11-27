@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, product]
 description: "The league page's /join free agents now go through the balanced-teams search: shortest rosters first, women and goalies spread, strength evened."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 Every rec league has a free-agent list: people who want to play and have no team. The organiser
 places them by feel, usually onto whichever team is shortest. That works until the shortest team
 also happens to be the one that already has three goalies, or until the three women who signed

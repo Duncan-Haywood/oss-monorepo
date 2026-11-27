@@ -6,6 +6,8 @@ seo_title: "Free self-hosted time clock with PINs and a geofence"
 description: "Shift Roster Builder's self-hosted time clock adds per-person PINs with a lockout and a site geofence that stores only how far a punch was from the site."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 Shift Roster Builder's self-hosted team page got a time clock yesterday: staff press Clock in on their phone and the manager gets a timesheet against the schedule, with a payroll CSV. It was an honour system. Anyone with the team link could clock in for anyone, from anywhere.
 
 That matters because of the two reasons owners give for paying per seat for a time clock: **buddy punching**, where a colleague clocks in for a friend who is running late, and **punching from the car park**, or the bus. Homebase, When I Work and 7shifts all sell PINs and geofences for this. The free hub now has both. Both are off until the manager turns them on.

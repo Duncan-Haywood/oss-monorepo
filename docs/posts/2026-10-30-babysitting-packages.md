@@ -6,6 +6,8 @@ description: "The Babysitting Business Kit now sells prepaid sit bundles and gif
 tags: [babysitting-business-kit]
 ---
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run the kit's server on your own account were withdrawn. The in-browser kit still works.
+
 A babysitter paid by the hour only earns when a family happens to need a sit. Three things change that, and the [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now has a Packages tab for each of them.
 
 **Packages.** The sitter defines a bundle: four date nights, forty summer hours, three school-holiday days. The app suggests a price from the sitter's own rate card. With the kit's default rates ($20 an hour, $3 for each extra child), a four-hour evening with two children quotes at $92, so four of them list at $368, and with a 10% discount the suggested price is $331.20. They can type any other price. When a family uses the package, the sit is marked paid and the balance goes down. A package counted in sits covers the whole sit. A package counted in hours pays for the hours, and anything else on the rate card stays owed: in the tests, an 8-hour day drawn from a $360, 20-hour block is credited $144 against a $160 quote, so $16 is still owed.

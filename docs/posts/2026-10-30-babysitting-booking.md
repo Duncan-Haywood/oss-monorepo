@@ -6,6 +6,8 @@ tags: [babysitting-business-kit, scheduling, booking]
 description: "The kit now lists a sitter's open times, drafts the 'openings this week' post, shows the week as a grid, and lets families request a time the sitter approves."
 ---
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run the kit's server on your own account were withdrawn. The in-browser kit still works.
+
 Most babysitters who work for themselves fill their week the same way: a post in a church group or a text to a few parents saying when they are free. Writing that post means reading the calendar, remembering which sits repeat, leaving time to drive between families and dropping the gaps too short to be worth a sit. The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now does that arithmetic.
 
 **Open slots.** For the next one to eight weeks, it takes the sitter's weekly availability, removes every booked sit (weekly repeats included, skipped dates excluded) with a travel buffer on each side, and keeps only the windows at least as long as their minimum sit. With the default settings (weekdays 3-10pm, Saturday 8am-11:30pm, a 3-hour minimum and a 30-minute buffer), a 4-7pm sit on Tuesday leaves nothing that day: 3-3:30pm and 7:30-10pm are both shorter than three hours. Set the minimum to two hours and the 7:30-10pm window comes back. Those two cases are tests in `slots.test.mjs`, which has 12 tests for this module.

@@ -5,6 +5,8 @@ tags: [babysitting-business-kit, website, local-seo, accessibility]
 description: "The kit now builds a four-page site in three themes from the sitter's own fields, hides empty sections, and downloads as a zip for free static hosting."
 ---
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run the kit's server on your own account were withdrawn. The in-browser kit still works.
+
 The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) used to make a one-page website. Now its Website tab builds a small site. A babysitter can drop it on Netlify, Cloudflare Pages or GitHub Pages, or serve it from the kit's optional self-hosted server at `/site/`.
 
 **One rule: only the sitter's words.** Every sentence on the site comes from a field the sitter filled in: their story, rates, the towns they serve, "what a sit looks like", what happens at the first sit, how they keep kids safe, and their cancellation, payment and sick-child policies. Leave a field empty and its section, its FAQ entry and, if nothing is left, its whole page go away. There is one fallback. With no cancellation text, the site uses the sitter's own rate card ("Cancelling with less than 24 hours' notice: 50% of the booked sit"). Testimonials still appear only when the family said yes. The faith section still appears only when the sitter ticks it, and a family's beliefs are never asked or scored.

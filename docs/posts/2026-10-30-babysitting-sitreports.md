@@ -6,6 +6,8 @@ tags: [babysitting-business-kit, email, small-business]
 description: "End-of-sit reports as a message to copy or email, a separate incident record, and a medicine log that warns on 7 kinds of mismatch with the parents' form."
 ---
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run the kit's server on your own account were withdrawn. The in-browser kit still works.
+
 The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) already covered everything before a sit: leads, quotes, the schedule, the family info sheet. It had nothing for the moment parents walk back in and ask "how did it go?" This update adds that, in the Families tab.
 
 **The report.** A sitter fills it in on their phone in about the time it takes the parents to take their coats off. It has arrival and departure (pre-filled from the booking), meals and snacks, nap or bedtime, diapers or potty, activities, a mood picked from seven words, and anything to tell the parents. It turns into a message like this, with empty sections left out:

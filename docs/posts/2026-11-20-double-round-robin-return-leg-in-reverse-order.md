@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, product]
 description: "Reversing the return leg of a home-and-away season cuts back-to-back home or away games from 3(n-2) to 2(n-2). Measured for 4 to 20 teams, with the cost."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 Most free schedule makers build a home-and-away season the same way. They write the first half,
 then play it again with every venue swapped: round 1 with the hosts flipped, then round 2, and so
 on. Ours did too.

@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, product]
 description: "Saving a rainout or withdrawal on the self-hosted league page can now email each affected team one list of only its own moved, cancelled or added games."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 A rainout in a rec league is a ten-minute fix for the organiser and an hour of confusion for everyone
 else. The schedule gets moved, the new sheet goes to the group chat, and every captain has to scan the
 whole season to find out whether their own Tuesday changed. Somebody always misses it and turns up to an

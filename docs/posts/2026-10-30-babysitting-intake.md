@@ -6,6 +6,8 @@ tags: [babysitting-business-kit, intake, small-business]
 description: "31 questions to ask parents, 13 red flags about safety and payment only, a one-time info sheet that fills the family record, and conversion by lead source."
 ---
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run the kit's server on your own account were withdrawn. The in-browser kit still works.
+
 The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) already scored inquiries and drafted replies. What happened between "yes, I'd love to" and the first sit was still a notes app. This update covers that gap in three parts.
 
 **A meet-and-greet kit.** [The printable checklist](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/meet-and-greet.html) has 31 questions in 10 groups: routines, discipline and behavior, screens and photos, allergies, medications and health, emergencies, pick-up and other people, pets, house rules, driving, and pay and booking. A sitter who offers faith-based activities gets one more, optional question. It asks whether the parents would like any, and "none" is just as good an answer. Nothing about that question is scored.

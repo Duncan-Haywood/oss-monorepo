@@ -6,6 +6,8 @@ tags: [babysitting-business-kit, pwa, accessibility, seo]
 description: "The kit now installs to a phone and opens offline, its tabs work from a keyboard, and three guides answer what sitters search for, prices checked by tests."
 ---
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run the kit's server on your own account were withdrawn. The in-browser kit still works.
+
 A babysitter runs their business from a phone, usually between sits. So the [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now behaves like a phone app.
 
 **It installs and opens offline.** The page has a web app manifest, icons rendered from one SVG, and a service worker. The worker caches the app shell. At install it also follows the `import` lines from `index.html` through each module, so a module added later gets cached without anyone editing a list. It never touches the self-hosted server's `/api/*` routes, the website's inquiry form or the calendar feed, so a family's details and the sitter's admin key are always fetched live and never stored in a cache. A test runs the real `sw.js` in a sandbox against the directory. After install it holds 10 files, and with the network off it still serves the app.

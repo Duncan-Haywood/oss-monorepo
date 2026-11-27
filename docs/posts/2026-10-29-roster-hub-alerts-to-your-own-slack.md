@@ -6,6 +6,8 @@ tags: [shift-roster-builder, self-hosted]
 description: "The free shift-roster server can post to a webhook you own when staff send a call-out, trade or time-off ask, and when you publish a week."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 The self-hosted roster hub already let staff see their shifts, trade, claim open shifts, ask for time off and report a call-out. The gap was that you had to open the admin page to find out. It can now post to a webhook you own.
 
 Set `NOTIFY_WEBHOOK_URL` and your manager channel gets a line for each staff request. Set `TEAM_WEBHOOK_URL` and the team channel gets everyone's shifts when you publish. Slack, Discord, ntfy and plain JSON are supported through `NOTIFY_FORMAT`. It is off unless you set a URL.

@@ -6,6 +6,8 @@ tags: [shift-roster-builder, cloudflare, self-hosting, scheduling, small-busines
 description: "Our staff scheduler's team page needed a $7 server. Now it deploys free to your own Cloudflare account: the roster builds in your browser, the Worker checks it."
 ---
 
+> **Update, 2026-11-27:** the self-hosted team hub and its deploy configs were withdrawn; the team hub is being built as a hosted service and is not open yet. The roster builder itself still runs free in your browser.
+
 The [Shift Roster Builder](https://marisstella.app/shift-roster-builder/) has had
 a self-hosted team page for a few weeks. You publish the week, and your staff
 open one link: their shifts, a calendar feed, and forms to call out, swap, pick

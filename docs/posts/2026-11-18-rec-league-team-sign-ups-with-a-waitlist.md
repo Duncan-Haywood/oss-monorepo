@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, product]
 description: "A self-hosted league page now takes team sign-ups: one public link, a team cap with a waitlist, a fee on your own payment link, one-click approve."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 Before a rec league has a schedule it has a sign-up. In most small leagues that is a Google Form and
 a Venmo or Stripe payment link in the group chat, and then an evening of copying: each team into the
 schedule, each player into a roster, each captain's email into a contact list, and a running count

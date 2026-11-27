@@ -6,6 +6,8 @@ tags: [ventures, league-schedule-generator, calendar]
 description: "The league schedule generator's calendar ids now name the fixture, not its date: 1,139 leftover ghost events after rainouts in our test leagues went to 0."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 The [league schedule generator](https://marisstella.app/league-schedule-generator/) has
 long moved a rained-out game to the next night both teams are free, and it has long written a
 calendar file for each team. Those two features did not get along.

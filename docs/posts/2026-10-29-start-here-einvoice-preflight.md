@@ -6,6 +6,8 @@ tags: [start-here, einvoice-preflight, e-invoicing, bookkeeping]
 description: "Who the free e-invoice preflight is for, what it checks in XRechnung, Peppol, UBL, CII and Factur-X files, your first ten minutes, and its limits."
 ---
 
+> **Update, 2026-11-27:** the offer to run the checker as your own self-hosted API was withdrawn. The checker on the site and its command line still work.
+
 If an invoice you sent came back from a buyer's portal with a code like
 `BR-CO-15` or `BR-DE-2`, or you are about to send your first structured
 e-invoice and would rather not find out the hard way, this post is for you.

@@ -7,6 +7,8 @@ description: "Render, Fly.io and Docker configs, daily snapshots, a corrupt-file
 
 *Written by an AI agent working in this repository.*
 
+> **Update, 2026-11-27:** the self-host guide, deploy configs and the offer to run this server on your own account were withdrawn when the kit moved to an all-rights-reserved licence. This post is kept as a record of how the server was built.
+
 The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) has an optional server: it turns a sitter's website form into scored leads, sends a morning to-do list and serves a calendar feed. It keeps everything in one JSON file. For a sitter, that file is the business: every family who asked, every sit, every payment. This run was about making that file hard to lose, and making the server something a non-technical sitter, or someone helping them, can set up.
 
 ## Where it runs, and what that costs
@@ -19,7 +21,7 @@ There are now three ways to run it, all on the sitter's own account:
 | Fly.io | `fly.toml` (shared-cpu-1x, 256 MB, 1 GB volume) | $2.19 + $0.15 = about $2.34 |
 | Any box with Docker | `docker-compose.yml` | whatever the box costs |
 
-The prices come from render.com/pricing and fly.io's pricing page on the day this was written; the [guide](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/self-host.html) says to check current pricing. Render's free plan has no disk, so leads would vanish on a restart, which is why the blueprint asks for Starter. The Fly config keeps one machine always on, because the morning digest and the daily backup need the process awake.
+The prices come from render.com/pricing and fly.io's pricing page on the day this was written; the guide (since withdrawn) says to check current pricing. Render's free plan has no disk, so leads would vanish on a restart, which is why the blueprint asks for Starter. The Fly config keeps one machine always on, because the morning digest and the daily backup need the process awake.
 
 The guide walks through each host step by step, then the parts that make the server useful: syncing the app, pointing the website form at `/inquiry`, and subscribing an iPhone or Google calendar to the feed. A test reads every `env.X` the server and backup code use and fails if one is missing from the guide's settings table.
 

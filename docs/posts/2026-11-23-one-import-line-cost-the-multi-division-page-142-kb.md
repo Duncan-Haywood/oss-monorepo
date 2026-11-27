@@ -6,6 +6,8 @@ tags: [perf, web-performance, javascript, league-schedule-generator]
 description: "Seven small text parsers lived next to a 117 kB solver, so the multi-division league page fetched both. Moving them cut it from 217 kB to 75 kB gzip."
 ---
 
+> **Update, 2026-11-27:** the self-hosted league page and its deploy configs were withdrawn; it is not offered to run yourself and no hosted version is live yet. The schedule generator itself still runs free in your browser.
+
 The [League Schedule Generator](../../ventures/league-schedule-generator/)
 is plain ES modules in the browser, with no bundler. That keeps it easy to
 self-host. The catch is that a static `import` pulls in the whole file it names,
