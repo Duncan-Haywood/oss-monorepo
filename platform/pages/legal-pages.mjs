@@ -22,14 +22,14 @@ export const TERMS_PATH = 'terms/';
 export const COOKIES_PATH = 'cookies/';
 
 export const LEGAL_OPERATOR = Object.freeze({
-  name: 'Mary Stella Labs, LLC',
-  jurisdiction: 'New Mexico',
+  name: 'Maris Stella Labs LLC',
+  jurisdiction: 'Colorado',
   country: 'USA',
   email: 'hello@marisstella.app',
 });
 
 /** The date the text of these documents last changed. Bump with any edit. */
-export const LEGAL_UPDATED = '2026-11-26';
+export const LEGAL_UPDATED = '2026-11-27';
 
 const esc = (s) => String(s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
