@@ -53,7 +53,7 @@
     },
     {
       "file": "docs/reports/2026-11-27-state-certified-payroll-filing-systems.md",
-      "issue": "Ranked Washington third on an 'XML upload' from a vendor guide; L&I's own May 2025 instructions show manual entry only. Corrected in this PR"
+      "issue": "L&I's PWIA step-by-step PDF shows on-screen entry only; the XML upload has its own guide and schema (found by PR #19673 in parallel). This session nearly recorded Washington as having no upload; corrected before merge"
     }
   ],
   "deviations": [
@@ -82,7 +82,7 @@
     "docs/reports/2026-11-27-state-certified-payroll-filing-systems.md"
   ],
   "goal": null,
-  "notes": "Local: gate.py analyze (base = allowlist) 0 blocking, 3 warnings; ci_policy_check ok; validate_workflows 144 valid; secrets_inventory 52 ok; publish_surface --check ok; jobshop-quote biome ci, typecheck, unit 633/633, worker 282/282. #19670 CI all green (adversarial-gate took ~35 min to get a runner). Next run: once the owner gives the Cloudflare token R2 edit, dispatch jobshop-quote-deploy on main and record the URL in ventures/jobshop-quote/DEPLOY.md.",
+  "notes": "Local: gate.py analyze (base = allowlist) 0 blocking, 3 warnings; ci_policy_check ok; validate_workflows 144 valid; secrets_inventory 52 ok; publish_surface --check ok; jobshop-quote biome ci, typecheck, unit 633/633, worker 282/282. #19670 CI all green (adversarial-gate took ~35 min to get a runner). Next run: once the owner gives the Cloudflare token R2 edit, dispatch jobshop-quote-deploy on main and record the URL in ventures/jobshop-quote/DEPLOY.md. Merge with main: CODEOWNERS and secrets-inventory conflicted with the Seller Books port (#19662); kept both and re-applied the jobshop entries (inventory 56 secrets ok). #19683 (parallel session) already put R2 on the token in the decision queue.",
   "corrections": [],
   "redteam": null,
   "usage": {

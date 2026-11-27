@@ -108,9 +108,8 @@ session, so New Jersey's CSV template is the next to fetch; lni.wa.gov answered 
   revision MW-562 (2/25), an AcroForm) carries test values already filled in ("Arthur R"), so it is
   not a clean blank to fill either. Next step: a session whose policy reaches njwages.nj.gov, or the
   owner saving `CSV_Template.zip` into the repo.
-- **Washington.** L&I's PWIA step-by-step instructions
-  (`lni.wa.gov/licensing-permits/_docs/PWIA-Step-by-Step-Instructions.pdf`, 200, "last updated May
-  2025") describe certified payroll as entered on screen (Step 1 employees and rates, Step 2 hours
-  and deductions, Step 3 review and sign) plus a scanned paper form for owner-operators. No XML or
-  file upload is described there, so the "XML upload" claim in the ranking above (from a vendor
-  guide) is unconfirmed; drop Washington below Illinois until an L&I page shows a schema.
+- **Washington: built in parallel (PR #19673).** This session read only L&I's PWIA step-by-step
+  instructions (May 2025), which describe on-screen entry and no file upload; another run the same
+  morning found the separate "Submit Payroll in XML File" route, L&I's published `xmlschema.xsd` and
+  the XML Payroll Upload Guide, and built the file (validated with xmllint). Lesson: the step-by-step
+  PDF is not the whole spec; search for the upload guide by name before ruling a format out.
