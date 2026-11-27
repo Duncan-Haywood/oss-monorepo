@@ -1,0 +1,282 @@
+# Deploys the paid layer of ventures/einvoice-pro/apps/einvoice-preflight (E-invoice Fix & Explain,
+# paid bet #3) to Cloudflare Workers + D1 as the `einvoice-pro` Worker. Ported on 2026-11-27 from
+# private-monorepo's einvoice-preflight-deploy.yml (blob e66eb6bf), whose repository's Actions start
+# no jobs. Every step and setting: apps/einvoice-preflight/docs/HOSTING.md, "Deploying"; why it lives
+# here: ventures/einvoice-pro/DEPLOY.md and docs/reports/2026-11-27-einvoice-pro-deploy-workflow.md.
+#
+# Manual only (workflow_dispatch), from main only, as the private workflow was: nothing goes live on a
+# merge until a first run has been checked; add a `push:` trigger (paths ventures/einvoice-pro/**, as
+# priv-payapps-deploy.yml has) after that. Never deploys from pull requests: PR checks are
+# einvoice-pro-ci.yml. Paid plans stay dark until the owner sets EINVOICE_BILLING_PROVIDER=paddle and
+# the Paddle secrets (docs/BILLING.md); email sign-in stays off until EINVOICE_RESEND_API_KEY and the
+# EINVOICE_EMAIL_FROM sender are set (pro/README.md).
+#
+# The app has no package.json (zero-dependency Node), so the two npm modules the Worker build needs
+# (slimdom for the plain route, wrangler) are installed at exact versions with --no-save. No
+# migrations: the SqlStore creates its tables on first use. No R2. The D1 database is created in the
+# EU jurisdiction (worker/provision.mjs), which the DPA's Annex III promises.
+#
+# Differences from the private workflow, all hardening (the same set priv-payapps-deploy.yml made):
+# actions pinned by SHA, checkout without persisted credentials and sparse to the venture, a job-level
+# guard that refuses any ref but main, this repository's Cloudflare secret names and runner variable,
+# secrets used exactly as stored (a transformed secret prints unmasked), EINVOICE_DOMAIN must be a bare
+# host name, and the Paddle sync warns instead of relying on continue-on-error.
+name: einvoice-pro-deploy
+on:
+  workflow_dispatch:
+    inputs:
+      skip_checks:
+        description: "Skip tests (only for a commit einvoice-pro CI already passed)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: einvoice-pro-deploy
+  cancel-in-progress: false # never cancel a deploy half-way
+
+jobs:
+  deploy:
+    name: deploy (production)
+    # A dispatch from a branch could ship unreviewed code with production secrets: main only.
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    # Limit this environment to `main` (Settings -> Environments). The EINVOICE_* secrets belong here;
+    # the Cloudflare ones are the repository's.
+    environment:
+      name: einvoice-production
+      url: ${{ steps.urls.outputs.app_url }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ventures/einvoice-pro/apps/einvoice-preflight
+    env:
+      WRANGLER_SEND_METRICS: "false"
+      # Optional custom domain (zone on the same Cloudflare account); empty = workers.dev.
+      APP_DOMAIN: ${{ vars.EINVOICE_DOMAIN }}
+    steps:
+      - name: Cloudflare credentials present
+        working-directory: .
+        env:
+          HAS_TOKEN: ${{ (secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY) != '' }}
+          HAS_ACCOUNT: ${{ (secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID || vars.CLOUDFLARE_ACCOUNT_ID) != '' }}
+        run: |
+          if [[ "$HAS_TOKEN" != "true" || "$HAS_ACCOUNT" != "true" ]]; then
+            echo "::error title=Missing Cloudflare secrets::Need CLOUDFLARE_API_TOKEN (D1 and Workers Scripts edit; Zone/DNS/Routes edit for a custom domain) and CLOUDFLARE_ACCOUNT_ID. See ventures/einvoice-pro/apps/einvoice-preflight/docs/HOSTING.md. Nothing was deployed."
+            exit 1
+          fi
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            ventures/einvoice-pro
+
+      - name: The app is in this repository
+        working-directory: .
+        run: |
+          if [[ ! -f ventures/einvoice-pro/apps/einvoice-preflight/worker/provision.mjs ]]; then
+            echo "::error title=einvoice-pro not here::ventures/einvoice-pro/apps/einvoice-preflight/worker/provision.mjs is not on main. Nothing was deployed."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          # 22.18+ runs packages/billing's TypeScript by type stripping (pro/ and the catalog sync).
+          node-version: "22"
+
+      - name: Checks
+        if: ${{ !inputs.skip_checks }}
+        run: |
+          node --test pro/*.test.mjs
+          node --test worker/*.test.mjs
+          node --test --test-concurrency=4 *.test.mjs
+
+      # Cloudflare credentials are exported only after install, tests and build.
+      - name: Install the Worker build's modules (exact versions, nothing saved)
+        run: npm i --no-save --no-package-lock --no-audit --no-fund --prefix . slimdom@4.3.5 wrangler@4.165.0
+
+      - name: Build
+        run: node ./worker/build.mjs
+
+      - name: Cloudflare credentials
+        env:
+          CF_SECRET: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID || vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # Used exactly as stored: a transformed secret would print unmasked (actions-secret-leak-check).
+          token="$CF_SECRET"
+          account="$CF_ACCOUNT"
+          api=https://api.cloudflare.com/client/v4
+          ok() { jq -e '.success == true' >/dev/null 2>&1; }
+          if ! { curl -sS -H "Authorization: Bearer $token" "$api/user/tokens/verify" | ok ||
+                 curl -sS -H "Authorization: Bearer $token" "$api/accounts/$account/tokens/verify" | ok; }; then
+            echo "::error title=Cloudflare token rejected::CLOUDFLARE_API_TOKEN is not an active API token for account CLOUDFLARE_ACCOUNT_ID."
+            exit 1
+          fi
+          { echo "CLOUDFLARE_API_TOKEN=$token"; echo "CLOUDFLARE_ACCOUNT_ID=$account"; } >>"$GITHUB_ENV"
+
+      - name: Resolve URL
+        id: urls
+        run: |
+          api=https://api.cloudflare.com/client/v4
+          auth=(-H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
+          domain="$(printf '%s' "$APP_DOMAIN" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+          if [[ -n "$domain" && ! "$domain" =~ ^[a-z0-9.-]+$ ]]; then
+            echo "::error title=Bad EINVOICE_DOMAIN::Use a bare host name such as einvoice.marisstella.app. Nothing was deployed."
+            exit 1
+          fi
+          if [[ -n "$domain" ]]; then
+            zone="$(awk -F. '{print $(NF-1)"."$NF}' <<<"$domain")"
+            zone_id="$(curl -sS "${auth[@]}" "$api/zones?name=$zone&account.id=$CLOUDFLARE_ACCOUNT_ID" | jq -r '.result[0].id // empty' 2>/dev/null || true)"
+            if [[ -z "$zone_id" ]]; then
+              echo "::warning title=Custom domain skipped::Zone $zone is not reachable with this token (needs Zone Read, DNS Edit, Workers Routes Edit). Deploying on workers.dev."
+              domain=""
+            fi
+          fi
+          if [[ -n "$domain" ]]; then
+            url="https://$domain"
+          else
+            sub="$(curl -sS "${auth[@]}" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | jq -r '.result.subdomain // empty' 2>/dev/null || true)"
+            if [[ -z "$sub" ]]; then
+              echo "::error title=No workers.dev subdomain::Open Workers & Pages once in the Cloudflare dashboard (or set EINVOICE_DOMAIN), then re-run. Nothing was deployed."
+              exit 1
+            fi
+            url="https://einvoice-pro.$sub.workers.dev"
+          fi
+          { echo "domain=$domain"; echo "app_url=$url"; } >>"$GITHUB_OUTPUT"
+          echo "Deploying einvoice-pro to $url"
+
+      - name: Provision D1 (EU jurisdiction) and write the deploy config
+        id: provision
+        env:
+          DOMAIN: ${{ steps.urls.outputs.domain }}
+        run: node ./worker/provision.mjs --write-config wrangler.deploy.json ${DOMAIN:+--domain "$DOMAIN"}
+
+      # Products and prices as code: billing/paddle-catalog.json (built from pro/plans.mjs) is synced
+      # to Paddle and the price ids are read back, never pasted. Skipped (and checkout stays dark)
+      # without the Paddle key. Only items tagged custom_data.app=einvoice-preflight are touched.
+      # A Paddle problem must not block shipping the app: a failed sync warns and leaves price_ids
+      # empty, so the secret sync falls back to EINVOICE_BILLING_PRICE_IDS (or checkout stays dark).
+      - name: Sync the Paddle catalog
+        id: paddle
+        env:
+          BILLING_API_KEY: ${{ secrets.EINVOICE_BILLING_API_KEY }}
+        run: |
+          if [[ -z "$BILLING_API_KEY" ]]; then echo "EINVOICE_BILLING_API_KEY not set: paid plans stay dark"; exit 0; fi
+          out="$RUNNER_TEMP/paddle-price-ids.json"
+          if node ../../packages/billing/scripts/paddle-catalog.ts --catalog billing/paddle-catalog.json --apply --price-ids-out "$out" \
+             && ids="$(jq -c . "$out")"; then
+            echo "price_ids=$ids" >>"$GITHUB_OUTPUT"
+          else
+            echo "::warning title=Paddle catalog sync failed::The app still deploys; price ids fall back to EINVOICE_BILLING_PRICE_IDS if set."
+          fi
+
+      - name: Deploy
+        id: deploy
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+          APP_URL: ${{ steps.urls.outputs.app_url }}
+          # Not secret ("paddle" or "none"); vars because a Worker secret cannot share a var's name.
+          BILLING_PROVIDER: ${{ vars.EINVOICE_BILLING_PROVIDER || 'none' }}
+          # "resend" turns email sign-in on once EINVOICE_RESEND_API_KEY is set; one bare address.
+          EMAIL_PROVIDER: ${{ vars.EINVOICE_EMAIL_PROVIDER || 'none' }}
+          EMAIL_FROM: ${{ vars.EINVOICE_EMAIL_FROM || 'no-reply@marisstella.app' }}
+          OWNER_NOTIFICATIONS: ${{ vars.EINVOICE_OWNER_NOTIFICATIONS || 'off' }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-deploy.ndjson
+        run: |
+          ./node_modules/.bin/wrangler deploy --config "$CONFIG" \
+            --var "APP_ENV:production" --var "APP_URL:${APP_URL%/}" \
+            --var "BILLING_PROVIDER:$BILLING_PROVIDER" --var "EMAIL_PROVIDER:$EMAIL_PROVIDER" \
+            --var "EMAIL_FROM:$EMAIL_FROM" --var "OWNER_NOTIFICATIONS:$OWNER_NOTIFICATIONS" \
+            --message "${GITHUB_SHA::12} via ${GITHUB_EVENT_NAME} (run ${GITHUB_RUN_ID})"
+          version="$(jq -r 'select(.type=="deploy") | .version_id // empty' "$WRANGLER_OUTPUT_FILE_PATH" 2>/dev/null | tail -1 || true)"
+          echo "version_id=$version" >>"$GITHUB_OUTPUT"
+
+      # ADMIN_SERVICE_TOKEN and ADMIN_METRICS_TOKEN are not synced here: the admin console's
+      # set-admins workflow owns them for every Worker (docs/HOSTING.md).
+      - name: Sync secrets from GitHub (non-empty only)
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+          S_BILLING_API_KEY: ${{ secrets.EINVOICE_BILLING_API_KEY }}
+          S_BILLING_WEBHOOK_SECRET: ${{ secrets.EINVOICE_BILLING_WEBHOOK_SECRET }}
+          S_BILLING_PRICE_IDS: ${{ steps.paddle.outputs.price_ids || secrets.EINVOICE_BILLING_PRICE_IDS }}
+          S_RESEND_API_KEY: ${{ secrets.EINVOICE_RESEND_API_KEY }}
+          S_ADMIN_TOKEN: ${{ secrets.EINVOICE_ADMIN_TOKEN }}
+        run: |
+          umask 077
+          file="$RUNNER_TEMP/worker-secrets.json"
+          trap 'rm -f "$file"' EXIT
+          node -e '
+            const out = {};
+            for (const [k, v] of Object.entries(process.env)) {
+              if (k.startsWith("S_") && v && v.trim()) out[k.slice(2)] = v;
+            }
+            require("node:fs").writeFileSync(process.argv[1], JSON.stringify(out));
+            console.log(`syncing ${Object.keys(out).length} secret(s): ${Object.keys(out).sort().join(", ") || "none"}`);
+          ' "$file"
+          if [[ "$(jq 'length' "$file")" -gt 0 ]]; then
+            ./node_modules/.bin/wrangler secret bulk "$file" --name einvoice-pro --config "$CONFIG"
+          fi
+
+      # Checkout needs CHECKOUT_SECRET (32+ characters) to sign its tokens. Generated once, stored only
+      # on the Worker, never overwritten (a new one would void checkouts in flight).
+      - name: Generate CHECKOUT_SECRET if missing (never overwrites)
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+        run: |
+          # Fails the step (pipefail) if the list cannot be read: never guess and overwrite a secret.
+          existing="$(./node_modules/.bin/wrangler secret list --format json --name einvoice-pro --config "$CONFIG" \
+            | sed -n '/^\[/,$p' | jq -r '.[].name')"
+          if grep -qx CHECKOUT_SECRET <<<"$existing"; then
+            echo "CHECKOUT_SECRET already set: keeping it"
+          else
+            value="$(openssl rand -hex 32)"
+            echo "::add-mask::$value"
+            printf '%s' "$value" | ./node_modules/.bin/wrangler secret put CHECKOUT_SECRET --name einvoice-pro --config "$CONFIG" >/dev/null
+            unset value
+            echo "CHECKOUT_SECRET generated and stored on the Worker (write-only)"
+          fi
+
+      - name: Smoke test /healthz and the legal pages
+        env:
+          APP_URL: ${{ steps.urls.outputs.app_url }}
+        run: |
+          base="${APP_URL%/}"
+          # A new custom domain's certificate can take a few minutes on its first deploy.
+          deadline=$((SECONDS + 300))
+          until body="$(curl -fsS --max-time 10 "$base/healthz" 2>/dev/null)" && jq -e '.ok == true' <<<"$body" >/dev/null; do
+            if (( SECONDS >= deadline )); then
+              echo "::error::$base/healthz did not answer ok within 300s (last: ${body:-no response})"
+              exit 1
+            fi
+            sleep 3
+          done
+          echo "healthy: $base/healthz -> $body"
+          # Sign-up links these; a deploy that cannot serve them must not take sign-ups.
+          curl -fsS --max-time 10 "$base/v1/legal" | jq -e '.terms.version and .privacy.version and .dpa.version' >/dev/null
+          for page in /app /app/terms /app/privacy /app/dpa; do
+            code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 "$base$page")"
+            [[ "$code" == 200 ]] || { echo "::error::$base$page answered $code"; exit 1; }
+          done
+          echo "workspace and legal pages answer 200"
+
+      - name: Summary
+        if: always()
+        env:
+          APP_URL: ${{ steps.urls.outputs.app_url }}
+          VERSION: ${{ steps.deploy.outputs.version_id }}
+          D1: ${{ steps.provision.outputs.d1_id }}
+        run: |
+          {
+            echo "### einvoice-pro-deploy"
+            echo "- url: ${APP_URL:-n/a}"
+            echo "- D1 einvoice-pro (EU jurisdiction): \`${D1:-n/a}\`"
+            echo "- version: \`${VERSION:-n/a}\` (rollback: \`./node_modules/.bin/wrangler rollback <version-id> --name einvoice-pro\`)"
+            echo "- next: re-read CPU per request in Workers Metrics (docs/HOSTING.md)"
+            echo "- commit: \`$GITHUB_SHA\`"
+          } >>"$GITHUB_STEP_SUMMARY"

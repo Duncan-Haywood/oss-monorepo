@@ -346,6 +346,13 @@ workflows:
     step: runs 'wrangler deploy'
     gates:
     - ${{ needs.gate.outputs.ready == 'true' }}
+- workflow: priv-einvoice-pro-deploy.yml
+  classification: dispatch
+  publishes:
+  - job: deploy
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ github.ref == 'refs/heads/main' }}
 - workflow: priv-email-deploy.yml
   classification: gated
   publishes:
