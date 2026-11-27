@@ -138,7 +138,7 @@ export function buildPages(launch = launchState()) {
     {
       path: "/",
       kind: "home",
-      title: `${SITE_NAME} · CMMC Level 1/2 and ISO 9001 paperwork for small machine shops`,
+      title: "CMMC Level 1/2 and ISO 9001 workspace for small machine shops",
       description: `Your SSP, POA&M and SPRS score, prepared in-house instead of a $3k–25k consultant job. For small defense and aerospace machine shops. ${open ? "Level 1 is free." : "Early access."}`,
       changefreq: "weekly",
       priority: 1,
@@ -325,7 +325,7 @@ ${cta}`,
     {
       path: "/sprs-score-calculator",
       kind: "faq",
-      title: `Free SPRS score calculator (NIST SP 800-171) · ${SITE_NAME}`,
+      title: `Free SPRS score calculator (NIST SP 800-171) · ${SHORT_NAME}`,
       description:
         "Free SPRS score calculator: tick the NIST SP 800-171 requirements you do not meet yet; get your score, the costliest gaps and whether a POA&M can cover them.",
       changefreq: "monthly",

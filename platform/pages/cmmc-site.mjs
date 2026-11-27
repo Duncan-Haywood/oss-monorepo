@@ -23,6 +23,15 @@ export const CMMC_SITE_DIR = 'cmmc';
 export const CMMC_SITE_APP = path.join(ROOT, 'ventures', 'cmmc', 'apps', 'cmmc-site');
 const PRODUCTION = 'https://marisstella.app/';
 
+/**
+ * Absolute links to the production origin (canonicals, the sitemap, the sibling-product link to the
+ * manufacturing page) become the origin this build names, as the builder does for every venture.
+ */
+export function rebase(text, baseUrl) {
+  if (!baseUrl || baseUrl === PRODUCTION) return text;
+  return text.split(PRODUCTION).join(baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`);
+}
+
 /** `href|src|action="/cmmc/x"` -> `"./x"`; other links untouched. */
 export function relativise(html) {
   return html.replace(/\b(href|src|action)="\/cmmc\//g, '$1="./');
@@ -49,7 +58,7 @@ export async function buildCmmcSite(outDir, { baseUrl = PRODUCTION, app = CMMC_S
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'cmmc-site-'));
   try {
     const files = build({
-      siteUrl: `${baseUrl.replace(/\/+$/, '')}/${CMMC_SITE_DIR}`,
+      siteUrl: `${PRODUCTION}${CMMC_SITE_DIR}`,
       basePath: `/${CMMC_SITE_DIR}`,
       outDir: path.join(tmp, 'dist'),
       launch,
@@ -59,7 +68,8 @@ export async function buildCmmcSite(outDir, { baseUrl = PRODUCTION, app = CMMC_S
       if (name.includes('/')) throw new Error(`cmmc-site wrote a nested file (${name}); relative links assume one directory`);
       const target = path.join(dest, name);
       await fs.mkdir(path.dirname(target), { recursive: true });
-      await fs.writeFile(target, name.endsWith('.html') ? relativise(content) : content);
+      const text = /\.(html|xml|txt|svg|css|js)$/.test(name) ? rebase(content, baseUrl) : content;
+      await fs.writeFile(target, name.endsWith('.html') ? relativise(text) : text);
       written.push(`${CMMC_SITE_DIR}/${name}`);
     }
     return written.sort();

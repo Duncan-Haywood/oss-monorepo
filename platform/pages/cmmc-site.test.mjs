@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { buildCmmcSite, relativise } from './cmmc-site.mjs';
+import { buildCmmcSite, rebase, relativise } from './cmmc-site.mjs';
 import { CMMC_SITE_DIR, SITE_OWN_DIRS } from './check.mjs';
 
 const tmp = () => mkdtempSync(path.join(os.tmpdir(), 'cmmc-site-'));
@@ -44,6 +44,11 @@ test('canonicals follow the build origin', async () => {
     await buildCmmcSite(out, { baseUrl: 'https://example.test/' });
     const home = readFileSync(path.join(out, 'cmmc/index.html'), 'utf8');
     assert.match(home, /<link rel="canonical" href="https:\/\/example\.test\/cmmc\/">/);
+    for (const f of ['index.html', 'sitemap.xml', 'llms.txt', 'cmmc-level-1-vs-level-2.html'])
+      assert.doesNotMatch(readFileSync(path.join(out, 'cmmc', f), 'utf8'), /\/\/marisstella\.app\//, f);
+    // The app's own origin is another host, left alone.
+    assert.match(home, /https:\/\/cmmc\.marisstella\.app\/signup/);
+    assert.equal(rebase('https://marisstella.app/x', 'https://a.test/'), 'https://a.test/x');
   } finally {
     rmSync(out, { recursive: true, force: true });
   }
