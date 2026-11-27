@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "test_redteam's new skip test first called git commit (no identity on CI) and then matched only TAP '# skipped' while CI's node prints the spec reporter's 'ℹ skipped'; both fixed in-PR."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -47,11 +49,17 @@
       "why": "No blog post: this run adds tests and red-team tooling, nothing a customer reads; a post per PR is superseded by consolidated posts (2026-11-24).",
       "did": "Findings recorded in this record and the PR body.",
       "result": "n/a"
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "Merged with prompts-ci 'validate' red on test_promptctl LastChangeIndexTest: the same test fails on main's own push runs (shallow-root dating, process backlog P094, fixes in flight from PRs #19528/#19529), not on lines this PR touches.",
+      "did": "Confirmed main's Prompts runs fail the same test; every other check green.",
+      "result": "merged"
     }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Campaigns: numbers.mjs 6/8 caught (2 equivalent: redundant undefined/null/boolean guard); peppol-readiness.mjs 4/8 caught. The 4 escapes were reachable only by plain-runner tests that skip without slimdom/fontoxpath (CI installs them). Guard: dependency-free classifyFile/summarize/toCsv/toMarkdown test; rerun shows all 4 caught (catch rate 0.714 -> 1.0). Guard added (4b): redteam.py campaign counts baseline skipped tests, warns and records baseline_skipped; on its first run it would have reported 3 skipped tests for peppol-readiness.test.mjs (the suite-level skip count is 145). Hunt: isPeppolFile's 200-char window can match a Peppol ProfileID after a non-Peppol CustomizationID, but classifyFile's sets check (from matchingAddons on BT-24) filters it out, so it is not a defect. Verification: prompts unittest test_redteam 27 OK; run_venture_tests.py einvoice-preflight ok (2829 tests, 145 skipped).",
+  "notes": "Campaigns: numbers.mjs 6/8 caught (2 equivalent: redundant undefined/null/boolean guard); peppol-readiness.mjs 4/8 caught. The 4 escapes were reachable only by plain-runner tests that skip without slimdom/fontoxpath (CI installs them). Guard: dependency-free classifyFile/summarize/toCsv/toMarkdown test; rerun shows all 4 caught (catch rate 0.714 -> 1.0). Guard added (4b): redteam.py campaign counts baseline skipped tests, warns and records baseline_skipped; on its first run it would have reported 3 skipped tests for peppol-readiness.test.mjs (the suite-level skip count is 145). Hunt: isPeppolFile's 200-char window can match a Peppol ProfileID after a non-Peppol CustomizationID, but classifyFile's sets check (from matchingAddons on BT-24) filters it out, so it is not a defect. Verification: prompts unittest test_redteam 27 OK; run_venture_tests.py einvoice-preflight ok (2829 tests, 145 skipped). CI: every check green except prompts-ci validate, which fails test_promptctl LastChangeIndexTest exactly as main's push runs do (P094).",
   "corrections": [],
   "redteam": {
     "campaigns": [
