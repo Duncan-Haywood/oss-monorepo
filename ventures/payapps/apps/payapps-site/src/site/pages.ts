@@ -406,6 +406,20 @@ export const FEATURES: readonly Feature[] = [
     ],
   },
   {
+    id: "timesheets",
+    title: "Crew timesheets that land on job cost",
+    status: "built",
+    body: "Your foreman knows who worked where; job cost usually finds out after payroll, weeks later. Enter each worker's hours by day on a job and a schedule-of-values line, and post the week: the labor goes on each job's costs, so an over-running line shows while it can still be fixed.",
+    bullets: [
+      "Your crew list with each worker's trade and hourly rate; a worker with past hours is made inactive, not deleted",
+      "One week per screen, a row per job and line, hours by day; your company's workweek (Monday or any other day) is kept fixed once hours are entered",
+      "Overtime past 40 hours in the workweek at time and a half, on the hours worked after the 40th, so the job worked on Saturday carries it",
+      "Post to job costs: one labor cost per job and line, wages plus the burden percent you type (none is assumed); a week posted twice adds nothing",
+      "A payroll CSV (straight time, overtime, rate and gross per worker) for your payroll service, and a time detail CSV the certified payroll page reads back for a prevailing-wage week",
+      "Hours on every plan; posting them to job costs comes with job costing (Crew and up). Federal overtime only: state daily overtime, double time and prevailing wages are for your payroll service",
+    ],
+  },
+  {
     id: "job-schedule",
     title: "Your schedule on each job, and the lookahead for the GC's meeting",
     status: "built",

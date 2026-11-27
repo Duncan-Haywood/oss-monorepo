@@ -20,6 +20,7 @@ import { QuickBooksPage } from "./pages/quickbooks";
 import { SubmittalsPage } from "./pages/submittals";
 import { SwornStatementPage } from "./pages/sworn-statement";
 import { TeamPage } from "./pages/team";
+import { TimesheetsPage } from "./pages/timesheets";
 import { TmTicketsPage } from "./pages/tm-tickets";
 import { UnsubscribePage } from "./pages/unsubscribe";
 import { WipPage } from "./pages/wip";
@@ -149,6 +150,11 @@ const crewsRoute = createRoute({
   path: "/orgs/$orgId/crews",
   component: CrewsPage,
 });
+const timesheetsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/orgs/$orgId/timesheets",
+  component: TimesheetsPage,
+});
 const wipRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/orgs/$orgId/wip",
@@ -188,6 +194,7 @@ export const router = createRouter({
     tmTicketsRoute,
     wipRoute,
     crewsRoute,
+    timesheetsRoute,
     payAppRoute,
   ]),
 });

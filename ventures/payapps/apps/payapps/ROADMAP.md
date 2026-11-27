@@ -2068,6 +2068,19 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
   delete keeps the report, filters, PDF text, attach, viewer read-only, another company's activity
   refused, cross-tenant 404s).
 
+- Crew timesheets, part 1 (2026-11-27, hours on every plan, posting with job costing,
+  job-cost-timesheets-part-1): the company's crew list (name, trade, hourly rate; inactive rather than
+  deleted once a worker has hours), each worker's hours by day on a job and schedule-of-values line
+  for a workweek starting on the day the company picks (fixed once hours exist), overtime past 40
+  hours at 1.5 times the rate falling on the hours after the 40th (federal FLSA only; the page says
+  state rules are not applied), wages split to the cent across rows, and "Post to job costs": one
+  labor cost per job and line, wages plus a typed burden percent, posted once per week by reference
+  through `addEntries`. Payroll CSV and a time detail CSV that the certified payroll import reads
+  back. Tables `crew_members`, `time_entries`, `timesheet_settings` (migration 0081),
+  docs/TIMESHEETS.md, privacy policy 2026-11-27.4, marketing site features page and llms.txt. Why:
+  payroll reports and QuickBooks bring labor in weeks after it is worked, and time tracking is a
+  standard module of the suites the bet compares against (JobTread, Contractor Foreman, Knowify).
+
 ## Must do before a public launch
 
 - Deploy sets `EMAIL_FROM` and checks `GET /api/health` answers `"email": true` (docs/EMAIL.md)
@@ -2083,6 +2096,10 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
 
 ## Next (suite, by promise)
 
+- Crew timesheets, part 2: the week's hours filling the certified payroll page directly (today
+  through the time detail CSV), a foreman entering hours from a phone for the crew on one job, an
+  approval step before posting, and state daily overtime (California first) as an opt-in rule, if
+  contractors ask
 - Job schedule, part 2 (part 1, activities, the sequence check, the shift and the lookahead PDF,
   done 2026-11-27; the crew lookahead across every job and the company's holidays left out of
   workdays, done 2026-11-27; the daily reports' missing days skipping the company's holidays, done
