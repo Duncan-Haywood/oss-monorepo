@@ -9,15 +9,18 @@ locals {
 
   # The Lambda zip holds the same modules the Worker runs, at the same
   # relative paths, so `../counter/core.mjs` resolves inside the zip too.
+  # platform/edge/lambda-zips.test.mjs fails if an import is missing here.
   package_files = {
-    "edge/worker.mjs"           = "${path.module}/../../../edge/worker.mjs"
-    "edge/feedback.mjs"         = "${path.module}/../../../edge/feedback.mjs"
-    "edge/inbox.mjs"            = "${path.module}/../../../edge/inbox.mjs"
-    "edge/store.mjs"            = "${path.module}/../../../edge/store.mjs"
-    "edge/aws/lambda.mjs"       = "${path.module}/../../../edge/aws/lambda.mjs"
-    "edge/aws/dynamo-store.mjs" = "${path.module}/../../../edge/aws/dynamo-store.mjs"
-    "edge/aws/sigv4.mjs"        = "${path.module}/../../../edge/aws/sigv4.mjs"
-    "counter/core.mjs"          = "${path.module}/../../../counter/core.mjs"
+    "edge/worker.mjs"                = "${path.module}/../../../edge/worker.mjs"
+    "edge/feedback.mjs"              = "${path.module}/../../../edge/feedback.mjs"
+    "edge/inbox.mjs"                 = "${path.module}/../../../edge/inbox.mjs"
+    "edge/early-access.mjs"          = "${path.module}/../../../edge/early-access.mjs"
+    "edge/store.mjs"                 = "${path.module}/../../../edge/store.mjs"
+    "edge/aws/lambda.mjs"            = "${path.module}/../../../edge/aws/lambda.mjs"
+    "edge/aws/dynamo-store.mjs"      = "${path.module}/../../../edge/aws/dynamo-store.mjs"
+    "edge/aws/sigv4.mjs"             = "${path.module}/../../../edge/aws/sigv4.mjs"
+    "counter/core.mjs"               = "${path.module}/../../../counter/core.mjs"
+    "pages/early-access-consent.mjs" = "${path.module}/../../../pages/early-access-consent.mjs"
   }
   inbox_prefix = "inbox/"
 }

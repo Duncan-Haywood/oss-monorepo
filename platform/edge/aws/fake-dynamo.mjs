@@ -1,5 +1,5 @@
-// An in-memory DynamoDB for tests: the request shapes `dynamo-store.mjs`
-// and the email consent store send, parsed strictly, so a malformed
+// An in-memory DynamoDB for tests: the request shapes `dynamo-store.mjs`,
+// the email consent store and the inbox store (platform/email/aws) send, parsed strictly, so a malformed
 // expression fails here instead of in production. Pages are small (PAGE
 // items) so pagination is exercised. Not shipped in the Lambda zip.
 
@@ -105,14 +105,15 @@ export function fakeDynamo() {
       t.delete(k);
       return ReturnValues === 'ALL_OLD' && old ? { Attributes: asItem(old) } : {};
     },
-    Query({ TableName, KeyConditionExpression, FilterExpression, ExpressionAttributeNames: names, ExpressionAttributeValues: values, Limit, ExclusiveStartKey }) {
+    Query({ TableName, KeyConditionExpression, FilterExpression, ExpressionAttributeNames: names, ExpressionAttributeValues: values, Limit, ExclusiveStartKey, ScanIndexForward = true }) {
       const m = KeyConditionExpression.match(/^pk = (:\w+)(?: AND sk (=|<|<=|>|>=|begins_with) (:\w+))?$/);
       if (!m) throw fail('ValidationException', `fake-dynamo: unsupported key condition "${KeyConditionExpression}"`);
       const pk = value(m[1], values);
       let rows = [...tableOf(TableName).values()].filter((r) => r.pk === pk);
       if (m[2]) rows = rows.filter((r) => compare(r.sk, m[2], value(m[3], values)));
       rows.sort((a, b) => (a.sk < b.sk ? -1 : a.sk > b.sk ? 1 : 0));
-      if (ExclusiveStartKey) rows = rows.filter((r) => r.sk > val(ExclusiveStartKey.sk));
+      if (!ScanIndexForward) rows.reverse();
+      if (ExclusiveStartKey) rows = rows.filter((r) => (ScanIndexForward ? r.sk > val(ExclusiveStartKey.sk) : r.sk < val(ExclusiveStartKey.sk)));
       const page = rows.slice(0, Math.min(PAGE, Limit ?? Infinity));
       const more = rows.length > page.length;
       const items = page.filter((r) => condition(FilterExpression, r, names, values));

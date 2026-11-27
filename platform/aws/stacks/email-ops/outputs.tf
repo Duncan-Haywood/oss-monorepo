@@ -37,3 +37,18 @@ output "inbound_mx_record" {
     priority = 10
   }
 }
+
+output "inboxes_api_url" {
+  description = "The agent inboxes' API (MAIL_API_URL for platform/email/cli.mjs). Every route answers 404 without a token."
+  value       = trimsuffix(aws_lambda_function_url.inboxes.function_url, "/")
+}
+
+output "inboxes_secret_arn" {
+  description = "Secret holding the generated agent, read and owner tokens (JSON keys agent_token, read_token, owner_token). Read it with a role; never paste it into a file or log."
+  value       = aws_secretsmanager_secret.inboxes.arn
+}
+
+output "inboxes_table_name" {
+  description = "The agent inboxes' DynamoDB table."
+  value       = aws_dynamodb_table.inboxes.name
+}
