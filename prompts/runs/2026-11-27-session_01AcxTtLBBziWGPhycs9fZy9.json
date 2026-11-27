@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtLBBziWGPhycs9fZy9",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T21:06:45Z",
+  "ended": "2026-11-27T21:12:04Z",
+  "wall_minutes": 5.5,
+  "tokens_in": 5856744,
+  "tokens_out": 25109,
+  "cost_usd": 2.6158,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19876",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First test run: pinned AC counts were wrong (75/64 guessed; data says 70/54) and the copy guard flagged NIST's own 3.12.4[c] text 'approved by the designated authority'; both fixed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named cmmc 'policy templates' as an untouched growth topic, but the cmmc ROADMAP Done list already has Security policies parts 1-3; the topic match only reads claim slugs, not Done text."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "eCFR's renderer API returned an empty body (versioner 406) from this session; the LII copy (law.cornell.edu) answered and was used to read 32 CFR 170.16 and 170.24."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "why": "Its suggested topic (policy templates) was already built; took its closing advice instead (38 of 57 Next items wait on demand, so build front-door search pages).",
+      "did": "Built the CMMC Level 2 requirements page as the Level 1 page's sibling.",
+      "result": "Landed in the same PR with tests."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-an-sprs-score-calculator-that-sums-to-minus-203.md (extended with a dated section; no new post, per the consolidation direction)"
+  ],
+  "goal": null,
+  "notes": "cmmc-site: node --test test/*.test.mjs 74 pass 0 fail; platform/pages/cmmc-site.test.mjs 5 pass; build writes dist/cmmc-level-2-requirements.html and lists it in sitemap and llms.txt; biome 2.6.8 clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "404404e9-48a1-5a33-b58a-3bbdfd47dcd7",
+    "transcripts": 1,
+    "first": "2026-11-27T21:06:45Z",
+    "last": "2026-11-27T21:12:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 102,
+        "output": 25109,
+        "thinking": 3867,
+        "cache_read": 5735891,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120751,
+        "api_equivalent_usd": 2.6158,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 102,
+      "output": 25109,
+      "thinking": 3867,
+      "cache_read": 5735891,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120751,
+      "api_equivalent_usd": 2.6158,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.5,
+      "active_minutes": 5.5,
+      "model_minutes": 4.4,
+      "tool_minutes": 1.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "a compliance writer building a sourced 110-requirement reference page with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 191.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -4,6 +4,7 @@
 
 import { appLegalUrl, launchState, signinUrl, signupUrl } from "./launch.mjs";
 import { level1RequirementsPage } from "./level1-requirements.mjs";
+import { level2RequirementsPage } from "./level2-requirements.mjs";
 import { publicPlans } from "./plans.mjs";
 import { poamRulesPage } from "./poam-rules.mjs";
 import {
@@ -205,7 +206,7 @@ ${statusBox()}
   <thead><tr><th scope="col"></th><th scope="col">Level 1</th><th scope="col">Level 2</th></tr></thead>
   <tbody>
     <tr><th scope="row">Protects</th><td>Federal Contract Information (FCI)</td><td>Controlled Unclassified Information (CUI)</td></tr>
-    <tr><th scope="row">Requirements</th><td><a href="/cmmc-level-1-requirements">15 safeguarding requirements</a>, ${cite("far-52-204-21", "FAR 52.204-21")}</td><td>110 requirements, ${cite("nist-800-171r2", "NIST SP 800-171 Rev. 2")}</td></tr>
+    <tr><th scope="row">Requirements</th><td><a href="/cmmc-level-1-requirements">15 safeguarding requirements</a>, ${cite("far-52-204-21", "FAR 52.204-21")}</td><td><a href="/cmmc-level-2-requirements">110 requirements</a>, ${cite("nist-800-171r2", "NIST SP 800-171 Rev. 2")}</td></tr>
     <tr><th scope="row">Assessment</th><td>Self-assessment every year</td><td>Self-assessment or third-party (C3PAO) assessment every three years, as the contract states</td></tr>
     <tr><th scope="row">Affirmation</th><td>Annual, by a senior official, in SPRS</td><td>After each assessment and annually, in SPRS</td></tr>
     <tr><th scope="row">POA&amp;M allowed?</th><td>No: every requirement must be met</td><td>Yes, for a conditional status: score of at least 88/110, only eligible items open, closed within 180 days (${cite("cfr-170-21", "32 CFR 170.21")})</td></tr>
@@ -362,6 +363,7 @@ ${cta}`,
     },
     poamRulesPage({ cite, statusBox, sourcesList, cta }),
     level1RequirementsPage({ cite, statusBox, sourcesList, cta }),
+    level2RequirementsPage({ cite, statusBox, sourcesList, cta }),
     open
       ? pricingPage(launch)
       : {

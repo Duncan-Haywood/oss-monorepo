@@ -37,6 +37,12 @@ describe("webhookUrl", () => {
     assert.equal(webhookUrl(`${APP_URL}/`), HOOK);
     assert.equal(webhookUrl(" HTTPS://PayApps.MarisStella.app "), HOOK);
   });
+  it("accepts every digit and hyphens in host labels", () => {
+    // Labels may hold any digit 0-9 (a workers.dev account or a numbered staging host).
+    for (const host of ["app0123456789.example.com", "pay-apps-2.acme-9.workers.dev"]) {
+      assert.equal(webhookUrl(`https://${host}`), `https://${host}${HOOK.slice(APP_URL.length)}`);
+    }
+  });
   it("refuses http, paths, queries, credentials and odd hosts", () => {
     for (const bad of [
       "http://payapps.marisstella.app",
@@ -49,6 +55,7 @@ describe("webhookUrl", () => {
       `${APP_URL}/#frag`,
       "https://localhost",
       "https://127.0.0.1",
+      "https://[::1]",
       "not a url",
     ]) {
       assert.throws(() => webhookUrl(bad), /app URL/);
@@ -97,6 +104,18 @@ describe("planWebhookDestination", () => {
     });
     if (off.kind === "update") assert.deepEqual(off.body, { active: false });
     else throw new Error("expected an update");
+  });
+
+  it("moves a destination on another API version back to version 1", () => {
+    const a = planWebhookDestination([setting({ api_version: 2 })], {
+      app: "payapps",
+      appUrl: APP_URL,
+      active: false,
+    });
+    assert.equal(a.kind, "update");
+    if (a.kind !== "update") return;
+    assert.deepEqual(a.body, { api_version: 1 });
+    assert.deepEqual(a.reasons, ["api_version 2 -> 1"]);
   });
 
   it("adds missing events and keeps ones added by hand", () => {
@@ -235,6 +254,17 @@ describe("syncWebhookDestination", () => {
       /403 forbidden \(give the key notification_setting\.write\)/,
     );
     assert.ok(!String(err?.message).includes("pdl_sdbx_apikey_test"));
+  });
+
+  it("plan only reports a destination it would create as inactive, whatever is wanted", async () => {
+    const f = fakePaddle();
+    const r = await syncWebhookDestination(
+      client(f),
+      { app: "payapps", appUrl: APP_URL, active: true },
+      { apply: false },
+    );
+    assert.equal(r.action.kind, "create");
+    assert.equal(r.active, false);
   });
 
   it("plan only reports the destination's current active state, not the wanted one", async () => {

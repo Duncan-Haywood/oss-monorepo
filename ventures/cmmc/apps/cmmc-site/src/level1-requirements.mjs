@@ -272,7 +272,7 @@ rule, ${cite("cfr-170", "32 CFR Part 170")}, follows the FAR's 15 items; item (i
 objectives, so nothing was dropped.</p>
 <h2>Level 1 or Level 2?</h2>
 <p>If your shop also receives Controlled Unclassified Information (CUI), such as drawings marked CUI, the contract will call
-for Level 2: the 110 requirements of NIST SP 800-171, of which these ${c.requirements} items cover ${c.nistIds}. See
+for Level 2: the <a href="/cmmc-level-2-requirements">110 requirements of NIST SP 800-171</a>, of which these ${c.requirements} items cover ${c.nistIds}. See
 <a href="/cmmc-level-1-vs-level-2">CMMC Level 1 vs Level 2</a>, and for Level 2 the free <a href="/sprs-score-calculator">SPRS score calculator</a>.</p>
 <h2>Common questions</h2>
 ${faq.map((f) => `<details><summary>${f.q}</summary><p>${f.a}</p></details>`).join("\n")}

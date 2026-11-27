@@ -100,4 +100,14 @@ describe("resolveCheckoutToken (pending-checkout rules)", () => {
       reason: "checkout token replay",
     });
   });
+
+  it("treats an unreadable expiry as expired (fails closed, never open-ended)", async () => {
+    const token = await signCheckoutToken(SECRET, ID, "org_a");
+    // new Date(undefined) / a corrupt stored value: getTime() is NaN, and NaN <= now is false.
+    const corrupt = row({ expiresAt: new Date(Number.NaN) });
+    assert.deepEqual(await resolveCheckoutToken(SECRET, token, corrupt, "sub_1", now), {
+      ok: false,
+      reason: "expired checkout token",
+    });
+  });
 });

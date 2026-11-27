@@ -25,6 +25,11 @@ describe("payPageUrl", () => {
       payPageUrl("https://payapps.marisstella.app/"),
       "https://payapps.marisstella.app/pay",
     );
+    // Every digit and hyphens are fine in host labels (shared check with webhookUrl).
+    assert.equal(
+      payPageUrl("https://pay-0123456789.acme-9.workers.dev"),
+      "https://pay-0123456789.acme-9.workers.dev/pay",
+    );
   });
   it("refuses http, IPs, paths, queries and credentials", () => {
     for (const bad of [

@@ -948,3 +948,12 @@ one user, no card). Level 2, with the SPRS score and the POA&M, is a paid
 plan that is not on sale yet, and "Draft with AI" is off there too. What the
 free plan holds is in the
 [CMMC Level 1 checklist post](https://marisstella.app/writing/cmmc-level-1-self-assessment-checklist/).
+
+## Update, 27 November 2026: how many small shops sell to DoD directly
+
+Federal award data says few do: 432 small businesses held a DoD prime
+contract coded "Machine Shops" (NAICS 332710) in fiscal year 2025, against
+about 14,600 machine shops under 20 employees. The rest of defense machining,
+and with it most CMMC, reaches shops through a prime's flow-down. The counts,
+the buyers and the limits are in
+[432 small machine shops sold to DoD directly last year](https://marisstella.app/writing/how-many-machine-shops-sell-to-dod-directly/).
