@@ -35,6 +35,7 @@ generated once, smoke tests of `/healthz`, `/v1/legal`, `/app` and the three leg
 | The Paddle sync warns on failure instead of `continue-on-error` | the same outcome (the app still deploys), visible as a warning, as in `priv-payapps-deploy.yml` |
 | Health wait 300 s, not 90 s | a new custom domain's certificate can take minutes on its first deploy |
 | A step that fails before any credential is used if `worker/provision.mjs` is missing | as PayApps' port: a later move cannot run half a deploy |
+| The secret-sync temp file is `worker-env.json`, not `worker-secrets.json` | `adversarial-gate` reads `secrets.json` as a new secret named `JSON` (first push of PR #19773); PayApps' port uses the same name |
 | Still `workflow_dispatch` only | the private workflow's own rule: no deploy on merge until a first run has been checked; then add a `push:` trigger as `priv-payapps-deploy.yml` did (PR #19676) |
 
 Registries the privileged workflow needs (each was a red check on PayApps' first push):
