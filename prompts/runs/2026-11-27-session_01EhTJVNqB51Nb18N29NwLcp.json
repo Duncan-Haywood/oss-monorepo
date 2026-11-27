@@ -38,7 +38,7 @@
     },
     {
       "file": "ventures/payapps/apps/payapps-site/test/unit/legal.test.ts",
-      "issue": "The local payapps-site typecheck fails at line 62 (match on string|Buffer) in a file this PR does not touch; it is likely pre-existing on main or caused by the local @types/node. The PR's CI check is the verdict."
+      "issue": "The local payapps-site typecheck failed at line 62 because my branch's base predated main's String(terms) fix. Merging main cleared it, so check main before calling a failure pre-existing."
     }
   ],
   "deviations": [
@@ -59,7 +59,7 @@
     "docs/posts/2026-11-26-wh-347-certified-payroll-for-subcontractors.md (NJ section, description updated)"
   ],
   "goal": null,
-  "notes": "Local run_workflow_locally --for-changes: payapps-ci 24/25 run steps passed. The one failure was the site typecheck in untouched legal.test.ts. app, e2e and migrations all ok. pages.yml, ventures-tests, page-integrity, doc-refs and the security gate's rules passed. prompts-ci failed only on this record being unfilled at the time. Cross-review, codeql and deploy jobs were not run locally.",
+  "notes": "Local run_workflow_locally --for-changes: payapps-ci 24/25 run steps passed. The one failure was the site typecheck in untouched legal.test.ts. app, e2e and migrations all ok. pages.yml, ventures-tests, page-integrity, doc-refs and the security gate's rules passed. prompts-ci failed only on this record being unfilled at the time. Cross-review, codeql and deploy jobs were not run locally. After merging current main (whose legal.test.ts has String(terms)): payapps tsc clean, unit 159 files / 1462 passed, payapps-site typecheck ok, 49+11 passed.",
   "corrections": [],
   "redteam": null,
   "usage": {
