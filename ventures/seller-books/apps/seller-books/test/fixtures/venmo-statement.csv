@@ -1,0 +1,16 @@
+Account Statement - (@example-seller) - March 1st to April 1st 2026 ,,,,,,,,,,,,,,,,,,
+Account Activity,,,,,,,,,,,,,,,,,,
+,ID,Datetime,Type,Status,Note,From,To,Amount (total),Amount (tip),Amount (fee),Funding Source,Destination,Beginning Balance,Ending Balance,Statement Period Venmo Fees,Terminal Location,Year to Date Venmo Fees,Disclaimer
+,,,,,,,,,,,,,$40.00,,,,,
+,4000000000000000001,2026-03-02T15:04:05,Payment,Complete,Vintage lamp local pickup,Buyer One,Example Seller,+ $25.00,,,,Venmo balance,,,,Venmo,,
+,4000000000000000002,2026-03-03T10:00:00,Payment,Complete,"Wool coat
+FB Marketplace",Buyer Two,Example Seller,+ $63.50,,- $1.31,,Venmo balance,,,,Venmo,,
+,4000000000000000003,2026-03-04T09:30:00,Charge,Complete,Denim jacket,Example Seller,Buyer Three,+ $40.00,$5.00,- $0.86,,Venmo balance,,,,Venmo,,
+,4000000000000000004,2026-03-05T12:00:00,Payment,Complete,Thrift haul,Example Seller,Thrift Shop Owner,- $30.00,,,Venmo balance,,,,,Venmo,,
+,4000000000000000005,2026-03-06T08:00:00,Standard Transfer,Issued,,,,- $100.00,,,,EXAMPLE BANK *0001,,,,Venmo,,
+,4000000000000000006,2026-03-07T11:11:11,Payment,Pending,Record player,Buyer Four,Example Seller,+ $80.00,,,,Venmo balance,,,,Venmo,,
+,4000000000000000007,2026-03-08T13:00:00,Merchant Transaction,Complete,,Example Seller,Supply Store,- $12.49,,,Venmo Debit Card,,,,,Venmo,,
+,4000000000000000008,2026-03-09T18:00:00,Credit Card Reward,Complete,,,,+ $3.10,,,,,,,,Venmo,,
+,4000000000000000009,2026-03-10T16:45:00,Refund,Complete,Denim jacket,Example Seller,Buyer Three,- $20.00,,+ $0.43,,Venmo balance,,,,Venmo,,
+,4000000000000000010,2026-03-11T10:00:00,Refund,Complete,Mailers,Supply Store,Example Seller,+ $8.00,,,,Venmo balance,,,,Venmo,,
+,,,,,,,,,,,,,,$58.20,$1.74,,$1.74,

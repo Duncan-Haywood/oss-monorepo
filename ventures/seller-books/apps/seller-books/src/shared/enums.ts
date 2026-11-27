@@ -18,12 +18,13 @@ export const PLATFORMS = [
   "tiktok",
   "square",
   "paypal",
+  "venmo",
 ] as const;
 export type Platform = (typeof PLATFORMS)[number];
 
 /**
  * Sales made off the marketplaces (cash at a market or flea market, Facebook Marketplace, a local
- * pickup paid by Venmo or Cash App): typed in one at a time, never imported, so the channel is not a
+ * pickup paid by Cash App or Zelle): typed in one at a time, never imported (Venmo and PayPal statements import), so the channel is not a
  * platform the plan counts (billing counts platforms by import). Stored in `sale.platform`.
  */
 export const DIRECT = "direct" as const;
@@ -44,6 +45,7 @@ export const PLATFORM_LABELS: Record<SaleChannel, string> = {
   tiktok: "TikTok Shop",
   square: "Square",
   paypal: "PayPal",
+  venmo: "Venmo",
   direct: "Direct sales",
 };
 

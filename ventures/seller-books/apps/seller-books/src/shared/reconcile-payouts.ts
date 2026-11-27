@@ -140,6 +140,7 @@ export function gapThreshold(expectedCents: number) {
 const MIXED_USE: Record<string, string> = {
   amazon: "a refund of something you bought on Amazon",
   paypal: "a personal PayPal transfer or a refund",
+  venmo: "money from friends or family cashed out from Venmo",
   square: "a refund from a shop that takes Square",
   shopify: "a refund of a Shopify subscription or app charge",
 };

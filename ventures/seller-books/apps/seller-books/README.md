@@ -2,9 +2,9 @@
 
 Profit and Schedule C books for resellers on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify,
 Amazon (FBA or shipped yourself), TikTok Shop, Square (a card reader or the Square app at a market or flea
-market, from its Transactions CSV) and PayPal (sales paid by PayPal off the marketplaces, from its Activity
-download), plus the sales made off them (cash at a market or flea market, Facebook
-Marketplace, a local pickup paid by Venmo), which are typed in one at a time. You import the
+market, from its Transactions CSV), PayPal (sales paid by PayPal off the marketplaces, from its Activity
+download) and Venmo (a local or Facebook Marketplace sale paid by Venmo, from its monthly statement CSV), plus the sales made off them (cash at a market or flea market, Facebook
+Marketplace, a local pickup paid by Cash App or Zelle), which are typed in one at a time. You import the
 marketplaces' own reports, track cost of goods per item and per lot, and log mileage (typed in, or read from
 a mileage tracker app's CSV export). The app then shows
 profit by platform and month, a stock report (how long unsold items have sat, sell-through, days to sell by
