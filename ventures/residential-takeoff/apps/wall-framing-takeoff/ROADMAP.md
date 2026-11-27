@@ -8,7 +8,7 @@ This file is the plan for that project. `wall-framing-takeoff` is its first
 tool and the home of the shared house model; later tools may become their own
 ventures but should read the same plan file. Each run that lands a milestone
 ticks it here and rewrites the venture's `next:` in
-[`portfolio/flagships.yaml`](../../portfolio/flagships.yaml).
+[`portfolio/flagships.yaml`](../../../../portfolio/flagships.yaml).
 
 ## Why start with framing
 
@@ -480,7 +480,7 @@ Ticked items are on `main`.
 
 ## Known gaps (quality audit 2026-11-19)
 
-From [`2026-11-19-wall-framing-takeoff-r5.json`](../../portfolio/quality/audits/2026-11-19-wall-framing-takeoff-r5.json). The zero-flow water-supply branch it found is fixed (design flow never falls below the largest fixture a run feeds).
+From [`2026-11-19-wall-framing-takeoff-r5.json`](../../../../portfolio/quality/audits/2026-11-19-wall-framing-takeoff-r5.json). The zero-flow water-supply branch it found is fixed (design flow never falls below the largest fixture a run feeds).
 
 - Two-face outlet cable holes: dropping the two-face multiplier survives the suite; the only cable-hole test is single-face.
 - Jack geometry is guarded by two tests; a hand-checked jack/king assertion in the CLI layer would harden it.

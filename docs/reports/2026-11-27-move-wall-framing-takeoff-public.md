@@ -42,6 +42,15 @@ only in the paid copy, 118 changed). The two must not share a directory or a lic
   free edition's path, so in the copy they were "new". A header, lumber size, bar size or unit named
   `constructor` or `toString` used to find `Object.prototype` instead of the fallback. Now it takes the
   same fallback as any unknown name. Fixed rather than baselined, since the ratchet only shrinks.
+- **Spreadsheet formula-injection guard** (CWE-1236) ported into the CSV exporters of `engine.mjs`,
+  `budget.mjs` and `schedule.mjs`, the same one-line `q` the free edition carries. The free edition
+  got it after the 2026-11-24 fork, so the paid copy was exporting a wall or line name starting with
+  `=`, `+`, `-` or `@` as a live formula. `check_csv_formula_guard.py` caught it in CI.
+  (`materiallist.mjs`'s `csvCell` already had the guard.)
+- Four Markdown links in the app's README and ROADMAP were rewritten for the two extra directory
+  levels. The buildingSMART fixtures got their own `platform/ci/third_party.json` entry.
+  `portfolio/monetization/verticals.json` was regenerated (`verticals.py --write`) and the venture
+  count in `PRODUCT_PLAYBOOK.md` refreshed (`check_doc_counts.py --fix`).
 - No fixture emails, hostnames or `private-monorepo` paths needed rewriting (the audit found none).
 
 ## Verification (this session)

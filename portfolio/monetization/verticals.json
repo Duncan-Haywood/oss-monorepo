@@ -38,9 +38,9 @@
     }
   },
   "counts": {
-    "ventures": 1448,
+    "ventures": 1449,
     "by_vertical": {
-      "construction": 166,
+      "construction": 167,
       "manufacturing-engineering": 10,
       "online-sellers": 106,
       "eu-einvoicing-accounting": 13,
@@ -60,11 +60,11 @@
       "einvoice": 13,
       "cmmc": 3,
       "seller-books": 106,
-      "residential-takeoff": 11,
+      "residential-takeoff": 12,
       "grants": 9
     },
     "by_status": {
-      "front-door": 308,
+      "front-door": 309,
       "frozen": 1140
     }
   },
@@ -8040,6 +8040,14 @@
       "rule": "slug",
       "site_category": "marketplace",
       "front_door_for": "seller-books",
+      "status": "front-door"
+    },
+    {
+      "venture": "residential-takeoff",
+      "vertical": "construction",
+      "rule": "slug",
+      "site_category": "more",
+      "front_door_for": "residential-takeoff",
       "status": "front-door"
     },
     {
