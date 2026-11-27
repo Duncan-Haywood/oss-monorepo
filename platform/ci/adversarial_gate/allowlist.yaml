@@ -270,22 +270,22 @@ allow:
   - rule: workflow-escalation
     path: .github/workflows/priv-seller-books-deploy.yml
     contains: CLOUDFLAREAPITOKEN
-    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys Seller Books (bet #5) with wrangler from main only, by hand"
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys Seller Books (bet #5, launch review ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md) with wrangler from main only, by hand"
     added: 2026-11-27
   - rule: workflow-escalation
     path: .github/workflows/priv-seller-books-deploy.yml
     contains: CLOUDFLARERESTRICTEDAPIKEY
-    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys Seller Books (bet #5) with wrangler from main only, by hand"
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys Seller Books (bet #5, launch review ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md) with wrangler from main only, by hand"
     added: 2026-11-27
   - rule: workflow-escalation
     path: .github/workflows/priv-seller-books-deploy.yml
     contains: CLOUDFLARE_ACCOUNT_ID
-    reason: "the Cloudflare account id wrangler needs, as priv-payapps-deploy.yml reads it; deploys Seller Books (bet #5) with wrangler from main only, by hand"
+    reason: "the Cloudflare account id wrangler needs, as priv-payapps-deploy.yml reads it; deploys Seller Books (bet #5, launch review ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md) with wrangler from main only, by hand"
     added: 2026-11-27
   - rule: workflow-escalation
     path: .github/workflows/priv-seller-books-deploy.yml
     contains: CLOUDFLAREACCOUNTID
-    reason: "alias of CLOUDFLARE_ACCOUNT_ID the owner saved, as priv-payapps-deploy.yml reads it; deploys Seller Books (bet #5) with wrangler from main only, by hand"
+    reason: "alias of CLOUDFLARE_ACCOUNT_ID the owner saved, as priv-payapps-deploy.yml reads it; deploys Seller Books (bet #5, launch review ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md) with wrangler from main only, by hand"
     added: 2026-11-27
   - rule: workflow-escalation
     path: .github/workflows/priv-seller-books-deploy.yml
@@ -299,11 +299,11 @@ allow:
     added: 2026-11-27
   - rule: workflow-escalation
     path: .github/workflows/priv-seller-books-deploy.yml
-    contains: SELLER_BOOKS_BILLING_WEBHOOK_SECRET
-    reason: "the Paddle webhook signing secret the seller-books Worker verifies notifications with; pushed with wrangler secret bulk when set, never logged"
+    contains: SELLER_BOOKS_BILLING_PRICE_IDS
+    reason: "fallback Paddle price ids (not credentials) pushed to the seller-books Worker when the catalog sync gives none; wrangler secret bulk, never logged"
     added: 2026-11-27
   - rule: workflow-escalation
     path: .github/workflows/priv-seller-books-deploy.yml
-    contains: SELLER_BOOKS_BILLING_PRICE_IDS
-    reason: "fallback Paddle price ids (not a credential), used only when the catalog sync fails; pushed to the seller-books Worker with wrangler secret bulk"
+    contains: SELLER_BOOKS_BILLING_WEBHOOK_SECRET
+    reason: "the Paddle webhook signing secret the seller-books Worker verifies notifications with; pushed with wrangler secret bulk when set, never logged"
     added: 2026-11-27

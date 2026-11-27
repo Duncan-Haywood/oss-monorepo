@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyfc3kHhEg7ZHKRbVoT",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T07:39:24Z",
+  "ended": "2026-11-27T07:55:37Z",
+  "wall_minutes": 16.41,
+  "tokens_in": 3362623,
+  "tokens_out": 14107,
+  "cost_usd": 1.5532,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19658",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "review_claimed() read only the first 100 open PRs and never expired a claim; three abandoned review PRs held it for four weeks (6815 runs). Fixed here (folded in PR #18741)."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Called goals.md ~870 lines; it is 1625. Fixed."
+    },
+    {
+      "file": "portfolio/ledger/supersede_check.py",
+      "issue": "Timed out at 60 s on each of three old PRs without output; then the GitHub API rate limit (13 min) blocked reading their files."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Scheduled run; took the documented reduced pass (steps 1, 3, 7, 8 and one step-5 fix).",
+      "did": "Skipped the audit, drift report and a new candidate; folded in PR #18741's claim-expiry fix.",
+      "result": "Review landed; drift audit left for the next full review."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new post: a review's write-up is experiments.md (E122) and the folded fix carries PR #18741's post.",
+      "did": "Included docs/posts/2026-11-24-a-review-claim-that-never-expired.md from #18741."
+    }
+  ],
+  "writeups": [
+    "prompts/experiments.md E122 and G3",
+    "docs/posts/2026-11-24-a-review-claim-that-never-expired.md"
+  ],
+  "goal": null,
+  "notes": "validate ok; test_promptctl 82 OK; platform/ci test_roadmap_claim 36 OK; risk_review: nothing blocked. derive fetch+build ran (10933 rows). Stale review PRs #12026, #12272, #12367 and #18741 superseded by this PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "030fb5a9-e301-5447-b0b3-0f27ff0b3de1",
+    "transcripts": 1,
+    "first": "2026-11-27T07:39:24Z",
+    "last": "2026-11-27T07:55:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 80,
+        "output": 14107,
+        "thinking": 3944,
+        "cache_read": 3285850,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76693,
+        "api_equivalent_usd": 1.5532,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 80,
+      "output": 14107,
+      "thinking": 3944,
+      "cache_read": 3285850,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76693,
+      "api_equivalent_usd": 1.5532,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 38,
+      "mcp__github__pull_request_read": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.41,
+      "active_minutes": 16.41,
+      "model_minutes": 3.53,
+      "tool_minutes": 12.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "measure + read friction + small fix + log, by an engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 193.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

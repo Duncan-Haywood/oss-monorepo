@@ -235,6 +235,20 @@ one run (P014, P017), one solve reverted after 97 test failures (P026), and
 items found already done. Question: halve `process` to 0.05 (to `research`
 or `ventures`) until its success rate passes 80% over 20 runs?
 
+### G3: Launch before depth while MRR reads $0? (2026-11-27, E122)
+
+Owner, 2026-11-24: "pick the task that unlocks paying subscribers fastest
+(paid tier, pricing, checkout shipped dark, onboarding, then traffic ...)".
+Evidence: `mrr.yaml` has no reading; the decision queue's top item (Paddle
+account verification, which wants a live pricing page, terms, privacy and
+refund policy) has waited since 2026-11-24; and on 2026-11-26/27 about 250
+run records report that `roadmap_claim.py --bets` finds no free, ungated
+item on any bet because every Next item waits on customer demand. Runs then
+invent feature items or crowd the same few. Question: until the first paid
+subscription, should a scheduled venture run default to launch work
+(verification pages, checkout, onboarding, traffic to the bet) and treat
+"if people ask" feature items as closed?
+
 ## E6: first scheduled review (2026-10-15)
 
 - Change: review prompt step 1 skips records mirrored from the upstream
@@ -1796,3 +1810,35 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Metric: none new. `main_health.py` 33/33 green; no agent-owned item open
   (P056 blocked), so no fix to ship; the review PR dated 2026-11-01 holds the claim.
 - Result: (verification only; no unverified done items left)
+
+## E122: Review 2026-11-27 (reduced pass; first review since 2026-10-31)
+
+- Change 1: the review claim expires (folded in from PR #18741, which waited
+  on the owner under the old policy). `review_claimed()` counts a
+  `prompts: review` PR only if it was updated in the last 24 h, and reads
+  the open PRs newest first (the repo has more than 100 open, so the old
+  first page missed claims). Cause: three review PRs (#12026, #12272,
+  #12367) left open since 2026-10-31/11-01 held the claim; `runs_since_review`
+  reached 6815.
+- Change 2 (step 5, doc friction): `roadmap_claim.py --bets` and `bets.md`
+  name `workctl.py` and `roadmap_claim.py` by path (two live reports
+  2026-11-27 of a failed guess at the path).
+- Decisions: candidates unchanged by the rule ("keep collecting: the
+  intervals overlap"). ventures/2 91% on 747 runs vs ventures/1 91% on
+  3114, integrity 0.031 vs 0.034 per run: a null result at this size; the
+  next full review should retire it and write ventures/3 against the
+  "no free, ungated item" failure. process/2 81% (145) vs process/1 85%
+  (837); review/2 100% (23) vs review/1 94% (99). Model dominates success:
+  Sonnet runs succeed 59 to 93% against Opus 97 to 100% on the same tracks,
+  so version comparisons need a per-model split before a promotion.
+- Friction: the top live clusters (wait_for `--until`, draft merges,
+  "untouched topic" contradiction) were already fixed by process PRs
+  #19500, #19411 and #19624 on 2026-11-26. The remaining large signal is
+  strategic, not documentary: proposal G3.
+- Not done (reduced pass): audit, drift report, a new candidate. Instruction
+  lines over budget: `CLAUDE.md` 251/200, `prompt.md` 164/100,
+  `redteam/prompt-0.md` 201/130, `land-your-work.md` 164/160; `goals.md`
+  is 1625 lines while `prompt.md` calls it ~870.
+- Metric: `runs_since_review` stays under ~80 (reviews resume); the
+  workctl/roadmap_claim path reports go to zero. Compare next review.
+- Result: (next review)

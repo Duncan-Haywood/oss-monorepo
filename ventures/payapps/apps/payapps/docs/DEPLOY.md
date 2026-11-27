@@ -41,7 +41,7 @@ version id). A rollback does not undo a migration.
 | --- | --- | --- |
 | `CLOUDFLARE_API_TOKEN` | secret | every run: Workers Scripts, D1 and R2 edit (plus Zone Read, DNS and Workers Routes edit for a custom domain). Shared with grants. |
 | `CLOUDFLARE_ACCOUNT_ID` | secret or variable | every run |
-| `PAYAPPS_DOMAIN` | variable | optional custom host, e.g. `payapps.marisstella.app` |
+| `PAYAPPS_DOMAIN` | variable | custom host; default `payapps.marisstella.app` (2026-11-27). If the token cannot read that zone the run warns and deploys on `payapps.<account subdomain>.workers.dev` |
 | `PAYAPPS_EMAIL_FROM` | variable | sender; default `PayApps <no-reply@marisstella.app>`, domain onboarded to Email Service ([EMAIL.md](EMAIL.md)) |
 | `PAYAPPS_AUTH_SECRET` | secret | optional; overrides the generated one |
 | `PAYAPPS_BILLING_PROVIDER` | variable | `paddle` turns checkout on once the two Paddle secrets are set; default `none` ([BILLING.md](BILLING.md)) |

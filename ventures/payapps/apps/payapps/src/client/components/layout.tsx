@@ -1,7 +1,8 @@
-import type { MeDto } from "@shared/api/types";
+import type { MeDto, PlanDto } from "@shared/api/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { api } from "../lib/api";
+import { launchNotice } from "../lib/launch-notice";
 import { AcceptLegal, LegalLinks } from "../pages/legal";
 
 export const meQuery = {
@@ -15,8 +16,16 @@ export const meQuery = {
   },
 };
 
+// Public, no session needed; the same list the Billing page and the marketing site read.
+export const plansQuery = {
+  queryKey: ["billing-plans"],
+  queryFn: () => api<{ items: PlanDto[] }>("/api/billing/plans").then((r) => r.items),
+  staleTime: 5 * 60_000,
+};
+
 export function Layout() {
   const me = useQuery(meQuery);
+  const plans = useQuery(plansQuery);
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   // A signed-in user who has not accepted the current documents sees the notice instead of the app;
@@ -33,8 +42,7 @@ export function Layout() {
   return (
     <div className="min-h-screen">
       <div className="bg-amber-100 px-4 py-1 text-center text-xs text-amber-900">
-        PayApps is in development. It is not yet offered for sale; check every figure before you
-        send it.
+        {launchNotice(plans.data)}
       </div>
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
