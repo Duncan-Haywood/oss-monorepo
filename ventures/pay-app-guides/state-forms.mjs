@@ -35,6 +35,12 @@ export const STATES = [
   ["MO", "Missouri"], ["MA", "Massachusetts"], ["CA", "California"],
 ];
 
+// The state's notice guide, linked from its waiver page: the notice comes before the waivers.
+const NOTICE_LINKS = {
+  CA: ["california-preliminary-notice.html", "20-day preliminary notice"],
+  FL: ["florida-notice-to-owner.html", "Notice to Owner (45 days)"],
+};
+
 export const slugOf = (name) => `${name.toLowerCase().replace(/ /g, "-")}-lien-waiver-forms.html`;
 
 
@@ -210,7 +216,7 @@ ${ld.map((d) => `  <script type="application/ld+json">${JSON.stringify(d).replac
     <a href="${HUB}">All states</a>
     <a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional waivers</a>
     <a href="lien-waiver-log.html">Lien waiver log</a>
-    <a href="#all-guides" class="all">All guides</a>
+${NOTICE_LINKS[code] ? `    <a href="${NOTICE_LINKS[code][0]}">${NOTICE_LINKS[code][1]}</a>\n` : ""}    <a href="#all-guides" class="all">All guides</a>
   </nav>
 </header>
 <main>

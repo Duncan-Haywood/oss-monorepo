@@ -127,3 +127,26 @@ list](https://marisstella.app/industries/construction/). This is general informa
 statute's text, not legal advice. Whether a notice is required on your job, and who must get it,
 depends on your contract chain, so check with a Florida construction attorney when the money
 matters.
+
+## Update, 2026-11-27: the same dates and form, free, with no account
+
+Most subs searching for this need one notice for one job today, not software. So the dates, the
+service rules and the form above now have a free page:
+[Florida Notice to Owner: the 45-day deadline, who gets it, and the form](https://marisstella.app/pay-app-guides/florida-notice-to-owner.html).
+
+- **Your dates.** Enter the first day you furnished work and it gives the 40-day mail-by and 45-day
+  serve-by dates with a countdown. Add how and when you sent a notice (and the delivery date, if it
+  went late or by courier) and it says whether that notice counts as served in time, by the same
+  § 713.18 rules as the table above.
+- **Who gets it.** Pick your place on the job (sub to the GC, sub-subcontractor or supplier to a
+  sub, supplier to a sub-subcontractor) and it lists the owner and each copy you owe.
+- **The form.** Type the owner, the work, the property, who hired you and your company, and it
+  prints the § 713.06(2)(c) form word for word with the warnings in bold.
+
+Nothing typed leaves the browser. The page's form is checked line by line, and every phrase it
+quotes is checked, against the same Florida Senate text PayApps' own tests use, so the free page
+and the product cannot drift apart. It does not cover § 713.18(3)'s returned-mail rule or the
+combined notice on bonded and public jobs.
+
+PayApps itself is now open on the Free plan (one active job, no card). Florida notices, like lien
+waivers, are part of the Crew plan, which is not on sale yet.

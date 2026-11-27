@@ -39,6 +39,7 @@ export const GROUPS = [
     ["conditional-vs-unconditional-lien-waivers.html", "Conditional vs unconditional lien waivers"],
     ["lien-waiver-forms-by-state.html", "Lien waiver forms by state"],
     ["california-preliminary-notice.html", "California 20-day preliminary notice"],
+    ["florida-notice-to-owner.html", "Florida Notice to Owner (45 days)"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],
     ["paid-short.html", "Paid short? Reconcile the check"],
