@@ -126,7 +126,9 @@ export function score(input) {
   const blockers = [];
   if (!ssp) blockers.push("no system security plan, so no score can be produced");
   else if (provisional < CONDITIONAL_MIN_SCORE)
-    blockers.push(`the score is below ${CONDITIONAL_MIN_SCORE} (${CONDITIONAL_MIN_PCT}% of ${MAX_SCORE})`);
+    blockers.push(
+      `the score is below ${CONDITIONAL_MIN_SCORE} (${CONDITIONAL_MIN_PCT}% of ${MAX_SCORE})`,
+    );
   const ineligible = deductions.filter((d) => !d.poam.eligible && d.nistId !== SSP_ID);
   if (ineligible.length)
     blockers.push(

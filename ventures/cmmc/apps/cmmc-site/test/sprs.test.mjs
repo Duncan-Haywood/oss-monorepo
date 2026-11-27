@@ -218,7 +218,10 @@ test("a query with no form fields is not scored: utm and ref links get the page 
 
 test("the form labels the SSP as no points and each scored requirement with its own points", () => {
   const form = renderForm();
-  assert.match(form, /value="3\.12\.4"> <strong>3\.12\.4<\/strong> <span class="muted">\(no points; no SSP means no score\)/);
+  assert.match(
+    form,
+    /value="3\.12\.4"> <strong>3\.12\.4<\/strong> <span class="muted">\(no points; no SSP means no score\)/,
+  );
   assert.match(form, /value="3\.1\.1"> <strong>3\.1\.1<\/strong> <span class="muted">\(5 pts\)/);
   assert.match(form, /value="3\.1\.3"> <strong>3\.1\.3<\/strong> <span class="muted">\(1 pt\)/);
   assert.equal((form.match(/no points; no SSP/g) ?? []).length, 1);
