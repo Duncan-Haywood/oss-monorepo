@@ -36,6 +36,14 @@ checklists, the other apps and packages.
 - `apps/cmmc-site` had no CI in `private-monorepo`; its 37 tests (build, SEO, claims, Worker with a
   `node:sqlite` fake D1) now run in `cmmc-ci.yml`.
 
+- **A real bug CI found on its first run here**: the four spreadsheet import panels (controls,
+  POA&M, assets, people) read \`csv\` (and the POA&M date order) from the closure inside
+  \`useMutation\`'s \`mutationFn\`. TanStack Query swaps in a new \`mutationFn\` in an effect after the
+  render, so a click that lands between the render that enables Preview and that effect sends the
+  previous render's \`csv: null\`. GitHub's runner hit it in \`PoamImport.test.tsx\` ("expected null");
+  it never failed locally. The values are now passed as the mutation's variables
+  (\`run.mutate({ apply, csv })\`). The same patch goes to \`private-monorepo\` so a sync does not undo it.
+
 ## Verification (this session)
 
 | check | result |

@@ -87,7 +87,15 @@ export function PoamImport({
   const rowWord = workbook ? "Row" : "Line";
   const sheetNote = workbook ? ` (${workbook.sheets[sheetIdx]?.name ?? "sheet"})` : "";
   const run = useMutation({
-    mutationFn: (apply: boolean) =>
+    mutationFn: ({
+      apply,
+      csv,
+      dateOrder,
+    }: {
+      apply: boolean;
+      csv: string | null;
+      dateOrder: "auto" | DateOrder;
+    }) =>
       api<PoamImportPreview>(`/api/orgs/${orgId}/poam/import`, {
         method: "POST",
         json: { level, csv, apply, ...(dateOrder === "auto" ? {} : { dateOrder }) },
@@ -197,7 +205,7 @@ export function PoamImport({
             type="button"
             className={btnCls}
             disabled={!csv || run.isPending}
-            onClick={() => run.mutate(false)}
+            onClick={() => run.mutate({ apply: false, csv, dateOrder })}
           >
             Preview
           </button>
@@ -206,7 +214,7 @@ export function PoamImport({
               type="button"
               className={btnCls}
               disabled={run.isPending}
-              onClick={() => run.mutate(true)}
+              onClick={() => run.mutate({ apply: true, csv, dateOrder })}
             >
               Import ({summary})
             </button>

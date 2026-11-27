@@ -60,7 +60,7 @@ export function ControlImport({
   const rowWord = workbook ? "Row" : "Line";
   const sheetNote = workbook ? ` (${workbook.sheets[sheetIdx]?.name ?? "sheet"})` : "";
   const run = useMutation({
-    mutationFn: (apply: boolean) =>
+    mutationFn: ({ apply, csv }: { apply: boolean; csv: string | null }) =>
       api<Preview>(`/api/orgs/${orgId}/controls/import`, {
         method: "POST",
         json: { level, csv, apply },
@@ -156,7 +156,7 @@ export function ControlImport({
             type="button"
             className={btnCls}
             disabled={!csv || run.isPending}
-            onClick={() => run.mutate(false)}
+            onClick={() => run.mutate({ apply: false, csv })}
           >
             Preview
           </button>
@@ -165,7 +165,7 @@ export function ControlImport({
               type="button"
               className={btnCls}
               disabled={run.isPending}
-              onClick={() => run.mutate(true)}
+              onClick={() => run.mutate({ apply: true, csv })}
             >
               Import {preview.changes.length} requirement{preview.changes.length === 1 ? "" : "s"}
             </button>

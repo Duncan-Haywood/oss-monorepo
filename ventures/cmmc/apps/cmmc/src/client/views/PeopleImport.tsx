@@ -110,13 +110,14 @@ export function PeopleImport({
   const sheetNote = sheets ? ` (${sheets[sheetIdx]?.name ?? "sheet"})` : "";
   const run = useMutation({
     mutationFn: (opts: {
+      csv: string | null;
       apply: boolean;
       dateOrder?: DateOrder;
       courseMap: Record<string, Training[]>;
     }) =>
       api<PeopleImportPreview>(`/api/orgs/${orgId}/people/import`, {
         method: "POST",
-        json: { csv, ...opts },
+        json: opts,
       }),
     onSuccess: (p) => {
       if (p.applied) qc.invalidateQueries({ queryKey: ["people", orgId] });
@@ -128,6 +129,7 @@ export function PeopleImport({
     o?: { dateOrder?: DateOrder; courseMap?: Record<string, Training[]> },
   ) =>
     run.mutate({
+      csv,
       apply,
       dateOrder: o && "dateOrder" in o ? o.dateOrder : dateOrder,
       courseMap: o?.courseMap ?? courseMap,

@@ -88,7 +88,7 @@ export function AssetImport({ orgId, onClose }: { orgId: string; onClose: () => 
   const [sheetIdx, setSheetIdx] = useState(0);
   const sheetNote = sheets ? ` (${sheets[sheetIdx]?.name ?? "sheet"})` : "";
   const run = useMutation({
-    mutationFn: (apply: boolean) =>
+    mutationFn: ({ apply, csv }: { apply: boolean; csv: string | null }) =>
       api<AssetImportPreview>(`/api/orgs/${orgId}/assets/import`, {
         method: "POST",
         json: { csv, apply },
@@ -195,7 +195,7 @@ export function AssetImport({ orgId, onClose }: { orgId: string; onClose: () => 
             type="button"
             className={btnCls}
             disabled={!csv || run.isPending}
-            onClick={() => run.mutate(false)}
+            onClick={() => run.mutate({ apply: false, csv })}
           >
             Preview
           </button>
@@ -204,7 +204,7 @@ export function AssetImport({ orgId, onClose }: { orgId: string; onClose: () => 
               type="button"
               className={btnCls}
               disabled={run.isPending}
-              onClick={() => run.mutate(true)}
+              onClick={() => run.mutate({ apply: true, csv })}
             >
               Import ({summary})
             </button>
