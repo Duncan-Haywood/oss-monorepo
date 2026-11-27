@@ -8,6 +8,7 @@ import {
   parseArgs,
   parseJson,
   R2_NOT_ENABLED,
+  R2_NOT_PERMITTED,
   RESOURCES,
 } from "./provision.mjs";
 
@@ -80,4 +81,15 @@ test("wrangler output parsing", () => {
   assert.ok(
     R2_NOT_ENABLED.test("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
   );
+});
+
+test("an R2 authentication error means the token lacks R2, not that the deploy must stop", () => {
+  const wranglerOut =
+    "wrangler r2 bucket create payapps-files failed:\n\u2718 [ERROR] A request to the Cloudflare API (/accounts/x/r2/buckets) failed.\n  Authentication error [code: 10000]";
+  assert.ok(R2_NOT_PERMITTED.test(wranglerOut));
+  assert.ok(!R2_NOT_ENABLED.test(wranglerOut));
+  assert.ok(
+    !R2_NOT_PERMITTED.test("Please enable R2 through the Cloudflare Dashboard. [code: 10042]"),
+  );
+  assert.ok(!R2_NOT_PERMITTED.test("A request to the Cloudflare API failed. [code: 7003]"));
 });

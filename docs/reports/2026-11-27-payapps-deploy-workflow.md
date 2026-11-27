@@ -41,9 +41,14 @@ sync when the key exists, `wrangler deploy`, non-empty secret sync, `AUTH_SECRET
 4. If the health check warns `email: false`, sign-ups cannot finish (production requires a verified
    address). The fix is `apps/payapps/docs/EMAIL.md`, not a second deploy.
 
-**Token permissions are unverified from here.** The repository's Cloudflare token deploys the
-catalogue and the email Worker (D1, Workers); whether it also has R2 edit is unknown. Without R2 the
-deploy goes on with attachments off (provision step), so it does not block the first run.
+**First run (45947552522, 2026-11-27 05:44 UTC):** install, checks (biome, typecheck, unit, worker,
+provision tests), build, the token check and the URL (`payapps.<account subdomain>.workers.dev`) all
+passed. It stopped at provisioning: `wrangler r2 bucket create` answered `Authentication error
+[code: 10000]`, because the repository's token has Workers and D1 but not R2. `provision.mjs` only
+tolerated "R2 not enabled" (10042), so the deploy failed instead of going on without attachments as
+DEPLOY.md promises. Fixed in the follow-up PR: an R2 authentication error now warns ("Token has no R2
+permission") and deploys with attachments off (`R2_NOT_PERMITTED`, tested). To turn attachments on, the
+owner adds Account R2 Storage edit to `CLOUDFLARE_API_TOKEN` and re-runs.
 
 ## Verification
 
