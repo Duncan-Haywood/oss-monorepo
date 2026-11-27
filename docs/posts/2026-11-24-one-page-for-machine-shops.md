@@ -3,7 +3,7 @@ title: "One page for machine shops: quoting, CMMC and the free tools already her
 seo_title: "Software for CNC job shops: quoting, CMMC, ISO 9001"
 date: 2026-11-24
 tags: [manufacturing, machine-shops, cmmc, quoting, iso-9001, for-customers]
-description: "Quoting software (Job Shop Quote, free to start), a CMMC workspace in development and free tools for CNC shops, mapped to four shop problems."
+description: "Quoting software (Job Shop Quote) and a CMMC workspace, both free to start, and free tools for CNC shops, mapped to four shop problems."
 ---
 
 A CNC or fabrication job shop has a short list of problems that cost it money
@@ -940,5 +940,11 @@ What is not switched on yet, so you know before you sign up:
   email routing being set up; upload the drawings instead.
 - **The paid plans are not on sale.** Nothing asks for a card.
 
-The CMMC and ISO 9001 workspace is still in development and still on the
-early-access form.
+Later the same day the CMMC and ISO 9001 workspace opened too: **CMMC
+Workspace**, at
+[cmmc.marisstella.app](https://cmmc.marisstella.app/?signup&from=docs/posts/machine-shops),
+free on Level 1 (the 15 FAR 52.204-21 safeguards, their evidence and the SSP,
+one user, no card). Level 2, with the SPRS score and the POA&M, is a paid
+plan that is not on sale yet, and "Draft with AI" is off there too. What the
+free plan holds is in the
+[CMMC Level 1 checklist post](https://marisstella.app/writing/cmmc-level-1-self-assessment-checklist/).

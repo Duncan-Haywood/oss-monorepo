@@ -12,7 +12,8 @@
  * Honesty rules this page keeps (tested in industry-manufacturing.test.mjs):
  *   - a product is "in development (early access)" until its app is deployed;
  *     an open one (`appUrl`, Job Shop Quote since jobshop-quote-deploy run
- *     46013246899, 2026-11-27) links to its free plan and says the paid plans
+ *     46013246899 and CMMC Workspace since cmmc-deploy run 46022366507, both
+ *     2026-11-27) links to its free plan and says the paid plans
  *     are not on sale yet; no price is shown until checkout is live;
  *   - no claim of CMMC certification, C3PAO status or DoD endorsement;
  *   - every market fact carries the source `bets.md` cites for it.
@@ -51,6 +52,8 @@ export const PRODUCTS = Object.freeze([
     appUrl: 'https://jobshop-quote.marisstella.app/sign-up?from=industries/manufacturing',
     // What the free plan gives (apps/jobshop-quote/src/shared/plans.ts, FREE_PLAN), tested against it.
     freePlan: '40 RFQs a month, 3 users, no card',
+    appName: 'Job Shop Quote',
+    paidNote: 'Paid plans are not on sale yet.',
     for: 'CNC machine shops and fabricators who quote from drawings, CAD files and emails.',
     does: [
       'Reads an RFQ (the email, the text of PDF drawings, STEP and DXF files) and drafts a priced quote.',
@@ -64,7 +67,15 @@ export const PRODUCTS = Object.freeze([
   Object.freeze({
     id: 'cmmc',
     name: 'CMMC Level 1/2 and ISO 9001 workspace',
-    status: 'In development (early access)',
+    status: 'Open: free Level 1 plan',
+    // Live since cmmc-deploy run 46022366507 (2026-11-27); `?signup` opens "Create an account"
+    // (apps/cmmc/src/client/lib/auth-mode.ts).
+    appUrl: 'https://cmmc.marisstella.app/?signup&from=industries/manufacturing',
+    // apps/cmmc/src/shared/plans.ts, key "free", tested against it.
+    freePlan: 'Level 1 (the 15 FAR 52.204-21 safeguards, evidence and the SSP), 1 user, no card',
+    appName: 'CMMC Workspace',
+    // The 110 Level 2 controls, the SPRS score and the POA&M are the paid Level 2 plan.
+    paidNote: 'Level 2, with the SPRS score and POA&M, is a paid plan that is not on sale yet.',
     for: 'Small defense and aerospace suppliers that handle contract information for the DoD.',
     does: [
       'Walks through the 110 NIST SP 800-171 controls and records how each one is met.',
@@ -174,7 +185,7 @@ export function esc(value) {
 }
 
 const TITLE = 'Software for machine shops and engineering firms';
-const DESCRIPTION = 'RFQ-to-quote software (free to start) and a CMMC/ISO 9001 workspace in development for CNC and fabrication shops, plus free shop-rate, costing and SPC tools.';
+const DESCRIPTION = 'RFQ-to-quote software and a CMMC/ISO 9001 workspace, both free to start, for CNC and fabrication shops, plus free shop-rate, costing and SPC tools.';
 
 export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, published = null, footer = '', tail = '', shots = [] } = {}) {
   const liveTools = FREE_TOOLS.filter((t) => !published || published.has(t.slug));
@@ -226,7 +237,7 @@ export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, publi
   ${p.note ? `<p class="note">${esc(p.note)}</p>` : ''}
   ${p.still && still.has(p.still) ? figure(still.get(p.still), 'still', true, '(max-width: 52rem) calc(100vw - 66px), 600px') : ''}
   ${p.appUrl
-    ? `<p>Free to use now: ${esc(p.freePlan)}. Paid plans are not on sale yet. <a class="go" href="${esc(p.appUrl)}">Start free in Job Shop Quote</a></p>`
+    ? `<p>Free to use now: ${esc(p.freePlan)}. ${esc(p.paidNote)} <a class="go" href="${esc(p.appUrl)}">Start free in ${esc(p.appName)}</a></p>`
     : `<p>Pricing is not set yet. <a class="go" href="${esc(`${toRoot}${EARLY_ACCESS_HREF}`)}">Ask for early access</a></p>`}
 </section>`).join('\n');
 
@@ -265,7 +276,7 @@ body{margin:0;background:#f6f7f9;color:var(--pfs-ink,#1d2530);font:16px/1.55 sys
 <body>
 <main class="mfg">
 <h1>${esc(TITLE)}</h1>
-<p class="lede">For CNC and fabrication job shops and small engineering firms: quote faster from your own rates, and keep your CMMC and ISO 9001 paperwork in one place. Job Shop Quote is open on a free plan; the CMMC workspace is in development and open for early access; the free tools below work today.</p>
+<p class="lede">For CNC and fabrication job shops and small engineering firms: quote faster from your own rates, and keep your CMMC and ISO 9001 paperwork in one place. Job Shop Quote and CMMC Workspace are open on free plans; the free tools below work today.</p>
 ${leadShot ? `${figure(leadShot, 'still lead-still', false, '(max-width: 52rem) calc(100vw - 32px), 720px')}\n` : ''}
 <h2>Common problems, and what solves them</h2>
 <ol class="problems">

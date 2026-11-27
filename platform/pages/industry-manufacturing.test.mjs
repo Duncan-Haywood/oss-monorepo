@@ -65,14 +65,18 @@ test('products are in development or open free, unpriced, and never claim certif
       // An open product: its own host on the catalogue's domain, never workers.dev, and the paid plans unsold.
       assert.match(p.appUrl, /^https:\/\/[a-z-]+\.marisstella\.app\//);
       assert.match(p.status, /^Open: free/);
-      assert.ok(html.includes(`href="${p.appUrl}"`), p.appUrl);
+      assert.ok(html.includes(`href="${p.appUrl.replace(/&/g, '&amp;')}"`), p.appUrl);
     } else {
       assert.match(p.status, /in development/i);
     }
   }
   assert.match(text, /Paid plans are not on sale yet/);
-  assert.match(text, /early access/i);
-  assert.match(text, /Pricing is not set yet/);
+  assert.match(text, /is a paid plan that is not on sale yet/);
+  // A product still in development keeps the early-access link and no price.
+  if (PRODUCTS.some((p) => !p.appUrl)) {
+    assert.match(text, /early access/i);
+    assert.match(text, /Pricing is not set yet/);
+  }
   assert.doesNotMatch(text, /\$\d+\s*(?:\/|a |per )mo/i);
   assert.doesNotMatch(text, /\b(?:get|become|guarantee[sd]?|achieve)\s+(?:CMMC\s+)?certifi/i);
   assert.doesNotMatch(text, /(?:DoD|Department of Defense)[- ](?:approved|endorsed|certified)/i);
@@ -157,4 +161,15 @@ test("the free plan line matches Job Shop Quote's own FREE_PLAN", () => {
 test('the meta description fits the 160-character budget check.mjs enforces', () => {
   const d = /<meta name="description" content="([^"]*)"/.exec(html)[1];
   assert.ok(d.length <= 160, `${d.length} characters`);
+});
+
+test("the CMMC free plan line matches CMMC Workspace's own free plan", () => {
+  const src = readFileSync(new URL('../../ventures/cmmc/apps/cmmc/src/shared/plans.ts', import.meta.url), 'utf8');
+  const free = src.slice(src.indexOf('key: "free"'), src.indexOf('key: "level2"'));
+  assert.match(free, /priceCents: 0,/);
+  assert.match(free, /level2: false,/);
+  const members = Number(/maxMembers: (\d+)/.exec(free)[1]);
+  const cm = PRODUCTS.find((p) => p.id === 'cmmc');
+  assert.ok(cm.freePlan.endsWith(`, ${members} user, no card`), cm.freePlan);
+  assert.ok(html.includes('Start free in CMMC Workspace'));
 });
