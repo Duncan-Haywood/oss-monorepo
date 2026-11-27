@@ -39,6 +39,7 @@ import {
   PUBLIC_PLANS,
   planFor,
 } from "@shared/plans";
+import { RENEWAL_TERMS_VERSION } from "@shared/renewal-notice";
 import { and, count, eq, gte, inArray, isNull, or, sql } from "drizzle-orm";
 import type { AppContext } from "../../context";
 import {
@@ -288,7 +289,13 @@ export async function startCheckout(
   ctx: AppContext,
   tenant: Tenant,
   customerEmail: string,
-  input: { plan: string; interval: BillingInterval; promoCode?: string | undefined },
+  input: {
+    plan: string;
+    interval: BillingInterval;
+    promoCode?: string | undefined;
+    renewalConsent: true;
+    renewalTermsVersion?: string | undefined;
+  },
 ): Promise<{ url: string }> {
   const billing = ctx.billing;
   if (!billing) throw billingUnavailable();
@@ -307,7 +314,17 @@ export async function startCheckout(
     interval: input.interval,
     createdBy: tenant.userId,
     expiresAt: new Date(ctx.now().getTime() + CHECKOUT_TOKEN_TTL_MS),
+    // What was agreed to and when; the version is the server's, so a stale page cannot record
+    // terms the server no longer shows (the client's copy is logged when it differs).
+    renewalTermsVersion: RENEWAL_TERMS_VERSION,
+    renewalConsentAt: ctx.now(),
   });
+  if (input.renewalTermsVersion && input.renewalTermsVersion !== RENEWAL_TERMS_VERSION) {
+    ctx.logger.warn("billing.renewal_terms_version_mismatch", {
+      orgId: tenant.orgId,
+      client: input.renewalTermsVersion,
+    });
+  }
   // String join, not new URL(page, APP_URL): a root-relative page would drop APP_URL's base path.
   const page = appLink(ctx.env.APP_URL, `/o/${encodeURIComponent(tenant.orgId)}/billing`);
   const back = (q: string) => `${page}?${q}`;
@@ -328,12 +345,24 @@ export async function startCheckout(
   }
 }
 
-export async function startPortal(ctx: AppContext, orgId: string): Promise<{ url: string }> {
+/**
+ * The provider's customer portal. `cancel` opens the subscription's cancellation form directly
+ * when the provider returns that link (Paddle does for a subscription id), else the portal's
+ * overview, where cancelling is one button. Only the chosen URL is returned.
+ */
+export async function startPortal(
+  ctx: AppContext,
+  orgId: string,
+  action: "manage" | "cancel" = "manage",
+): Promise<{ url: string }> {
   if (!ctx.billing) throw billingUnavailable();
   const sub = await getSubscription(ctx, orgId);
   if (!sub?.providerCustomerId) throw badRequest("This organization has no paid subscription");
   const returnUrl = appLink(ctx.env.APP_URL, `/o/${encodeURIComponent(orgId)}/billing`);
-  return ctx.billing.createPortalSession(sub.providerCustomerId, returnUrl);
+  const session = await ctx.billing.createPortalSession(sub.providerCustomerId, returnUrl, {
+    subscriptionId: action === "cancel" ? sub.providerSubscriptionId : null,
+  });
+  return { url: (action === "cancel" && session.cancelUrl) || session.url };
 }
 
 /** An app page as an absolute URL: APP_URL (which carries any base path) + the app-relative path. */

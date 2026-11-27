@@ -195,7 +195,7 @@ export function reminderEmail(
   },
   env: { APP_URL: string },
 ): RenderedReminder {
-  const pageUrl = `${appUrl(env)}/orgs/${encodeURIComponent(opts.orgId)}/estimated-tax`;
+  const pageUrl = `${appUrl(env)}/o/${encodeURIComponent(opts.orgId)}/estimated-tax`;
   const name = opts.userName.trim() || "there";
   const payment = paymentName(t);
   const lead = `${payment[0]?.toUpperCase() ?? ""}${payment.slice(1)} is due ${whenText(t.daysLeft)}, ${longDate(t.due)}.`;

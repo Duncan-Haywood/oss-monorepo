@@ -144,7 +144,8 @@ export function createBilling(deps) {
     const { provider, appUrl } = requireAvailable();
     const sub = await store.getSubscription(account.id);
     if (!sub?.providerCustomerId) throw new BillingError(404, "no_subscription", "This account has no subscription to manage.");
-    return provider.createPortalSession(sub.providerCustomerId, `${appUrl}/billing`);
+    const { url } = await provider.createPortalSession(sub.providerCustomerId, `${appUrl}/billing`);
+    return { url };
   }
 
   /**

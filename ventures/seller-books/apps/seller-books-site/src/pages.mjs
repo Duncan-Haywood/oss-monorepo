@@ -144,7 +144,7 @@ function platformsIndex() {
   const path = "/platforms";
   const title = "Reseller bookkeeping by platform";
   const description =
-    "How fees, payouts and cost of goods work on eBay, Poshmark, Mercari, Etsy, Amazon and five more platforms, and how Seller Books puts them in one ledger.";
+    "How fees, payouts and cost of goods work on eBay, Poshmark, Mercari, Etsy, Amazon and six more platforms, and how Seller Books puts them in one ledger.";
   const cards = PLATFORMS.map(
     (p) =>
       `<a class="card link-card" href="${href(`/platforms/${p.slug}`)}"><h2>${esc(p.name)}</h2><p>${esc(p.what)}</p></a>`,
@@ -177,7 +177,7 @@ function platformPage(p) {
   const body = `<section class="wrap">
   <p class="eyebrow"><a href="${href("/platforms")}">Platforms</a></p>
   <h1>${esc(p.name)}: profit after fees and cost of goods</h1>
-  <p class="lead">${esc(p.name)} is a marketplace for ${esc(p.what)}. ${esc(SITE_NAME)} brings your ${esc(p.name)} sales into the same books as everything else you sell, with each sale's fees and cost attached.</p>
+  <p class="lead">${esc(p.intro ?? `${p.name} is a marketplace for ${p.what}.`)} ${esc(SITE_NAME)} brings your ${esc(p.name)} sales into the same books as everything else you sell, with each sale's fees and cost attached.</p>
   <h2>What comes out of a ${esc(p.name)} sale</h2>
   ${list(p.fees)}
   <p>${esc(SITE_NAME)} doesn't apply a published rate to these. It reads the amounts on your own ${esc(p.name)} records (${esc(p.report)}), so a change in ${esc(p.name)}'s fees shows up in your books the day it shows up in your account.</p>
@@ -191,7 +191,7 @@ function platformPage(p) {
 <div class="wrap">${callToAction(path, { heading: `Get early access for your ${p.name} books`, openHeading: `Try it on your ${p.name} report`, idPrefix: p.slug })}</div>`;
   const text = `# ${title}
 
-${p.name} is a marketplace for ${p.what}. ${SITE_NAME} brings your ${p.name} sales into the same books as your other platforms.
+${p.intro ?? `${p.name} is a marketplace for ${p.what}.`} ${SITE_NAME} brings your ${p.name} sales into the same books as your other platforms.
 
 ## What comes out of a ${p.name} sale
 

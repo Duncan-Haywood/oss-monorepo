@@ -114,6 +114,11 @@ const team = createRoute({
   path: "/team",
   component: lazyRouteComponent(() => import("./routes/team"), "TeamPage"),
 });
+const shopLoadPage = createRoute({
+  getParentRoute: () => org,
+  path: "/shop-load",
+  component: lazyRouteComponent(() => import("./routes/shop-load"), "ShopLoadPage"),
+});
 const billing = createRoute({
   getParentRoute: () => org,
   path: "/billing",
@@ -131,7 +136,18 @@ const routeTree = root.addChildren([
   onboarding,
   invite,
   customerQuote,
-  org.addChildren([quoteLog, winLoss, rateCard, routingsPage, rfqs, rfq, quote, team, billing]),
+  org.addChildren([
+    quoteLog,
+    winLoss,
+    shopLoadPage,
+    rateCard,
+    routingsPage,
+    rfqs,
+    rfq,
+    quote,
+    team,
+    billing,
+  ]),
 ]);
 
 export const router = createRouter({ routeTree });

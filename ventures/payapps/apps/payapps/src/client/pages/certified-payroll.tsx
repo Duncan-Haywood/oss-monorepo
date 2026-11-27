@@ -19,6 +19,7 @@ import {
 } from "@shared/certified-payroll";
 import { type IlId, type IlWorkerInput, ilNextWeek } from "@shared/il-ctp";
 import { centsToDecimal, formatCents, parseDollarsToCents } from "@shared/money";
+import { type NjWorkerInput, njNextWeek } from "@shared/nj-cpr";
 import { type NyId, type NyWorkerInput, nyNextWeek } from "@shared/ny-cpr";
 import { type WaId, type WaWorkerInput, waNextWeek } from "@shared/wa-cpr";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -30,6 +31,7 @@ import { HoursCell } from "../components/hours-cell";
 import { IlCtpSection, type IlDraftJob } from "../components/il-ctp-section";
 import { meQuery } from "../components/layout";
 import { MoneyInput } from "../components/money-input";
+import { NjCprSection, type NjDraftJob } from "../components/nj-cpr-section";
 import { NyCprSection, type NyDraftJob } from "../components/ny-cpr-section";
 import { TimesheetFill } from "../components/timesheet-fill";
 import { TimesheetImport } from "../components/timesheet-import";
@@ -44,6 +46,7 @@ type DraftRow = CertifiedPayrollRow & { uid?: string };
  * `wa`: the Washington L&I extras (src/shared/wa-cpr.ts), saved with the draft; never SSNs.
  * `il`: the Illinois IDOL extras (src/shared/il-ctp.ts), saved with the draft; never race,
  *   ethnicity, gender or veteran status.
+ * `nj`: the New Jersey MW-562 extras (src/shared/nj-cpr.ts), saved with the draft.
  */
 type DraftWorker = Omit<CertifiedPayrollWorker, "rows"> & {
   uid?: string;
@@ -52,6 +55,7 @@ type DraftWorker = Omit<CertifiedPayrollWorker, "rows"> & {
   ny?: NyWorkerInput;
   wa?: WaWorkerInput;
   il?: IlWorkerInput;
+  nj?: NjWorkerInput;
 };
 type Draft = Omit<CertifiedPayrollInput, "workers"> & {
   workers: DraftWorker[];
@@ -59,6 +63,7 @@ type Draft = Omit<CertifiedPayrollInput, "workers"> & {
   ny?: NyDraftJob;
   wa?: WaDraftJob;
   il?: IlDraftJob;
+  nj?: NjDraftJob;
 };
 
 let uidCounter = 0;
@@ -139,9 +144,11 @@ export function nextWeek(d: Draft): Draft {
       ...(w.ny ? { ny: nyNextWeek(w.ny) } : {}),
       ...(w.wa ? { wa: waNextWeek(w.wa) } : {}),
       ...(w.il ? { il: ilNextWeek(w.il) } : {}),
+      ...(w.nj ? { nj: njNextWeek(w.nj) } : {}),
     })),
     ...(d.ca ? { ca: { ...d.ca, nonPerformance: false } } : {}),
     ...(d.wa ? { wa: { ...d.wa, noWork: false } } : {}),
+    ...(d.nj ? { nj: { ...d.nj, noWork: false, sign: false, wagesPaid: "" } } : {}),
   };
 }
 
@@ -966,6 +973,14 @@ export function CertifiedPayrollPage() {
         payroll={parsed?.success ? parsed.data : null}
         ids={ilIds}
         onId={(k, id) => setIlIds((m) => ({ ...m, [k]: id }))}
+      />
+
+      <NjCprSection
+        job={draft.nj}
+        onJob={(nj) => set({ nj })}
+        workers={draft.workers}
+        onWorker={(wi, nj) => setWorker(wi, { nj })}
+        payroll={parsed?.success ? parsed.data : null}
       />
 
       <section className="card grid gap-2">
