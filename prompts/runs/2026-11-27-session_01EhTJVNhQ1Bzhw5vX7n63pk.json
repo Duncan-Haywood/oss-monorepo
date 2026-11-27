@@ -30,7 +30,10 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First e2e rerun after the CSS fix still failed: the reused vite dev server served the old stylesheet; restarting it fixed that (the stale run doubled as proof the spec catches the bug)."
+    "First e2e rerun after the CSS fix still failed: the reused vite dev server served the old stylesheet; restarting it fixed that (the stale run doubled as proof the spec catches the bug).",
+    "CI: opening-balance.test.tsx flaked (waitFor's 1s default on a loaded runner; passes 3/3 locally); its two onSaved waits now take 5s like the reads above them.",
+    "After merging main: payapps-site typecheck failed in test/unit/legal.test.ts (Map value string|Buffer has no .match), introduced by PR #19791 on main; fixed forward here with String(...).",
+    "Merge conflict in layout.tsx: main had landed an overlapping header fix (gap-4, shrink-0 logo); kept main's line."
   ],
   "integrity_issues": [],
   "doc_friction": [
