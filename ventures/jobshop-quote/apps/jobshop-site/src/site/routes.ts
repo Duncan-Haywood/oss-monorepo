@@ -107,6 +107,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/how-to-quote-sheet-metal",
+      label: "How to quote sheet metal",
+      title: `How to quote sheet metal and laser cut parts · ${SITE_NAME}`,
+      description:
+        "Quote a laser cut, bent sheet metal part: nest yield per sheet, cut length and pierces, bends, hardware, finishing and quantity breaks, with a worked example.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
       path: "/faq",
       label: "FAQ",
       title: `Frequently asked questions · ${SITE_NAME}`,

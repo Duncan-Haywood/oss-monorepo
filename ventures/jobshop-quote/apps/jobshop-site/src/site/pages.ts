@@ -16,6 +16,7 @@ import { ANNUAL_DISCOUNT, EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/pl
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAME } from "./config";
 import { type Html, html } from "./html";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
+import { priceSheetExample, SHEET_EXAMPLE } from "./sheet-metal-example";
 import { EXAMPLE, shopRate, usd } from "./shop-rate";
 
 export interface RenderContext {
@@ -1288,14 +1289,187 @@ export function quoteGuidePage(ctx: RenderContext): Html {
     break follows, every figure showing the rate it came from, and a line missing a time or a material is
     blocked rather than priced as if it were free. The example above is priced to the cent the app gives
     for the same inputs, checked by a test in its code. You can
-    <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a> or
-    <a class="link" href="${href(ctx, "/compare")}">compare it with other quoting software</a>.</p>
+    <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a>,
+    <a class="link" href="${href(ctx, "/compare")}">compare it with other quoting software</a>, or read
+    <a class="link" href="${href(ctx, "/how-to-quote-sheet-metal")}">how to quote a sheet metal part</a>.</p>
     <p class="fineprint">This page explains a common costing method. It is not accounting, tax or
     financial advice, and the prices, times and rates in it are made up. Check every quote before you send
     it.</p>
   </div>
 </section>
 ${ctaBand(ctx, "Quote your next RFQ this way", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
+/**
+ * A guide aimed at the searches sheet-metal estimators make ("how to quote sheet metal", "laser
+ * cutting quote", "how to price sheet metal fabrication"). Method plus one made-up part, priced in
+ * ./sheet-metal-example to the cent the app's engine gives, with the nest count and the cut and bend
+ * times the app suggests from a DXF (checked by
+ * apps/jobshop-quote/test/unit/site-sheet-metal-example.test.ts). No industry figures are quoted.
+ */
+export function sheetGuidePage(ctx: RenderContext): Html {
+  const e = SHEET_EXAMPLE;
+  const r = priceSheetExample(e);
+  const [small, mid, large] = r.breaks;
+  if (!small || !mid || !large) throw new Error("the sheet metal guide quotes three quantities");
+  const pctBps = (bps: number) => `${bps / 100}%`;
+  const sheetArea = e.sheet.widthIn * e.sheet.lengthIn;
+  const partArea = e.flat.widthIn * e.flat.heightIn;
+  const byArea = Math.floor(sheetArea / partArea);
+  const utilisation = Math.round(((e.partsPerSheet * partArea) / sheetArea) * 100);
+  const perPartAtYield = e.sheetPriceCents / e.partsPerSheet;
+  const smallPerPart = small.materialCents / small.quantity;
+  const pierceMinutes = (e.flat.pierces * e.laser.pierceSeconds) / 60;
+  const pierceShare = Math.round((pierceMinutes / r.cutMinutesPerPart) * 100);
+  const runEach = r.operations
+    .filter((o) => o.cycleMinutesPerPart > 0)
+    .map((o) => ({ ...o, cents: (o.cycleMinutesPerPart / 60) * o.hourlyRateCents }));
+  const costliest = runEach.reduce((a, b) => (b.cents > a.cents ? b : a));
+  const lines: [string, (b: (typeof r.breaks)[number]) => string][] = [
+    ["Parts started", (b) => b.starts.toLocaleString("en-US")],
+    ["Sheets", (b) => b.sheets.toLocaleString("en-US")],
+    ["Material", (b) => usdCents(b.materialCents)],
+    ["Setup and programming", (b) => usdCents(b.setupCents)],
+    ["Cut, bend and bench time", (b) => usdCents(b.runCents)],
+    ["Powder coat (outside)", (b) => usdCents(b.finishingCents)],
+    ["Hardware", (b) => usdCents(b.extrasCents)],
+    ["Cost", (b) => usdCents(b.costCents)],
+    ["Markup", (b) => usdCents(b.markupCents)],
+    ["Price each", (b) => usdCents(b.unitPriceCents)],
+    ["Line total", (b) => usdCents(b.totalCents)],
+  ];
+  const fmtMin = (m: number) => m.toLocaleString("en-US", { maximumFractionDigits: 3 });
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to quote sheet metal and laser cut parts</h1>
+    <p class="lead">A sheet metal quote is built from the flat pattern: how many parts fit a sheet, how
+    long the cut path is, how many holes the laser pierces and how many bends the brake makes, then
+    hardware, finishing and your markup at each quantity. Here is the method, a worked example at 10, 100
+    and 500 parts, and the mistakes that cost money on parts you win.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>The method in seven steps</h2>
+    <ol>
+      <li><strong>Get the flat pattern.</strong> A DXF of the part flattened, or a 3D model you unfold.
+      Its overall size sets the nest, its cut path the laser time, its closed contours the pierces and its
+      bend lines the brake time. Check the gauge, the material, the bend radii and the tolerances on the
+      drawing; anything missing is a question for the customer.</li>
+      <li><strong>Work out parts per sheet.</strong> Lay the flat pattern's rectangle out on the sheet size
+      you buy, leaving the gap your laser needs between parts and at the sheet edge, and try it both ways
+      round. The sheet's price divided by that count is the material in each part.</li>
+      <li><strong>Price the sheets you will open.</strong> Parts started divided by parts per sheet, rounded
+      up. A small order still opens a whole sheet unless you keep the rest as stock and decide to charge
+      less for it.</li>
+      <li><strong>Time the cut from the cut length and the pierces.</strong> Cut length ÷ cut speed for
+      that material and thickness, plus one pierce for the outline and each hole at your pierce time.
+      On a small part with many holes the pierces can be a large share of the cut time.</li>
+      <li><strong>Time the bends.</strong> Bends per part × seconds per bend at the brake, plus a setup
+      for each tooling change and a first-piece check. Count bend lines, not parts.</li>
+      <li><strong>Add the hand work, hardware and finishing.</strong> Deburring, hardware insertion,
+      welding and inspection are minutes per part on the bench. Press-in nuts and studs are bought per
+      part; powder coat and plating vendors charge per part with a lot minimum.</li>
+      <li><strong>Plan for scrap, add markup, quote every quantity.</strong> Start enough parts to ship the
+      order good, mark up material and bought-in services, apply your line minimum and work the whole sum
+      at each quantity break.</li>
+    </ol>
+
+    <h2>A worked example</h2>
+    <p>An ${e.partName} in ${e.materialName}, laser cut, ${e.flat.bends} bends, four press-in nuts and a
+    powder coat from a vendor. <strong>Every number here is made up to show the arithmetic</strong>; they
+    are not typical prices, speeds, times or rates for any region or trade. Use your own.</p>
+    <ul>
+      <li><strong>Flat pattern:</strong> ${e.flat.widthIn} × ${e.flat.heightIn} in, ${e.flat.cutLengthIn} in
+      of cut path, ${e.flat.pierces} closed contours (the outline and ${e.flat.pierces - 1} holes) and
+      ${e.flat.bends} bend lines.</li>
+      <li><strong>Sheet:</strong> ${e.sheet.widthIn} × ${e.sheet.lengthIn} in at ${usdCents(e.sheetPriceCents)}
+      a sheet, ${e.sheet.gapIn} in between parts and at the edge. The flat rectangle fits
+      <strong>${e.partsPerSheet} times</strong> (${utilisation}% of the sheet), so each part carries
+      ${usdCents(Math.round(perPartAtYield))} of steel when the sheets are full. A
+      ${usdCents(e.materialMinChargeCents)} material minimum applies.</li>
+      <li><strong>${e.laser.name}</strong> at ${usdCents(e.laser.hourlyRateCents)} an hour, cutting this
+      gauge at ${e.laser.cutSpeedInPerMin} in/min with ${e.laser.pierceSeconds} s per pierce:
+      ${e.flat.cutLengthIn} ÷ ${e.laser.cutSpeedInPerMin} + ${e.flat.pierces} × ${e.laser.pierceSeconds} s
+      = ${fmtMin(r.cutMinutesPerPart)} min a part, after ${e.programMinutes} minutes to program and nest
+      and a ${e.laserSetupMinutes} minute setup.</li>
+      <li><strong>${e.brake.name}</strong> at ${usdCents(e.brake.hourlyRateCents)} an hour:
+      ${e.flat.bends} bends × ${e.brake.secondsPerBend} s = ${fmtMin(r.bendMinutesPerPart)} min a part,
+      ${e.brakeSetupMinutes} minutes to set up the tooling and check the first piece.</li>
+      <li><strong>${e.bench.name}</strong> at ${usdCents(e.bench.hourlyRateCents)} an hour:
+      ${e.bench.minutesPerPart} min a part to deburr, press in the nuts and inspect.</li>
+      <li><strong>${e.hardwareLabel}:</strong> ${usdCents(e.hardwarePerPartCents)} a part, bought for the
+      parts shipped.</li>
+      <li><strong>${e.finishingName}:</strong> ${usdCents(e.finishingPerPartCents)} a part, minimum
+      ${usdCents(e.finishingLotChargeCents)} a lot.</li>
+      <li><strong>Fallout</strong> ${pctBps(e.falloutBps)}; <strong>markup</strong>
+      ${pctBps(e.materialMarkupBps)} on material, hardware and the outside service (the machine rates
+      already hold the margin); a ${usdCents(e.minimumLineCents)} minimum per line.</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up bracket at three quantities. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.</caption>
+        <thead><tr><th scope="col">Line</th>${r.breaks.map((b) => html`<th scope="col">${b.quantity.toLocaleString("en-US")} parts</th>`)}</tr></thead>
+        <tbody>
+          ${lines.map(
+            ([label, cell]) =>
+              html`<tr><th scope="row">${label}</th>${r.breaks.map((b) => html`<td>${cell(b)}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>The nest is the material price.</strong> Area alone says ${byArea} parts fit the sheet;
+      the gap between parts and at the edge leaves ${e.partsPerSheet}. At ${small.quantity} parts the
+      order opens one whole sheet, so the steel is ${usdCents(Math.round(smallPerPart))} a part instead of
+      ${usdCents(Math.round(perPartAtYield))}. At ${large.quantity} parts, ${large.starts} starts need
+      ${large.sheets} sheets.</li>
+      <li><strong>The laser is not the expensive part.</strong> Cutting takes ${fmtMin(r.cutMinutesPerPart)}
+      minutes a part, and the ${e.flat.pierces} pierces are ${pierceShare}% of it. The costliest minutes
+      per part are on the ${costliest.machine.toLowerCase()}: ${usdCents(Math.round(costliest.cents))} a
+      part for ${costliest.label.toLowerCase()}. Hand work is where sheet metal quotes go wrong.</li>
+      <li><strong>Setup and minimums decide the small lot.</strong> The same ${usdCents(small.setupCents)}
+      of programming and setup is on every line, and at ${small.quantity} parts the powder coater's
+      ${usdCents(e.finishingLotChargeCents)} minimum is the whole finishing charge. The price each falls from
+      ${usdCents(small.unitPriceCents)} to ${usdCents(mid.unitPriceCents)} to ${usdCents(large.unitPriceCents)}.</li>
+    </ul>
+
+    <h2>Mistakes that lose money on parts you win</h2>
+    <ul>
+      <li><strong>Pricing material from the part's area.</strong> The gap between parts, the sheet edge and
+      the skeleton are steel you bought. Price from the nest count, and the whole sheet on a small order.</li>
+      <li><strong>Timing the cut from the length alone.</strong> Every hole is a pierce, and pierce time grows
+      with thickness.</li>
+      <li><strong>One cut speed for every job.</strong> Speed changes with material and thickness; a speed
+      for 14 gauge steel is wrong for quarter-inch plate or for aluminum.</li>
+      <li><strong>Leaving out the brake setup.</strong> A tooling change and a first-piece check happen on
+      every lot, however few bends the part has.</li>
+      <li><strong>Forgetting hardware and the minutes to insert it.</strong> Press-in fasteners are a cost
+      per part and a press cycle per fastener.</li>
+      <li><strong>Ignoring the finisher's minimum.</strong> A powder coat or plating minimum often costs more
+      than the part on a short run.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>Upload the customer's DXF to an RFQ in ${SITE_NAME} and it reads the flat pattern's size, cut length,
+    closed contours and bend lines, each with a confidence. For a material priced by the sheet with a sheet
+    size and nest gap on your rate card, it counts parts per sheet with a rectangular nest. With a cut speed
+    and pierce time on your laser (or a speed for that material) it suggests the cut operation, and with
+    seconds per bend on your brake the bend operation, each labelled with the figures it used. The
+    estimator checks them, adds the bench time, hardware and finishing, and the price at each break
+    follows. The example above is the app's own nest count, cut and bend times and price, to the cent,
+    checked by a test in its code. You can
+    <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a>, read
+    <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to quote a machining job</a>,
+    or work out <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">your machine rates</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax,
+    engineering or financial advice, and the prices, speeds, times and rates in it are made up. Check
+    every quote before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Quote your next sheet metal RFQ this way", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
 /** Path → body renderer. The Worker uses earlyAccessPage directly for error re-renders. */
@@ -1307,6 +1481,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/compare": comparePage,
   "/machine-shop-hourly-rate": shopRatePage,
   "/how-to-quote-cnc-machining": quoteGuidePage,
+  "/how-to-quote-sheet-metal": sheetGuidePage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
   "/early-access/thanks": thanksPage,
