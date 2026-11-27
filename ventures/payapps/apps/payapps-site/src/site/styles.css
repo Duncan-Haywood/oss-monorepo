@@ -432,4 +432,11 @@ textarea {
   .header-row {
     padding: 0.6rem 1rem;
   }
+
+  /* cta-row-phone: a pair that wraps becomes two full-width buttons, not a ragged stack
+     (platform/pages/cta-row-phone.test.mjs). */
+  .cta-row > .btn {
+    flex: 1 1 auto;
+    text-align: center;
+  }
 }
