@@ -2,12 +2,13 @@
 // Pure functions, no I/O. Bad input is rejected with a message, never clamped.
 // Written from memory WITHOUT network access in the building session. Modelled: Working Time Regulations 1998 regs 13 and 13A (5.6 weeks a year, capped at 28 days),
 // part-year starters and leavers pro rata by days employed in the leave year, and, for irregular-hours and part-year workers whose leave year starts on or after 1 April 2024,
-// the 12.07% accrual method (holiday = 12.07% of hours worked; rolled-up holiday pay = 12.07% on top of pay, for those leave years).
+// the 12.07% accrual method (reg 15B: holiday accrues on the last day of each pay period at 12.07% of the hours worked in that period, each
+// period's figure rounded to the nearest hour, half an hour rounding up, reg 15B(5); rolled-up holiday pay = 12.07% on top of pay, for those leave years).
 // Holiday pay is one normal day's pay for each day taken; for irregular hours the "normal week" is the average over the last 52 paid weeks (you enter that average).
 // NOT modelled: Northern Ireland, overtime and commission averaging, sick-leave and family-leave accrual, carry-over, contractual holiday above the statutory minimum other than the
 // one total you can enter, and anything changed after this was written. Every result names its source to verify.
 
-export const VERIFY = "GOV.UK 'Holiday entitlement' (gov.uk/holiday-entitlement-rights) and 'Calculate holiday entitlement'; Working Time Regulations 1998 regs 13, 13A, 15A; Acas 'Holiday entitlement'";
+export const VERIFY = "GOV.UK 'Holiday entitlement' (gov.uk/holiday-entitlement-rights) and 'Calculate holiday entitlement'; Working Time Regulations 1998 regs 13, 13A, 15A, 15B (legislation.gov.uk/uksi/1998/1833/regulation/15B); Acas 'Holiday entitlement'";
 export const WEEKS = 5.6;
 export const MAX_DAYS = 28;
 export const ACCRUAL = 0.1207;
@@ -29,6 +30,21 @@ function dateParts(s) {
 }
 const DAY = 86400000;
 const iso = (t) => new Date(t).toISOString().slice(0, 10);
+// Pay periods in a leave year, for spreading an annual hours total evenly when
+// the hours of each period are not entered.
+export const PAY_PERIODS = { weekly: { label: "Weekly", n: 52 }, fortnightly: { label: "Fortnightly", n: 26 }, fourweekly: { label: "Every four weeks", n: 13 }, monthly: { label: "Monthly", n: 12 } };
+// Reg 15B(5): a fraction of an hour under 30 minutes counts as zero, 30 minutes
+// or more as a whole hour. The epsilon keeps 0.5 from landing on 0.49999.
+export const roundHour = (h) => Math.floor(h + 0.5 + 1e-9);
+// Hours worked in each pay period, typed as a list ("30, 25, 0, 40").
+export function parsePeriodHours(s) {
+  const t = String(s ?? "").trim();
+  if (!t) return null;
+  const parts = t.split(/[\s,;]+/).filter(Boolean);
+  const out = parts.map(Number);
+  if (out.some((n) => !Number.isFinite(n) || n < 0 || n > 744)) return { error: "Enter the hours for each pay period as numbers separated by commas, each from 0 to 744." };
+  return { hours: out };
+}
 export const PATTERNS = { regular: "Regular days a week", irregular: "Irregular hours or part-year (12.07%)" };
 
 export function parse(input) {
@@ -58,7 +74,15 @@ export function parse(input) {
     out.weeklyPay = num("weeklyPay", "your gross pay for a normal week", { allowEmpty: true }) || 0;
     out.taken = num("taken", "the days of leave already taken (zero if none)", { allowEmpty: true }) || 0;
   } else if (pattern === "irregular") {
-    out.hoursWorked = num("hoursWorked", "the hours you worked in the leave year (or expect to)", { max: MAX_HOURS_YEAR });
+    const ph = parsePeriodHours(i.periodHours);
+    if (ph && ph.error) errors.push(ph.error);
+    out.periodHours = ph && ph.hours ? ph.hours : null;
+    if (out.periodHours) {
+      if (out.periodHours.length > 53) errors.push("Enter at most 53 pay periods (a leave year of weekly pay).");
+      out.hoursWorked = out.periodHours.reduce((a, b) => a + b, 0);
+    } else out.hoursWorked = num("hoursWorked", "the hours you worked in the leave year (or expect to), or the hours of each pay period", { max: MAX_HOURS_YEAR });
+    out.payPeriod = i.payPeriod === undefined || i.payPeriod === "" ? "weekly" : i.payPeriod;
+    if (!out.periodHours && !PAY_PERIODS[out.payPeriod]) errors.push("Pick how often you are paid.");
     out.hourlyRate = num("hourlyRate", "your hourly pay (zero to skip the money)", { allowEmpty: true }) || 0;
     out.takenHours = num("takenHours", "the hours of holiday already taken (zero if none)", { allowEmpty: true }) || 0;
   }
@@ -112,14 +136,22 @@ export function compute(input) {
     }
     if (p.weeklyPay > 0 && p.daysPerWeek > 0) findings.push({ severity: "info", title: `A day's holiday pay is ${money(dailyPay)} (weekly pay divided by days worked). If your pay varies, your employer should use your average pay instead.` });
   } else {
-    const hoursYear = p.hoursWorked;
-    const accruedHours = r2(hoursYear * ACCRUAL);
+    const hoursYear = r2(p.hoursWorked);
+    // Reg 15B(3)(b) and (5): accrue per pay period and round each period to the
+    // nearest hour. A bare annual total is spread evenly over the pay periods,
+    // which is exact only if each period's hours were the same.
+    const periods = p.periodHours || Array(PAY_PERIODS[p.payPeriod].n).fill(p.hoursWorked / PAY_PERIODS[p.payPeriod].n);
+    const accruedHours = periods.reduce((a, h) => a + roundHour(h * ACCRUAL), 0);
+    const unroundedHours = r2(hoursYear * ACCRUAL);
+    const periodCount = periods.length;
+    const evenSpread = !p.periodHours;
     const remaining = r2(accruedHours - p.takenHours);
     const holidayPay = r2(accruedHours * p.hourlyRate);
     const remainingPay = r2(remaining * p.hourlyRate);
     const uplift = r2(p.hoursWorked * p.hourlyRate * ACCRUAL);
-    Object.assign(res, { hoursYear, accruedHours, remaining, holidayPay, remainingPay, uplift, hourlyRate: p.hourlyRate, takenHours: p.takenHours, accrual: ACCRUAL, bankHolidays: p.bankHolidays });
-    findings.push({ severity: "high", title: `You accrue holiday at 12.07% of hours worked: ${hoursYear} hours worked gives ${accruedHours} hours of paid holiday.` });
+    Object.assign(res, { hoursYear, accruedHours, unroundedHours, periodCount, evenSpread, payPeriod: evenSpread ? p.payPeriod : null, remaining, holidayPay, remainingPay, uplift, hourlyRate: p.hourlyRate, takenHours: p.takenHours, accrual: ACCRUAL, bankHolidays: p.bankHolidays });
+    findings.push({ severity: "high", title: `You accrue holiday at 12.07% of the hours worked in each pay period, each period rounded to the nearest hour (half an hour rounds up): ${hoursYear} hours over ${periodCount} pay periods gives ${accruedHours} hours of paid holiday (${unroundedHours} before rounding).` });
+    if (evenSpread) findings.push({ severity: "medium", title: `This spreads ${hoursYear} hours evenly over ${periodCount} ${PAY_PERIODS[p.payPeriod].label.toLowerCase()} pay periods. Because each period is rounded on its own, uneven hours give a different total: enter the hours of each pay period for the exact figure.` });
     if (p.hourlyRate > 0) findings.push({ severity: "high", title: `That holiday is worth about ${money(holidayPay)} gross at ${money(p.hourlyRate)} an hour.` });
     if (p.takenHours > 0) findings.push({ severity: p.takenHours > accruedHours ? "medium" : "info", title: p.takenHours > accruedHours ? `You have taken ${r2(p.takenHours - accruedHours)} hours more than accrued so far.` : `You have ${remaining} hours of holiday left${p.hourlyRate > 0 ? `, worth about ${money(remainingPay)}` : ""}.` });
     // The 12.07% accrual and rolled-up pay apply only to leave years starting on
@@ -135,7 +167,7 @@ export function compute(input) {
     }
     if (partYear) findings.push({ severity: "info", title: "Irregular-hours holiday is based on hours actually worked, so the part of the year you were employed does not need pro-rating here." });
   }
-  findings.push({ severity: "info", title: "Not modelled: Northern Ireland, overtime and commission averaging, carry-over and carry-forward rules, holiday accrued during sick or family leave, and anything that changed after this was written." });
+  findings.push({ severity: "info", title: "Not modelled: Northern Ireland, the 28-day yearly cap on irregular-hours accrual (reg 15B(4)), overtime and commission averaging, carry-over and carry-forward rules, holiday accrued during sick or family leave, and anything that changed after this was written." });
   obligations.push({ ref: "Ask", title: "Get your entitlement in writing", why: "Your employer must be able to tell you your entitlement and how it was worked out. A gap is usually rounding, a missed start date, or bank holidays counted twice." });
   obligations.push({ ref: "Help", title: "Contact Acas if it still differs", why: "Acas is free. A claim for unpaid holiday pay normally has to start within 3 months less a day of the underpayment (with early conciliation first)." });
   res.findings = findings;
@@ -143,12 +175,12 @@ export function compute(input) {
   return res;
 }
 
-export const SAMPLE = { pattern: "regular", yearStart: "2026-01-01", join: "2026-04-14", leave: "", daysPerWeek: 5, hoursPerDay: 7.5, weeklyPay: 600, taken: 3, bankHolidays: 8, contractDays: 25, hoursWorked: 1000, hourlyRate: 12.5, takenHours: 0 };
+export const SAMPLE = { pattern: "regular", yearStart: "2026-01-01", join: "2026-04-14", leave: "", daysPerWeek: 5, hoursPerDay: 7.5, weeklyPay: 600, taken: 3, bankHolidays: 8, contractDays: 25, hoursWorked: 1000, payPeriod: "weekly", periodHours: "", hourlyRate: 12.5, takenHours: 0 };
 
 export function summaryText(r) {
   const L = ["UK holiday entitlement and pay", "", `Leave year: ${r.yearStart} to ${r.yearEnd}`, `Days employed in the leave year: ${r.employedDays} of ${r.yearDays}`, ""];
   if (r.pattern === "regular") L.push(`Full-year statutory days: ${r.fullDays}`, `Accrued: ${r.accrued} days`, `Entitled (rounded up to half a day): ${r.entitled} days`, `Taken: ${r.taken}`, `Remaining: ${r.remaining}`, ...(r.dailyPay ? [`A day's holiday pay: ${money(r.dailyPay)}`, `Value of remaining days: ${money(r.value)}`] : []));
-  else L.push(`Hours worked: ${r.hoursYear}`, `Holiday accrued at 12.07%: ${r.accruedHours} hours`, `Taken: ${r.takenHours} hours`, `Remaining: ${r.remaining} hours`, ...(r.hourlyRate ? [`Value of accrued holiday: ${money(r.holidayPay)}`, `Value of remaining holiday: ${money(r.remainingPay)}`] : []));
+  else L.push(`Hours worked: ${r.hoursYear}`, `Pay periods: ${r.periodCount}${r.evenSpread ? ` (${r.payPeriod}, hours spread evenly)` : " (hours entered per period)"}`, `Holiday accrued at 12.07%, each pay period rounded to the nearest hour: ${r.accruedHours} hours (${r.unroundedHours} before rounding)`, `Taken: ${r.takenHours} hours`, `Remaining: ${r.remaining} hours`, ...(r.hourlyRate ? [`Value of accrued holiday: ${money(r.holidayPay)}`, `Value of remaining holiday: ${money(r.remainingPay)}`] : []));
   L.push("", ...r.findings.map((f) => `- ${f.title}`), "", ...r.obligations.map((o) => `- ${o.title}: ${o.why}`), "", `Verify against: ${VERIFY}`, "Not tax or legal advice. No warranty.");
   return L.join("\n");
 }
