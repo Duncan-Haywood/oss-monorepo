@@ -70,6 +70,7 @@ PayApps added unit-price lines on 2026-11-26:
 Not yet: quantities read from an imported SOV spreadsheet, a change order that adds quantity rather
 than dollars, and stored materials by quantity. These come if contractors ask for them.
 
-PayApps is in early access and not yet offered for sale: pay applications, retainage, change
-orders, lien waivers and QuickBooks for subcontractors. Not affiliated with GCPay. Its forms are not
+PayApps is open: unit-price pay applications, retainage and change orders are free on one active
+job, with no card ([start free](https://marisstella.app/industries/construction/)). Lien waivers and QuickBooks are on the paid plans, which
+are not on sale yet. Not affiliated with GCPay. Its forms are not
 AIA documents. This is general information, not legal or accounting advice.

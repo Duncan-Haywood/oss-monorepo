@@ -125,5 +125,5 @@ for subcontractors, on every plan:
 - a PDF per report, one PDF for a week or a month (up to three months), and the whole log as CSV;
 - the weather is what you type: nothing is fetched or filled in for you.
 
-The product is in early access and nothing is for sale yet:
-[construction tools and early access](https://marisstella.app/industries/construction/).
+Daily reports are on every plan, and PayApps is open: free on one active job, with no card.
+[Start free](https://marisstella.app/industries/construction/). The paid plans (more jobs and users, lien waivers, QuickBooks and job costing) are not on sale yet.
