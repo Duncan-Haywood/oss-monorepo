@@ -42,6 +42,12 @@ variable "log_lock_mode" {
   }
 }
 
+variable "security_hub_central_configuration" {
+  description = "Organization mode: run Security Hub with central configuration (one policy, FSBP and CIS in every account). Off since 2026-11-27 because AWS answered every attempt with 'organization data still syncing' and blocked the stacks behind baseline; see security.tf. Turn on in a PR once that clears."
+  type        = bool
+  default     = false
+}
+
 variable "security_hub_standards" {
   description = "Standards ARNs (%s = region) that Security Hub's central configuration enables everywhere. From memory of AWS's standard ARNs, not re-read this session: check with `aws securityhub describe-standards` before the first apply."
   type        = list(string)

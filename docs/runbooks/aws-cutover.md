@@ -19,6 +19,13 @@ undone by flipping a variable back.
 
 ## Owner checklist
 
+**Where things stand:** in AWS CloudShell (management account) run
+`curl -fsSLO https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/platform/aws/status.sh && bash status.sh`.
+It only reads, and prints each step below as OK, WAIT (AWS or the next apply),
+TODO (yours) or FAIL, plus the last AWS apply runs. As root it checks the
+management account only; through your Identity Center login it also checks
+Security Hub, GuardDuty and SES in the member accounts.
+
 Only the steps that need a card, an identity, a legal acceptance or admin
 rights on GitHub. Everything else is done by agents through pull requests.
 
