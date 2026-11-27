@@ -398,3 +398,16 @@ test("Dutch: every page in Dutch for Belgian readers, Belgium first, dates and p
   assert.match(read("llms.txt"), /## Pagina's \(Nederlands\)/);
   assert.match(read("index.html"), /hreflang="nl"/);
 });
+
+test("llms.txt and France: the 2026-11-27 re-check holds", () => {
+  // llms.txt no longer says the German and French pages were read through search excerpts.
+  assert.ok(!/search excerpts/.test(read("llms.txt")));
+  // Every French statement cites a DGFiP text that states it (docs/SOURCE-RECHECK-2026-11-27.md).
+  const fr = COUNTRIES.find((x) => x.key === "fr");
+  const by = (date, kind) => fr.deadlines.find((d) => d.date === date && d.kind === kind);
+  assert.equal(by("2026-09-01", "receive").source, "frImpotsFaq");
+  assert.equal(by("2027-09-01", "issue").source, "frImpotsFaq");
+  const mentions = fr.rules.find((r) => r.text.en.includes("SIREN"));
+  assert.equal(mentions.source, "frImpotsFaq");
+  for (const lang of LANGS) assert.ok(/2026/.test(mentions.text[lang]), lang);
+});
