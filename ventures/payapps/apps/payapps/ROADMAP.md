@@ -1724,6 +1724,19 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
   retainage waits on getting all of them to the GC in one delivery it can check off; Procore and
   Buildertrend keep close-out documents with files, and part 1 tracked only their dates
   (portfolio bets.md, #1).
+- **Close-out, part 3: retainage waiting on close-out** (2026-11-27, every plan,
+  closeout-part-3-cash-report): on the cash report, a finished job with retainage held now reads its
+  close-out checklist with its punch list (the job page's `closeoutReadiness`). While punch items or
+  documents are open, its next step says "waiting on close-out" and names them (2 punch list items
+  not accepted, 1 document still to send); once nothing is, it says the checklist is in and points
+  to the release request drafted there. A new total, `retainageWaitingOnCloseoutCents`, splits the
+  "Retainage on finished jobs" tile and the weekly email's retainage line into what can be asked for
+  now and what waits on close-out; the CSV gets a "Retainage waiting on close-out" column. A job
+  with neither list started keeps the plain "bill the retainage" step, so a company that does not
+  keep the checklist is not told its money waits on one. Two queries per company
+  (`closeoutReadinessByJob` in `services/payapps/cash.ts`); nothing stored. Why: retainage on
+  finished work is a sub's last and slowest money, and the cash report said "bill it now" on jobs
+  the job page knew were not ready (portfolio bets.md, #1).
 - Daily reports, part 1 (2026-11-26, every plan, daily-reports-part-1): one field log per job and day
   (`/orgs/:orgId/projects/:projectId/daily-reports`, linked from the job page): weather and high/low °F
   as typed (no weather service), hours lost to weather or a delay, crew lines (company, trade, workers,
@@ -2175,10 +2188,9 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask
-- Close-out, part 3: (part 2 is done 2026-11-26: files per document and the binder PDF) close-out
-  events beyond files in the job history (sent, accepted, not required), documents overdue across
-  jobs in the weekly email, and a "retainage waiting on close-out" line on the cash report, if
-  contractors use the checklist.
+- Close-out, part 4: (part 3, retainage waiting on close-out on the cash report and in the weekly
+  email, done 2026-11-27) close-out events beyond files in the job history (sent, accepted, not
+  required) and documents overdue across jobs in the weekly email, if contractors use the checklist.
 - Punch list, part 2: photos per item (before and after, the attachments rules the RFIs use),
   punch events in the job history, items overdue across jobs in the weekly email, and a line on the
   retainage-release pay application naming the punch list's state, if people ask; a GC's punch list
