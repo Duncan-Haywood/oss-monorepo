@@ -1,0 +1,5 @@
+# Copy to .dev.vars for local dev. Never commit real secrets.
+AUTH_SECRET=replace-with-32+-random-characters
+# Offline mode: FakeLlm drafts, no Anthropic key needed.
+FAKE_EXTERNALS=true
+# ANTHROPIC_API_KEY=
