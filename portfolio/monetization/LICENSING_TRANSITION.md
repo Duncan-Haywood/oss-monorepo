@@ -34,7 +34,13 @@ That move is the section "The public repository: FSL-1.1-MIT" below.
 >   data, client data, security-sensitive notes) of each app, because
 >   publishing cannot be reversed.
 >
-> Steps: task `products-to-public-repo` in `portfolio/work/tasks.yaml`. The
+> Steps: task `products-to-public-repo` in `portfolio/work/tasks.yaml`.
+> [`relicense_arr.py`](relicense_arr.py) does the licence move per product
+> (the notice, our own page wording, tests; never a line about someone else's
+> project, nor `paddle.mjs`, which `platform/billing/sync.mjs` keeps a byte
+> copy of). The owner, 2026-11-27, asked whether self-host offers stay under a
+> plain all-rights-reserved notice: they are dropped, so those products become
+> hosted-only. The
 > "proprietary, `private-monorepo/apps/<slug>`" column below is out of date
 > until that task closes.
 

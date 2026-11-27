@@ -15,6 +15,12 @@ on:
 permissions:
   contents: read
 
+# Each job checks out only this venture (plus .github and the root files cone
+# mode keeps): every test and build reads inside it, and the full ~81k-file
+# tree was 38 s of a 65 s median job. Checked step for step with
+# platform/ci/sparse_checkout_verify.py on 2026-11-27
+# (docs/history/ci-perf-2026-11-27-agent-permission-harness-sparse.md).
+
 concurrency:
   group: real-estate-agent-photo-app-ci-${{ github.ref }}
   cancel-in-progress: true
@@ -28,6 +34,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            ventures/real-estate-agent-photo-app
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
@@ -48,6 +58,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            ventures/real-estate-agent-photo-app
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
@@ -68,6 +82,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            ventures/real-estate-agent-photo-app
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
@@ -91,6 +109,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            ventures/real-estate-agent-photo-app
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"

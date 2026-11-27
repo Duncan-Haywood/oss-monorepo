@@ -17,7 +17,7 @@
 //      venture's `checkout.mjs`, offline. No Paddle API key exists anywhere in
 //      the browser or the Worker.
 //
-// The code is source available (FSL-1.1-MIT), so a key is a convenience for
+// The code can be read by anyone, so a key is a convenience for
 // honest buyers, not copy protection. Every value below is public: a Paddle client-side token, a price
 // id and an Ed25519 public key. Until all of them are set the pack stays dark:
 // no Buy button, and everything that is free today stays free.

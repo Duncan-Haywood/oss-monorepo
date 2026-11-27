@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Turn an organised photo/video library into edited Instagram photos and 15-second reels, with Claude making the judgment calls."
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "FSL-1.1-MIT"}
+license = {text = "LicenseRef-AllRightsReserved"}
 dependencies = [
     "anthropic>=0.70",
     "librosa>=0.10",       # music: beat, tempo and character analysis (local, cached)

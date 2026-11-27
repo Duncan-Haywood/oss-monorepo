@@ -1,7 +1,7 @@
 # Clothing Design Studio
 
 **Say what you want on the shirt. See it, change it, know what it costs.**
-A free, source-available (FSL-1.1-MIT) browser studio for independent clothing designers:
+A free, source-visible (all rights reserved) browser studio for independent clothing designers:
 design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging,
 compare three versions, cost every piece from your manufacturer's prices, and
 download a tech pack and quote request to send them.
@@ -107,7 +107,7 @@ uptime, backups of anything you type, or that a URL will keep working. Do not
 use this as a system of record. If a tool needs to survive, export your inputs
 and run it yourself.
 
-FSL-1.1-MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
+all-rights-reserved notice: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
 
 ## "Make it darker" from what the factory stocks (2026-11-24)
