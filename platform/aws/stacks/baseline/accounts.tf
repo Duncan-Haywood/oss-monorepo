@@ -6,7 +6,7 @@
 
 locals {
   baseline_common = {
-    log_bucket_name       = aws_s3_bucket.logs.id
+    log_bucket_name       = aws_s3_bucket.config.id
     log_kms_key_arn       = aws_kms_key.logs.arn
     management_account_id = local.mgmt_id
   }

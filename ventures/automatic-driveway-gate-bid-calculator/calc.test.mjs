@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   calculateBid,
   columnCount,
@@ -8,6 +9,7 @@ import {
   JOB_PRESETS,
   materialWeight,
   operatorCount,
+  RATE_HEIGHT_FT,
   STYLE_PRESETS,
   suggestedColumnKit,
   suggestedPowerKit,
@@ -311,16 +313,50 @@ test('slide is a track and one operator, not a pair of swing leaves', () => {
 });
 
 // Quality audit 2026-11-26 (round 110): dropping columnMaterial from extraCost
-// left every test green, and that share backs the how-much page's "almost half
+// left every test green, and that share backs the how-much page's "about 44%
 // of that dual bid's cost" line. The share is of cost, not of the bid price.
-test('dual masonry preset: extra work is 45.4% of cost, the figure the guide quotes', () => {
+// (45.4% before leaf height started scaling the 6 ft preset's leaf, 2026-11-27.)
+test('dual masonry preset: extra work is 43.7% of cost, the figure the guide quotes', () => {
   const p = JOB_PRESETS[1];
   const b = calculateBid({
     hourlyWage: 42, burdenRate: 32, travelAndEquipment: 285, overheadRate: 16, targetMargin: 28, permitFee: 125,
     ...p, ...suggestedStyleKit(p.style), ...suggestedColumnKit(p.columnType), ...suggestedPowerKit(p.power),
   });
-  assert.equal(b.price.toFixed(2), '20439.88');
+  assert.equal(b.price.toFixed(2), '21220.62');
   assert.equal(b.extraCost.toFixed(2), '6682.84');
-  assert.ok(Math.abs(b.shares.extra - 45.41) < 0.01, `extra share ${b.shares.extra}`);
-  assert.ok(b.extraCost / b.price < 0.5 && b.extraCost / b.totalCost > 0.45);
+  assert.ok(Math.abs(b.shares.extra - 43.74) < 0.01, `extra share ${b.shares.extra}`);
+  assert.ok(b.extraCost / b.totalCost > 0.43 && b.extraCost / b.totalCost < 0.45);
+});
+
+// Quality audit 2026-11-26 (high defect #0): leaf height was validated and
+// printed on the proposal but priced nothing, so a 10 ft leaf cost the same as
+// a 5 ft one. Leaf dollars and hang hours are per lineal foot at RATE_HEIGHT_FT
+// and scale with the leaf's height.
+test('leaf height scales leaf dollars and hang hours from the rate height', () => {
+  const base = {
+    style: 'swing-single', openingWidthFt: 12, material: 'aluminum', columnType: 'existing', power: 'ac',
+    ...suggestedStyleKit('swing-single'), ...suggestedPowerKit('ac'),
+    hourlyWage: 40, burdenRate: 0, overheadRate: 0, targetMargin: 0,
+  };
+  assert.equal(RATE_HEIGHT_FT, 5);
+  const five = calculateBid({ ...base, leafHeightFt: 5 });
+  const ten = calculateBid({ ...base, leafHeightFt: 10 });
+  // By hand: 12 lf x $85 x 1.0 (aluminum) = $1,020 at 5 ft; a 10 ft leaf has
+  // twice the face, $2,040. Hang hours 12 x 0.35 = 4.2 h, then 8.4 h.
+  assert.equal(five.gateMaterial, 1020);
+  assert.equal(ten.gateMaterial, 2040);
+  assert.ok(Math.abs(five.hoursGate - 4.2) < 1e-9);
+  assert.ok(Math.abs(ten.hoursGate - 8.4) < 1e-9);
+  assert.ok(Math.abs((ten.totalCost - five.totalCost) - (1020 + 4.2 * 40)) < 1e-9);
+  assert.equal(ten.heightFactor, 2);
+  // A shop whose rates are quoted at 6 ft enters that, and a 6 ft leaf is 1.0x.
+  const six = calculateBid({ ...base, leafHeightFt: 6, rateHeightFt: 6 });
+  assert.equal(six.gateMaterial, 1020);
+  assert.throws(() => calculateBid({ ...base, leafHeightFt: 5, rateHeightFt: 0 }), /greater than zero/);
+});
+
+test('the form posts the leaf rate height so a shop can change it', () => {
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /id="rateHeightFt"[^>]*value="5"/);
+  assert.match(html, /'gatePerLf','rateHeightFt'/);
 });

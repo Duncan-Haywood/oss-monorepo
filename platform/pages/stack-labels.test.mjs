@@ -72,9 +72,9 @@ test('pf-chrome.css copy: every rule scoped to table.stack, inside :where(), in 
   assert.match(STACK_TABLE_CHROME_CSS, /^\s*@media \(max-width:600px\)\{/);
   for (const rule of STACK_TABLE_CHROME_CSS.match(/[^{}]+\{/g).slice(1)) {
     // Split on top-level commas only: `td:is(:first-child,:has(select))` is one selector.
-    for (const sel of topLevel(rule.trim().slice(0, -1))) assert.match(sel.trim(), /^:where\(table\.stack(\.compact|\.fields)?\)/, `unscoped: ${sel}`);
+    for (const sel of topLevel(rule.trim().slice(0, -1))) assert.match(sel.trim(), /^:where\(table\.stack(\.compact|\.fields|\.prose)?\)/, `unscoped: ${sel}`);
   }
-  assert.equal(STACK_TABLE_CHROME_CSS.replace(/:where\((table\.stack(?:\.compact|\.fields)?)\)/g, '$1'), STACK_TABLE_CSS);
+  assert.equal(STACK_TABLE_CHROME_CSS.replace(/:where\((table\.stack(?:\.compact|\.fields|\.prose)?)\)/g, '$1'), STACK_TABLE_CSS);
   assert.match(STACK_TABLE_CSS, /table\.stack th\[scope=row\]\{display:block/);
 });
 

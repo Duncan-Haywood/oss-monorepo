@@ -737,6 +737,11 @@ html{overflow-x:clip}
  * The label is pinned left (polish, 2026-11-26): a venture's figure cell (`td.n{text-align:right}`)
  * otherwise hands its alignment to the `::before`, and the labels of a card ragged to the right.
  *
+ * `class="stack prose"` is for cells of sentences (polish, 2026-11-27): the label sits above
+ * its value at full card width instead of in a 34% column beside it. Before it, the e-invoicing
+ * error-code pages' rule-text cells wrapped into a 190 px column, and rows ran past the screen
+ * (br-fr-error-codes: worst 1,779 px at 390 px).
+ *
  * `class="stack fields"` is for a calculator's editable rows (polish, 2026-11-27): each row is
  * a card whose cells form a grid of label-above-field pairs, about three short fields to a line
  * at 390 px; the first cell, selects, textareas and `input.wide` take a whole line, a lone
@@ -763,6 +768,8 @@ export const STACK_TABLE_CSS = `
   table.stack.compact td{flex:1 1 9.5em;width:auto;text-align:right}
   table.stack.compact td::before{width:auto;text-align:left;vertical-align:baseline}
   table.stack.compact td:first-child,table.stack.compact th[scope=row]{flex-basis:100%;text-align:left}
+  table.stack.prose td{display:block}
+  table.stack.prose td::before{display:block;width:auto;min-width:0;padding:0 0 2px}
   table.stack.fields tr{display:grid;grid-template-columns:repeat(auto-fill,minmax(5em,1fr));gap:8px 10px;padding:10px 12px 12px}
   table.stack.fields td,table.stack.fields td:first-child{display:flex;flex-direction:column;justify-content:flex-end;
     width:auto;min-width:0;border:0;padding:0;font-weight:inherit}
@@ -788,7 +795,7 @@ export const STACK_TABLE_CSS = `
  * class alone. Polish, 2026-11-25: measured at 390 px, 98 read-only tables on the paid
  * products' pages ran past their scroll box, and none could use the site's cards.
  */
-export const STACK_TABLE_CHROME_CSS = STACK_TABLE_CSS.replace(/table\.stack((?:\.(?:compact|fields))*)/g, ':where(table.stack$1)');
+export const STACK_TABLE_CHROME_CSS = STACK_TABLE_CSS.replace(/table\.stack((?:\.(?:compact|fields|prose))*)/g, ':where(table.stack$1)');
 
 /**
  * Columns of figures in Markdown tables (`th.num`, `td.num`, marked by `numericColumns` in
