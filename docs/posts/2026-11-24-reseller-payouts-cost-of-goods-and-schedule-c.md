@@ -671,6 +671,20 @@ against a real export. If a column is renamed, the import names the columns
 it expected instead of guessing. If a row's columns don't add up to its
 `total`, the import still brings it in and warns you, naming the line.
 
+**Update, 2026-11-28.** The same month is now worked on its own page,
+[Amazon seller taxes](https://marisstella.app/seller-books/amazon-taxes),
+with one more check: line 1 less every line after it comes to −$23.19,
+exactly the nine booked rows' totals added up, so the month lost money
+before the items' cost came off. The month's $200.00 transfer to the bank
+is in none of the lines; counting deposits as income would have reported
+$200.00 of sales for that losing month. The page quotes Amazon's own
+Marketplace Tax Collection help page, which we read in a browser on
+2026-11-28: "As the marketplace facilitator, Amazon calculates, collects,
+remits, and refunds sales tax on third party sellers transactions destined
+to states where this legislation is enacted." It states no Amazon fee rate.
+The column caveat above still stands: Seller Central's help pages still
+showed us no text, so the layout has not been checked against a real export.
+
 ## Three lists your preparer will ask for (added 2026-11-26)
 
 Three worksheet figures come up most often when a preparer asks you to back
