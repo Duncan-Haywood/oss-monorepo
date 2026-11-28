@@ -30,16 +30,6 @@ test('copies the app, its imported modules and the wasm, and leaves tests and ca
     for (const rel of localImports(home)) assert.ok(existsSync(path.join(out, 'residential-takeoff', rel)), rel);
     const sitemap = readFileSync(path.join(out, 'residential-takeoff/sitemap.xml'), 'utf8');
     assert.match(sitemap, /<loc>https:\/\/marisstella\.app\/residential-takeoff\/<\/loc>/);
-    // The roof sheathing guide is the paid engine's own page: served, in the sitemap, links into the app,
-    // its calculator links pointed at the free edition.
-    assert.match(sitemap, /<loc>https:\/\/marisstella\.app\/residential-takeoff\/roof-sheathing-waste-factor<\/loc>/);
-    const guide = readFileSync(path.join(out, 'residential-takeoff/roof-sheathing-waste-factor.html'), 'utf8');
-    assert.match(guide, /<link rel="canonical" href="https:\/\/marisstella\.app\/residential-takeoff\/roof-sheathing-waste-factor">/);
-    assert.match(guide, /href="index\.html"/);
-    assert.match(guide, /href="\.\.\/wall-framing-takeoff\/roof-calculator\.html"/);
-    assert.match(guide, /href="\.\.\/wall-framing-takeoff\/lumber-waste-factor\.html"/);
-    assert.match(guide, /no warranty/i);
-    assert.match(readFileSync(path.join(out, 'residential-takeoff/llms.txt'), 'utf8'), /roof-sheathing-waste-factor/);
     assert.match(readFileSync(path.join(out, 'residential-takeoff/llms.txt'), 'utf8'), /Checkout is not open/);
     await assert.rejects(buildResidentialTakeoffApp(out), /already written/);
   } finally {

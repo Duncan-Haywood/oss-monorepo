@@ -217,14 +217,6 @@ Ticked items are on `main`.
       of buying (0.2 to 0.4% from every length with a cut plan, 18.9 to 29.8% with none), kept apart
       from the typed cull allowance; page figures pinned to the bench by `waste-bench.test.mjs`.
       Next, if people use it: the same split for sheathing sheets and siding.
-      Roof sheathing, done 2026-11-28 (roof-sheathing-waste-factor, here in the paid edition:
-      `roof-waste-bench.mjs`, `roof-sheathing-waste-factor.html`, served at
-      /residential-takeoff/roof-sheathing-waste-factor by `platform/pages/residential-takeoff-app.mjs`'s
-      `OWN_PAGES`, linked from the free roof calculator and lumber waste page): 4 x 8 sheets on sixteen
-      rectangles (24 x 32 to 36 x 60 ft, 4 to 12:12), gable 3.4 to 16.6% over the area, hip 13.0 to 32.7%
-      cut course by course and 4.4 to 16.2% with the hip offcuts reused (4 to 10 sheets saved, within -1
-      to +3 sheets of the gable); figures pinned by `roof-waste-bench.test.mjs`. Next, if people use it:
-      siding, and roofs with valleys (the outline engine).
 
 ### 2. Getting the house in without typing
 

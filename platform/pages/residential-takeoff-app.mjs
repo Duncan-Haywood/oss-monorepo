@@ -23,10 +23,8 @@ export const RESIDENTIAL_TAKEOFF_APP = path.join(ROOT, 'ventures', 'residential-
 export const FREE_EDITION_DIR = 'wall-framing-takeoff';
 const PRODUCTION = 'https://marisstella.app/';
 // Pages of the paid folder that are the paid edition's own (not free-edition copies).
-// The bid-package pages are served by the free edition already (same titles), so only the app page
-// and the guides measured on the paid engine (roof-sheathing-waste-factor.html: hip offcut reuse, which
-// the free edition does not have).
-export const OWN_PAGES = ['index.html', 'roof-sheathing-waste-factor.html'];
+// The bid-package pages are served by the free edition already (same titles), so only the app page.
+export const OWN_PAGES = ['index.html'];
 const ASSETS = ['ifc-engine.wasm'];
 
 /** `./x.mjs` specifiers a page or module imports, statically or with `import()`. */
@@ -78,7 +76,6 @@ Limits: quantities come from the plan the user typed or drew. Nothing checks hea
 ## Pages
 
 - [The app](${at}): walls, openings, roof, sheathing, siding, the material list and the bid package.
-- [Roof sheathing waste factor, gable vs hip, measured](${at}roof-sheathing-waste-factor): 4 x 8 sheets laid course by course on sixteen rectangular roofs; with the hip offcuts reused a hip roof wastes about what a gable roof does.
 - [Branded bid package for framers](${baseUrl}${FREE_EDITION_DIR}/branded-bid-package-for-framers.html): the proposal on your letterhead with a quantities appendix and no unit prices.
 - [Sample bid package](${baseUrl}${FREE_EDITION_DIR}/sample-bid-package.html): the package for an invented house.
 - [Free edition: Wall Framing Takeoff](${baseUrl}${FREE_EDITION_DIR}/): stud layout, cut list, board order and the building calculators, free and MIT licensed.
