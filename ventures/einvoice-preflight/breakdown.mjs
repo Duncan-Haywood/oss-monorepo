@@ -36,7 +36,11 @@ const parseNumber = parseDecimal;
 function roundHalfUpToCents(value) {
   if (!Number.isFinite(value)) return null;
   const sign = value < 0 ? -1 : 1;
-  return (sign * Math.round(Number((Math.abs(value) * 100).toPrecision(15)))) / 100;
+  // toPrecision(15) settles float noise on half-cent ties; from 10^15 cents (10^13
+  // units) the double has no sub-cent digits to settle, and 15 digits would cut a
+  // real cent (quality reaudit 2026-11-28: a correct 10^13 IDR gross was rewritten).
+  const scaled = Math.abs(value) * 100;
+  return (sign * Math.round(scaled < 1e15 ? Number(scaled.toPrecision(15)) : scaled)) / 100;
 }
 
 function money(value) {
@@ -137,7 +141,7 @@ function checkRows(rows, expected, withCategory, unattributed, tolerant) {
       findings.push(finding(
         "INV-038",
         `Tax breakdown row ${index + 1} tax amount does not equal taxable times the percentage.`,
-        `Set tax to ${expectedTax} or correct taxable and tax_percent.`,
+        `Set tax to ${formatCents(expectedTax)} or correct taxable and tax_percent.`,
         `${path}/tax`,
       ));
     }
