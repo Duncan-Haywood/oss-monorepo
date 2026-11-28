@@ -1,4 +1,6 @@
+import { LEVEL2_REQUIREMENTS } from "@shared/controls";
 import { describe, expect, it } from "vitest";
+import { INSERT_ROWS } from "../../src/worker/services/controls/import";
 import { addToOrg, api, createTestUser, setupTenant } from "./helpers";
 
 const json = async <T>(res: Response) => (await res.json()) as T;
@@ -117,5 +119,29 @@ describe("control import from a spreadsheet", () => {
       await api(`/api/orgs/${t.orgId}/controls/AC.L2-3.1.1`, { as: t.userId }),
     );
     expect(rec.record).toBeNull();
+  });
+  // A whole Level 2 workbook on a new org creates 110 records at once. Each insert row binds seven
+  // values and D1 allows 100 a statement; chunks of 30 rows returned a 500 here (found 2026-11-28).
+  it("imports all 110 Level 2 requirements into an empty workspace", async () => {
+    expect(INSERT_ROWS * 7).toBeLessThanOrEqual(100);
+    const t = await setupTenant();
+    const rows = LEVEL2_REQUIREMENTS.map(
+      (r) => `${r.nistId},${r.nistId === "3.1.10" ? "Not implemented" : "Implemented"}`,
+    );
+    const csv = ["Requirement,Status", ...rows].join("\n");
+    const res = await api(`/api/orgs/${t.orgId}/controls/import`, {
+      method: "POST",
+      as: t.userId,
+      json: { level: 2, csv, apply: true },
+    });
+    expect(res.status).toBe(200);
+    const applied = await json<Preview>(res);
+    expect(applied.applied).toBe(true);
+    expect(applied.changes).toHaveLength(110);
+    const s = await json<{ level2: { score: number; counts: { implemented: number } } }>(
+      await api(`/api/orgs/${t.orgId}/score?level=2`, { as: t.userId }),
+    );
+    expect(s.level2.counts.implemented).toBe(109);
+    expect(s.level2.score).toBe(109);
   });
 });
