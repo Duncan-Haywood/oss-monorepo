@@ -115,30 +115,33 @@ merchants a month, and a card paid from checking. Months are imported one at a
 time. Before each month, every earlier line is confirmed with its true account,
 as a person clearing the queue would. Auto-post is at 0.85.
 
+<!-- benchmark:start (generated: node eval/benchmark.mjs --readme) -->
 | month | lines | posted alone | wrong of those | transfers | review suggestions right | no suggestion |
 |---|---|---|---|---|---|---|
-| 01 | 247 | 0.0% | 0 | 10 (0 wrong) | 133/133 (100.0%) | 42.1% |
-| 02 | 239 | 7.5% | 0 | 10 (0 wrong) | 167/175 (95.4%) | 15.1% |
-| 03 | 242 | 23.6% | 0 | 10 (0 wrong) | 130/155 (83.9%) | 8.3% |
-| 04 | 244 | 44.3% | 0 | 10 (0 wrong) | 91/109 (83.5%) | 7.0% |
-| 05 | 234 | 54.7% | 1 (0.8%) | 10 (0 wrong) | 68/79 (86.1%) | 7.3% |
-| 06 | 240 | 58.3% | 0 | 10 (0 wrong) | 61/73 (83.6%) | 7.1% |
-| 07 | 245 | 57.6% | 0 | 10 (0 wrong) | 69/79 (87.3%) | 6.1% |
-| 08 | 240 | 60.4% | 0 | 10 (0 wrong) | 56/67 (83.6%) | 7.5% |
-| 09 | 232 | 65.1% | 0 | 10 (0 wrong) | 49/59 (83.1%) | 5.2% |
-| 10 | 240 | 65.8% | 0 | 10 (0 wrong) | 51/62 (82.3%) | 4.2% |
-| 11 | 248 | 65.3% | 0 | 10 (0 wrong) | 52/59 (88.1%) | 6.9% |
-| 12 | 241 | 69.3% | 0 | 10 (0 wrong) | 45/55 (81.8%) | 3.7% |
+| 01 | 247 | 0.0% | 0 | 10 (0 wrong) | 167/177 (94.4%) | 24.3% |
+| 02 | 237 | 7.6% | 0 | 10 (0 wrong) | 181/187 (96.8%) | 9.3% |
+| 03 | 242 | 23.6% | 0 | 10 (0 wrong) | 142/161 (88.2%) | 5.8% |
+| 04 | 244 | 43.9% | 0 | 10 (0 wrong) | 102/116 (87.9%) | 4.5% |
+| 05 | 234 | 54.7% | 1 (0.8%) | 10 (0 wrong) | 77/84 (91.7%) | 5.1% |
+| 06 | 240 | 58.3% | 0 | 10 (0 wrong) | 65/77 (84.4%) | 5.4% |
+| 07 | 244 | 57.8% | 0 | 10 (0 wrong) | 74/83 (89.2%) | 4.1% |
+| 08 | 240 | 60.4% | 0 | 10 (0 wrong) | 61/73 (83.6%) | 5.0% |
+| 09 | 232 | 65.1% | 0 | 10 (0 wrong) | 53/64 (82.8%) | 3.0% |
+| 10 | 239 | 65.3% | 0 | 10 (0 wrong) | 57/70 (81.4%) | 1.3% |
+| 11 | 247 | 65.2% | 0 | 10 (0 wrong) | 57/64 (89.1%) | 4.9% |
+| 12 | 241 | 69.3% | 0 | 10 (0 wrong) | 48/57 (84.2%) | 2.9% |
 
-Over months 4 to 12, 1,300 of 2,164 lines posted alone (60.1%), and 1 of those
-1,300 went to the wrong account. 90 transfer lines were paired, none wrongly.
-542 of 642 review suggestions were right (84.4%), and 132 lines (6.1%) had no
-suggestion. In total: 5 seeds, 2,892 lines, about one second.
+Over months 4 to 12, 1,296 of 2,161 lines posted alone (60.0%), and 1 of those
+1,296 went to the wrong account. 90 transfer lines were paired, none wrongly.
+594 of 688 review suggestions were right (86.3%), and 87 lines (4.0%) had no
+suggestion. Month 1, with nothing learned yet, had 167 of 177 built-in suggestions right
+(94.4%). In total: 5 seeds, 2,887 lines, about one second.
+<!-- benchmark:end -->
 `engine.test.mjs` pins the headline on seed 1.
 
 **Read this with care.** The data is synthetic, and the same person wrote the
-generator and the built-in keywords. So month 1's 100% (133 of 133 built-in
-suggestions right) flatters the keywords and says nothing about real banks.
+generator and the built-in keywords. So month 1's score on built-in
+suggestions (above) flatters the keywords and says nothing about real banks.
 The learning numbers are the honest part: they measure how fast memory and the
 classifier pick up a business's own payees through messy descriptions.
 That 60% is held down by the payees deliberately filed two ways and by the
