@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqygBas9Mdos933gszQp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T01:38:53Z",
+  "ended": "2026-11-28T01:46:55Z",
+  "wall_minutes": 8.2,
+  "tokens_in": 7798416,
+  "tokens_out": 32995,
+  "cost_usd": 3.2899,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19948",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "roadmap_claim.py --claim needs an argument; '--claim new --slug X' is refused, '--claim X' works (cost two calls)",
+    "First site unit run failed the honesty copy test on 'certified welders'; reworded to 'qualified welders' / 'welder qualifications'"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "The --bets summary says to claim a new topic with '--slug <short-name>', but --claim then requires a value and refuses 'new'; the working form is '--claim <slug>'."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bets #1, #3 and #4 have no free, ungated Next item (all wait on demand, the owner or a source); the suggested 'Start here' (jobshop-quote #3, launch) is mostly owner steps too, so finding real work meant opening a new growth topic."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "why": "Its 'Start here' pick (jobshop-quote #3, launch) is blocked on owner secrets (inbound email token, Paddle, AI)",
+      "did": "Claimed a new topic on the same bet: a welding/fabrication quoting guide on its marketing site (traffic toward the paid product)",
+      "result": "Landed a page priced to the cent by the app's engine, with a parity test"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (dated update, 28 November 2026)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3). Ideas inbox empty. Live checks: payapps, seller-books, jobshop-quote and cmmc health endpoints answer 200; a crawl of marisstella.app/payapps, /seller-books, /jobshop and /cmmc (152 pages) found no broken links. Local: jobshop-site typecheck, unit 84/84, worker 13/13; jobshop-quote unit 675/675; platform/pages/jobshop-site.test.mjs 6/6.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b160b3c1-f350-5a5f-a69d-49fbe9074432",
+    "transcripts": 1,
+    "first": "2026-11-28T01:38:53Z",
+    "last": "2026-11-28T01:47:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 127,
+        "output": 32995,
+        "thinking": 5459,
+        "cache_read": 7661136,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137153,
+        "api_equivalent_usd": 3.2899,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 127,
+      "output": 32995,
+      "thinking": 5459,
+      "cache_read": 7661136,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137153,
+      "api_equivalent_usd": 3.2899,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 63,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.2,
+      "active_minutes": 8.2,
+      "model_minutes": 5.74,
+      "tool_minutes": 2.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a technical writer with fabrication estimating knowledge drafting and checking one priced guide",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 121.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
