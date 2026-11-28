@@ -1880,8 +1880,14 @@ run as a formula in Excel or Sheets.
   status date, and a comparison across renumbered rows. These files are small
   test projects; no real construction schedule from Project has been read yet.
 - **Not checked**: no file used progress override, start or smallest float, the
-  successor or 24-hour lag calendar, or mandatory constraints, and no unit test
-  covers them yet.
+  successor or 24-hour lag calendar, or mandatory constraints. Progress
+  override has one unit test (an SF link out of started work,
+  `engine.test.mjs`); the others have none, and seeded bugs in the SF
+  backward lag and the start-float branch pass every test (re-audit,
+  `portfolio/quality/audits/2026-11-28-xer-schedule-check.json`).
+- **DCMA thresholds**: points 6, 7, 13 and 14 are pinned on both sides of
+  their line in `dcma-thresholds.test.mjs`; point 12's 600-day pass margin is
+  not.
   An independent DCMA implementation was not run side by side.
 
 ## Limits

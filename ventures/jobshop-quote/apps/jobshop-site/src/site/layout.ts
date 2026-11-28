@@ -125,6 +125,7 @@ ${body}
             <li><a href="${href(ctx, "/how-to-estimate-cnc-machining-time")}">Estimating machining time</a></li>
             <li><a href="${href(ctx, "/machining-material-cost")}">Material cost</a></li>
             <li><a href="${href(ctx, "/machine-shop-quote-template")}">Quote template</a></li>
+            <li><a href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a></li>
             <li><a href="${href(ctx, "/privacy")}">Privacy</a></li>
             <li><a href="${CMMC_SITE_URL}">CMMC Workspace</a></li>
           </ul>
