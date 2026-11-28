@@ -205,6 +205,16 @@ export function RfqDetailPage() {
                     First article list (CSV)
                   </a>
                 )}{" "}
+                {f.hasText && f.mimeType === "application/pdf" && (
+                  <Link
+                    className="text-sky-800 underline"
+                    to="/app/$orgId/rfqs/$rfqId/files/$fileId/first-article"
+                    params={{ orgId, rfqId, fileId: f.id }}
+                    title="Enter the first article results against this drawing's characteristics and see each row's accept or reject"
+                  >
+                    Inspect first article
+                  </Link>
+                )}{" "}
                 {/* A PDF that read without error but gave no text is usually a scan: the extractor
                     saw nothing in it, so say so rather than let an empty part look complete. */}
                 {f.mimeType === "application/pdf" && !f.hasText && !f.conversionError && (

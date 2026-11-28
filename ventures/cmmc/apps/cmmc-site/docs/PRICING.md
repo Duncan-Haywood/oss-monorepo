@@ -14,7 +14,7 @@ says FutureFeed is cheaper for a checklist alone. Nothing is charged yet.
 |---|---|---|---|---|
 | Level 1 | $39 | $468 | 15 FAR 52.204-21 requirements, evidence, annual affirmation reminders | 2 |
 | Level 2 self-assessment | $149 | $1,788 | + 110 NIST SP 800-171 Rev. 2 requirements, SSP, POA&M, SPRS score | 5 |
-| Level 2 + Quality | $249 | $2,988 | + ISO 9001 / AS9100 document control, internal audits, corrective actions | 10 |
+| Level 2 + Quality | $249 | $2,988 | + ISO 9001 / AS9100 document control, internal audits, corrective actions, gauge calibration | 10 |
 
 Monthly billing, if offered, is +20% (the competitors charge about 2× for monthly; we do not need to).
 

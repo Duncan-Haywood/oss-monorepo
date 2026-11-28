@@ -356,6 +356,13 @@ function collect(
       linetype = parsed.layerLinetype.get(layer) ?? "CONTINUOUS";
     }
     const pushEdges = (edges: Edge2[], closed: boolean, local: Affine): void => {
+      // A coordinate or bulge that does not parse would make every area and length NaN;
+      // report the entity as unreadable instead of measuring it.
+      const finite = (p: Vec2): boolean => Number.isFinite(p.x) && Number.isFinite(p.y);
+      if (edges.some((ed) => !finite(ed.a) || !finite(ed.b) || !Number.isFinite(ed.bulge))) {
+        bump(out.unsupported, `${e.type}(unreadable)`);
+        return;
+      }
       const mm = compose(m, local);
       const t = transformEdges(edges, mm, out);
       if (t.length)

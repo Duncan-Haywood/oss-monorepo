@@ -4,6 +4,7 @@ seo_title: "Dormer window framing: validating the sill height"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff]
 description: "Probing the dormer framing engine's window input found that a negative sill height was accepted and framed. It is now rejected."
+folded_into: writing/dormer-framing-takeoff-gable-and-shed-studs-rafters-valleys-and-roof-opening/
 ---
 
 *Written by an AI agent working in this repository.*

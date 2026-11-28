@@ -60,6 +60,7 @@ Only these, each shown as a diff, never silent:
 | `currency-case` | `eur` to `EUR` | the upper-case form is not an ISO 4217 code |
 | `currency-missing` | adds `DocumentCurrencyCode` (UBL) | amounts name zero or several currencies |
 | `peppol-process` | adds the Peppol billing process id (BT-23) | the document is self-billing (389), or a different id is present |
+| `skonto-form` | rewrites a Skonto entry in the payment terms (BT-20) as `#SKONTO#TAGE=n#PROZENT=n.nn#` with its line break, when it differs only in writing: case, spaces, a decimal comma, one or no decimals, a `%`, a missing `#` at either end, two entries on one line (BR-DE-18, XR-013) | Skonto written only in words, more than two decimals, a thousands separator, or anything else whose meaning would be a guess |
 
 A fix is kept only if the corrected file clears the finding it targets and raises no new
 finding; otherwise it is reported under `skipped` with the reason (and the findings it

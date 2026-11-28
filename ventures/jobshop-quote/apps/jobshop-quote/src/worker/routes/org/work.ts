@@ -20,6 +20,7 @@ import {
   winLossQuerySchema,
 } from "@shared/api";
 import { computeCost } from "@shared/costing";
+import { faiSaveSchema } from "@shared/fai-results";
 import { Hono } from "hono";
 import { createMiddleware } from "hono/factory";
 import { z } from "zod";
@@ -74,10 +75,12 @@ import {
   createRfq,
   deletePart,
   extractRfq,
+  getFaiSheet,
   getFile,
   getRfq,
   listRfqs,
   measureFile,
+  saveFaiSheet,
   setFileUnits,
   type UploadedFile,
   updatePart,
@@ -205,6 +208,25 @@ export const rfqRoutes = new Hono<AppEnv>()
         "Cache-Control": "private, no-store",
       },
     });
+  })
+  // First article, part 2: the inspection screen for one drawing (results, accept / reject).
+  .get("/:rfqId/files/:fileId/first-article", async (c) =>
+    c.json(
+      await getFaiSheet(c.var.ctx, c.var.tenant.orgId, c.req.param("rfqId"), c.req.param("fileId")),
+    ),
+  )
+  .put("/:rfqId/files/:fileId/first-article", est, validate("json", faiSaveSchema), async (c) => {
+    const t = c.var.tenant;
+    return c.json(
+      await saveFaiSheet(
+        c.var.ctx,
+        t.orgId,
+        t.userId,
+        c.req.param("rfqId"),
+        c.req.param("fileId"),
+        c.req.valid("json"),
+      ),
+    );
   })
   // Repeat parts, part 2: each part's earlier quotes, on the review screen before a quote exists.
   .get("/:rfqId/part-history", async (c) =>
