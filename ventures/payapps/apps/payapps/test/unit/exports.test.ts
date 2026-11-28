@@ -1,4 +1,4 @@
-import { applicationPdf } from "@worker/services/export/application-pdf";
+import { applicationPdf, PENCIL_DRAFT_MARK } from "@worker/services/export/application-pdf";
 import { continuationCsv, csvCell, summaryCsv } from "@worker/services/export/csv";
 import { attentionLine, exportFileName, fmtAmount } from "@worker/services/export/model";
 import { fitText, textWidth, toPdfText, wrapText } from "@worker/services/export/pdf";
@@ -88,6 +88,20 @@ describe("pdf", () => {
 
   it("omits the draft banner once submitted", () => {
     expect(decode(applicationPdf(sampleDocument({ status: "submitted" })))).not.toContain("DRAFT");
+  });
+
+  it("marks every page of a pencil draft for the GC's review, and only a draft", () => {
+    const text = decode(applicationPdf(sampleDocument({ lines: 60 }), { pencil: true }));
+    const pages = Number(/\/Count (\d+)/.exec(text)?.[1]);
+    expect(pages).toBeGreaterThanOrEqual(3);
+    const marks = text.split(PENCIL_DRAFT_MARK).length - 1;
+    expect(marks).toBe(pages);
+    expect(text).not.toContain("DRAFT - NOT SUBMITTED");
+    expect(text).toContain("Pencil draft of Application for Payment #1");
+    const submitted = decode(
+      applicationPdf(sampleDocument({ status: "submitted" }), { pencil: true }),
+    );
+    expect(submitted).not.toContain("PENCIL");
   });
 });
 
