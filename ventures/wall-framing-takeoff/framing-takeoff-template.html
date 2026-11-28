@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Framing takeoff template (Excel): free wall schedule and lumber order</title>
+  <meta name="description" content="Free framing takeoff spreadsheet: one row per wall gives studs, kings, jacks, cripples, headers and plates, then a priced lumber order. Tested against a counted house.">
+  <meta property="og:title" content="Framing takeoff template (Excel), free">
+  <meta property="og:description" content="A wall schedule and lumber order spreadsheet, and how far its rules of thumb were from a stud-by-stud layout on one house: 10.7% more lumber.">
+  <link rel="canonical" href="./framing-takeoff-template.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is there a free framing takeoff template in Excel?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. This page's .xlsx has a wall schedule with 40 rows (length, exterior or not, stud spacing, doors, windows and their widths, corners and tees) whose formulas give layout studs, kings, jacks, cripples, rough sills, backing studs and header, sill and plate footage, and a lumber order under it with your board lengths, a cull allowance and unit prices. It opens in Excel, Google Sheets and LibreOffice, with no macros."}}, {"@type": "Question", "name": "How accurate is a spreadsheet framing takeoff?", "acceptedAnswer": {"@type": "Answer", "text": "On one generated 34 by 26 ft house with 220 ft of wall, the template's rules bought 2,966 lineal ft of lumber before any allowance where a stud-by-stud layout packed into board lengths bought 2,679 lineal ft: 10.7% more. Layout studs came out 13 high and cripples 25 low. A spreadsheet works per wall and cannot see where each stud lands next to an opening, corner or tee."}}, {"@type": "Question", "name": "What does a framing takeoff spreadsheet leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Header sizes (it carries header footage, two plies per opening, sized from your span table), floor and roof framing, sheathing, blocking, fireblocking and nails. It also buys jacks and cripples as precut studs and plates as whole boards, rather than cutting short pieces from offcuts."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    h3 { font-size: 1rem; margin: 18px 0 2px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; display: block; overflow-x: auto; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; margin: 4px 8px 4px 0; }
+    .cta.alt { background: #fff; color: #1d5c7a; border: 2px solid #1d5c7a; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Framing takeoff template (Excel): a wall schedule and lumber order</h1>
+  <p>A free spreadsheet for a wall framing takeoff. Type one row per wall from the floor plan; its formulas give the studs, kings, jacks, cripples, sills, backing, header and plate footage, and a lumber order under the walls turns those into boards with your yard's lengths, a cull allowance and your prices. No macros, no sign-up; it opens in Excel, Google Sheets and LibreOffice.</p>
+  <p><a class="cta" href="framing-takeoff-template.xlsx" download>Download the blank template (.xlsx)</a><a class="cta alt" href="framing-takeoff-example.xlsx" download>Download the filled-in example</a></p>
+  <p>The example is <strong>Open House Plans 1</strong>, the generated CC0 house worked on <a href="how-to-do-a-framing-takeoff.html">how to do a framing takeoff</a>: 14 walls, 220 ft of wall, 8 doors and 10 windows.</p>
+
+  <h2>What is in the sheet</h2>
+  <ul>
+    <li><strong>Settings:</strong> default stud spacing (16, 19.2 or 24 in; a wall can override it), plate and header board lengths, a cull and mistake allowance, and how many cripples you cut from one stud.</li>
+    <li><strong>Wall schedule (40 rows):</strong> wall name, length, exterior or not, doors and windows with their total widths, and the corners and tees backed on that wall.</li>
+    <li><strong>Per wall, by formula:</strong> layout studs (one every spacing from the start, plus the end stud, less the ones that fall in openings), two kings and two jacks per opening, cripples above every opening and below every window, rough sills, two backing studs per corner or tee, header footage at two plies, sill, bottom plate (less door widths) and double top plate footage, and a check column that flags openings longer than the wall.</li>
+    <li><strong>Lumber order:</strong> precut studs for full-height members, jacks and cripples; plates and sills as boards of your length, with exterior bottom plates on their own treated line; header stock; boards with your allowance; unit price and amount; and the one-stud-per-foot figure beside the sheet's own count.</li>
+  </ul>
+
+  <h2>How close a spreadsheet gets: one house, counted both ways</h2>
+  <p>A spreadsheet works wall by wall with rules of thumb; it cannot see where each stud lands beside an opening, or that an end stud can serve as a king. To show what that costs, the example sheet's formulas were run (in LibreOffice, and in the same arithmetic in <code>framing-takeoff-template.mjs</code>) against the free tool's stud-by-stud layout of the same house at 16 inches on center, its pieces packed into the board lengths a yard sells (measured 2026-11-28).</p>
+  <table>
+    <thead><tr><th>Member</th><th class="n">Template</th><th class="n">Counted layout</th></tr></thead>
+    <tbody>
+      <tr><td>Layout and end studs</td><td class="n">143</td><td class="n">130</td></tr>
+      <tr><td>King studs</td><td class="n">36</td><td class="n">35</td></tr>
+      <tr><td>Jack studs</td><td class="n">36</td><td class="n">36</td></tr>
+      <tr><td>Cripples</td><td class="n">62</td><td class="n">87</td></tr>
+      <tr><td>Rough sills</td><td class="n">10</td><td class="n">10</td></tr>
+      <tr><td>Corner and tee backing</td><td class="n">32</td><td class="n">32</td></tr>
+      <tr><td>Boards bought, before any allowance</td><td class="n">332</td><td class="n">276</td></tr>
+    </tbody>
+  </table>
+  <p>The template buys <strong>2,966 lineal ft</strong> before any allowance; the counted order buys <strong>2,679 lineal ft</strong>, so the spreadsheet orders <strong>10.7% more</strong>. Plate footage agrees (515 ft of 2x4 and 114 ft of treated plate both ways). The gap is the studs: 13 extra layout studs, 25 too few cripples, and jacks and cripples bought as whole precut studs where the layout cuts them from the offcuts of longer boards. At 24 inches on center the template buys <strong>2,541 lineal ft</strong> against <strong>2,356 lineal ft</strong> counted, 7.9% more.</p>
+  <p>One house, generated, not a builder's real order; another plan will land elsewhere, high or low. The point is the direction of the error you cannot see from inside a spreadsheet.</p>
+
+  <h2>Using it</h2>
+  <ol>
+    <li>Go round the plan and give each wall one row. Measure exterior walls to the outside of the framing and decide which walls run through at the corners so no length is counted twice.</li>
+    <li>Put each wall's doors and windows in its row: the count and the total rough-opening width in feet.</li>
+    <li>Count corners and tees once each, on the wall that gets the backing.</li>
+    <li>Set your board lengths and allowance, type your yard's prices, and check the flagged rows.</li>
+    <li>Size every header from your span table or engineer: the sheet carries footage only.</li>
+  </ol>
+
+  <h2>When the spreadsheet stops being enough</h2>
+  <p>The <a href="index.html">free framing takeoff</a> takes the same wall schedule (or a DXF floor plan, or a plan PDF traced at its printed scale), lays out every stud, prints shop drawings and packs the order into board lengths with a lower bound on how short it could be. The <a href="../residential-takeoff/">paid edition, Residential Takeoff</a>, adds roofs, one supplier material list and a branded bid package; it is in early access and nothing is for sale yet.</p>
+  <p><a class="cta" href="index.html">Run the takeoff on your own plan</a></p>
+
+  <h2>Questions</h2>
+  <h3>Is there a free framing takeoff template in Excel?</h3>
+  <p>Yes. This page's .xlsx has a wall schedule with 40 rows (length, exterior or not, stud spacing, doors, windows and their widths, corners and tees) whose formulas give layout studs, kings, jacks, cripples, rough sills, backing studs and header, sill and plate footage, and a lumber order under it with your board lengths, a cull allowance and unit prices. It opens in Excel, Google Sheets and LibreOffice, with no macros.</p>
+  <h3>How accurate is a spreadsheet framing takeoff?</h3>
+  <p>On one generated 34 by 26 ft house with 220 ft of wall, the template's rules bought 2,966 lineal ft of lumber before any allowance where a stud-by-stud layout packed into board lengths bought 2,679 lineal ft: 10.7% more. Layout studs came out 13 high and cripples 25 low. A spreadsheet works per wall and cannot see where each stud lands next to an opening, corner or tee.</p>
+  <h3>What does a framing takeoff spreadsheet leave out?</h3>
+  <p>Header sizes (it carries header footage, two plies per opening, sized from your span table), floor and roof framing, sheathing, blocking, fireblocking and nails. It also buys jacks and cripples as precut studs and plates as whole boards, rather than cutting short pieces from offcuts.</p>
+
+  <p>Related: <a href="how-to-do-a-framing-takeoff.html">how to do a framing takeoff</a>, <a href="vs-stud-per-foot-rule.html">takeoff vs. the stud-per-foot rule</a>, <a href="lumber-waste-factor.html">framing lumber waste factor</a>.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:0 28px"><div><h3 style="font-size:1rem;margin:16px 0 4px">Walls and framing</h3><ul style="margin:0;padding-left:1.1em"><li><a href="index.html">Wall framing takeoff</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="how-to-do-a-framing-takeoff.html">How to do a framing takeoff</a></li><li><a href="header-calculator.html">Header size checker</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule</a></li><li><a href="sheathing-calculator.html">Wall sheathing calculator</a></li><li><a href="brace-calculator.html">Wall brace calculator</a></li><li><a href="panel-calculator.html">Wall panel calculator</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator</a></li><li><a href="nail-calculator.html">Framing nail calculator</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud?</a></li><li><a href="board-foot-calculator.html">Board foot calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Floors, stairs and roofs</h3><ul style="margin:0;padding-left:1.1em"><li><a href="floor-calculator.html">Floor joist and subfloor calculator</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="roof-calculator.html">Roof calculator</a></li><li><a href="dormer-calculator.html">Dormer framing calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Foundation and concrete</h3><ul style="margin:0;padding-left:1.1em"><li><a href="foundation-calculator.html">Foundation calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Exterior and envelope</h3><ul style="margin:0;padding-left:1.1em"><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="stucco-calculator.html">Stucco calculator</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator</a></li><li><a href="gutter-calculator.html">Gutter calculator</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Interior finishes</h3><ul style="margin:0;padding-left:1.1em"><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="paint-calculator.html">Paint calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="flooring-calculator.html">Flooring calculator</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Plumbing, electrical and HVAC</h3><ul style="margin:0;padding-left:1.1em"><li><a href="plumbing-calculator.html">Plumbing rough-in calculator</a></li><li><a href="water-supply-sizing-calculator.html">Water supply pipe sizing</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Site and landscape</h3><ul style="margin:0;padding-left:1.1em"><li><a href="fence-calculator.html">Fence calculator</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator</a></li><li><a href="paver-calculator.html">Paver patio calculator</a></li><li><a href="mulch-topsoil-gravel-calculator.html">Mulch, topsoil and gravel calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Schedule, bids and costs</h3><ul style="margin:0;padding-left:1.1em"><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator</a></li><li><a href="bid-leveling-calculator.html">Bid leveling calculator</a></li><li><a href="change-order-calculator.html">Change order calculator</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity</a></li><li><a href="branded-bid-package-for-framers.html">Branded bid package for framers</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Measured against the alternatives</h3><ul style="margin:0;padding-left:1.1em"><li><a href="vs-stud-per-foot-rule.html">Takeoff vs. the stud-per-foot rule</a></li><li><a href="vs-ordering-lumber-by-hand.html">Takeoff vs. ordering lumber by hand</a></li><li><a href="lumber-waste-factor.html">Framing lumber waste factor, measured</a></li><li><a href="roof-sheathing-sheets.html">Roof sheathing sheets, counted</a></li><li><a href="wall-sheathing-sheets.html">Wall sheathing sheets, counted</a></li><li><a href="roof-sheathing-waste-factor.html">Roof sheathing waste factor, hip vs. gable</a></li></ul></div></div></nav>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page, the spreadsheets and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Excel is a trademark of Microsoft. Open House Plans 1 is a generated CC0 plan, not a real permit set.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free to use and source visible under an <a href="LICENSE" rel="noopener">all-rights-reserved notice</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
