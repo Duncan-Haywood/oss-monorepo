@@ -5,7 +5,7 @@ Open-PR searches cannot see a sibling session that merged ten minutes ago
 (prompts/process/backlog/P002). This reads only git, so it works in a shallow
 web-session clone with no token.
 
-  python3 platform/ci/slug_dupe.py <slug> [--days 14] [--remote origin] [--no-fetch] [--budget 30]
+  python3 platform/ci/slug_dupe.py <slug-or-keyword> [--days 14] [--remote origin] [--no-fetch] [--budget 30]
 
 It refreshes <remote>/main first (fetch_ref.py, keeping at least --days of
 history), because the clone's own ref can be hours old: on 2026-11-25 a run
@@ -51,17 +51,28 @@ def git(*args):
     return r.returncode, r.stdout
 
 
+def is_keyword(slug):
+    """True for a PR-title keyword ("prompts: review", "reaudit: ifc-quantity-takeoff"),
+    not a slug: it holds a space or a colon, so no directory or branch can carry it."""
+    return any(c in slug for c in " :")
+
+
 def check(slug, days=14, remote="origin", ref=None):
-    """Return (on_main, recent_commits, other_branches)."""
+    """Return (on_main, recent_commits, other_branches).
+
+    A keyword (is_keyword) is searched in commit subjects only: no directory or branch name
+    can hold a space or a colon."""
     ref = ref or f"{remote}/main"
     if git("rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")[0] != 0:
         # Without the ref both searches come back empty, which would read as "no duplicate".
         raise RuntimeError(f"{ref} not found: run `python3 platform/ci/fetch_ref.py main --remote {remote}` first")
-    rc, out = git("ls-tree", "-d", "--name-only", ref, f"ventures/{slug}")
-    on_main = rc == 0 and bool(out.strip())
-    rc, out = git("log", ref, f"--since={days} days ago", "--fixed-strings",
+    rc, out = git("log", ref, f"--since={days} days ago", "--fixed-strings", "--regexp-ignore-case",
                   f"--grep={slug}", "--format=%h %ad %s", "--date=short")
     commits = out.splitlines() if rc == 0 else []
+    if is_keyword(slug):
+        return False, commits, []
+    rc, out = git("ls-tree", "-d", "--name-only", ref, f"ventures/{slug}")
+    on_main = rc == 0 and bool(out.strip())
     rc, out = git("ls-remote", "--heads", remote, f"*{slug}*")
     heads = [l.split("\t") for l in out.splitlines() if "\t" in l] if rc == 0 else []
     _, cur = git("branch", "--show-current")
@@ -176,9 +187,12 @@ def main(argv=None):
     p.add_argument("--budget", type=float, default=30,
                    help="seconds the shallow-clone deepen to --days may take (0: no limit)")
     a = p.parse_args(argv)
-    if not a.slug or any(c in a.slug for c in "*?[]/\\ ") or a.slug.startswith("-"):
+    a.slug = " ".join(a.slug.split())
+    if not a.slug or any(c in a.slug for c in "*?[]/\\") or a.slug.startswith("-"):
         # An empty slug greps every commit and lists all of ventures/: always "duplicate".
-        print(f"not a venture slug: {a.slug!r}", file=sys.stderr)
+        # A keyword with spaces or a colon is fine (is_keyword): "prompts: review" was refused
+        # until 2026-11-28 (6 friction reports, and the review track's own claim check).
+        print(f"not a venture slug or title keyword: {a.slug!r}", file=sys.stderr)
         return 2
     # Search first: when GitHub answers, PR titles cover the whole --days window (every
     # change lands as a squash commit titled like its PR), so the shallow-clone deepen
@@ -207,6 +221,9 @@ def main(argv=None):
         covered = "For the full window run with --budget 0 (in the background: about a minute the first time)"
         print(f"note: {a.remote}/main is at its tip, but deepening to {a.days} days took over "
               f"{a.budget:g} s, so commits were searched back to {cut} only. {covered}.", file=sys.stderr)
+    if is_keyword(a.slug):
+        print(f"note: {a.slug!r} is a title keyword, so only commit subjects and PR titles "
+              "were searched (no ventures/ directory or branch can hold it)", file=sys.stderr)
     if on_main:
         print(f"ventures/{a.slug} is already on {a.remote}/main: extend it, do not rebuild.")
     for c in commits:
