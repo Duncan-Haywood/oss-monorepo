@@ -31,7 +31,7 @@
   "outcome": "success",
   "errors": [
     "changed-ventures failed first: check_shared_package_drift (qbo-sync/src/money.ts is shared with jobshop-quote). Ported fix and test to jobshop-quote; drift check and its test pass.",
-    "Pages build `test` failed on a main-side defect: PR #20062's SPRS guide title was 79 chars (title-length.test.mjs). Shortened it here to 60 (fix forward)."
+    "Pages build `test` failed on a main-side defect: PR #20062's SPRS guide title was 79 chars (title-length.test.mjs). Shortened it here to 60 (fix forward). Its meta description was also over 160 (description-length.test.mjs); shortened to 147. Found by running the pages suite locally, since the CI log tail cut off the failing test's name."
   ],
   "integrity_issues": [],
   "doc_friction": [
