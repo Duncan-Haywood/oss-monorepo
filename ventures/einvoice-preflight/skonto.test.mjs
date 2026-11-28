@@ -27,8 +27,7 @@ test("the bench, built-in only: XR-013 on exactly the two forms BR-DE-18 skips; 
   }
 });
 
-test("the bench with the official rules: correct lines pass, BR-DE-18 refuses the slips, the creator's files pass", async (t) => {
-  if (!plainAvailable()) return t.skip("npm i --no-save slimdom fontoxpath");
+test("the bench with the official rules: correct lines pass, BR-DE-18 refuses the slips, the creator's files pass", { skip: plainAvailable() ? false : "needs npm i --no-save slimdom fontoxpath" }, async () => {
   for (const r of await skontoTable()) {
     const correct = r.label.startsWith("richtig");
     const skipped = /führendes # fehlt|nur in Worten/.test(r.label);

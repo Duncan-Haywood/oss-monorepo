@@ -68,8 +68,7 @@ test("XR-013 is read from UBL and CII files as a warning and explained from temp
   assert.ok(!ok.findings.some((x) => x.rule === "XR-013"));
 });
 
-test("the creator writes a Skonto line that passes the XRechnung rules, in UBL and CII", async (t) => {
-  if (!plainAvailable()) return t.skip("npm i --no-save slimdom fontoxpath");
+test("the creator writes a Skonto line that passes the XRechnung rules, in UBL and CII", { skip: plainAvailable() ? false : "needs npm i --no-save slimdom fontoxpath" }, async () => {
   const draft = JSON.parse(readFileSync(new URL("./examples/draft-invoice.json", import.meta.url), "utf8"));
   draft.terms = "Zahlbar innerhalb 30 Tagen\n#SKONTO#TAGE=10#PROZENT=2.00#";
   for (const format of ["ubl", "cii"]) {
@@ -91,8 +90,7 @@ test("skonto-form fixes a missing leading # (XR-013) and leaves Skonto in words 
   assert.ok(!(words.fixes?.applied ?? []).some((a) => a.id === "skonto-form"));
 });
 
-test("skonto-form clears BR-DE-18 on the slips the official rule refuses, in UBL and CII", async (t) => {
-  if (!plainAvailable()) return t.skip("npm i --no-save slimdom fontoxpath");
+test("skonto-form clears BR-DE-18 on the slips the official rule refuses, in UBL and CII", { skip: plainAvailable() ? false : "needs npm i --no-save slimdom fontoxpath" }, async () => {
   const opts = { fix: true, profile: "xrechnung", schematron: true };
   for (const [name, xml] of [
     ["comma.xml", ubl("#SKONTO#TAGE=10#PROZENT=2,00#\n")],
