@@ -18,6 +18,13 @@ The pay-app billing app is meant to import it.
 
 ## Current status: Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah and Wyoming encoded and verified, Missouri's one residential form and Massachusetts' partial waiver as alternatives; no listed state pending
 
+**2026-11-28: Michigan's notice of furnishing.** `src/mi-notice.ts` holds `miNoticeOfFurnishing()`,
+offered by `noticeForms("MI")`: Mich. Comp. Laws § 570.1109(4)'s form, which a notice not on the form
+attached to the notice of commencement "must be in substantially", printed whole (captions under each
+blank, the WARNING TO OWNER). `test/mi-notice.test.ts` reads the form out of
+`sources/mi-570-1108-1109.txt` (legislature.mi.gov, read 2026-11-28) and compares the printed notice
+with it blank for blank. No deadline counting yet.
+
 **2026-11-28: Arizona's preliminary twenty day notice.** `src/az-notice.ts` holds
 `azPreliminaryNotice()`, offered by `noticeForms("AZ")`: Ariz. Rev. Stat. § 33-992.01(D)'s form, which the
 notice "shall follow substantially", printed whole with the § 33-992.02(1) acknowledgment of receipt the

@@ -333,7 +333,7 @@ test("Miller Act page: inputs labelled, statute and FAR linked with a read date,
 // so in a form an answer engine can lift. Each question must also be an h3 in
 // the page's visible "Common questions" section.
 const FAQ_PAGES = [
-  "california-preliminary-notice.html", "arizona-preliminary-notice.html", "florida-notice-to-owner.html", "texas-lien-notice.html", "certificate-of-insurance-for-subcontractors.html", "change-order-log.html", "change-orders-schedule-of-values.html",
+  "california-preliminary-notice.html", "arizona-preliminary-notice.html", "florida-notice-to-owner.html", "michigan-notice-of-furnishing.html", "texas-lien-notice.html", "certificate-of-insurance-for-subcontractors.html", "change-order-log.html", "change-orders-schedule-of-values.html",
   "conditional-vs-unconditional-lien-waivers.html", "gc-portal-billing.html",
   "electrical-contractor-billing.html", "mechanical-contractor-billing.html", "drywall-contractor-billing.html", "concrete-contractor-billing.html",
   "site-work-contractor-billing.html", "roofing-contractor-billing.html", "masonry-contractor-billing.html", "painting-contractor-billing.html",
