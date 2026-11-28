@@ -179,3 +179,111 @@ export function currencyMismatch(
     ? null
     : `Your QuickBooks company keeps its books in ${homeCurrency} and this shop prices in ${shopCurrency}; nothing was sent, since the amounts would land as ${homeCurrency}`;
 }
+
+// ---- The invoice as a QuickBooks Online import file (docs/QUICKBOOKS.md, "Without the connection") --
+//
+// QuickBooks Online imports invoices from a CSV (Settings > Import data > Invoices) and asks, on
+// upload, which column is which and what date format the file uses. Intuit's help names the columns
+// it needs: invoice number, customer, invoice date, due date and item amount, every line repeating
+// its invoice's number, customer and dates; up to 1,000 rows and 100 invoices a file; no negative
+// amounts; not available in a company that has set up sales tax. So the file is one row per billed
+// line, money as plain decimals, dates as MM/DD/YYYY, and the same planned lines the API send uses.
+
+export const INVOICE_CSV_HEADER = [
+  "Invoice No",
+  "Customer",
+  "Invoice Date",
+  "Due Date",
+  "Product/Service",
+  "Description",
+  "Qty",
+  "Rate",
+  "Amount",
+  "Message on invoice",
+] as const;
+
+/** QuickBooks' import takes at most 1,000 rows a file. */
+export const QBO_IMPORT_MAX_ROWS = 1000;
+
+/** The default due date, in days after the invoice date: "Net 30" in the quote terms, else 30. */
+export function dueDaysFromTerms(terms: string | null | undefined): number {
+  const m = /\bnet\s*-?\s*(\d{1,3})\b/i.exec(terms ?? "");
+  const n = m ? Number(m[1]) : Number.NaN;
+  return Number.isInteger(n) && n >= 0 && n <= 365 ? n : 30;
+}
+
+/** "2026-11-28" -> "11/28/2026". */
+export function usDate(day: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
+  if (!m) throw new Error(`not a calendar day: ${day}`);
+  return `${m[2]}/${m[3]}/${m[1]}`;
+}
+
+const cents = (c: number) => {
+  if (!Number.isInteger(c) || c < 0)
+    throw new Error("an invoice amount must be whole, positive cents");
+  return `${Math.floor(c / 100)}.${String(c % 100).padStart(2, "0")}`;
+};
+
+/** A unit price in cents as QuickBooks' Rate (never rounded: the stored price exactly). */
+const rate = (c: number) => cents(c);
+
+/** A CSV cell: quoted when needed, and a leading = + - @ made inert for spreadsheets. */
+function cell(v: string): string {
+  const safe = /^[=+\-@\t\r]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v) ? `'${v}` : v;
+  return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+}
+
+export interface InvoiceCsvInput {
+  docNumber: string;
+  customer: string;
+  /** The shop's calendar day, "YYYY-MM-DD". */
+  invoiceDay: string;
+  dueDays: number;
+  memo: string;
+  itemName: string;
+  lines: readonly Pick<
+    PlannedInvoiceLine,
+    "description" | "quantity" | "unitPriceCents" | "totalCents"
+  >[];
+}
+
+/** One invoice as QuickBooks import rows (CRLF, no BOM: the route adds one for Excel). */
+export function invoiceImportCsv(inv: InvoiceCsvInput): string {
+  if (inv.lines.length === 0) throw new Error("an invoice needs a line");
+  if (inv.lines.length > QBO_IMPORT_MAX_ROWS) {
+    throw new Error(`QuickBooks imports at most ${QBO_IMPORT_MAX_ROWS} rows a file`);
+  }
+  if (!Number.isInteger(inv.dueDays) || inv.dueDays < 0 || inv.dueDays > 365) {
+    throw new Error("due days must be 0 to 365");
+  }
+  const customer = inv.customer.replace(/\s+/g, " ").trim().slice(0, 500);
+  if (!customer) throw new Error("an invoice needs a customer");
+  const invoiceDate = usDate(inv.invoiceDay);
+  const due = new Date(Date.parse(`${inv.invoiceDay}T00:00:00Z`) + inv.dueDays * 86_400_000)
+    .toISOString()
+    .slice(0, 10);
+  const rows = [INVOICE_CSV_HEADER.map(cell).join(",")];
+  for (const l of inv.lines) {
+    if (l.totalCents !== l.unitPriceCents * l.quantity) {
+      throw new Error("a line's amount is not its quantity times its rate");
+    }
+    rows.push(
+      [
+        inv.docNumber,
+        customer,
+        invoiceDate,
+        usDate(due),
+        inv.itemName,
+        l.description,
+        String(l.quantity),
+        rate(l.unitPriceCents),
+        cents(l.totalCents),
+        inv.memo,
+      ]
+        .map(cell)
+        .join(","),
+    );
+  }
+  return `${rows.join("\r\n")}\r\n`;
+}

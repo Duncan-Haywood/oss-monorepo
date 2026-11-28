@@ -1,5 +1,6 @@
 // QuickBooks Online (docs/QUICKBOOKS.md): the connection card on the rate card page (admins connect
-// and disconnect) and, on a won quote, "Send to QuickBooks" as an invoice at the quoted breaks.
+// and disconnect) and, on a won quote, "Send to QuickBooks" as an invoice at the quoted breaks, or
+// the same invoice as a QuickBooks import file when the shop has no connection.
 
 import type {
   QuickBooksItemsDto,
@@ -10,7 +11,7 @@ import type {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Badge, Button, Card, ErrorText, Field, Select } from "../components/ui";
-import { api, money, orgApi, queryClient } from "../lib/api";
+import { ApiError, api, money, orgApi, queryClient } from "../lib/api";
 
 const statusKey = (orgId: string) => ["quickbooks", orgId];
 const quoteKey = (orgId: string, quoteId: string) => ["quickbooks", orgId, "quote", quoteId];
@@ -192,7 +193,45 @@ function InvoiceItemPicker({ orgId }: { orgId: string }) {
   );
 }
 
-/** On a won quote: the invoice it would make, the quantity per line, and the send. */
+const DUE_DAY_CHOICES = [0, 7, 10, 15, 30, 45, 60, 90];
+
+/** POSTs for the import file and saves it; a refusal comes back as the API's own message. */
+async function downloadInvoiceCsv(
+  orgId: string,
+  quoteId: string,
+  body: { choices: { lineId: string; quantity: number }[]; dueDays: number },
+) {
+  const res = await fetch(orgApi(orgId, `/quotes/${quoteId}/quickbooks.csv`), {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json", Accept: "text/csv, application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => undefined)) as
+      | { error?: { code?: string; message?: string } }
+      | undefined;
+    throw new ApiError(
+      res.status,
+      data?.error?.code ?? "http_error",
+      data?.error?.message ?? res.statusText,
+    );
+  }
+  const name =
+    /filename="?([^";]+)"?/.exec(res.headers.get("Content-Disposition") ?? "")?.[1] ??
+    "invoice-quickbooks.csv";
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * On a won quote: the invoice it would make, the quantity per line, and the send to a connected
+ * QuickBooks company, or the same invoice as a file for QuickBooks' own invoice import.
+ */
 export function QuoteQuickBooksCard({
   orgId,
   quote,
@@ -207,6 +246,7 @@ export function QuoteQuickBooksCard({
     queryFn: () => api<QuoteQuickBooksDto>(orgApi(orgId, `/quotes/${quote.id}/quickbooks`)),
   });
   const [picked, setPicked] = useState<Record<string, string>>({});
+  const [dueDays, setDueDays] = useState<number | null>(null);
   const send = useMutation({
     mutationFn: (choices: { lineId: string; quantity: number }[]) =>
       api<QuoteQuickBooksDto>(orgApi(orgId, `/quotes/${quote.id}/quickbooks`), {
@@ -215,8 +255,12 @@ export function QuoteQuickBooksCard({
       }),
     onSuccess: (d) => queryClient.setQueryData(quoteKey(orgId, quote.id), d),
   });
+  const download = useMutation({
+    mutationFn: (body: { choices: { lineId: string; quantity: number }[]; dueDays: number }) =>
+      downloadInvoiceCsv(orgId, quote.id, body),
+  });
   const d = info.data;
-  if (!d?.available) return null;
+  if (!d) return null;
   if (d.invoice) {
     return (
       <Card title="QuickBooks">
@@ -235,15 +279,7 @@ export function QuoteQuickBooksCard({
       </Card>
     );
   }
-  if (!d.connected) {
-    return (
-      <Card title="QuickBooks">
-        <p className="text-sm text-stone-600">
-          Connect QuickBooks Online on the rate card page to send this quote as an invoice.
-        </p>
-      </Card>
-    );
-  }
+  const canPush = d.available && d.connected;
 
   const acceptedQty = (lineId: string) => d.accepted?.find((c) => c.lineId === lineId)?.quantity;
   /** The default per line: accepted online (0 = not ordered), else the only break, else none. */
@@ -260,11 +296,17 @@ export function QuoteQuickBooksCard({
   const missing = rows.filter((r) => r.v === "");
   const billed = rows.filter((r) => r.b);
   const total = billed.reduce((s, r) => s + (r.b?.totalCents ?? 0), 0);
+  const choices = rows.map((r) => ({ lineId: r.line.id, quantity: Number(r.v) }));
+  const due = dueDays ?? d.defaultDueDays;
+  const ready = missing.length === 0 && billed.length > 0;
   return (
     <Card title="QuickBooks">
       <p className="mb-2 text-sm text-stone-600">
-        Sends this quote to QuickBooks as invoice {d.docNumber}: each part at the quantity it was
-        quoted at and that quantity&apos;s price, with &ldquo;{d.memo}&rdquo; printed on it.
+        {canPush
+          ? `Sends this quote to QuickBooks as invoice ${d.docNumber}`
+          : `Makes this quote into invoice ${d.docNumber} for QuickBooks Online's invoice import`}
+        : each part at the quantity it was quoted at and that quantity&apos;s price, with &ldquo;
+        {d.memo}&rdquo; printed on it.
         {d.accepted ? " The quantities your customer accepted online are filled in." : ""}
       </p>
       <div className="flex flex-col gap-2">
@@ -278,11 +320,7 @@ export function QuoteQuickBooksCard({
                 : undefined
             }
           >
-            <Select
-              value={v}
-              disabled={!canSend}
-              onChange={(e) => setPicked({ ...picked, [line.id]: e.target.value })}
-            >
+            <Select value={v} onChange={(e) => setPicked({ ...picked, [line.id]: e.target.value })}>
               <option value="">Pick the quantity ordered</option>
               <option value="0">Not ordered (leave off)</option>
               {(line.breaks ?? []).map((b) => (
@@ -295,18 +333,14 @@ export function QuoteQuickBooksCard({
         ))}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
-        {canSend ? (
-          <Button
-            disabled={send.isPending || missing.length > 0 || billed.length === 0}
-            onClick={() =>
-              send.mutate(rows.map((r) => ({ lineId: r.line.id, quantity: Number(r.v) })))
-            }
-          >
-            Send to QuickBooks
-          </Button>
-        ) : (
-          <span className="text-stone-600">An estimator can send it.</span>
-        )}
+        {canPush &&
+          (canSend ? (
+            <Button disabled={send.isPending || !ready} onClick={() => send.mutate(choices)}>
+              Send to QuickBooks
+            </Button>
+          ) : (
+            <span className="text-stone-600">An estimator can send it.</span>
+          ))}
         {missing.length > 0 ? (
           <span className="text-stone-600">
             Pick the quantity ordered for {missing.map((r) => r.line.partNumber).join(", ")}
@@ -316,6 +350,46 @@ export function QuoteQuickBooksCard({
         )}
       </div>
       <ErrorText error={send.error} />
+      <details className="mt-3 text-sm" open={!canPush}>
+        <summary className="cursor-pointer">
+          {canPush ? "Or download it for QuickBooks import" : "Download for QuickBooks import"}
+        </summary>
+        <div className="mt-2 flex flex-col gap-2">
+          <Field
+            label="Due"
+            hint="QuickBooks' import needs a due date. The default reads “Net N” from your quote terms."
+          >
+            <Select value={String(due)} onChange={(e) => setDueDays(Number(e.target.value))}>
+              {[...new Set([...DUE_DAY_CHOICES, d.defaultDueDays])]
+                .sort((a, b) => a - b)
+                .map((n) => (
+                  <option key={n} value={String(n)}>
+                    {n === 0 ? "On the invoice date" : `${n} days after the invoice date`}
+                  </option>
+                ))}
+            </Select>
+          </Field>
+          <div>
+            <Button
+              variant="secondary"
+              disabled={download.isPending || !ready}
+              onClick={() => download.mutate({ choices, dueDays: due })}
+            >
+              Download invoice CSV
+            </Button>
+          </div>
+          <p className="text-stone-600">
+            In QuickBooks Online: Settings, Import data, Invoices; upload the file, choose the
+            MM/DD/YYYY date format, and match each column to the field of the same name. Turn on
+            custom transaction numbers first to keep {d.docNumber}, and tick &ldquo;add new
+            customers&rdquo; if this customer is new to your books. QuickBooks bills a part as
+            &ldquo;Machined parts&rdquo; if that product exists, else its generic Sales item.
+            QuickBooks does not take this import in a company that has set up sales tax. Nothing is
+            recorded here: download it again any time.
+          </p>
+          <ErrorText error={download.error} />
+        </div>
+      </details>
     </Card>
   );
 }
