@@ -62,6 +62,41 @@ describe("readTolerances", () => {
     expect(zones("Bore H7.")).toHaveLength(1);
   });
 
+  it("reads a fit at the nominal size the callout gives (ISO 286-1 table 1)", () => {
+    const at = (t: string) => readTolerances(t).tightest;
+    // H7: 15 µm over 6 up to 10 mm, 25 µm over 30 up to 50, 63 µm over 400 up to 500.
+    expect(at("Ø8 H7")).toMatchObject({ text: "Ø8 H7", sizeMm: 8, grade: 7, sizeAssumed: false });
+    expect(at("Ø8 H7")?.zoneIn).toBe(Math.round((0.015 / 25.4) * 1e7) / 1e7);
+    expect(at("40H7")?.zoneIn).toBe(Math.round((0.025 / 25.4) * 1e7) / 1e7);
+    expect(at("DIA 450 g6")?.zoneIn).toBe(Math.round((0.04 / 25.4) * 1e7) / 1e7);
+    // A range's upper limit belongs to it: 30 mm is "over 18 up to 30".
+    expect(at("Ø30 H7")?.zoneIn).toBe(at("H7")?.zoneIn);
+    // A small bore is tighter than the 18-30 mm assumption: 10 µm at 3 mm for H7.
+    expect(at("Ø3 H7")?.zoneIn).toBe(Math.round((0.01 / 25.4) * 1e7) / 1e7);
+    // Inch sizes: marked, or written inch-style (two or more decimals) in an inch text.
+    expect(at('Ø.750" H7')?.sizeMm).toBeCloseTo(19.05, 6);
+    expect(at("Ø.750 H7")?.sizeMm).toBeCloseTo(19.05, 6);
+    expect(at("Ø12.5 h6")?.sizeMm).toBe(12.5);
+    // Past the table, not a fit; a standard's number is not a size.
+    expect(at("Ø600 H7")).toBeNull();
+    expect(at("ISO 286 H7")).toMatchObject({ text: "H7", sizeMm: null, sizeAssumed: true });
+    // Threads and part numbers glued to letters are still not fits.
+    expect(zones("M6x1 6H, BRK20H7")).toEqual([]);
+  });
+
+  it("reads limit dimensions written as two sizes", () => {
+    expect(zones(".4995/.5000")).toEqual([["limits", 0.0005]]);
+    expect(zones("Bore 1.2500 - 1.2510")).toEqual([["limits", 0.001]]);
+    expect(zones("12.000-12.010 mm")).toEqual([["limits", 0.0003937]]);
+    expect(zones("1.250 TO 1.255")).toEqual([["limits", 0.005]]);
+    // Different decimals, far apart or single-decimal values are not limits.
+    expect(zones(".500/.5005")).toEqual([]);
+    expect(zones("2.50/7.50")).toEqual([]);
+    expect(zones("1.5-1.6")).toEqual([]);
+    // Unequal limits stay unequal, not read again as two sizes.
+    expect(zones("+.002/-.000")).toEqual([["unequal", 0.002]]);
+  });
+
   it("returns nothing for empty, missing or tolerance-free text", () => {
     expect(readTolerances(null)).toEqual({ reads: [], tightest: null });
     expect(readTolerances("")).toEqual({ reads: [], tightest: null });
@@ -99,6 +134,15 @@ describe("toleranceNote", () => {
       "Precision: H7, a 0.00083 in (0.021 mm) zone, for an 18-30 mm feature (ISO 286).",
     );
     expect(toleranceNote("ISO 2768-m")?.line).toContain("for a 6-30 mm feature (ISO 2768-1)");
+  });
+
+  it("names the size range when the callout gives the size", () => {
+    expect(toleranceNote("Ø40 H7")?.line).toBe(
+      "Precision: Ø40 H7, a 0.00098 in (0.025 mm) zone, IT7 for 30-50 mm (ISO 286).",
+    );
+    expect(toleranceNote(".4995/.5000")?.line).toBe(
+      "Precision: .4995/.5000, a 0.00050 in (0.013 mm) zone.",
+    );
   });
 
   it("is null when nothing is read", () => {
