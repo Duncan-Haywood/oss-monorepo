@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKmEvamqU7wZcCyHLKd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T16:18:59Z",
+  "ended": "2026-11-28T16:29:38Z",
+  "wall_minutes": 10.86,
+  "tokens_in": 8314397,
+  "tokens_out": 44112,
+  "cost_usd": 3.8747,
+  "tool_calls": 62,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20173",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First facePieces-free version sampled sections at a few depths; on a bay's leaning side planes that missed part of a course (a 0-length piece). Caught by a sanity print, fixed with the exact shadow of face-and-band; a random-bay fuzz then caught a pre-existing 0-length-remainder bug in layRun."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets said 'Start here: bet #4 cmmc, item #1', but that item's only open part (gauge-list-import) was already claimed 9 min earlier; every bet's Next list was 'waits on demand', so the real free work was a Next inside a ROADMAP milestone prose line (residential takeoff, item 6) that the tool does not list."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bets (payapps, jobshop, einvoice, cmmc, seller-books) had no free ungated item; took bet #6's explicit milestone Next (angled-plane sheathing) rather than inventing a payapps item.",
+      "did": "Built angled-plane sheathing for residential takeoff",
+      "result": "Landed with tests; bet #6 roof engine now covers bays end to end"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new post: extended the existing customer post (consolidation default) instead.",
+      "did": "Added a 'Sheathing the bay' section to the L-shaped hip roof post",
+      "result": "one consolidated post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-hip-and-valley-length-on-an-l-shaped-hip-roof.md (extended)",
+    "ventures/residential-takeoff/apps/wall-framing-takeoff/README.md (section extended)"
+  ],
+  "goal": null,
+  "notes": "run_venture_tests.py residential-takeoff EXIT 0; outlinesheathing-angled.test.mjs 4/4; eval-angled-roof-click.mjs 14/14 ok in Chromium; risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5fb09ac1-2975-5cfe-ac31-dec250c0721a",
+    "transcripts": 1,
+    "first": "2026-11-28T16:18:59Z",
+    "last": "2026-11-28T16:29:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 117,
+        "output": 44112,
+        "thinking": 9422,
+        "cache_read": 8143879,
+        "cache_write_5m": 0,
+        "cache_write_1h": 170401,
+        "api_equivalent_usd": 3.8747,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 117,
+      "output": 44112,
+      "thinking": 9422,
+      "cache_read": 8143879,
+      "cache_write_5m": 0,
+      "cache_write_1h": 170401,
+      "api_equivalent_usd": 3.8747,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 59,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.86,
+      "active_minutes": 10.86,
+      "model_minutes": 8.94,
+      "tool_minutes": 1.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior dev estimate: computational geometry extension plus fuzz tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 258.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
