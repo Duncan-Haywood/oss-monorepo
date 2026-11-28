@@ -39,5 +39,5 @@ test("every statute phrase the page quotes is in the Arizona snapshot PayApps ch
   const stmt = /<div class="statement" id="owner-notice">([\s\S]*?)<\/div>/.exec(html)[1]
     .replace(/<[^>]+>/g, " ").replace(/&#39;/g, "'").replace(/\s+/g, " ").trim();
   const from = src.indexOf("D. ");
-  assert.ok(src.slice(from).includes(stmt.replace(/^Notice to Property Owner /, "Notice to Property Owner ")), "owner notice drifted from § 33-992.01(D)");
+  assert.ok(src.slice(from).includes(stmt), "owner notice drifted from § 33-992.01(D)");
 });
