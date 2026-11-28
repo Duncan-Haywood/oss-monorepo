@@ -2,7 +2,7 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, ebay, amazon, paypal, venmo, cash-app, grailed, stockx, vinted, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+tags: [resellers, facebook-marketplace, ebay, amazon, paypal, venmo, cash-app, grailed, stockx, vinted, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
 description: "Resellers: bridge a payout back to sales, cost a mixed lot by resale value, map the year onto Schedule C. Seller Books, the hosted books, is open free."
 ---
 
@@ -1018,6 +1018,29 @@ check shows the gap between box 1a and the business books.
 irs.gov does not answer from the environment these pages are built in, so
 the rules were read through search-engine excerpts of the IRS pages on
 2026-11-27, and the page says so.
+
+## Facebook Marketplace sales, by how the buyer paid (added 2026-11-28)
+
+Facebook Marketplace has no sales report to download, and how a sale shows
+up anywhere depends on how the buyer paid:
+
+| How it sold | Fee and form | In Seller Books |
+| --- | --- | --- |
+| Local pickup, cash | No Facebook fee; nobody reports it | Type it in |
+| Local pickup, Venmo, PayPal or Cash App | No Facebook fee; any 1099-K comes from the app | Import the app's statement, do not type it in too |
+| Local pickup, Zelle or bank transfer | No Facebook fee; only your bank statement has it | Type it in |
+| Shipped through Facebook checkout | 10% selling fee, $0.80 minimum; Facebook paid you | Type it in with the fee and postage |
+
+The fee is from Facebook's Marketplace seller policy, figured on the whole
+order including shipping and tax, so a $5 paperback with $1 shipping pays
+$0.80, not $0.60. The new page,
+[Facebook Marketplace taxes](https://marisstella.app/seller-books/facebook-marketplace-taxes),
+walks through each case, who sends a 1099-K (only a platform that paid you,
+over $20,000 and 200 transactions federally, lower in some states), the
+sales tax Facebook collects on checkout orders in marketplace facilitator
+states, and how to keep from counting a Venmo-paid pickup twice. Facebook's
+pages were read through search excerpts on 2026-11-28; Facebook changes its
+fees, so check the policy before you rely on the figure.
 
 ## A free inventory spreadsheet, if you are not ready for books yet (added 2026-11-27)
 

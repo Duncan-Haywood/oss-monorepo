@@ -19,7 +19,11 @@ import {
   ESTIMATE_EXAMPLE,
   ESTIMATE_RESULT,
   equipmentLine,
+  FACEBOOK_CHECKED_ON,
+  FACEBOOK_EXAMPLE,
+  FACEBOOK_FEE,
   FORM_1099K_EXAMPLE,
+  facebookFeeCents,
   HOME_OFFICE_EXAMPLE,
   HOME_OFFICE_MAX_SQFT,
   HOME_OFFICE_RATE_CENTS,
@@ -751,6 +755,68 @@ describe("the personal items or business page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/personal-items-or-business)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/personal-items-or-business`));
+  });
+});
+
+describe("the Facebook Marketplace taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/facebook-marketplace-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("the fee, its minimum and the worked orders, by hand", () => {
+    assert.deepEqual(FACEBOOK_FEE, { rate: 0.1, minimumCents: 80 });
+    assert.equal(facebookFeeCents(4800), 480);
+    assert.equal(facebookFeeCents(600), 80);
+    assert.equal(facebookFeeCents(800), 80);
+    assert.equal(facebookFeeCents(801), 80);
+    assert.equal(facebookFeeCents(900), 90);
+    assert.deepEqual(
+      FACEBOOK_EXAMPLE.map((r) => r.orderCents),
+      [4800, 600],
+    );
+    const html = htmlOf(page());
+    for (const s of ["$48.00", "$4.80", "$43.20", "$6.00", "$0.60", "$0.80", "$5.20"])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("sources, the threshold, the dated read and FAQ markup", () => {
+    const html = htmlOf(page());
+    for (const s of [
+      "https://www.facebook.com/legal/merchant_policies",
+      "https://www.facebook.com/business/help/225860631518504",
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      "over $20,000 and more than 200 transactions",
+      "10% per transaction",
+      "Local pickup has no fee",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+    assert.match(FACEBOOK_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(html.includes(`read through search excerpts ${FACEBOOK_CHECKED_ON}`));
+  });
+
+  test("what it says the app does, the app does", () => {
+    const sales = appFile("src/worker/routes/org/sales.ts");
+    for (const f of ["paymentFeeCents", "shippingLabelCents", "shippingChargedCents", "itemId"])
+      assert.ok(sales.includes(f), f);
+    // Typed-in sales count orders, not platforms.
+    assert.match(appFile("src/shared/enums.ts"), /billing counts platforms by import/);
+    assert.match(appFile("src/shared/reconcile-payouts.ts"), /names no platform/);
+    for (const imp of ["venmo", "paypal", "cashapp"])
+      assert.ok(
+        existsSync(
+          new URL(`../../seller-books/src/worker/services/importers/${imp}.ts`, import.meta.url),
+        ),
+        imp,
+      );
+  });
+
+  test("linked from the 1099-K page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/facebook-marketplace-taxes"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/1099-k")).includes(link));
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/facebook-marketplace-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/facebook-marketplace-taxes`));
   });
 });
 
