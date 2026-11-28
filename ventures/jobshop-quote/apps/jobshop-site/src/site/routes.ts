@@ -127,6 +127,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/how-to-estimate-cnc-machining-time",
+      label: "How to estimate CNC machining time",
+      title: `How to estimate CNC machining time for a quote · ${SITE_NAME}`,
+      description:
+        "Estimate CNC cycle time: rpm and feed from surface speed and chip load, removal rate, roughing from volume removed, drilling with pecks, tapping, tool changes.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
       path: "/machine-shop-quote-template",
       label: "Machine shop quote template",
       title: `Machine shop quote template (free CSV) · ${SITE_NAME}`,

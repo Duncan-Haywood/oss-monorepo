@@ -582,7 +582,9 @@ plate when that is how you buy it. Keep the supplier's minimum charge.
 - List the operations and time each one. For each setup, the minutes to load the
 program, set work offsets, touch off tools and run a first article; for each part, the cycle time
 plus loading and deburring. Programming is real time too: count it once per job as a setup-only
-operation.
+operation. To build the cycle time up from feeds, removal rate and holes, see
+how to estimate CNC
+machining time.
 
 - Price time at that machine's rate. Setup minutes ÷ 60 × rate once per lot, cycle
 minutes ÷ 60 × rate for every part started. A rate built from your own costs is the foundation
@@ -1014,6 +1016,136 @@ engineering or financial advice, does not say what a welding code requires, and 
 prices, times and rates in it are made up. Check every quote before you send it.
 
 ### Quote your next weldment this way
+
+The Early access plan is free and needs no card.
+
+Start free
+
+## How to estimate CNC machining time
+
+Source: https://marisstella.app/jobshop/how-to-estimate-cnc-machining-time
+
+Guide
+
+## How to estimate CNC machining time for a quote
+
+Cycle time is the number a machining quote rests on: every minute of it is billed on
+every part. Here is how to build it up from the cut, the holes and the time the spindle isn't cutting,
+a worked example, and the mistakes that make a won job lose money.
+
+### The method in five steps
+
+- Work out the feed from the tool. Spindle speed (rpm) = surface speed (SFM) ×
+12 ÷ (π × tool diameter), the familiar SFM × 3.82 ÷ D. Feed (in/min) = rpm × flutes × chip load.
+Take surface speed and chip load from your tooling supplier's data for the material, and cap rpm at
+your spindle's limit.
+
+- Turn the feed into a removal rate. Material removal rate (in³/min) = width of
+cut × depth of cut × feed. That is the rate while the tool is in the cut. A real roughing path also
+ramps, steps over, lifts and moves between pockets, so keep the share of it you see on your own
+jobs: time a few and divide the volume removed by the minutes.
+
+- Rough time = volume removed ÷ removal rate. The blank's volume less the finished
+part's (your CAD system measures the part), at the rate for that machine and material.
+
+- Time the holes one by one. Each hole costs a fixed time (position, spot, rapid
+in and out) plus its depth at the drill's feed (rpm × feed per revolution). Holes deeper than about
+3 diameters are usually pecked: count the extra retracts and time each. Taps add a
+fixed time per tapped hole.
+
+- Add what isn't roughing or drilling. Finishing passes (toolpath length ÷ finish
+feed), tool changes (count × chip-to-chip time), and loading, unloading and cleaning the part. On
+small parts these can be as large as the cutting.
+
+### A worked example
+
+A manifold block in 6061-T6 aluminum plate, roughed from a 4.25 × 3.25 ×
+1.5 in blank on a 3-axis mill at $123.85 an hour (the rate the
+hourly rate guide works out).
+Every number here is made up to show the arithmetic; they are not recommended feeds,
+speeds, chip loads or times for any tool, material or machine. Use your tooling data and your own
+timings.
+
+- Feed: a 1/2 in 3-flute carbide end mill at 800 SFM is
+800 × 12 ÷ (π × 0.5) = 6,112
+rpm; at 0.003 in a tooth on 3 flutes that is 55.0 in/min.
+
+- Removal rate: 0.2 in wide × 0.5 in deep ×
+55.0 in/min = 5.50 in³/min in the cut. The
+shop's timed jobs keep 50% of that over a whole roughing path, so
+2.75 in³/min goes on the rate card for this mill and material.
+
+- Roughing: the blank is 20.72 in³ and the model
+12.4 in³, so 8.32 in³ comes out: 8.32 ÷
+2.75 = 3.0 min.
+
+- Holes: 6 × 1/4-20 tapped, #7 (0.201 in) tap drill, 0.75 in deep; 2 × 1/4 in through, 1.5 in deep. The drill
+runs at 3,000 rpm × 0.004 in/rev = 12.00
+in/min. All 8 holes are deeper than 3 diameters, so they are pecked every
+1.5 × D: 18 extra retracts at 1.5 s. Drilling comes
+to 1.61 min and tapping to 0.5 min.
+
+The made-up manifold block, per part. Run cost is minutes ÷ 60 × $123.85, rounded to the cent.
+OperationHowMinutesRun cost
+
+Rough from CAD (volume removed at the removal rate)8.32 in³ ÷ 2.75 in³/min, to the tenth (suggested by the app)3.00$6.19Drill from CAD8 × 4 s + 7.50 in ÷ 12.00 in/min + 18 pecks × 1.5 s, up to the hundredth (suggested)1.61$3.32Tap from CAD6 × 5 s (suggested once the size is marked threaded)0.50$1.03Finish walls and floors72 in of finishing toolpath at 36 in/min (typed)2.00$4.13Tool changes5 tools × 9 s chip to chip (typed)0.75$1.55Load, unload and blow offtimed on the last job in the same vise (typed)1.50$3.10
+Cycle per part9.36$19.32
+
+What the table shows:
+
+- Roughing is the largest single line, not the whole cycle. It is
+32% of the 9.36 minutes; tool changes and loading alone add
+2.25 min a part that no feeds-and-speeds formula shows.
+
+- A small miss is a big one at volume. Underestimate this cycle by 10% and the
+100-part order gives away $193.21 of mill time.
+
+- Setup is a separate line. The 45 min setup
+($92.89) is $9.29 a part at 10 and
+$0.93 at 100; keep it out of the cycle time so it spreads
+over the lot.
+
+### Mistakes that make a won job lose money
+
+- Using the theoretical removal rate. The rate in the cut is not the rate over
+the path. Measure the share your own toolpaths keep, per machine and material.
+
+- One rate for every material. Stainless and titanium rough at a fraction of
+aluminum's rate; a rate measured in 6061 badly underprices 304.
+
+- Timing holes by depth alone. Positioning and peck retracts can be most of a
+drilled hole's time: in the example they are 61% of it.
+
+- Leaving out what isn't cutting. Tool changes, probing, loading, blowing off
+chips and in-process checks are billed time too.
+
+- Trusting CAM's cycle time as the whole answer. A CAM estimate is good for the
+cut itself, but it leaves out loading and often your machine's real rapid and tool-change times;
+compare it with a timed run.
+
+### Doing it in Job Shop Quote
+
+Put each machine's removal rate per material, its seconds per hole, drill feed per material, peck
+depth and seconds per peck, and its seconds per tapped hole on the rate card once. When an RFQ comes
+with a STEP model, Job Shop Quote measures the part's volume and its holes and suggests the roughing,
+drilling and tapping operations above, each labelled with the figures it came from; you mark which
+hole sizes are threaded, since a model rarely says. It does not work out speeds and feeds, finishing
+passes, tool changes or loading: you type those, and a line missing a time is blocked rather than
+priced as if it were free. The suggested minutes in the example are the ones the app gives for the
+same inputs, checked by a test in its code. You can
+see how a quote is built.
+
+For the rest of the price (material, setups, outside processes and quantity breaks), see
+how to quote a CNC machining job;
+for the rate the minutes are billed at,
+how to work out a machine shop hourly
+rate.
+
+This page explains a common estimating method. It is not engineering, accounting
+or financial advice, it does not recommend feeds, speeds or tooling, and the figures in it are made up.
+Check every quote before you send it.
+
+### Quote your next machined part this way
 
 The Early access plan is free and needs no card.
 
