@@ -36,6 +36,10 @@ export const CSV_HEAD = [
   "Effective", "What was checked", "Stage", "Closed on",
 ];
 
+/** Labels without reaching Object.prototype ("constructor", "toString"). */
+export const sourceLabel = (k) => (Object.hasOwn(SOURCES, k) ? SOURCES[k] : "");
+export const stageLabel = (k) => (Object.hasOwn(STAGE_LABEL, k) ? STAGE_LABEL[k] : "");
+
 export const FIELDS = [
   "ref", "raisedOn", "source", "clause", "customer", "partNumber", "quantity", "nonconformity",
   "containment", "whys", "rootCause", "elsewhere", "action", "documents", "owner", "dueOn",
@@ -75,7 +79,7 @@ export function normalise(input = {}) {
   r.whys = whys.map(str).filter(Boolean).slice(0, 10);
   const e = input.effective;
   r.effective = e === true || e === "yes" ? true : e === false || e === "no" ? false : null;
-  if (!(r.source in SOURCES)) r.source = r.source ? "other" : "";
+  if (!Object.hasOwn(SOURCES, r.source)) r.source = r.source ? "other" : "";
   return r;
 }
 
@@ -189,7 +193,7 @@ export function review(input, today) {
 export function summary(res) {
   const n = (k) => res.findings.filter((f) => f.kind === k).length;
   const g = n("gap"), s = n("soon"), o = n("note");
-  const head = `${res.record.ref || "This report"}: ${STAGE_LABEL[res.stage].toLowerCase()}.`;
+  const head = `${res.record.ref || "This report"}: ${stageLabel(res.stage).toLowerCase()}.`;
   if (!g && !s && !o) return `${head} Nothing an auditor would obviously send back.`;
   const parts = [];
   if (g) parts.push(`${g} to fix`);
@@ -208,13 +212,13 @@ export function toMarkdown(res) {
   L.push(`# Corrective action report ${md(r.ref)}`.trimEnd(), "");
   const row = (k, v) => { if (str(v)) L.push(`- **${k}:** ${md(v)}`); };
   row("Raised on", r.raisedOn);
-  row("Source", SOURCES[r.source] ?? "");
+  row("Source", sourceLabel(r.source));
   row("ISO 9001 clause", r.clause);
   row("Customer", r.customer);
   row("Part number", r.partNumber);
   row("Quantity affected", r.quantity);
   row("Owner", r.owner);
-  row("Stage", STAGE_LABEL[res.stage]);
+  row("Stage", stageLabel(res.stage));
   L.push("", "## 1. Nonconformity", "", para(r.nonconformity));
   L.push("", "## 2. Correction (immediate)", "", para(r.containment));
   L.push("", "## 3. Root cause", "");
@@ -248,9 +252,9 @@ export function toCsv(res) {
   const action = r.documents ? `${r.action}\nDocuments changed: ${r.documents}` : r.action;
   const nc = [r.nonconformity, r.partNumber && `Part: ${r.partNumber}`, r.quantity && `Quantity: ${r.quantity}`, r.customer && `Customer: ${r.customer}`].filter(Boolean).join("\n");
   const row = [
-    r.ref, r.raisedOn, SOURCES[r.source] ?? "", r.clause, nc, r.containment, cause, action, r.owner,
+    r.ref, r.raisedOn, sourceLabel(r.source), r.clause, nc, r.containment, cause, action, r.owner,
     r.dueOn, r.completedOn, r.verifyDueOn, r.verifiedOn, r.effective === null ? "" : r.effective ? "Yes" : "No",
-    r.verificationNotes, STAGE_LABEL[res.stage], r.closedOn,
+    r.verificationNotes, stageLabel(res.stage), r.closedOn,
   ];
   return `${[CSV_HEAD, row].map((x) => x.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }
