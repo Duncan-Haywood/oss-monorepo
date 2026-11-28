@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Roof sheathing waste factor: hip vs. gable, measured</title>
+  <meta name="description" content="Roof sheathing waste on 16 test roofs: gable 3.3 to 16.2%, hip 12.7 to 30.4% with its offcuts thrown away, 4.4 to 16.2% with them reused.">
+  <meta property="og:title" content="Roof sheathing waste factor: hip vs. gable, measured">
+  <meta property="og:description" content="How many extra 4x8 sheets a hip roof needs over a gable, measured on 16 roofs: about 20% if the hip offcuts are thrown away, about 9% if they are reused.">
+  <link rel="canonical" href="./roof-sheathing-waste-factor.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What waste factor should I add for roof sheathing on a hip roof?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on what happens to the triangles cut off each course at the hips. On 16 rectangular test roofs at 4:12 to 10:12, laying 4x8 sheets in courses and throwing every hip-end triangle away needed 12.7 to 30.4% more sheet area than the roof surface (19.5% on average). Reusing those triangles to start or fill other courses brought it to 4.4 to 16.2% (9.0% on average), about the same as a gable roof on the same house, which needed 3.3 to 16.2% (7.8% on average)."}}, {"@type": "Question", "name": "Does a hip roof take more plywood or OSB than a gable roof?", "acceptedAnswer": {"@type": "Answer", "text": "Not much, if the offcuts are reused. With the same pitch and the same overhang all round, the two roofs have the same surface area. On the 16 test roofs, a hip with its offcuts reused bought between 2 fewer and 3 more sheets than the gable, and the same count on 6 of them. Thrown away, the hip offcuts cost 4 to 10 more sheets than the gable on every roof."}}, {"@type": "Question", "name": "Why does the gable waste jump around from 3% to 16%?", "acceptedAnswer": {"@type": "Answer", "text": "Most of it is the top course. Sheets go up the slope in 4 ft courses, so a slope length just over a multiple of 4 ft leaves a thin strip at the ridge that still takes a row of sheets. The pitch and the house width set the slope length, so two similar houses can differ by 10 points. The ends of each course and the rake overhangs add a little more."}}, {"@type": "Question", "name": "Can I order my roof sheathing from these percentages?", "acceptedAnswer": {"@type": "Answer", "text": "Not as a figure to order by. They are invented rectangular houses with a 12 in overhang, 4x8 sheets laid long edge across 16 in rafters and no openings, valleys, dormers or damaged sheets. Lay out your own roof to get its count, then add your own allowance for breakage and mistakes."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    h3 { font-size: 1rem; margin: 18px 0 2px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+    .scroll-note { font-size: .86rem; color: #555044; margin-top: 4px; }
+    table { display: block; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Roof sheathing waste factor: hip vs. gable, measured on 16 roofs</h1>
+  <p>Flat allowances such as 10% for a gable roof and 15% for a hip are a common way to turn a roof's area into a sheet count. This page lays out the 4x8 sheets on 16 rectangular roofs (four house sizes at four pitches, each as a gable and as a hip) and counts how much more sheet area each layout buys than the roof's own surface. The hip is laid out two ways: with the triangle cut off each course at the hips thrown away, and with those triangles reused. The figures come from <code>roof-waste-bench.mjs</code> in the tool's repository (measured 2026-11-28).</p>
+  <p><a class="cta" href="../residential-takeoff/">Lay out your own hip roof's sheets</a></p>
+
+  <h2>Sheets bought, and the extra over the roof surface</h2>
+  <table>
+    <thead><tr><th>House</th><th class="n">Pitch</th><th class="n">Surface, sq ft</th><th class="n">Gable</th><th class="n">Hip, offcuts thrown</th><th class="n">Hip, offcuts reused</th></tr></thead>
+    <tbody>
+      <tr><td>24 x 36 ft</td><td class="n">4:12</td><td class="n">1041</td><td class="n">35 (7.5%)</td><td class="n">41 (26.0%)</td><td class="n">36 (10.6%)</td></tr>
+      <tr><td>28 x 40 ft</td><td class="n">4:12</td><td class="n">1328</td><td class="n">44 (6.0%)</td><td class="n">51 (22.9%)</td><td class="n">45 (8.4%)</td></tr>
+      <tr><td>32 x 48 ft</td><td class="n">4:12</td><td class="n">1792</td><td class="n">59 (5.4%)</td><td class="n">65 (16.1%)</td><td class="n">59 (5.4%)</td></tr>
+      <tr><td>36 x 60 ft</td><td class="n">4:12</td><td class="n">2483</td><td class="n">81 (4.4%)</td><td class="n">91 (17.3%)</td><td class="n">81 (4.4%)</td></tr>
+      <tr><td>24 x 36 ft</td><td class="n">6:12</td><td class="n">1105</td><td class="n">40 (15.9%)</td><td class="n">45 (30.4%)</td><td class="n">39 (13.0%)</td></tr>
+      <tr><td>28 x 40 ft</td><td class="n">6:12</td><td class="n">1409</td><td class="n">47 (6.8%)</td><td class="n">53 (20.4%)</td><td class="n">47 (6.8%)</td></tr>
+      <tr><td>32 x 48 ft</td><td class="n">6:12</td><td class="n">1901</td><td class="n">65 (9.4%)</td><td class="n">71 (19.5%)</td><td class="n">65 (9.4%)</td></tr>
+      <tr><td>36 x 60 ft</td><td class="n">6:12</td><td class="n">2634</td><td class="n">86 (4.5%)</td><td class="n">93 (13.0%)</td><td class="n">89 (8.1%)</td></tr>
+      <tr><td>24 x 36 ft</td><td class="n">8:12</td><td class="n">1187</td><td class="n">40 (7.8%)</td><td class="n">46 (24.0%)</td><td class="n">40 (7.8%)</td></tr>
+      <tr><td>28 x 40 ft</td><td class="n">8:12</td><td class="n">1514</td><td class="n">55 (16.2%)</td><td class="n">59 (24.7%)</td><td class="n">55 (16.2%)</td></tr>
+      <tr><td>32 x 48 ft</td><td class="n">8:12</td><td class="n">2043</td><td class="n">66 (3.4%)</td><td class="n">75 (17.5%)</td><td class="n">69 (8.1%)</td></tr>
+      <tr><td>36 x 60 ft</td><td class="n">8:12</td><td class="n">2832</td><td class="n">96 (8.5%)</td><td class="n">103 (16.4%)</td><td class="n">95 (7.4%)</td></tr>
+      <tr><td>24 x 36 ft</td><td class="n">10:12</td><td class="n">1286</td><td class="n">43 (7.0%)</td><td class="n">47 (16.9%)</td><td class="n">45 (12.0%)</td></tr>
+      <tr><td>28 x 40 ft</td><td class="n">10:12</td><td class="n">1640</td><td class="n">55 (7.3%)</td><td class="n">60 (17.1%)</td><td class="n">57 (11.2%)</td></tr>
+      <tr><td>32 x 48 ft</td><td class="n">10:12</td><td class="n">2213</td><td class="n">77 (11.3%)</td><td class="n">81 (17.1%)</td><td class="n">75 (8.5%)</td></tr>
+      <tr><td>36 x 60 ft</td><td class="n">10:12</td><td class="n">3067</td><td class="n">99 (3.3%)</td><td class="n">108 (12.7%)</td><td class="n">102 (6.4%)</td></tr>
+    </tbody>
+  </table>
+  <div class="scroll-note">4x8 sheets bought, with the extra in brackets (sheets × 32 sq ft ÷ surface − 1). The surface includes the 12 in overhang at the eaves and rakes, so the gable and hip of one house have the same surface.</div>
+
+  <p>Every layout runs the sheets in 4 ft courses from the eave up, long edges across rafters at 16 in on center, end joints on rafters and alternate courses staggered. "Hip, offcuts thrown" cuts every course on a hip plane to its bottom length and throws away the triangle cut off at each hip: what the free <a href="roof-calculator.html">roof calculator</a> orders. "Hip, offcuts reused" turns that triangle end for end to start the hip end of another course, cutting it down for a narrower top course, and keeps a reuse only when it saves a sheet: what <a href="../residential-takeoff/">Residential Takeoff</a>, the paid edition, orders.</p>
+
+  <h2>What the 16 roofs show</h2>
+  <ul>
+    <li><strong>Gable:</strong> 3.3 to 16.2% over the surface, 7.8% on average. A flat 10% covered the cutting on 13 of the 16 and ran short on 3.</li>
+    <li><strong>Hip, offcuts thrown away:</strong> 12.7 to 30.4%, 19.5% on average. A flat 15% ran short on 14 of the 16.</li>
+    <li><strong>Hip, offcuts reused:</strong> 4.4 to 16.2%, 9.0% on average, 2 to 10 sheets fewer than throwing them away. That is within 3 sheets of the gable on every roof, and the same count on 6 of the 16.</li>
+    <li><strong>The top course sets most of the waste.</strong> A slope length just over a multiple of 4 ft leaves a thin strip at the ridge that still takes a row of sheets, so the same house can swing by 10 points from one pitch to the next. A percentage of area cannot see that; a layout can.</li>
+  </ul>
+  <p>So the extra 5 points a hip allowance usually adds over a gable is about right only if the crew reuses some of the hip offcuts. Thrown away, they cost more than that; fully reused, the hip needs about what the gable does.</p>
+
+  <h2>What this does not show</h2>
+  <p>Invented rectangular houses (24 x 36 to 36 x 60 ft) with a 12 in overhang all round, not a builder's real roof or a permit set. No valleys, dormers, skylights or chimneys, no cross wings, no damaged sheets, mistakes or theft, and no prices: those are a separate allowance you add. Rafter and sheathing sizes, spans and nailing are your inputs and are not checked against a span table, the code or the sheathing maker's instructions.</p>
+
+  <h2>Common questions</h2>
+  <h3>What waste factor should I add for roof sheathing on a hip roof?</h3>
+  <p>It depends on what happens to the triangles cut off each course at the hips. On 16 rectangular test roofs at 4:12 to 10:12, laying 4x8 sheets in courses and throwing every hip-end triangle away needed 12.7 to 30.4% more sheet area than the roof surface (19.5% on average). Reusing those triangles to start or fill other courses brought it to 4.4 to 16.2% (9.0% on average), about the same as a gable roof on the same house, which needed 3.3 to 16.2% (7.8% on average).</p>
+  <h3>Does a hip roof take more plywood or OSB than a gable roof?</h3>
+  <p>Not much, if the offcuts are reused. With the same pitch and the same overhang all round, the two roofs have the same surface area. On the 16 test roofs, a hip with its offcuts reused bought between 2 fewer and 3 more sheets than the gable, and the same count on 6 of them. Thrown away, the hip offcuts cost 4 to 10 more sheets than the gable on every roof.</p>
+  <h3>Why does the gable waste jump around from 3% to 16%?</h3>
+  <p>Most of it is the top course. Sheets go up the slope in 4 ft courses, so a slope length just over a multiple of 4 ft leaves a thin strip at the ridge that still takes a row of sheets. The pitch and the house width set the slope length, so two similar houses can differ by 10 points. The ends of each course and the rake overhangs add a little more.</p>
+  <h3>Can I order my roof sheathing from these percentages?</h3>
+  <p>Not as a figure to order by. They are invented rectangular houses with a 12 in overhang, 4x8 sheets laid long edge across 16 in rafters and no openings, valleys, dormers or damaged sheets. Lay out your own roof to get its count, then add your own allowance for breakage and mistakes.</p>
+
+  <p><a class="cta" href="../residential-takeoff/">Count the sheets for your own roof</a></p>
+  <p>Related: <a href="lumber-waste-factor.html">framing lumber waste factor, measured</a>, <a href="roof-calculator.html">roof calculator</a>, <a href="sheathing-calculator.html">wall sheathing calculator</a>.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:0 28px"><div><h3 style="font-size:1rem;margin:16px 0 4px">Walls and framing</h3><ul style="margin:0;padding-left:1.1em"><li><a href="index.html">Wall framing takeoff</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="header-calculator.html">Header size checker</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule</a></li><li><a href="sheathing-calculator.html">Wall sheathing calculator</a></li><li><a href="brace-calculator.html">Wall brace calculator</a></li><li><a href="panel-calculator.html">Wall panel calculator</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator</a></li><li><a href="nail-calculator.html">Framing nail calculator</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud?</a></li><li><a href="board-foot-calculator.html">Board foot calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Floors, stairs and roofs</h3><ul style="margin:0;padding-left:1.1em"><li><a href="floor-calculator.html">Floor joist and subfloor calculator</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="roof-calculator.html">Roof calculator</a></li><li><a href="dormer-calculator.html">Dormer framing calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Foundation and concrete</h3><ul style="margin:0;padding-left:1.1em"><li><a href="foundation-calculator.html">Foundation calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Exterior and envelope</h3><ul style="margin:0;padding-left:1.1em"><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="stucco-calculator.html">Stucco calculator</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator</a></li><li><a href="gutter-calculator.html">Gutter calculator</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Interior finishes</h3><ul style="margin:0;padding-left:1.1em"><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="paint-calculator.html">Paint calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="flooring-calculator.html">Flooring calculator</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Plumbing, electrical and HVAC</h3><ul style="margin:0;padding-left:1.1em"><li><a href="plumbing-calculator.html">Plumbing rough-in calculator</a></li><li><a href="water-supply-sizing-calculator.html">Water supply pipe sizing</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Site and landscape</h3><ul style="margin:0;padding-left:1.1em"><li><a href="fence-calculator.html">Fence calculator</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator</a></li><li><a href="paver-calculator.html">Paver patio calculator</a></li><li><a href="mulch-topsoil-gravel-calculator.html">Mulch, topsoil and gravel calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Schedule, bids and costs</h3><ul style="margin:0;padding-left:1.1em"><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator</a></li><li><a href="bid-leveling-calculator.html">Bid leveling calculator</a></li><li><a href="change-order-calculator.html">Change order calculator</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity</a></li><li><a href="branded-bid-package-for-framers.html">Branded bid package for framers</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Measured against the alternatives</h3><ul style="margin:0;padding-left:1.1em"><li><a href="vs-stud-per-foot-rule.html">Takeoff vs. the stud-per-foot rule</a></li><li><a href="vs-ordering-lumber-by-hand.html">Takeoff vs. ordering lumber by hand</a></li><li><a href="lumber-waste-factor.html">Framing lumber waste factor, measured</a></li></ul></div></div></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Rafter and sheathing sizes, spans and nailing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. The houses measured here are invented rectangles.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free to use and source visible under an <a href="LICENSE" rel="noopener">all-rights-reserved notice</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
