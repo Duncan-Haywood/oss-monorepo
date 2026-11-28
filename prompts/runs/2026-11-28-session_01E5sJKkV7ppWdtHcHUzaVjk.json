@@ -29,12 +29,18 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "changed-ventures failed first: check_shared_package_drift (qbo-sync/src/money.ts is shared with jobshop-quote). Ported fix and test to jobshop-quote; drift check and its test pass."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "payapps is heavily red-teamed (6+ redteam PRs in 3 days); --fresh still leaves 45 guarded files, fine, but the North-star nudge keeps concentrating runs on one product."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Nothing warns that ventures/*/packages/qbo-sync is a shared copy (payapps + jobshop-quote); a fix in one copy fails check_shared_package_drift in CI. The suite-local run does not reach it."
     }
   ],
   "deviations": [
