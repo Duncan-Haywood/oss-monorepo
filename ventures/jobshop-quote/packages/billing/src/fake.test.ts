@@ -116,3 +116,33 @@ describe("createBillingProvider", () => {
     }
   });
 });
+
+describe("SignedFakeBillingProvider boundaries (redteam 2026-11-28)", () => {
+  it("chargeUsage takes a positive whole amount: 1 passes, 0 and 1.5 are refused", async () => {
+    const fake = new SignedFakeBillingProvider();
+    const req = { providerSubscriptionId: "sub_1", planKey: "starter", currency: "USD" };
+    const ok = await fake.chargeUsage({ ...req, amountMinor: 1 } as Parameters<
+      typeof fake.chargeUsage
+    >[0]);
+    assert.equal(ok.chargeId, "fake_charge_1");
+    for (const amountMinor of [0, 1.5, -2])
+      await assert.rejects(
+        fake.chargeUsage({ ...req, amountMinor } as Parameters<typeof fake.chargeUsage>[0]),
+        /positive whole amount/,
+      );
+    assert.equal(fake.usageCharges.length, 1);
+  });
+
+  it("a checkout token that is not a non-empty string reads as null, like Paddle", async () => {
+    const fake = new SignedFakeBillingProvider();
+    for (const token of [42, true, ""]) {
+      const ev = await fake.parseWebhook(
+        await fakeWebhookRequest(URL_, {
+          providerEventId: "evt_t",
+          customData: { [CHECKOUT_TOKEN_KEY]: token as unknown as string },
+        }),
+      );
+      assert.equal(ev.checkoutToken, null);
+    }
+  });
+});

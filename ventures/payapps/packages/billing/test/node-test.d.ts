@@ -24,3 +24,20 @@ declare module "node:assert/strict" {
   const assert: Assert;
   export default assert;
 }
+
+// For src/paddle-scripts-cli.test.ts, which spawns the deploy scripts in scripts/.
+declare module "node:child_process" {
+  export function spawnSync(
+    command: string,
+    args: readonly string[],
+    options: { encoding: "utf8"; env?: Record<string, string>; timeout?: number },
+  ): { status: number | null; stdout: string; stderr: string };
+}
+declare module "node:path" {
+  export function dirname(p: string): string;
+  export function join(...parts: string[]): string;
+}
+declare module "node:url" {
+  export function fileURLToPath(url: string | URL): string;
+}
+declare const process: { execPath: string; env: Record<string, string | undefined> };
