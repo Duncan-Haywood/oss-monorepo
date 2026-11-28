@@ -1,5 +1,5 @@
 ---
-kind: incident
+kind: note
 date: 2026-11-28
 ---
 # PayApps production deploy red for 58 merges: a parity test reached outside the deploy checkout
