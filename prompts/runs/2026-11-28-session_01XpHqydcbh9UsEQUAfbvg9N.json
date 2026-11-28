@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "first push blocked by the post front-matter hook: an extended description was 171 chars (cap 160); shortened in a second commit"
+    "first push blocked by the post front-matter hook: an extended description was 171 chars (cap 160); shortened in a second commit",
+    "adversarial-gate test-skipped on three new tests (in-body t.skip); fixed with the conditional skip option"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,10 @@
     {
       "file": "ventures/einvoice-pro/apps/einvoice-preflight/PROVENANCE.md",
       "issue": "says new depth is built in the paid copy, yet free-copy fixes (XR-012 before, the generate.mjs bug now) have to be applied to both copies by hand; there is no sync check that a shared root module stays in step"
+    },
+    {
+      "file": "ventures/einvoice-pro/apps/einvoice-preflight/official-good-cases.test.mjs",
+      "issue": "existing tests use `return t.skip(...)` inside the body when slimdom/fontoxpath are missing; copying that pattern into a new test is blocked by adversarial-gate test-skipped. Use test(name, { skip: cond ? false : reason }, fn). Caught by running gate.py analyze --diff locally while the required runners were queued"
     }
   ],
   "deviations": [
