@@ -273,3 +273,53 @@ footer.site {
   font-weight: 700;
   margin: 0.25rem 0;
 }
+
+/* Stills of the app on the home page (pages.mjs SHOTS). */
+.shots figure {
+  margin: 0;
+}
+.shot-frame {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+}
+.shot-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.shots figcaption {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-top: 8px;
+}
+.shot-hero {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 11rem);
+  gap: 16px;
+  align-items: start;
+}
+.shot-hero figcaption {
+  grid-column: 1 / -1;
+}
+.shot-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+@media (max-width: 720px) {
+  .shot-hero {
+    grid-template-columns: 1fr;
+  }
+  /* A phone shows the phone still; the desktop one is a tap away from the pair below. */
+  .shot-hero .shot-wide {
+    display: none;
+  }
+  .shot-hero .shot-phone {
+    max-width: 18rem;
+    margin: 0 auto;
+  }
+}

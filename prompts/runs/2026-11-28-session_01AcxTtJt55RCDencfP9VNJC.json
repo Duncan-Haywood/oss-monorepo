@@ -30,7 +30,7 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "main's platform/pages title-length and description-length tests failed on ventures/machine-shop-guides/how-to-submit-sprs-score.html (from PR #20062); fixed forward in this PR"
+    "main's title/description length tests failed on ventures/machine-shop-guides/how-to-submit-sprs-score.html; fixed here, then main landed its own fix and this PR took main's version in the merge"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -49,19 +49,13 @@
       "why": "Next item #1 is gated 'if contractors ask'; built the weekly-email part anyway because the figures already existed and an email listing what to chase that omits money earned is a gap in a shipped feature, not a new speculative one.",
       "did": "Two summary lines in the weekly digest, tests, ROADMAP and post updated.",
       "result": "Landed in a small PR; tests, typecheck and lint pass."
-    },
-    {
-      "file": ".github/prompts/verify-and-merge.md",
-      "why": "payapps workflow jobs never got a runner",
-      "did": "merged on local runs of the same suites plus the rest of CI green",
-      "result": "see PR"
     }
   ],
   "writeups": [
     "docs/posts/2026-11-25-prompt-payment-laws-for-subcontractors.md (extended)"
   ],
   "goal": null,
-  "notes": "Security queue empty (2 claimed). No ideas or requests. Verified: vitest unit cash-digest+cash-report 90 passed; worker tests touching the digest 7 files/59 passed; tsc --noEmit 0; biome 0. CI 'test' job red on main's SPRS page (title 79 chars, description 172); shortened both, platform/pages node --test then 0 failures on the two length tests, machine-shop-guides venture tests ok. payapps CI jobs (lint/types/tests, e2e, packages) stayed queued 40+ min on both pushes (no runner); verified locally instead: full payapps vitest unit 164 files/1601 passed, worker 98 files/627 passed, tsc 0, biome 0. No UI change, so e2e not run.",
+  "notes": "Security queue empty (2 claimed). No ideas or requests. Verified: vitest unit cash-digest+cash-report 90 passed; worker tests touching the digest 7 files/59 passed; tsc --noEmit 0; biome 0. CI 'test' job red on main's SPRS page (title 79 chars, description 172); shortened both, platform/pages node --test then 0 failures on the two length tests, machine-shop-guides venture tests ok. payapps CI jobs waited 40+ min for runners, then passed; also verified locally: full payapps vitest unit 164 files/1601 passed, worker 98 files/627 passed, tsc 0, biome 0. No UI change, so e2e not run.",
   "corrections": [],
   "redteam": null,
   "usage": {
