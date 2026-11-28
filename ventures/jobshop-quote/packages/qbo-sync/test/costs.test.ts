@@ -788,4 +788,36 @@ describe("jobs tracked by class", () => {
       [[5000, "k1"]],
     );
   });
+
+  it("the fake keeps the date window on every kind and never reports a cut-off read", async () => {
+    // The fake stands in for QuickBooks in the app's tests: a fake that let an
+    // out-of-window order through, or flagged a complete read as truncated,
+    // would test the job-cost page against books QuickBooks never returns.
+    const costs = fakeCosts(new FakeAccountingSync());
+    for (const d of ["2026-10-31", "2026-11-01", "2026-11-30", "2026-12-01"]) {
+      costs.addExpense({
+        txnType: "Bill",
+        txnDate: d,
+        lines: [{ classId: "k1", accountName: "Job Materials", amountCents: 100 }],
+      });
+      costs.addPurchaseOrder({
+        txnDate: d,
+        classId: "k1",
+        lines: [{ accountName: "Job Materials", amountCents: 100 }],
+      });
+    }
+    const q = { fromDate: "2026-11-01", toDate: "2026-11-30", customerIds: [], classIds: ["k1"] };
+    const r = await costs.listExpenseLines(q);
+    assert.deepEqual(
+      r.lines.map((l) => l.txnDate),
+      ["2026-11-01", "2026-11-30"],
+    );
+    assert.equal(r.truncated, false);
+    const po = await costs.listPurchaseOrderLines(q);
+    assert.deepEqual(
+      po.lines.map((l) => l.txnDate),
+      ["2026-11-01", "2026-11-30"],
+    );
+    assert.equal(po.truncated, false);
+  });
 });
