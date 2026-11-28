@@ -2934,6 +2934,21 @@ nothing to copy. No customers yet. Paid plans are dark
   saved. "Clear" deletes it for everyone. Tests: `test/worker/sworn-statement.test.ts` (save, read as a
   viewer, replace, clear, half-typed, refusals, viewer 403, another company 404) and
   `test/e2e/05-sworn-draft.spec.ts` (typed, browser storage wiped, still there; cleared).
+- Sworn statement kept per pay application (2026-11-28, every plan, sworn-statement-copies): the draft
+  moves on each month ("Start next month" carries owing into paid), so the statement a lender or title
+  company was sent for pay app 4 could not be printed again once pay app 5's figures were typed. Now an
+  editor's "Download PDF" also keeps the statement as that pay application's copy
+  (`POST .../sworn-statement/copies`, `sworn_statement_copies`, migration 0096): the full print schema
+  and the same error checks, so a copy is only ever a statement that printed. One copy per job and pay
+  application (`swornCopyKey`: the pay application as named, ignoring case and spacing, else the
+  statement date), so downloading a corrected statement again replaces it; up to 240 per job. A
+  "Statements kept" table under the form lists them newest first (pay app, date, given to, parties,
+  owing, balance, who kept it), prints each again from what was kept (`GET .../copies/:id/statement.pdf`,
+  everyone in the company), opens one back into the form to correct it, and lets editors remove one.
+  Tests: `test/worker/sworn-statement.test.ts` (keep, replace for the same pay app, a second month,
+  reprint after the draft moved on, refusals, viewer lists and prints but gets 403 on keep and remove,
+  another company 404 on all four routes) and `swornCopyKey` in `src/shared/sworn-statement.test.ts`.
+  Next, if people ask: the kept statement attached to the pay application's backup packet.
 
 - Lien waivers: Mississippi part 3, the time computation (2026-11-28, ms-time-computation). § 85-7-425
   counts time under the lien article by Miss. Code Ann. § 1-3-67, now read (FindLaw's copy; the official
@@ -3065,9 +3080,9 @@ nothing to copy. No customers yet. Paid plans are dark
   2026-11-26: `src/shared/sworn-statement.ts`, the job's "Sworn statement" page, parties prefilled from
   its purchase orders and subcontracts with invoiced to date as a cross-check, checked against the
   contract sum and the pay app's amount due, PDF with our own affirmation and a generic jurat; the
-  draft saved with the job instead of in the browser, done 2026-11-28, sworn-statement-saved. Next, if
-  people ask: a saved copy per pay application (each month's statement kept, not only the latest), and
-  the Michigan statutory form's own wording once the section can be read in full); GC portal export formats, part 4:
+  draft saved with the job instead of in the browser, done 2026-11-28, sworn-statement-saved; a copy
+  kept per pay application, done 2026-11-28, sworn-statement-copies. Next, if people ask: the
+  Michigan statutory form's own wording once the section can be read in full); GC portal export formats, part 4:
   other portals (Trimble Pay/Flashtract, Siteline) if customers bill through
   them. Parts 1 to 3 (Procore SSOV and invoice sheet, Textura's two billing uploads, GCPay's SOV
   upload) are done

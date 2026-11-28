@@ -30,6 +30,7 @@ export type IdPrefix =
   | "jcc"
   | "rfi"
   | "pch"
+  | "swc"
   | "sca"
   | "hol"
   | "clo"

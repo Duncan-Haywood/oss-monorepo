@@ -876,6 +876,17 @@ page is left out of it.
   changes stay in their own browser.
   ([source](../../ventures/payapps/apps/payapps/src/worker/services/payapps/sworn-drafts.ts))
 
+  The same day, each month's statement started being kept. Carrying the
+  list forward has a cost: once pay app 5's figures are in, the statement
+  the title company got with pay app 4 is gone, and that is the one they
+  call about when a supplier files a lien. Now downloading the PDF also
+  keeps that statement with its pay application, and a "Statements kept"
+  table under the form prints any of them again exactly as sent, or opens
+  one back into the form to correct it. Printing again for the same pay
+  application replaces its copy, so the kept one is the last one sent.
+  Only a statement that passed every check is kept.
+  ([source](../../ventures/payapps/apps/payapps/src/worker/services/payapps/sworn-copies.ts))
+
 None of these is the AIA's form, none is affiliated with the AIA, and none is
 legal or accounting advice. Retainage, waiver and payment terms come from
 your contract and your state's law.

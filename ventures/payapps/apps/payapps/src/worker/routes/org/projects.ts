@@ -124,6 +124,12 @@ import { getRfi, updateRfi } from "../../services/payapps/rfis";
 import { createSampleProject } from "../../services/payapps/sample";
 import { loadDelayLogDocument } from "../../services/payapps/schedule-delays";
 import {
+  deleteSwornCopy,
+  getSwornCopy,
+  keepSwornCopy,
+  listSwornCopies,
+} from "../../services/payapps/sworn-copies";
+import {
   clearSwornDraft,
   getSwornDraft,
   saveSwornDraft,
@@ -1021,6 +1027,83 @@ routes.put(
 
 routes.delete("/:projectId/sworn-statement/draft", editor, async (c) => {
   await clearSwornDraft(c.var.ctx, c.var.tenant.orgId, c.req.param("projectId"));
+  return c.json({ ok: true });
+});
+
+// Saved copies of the statement, one per pay application, so last month's prints again as it was
+// signed after the draft has moved on: editors keep and remove them, everyone lists and prints them.
+function checkedSworn(input: Parameters<typeof computeSwornStatement>[0]) {
+  const computed = computeSwornStatement(input);
+  if (swornHasErrors(computed)) {
+    throw badRequest(
+      computed.issues
+        .filter((i) => i.level === "error")
+        .map((i) => `${i.where}: ${i.message}`)
+        .join("; "),
+    );
+  }
+  return computed;
+}
+
+routes.get("/:projectId/sworn-statement/copies", async (c) =>
+  c.json({
+    copies: await listSwornCopies(c.var.ctx, c.var.tenant.orgId, c.req.param("projectId")),
+  }),
+);
+
+routes.post(
+  "/:projectId/sworn-statement/copies",
+  editor,
+  validate("json", swornStatementSchema),
+  async (c) => {
+    const input = c.req.valid("json");
+    const computed = checkedSworn(input);
+    const kept = await keepSwornCopy(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("projectId"),
+      c.var.tenant.userId,
+      input,
+      computed,
+    );
+    return c.json(kept, kept.replaced ? 200 : 201);
+  },
+);
+
+routes.get("/:projectId/sworn-statement/copies/:copyId", async (c) =>
+  c.json(
+    await getSwornCopy(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("projectId"),
+      c.req.param("copyId"),
+    ),
+  ),
+);
+
+routes.get("/:projectId/sworn-statement/copies/:copyId/statement.pdf", async (c) => {
+  const project = await getProjectRow(c.var.ctx, c.var.tenant.orgId, c.req.param("projectId"));
+  const copy = await getSwornCopy(c.var.ctx, c.var.tenant.orgId, project.id, c.req.param("copyId"));
+  // Printed again from the statement as it was kept: the same checks it passed then still hold.
+  const pdf = swornStatementPdf(computeSwornStatement(copy.statement), {
+    sample: project.isSample,
+  });
+  return new Response(pdf.slice().buffer, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${swornStatementFileName(copy.statement)}"`,
+      "Cache-Control": "no-store",
+    },
+  });
+});
+
+routes.delete("/:projectId/sworn-statement/copies/:copyId", editor, async (c) => {
+  await deleteSwornCopy(
+    c.var.ctx,
+    c.var.tenant.orgId,
+    c.req.param("projectId"),
+    c.req.param("copyId"),
+  );
   return c.json({ ok: true });
 });
 
