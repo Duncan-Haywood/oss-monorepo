@@ -125,3 +125,17 @@ with the BMF dates and their sources, what is and is not checked, and links to t
 pages. Its two buttons open the checker with the rules already ticked: `?profil=xrechnung` for the
 XRechnung rules and the official EN 16931 rules, and `?profil=en16931` for the official rules alone,
 for a ZUGFeRD file. The checker's own screens are still in English, and the German page says so.
+
+## Update, 28 November: a French front page
+
+French small and mid-size businesses and micro-businesses must issue e-invoices by 1 September 2027
+at the latest, and every French business has had to be able to receive them since 1 September 2026.
+The checker now has a French page,
+[Vérifier une facture électronique](https://marisstella.app/einvoice-preflight/verifier-facture-electronique.html),
+the counterpart of the German one. Its dates, the three accepted formats and the four new mandatory
+mentions are the same sentences the EU e-invoicing site takes from DGFiP's own FAQ (re-read on 27
+November), and a test fails if that file and the page stop agreeing. Its first button opens the checker
+with `?profil=france`: the French rules (SIREN and SIRET check digits, the buyer's SIREN, the penalty,
+40 euro indemnity, discount and operation-category mentions) plus the official EN 16931 and FNFE-MPE
+BR-FR rules. The page says what is not checked, including two of the four new mentions (the VAT-on-debits
+option and a separate delivery address), and links to the French error pages and the BR-FR code list.

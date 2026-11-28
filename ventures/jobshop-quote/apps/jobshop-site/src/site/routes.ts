@@ -116,6 +116,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/machine-shop-markup",
+      label: "Machine shop markup and margin",
+      title: `Machine shop markup and margin: how much to mark up · ${SITE_NAME}`,
+      description:
+        "How much markup a machine shop puts on material, labor and outside processing, markup against margin, and what four markup policies do to one quote.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
       path: "/how-to-quote-cnc-machining",
       label: "How to quote a CNC machining job",
       title: `How to quote a CNC machining job · ${SITE_NAME}`,
@@ -151,6 +161,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       title: `How to quote CNC turning and lathe parts · ${SITE_NAME}`,
       description:
         "Quote a turned part: rpm and feed per rev, roughing passes, cycle time, parts per bar after the cut allowance and remnant, whole bars, and quantity breaks.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
+      path: "/how-to-quote-outside-processing",
+      label: "How to quote outside processing",
+      title: `How to quote outside processing and heat treat · ${SITE_NAME}`,
+      description:
+        "Quote heat treat, anodize, plating and black oxide sent to a vendor: per-part and per-lb prices, lot minimums, freight, certs, markup and quantity breaks.",
       changefreq: "monthly",
       priority: 0.7,
       lastmod: CONTENT_DATE,

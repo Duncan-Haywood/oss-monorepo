@@ -220,6 +220,39 @@ class FindingsIn(unittest.TestCase):
         self.assertEqual(len(found), 1)
 
 
+class SymbolNeedles(unittest.TestCase):
+    """findings_in skips a file holding none of SYMBOL_NEEDLES; that is only
+    safe while every text the symbol regexes can match contains one."""
+
+    def test_the_regexes_the_needles_shadow_are_unchanged(self):
+        # Changing either regex means re-deriving SYMBOL_NEEDLES from it.
+        self.assertEqual(guard.OPENS_WITH_SYMBOL, r"(?:`\$\$\{|[\"']\$[\"']\s*\+)")
+        self.assertEqual(guard.PARAMETER_SYMBOL.pattern, r"\$\{currency\}\$\{")
+
+    def test_every_spelling_the_regexes_match_holds_a_needle(self):
+        spellings = ["`$${", "${currency}${"] + [
+            f"{a}${b}{gap}+" for a in "\"'" for b in "\"'" for gap in ("", " ", "\n\t")
+        ]
+        for text in spellings:
+            with self.subTest(text=text):
+                self.assertTrue(
+                    guard.INTERPOLATES_AFTER_SYMBOL.search(text) or guard.PARAMETER_SYMBOL.search(text)
+                )
+                self.assertTrue(any(n in text for n in guard.SYMBOL_NEEDLES))
+
+    def test_mixed_quote_concatenation_is_still_read(self):
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "index.html"
+            path.write_text("const money = (n) => \"$' + n.toFixed(2);", encoding="utf-8")
+            self.assertEqual(len(list(guard.findings_in(path))), 1)
+
+    def test_a_file_without_a_needle_is_not_read_by_the_regexes(self):
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "index.html"
+            path.write_text("const money = (n) => n.toFixed(2);", encoding="utf-8")
+            self.assertEqual(list(guard.findings_in(path)), [])
+
+
 class TheFixer(unittest.TestCase):
     """fix_money_sign.mjs must turn every newly flagged spelling into one that
     renders "-$1,234.50", keeps guards and zeros as they were, and passes the check."""

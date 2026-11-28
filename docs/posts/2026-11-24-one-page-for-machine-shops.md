@@ -1110,6 +1110,63 @@ fails if any minute differs. The app does not work out speeds and feeds,
 finishing passes, tool changes or loading time; the estimator types those
 in. All the figures are made up, and the guide says so.
 
+## Update, 28 November 2026: quoting the work you send out
+
+Heat treat, anodize, plating and black oxide are the part of a quote whose
+price someone else sets. A new guide covers them: [how to quote outside
+processing](https://marisstella.app/jobshop/how-to-quote-outside-processing).
+It turns a per-pound heat-treat price into a per-part charge from the
+finished weight, takes the larger of per-part × parts sent and the vendor's
+lot minimum, counts the spares sent for fallout, adds freight and the
+certificate, and marks the outside work up. The worked example is a made-up
+4140 clamp block, hardened by one vendor and black oxided by another, at 5,
+50 and 250 pieces. It is priced twice: properly, and the common shortcut of
+multiplying each vendor's per-part price by the quantity. Three things the
+comparison shows:
+
+- **At 5 pieces the shortcut quotes less than half the job.** The vendors
+  would bill $10.74 and $7.20 by the part; their minimums are $175 and $85.
+  With freight and the certificate, outside costs are 51% of the cost, and
+  the multiplied quote is $391.45 against $810.50.
+- **The minimums still bind at 50.** 52 parts sent is below both break-even
+  counts (71 for the black oxide, 98 for the heat treat), so the outside
+  charge is the same as at 5. The shortfall is $281.50, about $5.63 a part,
+  easy to miss in a $2,371 quote.
+- **At 250 the per-part prices are right,** and what is still missing is the
+  $115 of freight and certificate and the markup: $252.50.
+
+Job Shop Quote holds each finish as a rate-card entry with a per-part charge
+and a lot minimum, marked up at its own outside-service rate, with freight
+and certificates as extras on the line. It does not price a finish by the
+pound or by area; the estimator types the per-part figure. A test prices the
+block both ways with the app's costing engine and fails if any quantity
+break differs by a cent. All the figures are made up, and the guide says so.
+
+## Update, 28 November 2026: markup, margin and where the profit sits
+
+A new guide, [machine shop markup and
+margin](https://marisstella.app/jobshop/machine-shop-markup), takes the same
+made-up anodized bracket and asks where its profit comes from. Three things
+it shows:
+
+- **The markup line looks thin because the profit is in the rate.** The mill
+  bills $123.85 an hour, the hourly-rate guide's $99.08 cost at a 20% margin,
+  so labor carries no markup. The quote's markup line is 4.7% of its costs at
+  one part and 2.4% at a hundred, but the margin over the shop's full cost is
+  17.6% to 18.7%.
+- **The same margin can be written two ways.** The mill at $99.08 with a 25%
+  labor markup prices the job within a cent of the $123.85 rate with none.
+  Doing both is one 15% markup on everything: $57.90 more on the one-off and
+  $879.00 more on the hundred, the margin charged twice on labor.
+- **Outside work at cost hurts most on small orders.** Passing the material
+  and the anodize through at cost drops the one-off's margin to 13.8%, because
+  the vendor's $150 lot charge is 26% of its price.
+
+Job Shop Quote keeps a separate labor, material and outside-service markup
+and a line minimum on the rate card. A test runs all four policies through
+the app's costing engine and fails if any quantity break differs by a cent.
+All the figures are made up, and the guide says so.
+
 ## Update, 28 November 2026: what the material line should cost
 
 Another guide covers the first line of every machining quote: [how to
