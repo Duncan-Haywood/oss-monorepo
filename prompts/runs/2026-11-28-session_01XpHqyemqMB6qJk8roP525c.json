@@ -51,6 +51,12 @@
       "why": "reaudit takes fixed highs first; the top row, retail-pilot-intel, was flagged as having fix PRs that may only have written its defects down, so I took the next row, which has a fixed high",
       "did": "re-audited clothing-design-studio",
       "result": "retail-pilot-intel is still first in the queue for the next reaudit"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "main's title-length test went red after PR #20036 merged a 82-character jobshop title; my PR's merge-commit CI failed on it",
+      "did": "fixed forward in this PR: shortened the title in routes.ts and regenerated catalogue-export (catalogue-export unit test 4/4, title-length test 4/4)",
+      "result": "pending CI"
     }
   ],
   "writeups": [
