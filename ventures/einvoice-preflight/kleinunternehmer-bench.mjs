@@ -48,6 +48,10 @@ export const VARIANTS = [
   ["Hinweis auf die Steuerbefreiung fehlt (BT-120)", {}, strip(/\s*<ram:ExemptionReason>[^<]*<\/ram:ExemptionReason>/g)],
   ["Steuernummer fehlt (BT-32)", {}, strip(/\s*<ram:SpecifiedTaxRegistration><ram:ID schemeID="FC">[^<]*<\/ram:ID><\/ram:SpecifiedTaxRegistration>/)],
   ["Kategorie O (nicht steuerbar) statt E", { category: "O" }, null],
+  // Added 2026-11-28 (PR #20033): three more ways other software writes a § 19 invoice.
+  ["„0 % USt“ als Normalsatz (Kategorie S)", {}, (x) => strip(/\s*<ram:ExemptionReason>[^<]*<\/ram:ExemptionReason>/g)(x).replaceAll("<ram:CategoryCode>E</ram:CategoryCode>", "<ram:CategoryCode>S</ram:CategoryCode>")],
+  ["Kategorie Z (Nullsatz) statt E, mit Hinweis auf § 19 UStG", {}, (x) => x.replaceAll("<ram:CategoryCode>E</ram:CategoryCode>", "<ram:CategoryCode>Z</ram:CategoryCode>")],
+  ["Steuernummer im Feld der USt-IdNr. (BT-31)", {}, (x) => { const out = x.replace('schemeID="FC"', 'schemeID="VA"'); if (out === x) throw new Error("no FC scheme"); return out; }],
   ["Kategorie Z (Nullsatz) statt E, ohne Hinweis auf § 19 UStG", { category: "Z", reason: "" }, null],
 ];
 
