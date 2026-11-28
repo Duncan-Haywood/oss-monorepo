@@ -350,61 +350,83 @@ export const PLATFORMS = [
 ];
 /**
  * What the product does (home page and llms.txt). Every item is in the app today
- * (apps/seller-books/README.md); add one only once it is.
+ * (apps/seller-books/README.md); add one only once it is. The home page card shows `short`
+ * (two lines at card width), `body` behind a "How it works" disclosure, and a link to the
+ * `guide` page when one covers it; llms-full.txt carries `body` in full.
  */
 export const FEATURES = [
   {
     key: "profit",
+    short: "Each sale's price, platform fees, postage and item cost in one ledger, from eBay to Square to any marketplace's CSV.",
+    guide: "/platforms",
     title: "True profit per sale, across every platform",
     body: "One ledger for eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo and Cash App. Grailed, StockX, Vinted, Reverb and any other marketplace come in from their own CSV: you say once which column is which, and Seller Books keeps the choice. Each sale shows what the buyer paid, every fee the platform took, shipping you paid, and what the item cost you, so the number at the bottom is profit, not payout. Sales with no marketplace report (cash at a market, a local pickup paid by Zelle) are typed in and counted the same way.",
   },
   {
     key: "fees",
+    short: "The fees each platform actually charged you, read from its own sales and payout reports, so the books match your bank.",
+    guide: "/reseller-tax-deductions",
     title: "Fees from your own reports, not a rate table",
     body: "Platform fees change often and differ by category. Seller Books reads the fees you were actually charged from each platform's sales and payout reports, so the books match what landed in your bank account.",
   },
   {
     key: "cogs",
+    short: "Record what you paid, lots and bins split across their items; the cost moves to cost of goods when the item sells.",
+    guide: "/cost-of-goods-sold",
     title: "Cost of goods that follows the item",
     body: "Record what you paid when you source, including bulk lots and bins split across the items in them. When an item sells, on whichever platform, its cost moves to cost of goods sold; what's unsold stays as inventory at the end of the year. Already track purchases in a spreadsheet? Save it as CSV and import it; you see what will be added before anything is saved.",
   },
   {
     key: "stock",
+    short: "How long unsold items have sat, days to sell by platform, and whether each lot and source has paid for itself.",
     title: "Know what's sitting unsold, and whether a lot paid off",
     body: "A stock report shows how long your unsold items have been on the shelf and what they cost you, your sell-through and median days to sell on each platform, for every bin, pallet or estate-sale haul how much of its cost its sales have earned back, and profit and return on cost by where you bought (which thrift store, estate sale or supplier pays). Computed from your own imports and purchase records, nothing estimated.",
   },
   {
     key: "mileage",
+    short: "Log or import sourcing trips; the worksheet prices them at the IRS standard rate for each trip's date.",
+    guide: "/mileage-deduction",
     title: "Sourcing miles",
     body: "Log trips to thrift stores, estate sales and the post office with date, purpose and miles. The worksheet shows them with the IRS standard mileage rate for the trip's date, or keeps them as a record if you use actual car expenses instead. Already let a mileage tracker app record your drives? Export them as CSV and import the business trips, each with its purpose; personal drives are left out.",
   },
   {
     key: "schedule-c",
+    short: "Year-end totals on the Schedule C lines, with one ZIP of every record behind them for your tax preparer.",
+    guide: "/schedule-c-worksheet",
     title: "A Schedule C worksheet",
     body: "At year end you get your totals grouped the way Schedule C (Form 1040) asks for them: gross receipts, returns, cost of goods sold with beginning and ending inventory, car and truck, commissions and fees, supplies and other expenses, and the home office line by the simplified method if you keep your stock at home. One download gives your tax preparer everything behind it in a ZIP: the worksheet, every sale and fee, the closing inventory, the mileage log, the expenses and the receipt photos or PDFs you attached to them, with a note saying which line each file adds up to. A worksheet for you or your tax preparer, not a filed return.",
   },
   {
     key: "quarterly",
+    short: "What to have paid by each federal due date, figured two ways from the profit in your books.",
+    guide: "/quarterly-estimated-tax",
     title: "Quarterly estimated tax from your own books",
     body: "For each of the four federal due dates (April, June, September and January), what to have paid so far, figured two ways: a quarter of the year's required payment (the smaller of 90% of this year's tax or 100% of last year's, 110% above $150,000 of AGI), and the annualized method on Form 2210 Schedule AI, which asks less early in the year when your sales come in the fourth quarter. It uses the profit in your books to each period's end. An estimate to check with your tax preparer, not tax advice.",
   },
   {
     key: "1099k-check",
+    short: "Type in a platform's 1099-K and see it beside your books, with the months that don't match named.",
+    guide: "/1099-k",
     title: "Check a 1099-K against your books",
     body: "Type the figures from a platform's Form 1099-K and see them beside your books for that platform and year: item sales, then with the shipping buyers paid, then with the sales tax the platform collected. Type the monthly boxes too and the months that don't match are named, such as a month whose report you haven't imported or a sale dated at the end of one month by you and the start of the next by the platform. The form counts payments before refunds and fees, so it is usually higher than your profit; this shows where the difference comes from. Nothing you type is saved.",
   },
   {
     key: "deposit-check",
+    short: "Set your bank statement's payouts against what your books expect, month by month, to find a report you haven't imported.",
     title: "Did I import everything? Check your deposits",
     body: "Upload the statement of the bank account your payouts go to. Each deposit that names a platform is set against what your books say that platform should have paid you (sales and shipping, less refunds, fees and postage), month by month. A month with Mercari deposits and no Mercari sales in your books is a report you haven't imported; deposits running behind your books usually mean money still on the platform or paid to another account. You see every deposit it matched and can untick one that isn't a payout, such as a refund of something you bought. The statement isn't saved.",
   },
   {
     key: "sales-tax",
+    short: "Tax on sales no marketplace sent on (Square, PayPal, Venmo, your own store, cash), listed apart with a CSV for your return.",
+    guide: "/reseller-sales-tax",
     title: "The sales tax you collected yourself, by month and quarter",
     body: "Sales tax a marketplace collected on your sales there was sent on by the marketplace, and Seller Books keeps it out of your income. Tax on the sales you rang up yourself is different: Square at a market booth, PayPal and Venmo payments, your own Shopify store, and the cash sales you type in with their tax. No marketplace sent it on, so Seller Books lists it apart, by month and channel with quarter totals and the tax you handed back on refunds, and downloads it as a CSV to fill your sales tax return from. Which sales are taxable, and in which state, is for you or your tax preparer.",
   },
   {
     key: "quickbooks",
+    short: "One entry per platform per month, on the accounts you name, ready for QuickBooks Online's journal-entry import.",
+    guide: "/compare",
     title: "Monthly journal entries for QuickBooks Online",
     body: "Already keep your books in QuickBooks Online, or your accountant does? Download your sales as journal entries for its journal-entry import: one entry per platform per month, with sales, shipping charged, refunds, fees, ads, postage and subscriptions on their own accounts and the net on a clearing account for each platform, so a payout is a transfer from that account to your bank. You name the accounts; cost of goods can go against an inventory account if that is how your books work. Sales tax a platform collected stays out.",
   },
