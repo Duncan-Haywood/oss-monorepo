@@ -31,6 +31,17 @@ test('copies the app, its imported modules and the wasm, and leaves tests and ca
     const sitemap = readFileSync(path.join(out, 'residential-takeoff/sitemap.xml'), 'utf8');
     assert.match(sitemap, /<loc>https:\/\/marisstella\.app\/residential-takeoff\/<\/loc>/);
     assert.match(readFileSync(path.join(out, 'residential-takeoff/llms.txt'), 'utf8'), /Checkout is not open/);
+    // Paddle's website review wants terms, a refund policy and a privacy notice beside the price.
+    for (const page of ['terms', 'refunds', 'privacy']) {
+      assert.ok(written.includes(`residential-takeoff/${page}.html`), page);
+      assert.match(sitemap, new RegExp(`<loc>https://marisstella\\.app/residential-takeoff/${page}</loc>`), page);
+      assert.match(home, new RegExp(`href="\\./${page}\\.html"`), page);
+      const doc = readFileSync(path.join(out, `residential-takeoff/${page}.html`), 'utf8');
+      assert.match(doc, new RegExp(`<link rel="canonical" href="https://marisstella\\.app/residential-takeoff/${page}">`), page);
+      assert.match(doc, /Maris Stella Labs LLC/, page);
+    }
+    assert.match(readFileSync(path.join(out, 'residential-takeoff/refunds.html'), 'utf8'), /within 30 days/);
+    assert.match(readFileSync(path.join(out, 'residential-takeoff/privacy.html'), 'utf8'), /Cloudflare Web Analytics/);
     await assert.rejects(buildResidentialTakeoffApp(out), /already written/);
   } finally {
     rmSync(out, { recursive: true, force: true });
