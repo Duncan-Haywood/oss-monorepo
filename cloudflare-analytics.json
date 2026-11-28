@@ -3,15 +3,15 @@
  "source": "Cloudflare GraphQL Analytics API (httpRequests1dGroups, httpRequestsAdaptiveGroups, workersInvocationsAdaptive) via platform/counter/pull-cloudflare.mjs",
  "zone": "marisstella.app",
  "last_pull": {
-  "on": "2026-11-27",
+  "on": "2026-11-28",
   "window": [
-   "2026-11-13",
-   "2026-11-26"
+   "2026-11-14",
+   "2026-11-27"
   ],
   "days_pulled": 14,
   "errors": [
    "httpRequests1dGroups: GraphQL answered 200: Actor 'com.cloudflare.api.token.8ebdd7e2ac70757f89604198d2541b59' does not have permission 'com.cloudflare.api.account.zone.analytics.read' for zone d80eab23317aeac52c143f3e2fc92e58",
-   "httpRequestsAdaptiveGroups 2026-11-13: GraphQL answered 200: Actor 'com.cloudflare.api.token.8ebdd7e2ac70757f89604198d2541b59' does not have permission 'com.cloudflare.api.account.zone.analytics.read' for zone d80eab23317aeac52c143f3e2fc92e58"
+   "httpRequestsAdaptiveGroups 2026-11-14: GraphQL answered 200: Actor 'com.cloudflare.api.token.8ebdd7e2ac70757f89604198d2541b59' does not have permission 'com.cloudflare.api.account.zone.analytics.read' for zone d80eab23317aeac52c143f3e2fc92e58"
   ]
  },
  "days": {
@@ -575,6 +575,50 @@
     },
     "marisstella-mail": {
      "requests": 1,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-27": {
+   "workers": {
+    "payapps": {
+     "requests": 258,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 27201,
+     "errors": 0
+    },
+    "seller-books": {
+     "requests": 72,
+     "errors": 0
+    },
+    "grant-autopilot-demo": {
+     "requests": 24,
+     "errors": 0
+    },
+    "cmmc-workspace": {
+     "requests": 72,
+     "errors": 0
+    },
+    "jobshop-quote": {
+     "requests": 60,
+     "errors": 0
+    },
+    "marisstella-mail": {
+     "requests": 1,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 19449,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 2985,
+     "errors": 0
+    },
+    "grant-autopilot": {
+     "requests": 1407,
      "errors": 0
     }
    }
