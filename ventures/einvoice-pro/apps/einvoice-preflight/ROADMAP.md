@@ -187,6 +187,13 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   slimdom and fontoxpath, so 134 official-route tests run there instead of skipping. Still-unported
   free fixes: docs/reports/2026-11-27-einvoice-free-paid-drift.md (oss-monorepo).
 
+- XRechnung extension third-party payments (2026-11-28, xrechnung-extension-third-party-payments): a
+  valid German extension invoice with third-party payments (BG-DEX-09, e.g. mobile payment collected for
+  another provider) was told its amount due was wrong (INV-029); now BR-DEX-09's amount due (gross -
+  prepaid + rounding + the payments) applies in extension files, a standard file whose total only works
+  with them is told why, and the xrechnung profile checks BR-DEX-10 to -14 as XR-010 and XR-011
+  (README, "Third-party payments in the extension"). The suite's last INV-029 false positive is gone.
+
 ## Must do before a public launch
 
 - Owner: the licence decision on the third-party rule sets in `plain/` (EUPL-1.2, MPL-2.0,

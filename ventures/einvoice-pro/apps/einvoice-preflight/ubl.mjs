@@ -638,6 +638,8 @@ export function parseUblInvoice(source) {
   if (businessProcess) invoice.profile_id = businessProcess;
   const adjustments = headerAdjustments(root);
   if (adjustments.length) invoice.adjustments = adjustments;
+  const thirdParty = thirdPartyPayments(root);
+  if (thirdParty.length) invoice.third_party_payments = thirdParty;
   const notes = [
     ...root.children.filter((child) => child.name === "Note").map((child) => child.text.trim()),
     ...root.children.filter((child) => child.name === "PaymentTerms").flatMap((terms) => descendants(terms, "Note").map((n) => n.text.trim())),
@@ -693,6 +695,33 @@ function headerAdjustments(root) {
       if (vatCategory) row.tax_category = vatCategory;
     }
     if (Object.keys(row).length) rows.push(row);
+  }
+  return rows;
+}
+
+// BG-DEX-09, THIRD PARTY PAYMENT (XRechnung extension only, UBL only): document-level
+// cac:PrepaidPayment, each with its type (BT-DEX-001, cbc:ID), amount (BT-DEX-002,
+// cbc:PaidAmount) and description (BT-DEX-003, cbc:InstructionID). In an extension file
+// they are added to the amount due (BR-DEX-09 overrides BR-CO-16; checks.mjs INV-029).
+// The amount is kept as written as well, for BR-DEX-13's two-decimals rule (profile.mjs);
+// an amount that is not a number reads as null rather than refusing the whole file.
+function thirdPartyPayments(root) {
+  const rows = [];
+  const direct = (node, name) => {
+    const child = node.children.find((c) => c.name === name);
+    return child ? child.text.trim() : "";
+  };
+  for (const child of root.children) {
+    if (child.name !== "PrepaidPayment") continue;
+    const amountNode = child.children.find((c) => c.name === "PaidAmount");
+    const text = amountNode ? amountNode.text.trim() : "";
+    rows.push({
+      type: direct(child, "ID"),
+      amount: text ? parseDecimal(decodeXmlRefs(text)) : null,
+      amount_text: text,
+      currency: amountNode && amountNode.attrs && amountNode.attrs.currencyID ? amountNode.attrs.currencyID.trim() : "",
+      description: direct(child, "InstructionID"),
+    });
   }
   return rows;
 }

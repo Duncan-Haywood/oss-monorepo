@@ -16,6 +16,13 @@ checks the pair. No customers yet.
 
 ## Done (v0.1, this core)
 
+- Sign-ups by source (2026-11-28, `signup-source`): the `from=` that the marketing site (now tagged
+  `jobshop-site/<page>` on every Start free link), the machine-shop guides and the catalogue's products and
+  manufacturing pages put on `/sign-up` is kept in the browser until sign-in (not under Do Not Track or GPC),
+  posted once, and stored once per account within 14 days (`signup_source`, migration 0043; Privacy Policy
+  2026-11-28.2). `GET /api/admin/metrics` gains `sources` rows: sign-ups, verified, with a shop, sent a quote,
+  paying, per page. Port of payapps PR #19695 and seller-books PR #19949. Next, once rows exist: put effort
+  behind the pages whose shops send quotes, not the ones that bring sign-ups only.
 - Module landing pages (2026-11-28, `jobshop-site-module-pages`): https://marisstella.app/jobshop/ has a page
   per built module (CNC quoting, sheet metal from the DXF, STEP files, repeat parts and routings, material
   prices, online acceptance, follow-up, win/loss, job travelers, shop load and lead time), each saying what

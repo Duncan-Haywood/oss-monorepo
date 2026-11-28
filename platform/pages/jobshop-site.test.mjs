@@ -21,7 +21,7 @@ test('copies the committed Job Shop Quote export to jobshop/, pages, sitemap and
     assert.doesNotMatch(home, /<form|href="[^"]*early-access/);
     assert.doesNotMatch(home.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, ''), /<script/);
     // Sign-up goes to the app.
-    assert.match(home, /href="https:\/\/jobshop-quote\.marisstella\.app\/sign-up"/);
+    assert.match(home, /href="https:\/\/jobshop-quote\.marisstella\.app\/sign-up\?from=jobshop-site%2Fhome"/);
     // Links between its pages are relative, so the copy works under any base path.
     assert.doesNotMatch(home, /(href|src)="\//);
     assert.match(home, /href="\.\/pricing"/);
