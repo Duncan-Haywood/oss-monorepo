@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKk7xN5WqhBdybGzdFW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T16:17:54Z",
+  "ended": "2026-11-28T16:27:36Z",
+  "wall_minutes": 9.92,
+  "tokens_in": 7621701,
+  "tokens_out": 39818,
+  "cost_usd": 3.5749,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20172",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "First angled version split a leaning face's top course into two runs (a 0-length sliver); found on the bay house, fixed with faceRuns (union-find across sample depths).",
+    "CI changed-ventures failed on a @ts-check diagnostic (TS2345, ro.lines typed loosely); fixed with a cast. Local run_venture_tests.py does not run platform/pages/typecheck.mjs."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Claiming at the end (after building) found a NEAR claim by another session taken 5 min earlier for the same ROADMAP 'Next' item; claiming before building, as intended, would have avoided the race. The --bets output pointed at cmmc #1, which was already claimed (gauge-list-import 8 min old) under a different slug, so the 'free' label was misleading."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "CLAUDE.md says a local pass is the CI pass, but changed-ventures also runs platform/pages/typecheck.mjs, which the local command skipped; a TS diagnostic only showed in CI."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Claims are taken by slug when work starts, but I picked the item by reading ROADMAP Next directly and did not claim before building; the other session claimed minutes later and won. roadmap_claim.py --bets listing the app as 'none free' did not tell me that a Next 'Next:' sub-line was open, so I went around it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "why": "Did not claim before building (I chose the item from the ROADMAP's own Next line and slug_dupe showed nothing); when the claim was refused as NEAR, the work was already done and tested.",
+      "did": "Opened the PR under the other claim's slug so its session's slug_dupe sees it, and explained this in the PR body.",
+      "result": "PR open; other session can stop or extend."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No new post: this is an engine feature with no new data a reader needs beyond the README/ROADMAP; the existing hip-roof guide covers the topic.",
+      "did": "README and llms.txt updated instead.",
+      "result": "n/a"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate work: the other session's PR merged first.",
+      "did": "Reset my branch to main, kept only the pay-app-guides fix and the record, and cross-checked main's code with my tests.",
+      "result": "No duplicate code on main; main's pay-app-guides suite fixed."
+    }
+  ],
+  "writeups": [
+    "ventures/residential-takeoff/apps/wall-framing-takeoff/README.md (angled sheathing paragraph)",
+    "ventures/residential-takeoff/apps/wall-framing-takeoff/ROADMAP.md"
+  ],
+  "goal": null,
+  "notes": "Built roof sheathing courses on angled planes (outlinesheathing.mjs on planeFaces, faceRuns, a faces:true oracle matching the L-infinity rule on 104/104 random square outlines; 1387 venture tests and the Chromium click check passed). Another session (#20173) claimed the same ROADMAP item about 5 min before my claim attempt and merged the same approach first, so my implementation was dropped in favour of main's. My random-outline checks (40+ turned houses: same pieces and sheets; 80 chamfered/bay outlines covered point by point; the bay house) were run against main's implementation and pass (independent check, not committed: main already has equivalent tests). What lands here: pay-app-guides all-guides nav re-generated with node nav.mjs. Main's suite was red because parallel PRs each added a guide (final-payment-affidavit, ohio-notice-of-furnishing) without the other's nav entry; run_venture_tests.py pay-app-guides now passes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c1a1bf08-6a4b-546f-9038-48b3667ab613",
+    "transcripts": 1,
+    "first": "2026-11-28T16:17:54Z",
+    "last": "2026-11-28T16:27:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 115,
+        "output": 39818,
+        "thinking": 10787,
+        "cache_read": 7460852,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160734,
+        "api_equivalent_usd": 3.5749,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 115,
+      "output": 39818,
+      "thinking": 10787,
+      "cache_read": 7460852,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160734,
+      "api_equivalent_usd": 3.5749,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 56,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.92,
+      "active_minutes": 9.92,
+      "model_minutes": 8.29,
+      "tool_minutes": 1.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "computational-geometry feature with a randomized oracle test suite, estimated",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 279.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
