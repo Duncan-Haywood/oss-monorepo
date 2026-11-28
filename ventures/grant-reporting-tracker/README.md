@@ -22,13 +22,19 @@ Everything runs in your browser. Grant data is never uploaded, and there are no 
 
 The tracker produces a planning queue. It does not determine a funder's rules, file a report, certify allowability, or confirm compliance. Check the award agreement and ask your grant professional about the obligations that apply.
 
+## Reporting lag, award end and final report
+
+Three optional fields on each award (added 2026-11-28 after the quality re-audit, [`portfolio/quality/audits/2026-11-28-grant-reporting-tracker.json`](../../portfolio/quality/audits/2026-11-28-grant-reporting-tracker.json)):
+
+- **Report due, days after each period.** Blank keeps the original meaning (due on award date plus each interval). With a number, each period ends the day before the next starts and its report is due that many days later: 30 for federal quarterly or semiannual reports, 90 for annual (2 CFR 200.329).
+- **Award period ends.** The last period's report becomes the final report, due 120 days after the end (2 CFR 200.344) or after the days you enter. Filing it shows "All reports filed".
+- Spending above the award is flagged "overspent" in the queue and in the CSV.
+
 ## Known gaps
 
-From the 2026-11-13 quality audit ([`portfolio/quality/audits/2026-11-13-grant-reporting-tracker.json`](../../portfolio/quality/audits/2026-11-13-grant-reporting-tracker.json)):
-
-- The due date is the end of each reporting interval, with no lag after it. Federal awards are due a set number of days after each period ends (30 days for quarterly or semiannual reports, 90 for annual, under 2 CFR 200.329), so the tracker flags them earlier than the rule requires. Enter your agreement's actual due dates if they differ.
-- There is no award end date and no final report. Under 2 CFR 200.344 the final report is due 120 days after the period of performance ends.
-- Spending above the award shows as a negative balance with no warning.
+- One report stream per award. Agreements that set different schedules for financial (SF-425) and performance reports need two rows.
+- Reporting periods run from the award date. A federal award reporting on calendar quarters from a mid-quarter start needs its award date set to the first quarter start.
+- The tool does not read the award agreement; the dates are only as right as the fields typed in.
 
 ## Development
 
