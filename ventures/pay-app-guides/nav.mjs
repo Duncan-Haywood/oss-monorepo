@@ -23,6 +23,7 @@ export const GROUPS = [
     ["pay-if-paid-clauses.html", "Pay-if-paid clause reader"],
     ["how-to-write-an-rfi.html", "RFI drafter and how to write an RFI"],
     ["punch-list.html", "Punch list tracker and back-check email"],
+    ["daily-report-template.html", "Daily report template (print, email, CSV)"],
   ]],
   ["Billing guides", [
     ["how-to-fill-out-a-pay-application.html", "How to fill out a pay application"],

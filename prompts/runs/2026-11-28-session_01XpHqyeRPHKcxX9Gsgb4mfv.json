@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqyeRPHKcxX9Gsgb4mfv",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T00:38:59Z",
+  "ended": "2026-11-28T00:44:05Z",
+  "wall_minutes": 5.34,
+  "tokens_in": 3738304,
+  "tokens_out": 26703,
+  "cost_usd": 2.0203,
+  "tool_calls": 38,
+  "task": "quality reaudit mode: ventures/coi-expiry-gap-checker (front door to PayApps, bet #1)",
+  "projects": [
+    "ventures/coi-expiry-gap-checker"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19931",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "First audit JSON had invalid backslash escapes in the .ics evidence strings; it took three edits to fix",
+    "First post front matter had description and seo_title over the length caps (caught by run_workflow_locally)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "In reaudit mode, 'status is what you found on arrival; a fix your own PR makes goes in closed_by' leaves it unclear whether such a row is status open with closed_by set (what I did) or status closed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "From the reaudit list (seeded order) I took the 14th row, coi-expiry-gap-checker, not the first, because the track prompt's north star prefers a subject that leads to a paid product. Its llms.txt links to PayApps (bet #1).",
+      "did": "re-audited and fixed that subject",
+      "result": "5 of 10 earlier defects confirmed closed, 1 new high found and fixed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-quality-reaudit-coi-expiry-gap-checker.md",
+    "portfolio/quality/audits/2026-11-28-coi-expiry-gap-checker.json"
+  ],
+  "goal": "quality of a free front door to bet #1 (PayApps)",
+  "notes": "Mode reaudit (seed 2026-11-28-bc71). Subject ventures/coi-expiry-gap-checker, prior audit 2026-11-12. Of 10 prior defects: 5 closed (both highs, .ics escape, README command, UTC date), 5 open; the blanket fix_prs reading had counted all 10 closed. New high: /comp/ substring matched 'completed operations' -> WC. Scores before fix: 2/3/2/2/3/2/2. Does not meet the bar (0 of 1). Fix PR #19931 closes the new high and prior defects 2-5 and adds 8 tests; tests went from 29 to 37 passing; all 4 prior surviving mutants are now caught, plus a new renewal-boundary mutant. Playwright walk: both examples render, unreadable requirement and blank lead time show errors, no page errors. risk_review: nothing triggered. EL disease limits remain open (README Known gaps).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9a4fa7b9-0397-5eed-bed5-6c73f2cf30a3",
+    "transcripts": 1,
+    "first": "2026-11-28T00:38:59Z",
+    "last": "2026-11-28T00:44:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 74,
+        "output": 26703,
+        "thinking": 3373,
+        "cache_read": 3643581,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94649,
+        "api_equivalent_usd": 2.0203,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 74,
+      "output": 26703,
+      "thinking": 3373,
+      "cache_read": 3643581,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94649,
+      "api_equivalent_usd": 2.0203,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.34,
+      "active_minutes": 5.34,
+      "model_minutes": 4.4,
+      "tool_minutes": 0.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "re-check 10 defects, probe, fix 5 issues with tests, write audit and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 247.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

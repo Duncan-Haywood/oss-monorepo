@@ -92,8 +92,22 @@ Selling a hosted service to German and French firms brings two duties no file he
    checked against a vendor this run). Needed: the owner's decision and the contract; the
    representative's name then goes in the Privacy Policy and the DPA.
 
-When both are in: run `einvoice-pro-deploy` from `main` with `skip_checks` off, check `/healthz`,
-`/app`, `/app/notices` and the legal pages, then do DEPLOY.md "Then" 1-3.
+**Built 2026-11-27 (impressum-and-eu-representative), so the owner supplies values only.**
+`pro/provider.mjs` holds the provider identification as code: name, legal form, email (filled), and
+`postalAddress`, `representedBy`, `euRepresentative` (required, `null` until the owner gives them),
+plus `register` and `vatId` (shown when set). `/app/impressum`, `/app/de/impressum` and
+`/app/fr/impressum` render it (every value escaped; a gap reads "not yet published"), the workspace
+footer links it in all five languages, `/v1/legal` lists it with `complete` and `missing`, and the
+Privacy Policy's contact section (EN, DE, FR; version unchanged, as the Service has never been
+deployed) points to it for the Article 27 representative. **Fail closed:** while `providerGaps()`
+is non-empty, a host with `APP_ENV=production` (which the deploy sets) answers `POST /v1/signup`
+with 403 `signup_closed`, so even a premature deploy cannot take a stranger's sign-up without the
+Impressum. Tests: `pro/provider.test.mjs`. The ask is `einvoice-provider-identification` in
+`portfolio/ledger/asks.yaml`.
+
+When both are in: write the values into `pro/provider.mjs` (the test then sees no gaps), run
+`einvoice-pro-deploy` from `main` with `skip_checks` off, check `/healthz`, `/app`, `/app/notices`,
+`/app/impressum` and the legal pages, then do DEPLOY.md "Then" 1-3.
 
 ## 5. What the first deploy will and will not turn on
 

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { check, readList, parseCsv, parseDate, parseMoney, normalizeCoverage, sampleList, sampleBrokenList, SAMPLE_AS_OF, findingsCsv, chaseListCsv, expiryCalendar, isoDay } from "./calc.mjs";
+import { check, readList, parseCsv, parseDate, parseMoney, normalizeCoverage, readRequirements, sampleList, sampleBrokenList, SAMPLE_AS_OF, findingsCsv, chaseListCsv, expiryCalendar, isoDay } from "./calc.mjs";
 
 const AS_OF = parseDate(SAMPLE_AS_OF);
 const HEAD = "Vendor,Coverage,Each occurrence,Aggregate,Effective,Expiration,Additional insured,Waiver of subrogation\n";
@@ -177,4 +177,71 @@ test("both samples behave as the page says", () => {
   assert.equal(bad.summary.fail, 2);
   assert.match(titles(bad).join("|"), /19-day gap/);
   assert.match(titles(bad).join("|"), /Expires before it takes effect/);
+});
+
+// Re-audit 2026-11-28 (portfolio/quality/audits/2026-11-28-coi-expiry-gap-checker.json): the four
+// boundaries the 2026-11-12 mutations showed untested, plus the defects closed in that round.
+const WC_ONLY_REQ = { GL: { required: false }, AUTO: { required: false } };
+test("an umbrella exactly equal to the shortfall makes it up; one dollar less does not", () => {
+  const gl = "U,General liability,500000,2000000,2026-01-01,2027-01-01,Yes,Yes";
+  const rest = ["U,Auto,1000000,,2026-01-01,2027-01-01,Yes,Yes", "U,Workers comp,500000,,2026-01-01,2027-01-01,,Yes"];
+  const equal = run([gl, "U,Umbrella,500000,,2026-01-01,2027-01-01,Yes,Yes", ...rest]);
+  assert.equal(equal.findings.filter((f) => f.severity === "error").length, 0);
+  assert.match(titles(equal).join("|"), /\$500,000 short, made up by the umbrella/);
+  const less = run([gl, "U,Umbrella,499999,,2026-01-01,2027-01-01,Yes,Yes", ...rest]);
+  assert.match(titles(less).join("|"), /each occurrence \$500,000 is below the \$1,000,000 required/);
+});
+
+test("an umbrella never makes up an employers' liability shortfall", () => {
+  const r = run(["W,Workers comp,100000,,2026-01-01,2027-01-01,,Yes", "W,Umbrella,5000000,,2026-01-01,2027-01-01,Yes,Yes"], WC_ONLY_REQ);
+  const f = r.findings.find((x) => x.coverage === "WC" && /employers' liability/.test(x.title));
+  assert.equal(f.severity, "error");
+});
+
+test("seven days left is an error, eight is a warning", () => {
+  const r7 = run([`S,Workers comp,500000,,2025-01-01,${isoDay(AS_OF + 7)},,Yes`], WC_ONLY_REQ);
+  const r8 = run([`S,Workers comp,500000,,2025-01-01,${isoDay(AS_OF + 8)},,Yes`], WC_ONLY_REQ);
+  assert.equal(r7.findings.find((f) => /expires/.test(f.title)).severity, "error");
+  assert.equal(r8.findings.find((f) => /expires/.test(f.title)).severity, "warning");
+});
+
+test("workers' comp is checked for waiver of subrogation", () => {
+  const r = run(["S,Workers comp,500000,,2026-01-01,2027-01-01,,No"], WC_ONLY_REQ);
+  assert.equal(r.findings.find((f) => f.coverage === "WC" && /waiver/.test(f.title)).severity, "error");
+});
+
+test("a renewal already on the list clears the lead-time warning, and one with a gap does not", () => {
+  const exp = isoDay(AS_OF + 10), later = isoDay(AS_OF + 375);
+  const ok = run([`R,Workers comp,500000,,2025-10-15,${exp},,Yes`, `R,Workers comp,500000,,${exp},${later},,Yes`], WC_ONLY_REQ);
+  assert.equal(ok.vendors[0].status, "ok");
+  assert.match(titles(ok).join("|"), /renewal on file/);
+  assert.equal(chaseListCsv(ok), "vendor,status,ask_for\r\n");
+  const gap = run([`R,Workers comp,500000,,2025-10-15,${exp},,Yes`, `R,Workers comp,500000,,${isoDay(AS_OF + 11)},${later},,Yes`], WC_ONLY_REQ);
+  assert.equal(gap.vendors[0].status, "watch");
+  assert.match(titles(gap).join("|"), /expires .* \(10 days\)/);
+});
+
+test("the column headings printed on an ACORD 25 are read", () => {
+  const r = readList("INSURED,TYPE OF INSURANCE,ADDL INSD,SUBR WVD,POLICY NUMBER,POLICY EFF (MM/DD/YYYY),POLICY EXP (MM/DD/YYYY),EACH OCCURRENCE\nX,Commercial general liability,Y,Y,GL-1,01/01/2026,01/01/2027,1000000");
+  assert.deepEqual(r.findings, []);
+  const p = r.policies[0];
+  assert.equal(p.coverage, "GL"); assert.equal(p.ai, true); assert.equal(p.waiver, true);
+  assert.equal(isoDay(p.effective), "2026-01-01"); assert.equal(isoDay(p.expiry), "2027-01-01"); assert.equal(p.limit, 1000000);
+});
+
+test("'comp' and 'work' inside other words are not workers' compensation", () => {
+  assert.equal(normalizeCoverage("GL incl. products-completed operations"), "GL");
+  assert.equal(normalizeCoverage("Network security liability"), null);
+  for (const wc of ["Workers comp", "Workers' compensation", "Worker's Compensation and Employers' Liability", "WC", "Employers liability"]) assert.equal(normalizeCoverage(wc), "WC", wc);
+});
+
+test("an unreadable requirement or lead time is reported, not turned into 0", () => {
+  const base = { glOcc: "1000000", glAgg: "2M", autoCsl: "1M", wcEl: "500k", umb: "", pro: "0", lead: "30", waiver: true };
+  const good = readRequirements(base);
+  assert.deepEqual(good.problems, []);
+  assert.equal(good.req.GL.aggregate, 2000000); assert.equal(good.req.WC.limit, 500000); assert.equal(good.req.UMB.limit, 0); assert.equal(good.req.leadDays, 30);
+  assert.match(readRequirements({ ...base, glOcc: "1 million" }).problems.join(), /each occurrence: cannot read "1 million"/);
+  assert.match(readRequirements({ ...base, glOcc: "" }).problems.join(), /each occurrence/);
+  assert.match(readRequirements({ ...base, lead: "" }).problems.join(), /Lead time/);
+  assert.match(readRequirements({ ...base, lead: "thirty" }).problems.join(), /Lead time/);
 });

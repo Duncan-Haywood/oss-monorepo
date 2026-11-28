@@ -17,7 +17,6 @@ import {
 import { catalog } from "@shared/plans";
 import { and, count, desc, eq, gte, inArray, isNotNull, like, or, sql } from "drizzle-orm";
 import type { AppContext } from "../../context";
-import { allInChunks } from "../../db/in-chunks";
 import { billingEvents, member, organization, session, subscriptions, user } from "../../db/schema";
 
 export const PRODUCT = { key: "seller-books", name: "Seller Books" } as const;
@@ -180,6 +179,17 @@ export async function productMetrics(
   };
 }
 
+/** Org ids per owner lookup: under D1's 100 bound parameters a statement, with one for the role. */
+const OWNER_LOOKUP_CHUNK = 90;
+
+interface OwnerRow {
+  orgId: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  joined: Date;
+}
+
 export async function accountList(
   ctx: AppContext,
   list: AdminAccountList,
@@ -235,14 +245,14 @@ export async function accountList(
             .limit(limit)
             .all();
 
-  // The org's owner (earliest owner membership): name + email only.
-  // In slices of 90 orgs: D1 binds at most 100 parameters and the route allows limit=200, so one
-  // `IN (...)` answered 500 from about 100 accounts on. An org's memberships all sit in one slice,
-  // so "earliest owner" per org is unchanged.
-  const owners = await allInChunks(
-    rows.map((r) => r.orgId),
-    (orgIds) =>
-      db
+  // The org's owner (earliest owner membership): name + email only. D1 caps a statement at 100
+  // bound parameters, and `limit` goes to 200, so the org ids go in chunks (one more parameter
+  // binds the role). Every membership of an org lands in the same chunk, so "earliest" holds.
+  const orgIds = rows.map((r) => r.orgId);
+  const owners: OwnerRow[] = [];
+  for (let i = 0; i < orgIds.length; i += OWNER_LOOKUP_CHUNK) {
+    owners.push(
+      ...(await db
         .select({
           orgId: member.organizationId,
           name: user.name,
@@ -252,11 +262,17 @@ export async function accountList(
         })
         .from(member)
         .innerJoin(user, eq(user.id, member.userId))
-        .where(and(inArray(member.organizationId, orgIds), eq(member.role, "owner")))
+        .where(
+          and(
+            inArray(member.organizationId, orgIds.slice(i, i + OWNER_LOOKUP_CHUNK)),
+            eq(member.role, "owner"),
+          ),
+        )
         .orderBy(member.createdAt)
-        .all(),
-  );
-  const ownerOf = new Map<string, (typeof owners)[number]>();
+        .all()),
+    );
+  }
+  const ownerOf = new Map<string, OwnerRow>();
   for (const o of owners) if (!ownerOf.has(o.orgId)) ownerOf.set(o.orgId, o);
 
   const items: AdminAccountDto[] = rows.map((r) => {

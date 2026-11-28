@@ -503,8 +503,9 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (106 stories)
+### Little Lamps (107 stories)
 
+- [Eligius and the Two Golden Seats](stories/eligius-and-the-two-golden-seats.md) (2026-11-28; 9 min read, text only)
 - [Bonaventure and the Name at the Bedside](stories/bonaventure-and-the-name-at-the-bedside.md) (2026-11-27; 9 min read, text only)
 - [Francis and the Ox at Greccio](stories/francis-and-the-ox-at-greccio.md) (2026-11-27; 11 min read, text only)
 - [Ignatius and the Red and Blue Ink](stories/ignatius-and-the-red-and-blue-ink.md) (2026-11-27; 10 min read, text only)
