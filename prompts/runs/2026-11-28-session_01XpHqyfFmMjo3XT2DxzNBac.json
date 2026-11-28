@@ -31,7 +31,10 @@
   "outcome": "success",
   "errors": [
     "First commit carried a wrong Claude-Session trailer (typed from memory); amended before push from CLAUDE_CODE_REMOTE_SESSION_ID.",
-    "A Bash call that started a background http.server and Playwright in one compound command was refused by the rm safety check (no rm in it); split into separate calls."
+    "A Bash call that started a background http.server and Playwright in one compound command was refused by the rm safety check (no rm in it); split into separate calls.",
+    "CI security-scan: gitleaks generic-api-key on a sha256 in SOURCES.md sitting beside the word 'API'; moved the hashes into their own block.",
+    "CI validate: portfolio/monetization/transition.json stale against main (source line counts); regenerated with transition.py --write.",
+    "CI test: main's title-length test failed on jobshop-site machining-tolerances (78 chars, from PR #20020-ish tolerance-check merge); fixed forward to 67 in routes.ts and the export."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,6 +49,10 @@
     {
       "file": "ventures/machine-shop-guides (eCFR versioner API)",
       "issue": "the versioner API returns 406 'requires response compression' without Accept-Encoding; SOURCES.md's earlier entries do not say so. Noted in the new SOURCES section."
+    },
+    {
+      "file": "platform/security/scan.py (gitleaks)",
+      "issue": "A source-hash table with 'API' in the same row trips generic-api-key; SOURCES.md in other ventures put hashes beside 'versioner API' too. Worth a note in docs/security/risk-review.md or a hash-shaped allowlist."
     }
   ],
   "deviations": [
