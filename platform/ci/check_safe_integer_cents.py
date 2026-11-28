@@ -16,9 +16,11 @@ behaviour of a third-party function, or build fixtures).
     python3 platform/ci/check_safe_integer_cents.py
 """
 import re
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from repo_files import ls_files  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 PATTERN = re.compile(r"Number\.isInteger\(([^)]*cents[^)]*)\)", re.IGNORECASE)
@@ -41,11 +43,7 @@ def findings_in(text: str):
 
 
 def tracked_files(root: Path = ROOT):
-    res = subprocess.run(
-        ["git", "ls-files", "-z", "ventures"], cwd=root, capture_output=True, check=True
-    )
-    for raw in res.stdout.split(b"\0"):
-        path = raw.decode("utf-8", "surrogateescape")
+    for path in ls_files(root, "ventures"):
         if not path.endswith(EXTS) or is_test(path):
             continue
         if any(f"/{p}/" in f"/{path}" for p in SKIP_PARTS):
