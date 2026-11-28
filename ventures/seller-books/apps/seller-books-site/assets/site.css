@@ -390,3 +390,6 @@ td {
     margin: 0 auto;
   }
 }
+.nowrap {
+  white-space: nowrap;
+}
