@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   type AuditLike,
   auditIssues,
+  auditReportMarkdown,
   auditTiming,
   type CorrectiveActionLike,
   caIssues,
@@ -317,5 +318,142 @@ describe("quality dates for the calendar and the dashboard", () => {
       ["Production audit", "due_soon", "2026-12-20"],
     ]);
     expect(list[1]?.kind).toBe("ca_check");
+  });
+});
+
+describe("audit report", () => {
+  const title = (id: string) => ISO9001_CLAUSES.find((c) => c.id === id)?.title ?? "";
+  const base = {
+    orgName: "Acme Machining",
+    clauseNumber: num,
+    clauseTitle: title,
+    clauseOwner: (_id: string): string | null => null,
+    nameOf: (id: string | null) => (id === "u1" ? "Sam" : id === "u-auditor" ? "Riley" : ""),
+    today: TODAY,
+    disclaimer: "DISCLAIMER",
+  };
+  const done = audit({ status: "done", completedOn: "2026-11-20", plannedOn: "2026-11-18" });
+
+  it("reports scope, auditor, findings with their actions, what is open, and sign-off", () => {
+    const md = auditReportMarkdown({
+      ...base,
+      audit: { ...done, summary: "Walked the CNC cell and final inspection." },
+      findings: [
+        {
+          id: "f-obs",
+          auditId: "a1",
+          kind: "observation",
+          clauseId: null,
+          description: "Work instructions are hard to find at the saw.",
+          evidence: "",
+        },
+        {
+          id: "f-nc",
+          auditId: "a1",
+          kind: "minor",
+          clauseId: "iso9001-7.1.5",
+          description: "Gauge out of calibration used at final inspection",
+          evidence: "Micrometer M-12, sticker due 2026-09-01",
+        },
+        {
+          id: "f-open",
+          auditId: "a1",
+          kind: "major",
+          clauseId: "iso9001-8.6",
+          description: "Parts shipped without final inspection record",
+          evidence: "",
+        },
+        {
+          id: "f-other",
+          auditId: "a2",
+          kind: "major",
+          clauseId: null,
+          description: "Belongs to another audit",
+          evidence: "",
+        },
+      ],
+      actions: [{ ...ca({ dueOn: "2026-11-10" }), findingId: "f-nc" }],
+    });
+    expect(md).toContain("# Internal audit report: Production audit");
+    expect(md).toContain("| Status | Done on 2026-11-20 (planned for 2026-11-18) |");
+    expect(md).toContain("| Auditor | Riley (member) |");
+    expect(md).toContain("| ISO 9001 clauses in scope | 8.5.1, 8.6 |");
+    expect(md).toContain(`| 8.5.1 | ${title("iso9001-8.5.1")} |`);
+    expect(md).toContain("1 major nonconformity, 1 minor nonconformity, 1 observation");
+    expect(md).not.toContain("another audit");
+    // Major first, then minor, then the observation.
+    expect(md.indexOf("### 1. Major nonconformity, clause 8.6")).toBeGreaterThan(0);
+    expect(md.indexOf("### 2. Minor nonconformity, clause 7.1.5")).toBeGreaterThan(
+      md.indexOf("### 1."),
+    );
+    expect(md).toContain("### 3. Observation");
+    expect(md).toContain("> Micrometer M-12, sticker due 2026-09-01");
+    expect(md).toContain(
+      "Corrective action: **CA-0001**, find the cause (action due 2026-11-10); owner Sam.",
+    );
+    expect(md).toContain("Corrective action: **none opened yet**.");
+    // An observation needs no action, so no "none opened" line under it.
+    expect(md.split("### 3. Observation")[1]).not.toContain("Corrective action");
+    expect(md).toContain("has no corrective action.");
+    expect(md).toContain("- CA-0001: action was due 2026-11-10.");
+    expect(md).toContain("| Auditor | | | |");
+    expect(md.trimEnd().endsWith("DISCLAIMER")).toBe(true);
+  });
+
+  it("names an auditor who audits a clause they own", () => {
+    const md = auditReportMarkdown({
+      ...base,
+      clauseOwner: (id) => (id === "iso9001-8.6" ? "u-auditor" : null),
+      audit: { ...done, summary: "" },
+      findings: [],
+      actions: [],
+    });
+    expect(md).toContain("**Not independent for 8.6:**");
+    expect(md).toContain("No summary recorded.");
+    expect(md).toContain("| Findings | none recorded |");
+    expect(md.split("## Still open")[1]).toContain("would audit their own work");
+  });
+
+  it("an outside auditor and a process scope", () => {
+    const md = auditReportMarkdown({
+      ...base,
+      audit: {
+        ...audit({
+          auditorUserId: null,
+          auditorName: "Jordan",
+          clauseIds: [],
+          process: "Shipping",
+          plannedOn: "2027-03-01",
+        }),
+        summary: "",
+      },
+      findings: [],
+      actions: [],
+    });
+    expect(md).toContain("| Auditor | Jordan (from outside) |");
+    expect(md).toContain("| Process audited | Shipping |");
+    expect(md).toContain("none listed (the process above)");
+    expect(md).not.toContain("## Scope");
+    expect(md).toContain("Planned for 2027-03-01; not marked done");
+    expect(md).toContain("Nothing open for this audit");
+  });
+
+  it("keeps typed text from breaking the table or the sections", () => {
+    const md = auditReportMarkdown({
+      ...base,
+      audit: {
+        ...audit({ title: "Q1 | <script>x</script>", process: "a|b\nc" }),
+        summary: "# not a heading\n---\n- not a list",
+      },
+      findings: [],
+      actions: [],
+    });
+    expect(md).toContain("| Process audited | a\\|b c |");
+    expect(md).toContain("> \\# not a heading");
+    expect(md).toContain("> \\---");
+    expect(md).toContain("> \\- not a list");
+    expect(md).toContain("Q1 \\| &lt;script>x&lt;/script>");
+    expect(md.split("\n").filter((l) => l === "---")).toHaveLength(1);
+    expect(md).not.toMatch(/^#+ not a heading/m);
   });
 });
