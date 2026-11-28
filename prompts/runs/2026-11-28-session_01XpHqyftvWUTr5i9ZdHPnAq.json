@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI round 1: biome format in cmmc-site test; pages build check.mjs: two privacy descriptions over 160 chars; custom-domain.test: absolute marisstella.app link in payapps/seller-books copies. All fixed."
+  ],
   "integrity_issues": [
     "Found live false privacy statements: four bet marketing sites said 'no analytics/tracking scripts' while the zone and build inject Cloudflare Web Analytics; corrected in this PR."
   ],
@@ -41,6 +43,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "No guidance that product sites inherit the zone's Cloudflare Web Analytics injection; product privacy copy was written as if no analytics ran, and nothing checked it."
+    },
+    {
+      "file": "platform/pages/check.mjs",
+      "issue": "The 160-char description budget and the custom-domain origin test only run in the pages workflow, not in the venture site tests that produce those pages; a site's own test passed a 205-char description."
     }
   ],
   "deviations": [
@@ -61,7 +67,7 @@
     "docs/reports/2026-11-28-analytics-disclosure.md"
   ],
   "goal": null,
-  "notes": "Local verification: unit suites cmmc 510, payapps 1575, seller-books 385, jobshop-quote 673; sites payapps 50, jobshop 83, cmmc 81, seller-books 95; platform/pages site tests 22; analytics-claims 3. CSP replayed against live CMMC page: beacon loaded, /cdn-cgi/rum 204.",
+  "notes": "Local verification: unit suites cmmc 510, payapps 1575, seller-books 385, jobshop-quote 673; sites payapps 50, jobshop 83, cmmc 81, seller-books 95; platform/pages site tests 22; analytics-claims 3. CSP replayed against live CMMC page: beacon loaded, /cdn-cgi/rum 204. After the fixes, the push's pull_request workflows other than the required gates did not start; verified locally: platform/pages node --test (2232 pass, the one failure fixed and re-run), full `node build.mjs --out=dist --audio-cdn` + `node check.mjs dist`: publishable, no dead links. Required gates (risk-review, security-scan, adversarial-gate) green on the head.",
   "corrections": [],
   "redteam": null,
   "usage": {
