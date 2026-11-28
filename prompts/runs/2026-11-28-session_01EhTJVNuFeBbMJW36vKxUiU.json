@@ -47,7 +47,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Guards added: required-fields snapshot now covers standalone notices (Miller, GA/MS affidavits) discovered from zero-arg exports; statutory.test.ts pins both render() refusal paths. Suite 303/303. Rerun: 6/6 escaped mutants now caught.",
+  "notes": "Guards added: required-fields snapshot now covers standalone notices (Miller, GA/MS affidavits) discovered from zero-arg exports; statutory.test.ts pins both render() refusal paths. Suite 303/303. Rerun: 6/6 escaped mutants now caught. Also fixed a red pay-app-guides test on main (stale guide nav).",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -425,6 +425,12 @@
       {
         "file": "ventures/payapps/packages/lien-waivers/src/us-miller.ts",
         "issue": "The Miller Act 90-day notice rendered with a notice date earlier than the last day of labor or material it claims for, printing a notice that states an impossible date. Added a crossCheck refusing lastDay after noticeDate (INVALID_DATE on lastDay), with tests.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20174"
+      },
+      {
+        "file": "ventures/pay-app-guides/nav.mjs",
+        "issue": "pay-app-guides suite red on main: final-payment-affidavit.html and notice-of-intent-to-lien.html were missing from the all-guides block (nav.mjs not rerun when they were added). Reran node nav.mjs; 442/442 pass.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20174"
       }
