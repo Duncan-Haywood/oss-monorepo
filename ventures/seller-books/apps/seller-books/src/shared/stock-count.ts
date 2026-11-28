@@ -154,7 +154,7 @@ const NO = /^(n|no|0|false|missing|not found|gone)$/i;
  * that moved or added columns still reads.
  */
 export function readCountSheet(csv: string, expected: CountItem[]): CountSheetRead {
-  const rows = parseCsv(csv.replace(/^﻿/, ""));
+  const rows = parseCsv(csv);
   const header = (rows[0] ?? []).map((h) => h.trim().toLowerCase());
   const idCol = header.indexOf("item id");
   const foundCol = header.findIndex((h) => h.startsWith("found"));
