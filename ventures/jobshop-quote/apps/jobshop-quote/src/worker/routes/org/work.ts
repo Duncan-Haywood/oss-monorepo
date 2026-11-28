@@ -87,6 +87,7 @@ import {
   updateRfq,
 } from "../../services/rfq";
 import { balloonedDrawing } from "../../services/rfq/balloons";
+import { faiFormsCsv, getFaiForms } from "../../services/rfq/fai-forms";
 import type { AppEnv } from "../../types";
 
 const est = requireRole("estimator");
@@ -210,6 +211,28 @@ export const rfqRoutes = new Hono<AppEnv>()
       },
     });
   })
+  // First article, part 2b: AS9102 Forms 1 and 2 drafted from the RFQ, the shop and the drawing.
+  .get("/:rfqId/files/:fileId/forms-1-2.csv", async (c) => {
+    const { csv, fileName } = await faiFormsCsv(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("rfqId"),
+      c.req.param("fileId"),
+    );
+    return new Response(`\uFEFF${csv}`, {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": contentDisposition(fileName),
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "private, no-store",
+      },
+    });
+  })
+  .get("/:rfqId/files/:fileId/first-article/forms", async (c) =>
+    c.json(
+      await getFaiForms(c.var.ctx, c.var.tenant.orgId, c.req.param("rfqId"), c.req.param("fileId")),
+    ),
+  )
   // First article: the drawing with a numbered balloon beside each characteristic in the list.
   .get("/:rfqId/files/:fileId/ballooned.pdf", async (c) => {
     const { pdf, fileName, placed, unplaced } = await balloonedDrawing(
