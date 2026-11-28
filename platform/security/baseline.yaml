@@ -224,7 +224,7 @@ accepted:
     rule: generic-api-key
     path: research/marriage-divorce-evidence/reproducibility/nlsy97_cohabitation_to_marriage/train_models.py
     fingerprint: a1069d2bb8031bb0
-    reason: "key = 'nlsy97_cohab_' is a cache-file name prefix"
+    reason: "the flagged string is a cache-file name prefix for the NLSY97 cohabitation models, not a credential"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
