@@ -1,3 +1,9 @@
+---
+kind: note
+date: 2026-11-28
+subjects: [cmmc, machine-shop-guides]
+topics: [ci, hosting]
+---
 # Two failures that only main could see (2026-11-28)
 
 Both were red on every merge to `main` on 2026-11-28 and green in every pull request, so no PR's
