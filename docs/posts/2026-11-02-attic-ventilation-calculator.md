@@ -4,6 +4,7 @@ seo_title: "New attic vent calculator: the 1/150 rule on a 24 x 40 ft attic"
 date: 2026-11-02
 tags: [construction, wall-framing-takeoff, calculators, seo]
 description: "A free browser calculator for how much attic ventilation a roof needs and how to split it between ridge and soffit vents, built on the takeoff's tested engine."
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 The wall-framing takeoff has counted attic ventilation since 1 November, but only from the command line. Today it got a page of its own: `ventilation-calculator.html`.
