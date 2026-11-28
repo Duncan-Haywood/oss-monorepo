@@ -1109,3 +1109,28 @@ shop's own rate card. A test runs the example through those suggestions and
 fails if any minute differs. The app does not work out speeds and feeds,
 finishing passes, tool changes or loading time; the estimator types those
 in. All the figures are made up, and the guide says so.
+
+## Update, 28 November 2026: markup, margin and where the profit sits
+
+A new guide, [machine shop markup and
+margin](https://marisstella.app/jobshop/machine-shop-markup), takes the same
+made-up anodized bracket and asks where its profit comes from. Three things
+it shows:
+
+- **The markup line looks thin because the profit is in the rate.** The mill
+  bills $123.85 an hour, the hourly-rate guide's $99.08 cost at a 20% margin,
+  so labor carries no markup. The quote's markup line is 4.7% of its costs at
+  one part and 2.4% at a hundred, but the margin over the shop's full cost is
+  17.6% to 18.7%.
+- **The same margin can be written two ways.** The mill at $99.08 with a 25%
+  labor markup prices the job within a cent of the $123.85 rate with none.
+  Doing both is one 15% markup on everything: $57.90 more on the one-off and
+  $879.00 more on the hundred, the margin charged twice on labor.
+- **Outside work at cost hurts most on small orders.** Passing the material
+  and the anodize through at cost drops the one-off's margin to 13.8%, because
+  the vendor's $150 lot charge is 26% of its price.
+
+Job Shop Quote keeps a separate labor, material and outside-service markup
+and a line minimum on the rate card. A test runs all four policies through
+the app's costing engine and fails if any quantity break differs by a cent.
+All the figures are made up, and the guide says so.
