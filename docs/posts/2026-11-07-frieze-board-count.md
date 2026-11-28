@@ -3,6 +3,7 @@ title: "Counting the frieze board under the soffit"
 date: 2026-11-07
 tags: [wall-framing-takeoff, construction, tools]
 description: "The wall-framing takeoff now counts the frieze board under the soffit, the trim that runs along the wall beneath the overhang, as a new option."
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 The wall-framing takeoff already counts soffit panels, fascia and J-channel

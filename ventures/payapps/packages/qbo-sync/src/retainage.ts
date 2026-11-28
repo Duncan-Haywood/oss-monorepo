@@ -67,9 +67,16 @@ function checkRate(rateBps: number, where: string): void {
   }
 }
 
+// Number.isSafeInteger, not isInteger: past 2**53 a double cannot hold every cent (1e20 is an
+// "integer"), so totals built from it would be off with no error.
 function checkCents(value: number, where: string): void {
-  if (!Number.isInteger(value))
+  if (!Number.isSafeInteger(value))
     throw new AccountingValidationError(`${where} must be integer cents`);
+}
+
+function checkTotal(value: number, where: string): void {
+  if (!Number.isSafeInteger(value))
+    throw new AccountingValidationError(`${where} is too large to total exactly in cents`);
 }
 
 export function planPayAppInvoice(input: PayAppInvoicePlanInput): PayAppInvoicePlan {
@@ -138,7 +145,9 @@ export function planPayAppInvoice(input: PayAppInvoicePlanInput): PayAppInvoiceP
     });
   }
 
+  checkTotal(gross, `pay app #${app} gross`);
   const net = gross - held + released;
+  checkTotal(net, `pay app #${app} net`);
   if (net < 0) {
     throw new AccountingValidationError(
       `pay app #${app} nets to a negative invoice (${net} cents)`,

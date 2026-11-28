@@ -15,7 +15,7 @@ export interface LotAllocation {
 }
 
 export function allocateLotCost(totalCents: number, items: LotItemInput[]): LotAllocation {
-  if (!Number.isInteger(totalCents) || totalCents < 0)
+  if (!Number.isSafeInteger(totalCents) || totalCents < 0)
     throw new Error("Lot cost must be whole cents ≥ 0");
   const costs = new Map<string, number>();
   const warnings: string[] = [];
