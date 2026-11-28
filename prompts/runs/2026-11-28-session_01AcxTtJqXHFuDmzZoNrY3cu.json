@@ -17,7 +17,7 @@
   "tokens_out": 52335,
   "cost_usd": 5.2906,
   "tool_calls": 100,
-  "task": "Bet #1 PayApps: Arizona preliminary twenty day notice (A.R.S. \u00a7 33-992.01) in the job's notice panel, plus a front-door page",
+  "task": "Bet #1 PayApps: Arizona preliminary twenty day notice (A.R.S. § 33-992.01) in the job's notice panel, plus a front-door page",
   "projects": [
     "payapps",
     "pay-app-guides"
@@ -42,6 +42,10 @@
     {
       "file": "ventures/payapps/packages/lien-waivers/test/required-fields.test.ts",
       "issue": "Adding any new notice fails this pin by design; the regenerate command is in the file header but not in the package README, cost one test cycle."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "A new pay-app-guides page also needs an entry in platform/pages/industry-construction.mjs; only the 5-minute venture-preflight finds that, the venture's own tests do not."
     }
   ],
   "deviations": [
@@ -58,7 +62,7 @@
     "ventures/payapps/packages/lien-waivers/README.md"
   ],
   "goal": null,
-  "notes": "Statute text fetched from azleg.gov (33-992.01, 33-992.02, and titles of 33-981/33-993 to confirm cited sections) on 2026-11-28 and snapshotted in packages/lien-waivers/sources/az-33-992.txt. Verified locally: lien-waivers package node --test 282/282; payapps typecheck clean; payapps worker notices.test.ts 9/9 (new Arizona case); full payapps unit suite 1575 passed with 1 unrelated timeout (opening-balance.test.tsx, 5 s limit under parallel load; passes 2/2 alone), worker suite 615/615; pay-app-guides node --test 383/383; biome clean on changed TS. Rendered the Arizona notice PDF and looked at it: a long receipt label overran its signature line, fixed by putting the statute caption under a short label. Phone-width (390px) check of the new page: no horizontal scroll, no console errors.",
+  "notes": "Statute text fetched from azleg.gov (33-992.01, 33-992.02, and titles of 33-981/33-993 to confirm cited sections) on 2026-11-28 and snapshotted in packages/lien-waivers/sources/az-33-992.txt. Verified locally: lien-waivers package node --test 282/282; payapps typecheck clean; payapps worker notices.test.ts 9/9 (new Arizona case); full payapps unit suite 1575 passed with 1 unrelated timeout (opening-balance.test.tsx, 5 s limit under parallel load; passes 2/2 alone), worker suite 615/615; pay-app-guides node --test 383/383; biome clean on changed TS. Rendered the Arizona notice PDF and looked at it: a long receipt label overran its signature line, fixed by putting the statute caption under a short label. Phone-width (390px) check of the new page: no horizontal scroll, no console errors. venture-preflight first failed on two site tests: the new page was missing from the construction industry page (platform/pages/industry-construction.mjs, added) and ventures/einvoice-preflight's llms.txt Answers were stale on main after #19965 (regenerated with platform/pages/llms-answers.mjs and carried here). Rerun: preflight clean for pay-app-guides.",
   "corrections": [],
   "redteam": null,
   "usage": {
