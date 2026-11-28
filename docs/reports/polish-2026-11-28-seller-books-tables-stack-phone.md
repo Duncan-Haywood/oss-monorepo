@@ -55,7 +55,7 @@ Net profit, the one figure they came for.
 | seller-books unit tests | | 433 pass |
 | typecheck | | clean |
 | biome on changed files | | clean (6 pre-existing lint findings elsewhere unchanged) |
-| full e2e suite | | see the run record's notes |
+| full e2e suite (22 specs) | | 22 pass |
 
 ## Still weakest, next
 
