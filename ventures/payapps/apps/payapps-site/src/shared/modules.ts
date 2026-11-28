@@ -385,6 +385,89 @@ export const MODULE_PAGES: readonly ModulePage[] = [
       ],
     },
   ),
+  module(
+    "job-schedule",
+    "subcontractor-scheduling-software",
+    "Job schedule and lookahead",
+    "Scheduling software for subcontractors: 3-week lookahead · PayApps",
+    "Your activities per job with crews, dates and what each waits for, a three-week lookahead PDF for the GC's meeting, and every crew across every job.",
+    {
+      h1: "Your schedule on each job, and the three-week lookahead",
+      intro:
+        "List the activities you plan on each job with the crew, the start and finish and the activity each waits for. Move them together when the GC's schedule slips, and print the three-week lookahead for the coordination meeting.",
+      plan: EVERY_PLAN,
+      guides: [
+        {
+          label: "Free construction daily report template",
+          path: "/pay-app-guides/daily-report-template.html",
+        },
+      ],
+    },
+  ),
+  module(
+    "timesheets",
+    "crew-timesheet-app",
+    "Crew timesheets",
+    "Crew timesheet app for subcontractors, posted to job cost · PayApps",
+    "Hours by worker, job and schedule-of-values line, overtime past 40 in the workweek, a payroll CSV, and the week posted to each job's labor cost.",
+    {
+      h1: "Crew timesheets that land on job cost",
+      intro:
+        "Enter each worker's hours by day against a job and a schedule-of-values line, export the week for your payroll service, and post it to the jobs' labor costs so an over-running line shows while it can still be fixed.",
+      plan: "Hours on every plan, including Free on one job. Posting them to job costs is Crew plan and up.",
+      guides: [
+        {
+          label: "WH-347 certified payroll report",
+          path: "/certified-payroll-calculator/wh347-report.html",
+        },
+        {
+          label: "Overbilling and underbilling",
+          path: "/pay-app-guides/overbilling-underbilling.html",
+        },
+      ],
+    },
+  ),
+  module(
+    "closeout",
+    "construction-closeout-documents",
+    "Close-out documents",
+    "Construction close-out document tracking for subcontractors · PayApps",
+    "A close-out checklist per job (warranty, O&M manuals, as-builts, final waiver), what still holds your retainage, and one close-out binder PDF.",
+    {
+      h1: "Close-out documents, and what still holds your retainage",
+      intro:
+        "Track each close-out document your subcontract asks for from sent to accepted, see in words what still stands between the job and its retainage, and send the GC one binder PDF and a release-request email.",
+      plan: EVERY_PLAN,
+      guides: [
+        {
+          label: "How to get retainage released",
+          path: "/pay-app-guides/retainage-release.html",
+        },
+        { label: "Punch list", path: "/pay-app-guides/punch-list.html" },
+      ],
+    },
+  ),
+  module(
+    "lower-tier-waivers",
+    "lower-tier-lien-waiver-tracking",
+    "Lower-tier waivers",
+    "Lower-tier lien waiver tracking for subcontractors · PayApps",
+    "Track the lien waivers your suppliers and sub-subs owe on each pay app: who to ask from your POs, asked and received dates, and the signed copies.",
+    {
+      h1: "Lower-tier waivers from your suppliers and sub-subs",
+      intro:
+        "Each pay application keeps the list of suppliers and sub-subcontractors who owe you a waiver, what for and through when, and whether you have asked and when it came in, so the application goes out with every waiver the GC asked for.",
+      plan: "Crew plan and up, with lien waivers.",
+      guides: [
+        { label: "Lien waiver log", path: "/pay-app-guides/lien-waiver-log.html" },
+        {
+          label: "Conditional vs unconditional lien waivers",
+          path: "/pay-app-guides/conditional-vs-unconditional-lien-waivers.html",
+        },
+        { label: "Joint checks", path: "/pay-app-guides/joint-checks.html" },
+      ],
+    },
+  ),
 ];
 
 export const MODULE_PAGE_LIST: readonly PublicPage[] = MODULE_PAGES.map((m) => m.page);
