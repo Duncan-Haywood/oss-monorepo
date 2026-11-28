@@ -243,7 +243,7 @@ test("CMMC cost page: quotes pinned, figures from the rule, DOM from text, nothi
 test("SPRS submission guide cites SPRS's own guides and claims no submission", () => {
   const html = read("how-to-submit-sprs-score");
   for (const pdf of ["NISTSP800-171QuickEntryGuide.pdf", "CMMCQuickEntryGuide.pdf", "CMMCL2SelfQuickEntryGuide.pdf", "SPRS_Access_CyberReports.pdf"]) {
-    assert.match(html, new RegExp(`https://www\\.sprs\\.csd\\.disa\\.mil/pdf/${pdf.replace(/\./g, "\\.")}`), pdf);
+    assert.ok(html.includes(`https://www.sprs.csd.disa.mil/pdf/${pdf}`), pdf);
   }
   assert.match(html, /read on 28 November 2026/);
   assert.match(html, /SPRS Cyber Vendor User/);
