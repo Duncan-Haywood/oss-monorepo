@@ -18,8 +18,8 @@ test("German page with the disclaimer and the licence line", () => {
 });
 
 test("the built-in check finds the missing reason and, as XRechnung, the missing tax number", () => {
-  const xr = [[], [], ["INV-035"], ["XR-009"], [], []];
-  const zf = [[], [], ["INV-035"], [], [], []];
+  const xr = [[], [], ["INV-035"], ["XR-009"], [], ["INV-035"], [], ["INV-022"], []];
+  const zf = [[], [], ["INV-035"], [], [], ["INV-035"], [], ["INV-022"], []];
   assert.equal(rows.length, VARIANTS.length);
   rows.forEach((r, i) => {
     assert.deepEqual(r.xrechnung.builtin.blocking, xr[i], r.label);
@@ -27,11 +27,12 @@ test("the built-in check finds the missing reason and, as XRechnung, the missing
   });
   assert.match(html, /\(INV-035\)/);
   assert.match(html, /\(XR-009\)/);
+  assert.match(html, /\(INV-022\)/);
 });
 
 test("the official rules, when installed, give the ids the page names", { skip: rows[0].xrechnung.official === null && "slimdom/fontoxpath not installed" }, () => {
-  const xr = [[], ["BR-CO-26"], ["BR-E-10"], ["BR-E-02", "BR-DE-16"], ["BR-DE-14"], []];
-  const zf = [[], ["BR-CO-26"], ["BR-E-10"], ["BR-E-02"], [], []];
+  const xr = [[], ["BR-CO-26"], ["BR-E-10"], ["BR-E-02", "BR-DE-16"], ["BR-DE-14"], ["BR-S-05"], ["BR-Z-10"], ["BR-CO-09"], []];
+  const zf = [[], ["BR-CO-26"], ["BR-E-10"], ["BR-E-02"], [], ["BR-S-05"], ["BR-Z-10"], ["BR-CO-09"], []];
   rows.forEach((r, i) => {
     assert.deepEqual([...r.xrechnung.official.blocking].sort(), [...xr[i]].sort(), r.label);
     assert.deepEqual(r.zugferd.official.blocking, zf[i], r.label);
@@ -40,7 +41,7 @@ test("the official rules, when installed, give the ids the page names", { skip: 
 
 test("each row's label is on the page and every linked rule has a German page", () => {
   for (const [label] of VARIANTS) assert.ok(html.includes(`<td>${label}</td>`), label);
-  for (const id of ["br-co-26", "br-e-10", "br-de-16", "br-de-14"]) {
+  for (const id of ["br-co-26", "br-e-10", "br-de-16", "br-de-14", "br-z-10", "br-co-09"]) {
     assert.match(html, new RegExp(`href="rules/de/${id}\\.html"`));
     assert.ok(fs.existsSync(new URL(`./rules/de/${id}.html`, import.meta.url)), id);
   }
