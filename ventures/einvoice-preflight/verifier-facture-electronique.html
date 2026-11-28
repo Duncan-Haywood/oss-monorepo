@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vérifier une facture électronique gratuitement : Factur-X, UBL, CII</title>
+<meta name="description" content="Contrôlez votre Factur-X, UBL ou CII avant l'envoi : totaux, SIREN du client, mentions obligatoires et règles BR-FR, dans le navigateur, sans envoi ni compte.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/verifier-facture-electronique.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vérifier une facture électronique gratuitement : Factur-X, UBL, CII">
+<meta property="og:description" content="Contrôlez votre Factur-X, UBL ou CII avant l'envoi : totaux, SIREN du client, mentions obligatoires et règles BR-FR, dans le navigateur, sans envoi ni compte.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/verifier-facture-electronique.html">
+<meta property="og:locale" content="fr_FR">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Comment vérifier gratuitement une facture Factur-X ?", "acceptedAnswer": {"@type": "Answer", "text": "Ouvrez le vérificateur avec le lien « Vérifier avec les règles françaises » de cette page : les règles françaises et le Schematron officiel EN 16931 sont déjà cochés. Déposez le PDF Factur-X, ou le fichier XML UBL ou CII, puis cliquez sur « Check invoices ». Chaque écart s'affiche avec l'identifiant de la règle et une correction proposée. Le fichier reste sur votre ordinateur."}}, {"@type": "Question", "name": "Un PDF simple envoyé par e-mail est-il une facture électronique ?", "acceptedAnswer": {"@type": "Answer", "text": "Non. Selon la DGFiP, une facture électronique doit respecter un format donné : UBL, CII ou un format mixte composé de données structurées et d'une image de la facture, comme Factur-X. Elle est transmise par une plateforme agréée. Un PDF sans données structurées ne remplit pas ces conditions."}}, {"@type": "Question", "name": "Quand mon entreprise doit-elle émettre des factures électroniques ?", "acceptedAnswer": {"@type": "Answer", "text": "Toutes les entreprises doivent pouvoir recevoir des factures électroniques depuis le 1er septembre 2026. Les grandes entreprises et les ETI émettent depuis cette même date ; les PME et les micro-entreprises au plus tard le 1er septembre 2027, avec l'e-reporting, et elles peuvent commencer plus tôt. Vérifiez votre catégorie avec votre expert-comptable ou la DGFiP."}}, {"@type": "Question", "name": "Ce contrôle remplace-t-il ma plateforme agréée ?", "acceptedAnswer": {"@type": "Answer", "text": "Non. Le vérificateur exécute dans votre navigateur les règles publiées (EN 16931 et les règles BR-FR de FNFE-MPE) et ajoute ses propres contrôles, comme la clé de Luhn du SIREN et du SIRET. Il ne transmet rien, ne délivre aucun certificat et ne dit pas qu'une facture est juridiquement valable. C'est votre plateforme agréée qui accepte ou rejette la facture."}}, {"@type": "Question", "name": "Ma plateforme a renvoyé un code BR-FR. Que veut-il dire ?", "acceptedAnswer": {"@type": "Answer", "text": "Les règles BR-FR sont les contrôles français rédigés par FNFE-MPE, que les plateformes agréées appliquent. La page « BR-FR error codes » les liste toutes, en anglais à côté du texte français de FNFE-MPE. Déposez aussi la facture dans le vérificateur avec les règles françaises : la règle en cause apparaît avec son explication."}}, {"@type": "Question", "name": "Pourquoi le vérificateur est-il en anglais ?", "acceptedAnswer": {"@type": "Answer", "text": "L'interface du vérificateur n'existe pour l'instant qu'en anglais. Les messages BR-FR sont affichés avec le texte français de FNFE-MPE en dessous, et les erreurs EN 16931 et Peppol les plus fréquentes ont une page d'explication en français, avec la cause, la correction et un exemple XML."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.cta{display:inline-block;background:#0b5f8a;color:#fff;padding:.6rem 1rem;border-radius:10px;text-decoration:none;font-weight:600;margin:.2rem .4rem .2rem 0}.cta.alt{background:#fff;color:#0b5f8a;border:1px solid #0b5f8a}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./" hreflang="en">E-invoice Preflight</a> · <a href="france-e-invoice-mandate.html" hreflang="en" lang="en">English</a></p>
+<header>
+<h1>Vérifier une facture électronique avant de l'envoyer</h1>
+<p class="lede">Depuis le 1er septembre 2026, toutes les entreprises doivent pouvoir recevoir des factures électroniques, et les grandes entreprises et les ETI doivent les émettre. Les PME et les micro-entreprises émettent au plus tard le 1er septembre 2027. Vérifiez ici votre Factur-X, UBL ou CII avant qu'une plateforme agréée ou un client ne la rejette : gratuit, sans compte, et le fichier ne quitte pas votre ordinateur.</p>
+<p><a class="cta" href="./?profil=france#drop">Vérifier avec les règles françaises</a> <a class="cta alt" href="./?profil=en16931#drop">Vérifier selon EN 16931 seule</a></p>
+<p class="fine">Les deux liens ouvrent le vérificateur avec les règles déjà cochées. L'interface du vérificateur est en anglais pour l'instant ; les erreurs les plus fréquentes sont <a href="rules/fr/index.html">expliquées en français</a>.</p>
+</header>
+<section>
+<h2>Ce qui est vérifié</h2>
+<ul>
+<li><strong>Les calculs :</strong> montants des lignes, remises et frais, ventilation de la TVA, total TTC et montant à payer. Si un total ne tombe pas juste, le vérificateur montre l'écart ; les calculs d'un fichier JSON, UBL, CII ou Factur-X peuvent être refaits en un clic.</li>
+<li><strong>Les identifiants français :</strong> SIREN ou SIRET du vendeur, et du client pour l'acheminement, avec leur clé de Luhn ; SIREN contenu dans le numéro de TVA intracommunautaire du vendeur ; format du numéro de TVA, clé de l'IBAN, BIC.</li>
+<li><strong>Les mentions :</strong> taux des pénalités de retard (Code de commerce, L441-10), indemnité forfaitaire de 40 euros pour frais de recouvrement (D441-5), conditions d'escompte (L441-9), et la catégorie de l'opération (livraison de biens, prestation de services ou les deux).</li>
+<li><strong>Les règles officielles, dans le navigateur :</strong> le Schematron EN 16931 et les règles BR-FR de FNFE-MPE, celles qu'appliquent les plateformes agréées, à partir des fichiers de règles publiés livrés avec cette page. Les messages BR-FR sont affichés en anglais avec le texte français de FNFE-MPE en dessous.</li>
+</ul>
+<p>Formats lus : Factur-X (le XML intégré au PDF), UBL, CII et JSON, y compris les profils EXTENDED-CTC-FR et Factur-X EXTENDED. Le vérificateur lit aussi un message de statut CDAR renvoyé par une plateforme (200 Déposée, 210 Refusée, 213 Rejetée…) et un fichier d'e-reporting (flux 10).</p>
+<p class="fine">Non vérifié : le régime de TVA qui s'applique à votre opération, l'option pour le paiement de la TVA d'après les débits, l'adresse de livraison, la concordance entre l'image du PDF et le XML intégré, et l'acceptation du fichier par la plateforme de votre client. Le résultat est un contrôle préalable, pas un certificat ni une attestation de validité.</p>
+</section>
+<section>
+<h2>Le calendrier en France (factures entre entreprises)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">Ce qui s'applique</th></tr></thead>
+<tbody>
+<tr><td>1er septembre 2026</td><td>Toutes les entreprises, quelle que soit leur taille, doivent être en capacité de <strong>recevoir</strong> des factures électroniques, par l'intermédiaire d'une plateforme agréée. Les grandes entreprises (GE) et les ETI doivent <strong>émettre</strong> leurs factures au format électronique et transmettre leurs données d'e-reporting.</td></tr>
+<tr><td>1er septembre 2027 au plus tard</td><td>Les PME et les micro-entreprises doivent <strong>émettre</strong> leurs factures au format électronique et transmettre leur e-reporting. Elles peuvent entrer volontairement plus tôt.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Une facture électronique doit respecter un format donné : UBL, CII ou un format mixte composé d'un fichier de données structurées et d'un fichier image (c'est le cas de Factur-X). Elle est transmise par une plateforme agréée. Quatre nouvelles mentions sont obligatoires à compter du 1er septembre 2026 : le SIREN du client, la catégorie de l'opération, l'option pour le paiement de la TVA d'après les débits le cas échéant, et l'adresse de livraison si elle diffère de l'adresse de facturation.</p>
+<p class="fine">Sources : <a href="https://www.impots.gouv.fr/professionnel/je-decouvre-la-facturation-electronique" rel="noopener">DGFiP, Je découvre la facturation électronique</a> ; <a href="https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/faq---fe_je-decouvre-la-facturation-electronique.pdf" rel="noopener">DGFiP, foire aux questions (version du 1er septembre 2026)</a>, questions 3.4 et 5.1. Textes relus le 27 novembre 2026. La catégorie de votre entreprise et les exceptions relèvent des textes officiels ; cette page est un résumé, pas un conseil fiscal.</p>
+</section>
+<section>
+<h2>Erreurs fréquentes, expliquées</h2>
+<p>Une plateforme ou un client a rejeté une facture avec un code ? Chacune de ces pages dit ce que la règle exige, pourquoi elle est le plus souvent enfreinte et à quoi ressemble le XML corrigé.</p>
+<ul>
+<li><a href="rules/fr/br-co-10.html"><strong>BR-CO-10</strong></a> : la somme des montants nets des lignes ne correspond pas aux lignes</li>
+<li><a href="rules/fr/br-co-13.html"><strong>BR-CO-13</strong></a> : le total hors TVA ne correspond pas aux lignes, remises et frais</li>
+<li><a href="rules/fr/br-co-15.html"><strong>BR-CO-15</strong></a> : le total TTC n'est pas égal au total HT plus la TVA</li>
+<li><a href="rules/fr/br-co-16.html"><strong>BR-CO-16</strong></a> : le montant à payer n'est pas le total moins l'acompte</li>
+<li><a href="rules/fr/br-s-08.html"><strong>BR-S-08</strong></a> : base imposable au taux normal incohérente avec les lignes</li>
+<li><a href="rules/fr/br-e-10.html"><strong>BR-E-10</strong></a> : ventilation de TVA « exonéré » sans motif d'exonération</li>
+<li><a href="rules/fr/br-61.html"><strong>BR-61</strong></a> : virement sans compte bénéficiaire</li>
+<li><a href="rules/fr/br-cl-14.html"><strong>BR-CL-14</strong></a> : code pays non conforme à l'ISO 3166-1</li>
+<li><a href="rules/fr/peppol-en16931-r003.html"><strong>PEPPOL-EN16931-R003</strong></a> : ni référence acheteur ni numéro de commande</li>
+</ul>
+<p><a href="rules/fr/index.html">Toutes les règles expliquées en français</a>. Pour les codes français : <a href="br-fr-error-codes.html" hreflang="en">tous les codes BR-FR et BR-FR-CDV</a> (en anglais, avec le texte français de FNFE-MPE).</p>
+</section>
+<section>
+<h2>Pas encore de facture électronique ?</h2>
+<p>Le <a href="create.html" hreflang="en">créateur de factures électroniques</a> gratuit (interface en anglais) transforme un formulaire en XML UBL ou CII, ou en PDF Factur-X, et le vérifie avant le téléchargement.</p>
+</section>
+<section>
+<h2>Pour les experts-comptables et les équipes de facturation</h2>
+<p>Un service payant, qui explique chaque règle enfreinte en français clair, propose un fichier corrigé et vérifie les factures de nombreux clients à la fois, est en développement. Rien n'est encore en vente : <a href="https://marisstella.app/industries/eu-e-invoicing/">accès anticipé et calendrier</a>.</p>
+</section>
+<section id="faq">
+<h2>Questions fréquentes</h2>
+<h3>Comment vérifier gratuitement une facture Factur-X ?</h3>
+<p>Ouvrez le vérificateur avec le lien « Vérifier avec les règles françaises » de cette page : les règles françaises et le Schematron officiel EN 16931 sont déjà cochés. Déposez le PDF Factur-X, ou le fichier XML UBL ou CII, puis cliquez sur « Check invoices ». Chaque écart s'affiche avec l'identifiant de la règle et une correction proposée. Le fichier reste sur votre ordinateur.</p>
+<h3>Un PDF simple envoyé par e-mail est-il une facture électronique ?</h3>
+<p>Non. Selon la DGFiP, une facture électronique doit respecter un format donné : UBL, CII ou un format mixte composé de données structurées et d'une image de la facture, comme Factur-X. Elle est transmise par une plateforme agréée. Un PDF sans données structurées ne remplit pas ces conditions.</p>
+<h3>Quand mon entreprise doit-elle émettre des factures électroniques ?</h3>
+<p>Toutes les entreprises doivent pouvoir recevoir des factures électroniques depuis le 1er septembre 2026. Les grandes entreprises et les ETI émettent depuis cette même date ; les PME et les micro-entreprises au plus tard le 1er septembre 2027, avec l'e-reporting, et elles peuvent commencer plus tôt. Vérifiez votre catégorie avec votre expert-comptable ou la DGFiP.</p>
+<h3>Ce contrôle remplace-t-il ma plateforme agréée ?</h3>
+<p>Non. Le vérificateur exécute dans votre navigateur les règles publiées (EN 16931 et les règles BR-FR de FNFE-MPE) et ajoute ses propres contrôles, comme la clé de Luhn du SIREN et du SIRET. Il ne transmet rien, ne délivre aucun certificat et ne dit pas qu'une facture est juridiquement valable. C'est votre plateforme agréée qui accepte ou rejette la facture.</p>
+<h3>Ma plateforme a renvoyé un code BR-FR. Que veut-il dire ?</h3>
+<p>Les règles BR-FR sont les contrôles français rédigés par FNFE-MPE, que les plateformes agréées appliquent. La page « BR-FR error codes » les liste toutes, en anglais à côté du texte français de FNFE-MPE. Déposez aussi la facture dans le vérificateur avec les règles françaises : la règle en cause apparaît avec son explication.</p>
+<h3>Pourquoi le vérificateur est-il en anglais ?</h3>
+<p>L'interface du vérificateur n'existe pour l'instant qu'en anglais. Les messages BR-FR sont affichés avec le texte français de FNFE-MPE en dessous, et les erreurs EN 16931 et Peppol les plus fréquentes ont une page d'explication en français, avec la cause, la correction et un exemple XML.</p>
+</section>
+<footer>
+<p><strong>Sans garantie (no warranty).</strong> Cet outil est gratuit et fourni sans aucune garantie, expresse ou implicite. Il ne constitue pas un conseil juridique, fiscal, financier ou comptable et ne remplace pas un professionnel (not legal, tax, financial, or accounting advice). <strong>Vérifiez le résultat vous-même avant de vous y fier.</strong> Dans la mesure permise par la loi, les auteurs déclinent toute responsabilité pour les dommages liés à son utilisation.</p>
+<p><strong>Rien ne quitte votre navigateur.</strong> Tous les contrôles s'exécutent localement. Les dates et les obligations peuvent changer ; seuls les textes publiés par la DGFiP font foi.</p>
+<p class="support">Free to use and source available. Gratuit et au code ouvert : le <a href="LICENSE" rel="noopener">code est sous licence FSL-1.1-MIT</a> ; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> est facultatif et ne change rien à ce que fait l'outil.</p>
+</footer>
+</main>
+</body></html>

@@ -18,6 +18,13 @@ The pay-app billing app is meant to import it.
 
 ## Current status: Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah and Wyoming encoded and verified, Missouri's one residential form and Massachusetts' partial waiver as alternatives; no listed state pending
 
+**2026-11-28: Arizona's preliminary twenty day notice.** `src/az-notice.ts` holds
+`azPreliminaryNotice()`, offered by `noticeForms("AZ")`: Ariz. Rev. Stat. § 33-992.01(D)'s form, which the
+notice "shall follow substantially", printed whole with the § 33-992.02(1) acknowledgment of receipt the
+form says to insert. The statute prints the form in two columns; the left column's captions come first.
+`test/az-notice.test.ts` checks each caption's words in order and every sentence against
+`sources/az-33-992.txt` (azleg.gov, read 2026-11-28). No deadline counting yet.
+
 **2026-11-27: the Miller Act 90-day notice.** `src/us-miller.ts` holds `millerActNotice()`, the written
 notice a sub-subcontractor or a supplier to a subcontractor gives the prime contractor on a federal job
 (40 U.S.C. § 3133(b)(2)), rendered by `renderNotice` like the state notices. It is not offered by

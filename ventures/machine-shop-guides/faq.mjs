@@ -66,6 +66,16 @@ export const FAQ = {
     ["Which requirements get partial credit?",
       "Two. 3.5.3 multifactor authentication costs 3 points instead of 5 when MFA covers only remote and privileged users, and 3.13.11 costs 3 instead of 5 when CUI is encrypted but the module is not FIPS-validated. 3.12.4, the system security plan, has no points, but without it no score can be completed."],
   ],
+  "nist-800-171-policy-templates.html": [
+    ["What policies does NIST 800-171 require?",
+      "NIST SP 800-171 Rev. 2 has 14 requirement families, from Access Control to System and Information Integrity. Small shops usually keep one written policy per family; neither NIST nor the CMMC rule sets the number of documents, only that each requirement is covered by something written, approved and followed."],
+    ["What goes in a NIST 800-171 policy?",
+      "This template writes purpose, scope, roles, the family's requirements in NIST's own words, a procedure for each requirement (copied from your SSP's implementation statements where you have them), exceptions, enforcement and review. Everything but the requirement text is boilerplate to edit."],
+    ["How often should security policies be reviewed?",
+      "NIST SP 800-171 Rev. 2 sets no interval for policies. The template uses the interval you pick (6, 12, 24 or 36 months) and also asks for a review after a significant change to the system, its scope or its service providers, or after an incident."],
+    ["Are these policies ready to use as they are?",
+      "No. They are drafts: the procedures need your own steps, the boilerplate needs to match how your organization works, and a policy counts only once it is approved and followed. Nothing on this page is an assessment."],
+  ],
   "nist-800-171-ssp-template.html": [
     ["What does a NIST 800-171 SSP need to include?",
       "Requirement 3.12.4 asks for the system boundaries, the environments of operation, how each security requirement is implemented, and the relationships with or connections to other systems. NIST prescribes no format; this template lays it out as contacts, the system, a summary, one entry per requirement and the POA&M."],
