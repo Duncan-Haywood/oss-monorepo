@@ -338,14 +338,15 @@ Culls, mistakes and theft are not measured (they are the typed `culls` allowance
 `lumber-waste-factor.html` shows the tables; `waste-bench.test.mjs` fails if a figure on it drifts
 from the bench. Invented and generated plans, flat prices per foot, not a builder's real order.
 
-`node roof-waste-bench.mjs` lays out 4x8 roof sheathing on 16 rectangular roofs (24 x 36 to 36 x 60
-ft, 4:12 to 10:12, 12 in overhang all round), each as a gable and as a hip, and reports the sheet
-area bought over the roof surface. Gable 3.3 to 16.2% (mean 7.8%); hip with every hip-end triangle
-thrown away, as `roof.mjs` here orders it, 12.7 to 30.4% (mean 19.5%); hip with the triangles reused
-to start or fill other courses, as the paid edition's `roof.mjs` orders it (imported from
-`../residential-takeoff/apps/wall-framing-takeoff/`), 4.4 to 16.2% (mean 9.0%). The page
-`roof-sheathing-waste-factor.html` shows the table; `roof-waste-bench.test.mjs` fails if a figure on
-it drifts, and checks that the paid layout with `hipStarts: false` orders what this edition orders.
+`ventures/residential-takeoff/apps/wall-framing-takeoff/roof-waste-bench.mjs` (in the paid folder,
+which is not published, so the served copy of this one never imports a file the site lacks) lays out
+4x8 roof sheathing on 16 rectangular roofs (24 x 36 to 36 x 60 ft, 4:12 to 10:12, 12 in overhang all
+round), each as a gable and as a hip, and reports the sheet area bought over the roof surface. Gable
+3.3 to 16.2% (mean 7.8%); hip with every hip-end triangle thrown away, as `roof.mjs` here orders it,
+12.7 to 30.4% (mean 19.5%); hip with the triangles reused to start or fill other courses, as the paid
+edition's `roof.mjs` orders it, 4.4 to 16.2% (mean 9.0%). This folder's
+`roof-sheathing-waste-factor.html` shows the table; the bench's test beside it fails if a figure on
+the page drifts, and checks that the paid layout with `hipStarts: false` orders what this edition orders.
 
 ## DXF floor plan import (2026-10-27)
 

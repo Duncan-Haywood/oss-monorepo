@@ -2,10 +2,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { HOUSES, PITCHES, benchPlan, spread, table } from "./roof-waste-bench.mjs";
-import { layoutRoof, sampleRoof } from "./roof.mjs";
-import { layoutRoof as paidLayoutRoof } from "../residential-takeoff/apps/wall-framing-takeoff/roof.mjs";
+import { layoutRoof, sampleRoof } from "../../../wall-framing-takeoff/roof.mjs";
+import { layoutRoof as paidLayoutRoof } from "./roof.mjs";
 
-const html = readFileSync(new URL("./roof-sheathing-waste-factor.html", import.meta.url), "utf8");
+const html = readFileSync(new URL("../../../wall-framing-takeoff/roof-sheathing-waste-factor.html", import.meta.url), "utf8");
 const pct = (/** @type {number} */ x) => `${(x * 100).toFixed(1)}%`;
 const rows = table();
 
@@ -67,9 +67,9 @@ test("the ranges, averages and counts in the text follow from the benchmark", ()
 });
 
 test("the page is wired: sitemap, llms.txt, more-tools, FAQ matches JSON-LD, disclaimer, no MIT claim", () => {
-  assert.match(readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /<loc>\.\/roof-sheathing-waste-factor\.html<\/loc>/);
-  assert.match(readFileSync(new URL("./llms.txt", import.meta.url), "utf8"), /roof-sheathing-waste-factor\.html/);
-  assert.match(readFileSync(new URL("./more-tools.mjs", import.meta.url), "utf8"), /roof-sheathing-waste-factor\.html/);
+  assert.match(readFileSync(new URL("../../../wall-framing-takeoff/sitemap.xml", import.meta.url), "utf8"), /<loc>\.\/roof-sheathing-waste-factor\.html<\/loc>/);
+  assert.match(readFileSync(new URL("../../../wall-framing-takeoff/llms.txt", import.meta.url), "utf8"), /roof-sheathing-waste-factor\.html/);
+  assert.match(readFileSync(new URL("../../../wall-framing-takeoff/more-tools.mjs", import.meta.url), "utf8"), /roof-sheathing-waste-factor\.html/);
   const faq = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1])).find((b) => b["@type"] === "FAQPage");
   assert.ok(faq);
   for (const q of faq.mainEntity) {

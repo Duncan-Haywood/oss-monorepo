@@ -3,22 +3,25 @@
 // The 4x8 sheets each layout buys against the roof's own surface (overhangs
 // included), on 16 rectangular houses at four pitches, gable and hip:
 //
-//   gable                 courses from the eave up, end joints on rafters (roof.mjs, this edition)
+//   gable                 courses from the eave up, end joints on rafters (free roof.mjs)
 //   hip, offcuts thrown   the same courses on four planes, every course cut to its bottom length
-//                         and each hip-end triangle thrown away (roof.mjs, this edition)
+//                         and each hip-end triangle thrown away (free roof.mjs)
 //   hip, offcuts reused   the paid edition's layout: a hip-end triangle starts or fills another
 //                         course, cut down when the band is narrower, kept only when it saves a sheet
-//                         (Residential Takeoff, ../residential-takeoff/apps/wall-framing-takeoff/roof.mjs)
+//                         (Residential Takeoff, ./roof.mjs here)
 //
 // Extra = sheets x 32 sq ft / roof surface - 1: the allowance you would have to add to the
 // surface area to buy the same number of sheets. Cutting waste only; damaged sheets and
 // mistakes are a separate allowance.
 //
-//   node roof-waste-bench.mjs     # prints the table quoted on roof-sheathing-waste-factor.html
+//   node roof-waste-bench.mjs     # prints the table quoted on ventures/wall-framing-takeoff/roof-sheathing-waste-factor.html
 import { pathToFileURL } from "node:url";
-import { layoutRoof, sampleRoof } from "./roof.mjs";
-import { samplePlan } from "./engine.mjs";
-import { layoutRoof as paidLayoutRoof } from "../residential-takeoff/apps/wall-framing-takeoff/roof.mjs";
+// The free edition's engine (ventures/wall-framing-takeoff, where the page is served) and this
+// edition's: the bench lives here because this folder is not published, so the page's site
+// copy never carries an import of a file the site does not serve.
+import { layoutRoof, sampleRoof } from "../../../wall-framing-takeoff/roof.mjs";
+import { samplePlan } from "../../../wall-framing-takeoff/engine.mjs";
+import { layoutRoof as paidLayoutRoof } from "./roof.mjs";
 
 /** Footprints, outside of the walls, in feet: width (eave to eave) by length (along the ridge). */
 export const HOUSES = /** @type {const} */ ([[24, 36], [28, 40], [32, 48], [36, 60]]);
