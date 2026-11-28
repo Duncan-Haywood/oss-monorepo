@@ -38,7 +38,7 @@ test("the page shows 'not yet published' for gaps, in each language, and says si
 test("a complete provider is shown in full, escaped, with no 'not yet published'", () => {
   const html = impressumPage("en", { ...FULL, representedBy: "<script>x</script>" });
   assert.doesNotMatch(html, /not yet published|Trial sign-ups open once/);
-  assert.doesNotMatch(html, /<script>/);
+  assert.doesNotMatch(html, /<script\b/i);
   assert.match(html, /&lt;script&gt;/);
   assert.match(html, /1 Example St<br>Denver, CO 80202<br>USA/);
   assert.match(html, /Colorado Secretary of State, ID 20251234567/);
