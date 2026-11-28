@@ -5,8 +5,9 @@ description: >-
   preliminary notice and the lien filing -- for California, Texas, Florida,
   Arizona, Washington, Georgia, Colorado, North Carolina, New York, Ohio, Michigan,
   Minnesota, Nevada, Oregon, Utah, Virginia, Delaware, Idaho, Kansas, Maryland,
-  Montana, Nebraska, North Dakota, South Carolina and South Dakota (in the last fourteen only
-  the lien filing is dated, plus Maryland's notice of intention), from the user's first and last day on the job,
+  Montana, Nebraska, North Dakota, South Carolina, South Dakota, Alabama, Alaska, Maine,
+  Rhode Island and Wyoming (in the last nineteen only the lien filing is dated,
+  plus Maryland's and Wyoming's notices of intention), from the user's first and last day on the job,
   with weekend safe dates and days remaining. Entirely client-side, nothing
   uploaded.
 stage: prototype
@@ -29,9 +30,9 @@ owner: duncan
 # generation for paid notice-filing services -- a free, private date lookup
 # is the part they gate.
 #
-# Liability: the one risk is a wrong date. Mitigations: twenty-five states only,
+# Liability: the one risk is a wrong date. Mitigations: thirty states only,
 # each verified against multiple agreeing sources (NC, NY, OH against the statute text; MI, MN, NV, OR, UT, VA
-# copied from PayApps' statute-read rules; DE, ID, KS, MD, MT, NE, ND, SC, SD read on each state's code site 2026-11-28 and added to both and held equal to them by payapps' lien-deadline-parity test); first- and second-tier
+# copied from PayApps' statute-read rules; DE, ID, KS, MD, MT, NE, ND, SC, SD, then AL, AK, ME, RI, WY read on each state's code site 2026-11-28 and added to both and held equal to them by payapps' lien-deadline-parity test); first- and second-tier
 # claimants (tier matters only for Georgia's notice), Texas notices month by month; unsupported states throw rather than guess; completion-based rules
 # fall back to the cautious (earlier) date; weekend dates show the last
 # business day; the page states three times (intro, "what this does not

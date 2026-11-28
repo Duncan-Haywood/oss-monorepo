@@ -152,6 +152,50 @@ describe("lienDeadline: completion states (California, Arizona)", () => {
   });
 });
 
+describe("lienDeadline: Alabama, Alaska, Maine, Rhode Island and Wyoming (read 2026-11-28)", () => {
+  // 2026-09-01 is a Tuesday. +4 months = 2027-01-01 (Fri, New Year's Day, so the act-by date is
+  // Thu 2026-12-31), +120 = 2026-12-30 (Wed), +200 = 2027-03-20 (Sat, so Fri 2027-03-19).
+  const cases: [string, string, string, string][] = [
+    ["AL", "2027-01-01", "2026-12-31", "Ala. Code § 35-11-215"],
+    ["AK", "2026-12-30", "2026-12-30", "Alaska Stat. § 34.35.068"],
+    ["ME", "2026-12-30", "2026-12-30", "Me. Rev. Stat. tit. 10, § 3255(1)"],
+    ["RI", "2027-03-20", "2027-03-19", "R.I. Gen. Laws § 34-28-4(a)"],
+    ["WY", "2026-12-30", "2026-12-30", "Wyo. Stat. § 29-2-106(a)"],
+  ];
+  for (const [state, statutoryOn, dueOn, citation] of cases) {
+    it(`${state}: counted from the last day furnished`, () => {
+      const d = deadline({ state, lastFurnishedOn: "2026-09-01" });
+      expect(d.statutoryOn).toBe(statutoryOn);
+      expect(d.dueOn).toBe(dueOn);
+      expect(d.citation).toBe(citation);
+    });
+  }
+  it("only Wyoming asks for a completion date, and none asks for a notice of completion", () => {
+    for (const [state] of cases) {
+      expect(lienDateFields(state)).toEqual({
+        completion: state === "WY",
+        noticeOfCompletion: false,
+      });
+    }
+  });
+  it("Wyoming: substantial completion before the last day moves the date earlier, after it does not", () => {
+    const early = deadline({
+      state: "WY",
+      lastFurnishedOn: "2026-09-01",
+      completedOn: "2026-08-01",
+    });
+    expect(early.statutoryOn).toBe("2026-11-29");
+    expect(early.dueOn).toBe("2026-11-27");
+    expect(
+      deadline({ state: "WY", lastFurnishedOn: "2026-09-01", completedOn: "2026-10-01" })
+        .statutoryOn,
+    ).toBe("2026-12-30");
+  });
+  it("Rhode Island's note says the lien covers only the last 200 days of work", () => {
+    expect(LIEN_DEADLINE_RULES.RI.notes.join(" ")).toMatch(/200 days before the filing/);
+  });
+});
+
 describe("lienDeadline: the nine states added 2026-11-28 (statute text read that day)", () => {
   // 2026-09-01 is a Tuesday. +90 = 2026-11-30 (Mon), +120 = 2026-12-30 (Wed), +180 = 2027-02-28
   // (Sun, so the act-by date is Fri 2027-02-26), +3 months = 2026-12-01 (Tue).
