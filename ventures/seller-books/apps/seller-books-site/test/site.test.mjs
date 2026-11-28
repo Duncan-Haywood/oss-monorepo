@@ -84,6 +84,7 @@ describe("pages", () => {
         "Square",
         "PayPal",
         "Venmo",
+        "Cash App",
         "Grailed",
         "StockX",
         "Vinted",
