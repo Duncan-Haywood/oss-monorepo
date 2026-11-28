@@ -22,9 +22,10 @@ const dueOf = (r: ReturnType<typeof checked>, citation: string) =>
   r.steps.find((s) => s.citation === citation)?.dueOn;
 
 describe("state bond claims", () => {
-  it("covers the thirty-one states read, each with a statute link on its legislature's site", () => {
+  it("covers the thirty-two states read, each with a statute link on its legislature's site", () => {
     expect(STATE_BOND_STATES).toEqual([
       "AK",
+      "AL",
       "AZ",
       "CO",
       "DE",
@@ -284,6 +285,21 @@ describe("state bond claims", () => {
       expect(wy.steps[0]?.waitsFor).toMatch(/final completion/);
     }
     expect(checked("WY", "second").notes.join(" ")).toMatch(/forty-first day/);
+  });
+
+  it("Alabama: the surety's notice and the suit, which waits on final settlement, so nothing is dated", () => {
+    for (const tier of ["first", "second", null] as const) {
+      const al = checked("AL", tier, ACCEPTED);
+      expect(al.steps.map((s) => s.citation)).toEqual(["Ala. Code § 39-1-1(b)"]);
+      expect(al.dated).toEqual([]);
+      expect(al.steps[0]?.who).toBe("all");
+      expect(al.steps[0]?.rule).toMatch(/45 days after the notice to the surety/);
+      expect(al.steps[0]?.waitsFor).toMatch(/final settlement/);
+    }
+    const notes = STATE_BOND_RULES.AL?.notes.join(" ") ?? "";
+    expect(notes).toMatch(/no notice to the contractor/);
+    expect(notes).toMatch(/30 days after that notice ends/);
+    expect(notes).toMatch(/\$100,000/);
   });
 
   it("Rhode Island: 90-day notice for a sub's sub, two years to sue", () => {

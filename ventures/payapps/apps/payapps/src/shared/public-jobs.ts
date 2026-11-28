@@ -5,10 +5,10 @@
 //    dates PayApps counts here: the 90-day notice a second-tier claimant gives the prime, and the
 //    one-year limit on the suit. They take the lien deadline's place on the job page, the cash page
 //    and the weekly email. State and local jobs have each state's own bond law ("little Miller
-//    Act"): there it shows no lien date, and lists the bond claim steps in the thirty-one states of
+//    Act"): there it shows no lien date, and lists the bond claim steps in the thirty-two states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
-//    checked against the cap in the 25 states the public guide lists.
+//    checked against the cap in the 26 states the public guide lists.
 //
 // Sources. Miller Act rules ported from ventures/pay-app-guides/millerbond.mjs (40 U.S.C. 3131 and
 // 3133 read on govinfo.gov and law.cornell.edu on 2026-11-25; J.W. Bateson Co. v. United States,
@@ -129,6 +129,19 @@ export interface RetainageCap {
 }
 
 export const RETAINAGE_CAPS: Record<string, RetainageCap> = {
+  AL: {
+    name: "Alabama",
+    citation: "Ala. Code \u00a7 39-2-12(c)",
+    url: "https://alison.legislature.state.al.us/code-of-alabama?section=39-2-12",
+    cap: "5% of the work done and materials stored, and none withheld once the job is 50% complete",
+    capBps: 500,
+    lowerBps: 0,
+    lowerWhen:
+      "once the job is 50% complete: no further retainage is withheld, and what was held stays until final completion and acceptance",
+    flowsDown: false,
+    notes:
+      "No retainage at all on Alabama Department of Transportation highway, bridge and road contracts. An escrow account or deposited securities may replace retainage where the contract allows (\u00a7 39-2-12(e)-(g)).",
+  },
   AZ: {
     name: "Arizona",
     citation: "A.R.S. § 34-221",
@@ -535,6 +548,18 @@ function step(
 const days = (n: number) => (iso: string) => addDays(iso, n);
 
 export const STATE_BOND_RULES: Record<string, StateBondRule> = {
+  AL: {
+    name: "Alabama",
+    law: "Ala. Code \u00a7 39-1-1",
+    url: "https://alison.legislature.state.al.us/code-of-alabama?section=39-1-1",
+    checkedOn: "2026-11-28",
+    notes: [
+      "Alabama asks no notice to the contractor from anyone. The one notice is to the surety, of the amount claimed and the nature of the claim; registered or certified mail to any of its offices is enough, and the suit may not be filed until 45 days after it (\u00a7 39-1-1(b)). Send it as soon as payment is clearly late.",
+      "If the surety or contractor does not pay in full within 45 days of the mailing, you may also recover a reasonable attorney fee and interest from the date of the notice (\u00a7 39-1-1(b)).",
+      "The suit limit runs from the final settlement of the contract, a day PayApps does not know. After completion the contractor must publish a notice of completion for at least three weeks (a county newspaper, its website, or the awarding authority's notice website), and final settlement cannot come until 30 days after that notice ends (\u00a7 39-1-1(f)): watch for it, and ask the awarding authority for the settlement date.",
+      "The payment bond is required on contracts of $100,000 or more (\u00a7 39-1-1(e)). On written application saying you supplied work and were not paid, the authority gives you a certified copy of the bond and contract (\u00a7 39-1-1(c)).",
+    ],
+  },
   AK: {
     name: "Alaska",
     law: "AS 36.25.010, 36.25.020",
@@ -896,6 +921,20 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
   const L = d.lastOn;
   const A = d.acceptedOn;
   switch (state) {
+    case "AL":
+      return [
+        step(
+          {
+            who: "all",
+            act: "Give the surety written notice of the amount and nature of your claim, then bring suit on the payment bond",
+            citation: "Ala. Code \u00a7 39-1-1(b)",
+            rule: "the suit not until 45 days after the notice to the surety, and within one year from the date of final settlement of the contract",
+          },
+          null,
+          null,
+          "the date of final settlement of the contract",
+        ),
+      ];
     case "AK":
       return [
         step(

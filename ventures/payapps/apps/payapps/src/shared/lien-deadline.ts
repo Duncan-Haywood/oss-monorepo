@@ -1,7 +1,7 @@
 // The last day to record (or file) a mechanics lien on a job, for a subcontractor or supplier, in the
-// sixteen states whose filing clock PayApps carries. The money a sub is owed is only as safe as its lien
-// rights, and those end on a date most subs never write down: the job page shows it and the cash page
-// and weekly email name it when money is still owed and the date is near.
+// twenty-five states whose filing clock PayApps carries. The money a sub is owed is only as safe as
+// its lien rights, and those end on a date most subs never write down: the job page shows it and the
+// cash page and weekly email name it when money is still owed and the date is near.
 //
 // Rules ported from ventures/mechanics-lien-deadline-calculator/calc.mjs (the free front door), whose
 // timing was checked against each state's statute text on 2026-11-25 (see that file's header for how
@@ -9,7 +9,14 @@
 // the statute text on each legislature's own site (MCL 570.1111, Minn. Stat. 514.08, NRS 108.226,
 // ORS 87.035 and 87.010, Utah Code 38-1a-502, Va. Code 43-4), read whole that day. Missouri was read
 // and left out: § 429.080 counts six months from when "the indebtedness shall have accrued", a date
-// PayApps does not hold. Only the lien-filing clock is here; preliminary notices have their own panels
+// PayApps does not hold. Delaware, Idaho, Kansas, Maryland, Montana, Nebraska, North Dakota,
+// South Carolina and South Dakota were added 2026-11-28, each from the section's text on the state's
+// own code site that day (Del. C. tit. 25 § 2711(b), Idaho Code § 45-507, K.S.A. 60-1102 and
+// 60-1103, Md. Code, Real Prop. §§ 9-104 and 9-105, MCA 71-3-535, Neb. Rev. Stat. § 52-137,
+// N.D.C.C. 35-27-13, S.C. Code § 29-5-90, SDCL 44-9-15); excerpts and URLs are in
+// ventures/mechanics-lien-deadline-calculator/sources/2026-11-28-nine-states.md. Iowa was read and
+// left out: § 572.9 gives two years and ninety days to post, and what a lien posted that late still
+// reaches is set by other sections not read here. Only the lien-filing clock is here; preliminary notices have their own panels
 // (California, Florida, Texas, packages/lien-waivers).
 //
 // Safe side, always. Where a statute counts from completion of the whole project (California,
@@ -50,15 +57,24 @@ export const LIEN_DEADLINE_STATES = [
   "AZ",
   "CA",
   "CO",
+  "DE",
   "FL",
   "GA",
+  "ID",
+  "KS",
+  "MD",
   "MI",
   "MN",
+  "MT",
   "NC",
+  "ND",
+  "NE",
   "NV",
   "NY",
   "OH",
   "OR",
+  "SC",
+  "SD",
   "TX",
   "UT",
   "VA",
@@ -268,6 +284,87 @@ export const LIEN_DEADLINE_RULES: Record<LienDeadlineState, StateRule> = {
     },
     notes: [
       "The same deadline applies to the general contractor and to subcontractors and suppliers (§§ 43-4, 43-7): 90 days from the last day of the month you last furnished, and in no event later than 90 days after the building is completed or the work otherwise terminated.",
+    ],
+  },
+  DE: {
+    name: "Delaware",
+    citation: "Del. Code tit. 25, § 2711(b)",
+    act: "file a statement of claim in the Superior Court",
+    commercial: { type: "days_after_last", days: 120 },
+    notes: [
+      "This is the clock for subcontractors and suppliers: 120 days from the completion of your labor or your last delivery of materials. A claim is also timely within 120 days of the date your final payment, retainage included, is due, or of final payment to the general contractor, which can only be later (§ 2711(b)). A general contractor with a direct contract with the owner has 180 days after completion of the structure (§ 2711(a)).",
+    ],
+  },
+  ID: {
+    name: "Idaho",
+    citation: "Idaho Code § 45-507(2)",
+    act: "file a claim of lien for record with the county recorder",
+    commercial: { type: "days_after_last", days: 90 },
+    notes: [
+      "The statute counts 90 days after the completion of your labor or services, or your last furnishing of materials (§ 45-507(2)), for every claimant. The claim is recorded in the county where the property, or part of it, is.",
+    ],
+  },
+  KS: {
+    name: "Kansas",
+    citation: "Kan. Stat. §§ 60-1102, 60-1103(a)",
+    act: "file a lien statement with the clerk of the district court",
+    commercial: { type: "months_after_last", months: 3 },
+    notes: [
+      "This is the subcontractor and supplier clock, 3 months after your last furnishing (§ 60-1103(a)(1)); a contractor with the owner has 4 months (§ 60-1102(a)). On property other than residential property, a notice of extension filed within the 3 months gives 5 months. A sub's lien statement needs the contractor's name and, where a warning statement was required (§ 60-1103a), the affidavit that it was given.",
+    ],
+  },
+  MD: {
+    name: "Maryland",
+    citation: "Md. Code, Real Prop. §§ 9-104, 9-105(a)",
+    act: "file a petition to establish the mechanic's lien in the circuit court",
+    commercial: { type: "days_after_last", days: 180 },
+    notes: [
+      "A subcontractor also has to give the owner written notice of an intention to claim a lien within 120 days after doing the work or furnishing the materials (§ 9-104(a)), so that date, 60 days before this one, is the first to keep. On a single family dwelling the owner is building as a residence, the lien also fails if the owner paid the contractor in full before the notice (§ 9-104(a)(2)).",
+    ],
+  },
+  MT: {
+    name: "Montana",
+    citation: "Mont. Code § 71-3-535(1)",
+    act: "file a lien with the county clerk and recorder",
+    commercial: { type: "days_after_last", days: 90 },
+    notes: [
+      "The statute also counts 90 days after the owner files a notice of completion (§ 71-3-533): if one was filed before your last day of work, count from it, which is earlier. The filing certifies that a copy was served on the owner of record, and the lien must declare that a notice of a right to claim a lien was given, or why none was needed (§ 71-3-535(2), (3)).",
+    ],
+  },
+  NE: {
+    name: "Nebraska",
+    citation: "Neb. Rev. Stat. § 52-137(1)",
+    act: "record a lien",
+    commercial: { type: "days_after_last", days: 120 },
+    notes: [
+      "The statute counts 120 days after your final furnishing of services or materials (§ 52-137(1)).",
+    ],
+  },
+  ND: {
+    name: "North Dakota",
+    citation: "N.D. Cent. Code § 35-27-13",
+    act: "record a lien with the county recorder",
+    commercial: { type: "days_after_last", days: 90 },
+    notes: [
+      "The statute counts 90 days after all your contribution is done; the recorded lien states the dates of your first and last contribution and who you contracted with (§ 35-27-13).",
+    ],
+  },
+  SC: {
+    name: "South Carolina",
+    citation: "S.C. Code § 29-5-90",
+    act: "serve the owner and file a statement of account with the register of deeds or clerk of court",
+    commercial: { type: "days_after_last", days: 90 },
+    notes: [
+      "Both steps are due within the 90 days: the sworn statement served on the owner (or the person in possession) and filed in the county (§ 29-5-90). Suit to enforce, with a notice of pendency, is due within six months after your last day of work (§ 29-5-120(A)).",
+    ],
+  },
+  SD: {
+    name: "South Dakota",
+    citation: "S.D. Codified Laws § 44-9-15",
+    act: "file a statement of the claim with the register of deeds",
+    commercial: { type: "days_after_last", days: 120 },
+    notes: [
+      "The lien ceases 120 days after your last work or last item furnished unless the statement is filed in the county where the property is (§ 44-9-15).",
     ],
   },
   WA: {
