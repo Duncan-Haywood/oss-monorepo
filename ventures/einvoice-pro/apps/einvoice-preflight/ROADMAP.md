@@ -315,6 +315,12 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   (`leitweg-form.test.mjs`). Measured on the free tool (`ventures/einvoice-preflight/leitweg-id-bench.mjs`):
   the official EN 16931 and KoSIT rules flag 1 of 11 buyer-reference mistakes (the missing one,
   BR-DE-15). Front door: the German page `leitweg-id-pruefen.html` with an in-browser check-digit field.
+- Gutschrift als E-Rechnung (2026-11-28, gutschrift-e-rechnung, front door): the German page
+  `ventures/einvoice-preflight/gutschrift-e-rechnung.html` (Gutschrift under § 14 Abs. 2 Satz 5 UStG vs
+  the seller's credit note, codes 380/381/384/389) and `gutschrift-bench.mjs`, twelve credit-note files
+  measured: the official rules pass a 381 with no BT-25 (only INV-033 flags it) and a 381 with negated
+  amounts (nothing flags it; Peppol BIS allows a negative credit-note total), warn on a 384 without
+  BT-25 (BR-DE-26), and reject a root/code mismatch (BR-CL-01). Next item 9 below if accountants ask.
 
 ## Next (by what stands between the bet and a paying accountant)
 
@@ -387,3 +393,6 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
    2026-11-27; the settlement on a schedule, a Durable Object alarm since no cron trigger is left,
    done 2026-11-27, below): the einvoice-site API page's link to the `api` plan's sign-up
    once the deploy has run (the page itself, done 2026-11-27, below).
+9. Negated credit note, if accountants ask (waits on demand): a warning when a 381's amount due is
+   negative and the batch holds no negative invoice it balances (`creditlink.mjs` already pairs a credit
+   note with its original in a batch); measured on `gutschrift-bench.mjs`, where nothing flags it today.
