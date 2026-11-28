@@ -473,6 +473,17 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   page (ticks kept, result, noindex), the same functions the Worker runs (tested equal); the submit
   button sends `calc=1`, so "nothing ticked" scores 110 instead of showing no result. The app's sign-in
   screen opens on "Create account" at `/signup` or `?mode=signup` (`src/client/lib/auth-mode.ts`).
+- Internal audits, part 3, the audit report (2026-11-28, audit-report): "Download audit report" on
+  each audit in the Audits tab, `GET /audits/:id/report.md` (every member, tenant-scoped, no-store).
+  Status and dates, auditor (member or outside) and the independence line (names the clauses in scope
+  the auditor owns on the checklist), scope by clause number and heading, the summary, every finding
+  ordered major, minor, observation, improvement, with what was seen and the corrective action it
+  opened (reference, stage, due or closed date, owner) or "none opened yet" for a nonconformity, what is
+  still open for that audit (the Audits tab's own checks), and blank sign-off lines. The record clause
+  9.2 asks a shop to keep for each audit's results, built from what the workspace holds; no ISO text.
+  Typed text is quoted line by line with Markdown characters escaped, so a summary starting "#" or "---"
+  stays text. `auditReportMarkdown` in `src/shared/internal-audits.ts`, `auditReport` in
+  `services/internal-audits`; unit, worker (viewer reads, other tenant 404) and view tests.
 
 ## Must do before a public launch
 
@@ -560,8 +571,9 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
 
 ## Next
 
-- Internal audits, part 3 (calendar dates and the dashboard card done 2026-11-27): an audit report
-  (Markdown) per audit, and evidence files linked to a finding or an effectiveness check, if shops ask
+- Internal audits, part 4 (calendar dates and the dashboard card done 2026-11-27; the audit report
+  done 2026-11-28): evidence files linked to a finding or an effectiveness check, and the report as a
+  PDF, if shops ask
 - Document control, part 3 (review dates in the calendar and the dashboard done 2026-11-27; the
   master list import done 2026-11-28; the controlled copy file per revision done 2026-11-28): check the
   import's header words against real master lists once shops send theirs; a "file changed since

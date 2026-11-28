@@ -33,7 +33,7 @@ import {
   DOC_STATUSES,
   masterListCsv,
 } from "@shared/document-control";
-import { MEMBER_ROLES, OBJECTIVE_RESULTS, POAM_STATUSES } from "@shared/enums";
+import { MEMBER_ROLES, OBJECTIVE_RESULTS, POAM_STATUSES, SCOPE_DISCLAIMER } from "@shared/enums";
 import {
   AUDIT_COVERAGE_MONTHS,
   AUDIT_STATUS_LABEL,
@@ -161,6 +161,7 @@ import {
 import {
   addFinding,
   auditProgramme,
+  auditReport,
   cancelAudit,
   clauseNumber,
   completeAudit,
@@ -1525,6 +1526,35 @@ routes.post(
     );
   },
 );
+routes.get("/audits/:id/report.md", async (c) => {
+  const { ctx, tenant } = c.var;
+  const [{ org }, members] = await Promise.all([
+    getOrg(ctx, tenant.orgId),
+    listMembers(ctx, tenant.orgId),
+  ]);
+  const names = new Map(members.map((m) => [m.userId, m.name]));
+  const report = await auditReport(
+    ctx,
+    tenant.orgId,
+    org.name,
+    c.req.param("id"),
+    (id) => (id ? (names.get(id) ?? "") : ""),
+    SCOPE_DISCLAIMER,
+  );
+  const slug =
+    report.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "audit";
+  return new Response(report.markdown, {
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      "Content-Disposition": `attachment; filename="internal-audit-${slug}.md"`,
+      "Cache-Control": "private, no-store",
+    },
+  });
+});
 routes.get("/corrective-actions/export.csv", async (c) => {
   const { ctx, tenant } = c.var;
   const [actions, members] = await Promise.all([

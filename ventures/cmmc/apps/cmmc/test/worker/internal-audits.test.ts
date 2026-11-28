@@ -298,4 +298,58 @@ describe("internal audits and corrective actions", () => {
     expect((await programme(other)).correctiveActions).toHaveLength(0);
     expect((await api(path(t, "/audits"), { as: other.userId })).status).toBe(404);
   });
+
+  it("downloads one audit's report, readable by viewers, never another tenant's", async () => {
+    const t = await setupTenant();
+    const a = await json<Audit>(send(t, "/audits", "POST", plan()), 201);
+    await json(
+      send(t, `/audits/${a.id}/complete`, "POST", {
+        completedOn: daysAgo(1),
+        summary: "Sampled jobs 4470 to 4475 at final inspection.",
+      }),
+    );
+    const f = await json<{ id: string }>(
+      send(t, `/audits/${a.id}/findings`, "POST", {
+        kind: "major",
+        clauseId: "iso9001-8.6",
+        description: "Job 4472 shipped with no final inspection record.",
+        evidence: "Traveler 4472, ship log 2026-11.",
+      }),
+      201,
+    );
+    const ca = await json<Ca>(
+      send(t, `/audits/${a.id}/findings/${f.id}/corrective-action`, "POST", {
+        ownerUserId: t.userId,
+        dueOn: daysAhead(20),
+      }),
+      201,
+    );
+    const viewer = await createTestUser("Viewer");
+    await addToOrg(t.orgId, viewer.id, "viewer");
+    const res = await api(path(t, `/audits/${a.id}/report.md`), { as: viewer.id });
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/markdown");
+    expect(res.headers.get("content-disposition")).toContain(
+      'filename="internal-audit-production-and-inspection-audit.md"',
+    );
+    expect(res.headers.get("cache-control")).toContain("no-store");
+    const md = await res.text();
+    expect(md).toContain("# Internal audit report: Production and inspection audit");
+    expect(md).toContain(`Done on ${daysAgo(1)}`);
+    expect(md).toContain("Jordan (outside auditor) (from outside)");
+    expect(md).toContain("8.5.1, 8.6, 7.1.5");
+    expect(md).toContain("> Sampled jobs 4470 to 4475 at final inspection.");
+    expect(md).toContain("### 1. Major nonconformity, clause 8.6");
+    expect(md).toContain(`Corrective action: **${ca.ref}**`);
+    expect(md).toContain("not a CMMC certification");
+
+    const other = await setupTenant("owner", "Other Shop");
+    const cross = await api(`/api/orgs/${other.orgId}/audits/${a.id}/report.md`, {
+      as: other.userId,
+    });
+    expect(cross.status).toBe(404);
+    expect((await api(path(t, `/audits/${a.id}/report.md`), { as: other.userId })).status).toBe(
+      404,
+    );
+  });
 });
