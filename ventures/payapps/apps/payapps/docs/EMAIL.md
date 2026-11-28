@@ -34,6 +34,12 @@ switch to the device's zone when the saved one differs. The hourly cron (`wrangl
   nothing sent in the last 6 days counted in their local days (so a day changed after this week's email takes effect the week after). One cash report per
   company, without the sample job; the lines are the report's own next steps
   (`src/shared/cash-digest.ts`), at most 15 jobs, the rest counted.
+- Late-payment interest (2026-11-28, `cashDigest`): two summary lines, never added to the amount
+  owed, worded as the Cash and retainage page words them: the interest accrued on past-due
+  applications at the jobs' late-payment rates, and the interest earned on applications paid late
+  in the last 365 days that nobody has marked billed or waived yet, with how many. A paid-late
+  application is already a job's next step, so it sends the email on its own; accrued interest on
+  a past-due one rides with that application's own line.
 - The company's own insurance certificates (2026-11-26): every active one expired or expiring within
   30 days of the report's date is listed under "Insurance certificates to renew", soonest first, at
   most 10 (the rest counted), with a link to `/orgs/:orgId/insurance`; archived ones never. Each

@@ -146,6 +146,15 @@ has decided about yet; the marked ones sit under "Billed or waived", with an und
 application's history and the cash report's CSV keep the decision. PayApps records it; it does
 not bill anything itself.
 
+Both numbers now reach the weekly "money to chase" email too (2026-11-28), for anyone who turned
+it on: one line with the interest accrued on past-due applications, one with the interest earned
+on applications paid late that nobody has marked billed or waived yet, and how many. Neither is
+added to the amount owed in the line above them, for the same reason the cash page keeps them
+apart: whether you can collect it depends on your subcontract, any statute that applies and any
+waiver you signed. With the $45,000 example above still unpaid on 1 April, the email reads
+"Interest accrued on past-due applications at the jobs' late-payment rates: $525.00 (not in the
+amount owed)."
+
 **Where this goes.** PayApps, our hosted pay-app billing for specialty subcontractors, keeps
 every pay application, payment and retainage balance per job and shows what is owed, when it was
 due under the job's pay terms and how late it is. It is open and free on one active job, with no

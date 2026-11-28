@@ -236,6 +236,21 @@ export function cashDigest(
         : `Owed on sent applications: ${formatCents(t.outstandingCents)}.`,
     );
   }
+  // Late-payment interest, as the Cash and retainage page states it: never added to the owed
+  // figure above (whether it can be collected depends on the subcontract), so it gets lines of its
+  // own. Paid-late interest counts only applications not yet marked billed or waived.
+  if (t.interestCents > 0) {
+    summary.push(
+      `Interest accrued on past-due applications at the jobs' late-payment rates: ${formatCents(t.interestCents)} (not in the amount owed).`,
+    );
+  }
+  if (t.paidLateInterestCents > 0) {
+    const n = report.projects.reduce((s, p) => s + (p.paidLate?.length ?? 0), 0);
+    const apps = n === 1 ? "1 application" : `${n} applications`;
+    summary.push(
+      `Interest earned on ${apps} paid late, not yet billed or waived: ${formatCents(t.paidLateInterestCents)}.`,
+    );
+  }
   if (t.awaitingOwnerCents > 0) {
     summary.push(
       `Waiting on the owner's payment to the GC (pay-when-paid, no due date yet): ${formatCents(t.awaitingOwnerCents)}.`,

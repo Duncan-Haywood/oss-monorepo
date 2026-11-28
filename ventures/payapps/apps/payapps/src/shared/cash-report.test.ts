@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { cashDigest } from "./cash-digest";
 import {
   addDays,
   bucketFor,
@@ -1033,6 +1034,23 @@ describe("interest earned on applications paid late", () => {
     );
     expect(cashReport([paidLate(twoChecks)], "2026-05-01").totals.paidLateInterestCents).toBe(
       33_500,
+    );
+  });
+
+  it("reaches the weekly email's summary, past due and paid late each on a line", () => {
+    const pastDue = job([p1], [{ status: "submitted", applicationDate: "2026-01-31" }], {
+      id: "prj_2",
+      name: "Oak Ave",
+      payTermsDays: 30,
+      lateInterest: tx,
+    });
+    // #1 on Oak Ave: $27,000 past due 30 days at 1.5% a month: $405.00.
+    const d = cashDigest(cashReport([paidLate(twoChecks), pastDue], "2026-04-01"));
+    expect(d?.summary).toContain(
+      "Interest accrued on past-due applications at the jobs' late-payment rates: $405.00 (not in the amount owed).",
+    );
+    expect(d?.summary).toContain(
+      "Interest earned on 1 application paid late, not yet billed or waived: $335.00.",
     );
   });
 

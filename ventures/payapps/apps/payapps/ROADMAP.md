@@ -2724,6 +2724,12 @@ nothing to copy. No customers yet. Paid plans are dark
   paid-late list, a future day or one before the last payment; deleting a payment (the application
   reopens) clears the mark. The history logs each mark and undo; the cash CSV's last column names
   billed or waived ones.
+- Late-payment interest, part 3b (2026-11-28, interest-in-weekly-email, every plan): the weekly
+  "money to chase" email's summary states the interest accrued on past-due applications and the
+  interest earned on applications paid late that is not yet marked billed or waived (with how many),
+  each on its own line and never added to the amount owed, as the cash page keeps it apart
+  (`cashDigest` in `src/shared/cash-digest.ts`; docs/EMAIL.md). Tested on hand totals and end to end
+  from a cash report with one job paid late and one past due (`cash-report.test.ts`).
 - Fix, retainage rate cut after a line's release (2026-11-27, retainage-rate-cut): a line whose
   retainage was released in full (10% of $10,000, $1,000 released) went to -$500 when a later
   application cut the rate to 5% (the common "5% after half complete") or to 0% for the final
@@ -2840,10 +2846,9 @@ nothing to copy. No customers yet. Paid plans are dark
 
 ## Next (suite, by promise)
 
-- Late-payment interest, part 3b (part 3a, the billed or waived mark per application, done
-  2026-11-28): "Mark billed" sending a separate invoice for the interest to QuickBooks, or adding it
-  as a line on the next pay application, and the paid-late total in the weekly email, if contractors
-  ask.
+- Late-payment interest, part 3c (part 3a, the billed or waived mark, and part 3b, the totals in the
+  weekly email, done 2026-11-28): "Mark billed" sending a separate invoice for the interest to
+  QuickBooks, or adding it as a line on the next pay application, if contractors ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if
