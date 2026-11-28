@@ -102,13 +102,19 @@ export const SHOTS = {
     file: "customer-pdf.webp",
     width: 1275,
     height: 750,
-    alt: "The top of the quote PDF the customer receives: the shop's name, Example Precision, and QUOTE with quote number Q-1001, the date and a valid-until date a month later; prepared for Example Robotics LLC, Dana Example; then part BRK-1001 Rev B, motor mount bracket, at 10, 50 and 100 pieces for $46.40, $26.80 and $25.85 each ($464.00, $1,340.00 and $2,585.00). No costs, rates or markup appear.",
+    alt: "The top of the quote PDF the customer receives, on the shop's letterhead: a made-up logo (a hexagon and the words Example Precision), the shop's name, address, phone and email, and QUOTE with quote number Q-1001, the date and a valid-until date a month later; prepared for Example Robotics LLC, Dana Example, with a lead time of 3-4 weeks ARO; part BRK-1001 Rev B, motor mount bracket, at 10, 50 and 100 pieces for $46.40, $26.80 and $25.85 each ($464.00, $1,340.00 and $2,585.00); and the shop's terms, Net 30, FOB our dock. No costs, rates or markup appear.",
   },
   customerPage: {
     file: "customer-quote-phone.webp",
     width: 390,
-    height: 944,
-    alt: "The customer's page for the same quote on a phone, opened from a link with no account: the shop's name, the quote number and dates, a link to the PDF as sent, and an Accept this quote form where the buyer picks 10, 50 or 100 of BRK-1001 at the quoted prices or not ordering the part, sees the total, types their name, email, PO number and a note, and accepts the quote or declines it.",
+    height: 1082,
+    alt: "The customer's page for the same quote on a phone, opened from a link with no account: the shop's name and contact lines, the quote number, dates and lead time, a link to the PDF as sent, and an Accept this quote form where the buyer picks 10, 50 or 100 of BRK-1001 at the quoted prices or not ordering the part, sees the total, types their name, email, PO number and a note, and accepts the quote or declines it, with the shop's terms below.",
+  },
+  quoteLog: {
+    file: "quote-log-desktop.webp",
+    width: 1280,
+    height: 860,
+    alt: "The quote log in Job Shop Quote for a made-up shop: totals for open quotes (1), win rate (50%, 1 won of 2 decided), won ($536.25) and quoted ($1,635.25); a follow-up card with one follow-up coming up in the next 7 days and the days-after-sending setting; and four quotes, Q-1004 draft for Example Robotics LLC ($422.12), Q-1003 lost on lead time to Demo Aero Components ($635.00), Q-1002 won from Sample Fluidics Inc. ($536.25) and Q-1001 sent to Example Robotics LLC ($464.00).",
   },
 } as const;
 
@@ -145,13 +151,15 @@ function appShots(ctx: RenderContext): Html {
     <div class="shots">
       <figure class="shot shot-wide">
         <a class="shot-link" href="${href(ctx, `/shots/${SHOTS.customerPdf.file}`)}">${shotImg(ctx, SHOTS.customerPdf)}</a>
-        <figcaption>The quote PDF: prices for each quantity break and the dates, with your notes and terms when you set them. The costs, rates and markup behind them stay in the app.</figcaption>
+        <figcaption>The quote PDF on your letterhead: your logo and contact lines, prices for each quantity break, the dates, the lead time and your terms. The costs, rates and markup behind them stay in the app.</figcaption>
       </figure>
       <figure class="shot shot-phone">
         ${shotImg(ctx, SHOTS.customerPage)}
         <figcaption>The link you can send with it: the customer picks a quantity, adds a PO number and accepts, or declines, with no account.</figcaption>
       </figure>
     </div>
+    <h3 class="center shots-sub">After it's sent</h3>
+    ${shotFigure(ctx, SHOTS.quoteLog, "The quote log: every quote with its status and value, your win rate, and the sent quotes due for a follow-up, so an open quote doesn't go quiet. Four made-up quotes for three made-up customers.")}
     <p class="center"><a class="link" href="${href(ctx, "/how-it-works")}">How the price is built, step by step →</a></p>
   </div>
 </section>`;
@@ -407,7 +415,7 @@ export function howItWorksPage(ctx: RenderContext): Html {
       or have ${SITE_NAME} email it from your estimator's send button. It never sends a quote on its own.
       With it can go a link where the customer picks a quantity and accepts, with a PO number, or
       declines; the answer shows on the quote, which is marked won or lost.</p>
-      ${shotFigure(ctx, SHOTS.customerPdf, "What the customer receives: prices for every quantity break, the dates, your notes and terms when set, and none of the costs, rates or markup behind them. Made-up shop and customer.")}`,
+      ${shotFigure(ctx, SHOTS.customerPdf, "What the customer receives, on your letterhead: your logo and contact lines, prices for every quantity break, the dates, lead time and terms, and none of the costs, rates or markup behind them. Made-up shop, logo and customer.")}`,
     },
   ];
   const wont = [
@@ -1642,6 +1650,7 @@ export function quoteTemplatePage(ctx: RenderContext): Html {
     checks and sends it; the customer gets a link to accept or decline, and the app reminds you about
     follow-ups and quotes about to expire. You can
     <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a>.</p>
+    ${shotFigure(ctx, SHOTS.customerPdf, "A quote from the app, on a made-up shop's letterhead: the same header, customer, quantity breaks and terms as the template, filled in from the rate card.")}
     <p class="fineprint">This page describes common practice for job-shop quotes. It is not legal, tax or
     financial advice, and the example's names, dates and prices are made up. Check every quote before you
     send it.</p>
