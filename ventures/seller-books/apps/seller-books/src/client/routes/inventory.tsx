@@ -2,6 +2,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { SheetImport } from "../components/sheet-import";
+import { StockCount } from "../components/stock-count";
 import { api, dollarsToCents, orgPath, today, usd } from "../lib/api";
 import { useOrgId } from "./org";
 import { ErrorText } from "./public";
@@ -128,6 +129,7 @@ export function InventoryPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Inventory &amp; cost of goods</h1>
       <SheetImport orgId={orgId} />
+      <StockCount orgId={orgId} />
       <div className="grid gap-4 lg:grid-cols-2">
         <form
           className="card space-y-2"

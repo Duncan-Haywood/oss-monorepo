@@ -106,6 +106,56 @@ It is a list to act on (relist, reprice, bundle), valued at cost. Whether
 any of it should be valued lower is a question for your preparer, and none
 of this is tax advice.
 
+## Count the shelves before you sign off line 41 (added 2026-11-28)
+
+Line 41 is what your books say is on hand at December 31. Over a year, some
+of that stock walks off: a bowl breaks in the bin, a jacket gets donated with
+the rest of a bad lot, a pair of jeans goes into your own closet, a listing
+sold on a platform you never imported. The books keep counting all of it
+until you tell them otherwise, and every dollar left in line 41 by mistake is
+a dollar of cost of goods sold you did not take.
+
+[Seller Books](https://seller-books.marisstella.app/signup?from=post-stock-count)
+now has a **stock count** on its Inventory page. Pick the count's date
+(December 31 of last year is one tap). It lists every item still in stock
+that was bought on or before that day, and you tick what you find, in one of
+three ways:
+
+- **Scan or type the SKU.** With a USB or Bluetooth barcode scanner, which
+  types the code and presses Enter, each scan ticks one item. Three items
+  sharing a SKU take three scans. An unknown code is named rather than
+  ignored.
+- **Tick the row** on a phone while you walk the shelves.
+- **Use the count sheet.** Download it as a CSV, sorted by SKU with a blank
+  "Found (Y/N)" column, print it or fill it in a spreadsheet, and read it
+  back. Rows are matched by the item ID column only. A row for something sold
+  since, a row that appears twice, or a mark that is not Y or N is listed by
+  line number and never guessed.
+
+When you finish, everything not found leaves inventory on the count's date.
+You choose one outcome for the batch: *written off* (lost, damaged, thrown
+away or donated) or *kept for myself*. Before you confirm, the page says what
+each choice does to the form. Written off, the cost leaves line 41, so it
+moves into cost of goods sold (line 42). Kept for personal use, it leaves
+line 41 and also comes off line 36 (purchases), so it is not deducted at all.
+The count is all or nothing: if an item sold in another tab while you were
+counting, nothing is written and you are asked to reload. One click undoes
+the whole count.
+
+Here is the browser test's made-up shop. A wool coat ($35), a brass lamp
+($12) and a Pyrex bowl ($8) were bought in February, so line 41 at
+December 31 would be $55.00. The coat is found by scanning `coat-1`. The lamp
+is marked Y on the downloaded sheet. The bowl is not found and is written off
+on December 31, so line 41 becomes $47.00. The server tests also cover a
+230-item write-off from a 250-item pallet, personal use moving line 36, and
+another shop's items, which can never be touched.
+
+Two cautions the page also gives. Before you write anything off, check
+whether a "missing" item was sold but never linked to its sale; that belongs
+on the Sales page, so the sale shows its real profit and the stock report its real days to sell. And
+whether to keep an inventory at all, or how to value damaged stock, is a
+question for your preparer. None of this is tax advice.
+
 ## Has each lot paid for itself? (added 2026-11-26)
 
 The free tool ages what is left at December 31. Seller Books, the hosted
