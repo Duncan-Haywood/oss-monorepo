@@ -2253,8 +2253,24 @@ nothing to copy. No customers yet. Paid plans are dark
   win split, plan gate, viewer, cross-tenant). Why: subs track labor against the hours they bid more
   than anything else, and a line total hides labor running over while material comes in under;
   carrying the bid's own breakdown means nobody retypes it. Not done: estimate cost lines carried as
-  purchase orders or subcontracts (an estimate line has no vendor or PO number to commit to), and a
-  cost code below the cost type.
+  purchase orders (an estimate line has no PO number to commit to), and a cost code below the cost
+  type. Subcontracts from the subs' quotes are done (2026-11-28, next entry).
+- Estimates, part 2, subs' quotes to subcontracts (2026-11-28, every plan writes the name, Crew and up
+  makes the subcontracts, estimate-sub-quote-commitments): a subcontract line on an estimate keeps the
+  sub whose quote it carries (`estimate_lines.vendor`, migration 0095; ignored on other categories,
+  trimmed and single-spaced). When the bid is won on a plan with job costing, each sub named on a bid
+  item that is in the job (the accepted alternates decide, as for the SOV) becomes one lower-tier
+  subcontract on that item's schedule-of-values line: the sum of that sub's lines as bid (cost, no
+  markup), the sub's name matched case-blind with the first spelling kept, the lines' descriptions
+  joined, reference "Quote on EST-0007", committed on the day the bid was won. The win panel lists them
+  with a box to leave them off (`subcontracts: false`); a $0 quote makes none. They are ordinary
+  commitments afterwards: the job-cost page counts the uninvoiced part as cost to come and a person
+  edits the amount once the subcontract is signed. Pure `subcontractsFromEstimate` and `lineVendor` in
+  `src/shared/estimate.ts`; inserted in batches in `winEstimate`. Tests: `src/shared/estimate.test.ts`
+  (grouping, alternates, $0, trimming), `test/unit/estimates-page.test.ts` (the form keeps the name on
+  subcontract lines only), `test/worker/estimates.test.ts` (Crew win makes the subcontract on the right
+  line; opt-out and Free make none). Why: the sub's quote is the number the bid was built on, and
+  without it the job's cost to come starts empty until someone retypes every subcontract.
 
 - T&M tickets, part 1 (2026-11-26, every plan, tm-tickets): extra work written up per job
   (`/orgs/:orgId/projects/:projectId/tm-tickets`, linked from the job page): a numbered ticket (the
@@ -2995,8 +3011,9 @@ nothing to copy. No customers yet. Paid plans are dark
 - Estimates, part 2 (the spreadsheet and takeoff import, alternates, the company price list with
   labor rates, the bid-day email drafts, markups to 500% in the form and each line's budget split by
   cost type as bid are done, 2026-11-26): a sub quote on the estimate carried to the job as a
-  subcontract commitment once the estimate keeps the sub's name, if people ask; "last emailed" on an
-  estimate (as change orders keep it), if people ask
+  subcontract commitment is done 2026-11-28 (estimate-sub-quote-commitments); a material supplier's
+  quote carried as a purchase order, if people ask; "last emailed" on an estimate (as change orders
+  keep it), if people ask
 - Lien waivers: Mississippi part 4, if asked: a county's own holiday (§ 3-3-7(2), Mardi Gras on the
   coast) chosen per job, so the moved 60th day can count it (part 3, § 1-3-67, done 2026-11-28). California
   preliminary notice part 4: Code Civ. Proc. § 2015.5's perjury sentence on the § 8118 declaration

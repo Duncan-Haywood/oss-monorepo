@@ -25,16 +25,24 @@ import {
   estimateLabel,
   jobFromEstimate,
   lineProblems,
+  lineVendor,
+  subcontractsFromEstimate,
   winProblems,
 } from "@shared/estimate";
 import { and, asc, desc, eq, inArray, max, ne } from "drizzle-orm";
 import type { AppContext } from "../../context";
-import { estimateAlternates, estimateLines, estimates, organization } from "../../db/schema";
+import {
+  estimateAlternates,
+  estimateLines,
+  estimates,
+  jobCostCommitments,
+  organization,
+} from "../../db/schema";
 import { badRequest, conflict, notFound } from "../../lib/errors";
 import { newId } from "../../lib/ids";
 import type { Tenant } from "../../types";
 import { orgPlan } from "../billing";
-import { setBudgets, setCostTypeBudgets } from "./job-cost";
+import { runBatches, setBudgets, setCostTypeBudgets } from "./job-cost";
 import { addSovLines, createProject } from "./projects";
 
 type EstimateRow = typeof estimates.$inferSelect;
@@ -61,6 +69,7 @@ const lineInput = (l: LineRow): EstimateLineInput => ({
   quantityMilli: l.quantityMilli,
   unit: l.unit,
   unitCostMicros: l.unitCostMicros,
+  vendor: l.vendor,
 });
 
 const alternatesMap = (rows: AlternateRow[]): Alternates =>
@@ -181,6 +190,7 @@ export async function getEstimate(
     quantityMilli: l.quantityMilli,
     unit: l.unit,
     unitCostMicros: l.unitCostMicros,
+    vendor: l.vendor,
     costCents: result.lineCostCents[i] ?? 0,
   }));
   return {
@@ -289,6 +299,7 @@ export async function setEstimateLines(
     quantityMilli: l.quantityMilli,
     unit: nullIfBlank(l.unit?.trim()),
     unitCostMicros: l.unitCostMicros,
+    vendor: lineVendor({ category: l.category, vendor: l.vendor }),
   }));
   const problems = lineProblems(lines);
   if (problems.length) throw badRequest(problems.slice(0, 5).join(" "));
@@ -307,7 +318,7 @@ export async function setEstimateLines(
       .where(and(eq(estimateLines.orgId, orgId), eq(estimateLines.estimateId, estimateId))),
     ...chunk(
       lines.map((l, i) => ({ id: newId("esl"), orgId, estimateId, sortOrder: i + 1, ...l })),
-      // D1 caps bound parameters per statement (100); each row binds 10.
+      // D1 caps bound parameters per statement (100); each row binds 11.
       9,
     ).map((rows) => ctx.db.insert(estimateLines).values(rows)),
     ctx.db
@@ -356,13 +367,15 @@ export interface WinResult {
   project: ProjectDto;
   /** False when the plan has no job costing: the budgets were not set (the job's SOV was). */
   budgetsSet: boolean;
+  /** Subcontracts made from the subs' quotes on the estimate (0 without job costing). */
+  subcontractsAdded: number;
 }
 
 /**
  * Marks the estimate won and creates its job: the GC, location and contract sum from the estimate,
  * one schedule-of-values line per bid item in the job (the base bid with the accepted alternates) at
  * its price, and (on plans with job costing) each line's cost budget at the item's cost with tax,
- * split by cost type as it was bid.
+ * split by cost type as it was bid, and each sub's quote as a subcontract on its line.
  */
 export async function winEstimate(
   ctx: AppContext,
@@ -463,7 +476,47 @@ export async function winEstimate(
     });
     budgetsSet = true;
   }
-  return { estimate: await getEstimate(ctx, orgId, estimateId), project, budgetsSet };
+  // Each sub's quote as a lower-tier subcontract on its line, committed the day the bid was won, so
+  // the job's cost to come counts it from the start (src/shared/job-cost.ts). A person can change or
+  // delete them like any other commitment.
+  let subcontractsAdded = 0;
+  if (plan.jobCosting && ids.length > 0 && input.subcontracts !== false) {
+    const committedOn = input.decidedOn ?? today(ctx);
+    const reference = estimateLabel(row.number);
+    const rows = subcontractsFromEstimate(lines.map(lineInput), result, accepted).flatMap((sub) => {
+      const sovLineId = ids[sub.jobLine];
+      if (!sovLineId) return [];
+      return [
+        {
+          id: newId("jcc"),
+          orgId,
+          projectId: project.id,
+          sovLineId,
+          kind: "subcontract" as const,
+          category: "subcontract" as const,
+          vendor: sub.vendor,
+          reference: `Quote on ${reference}`,
+          description: sub.description,
+          committedOn,
+          amountCents: sub.amountCents,
+          createdBy: tenant.userId,
+        },
+      ];
+    });
+    // A new job has no commitments yet, and an estimate's lines (at most 1,000) cannot pass the
+    // job's cap. Fourteen bound parameters a row (the timestamps too), so seven rows a statement under D1's 100.
+    await runBatches(
+      ctx,
+      chunk(rows, 7).map((r) => ctx.db.insert(jobCostCommitments).values(r)),
+    );
+    subcontractsAdded = rows.length;
+  }
+  return {
+    estimate: await getEstimate(ctx, orgId, estimateId),
+    project,
+    budgetsSet,
+    subcontractsAdded,
+  };
 }
 
 /** What the proposal PDF prints. */
