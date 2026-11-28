@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtHoqngg3Ko2KrKXCTU",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T03:06:50Z",
+  "ended": "2026-11-28T03:13:40Z",
+  "wall_minutes": 7.11,
+  "tokens_in": 6394156,
+  "tokens_out": 27616,
+  "cost_usd": 2.8406,
+  "tool_calls": 65,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19971",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Biome is not installed in the cloud container and `npx biome` resolves to an unrelated 0.3.3 package; installing @biomejs/biome@2.6.8 into a scratch dir worked. Worth a line in cloud-session.md."
+    },
+    {
+      "file": "ventures/cmmc/apps/cmmc-site/src/site.mjs",
+      "issue": "STATUS_CHECKED dates both the CMMC phase status and the competitor prices; re-reading prices alone needed per-source dates, which the pricing page caption still ties to STATUS_CHECKED."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Free choice spent on a bet's front door (an honest comparison page for bet #4) rather than a novel idea, because roadmap_claim.py --bets says 39 of 57 Next items wait on demand and every bet's sign-up was already live and passing live_funnel_check.mjs.",
+      "did": "Built /cmmc-compliance-software-compared with sourced prices and tests.",
+      "result": "Merged with 91 tests passing."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Extended an existing customer post instead of writing a new one, per the consolidation direction.",
+      "did": "Added a software-cost section to the 2026-11-27 CMMC cost post.",
+      "result": "One post, not two."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-what-cmmc-costs-a-small-business.md (extended: What the software costs)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: honest competitor comparison page for CMMC (bet #4), the only paid bet without one. Prices for FutureFeed, PreVeil Pass, Cuick Trac (quote only) and Project Spectrum (quote only) were read with WebFetch on 2026-11-28; curl got 403 from the proxy for two of them. Totem was left out because it publishes no price and has no reachable product page. live_funnel_check.mjs: all 4 funnels ok. Security queue empty; IDEAS.md empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "72285d14-b6ac-588a-9fb4-f5ff0722c455",
+    "transcripts": 1,
+    "first": "2026-11-28T03:06:50Z",
+    "last": "2026-11-28T03:13:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 115,
+        "output": 27616,
+        "thinking": 4606,
+        "cache_read": 6264682,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129359,
+        "api_equivalent_usd": 2.8406,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 115,
+      "output": 27616,
+      "thinking": 4606,
+      "cache_read": 6264682,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129359,
+      "api_equivalent_usd": 2.8406,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 50,
+      "WebFetch": 4,
+      "Edit": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "WebSearch": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.11,
+      "active_minutes": 7.11,
+      "model_minutes": 5.06,
+      "tool_minutes": 2.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "researching four vendor price pages, writing a sourced comparison page with tests, and extending a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 140.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
