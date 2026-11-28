@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtH6xQiAK1HXrmWLJB2",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T05:07:28Z",
+  "ended": "2026-11-28T05:10:13Z",
+  "wall_minutes": 3.0,
+  "tokens_in": 2071287,
+  "tokens_out": 9778,
+  "cost_usd": 1.1153,
+  "tool_calls": 28,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19999",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A python heredoc with an escaped apostrophe inside a nested string failed to compile; I rewrote it as a scratch script (nothing was written to disk)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "The top live clusters (roadmap_claim --bets with no free item, 67x and 24x) already have open PR #19993, so the first workable cluster was #17. That took one call, which is how it should work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "I wrote no post: a two-flag CLI filter gives a reader nothing new, and the README line documents it.",
+      "did": "README line plus a friction verdict",
+      "result": "the PR stays small"
+    }
+  ],
+  "writeups": [
+    "portfolio/quality/README.md (one line on --paid)"
+  ],
+  "goal": null,
+  "notes": "Critique mode: no agent-owned backlog item was open. Fixed friction cluster 17 (quality_audit reaudit has no for-profit filter). Tests: test_quality_metrics 51 OK, test_quality_audit 23 OK. Verdict recorded in friction_verdicts.json.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4f661634-4927-51eb-8312-1d306f3f6cb5",
+    "transcripts": 1,
+    "first": "2026-11-28T05:07:28Z",
+    "last": "2026-11-28T05:10:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 53,
+        "output": 9778,
+        "thinking": 776,
+        "cache_read": 2006452,
+        "cache_write_5m": 0,
+        "cache_write_1h": 64782,
+        "api_equivalent_usd": 1.1153,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 53,
+      "output": 9778,
+      "thinking": 776,
+      "cache_read": 2006452,
+      "cache_write_5m": 0,
+      "cache_write_1h": 64782,
+      "api_equivalent_usd": 1.1153,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 26,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.0,
+      "active_minutes": 3.0,
+      "model_minutes": 1.77,
+      "tool_minutes": 1.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "small CLI flag plus tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 89.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
