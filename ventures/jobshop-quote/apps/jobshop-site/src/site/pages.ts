@@ -26,6 +26,7 @@ import {
   UTILISATION_HOURS,
   usd,
 } from "./shop-rate";
+import { priceWeldingExample, STEEL_LB_PER_IN3, EXAMPLE as WELD_EXAMPLE } from "./welding-example";
 
 export interface RenderContext {
   /** "" or a path like "/jobshop": prefixed to every internal link. */
@@ -1338,7 +1339,8 @@ export function quoteGuidePage(ctx: RenderContext): Html {
     <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a> or
     <a class="link" href="${href(ctx, "/compare")}">compare it with other quoting software</a>. Laser,
     plasma or press-brake work: see <a class="link" href="${href(ctx, "/how-to-quote-sheet-metal")}">how to
-    quote sheet metal and laser cut parts</a>. What to put on the quote you send, with a template to
+    quote sheet metal and laser cut parts</a>; welded frames and fabrications:
+    <a class="link" href="${href(ctx, "/how-to-quote-welding")}">how to quote welding jobs</a>. What to put on the quote you send, with a template to
     download: <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote
     template</a>.</p>
     <p class="fineprint">This page explains a common costing method. It is not accounting, tax or
@@ -1509,7 +1511,8 @@ export function sheetMetalGuidePage(ctx: RenderContext): Html {
     <a class="link" href="https://marisstella.app/dxf-nesting/">DXF nesting tool</a> nests your parts in the
     browser and prices the nest from your rates. For machined parts, see
     <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to quote a CNC machining job</a>;
-    for what goes on the quote you send, the
+    for welded assemblies, <a class="link" href="${href(ctx, "/how-to-quote-welding")}">how to quote
+    welding and fabrication jobs</a>; for what goes on the quote you send, the
     <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote template</a>.</p>
     <p class="fineprint">This page explains a common costing method. It is not accounting, tax or
     financial advice, and the speeds, prices, times and rates in it are made up. Check every quote before
@@ -1517,6 +1520,185 @@ export function sheetMetalGuidePage(ctx: RenderContext): Html {
   </div>
 </section>
 ${ctaBand(ctx, "Quote your next sheet-metal RFQ this way", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
+/**
+ * A guide aimed at the searches fabrication shops make ("how to quote welding jobs", "how to estimate
+ * welding cost", "welding cost per inch", "fabrication quote"). Method plus one made-up square-tube
+ * cart frame: arc time from the weld length and travel speed, welder time from the operator factor,
+ * filler wire from the fillet size, priced in ./welding-example to the cent the app's costing engine
+ * gives (apps/jobshop-quote/test/unit/site-welding-example.test.ts). No industry figures are quoted.
+ */
+export function weldingGuidePage(ctx: RenderContext): Html {
+  const e = WELD_EXAMPLE;
+  const r = priceWeldingExample(e);
+  const [small, mid, large] = r.breaks;
+  if (!small || !mid || !large)
+    throw new Error("the welding guide example quotes three quantities");
+  const pctBps = (bps: number) => `${bps / 100}%`;
+  const rateOf = (i: number) => usdCents(e.machines[i]?.hourlyRateCents ?? 0);
+  const machineName = (i: number) => e.machines[i]?.name ?? "";
+  const weldRate = e.machines[e.weld.machine]?.hourlyRateCents ?? 0;
+  const weldLaborCents = Math.round((r.weldMinutes / 60) * weldRate);
+  const arcOnlyCents = Math.round((r.arcMinutes / 60) * weldRate);
+  const grind = e.otherOperations[0];
+  const firstArticle = e.otherOperations[1];
+  const lines: [string, (b: (typeof r.breaks)[number]) => string][] = [
+    ["Material (tube)", (b) => usdCents(b.materialCents)],
+    ["Setup, fixture and first article", (b) => usdCents(b.setupCents)],
+    ["Run time", (b) => usdCents(b.runCents)],
+    ["Wire and gas", (b) => usdCents(b.extrasCents)],
+    ["Powder coat (outside)", (b) => usdCents(b.finishingCents)],
+    ["Cost", (b) => usdCents(b.costCents)],
+    ["Markup", (b) => usdCents(b.markupCents)],
+    ["Price each", (b) => usdCents(b.unitPriceCents)],
+    ["Line total", (b) => usdCents(b.totalCents)],
+  ];
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to quote welding and fabrication jobs</h1>
+    <p class="lead">A weldment quote is mostly time: cutting and fitting the pieces, building the fixture,
+    and the welder's hours, of which the arc is lit for only part. Here is the method, a worked example at
+    ${small.quantity}, ${mid.quantity} and ${large.quantity} frames, and the mistakes that lose money on
+    jobs you win.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>The method in six steps</h2>
+    <ol>
+      <li><strong>Read the drawing for what changes the price.</strong> Material and section sizes, every
+      weld symbol (type, size, length, all-around), the process and any welding code or procedure it
+      calls for, welder qualifications, weld inspection or testing, flatness and finish. A missing weld size
+      or code is a question to the customer, not a guess.</li>
+      <li><strong>Make the cut list.</strong> Each piece, its length, end cuts (square, miter, cope) and
+      section. Add the lengths per section and allow for kerf, squaring cuts and the drop at the end of
+      each stick.</li>
+      <li><strong>Add up the weld.</strong> Total inches of each weld size from the symbols. Arc minutes =
+      weld length ÷ travel speed for that size, position and process.</li>
+      <li><strong>Turn arc time into welder time.</strong> Welder minutes = arc minutes ÷ operator factor,
+      the share of the welder's time with the arc lit. The rest is positioning, changing angles, cleaning
+      between passes and moving the part; use the figure you measure in your own shop.</li>
+      <li><strong>Price fit-up, the fixture and the rest.</strong> Fitting and tacking per part, building
+      the fixture once per job, saw cuts per piece, grinding, cleaning and inspection per part, each at
+      that station's own rate. Add the filler wire (from the weld metal, at your deposition efficiency)
+      and shielding gas.</li>
+      <li><strong>Add outside processes, markup and quote every quantity.</strong> Galvanizing, powder
+      coat and paint carry lot minimums; repeat the sum at each break, since the fixture, the first
+      article and the coater's minimum spread differently at each.</li>
+    </ol>
+
+    <h2>A worked example</h2>
+    <p>A steel ${e.partName}: ${e.tube.pieces} pieces of ${e.tube.description}, sawn, fitted and tacked in
+    a fixture, MIG welded, ground and powder coated by a vendor. <strong>Every number here is made up to
+    show the arithmetic</strong>; they are not typical speeds, prices, rates or operator factors for any
+    process, region or trade. Use your own.</p>
+    <ul>
+      <li><strong>Material:</strong> ${e.tube.pieces} pieces, ${e.tube.totalLengthIn} in of tube
+      (${e.tube.totalLengthIn / 12} ft) a frame, at ${usdCents(e.pricePerFootCents)} a foot plus
+      ${pctBps(e.scrapBps)} for kerf, squaring and drop: ${usdCents(small.materialCents)} a frame.</li>
+      <li><strong>${machineName(e.saw.machine)}</strong> at ${rateOf(e.saw.machine)} an hour:
+      ${e.tube.pieces} cuts × ${e.saw.minutesPerCut} min = ${r.sawMinutes} min a frame (load, measure,
+      cut, deburr the end), ${e.saw.setupMinutes} min to set the stop and the miter.</li>
+      <li><strong>Fixture, fit and tack</strong> in the ${machineName(e.weld.machine)} at
+      ${rateOf(e.weld.machine)} an hour: ${e.weld.fixtureSetupMinutes} min to build the fixture once for
+      the job, ${e.weld.fitUpMinutesPerPart} min a frame to load, square and tack.</li>
+      <li><strong>Weld out:</strong> ${e.weld.lengthIn} in of ${e.weld.legLabel} in
+      fillet at ${e.weld.travelInPerMin} in/min is ${r.arcMinutes.toFixed(2)} arc minutes. At a
+      ${pctBps(e.weld.operatorFactorBps)} operator factor the welder spends ${r.arcMinutes.toFixed(2)} ÷
+      ${e.weld.operatorFactorBps / 10_000} = ${r.weldMinutesExact.toFixed(3)} min, rounded up to
+      ${r.weldMinutes.toFixed(2)} min a frame.</li>
+      <li><strong>${machineName(grind?.machine ?? 2)}</strong> at ${rateOf(grind?.machine ?? 2)} an hour:
+      grind, clean and inspect, ${grind?.cycleMinutesPerPart ?? 0} min a frame; a
+      ${firstArticle?.setupMinutes ?? 0} min first-article check once per job.</li>
+      <li><strong>Wire and gas:</strong> a ${e.weld.legLabel} in fillet
+      is a triangle of ${(e.weld.legIn ** 2 / 2).toFixed(4)} sq in, so ${e.weld.lengthIn} in of it is
+      ${r.weldMetalLb.toFixed(3)} lb of steel at ${STEEL_LB_PER_IN3} lb/cu in. At
+      ${pctBps(e.depositionEfficiencyBps)} deposition efficiency that is ${r.wireLb.toFixed(3)} lb of wire
+      at ${usdCents(e.wirePricePerLbCents)} a lb (${usdCents(Math.round(r.wireCents))}), plus
+      ${e.gasCfh} cu ft/h of gas for ${r.arcMinutes.toFixed(2)} arc minutes, ${r.gasCf.toFixed(2)} cu ft at
+      ${usdCents(e.gasPricePerCfCents)} (${usdCents(Math.round(r.gasCents))}): ${usdCents(r.consumablesCents)}
+      a frame.</li>
+      <li><strong>${e.finishingName}:</strong> ${usdCents(e.finishingPerPartCents)} a frame, minimum
+      ${usdCents(e.finishingLotChargeCents)} a lot.</li>
+      <li><strong>Markup:</strong> ${pctBps(e.materialMarkupBps)} on material and consumables,
+      ${pctBps(e.outsideServiceMarkupBps)} on the outside service, none on labor (the shop rates are taken
+      to hold the margin already); a ${usdCents(e.minimumLineCents)} minimum per line.</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up cart frame at three quantities. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.</caption>
+        <thead><tr><th scope="col">Line</th>${r.breaks.map((b) => html`<th scope="col">${b.quantity.toLocaleString("en-US")} ${b.quantity === 1 ? "frame" : "frames"}</th>`)}</tr></thead>
+        <tbody>
+          ${lines.map(
+            ([label, cell]) =>
+              html`<tr><th scope="row">${label}</th>${r.breaks.map((b) => html`<td>${cell(b)}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>The operator factor is the biggest single assumption.</strong> Priced on arc time alone,
+      the weld would be ${usdCents(arcOnlyCents)} a frame; priced on the welder's time it is
+      ${usdCents(weldLaborCents)}. Guess the factor high and every frame you win loses the difference.</li>
+      <li><strong>Consumables are small next to labor.</strong> Wire and gas are ${usdCents(r.consumablesCents)}
+      a frame against ${usdCents(weldLaborCents)} of welding. A price built up from pounds of wire misses
+      most of the cost.</li>
+      <li><strong>The fixture and the coater's minimum decide the one-off.</strong> At
+      ${small.quantity} frame the ${usdCents(small.setupCents)} of fixture, saw setup and first article and
+      the ${usdCents(e.finishingLotChargeCents)} coating minimum are
+      ${Math.round(((small.setupCents + small.finishingCents) / small.costCents) * 100)}% of the cost. At
+      ${large.quantity} the same setups are ${usdCents(Math.round(large.setupCents / large.quantity))} a frame.
+      That is why the price each falls from ${usdCents(small.unitPriceCents)} to
+      ${usdCents(mid.unitPriceCents)} to ${usdCents(large.unitPriceCents)}.</li>
+      <li><strong>At volume it is run time and tube.</strong> At ${large.quantity} frames, run time
+      (${usdCents(large.runCents)}) and tube (${usdCents(large.materialCents)}) are
+      ${Math.round(((large.runCents + large.materialCents) / large.costCents) * 100)}% of the cost; a
+      faster fixture or a better cut list is where a lower price would come from.</li>
+    </ul>
+
+    <h2>Mistakes that lose money on jobs you win</h2>
+    <ul>
+      <li><strong>Pricing weld by arc time.</strong> The welder is paid for every minute, not just the
+      ones with the arc lit. Measure your operator factor on real jobs and use it.</li>
+      <li><strong>One travel speed for every weld.</strong> Weld size, position, process and the number of
+      passes change it several-fold; a vertical or overhead weld or a multi-pass fillet is far slower than
+      a flat single pass.</li>
+      <li><strong>Leaving out fit-up and tacking.</strong> On small weldments it can take as long as the
+      welding.</li>
+      <li><strong>Forgetting the fixture.</strong> It is real time once per job, and it is the reason a
+      one-off costs so much more than the tenth piece.</li>
+      <li><strong>Leaving out grinding, cleanup and distortion.</strong> Weld spatter, blending and
+      straightening a frame that pulled out of square all take time per part.</li>
+      <li><strong>Missing a code or inspection callout.</strong> A welding procedure, qualified welders,
+      or visual, dye-penetrant or other testing called out on the drawing add time and paperwork that the
+      weld length alone does not show.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>${SITE_NAME} does not read weld symbols or measure weld length: you work out the times above and
+    type them in. Each quote line then carries the tube from your rate card priced by the foot (the
+    frame's total length as the blank length, kerf and drop as the row's scrap allowance), one operation
+    per station at that machine's rate (saw, fit and tack, weld, grind), the fixture as a setup that is
+    charged once per quantity break, wire and gas as an extra per part, and the powder coat as an
+    outside service with its lot minimum. Every quantity break then follows, every figure showing the rate
+    it came from, and a line missing a time or a material is blocked rather than priced as if it were
+    free. The example above is priced to the cent the app gives for the same inputs, checked by a test in
+    its code. You can <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a>.</p>
+    <p>For your shop rate itself, see <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how
+    to work out a machine shop hourly rate</a>. Laser-cut and bent parts:
+    <a class="link" href="${href(ctx, "/how-to-quote-sheet-metal")}">how to quote sheet metal</a>;
+    machined parts: <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to quote a CNC
+    machining job</a>; what goes on the quote you send: the
+    <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote template</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax,
+    engineering or financial advice, does not say what a welding code requires, and the speeds, factors,
+    prices, times and rates in it are made up. Check every quote before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Quote your next weldment this way", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
 /**
@@ -1669,6 +1851,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/machine-shop-hourly-rate": shopRatePage,
   "/how-to-quote-cnc-machining": quoteGuidePage,
   "/how-to-quote-sheet-metal": sheetMetalGuidePage,
+  "/how-to-quote-welding": weldingGuidePage,
   "/machine-shop-quote-template": quoteTemplatePage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
