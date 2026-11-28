@@ -446,6 +446,7 @@ ${faq.map(([q, a]) => `  <h3>${esc(q)}</h3>\n  <p>${esc(a)}</p>`).join("\n")}
 
 // The state's notice guide, where the guides have one: the notice comes before any waiver.
 const NOTICE = {
+  AZ: ["arizona-preliminary-notice.html", "preliminary twenty day notice"],
   CA: ["california-preliminary-notice.html", "20-day preliminary notice"],
   FL: ["florida-notice-to-owner.html", "Notice to Owner (45 days)"],
   TX: ["texas-lien-notice.html", "monthly notice of claim"],
