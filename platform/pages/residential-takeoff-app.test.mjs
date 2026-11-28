@@ -39,6 +39,8 @@ test('copies the app, its imported modules and the wasm, and leaves tests and ca
       const doc = readFileSync(path.join(out, `residential-takeoff/${page}.html`), 'utf8');
       assert.match(doc, new RegExp(`<link rel="canonical" href="https://marisstella\\.app/residential-takeoff/${page}">`), page);
       assert.match(doc, /Maris Stella Labs LLC/, page);
+      assert.match(doc, /<meta property="og:image" content="https:\/\/marisstella\.app\/social-card\.png">/, page);
+      assert.match(doc, /"twitter:card"/, page);
     }
     assert.match(readFileSync(path.join(out, 'residential-takeoff/refunds.html'), 'utf8'), /within 30 days/);
     assert.match(readFileSync(path.join(out, 'residential-takeoff/privacy.html'), 'utf8'), /Cloudflare Web Analytics/);

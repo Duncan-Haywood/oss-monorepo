@@ -60,7 +60,9 @@ export function rewritePage(html, rel, { baseUrl = PRODUCTION, copied = new Set(
     .replace(/href="LICENSE"/g, 'href="LICENSE.txt"');
   // The host serves `page.html` as `page`, so a canonical names it without the extension.
   const canonical = `${baseUrl}${RESIDENTIAL_TAKEOFF_DIR}/${rel === 'index.html' ? '' : rel.replace(/\.html$/, '')}`;
-  return out.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${canonical}">`);
+  // The legal pages name the site-wide share card relatively; a share preview needs it absolute.
+  return out.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${canonical}">`)
+    .replace('<meta property="og:image" content="../social-card.png">', `<meta property="og:image" content="${baseUrl}social-card.png">`);
 }
 
 /** The served copy's llms.txt: what the paid edition is, honestly, with the free edition beside it. */
