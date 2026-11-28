@@ -120,7 +120,7 @@ export function comparePage({ cite, statusBox, sourcesList, cta, paidOn }) {
     kind: "faq",
     title: `CMMC compliance software for small shops, compared · ${SITE_NAME}`,
     description:
-      "CMMC compliance software for small defense shops compared: a spreadsheet, FutureFeed, PreVeil Pass, Cuick Trac, Project Spectrum and a consultant, with published prices and sources.",
+      "CMMC compliance software for small shops compared: FutureFeed, PreVeil Pass, Cuick Trac, Project Spectrum, a spreadsheet and a consultant, with sourced prices.",
     changefreq: "monthly",
     priority: 0.8,
     faq,
