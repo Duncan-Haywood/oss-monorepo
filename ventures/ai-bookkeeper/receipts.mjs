@@ -439,7 +439,7 @@ function gluedLookalike(line, comma) {
   const c = line[m.index - 1], before = line[m.index - 2] ?? " ";
   if (!(c in GLUED) || /\p{L}|\d/u.test(before)) return null;
   const cents = parseCents(GLUED[c] + m[1], comma);
-  return Number.isInteger(cents) ? { cents, was: c + m[1] } : null;
+  return Number.isSafeInteger(cents) ? { cents, was: c + m[1] } : null;
 }
 
 // A card tender line: what the card was charged. Tip, change, cash-back and

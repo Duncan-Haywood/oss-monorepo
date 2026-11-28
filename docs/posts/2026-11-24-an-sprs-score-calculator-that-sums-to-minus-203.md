@@ -210,3 +210,37 @@ logging work, which is where the objectives pile up.
 
 The page also gives one plain example per family of the evidence a small
 shop usually shows. Those examples are ours, not part of the rule.
+
+## Update, 28 November 2026: getting the score into SPRS
+
+A score on a worksheet does nothing until it is in SPRS. The new
+[how to submit your SPRS score](https://marisstella.app/cmmc/how-to-submit-sprs-score)
+page walks the route step by step, quoting DoD's own SPRS guides word for
+word (the NIST SP 800-171 Quick Entry Guide of May 2024, the CMMC Level 1 and
+Level 2 Quick Entry Guides of December 2024 and February 2025, the July 2025
+PIEE access guides and the affirming-official tutorial). Reading the guides
+side by side turned up five things a small shop tends to get wrong:
+
+- **The role is the gate.** Entering, editing or affirming anything needs the
+  "SPRS Cyber Vendor User" role in PIEE, activated by your company's
+  Contractor Account Administrator. The support role only lets you look.
+- **CAGE problems are fixed in SAM.gov, not SPRS.** SPRS imports the CAGE
+  hierarchy from SAM; the guide says corrections there "typically flow to
+  SPRS within 48 hours".
+- **A Basic score still has an email route.** DFARS 252.204-7019(c)(2) lets a
+  shop send a Basic Assessment to webptsmh@navy.mil for posting. A CMMC
+  self-assessment has no such route in the guides: it is entered and
+  affirmed in SPRS.
+- **Not every Level 2 score can be affirmed.** The Level 2 guide: "Only CMMC
+  L2 Conditional (score = 88 to 109) and Final Self-Assessments (score = 110)
+  can be affirmed", and an open requirement that may not sit on a POA&M gives
+  No CMMC Status whatever the score. The calculator above shows both before
+  you log in.
+- **Only a Final Level 1 counts.** "“Final Level 1 Self-Assessment” is the only
+  CMMC Status Type that will be visible to Government Personnel", and it
+  turns into "No CMMC Status (Expired Assessment)" after one year.
+
+Every quotation on the page is checked by a test against the text saved from
+the guides, with each file's hash pinned, so a quote cannot drift from its
+source. The SPRS screens themselves can change faster than the guides do,
+which is why each guide's date is on the page.

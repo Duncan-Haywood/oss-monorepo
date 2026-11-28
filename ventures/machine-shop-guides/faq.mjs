@@ -196,6 +196,16 @@ export const FAQ = {
     ["What gets an FAI report rejected?",
       "A characteristic with no balloon or no result, \"accept\" written where a value can be measured, a result out of limits with no nonconformance number, fewer results than places on a multi-place feature, and missing certificates or a revision mismatch on Forms 1 and 2."],
   ],
+  "iso-9001-internal-audit-checklist.html": [
+    ["What does an ISO 9001 internal audit cover?",
+      "Over the programme, every clause of the quality system that applies to the shop, 4 to 10, at intervals the shop plans by how important each process is and how it has gone. One audit can take a few clauses or a process; the programme as a whole has to reach them all."],
+    ["How often should internal audits be done?",
+      "ISO 9001 sets no interval; the shop plans it. One workable plan for a small shop is four audits a year that together touch every applicable clause, with production and inspection more often. CMMC Workspace flags any applicable clause not audited in 12 months and not planned."],
+    ["Can someone in the shop audit their own department?",
+      "No. Clause 9.2 asks for auditors chosen so the audit is objective and impartial, which in practice means nobody audits their own work. In a small shop people audit each other's areas, or an outside auditor covers what the quality lead owns."],
+    ["What is the difference between a major and a minor nonconformity?",
+      "The standard does not grade findings; registrars do. A major is a requirement not met at all, or a lapse that could let bad product reach the customer. A minor is a single lapse in a system that otherwise works. Both need a corrective action; an observation or improvement need not."],
+  ],
   "corrective-action-report.html": [
     ["What is the difference between a correction and a corrective action?",
       "A correction deals with the parts already made: quarantine, sort, rework, scrap, tell the customer. A corrective action removes the cause so the problem does not come back. A report needs both, and an auditor sends it back when the action only repeats the correction."],

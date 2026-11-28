@@ -463,6 +463,18 @@ apps/jobshop-quote, apps/payapps and apps/cmmc):
   each byte for byte its single download, plus a `README.txt` naming every file, the figure it totals to and the
   worksheet's warnings. A stored ZIP from `src/worker/lib/zip.ts` (no dependency; CRC-32 checked against zlib and
   the archive against `unzip -t` in `test/unit/zip.test.ts`). The worksheet as a PDF since 2026-11-27 (`services/books/worksheet-pdf.ts`, `GET /reports/schedule-c.pdf?year=&mileageRate=`, "Download PDF" on the Schedule C page, and in the ZIP as `schedule-c-worksheet-<year>.pdf`): the same lines, notes and warnings laid out by Schedule C part on Letter pages, the shop's name under the title, the disclaimer at the top and "a worksheet, not a tax return" in every page's footer; no timestamp in the file, so the ZIP's copy is byte for byte the single download. Written by `src/worker/lib/pdf.ts`, PayApps' dependency-free PDF writer ported over (`test/unit/worksheet-pdf.test.ts` checks every xref offset). Next, if preparers ask: the year-end lists as PDFs too.
+- Stock count (2026-11-28, `src/shared/stock-count.ts`, `components/stock-count.tsx`): `GET
+  /api/orgs/:orgId/inventory/count?asOf=` lists the items in stock now and bought on or before `asOf` (lot name,
+  where bought; capped at 5,000 with `truncated`); `POST .../inventory/count` `{asOf, outcome, missing}` sets the
+  items not found to `written_off` or `personal_use` with `disposed_date = asOf`, in one D1 batch (IN lists sliced
+  at 90), refusing the whole count if any id is another shop's (404), no longer in stock or bought after `asOf`
+  (400); `POST .../count/undo` `{ids}` puts written-off or personal-use items back in stock, never sold ones.
+  Editors and up. An item that left on `asOf` is not on hand on `asOf` (`onHandAt`), so a December 31 count takes
+  it out of that year's line 41; personal use also comes off line 36. Ticks are kept in the browser's local
+  storage per shop and date (a convenience; item ids only), and the count sheet CSV (Item ID, SKU, item, lot,
+  where bought, bought, cost, "Found (Y/N)") reads back by Item ID only, naming every row it cannot use. Tests:
+  `src/shared/stock-count.test.ts`, `test/worker/stock-count.test.ts`, `test/e2e/19-stock-count.spec.ts`. Next,
+  if sellers ask: a count by location (shelf, bin) and a partial count saved on the server for a team.
 - Line 35 from last year's return (2026-11-26, `filed_inventory`, migration 0007): the seller types in the
   line 41 they filed for the year before (`PUT /reports/filed-inventory/:year`, the Part III card on the
   Schedule C page). That figure is line 35, the books' own December 31 count stays in the line's note
@@ -553,8 +565,8 @@ apps/jobshop-quote, apps/payapps and apps/cmmc):
   has a signed RFC 8058 stop link (`lib/unsubscribe-token.ts`, `routes/unsubscribe.ts`, page `/unsubscribe`,
   ported from apps/payapps). Privacy Policy line added, `POLICY_VERSION` 2026-11-27.3. Tests:
   `test/unit/estimate-reminder.test.ts`, `test/worker/estimate-reminders.test.ts`. **Cron budget:** the
-  Workers Free plan allows 5 cron triggers per account, and with this one the repository's Workers configure
-  6 (payapps, payapps-site, seller-books, seller-books-site, jobshop-quote, platform/email); the last to deploy
-  fails its trigger update until one is folded into another or the account is on Workers Paid. Next, if
+  Workers Free plan allows 5 cron triggers per account; since 2026-11-27 the landing sites' purges run on Durable
+  Object alarms, so the five are platform/email, payapps, seller-books, jobshop-quote and cmmc, none spare
+  (`python3 platform/ci/cron_budget.py --strict` in CI; docs/reports/2026-11-27-cron-triggers-to-durable-object-alarms.md). Next, if
   sellers ask: state estimated payments.
 - Depop refunds have no separate date in the download, so they are booked on the sale date (with a warning).

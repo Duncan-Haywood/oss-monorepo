@@ -122,6 +122,12 @@
     f.requestSubmit();
   });
   document.getElementById("clear").addEventListener("click", () => { f.reset(); last = null; document.getElementById("out").hidden = true; });
+  // A finding handed over from the internal audit checklist, in the # part so it never reaches a server log.
+  const handed = new URLSearchParams(location.hash.slice(1));
+  if (handed.has("nonconformity")) {
+    for (const k of ["source", "clause", "raisedOn", "nonconformity"]) if (handed.has(k) && f.elements[k]) f.elements[k].value = handed.get(k).slice(0, 2000);
+    history.replaceState(null, "", location.pathname);
+  }
   const save = (text, name, type) => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([text], { type }));

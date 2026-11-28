@@ -956,6 +956,8 @@ export interface QuoteEmailDto {
   sentByName: string | null;
   /** The estimator's own copy: null when not asked for. */
   senderCopy: "sent" | "failed" | null;
+  /** "quote" (the quote and its PDF) or "follow_up" (a follow-up about it). */
+  kind: "quote" | "follow_up";
   createdAt: string;
 }
 
@@ -981,6 +983,44 @@ export interface QuoteEmailsDto {
    * as a reply in that thread with this subject. Null when there is no such RFQ email.
    */
   rfqThread: { from: string; subject: string } | null;
+}
+
+/** POST /quotes/:id/follow-up-email: a follow-up to the customer, then the follow-up logged. */
+export const emailFollowUpSchema = z
+  .object({
+    /** As for the quote email: typed ("a@x.com, b@x.com") or a list; parseRecipients checks them. */
+    to: z.union([z.string().max(2000), z.array(z.string().max(254)).max(20)]),
+    message: z.string().min(1).max(8000),
+    /** Attach the quote's frozen PDF again. */
+    attachPdf: z.boolean().optional(),
+    copyMe: z.boolean().optional(),
+    /** For the shop's follow-up log only, added under "Emailed a follow-up to ...". */
+    note: z.string().max(MAX_FOLLOW_UP_NOTE).optional(),
+    /** The next follow-up day (YYYY-MM-DD) or null for no more, as when logging one by hand. */
+    nextOn: z.string().max(10).nullable(),
+  })
+  .strict();
+
+/** GET /quotes/:id/follow-up-email: what the follow-up form starts with. */
+export interface FollowUpEmailFormDto {
+  canDeliver: boolean;
+  /** The recipients of the last email sent for the quote, else the quote's customer email. */
+  defaultTo: string;
+  defaultMessage: string;
+  /** The subject it will go with ("Re: ..." of the last email sent for the quote). */
+  subject: string;
+  /** True when it replies in an existing thread (the RFQ's or an earlier quote email). */
+  threaded: boolean;
+  replyTo: string;
+  signature: string | null;
+  /** Follow-up emails already sent for this quote. */
+  followUpEmails: number;
+}
+
+export interface FollowUpEmailResultDto {
+  email: QuoteEmailDto;
+  /** The quote's follow-up log after the email was logged on it. */
+  followUps: QuoteFollowUpsDto;
 }
 
 // ---- QuickBooks Online (services/quickbooks.ts, shared/qbo-invoice.ts, docs/QUICKBOOKS.md) ---------

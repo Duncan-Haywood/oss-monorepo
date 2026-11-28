@@ -3,6 +3,7 @@ title: "Gutters for an L-shaped house: the wing's eaves count now"
 date: 2026-11-01
 tags: [wall-framing-takeoff, roof, gutters]
 description: The framing takeoff's gutter module now swaps the main eave stretch under a cross wing for the wing's own two eave runs, with downspouts and fittings following.
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 A cross wing changes the gutter run. It covers `width + 2 x overhang` of the main eave, and the wing brings two eaves of its own, from its gable end back to the main eave line. Rakes get no gutter.

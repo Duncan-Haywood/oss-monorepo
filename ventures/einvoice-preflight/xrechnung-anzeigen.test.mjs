@@ -132,3 +132,19 @@ test("non-invoices are refused with a German message", async () => {
   await assert.rejects(loadInvoiceForView("a.xml", new TextEncoder().encode("<note>hi</note>")), /nicht als E-Rechnung/);
   await assert.rejects(loadInvoiceForView("a.pdf", new TextEncoder().encode("%PDF-1.4\n%%EOF")), /keine lesbare E-Rechnung/);
 });
+
+test("construction invoice codes as KoSIT's BR-DE-17 names them: 875 partial, 876 partial final, 877 final", async () => {
+  const { DOCUMENT_TYPES } = await import("./viewer.mjs");
+  assert.match(DOCUMENT_TYPES["875"], /^Abschlagsrechnung/);
+  assert.match(DOCUMENT_TYPES["876"], /^Teilschlussrechnung/);
+  assert.match(DOCUMENT_TYPES["877"], /^Schlussrechnung/);
+});
+
+test("a type code naming an Object.prototype member shows as a bare code, not a crash", async () => {
+  const { documentTitle } = await import("./viewer.mjs");
+  for (const code of ["constructor", "toString", "__proto__", "hasOwnProperty"]) {
+    assert.equal(documentTitle({ document_code: code }), "Rechnung", code);
+    const html = renderInvoiceHtml({ document_code: code, lines: [], totals: {} });
+    assert.doesNotMatch(html, /function|native code/, code);
+  }
+});

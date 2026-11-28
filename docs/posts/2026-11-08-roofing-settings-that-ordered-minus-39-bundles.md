@@ -3,6 +3,7 @@ title: "A roofing waste factor of -1 ordered minus 39 bundles of shingles"
 date: 2026-11-08
 tags: [construction, roofing, wall-framing-takeoff]
 description: "The roof takeoff accepted any typed roofing setting. Nonsense values now get a reason instead of a negative or missing order."
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 The roof takeoff lets you type your own roofing rates: waste factor, bundles per square, roll lengths, nails per pound, nail box weight. Nothing checked them. Probing the code by hand with bad values on the example 28 x 40 ft roof:

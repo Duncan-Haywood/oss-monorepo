@@ -4,6 +4,7 @@ seo_title: "Valley flashing roll count for an L or T roof takeoff"
 date: 2026-11-05
 tags: [wall-framing-takeoff, construction, roofing]
 description: "A cross-wing roof has two valleys per wing. The wall-framing takeoff now turns their length into flashing rolls and a budget line."
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 An L- or T-shaped roof has a valley on each side of every cross wing, and each needs metal flashing. The `wall-framing-takeoff` roof module already worked out the valley length in feet; it just never became something to buy. It does now.

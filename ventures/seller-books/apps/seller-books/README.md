@@ -36,6 +36,7 @@ statement is read on the server and not saved (`src/shared/reconcile-payouts.ts`
 A platform's Form 1099-K can be checked against the books: box 1a (and the monthly boxes) next to the books'
 item sales, with and without shipping and the sales tax the platform collected, and the months that do not
 match named (nothing typed is saved).
+A stock count on the Inventory page checks the shelves against the books on a chosen day (December 31 for line 41): it lists the items still in stock bought on or before that day, each one found is ticked by hand, by scanning or typing its SKU, or from the downloaded count sheet filled in and read back, and the ones not found leave inventory on the count's date in one all-or-nothing step, as written off or taken for personal use (line 36), with one-click undo (`src/shared/stock-count.ts`, `GET|POST /api/orgs/:orgId/inventory/count`, `POST .../count/undo`).
 A refunded item that came back goes back in stock from the refund's row, at its cost and dated the return,
 without counting as a purchase or changing the year it first sold; the refund's month then shows that cost
 coming back in the P&L, the sales ledger and the QuickBooks journal.
@@ -126,6 +127,9 @@ pnpm typecheck && pnpm test:unit && pnpm test:worker && pnpm build
 
   17. a receipt kept with an expense: attached as a PDF, counted on the row, downloaded byte for byte, a renamed
      web page refused with the reason, and deleted.
+
+  19. a year-end stock count: a SKU scanned, the count sheet downloaded, filled in and read back, the item not
+     found written off on December 31 and out of line 41.
 
   `scripts/e2e-run.sh <spec> -g <name>` runs one; `E2E_SERVER_LOGS=1` shows the server's output. CI runs
   it as the `e2e` job of `seller-books-ci`. It uses the preinstalled `/opt/pw-browsers` Chromium when

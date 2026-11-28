@@ -4,6 +4,7 @@ seo_title: "Pricing attic vents: ridge, soffit and baffles in the budget"
 date: 2026-11-01
 tags: [wall-framing-takeoff, budget, roof]
 description: The framing takeoff's budget now carries the ridge vent, soffit vents and rafter baffles that its ventilation sizing already counted.
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 The takeoff could already size attic ventilation (net free area at 1/150 or 1/300, a ridge vent, soffit units, one baffle per bay) but the budget skipped it, so a bid built from the budget left out lines the same tool had counted.
