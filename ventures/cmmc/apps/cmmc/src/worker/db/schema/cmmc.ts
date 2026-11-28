@@ -16,6 +16,13 @@ import type { DocEventKind, DocKind, DocOrigin, DocStatus } from "@shared/docume
 import type { ObjectiveResult, PoamStatus } from "@shared/enums";
 import type { Affects, ClauseAnswer, IncidentRole, TimelineEntry, Tri } from "@shared/incidents";
 import type { AuditStatus, CaSource, FindingKind } from "@shared/internal-audits";
+import type {
+  ReviewAction,
+  ReviewFacts,
+  ReviewInputKey,
+  ReviewOutputKey,
+  ReviewStatus,
+} from "@shared/management-review";
 import type { DepartureKind } from "@shared/personnel";
 import type { QualityStatus } from "@shared/quality";
 import type { PolicyStatus } from "@shared/security-policies";
@@ -722,4 +729,35 @@ export const gaugeCalibration = sqliteTable(
     createdAt: createdAt(),
   },
   (t) => [index("gauge_calibration_gauge_idx").on(t.orgId, t.gaugeId, t.calibratedOn)],
+);
+
+/**
+ * An ISO 9001 management review (clause 9.3; src/shared/management-review): the meeting, the period
+ * it looked at, who took part, the notes on each input, the decisions and the actions. While a draft,
+ * the figures for each input are worked out from the records when read; finalising keeps them as
+ * they stood (`facts`), so the minutes do not change when a record does. After that, only an action's
+ * done date is written.
+ */
+export const managementReview = sqliteTable(
+  "management_review",
+  {
+    id: text("id").primaryKey(),
+    orgId: orgRef(),
+    heldOn: text("held_on").notNull(),
+    periodFrom: text("period_from").notNull(),
+    periodTo: text("period_to").notNull(),
+    attendees: text("attendees").notNull().default(""),
+    status: text("status").$type<ReviewStatus>().notNull().default("draft"),
+    inputs: json<Partial<Record<ReviewInputKey, string>>>("inputs").notNull(),
+    outputs: json<Partial<Record<ReviewOutputKey, string>>>("outputs").notNull(),
+    actions: json<ReviewAction[]>("actions").notNull(),
+    facts: json<ReviewFacts>("facts"),
+    nextReviewOn: text("next_review_on"),
+    finalisedOn: text("finalised_on"),
+    finalisedBy: text("finalised_by").references(() => user.id, { onDelete: "set null" }),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("management_review_org_idx").on(t.orgId, t.heldOn)],
 );

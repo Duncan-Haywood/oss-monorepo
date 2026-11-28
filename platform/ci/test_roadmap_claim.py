@@ -901,12 +901,22 @@ class ClaimRaceTest(unittest.TestCase):
                      "payapps (bet #1) front door: invoice template [invoice-template]"):
             run(pub, "-c", "user.name=t", "-c", "user.email=t@example.invalid", "commit", "-q",
                 "--allow-empty", "-m", subj)
-        with mock.patch.object(rc, "PUBLIC_ROOT", pub):
+        with mock.patch.object(rc, "PUBLIC_ROOT", pub), mock.patch.object(rc, "open_pr_titles", lambda r: None):
             code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
         self.assertEqual(code, 0, out)
-        self.assertIn("by bet: #1 2 (invoice-template, lien-waiver-form); #2 0.", out)
+        self.assertIn("by bet: #1 2 (invoice-template, lien-waiver-form); #2 0. Open PRs unchecked", out)
         self.assertIn("Fewest front-door PRs: bet #2.", out)
         self.assertNotIn("shallow-since", out)
+        # 2026-11-28: eight bet #5 front-door PRs were open while the merged-only tally still
+        # named bet #5 the least worked; open PRs now count toward the pick.
+        opened = ["quotes-site (bet #2) front door: RFQ checklist [rfq-a]",
+                  "quotes-site (bet #2) front door: tolerance page [tol-b]",
+                  "jobshop-quote (bet #2): STEP import [step]",
+                  "payapps (bet #1): retainage [ret]"]
+        with mock.patch.object(rc, "PUBLIC_ROOT", pub), mock.patch.object(rc, "open_pr_titles", lambda r: opened):
+            code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertIn("#1 2 (invoice-template, lien-waiver-form); #2 0 + 2 open (rfq-a, tol-b).", out)
+        self.assertIn("Fewest front-door PRs (merged and open): bet #1.", out)
 
     def test_listing_probes_named_hosts(self):
         road = self.a / "apps" / "payapps" / "ROADMAP.md"

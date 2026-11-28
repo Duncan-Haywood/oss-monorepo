@@ -10,6 +10,8 @@ import {
   estimateLabel,
   jobFromEstimate,
   lineProblems,
+  lineVendor,
+  subcontractsFromEstimate,
   winProblems,
 } from "./estimate";
 
@@ -240,5 +242,72 @@ describe("alternates", () => {
       expect(job.lines.reduce((s, l) => s + l.originalCents, 0)).toBe(job.contractSumCents);
       expect(job.lines.map((l) => l.itemNumber)).toEqual(job.lines.map((_, i) => String(i + 1)));
     }
+  });
+});
+
+describe("subcontractsFromEstimate", () => {
+  const sub = (bidItem: string, vendor: string | null, cost: number, description = "quote") => ({
+    ...line(bidItem, "subcontract", 1, cost),
+    unit: "LS",
+    description,
+    vendor,
+  });
+
+  it("makes one subcontract per sub and job line, at the quoted cost without markup", () => {
+    const lines = [
+      line("Ductwork", "labor", 10, 50), // no sub
+      sub("Ductwork", "Acme Insulation", 4200, "Duct wrap"),
+      sub("Ductwork", " acme   insulation ", 300, "Pipe wrap"), // same sub, other spelling
+      sub("Controls", "Bright Controls", 9875.5, "BAS"),
+      sub("Controls", null, 100), // no sub named
+      { ...line("Controls", "material", 1, 50), vendor: "Supply House" }, // not a subcontract line
+    ];
+    const r = computeEstimate(lines, rates);
+    expect(subcontractsFromEstimate(lines, r)).toEqual([
+      {
+        jobLine: 0,
+        vendor: "Acme Insulation",
+        amountCents: 450_000,
+        description: "Duct wrap; Pipe wrap",
+      },
+      { jobLine: 1, vendor: "Bright Controls", amountCents: 987_550, description: "BAS" },
+    ]);
+  });
+
+  it("follows the alternates the GC accepted onto the job's lines", () => {
+    const lines = [
+      sub("Base", "Base Sub", 1000),
+      sub("Generator", "Gen Co", 5000),
+      sub("Canopy", "Canopy Co", 2000),
+    ];
+    const alts = { generator: "deduct" as const, canopy: "add" as const };
+    const r = computeEstimate(lines, rates, alts);
+    // Base bid: the deduct alternate stays in, the add alternate is out.
+    expect(subcontractsFromEstimate(lines, r).map((s) => [s.vendor, s.jobLine])).toEqual([
+      ["Base Sub", 0],
+      ["Gen Co", 1],
+    ]);
+    // Both accepted: the generator is deducted, the canopy added, and the lines renumber.
+    expect(
+      subcontractsFromEstimate(lines, r, ["Generator", "Canopy"]).map((s) => [s.vendor, s.jobLine]),
+    ).toEqual([
+      ["Base Sub", 0],
+      ["Canopy Co", 1],
+    ]);
+  });
+
+  it("skips a quote that totals $0 and trims long descriptions", () => {
+    const long = "x".repeat(400);
+    const lines = [sub("A", "Zero Co", 0), sub("A", "Long Co", 10, long)];
+    const out = subcontractsFromEstimate(lines, computeEstimate(lines, rates));
+    expect(out.map((s) => s.vendor)).toEqual(["Long Co"]);
+    expect(out[0]?.description).toHaveLength(300);
+  });
+
+  it("reads the sub only on a subcontract line", () => {
+    expect(lineVendor({ category: "subcontract", vendor: "  A  B " })).toBe("A B");
+    expect(lineVendor({ category: "subcontract", vendor: " " })).toBeNull();
+    expect(lineVendor({ category: "material", vendor: "Supply House" })).toBeNull();
+    expect(lineVendor({ category: "subcontract" })).toBeNull();
   });
 });

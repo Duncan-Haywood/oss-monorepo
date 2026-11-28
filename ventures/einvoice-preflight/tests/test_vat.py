@@ -245,5 +245,34 @@ class Remainder10Test(unittest.TestCase):
             self.assertEqual(rule(bumped), ["INV-023"], bumped)
 
 
+class NorwaySwitzerlandTest(unittest.TestCase):
+    """NO and CH were JS only until the 2026-11-28 re-audit: the CLI called every
+    Norwegian or Swiss vat_id an unrecognized prefix (INV-022) and never checked one
+    in id. Verdicts match vat.test.mjs and python-stdnum 2.2 (3,000 of 3,000 agree)."""
+
+    def rules(self, value, key="vat_id"):
+        return [f["rule"] for f in inspect_party_vat({key: value}, "supplier")]
+
+    def test_valid_numbers_pass(self):
+        for value in ("NO 923 609 016 MVA", "NO923609016", "CHE-116.281.710 MWST", "CHE-116.281.710 TVA", "CHE116281710IVA"):
+            self.assertEqual(self.rules(value), [], value)
+            self.assertEqual(self.rules(value, "id"), [], value)
+
+    def test_check_digit_typos_fail(self):
+        for value in ("NO923609017MVA", "CHE-116.281.711 MWST"):
+            self.assertEqual(self.rules(value), ["INV-023"], value)
+            self.assertEqual(self.rules(value, "id"), ["INV-023"], value)
+
+    def test_remainder_ten_is_never_issued(self):
+        # 11 - (sum mod 11) = 10 has no check digit, so every last digit fails.
+        for digit in "0123456789":
+            self.assertEqual(self.rules(f"NO10000013{digit}MVA"), ["INV-023"], digit)
+            self.assertEqual(self.rules(f"CHE10000016{digit}MWST"), ["INV-023"], digit)
+
+    def test_bad_shapes(self):
+        for value in ("NO12345MVA", "CHE-116.281 MWST", "CHE116281710VAT"):
+            self.assertEqual(self.rules(value), ["INV-022"], value)
+
+
 if __name__ == "__main__":
     unittest.main()

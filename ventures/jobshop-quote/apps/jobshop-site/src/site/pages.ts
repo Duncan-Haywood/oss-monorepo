@@ -3444,7 +3444,10 @@ export function faiGuidePage(ctx: RenderContext): Html {
     is not in it. Beside it, "Inspect first article" opens the same list as a screen: enter each
     row's zone, result, tooling and nonconformance number, mark false reads, add what the text missed,
     and each row shows accept, reject or open as you type, judged against its limits. The CSV then
-    carries the results and verdicts. ${SITE_NAME} does not fill in Forms 1 and 2 or draw the balloons. The
+    carries the results and verdicts. "Ballooned drawing" downloads the same PDF with a numbered
+    balloon beside each listed characteristic it found in the drawing's text, with the CSV's row
+    numbers; the drawing itself is left as it was, and a characteristic whose text was not found gets
+    no balloon rather than a guessed one. ${SITE_NAME} does not fill in Forms 1 and 2. The
     <a class="link" href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a> has the question
     to ask before you price: is a first article required, and to which standard?</p>
     <p class="fineprint">This page explains a common estimating approach and summarises a published
