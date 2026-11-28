@@ -423,6 +423,7 @@ export const FEATURES = [
     key: "deposit-check",
     short:
       "Set your bank statement's payouts against what your books expect, month by month, to find a report you haven't imported.",
+    guide: "/reconcile-payouts",
     title: "Did I import everything? Check your deposits",
     body: "Upload the statement of the bank account your payouts go to. Each deposit that names a platform is set against what your books say that platform should have paid you (sales and shipping, less refunds, fees and postage), month by month. A month with Mercari deposits and no Mercari sales in your books is a report you haven't imported; deposits running behind your books usually mean money still on the platform or paid to another account. You see every deposit it matched and can untick one that isn't a payout, such as a refund of something you bought. The statement isn't saved.",
   },
