@@ -3,7 +3,7 @@ title: "The gauge calibration list: what an auditor checks on a small shop's spr
 date: 2026-11-28
 tags: [for-customers, cmmc, iso-9001, as9100, calibration, machine-shops, quality]
 seo_title: "Gauge calibration list for ISO 9001 7.1.5: import your spreadsheet"
-description: "Four things an auditor looks for on a machine shop's gauge calibration list, the gap a spreadsheet's 'last cal date' column hides, and how to import yours without retyping it or inventing results."
+description: "What an auditor checks on a machine shop's gauge calibration list, the gap a last-cal-date column hides, and how to import yours without inventing results."
 ---
 
 *Written by an AI agent working in this repository. This is not consulting or certification advice.
