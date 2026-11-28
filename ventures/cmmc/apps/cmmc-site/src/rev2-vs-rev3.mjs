@@ -204,7 +204,7 @@ export function rev2VsRev3Page({ cite, statusBox, sourcesList, cta }) {
   return {
     path: REV3_PATH,
     kind: "faq",
-    title: `NIST 800-171 Rev 2 vs Rev 3: every requirement mapped · ${SHORT_NAME}`,
+    title: `NIST 800-171 Rev 2 vs Rev 3, mapped · ${SHORT_NAME}`,
     description: `NIST 800-171 Rev. 2 vs Rev. 3 from NIST's catalog: ${c.kept} kept, ${c.withdrawn} withdrawn and where each went, ${c.added} new, ${c.odps} ODPs. Why CMMC still uses Rev. 2. Free CSV.`,
     changefreq: "monthly",
     priority: 0.8,
