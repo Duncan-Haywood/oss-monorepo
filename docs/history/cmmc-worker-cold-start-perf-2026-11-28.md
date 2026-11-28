@@ -97,6 +97,22 @@ takes seconds.
   exits 0. `biome check .` is clean on 350 files. `node --test platform/perf/worker-startup.test.mjs`:
   4 passed.
 
+## A second trap, in the local CI runner
+
+`python3 platform/ci/run_workflow_locally.py --for-changes` left this session's checkout sparse
+(`core.sparseCheckout=true`, three paths). `prompts/promptctl.py`, `platform/pages/build.mjs` and
+the cmmc-site screenshots were gone from disk. Half the selected workflows then "failed" on missing
+files that had nothing to do with the diff. The cause was `price-claims-ci.yml`'s
+"Check out each venture with a plan catalog" step (PR #20091, the same morning). It is a `run:`
+step that calls `git sparse-checkout set`. In CI that narrows a throwaway clone; run locally, it
+narrowed the session's own tree. `git sparse-checkout disable` restored it.
+
+Fix in this PR: `run_workflow_locally.py` skips a `run:` step that calls `git sparse-checkout
+set|add|init|reapply` (`NARROWS_CHECKOUT`), with a reason that says so. It doesn't mark the job's
+later steps as "failed after a skipped step", because the full tree is a superset of what the
+sparse clone holds. `price-claims-ci` now runs locally: the sparse step is skipped, and both
+checks run and pass.
+
 ## What this says
 
 The cold start was never close to a limit: about 42 ms of the Worker's own CPU against
