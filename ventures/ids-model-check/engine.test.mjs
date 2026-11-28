@@ -634,3 +634,44 @@ test("area prefixes are squared, Celsius is offset to kelvin, and conversion-bas
   assert.equal(check(temp("299.15"), model).pass, true);
   assert.equal(check(temp("26"), model).pass, false);
 });
+
+// Quality re-audit 2026-11-28: IfcConversionBasedUnitWithOffset came out as -688.806 K for
+// 77 F, and the volume and mass factors were untested (seeded mutants survived). By hand:
+// IFC4's example writes Fahrenheit as factor 1.8 K, offset -459.67 (f = k * 1.8 - 459.67),
+// so 77 F = (77 + 459.67) / 1.8 = 298.15 K; with a 5/9 factor the same; a Celsius
+// conversion unit (1.0 K, -273.15) reads 26 as 299.15 K; 2,500,000,000 mm3 = 2.5 m3;
+// 1,500 g (GRAM, no prefix) = 1.5 kg.
+test("temperature units with an offset, cubic prefixes and grams convert to IDS's SI units", () => {
+  const tempModel = (factor, offset) => ifc("IFC4", [
+    "#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'Audit',$,$,$,$,$,#5);",
+    "#2=IFCSIUNIT(*,.THERMODYNAMICTEMPERATUREUNIT.,$,.KELVIN.);",
+    "#3=IFCDIMENSIONALEXPONENTS(0,0,0,0,1,0,0);",
+    `#4=IFCMEASUREWITHUNIT(IFCREAL(${factor}),#2);`,
+    `#6=IFCCONVERSIONBASEDUNITWITHOFFSET(#3,.THERMODYNAMICTEMPERATUREUNIT.,'deg',#4,${offset});`,
+    "#7=IFCSIUNIT(*,.VOLUMEUNIT.,.MILLI.,.CUBIC_METRE.);",
+    "#8=IFCSIUNIT(*,.MASSUNIT.,$,.GRAM.);",
+    "#5=IFCUNITASSIGNMENT((#6,#7,#8));",
+    "#26=IFCSPACE('0BTBFw6f90Nfh9rP1dlXri',$,'001',$,$,$,$,$,.ELEMENT.,.SPACE.,$);",
+    "#40=IFCPROPERTYSET('2XtwYdQJvA_eZmLqT9e9cw',$,'Pset_SpaceThermalRequirements',$,(#41));",
+    `#41=IFCPROPERTYSINGLEVALUE('SpaceTemperatureMax',$,IFCTHERMODYNAMICTEMPERATUREMEASURE(${offset === "-273.15" ? "26." : "77."}),$);`,
+    "#43=IFCRELDEFINESBYPROPERTIES('1kH1k8oQr1ZvL2xk4yVQmB',$,$,$,(#26),#40);",
+    "#20=IFCWALL('3vB2YO$MX4xv5uCqZZG05x',$,'W-A',$,$,$,$,$,.SOLIDWALL.);",
+    "#60=IFCELEMENTQUANTITY('0Qa1Wb2Ec3Rd4Tf5Yg6Uh7',$,'Qto_WallBaseQuantities',$,$,(#61,#64));",
+    "#61=IFCQUANTITYVOLUME('NetVolume',$,$,2500000000.,$);",
+    "#64=IFCQUANTITYWEIGHT('NetWeight',$,$,1500.,$);",
+    "#62=IFCRELDEFINESBYPROPERTIES('1Zx2Cv3Bn4Mq5Wr6Ty7Ui8',$,$,$,(#20),#60);",
+  ]);
+  const prop = (e, type, pset, name, v) => ids(spec(ent(e), `<property dataType="${type}"><propertySet><simpleValue>${pset}</simpleValue></propertySet><baseName><simpleValue>${name}</simpleValue></baseName><value><simpleValue>${v}</simpleValue></value></property>`));
+  const temp = (v) => prop("IFCSPACE", "IFCTHERMODYNAMICTEMPERATUREMEASURE", "Pset_SpaceThermalRequirements", "SpaceTemperatureMax", v);
+  const vol = (v) => prop("IFCWALL", "IFCVOLUMEMEASURE", "Qto_WallBaseQuantities", "NetVolume", v);
+  const mass = (v) => prop("IFCWALL", "IFCMASSMEASURE", "Qto_WallBaseQuantities", "NetWeight", v);
+  const ifc4Example = tempModel("1.8", "-459.67");
+  assert.equal(check(temp("298.15"), ifc4Example).pass, true);
+  assert.equal(check(temp("77"), ifc4Example).pass, false);
+  assert.equal(check(temp("298.15"), tempModel(String(5 / 9), "-459.67")).pass, true);
+  assert.equal(check(temp("299.15"), tempModel("1.", "-273.15")).pass, true);
+  assert.equal(check(vol("2.5"), ifc4Example).pass, true);
+  assert.equal(check(vol("2500"), ifc4Example).pass, false);
+  assert.equal(check(mass("1.5"), ifc4Example).pass, true);
+  assert.equal(check(mass("1500"), ifc4Example).pass, false);
+});
