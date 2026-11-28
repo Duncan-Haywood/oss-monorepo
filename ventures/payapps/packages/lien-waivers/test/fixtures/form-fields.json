@@ -211,5 +211,8 @@
   "waiver WY/conditional-progress/statutory": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate throughDate exceptions? checkMaker checkAmountCents checkPayee",
   "waiver WY/unconditional-progress/statutory": "customerName projectName claimantName signedDate amountPaidCents retainageHeldCents unpaidCents signerTitle",
   "waiver WY/conditional-final/statutory": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate disputedClaimsCents? checkMaker checkAmountCents checkPayee",
-  "waiver WY/unconditional-final/statutory": "customerName projectName claimantName signedDate amountPaidCents retainageHeldCents unpaidCents signerTitle"
+  "waiver WY/unconditional-final/statutory": "customerName projectName claimantName signedDate amountPaidCents retainageHeldCents unpaidCents signerTitle",
+  "notice GA/affidavit-of-nonpayment/statutory": "county customerName workDescription projectName cityOrTown propertyCounty ownerName propertyDescription waiverDate waiverAmountCents unpaidCents claimantName",
+  "notice US/miller-act/notice-of-claim": "noticeDate primeContractor project contractNumber? claimant furnishedTo workDescription? amountClaimed lastDay",
+  "notice MS/affidavit-of-nonpayment/statutory": "county customerName workDescription projectName cityOrTown propertyCounty ownerName propertyDescription waiverDate waiverAmountCents claimantName signerName? signerTitle?"
 }

@@ -1,5 +1,5 @@
 import type { NoticeForm } from "./notices.ts";
-import type { BlockTemplate, FieldSpec } from "./types.ts";
+import type { BlockTemplate, FieldSpec, ValidationError, WaiverData } from "./types.ts";
 
 /**
  * The Miller Act's 90-day written notice, 40 U.S.C. § 3133(b)(2): what a sub-subcontractor or a
@@ -143,6 +143,25 @@ const BODY: readonly BlockTemplate[] = [
   },
 ];
 
+/**
+ * The notice reports a last day already past: one dated before the day it names as the last day
+ * of labor or material states something that cannot be true. (Dates are YYYY-MM-DD once
+ * validated, so they compare as strings.)
+ */
+function checkDates(data: WaiverData): ValidationError[] {
+  const noticeDate = typeof data.noticeDate === "string" ? data.noticeDate.trim() : null;
+  const lastDay = typeof data.lastDay === "string" ? data.lastDay.trim() : null;
+  if (!noticeDate || !lastDay) return [];
+  if (lastDay <= noticeDate) return [];
+  return [
+    {
+      field: "lastDay",
+      code: "INVALID_DATE",
+      message: `Last day you performed labor or supplied material (${lastDay}) is after the date of the notice (${noticeDate}). Send the notice once the last day has passed, or correct either date.`,
+    },
+  ];
+}
+
 /** The Miller Act 90-day notice to the prime contractor, 40 U.S.C. § 3133(b)(2). */
 export function millerActNotice(): NoticeForm {
   return {
@@ -164,6 +183,7 @@ export function millerActNotice(): NoticeForm {
     body: BODY,
     attachment: null,
     omitIfBlank: ["contractNumber", "workDescription"],
+    crossCheck: checkDates,
     notes: [
       'Who needs it: "A person having a direct contractual relationship with a subcontractor but no contractual relationship, express or implied, with the contractor furnishing the payment bond" (40 U.S.C. § 3133(b)(2)). A company that contracted with the prime itself needs no 90-day notice before suing.',
       'When: "within 90 days from the date on which the person did or performed the last of the labor or furnished or supplied the last of the material for which the claim is made" (§ 3133(b)(2)). Send it well before the 90th day: courts differ on whether it must arrive, not only be sent, by then.',

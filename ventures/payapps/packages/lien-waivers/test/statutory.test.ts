@@ -143,3 +143,39 @@ test("the whole-document exemptions are still whole documents", () => {
     assert.equal(urls.size, 1, `${state} now links per kind; check its links instead of exempting`);
   }
 });
+
+/**
+ * Every statutory form is encoded today, so the per-state "pending" tests above never run and the
+ * refusal for a form whose text is still pending went unguarded: the red-team run of 2026-11-28
+ * widened `!form.body && form.absent` to `||` and no test noticed, though that sends a pending
+ * form down the "no such form" path with an empty message. These pin both refusals on a form
+ * built to each shape.
+ */
+describe("render refuses a form it has no verified text for", () => {
+  const base = listForms("CA").find((f) => f.body !== null);
+  assert.ok(base, "CA has an encoded statutory form to start from");
+
+  test("pending text: STATUTORY_TEXT_NOT_ENCODED, naming the citation and the official form", () => {
+    const pending = { ...base, body: null, absent: undefined };
+    const r = render(pending, {});
+    assert.equal(r.ok, false);
+    if (r.ok) return;
+    assert.deepEqual(
+      r.errors.map((e) => e.code),
+      ["STATUTORY_TEXT_NOT_ENCODED"],
+    );
+    assert.ok(r.errors[0]?.message.includes(base.citation?.text ?? "?"));
+    assert.ok(r.errors[0]?.message.includes("Use the official statutory form"));
+  });
+
+  test("no such form: NO_STATUTORY_FORM, with the reason as the message", () => {
+    const reason = "The statute prescribes no form of this kind.";
+    const r = render({ ...base, body: null, absent: reason }, {});
+    assert.equal(r.ok, false);
+    if (r.ok) return;
+    assert.deepEqual(
+      r.errors.map((e) => ({ code: e.code, message: e.message })),
+      [{ code: "NO_STATUTORY_FORM", message: reason }],
+    );
+  });
+});
