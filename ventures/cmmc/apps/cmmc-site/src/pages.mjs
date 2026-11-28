@@ -10,6 +10,7 @@ import { level1RequirementsPage } from "./level1-requirements.mjs";
 import { level2RequirementsPage } from "./level2-requirements.mjs";
 import { publicPlans } from "./plans.mjs";
 import { poamRulesPage } from "./poam-rules.mjs";
+import { poamTemplatePage } from "./poam-template.mjs";
 import { REV3_PATH, rev2VsRev3Page } from "./rev2-vs-rev3.mjs";
 import {
   CONSENT_TEXT,
@@ -380,6 +381,7 @@ ${cta}`,
     dfarsClausesPage({ cite, statusBox, sourcesList, cta }),
     sprsSubmitPage({ cite, statusBox, sourcesList, cta }),
     assessmentSheetPage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),
+    poamTemplatePage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),
     comparePage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),
     open
       ? pricingPage(launch)
