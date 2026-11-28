@@ -18,7 +18,6 @@ import { type Html, html } from "./html";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
 import { CSV_COLUMNS, CSV_FILE, exampleQuote, TERMS_CHECKLIST } from "./quote-template";
 import { flatBlank, priceSheetExample, EXAMPLE as SHEET_EXAMPLE } from "./sheet-metal-example";
-import { priceWeldingExample, STEEL_LB_PER_IN3, EXAMPLE as WELD_EXAMPLE } from "./welding-example";
 import {
   EMPLOYER_FICA,
   EXAMPLE,
@@ -27,6 +26,7 @@ import {
   UTILISATION_HOURS,
   usd,
 } from "./shop-rate";
+import { priceWeldingExample, STEEL_LB_PER_IN3, EXAMPLE as WELD_EXAMPLE } from "./welding-example";
 
 export interface RenderContext {
   /** "" or a path like "/jobshop": prefixed to every internal link. */
@@ -1533,7 +1533,8 @@ export function weldingGuidePage(ctx: RenderContext): Html {
   const e = WELD_EXAMPLE;
   const r = priceWeldingExample(e);
   const [small, mid, large] = r.breaks;
-  if (!small || !mid || !large) throw new Error("the welding guide example quotes three quantities");
+  if (!small || !mid || !large)
+    throw new Error("the welding guide example quotes three quantities");
   const pctBps = (bps: number) => `${bps / 100}%`;
   const rateOf = (i: number) => usdCents(e.machines[i]?.hourlyRateCents ?? 0);
   const machineName = (i: number) => e.machines[i]?.name ?? "";
