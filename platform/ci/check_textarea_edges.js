@@ -27,7 +27,7 @@
 // caught in the "blank" pass; see docs/reports/2026-11-19-textarea-edge-sweep.md.
 const {chromium}=require('playwright');const {serve}=require('./sweep_server.js');const fs=require('fs');const path=require('path');
 const root=process.cwd();
-let files=require('child_process').execSync(`find ${process.env.SWEEP_ROOT||'ventures'} -name index.html -not -path '*/node_modules/*' -maxdepth 3`).toString().trim().split('\n').filter(Boolean).sort();
+let files=require('child_process').execFileSync('find', [process.env.SWEEP_ROOT||'ventures', '-maxdepth', '3', '-name', 'index.html', '-not', '-path', '*/node_modules/*']).toString().trim().split('\n').filter(Boolean).sort();
 if(process.argv[3])files=files.slice(0,+process.argv[3]);
 const BAD=/.{0,40}\b(NaN|Infinity|undefined|\[object Object\])\b.{0,40}/;
 // English prose, not a leaked value: "an undefined account" (quickbooks-iif-file-check's finding text).

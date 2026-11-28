@@ -23,6 +23,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import subprocess
 import sys
 from multiprocessing import Pool
 from pathlib import Path
@@ -122,7 +123,7 @@ def main():
                                 "rc_ratios_max_over_nom": {k: [round(v[0], 4), round(v[1], 4)] for k, v in DRC.ratios(a.rules, "max").items()},
                                 "base_period_ns": BASE, "order": ORDER, "clock": CLOCK, "n_sequences": len(seqs), "seed": 108,
                                 "tools": {"yosys": flow.yosys_version() if hasattr(flow, "yosys_version") else os.popen("yosys -V").read().strip(),
-                                          "openroad": os.popen(f"{a.openroad} -version").read().strip()}}, indent=1))
+                                          "openroad": subprocess.run([a.openroad, "-version"], capture_output=True, text=True).stdout.strip()}}, indent=1))
     arms = [("nom", Path(a.pdk)), ("rcmax", plat)]
     tasks = [(d, s, CLOCK[d], round(BASE[d] * FACTORS[CLOCK[d]], 3), out / arm / d / f"{CLOCK[d]}_{i}", lib, pp, a.openroad)
              for d in ORDER for arm, pp in arms for i, s in enumerate(seqs)]

@@ -142,3 +142,28 @@ untracked `.pyc` files (5 extra hits here, not counted above).
 | semgrep | `ventures/retail-pilot-intel/packages/analytics/src/db.ts` | js-child-process-dynamic | 44 |
 | semgrep | `ventures/status-keeper/certs.mjs` | js-tls-verify-off | 12 |
 | semgrep | `ventures/xer-schedule-check/eval/p6xer-resource-ids.mjs` | js-child-process-dynamic | 8 |
+
+## Progress, 2026-11-28: semgrep
+
+Re-read with semgrep 1.184.0 over `main` at `407cb271c` plus PR #19952. That PR fixes
+11 of the 24 by running the command with an argument list (`execFileSync` /
+`subprocess.run`), same output: the seven `platform/ci/check_*.js` page checkers,
+`check_enter_reload.mjs:75`, `check_thousands_input.mjs`,
+`ventures/xer-schedule-check/eval/p6xer-resource-ids.mjs` and
+`research/verified-dse/experiments/rc_corner/run.py`. The scan then reports 13,
+each opened and judged a false positive or by design; they go in `baseline.yaml`
+in a PR of their own (the gate reads main's copy), with these reasons:
+
+| file:line | rule | why it stays |
+|---|---|---|
+| `platform/ci/check_enter_reload.mjs:98,99` | js-eval-dynamic | `new Function` rebuilds this file's own two helpers (`selfAction.toString()`, `fillValue.toString()`) inside `page.evaluate`; no outside input |
+| `platform/ci/run_workflow_locally.py:1679` | py-shell-injection | runs a workflow step's `run:` script, which is shell by definition (the job the tool emulates) |
+| `platform/ci/runner_probe.py:48` | py-shell-injection | `_sh()` is only called with three literal strings (`lscpu`, the GPU pipe, `node --version`) |
+| `research/_audit/repro_audit.py:147` | py-shell-injection | runs the commands in the repository's own research READMEs, as the audit's job; paused track |
+| `ventures/babysitting-business-kit/activities.mjs:247`, `ventures/k8s-deprecated-api-check/engine.mjs:252` | js-child-process-dynamic | `RegExp.prototype.exec` on a template string, not `child_process` |
+| `ventures/einvoice-preflight/plain/fontoxpath.esm.js:1` | js-child-process-dynamic | vendored minified fontoxpath bundle; no `child_process` in a browser bundle |
+| `ventures/local-site-studio/src/lib/db/sqlite-schema.ts:191`, `ventures/photo-nutrition-agent/self-host/store.mjs:487,525`, `ventures/retail-pilot-intel/packages/analytics/src/db.ts:44` | js-child-process-dynamic | SQLite `db.exec` (SQL, not a shell); the interpolated table and column names are literals at every call site |
+| `ventures/status-keeper/certs.mjs:12` | js-tls-verify-off | a certificate monitor must complete the handshake with a bad certificate to report it; it reads `socket.authorized` and fails the check unless the monitor says `strict: false`, and sends nothing over the socket |
+
+Left for this task after the baseline PR: the gitleaks 97, then one
+`workflow_dispatch` run for checkov, trivy, zizmor and osv, then the schedule.
