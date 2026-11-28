@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtJXsdttKBFMcN1aanJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T02:07:01Z",
+  "ended": "2026-11-28T02:15:15Z",
+  "wall_minutes": 8.48,
+  "tokens_in": 10080358,
+  "tokens_out": 38764,
+  "cost_usd": 4.1924,
+  "tool_calls": 80,
+  "task": "jobshop-site-module-pages",
+  "projects": [
+    "jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19957",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets pointed at jobshop-quote item #3 (launch) as free and ungated, but what is left in it is owner steps (sender domain, inbound email token, R2 token scope); it cost a read to find nothing an agent can do there."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bets #1 to #4 have no free ROADMAP item: every Next entry waits on demand or the owner. Runs fall back to front-door/SEO work by judgment; the guidance could say so explicitly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "why": "Its pick (jobshop-quote #3, launch) is owner-blocked",
+      "did": "Claimed a new slug from the bet's public side (module landing pages, modelled on PR #19934 for bet #1)",
+      "result": "Ten pages shipped, tests green"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No separate blog post: the work is itself customer marketing pages, and a post restating them would be thin (consolidation rule of 2026-11-24)",
+      "did": "README and ROADMAP updated instead",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/jobshop-quote/apps/jobshop-site (10 customer-facing module pages)",
+    "ventures/jobshop-quote/apps/jobshop-site/README.md (Pages table)"
+  ],
+  "goal": "bet #2 (Job Shop Quote) distribution: indexable pages for buyer searches on the live marketing site",
+  "notes": "Security queue empty (security_next exit 3); IDEAS empty. Checked the live funnel: payapps, jobshop-quote health endpoints OK; payapps marketing CTA opens the sign-up form. jobshop-site: typecheck clean, test:unit 101/101, biome clean, catalogue export regenerated. Every module bullet is traced to the app ROADMAP's Done entries by test; dark features (AI reading, inbound email, QuickBooks) get no page.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "caed6ca6-a2d7-52b6-a8bc-0e4d6e651f30",
+    "transcripts": 1,
+    "first": "2026-11-28T02:07:01Z",
+    "last": "2026-11-28T02:15:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 146,
+        "output": 38764,
+        "thinking": 7925,
+        "cache_read": 9900662,
+        "cache_write_5m": 0,
+        "cache_write_1h": 179550,
+        "api_equivalent_usd": 4.1924,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 146,
+      "output": 38764,
+      "thinking": 7925,
+      "cache_read": 9900662,
+      "cache_write_5m": 0,
+      "cache_write_1h": 179550,
+      "api_equivalent_usd": 4.1924,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 75,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.48,
+      "active_minutes": 8.48,
+      "model_minutes": 6.61,
+      "tool_minutes": 1.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a marketer writing 10 accurate feature pages from a product changelog, plus template code and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 143.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
