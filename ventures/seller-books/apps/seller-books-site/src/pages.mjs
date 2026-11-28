@@ -1531,12 +1531,30 @@ export const PAYPAL_EXAMPLE = [
 /** The fixture's rows the importer leaves out, in file order, with what to do about each. */
 export const PAYPAL_LEFT_OUT = [
   ["Transfer to the bank, $100.00", "Your own money moving, not income or a cost."],
-  ["Payment from eBay, $50.00", "eBay's own report carries the sales behind it; counting both would count them twice."],
-  ["Hold for a dispute on the wool coat, $15.00", "Money set aside, not earned or spent. If the dispute is lost, the reversal is a later row."],
-  ["Listing app subscription you paid, $9.99", "A payment you sent: enter it as an expense (it is a business cost)."],
-  ["Payment still pending, $15.00", "Only completed payments are imported; it comes in with a later download."],
-  ["Payment in euros, €30.00", "The books are in US dollars: download in USD, or type the sale in."],
-  ["Refund from a supply store, $12.00", "Money back on something you bought: lower that cost instead."],
+  [
+    "Payment from eBay, $50.00",
+    "eBay's own report carries the sales behind it; counting both would count them twice.",
+  ],
+  [
+    "Hold for a dispute on the wool coat, $15.00",
+    "Money set aside, not earned or spent. If the dispute is lost, the reversal is a later row.",
+  ],
+  [
+    "Listing app subscription you paid, $9.99",
+    "A payment you sent: enter it as an expense (it is a business cost).",
+  ],
+  [
+    "Payment still pending, $15.00",
+    "Only completed payments are imported; it comes in with a later download.",
+  ],
+  [
+    "Payment in euros, €30.00",
+    "The books are in US dollars: download in USD, or type the sale in.",
+  ],
+  [
+    "Refund from a supply store, $12.00",
+    "Money back on something you bought: lower that cost instead.",
+  ],
   ["Currency conversion, $5.00", "Your own money changing currency."],
   ["Poly mailers you bought, $30.00", "A payment you sent: enter it as a supplies expense."],
 ];
@@ -1583,7 +1601,10 @@ function paypalTaxes() {
   ];
   const amt = (c) => `<span class="nowrap">${cents(c)}</span>`;
   const inGross = (r) =>
-    [r.shipCents && `${cents(r.shipCents)} shipping`, r.taxCents && `${cents(r.taxCents)} sales tax`]
+    [
+      r.shipCents && `${cents(r.shipCents)} shipping`,
+      r.taxCents && `${cents(r.taxCents)} sales tax`,
+    ]
       .filter(Boolean)
       .join(" and ");
   const exRows = PAYPAL_EXAMPLE.map(

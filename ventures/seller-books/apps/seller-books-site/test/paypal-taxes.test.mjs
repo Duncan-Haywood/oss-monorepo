@@ -106,9 +106,15 @@ describe("the PayPal taxes page", () => {
   test("the IRS's own words, quoted with the source and the dated check; nothing quoted from PayPal", () => {
     const html = htmlOf(page());
     assert.match(PAYPAL_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
-    for (const q of [IRS_1099K_THRESHOLD_QUOTE, IRS_PERSONAL_PAYMENTS_QUOTE, IRS_MARK_NON_BUSINESS_QUOTE])
+    for (const q of [
+      IRS_1099K_THRESHOLD_QUOTE,
+      IRS_PERSONAL_PAYMENTS_QUOTE,
+      IRS_MARK_NON_BUSINESS_QUOTE,
+    ])
       assert.ok(html.includes(q) || html.includes(quoted(q)), q);
-    assert.ok(html.includes('href="https://www.irs.gov/businesses/understanding-your-form-1099-k"'));
+    assert.ok(
+      html.includes('href="https://www.irs.gov/businesses/understanding-your-form-1099-k"'),
+    );
     assert.ok(html.includes('"@type":"FAQPage"'));
     assert.ok(!/paypal\.com/.test(html), "no PayPal page was readable, so none is cited");
     // The disclaimer every page carries.
