@@ -702,6 +702,17 @@ If this saves you a rejected invoice run, you can chip in at
 <https://buymeacoffee.com/duncanhaywood>. Same safety boundary as below:
 preflight, not a Peppol/EN 16931 conformance validator, and no warranty.
 
+## Read a received e-invoice (2026-11-28)
+
+`xrechnung-anzeigen.html` (German) shows a received XRechnung (UBL or CII XML), or the XML inside a
+ZUGFeRD / Factur-X PDF, as a readable invoice: parties, references, lines with units in words, the VAT
+breakdown with exemption reasons, totals and payment details, each label with its EN 16931 term
+(BT-/BG-) and each code with its meaning. `einvoice-view.mjs` does the reading and the rendering (direct
+child paths only, every value escaped, amounts reformatted as strings with no floating point). It is a
+display, not a check: nothing is recomputed, and a button opens the checker with the XRechnung rules.
+ZUGFeRD 1.0 and national formats are refused with a German reason. Usage counts one local
+`invoice_viewed` event. Tests: `einvoice-view.test.mjs`, `xrechnung-anzeigen.test.mjs`.
+
 ## Create an e-invoice (new)
 
 The checker's other half. Germany already requires businesses to *receive*

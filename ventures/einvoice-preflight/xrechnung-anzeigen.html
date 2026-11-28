@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XRechnung anzeigen: E-Rechnung lesbar machen, kostenlos</title>
+<meta name="description" content="XRechnung oder ZUGFeRD-XML öffnen und lesbar anzeigen: Verkäufer, Positionen, Umsatzsteuer, IBAN und Zahlbetrag, im Browser, ohne Upload und ohne Konto.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/xrechnung-anzeigen.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="XRechnung anzeigen: E-Rechnung lesbar machen, kostenlos">
+<meta property="og:description" content="XRechnung oder ZUGFeRD-XML öffnen und lesbar anzeigen: Verkäufer, Positionen, Umsatzsteuer, IBAN und Zahlbetrag, im Browser, ohne Upload und ohne Konto.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/xrechnung-anzeigen.html">
+<meta property="og:locale" content="de_DE">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Wie öffne ich eine XRechnung?", "acceptedAnswer": {"@type": "Answer", "text": "Eine XRechnung ist eine XML-Datei ohne Bildteil; ein Doppelklick zeigt meist nur Code. Ziehen Sie die Datei oben in das Feld oder wählen Sie sie aus: Die Seite zeigt Verkäufer, Käufer, Positionen, Umsatzsteuer, Summen und Bankverbindung als lesbare Rechnung. Laut BMF gibt es außerdem den kostenlosen E-Rechnungsviewer der Finanzverwaltung im ELSTER-Portal (e-rechnung.elster.de)."}}, {"@type": "Question", "name": "Wird meine Rechnung hochgeladen?", "acceptedAnswer": {"@type": "Answer", "text": "Nein. Die Datei wird mit JavaScript in Ihrem Browser gelesen; es gibt keinen Server, an den sie geschickt wird. Sie können die Seite nach dem Laden auch ohne Internetverbindung benutzen."}}, {"@type": "Question", "name": "Kann ich auch eine ZUGFeRD- oder Factur-X-PDF anzeigen?", "acceptedAnswer": {"@type": "Answer", "text": "Ja. Die Seite liest die in der PDF eingebettete XML-Rechnung und zeigt deren Angaben. Das ist nützlich, um zu sehen, ob die XML dasselbe sagt wie die PDF-Seite: Laut BMF ist bei einer hybriden Rechnung die XML maßgebend, wenn die PDF-Seite abweicht. ZUGFeRD 1.0 wird nicht gelesen."}}, {"@type": "Question", "name": "Wie drucke oder speichere ich die Rechnung als PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Klicken Sie unter der Anzeige auf „Drucken / als PDF speichern“ und wählen Sie im Druckdialog „Als PDF speichern“. Gedruckt wird nur die Rechnung. Der Ausdruck ersetzt nicht die Original-Datei: Heben Sie die XML-Datei auf und klären Sie die Aufbewahrung mit Ihrer Steuerberatung."}}, {"@type": "Question", "name": "Prüft die Anzeige, ob die Rechnung richtig ist?", "acceptedAnswer": {"@type": "Answer", "text": "Nein. Die Anzeige zeigt die Werte so, wie sie in der Datei stehen, und rechnet nichts nach. Ob die Summen stimmen und die XRechnung-Regeln erfüllt sind, zeigt die kostenlose Prüfung: ein Klick auf „Diese Rechnung prüfen“."}}, {"@type": "Question", "name": "Was bedeuten die Nummern wie BT-10 neben den Feldern?", "acceptedAnswer": {"@type": "Answer", "text": "Das sind die Nummern der Geschäftsbegriffe (Business Terms) der europäischen Norm EN 16931, auf der XRechnung und ZUGFeRD beruhen. Sie helfen, ein Feld in einer Fehlermeldung, im Prüfbericht oder im Gespräch mit dem Rechnungssteller eindeutig zu benennen. BT-10 ist zum Beispiel die Käuferreferenz, bei Behörden die Leitweg-ID."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.cta{display:inline-block;background:#0b5f8a;color:#fff;padding:.6rem 1rem;border-radius:10px;text-decoration:none;font-weight:600;margin:.2rem .4rem .2rem 0}.cta.alt{background:#fff;color:#0b5f8a;border:1px solid #0b5f8a}.drop{border:2px dashed #9fb3c6;border-radius:12px;padding:1.2rem;text-align:center;background:#f7fafc}.drop.over{border-color:#0b5f8a;background:#e6f1f8}.err{color:#9b1c1c;font-weight:600}.bt{font-size:.7rem;font-weight:400;color:#6b7c8c;letter-spacing:0;text-transform:none;white-space:nowrap}.invoice-view h2{margin:.1rem 0}.iv-kind{margin:0;font-weight:700;color:#0b5f8a;text-transform:uppercase;letter-spacing:.05em;font-size:.85rem}.iv-due{font-size:1.15rem}.parties{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}.party{border:1px solid #d3dbe4;border-radius:10px;padding:.7rem .9rem}.party h3{margin:.1rem 0 .4rem}.pname{font-weight:700;margin:.2rem 0}table.kv th{text-transform:none;letter-spacing:0;font-size:.88rem;width:45%}.num{text-align:right;white-space:nowrap}.sub{color:#3d4f5f;font-size:.85rem}tr.due th,tr.due td{font-weight:700;font-size:1rem;border-top:2px solid #15202b}.iv-foot{font-size:.85rem;color:#3d4f5f}@media print{body{background:#fff;padding:0}main>header,main>section:not(#ansicht),footer,.noprint{display:none}section{box-shadow:none;border:0;padding:0}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./" hreflang="en">E-invoice Preflight</a> · <a href="e-rechnung-pruefen.html">E-Rechnung prüfen</a> · <a href="xrechnung-oder-zugferd.html">XRechnung oder ZUGFeRD?</a></p>
+<header>
+<h1>XRechnung anzeigen und lesen</h1>
+<p class="lede">Seit dem 1. Januar 2025 muss jedes Unternehmen in Deutschland E-Rechnungen empfangen können. Kommt eine XRechnung als XML-Datei, zeigt ein Doppelklick meist nur Code. Ziehen Sie die Datei hier hinein: Sie sehen die Rechnung lesbar, mit Verkäufer, Positionen, Umsatzsteuer, Bankverbindung und Zahlbetrag. Kostenlos, ohne Konto, und die Datei verlässt Ihren Rechner nicht.</p>
+</header>
+<section class="noprint">
+<h2>Datei öffnen</h2>
+<div class="drop" id="drop">
+<p><strong>XRechnung (XML), ZUGFeRD- oder Factur-X-PDF hierher ziehen</strong></p>
+<p><label>oder auswählen: <input id="file" type="file" accept=".xml,.pdf,application/xml,text/xml,application/pdf"></label></p>
+<p><button type="button" id="sample">Beispiel-XRechnung anzeigen</button></p>
+</div>
+<p id="error" class="err" role="alert" hidden></p>
+<p class="fine">Gelesen werden UBL- und CII-Rechnungen nach EN 16931: XRechnung, Peppol BIS Billing, ZUGFeRD ab 2.0 und Factur-X. <label><input id="usageOptOut" type="checkbox" style="width:auto"> Keine anonymen lokalen Nutzungszähler speichern</label></p>
+</section>
+<section id="ansicht" hidden aria-live="polite">
+<div id="view"></div>
+<p class="noprint"><button type="button" id="print">Drucken / als PDF speichern</button> <a class="cta" id="check" href="./?profil=xrechnung#drop">Diese Rechnung prüfen</a></p>
+<p class="fine noprint">Die Prüfung öffnet sich mit den XRechnung-Regeln vorausgewählt; ziehen Sie dieselbe Datei dort noch einmal hinein. Fehlermeldungen sind <a href="rules/de/index.html">auf Deutsch erklärt</a>.</p>
+</section>
+<section>
+<h2>Was die Anzeige zeigt</h2>
+<ul>
+<li><strong>Verkäufer und Käufer:</strong> Name, Anschrift, USt-IdNr., Steuernummer, Kontakt und elektronische Adresse.</li>
+<li><strong>Rechnungsangaben:</strong> Rechnungsart, Datum, Fälligkeit, Leistungsdatum oder -zeitraum, Leitweg-ID, Bestell-, Vertrags- und Projektnummer, bei einer Korrektur die Nummer der ursprünglichen Rechnung.</li>
+<li><strong>Positionen:</strong> Bezeichnung, Artikelnummer, Menge mit Einheit (Stück, Std., m² …), Einzelpreis, Steuersatz und Nettobetrag.</li>
+<li><strong>Umsatzsteuer und Summen:</strong> die Aufschlüsselung nach Steuersatz mit Befreiungsgrund (etwa Reverse Charge), Netto, Steuer, Brutto, bereits Gezahltes und der Zahlbetrag.</li>
+<li><strong>Zahlung:</strong> Zahlungsart im Klartext, IBAN, BIC, Verwendungszweck, bei Lastschrift die Mandatsreferenz, und die Zahlungsbedingungen.</li>
+</ul>
+<p>Neben jedem Feld steht die Nummer aus der EN 16931 (etwa <strong>BT-10</strong> für die Käuferreferenz). Codes wie Zahlungsart 58 oder Steuerkategorie AE werden mit ihrer Bedeutung angezeigt. Beträge stehen so da, wie die Datei sie angibt; nachgerechnet wird nur in der Prüfung.</p>
+</section>
+<section>
+<h2>Für Steuerberater und Buchhaltungen</h2>
+<p>Ein kostenpflichtiger Dienst, der viele Mandanten auf einmal prüft, jede verletzte Regel auf Deutsch erklärt und die Anzeige mit jedem Befund am betroffenen Feld markiert, ist in Entwicklung. Noch ist nichts zu kaufen: <a href="https://marisstella.app/industries/eu-e-invoicing/">Frühzugang und Fristen</a>.</p>
+</section>
+<section id="faq">
+<h2>Häufige Fragen</h2>
+<h3>Wie öffne ich eine XRechnung?</h3>
+<p>Eine XRechnung ist eine XML-Datei ohne Bildteil; ein Doppelklick zeigt meist nur Code. Ziehen Sie die Datei oben in das Feld oder wählen Sie sie aus: Die Seite zeigt Verkäufer, Käufer, Positionen, Umsatzsteuer, Summen und Bankverbindung als lesbare Rechnung. Laut BMF gibt es außerdem den kostenlosen E-Rechnungsviewer der Finanzverwaltung im ELSTER-Portal (e-rechnung.elster.de).</p>
+<h3>Wird meine Rechnung hochgeladen?</h3>
+<p>Nein. Die Datei wird mit JavaScript in Ihrem Browser gelesen; es gibt keinen Server, an den sie geschickt wird. Sie können die Seite nach dem Laden auch ohne Internetverbindung benutzen.</p>
+<h3>Kann ich auch eine ZUGFeRD- oder Factur-X-PDF anzeigen?</h3>
+<p>Ja. Die Seite liest die in der PDF eingebettete XML-Rechnung und zeigt deren Angaben. Das ist nützlich, um zu sehen, ob die XML dasselbe sagt wie die PDF-Seite: Laut BMF ist bei einer hybriden Rechnung die XML maßgebend, wenn die PDF-Seite abweicht. ZUGFeRD 1.0 wird nicht gelesen.</p>
+<h3>Wie drucke oder speichere ich die Rechnung als PDF?</h3>
+<p>Klicken Sie unter der Anzeige auf „Drucken / als PDF speichern“ und wählen Sie im Druckdialog „Als PDF speichern“. Gedruckt wird nur die Rechnung. Der Ausdruck ersetzt nicht die Original-Datei: Heben Sie die XML-Datei auf und klären Sie die Aufbewahrung mit Ihrer Steuerberatung.</p>
+<h3>Prüft die Anzeige, ob die Rechnung richtig ist?</h3>
+<p>Nein. Die Anzeige zeigt die Werte so, wie sie in der Datei stehen, und rechnet nichts nach. Ob die Summen stimmen und die XRechnung-Regeln erfüllt sind, zeigt die kostenlose Prüfung: ein Klick auf „Diese Rechnung prüfen“.</p>
+<h3>Was bedeuten die Nummern wie BT-10 neben den Feldern?</h3>
+<p>Das sind die Nummern der Geschäftsbegriffe (Business Terms) der europäischen Norm EN 16931, auf der XRechnung und ZUGFeRD beruhen. Sie helfen, ein Feld in einer Fehlermeldung, im Prüfbericht oder im Gespräch mit dem Rechnungssteller eindeutig zu benennen. BT-10 ist zum Beispiel die Käuferreferenz, bei Behörden die Leitweg-ID.</p>
+</section>
+<footer>
+<p><strong>Ohne Gewähr (no warranty).</strong> Dieses Werkzeug ist kostenlos und wird ohne jede ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Es ist keine Rechts-, Steuer-, Finanz- oder Buchhaltungsberatung und ersetzt keine fachkundige Person (not legal, tax, financial, or accounting advice). <strong>Prüfen Sie das Ergebnis selbst, bevor Sie sich darauf verlassen.</strong> Soweit gesetzlich zulässig, haften die Autoren nicht für Schäden aus der Nutzung.</p>
+<p><strong>Nichts verlässt Ihren Browser.</strong> Die Datei wird im Browser gelesen und nicht hochgeladen. Fristen und Schwellenwerte können sich ändern; maßgeblich sind die aktuellen Texte des Bundesministeriums der Finanzen.</p>
+<p class="support">Free to use and source available. Kostenlos und quelloffen: der <a href="LICENSE" rel="noopener">Code steht unter der FSL-1.1-MIT-Lizenz</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> ist freiwillig und ändert nichts an dem, was das Werkzeug tut.</p>
+</footer>
+</main>
+<script type="module">
+import { readInvoiceForView, invoiceViewHtml } from "./einvoice-view.mjs";
+import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
+
+const drop = document.getElementById("drop");
+const input = document.getElementById("file");
+const errorBox = document.getElementById("error");
+const panel = document.getElementById("ansicht");
+const view = document.getElementById("view");
+const optOut = document.getElementById("usageOptOut");
+try { optOut.checked = readOptOut(usageStorage()); } catch {}
+optOut.addEventListener("change", () => { try { writeOptOut(usageStorage(), optOut.checked); } catch {} });
+
+function showError(message) {
+  errorBox.textContent = message;
+  errorBox.hidden = false;
+  panel.hidden = true;
+}
+
+async function xmlFrom(bytes, name) {
+  const head = new TextDecoder().decode(bytes.slice(0, 5));
+  if (head === "%PDF-" || /\.pdf$/i.test(name)) {
+    const { extractEmbeddedInvoice } = await import("./facturx.mjs");
+    const found = await extractEmbeddedInvoice(bytes);
+    return found.payload;
+  }
+  return bytes;
+}
+
+async function show(bytes, name) {
+  errorBox.hidden = true;
+  try {
+    const xml = await xmlFrom(bytes, name);
+    view.innerHTML = invoiceViewHtml(readInvoiceForView(xml));
+    panel.hidden = false;
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    recordUsage(usageStorage(), optOut.checked, "invoice_viewed");
+  } catch (error) {
+    showError(`Die Datei ließ sich nicht anzeigen: ${error && error.message ? error.message : error}`);
+  }
+}
+
+async function showFile(file) {
+  if (!file) return;
+  if (file.size > 20 * 1024 * 1024) return showError("Die Datei ist größer als 20 MB; das ist für eine Rechnung ungewöhnlich.");
+  show(new Uint8Array(await file.arrayBuffer()), file.name);
+}
+
+input.addEventListener("change", () => showFile(input.files[0]));
+drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); showFile(e.dataTransfer?.files?.[0]); });
+document.getElementById("sample").addEventListener("click", async () => {
+  try {
+    const res = await fetch("examples/ubl-invoice.xml");
+    show(new Uint8Array(await res.arrayBuffer()), "ubl-invoice.xml");
+  } catch { showError("Das Beispiel ließ sich nicht laden."); }
+});
+document.getElementById("print").addEventListener("click", () => window.print());
+</script>
+</body></html>
