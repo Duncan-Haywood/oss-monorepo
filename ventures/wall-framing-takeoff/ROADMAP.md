@@ -353,7 +353,8 @@ Ticked items are on `main`.
 
 From [`2026-11-19-wall-framing-takeoff-r5.json`](../../portfolio/quality/audits/2026-11-19-wall-framing-takeoff-r5.json). The zero-flow water-supply branch it found is fixed (design flow never falls below the largest fixture a run feeds).
 
-- Two-face outlet cable holes: dropping the two-face multiplier survives the suite; the only cable-hole test is single-face.
+- Two-face outlet cable holes: fixed 2026-11-28 (re-audit [`2026-11-28-wall-framing-takeoff-reaudit.json`](../../portfolio/quality/audits/2026-11-28-wall-framing-takeoff-reaudit.json)): a hand-counted interior-wall test now catches a dropped two-face multiplier.
+- Supply sizing: one velocity limit for hot and cold (copper hot water is usually held near 5 ft/s), and unknown segment keys such as `maxSize` are ignored without a message (re-audit 2026-11-28).
 - Jack geometry is guarded by two tests; a hand-checked jack/king assertion in the CLI layer would harden it.
 - No default header span table, even as a labelled example.
 - `layoutGable` still repeats `layoutWall`'s opening loop (engine.mjs is 1,718 lines).
