@@ -2253,8 +2253,24 @@ nothing to copy. No customers yet. Paid plans are dark
   win split, plan gate, viewer, cross-tenant). Why: subs track labor against the hours they bid more
   than anything else, and a line total hides labor running over while material comes in under;
   carrying the bid's own breakdown means nobody retypes it. Not done: estimate cost lines carried as
-  purchase orders or subcontracts (an estimate line has no vendor or PO number to commit to), and a
-  cost code below the cost type.
+  purchase orders (an estimate line has no PO number to commit to), and a cost code below the cost
+  type. Subcontracts from the subs' quotes are done (2026-11-28, next entry).
+- Estimates, part 2, subs' quotes to subcontracts (2026-11-28, every plan writes the name, Crew and up
+  makes the subcontracts, estimate-sub-quote-commitments): a subcontract line on an estimate keeps the
+  sub whose quote it carries (`estimate_lines.vendor`, migration 0095; ignored on other categories,
+  trimmed and single-spaced). When the bid is won on a plan with job costing, each sub named on a bid
+  item that is in the job (the accepted alternates decide, as for the SOV) becomes one lower-tier
+  subcontract on that item's schedule-of-values line: the sum of that sub's lines as bid (cost, no
+  markup), the sub's name matched case-blind with the first spelling kept, the lines' descriptions
+  joined, reference "Quote on EST-0007", committed on the day the bid was won. The win panel lists them
+  with a box to leave them off (`subcontracts: false`); a $0 quote makes none. They are ordinary
+  commitments afterwards: the job-cost page counts the uninvoiced part as cost to come and a person
+  edits the amount once the subcontract is signed. Pure `subcontractsFromEstimate` and `lineVendor` in
+  `src/shared/estimate.ts`; inserted in batches in `winEstimate`. Tests: `src/shared/estimate.test.ts`
+  (grouping, alternates, $0, trimming), `test/unit/estimates-page.test.ts` (the form keeps the name on
+  subcontract lines only), `test/worker/estimates.test.ts` (Crew win makes the subcontract on the right
+  line; opt-out and Free make none). Why: the sub's quote is the number the bid was built on, and
+  without it the job's cost to come starts empty until someone retypes every subcontract.
 
 - T&M tickets, part 1 (2026-11-26, every plan, tm-tickets): extra work written up per job
   (`/orgs/:orgId/projects/:projectId/tm-tickets`, linked from the job page): a numbered ticket (the
@@ -2791,6 +2807,18 @@ nothing to copy. No customers yet. Paid plans are dark
   included, through the proxy) and Vermont (no payment bond claim statute found in Title 29's
   chapters; not added rather than guessed). Still unreached: New Mexico (nmonesource 403 headless),
   Hawaii (403), Connecticut and West Virginia (no answer).
+- Public jobs, part 2 (2026-11-28, every plan, state-bond-claims-pennsylvania): Pennsylvania and New
+  Jersey bond claim steps, thirty-six states and D.C. in `STATE_BOND_RULES`. Pennsylvania: one entry for both
+  bond laws (Act 385 of 1967 § 4 for local bodies, 62 Pa.C.S. § 903(d) for Commonwealth agencies; the
+  same steps), the sub's sub's notice 90 days after the last day, and the one-year suit of 42 Pa.C.S.
+  § 5523(3) listed undated, since the statute names no day to count from (the note says to count
+  from the last day to be safe). New Jersey (N.J.S.A. 2A:44-143 to -146): the sub's sub's notice
+  before starting work (undated), everyone's statement to the sureties and the suit, both one year
+  from the last day. Texts read on palegis.us and from the Legislature's full statutes file
+  (pub.njleg.gov), excerpts appended to `ventures/pay-app-guides/sources/state-bond-claims.txt`; the
+  guide and the customer post gain both rows. Tests that used PA as the unsupported state now use GA.
+  Next, if asked: Illinois (30 ILCS 550; ilga.gov did not answer), Georgia and Tennessee (codes only
+  on hosts that refused), Indiana, Wisconsin.
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
@@ -2906,6 +2934,21 @@ nothing to copy. No customers yet. Paid plans are dark
   the true day later. Georgia (O.C.G.A. § 1-3-1 not read) still counts calendar days. Tests:
   `test/ms-dates.test.ts` in the package, `src/shared/ms-waiver-clock.test.ts` here.
 
+- Pencil draft review (2026-11-28, pencil-draft): many GCs want each sub's month as an unsigned
+  "pencil" a few days before the official application, mark it up and expect the official copy on
+  their figures. A draft's PDF and PDF with backup print as the pencil copy with `?pencil=1` (every
+  page marked "PENCIL DRAFT - FOR GC REVIEW, NOT FOR PAYMENT", file named `-pencil`; ignored once
+  submitted). The draft's "Pencil draft for the GC" panel takes the GC's figures per line (work this
+  period and stored materials), typed or pasted as a column from the GC's sheet, shows each line's
+  change before retainage against the draft as it was when the markup was opened, puts the GC's
+  figures in the continuation sheet in one step (a unit-price line the GC changed is kept in
+  dollars; retainage released untouched; Save then recomputes line 8 with per-line rates), and drafts
+  the cover note listing the revised lines (`src/shared/pencil-review.ts`,
+  `src/client/components/pencil-review.tsx`). Next, if contractors ask: the GC's markup saved with
+  the draft (it lives in the page until saved into the lines), and reading it from the GC's returned
+  spreadsheet with the SOV import's reader instead of a pasted column. Front door: the pencil draft
+  section of pay-app-guides' how-to-fill-out-a-pay-application page.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2980,8 +3023,9 @@ nothing to copy. No customers yet. Paid plans are dark
 - Estimates, part 2 (the spreadsheet and takeoff import, alternates, the company price list with
   labor rates, the bid-day email drafts, markups to 500% in the form and each line's budget split by
   cost type as bid are done, 2026-11-26): a sub quote on the estimate carried to the job as a
-  subcontract commitment once the estimate keeps the sub's name, if people ask; "last emailed" on an
-  estimate (as change orders keep it), if people ask
+  subcontract commitment is done 2026-11-28 (estimate-sub-quote-commitments); a material supplier's
+  quote carried as a purchase order, if people ask; "last emailed" on an estimate (as change orders
+  keep it), if people ask
 - Lien waivers: Mississippi part 4, if asked: a county's own holiday (§ 3-3-7(2), Mardi Gras on the
   coast) chosen per job, so the moved 60th day can count it (part 3, § 1-3-67, done 2026-11-28). California
   preliminary notice part 4: Code Civ. Proc. § 2015.5's perjury sentence on the § 8118 declaration

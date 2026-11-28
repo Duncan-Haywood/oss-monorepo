@@ -333,7 +333,7 @@ test("Miller Act page: inputs labelled, statute and FAR linked with a read date,
 // so in a form an answer engine can lift. Each question must also be an h3 in
 // the page's visible "Common questions" section.
 const FAQ_PAGES = [
-  "california-preliminary-notice.html", "arizona-preliminary-notice.html", "florida-notice-to-owner.html", "michigan-notice-of-furnishing.html", "utah-preliminary-notice.html", "texas-lien-notice.html", "certificate-of-insurance-for-subcontractors.html", "change-order-log.html", "change-orders-schedule-of-values.html",
+  "california-preliminary-notice.html", "arizona-preliminary-notice.html", "florida-notice-to-owner.html", "michigan-notice-of-furnishing.html", "notice-of-intent-to-lien.html", "utah-preliminary-notice.html", "texas-lien-notice.html", "certificate-of-insurance-for-subcontractors.html", "change-order-log.html", "change-orders-schedule-of-values.html",
   "conditional-vs-unconditional-lien-waivers.html", "gc-portal-billing.html",
   "electrical-contractor-billing.html", "mechanical-contractor-billing.html", "drywall-contractor-billing.html", "concrete-contractor-billing.html",
   "site-work-contractor-billing.html", "roofing-contractor-billing.html", "masonry-contractor-billing.html", "painting-contractor-billing.html",
@@ -347,7 +347,7 @@ const FAQ_PAGES = [
   "pay-if-paid-clauses.html", "prompt-payment-laws.html", "retainage-explained.html",
   "retainage-in-quickbooks.html", "retainage-release.html", "retainage-tracker.html",
   "schedule-of-values-template.html", "construction-invoice-template.html", "change-order-template.html", "wip-schedule-template.html", "stored-materials-billing.html",
-  "sworn-statement.html", "tm-tickets.html", "punch-list.html", "daily-report-template.html", "submittal-log-template.html",
+  "sworn-statement.html", "final-payment-affidavit.html", "tm-tickets.html", "punch-list.html", "daily-report-template.html", "submittal-log-template.html",
   "es-como-llenar-una-solicitud-de-pago.html",
   // state-forms.mjs: one page per state with statutory waiver forms
   ...["arizona", "california", "florida", "georgia", "massachusetts", "michigan", "mississippi", "missouri", "nevada", "texas", "utah", "wyoming"].map((s) => `${s}-lien-waiver-forms.html`),
@@ -428,18 +428,18 @@ test("submittal log page: inputs labelled, wired to submittals.mjs, not a notice
   assert.match(readFileSync(new URL("../../platform/pages/industry-construction.mjs", import.meta.url), "utf8"), /pay-app-guides\/submittal-log-template\.html/);
 });
 
-test("the state bond claim table links each of its thirty-four states and the District of Columbia to the legislature's own site, with the read date", () => {
+test("the state bond claim table links each of its thirty-six states and the District of Columbia to the legislature's own site, with the read date", () => {
   const html = page("state-payment-bond-claims.html");
   const start = html.indexOf('id="state-table"');
   const table = html.slice(start, html.indexOf("</table>", start));
   const rows = [...table.matchAll(/<tr><td data-label="State">([A-Z][a-z]+(?: [A-Z][a-z]+| of [A-Z][a-z]+)?)<\/td><td data-label="Statute"><a href="([^"]+)"/g)];
-  assert.deepEqual(rows.map((r) => r[1]), ["Texas", "Florida", "New York", "Virginia", "Washington", "Arizona", "North Carolina", "Ohio", "Massachusetts", "Michigan", "Minnesota", "Nevada", "Oregon", "Idaho", "Maryland", "Missouri", "Utah", "Colorado", "Iowa", "Maine", "Louisiana", "Kansas", "Delaware", "Nebraska", "Rhode Island", "Montana", "North Dakota", "South Carolina", "South Dakota", "Alaska", "Wyoming", "Alabama", "California", "Oklahoma", "District of Columbia"]);
-  const official = /^https:\/\/(statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|www\.azleg\.gov|www\.ncleg\.gov|codes\.ohio\.gov|malegislature\.gov|www\.legislature\.mi\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|legislature\.idaho\.gov|mgaleg\.maryland\.gov|revisor\.mo\.gov|le\.utah\.gov|leg\.colorado\.gov|www\.legis\.iowa\.gov|legislature\.maine\.gov|legis\.la\.gov|www\.ksrevisor\.gov|delcode\.delaware\.gov|nebraskalegislature\.gov|webserver\.rilegislature\.gov|mca\.legmt\.gov|www\.ndlegis\.gov|www\.scstatehouse\.gov|sdlegislature\.gov|www\.akleg\.gov|wyoleg\.gov|alison\.legislature\.state\.al\.us|leginfo\.legislature\.ca\.gov|www\.oscn\.net|code\.dccouncil\.gov)\//;
+  assert.deepEqual(rows.map((r) => r[1]), ["Texas", "Florida", "New York", "Virginia", "Washington", "Arizona", "North Carolina", "Ohio", "Massachusetts", "Michigan", "Minnesota", "Nevada", "Oregon", "Idaho", "Maryland", "Missouri", "Utah", "Colorado", "Iowa", "Maine", "Louisiana", "Kansas", "Delaware", "Nebraska", "Rhode Island", "Montana", "North Dakota", "South Carolina", "South Dakota", "Alaska", "Wyoming", "Alabama", "California", "Oklahoma", "District of Columbia", "Pennsylvania", "New Jersey"]);
+  const official = /^https:\/\/(statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|www\.azleg\.gov|www\.ncleg\.gov|codes\.ohio\.gov|malegislature\.gov|www\.legislature\.mi\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|legislature\.idaho\.gov|mgaleg\.maryland\.gov|revisor\.mo\.gov|le\.utah\.gov|leg\.colorado\.gov|www\.legis\.iowa\.gov|legislature\.maine\.gov|legis\.la\.gov|www\.ksrevisor\.gov|delcode\.delaware\.gov|nebraskalegislature\.gov|webserver\.rilegislature\.gov|mca\.legmt\.gov|www\.ndlegis\.gov|www\.scstatehouse\.gov|sdlegislature\.gov|www\.akleg\.gov|wyoleg\.gov|alison\.legislature\.state\.al\.us|leginfo\.legislature\.ca\.gov|www\.oscn\.net|code\.dccouncil\.gov|www\.palegis\.us|pub\.njleg\.gov)\//;
   for (const [, state, href] of rows) assert.match(href, official, state);
   assert.match(html, /2026-11-27/);
   // The statute text it was read from is kept beside it.
   const src = page("sources/state-bond-claims.txt");
-  for (const cite of ["2253.047", "255.05", "137", "2.2-4341", "39.08.030", "34-223", "44A-27", "153.56", "129.207", "129.209", "Chapter149/Section29", "574.31", "339.035", "339.055", "279C.605", "279C.610", "54-1927", "17-108", "17-109", "107.170", "63G-6a-1103", "38-1b-202", "38-26-107", "38-26-105", "573.10", "573.15", "573.16", "title14sec871", "38:2242", "38:2247", "38:2246", "60-1111", "6962", "52-118.01", "52-118.02", "37-12-2", "37-12-5", "18-2-204", "18-2-206", "48-01.2-11", "48-01.2-12", "11-35-3030", "5-21-6", "36.25.010", "36.25.020", "16-6-113", "16-6-115", "16-6-116", "16-6-117", "39-1-1", "Section 9356", "Section 9502", "Section 9558", "Section 9300", "61 O.S. § 2", "regardless of tier", "2–201.02", "2–201.03"]) assert.ok(src.includes(cite), cite);
+  for (const cite of ["2253.047", "255.05", "137", "2.2-4341", "39.08.030", "34-223", "44A-27", "153.56", "129.207", "129.209", "Chapter149/Section29", "574.31", "339.035", "339.055", "279C.605", "279C.610", "54-1927", "17-108", "17-109", "107.170", "63G-6a-1103", "38-1b-202", "38-26-107", "38-26-105", "573.10", "573.15", "573.16", "title14sec871", "38:2242", "38:2247", "38:2246", "60-1111", "6962", "52-118.01", "52-118.02", "37-12-2", "37-12-5", "18-2-204", "18-2-206", "48-01.2-11", "48-01.2-12", "11-35-3030", "5-21-6", "36.25.010", "36.25.020", "16-6-113", "16-6-115", "16-6-116", "16-6-117", "39-1-1", "Section 9356", "Section 9502", "Section 9558", "Section 9300", "61 O.S. § 2", "regardless of tier", "2–201.02", "2–201.03", "Act 385", "§ 903(a), (d)", "5523", "2A:44-145", "2A:44-146"]) assert.ok(src.includes(cite), cite);
   assert.match(html, /href="miller-act-payment-bond-claims\.html"/);
   assert.match(page("miller-act-payment-bond-claims.html"), /href="state-payment-bond-claims\.html"/);
 });

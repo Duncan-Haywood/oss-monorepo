@@ -1,9 +1,9 @@
 ---
-title: "Not paid on a state or city job? Bond claim deadlines in thirty-four states and D.C., read from the statutes"
-seo_title: "Little Miller Act deadlines: bond claims in 34 states and D.C."
+title: "Not paid on a state or city job? Bond claim deadlines in thirty-six states and D.C., read from the statutes"
+seo_title: "Little Miller Act deadlines: bond claims in 36 states and D.C."
 date: 2026-11-27
 tags: [for-customers, payapps, construction, pay-app-guides, public-jobs]
-description: "No lien on public work, so subs claim on the payment bond. Notice and suit deadlines in 34 states and D.C., California included, read from each state's statute."
+description: "No lien on public work, so subs claim on the payment bond. Notice and suit deadlines in 36 states and D.C., California to New Jersey, read from each statute."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: bond claim rights are lost
@@ -60,6 +60,8 @@ The guide links every statute it summarises.
 | California (Civ. Code §§ 9100-9566) | preliminary notice to the public body and the direct contractor; it reaches back only 20 days | stop payment notice within 30 days after a recorded notice of completion, or 90 days after completion if none is recorded | on the bond within six months after that period ends; on the stop payment notice within 90 days after it |
 | Oklahoma (61 O.S. § 2) | at any tier below a subcontractor: notice to the contractor and the surety within 90 days of your last day, registered or certified mail | none | within one year of your last day, or two years if you filed a claim on the bond within that year |
 | District of Columbia (D.C. Code § 2-201.02) | notice to the contractor within 90 days of your last day, registered mail | none | within one year of your last day, in the District's name in the Superior Court |
+| Pennsylvania (Act 385 of 1967 § 4; 62 Pa.C.S. § 903(d)) | notice to the prime within 90 days of your last day, registered or certified mail (registered only under § 903) | none | within one year (42 Pa.C.S. § 5523(3), counted from a day the statute does not name: use your last day to be safe) |
+| New Jersey (N.J.S.A. 2A:44-143 to -147) | notice to the prime that you are a bond beneficiary before you start work | statement of the amount due to the sureties within one year of your last day | not before 90 days after the statement, and within one year of your last day |
 
 ## Three things that catch subs out
 
@@ -77,7 +79,7 @@ notice sent when you start. Sent late, it limits what you can recover or ends th
 ## In PayApps
 
 PayApps, our pay-app billing for subcontractors, now lists these steps on every job marked as a state
-or local public job in those thirty-four states and the District of Columbia. Each step comes in the statute's order, with its citation
+or local public job in those thirty-six states and the District of Columbia. Each step comes in the statute's order, with its citation
 and a date. The date is counted from the last day on the job you save, or from the acceptance date
 you enter, wherever the statute counts from one of them. Steps that run from a day PayApps cannot
 know, such as your first day of work or the day you mail a Texas notice, are listed with the day
@@ -244,3 +246,40 @@ Superior Court within one year of your last day. The bond is required on Distric
 $25,000 and, as under the federal act, covers only half of a contract up to $1,000,000, so on a
 big job it may not cover every claim. We tried Indiana as well; its code site serves only a
 JavaScript shell through our connection, so it waits for a later pass.
+**Added 2026-11-28: Pennsylvania and New Jersey.** Together they hold 32,276 specialty trade
+contractor establishments (Census County Business Patterns 2022: 18,294 in Pennsylvania, sixth of
+the states, and 13,982 in New Jersey), and both statutes are short, which makes their traps easy to
+miss.
+
+- **Pennsylvania has two bond laws with the same steps.** A Commonwealth agency's job is under the
+  Procurement Code (62 Pa.C.S. § 903, bonds on contracts over $100,000, a threshold adjusted every
+  year); a county, city, borough, township, school district or municipal authority's job is under
+  the Public Works Contractors' Bond Law of 1967 (Act 385, bonds on most local contracts over
+  $10,000). In both, anyone unpaid 90 days after their last day may sue, and a claimant who
+  contracted with one of the prime's subs must first give the prime written notice within 90 days of
+  that last day, stating the amount and who the work was for. Act 385 allows registered or
+  certified mail; § 903 says registered mail. Use registered mail on a state job.
+- **Pennsylvania's suit limit has no start day in the text.** The one-year limit is in the Judicial
+  Code (42 Pa.C.S. § 5523(3), "an action upon any payment or performance bond"), not the bond
+  laws, and it does not say which day the year counts from. PayApps does not guess a date here: the
+  panel lists the step undated and says to count from your last day to be safe, the earliest
+  reading, and to ask a construction attorney which day the courts use.
+- **New Jersey's notice comes before the work.** A claimant with no direct contract with the prime
+  must tell the prime in writing that it is a beneficiary of the bond *before starting any work*,
+  by certified mail or another way with proof of delivery. Late notice is not fatal, but the bond
+  then covers only what you furnish from that day on (N.J.S.A. 2A:44-145). Send it with your first
+  submittal, not your first invoice. Then everyone sends the sureties (and the contractor) a
+  statement of the amount due within one year of their last day, and may not sue until 90 days
+  after it, while the suit itself must come within that same one year (§ 2A:44-146). A statement
+  sent in month eleven leaves no window to sue, so send it soon after payment is late.
+- **New Jersey's bond reaches two tiers.** It covers subs and suppliers in contract with the prime
+  and those in contract with a first-tier sub, not anyone further down (§ 2A:44-143), and the
+  public body may waive the bond on contracts up to $200,000 (the State's building division) or
+  $100,000 (a county, municipality or school district). Ask for the bond before relying on it.
+
+Pennsylvania's texts were read on the General Assembly's new site, palegis.us, and New Jersey's
+from the full statutes file the Legislature publishes; the excerpts are kept beside the guide in
+`ventures/pay-app-guides/sources/state-bond-claims.txt`. In PayApps, mark a job as a state or local
+public job in either state and the panel lists these steps, dates the Pennsylvania 90-day notice
+and the New Jersey statement and suit from your last day, and puts the next one in the weekly
+email 45 days ahead while money is owed.

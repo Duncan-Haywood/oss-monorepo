@@ -1,7 +1,13 @@
 // @vitest-environment happy-dom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { PoliciesCard, QualityDatesCard, SuppliersCard, TrainingCard } from "./Dashboard";
+import {
+  CalibrationCard,
+  PoliciesCard,
+  QualityDatesCard,
+  SuppliersCard,
+  TrainingCard,
+} from "./Dashboard";
 
 afterEach(cleanup);
 
@@ -245,5 +251,103 @@ describe("QualityDatesCard", () => {
     expect(screen.getByText("2 overdue, 2 due soon.")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Audits" }));
     expect(onOpenAudits).toHaveBeenCalled();
+  });
+});
+
+describe("CalibrationCard", () => {
+  const check = (over: Record<string, number> = {}) => ({
+    total: 0,
+    inUse: 0,
+    current: 0,
+    dueSoon: 0,
+    overdue: 0,
+    never: 0,
+    openOutOfTolerance: 0,
+    ...over,
+  });
+
+  it("says what shows here when no gauge is recorded, and opens the Gauges tab", () => {
+    const onOpen = vi.fn();
+    render(
+      <CalibrationCard
+        orgId="o1"
+        data={{ today: "2026-11-28", items: [], check: check(), due: [], dueSoonDays: 30 }}
+        error={null}
+        onOpen={onOpen}
+      />,
+    );
+    expect(screen.getByText(/No gauge recorded yet/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Gauges" }));
+    expect(onOpen).toHaveBeenCalled();
+  });
+
+  it("says all is current when nothing is due", () => {
+    render(
+      <CalibrationCard
+        orgId="o1"
+        data={{
+          today: "2026-11-28",
+          items: [{}, {}],
+          check: check({ total: 2, inUse: 2, current: 2 }),
+          due: [],
+          dueSoonDays: 30,
+        }}
+        error={null}
+        onOpen={() => {}}
+      />,
+    );
+    expect(screen.getByText(/2 gauges in use, none overdue or due within 30 days/)).toBeTruthy();
+  });
+
+  it("lists the recall list in its order, the open out-of-tolerance count and the calendar link", () => {
+    render(
+      <CalibrationCard
+        orgId="o1"
+        data={{
+          today: "2026-11-28",
+          items: [{}, {}, {}, {}],
+          check: check({
+            total: 4,
+            inUse: 4,
+            current: 1,
+            overdue: 1,
+            dueSoon: 1,
+            never: 1,
+            openOutOfTolerance: 1,
+          }),
+          due: [
+            {
+              gaugeId: "g1",
+              tag: "CAL-1",
+              description: "Caliper",
+              state: "overdue",
+              dueOn: "2026-11-01",
+            },
+            {
+              gaugeId: "g2",
+              tag: "MIC-2",
+              description: "Mic",
+              state: "due_soon",
+              dueOn: "2026-12-10",
+            },
+            { gaugeId: "g3", tag: "PIN-3", description: "Pin set", state: "never", dueOn: null },
+          ],
+          dueSoonDays: 30,
+        }}
+        error={null}
+        onOpen={() => {}}
+      />,
+    );
+    expect(screen.getByText(/1 overdue, 1 due within 30 days, 1 never calibrated/)).toBeTruthy();
+    expect(screen.getByText(/1 out-of-tolerance result has no record/)).toBeTruthy();
+    const items = screen.getAllByRole("listitem").map((li) => li.textContent);
+    expect(items).toEqual([
+      "CAL-1 Caliper: calibration was due 2026-11-01",
+      "MIC-2 Mic: calibration due 2026-12-10",
+      "PIN-3 Pin set: in use, never calibrated",
+    ]);
+    expect(screen.getByRole("link", { name: "The calendar file" }).getAttribute("href")).toBe(
+      "/api/orgs/o1/affirmations/calendar.ics",
+    );
   });
 });

@@ -81,6 +81,8 @@ describe("eBay transaction report", () => {
       ["shipping_label", 875, "2026-01-06"],
       ["advertising", 1240, "2026-01-31"],
     ]);
+    // The label belongs to order 01-11111-22222; the fee row's "--" is eBay's empty cell, not an order number.
+    expect(r.charges.map((c) => c.orderId)).toEqual(["01-11111-22222", null]);
   });
 
   it("gives every row a stable id so a re-import is detected", () => {
