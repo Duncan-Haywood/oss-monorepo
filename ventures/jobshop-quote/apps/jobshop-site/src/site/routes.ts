@@ -6,8 +6,15 @@
 
 import { EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/plans";
 import { CONTENT_DATE, LAUNCH, type Launch, SITE_NAME } from "./config";
+import { MODULES, MODULES_DATE } from "./module-data";
 
-export type StructuredData = "organization" | "website" | "software" | "product" | "faq";
+export type StructuredData =
+  | "organization"
+  | "website"
+  | "software"
+  | "product"
+  | "faq"
+  | "module-faq";
 
 export interface PublicRoute {
   path: `/${string}`;
@@ -26,6 +33,18 @@ export interface PublicRoute {
   /** Early-access pages: built only while the site is closed (LAUNCH.open false). */
   closedOnly?: boolean;
 }
+
+/** The module landing pages (./module-data.ts): one per built part of the app. */
+export const MODULE_ROUTES: readonly PublicRoute[] = MODULES.map((m) => ({
+  path: m.path,
+  label: m.label,
+  title: `${m.title} · ${SITE_NAME}`,
+  description: m.description,
+  changefreq: "monthly",
+  priority: 0.8,
+  lastmod: MODULES_DATE,
+  structuredData: ["module-faq"],
+}));
 
 const fromPrice = formatUsd(Math.min(...PLANS.map((p) => p.monthlyPrice)));
 
@@ -146,6 +165,7 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
       structuredData: ["faq"],
     },
+    ...MODULE_ROUTES,
     {
       path: "/early-access",
       label: "Early access",
