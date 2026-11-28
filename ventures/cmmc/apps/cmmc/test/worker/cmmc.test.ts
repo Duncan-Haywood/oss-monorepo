@@ -101,6 +101,23 @@ describe("controls, score and SSP", () => {
     expect(s.level2.counts.implemented).toBe(1);
   });
 
+  it("clears an objective result back to unanswered with null", async () => {
+    const t = await setupTenant();
+    const patch = (body: unknown) =>
+      api(`/api/orgs/${t.orgId}/controls/AC.L2-3.1.1`, {
+        method: "PATCH",
+        as: t.userId,
+        json: body,
+      });
+    expect(
+      (await patch({ objectiveResults: { "3.1.1[a]": "not_met", "3.1.1[b]": "met" } })).status,
+    ).toBe(200);
+    const res = await patch({ objectiveResults: { "3.1.1[a]": null } });
+    expect(res.status).toBe(200);
+    const rec = await json<{ objectiveResults: Record<string, string> | null }>(res);
+    expect(rec.objectiveResults).toEqual({ "3.1.1[b]": "met" });
+  });
+
   it("rejects unknown controls and objectives", async () => {
     const t = await setupTenant();
     expect((await api(`/api/orgs/${t.orgId}/controls/XX.L2-9.9.9`, { as: t.userId })).status).toBe(

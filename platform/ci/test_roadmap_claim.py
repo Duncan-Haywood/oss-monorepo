@@ -822,6 +822,27 @@ class ClaimRaceTest(unittest.TestCase):
         ])
         self.assertEqual(doors, {1: ["submittal-log-template"], 5: ["fb-taxes", "calculator-ctas"]})
 
+    def test_front_door_counts_site_scopes_pages_and_added_pages(self):
+        # 2026-11-28: bet #2's ~20 marketing-site PRs a week never said "front door", so --bets
+        # counted 1 and sent every run to bet #2 as the least-worked demand side.
+        subjects = [
+            "jobshop-site (bet #2): RFQ review checklist for machine shops, free CSV [rfq-review] (#1)",
+            "jobshop-quote (bet #2): how to quote CNC turning guide, priced by the engine [turning] (#2)",
+            "seller-books (bet #5): sales tax for resellers page [sales-tax-page] (#3)",
+            "residential-takeoff (bet #6): framing lumber waste factor, measured [waste] (#4)",
+            "payapps (bet #1): a new job page leads with the schedule of values [new-job] (#5)",
+            "payapps (bet #1): every signed-in page fits a phone [phone-width] (#6)",
+            "einvoice-pro (bet #3): land the move into ventures/einvoice-pro [work:move] (#7)",
+            "docs: a guide page for nobody's bet [no-bet] (#8)",
+        ]
+        added = [[], [], [], ["ventures/wall-framing-takeoff/lumber-waste-factor.html"],
+                 ["prompts/runs/x.json"], ["ventures/payapps/apps/payapps/src/a.ts"],
+                 [f"ventures/einvoice-pro/apps/einvoice-site/p{i}.html" for i in range(50)], []]
+        doors = rc.front_door_subjects(subjects, added)
+        self.assertEqual(doors, {2: ["rfq-review", "turning"], 5: ["sales-tax-page"], 6: ["waste"]})
+        self.assertTrue(rc.is_front_door("cmmc (bet #4): cost estimator",
+                                         ["ventures/cmmc/apps/cmmc-site/src/cost.ts"]))
+
     def test_bets_overview_tallies_front_doors_when_demand_gates_everything(self):
         t = Path(self.tmp.name)
         bets = t / "bets.md"

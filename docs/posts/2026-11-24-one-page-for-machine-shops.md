@@ -1156,6 +1156,33 @@ drawing to its part number, and STEP holes pre-filling the drilling. A test
 fails if the page drops a check or the CSV gets a cell a spreadsheet would run
 as a formula.
 
+## Update, 28 November 2026: the won quote into QuickBooks without retyping it
+
+Once a quote is won, somebody types it into QuickBooks again as an invoice:
+the customer, each part, the quantity, the price, the PO. Job Shop Quote has a
+one-click send to a connected QuickBooks Online company, but that needs
+Intuit's keys on our server and is not switched on yet. So a won quote's
+QuickBooks card now also has **Download invoice CSV**: the same invoice as a
+file for QuickBooks Online's own invoice import (Settings, Import data,
+Invoices). It works today, with no connection.
+
+The file has one row per part. Each row has the quantity it was quoted at and
+that quantity's stored unit price and amount. If the customer accepted online,
+the file uses the quantity they accepted. A part quoted at several quantities
+with no pick is refused by name, never priced between breaks. The invoice
+number is the quote's (Q1001, or Q1001-R2 for a revision), and "Your PO ...
+Per our quote ..." goes on the invoice as its message. The due date comes from
+"Net N" in your quote terms, or 30 days, and you can change it before
+downloading. No costs, rates or markups go in the file.
+
+Three QuickBooks limits worth knowing before you try it, all from Intuit's help
+pages. Turn on custom transaction numbers, or QuickBooks replaces Q1001 with
+its own number. Tick "add new customers" for a customer new to your books.
+And a company that has set up sales tax cannot import invoices this way at
+all. The new page, [QuickBooks invoices from
+quotes](https://marisstella.app/jobshop/quickbooks-invoices-from-quotes),
+lists what it does and does not do.
+
 ## Update, 28 November 2026: setting quantity breaks from your own costs
 
 A new guide, [how to set quantity price breaks on machined

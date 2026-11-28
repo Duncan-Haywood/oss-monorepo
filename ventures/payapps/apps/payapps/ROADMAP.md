@@ -2695,7 +2695,9 @@ nothing to copy. No customers yet. Paid plans are dark
 - Done 2026-11-28 (payapps-site-module-pages): the marketing site has a landing page per built module (16, from
   pay application and lien waiver software to T&M tickets), each with the plan that includes it, the free guides on the
   topic and a sign-up link tagged `from=payapps-site/module/<feature>`, in the sitemap and llms.txt, linked from the
-  features page (`apps/payapps-site/src/shared/modules.ts`). Next: read which module pages bring sign-ups once the
+  features page (`apps/payapps-site/src/shared/modules.ts`). Done 2026-11-28 (payapps-site-module-pages-part-2): four more for
+  the built modules that had none (job schedule and three-week lookahead, crew timesheets, close-out documents, lower-tier
+  waivers), 20 in all. Next: read which module pages bring sign-ups once the
   `from` tags have counts, and give the leaders a still from `pnpm stills`
 - Done 2026-11-27 (launch-signups-open): the free guides point at sign-up (`APP_URL` in
   `ventures/pay-app-guides/cta.mjs`, now https://payapps.marisstella.app; 42 pages say "open now", name
