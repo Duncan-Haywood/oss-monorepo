@@ -132,6 +132,7 @@ ${body}
             <li><a href="${href(ctx, "/machine-shop-quote-template")}">Quote template</a></li>
             <li><a href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a></li>
             <li><a href="${href(ctx, "/how-to-price-a-rush-job")}">Pricing a rush job</a></li>
+            <li><a href="${href(ctx, "/machine-shop-minimum-charge")}">Minimum charges</a></li>
             <li><a href="${href(ctx, "/privacy")}">Privacy</a></li>
             <li><a href="${CMMC_SITE_URL}">CMMC Workspace</a></li>
           </ul>

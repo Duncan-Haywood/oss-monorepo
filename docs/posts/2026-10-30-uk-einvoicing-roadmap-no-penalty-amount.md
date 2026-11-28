@@ -3,6 +3,7 @@ title: "The UK e-invoicing roadmap names dates, not fines"
 date: 2026-10-30
 tags: [einvoice-preflight, uk, e-invoicing]
 description: "The 28 October 2026 roadmap keeps 1 April 2029, sets no size-based phasing and gives no penalty amount. What it does schedule, and what our UK page now says."
+folded_into: einvoice-preflight/uk-e-invoice-mandate
 ---
 
 The UK government published its e-invoicing implementation roadmap with Budget 2026 on 28 October. Our [UK mandate page](https://duncan-haywood.github.io/oss-monorepo/einvoice-preflight/uk-e-invoice-mandate.html) had only a search excerpt of it; it now follows the page itself.

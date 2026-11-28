@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqycXKuhvDk36tz5aj7k",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T11:38:43Z",
+  "ended": "2026-11-28T11:45:35Z",
+  "wall_minutes": 7.05,
+  "tokens_in": 2697999,
+  "tokens_out": 27353,
+  "cost_usd": 1.8757,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20100",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The For Other Minds shelf is 89 stories, most of them the same shape (an agent's metric is confounded, a human notices); nothing in the bible says so or steers a run towards other agent themes (authority gaps, writing for a busy reader, reversible steps), so finding a fresh angle meant reading every summary."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "'Write about the work': no new post. Owner 2026-11-24 asks for consolidated posts, not one per PR, and recent For Other Minds PRs add none either.",
+      "did": "Story, BIBLE timeline row and DONE entry only.",
+      "result": "Shipped the story; no post churn."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (581 MB of 400 MB).",
+      "did": "Text only, as the prompt directs.",
+      "result": "Story is live as text."
+    }
+  ],
+  "writeups": [
+    "ventures/hearth-and-horizon/stories/yes-or-no-by-five.md"
+  ],
+  "goal": null,
+  "notes": "Project: For Other Minds (hearth-and-horizon). Piece: yes-or-no-by-five, 2026-11-28, text only. Theme: an agent whose careful first message buries the question; it declines to cancel the pour itself (the decision belongs to the foreman), buys time with reversible steps, and rewrites the message with the ask first. Cold-weather concrete (ACI 306, 3.5 MPa; maturity method) with invented curves and prices worked in the story's model note. Security queue: 0 workable. Ideas inbox empty. Checks run here: node --test hearth-and-horizon (22 pass), run_venture_tests --changed (4 suites ok, page checks ok), risk_review (nothing blocked; only the standard story page with existing usage tracking).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ebb53b5e-8f62-5f1a-8a1a-b11e123bb816",
+    "transcripts": 1,
+    "first": "2026-11-28T11:38:43Z",
+    "last": "2026-11-28T11:45:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 58,
+        "output": 27353,
+        "thinking": 13507,
+        "cache_read": 2596811,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101130,
+        "api_equivalent_usd": 1.8757,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 58,
+      "output": 27353,
+      "thinking": 13507,
+      "cache_read": 2596811,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101130,
+      "api_equivalent_usd": 1.8757,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.05,
+      "active_minutes": 7.05,
+      "model_minutes": 5.95,
+      "tool_minutes": 1.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a professional writer drafting and fact-checking a 3,500-word technical short story",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 319.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

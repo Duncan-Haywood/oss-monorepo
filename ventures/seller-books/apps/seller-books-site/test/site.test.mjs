@@ -14,10 +14,18 @@ import {
   DE_MINIMIS_ELECTION_TITLE,
   DE_MINIMIS_LIMIT_CENTS,
   DEDUCTION_LINES,
+  EBAY_CHECKED_ON,
+  EBAY_EXAMPLE,
+  EBAY_FEES_QUOTE,
+  EBAY_FEES_URL,
+  EBAY_TAX_QUOTE,
+  EBAY_TAX_URL,
   EQUIPMENT_EXAMPLE,
   ESTIMATE_DUE_DATES_2026,
   ESTIMATE_EXAMPLE,
   ESTIMATE_RESULT,
+  ebayLines,
+  ebayPublishedFeeCents,
   equipmentLine,
   FACEBOOK_CHECKED_ON,
   FACEBOOK_EXAMPLE,
@@ -921,6 +929,143 @@ describe("the Poshmark taxes page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/poshmark-taxes)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/poshmark-taxes`));
+  });
+});
+
+describe("the eBay taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/ebay-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+  // A CSV line with quoted fields ("1,250.00", doubled quotes inside a title).
+  const cells = (line) => {
+    const out = [];
+    let cur = "";
+    let q = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (q && c === '"' && line[i + 1] === '"') {
+        cur += '"';
+        i++;
+      } else if (c === '"') q = !q;
+      else if (c === "," && !q) {
+        out.push(cur);
+        cur = "";
+      } else cur += c;
+    }
+    out.push(cur);
+    return out;
+  };
+
+  test("the example is the importer's own fixture, row for row", () => {
+    const lines = appFile("test/fixtures/ebay-transaction-report.csv").split("\n");
+    const hi = lines.findIndex((l) => l.startsWith('"Transaction creation date"'));
+    const cols = cells(lines[hi]);
+    const rows = lines
+      .slice(hi + 1)
+      .filter((l) => l.startsWith('"') && !l.startsWith('"Report generated'))
+      .map(cells);
+    const at = (r, name) => r[cols.indexOf(name)];
+    const money = (v) => (v === "--" ? 0 : Math.round(Number(v.replace(/[$,]/g, "")) * 100)) || 0;
+    const neg = (v) => -money(v) || 0;
+    const usd = rows.filter((r) => at(r, "Transaction currency") === "USD");
+    const orders = usd.filter((r) => at(r, "Type") === "Order");
+    assert.equal(orders.length, EBAY_EXAMPLE.orders.length);
+    orders.forEach((r, i) => {
+      const o = EBAY_EXAMPLE.orders[i];
+      assert.equal(o.itemCents, money(at(r, "Item subtotal")));
+      assert.equal(o.shippingCents, money(at(r, "Shipping and handling")));
+      assert.equal(o.taxCents, money(at(r, "eBay collected tax")));
+      assert.equal(o.feeCents.fixed, neg(at(r, "Final Value Fee - fixed")));
+      assert.equal(o.feeCents.variable, neg(at(r, "Final Value Fee - variable")));
+      assert.equal(o.feeCents.international, neg(at(r, "International fee")));
+      assert.equal(o.netCents, money(at(r, "Net amount")));
+    });
+    const [refund] = usd.filter((r) => at(r, "Type") === "Refund");
+    assert.equal(EBAY_EXAMPLE.refund.grossCents, -money(at(refund, "Gross transaction amount")));
+    assert.equal(EBAY_EXAMPLE.refund.taxCents, -money(at(refund, "eBay collected tax")));
+    assert.equal(
+      EBAY_EXAMPLE.refund.feeCreditCents,
+      money(at(refund, "Final Value Fee - variable")),
+    );
+    assert.equal(EBAY_EXAMPLE.refund.netCents, money(at(refund, "Net amount")));
+    const [label] = usd.filter((r) => at(r, "Type") === "Shipping label");
+    assert.equal(EBAY_EXAMPLE.labelCents, -money(at(label, "Net amount")));
+    const [promo] = usd.filter((r) => at(r, "Type") === "Other fee");
+    assert.match(at(promo, "Description"), /Promoted Listings/);
+    assert.equal(EBAY_EXAMPLE.promotedCents, -money(at(promo, "Net amount")));
+    // Nothing else reaches the books: the rest is a payout (skipped) and the GBP sale (skipped).
+    assert.deepEqual(
+      rows.filter((r) => !usd.includes(r) || at(r, "Type") === "Payout").map((r) => at(r, "Type")),
+      ["Payout", "Order"],
+    );
+    // The importer does what the page says.
+    const imp = appFile("src/worker/services/importers/ebay.ts");
+    assert.match(imp, /type === "payout" \|\| type === "transfer"/);
+    assert.match(imp, /only USD is supported/);
+    assert.match(imp, /refundCents: Math\.max\(0, \(gross \?\? abs\(net\) \?\? 0\) - taxBack\)/);
+    assert.match(imp, /\/promot\|advert\|ad fee\//);
+    assert.match(imp, /itemCents: abs\(parseMoney\(row\.get\("itemSubtotal"\)\)\)/);
+    const sc = appFile("src/worker/services/books/schedule-c.ts");
+    assert.match(sc, /gross \+= s\.itemCents \+ s\.shippingChargedCents/);
+    assert.match(sc, /if \(c\.kind === "shipping_label"\) add\("27a:postage", c\.amountCents\)/);
+    assert.match(sc, /add\(c\.kind === "advertising" \? "8" : "10", c\.amountCents\)/);
+  });
+
+  test("the Schedule C lines and eBay's published rate, by hand", () => {
+    assert.deepEqual(ebayLines(), {
+      line1: 129500,
+      line2: 4500,
+      line8: 1240,
+      line10: 18768,
+      line27a: 875,
+      tax: 8143,
+      net: 104117,
+    });
+    const L = ebayLines();
+    assert.equal(L.line1 - L.line2 - L.line8 - L.line10 - L.line27a, L.net);
+    // 13.6% of $48.30 is $6.5688, so $6.57, plus $0.40 on an order over $10; $0.30 at $10 or less.
+    assert.equal(ebayPublishedFeeCents(4830), 697);
+    assert.equal(ebayPublishedFeeCents(1000), 136 + 30);
+    const html = htmlOf(page());
+    for (const s of [
+      "$1,295.00",
+      "$45.00",
+      "$12.40",
+      "$187.68",
+      "$8.75",
+      "$81.43",
+      "$1,041.17",
+      "$6.57",
+      "$6.97",
+      "$1,062.72",
+    ])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("eBay's words quoted with their sources; fixture fees called invented", () => {
+    const html = htmlOf(page());
+    assert.match(EBAY_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    for (const s of [
+      EBAY_FEES_URL,
+      EBAY_TAX_URL,
+      EBAY_FEES_QUOTE,
+      EBAY_TAX_QUOTE,
+      "Its fees are made up, not eBay's rates",
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      "over $20,000 and more than 200 transactions",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("linked from the eBay platform page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/ebay-taxes"`;
+    const plat = htmlOf(pages.find((p) => p.path === "/platforms/ebay"));
+    assert.ok(plat.includes(link));
+    assert.ok(plat.includes("one Transaction report worked through"));
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/ebay-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/ebay-taxes`));
   });
 });
 

@@ -49,6 +49,14 @@ describe("money", () => {
     assert.equal(applyRateBps(0, 1000), 0);
     assert.equal(applyRateBps(1, 0), 0);
   });
+
+  it("stays exact when amount x rate passes 2**53 (red team, 2026-11-28)", () => {
+    // The double product rounded 1028300628290.5... the wrong way: one cent high.
+    assert.equal(applyRateBps(1_256_937_572_779, 8181), 1_028_300_628_290);
+    assert.equal(applyRateBps(-1_256_937_572_779, 8181), -1_028_300_628_290);
+    assert.equal(applyRateBps(Number.MAX_SAFE_INTEGER, 10_000), Number.MAX_SAFE_INTEGER);
+    assert.equal(applyRateBps(7_445_912_308_986_909, 8478), 6_312_644_455_559_101);
+  });
 });
 
 describe("planPayAppInvoice", () => {
@@ -216,6 +224,19 @@ describe("planPayAppInvoice", () => {
         }),
       isValidation(/retainageHeldToDateCents cannot be negative/),
     );
+  });
+
+  it("accepts the 100% rate bound and an invoice that nets to exactly zero", () => {
+    // 10000 bps is inside 0..10000; with all of it held the invoice nets to 0, which is not negative.
+    const plan = planPayAppInvoice({
+      applicationNumber: 1,
+      retainageItemId: RET,
+      retainageRateBps: 10_000,
+      workLines: [{ itemId: "a", description: "Work", amountCents: 100_000 }],
+    });
+    assert.equal(plan.summary.retainageHeldCents, 100_000);
+    assert.equal(plan.summary.netCents, 0);
+    assert.equal(plan.lines[1]?.description, "Retainage held (100%), pay application #1");
   });
 
   it("refuses releases it cannot check, over-releases, and negative nets", () => {

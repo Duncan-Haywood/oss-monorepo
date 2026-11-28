@@ -4,6 +4,7 @@ seo_title: "Philippines e-invoicing: BIR EIS rollout, December 2026 deadline"
 date: 2026-11-01
 tags: [einvoice-preflight, e-invoicing, philippines]
 description: "E-invoice Preflight gets a Philippines page: the BIR Electronic Invoicing System, the reported 31 December 2026 deadline, and where sources disagree."
+folded_into: einvoice-preflight/philippines-bir-eis-e-invoice-mandate
 ---
 
 E-invoice Preflight now has a page for the Philippines, the 56th row in its mandates-by-country table.

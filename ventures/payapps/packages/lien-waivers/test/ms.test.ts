@@ -255,10 +255,11 @@ test("MS affidavit renders from a waiver's values, keeps the two-day copy paragr
   assert.ok(!bad.ok && bad.errors.some((e) => e.field === "waiverDate" && e.code === "REQUIRED"));
 });
 
-test("MS sixty days: counted in calendar days from the waiver's date; the copy is due two days after filing", () => {
+test("MS sixty days: counted in calendar days from the waiver's date; the copy is due two business days after filing", () => {
   assert.deepEqual(msSixtyDays("2026-10-05", "2026-11-26"), {
     signedOn: "2026-10-05",
     endsOn: "2026-12-04",
+    lastDay: "2026-12-04",
     daysLeft: 8,
     ended: false,
   });
@@ -268,12 +269,21 @@ test("MS sixty days: counted in calendar days from the waiver's date; the copy i
   // Across a leap day and a year end.
   assert.equal(msSixtyDays("2028-01-15", "2028-01-15").endsOn, "2028-03-15");
   assert.equal(msSixtyDays("2026-12-20", "2026-12-20").endsOn, "2027-02-18");
-  assert.equal(msAffidavitCopyDueOn("2026-12-31"), "2027-01-02");
+  // Thursday 31 Dec 2026: New Year's Day, then a weekend, are left out of the two days (§ 1-3-67).
+  assert.equal(msAffidavitCopyDueOn("2026-12-31"), "2027-01-05");
+  // The 60th day on a Saturday: the period runs to the end of Monday, and has not ended on Sunday.
+  const sat = msSixtyDays("2026-10-06", "2026-12-06");
+  assert.equal(sat.endsOn, "2026-12-05");
+  assert.equal(sat.lastDay, "2026-12-07");
+  assert.equal(sat.daysLeft, -1);
+  assert.equal(sat.ended, false);
+  assert.equal(msSixtyDays("2026-10-06", "2026-12-08").ended, true);
 });
 
 test("MS affidavit's notes give the 60 and 2 days and say the Code itself was not read", () => {
   const notes = msAffidavitOfNonpayment().notes.join(" ");
   assert.match(notes, /60 days/);
   assert.match(notes, /two days/);
+  assert.match(notes, /§ 1-3-67/);
   assert.match(notes, /was not read/);
 });

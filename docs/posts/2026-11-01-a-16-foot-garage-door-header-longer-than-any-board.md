@@ -3,6 +3,7 @@ title: "A 16 ft garage door header is longer than any stud-grade board"
 date: 2026-11-01
 tags: [wall-framing-takeoff, construction, software]
 description: The framing takeoff used to crash on a 195 in garage door header. It now says which piece, which size and what to do.
+folded_into: writing/window-and-door-headers-size-plies-jacks-and-what-to-order/
 ---
 
 A two-car garage door is 16 ft wide, and its header, with a bearing on each side, ran 195 in on a generated farmhouse plan. The longest 2x10 the takeoff lists is 16 ft (192 in), so the cutting-stock step had nothing to put it on and the command-line tool died with a stack trace.
