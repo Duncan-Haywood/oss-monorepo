@@ -191,6 +191,24 @@ MUTATING = [
     (re.compile(r"\brm\s+-rf\s+/(?!tmp)"), "rm -rf outside /tmp"),
 ]
 
+# Steps that only shape CI's throwaway checkout. Run against a session's own
+# clone they do harm, so they are skipped (not refused: the job still runs, and
+# the steps after them read the full tree, a superset of what CI reads).
+# price-claims-ci.yml narrows its checkout with `git sparse-checkout set`
+# (2026-11-28); run here, that hid 86% of the session's clone, `.github/`
+# included, until `git sparse-checkout disable`.
+CHECKOUT_ONLY = [
+    (re.compile(r"\bgit\s+sparse-checkout\s+(set|add|init|reapply)\b"),
+     "narrows CI's checkout with git sparse-checkout; here it would hide most of this clone"),
+]
+
+
+def checkout_only(step: Step) -> str | None:
+    for pattern, why in CHECKOUT_ONLY:
+        if pattern.search(step.run):
+            return why
+    return None
+
 EXPRESSION = re.compile(r"\$\{\{")
 
 # The progress line is written in two halves -- the step's label before it
@@ -1655,6 +1673,11 @@ def _decode(data) -> str:
 
 def execute(step: Step, timeout: int) -> None:
     if step.status == "skipped":
+        return
+    why = checkout_only(step)
+    if why:
+        step.status = "skipped"
+        step.reason = why
         return
     mutation = screen(step)
     if mutation:

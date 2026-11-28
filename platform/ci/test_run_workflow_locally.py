@@ -404,6 +404,14 @@ class Screen(unittest.TestCase):
     def test_branch_deletion_is_refused(self):
         self.assertIsNotNone(self.screened("git push origin --delete stale"))
 
+    def test_sparse_checkout_of_the_local_clone_is_skipped_not_run(self):
+        step = runner.Step("j", "n", 'git sparse-checkout set --no-cone "${patterns[@]}"', ".")
+        self.assertIsNone(runner.screen(step))  # the job is not held
+        runner.execute(step, 5)
+        self.assertEqual(step.status, "skipped")
+        self.assertIn("sparse-checkout", step.reason)
+        self.assertIsNone(runner.checkout_only(runner.Step("j", "n", "git sparse-checkout list", ".")))
+
     def test_infra_apply_is_refused(self):
         self.assertEqual(self.screened("tofu apply -auto-approve"), "infra apply")
 
