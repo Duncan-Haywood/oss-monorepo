@@ -1,0 +1,387 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtHCgh4vWHefSze4JXC",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T14:06:32Z",
+  "ended": "2026-11-28T14:07:32Z",
+  "wall_minutes": 3.84,
+  "tokens_in": 2261914,
+  "tokens_out": 12658,
+  "cost_usd": 1.2369,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20136",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "redteam.py targets lists no file under ventures/payapps/apps/payapps/src even though that app changes most (money.ts, lien-deadline.ts, plans.ts); only packages/* are seen as guarded, so the app's own code is never drawn"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "nothing tells a red-team run that ventures/*/packages/billing is one package copied into five ventures; a fix in one copy fails check_billing_copies. redteam.py could print the sibling copies when the target is in a shared package."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no new blog post: the fixes are internal billing guards with no customer-facing change worth a post",
+      "did": "recorded the findings in the PR and this record",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Targets: payapps billing paddle-catalog.ts and paddle-key.ts (bet #1 checkout path). Guard added: one shared chargesAsWanted predicate, so the price-id map and the sync planner cannot disagree again. Verification: billing npm test 156/0, tsc --noEmit clean. The billing package is copied into five ventures (cmmc, einvoice-pro, jobshop-quote, seller-books, payapps); check_billing_copies/check_shared_package_drift flagged the first push, so the fix was ported to all five copies (so it also reaches bets #2, #4, #5 and einvoice-pro). CI also needed a biome format pass. opening-balance.test.tsx timed out (5 s) on the first push in payapps app tests this PR does not touch.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/payapps/packages/billing/src/paddle-catalog.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 180973869,
+        "commit": "2e9ccd01a",
+        "sites": 74,
+        "baseline_seconds": 0.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-catalog.ts",
+            "line": 62,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "const PLAN_KEY_RE = /^[a-z][a-z0-9_-]{0,31}$/;",
+            "after": "const PLAN_KEY_RE = /^[a-z][a-z0-9_-]{1,31}$/;",
+            "line_text": "const PLAN_KEY_RE = /^[a-z][a-z0-9_-]{0,31}$/;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "one-character plan key now tested as valid, empty key as invalid"
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-catalog.ts",
+            "line": 73,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (c.currency !== \"USD\" && c.currency !== \"EUR\") fail(\"currency must be USD or EUR\");",
+            "after": "if (c.currency === \"USD\" && c.currency !== \"EUR\") fail(\"currency must be USD or EUR\");",
+            "line_text": "  if (c.currency !== \"USD\" && c.currency !== \"EUR\") fail(\"currency must be USD or EUR\");",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-catalog.ts",
+            "line": 83,
+            "col": 92,
+            "operator": "const-plus-one",
+            "before": "if (p.annualCents !== null && (!Number.isSafeInteger(p.annualCents) || p.annualCents <= 0)) {",
+            "after": "if (p.annualCents !== null && (!Number.isSafeInteger(p.annualCents) || p.annualCents <= 1)) {",
+            "line_text": "    if (p.annualCents !== null && (!Number.isSafeInteger(p.annualCents) || p.annualCents <= 0)) {",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "annualCents=1 now tested as valid, 0 as invalid"
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-catalog.ts",
+            "line": 142,
+            "col": 47,
+            "operator": "eq-flip",
+            "before": "const ours = products.filter((p) => p.status === \"active\" && tag(p.custom_data, \"app\") === app);",
+            "after": "const ours = products.filter((p) => p.status !== \"active\" && tag(p.custom_data, \"app\") === app);",
+            "line_text": "  const ours = products.filter((p) => p.status === \"active\" && tag(p.custom_data, \"app\") === app);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-catalog.ts",
+            "line": 184,
+            "col": 38,
+            "operator": "eq-flip",
+            "before": "pr.billing_cycle?.frequency === 1,",
+            "after": "pr.billing_cycle?.frequency !== 1,",
+            "line_text": "          pr.billing_cycle?.frequency === 1,",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-catalog.ts",
+            "line": 264,
+            "col": 37,
+            "operator": "eq-flip",
+            "before": "tag(x.custom_data, \"plan\") === plan.key &&",
+            "after": "tag(x.custom_data, \"plan\") !== plan.key &&",
+            "line_text": "          tag(x.custom_data, \"plan\") === plan.key &&",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-catalog.ts",
+            "line": 318,
+            "col": 28,
+            "operator": "and-to-or",
+            "before": "for (let page = 0; next && page < 50; page++) {",
+            "after": "for (let page = 0; next || page < 50; page++) {",
+            "line_text": "    for (let page = 0; next && page < 50; page++) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-catalog.ts",
+            "line": 384,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "if (a.kind === \"create-product\") products = [...products, await client.createProduct(a.body)];",
+            "after": "if (a.kind !== \"create-product\") products = [...products, await client.createProduct(a.body)];",
+            "line_text": "      if (a.kind === \"create-product\") products = [...products, await client.createProduct(a.body)];",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/billing/src/paddle-key.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 25866205,
+        "commit": "2e9ccd01a",
+        "sites": 72,
+        "baseline_seconds": 0.6,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-key.ts",
+            "line": 40,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "const CLIENT_TOKEN = /^(live|test)_[A-Za-z0-9]{10,}$/;",
+            "after": "const CLIENT_TOKEN = /^(live|test)_[A-Za-z0-9]{11,}$/;",
+            "line_text": "const CLIENT_TOKEN = /^(live|test)_[A-Za-z0-9]{10,}$/;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "client token with exactly ten characters now tested"
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-key.ts",
+            "line": 47,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "const whitespace = key.length > 0 && key !== value;",
+            "after": "const whitespace = key.length > 1 && key !== value;",
+            "line_text": "  const whitespace = key.length > 0 && key !== value;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "one-character value with trailing space now tested as whitespace"
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-key.ts",
+            "line": 47,
+            "col": 43,
+            "operator": "neq-flip",
+            "before": "const whitespace = key.length > 0 && key !== value;",
+            "after": "const whitespace = key.length > 0 && key === value;",
+            "line_text": "  const whitespace = key.length > 0 && key !== value;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-key.ts",
+            "line": 134,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "if (status >= 200 && status < 300) return \"allowed\";",
+            "after": "if (status >= 200 && status < 301) return \"allowed\";",
+            "line_text": "  if (status >= 200 && status < 300) return \"allowed\";",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "GET 299 allowed / 300 error now tested"
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-key.ts",
+            "line": 135,
+            "col": 53,
+            "operator": "eq-flip",
+            "before": "if (method === \"POST\" && (status === 400 || status === 422)) return \"allowed\";",
+            "after": "if (method === \"POST\" && (status === 400 || status !== 422)) return \"allowed\";",
+            "line_text": "  if (method === \"POST\" && (status === 400 || status === 422)) return \"allowed\";",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-key.ts",
+            "line": 199,
+            "col": 57,
+            "operator": "or-to-and",
+            "before": "const wanted = CATALOG_CALLS.filter((c) => !opts.calls || opts.calls.includes(c.id));",
+            "after": "const wanted = CATALOG_CALLS.filter((c) => !opts.calls && opts.calls.includes(c.id));",
+            "line_text": "  const wanted = CATALOG_CALLS.filter((c) => !opts.calls || opts.calls.includes(c.id));",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-key.ts",
+            "line": 215,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "for (const c of wanted.slice(1)) rest.push(await probeOne(key, base, c, fetchFn));",
+            "after": "for (const c of wanted.slice(2)) rest.push(await probeOne(key, base, c, fetchFn));",
+            "line_text": "    for (const c of wanted.slice(1)) rest.push(await probeOne(key, base, c, fetchFn));",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/paddle-key.ts",
+            "line": 219,
+            "col": 58,
+            "operator": "neq-flip",
+            "before": "(r) => r.verdict !== \"unauthenticated\" && r.verdict !== \"unreachable\",",
+            "after": "(r) => r.verdict !== \"unauthenticated\" && r.verdict === \"unreachable\",",
+            "line_text": "      (r) => r.verdict !== \"unauthenticated\" && r.verdict !== \"unreachable\",",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/payapps/packages/billing/src/paddle-catalog.ts",
+        "issue": "priceIdsFromPaddle matched a price on app/plan/interval tags and amount only, ignoring currency and billing cycle, while planCatalogSync required both. A plan-only run after switching the catalog USD->EUR (same cents), or a tagged price with a 3-month or one-off cycle, wrote that price id into BILLING_PRICE_IDS and reported no missing ids, so checkout would charge the wrong currency or cycle. Fixed with one shared chargesAsWanted predicate.",
+        "patched": true
+      },
+      {
+        "file": "ventures/payapps/packages/billing/src/paddle-key.ts",
+        "issue": "classifyPaddleKey fell through from NEW_KEY to the looser PREFIXED pattern, so a truncated paste such as pdl_live_apikey_abc was classified live/usable with advice 'the right kind for charging real customers'. Now a value naming the apikey_ segment must match the full shape or is reported as probably truncated.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1035cfbf-28ca-5fd5-8457-f2fefae1df43",
+    "transcripts": 1,
+    "first": "2026-11-28T14:06:32Z",
+    "last": "2026-11-28T14:10:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 59,
+        "output": 12658,
+        "thinking": 2940,
+        "cache_read": 2193761,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68094,
+        "api_equivalent_usd": 1.2369,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 59,
+      "output": 12658,
+      "thinking": 2940,
+      "cache_read": 2193761,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68094,
+      "api_equivalent_usd": 1.2369,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.84,
+      "active_minutes": 3.84,
+      "model_minutes": 2.96,
+      "tool_minutes": 0.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
