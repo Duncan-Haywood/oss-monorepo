@@ -240,7 +240,14 @@ const clip = (s, n = 160) => (s.length <= n ? s : `${s.slice(0, n - 1).replace(/
 
 const titleFor = (rule, t) => {
   const full = `${rule.id}: ${rule[t.htmlLang].title}`;
-  return [...full].length <= 70 ? full : `${rule.id}: ${sourceOf(rule.source).label} ${t.titleTail}`;
+  if ([...full].length <= 70) return full;
+  // Too long for a search result: cut the explanation at a word, never swap it for a generic
+  // "<id>: XRechnung explained", which named nothing a searcher typed (94 pages did, to 2026-11-28).
+  const words = [...full].slice(0, 69).join("").replace(/[\s,;:–-]+\S*$/, "");
+  // A dangling short lower-case word ("der", "the", "geen", "ohne") says less than the cut itself.
+  let cut = words.replace(/[\s,;:(–-]+$/, "");
+  for (let i = 0; i < 2 && /\s\p{Ll}{1,4}$/u.test(cut); i++) cut = cut.replace(/[\s,;:(–-]+\p{Ll}{1,4}$/u, "");
+  return `${cut}…`;
 };
 
 export function renderRule(rule, lang) {
