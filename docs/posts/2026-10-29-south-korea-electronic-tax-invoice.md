@@ -4,6 +4,7 @@ seo_title: "South Korea: e-tax invoices must be reported by the next day"
 date: 2026-10-29
 tags: [einvoice-preflight, e-invoicing, south-korea]
 description: "E-invoice Preflight has a South Korea page: how the electronic tax invoice works, what is unverified, and a free business registration number check digit test."
+folded_into: einvoice-preflight/south-korea-e-invoice-mandate
 ---
 
 South Korea has required VAT tax invoices to be electronic for corporations for years, and for individual businesses above a prior-year sales threshold (summaries put it at KRW 80 million since 1 July 2024). The invoice is issued through the National Tax Service's Hometax portal or a certified provider and reported to the NTS by the day after issue.

@@ -35,6 +35,16 @@ import {
   materialCostExample,
   markupCents as materialMarkupCents,
 } from "./material-cost-example";
+import {
+  BARE_SPACER,
+  type MinimumBreak,
+  minimumFloor,
+  minimumReach,
+  OFFICE_RATE_CENTS,
+  ORDER_TASKS,
+  priceWithMinimums,
+  SPACER,
+} from "./minimum-charge-example";
 import { MODULES } from "./module-data";
 import { EXAMPLE as OUTSIDE_EXAMPLE, priceOutsideExample } from "./outside-processing-example";
 import { BREAK_QUANTITIES, EXAMPLE as BREAKS_EXAMPLE, quantityBreaks } from "./quantity-breaks";
@@ -1406,7 +1416,9 @@ export function quoteGuidePage(ctx: RenderContext): Html {
     <a class="link" href="${href(ctx, "/how-to-quote-welding")}">how to quote welding jobs</a>. What to put on the quote you send, with a template to
     download: <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote
     template</a>. A customer who needs the parts sooner:
-    <a class="link" href="${href(ctx, "/how-to-price-a-rush-job")}">how to price a rush job</a>.</p>
+    <a class="link" href="${href(ctx, "/how-to-price-a-rush-job")}">how to price a rush job</a>. Orders of
+    one or two parts: <a class="link" href="${href(ctx, "/machine-shop-minimum-charge")}">how to set a
+    minimum charge</a>.</p>
     <p class="fineprint">This page explains a common costing method. It is not accounting, tax or
     financial advice, and the prices, times and rates in it are made up. Check every quote before you send
     it.</p>
@@ -3422,8 +3434,15 @@ export function faiGuidePage(ctx: RenderContext): Html {
     app accepts zero for setup-only work such as programming or a first article), and a certificate
     charge as an extra with a lot amount. The app then charges it once for the line, spreads it across
     each quantity break, and prints the per-part prices. The prices in the table are the ones the app gives
-    for the same inputs, checked by a test in its code. ${SITE_NAME} does not fill in AS9102 forms or
-    balloon drawings; it prices the work. The
+    for the same inputs, checked by a test in its code. Once the RFQ's drawing PDF is in, the RFQ page
+    also has a "First article list" download: a draft of Form 3's characteristic list read from the
+    drawing's text (toleranced dimensions with their limits, geometric tolerances, threads, finishes,
+    numbered notes, material and finish), numbered so the numbers can be the balloon numbers. It is a
+    draft to check against the drawing: a dimension with no text on the PDF, or a scanned drawing,
+    is not in it. Beside it, "Inspect first article" opens the same list as a screen: enter each
+    row's zone, result, tooling and nonconformance number, mark false reads, add what the text missed,
+    and each row shows accept, reject or open as you type, judged against its limits. The CSV then
+    carries the results and verdicts. ${SITE_NAME} does not fill in Forms 1 and 2 or draw the balloons. The
     <a class="link" href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a> has the question
     to ask before you price: is a first article required, and to which standard?</p>
     <p class="fineprint">This page explains a common estimating approach and summarises a published
@@ -3559,6 +3578,172 @@ export function toleranceGuidePage(ctx: RenderContext): Html {
 ${ctaBand(ctx, "See the tightest tolerance before you price the part", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
+/**
+ * A guide aimed at the searches shops make about small orders ("machine shop minimum charge", "minimum
+ * order charge CNC", "lot charge", "how much to charge for one part"): the three minimums a quote line
+ * carries (the material minimum, the outside vendor's lot charge, the line minimum), which one sets the
+ * price at each quantity of a made-up spacer, and a line minimum worked out from the per-order office
+ * work instead of guessed. Figures from ./minimum-charge-example, priced to the cent the app's costing
+ * engine gives (apps/jobshop-quote/test/unit/site-minimum-charge-example.test.ts).
+ */
+export function minimumChargeGuidePage(ctx: RenderContext): Html {
+  const anodized = priceWithMinimums(SPACER);
+  const bare = priceWithMinimums(BARE_SPACER);
+  const reachA = minimumReach(SPACER);
+  const reachB = minimumReach(BARE_SPACER);
+  const floor = minimumFloor();
+  const first = anodized[0];
+  const bareFirst = bare[0];
+  if (!first || !bareFirst) throw new Error("the minimum-charge example quotes quantity 1");
+  const qty = (q: number) => `${q.toLocaleString("en-US")} ${q === 1 ? "part" : "parts"}`;
+  const flag = (on: boolean, text: string) =>
+    on ? html` <span class="fineprint">(${text})</span>` : "";
+  const lineMin = SPACER.minimumLineCents;
+  const setupMinutes = SPACER.operations.reduce((t, o) => t + o.setupMinutes, 0);
+  const table = (
+    rows: MinimumBreak[],
+    caption: string,
+    finishing: boolean,
+  ) => html`<div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">${caption}</caption>
+        <thead><tr><th scope="col">Quantity</th><th scope="col">Material</th><th scope="col">Setup + run</th>${finishing ? html`<th scope="col">Anodize</th>` : ""}<th scope="col">Line minimum top-up</th><th scope="col">Line total</th><th scope="col">Each</th><th scope="col">With no minimums</th></tr></thead>
+        <tbody>
+          ${rows.map(
+            (b) =>
+              html`<tr><th scope="row">${qty(b.quantity)}</th><td>${usdCents(b.materialCents)}${flag(b.materialAtMinimum, "minimum")}</td><td>${usdCents(b.setupCents + b.runCents)}</td>${finishing ? html`<td>${usdCents(b.finishingCents)}${flag(b.finishingAtLotCharge, "lot charge")}</td>` : ""}<td>${b.minimumAdjustmentCents > 0 ? usdCents(b.minimumAdjustmentCents) : "–"}</td><td>${usdCents(b.totalCents)}</td><td>${usdCents(b.unitPriceCents)}</td><td>${usdCents(b.noMinimumsTotalCents)}</td></tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>`;
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to set a minimum charge in a machine shop</h1>
+    <p class="lead">An order for one part takes nearly as much quoting, buying, paperwork and shipping as
+    an order for a hundred. A minimum charge is how a shop gets paid for that work. Here are the three
+    minimums a quote line carries, which one sets the price at each quantity of a worked example, and how
+    to work out your own line minimum instead of copying someone else's.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>Three minimums, not one</h2>
+    <ol>
+      <li><strong>The material minimum.</strong> A distributor's smallest sale, a cut charge, or the
+      smallest piece of bar or plate you would buy for the job. A part that weighs a few ounces still
+      costs the drop you bought.</li>
+      <li><strong>The outside vendor's lot charge.</strong> Anodizers, platers, heat treaters and coaters
+      charge a minimum per lot. Below a certain quantity, the lot charge is the price, whatever the
+      per-part rate says. See <a class="link" href="${href(ctx, "/how-to-quote-outside-processing")}">how
+      to quote outside processing</a>.</li>
+      <li><strong>The line minimum.</strong> The least the shop will take for one line of a quote at any
+      quantity. It covers the work that happens whatever the size of the order and that the machine-hour
+      rate does not carry well: the quote itself, order entry, buying, receiving, paperwork, packing,
+      invoicing.</li>
+    </ol>
+    <p>Setup is not a minimum, but it acts like one: ${setupMinutes} minutes of programming and setup cost
+    the same for one part or a hundred. It is already in the price; a minimum is for what is not.</p>
+
+    <h2>A worked example</h2>
+    <p>A small 6061 aluminum spacer, ${SPACER.blank.lengthIn} × ${SPACER.blank.widthIn} ×
+    ${SPACER.blank.thicknessIn} in from plate, one setup and a deburr on the same mill at the same
+    ${usdCents(SPACER.machines[0]?.hourlyRateCents ?? 0)} an hour as the
+    <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">CNC quoting guide</a>, quoted twice:
+    anodized by the same outside vendor (${usdCents(SPACER.finishing.perPartCents)} a part, lot charge
+    ${usdCents(SPACER.finishing.lotChargeCents)}), and shipped as machined. Material minimum
+    ${usdCents(SPACER.materialMinChargeCents)}, line minimum ${usdCents(lineMin)}, the CNC guide's
+    markups and fallout. <strong>Every number is made up to show the arithmetic</strong>; none is a
+    typical minimum, lot charge or rate for any region or trade. Use your own.</p>
+    ${table(anodized, 'The anodized spacer. "Minimum" and "lot charge" mark where a minimum, not the quantity, set the figure. The last column prices the same line with all three minimums at zero.', true)}
+    ${table(bare, "The same spacer shipped as machined: no vendor lot charge, so the line minimum does the work.", false)}
+    <p>What the tables show:</p>
+    <ul>
+      <li><strong>Minimums set the price of small orders.</strong> At ${qty(first.quantity)} the anodized
+      spacer is ${usdCents(first.totalCents)}; with no minimums it would be
+      ${usdCents(first.noMinimumsTotalCents)}. The material minimum holds until ${qty((reachA.material ?? 1) - 1)}
+      and the anodizer's lot charge until ${qty((reachA.finishing ?? 1) - 1)}; from
+      ${qty(reachA.finishing ?? 0)} on, the quantity sets the price and the minimums add nothing.</li>
+      <li><strong>A vendor's lot charge can make your own minimum idle.</strong> The anodized line never
+      falls below ${usdCents(lineMin)}, so the line minimum never tops it up: the lot charge already does
+      that job. Leave it on anyway, for the version without a finish.</li>
+      <li><strong>Without a finish, the line minimum holds the price.</strong> The bare spacer at
+      ${qty(bareFirst.quantity)} costs ${usdCents(bareFirst.noMinimumsTotalCents)} without minimums; the
+      line minimum lifts it to ${usdCents(bareFirst.totalCents)}, and keeps topping it up through
+      ${qty((reachB.line ?? 1) - 1)}. From ${qty(reachB.line ?? 0)} on, the
+      quantity sets the price.</li>
+      <li><strong>Unit prices fall fast, then flatten.</strong> One anodized spacer is
+      ${usdCents(first.unitPriceCents)}; a hundred are ${usdCents(anodized[anodized.length - 1]?.unitPriceCents ?? 0)}
+      each. Quote several quantities and the customer sees why ordering one is expensive. See
+      <a class="link" href="${href(ctx, "/quantity-price-breaks")}">quantity price breaks</a>.</li>
+    </ul>
+
+    <h2>Work out your line minimum</h2>
+    <p>Do not copy a competitor's number. A line minimum should at least cover what the cheapest line you
+    would make costs you, plus the office work every order takes whatever its size. Time that work on a
+    few real orders. In the example (made-up minutes):</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">Office time per order, made up. Time your own.</caption>
+        <thead><tr><th scope="col">Work on every order</th><th scope="col">Minutes</th></tr></thead>
+        <tbody>
+          ${ORDER_TASKS.map((t) => html`<tr><th scope="row">${t.label}</th><td>${t.minutes}</td></tr>`)}
+          <tr><th scope="row">Total</th><td>${floor.officeMinutes}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li><strong>Office time:</strong> ${floor.officeMinutes} min at a made-up
+      ${usdCents(OFFICE_RATE_CENTS)} an hour (wage, payroll costs and the desk) =
+      ${usdCents(floor.officeCents)} an order.</li>
+      <li><strong>The cheapest version of the job:</strong> one bare spacer with no line minimum,
+      ${usdCents(floor.smallestLineCents)}.</li>
+      <li><strong>Floor:</strong> ${usdCents(floor.floorCents)}, rounded up to a minimum of
+      ${usdCents(floor.suggestedMinimumCents)}.</li>
+    </ul>
+    <p>Why add office time when the hourly rate already carries overhead? Because the rate spreads the
+    office over machine hours. A one-off that keeps the mill busy for under an hour pays for under an hour's share
+    of the office, yet takes the full ${floor.officeMinutes} minutes of office work. The minimum makes up the difference. If your
+    <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">hourly rate</a> already counts office
+    time per order some other way, do not count it twice.</p>
+
+    <h2>Choices that change the number</h2>
+    <ul>
+      <li><strong>Per line or per order.</strong> A minimum per line protects you when a customer sends
+      ten one-off parts on one PO. A minimum per order is friendlier to that customer. Pick one and say
+      which on the quote.</li>
+      <li><strong>Show it or fold it in.</strong> Folding the top-up into the unit price keeps the quote
+      simple. Showing it ("minimum charge applies below N parts") tells the customer what to do: order a
+      few more and the price per part drops.</li>
+      <li><strong>Minimums for good customers.</strong> Waiving the minimum for a customer whose
+      production work you want is a sales decision. Make it on purpose, on that quote, and the rate card
+      stays honest for everyone else.</li>
+      <li><strong>Keep vendor minimums current.</strong> When an anodizer or heat treater raises its lot
+      charge, every small quote with that service changes. Update it on the rate card once instead of
+      remembering it on each quote.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>${SITE_NAME}'s rate card holds all three: each material's minimum charge, each finishing or
+    outside service's lot charge, and the shop's minimum line charge. The line minimum applies to each
+    quote line, not to an order. Each line's cost basis names the material and service minimums it used,
+    and on every quantity break the top-up to the line minimum is its own figure ("to reach the line
+    minimum"), so an estimator sees why one part costs what it does. The example above is priced to the cent the app gives for the same inputs,
+    checked by a test in its code. Minimums can also come in with the rest of your settings from a
+    spreadsheet.</p>
+    <p>The rest of the price: <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to
+    quote a CNC machining job</a>, <a class="link" href="${href(ctx, "/machining-material-cost")}">material
+    cost</a>, <a class="link" href="${href(ctx, "/machine-shop-markup")}">markup and margin</a>, and what
+    goes on the quote you send, the <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine
+    shop quote template</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax, legal or
+    financial advice, and the rates, minimums, prices and times in it are made up. Check every quote
+    before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Put your minimums on the rate card once", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
 /** Path → body renderer. The Worker uses earlyAccessPage directly for error re-renders. */
 export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/": homePage,
@@ -3579,6 +3764,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/machining-material-cost": materialCostGuidePage,
   "/rfq-review-checklist": rfqChecklistPage,
   "/how-to-price-a-rush-job": rushGuidePage,
+  "/machine-shop-minimum-charge": minimumChargeGuidePage,
   "/how-to-quote-first-article-inspection": faiGuidePage,
   "/machining-tolerances": toleranceGuidePage,
   "/faq": faqPage,

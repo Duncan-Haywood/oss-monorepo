@@ -3,6 +3,7 @@ title: "Gable dormer framing now has a card on the takeoff page"
 date: 2026-10-31
 tags: [wall-framing-takeoff, dormer, roof, takeoff]
 description: "The dormer framing quantities (cheek studs, commons, valleys, ridge, header) were command-line only. Four page fields now drive them."
+folded_into: writing/dormer-framing-takeoff-gable-and-shed-studs-rafters-valleys-and-roof-opening/
 ---
 
 The [wall-framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) could count the lumber in a gable dormer from the command line (`--dormer`) since earlier today. The page now has a "Also frame a gable dormer" tick box with four fields: width, eave height on the front wall, dormer pitch, and main roof pitch (blank takes the roof option's pitch). The result card lists ridge, valley and common lengths, where the cheeks meet the main roof, and every part with its count.

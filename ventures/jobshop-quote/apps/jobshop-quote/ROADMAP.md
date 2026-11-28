@@ -16,6 +16,12 @@ checks the pair. No customers yet.
 
 ## Done (v0.1, this core)
 
+- Minimum charge guide (2026-11-28, `minimum-order-charge-guide`): https://marisstella.app/jobshop/machine-shop-minimum-charge,
+  a made-up spacer anodized and bare at 1 to 100 parts, which of the three minimums (material minimum,
+  vendor lot charge, line minimum) sets each price and where each lets go, and a line minimum worked out
+  from per-order office time ($225.23 floor → the CNC guide's $250). Checked to the cent against the engine
+  by `test/unit/site-minimum-charge-example.test.ts`. The app's minimum is per line; an order-level
+  minimum would be new work if shops ask.
 - Rush job pricing guide (2026-11-28, `rush-job-expedite-pricing`): https://marisstella.app/jobshop/how-to-price-a-rush-job,
   the CNC guide's bracket quoted normal and rush (overtime rate as a second machine, the bumped job as a
   setup-only operation, an expedited finishing op, same-day delivery as an extra), checked to the cent by
@@ -718,6 +724,28 @@ checks the pair. No customers yet.
   before), viewers may print. Logic in `src/shared/traveler.ts`, PDF in
   `services/quotes/traveler-pdf.ts`. Next, if shops ask: a saved job (work order) with its own
   number and status, and a barcode per operation for shop-floor time tracking.
+- Packing slip and certificate of conformance (2026-11-28, every plan, shipment-packing-slip-coc): a
+  won quote's "Packing slip and certificate of conformance" card prints what goes in the box
+  (`GET /quotes/:id/shipment.pdf?ship=YYYY-MM-DD&qty.<lineId>=N&lot.<lineId>=H123&signer=...&to=...&coc=0`).
+  The packing slip: the shop's name, address and contact, customer, PO, quote and ship date, the
+  ship-to (typed, up to 5 lines, else the customer and "Attn:" contact), per part the quantity ordered
+  and shipped with "Partial shipment" when fewer, the piece count, and packed-by, received-by and
+  boxes lines. The certificate (next page, `coc=0` leaves it out): per part the revision ("not given"
+  when the quote has none), quantity shipped, material (or "Customer-supplied", or the rate card's
+  "no longer on" name), outside processing by name (finishing marked as an outside service only), and
+  the heat/lot typed (else a line to write on); then the shop's conformance statement to the PO,
+  drawings and revisions over a blank signature line, with the signer's name and title if typed. No
+  price, rate or markup on either. Quantities: the one typed (partial shipments), else the saved
+  job's PO quantity, else the break accepted online (a part not accepted is left off), else the only
+  break; a multi-break line with none is a 400 naming the part. The ship date: typed, else the job's
+  shipped day, else today in the shop's zone. Bad values (a non-day, quantity 0, a lot over 60 or a
+  signer over 80 characters, more than 5 address lines, `coc` other than 0/1, a line not on the
+  quote) are 400s, never defaults; won quotes only (409), viewers may print, scoped by org. Logic in
+  `src/shared/shipment.ts`, PDF in `services/quotes/shipment-pdf.ts`; `src/shared/shipment.test.ts`,
+  `test/worker/shipment.test.ts`. A marketing page, `/certificate-of-conformance-software`, says
+  what it does and does not do. Next, if shops ask: saved shipments (a slip number, partial shipments
+  totalled against the order, and the job marked shipped when the last part goes), the material
+  cert PDF attached behind the certificate, and a customer's own CoC wording per customer.
 - QuickBooks Online, part 1 (2026-11-26, every plan; docs/QUICKBOOKS.md): an admin connects the
   shop's QuickBooks Online company on the rate card page (Intuit OAuth through `packages/qbo-sync`,
   single-use state bound to the admin, tokens sealed per shop, disconnect revokes), and an estimator
@@ -817,6 +845,40 @@ checks the pair. No customers yet.
   invented prices"). `src/shared/tolerance.ts`; unit tests, `test/e2e/18-tolerance-check.spec.ts`,
   and `test/unit/site-tolerance-example.test.ts` holding the site's /machining-tolerances guide to
   the reader.
+- First article list, part 1 (2026-11-28, every plan, fai-form3-draft): each drawing PDF with text
+  on the RFQ page has a "First article list (CSV)" link (`GET /rfqs/:id/files/:fileId/form3.csv`):
+  a draft of the characteristic list AS9102 Form 3 holds, numbered in reading order so the numbers
+  can be the balloon numbers. It lists toleranced dimensions (±, +a/-b, limits like 1.0005/1.0000,
+  angles) with lower and upper limits, geometric tolerances (word or symbol, 0 to the tolerance),
+  threads (UN, NPT, metric; accept/reject), surface finish (Ra, RMS, as a maximum), each numbered
+  drawing note, and the MATERIAL and FINISH lines; "4X" or "2 PL" repeats a row as 4.1 ... 4.4. The
+  general tolerance block is shown in the header, never applied to a bare number, and bare numbers
+  (dates, scale, drawing numbers) are not listed. The columns are Form 3's characteristic columns
+  (Char. No., Reference Location, Characteristic Designator, Requirement, Results, Designed /
+  Qualified Tooling, Nonconformance Number, as on customers' published Form 3 templates) plus the
+  limits, unit, how to record it and the text line; location, designator and results stay blank for
+  the inspector, and the header says it is a draft to check against the drawing. Formula cells are
+  defused. Why: the shops bets #2 and #4 sell to owe AS9102 reports on aerospace and defense orders,
+  and listing and numbering characteristics is the slow step; rivals charge $25 to $500 a month for
+  it (portfolio/monetization/bets.md, bet #2 "First article"). `src/shared/fai-characteristics.ts`,
+  unit tests beside it, `test/worker/fai-form3.test.ts` (route, no-text refusal, tenancy).
+
+- First article results, part 2a (2026-11-28, every plan, fai-results-screen): "Inspect first
+  article" beside the CSV link opens the drafted list as a screen
+  (`/app/:orgId/rfqs/:rfqId/files/:fileId/first-article`, `GET`/`PUT
+  /rfqs/:id/files/:fileId/first-article`, estimator to save, viewer to read). Per row the inspector
+  enters the zone, the key characteristic designator, the result (one or several readings), tooling
+  and a nonconformance number, marks a false read "not a characteristic" (kept, not counted), and adds
+  rows the text missed (requirement, limits, unit, measured or accept/reject), numbered after the
+  draft. Each row is judged as they type, by the same code the server and CSV use
+  (`src/shared/fai-results.ts`): every reading within the limits (inclusive) accepts, any one outside
+  rejects and says which limit; a checked row needs accept or reject in words; an unreadable result
+  stays open, never accepted; a reject without an NCR keeps the sheet incomplete. Saved per drawing
+  file (`fai_inspections`, migration 0045), keyed by characteristic number (the draft is re-read from
+  the file's text, which does not change). Once saved, the Form 3 CSV carries the results, a summary
+  line, and a Verdict and Why column. Why: listing was the first slow step; judging 100+ rows by eye is
+  the second, and a reject without an NCR is what gets a report sent back. Unit tests in
+  `src/shared/fai-results.test.ts`, routes in `test/worker/fai-form3.test.ts`.
 
 ## Next
 
@@ -979,6 +1041,11 @@ checks the pair. No customers yet.
     tolerance line), limit dimensions written as two sizes (.4995/.5000), the feature's size taken
     from the callout when it is there (Ø20 H7) instead of the 18-30 mm assumption, and band limits an
     admin can set per shop, if shops ask.
+
+17. First article list, part 2b (part 1 and the results screen, part 2a, done 2026-11-28): Forms 1
+    and 2 filled from the quote (part number, revision, material and finish certificates), the drawing
+    zone from the PDF's text positions, balloons drawn on a copy of the drawing PDF, and results for
+    more than one part per sheet, if shops use the screen.
 
 ## Open questions for the owner
 

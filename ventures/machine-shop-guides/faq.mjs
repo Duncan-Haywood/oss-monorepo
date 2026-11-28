@@ -182,6 +182,14 @@ export const FAQ = {
     ["Do ISO 9001 and AS9100 require contract review?",
       "Both ask for a review of the requirements before you commit to supply, in clause 8.2.3 (review of the requirements for products and services)."],
   ],
+  "bar-stock-weight-calculator.html": [
+    ["How do I calculate the weight of bar stock?",
+      "Multiply the cross-section area by the length and the density. The areas: round, pi/4 x diameter squared; hex, about 0.866 x across-flats squared; square, side squared; flat, width x thickness; tube, the outside area minus the inside. A 1 in round carbon steel bar at 7.85 g/cm3 weighs about 2.67 lb per foot."],
+    ["How many parts can I get from a bar?",
+      "Set aside the end the chuck or bar feeder can't run, then divide what is left by the part length plus the facing stock plus one cut-off width, and round down. Everything left over, the unusable end included, is the drop."],
+    ["How do I work out material cost per part for a machining quote?",
+      "Divide what the bar costs by the parts it yields, so the drop is charged to the parts that made it. Add a scrap allowance for setup pieces and rejects on top when you price the part."],
+  ],
   "machine-hour-rate.html": [
     ["How do I calculate a CNC machine hour rate?",
       "Add up what the machine costs a year (depreciation or lease, the cost of money tied up in it, floor space, maintenance and its share of shop overhead) and divide by the hours you can bill, then add the per-hour costs: power, tooling and, for an attended hour, the operator. This page does that per machine from your own numbers."],

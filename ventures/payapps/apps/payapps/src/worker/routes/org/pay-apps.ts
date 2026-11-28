@@ -33,6 +33,7 @@ import { applicationPdf } from "../../services/export/application-pdf";
 import { continuationCsv, summaryCsv } from "../../services/export/csv";
 import { exportFileName } from "../../services/export/model";
 import { noticePdf, waiverPdf } from "../../services/export/waiver-pdf";
+import { payApplicationXlsx } from "../../services/export/xlsx";
 import { copyCertificateFileToPayApp } from "../../services/insurance-files";
 import {
   addAttachment,
@@ -97,6 +98,7 @@ import {
 import {
   autoSendPayment,
   payAppQuickBooks,
+  sendInterestInvoice,
   sendPayApp,
   sendPayment,
   sendShortCredit,
@@ -293,6 +295,35 @@ routes.post("/:payAppId/quickbooks/short-credit", editor, async (c) => {
       reason: out.shortCredit?.reason,
     },
   );
+  return c.json(out);
+});
+
+// The interest a late payment earned, as its own QuickBooks invoice to the GC (marking it billed if it
+// was not); or marked as entered there by hand (`?already=1`), which sends nothing.
+routes.post("/:payAppId/quickbooks/interest-invoice", editor, async (c) => {
+  const { orgId, projectId, payAppId } = ids(c);
+  const already = c.req.query("already") === "1";
+  const { out, marked } = await sendInterestInvoice(
+    c.var.ctx,
+    orgId,
+    projectId,
+    payAppId,
+    c.var.tenant.userId,
+    { alreadyInQuickBooks: already },
+  );
+  const d = await detail(c, payAppId);
+  const sent = out.invoices.find((i) => i.payAppId === payAppId);
+  await log(c, already ? "quickbooks_interest_marked" : "quickbooks_interest_sent", d, {
+    amountCents: sent?.amountCents,
+    note: sent?.docNumber ?? null,
+  });
+  if (marked) {
+    await log(c, "interest_billed", d, {
+      amountCents: marked.cents,
+      date: marked.on,
+      note: marked.note,
+    });
+  }
   return c.json(out);
 });
 
@@ -560,6 +591,17 @@ routes.get("/:payAppId/continuation.csv", async (c) => {
     continuationCsv(data),
     "text/csv; charset=utf-8",
     exportFileName(data, "csv", "-continuation"),
+  );
+});
+
+// The summary and continuation sheet as one Excel workbook, with live formulas (services/export/xlsx.ts).
+routes.get("/:payAppId/application.xlsx", async (c) => {
+  const { orgId, projectId, payAppId } = ids(c);
+  const data = await loadApplicationDocument(c.var.ctx, orgId, projectId, payAppId);
+  return download(
+    payApplicationXlsx(data).slice().buffer,
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    exportFileName(data, "xlsx"),
   );
 });
 

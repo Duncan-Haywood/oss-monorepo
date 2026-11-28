@@ -62,6 +62,22 @@ nothing to copy. No customers yet. Paid plans are dark
   CSV instead; nothing is guessed. The opening-balance fill takes the same PDFs. Tested on PDFs
   printed by Chromium and LibreOffice (`test/fixtures/README.md`). The reader moved from
   `services/export/pdf-merge/` to `src/shared/pdf/` so the browser can use it.
+- Pay application as an Excel workbook (2026-11-28, pay-app-xlsx, every plan). "Excel" on the pay
+  application page downloads `<job>-payapp-<n>.xlsx` (`GET .../pay-apps/:id/application.xlsx`): an
+  "Application summary" sheet (the job's header, lines 1 to 9, the retainage rates, the change order
+  summary, the not-an-AIA-document notice) and a "Continuation sheet" (columns A to I lettered as on the
+  standard form, the release column, quantities on a unit-price job, totals), for GCs who ask for the
+  pay app "in Excel" and subs who keep their own copy in a spreadsheet. Amounts are numbers; G = D + E +
+  F, % = G / C, H = C - G, every total, and summary lines 3, 4 (pointing at the continuation sheet's G
+  total), 5, 6, 8 and 9 are live formulas saved with PayApps' own figure, and a formula is written only
+  where PayApps' figure equals it to the cent (else the figure alone), so the workbook never disagrees
+  with the PDF. Checked: LibreOffice opens it and recalculates to the same figures; the app's own
+  "Fill from your last continuation sheet" import reads it back (application number, period, work to
+  date per line), so a job billed here can move to another account. Writer: `writeXlsxBook` in
+  `src/shared/gc-export/xlsx-write.ts` (several sheets, formula cells, bold and percent styles, no
+  library); export `src/worker/services/export/xlsx.ts`, tests beside it. Not done: the GC's own
+  Excel template filled cell by cell (Trimble Pay's is, under GC portal exports); a signature or
+  notary block (the PDF has them).
 - Mid-job start (2026-11-25): a job already billed elsewhere (a spreadsheet, other software)
   records its last application as the opening balance: its number (the first one here is the next
   number), its period end, its line 6 (carried into line 7), optional line 5a, and work completed
@@ -2739,6 +2755,42 @@ nothing to copy. No customers yet. Paid plans are dark
   gain the rows. Not read here: Oklahoma (oscn.net answers with a Turnstile challenge), Indiana
   (iga.in.gov renders empty headless), Tennessee, Arkansas and Mississippi (codes on a vendor's site),
   New Mexico and Hawaii (403), Wisconsin, West Virginia, Connecticut and Georgia (no answer).
+- State bond claims, California (2026-11-28, state-bond-claims-california-civ-9100, every plan): the
+  biggest state for subs, with two remedies on public work. Cal. Civ. Code §§ 9300, 9304: the
+  preliminary notice for anyone not in contract with the direct contractor (undated; it reaches back
+  20 days); § 9356: everyone's stop payment notice to the public body; § 9502: the suit to enforce
+  it within 90 days after the stop payment notice period ends; § 9558: the bond suit within six
+  months after that period. All three are dated from the job's acceptance date as if the notice of
+  completion were recorded that day (§ 9356(a), 30 days; § 9204 lets it be recorded on the day of
+  completion), the earliest they can fall; a note gives the 90-day rule when none is recorded,
+  completion by 60 days' cessation (§ 9200), the $10 for the public body's notice of the time to sue
+  (§ 9362) and the late route to the bond (§ 9560). leginfo.legislature.ca.gov refused the proxy
+  (403) again, so the text was read from california.public.law's republication, which names leginfo
+  as its source, and the rule's notes and the guide say so (excerpts appended to
+  `ventures/pay-app-guides/sources/state-bond-claims.txt`). Thirty-three states in `STATE_BOND_RULES` with Alaska, Wyoming and Alabama.
+  Worked dates in `src/shared/state-bond.test.ts` (a Monday acceptance; a Friday one whose day 30
+  is a Sunday); the public guide and the customer post gain the row. Next, if contractors mark
+  California public jobs: date from the recorded notice of completion when the job has one (the
+  `notice_of_completion_on` column the private-job panel already keeps, today cleared on public
+  jobs), and re-read the sections on leginfo once it answers.
+- State bond claims, Oklahoma and the District of Columbia (2026-11-28, state-bond-claims-ok-in-vt,
+  every plan). 61 O.S. §§ 1, 2 read on oscn.net (it answered a plain fetch this time, no Turnstile
+  challenge) and D.C. Code §§ 2-201.01 to 2-201.03 on code.dccouncil.gov that day; excerpts appended
+  to `ventures/pay-app-guides/sources/state-bond-claims.txt`. Oklahoma: anyone in contract with a
+  subcontractor "regardless of tier" gives the contractor and the surety written notice within 90
+  days of the last day (§ 2(B)(1)); everyone files a claim or sues within one year, or two years
+  once a claim was filed within the first (§ 2(A)): three dated steps. Because the statute names
+  every tier, a new optional `anyTier` on `StateBondRule` replaces the remote-tier caution ("turns on
+  how the state reads subcontractor") with the statute's own words. D.C. copies the Miller Act: a
+  sub's sub's 90-day registered-mail notice and a one-year suit, both from the last day, in the
+  District's name in the Superior Court; notes give the $25,000 threshold, the half-the-contract
+  bond amount and the Mayor's waiver. Thirty-four states and D.C. in `STATE_BOND_RULES`. Tests in
+  `src/shared/state-bond.test.ts` (worked dates, a Saturday anniversary moved to Friday, the remote
+  note); the public guide, its FAQ, llms-answers, the customer post and the construction page gain
+  the rows. Not done: Indiana (iga.in.gov serves only an empty JavaScript shell, its bundle URL
+  included, through the proxy) and Vermont (no payment bond claim statute found in Title 29's
+  chapters; not added rather than guessed). Still unreached: New Mexico (nmonesource 403 headless),
+  Hawaii (403), Connecticut and West Virginia (no answer).
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
@@ -2758,6 +2810,13 @@ nothing to copy. No customers yet. Paid plans are dark
   paid-late list, a future day or one before the last payment; deleting a payment (the application
   reopens) clears the mark. The history logs each mark and undo; the cash CSV's last column names
   billed or waived ones.
+- Late-payment interest, part 3b (2026-11-28, late-interest-part-3b-qbo-invoice, Crew and up): on
+  the cash page's paid-late list, "Invoice in QuickBooks" sends the interest as its own invoice to
+  the GC, numbered `LI` + the application's invoice tail, one line on a "Late Payment Interest" item
+  that states the balance, due and paid dates, days late and the rate with its source, and marks the
+  interest billed if it was not ("Already in QuickBooks" records one typed by hand). Refused for
+  waived interest; a retry finds the invoice by number (`sendInterestInvoice`,
+  `src/shared/qbo-interest.ts`, migration 0094; docs/QUICKBOOKS.md, "Late-payment interest").
 - Fix, retainage rate cut after a line's release (2026-11-27, retainage-rate-cut): a line whose
   retainage was released in full (10% of $10,000, $1,000 released) went to -$500 when a later
   application cut the rate to 5% (the common "5% after half complete") or to 0% for the final
@@ -2811,17 +2870,41 @@ nothing to copy. No customers yet. Paid plans are dark
   Not yet: counting the 20 days on the job (with §§ 570.1108(10), (11)'s delays), a log of notices
   served with the certified mail receipts, the proof of service the claim of lien attaches, and the
   laborer's notices (§ 570.1109(2), (3)).
+- Deadlines skip federal holidays (2026-11-28, lien-deadline-holidays): the lien deadline, the Miller
+  Act notice and suit dates and every state bond claim step now step their act-by date back past an
+  observed federal holiday (5 U.S.C. § 6103(a), OPM's weekend rule) as well as a weekend, since the
+  recorder or clerk is closed then; the earlier date is always safe whether or not a state rolls a
+  deadline forward. The job panel and the cash page say which holiday moved it ("the statute's date,
+  2026-11-26, is Thanksgiving Day, a federal holiday"). The list moved to `src/shared/federal-holidays.ts`
+  (no imports; the job schedule re-exports it), and the free mechanics lien deadline calculator got the
+  same rule, so the parity grid still holds. State-only holidays (Cesar Chavez Day, the day after
+  Thanksgiving in many counties) are not modeled. Found while checking: Texas's second bond notice
+  for a November 2026 last day falls on Washington's Birthday 2027 and was shown as that Monday.
 - Sworn statement saved with the job (2026-11-28, every plan, sworn-statement-saved): the statement's
   parties, paid and owing columns were kept in one browser's storage, so the next month's statement
   started blank on any other computer and for anyone else in the company. Now an editor's changes are
   saved with the job as they type (`PUT .../sworn-statement/draft`, one row per job in
-  `sworn_statement_drafts`, migration 0093, replaced whole on each save; `swornDraftSchema` in
+  `sworn_statement_drafts`, migration 0094, replaced whole on each save; `swornDraftSchema` in
   `src/shared/sworn-statement.ts` takes a half-typed list that printing would refuse, with the same money
   and 300-row limits), everyone in the company reads it, and the page says who saved it last and when.
   A viewer's changes stay in their browser; a draft kept in a browser before this is picked up once and
   saved. "Clear" deletes it for everyone. Tests: `test/worker/sworn-statement.test.ts` (save, read as a
   viewer, replace, clear, half-typed, refusals, viewer 403, another company 404) and
   `test/e2e/05-sworn-draft.spec.ts` (typed, browser storage wiped, still there; cleared).
+
+- Lien waivers: Mississippi part 3, the time computation (2026-11-28, ms-time-computation). § 85-7-425
+  counts time under the lien article by Miss. Code Ann. § 1-3-67, now read (FindLaw's copy; the official
+  LexisNexis Code still out of reach), with § 3-3-7(1)'s ten legal holidays (a Sunday holiday makes the
+  Monday one; Confederate Memorial Day included, the Friday after Thanksgiving not), in
+  `packages/lien-waivers/src/ms-dates.ts` (no imports, aliased `@lien-waivers/ms-dates` for the browser)
+  and `sources/ms-1-3-67-and-3-3-7.txt`. A waiver whose 60th day is a Saturday, Sunday or legal holiday
+  shows the day the period runs to (`lastDay` on the clock; the countdown still runs to the 60th day), on
+  the pay app, in the cash report and the weekly email; on the closed days in between it says the
+  period is still open rather than ended; an affidavit filed on the moved day is not late. The two days
+  to the owner's copy leave out the weekends and holidays in between (filed Friday, due Tuesday).
+  A county's own holiday and a clerk's office closed for other reasons are not known, and can only make
+  the true day later. Georgia (O.C.G.A. § 1-3-1 not read) still counts calendar days. Tests:
+  `test/ms-dates.test.ts` in the package, `src/shared/ms-waiver-clock.test.ts` here.
 
 ## Must do before a public launch
 
@@ -2874,10 +2957,10 @@ nothing to copy. No customers yet. Paid plans are dark
 
 ## Next (suite, by promise)
 
-- Late-payment interest, part 3b (part 3a, the billed or waived mark per application, done
-  2026-11-28): "Mark billed" sending a separate invoice for the interest to QuickBooks, or adding it
-  as a line on the next pay application, and the paid-late total in the weekly email, if contractors
-  ask.
+- Late-payment interest, part 3c (part 3b, the interest as its own QuickBooks invoice, done
+  2026-11-28; the weekly email's totals of interest accrued and earned, done 2026-11-28,
+  late-interest-weekly-email): adding it as a line on the next pay application instead, if
+  contractors ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if
@@ -2899,9 +2982,8 @@ nothing to copy. No customers yet. Paid plans are dark
   cost type as bid are done, 2026-11-26): a sub quote on the estimate carried to the job as a
   subcontract commitment once the estimate keeps the sub's name, if people ask; "last emailed" on an
   estimate (as change orders keep it), if people ask
-- Lien waivers: Mississippi part 3, if asked: move the sixty days off a weekend or holiday once
-  Miss. Code Ann. § 1-3-67 (which § 85-7-425 sends the computation of time to) is read; PayApps counts
-  calendar days and says so. California
+- Lien waivers: Mississippi part 4, if asked: a county's own holiday (§ 3-3-7(2), Mardi Gras on the
+  coast) chosen per job, so the moved 60th day can count it (part 3, § 1-3-67, done 2026-11-28). California
   preliminary notice part 4: Code Civ. Proc. § 2015.5's perjury sentence on the § 8118 declaration
   once the official text is reachable; the attached receipts listed on the proof PDF (part 3, the
   job history and the receipts kept with each record, done 2026-11-26)
@@ -2985,6 +3067,7 @@ nothing to copy. No customers yet. Paid plans are dark
   Miller notices sent with the proof of delivery, if contractors use the draft; state bond claims
   part 2 (part 1, eight states on the job page, and the next bond date on the cash page and weekly
   email 45 days ahead, done 2026-11-27; MA, MI, MN, NV and OR added 2026-11-27, part 2d);
-  California's stop payment notice and bond claim (leginfo.legislature.ca.gov answered 2026-11-27);
+  California's stop payment notice and bond claim done 2026-11-28 (dated from acceptance; the recorded
+  notice of completion as its own date next, if contractors mark California public jobs);
   more states, each read from the statute page (Louisiana added 2026-11-28; MT, ND, SC and SD 2026-11-28; Alabama 2026-11-28), if contractors mark public jobs (ilga.gov and
   docs.legis.wisconsin.gov timed out and legis.state.pa.us returned 403 on 2026-11-27)

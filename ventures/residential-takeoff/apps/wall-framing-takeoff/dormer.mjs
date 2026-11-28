@@ -29,6 +29,10 @@ import { textNumberErrors } from "./numfields.mjs";
 const PLATES = 4.5;
 const r16 = (/** @type {number} */ n) => Math.round(n * 16) / 16;
 const slope = (/** @type {number} */ p) => Math.sqrt(1 + (p / 12) ** 2);
+// past this the dormer reaches further up the main roof than a typed roof-opening depth may (20 ft):
+// the engine does not know the main roof's run, so it says so instead of refusing
+const DEEP = 240;
+const deepNote = (/** @type {number} */ x, /** @type {string} */ what) => `The ${what} meets the main roof ${Math.round(x / 12 * 10) / 10} ft back from the front wall, deeper than 20 ft: check the main roof's run (eave to ridge, in plan) is at least that long, or it runs past the ridge.${what === "shed roof" ? " A shed pitch closer to the main roof's pushes it further back." : ""}`;
 
 /** @param {Dormer} d */
 export function validateDormer(d) {
@@ -129,6 +133,7 @@ export function layoutDormer(d) {
     opening = { depth: r16(depth), slopeLength: r16(slopeLen), cutMainRafters: cut, area: Math.round(d.width * depth / 144 * 10) / 10 };
     notes.push(`Roof opening ${r16(d.width)} x ${r16(depth)} in in plan: ${cut} main rafter(s) at ${m} in are cut and framed to the two headers (their stubs below the lower header are not listed); sizes are typed, the header and trimmer load check is the engineer's.`);
   } else notes.push("Roof overhangs, flashing, the opening in the main roof (headers and trimmers) and sheathing waste are not counted.");
+  if (xr > DEEP) notes.push(deepNote(xr, "dormer ridge"));
   if (opening) notes.push("Roof overhangs, flashing and sheathing waste are not counted.");
   const pooled = /** @type {typeof parts} */ ([]);
   for (const p of parts) { const f = pooled.find((q) => q.part === p.part && q.size === p.size && q.length === p.length); if (f) f.count += p.count; else pooled.push({ ...p }); }
@@ -160,7 +165,7 @@ export function dormerText(r) {
  *  xr = eaveHeight x 12 / (mainPitch - pitch). Cheek studs fall by (mainPitch-pitch)/12
  *  per inch and run out at xr. Rafters run the full xr at the shed slope; a ledger
  *  at their top bears on the main roof framing (opening, headers and loads are the
- *  engineer's). Not counted: overhangs, flashing, the opening in the main roof, windows.
+ *  engineer's). Not counted: overhangs and flashing; the opening in the main roof only when `roofOpening` is set; a front window when `window` is set.
  *  @param {{ width: number, eaveHeight: number, pitch: number, mainPitch: number, spacing?: number, studSize?: string, rafterSize?: string, ledgerSize?: string, headerSize?: string, roofOpening?: boolean | { depth?: number, mainSpacing?: number, headerSize?: string, trimmerSize?: string }, window?: { width: number, height?: number, sill?: number } }} d */
 export function layoutShedDormer(d) {
   if (d == null || typeof d !== "object" || Array.isArray(d)) return { ok: false, errors: ["Dormer settings are an object."] };
@@ -191,7 +196,9 @@ export function layoutShedDormer(d) {
   const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && r16(length) > 0) parts.push({ part, size, length: r16(length), count }); };
   let frontXs = []; for (let x = 0; x < W - 1e-9; x += s) frontXs.push(x); frontXs.push(W);
   const frontX = frontXs.length;
-  const notes = ["Shed dormer: overhangs, flashing, the opening in the main roof and its headers are not counted; sizes are typed and the load path is the engineer's."];
+  // the opening's exclusion is said only when no opening is framed (below); the note used to say so either way
+  const notes = [d.roofOpening ? "Shed dormer: overhangs and flashing are not counted; sizes are typed and the load path is the engineer's." : "Shed dormer: overhangs, flashing, the opening in the main roof and its headers are not counted; sizes are typed and the load path is the engineer's."];
+  if (xr > DEEP) notes.push(deepNote(xr, "shed roof"));
   const frontLen = H - PLATES;
   if (d.window) {
     const w = d.window, hdr = d.headerSize ?? "2x6", left = (W - w.width) / 2, right = left + w.width, sill = w.sill ?? 30, wh = w.height ?? 36;

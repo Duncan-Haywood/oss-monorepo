@@ -177,7 +177,7 @@ reads it as a "Soffit and fascia" bid item. An outline the framing model cannot 
 all-hip roof, 2026-11-26) gets the same rows from one eave run on each side of its eave line, no
 rakes: a rectangle's outline gives exactly the framed hip roof's panels, fascia and channel, and a Z
 outline's eight runs are checked by hand (`eaves.test.mjs`); vented panels need the framed roof's
-ventilation sizing, so they are not split out there. On the page, the outline roof's eaves come from its eave line the same way. Walls `--skip-refused` dropped are a "Warning" row at the top of the list
+ventilation sizing, so they are not split out there. On the page, the outline roof's eaves come from its eave line the same way. When the plan has a `dormer` (page: "Also frame a gable dormer", gable or shed), a **Dormer** section (2026-11-28) buys the dormer's pieces, which are not wall members and never reached the takeoff's order, from the plan's stock list with the same cutting-stock solver (`optimizeStock`), size by size, each board line naming what is cut from it, and adds the dormer roof and wall areas and the main-roof opening's area. The boards count in the list's board total and, with `--priced`, its cost. A size whose longest piece no listed board can hold is listed as cut lengths, with a note, never as boards. The example 6 ft gable dormer (84 in eave, 8:12 on 8:12, a 36 in window, the opening framed) adds 31 boards to the sample house's 253 (`materiallist.test.mjs` checks the board count is the solver's for those pieces and every part is named). The main roof's squares are not reduced for the opening. Walls `--skip-refused` dropped are a "Warning" row at the top of the list
 and the CSV. CSV cells a spreadsheet would run as a formula get a leading apostrophe.
 
 **Roof from an outline** (`roofoutline.mjs`; plan `roof.outline: [[x, y], ...]` with `pitch`,
@@ -223,10 +223,23 @@ peak and volume as `hiproof.mjs`, also with the outline turned to another angle 
 regular octagon and a clipped rectangle match their closed forms; a 40 x 24 ft house with a 45-degree
 bay is worked by hand; and on 600 random polygons with sides at any angle and 200 outlines with
 clipped corners every line end lies inside the outline, no higher than its distance to the
-walls, on the planes of at least two sides, with one hip or valley from each corner. The
-rafters and the sheathing courses are still laid out for square-cornered outlines only: an
-angled outline says so in the notes, on the page and in the CLI, and its material list carries
-the squares, eave, ridge, hip and valley rows without a framing or sheet count.
+walls, on the planes of at least two sides, with one hip or valley from each corner.
+Since 2026-11-28 an angled outline is **framed** too (`hipframe.mjs`): the eave sides and the
+roof lines are traced as a planar graph, the face inside each eave side is that side's plane
+(`planeFaces`), and the rafters run square to their own side at the plate spacing, cut back from
+a hip or valley by half its thickness over the sine of the angle they meet it at in plan (45
+degrees only at square corners; a 45-degree bay's front rafters meet its hips at 22.5 degrees).
+Hips and valleys are their lines' slope lengths. Checks (`hipframe-angled.test.mjs`): the 40 x 24
+ft house with a 45-degree bay; 60 random square-cornered houses turned to an angle frame exactly
+as they do square to the axes; on 150 random outlines with clipped corners and bays every rafter
+is square to its side and both its ends sit at the height the roof lines give, and no two
+rafters stand within two thicknesses of each other. The same faces now frame square-cornered
+outlines: identical to the old L-infinity rule on every one of 300 random outlines without two
+eave sides on one line, and where there are two (a bump-out or bay on one wall) they fix a bug:
+the old rule framed the plane above the bump from both sides, rafters 4 in apart (3 such pairs
+on one 46 x 26 ft test outline). The sheathing courses are still laid out for square-cornered
+outlines only: an angled outline says so in the notes, on the page and in the CLI, and its
+material list carries the rafters but no sheet count.
 Since 2026-11-26 that all-hip roof's **sheathing is laid in courses** (`outlinesheathing.mjs`,
 CLI ROOF section, the page's roof card, a "roof sheathing (all-hip, from outline)" row on the
 material list and a "Roof sheathing sheets" budget line priced by `roofSheet`): each plane rises from one

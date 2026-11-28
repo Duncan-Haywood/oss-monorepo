@@ -27,7 +27,7 @@ without a sales team, Margin, Time = time to first dollar.
 | 3 | **E-invoice fix-and-explain** | DE/FR SMEs, their accountants, small invoicing vendors | 3 | 5 | 4 | 5 | 4 | 21 | `ventures/einvoice-pro/apps/einvoice-preflight` (moved 2026-11-27, PR #19635's copy; deploy workflow `priv-einvoice-pro-deploy.yml`, manual dispatch) |
 | 4 | **CMMC L1/L2 + ISO 9001 workspace** | small defense/aerospace shops | 4 | 5 | 3 | 4 | 3 | 19 | `ventures/cmmc/apps/cmmc` (moved 2026-11-27, PR #19689; deploys on merge, PR #19821) |
 | 5 | **Reseller profit and Schedule C books** | multi-platform resellers | 4 | 4 | 5 | 4 | 4 | 21 | `ventures/seller-books/apps/seller-books` (moved 2026-11-27, PR #19618) |
-| 6 | **Residential takeoff (roof, siding, framing lists from PDFs)** | remodelers, roofers, framers | 4 | 4 | 3 | 3 | 4 | 18 | `ventures/residential-takeoff/apps/wall-framing-takeoff` (moved from private-monorepo 2026-11-27; not served yet) |
+| 6 | **Residential takeoff (roof, siding, framing lists from PDFs)** | remodelers, roofers, framers | 4 | 4 | 3 | 3 | 4 | 18 | `ventures/residential-takeoff/apps/wall-framing-takeoff` (moved from private-monorepo 2026-11-27; served dark at `/residential-takeoff/` since 2026-11-27, not on sale) |
 | 7 | **Grant Autopilot** (live) | small nonprofits | 4 | 3 | 3 | 3 | 3 | 16 | `private-monorepo/apps/grants` |
 
 Why this order rather than by total: #1, #2 and #4 are SMBs at $99–$300+ a
@@ -122,14 +122,33 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
 - **Wedge:** email or drawing in, priced quote out, learning each shop's rates,
   at about $199/mo. Ship narrow and soon: funded rivals are arriving.
 - **Growth path:** quote follow-up and win rates, won quote to job traveler,
-  QuickBooks invoicing, material price lists.
+  QuickBooks invoicing, material price lists, first article inspection.
+- **First article (added 2026-11-28, explore run):** aerospace and defense
+  buyers require an AS9102 first article inspection report, and listing and
+  numbering (ballooning) each drawing characteristic for its Form 3 is the slow
+  step. Separate tools charge for it: 1factory from $30 per user per month,
+  with PDF auto-ballooning and AS9102 reports in a $75 per user tier
+  ([Capterra](https://www.capterra.com/p/151002/1factory/pricing/), a 5-user
+  minimum per [1factory's pricing page](https://www.1factory.com/pricing.html));
+  InspectionXpert from $125/mo
+  ([Slashdot](https://slashdot.org/software/p/InspectionXpert/)); High QA from
+  $25/mo ([Software Advice](https://www.softwareadvice.com/product/502087-High-QA-Inspection-Manager));
+  Net-Inspect up to $500/mo ([G2](https://www.g2.com/products/net-inspect/discuss)).
+  All aggregator figures, read through search on 2026-11-28; the vendors'
+  own pages could not be fetched from the session, so re-check before
+  pricing. Nearly 30,000 AS9100-family certified sites are under ANAB-overseen
+  certification ([ANAB](https://blog.ansi.org/anab/as9100-certification-aerospace-qms/));
+  no US count was found. The same shops buy bets #2 and #4, so this is a
+  module of Job Shop Quote rather than a new bet: part 1 (a Form 3 draft
+  from the drawing's text, CSV) shipped 2026-11-28 in the app's ROADMAP.
 - **Launch:** the launch review OPERATOR.md asks for is done (2026-11-27,
   private-monorepo#482, `apps/jobshop-quote/docs/LAUNCH-REVIEW.md`): paid
   plans keep 42–53% at their full AI ceiling, the legal pages match the code,
   and the global AI cap is $30 a day for launch. An agent may now run
   `jobshop-quote-deploy` and open sign-ups (Actions runners permitting);
   checkout stays dark until Paddle verification. Bet #4 has its review (below) and #5 its own
-  (`ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md`); #3 has none yet.
+  (`ventures/seller-books/apps/seller-books/docs/LAUNCH-REVIEW.md`); #3 its own too (PR #19794,
+  `ventures/einvoice-pro/apps/einvoice-preflight/docs/LAUNCH-REVIEW.md`).
 
 ### 3. E-invoice fix-and-explain
 

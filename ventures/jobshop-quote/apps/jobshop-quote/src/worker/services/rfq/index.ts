@@ -8,13 +8,22 @@ import {
   normalize,
   verifyExtraction,
 } from "@shared/extraction";
+import { draftCharacteristics, form3Csv } from "@shared/fai-characteristics";
+import {
+  addedNumbers,
+  buildRows,
+  type FaiEntry,
+  type FaiSaveInput,
+  type FaiSheetDto,
+  summarise,
+} from "@shared/fai-results";
 import type { CadUnit } from "@shared/geometry";
 import { countPdfPages, filePages, rfqUnitsForPages } from "@shared/pdf-pages";
 import { readRfqByRules } from "@shared/rule-reader";
 import { uploadMimeType } from "@shared/upload-pages";
 import { and, asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { AppContext } from "../../context";
-import { quotes, rfqCounts, rfqFiles, rfqParts, rfqs } from "../../db/schema";
+import { faiInspections, quotes, rfqCounts, rfqFiles, rfqParts, rfqs } from "../../db/schema";
 import { AppError, badRequest, conflict, notFound } from "../../lib/errors";
 import { sha256Hex } from "../../lib/hash";
 import { newId } from "../../lib/ids";
@@ -706,4 +715,140 @@ export async function getFile(ctx: AppContext, orgId: string, rfqId: string, fil
   const obj = await ctx.env.FILES.get(f.r2Key);
   if (!obj) throw notFound("File");
   return { file: f, body: obj.body };
+}
+
+/** One drawing file's text, its part and its drafted characteristics; 404 across shops. */
+async function loadDrawing(ctx: AppContext, orgId: string, rfqId: string, fileId: string) {
+  const f = await ctx.db
+    .select({ fileName: rfqFiles.fileName, extractedText: rfqFiles.extractedText })
+    .from(rfqFiles)
+    .where(and(eq(rfqFiles.id, fileId), eq(rfqFiles.rfqId, rfqId), eq(rfqFiles.orgId, orgId)))
+    .get();
+  if (!f) throw notFound("File");
+  if (!f.extractedText?.trim()) {
+    throw badRequest(
+      "No text was read from this file (a scan or a CAD file), so there is nothing to list.",
+    );
+  }
+  const parts = await ctx.db
+    .select({ partNumber: rfqParts.partNumber, revision: rfqParts.revision })
+    .from(rfqParts)
+    .where(and(eq(rfqParts.rfqId, rfqId), eq(rfqParts.orgId, orgId)))
+    .orderBy(asc(rfqParts.position))
+    .all();
+  const upper = f.fileName.toUpperCase();
+  const part =
+    parts.find((p) => p.partNumber && upper.includes(p.partNumber.toUpperCase())) ??
+    (parts.length === 1 ? parts[0] : undefined);
+  const saved = await ctx.db
+    .select()
+    .from(faiInspections)
+    .where(and(eq(faiInspections.fileId, fileId), eq(faiInspections.orgId, orgId)))
+    .get();
+  return { file: f, part, draft: draftCharacteristics(f.extractedText), saved };
+}
+
+/**
+ * A draft AS9102 Form 3 characteristic list for one drawing file, as CSV, read from its text
+ * (shared/fai-characteristics.ts). The part number and revision come from the RFQ's part whose
+ * number the file name carries, or its only part. Refused when no text was read from the file.
+ * Once results are saved on the first article screen, the CSV carries them and each row's verdict.
+ */
+export async function characteristicsCsv(
+  ctx: AppContext,
+  orgId: string,
+  rfqId: string,
+  fileId: string,
+): Promise<{ csv: string; fileName: string; count: number }> {
+  const { file, part, draft, saved } = await loadDrawing(ctx, orgId, rfqId, fileId);
+  const header = {
+    fileName: file.fileName,
+    partNumber: part?.partNumber ?? null,
+    revision: part?.revision ?? null,
+  };
+  const base = file.fileName.replace(/\.[A-Za-z0-9]{1,5}$/, "") || "drawing";
+  if (!saved) {
+    const csv = form3Csv(draft, header);
+    return { csv, fileName: `${base}-form3-draft.csv`, count: draft.characteristics.length };
+  }
+  const rows = buildRows(draft.characteristics, saved.added, saved.entries);
+  const csv = form3Csv(draft, header, rows, summarise(rows));
+  return { csv, fileName: `${base}-form3.csv`, count: rows.length };
+}
+
+/** The first article screen: the drafted rows, the inspector's added rows, entries and verdicts. */
+export async function getFaiSheet(
+  ctx: AppContext,
+  orgId: string,
+  rfqId: string,
+  fileId: string,
+): Promise<FaiSheetDto> {
+  const { file, part, draft, saved } = await loadDrawing(ctx, orgId, rfqId, fileId);
+  const added = saved?.added ?? [];
+  const rows = buildRows(draft.characteristics, added, saved?.entries ?? {});
+  return {
+    fileName: file.fileName,
+    partNumber: part?.partNumber ?? null,
+    revision: part?.revision ?? null,
+    general: draft.general.map((g) => g.text),
+    truncated: draft.truncated,
+    rows,
+    added,
+    summary: summarise(rows),
+    updatedAt: saved ? saved.updatedAt.toISOString() : null,
+  };
+}
+
+/**
+ * Saves the inspector's entries and added rows for one drawing. Entries for numbers that are
+ * neither a drafted row nor an added row are dropped, and empty entries are not kept.
+ */
+export async function saveFaiSheet(
+  ctx: AppContext,
+  orgId: string,
+  userId: string,
+  rfqId: string,
+  fileId: string,
+  input: FaiSaveInput,
+): Promise<FaiSheetDto> {
+  const { draft } = await loadDrawing(ctx, orgId, rfqId, fileId);
+  const known = new Set([
+    ...draft.characteristics.map((c) => c.no),
+    ...addedNumbers(draft.characteristics, input.added.length),
+  ]);
+  const entries: Record<string, FaiEntry> = {};
+  for (const [no, e] of Object.entries(input.entries)) {
+    if (!known.has(no)) continue;
+    const kept: FaiEntry = {};
+    for (const k of ["location", "designator", "result", "tooling", "ncr"] as const) {
+      const v = e[k]?.trim();
+      if (v) kept[k] = v;
+    }
+    if (e.notApplicable) kept.notApplicable = true;
+    if (Object.keys(kept).length) entries[no] = kept;
+  }
+  const now = ctx.now();
+  await ctx.db
+    .insert(faiInspections)
+    .values({
+      fileId,
+      orgId,
+      rfqId,
+      entries,
+      added: input.added,
+      updatedBy: userId,
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: faiInspections.fileId,
+      set: { entries, added: input.added, updatedBy: userId, updatedAt: now },
+    });
+  ctx.logger.info("rfq.fai_saved", {
+    orgId,
+    rfqId,
+    fileId,
+    entries: Object.keys(entries).length,
+    added: input.added.length,
+  });
+  return getFaiSheet(ctx, orgId, rfqId, fileId);
 }

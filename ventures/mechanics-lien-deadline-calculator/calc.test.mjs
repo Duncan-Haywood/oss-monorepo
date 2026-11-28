@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { lienDeadlines, formatDate, parseDate, STATE_RULES } from "./calc.mjs";
+import { lienDeadlines, formatDate, parseDate, STATE_RULES, federalHolidayOn } from "./calc.mjs";
 
 const iso = (d) => d.toISOString().slice(0, 10);
 const run = (o) => lienDeadlines({ firstFurnishing: "2026-03-10", lastFurnishing: "2026-06-20", ...o });
@@ -384,6 +384,33 @@ test("Oregon and Virginia: whichever comes first, own last furnishing or complet
 test("Utah: 180 days after final completion, or 90 after a notice of completion", () => {
   assert.equal(iso(run({ state: "UT" }).lien.date), "2026-12-17"); // Jun 20 + 180
   assert.equal(iso(run({ state: "UT", noticeOfCompletionDate: "2026-07-01" }).lien.date), "2026-09-29"); // Jul 1 + 90
+});
+
+test("a deadline on a federal holiday steps back to the business day before", () => {
+  const r = lienDeadlines({ state: "WA", projectType: "commercial", firstFurnishing: "2026-08-01", lastFurnishing: "2026-08-28" });
+  // Washington: 90 days after the last day = 2026-11-26, Thanksgiving Day.
+  assert.equal(iso(r.lien.date), "2026-11-26");
+  assert.deepEqual(r.lien.holidays, ["Thanksgiving Day"]);
+  assert.equal(r.lien.weekend, false);
+  assert.equal(iso(r.lien.safeDate), "2026-11-25");
+  assert.ok(r.findings.some((f) => /federal holiday/.test(f.title) && /Thanksgiving Day/.test(f.detail)));
+});
+
+test("a weekend deadline also steps back past a federal holiday just before it", () => {
+  // 90 days after 2026-04-05 is Saturday 2026-07-04; Independence Day is observed Friday 3 July.
+  const r = lienDeadlines({ state: "WA", projectType: "commercial", firstFurnishing: "2026-03-01", lastFurnishing: "2026-04-05" });
+  assert.equal(iso(r.lien.date), "2026-07-04");
+  assert.equal(r.lien.weekend, true);
+  assert.deepEqual(r.lien.holidays, ["Independence Day"]);
+  assert.equal(iso(r.lien.safeDate), "2026-07-02");
+});
+
+test("federalHolidayOn knows the observed dates", () => {
+  assert.equal(federalHolidayOn(new Date(Date.UTC(2026, 6, 3))), "Independence Day");
+  assert.equal(federalHolidayOn(new Date(Date.UTC(2026, 6, 4))), null);
+  assert.equal(federalHolidayOn(new Date(Date.UTC(2027, 11, 31))), "New Year's Day"); // 2028-01-01 is a Saturday
+  assert.equal(federalHolidayOn(new Date(Date.UTC(2026, 0, 19))), "Birthday of Martin Luther King, Jr.");
+  assert.equal(federalHolidayOn(new Date(Date.UTC(2026, 4, 25))), "Memorial Day");
 });
 
 test("the nine states added 2026-11-28 count from the last day furnished", () => {

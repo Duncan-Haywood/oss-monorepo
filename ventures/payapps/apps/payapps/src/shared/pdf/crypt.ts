@@ -110,27 +110,41 @@ export function rc4(key: Uint8Array, data: Uint8Array): Uint8Array {
 
 // --- AES decryption (FIPS 197), CBC --------------------------------------------------------
 
+// The tables are built on the first decryption, not at module load: this module is in the Worker's
+// bundle and the browser's, and the brute-force inverse below cost about 5 ms of every cold start
+// while most requests never open an encrypted PDF (docs/history/payapps-worker-cold-start-perf-2026-11-28.md).
 const SBOX = new Uint8Array(256);
 const INV_SBOX = new Uint8Array(256);
+const MUL9 = new Uint8Array(256);
+const MUL11 = new Uint8Array(256);
+const MUL13 = new Uint8Array(256);
+const MUL14 = new Uint8Array(256);
+let tablesBuilt = false;
 const xtime = (x: number) => ((x << 1) ^ (x & 0x80 ? 0x1b : 0)) & 0xff;
 const gmul = (a: number, b: number) => {
   let r = 0;
   for (let x = a, y = b; y; y >>= 1, x = xtime(x)) if (y & 1) r ^= x;
   return r;
 };
-// The S-box from the multiplicative inverse in GF(2^8) and the affine map.
-for (let i = 0; i < 256; i++) {
-  let inv = 0;
-  if (i) for (inv = 1; gmul(i, inv) !== 1; inv++);
-  let s = inv;
-  for (let k = 1; k <= 4; k++) s ^= ((inv << k) | (inv >> (8 - k))) & 0xff;
-  SBOX[i] = s ^ 0x63;
-  INV_SBOX[s ^ 0x63] = i;
+function buildTables() {
+  if (tablesBuilt) return;
+  // The S-box from the multiplicative inverse in GF(2^8) and the affine map.
+  for (let i = 0; i < 256; i++) {
+    let inv = 0;
+    if (i) for (inv = 1; gmul(i, inv) !== 1; inv++);
+    let s = inv;
+    for (let k = 1; k <= 4; k++) s ^= ((inv << k) | (inv >> (8 - k))) & 0xff;
+    SBOX[i] = s ^ 0x63;
+    INV_SBOX[s ^ 0x63] = i;
+  }
+  for (let i = 0; i < 256; i++) {
+    MUL9[i] = gmul(i, 9);
+    MUL11[i] = gmul(i, 11);
+    MUL13[i] = gmul(i, 13);
+    MUL14[i] = gmul(i, 14);
+  }
+  tablesBuilt = true;
 }
-const MUL9 = Uint8Array.from({ length: 256 }, (_, i) => gmul(i, 9));
-const MUL11 = Uint8Array.from({ length: 256 }, (_, i) => gmul(i, 11));
-const MUL13 = Uint8Array.from({ length: 256 }, (_, i) => gmul(i, 13));
-const MUL14 = Uint8Array.from({ length: 256 }, (_, i) => gmul(i, 14));
 
 /** The round keys, 16 bytes per round, for a 16- or 32-byte key. */
 function expandKey(key: Uint8Array): Uint8Array {
@@ -210,6 +224,7 @@ function decryptBlock(w: Uint8Array, rounds: number, s: Uint8Array) {
 /** AES-CBC decryption of whole blocks; a trailing partial block is dropped. No padding removed. */
 export function aesCbcDecrypt(key: Uint8Array, iv: Uint8Array, data: Uint8Array): Uint8Array {
   if (key.length !== 16 && key.length !== 32) throw new PdfEncryptionError("bad AES key length");
+  buildTables();
   const w = expandKey(key);
   const rounds = key.length / 4 + 6;
   const n = data.length - (data.length % 16);

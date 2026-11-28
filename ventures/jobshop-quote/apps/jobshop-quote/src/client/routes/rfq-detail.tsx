@@ -195,6 +195,26 @@ export function RfqDetailPage() {
                   </span>
                 )}
                 {f.conversionError && <span className="text-red-700">({f.conversionError})</span>}
+                {/* First article: the drawing's characteristics, numbered, as a Form 3 draft. */}
+                {f.hasText && f.mimeType === "application/pdf" && (
+                  <a
+                    className="text-sky-800 underline"
+                    href={orgApi(orgId, `/rfqs/${rfqId}/files/${f.id}/form3.csv`)}
+                    title="A draft AS9102 Form 3 characteristic list read from this drawing's text: check it against the drawing"
+                  >
+                    First article list (CSV)
+                  </a>
+                )}{" "}
+                {f.hasText && f.mimeType === "application/pdf" && (
+                  <Link
+                    className="text-sky-800 underline"
+                    to="/app/$orgId/rfqs/$rfqId/files/$fileId/first-article"
+                    params={{ orgId, rfqId, fileId: f.id }}
+                    title="Enter the first article results against this drawing's characteristics and see each row's accept or reject"
+                  >
+                    Inspect first article
+                  </Link>
+                )}{" "}
                 {/* A PDF that read without error but gave no text is usually a scan: the extractor
                     saw nothing in it, so say so rather than let an empty part look complete. */}
                 {f.mimeType === "application/pdf" && !f.hasText && !f.conversionError && (

@@ -126,9 +126,15 @@ in order:
    - outlines with angled sides (bays, 45-degree corners): **done 2026-11-27** for the squares, eave
      length and roof lines (angled-outline-roof-lines: `skeleton.mjs`, the straight skeleton of the mitred
      eave line; the same lines as `hiproof.mjs` on 300 random square-cornered outlines, turned and mirrored;
-     a 45-degree bay by hand; invariants on 800 random angled outlines; `eval-angled-roof-click.mjs`). Next:
-     rafters and sheathing courses on the angled planes (`hipframe.mjs` and `outlinesheathing.mjs` still
-     take square-cornered outlines only and say so), and a DXF exterior loop with angled walls;
+     a 45-degree bay by hand; invariants on 800 random angled outlines; `eval-angled-roof-click.mjs`). Rafters on
+     the angled planes: **done 2026-11-28** (rafters-on-angled-planes: `planeFaces` in `hipframe.mjs` traces the eave
+     sides and roof lines as a planar graph, each eave side's face is its plane; rafters square to their side, cut back
+     by THICK / 2 over the sine of the angle at a hip or valley; 60 turned houses frame as they do square, 150 clipped and
+     bay outlines checked end by end against the roof lines' heights; the faces also frame square-cornered outlines,
+     identical to the L-infinity rule except where two collinear eave sides share the plane above a bump-out, which the
+     old rule framed twice, rafters 4 in apart; `hipframe-angled.test.mjs`, `eval-angled-roof-click.mjs`). Next: sheathing
+     courses on the angled planes (`outlinesheathing.mjs` still takes square-cornered outlines only and says so), and a
+     DXF exterior loop with angled walls;
    - read the roof outline from a roof-plan layer in a DXF, not only from the exterior
      wall loop: **done 2026-11-27** (roof-outline-from-dxf-roof-layer: `roofdxf.mjs`, the outer
      boundary of the roof layer's lines, ridges and hips inside ignored; the overhang measured
@@ -145,6 +151,12 @@ in order:
      cannot split;
    - the IFC path returns no exterior loop on the Schultz model (0 exterior walls), so
      no roof outline and no wall sheathing there yet.
+   - the dormer on the material list: **done 2026-11-28** (dormer-framing-guide: a "Dormer" section,
+     the dormer's pieces bought from the plan's stock list by `optimizeStock`, its roof, wall and
+     opening areas; a size with no board long enough stays as cut lengths; CLI and page CSV; the
+     shed dormer's note no longer says an opening it framed is uncounted, and a dormer meeting the main
+     roof more than 20 ft back says to check the main roof's run; the guide
+     `docs/posts/2026-11-28-dormer-framing-takeoff-...` folds 12 thin dormer posts).
    - siding on the material list: **done 2026-11-26** (`materiallist.mjs` "Siding" section from
      `siding.mjs`: boards, battens, starter, corners, wrap, trim, flashing, tape, caulk, nails, net
      area; the payapps estimate import reads it as a "Siding" bid item, checked by hand on the
@@ -510,6 +522,11 @@ Ticked items are on `main`.
 - 2026-11-27: Checkout on Paddle, part 1 (checkout-on-paddle-part-1). The Lemon Squeezy licence-key design (`licence.mjs` posting to a public validate URL, `checkout.mjs` with checkout links and variant ids) is replaced by the portfolio's shared Paddle path, `platform/billing/`, which the free edition's bid package already uses: the paid edition is its own catalogue product, `residential-takeoff`, a one-off "Job report" (`catalogue.mjs` gained `dir`, since this page lives under `apps/`; `sync.mjs` writes `paddle.mjs` and `checkout.mjs` here). Buy opens Paddle's overlay with a random claim code; the owner's billing Worker signs an Ed25519 key from Paddle's `transaction.completed` webhook; the page fetches it by claim code, checks it offline against the public key and keeps it in this browser. A valid key is the Job report plan (`billing.mjs` `PRODUCT_PLAN`), and the free edition's bid-package key is another product and unlocks nothing here. The ROADMAP's plan of a separate Worker that asks Paddle's API with an owner key, and its own deploy workflow, was dropped: the shared Worker needs no Paddle API key and already exists. Still dark: the catalogue has no Paddle values, so no Buy button and every feature open. Tests: `billing.test.mjs`, `licence.test.mjs` (the shared `testkit.mjs` contract), `licence-fuzz.test.mjs`, `checkout.test.mjs` (generated copy), `platform/billing/billing.test.mjs` (`ventureDir`). Not run against Paddle: the sandbox purchase is the owner's step.
 
 - 2026-11-28: supplier price lists, part 1 (`pricelist.mjs`, CLI `--price-list=FILE`, page file input under "Lumber you can buy"): a yard's CSV reprices the lumber list and fills the budget's prices; unlisted lengths of a priced size dropped, unpriced sizes named, every unread row listed. `pricelist-bench.mjs`: 1.3-5.3% cheaper lumber than optimising on length then pricing, on invented lists; 0% on the flat control. Next, if people use it: a real yard's export run through it, and the suite's per-org price list (step 4 above).
+
+- Sale terms (2026-11-28, takeoff-sale-terms): Terms of Sale, Refund Policy and Privacy notice
+  pages (`terms.html`, `refunds.html`, `privacy.html`) served beside the app for Paddle's website
+  review; the footer's "no analytics vendors" line corrected to name the host's cookieless Cloudflare
+  Web Analytics, and the page added to the analytics-claims guard.
 
 ## Known gaps (quality audit 2026-11-19)
 

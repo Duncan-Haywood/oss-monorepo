@@ -4,7 +4,8 @@
 // Same shape as apps/payapps/src/shared/legal.ts.
 // "2026-11-28.1": the Privacy Policy now names Cloudflare Web Analytics (cookieless visit counts the host injects).
 // "2026-11-28.2": the Privacy Policy says which of our pages a new account came from is kept (signup-source).
-export const POLICY_VERSION = "2026-11-28.2";
+// "2026-11-28.3": the Terms name the packing slip and certificate of conformance, and say the shop signs the certificate.
+export const POLICY_VERSION = "2026-11-28.3";
 
 export const LEGAL_DOC_KEYS = ["terms", "privacy", "refunds", "acceptable-use"] as const;
 export type LegalDocKey = (typeof LEGAL_DOC_KEYS)[number];

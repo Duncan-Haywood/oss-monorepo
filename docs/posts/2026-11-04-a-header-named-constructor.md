@@ -3,6 +3,7 @@ title: "A header named constructor passed the span table check"
 date: 2026-11-04
 description: "Probing the wall framing header span table with hostile rows found five ways a bad table or plan got through, and one that crashed."
 tags: [wall-framing-takeoff, construction, testing]
+folded_into: writing/window-and-door-headers-size-plies-jacks-and-what-to-order/
 ---
 
 # A header named constructor passed the span table check

@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqydNytKwU67S7dWZc9c",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T12:38:47Z",
+  "ended": "2026-11-28T12:52:53Z",
+  "wall_minutes": 14.44,
+  "tokens_in": 20174731,
+  "tokens_out": 61168,
+  "cost_usd": 7.0588,
+  "tool_calls": 116,
+  "task": "bet #3 front door: French page on the four invoice mentions of 1 Sept 2026, measured; creator writes BT-8 and the deliver-to address",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20117",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first full venture run failed 3 site checks: page title 93 chars (limit 70) and description over 160/200",
+      "fix": "shortened both; reran: 2947 tests + site page checks green"
+    },
+    {
+      "what": "a Playwright check started with a backgrounded http.server in the same command was refused by the auto-mode classifier",
+      "fix": "ran the server as its own background task and the script separately"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py --bets",
+      "issue": "every bet's Next list is gated (owner, demand, source); the tool's advice to take front-door pages is right but the session spent ~15 tool calls confirming payapps, jobshop and einvoice were all saturated before choosing"
+    },
+    {
+      "file": "ventures/einvoice-preflight (free) vs ventures/einvoice-pro/apps/einvoice-preflight (paid)",
+      "issue": "VENTURE.yaml/PROVENANCE say new depth goes to the paid copy, yet recent France-profile work (PR #20037) and this run land in the free copy and log a port in NEXT.md; the divergence keeps growing"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "front-door pages are lead magnets; the creator change landed in the free edition rather than the paid copy, following PR #20037's France profile, which only exists there",
+      "did": "built in the free edition, logged the port to the paid edition in NEXT.md",
+      "result": "shipped; port pending"
+    },
+    {
+      "file": "CLAUDE.md (writing)",
+      "why": "the page itself is the customer-facing SEO post for the search, so no separate blog post was written",
+      "did": "one consolidated French page instead of a page plus a post",
+      "result": "n/a until search data"
+    }
+  ],
+  "writeups": [
+    "ventures/einvoice-preflight/nouvelles-mentions-obligatoires-facture-2026.html (customer/SEO page)",
+    "ventures/einvoice-preflight/README.md (the four mentions of 1 September 2026)"
+  ],
+  "goal": null,
+  "notes": "Sources read directly on 2026-11-28: DGFiP FAQ PDF q.3.4 (sha256 5d045656...) and DGFiP 'donn\u00e9es de facture et correspondance des flux' PDF MAJ ao\u00fbt 2026 (sha256 6b788333...), which maps the mentions to BT-47, BT-23, BT-8, BT-75..80; Peppol UNCL2005 list for UBL BT-8 codes 3/35/432. Verification: node --test on new + France tests 76/76; run_venture_tests.py einvoice-preflight ok (2947 tests, 17 skipped) + site page checks ok; Chromium at 390px: no overflow, no page errors, creator writes BT-8 and the address. Bench found a real creator bug (buyer SIRET accepted, BR-FR-32 refuses) and fixed it; built-in FR-009 added.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "51056e99-3510-54f1-ab95-702a6e4c479e",
+    "transcripts": 1,
+    "first": "2026-11-28T12:38:47Z",
+    "last": "2026-11-28T12:53:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 112,
+        "input": 217,
+        "output": 61168,
+        "thinking": 13932,
+        "cache_read": 19943791,
+        "cache_write_5m": 0,
+        "cache_write_1h": 230723,
+        "api_equivalent_usd": 7.0588,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 112,
+      "input": 217,
+      "output": 61168,
+      "thinking": 13932,
+      "cache_read": 19943791,
+      "cache_write_5m": 0,
+      "cache_write_1h": 230723,
+      "api_equivalent_usd": 7.0588,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 116,
+    "tools": {
+      "Bash": 105,
+      "ToolSearch": 3,
+      "Write": 3,
+      "WebSearch": 2,
+      "Read": 1,
+      "TaskStop": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.44,
+      "active_minutes": 14.44,
+      "model_minutes": 11.71,
+      "tool_minutes": 2.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a French e-invoicing specialist reading the DGFiP table, coding two fields in a generator, writing a measured bench and a page",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 85.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

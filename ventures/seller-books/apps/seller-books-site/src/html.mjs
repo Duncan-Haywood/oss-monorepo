@@ -118,6 +118,8 @@ ${page.body}
       <a href="${href("/personal-items-or-business")}">Personal items or a business</a>
       <a href="${href("/facebook-marketplace-taxes")}">Facebook Marketplace taxes</a>
       <a href="${href("/poshmark-taxes")}">Poshmark taxes</a>
+      <a href="${href("/ebay-taxes")}">eBay taxes</a>
+      <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>
       <a href="${href("/cost-of-goods-sold")}">Cost of goods sold</a>
       <a href="${href("/reseller-inventory-spreadsheet")}">Inventory spreadsheet</a>
       <a href="${href("/mileage-deduction")}">Mileage deduction</a>

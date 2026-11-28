@@ -70,8 +70,8 @@ signature and jurat twice, above and below the NOTICE, as the bill does; both ar
 no line for the claimant's name, so a "Claimant" line is added above the signature, as for Georgia.
 `test/ms.test.ts` and `test/whole-form.test.ts` check the wording (the affidavit as a whole too);
 dropping "OR PREMISES" from the interim form or the second signature block from the final form each
-failed them. Not done: the time computation of § 85-7-425 (it points to § 1-3-67, not read, so the clock
-does not move a weekend or holiday deadline); § 85-7-433(4)'s notice of contest of lien and (5)'s pre-lien
+failed them. The time computation of § 85-7-425 (it points to § 1-3-67) is done 2026-11-28: `src/ms-dates.ts`,
+checked against `sources/ms-1-3-67-and-3-3-7.txt`. Not done: § 85-7-433(4)'s notice of contest of lien and (5)'s pre-lien
 notice (residential).
 
 **2026-11-26: Georgia encoded from the Acts that wrote it.** The official Code of Georgia is published

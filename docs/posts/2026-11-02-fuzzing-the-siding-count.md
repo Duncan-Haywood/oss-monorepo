@@ -3,6 +3,7 @@ title: "Four hundred random houses against the siding count"
 date: 2026-11-02
 tags: [wall-framing-takeoff, testing, construction]
 description: A seeded property test now throws random walls, gables, openings and siding options at the siding engine and checks the board, wrap and corner arithmetic.
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 The siding count in wall-framing-takeoff stacks courses on each exterior wall, cuts them round openings and gables, and packs the runs into stock boards. Hand-worked tests cover cases we picked. A new seeded fuzz test covers the rest: 400 random sets of one to four walls, some gabled, with non-overlapping windows and doors, in lap or vertical style, with random battens, trim, starter strip, flashing and tape.

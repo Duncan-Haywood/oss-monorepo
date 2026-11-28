@@ -29,7 +29,21 @@ export function amountToCents(amount: number | string | undefined | null): Cents
 /** amount × rate (basis points), rounded half away from zero to whole cents. */
 export function applyRateBps(amountCents: Cents, rateBps: number): Cents {
   const sign = amountCents < 0 ? -1 : 1;
-  const r = Math.round((Math.abs(amountCents) * rateBps) / 10_000);
+  const product = Math.abs(amountCents) * rateBps;
+  let r: number;
+  if (Number.isSafeInteger(product)) {
+    r = Math.round(product / 10_000);
+  } else {
+    // Past 2**53 the double product is inexact and can round the wrong way by a cent
+    // (12,569,375,727.79 at 81.81% came out one cent high; red team, 2026-11-28).
+    if (!Number.isSafeInteger(amountCents) || !Number.isInteger(rateBps)) {
+      throw new RangeError(`applyRateBps needs integer cents and basis points`);
+    }
+    const n = BigInt(Math.abs(amountCents)) * BigInt(rateBps);
+    let q = n / 10_000n;
+    if ((n % 10_000n) * 2n >= 10_000n) q += 1n;
+    r = Number(q);
+  }
   return r === 0 ? 0 : sign * r;
 }
 

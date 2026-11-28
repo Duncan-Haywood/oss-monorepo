@@ -4,6 +4,7 @@ seo_title: "Bangladesh e-invoicing mandate: what is actually required (2026)"
 date: 2026-11-07
 tags: [einvoice-preflight, e-invoicing, bangladesh]
 description: "A 2026 country booklet says no binding Bangladesh e-invoicing mandate exists; vendor pages say it has phased in since 2019. A new free page lays out both."
+folded_into: einvoice-preflight/bangladesh-nbr-e-invoice-mandate
 ---
 
 Search results on Bangladesh e-invoicing contradict each other. One 2026 booklet says there is no live, legislated B2B or B2G mandate and that Finance Bill 2026 only says it "may be made mandatory". Vendor pages describe a phased National Board of Revenue rollout since July 2019 and fiscal devices from about August 2020. A separate order of September 2026 makes online VAT returns mandatory for some sectors, which is not e-invoicing.

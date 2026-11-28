@@ -451,6 +451,7 @@ const NOTICE = {
   FL: ["florida-notice-to-owner.html", "Notice to Owner (45 days)"],
   MI: ["michigan-notice-of-furnishing.html", "notice of furnishing (20 days)"],
   TX: ["texas-lien-notice.html", "monthly notice of claim"],
+  UT: ["utah-preliminary-notice.html", "preliminary notice (20 days, registry)"],
 };
 
 // The hub's "What each state asks of you" entries each end with a link to the state's page.

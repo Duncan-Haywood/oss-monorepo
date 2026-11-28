@@ -5,8 +5,9 @@
 //    dates PayApps counts here: the 90-day notice a second-tier claimant gives the prime, and the
 //    one-year limit on the suit. They take the lien deadline's place on the job page, the cash page
 //    and the weekly email. State and local jobs have each state's own bond law ("little Miller
-//    Act"): there it shows no lien date, and lists the bond claim steps in the thirty-two states of
-//    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
+//    Act"): there it shows no lien date, and lists the bond claim steps in the thirty-four states
+//    and the District of Columbia of STATE_BOND_RULES (stateBondClaim, at the end of this file) on
+//    the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
 //    checked against the cap in the 26 states the public guide lists.
 //
@@ -21,17 +22,16 @@
 //
 // Day counting (as the public calculator): 90 calendar days starting the day after the last day,
 // and a year as the same calendar date a year later (29 February to 28 February, the earlier
-// date). A date on a weekend moves back to the Friday before, the same safe side the lien deadline
-// takes. Pure functions, no I/O.
+// date). A date on a weekend or an observed federal holiday moves back to the business day before,
+// the same safe side the lien deadline takes. Pure functions, no I/O.
+
+import { actByOnOrBefore } from "./federal-holidays";
 
 // Small date helpers kept here (not imported from lien-deadline.ts, which imports this file).
 const DAY_MS = 86_400_000;
 const addDays = (iso: string, days: number) =>
   new Date(Date.parse(`${iso}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
-function businessDayOnOrBefore(iso: string): string {
-  const d = new Date(`${iso}T00:00:00Z`).getUTCDay();
-  return d === 6 ? addDays(iso, -1) : d === 0 ? addDays(iso, -2) : iso;
-}
+const businessDayOnOrBefore = (iso: string) => actByOnOrBefore(iso).on;
 
 export const PUBLIC_OWNERS = ["federal", "state_local"] as const;
 export type PublicOwner = (typeof PUBLIC_OWNERS)[number];
@@ -58,13 +58,13 @@ export function addOneYear(iso: string): string {
 export interface MillerDates {
   /** Second tier (or tier not given): the 90-day notice to the prime, statute's date. Null for first tier. */
   noticeOn: string | null;
-  /** The notice date, or the Friday before it on a weekend. */
+  /** The notice date, or the business day before it on a weekend or federal holiday. */
   noticeDueOn: string | null;
   /** The first day a suit may be filed: day 91 (§ 3133(b)(1)). */
   suitFromOn: string;
   /** The one-year limit on the suit (§ 3133(b)(4)), statute's date. */
   suitByOn: string;
-  /** The suit limit, or the Friday before it on a weekend. */
+  /** The suit limit, or the business day before it on a weekend or federal holiday. */
   suitDueOn: string;
 }
 
@@ -484,7 +484,8 @@ export function retainageCapCheck(
 // ventures/pay-app-guides/sources/state-bond-claims.txt). Only the dates a statute states in
 // days, months or years from a day PayApps knows (the last day of labor or material, or the day
 // the public body accepted the work) are dated; the rest are listed with the day they wait for.
-// A date on a weekend moves back to the Friday before (the safe side); holidays are not modeled.
+// A date on a weekend or an observed federal holiday moves back to the business day before (the safe
+// side); state-only holidays are not modeled.
 
 /** One step of a state bond claim. */
 export interface BondClaimStep {
@@ -497,7 +498,7 @@ export interface BondClaimStep {
   rule: string;
   /** The statute's date, or null when it waits on a day not entered (see waitsFor). */
   statutoryOn: string | null;
-  /** statutoryOn, or the Friday before it on a weekend. */
+  /** statutoryOn, or the business day before it on a weekend or federal holiday. */
   dueOn: string | null;
   /** The day the date is counted from, when it is not entered or not knowable here. */
   waitsFor: string | null;
@@ -511,6 +512,11 @@ export interface StateBondRule {
   /** Read on the legislature's own site. */
   checkedOn: string;
   notes: string[];
+  /**
+   * The statute's own words when it reaches claimants at any tier below a subcontractor
+   * (Oklahoma's "regardless of tier"), so the remote-tier caution is replaced by them.
+   */
+  anyTier?: string;
 }
 
 interface BondDays {
@@ -548,6 +554,32 @@ function step(
 const days = (n: number) => (iso: string) => addDays(iso, n);
 
 export const STATE_BOND_RULES: Record<string, StateBondRule> = {
+  DC: {
+    name: "District of Columbia",
+    law: "D.C. Code §§ 2-201.01 to 2-201.03",
+    url: "https://code.dccouncil.gov/us/dc/council/code/sections/2-201.02",
+    checkedOn: "2026-11-28",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day (§ 2-201.02(a)).",
+      "The notice goes by registered mail to the contractor at any place it keeps an office or does business, or its residence, or is served as the U.S. Marshal serves a summons, and states with substantial accuracy the amount claimed and who you worked for (§ 2-201.02(a)).",
+      "The suit is brought in the name of the District of Columbia for your use, in the Superior Court, within one year after your last day (§ 2-201.02(b)).",
+      "Payment bonds are required on District public works contracts over $25,000 and cover one-half of a contract up to $1,000,000, 40% up to $5,000,000 and $2,500,000 above that (§ 2-201.01(a)), and the Mayor may waive them (§ 2-201.01(b)): ask for the bond. A claimant who says it was not paid gets a certified copy of the bond and contract (§ 2-201.03).",
+    ],
+  },
+  OK: {
+    name: "Oklahoma",
+    law: "61 O.S. §§ 1, 2",
+    url: "https://www.oscn.net/applications/oscn/DeliverDocument.asp?CiteID=85198",
+    checkedOn: "2026-11-28",
+    anyTier:
+      'Oklahoma\'s notice reaches anyone in contract with a subcontractor "regardless of tier" (61 O.S. § 2(B)(1)), so the bond covers you if you give it.',
+    notes: [
+      "A claimant in contract with a subcontractor, at any tier, gives written notice to the contractor and the surety within 90 days after its last day, by registered or certified mail to the contractor at any place it keeps an office or does business, with a copy to the surety, stating with substantial accuracy the amount claimed and who you worked for (61 O.S. § 2(B)(1)).",
+      "The suit limit is one year from your last day, or two years if you filed a claim within that first year (61 O.S. § 2(A)). PayApps dates both; the second applies only once a claim is filed.",
+      "The bond is filed with the public body that let the contract, which gives a copy to anyone claiming under it (61 O.S. § 2(A)). Bonds are required on contracts over $100,000 (61 O.S. § 1(A)).",
+      "On an at-risk construction management contract, only those in direct contract with the party that furnished the bond may claim on it (61 O.S. § 2(B)(2)).",
+    ],
+  },
   AL: {
     name: "Alabama",
     law: "Ala. Code \u00a7 39-1-1",
@@ -581,6 +613,20 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "A suit may be brought once you are unpaid 90 days after your last day (§ 34-223(A)).",
       "The 90-day notice may go by any means with written third-party verification of delivery, to the contractor's office, place of business or residence, and states the amount claimed and who you worked for.",
       "The contracting body must give a certified copy of the bond and contract on written request (§ 34-223(C)).",
+    ],
+  },
+  CA: {
+    name: "California",
+    law: "Cal. Civ. Code §§ 9100-9566",
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=9558",
+    checkedOn: "2026-11-28",
+    notes: [
+      "Every date here counts from acceptance as if the public body recorded its notice of completion that same day, the earliest the deadlines can fall. If a notice of completion, acceptance or cessation is recorded later (it may be up to 15 days after completion, § 9204), the stop payment notice is due 30 days after that recording; if none is recorded, 90 days after completion (§ 9356(b)), and the two suits move with it. Ask the public body whether and when it recorded one.",
+      "Completion is the earlier of acceptance and 60 days in a row with no labor on the whole project (§ 9200; the 60 days do not apply to State Contract Act contracts). If work stopped for 60 days before acceptance, the dates run from then.",
+      "The stop payment notice is signed and verified, states the amount due for work through its date (§ 9352), and goes to the public body's disbursing officer, or for a state contract to the director of the department that awarded it (§ 9354). Pay the public body $10 with it and it must tell you the deadline to sue (§ 9362).",
+      "A claimant who missed the preliminary notice can still claim on the bond with written notice to the surety and the bond principal within 15 days after a notice of completion is recorded, or 75 days after completion if none is (§ 9560(b), (c)).",
+      "A payment bond is required on a public works contract over $25,000 (§ 9550(a)); § 9550 does not cover a state entity's contract, which Public Contract Code § 7103 bonds. A direct contractor (the prime) has no stop payment notice or bond claim (§ 9100(b)). The prevailing party in a bond suit gets a reasonable attorney's fee (§ 9564(c)).",
+      "Read from california.public.law, which republishes the official text; leginfo.legislature.ca.gov refused this session's connection.",
     ],
   },
   CO: {
@@ -921,6 +967,67 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
   const L = d.lastOn;
   const A = d.acceptedOn;
   switch (state) {
+    case "DC":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of your claim by registered mail",
+            citation: "D.C. Code § 2-201.02(a)",
+            rule: `within 90 days from ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond in the name of the District, in the Superior Court",
+            citation: "D.C. Code § 2-201.02(b)",
+            rule: `within one year after ${LAST}`,
+          },
+          L,
+          addOneYear,
+          LAST,
+        ),
+      ];
+    case "OK":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor and the surety written notice of your claim by registered or certified mail",
+            citation: "61 O.S. § 2(B)(1)",
+            rule: `within 90 days from ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "File a claim on the bond, or bring suit on it",
+            citation: "61 O.S. § 2(A)",
+            rule: `within one year from ${LAST}`,
+          },
+          L,
+          addOneYear,
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the bond, if you filed a claim within the first year",
+            citation: "61 O.S. § 2(A), claim filed",
+            rule: `within two years from ${LAST}`,
+          },
+          L,
+          (from) => addOneYear(addOneYear(from)),
+          LAST,
+        ),
+      ];
     case "AL":
       return [
         step(
@@ -1132,6 +1239,59 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
           LAST,
         ),
       ];
+    case "CA": {
+      // § 9356(a): 30 days after a recorded notice of completion, which may be recorded the day of
+      // completion: the earliest the stop payment notice period can end, counted from acceptance.
+      const spnEnds = A ? addDays(A, 30) : null;
+      const PERIOD =
+        "the end of the stop payment notice period (30 days after acceptance at the earliest)";
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the preliminary notice to the public body and the direct contractor",
+            citation: "Cal. Civ. Code §§ 9300, 9304",
+            rule: "when you start: a stop payment notice or bond claim covers only work provided within 20 days before it is given and after",
+          },
+          null,
+          null,
+          "the day you first furnished",
+        ),
+        step(
+          {
+            who: "all",
+            act: "Give the public body a stop payment notice",
+            citation: "Cal. Civ. Code § 9356",
+            rule: `within 30 days after a notice of completion is recorded, or 90 days after completion if none is; dated from ${ACCEPTED}, the earliest`,
+          },
+          A,
+          days(30),
+          ACCEPTED,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Sue the public body and the direct contractor to enforce the stop payment notice",
+            citation: "Cal. Civ. Code § 9502(a), (b)",
+            rule: "at least 10 days after giving the notice, and not later than 90 days after the stop payment notice period ends",
+          },
+          spnEnds,
+          days(90),
+          PERIOD,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "Cal. Civ. Code § 9558",
+            rule: "any time after you stop providing work, and not later than six months after the stop payment notice period ends",
+          },
+          spnEnds,
+          (iso) => addMonths(iso, 6),
+          PERIOD,
+        ),
+      ];
+    }
     case "CO": {
       const SETTLED = "the final settlement date the public body publishes";
       return [
@@ -1808,7 +1968,9 @@ export function stateBondClaim(
       "Who did you contract with? The notices marked for those not in contract with the prime apply only if you contracted with a subcontractor; PayApps shows them until you say, since sending them never hurts.",
     );
   }
-  if (input.tier === "remote") {
+  if (input.tier === "remote" && rule.anyTier) {
+    notes.unshift(rule.anyTier);
+  } else if (input.tier === "remote") {
     notes.unshift(
       `${rule.name}'s statute names claimants who contracted with the prime or with a subcontractor. Whether one further down the chain is covered turns on how the state reads "subcontractor": PayApps shows the subcontractor's steps, and a construction attorney can say if the bond reaches you.`,
     );
