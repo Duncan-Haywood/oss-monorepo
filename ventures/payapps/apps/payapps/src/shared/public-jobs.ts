@@ -517,6 +517,11 @@ export interface StateBondRule {
    * (Oklahoma's "regardless of tier"), so the remote-tier caution is replaced by them.
    */
   anyTier?: string;
+  /**
+   * The statute's own words when it limits claimants below a subcontractor more narrowly than the
+   * generic caution says (Massachusetts reaches only those in contract with the GC's own sub).
+   */
+  remoteTier?: string;
 }
 
 interface BondDays {
@@ -585,6 +590,8 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
     law: "Ala. Code \u00a7 39-1-1",
     url: "https://alison.legislature.state.al.us/code-of-alabama?section=39-1-1",
     checkedOn: "2026-11-28",
+    anyTier:
+      'Alabama\'s bond covers "any person that has furnished labor, materials, or supplies for or in the prosecution of a public work" (§ 39-1-1(b)), with no tier named, so the steps above apply to you; whether a court reaches a supplier far down the chain is a question for a construction attorney.',
     notes: [
       "Alabama asks no notice to the contractor from anyone. The one notice is to the surety, of the amount claimed and the nature of the claim; registered or certified mail to any of its offices is enough, and the suit may not be filed until 45 days after it (\u00a7 39-1-1(b)). Send it as soon as payment is clearly late.",
       "If the surety or contractor does not pay in full within 45 days of the mailing, you may also recover a reasonable attorney fee and interest from the date of the notice (\u00a7 39-1-1(b)).",
@@ -684,7 +691,7 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
     notes: [
       "Louisiana counts from the recordation of the public body's acceptance of the work (or of its notice of the contractor's default) in the parish mortgage records, not from your last day. Enter the day the acceptance was recorded as the acceptance date; the parish clerk of court can confirm it.",
       "The sworn statement is both filed with the public body and recorded with the recorder of mortgages of the parish where the work is (§ 38:2242(B)); a claimant who skipped it has no action on the bond (§ 38:2247(A)). The notice to the contractor goes by registered or certified mail to any office it keeps in Louisiana.",
-      "A material supplier has a second route: a notice of nonpayment to the general contractor, the surety and the owner no sooner than 45 days after delivery, then a payment notice once unpaid 90 days after delivery; the surety pays within ten days (§ 38:2247(B), (C)). A supplier to a sub on a recorded contract also sends notice of nonpayment within 75 days from the last day of the month of delivery to keep its privilege (§ 38:2242(F)).",
+      "A material supplier has a second route: a notice of nonpayment to the general contractor, the surety and the owner no sooner than 45 days after delivery, then a payment notice once unpaid 90 days after delivery; the surety pays within ten days (§ 38:2247(B), (C)). A supplier to a sub on a recorded contract also sends notice of nonpayment to the general contractor and the owner by certified mail within 75 days from the last day of the month of delivery, or by the end of the statutory lien period if that comes first, to keep its privilege (§ 38:2242(F)).",
       "A claimant who recovers the full sworn claim after amicable demand and 30 days unpaid is allowed 10% attorney's fees (§ 38:2246). The payment bond is required on contracts over $25,000 per project, for at least half the contract price (§ 38:2241(A)(2)).",
     ],
   },
@@ -693,6 +700,8 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
     law: "Mass. Gen. Laws ch. 149, § 29",
     url: "https://malegislature.gov/Laws/GeneralLaws/PartI/TitleXXI/Chapter149/Section29",
     checkedOn: "2026-11-27",
+    remoteTier:
+      "Massachusetts gives the 65-day notice route only to a claimant \"having a contractual relationship with a subcontractor performing labor or both performing labor and furnishing materials pursuant to a contract with the general contractor\" (ch. 149, § 29). Read on its face, that stops at the GC's own sub's subs and suppliers: if you contracted further down the chain, the bond may not reach you, and a construction attorney can say.",
     notes: [
       "The claim is enforced by a petition in equity in the superior court. A claimant in contract with the prime may file once unpaid 65 days after the amount was due; no decree is entered before the 70th day after your last day (§ 29, second and fifth paragraphs).",
       "The 65-day notice goes by registered or certified mail to the contractor's office, place of business or residence, or as civil process may be served, and states the amount claimed and who you worked for.",
@@ -752,7 +761,7 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
     url: "https://www.revisor.mn.gov/statutes/cite/574.31",
     checkedOn: "2026-11-27",
     notes: [
-      "Everyone furnishing labor and materials gives the notice, first-tier subs included, personally or by certified mail to the surety and the contractor at the addresses stated in the bond. The statute sets out a sworn form for it (§ 574.31, subd. 2(a)).",
+      "Everyone furnishing labor and materials gives the notice, first-tier subs included, personally or by certified mail to the surety and the contractor at the addresses stated in the bond. The notice specifies the nature and amount of the claim, and a notice substantially in the form the statute gives is sufficient (§ 574.31, subd. 2(a)).",
       "If the contractor's bond fails to state both its and the surety's addresses (§ 574.28), no notice is needed (subd. 2(b)).",
       "The one-year suit limit can be extended by a written stipulation with the surety, or by a certified-mail notice to the surety 90 days before the limit that it does not object to within 30 days (subd. 2(d)).",
     ],
@@ -800,7 +809,7 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
     url: "https://www.oregonlegislature.gov/bills_laws/ors/ors279C.html",
     checkedOn: "2026-11-27",
     notes: [
-      "Everyone gives the notice of claim, first-tier subs included, to the contractor and the contracting agency, by registered or certified mail or by hand, in the form ORS 279C.605(3) sets out, signed.",
+      "Everyone gives the notice of claim, first-tier subs included, to the contractor and the contracting agency, by registered or certified mail or by hand, in the form ORS 279C.605(3) sets out.",
       "A claim for an employee benefit fund contribution has 200 days instead of 180 (ORS 279C.605(2)).",
     ],
   },
@@ -977,6 +986,8 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
     law: "W.S. 16-6-112 to 16-6-117",
     url: "https://wyoleg.gov/statutes/compress/title16.pdf",
     checkedOn: "2026-11-28",
+    anyTier:
+      'Wyoming\'s bond is for the use and benefit of "any person performing any work or labor or furnishing any material or goods of any kind which were used in the execution of the contract" (W.S. 16-6-112(a)(ii)), with no tier named, so the steps above apply to you; whether a court reaches a supplier far down the chain is a question for a construction attorney.',
     notes: [
       "The statute asks for no notice before suit, from any tier. When you sue, notify the obligee named in the bond (the public entity) of the action, the parties, the bond and the amount and nature of your claim; no judgment is entered for 30 days after that notice (W.S. 16-6-113).",
       "The suit limit is one year after the date of final completion, which the public entity posts on the state procurement website or its own (W.S. 16-6-115, 16-6-116(a)(iv)): look it up there.",
@@ -1754,9 +1765,9 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
             who: "all",
             act: "Mail the prime contractor and the surety notice of a retainage claim",
             citation: "Tex. Gov't Code § 2253.046",
-            rule: "on or before the 90th day after final completion of the public work contract (not needed if a prior claim included it)",
+            rule: "on or before the 90th day after final completion of the public work contract (not needed if a prior claim included it); PayApps counts from your last day or the acceptance, whichever is earlier, since the contract cannot be finally completed before your own work ends and acceptance can come after completion",
           },
-          A,
+          [L, A].filter((x): x is string => x !== null).sort()[0] ?? null,
           days(90),
           "the day the public work contract was finally completed",
         ),
@@ -2055,8 +2066,9 @@ export function stateBondClaim(
       "Who did you contract with? The notices marked for those not in contract with the prime apply only if you contracted with a subcontractor; PayApps shows them until you say, since sending them never hurts.",
     );
   }
-  if (input.tier === "remote" && rule.anyTier) {
-    notes.unshift(rule.anyTier);
+  const remoteWords = rule.anyTier ?? rule.remoteTier;
+  if (input.tier === "remote" && remoteWords) {
+    notes.unshift(remoteWords);
   } else if (input.tier === "remote") {
     notes.unshift(
       `${rule.name}'s statute names claimants who contracted with the prime or with a subcontractor. Whether one further down the chain is covered turns on how the state reads "subcontractor": PayApps shows the subcontractor's steps, and a construction attorney can say if the bond reaches you.`,

@@ -136,8 +136,17 @@ describe("state bond claims", () => {
     const r = checked("TX", "second", ACCEPTED);
     expect(dueOf(r, "Tex. Gov't Code § 2253.047(c)")).toBe("2026-09-15");
     expect(dueOf(r, "Tex. Gov't Code § 2253.041")).toBe("2026-10-15");
-    // 14 December + 90 days = Sunday 14 March 2027 -> Friday 12 March.
-    expect(dueOf(r, "Tex. Gov't Code § 2253.046")).toBe("2027-03-12");
+    // § 2253.046 counts from final completion of the contract, which falls between the sub's last
+    // day and the acceptance: the earlier day, 10 July + 90 = Thursday 8 October, is never late.
+    expect(dueOf(r, "Tex. Gov't Code § 2253.046")).toBe("2026-10-08");
+    // With only the acceptance known: 14 December + 90 = Sunday 14 March 2027 -> Friday 12 March.
+    const accOnly = stateBondClaim("TX", {
+      tier: "second",
+      lastFurnishedOn: null,
+      acceptedOn: ACCEPTED,
+    });
+    if (accOnly?.kind !== "checked") throw new Error("expected checked");
+    expect(dueOf(accOnly, "Tex. Gov't Code § 2253.046")).toBe("2027-03-12");
     // The suit runs from the day the notice is mailed, which PayApps does not know.
     const suit = r.steps.find((s) => s.citation === "Tex. Gov't Code § 2253.078(b)");
     expect(suit?.dueOn).toBeNull();
@@ -591,5 +600,17 @@ describe("state bond claim reminder on the cash page", () => {
     expect(stateBondText(first, owed, "2027-06-30", "first")).toContain(
       "Bring suit on the payment bond",
     );
+  });
+
+  it("a remote tier reads the statute's own words where it names its claimants (AL, WY, MA)", () => {
+    const al = checked("AL", "remote");
+    expect(al.notes[0]).toContain("any person that has furnished labor, materials, or supplies");
+    const wy = checked("WY", "remote");
+    expect(wy.notes[0]).toContain("W.S. 16-6-112(a)(ii)");
+    const ma = checked("MA", "remote");
+    expect(ma.notes[0]).toContain("pursuant to a contract with the general contractor");
+    expect(ma.notes[0]).toContain("may not reach you");
+    // A state with no words of its own keeps the generic caution.
+    expect(checked("VA", "remote").notes[0]).toContain('how the state reads "subcontractor"');
   });
 });
