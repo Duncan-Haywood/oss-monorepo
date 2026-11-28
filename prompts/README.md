@@ -145,7 +145,7 @@ python3 prompts/promptctl.py map [--track T]
 python3 prompts/promptctl.py validate
 python3 prompts/runcost.py attach prompts/runs/<record>.json --human-hours H --human-basis "..."
 python3 prompts/runcost.py report
-python3 prompts/derive.py fetch [--refresh] && python3 prompts/derive.py build && python3 prompts/derive.py report
+python3 prompts/derive.py fetch [--refresh] [--limit N] && python3 prompts/derive.py build && python3 prompts/derive.py report
 python3 prompts/redteam.py campaign|rerun|tally|targets|open
 python3 -m unittest discover -s prompts
 ```

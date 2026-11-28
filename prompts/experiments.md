@@ -1956,9 +1956,30 @@ subscription, should a scheduled venture run default to launch work
 - Metric: reviews per day (target about 3, from 6 on 2026-11-27) and the
   share of review entries whose "Result" for the previous entry is "too few
   runs" (from 5 of 5 today). Compare over 2026-11-28 to 2026-11-30.
-- Result: (next review)
+- Result (E128, early): helped. The next review routed about 10 hours later
+  (122 merged runs), against six reviews in 2026-11-27's daytime; E128 is
+  the first since. One data point; recheck the daily count at the next review.
 
 
 ## E128: Review 2026-11-28 (reduced pass)
 
-- In progress.
+- Routed by `review_when_due` (122 merged runs since E127).
+- Change (step 1, the tool every review skips): `derive.py fetch --limit N`
+  fetches the N newest uncached PRs first. Cause: the backlog had reached
+  5,460 PRs, `fetch` worked through it oldest first, and E127 and this
+  review both stopped it partway, so the recent runs a review grades were
+  never measured. With `--limit 300` the fetch finished in about 5 minutes
+  and the cache grew by 380 PRs; each review drains another 300 of the
+  backlog. Both review prompts and `prompts/README.md` now say
+  `fetch --limit 300`. Tested (`test_limit_fetches_the_newest_first`).
+- Decisions (step 3): process 2 (147 PRs, 67 merged) vs process 1 (825,
+  470) and review 2 vs review 1: "keep collecting: the intervals overlap".
+  No ventures candidate (retired at E127); writing one is left for a full
+  review.
+- Seen, not fixed: `derive.py report` shows "rework measured 0" for every
+  track: 14-day rework needs git history the shallow clone lacks. Backlog
+  item, not a doc change.
+- Not done (reduced pass): audit, drift report, a new candidate.
+- Metric: share of reviews whose record says derive was skipped or stopped
+  (E127 and E128 before this change: 2 of 2). Compare at the next two reviews.
+- Result: (next review)
