@@ -31,7 +31,12 @@ describe("uploadMimeType", () => {
     for (const type of ["application/x-pdf", "application/acrobat", "text/plain", "image/png"]) {
       expect(uploadMimeType("drawings.pdf", type), type).toBe("application/pdf");
     }
-    for (const type of ["application/x-pdf", "application/acrobat", "application/vnd.pdf", "text/pdf"]) {
+    for (const type of [
+      "application/x-pdf",
+      "application/acrobat",
+      "application/vnd.pdf",
+      "text/pdf",
+    ]) {
       expect(uploadMimeType("drawings", type), type).toBe("application/pdf");
     }
   });

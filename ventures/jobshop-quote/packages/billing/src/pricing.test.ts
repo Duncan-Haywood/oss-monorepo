@@ -22,10 +22,10 @@ import {
   checkPricingBand,
   definePlanCatalog,
   deriveLargestQuota,
-  marginForMarkup,
-  markupForMargin,
   MAX_MARKUP,
   MIN_MARKUP,
+  marginForMarkup,
+  markupForMargin,
 } from "./pricing.ts";
 
 // Parity fixture: apps/grants' cost model (src/shared/billing/cost-model.ts) rebuilt on this
