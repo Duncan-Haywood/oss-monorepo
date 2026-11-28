@@ -49,6 +49,107 @@ describe("allocateLotCost", () => {
     expect(over.warnings[0]).toMatch(/more than the lot cost/);
   });
   it("rejects fractional cents", () => expect(() => allocateLotCost(1.5, [])).toThrow());
+
+  it("splits by expected price: a $40 bin with one $200 jacket and four $5 shirts", () => {
+    const r = allocateLotCost(
+      4000,
+      [
+        { id: "jacket", manualCostCents: null, estimatedValueCents: 20000 },
+        ...[1, 2, 3, 4].map((n) => ({
+          id: `shirt${n}`,
+          manualCostCents: null,
+          estimatedValueCents: 500,
+        })),
+      ],
+      "value",
+    );
+    // 40 x 200/220 = 36.3636..., 40 x 5/220 = 0.90909... each; remainders round to the shirts.
+    expect(Object.fromEntries(r.costs)).toEqual({
+      jacket: 3636,
+      shirt1: 91,
+      shirt2: 91,
+      shirt3: 91,
+      shirt4: 91,
+    });
+    expect(r.splitUsed).toBe("value");
+    expect(r.warnings).toEqual([]);
+  });
+  it("matches the cost-of-goods guide's worked lot to the cent", () => {
+    // ventures/ebay-fee-calculator/cost-of-goods-sold-for-resellers.html: $120.00 over 2 pieces at $60,
+    // 8 at $20 and 10 at $5 ($330 expected) is $21.82, $7.27 and $1.82 a piece.
+    const tiers = [
+      ...Array.from({ length: 2 }, () => 6000),
+      ...Array.from({ length: 8 }, () => 2000),
+      ...Array.from({ length: 10 }, () => 500),
+    ];
+    const r = allocateLotCost(
+      12000,
+      tiers.map((v, k) => ({ id: `p${k}`, manualCostCents: null, estimatedValueCents: v })),
+      "value",
+    );
+    const shares = [...r.costs.values()];
+    expect(new Set(shares.slice(0, 2))).toEqual(new Set([2182]));
+    expect(new Set(shares.slice(2, 10))).toEqual(new Set([727]));
+    expect(new Set(shares.slice(10))).toEqual(new Set([182]));
+    expect(shares.reduce((s, v) => s + v, 0)).toBe(12000);
+  });
+  it("splits by value only what typed-in costs leave", () => {
+    const r = allocateLotCost(
+      10000,
+      [
+        { id: "a", manualCostCents: 4000, estimatedValueCents: 1 },
+        { id: "b", manualCostCents: null, estimatedValueCents: 3000 },
+        { id: "c", manualCostCents: null, estimatedValueCents: 1000 },
+      ],
+      "value",
+    );
+    expect(Object.fromEntries(r.costs)).toEqual({ a: 4000, b: 4500, c: 1500 });
+  });
+  it("falls back to an even split, saying why, while an item has no expected price", () => {
+    const r = allocateLotCost(
+      900,
+      [
+        { id: "a", manualCostCents: null, estimatedValueCents: 5000 },
+        { id: "b", manualCostCents: null, estimatedValueCents: null },
+        { id: "c", manualCostCents: null },
+      ],
+      "value",
+    );
+    expect([...r.costs.values()]).toEqual([300, 300, 300]);
+    expect(r.splitUsed).toBe("even");
+    expect(r.warnings[0]).toMatch(/2 of 3 items .* have no expected price/);
+  });
+  it("by value always adds back up to the lot total, ties to the first items", () => {
+    const tie = allocateLotCost(
+      100,
+      [1, 2, 3].map((n) => ({ id: `t${n}`, manualCostCents: null, estimatedValueCents: 700 })),
+      "value",
+    );
+    expect([...tie.costs.values()]).toEqual([34, 33, 33]);
+    let seed = 7;
+    const rand = (n: number) => {
+      seed = (seed * 1103515245 + 12345) % 2 ** 31;
+      return 1 + (seed % n);
+    };
+    for (const total of [0, 1, 99, 12345, 999_999, 1_000_000_000]) {
+      for (let n = 1; n <= 9; n++) {
+        const items = Array.from({ length: n }, (_, i) => ({
+          id: `i${i}`,
+          manualCostCents: null,
+          estimatedValueCents: rand(1_000_000_000),
+        }));
+        const r = allocateLotCost(total, items, "value");
+        const shares = [...r.costs.values()];
+        expect(shares.reduce((s, v) => s + v, 0)).toBe(total);
+        // Each share is within a cent of its exact proportion.
+        const sum = items.reduce((s, i) => s + i.estimatedValueCents, 0);
+        for (const [k, i] of items.entries()) {
+          const exact = (total * i.estimatedValueCents) / sum;
+          expect(Math.abs((shares[k] ?? 0) - exact)).toBeLessThan(1);
+        }
+      }
+    }
+  });
 });
 
 const order = (o: Partial<PnlSaleInput>): PnlSaleInput => ({

@@ -96,6 +96,19 @@ test("CA notice: each item's heading is its own phrase in § 8102(a) or § 8202,
   }
 });
 
+test("CA notice: one-line inputs for the price and the demand, multi-line for names and addresses", () => {
+  // The price estimate and the demand are single figures or phrases; every other § 8102/8202 item
+  // is a name and address or a description, which needs a multi-line box on the form.
+  const types = Object.fromEntries(form().fields.map((x) => [x.key, x.type]));
+  for (const i of CA_NOTICE_ITEMS) {
+    const want = i.key === "estimate" || i.key === "demand" ? "text" : "multiline";
+    assert.equal(types[i.key], want, i.key);
+  }
+  assert.equal(types.estimate, "text");
+  assert.equal(types.demand, "text");
+  assert.equal(types.signedDate, "date");
+});
+
 test("CA notice: placeholders declared; offered for California only", () => {
   const f = form();
   const declared = new Set(f.fields.map((x) => x.key));

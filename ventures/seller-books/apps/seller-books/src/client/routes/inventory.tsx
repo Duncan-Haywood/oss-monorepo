@@ -2,6 +2,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { SheetImport } from "../components/sheet-import";
+import { StockCount } from "../components/stock-count";
 import { api, dollarsToCents, orgPath, today, usd } from "../lib/api";
 import { useOrgId } from "./org";
 import { ErrorText } from "./public";
@@ -12,6 +13,8 @@ interface Lot {
   acquiredDate: string;
   vendor: string | null;
   totalCostCents: number;
+  splitBy: "even" | "value";
+  missingValueCount: number;
   itemCount: number;
   soldCount: number;
   unallocatedCents: number;
@@ -25,6 +28,7 @@ interface Item {
   acquiredDate: string;
   costCents: number;
   costIsManual: boolean;
+  estimatedValueCents: number | null;
   lotId: string | null;
   status: string;
   disposedDate: string | null;
@@ -42,12 +46,13 @@ export function InventoryPage() {
     queryFn: () => api<{ items: Item[] }>(orgPath(orgId, "/inventory/items?limit=500")),
   });
 
-  // New lot: name, date, cost, one item per line ("title | SKU | optional cost").
+  // New lot: name, date, cost, one item per line ("title | SKU | optional cost | optional expected price").
   const [lot, setLot] = useState({
     name: "",
     acquiredDate: today(),
     cost: "",
     vendor: "",
+    splitBy: "even" as "even" | "value",
     lines: "",
   });
   const addLot = useMutation({
@@ -59,18 +64,33 @@ export function InventoryPage() {
           acquiredDate: lot.acquiredDate,
           vendor: lot.vendor || null,
           totalCostCents: dollarsToCents(lot.cost),
+          splitBy: lot.splitBy,
           items: lot.lines
             .split("\n")
             .map((l) => l.trim())
             .filter(Boolean)
             .map((l) => {
-              const [title = "", sku = "", cost = ""] = l.split("|").map((p) => p.trim());
-              return { title, sku: sku || null, costCents: cost ? dollarsToCents(cost) : null };
+              const [title = "", sku = "", cost = "", value = ""] = l
+                .split("|")
+                .map((p) => p.trim());
+              return {
+                title,
+                sku: sku || null,
+                costCents: cost ? dollarsToCents(cost) : null,
+                estimatedValueCents: value ? dollarsToCents(value) : null,
+              };
             }),
         },
       }),
     onSuccess: () => {
-      setLot({ name: "", acquiredDate: today(), cost: "", vendor: "", lines: "" });
+      setLot({
+        name: "",
+        acquiredDate: today(),
+        cost: "",
+        vendor: "",
+        splitBy: lot.splitBy,
+        lines: "",
+      });
       return qc.invalidateQueries();
     },
   });
@@ -107,6 +127,29 @@ export function InventoryPage() {
       api(orgPath(orgId, `/inventory/items/${id}`), { method: "PATCH", body }),
     onSuccess: () => qc.invalidateQueries(),
   });
+  const updateLot = useMutation({
+    mutationFn: ({ id, body }: { id: string; body: Record<string, unknown> }) =>
+      api<{ warnings: string[] }>(orgPath(orgId, `/inventory/lots/${id}`), {
+        method: "PATCH",
+        body,
+      }),
+    onSuccess: () => qc.invalidateQueries(),
+  });
+  const setExpected = (i: Item) => {
+    const typed = prompt(
+      `Expected selling price for "${i.title}" (blank clears it)`,
+      i.estimatedValueCents != null ? (i.estimatedValueCents / 100).toFixed(2) : "",
+    );
+    if (typed === null) return;
+    let cents: number | null = null;
+    try {
+      cents = typed.trim() ? dollarsToCents(typed) : null;
+    } catch (e) {
+      alert((e as Error).message);
+      return;
+    }
+    update.mutate({ id: i.id, body: { estimatedValueCents: cents } });
+  };
   const removeItem = useMutation({
     mutationFn: (id: string) => api(orgPath(orgId, `/inventory/items/${id}`), { method: "DELETE" }),
     onSuccess: () => qc.invalidateQueries(),
@@ -128,6 +171,7 @@ export function InventoryPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Inventory &amp; cost of goods</h1>
       <SheetImport orgId={orgId} />
+      <StockCount orgId={orgId} />
       <div className="grid gap-4 lg:grid-cols-2">
         <form
           className="card space-y-2"
@@ -165,18 +209,34 @@ export function InventoryPage() {
               value={lot.vendor}
               onChange={(e) => setLot({ ...lot, vendor: e.target.value })}
             />
+            <label className="col-span-2 text-sm">
+              <span className="mr-2">Split the cost</span>
+              <select
+                className="input inline-block w-auto"
+                value={lot.splitBy}
+                onChange={(e) => setLot({ ...lot, splitBy: e.target.value as "even" | "value" })}
+              >
+                <option value="even">evenly over the items</option>
+                <option value="value">by what each item should sell for</option>
+              </select>
+            </label>
           </div>
           <textarea
             className="input h-28 font-mono text-xs"
             placeholder={
-              "One item per line: title | SKU | cost (optional)\nLevi's 501 | JEANS-1\nPyrex bowl | PYREX-2 | 15.00"
+              lot.splitBy === "value"
+                ? "One item per line: title | SKU | cost (optional) | expected price\nWool coat | COAT-1 | | 120.00\nLevi's 501 | JEANS-1 | | 35.00"
+                : "One item per line: title | SKU | cost (optional)\nLevi's 501 | JEANS-1\nPyrex bowl | PYREX-2 | 15.00"
             }
             value={lot.lines}
             onChange={(e) => setLot({ ...lot, lines: e.target.value })}
           />
           <p className="text-xs text-stone-500">
-            Items without a cost share what is left of the lot cost evenly. Use the same SKU (custom
-            label) you list with, and imported sales link to the item automatically.
+            {lot.splitBy === "value"
+              ? "Items without a cost share what is left of the lot cost in proportion to their expected price, so a $40 bin holding one $200 coat and twenty $5 shirts puts $26.67 on the coat rather than $1.90. Until every item has a price the lot is split evenly."
+              : "Items without a cost share what is left of the lot cost evenly."}{" "}
+            Use the same SKU (custom label) you list with, and imported sales link to the item
+            automatically.
           </p>
           <button className="btn" type="submit" disabled={addLot.isPending}>
             Add lot
@@ -268,6 +328,7 @@ export function InventoryPage() {
               <th>Lot</th>
               <th>Bought</th>
               <th className="num">Cost</th>
+              <th>Split</th>
               <th className="num">Items</th>
               <th className="num">Sold</th>
               <th className="num">Not assigned to items</th>
@@ -283,6 +344,27 @@ export function InventoryPage() {
                 <td data-label="Bought">{l.acquiredDate}</td>
                 <td data-label="Cost" className="num">
                   {usd(l.totalCostCents)}
+                </td>
+                <td data-label="Split">
+                  <div>
+                    <select
+                      className="input w-auto py-0 text-xs"
+                      aria-label={`How ${l.name}'s cost is split`}
+                      value={l.splitBy}
+                      onChange={(e) =>
+                        updateLot.mutate({ id: l.id, body: { splitBy: e.target.value } })
+                      }
+                    >
+                      <option value="even">evenly</option>
+                      <option value="value">by expected price</option>
+                    </select>
+                    {l.splitBy === "value" && l.missingValueCount > 0 && (
+                      <span className="ml-1 text-xs text-accent-700">
+                        evenly until {l.missingValueCount} more{" "}
+                        {l.missingValueCount === 1 ? "item has" : "items have"} a price
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td data-label="Items" className="num">
                   {l.itemCount}
@@ -304,7 +386,7 @@ export function InventoryPage() {
 
       <section className="card overflow-x-auto">
         <h2 className="mb-2 font-medium">Items</h2>
-        <ErrorText error={update.error ?? removeItem.error} />
+        <ErrorText error={update.error ?? updateLot.error ?? removeItem.error} />
         <table className="table table-stack">
           <thead>
             <tr>
@@ -334,6 +416,11 @@ export function InventoryPage() {
                   {i.lotId && !i.costIsManual && (
                     <span className="ml-1 text-xs text-stone-500">(lot share)</span>
                   )}
+                  {i.estimatedValueCents != null && (
+                    <span className="block text-xs text-stone-500">
+                      expected {usd(i.estimatedValueCents)}
+                    </span>
+                  )}
                 </td>
                 <td data-label="Status">
                   {i.status.replace("_", " ")}
@@ -342,6 +429,11 @@ export function InventoryPage() {
                   )}
                 </td>
                 <td className="space-x-2 text-xs">
+                  {i.lotId && (
+                    <button type="button" className="underline" onClick={() => setExpected(i)}>
+                      Expected price
+                    </button>
+                  )}
                   {i.status === "in_stock" && (
                     <>
                       <button

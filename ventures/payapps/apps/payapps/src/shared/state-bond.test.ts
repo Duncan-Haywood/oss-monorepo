@@ -22,8 +22,9 @@ const dueOf = (r: ReturnType<typeof checked>, citation: string) =>
   r.steps.find((s) => s.citation === citation)?.dueOn;
 
 describe("state bond claims", () => {
-  it("covers the twenty-five states read, each with a statute link on its legislature's site", () => {
+  it("covers the thirty-one states read, each with a statute link on its legislature's site", () => {
     expect(STATE_BOND_STATES).toEqual([
+      "AK",
       "AZ",
       "CO",
       "DE",
@@ -38,17 +39,22 @@ describe("state bond claims", () => {
       "MI",
       "MN",
       "MO",
+      "MT",
       "NC",
+      "ND",
       "NE",
       "NV",
       "NY",
       "OH",
       "OR",
       "RI",
+      "SC",
+      "SD",
       "TX",
       "UT",
       "VA",
       "WA",
+      "WY",
     ]);
     for (const s of STATE_BOND_STATES) {
       const rule = STATE_BOND_RULES[s];
@@ -206,6 +212,76 @@ describe("state bond claims", () => {
     ]);
     expect(checked("IA", "first", ACCEPTED).steps).toHaveLength(2);
     expect(checked("IA", "first").dated).toEqual([]);
+  });
+
+  it("South Carolina: 90-day notice for a remote claimant, a year from the last day to sue", () => {
+    const sc = checked("SC", "second");
+    // 10 July + 90 days = Thursday 8 October 2026; a year on is Saturday 10 July 2027 -> Friday 9 July.
+    expect(dueOf(sc, "S.C. Code § 11-35-3030(2)(c)")).toBe("2026-10-08");
+    expect(dueOf(sc, "S.C. Code § 11-35-3030(2)(d)")).toBe("2027-07-09");
+    expect(checked("SC", "first").steps.map((s) => s.citation)).toEqual([
+      "S.C. Code § 11-35-3030(2)(d)",
+    ]);
+  });
+
+  it("North Dakota: 90-day notice from the last day; the suit counts from acceptance", () => {
+    const nd = checked("ND", "second", ACCEPTED);
+    expect(dueOf(nd, "N.D. Cent. Code § 48-01.2-11")).toBe("2026-10-08");
+    // 14 December 2026 + one year = Tuesday 14 December 2027.
+    expect(dueOf(nd, "N.D. Cent. Code § 48-01.2-12")).toBe("2027-12-14");
+    const waiting = checked("ND", "first");
+    expect(waiting.steps.map((s) => s.citation)).toEqual(["N.D. Cent. Code § 48-01.2-12"]);
+    expect(waiting.dated).toEqual([]);
+    expect(waiting.steps[0]?.waitsFor).toMatch(/accepted/);
+  });
+
+  it("Montana: everyone files with the public body within 90 days of acceptance; a sub's supplier also notifies at first delivery", () => {
+    const mt = checked("MT", "second", ACCEPTED);
+    // 14 December 2026 + 90 days = Sunday 14 March 2027 -> Friday 12 March.
+    const filed = mt.steps.find((s) => s.citation === "Mont. Code Ann. § 18-2-204");
+    expect(filed?.statutoryOn).toBe("2027-03-14");
+    expect(filed?.dueOn).toBe("2027-03-12");
+    const first = mt.steps.find((s) => s.citation === "Mont. Code Ann. § 18-2-206");
+    expect(first?.dueOn).toBeNull();
+    expect(first?.waitsFor).toMatch(/first furnished/);
+    expect(checked("MT", "first", ACCEPTED).steps.map((s) => s.citation)).toEqual([
+      "Mont. Code Ann. § 18-2-204",
+    ]);
+    expect(mt.notes.join(" ")).toMatch(/no suit limit of its own/);
+  });
+
+  it("South Dakota: no notice, and the suit waits on final settlement, so nothing is dated", () => {
+    const sd = checked("SD", "second", ACCEPTED);
+    expect(sd.steps.map((s) => s.citation)).toEqual(["S.D. Codified Laws § 5-21-6"]);
+    expect(sd.dated).toEqual([]);
+    expect(sd.steps[0]?.waitsFor).toMatch(/final settlement/);
+  });
+
+  it("Alaska: 90-day notice by registered mail for a sub's sub; the suit waits on final settlement", () => {
+    const ak = checked("AK", "second", ACCEPTED);
+    // 10 July + 90 days = Thursday 8 October 2026.
+    expect(dueOf(ak, "AS 36.25.020(b)")).toBe("2026-10-08");
+    const suit = ak.steps.find((s) => s.citation === "AS 36.25.020(c)");
+    expect(suit?.dueOn).toBeNull();
+    expect(suit?.waitsFor).toMatch(/final settlement/);
+    expect(ak.dated.map((s) => s.citation)).toEqual(["AS 36.25.020(b)"]);
+    // A first-tier sub gives no notice; a remote supplier counts as not in contract with the prime.
+    expect(checked("AK", "first").steps.map((s) => s.citation)).toEqual(["AS 36.25.020(c)"]);
+    expect(checked("AK", "remote").steps.map((s) => s.citation)).toEqual([
+      "AS 36.25.020(b)",
+      "AS 36.25.020(c)",
+    ]);
+    expect(ak.notes.join(" ")).toMatch(/one-half of a contract up to \$1,000,000/);
+  });
+
+  it("Wyoming: no notice from any tier; the suit counts from the posted final completion date", () => {
+    for (const tier of ["first", "second", "remote", null] as const) {
+      const wy = checked("WY", tier, ACCEPTED);
+      expect(wy.steps.map((s) => s.citation)).toEqual(["W.S. 16-6-113, 16-6-115"]);
+      expect(wy.dated).toEqual([]);
+      expect(wy.steps[0]?.waitsFor).toMatch(/final completion/);
+    }
+    expect(checked("WY", "second").notes.join(" ")).toMatch(/forty-first day/);
   });
 
   it("Rhode Island: 90-day notice for a sub's sub, two years to sue", () => {

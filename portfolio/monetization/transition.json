@@ -14,7 +14,7 @@
   "proprietary": [
     {
       "venture": "payapps",
-      "source_lines": 153633,
+      "source_lines": 156676,
       "track": "proprietary",
       "why": "flagship #1: the depth people pay for",
       "model": "subscription",
@@ -25,7 +25,7 @@
     },
     {
       "venture": "jobshop-quote",
-      "source_lines": 85897,
+      "source_lines": 93852,
       "track": "proprietary",
       "why": "flagship #2: the depth people pay for",
       "model": "subscription",
@@ -38,7 +38,7 @@
     },
     {
       "venture": "einvoice-preflight",
-      "source_lines": 36755,
+      "source_lines": 37078,
       "track": "proprietary",
       "why": "flagship #3: the depth people pay for",
       "model": "subscription",
@@ -57,7 +57,7 @@
     },
     {
       "venture": "cmmc",
-      "source_lines": 53968,
+      "source_lines": 56875,
       "track": "proprietary",
       "why": "flagship #4: the depth people pay for",
       "model": "subscription",
@@ -68,7 +68,7 @@
     },
     {
       "venture": "seller-books",
-      "source_lines": 49875,
+      "source_lines": 55570,
       "track": "proprietary",
       "why": "flagship #5: the depth people pay for",
       "model": "subscription",
@@ -79,7 +79,7 @@
     },
     {
       "venture": "wall-framing-takeoff",
-      "source_lines": 18253,
+      "source_lines": 18342,
       "track": "proprietary",
       "why": "flagship #6: the depth people pay for",
       "model": "one-off",
@@ -207,7 +207,7 @@
     },
     {
       "venture": "einvoice-pro",
-      "source_lines": 50991,
+      "source_lines": 51394,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -222,7 +222,7 @@
     },
     {
       "venture": "residential-takeoff",
-      "source_lines": 23868,
+      "source_lines": 23902,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -302,6 +302,17 @@
       "move_order": 24
     },
     {
+      "venture": "machine-shop-guides",
+      "source_lines": 8325,
+      "track": "proprietary",
+      "why": "over 5000 lines of product code, more than a single-page tool",
+      "model": "subscription",
+      "model_why": "runs a server-side part (pdf-parser-sync.test.mjs): a monthly cost per user",
+      "third_party_licences": [],
+      "moved": null,
+      "move_order": 25
+    },
+    {
       "venture": "real-estate-agent-photo-app",
       "source_lines": 8114,
       "track": "proprietary",
@@ -311,17 +322,6 @@
       "third_party_licences": [
         "ventures/real-estate-agent-photo-app/site/LICENSE"
       ],
-      "moved": null,
-      "move_order": 25
-    },
-    {
-      "venture": "machine-shop-guides",
-      "source_lines": 7272,
-      "track": "proprietary",
-      "why": "over 5000 lines of product code, more than a single-page tool",
-      "model": "subscription",
-      "model_why": "runs a server-side part (pdf-parser-sync.test.mjs): a monthly cost per user",
-      "third_party_licences": [],
       "moved": null,
       "move_order": 26
     },
@@ -338,7 +338,7 @@
     },
     {
       "venture": "pay-app-guides",
-      "source_lines": 5691,
+      "source_lines": 6610,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",

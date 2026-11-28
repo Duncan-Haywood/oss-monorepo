@@ -5,10 +5,10 @@
 //    dates PayApps counts here: the 90-day notice a second-tier claimant gives the prime, and the
 //    one-year limit on the suit. They take the lien deadline's place on the job page, the cash page
 //    and the weekly email. State and local jobs have each state's own bond law ("little Miller
-//    Act"): there it shows no lien date, and lists the bond claim steps in the twenty-five states of
+//    Act"): there it shows no lien date, and lists the bond claim steps in the thirty-one states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
-//    checked against the cap in the 23 states the public guide lists.
+//    checked against the cap in the 25 states the public guide lists.
 //
 // Sources. Miller Act rules ported from ventures/pay-app-guides/millerbond.mjs (40 U.S.C. 3131 and
 // 3133 read on govinfo.gov and law.cornell.edu on 2026-11-25; J.W. Bateson Co. v. United States,
@@ -283,6 +283,19 @@ export const RETAINAGE_CAPS: Record<string, RetainageCap> = {
     notes:
       "Limits on further retainage once the project is 50% complete. Small projects carry no retainage: the text read says under $150,000, and a 2025 session bill (H1123) changes that threshold, so check the current section.",
   },
+  ND: {
+    name: "North Dakota",
+    citation: "N.D. Cent. Code \u00a7 48-01.2-13",
+    url: "https://ndlegis.gov/cencode/t48c01-2.pdf",
+    cap: "10% of each estimate until 50% complete, then no more",
+    capBps: 1000,
+    lowerBps: 0,
+    lowerWhen:
+      "on estimates after the project is 50% complete (unless unsatisfactory progress or performance is documented)",
+    flowsDown: false,
+    notes:
+      "At 95% complete the governing body may pay up to 95% of what it has retained; the rest is paid when the architect or engineer approves. Retained money may be invested for the contractor's benefit. An estimate unpaid more than 30 days after approval earns interest (\u00a7 48-01.2-14).",
+  },
   NV: {
     name: "Nevada",
     citation: "NRS 338.515",
@@ -337,6 +350,16 @@ export const RETAINAGE_CAPS: Record<string, RetainageCap> = {
     lowerWhen: "once the job is 50% complete (half the retained amount is returned then)",
     flowsDown: false,
     notes: "Department of General Services contracts: 6%, then 3%.",
+  },
+  SC: {
+    name: "South Carolina",
+    citation: "S.C. Code \u00a7 11-35-3030(4)",
+    url: "https://www.scstatehouse.gov/code/t11c035.php",
+    cap: "3.5% of each progress payment",
+    capBps: 350,
+    flowsDown: true,
+    notes:
+      "The State Consolidated Procurement Code; it applies the same 3.5% to what a general contractor holds in a subcontract. On a state job, each contractor's or sub's work is its own division: its retainage is released when that division is certified complete, and the prime pays the sub within ten days of receiving it.",
   },
   TX: {
     name: "Texas",
@@ -402,7 +425,7 @@ export type RetainageCapCheck =
       text: string;
     };
 
-const pct = (bps: number) => `${bps % 100 === 0 ? bps / 100 : (bps / 100).toFixed(2)}%`;
+const pct = (bps: number) => `${Number((bps / 100).toFixed(2))}%`;
 
 /**
  * The job's retainage against the state's cap on public work. `rates` are every rate the job holds
@@ -512,6 +535,18 @@ function step(
 const days = (n: number) => (iso: string) => addDays(iso, n);
 
 export const STATE_BOND_RULES: Record<string, StateBondRule> = {
+  AK: {
+    name: "Alaska",
+    law: "AS 36.25.010, 36.25.020",
+    url: "https://www.akleg.gov/basis/statutes.asp#36.25.020",
+    checkedOn: "2026-11-28",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day (AS 36.25.020(a)).",
+      "The notice goes by registered mail to the contractor's office, place of business or residence (or is served as a summons may be), and states with substantial accuracy the amount claimed and who you worked for (AS 36.25.020(b)).",
+      "The suit limit is one year after the date of final settlement of the contract (AS 36.25.020(c)), a day PayApps does not know: ask the public body for it. The suit is brought in the name of the state or political subdivision for your use, and is subject to the contractor registration rule of AS 08.18.151.",
+      "Payment bonds are required on contracts over $100,000 and cover one-half of a contract up to $1,000,000, 40% up to $5,000,000 and $2,500,000 above that (AS 36.25.010(a)(2)): on a large job the bond may not cover every claim. A municipality may exempt some contractors on projects up to $400,000 (AS 36.25.025).",
+    ],
+  },
   AZ: {
     name: "Arizona",
     law: "A.R.S. § 34-223",
@@ -773,6 +808,51 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "The suit limit is two years, or the bond's own limit if that is longer (§ 37-12-5); PayApps shows the two years.",
     ],
   },
+  MT: {
+    name: "Montana",
+    law: "Mont. Code Ann. §§ 18-2-204, 18-2-206",
+    url: "https://mca.legmt.gov/bills/mca/title_0180/chapter_0020/part_0020/section_0040/0180-0020-0020-0040.html",
+    checkedOn: "2026-11-28",
+    notes: [
+      "Everyone the bond covers, first-tier subs included, files the written notice of claim with the public body (not the contractor) within 90 days after the contract is complete and the body accepts the work by affirmative action (§ 18-2-204). The statute gives the form: the public body's name, yours, the amount, the principal and surety, and the work.",
+      "A supplier of materials or supplies to a subcontractor also gives the contractor a notice of a right of action on the security, personally or by certified mail, within 30 days after the first delivery (§ 18-2-206); no other kind of notice counts. It does not apply to labor.",
+      "Part 2 of Title 18, chapter 2 sets no suit limit of its own; ask a Montana construction attorney which limit applies. Attorney fees go to the prevailing party, but not for a suit brought within 30 days of the notice (§ 18-2-207).",
+    ],
+  },
+  ND: {
+    name: "North Dakota",
+    law: "N.D. Cent. Code §§ 48-01.2-11, 48-01.2-12",
+    url: "https://www.ndlegis.gov/cencode/t48c01-2.pdf",
+    checkedOn: "2026-11-28",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day (§ 48-01.2-11).",
+      "The notice goes by registered mail to the contractor's office, place of business or residence, and states the amount claimed and who you worked for (§ 48-01.2-11).",
+      "Bonds are required on public improvements over $250,000 (§ 48-01.2-10). The governing body gives a certified copy of the bond and contract to a claimant who files an affidavit of nonpayment (§ 48-01.2-11).",
+    ],
+  },
+  SC: {
+    name: "South Carolina",
+    law: "S.C. Code § 11-35-3030(2)(c), (d)",
+    url: "https://www.scstatehouse.gov/code/t11c035.php",
+    checkedOn: "2026-11-28",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day (§ 11-35-3030(2)(c)).",
+      "A remote claimant (in contract with a sub or supplier of the bonded contractor) serves the notice personally or by registered or certified mail at the contractor's permanent office or its address on the Department of Labor, Licensing and Regulation's records, stating the amount and who you worked for.",
+      "A remote claimant's claim is capped at what the contractor owes the party you worked for, unless you sent the contractor a notice of furnishing (in the form of § 29-5-20(B)) earlier: send one when you start.",
+      "This is the State Procurement Code, for state agencies' construction; a county, city or school district with its own procurement code may set its own bond terms. Ask for the bond.",
+    ],
+  },
+  SD: {
+    name: "South Dakota",
+    law: "S.D. Codified Laws §§ 5-21-1 to 5-21-7",
+    url: "https://sdlegislature.gov/Statutes/5-21-6",
+    checkedOn: "2026-11-28",
+    notes: [
+      "South Dakota's statute asks for no notice to the contractor. To sue, apply to the public body with an affidavit that you supplied labor or material and were not paid, and it furnishes a certified copy of the contract and bond (§ 5-21-6).",
+      "The suit is brought in the public body's name in the circuit court of the county where the work is, and not until six months after complete performance and final settlement of the contract (unless the public body itself sues sooner); it must then be brought within one year. Only one action is brought: others join it within a year from completion of the work. Ask the public body for its final settlement date.",
+      "If the public body took no bond, it is liable itself, but the action must be brought within 90 days from its acceptance of the work (§ 5-21-2).",
+    ],
+  },
   VA: {
     name: "Virginia",
     law: "Va. Code § 2.2-4341",
@@ -795,6 +875,19 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "This section states no suit deadline; read the bond and ask a construction attorney.",
     ],
   },
+  WY: {
+    name: "Wyoming",
+    law: "W.S. 16-6-112 to 16-6-117",
+    url: "https://wyoleg.gov/statutes/compress/title16.pdf",
+    checkedOn: "2026-11-28",
+    notes: [
+      "The statute asks for no notice before suit, from any tier. When you sue, notify the obligee named in the bond (the public entity) of the action, the parties, the bond and the amount and nature of your claim; no judgment is entered for 30 days after that notice (W.S. 16-6-113).",
+      "The suit limit is one year after the date of final completion, which the public entity posts on the state procurement website or its own (W.S. 16-6-115, 16-6-116(a)(iv)): look it up there.",
+      "Watch for the notice of substantial completion the public entity publishes for two weeks: on the forty-first day after it the GC is paid its retainage (W.S. 16-6-116(a)(ii), (iii)), so raise an unpaid balance before then.",
+      "Before that payment the contractor files a sworn statement that every claim is paid or disputed; a disputed claim may be filed as a claim against the contractor's surety bond (W.S. 16-6-117).",
+      "Bonds are required on contracts over $150,000; smaller contracts may carry another guarantee the public entity approves (W.S. 16-6-112(a)).",
+    ],
+  },
 };
 
 export const STATE_BOND_STATES = Object.keys(STATE_BOND_RULES).sort();
@@ -803,6 +896,45 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
   const L = d.lastOn;
   const A = d.acceptedOn;
   switch (state) {
+    case "AK":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of your claim by registered mail",
+            citation: "AS 36.25.020(b)",
+            rule: `within 90 days from ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond in the name of the state or political subdivision",
+            citation: "AS 36.25.020(c)",
+            rule: "within one year after the date of final settlement of the contract",
+          },
+          null,
+          null,
+          "the final settlement of the prime contract",
+        ),
+      ];
+    case "WY":
+      return [
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the bond, and notify the public entity named in it of the action",
+            citation: "W.S. 16-6-113, 16-6-115",
+            rule: "within one year after the date of final completion the public entity posts",
+          },
+          null,
+          null,
+          "the final completion date the public entity posts",
+        ),
+      ];
     case "AZ":
       return [
         step(
@@ -1455,6 +1587,95 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
           L,
           (from) => addOneYear(addOneYear(from)),
           LAST,
+        ),
+      ];
+    case "MT":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor a notice of a right of action on the security (material suppliers to a sub)",
+            citation: "Mont. Code Ann. § 18-2-206",
+            rule: "not later than 30 days after your first delivery to the subcontractor, personally or by certified mail",
+          },
+          null,
+          null,
+          "the day you first furnished",
+        ),
+        step(
+          {
+            who: "all",
+            act: "File a written notice of your claim with the public body",
+            citation: "Mont. Code Ann. § 18-2-204",
+            rule: "within 90 days after completion of the contract with the public body's acceptance of the work",
+          },
+          A,
+          days(90),
+          ACCEPTED,
+        ),
+      ];
+    case "ND":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of your claim",
+            citation: "N.D. Cent. Code § 48-01.2-11",
+            rule: `within 90 days from ${LAST}, by registered mail`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the bond",
+            citation: "N.D. Cent. Code § 48-01.2-12",
+            rule: "within one year after completion and acceptance of the project",
+          },
+          A,
+          addOneYear,
+          ACCEPTED,
+        ),
+      ];
+    case "SC":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of the amount unpaid and who you worked for",
+            citation: "S.C. Code § 11-35-3030(2)(c)",
+            rule: `within 90 days from ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "S.C. Code § 11-35-3030(2)(d)",
+            rule: `within one year after ${LAST}`,
+          },
+          L,
+          addOneYear,
+          LAST,
+        ),
+      ];
+    case "SD":
+      return [
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the bond in the public body's name, after asking it for a certified copy",
+            citation: "S.D. Codified Laws § 5-21-6",
+            rule: "not before six months after complete performance and final settlement of the contract, and within one year after that",
+          },
+          null,
+          null,
+          "the final settlement of the prime contract",
         ),
       ];
     case "VA":
