@@ -121,7 +121,9 @@ describe("SignedFakeBillingProvider boundaries (redteam 2026-11-28)", () => {
   it("chargeUsage takes a positive whole amount: 1 passes, 0 and 1.5 are refused", async () => {
     const fake = new SignedFakeBillingProvider();
     const req = { providerSubscriptionId: "sub_1", planKey: "starter", currency: "USD" };
-    const ok = await fake.chargeUsage({ ...req, amountMinor: 1 } as Parameters<typeof fake.chargeUsage>[0]);
+    const ok = await fake.chargeUsage({ ...req, amountMinor: 1 } as Parameters<
+      typeof fake.chargeUsage
+    >[0]);
     assert.equal(ok.chargeId, "fake_charge_1");
     for (const amountMinor of [0, 1.5, -2])
       await assert.rejects(

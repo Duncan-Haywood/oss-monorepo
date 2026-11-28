@@ -30,13 +30,18 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "run_venture_tests.py --changed: change-order-template.test.mjs failed once on a soffice exit, passed 7/7 alone (environment flake)"
+    "run_venture_tests.py --changed: change-order-template.test.mjs failed once on a soffice exit, passed 7/7 alone (environment flake)",
+    "first push failed CI: biome formatting, and check_billing_copies/check_shared_package_drift (billing tests must be identical in all 5 copies; I had edited only payapps). Fixed by splitting the webhook CLI cases into a payapps-only file and copying the rest to cmmc, einvoice-pro, jobshop-quote and seller-books"
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "targets --probe reports suite time per file, but a script under scripts/ is 'guarded' by a suite that never runs it (0/8 caught); the target list could flag scripts no test imports or spawns"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "a campaign target inside ventures/payapps/packages/billing is one of five copies that CI holds identical; the prompt should say to copy new tests to every copy (check_billing_copies.py) and run biome, which the local run_venture_tests.py pass does not catch"
     }
   ],
   "deviations": [
@@ -49,7 +54,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Guard added: paddle-scripts-cli.test.ts covers all four Paddle deploy CLIs (not only the campaign target), so the class of untested deploy scripts in packages/billing is closed. No real defect in billing itself; the hunt read checkout-token.ts, grace.ts, factory.ts and the payapps billing port (production refuses FAKE_EXTERNALS).",
+  "notes": "Guard added: paddle-scripts-cli.test.ts (shared by all five billing copies) plus paddle-scripts-cli.payapps.test.ts cover all four Paddle deploy CLIs (not only the campaign target), so the class of untested deploy scripts in packages/billing is closed. No real defect in billing itself; the hunt read checkout-token.ts, grace.ts, factory.ts and the payapps billing port (production refuses FAKE_EXTERNALS).",
   "corrections": [],
   "redteam": {
     "campaigns": [

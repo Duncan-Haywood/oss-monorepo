@@ -236,6 +236,12 @@ describe("price keys", () => {
       "pro",
       "pro:annual",
     ]);
+    // One-character ids are still ids; only "" is dropped.
+    assert.deepEqual(parsePriceIds('{"x":"p"}'), { x: "p" });
+    // Own keys only: Object.prototype.constructor is not a price id.
+    assert.deepEqual(missingPriceIds({}, [{ key: "constructor", annualPriceCents: null }]), [
+      "constructor",
+    ]);
   });
 });
 
