@@ -2,9 +2,11 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 import type { SaleEvent } from "@retail-pilot/schemas";
-import { importSaleEventsFromCsv } from "./importer.js";
+import { DEFAULT_POS_TIME_ZONE, importSaleEventsFromCsv } from "./importer.js";
 
 const storeId = process.env.STORE_ID ?? "pilot-leather-01";
+const tzFlagIndex = process.argv.indexOf("--tz");
+const timeZone = (tzFlagIndex !== -1 ? process.argv[tzFlagIndex + 1] : undefined) ?? process.env.STORE_TZ ?? DEFAULT_POS_TIME_ZONE;
 const sample = process.argv.includes("--sample");
 const outDir = resolve("data/pos/inbox");
 
@@ -17,7 +19,7 @@ if (fileFlagIndex !== -1) {
   }
 
   const csvText = readFileSync(resolve(filePath), "utf8");
-  const { events, issues } = importSaleEventsFromCsv(csvText, storeId);
+  const { events, issues } = importSaleEventsFromCsv(csvText, storeId, { timeZone });
 
   for (const issue of issues) {
     console.warn(`POS ingest: skipped row ${issue.rowNumber}: ${issue.reason}`);

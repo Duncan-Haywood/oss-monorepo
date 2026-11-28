@@ -118,6 +118,20 @@ class ReworkTest(unittest.TestCase):
                           now=datetime(2026, 10, 16, tzinfo=timezone.utc))
         self.assertEqual(r["window"], "open")
 
+    def test_a_shallow_edge_reads_unavailable_not_all_added(self) -> None:
+        pr = self.commit("base\nnew\n", "feature (#8)", "2026-09-02T00:00:00Z")
+        self.commit("later\n", "after the window", "2026-10-01T00:00:00Z", path="b.py")
+        clone = self.repo.parent / (self.repo.name + "-shallow")
+        _git(self.repo.parent, "clone", "-q", "--depth=2", f"file://{self.repo}", str(clone))
+        try:
+            self.assertEqual(derive.shallow_edge(clone), {pr})
+            r = derive.rework(pr, 8, "2026-09-02T00:00:00Z", "HEAD", clone,
+                              now=datetime(2026, 10, 16, tzinfo=timezone.utc))
+            self.assertEqual(r, {"window": "unavailable", "why": derive.SHALLOW_WHY})
+            self.assertEqual(derive.shallow_edge(self.repo), set())
+        finally:
+            subprocess.run(["rm", "-rf", str(clone)], check=False)
+
     def test_excluded_paths(self) -> None:
         self.assertTrue(derive.excluded("gitops/prod/x.yaml"))
         self.assertTrue(derive.excluded("web/package-lock.json"))
@@ -214,6 +228,32 @@ class MeasureFallbackTest(unittest.TestCase):
                               got["2026-10-01-s.json"]["ci_red_commits"]), (False, 3.0, 2))
             self.assertIn("names no pull request", got["2026-10-01-t.json"]["why"])
             self.assertIn("1 closed unmerged", derive.report(root))
+
+    def test_a_closed_rework_carries_over_and_the_report_says_why_others_are_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "prompts"
+            (root / "runs").mkdir(parents=True)
+            rec = {**promptctl.RECORD_FIELDS, "date": "2026-10-01", "session": "s", "track": "ventures",
+                   "prompt_version": 1, "outcome": "success"}
+            (root / "runs" / "2026-10-01-s.json").write_text(json.dumps({**rec, "pr": 9}))
+            (root / "runs" / "2026-10-01-t.json").write_text(json.dumps({**rec, "pr": 10}))
+            facts = {"state": "closed", "merged": True, "merged_at": "2026-10-01T03:00:00Z",
+                     "created_at": "2026-10-01T00:00:00Z", "merge_commit_sha": "a" * 40}
+            derive.write_json(root / "derived" / "github.json", {
+                derive.key(derive.HOME_REPO, 9): facts, derive.key(derive.HOME_REPO, 10): facts})
+            closed = {"window": "closed", "reverted": 0, "followups": 1, "survival": 0.5,
+                      "lines_added": 2, "lines_alive": 1, "window_end": "b" * 40}
+            derive.write_json(root / "derived" / "runs.json", {"rows": [
+                {"record": "2026-10-01-s.json", "measured": {"merged_at": facts["merged_at"],
+                                                             "rework": closed}}]})
+            _git(Path(tmp), "init", "-q", "-b", "main")
+            derive.build(root, cwd=Path(tmp))  # no commits here: only the carried row is measured
+            got = derive.load_measured(root)
+            self.assertEqual(got["2026-10-01-s.json"]["rework"], closed)
+            self.assertEqual(got["2026-10-01-t.json"]["rework"]["window"], "unavailable")
+            out = derive.report(root)
+            self.assertIn("| rework | 0 | 1 (window closed) |", out)
+            self.assertIn("- 1 unavailable: no local branch for", out)
 
 
 if __name__ == "__main__":

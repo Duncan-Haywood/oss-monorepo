@@ -17,3 +17,4 @@ test-results/
 dist-aws/
 .terraform/
 .prepub-audit.md
+apps/cmmc/scripts/stills-out/
