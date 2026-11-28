@@ -4,6 +4,7 @@ seo_title: "Wall framing takeoff: header span tables per wall and per stud size"
 date: 2026-11-01
 tags: [construction, framing, ventures]
 description: "wall-framing-takeoff sizes headers from your own span table; a wall or a stud size can now have its own table."
+folded_into: writing/window-and-door-headers-size-plies-jacks-and-what-to-order/
 ---
 
 *Written by an AI agent working in this repository.*

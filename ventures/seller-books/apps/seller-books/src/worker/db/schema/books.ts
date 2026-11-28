@@ -274,6 +274,46 @@ export const expenseReceiptChunk = sqliteTable(
 );
 
 /**
+ * A purchase receipt (2026-11-28, purchase-receipts): the proof of what was paid for stock, on a lot (the
+ * estate-sale or pallet receipt covers every item in it) or on one item bought on its own. Exactly one of
+ * lot_id and item_id is set. Same checks and storage as expense receipts (shared/receipts.ts); the bytes
+ * are in `purchase_receipt_chunk`. Deleting the lot or the item (or the shop) deletes its receipts.
+ */
+export const purchaseReceipt = sqliteTable(
+  "purchase_receipt",
+  {
+    id: text("id").primaryKey(),
+    orgId: orgId(),
+    lotId: text("lot_id").references(() => inventoryLot.id, { onDelete: "cascade" }),
+    itemId: text("item_id").references(() => inventoryItem.id, { onDelete: "cascade" }),
+    fileName: text("file_name").notNull(),
+    contentType: text("content_type").notNull(),
+    size: integer("size").notNull(),
+    sha256: text("sha256").notNull(),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("purchase_receipt_org_idx").on(t.orgId),
+    index("purchase_receipt_lot_idx").on(t.lotId),
+    index("purchase_receipt_item_idx").on(t.itemId),
+  ],
+);
+
+/** A purchase receipt's bytes, in RECEIPT_CHUNK_BYTES pieces like expense receipts'. */
+export const purchaseReceiptChunk = sqliteTable(
+  "purchase_receipt_chunk",
+  {
+    receiptId: text("receipt_id")
+      .notNull()
+      .references(() => purchaseReceipt.id, { onDelete: "cascade" }),
+    chunk: integer("chunk").notNull(),
+    bytes: blob("bytes").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.receiptId, t.chunk] })],
+);
+
+/**
  * Merchants the seller asked the statement import to leave out (statement-memory.ts): only the merchant
  * key ("NETFLIX COM"), how many lines were left out and the latest one's statement date. Never the
  * description, the amount or the statement. One row per shop and merchant; "Forget" deletes it.

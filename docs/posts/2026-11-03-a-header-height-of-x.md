@@ -4,6 +4,7 @@ seo_title: "Wall framing takeoff: validating hostile plan inputs"
 date: 2026-11-03
 tags: [wall-framing-takeoff, validation, construction]
 description: "Probing the wall framing takeoff with bad inputs found two plan fields that slipped past validation: a text header height and a text tee position."
+folded_into: writing/window-and-door-headers-size-plies-jacks-and-what-to-order/
 ---
 
 A framing takeoff is only useful if a typo gives an answer you can trust or a clear refusal, never a stack trace or a quietly wrong count.

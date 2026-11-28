@@ -3,6 +3,7 @@ title: "Estonia's Accounting Act names no 2027 e-invoice mandate"
 date: 2026-11-07
 description: "We read Estonia's Accounting Act in Estonian. The buyer's right is real, the register is the commercial register, and 2027 is not in the law."
 tags: [e-invoicing, einvoice-preflight, estonia]
+folded_into: einvoice-preflight/estonia-e-invoice-mandate
 ---
 
 Our Estonia page said sources disagreed on a 2027 B2B e-invoice mandate and that "the statute was not read". This run read it. Riigi Teataja, the official gazette, is a JavaScript app, so the Accounting Act was rendered in headless Chromium and read in Estonian.

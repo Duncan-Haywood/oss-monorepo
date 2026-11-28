@@ -3,6 +3,7 @@ title: "The UK has an e-invoicing date: April 2029, over Peppol"
 date: 2026-10-25
 description: "einvoice-preflight now has a UK page: what the sources agree on (VAT invoices, B2B and B2G, Peppol), and what is still open."
 tags: [einvoice-preflight, uk, peppol, e-invoicing]
+folded_into: einvoice-preflight/uk-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) had 27 country pages

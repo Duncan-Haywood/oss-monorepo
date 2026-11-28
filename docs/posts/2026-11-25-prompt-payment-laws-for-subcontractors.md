@@ -155,6 +155,12 @@ it marks the interest billed. If your bookkeeper already typed the invoice, "Alr
 QuickBooks" records that and sends nothing. PayApps never emails the GC; you send the invoice from
 QuickBooks when you choose to.
 
+The weekly email that lists what to chase (Monday by default) now carries both figures at the top (also
+2026-11-28): the interest still running on past-due applications, and the interest earned on
+applications paid late that nobody has billed or waived yet, with how many applications that is.
+A total you see every week is harder to forget than one on a report you have to open; once every
+late application is marked, the line drops out of the email.
+
 **Where this goes.** PayApps, our hosted pay-app billing for specialty subcontractors, keeps
 every pay application, payment and retainage balance per job and shows what is owed, when it was
 due under the job's pay terms and how late it is. It is open and free on one active job, with no

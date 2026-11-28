@@ -19,6 +19,7 @@
       "@lien-waivers": ["../../packages/lien-waivers/src/index.ts"],
       "@lien-waivers/words": ["../../packages/lien-waivers/src/words.ts"],
       "@lien-waivers/tx-dates": ["../../packages/lien-waivers/src/tx-dates.ts"],
+      "@lien-waivers/ms-dates": ["../../packages/lien-waivers/src/ms-dates.ts"],
       "@qbo-sync": ["../../packages/qbo-sync/src/index.ts"]
     }
   },

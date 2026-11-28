@@ -1,5 +1,6 @@
 // End-to-end pay-application flow through the HTTP API (real local D1).
 import type { PayAppDetailDto, ProjectDetailDto, ProjectDto } from "@shared/api/types";
+import { readXlsx } from "@shared/sov-import/xlsx";
 import { beforeAll, describe, expect, it } from "vitest";
 import { addToOrg, api, call, createTestUser, grantPlan, setupTenant } from "./helpers";
 
@@ -249,6 +250,18 @@ describe("pay application flow", () => {
 
     const summary = await (await api(`${base}/pay-apps/${app1.id}/summary.csv`, { as })).text();
     expect(summary).toContain("8. Current payment due,22500");
+
+    const xlsx = await api(`${base}/pay-apps/${app1.id}/application.xlsx`, { as });
+    expect(xlsx.headers.get("Content-Type")).toBe(
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+    expect(xlsx.headers.get("Content-Disposition")).toBe(
+      'attachment; filename="p-101-payapp-1.xlsx"',
+    );
+    const sheets = await readXlsx(new Uint8Array(await xlsx.arrayBuffer()));
+    expect(sheets.map((s) => s.name)).toEqual(["Application summary", "Continuation sheet"]);
+    const due = sheets[0]?.grid.find((r) => r[0] === "8. Current payment due");
+    expect(due?.[1]).toBe("22500");
   });
 
   it("certifies and marks paid", async () => {

@@ -3,6 +3,7 @@ title: "Counting siding course by course, now in the browser"
 date: 2026-10-28
 description: "wall-framing-takeoff's siding, house wrap and corner board count now has a page card. On the example house: 56 courses, 154 boards at 7 in exposure."
 tags: [wall-framing-takeoff, construction, takeoff]
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 # Counting siding course by course, now in the browser

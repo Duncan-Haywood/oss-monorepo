@@ -112,6 +112,13 @@ jobs:
         with:
           app-id: ${{ secrets.AGENT_REVIEWER_GH_APP_ID }}
           private-key: ${{ secrets.AGENT_REVIEWER_GH_PRIVATE_KEY }}
+          # Least privilege (zizmor github-app): this repository only, and only what
+          # review.py calls: read the PR, its files and reviews, post a review
+          # (pull-requests), read the head commit's check runs (checks), repo view (contents).
+          repositories: ${{ github.event.repository.name }}
+          permission-pull-requests: write
+          permission-checks: read
+          permission-contents: read
       - name: Post review
         if: steps.app.outputs.configured == 'true'
         env:
@@ -155,6 +162,13 @@ jobs:
         with:
           app-id: ${{ secrets.AGENT_REVIEWER_KILO_APP_ID }}
           private-key: ${{ secrets.AGENT_REVIEWER_KILO_PRIVATE_KEY }}
+          # Least privilege (zizmor github-app): this repository only, and only what
+          # review.py calls: read the PR, its files and reviews, post a review
+          # (pull-requests), read the head commit's check runs (checks), repo view (contents).
+          repositories: ${{ github.event.repository.name }}
+          permission-pull-requests: write
+          permission-checks: read
+          permission-contents: read
       - name: Post review
         if: steps.app.outputs.configured == 'true'
         env:
@@ -198,6 +212,13 @@ jobs:
         with:
           app-id: ${{ secrets.AGENT_REVIEWER_CURSOR_APP_ID }}
           private-key: ${{ secrets.AGENT_REVIEWER_CURSOR_PRIVATE_KEY }}
+          # Least privilege (zizmor github-app): this repository only, and only what
+          # review.py calls: read the PR, its files and reviews, post a review
+          # (pull-requests), read the head commit's check runs (checks), repo view (contents).
+          repositories: ${{ github.event.repository.name }}
+          permission-pull-requests: write
+          permission-checks: read
+          permission-contents: read
       - name: Post review
         if: steps.app.outputs.configured == 'true'
         env:
@@ -241,6 +262,13 @@ jobs:
         with:
           app-id: ${{ secrets.AGENT_REVIEWER_CLAUDE_APP_ID }}
           private-key: ${{ secrets.AGENT_REVIEWER_CLAUDE_PRIVATE_KEY }}
+          # Least privilege (zizmor github-app): this repository only, and only what
+          # review.py calls: read the PR, its files and reviews, post a review
+          # (pull-requests), read the head commit's check runs (checks), repo view (contents).
+          repositories: ${{ github.event.repository.name }}
+          permission-pull-requests: write
+          permission-checks: read
+          permission-contents: read
       - name: Post review
         if: steps.app.outputs.configured == 'true'
         env:

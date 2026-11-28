@@ -33,6 +33,7 @@ import { applicationPdf } from "../../services/export/application-pdf";
 import { continuationCsv, summaryCsv } from "../../services/export/csv";
 import { exportFileName } from "../../services/export/model";
 import { noticePdf, waiverPdf } from "../../services/export/waiver-pdf";
+import { payApplicationXlsx } from "../../services/export/xlsx";
 import { copyCertificateFileToPayApp } from "../../services/insurance-files";
 import {
   addAttachment,
@@ -590,6 +591,17 @@ routes.get("/:payAppId/continuation.csv", async (c) => {
     continuationCsv(data),
     "text/csv; charset=utf-8",
     exportFileName(data, "csv", "-continuation"),
+  );
+});
+
+// The summary and continuation sheet as one Excel workbook, with live formulas (services/export/xlsx.ts).
+routes.get("/:payAppId/application.xlsx", async (c) => {
+  const { orgId, projectId, payAppId } = ids(c);
+  const data = await loadApplicationDocument(c.var.ctx, orgId, projectId, payAppId);
+  return download(
+    payApplicationXlsx(data).slice().buffer,
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    exportFileName(data, "xlsx"),
   );
 });
 

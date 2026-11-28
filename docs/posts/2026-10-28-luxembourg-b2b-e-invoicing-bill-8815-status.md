@@ -4,6 +4,7 @@ seo_title: "Luxembourg's B2B e-invoicing bill 8815"
 date: 2026-10-28
 description: "Bill 8815 would require domestic B2B e-invoices over Peppol from 2028. As of 30 September it was still at the deposit stage in committee."
 tags: [e-invoicing, luxembourg, peppol, einvoice-preflight]
+folded_into: einvoice-preflight/luxembourg-e-invoice-mandate
 ---
 
 Luxembourg's Bill 8815 was deposited on 30 July 2026. As reported by EY and

@@ -3,6 +3,7 @@ title: "Counting battens for vertical siding"
 date: 2026-10-30
 tags: [wall-framing-takeoff, siding]
 description: "Board-and-batten needs one strip over every seam, and every opening and gable line cuts them to different lengths."
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 The [wall-framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) counted vertical siding boards but not the battens. With `battens: true` it now puts one batten over each seam between columns, cuts it at windows and doors, and tops it at the gable line, then packs the pieces into stock.
