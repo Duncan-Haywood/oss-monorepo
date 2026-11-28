@@ -1,6 +1,6 @@
 # Retail analytics that respects shoppers.
 
-> Open-source, privacy-first retail analytics concept for small-format pilot stores: SKU gaps, experiments and ROI reporting, built as a TypeScript monorepo.
+> Source-visible (all rights reserved), privacy-first retail analytics prototype for small-format pilot stores: a door-count and POS join with daily conversion reports, plus a sales-demo portal whose SKU-gap and experiment screens use illustrative data.
 
 Free to use and source visible (all rights reserved). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 

@@ -172,3 +172,53 @@ test("importSaleEventsFromCsv keeps a valid currency and defaults a missing one 
     [["R-1", "CHF"], ["R-2", "EUR"]],
   );
 });
+
+// Quality re-audit 2026-11-28: a closed_at without a UTC offset was read in
+// the importing server's zone, so the same export landed on different days on
+// a UTC host and a Rome laptop. Expected instants are from Python zoneinfo.
+test("importSaleEventsFromCsv reads an offset-less closed_at as the store's wall-clock time", () => {
+  const csv =
+    "receipt_id,closed_at,sku,quantity,unit_price_cents\n" +
+    "S-1,2026-08-19T23:30:00,X,1,1000\n" + // CEST, UTC+2
+    "W-1,2026-01-15 09:05,X,1,1000\n" + // CET, UTC+1
+    "D-1,2026-03-29T03:15:00,X,1,1000\n" + // the morning clocks went forward
+    "Z-1,2026-08-19T23:30:00Z,X,1,1000\n";
+  const { events, issues } = importSaleEventsFromCsv(csv, "pilot-leather-01");
+  assert.deepEqual(issues, []);
+  assert.deepEqual(
+    events.map((e) => e.closed_at),
+    ["2026-08-19T21:30:00.000Z", "2026-01-15T08:05:00.000Z", "2026-03-29T01:15:00.000Z", "2026-08-19T23:30:00.000Z"],
+  );
+  const ny = importSaleEventsFromCsv(csv, "s", { timeZone: "America/New_York" });
+  assert.equal(ny.events[0]!.closed_at, "2026-08-20T03:30:00.000Z");
+});
+
+test("importSaleEventsFromCsv rejects a closed_at it cannot place, and an unknown zone", () => {
+  const csv =
+    "receipt_id,closed_at,sku,quantity,unit_price_cents\n" +
+    "A-1,19/08/2026 10:00,X,1,1000\n" +
+    "B-1,Aug 19 2026 10:00,X,1,1000\n" +
+    "C-1,2026-02-30T10:00:00,X,1,1000\n";
+  const { events, issues } = importSaleEventsFromCsv(csv, "s");
+  assert.equal(events.length, 0);
+  assert.equal(issues.filter((i) => /closed_at is not a valid date-time/.test(i.reason)).length, 3);
+  assert.throws(() => importSaleEventsFromCsv(csv, "s", { timeZone: "Europe/Atlantis" }), RangeError);
+});
+
+test("importSaleEventsFromCsv upper-cases a currency code and rejects one that is not ISO 4217", () => {
+  const csv =
+    "receipt_id,closed_at,sku,quantity,unit_price_cents,currency\n" +
+    "A-1,2026-08-19T10:00:00Z,X,1,1000,usd\n" +
+    "B-1,2026-08-19T10:00:00Z,X,1,1000,\n" +
+    "C-1,2026-08-19T10:00:00Z,X,1,1000,US$\n" +
+    "D-1,2026-08-19T10:00:00Z,X,1,1000,Euro\n";
+  const { events, issues } = importSaleEventsFromCsv(csv, "s");
+  assert.deepEqual(
+    events.map((e) => [e.basket_id, e.currency]),
+    [
+      ["A-1", "USD"],
+      ["B-1", "EUR"],
+    ],
+  );
+  assert.equal(issues.filter((i) => /ISO 4217/.test(i.reason)).length, 2);
+});
