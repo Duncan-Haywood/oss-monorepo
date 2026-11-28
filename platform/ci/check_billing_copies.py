@@ -10,9 +10,15 @@ checkout-token.ts or crypto.ts that reaches one product and not its siblings
 would leave three products open with no signal, so this check holds every
 non-test source file that two or more copies share to be byte-identical.
 
-Product-specific files are named in ALLOWED_TO_DIFFER. Test files may differ
-(each product can add its own cases), but the check prints a note for a test
-file a copy lacks or that differs, so a stronger guard can be ported.
+Product-specific files are named in ALLOWED_TO_DIFFER. Shared test files are
+held identical too (since 2026-11-28, red team): until then they could differ
+and the check only printed a note, and by that day 19 test cases (a forged
+webhook MAC, Object.prototype plan keys, the watermark-instant event, the
+anchor-instant quota period) guarded one or two copies and not the rest, so a
+mutant in cmmc's subscription-events.ts escaped that payapps' copy catches.
+Since the code under test is byte-identical, a case that passes in one copy
+passes in all: add it to every copy. A test that must differ per product goes
+in TESTS_ALLOWED_TO_DIFFER with its reason, and is then only noted.
 
     python3 platform/ci/check_billing_copies.py      # exit 1 on drift
 """
@@ -24,6 +30,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 # Files each product is expected to tailor (exports, re-exports).
 ALLOWED_TO_DIFFER = {"index.ts"}
+# Test files a product may tailor, with why (empty: every shared test is product-agnostic).
+TESTS_ALLOWED_TO_DIFFER: dict[str, str] = {}
 
 
 def copies(repo: Path = REPO) -> list[Path]:
@@ -46,8 +54,12 @@ def drift(dirs: list[Path]) -> tuple[list[str], list[str]]:
             continue
         groups = "; ".join(
             ", ".join(str(p.relative_to(REPO)).split("/")[1] for p in ps) for ps in variants.values())
-        if name.endswith(".test.ts"):
+        if name.endswith(".test.ts") and name in TESTS_ALLOWED_TO_DIFFER:
             notes.append(f"note: {name} differs between copies ({groups})")
+        elif name.endswith(".test.ts"):
+            errors.append(
+                f"{name}: billing test copies differ ({groups}); the code under test is shared, "
+                "so give every copy the union of the cases")
         elif name not in ALLOWED_TO_DIFFER:
             errors.append(f"{name}: billing copies differ ({groups}); port the change to every copy")
     errors.extend(missing_tests(dirs))

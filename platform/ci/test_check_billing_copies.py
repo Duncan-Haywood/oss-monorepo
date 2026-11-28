@@ -36,9 +36,23 @@ class DriftTest(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("crypto.ts", errors[0])
 
-    def test_test_drift_is_a_note(self):
+    def test_test_drift_fails(self):
+        # A stronger case in one copy only leaves the siblings' identical code unguarded.
         (self.dirs[1] / "crypto.test.ts").write_text("// stronger test\n")
         errors, notes = cbc.drift(self.dirs)
+        self.assertEqual(notes, [])
+        self.assertEqual(len(errors), 1)
+        self.assertIn("crypto.test.ts: billing test copies differ", errors[0])
+
+    def test_allowed_test_drift_is_a_note(self):
+        (self.dirs[1] / "crypto.test.ts").write_text("// product case\n")
+        saved = dict(cbc.TESTS_ALLOWED_TO_DIFFER)
+        cbc.TESTS_ALLOWED_TO_DIFFER["crypto.test.ts"] = "test fixture"
+        try:
+            errors, notes = cbc.drift(self.dirs)
+        finally:
+            cbc.TESTS_ALLOWED_TO_DIFFER.clear()
+            cbc.TESTS_ALLOWED_TO_DIFFER.update(saved)
         self.assertEqual(errors, [])
         self.assertEqual(len(notes), 1)
 
