@@ -669,9 +669,14 @@ class BacklogTest(PromptTestCase):
             self.assertTrue(any(message in e for e in errors), (message, errors))
 
     def test_duplicate_ids_are_refused(self):
+        # When what the checkout adds is unknown (None), the strict check applies. Pinned rather
+        # than read from the environment: on a push to main backlog_files_added returns set() by
+        # design, and this test failed main's Prompts run on every merge of 2026-11-28 while
+        # passing in every PR.
         self.put("P001-a.json", _item("P001"))
         self.put("P001-b.json", _item("P001"))
-        self.assertTrue(any("also used by" in e for e in promptctl.validate(self.fx.root)))
+        with unittest.mock.patch.object(promptctl, "backlog_files_added", lambda root=None: None):
+            self.assertTrue(any("also used by" in e for e in promptctl.validate(self.fx.root)))
 
     def test_duplicate_already_on_main_warns_and_one_this_branch_adds_fails(self):
         self.put("P001-a.json", _item("P001"))

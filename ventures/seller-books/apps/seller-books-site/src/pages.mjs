@@ -482,7 +482,7 @@ ${reasons.map(([a, b]) => `      <tr><th scope="row">${esc(a)}</th><td>${esc(b)}
     </tbody>
   </table></div>
   <h2>The check in ${esc(SITE_NAME)}</h2>
-  <p>Type one platform's box 1a and ${esc(SITE_NAME)} adds up your books for that platform and year three ways: item sales, then with the shipping buyers paid, then with the sales tax the platform collected. The closest of the three is shown as the closest, not as what the platform includes. Type the monthly boxes too and the months that don't match are named, with the usual reasons above. Nothing you type into the check is saved.</p>
+  <p>Type one platform's box 1a and ${esc(SITE_NAME)} adds up your books for that platform and year three ways: item sales, then with the shipping buyers paid, then with the sales tax the platform collected. The closest of the three is shown as the closest, not as what the platform includes. Type the monthly boxes too and the months that don't match are named, with the usual reasons above. Nothing you type into the check is saved. A month missing from your books altogether shows up faster on your bank statement: <a href="${href("/reconcile-payouts")}">reconcile your payouts with your bank deposits</a>.</p>
   <p>It works for every platform ${esc(SITE_NAME)} imports: ${PLATFORMS.map((p) => `<a href="${href(`/platforms/${p.slug}`)}">${esc(p.name)}</a>`).join(", ")}. The year's figures then group onto the <a href="${href("/schedule-c-worksheet")}">Schedule C worksheet</a>: sales on line 1, refunds on line 2, fees on line 10.</p>
   <h2>Questions</h2>
 ${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
@@ -3882,6 +3882,289 @@ ${NOT_TAX_ADVICE}`;
   };
 }
 
+// The deposit check's guide page. Every figure is invented and labelled so; test/site.test.mjs runs the
+// app's own reconcilePayouts (apps/seller-books/src/shared/reconcile-payouts.ts) over this example and
+// checks the page's figures and findings against it.
+export const DEPOSIT_EXAMPLE = {
+  from: "2026-07-01",
+  to: "2026-09-30",
+  // What the books hold after the imports: per platform and month, as the P&L's cells. Mercari's August
+  // and September reports were never imported.
+  books: [
+    {
+      platform: "ebay",
+      month: "2026-07",
+      orders: 14,
+      revenueCents: 61240,
+      feesCents: 8130,
+      postageCents: 7410,
+    },
+    {
+      platform: "ebay",
+      month: "2026-08",
+      orders: 11,
+      revenueCents: 48890,
+      feesCents: 6420,
+      postageCents: 5960,
+    },
+    {
+      platform: "ebay",
+      month: "2026-09",
+      orders: 16,
+      revenueCents: 70310,
+      feesCents: 9280,
+      postageCents: 8640,
+    },
+    {
+      platform: "poshmark",
+      month: "2026-08",
+      orders: 4,
+      revenueCents: 18800,
+      feesCents: 3760,
+      postageCents: 0,
+    },
+    {
+      platform: "poshmark",
+      month: "2026-09",
+      orders: 3,
+      revenueCents: 12600,
+      feesCents: 2520,
+      postageCents: 0,
+    },
+    {
+      platform: "mercari",
+      month: "2026-07",
+      orders: 6,
+      revenueCents: 21500,
+      feesCents: 2150,
+      postageCents: 2870,
+    },
+  ],
+  // The statement's money-in rows (line = the CSV's line number).
+  deposits: [
+    { line: 3, date: "2026-07-08", description: "EBAY COMMERCE PAYOUT", amountCents: 12010 },
+    { line: 6, date: "2026-07-15", description: "EBAY COMMERCE PAYOUT", amountCents: 15880 },
+    { line: 8, date: "2026-07-20", description: "MERCARI INC TRANSFER", amountCents: 8200 },
+    { line: 10, date: "2026-07-29", description: "EBAY COMMERCE PAYOUT", amountCents: 14200 },
+    { line: 13, date: "2026-08-06", description: "MERCARI INC TRANSFER", amountCents: 7900 },
+    { line: 15, date: "2026-08-07", description: "EBAY COMMERCE PAYOUT", amountCents: 10450 },
+    { line: 17, date: "2026-08-12", description: "AMAZON.COM REFUND", amountCents: 2399 },
+    { line: 19, date: "2026-08-19", description: "EBAY COMMERCE PAYOUT", amountCents: 13370 },
+    { line: 21, date: "2026-08-24", description: "MERCARI INC TRANSFER", amountCents: 9350 },
+    { line: 23, date: "2026-08-28", description: "EBAY COMMERCE PAYOUT", amountCents: 11920 },
+    { line: 25, date: "2026-09-05", description: "ZELLE FROM PICKUP BUYER", amountCents: 4500 },
+    { line: 27, date: "2026-09-09", description: "EBAY COMMERCE PAYOUT", amountCents: 16300 },
+    { line: 29, date: "2026-09-15", description: "MERCARI INC TRANSFER", amountCents: 11200 },
+    { line: 31, date: "2026-09-18", description: "EBAY COMMERCE PAYOUT", amountCents: 17440 },
+    { line: 34, date: "2026-09-29", description: "EBAY COMMERCE PAYOUT", amountCents: 14980 },
+  ],
+  /** The Amazon refund, unticked as not a payout. */
+  exclude: [17],
+  platforms: ["ebay", "poshmark", "mercari", "amazon"],
+  labels: { ebay: "eBay", poshmark: "Poshmark", mercari: "Mercari", amazon: "Amazon" },
+};
+const DEPOSIT_MATCH = {
+  ebay: /\bEBAY\b/,
+  mercari: /\bMERCARI\b/,
+  amazon: /\bAMAZON\b/,
+  poshmark: /\bPOSHMARK\b/,
+};
+
+/** The example's figures, worked here without the app; the test checks them against the app's check. */
+export function depositExampleFigures(ex = DEPOSIT_EXAMPLE) {
+  const months = ["2026-07", "2026-08", "2026-09"];
+  const excluded = new Set(ex.exclude);
+  const platformOf = (d) =>
+    Object.keys(DEPOSIT_MATCH).find((p) => DEPOSIT_MATCH[p].test(d.description)) ?? null;
+  const counted = ex.deposits.filter((d) => platformOf(d) && !excluded.has(d.line));
+  const platforms = ["ebay", "poshmark", "mercari"].map((p) => {
+    let running = 0;
+    const rows = months.map((month) => {
+      const cell = ex.books.find((b) => b.platform === p && b.month === month);
+      const expectedCents = cell ? cell.revenueCents - cell.feesCents - cell.postageCents : 0;
+      const depositsCents = counted
+        .filter((d) => platformOf(d) === p && d.date.startsWith(month))
+        .reduce((t, d) => t + d.amountCents, 0);
+      running += expectedCents - depositsCents;
+      return {
+        month,
+        orders: cell?.orders ?? 0,
+        expectedCents,
+        depositsCents,
+        runningGapCents: running,
+      };
+    });
+    const expectedCents = rows.reduce((t, r) => t + r.expectedCents, 0);
+    const depositsCents = rows.reduce((t, r) => t + r.depositsCents, 0);
+    const depositCount = counted.filter((d) => platformOf(d) === p).length;
+    const gapCents = expectedCents - depositsCents;
+    const thresholdCents = Math.max(2500, Math.round(Math.abs(expectedCents) * 0.15));
+    const status =
+      depositCount === 0
+        ? "no_deposits"
+        : Math.abs(gapCents) <= thresholdCents
+          ? "matches"
+          : gapCents > 0
+            ? "books_ahead"
+            : "deposits_ahead";
+    return {
+      platform: p,
+      label: ex.labels[p],
+      expectedCents,
+      depositsCents,
+      depositCount,
+      gapCents,
+      thresholdCents,
+      status,
+      months: rows,
+    };
+  });
+  const otherDepositsCents = ex.deposits
+    .filter((d) => !platformOf(d) && !excluded.has(d.line))
+    .reduce((t, d) => t + d.amountCents, 0);
+  return { months, platforms, otherDepositsCents };
+}
+
+function depositCheck() {
+  const usdc = (c) =>
+    `${c < 0 ? "−" : ""}$${(Math.abs(c) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const path = "/reconcile-payouts";
+  const title = "Reconcile marketplace payouts with your bank deposits";
+  const description =
+    "Why a reseller's bank deposits don't match their sales, and how to check eBay, Poshmark and Mercari payouts against the books month by month: a worked example.";
+  const ex = DEPOSIT_EXAMPLE;
+  const f = depositExampleFigures();
+  const by = Object.fromEntries(f.platforms.map((p) => [p.platform, p]));
+  const { ebay, poshmark, mercari } = by;
+  const monthName = (m) =>
+    new Date(`${m}-01T00:00:00Z`).toLocaleDateString("en-US", { month: "long", timeZone: "UTC" });
+  const gap = (c) => (c === 0 ? "$0.00" : c > 0 ? `${usdc(c)} short` : `${usdc(-c)} over`);
+  const STATUS = {
+    matches: "Matches",
+    books_ahead: "Books expect more",
+    deposits_ahead: "More deposited",
+    no_deposits: "No deposits found",
+  };
+  const monthRows = f.platforms
+    .flatMap((p) =>
+      p.months.map(
+        (r) =>
+          `      <tr><th scope="row">${esc(p.label)}, ${esc(monthName(r.month))}</th><td>${r.orders}</td><td>${usdc(r.expectedCents)}</td><td>${usdc(r.depositsCents)}</td><td>${gap(r.runningGapCents)}</td></tr>`,
+      ),
+    )
+    .join("\n");
+  const totalRows = f.platforms
+    .map(
+      (p) =>
+        `      <tr><th scope="row">${esc(p.label)}</th><td>${usdc(p.expectedCents)}</td><td>${usdc(p.depositsCents)} (${p.depositCount})</td><td>${gap(p.gapCents)}</td><td>${STATUS[p.status]}</td></tr>`,
+    )
+    .join("\n");
+  const ebayJul = ex.books.find((b) => b.platform === "ebay" && b.month === "2026-07");
+  const mercariSep = mercari.months[2];
+  const zelle = ex.deposits.find((d) => d.description.startsWith("ZELLE"));
+  const refund = ex.deposits.find((d) => d.line === ex.exclude[0]);
+  const faqs = [
+    {
+      q: "Why don't my bank deposits match my sales?",
+      a: "Because a deposit is what a platform paid out, not what you sold. The platform takes its fees, and often the postage you bought through it, out of your balance first; refunds come out too; sales tax it collected from the buyer is sent on by the platform and never reaches you. And a payout lands days after the sale, so a sale near the end of a month is often paid out in the next one. Expected payout = item sales + shipping buyers paid − refunds − fees − postage, for each platform and month; that, not the sales figure, is what the deposits should add up to.",
+    },
+    {
+      q: "How do I know if I'm missing a sales report?",
+      a: `Line up your bank statement's deposits by platform and month beside what your books say each platform should have paid. A month with deposits from a platform and no sales from it in your books that month or the month before is a report you haven't imported. In the example on this page, ${mercariSep ? "September's" : "a month's"} Mercari deposit of ${usdc(mercariSep.depositsCents)} has no Mercari sales in August or September to come from.`,
+    },
+    {
+      q: "Why are my deposits lower than my books say?",
+      a: "Usually money still on the platform at the statement's end (sales not paid out yet, or a balance you left there to spend), payouts going to a different bank account or a debit card, the same report imported twice, or charges the platform billed to your card instead of taking them from the balance, which makes the books expect too much. A small gap of a few days' sales is normal.",
+    },
+    {
+      q: "Should I report my payouts or my sales on Schedule C?",
+      a: "Your books start from the sales: gross receipts, with refunds, platform fees and postage taken off as their own lines, and the cost of what sold as cost of goods. Adding up payouts mixes those together and leaves out anything still on the platform. Checking deposits against the books is how you find what the books are missing, not a replacement for them. Your tax preparer can say how your figures go on the return.",
+    },
+  ];
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead"><strong>What a platform should have paid you for a month = item sales + shipping buyers paid − refunds − platform fees − postage.</strong> Set that beside the deposits on your bank statement that name the platform. A month with deposits and no sales in your books is a report you haven't imported; deposits running behind your books usually mean money still on the platform, or paid to another account. Sales tax the platform collected is left out on both sides: it never reaches you.</p>
+  <h2>Why check deposits at all</h2>
+  <p>Books built from each platform's sales report can only add up the reports you gave them. Forget to download Mercari for two months and nothing inside the books looks wrong: the totals are just lower. The money still landed in your bank, though, so the bank statement is the one record that can show a report is missing. Those missing sales are income on <a href="${href("/schedule-c-worksheet")}">Schedule C</a> whether or not they were imported, and a platform's <a href="${href("/1099-k")}">Form 1099-K</a> counts them too.</p>
+  <h2>A worked example: one quarter</h2>
+  <p>An invented reseller sells on eBay, Poshmark and Mercari and has every payout sent to one checking account. For July to September 2026 they imported eBay's report for every month, Poshmark's for August and September (they started there in August), and Mercari's for July only. Their books then expect, for July on eBay, ${usdc(ebayJul.revenueCents)} of sales and shipping less ${usdc(ebayJul.feesCents)} of fees and ${usdc(ebayJul.postageCents)} of postage: ${usdc(ebay.months[0].expectedCents)}. The bank statement for the quarter has ${ex.deposits.length} deposits.</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">Platform, month</th><th scope="col">Orders in books</th><th scope="col">Books expect</th><th scope="col">Deposited</th><th scope="col">Running gap</th></tr></thead>
+    <tbody>
+${monthRows}
+    </tbody>
+  </table></div>
+  <p class="muted">Sales, fees, deposits and the statement's wording are invented to show the arithmetic, not any platform's rates or any bank's descriptions. The running gap is what the books expect less what was deposited, from July to that month. The test behind this page runs ${esc(SITE_NAME)}' own deposit check over these rows and checks every figure and finding below against it.</p>
+  <h2>For the quarter</h2>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">Platform</th><th scope="col">Books expect</th><th scope="col">Deposited (payouts)</th><th scope="col">Gap</th><th scope="col">Result</th></tr></thead>
+    <tbody>
+${totalRows}
+    </tbody>
+  </table></div>
+  <h3>eBay: ${usdc(ebay.gapCents)} short, and that is fine</h3>
+  <p>The books expect ${usdc(ebay.expectedCents)} and ${ebay.depositCount} payouts brought in ${usdc(ebay.depositsCents)}. A gap is only worth chasing when it is more than $25 and more than 15% of what the books expect, here ${usdc(ebay.thresholdCents)}: a payout lands days after the sale, so the end of any statement has sales not yet paid out. September's late sales arrive in October's statement.</p>
+  <h3>Mercari: ${usdc(-mercari.gapCents)} more deposited than the books know about</h3>
+  <p>July's ${usdc(mercari.months[0].expectedCents)} is in the books, but ${mercari.depositCount} Mercari deposits came to ${usdc(mercari.depositsCents)}. September's ${usdc(mercariSep.depositsCents)} has no Mercari sale in the books that month or the month before, so the August and September reports were never imported. August's deposits alone would not prove it, since a payout early in a month can be the last month's sales; the size of the quarter's gap does. Import both months and the gap closes to the few days' lag eBay shows.</p>
+  <h3>Poshmark: ${usdc(poshmark.expectedCents)} expected and nothing deposited</h3>
+  <p>The books are complete here; the money is not in this account. Either it is still on Poshmark (some sellers leave a balance to shop with), or it is paid to another bank account or card. Neither is an error in the books, but the other account's statement is the one to check.</p>
+  <h2>Money in that isn't a payout</h2>
+  <p>Not every deposit that names a platform is a payout. The ${usdc(refund.amountCents)} &ldquo;${esc(refund.description)}&rdquo; on ${shortDate(refund.date)} is a refund of something the reseller bought; counted as a payout, it would look like Amazon sales missing from the books. Untick it and it drops out. PayPal, Venmo and Cash App lines are the same: they can be money from friends as easily as sales.</p>
+  <p>Money in that names no platform is counted apart: here ${usdc(f.otherDepositsCents)}, the &ldquo;${esc(zelle.description)}&rdquo; on ${shortDate(zelle.date)}. If that was a sale, it belongs in the books as a sale made off the marketplaces, with its item's cost. If it was a friend paying you back, it is not income.</p>
+  <h2>The deposit check in ${esc(SITE_NAME)}</h2>
+  <p>On the Imports page, &ldquo;Did I import everything?&rdquo; reads the CSV of the account your payouts go to (every US bank and card issuer offers one) and does this table for you: each deposit whose description names a platform is set against what your books expect from that platform, month by month, over the statement's dates, for all the <a href="${href("/platforms")}">platforms</a> you import. It names the months with deposits and no sales, the platforms whose deposits run ahead of or behind the books, and the money in that names no platform. Every matched deposit is listed so you can check it and untick any that isn't a payout. The statement is read to make the comparison and is not saved.</p>
+  <p>Matching is by the platform's name in the bank's description, which banks word differently, so the list of matches is there to be read, not trusted blindly. Charges a platform bills to your card instead of taking from your balance make the books expect more than it pays out; if a platform runs short every month by about the same amount, that is the place to look.</p>
+  <h2>Questions</h2>
+${faqs.map((q) => `  <h3>${esc(q.q)}</h3>\n  <p>${esc(q.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "deposits" })}</div>`;
+  const text = `# ${title}
+
+Expected payout for a platform and month = item sales + shipping buyers paid − refunds − platform fees − postage. Sales tax the platform collected is left out. Compare it with the bank deposits that name that platform.
+
+## Reading the comparison
+
+${mdList([
+  "Deposits from a platform in a month with no sales from it that month or the month before: a report not imported.",
+  "Deposits ahead of the books overall: a month or a second account not imported, a payout of a balance from before the statement, or money in that is not a payout.",
+  "Books ahead of deposits: money still on the platform, payouts to another account, a report imported twice, or charges billed to a card rather than taken from the balance.",
+  "A gap is worth chasing above $25 and above 15% of what the books expect; payouts land days after sales.",
+])}
+
+## Worked example (invented), July to September 2026
+
+${f.platforms.map((p) => `- ${p.label}: books expect ${usdc(p.expectedCents)}, ${p.depositCount ? `${p.depositCount} deposits of ${usdc(p.depositsCents)}` : "no deposits"}, gap ${gap(p.gapCents)}: ${STATUS[p.status]}.`).join("\n")}
+- Mercari, September: ${usdc(mercariSep.depositsCents)} deposited and no Mercari sales in August or September: those reports were not imported.
+- An Amazon refund of ${usdc(refund.amountCents)} was unticked as not a payout; ${usdc(f.otherDepositsCents)} of other money in (a Zelle payment) names no platform.
+
+## Questions
+
+${faqs.map((q) => `### ${q.q}\n\n${q.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Reconcile payouts with bank deposits", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((q) => ({
+          "@type": "Question",
+          name: q.q,
+          acceptedAnswer: { "@type": "Answer", text: q.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
 const money = (n) => `$${n.toFixed(2)}`;
 
 function inventorySpreadsheet() {
@@ -4222,6 +4505,7 @@ function guidePages() {
     costOfGoodsSold(),
     inventorySpreadsheet(),
     sellThrough(),
+    depositCheck(),
     mileageDeduction(),
     homeOfficeAndEquipment(),
     taxDeductions(),
@@ -4249,6 +4533,7 @@ export function allPages() {
     costOfGoodsSold(),
     inventorySpreadsheet(),
     sellThrough(),
+    depositCheck(),
     mileageDeduction(),
     homeOfficeAndEquipment(),
     taxDeductions(),

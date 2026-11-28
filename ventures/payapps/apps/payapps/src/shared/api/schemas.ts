@@ -31,6 +31,7 @@ import {
   MAX_BID_ITEMS,
   MAX_ESTIMATE_LINES,
   MAX_MARKUP_BPS,
+  MAX_VENDOR_LENGTH,
 } from "../estimate";
 import {
   MAX_PROCORE_DESCRIPTION_LENGTH,
@@ -342,6 +343,8 @@ export const estimateLinesSchema = z
             quantityMilli: z.number().int().min(0).max(MAX_QUANTITY_MILLI),
             unit: z.string().trim().max(MAX_UNIT_LENGTH).nullish(),
             unitCostMicros: z.number().int().min(0).max(MAX_UNIT_PRICE_MICROS),
+            /** The sub quoting a subcontract line; ignored on other categories. */
+            vendor: z.string().trim().max(MAX_VENDOR_LENGTH).nullish(),
           })
           .strict(),
       )
@@ -368,6 +371,11 @@ export const winEstimateSchema = z
     decidedOn: isoDate.nullish(),
     /** The alternates the GC accepted, by bid item; left out, none (the base bid). */
     acceptedAlternates: z.array(text(MAX_BID_ITEM_LENGTH)).max(MAX_BID_ITEMS).optional(),
+    /**
+     * Each sub named on a subcontract line becomes a subcontract on the job for its quote (on plans
+     * with job costing). Left out, true.
+     */
+    subcontracts: z.boolean().optional(),
   })
   .strict();
 export type EstimateInputBody = z.infer<typeof estimateSchema>;

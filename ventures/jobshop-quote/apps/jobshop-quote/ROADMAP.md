@@ -83,6 +83,18 @@ checks the pair. No customers yet.
   and dropped them). Only a rising, stand-alone run counts: m/d/yyyy dates, m/d/yy with a 2020-2040
   year ("1/15/26", and so "10/20/30" too: left blank for the estimator), a run right after "due", "by",
   "on" or "ship", inch fractions ("1/2", "3/16") and part numbers ("12345/500-A") add nothing.
+- Rule reader, list lines (2026-11-28, `rule-reader-list-lines`): six RFQ layouts a buyer commonly
+  sends were run through the rule reader, and four came out wrong. Fixed: a numbered or bulleted list
+  with one part per line ("1) 4410-0021 Rev C - Mounting bracket, Qty 50 / 100 / 250") read no part
+  at all and now reads number, revision, quantities and the description as written, with a
+  "Finish:" or "Need by" line back at the margin applied to every item (an indented line stays with
+  its item); "- PN 30311 rev B, qty 12" (no colon after the label) read nothing; a purchasing export's
+  bare "Item" column and its "Req Date" header were not recognised ("Item" counts as the part only
+  when no column names it); and "50 pcs of A-1001 and 100 pcs of A-1002" lost the second part and
+  priced the first at both counts, now one part each with its own count. A count ("- 1000 pcs per
+  year"), a date or a note ("1) M6x1.0 tapped holes, qty 4") in a list is not taken for a part;
+  unlabelled material in a list line is left for the estimator, as before. `RULES_NOTE` names the
+  list lines. Tests: `src/shared/rule-reader.test.ts` (+6).
 - Offline demo (`pnpm demo`), unit + worker tests incl. cross-tenant isolation.
 - AI cost guards (2026-11-25): per-shop monthly LLM spend cap and global daily kill switch
   (`BudgetedLlm` + `services/guards/llm-budget`, copied from grants), 30/min per-user limit on AI
@@ -873,6 +885,26 @@ checks the pair. No customers yet.
   and listing and numbering characteristics is the slow step; rivals charge $25 to $500 a month for
   it (portfolio/monetization/bets.md, bet #2 "First article"). `src/shared/fai-characteristics.ts`,
   unit tests beside it, `test/worker/fai-form3.test.ts` (route, no-text refusal, tenancy).
+- First article balloons (2026-11-28, every plan, fai-balloons): beside the CSV, the RFQ page has a
+  "Ballooned drawing (PDF)" link (`GET /rfqs/:id/files/:fileId/ballooned.pdf`): the drawing with a
+  numbered balloon beside each characteristic of the Form 3 draft, drafted from the same stored text
+  as the CSV so a balloon's number is the CSV row's number (a "4X" feature, rows 4.1 ... 4.4, gets one
+  balloon "4" at its callout). Positions come from the PDF's own text layer: `readPdfLayout` in
+  `src/shared/pdf-text.ts` now tracks the CTM, text matrices, glyph widths (/Widths, a CID font's /W)
+  and form XObject matrices, and each characteristic's requirement is found there in reading order
+  (the k-th one with the same text takes the k-th place). A balloon sits just before the text along
+  the text's own direction (vertical dimensions too), steps back along the line when it would overlap
+  another, sits before a note's number, and reads upright on a page with /Rotate. The original file
+  is not rewritten: the balloons are an incremental update (new page revisions whose /Contents wrap
+  the original streams in q ... Q, then one stroked-digit stream, so no font or resource is added),
+  written as an xref table or, for a PDF 1.5 file, a cross-reference stream. A characteristic whose
+  text is not found gets no balloon (`X-Balloons-Unplaced` names them) rather than a guessed place; a
+  file with none found, a scan or an encrypted file is refused with a reason. Checked by rendering
+  with poppler (`pdftoppm`) on a Chromium-printed drawing (`test/fixtures/pdf/bracket-drawing-chrome.pdf`),
+  an object-stream/xref-stream file and a rotated page. `src/shared/fai-balloons.ts`, unit tests
+  beside it, `test/worker/fai-balloons.test.ts` (route, original bytes kept, balloon count equals the
+  CSV's rows, scan refusal, tenancy). Why: auto-ballooning is what the first-article tools charge
+  their higher tiers for (bets.md, bet #2 "First article": 1factory's $75 tier).
 
 - First article results, part 2a (2026-11-28, every plan, fai-results-screen): "Inspect first
   article" beside the CSV link opens the drafted list as a screen
@@ -1053,10 +1085,13 @@ checks the pair. No customers yet.
     dimension's size when a tolerance line pairs a size with the class, and band limits an admin can
     set per shop, if shops ask.
 
-17. First article list, part 2b (part 1 and the results screen, part 2a, done 2026-11-28): Forms 1
-    and 2 filled from the quote (part number, revision, material and finish certificates), the drawing
-    zone from the PDF's text positions, balloons drawn on a copy of the drawing PDF, and results for
-    more than one part per sheet, if shops use the screen.
+17. First article list, part 2b (part 1, the results screen, part 2a, and balloons on a copy of the
+    drawing PDF, done 2026-11-28): Forms 1 and 2 filled from the quote (part number, revision,
+    material and finish certificates), the drawing zone from the PDF's text positions (the positions
+    are now read, `readPdfLayout`; the zone needs the border's zone letters and numbers located on the
+    sheet), and results for more than one part per sheet, if shops use the screen. Balloons, next: a
+    leader line to the feature when the callout is far from it, balloons for rows the inspector adds
+    on the screen, and balloons from OCR text on a scanned drawing.
 
 ## Open questions for the owner
 

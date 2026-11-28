@@ -22,6 +22,7 @@ const row = (patch: Partial<LineForm>): LineForm => ({
   quantity: "120",
   unit: "HR",
   unitCost: "68.50",
+  vendor: "",
   ...patch,
 });
 
@@ -40,6 +41,7 @@ it("reads cost lines and skips empty rows", () => {
         quantityMilli: 120_000,
         unit: "HR",
         unitCostMicros: 68_500_000,
+        vendor: null,
       },
       {
         bidItem: "Ductwork",
@@ -48,9 +50,21 @@ it("reads cost lines and skips empty rows", () => {
         quantityMilli: 1_450_000,
         unit: null,
         unitCostMicros: 4_875_000,
+        vendor: null,
       },
     ],
   });
+});
+
+it("keeps the sub's name on a subcontract line only", () => {
+  const r = parseLines([
+    row({ category: "subcontract", vendor: "  Acme   Insulation ", quantity: "1", unit: "LS" }),
+    // A name typed before the category changed away from subcontract is not sent.
+    row({ category: "labor", vendor: "Acme Insulation" }),
+    row({ category: "subcontract", vendor: "   ", quantity: "1" }),
+  ]);
+  if (!("lines" in r)) throw new Error("expected lines");
+  expect(r.lines.map((l) => l.vendor)).toEqual(["Acme Insulation", null, null]);
 });
 
 it("names the first line that does not read", () => {
@@ -123,6 +137,7 @@ it("imported lines go after the last filled row and save exactly as read", () =>
     quantityMilli: 12_500,
     unit: "HR",
     unitCostMicros: 95_125_000,
+    vendor: null,
   });
 });
 

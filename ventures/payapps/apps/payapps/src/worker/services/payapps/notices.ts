@@ -1,7 +1,7 @@
 // Preliminary notices of the right to a lien for a job (Crew plan and up, with lien waivers). A
 // sub or supplier sends one to the property's record owner early in the job where a state's statute
 // prescribes it. Wording comes only from packages/lien-waivers (Arizona's § 33-992.01 twenty day
-// notice, Michigan's MCL 570.1109 notice of furnishing, California's §§ 8102 and 8202 for
+// notice, Michigan's MCL 570.1109 and Ohio's § 1311.05 notices of furnishing, California's §§ 8102 and 8202 for
 // private works, Florida's Notice to Owner, § 713.06(2)(c), Texas' notices of claim, §§ 53.056 and
 // 53.057, and Wyoming's § 29-10-101(a) today);
 // a state with no encoded notice gets none. Printing saves nothing: the notice is filled from the
@@ -145,6 +145,10 @@ export async function noticeOverview(
   // Arizona's preliminary twenty day notice (§ 33-992.01(D)): the person the claimant contracted
   // with, the GC by default (the user changes it for a lower tier), and the claimant's name.
   if (prefill.directContractor) prefill.contractedWith = prefill.directContractor;
+  // Ohio's notice of furnishing (§ 1311.05(B)): the original contractor's address and the property.
+  // The designee and the date first furnished come from the notice of commencement and the user.
+  if (p.gcAddress) prefill.originalContractorAddress = p.gcAddress;
+  prefill.propertyLocation = p.location || p.name;
   prefill.estimate = formatCents(
     p.originalContractSumCents + (await approvedChangeCents(ctx, orgId, projectId)),
   );

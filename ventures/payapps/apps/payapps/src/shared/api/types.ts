@@ -442,6 +442,8 @@ export interface EstimateLineDto {
   quantityMilli: number;
   unit: string | null;
   unitCostMicros: number;
+  /** The sub quoting a subcontract line, or null. */
+  vendor: string | null;
   /** quantity × unit cost, in cents. */
   costCents: number;
 }
@@ -692,7 +694,7 @@ export interface NoticeOverviewDto {
   enabled: boolean;
   state: string | null;
   notices: NoticeFormDto[];
-  /** States with an encoded notice (Arizona, California, Florida, Michigan, Texas and Wyoming today). */
+  /** States with an encoded notice (Arizona, California, Florida, Michigan, Ohio, Texas and Wyoming today). */
   states: string[];
   prefill: Record<string, string>;
   /** The job's owner as entered on the job, if any: the notice goes to the record owner. */

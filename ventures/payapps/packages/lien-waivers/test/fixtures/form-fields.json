@@ -145,6 +145,7 @@
   "waiver ND/unconditional-progress/generic": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate throughDate exceptions? amountPaidCents",
   "waiver ND/conditional-final/generic": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate disputedClaimsCents? checkMaker checkAmountCents checkPayee",
   "waiver ND/unconditional-final/generic": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate disputedClaimsCents? amountPaidCents",
+  "notice OH/notice-of-furnishing/statutory": "designee designeeAddress originalContractor originalContractorAddress contractedWith propertyLocation firstFurnishedDate claimantName claimantAddress signer signerAddress? signedDate",
   "waiver OH/conditional-progress/generic": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate throughDate exceptions? checkMaker checkAmountCents checkPayee",
   "waiver OH/unconditional-progress/generic": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate throughDate exceptions? amountPaidCents",
   "waiver OH/conditional-final/generic": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate disputedClaimsCents? checkMaker checkAmountCents checkPayee",
