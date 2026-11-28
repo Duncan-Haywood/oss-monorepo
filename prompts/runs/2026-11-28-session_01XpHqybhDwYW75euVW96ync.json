@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqybhDwYW75euVW96ync",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-28T05:46:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "bet #6 front door: how-to-do-a-framing-takeoff guide, worked on Open House Plans 1, every figure pinned to the engine",
+  "projects": [
+    "wall-framing-takeoff",
+    "residential-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20010",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first venture-preflight run failed title-length.test.mjs; a rerun of that test alone passed and the second preflight run was used",
+      "fix": "rerun"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "lumber-waste-factor.html (PR #19981) footer said 'MIT licence' for an all-rights-reserved directory",
+      "fix": "footer now matches LICENSE; new test asserts the guide carries the all-rights-reserved notice"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says every bet's Next list waits on demand; it pointed at bet #6's front door, which was useful, but the claim listing ran ~60 lines before the 'Start here' line"
+    },
+    {
+      "file": "platform/pages/title-length.test.mjs",
+      "issue": "failed once inside venture-preflight and passed when rerun alone, with no change in between; looks flaky or depends on the tree's state while the preflight runs"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-04-how-wrong-is-one-stud-per-foot.md (new section, for-customers)",
+    "ventures/wall-framing-takeoff/README.md 'A worked takeoff, step by step'"
+  ],
+  "goal": "$10k MRR: demand for bet #6 (residential takeoff) via a search page for 'framing takeoff'",
+  "notes": "Security queue: none workable (exit 3). IDEAS: none. Route: ventures/1. All bets' Next items wait on demand; bet #6 had the fewest front-door PRs. run_venture_tests.py wall-framing-takeoff: ok 1297 tests. risk_review: nothing blocked, no checks triggered.",
+  "corrections": [],
+  "redteam": null
+}
