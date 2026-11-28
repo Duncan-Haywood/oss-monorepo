@@ -22,6 +22,9 @@ export const PAY_APP_EVENT_ACTIONS = [
   "reopened_short",
   "owner_payment_recorded",
   "owner_payment_cleared",
+  "interest_billed",
+  "interest_waived",
+  "interest_mark_cleared",
   "deleted",
   "quickbooks_invoice_sent",
   "quickbooks_payment_sent",
@@ -148,6 +151,16 @@ export function describePayAppEvent(
     }
     case "owner_payment_cleared":
       return `Owner's payment date${d.date ? ` (${d.date})` : ""} cleared from ${app.toLowerCase()}`;
+    case "interest_billed": {
+      const note = d.note ? `: ${d.note}` : "";
+      return `Interest of ${money(d.amountCents)} earned by the late payment of ${app.toLowerCase()} marked billed to the GC on ${d.date ?? ""}${note}`;
+    }
+    case "interest_waived": {
+      const note = d.note ? `: ${d.note}` : "";
+      return `Interest of ${money(d.amountCents)} earned by the late payment of ${app.toLowerCase()} marked waived on ${d.date ?? ""}${note}`;
+    }
+    case "interest_mark_cleared":
+      return `Billed or waived mark on the late-payment interest of ${app.toLowerCase()} cleared; it is on the to-do list again`;
     case "deleted":
       return `Draft ${app.toLowerCase()} deleted`;
     case "quickbooks_invoice_sent":

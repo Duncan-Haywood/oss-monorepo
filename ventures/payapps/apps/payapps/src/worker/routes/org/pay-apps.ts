@@ -10,6 +10,7 @@ import {
   gaAffidavitPdfSchema,
   gaContractorCopySchema,
   gaPaidAffidavitSchema,
+  interestSettlementSchema,
   markPaidSchema,
   ownerPaidManySchema,
   ownerPaidSchema,
@@ -65,6 +66,7 @@ import {
   type PayAppEventInput,
   recordPayAppEvent,
 } from "../../services/payapps/history";
+import { setInterestSettlement } from "../../services/payapps/interest-settlement";
 import { buildPayAppPacket, packetResponse } from "../../services/payapps/packet";
 import {
   certifyPayApp,
@@ -491,6 +493,30 @@ routes.put("/:payAppId/owner-paid", editor, validate("json", ownerPaidSchema), a
   }
   return c.json(d);
 });
+
+// Interest a late payment earned: marked billed to the GC or waived (it leaves the cash page's
+// to-do list), or cleared back onto it with { settlement: null }.
+routes.put(
+  "/:payAppId/late-interest",
+  editor,
+  validate("json", interestSettlementSchema),
+  async (c) => {
+    const { orgId, projectId, payAppId } = ids(c);
+    const input = c.req.valid("json");
+    const change = await setInterestSettlement(c.var.ctx, orgId, projectId, payAppId, input);
+    const d = await detail(c, payAppId);
+    if (input.settlement === null) {
+      await log(c, "interest_mark_cleared", d, { amountCents: change.cents });
+    } else {
+      await log(c, input.settlement === "billed" ? "interest_billed" : "interest_waived", d, {
+        amountCents: change.cents,
+        date: input.on,
+        note: input.note?.trim() || null,
+      });
+    }
+    return c.json(d);
+  },
+);
 
 routes.delete("/:payAppId", editor, async (c) => {
   const { orgId, projectId, payAppId } = ids(c);

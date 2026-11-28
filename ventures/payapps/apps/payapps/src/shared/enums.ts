@@ -60,3 +60,11 @@ export type PayTermsBasis = (typeof PAY_TERMS_BASES)[number];
 
 export const SHORT_CLOSE_REASONS = ["backcharge", "disputed", "written-off"] as const;
 export type ShortCloseReason = (typeof SHORT_CLOSE_REASONS)[number];
+
+/**
+ * What the contractor did with the interest an application paid late earned
+ * (src/shared/cash-report.ts, paidLateApps): billed it to the GC (on a later application or a
+ * separate invoice) or let it go. Either takes the application off the cash page's to-do list.
+ */
+export const INTEREST_SETTLEMENTS = ["billed", "waived"] as const;
+export type InterestSettlement = (typeof INTEREST_SETTLEMENTS)[number];
