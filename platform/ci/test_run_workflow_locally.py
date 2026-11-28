@@ -2977,6 +2977,62 @@ class DeferHeavyOnProse(unittest.TestCase):
         self.assertNotIn("Nothing was selected", out)
 
 
+class DeferredPageChecks(unittest.TestCase):
+    """Deferring priv-portfolio-pages still runs its cheap page checks on a page diff."""
+
+    def _repo(self, body):
+        root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, root)
+        os.makedirs(os.path.join(root, "platform", "ci"))
+        os.makedirs(os.path.join(root, "platform", "pages"))
+        with open(os.path.join(root, "platform", "pages", "description-length.test.mjs"), "w") as f:
+            f.write("import test from 'node:test';\nimport assert from 'node:assert';\n"
+                    f"test('cap', () => {{ {body} }});\n")
+        return root
+
+    def _run(self, changed, root):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner.deferred_page_checks(changed, repo=root)
+        return code, out.getvalue()
+
+    @unittest.skipUnless(shutil.which("node"), "needs node")
+    def test_a_failing_page_check_fails_the_sweep(self):
+        root = self._repo("assert.ok(false, 'description over 160');")
+        code, out = self._run(["ventures/x/index.html", "prompts/runs/r.json"], root)
+        self.assertNotEqual(code, 0)
+        self.assertIn("FAILED: site page checks", out)
+
+    @unittest.skipUnless(shutil.which("node"), "needs node")
+    def test_a_passing_page_check_is_ok(self):
+        code, out = self._run(["ventures/x/style.css"], self._repo("assert.ok(true);"))
+        self.assertEqual(code, 0)
+        self.assertIn("ok: site page checks", out)
+
+    def test_a_diff_without_pages_runs_nothing(self):
+        root = self._repo("assert.ok(false);")
+        code, out = self._run(["docs/posts/p.md", "prompts/runs/r.json", "ventures/x/a.py"], root)
+        self.assertEqual((code, out), (0, ""))
+
+    def test_the_sweep_calls_it_only_when_portfolio_pages_is_deferred(self):
+        sel = DeferHeavyOnProse.SEL
+        args = argparse.Namespace(for_changes="origin/main", list=False, workflow_timeout=0,
+                                  no_post_check=True, no_browser_sweeps=True,
+                                  no_research_tests=True, full=False, only=None)
+        for changed, expect in ((["ventures/x/index.html"], True),
+                                (["platform/pages/build.mjs"], False)):
+            with mock.patch.object(runner, "changed_paths", return_value=changed), \
+                 mock.patch.object(runner, "pick_workflows", return_value=(sel, [])), \
+                 mock.patch.object(runner, "uncommitted_note", return_value=None), \
+                 mock.patch.object(runner, "_run_selected", return_value=0), \
+                 mock.patch.object(runner, "deferred_page_checks", return_value=1) as pc, \
+                 contextlib.redirect_stdout(io.StringIO()):
+                code = runner.run_for_changes(args)
+            self.assertEqual(pc.called, expect, changed)
+            if expect:
+                self.assertEqual(code, 1)
+
+
 class BrowserSweepPrecheck(unittest.TestCase):
     """A venture page the diff touches is swept in a browser before the workflows."""
 
