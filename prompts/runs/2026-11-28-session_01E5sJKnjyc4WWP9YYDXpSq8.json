@@ -52,7 +52,7 @@
       "file": "CLAUDE.md",
       "why": "PR CI 'test' failed on platform/pages/title-length.test.mjs for ventures/machine-shop-guides/how-to-submit-sprs-score.html (77-char title from #20062), red on main too",
       "did": "shortened that title to 60 chars in this PR instead of a separate PR",
-      "result": "title-length test passes locally"
+      "result": "title and description checks passed in this PR's CI; main fixed the same page in parallel, so the merge took main's version and this PR no longer changes that file"
     }
   ],
   "writeups": [
