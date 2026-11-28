@@ -214,3 +214,141 @@ describe("sworn statement draft saved with the job", () => {
     );
   });
 });
+
+describe("sworn statement copies, one per pay application", () => {
+  interface CopyDto {
+    id: string;
+    payApp: string;
+    statementDate: string;
+    givenTo: string;
+    partyCount: number;
+    owingCents: number;
+    balanceCents: number;
+    savedByName: string | null;
+  }
+  interface Kept {
+    copy: CopyDto & { statement: typeof STATEMENT };
+    replaced: boolean;
+  }
+
+  async function freshJob() {
+    const t = await setupTenant("owner");
+    const p = await call<ProjectDto>(`/api/orgs/${t.orgId}/projects`, {
+      method: "POST",
+      as: t.userId,
+      expect: 201,
+      json: {
+        name: "Copies job",
+        gcName: "Prairie Builders",
+        originalContractSumCents: 48_000_000,
+      },
+    });
+    return { ...t, path: `/api/orgs/${t.orgId}/projects/${p.id}/sworn-statement/copies` };
+  }
+
+  it("keeps a copy per pay application, replaces the same one, lists newest first", async () => {
+    const { userId: as, path } = await freshJob();
+    expect(await call<{ copies: CopyDto[] }>(path, { as })).toEqual({ copies: [] });
+
+    const first = await call<Kept>(path, { method: "POST", as, expect: 201, json: STATEMENT });
+    expect(first.replaced).toBe(false);
+    expect(first.copy).toMatchObject({
+      payApp: "No. 4, period to 2026-10-31",
+      givenTo: "Prairie Builders",
+      partyCount: 3,
+      owingCents: 3_290_000,
+      savedByName: "Test User",
+    });
+
+    // The same pay application, corrected (spacing and case do not make it another one).
+    const fixed = {
+      ...STATEMENT,
+      payApp: "no. 4,  period to 2026-10-31",
+      affiantName: "Sam Lee",
+    };
+    const again = await call<Kept>(path, { method: "POST", as, json: fixed });
+    expect(again.replaced).toBe(true);
+    expect(again.copy.id).toBe(first.copy.id);
+    expect(again.copy.statement.affiantName).toBe("Sam Lee");
+
+    // Next month's is a second copy.
+    const next = {
+      ...STATEMENT,
+      payApp: "No. 5, period to 2026-11-30",
+      statementDate: "2026-12-20",
+    };
+    await call<Kept>(path, { method: "POST", as, expect: 201, json: next });
+    const list = await call<{ copies: CopyDto[] }>(path, { as });
+    expect(list.copies.map((c) => c.payApp)).toEqual([
+      "No. 5, period to 2026-11-30",
+      "no. 4,  period to 2026-10-31",
+    ]);
+  });
+
+  it("prints a kept copy again as it was kept, after the draft has moved on", async () => {
+    const { userId: as, path } = await freshJob();
+    const kept = await call<Kept>(path, { method: "POST", as, expect: 201, json: STATEMENT });
+    await call(path.replace("/copies", "/draft"), {
+      method: "PUT",
+      as,
+      json: { ...STATEMENT, rows: [{ name: "Someone else", contractCents: 1 }] },
+    });
+    const res = await api(`${path}/${kept.copy.id}/statement.pdf`, { as });
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Disposition")).toContain(
+      "sworn-statement-pay-app-4-2026-11-26.pdf",
+    );
+    const text = new TextDecoder().decode(await res.arrayBuffer());
+    expect(text).toContain("(Valley Electric Supply)");
+    expect(text).not.toContain("Someone else");
+  });
+
+  it("refuses to keep a statement that would not print", async () => {
+    const { userId: as, path } = await freshJob();
+    const bad = structuredClone(STATEMENT);
+    const r = bad.rows[2];
+    if (!r) throw new Error("no row");
+    r.paidCents = 6_000_000;
+    const res = await api(path, { method: "POST", as, json: bad });
+    expect(res.status).toBe(400);
+    expect((await api(path, { method: "POST", as, json: { ...STATEMENT, rows: [] } })).status).toBe(
+      400,
+    );
+    expect((await call<{ copies: CopyDto[] }>(path, { as })).copies).toHaveLength(0);
+  });
+
+  it("a viewer lists and prints but cannot keep or remove", async () => {
+    const { userId: as, orgId: org, path } = await freshJob();
+    const kept = await call<Kept>(path, { method: "POST", as, expect: 201, json: STATEMENT });
+    const viewer = await createTestUser();
+    await addToOrg(org, viewer.id, "viewer");
+    expect((await call<{ copies: CopyDto[] }>(path, { as: viewer.id })).copies).toHaveLength(1);
+    expect((await api(`${path}/${kept.copy.id}/statement.pdf`, { as: viewer.id })).status).toBe(
+      200,
+    );
+    expect((await api(path, { method: "POST", as: viewer.id, json: STATEMENT })).status).toBe(403);
+    expect((await api(`${path}/${kept.copy.id}`, { method: "DELETE", as: viewer.id })).status).toBe(
+      403,
+    );
+  });
+
+  it("an editor removes one; another company sees none of it", async () => {
+    const { userId: as, orgId: org, path } = await freshJob();
+    const kept = await call<Kept>(path, { method: "POST", as, expect: 201, json: STATEMENT });
+    const other = await setupTenant("owner");
+    const otherPath = path.replace(org, other.orgId);
+    for (const p of [path, otherPath]) {
+      expect((await api(p, { as: other.userId })).status).toBe(404);
+      expect((await api(`${p}/${kept.copy.id}`, { as: other.userId })).status).toBe(404);
+      expect((await api(`${p}/${kept.copy.id}/statement.pdf`, { as: other.userId })).status).toBe(
+        404,
+      );
+      expect(
+        (await api(`${p}/${kept.copy.id}`, { method: "DELETE", as: other.userId })).status,
+      ).toBe(404);
+    }
+    await call(`${path}/${kept.copy.id}`, { method: "DELETE", as });
+    expect((await api(`${path}/${kept.copy.id}`, { as })).status).toBe(404);
+    expect((await api(`${path}/${kept.copy.id}`, { method: "DELETE", as })).status).toBe(404);
+  });
+});

@@ -390,3 +390,37 @@ export function swornAffirmation(s: Pick<SwornStatement, "contractorName">): str
 
 export const SWORN_STATEMENT_NOTICE =
   "Prepared with PayApps from the figures entered. The columns follow what Illinois (770 ILCS 60/5) and Michigan (MCL 570.1110) ask a sworn statement to list; the heading, affirmation and notary block are our own words, not either statute's form. Where the owner, lender, title company or statute prescribes a form, copy these figures onto it. Not legal advice. Sign only what you know to be true: a knowingly false sworn statement can be a crime.";
+
+/**
+ * Saved copies: the statement as it was printed for each pay application, kept so last month's can
+ * be printed again exactly as signed, after the draft has moved on to this month's figures. One copy
+ * per pay application: saving again for the same application replaces it (a corrected statement),
+ * and a statement that names no application is keyed by its date instead.
+ */
+export const MAX_SWORN_COPIES = 240;
+
+/** What makes two copies "the same statement": the pay application named, else the date. */
+export function swornCopyKey(s: Pick<SwornStatement, "payApp" | "statementDate">): string {
+  const app = s.payApp.trim().toLowerCase().replace(/\s+/g, " ");
+  return app ? `app:${app}` : `date:${s.statementDate}`;
+}
+
+/** One saved copy as listed (the statement itself is read from its own route). */
+export interface SwornCopyDto {
+  id: string;
+  state: SwornState;
+  payApp: string;
+  statementDate: string;
+  givenTo: string;
+  partyCount: number;
+  owingCents: number;
+  balanceCents: number;
+  /** ISO timestamps: when it was first kept, and when it was last replaced. */
+  createdAt: string;
+  updatedAt: string;
+  savedByName: string | null;
+}
+
+export interface SwornCopyDetailDto extends SwornCopyDto {
+  statement: SwornStatement;
+}

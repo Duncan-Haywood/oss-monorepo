@@ -3,7 +3,9 @@
 // subcontracts, typed here, checked live, printed by the Worker. The draft is saved with the job
 // (GET/PUT .../sworn-statement/draft) as an editor types, so next month starts from this month's
 // parties and paid column on any computer; a viewer's changes stay in their browser. A draft kept in
-// this browser before drafts were saved with the job is picked up once and saved.
+// this browser before drafts were saved with the job is picked up once and saved. When an editor
+// downloads the PDF, the statement is also kept as that pay application's copy
+// (.../sworn-statement/copies), listed below the form to print again as it was signed.
 import type { JobCostDto, ProjectDetailDto } from "@shared/api/types";
 import { type MemberRole, ROLE_RANK } from "@shared/enums";
 import { formatCents } from "@shared/money";
@@ -13,6 +15,8 @@ import {
   SWORN_STATE_LABELS,
   SWORN_STATEMENT_NOTICE,
   SWORN_STATES,
+  type SwornCopyDetailDto,
+  type SwornCopyDto,
   type SwornDraftDto,
   type SwornRowInput,
   type SwornStatementInput,
@@ -203,15 +207,43 @@ export function SwornStatementPage() {
     [parsed],
   );
 
+  const copiesKey = ["sworn-copies", orgId, projectId];
   const print = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!parsed?.success) throw new Error("Fill in the fields marked below first");
-      return downloadPost(
+      await downloadPost(
         projectPath(orgId, projectId, "/sworn-statement.pdf"),
         parsed.data,
         "sworn-statement.pdf",
       );
+      // The printed statement is kept as this pay application's copy (a viewer's is not).
+      if (canSave) {
+        await api(projectPath(orgId, projectId, "/sworn-statement/copies"), {
+          method: "POST",
+          body: parsed.data,
+        });
+      }
     },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: copiesKey }),
+  });
+  const copies = useQuery({
+    queryKey: copiesKey,
+    queryFn: () =>
+      api<{ copies: SwornCopyDto[] }>(projectPath(orgId, projectId, "/sworn-statement/copies")),
+  });
+  const removeCopy = useMutation({
+    mutationFn: (id: string) =>
+      api(projectPath(orgId, projectId, `/sworn-statement/copies/${encodeURIComponent(id)}`), {
+        method: "DELETE",
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: copiesKey }),
+  });
+  const openCopy = useMutation({
+    mutationFn: (id: string) =>
+      api<SwornCopyDetailDto>(
+        projectPath(orgId, projectId, `/sworn-statement/copies/${encodeURIComponent(id)}`),
+      ),
+    onSuccess: (res) => setDraft({ ...res.statement, rows: withUid(res.statement.rows) }),
   });
 
   if (q.error) return <ErrorText error={q.error} />;
@@ -608,6 +640,96 @@ export function SwornStatementPage() {
                   : "Not saved with the job yet."}
         </p>
         <p className="text-xs text-slate-500">{SWORN_STATEMENT_NOTICE}</p>
+      </section>
+
+      <section className="card grid gap-2" aria-labelledby="sworn-copies-heading">
+        <h2 id="sworn-copies-heading" className="font-semibold">
+          Statements kept
+        </h2>
+        <p className="max-w-3xl text-sm text-slate-600">
+          {canSave
+            ? "Each PDF you download is kept here for its pay application, so last month's statement prints again as it was signed after this form has moved on. Downloading again for the same pay application replaces its copy."
+            : "The statements this company kept when it printed them, one per pay application."}
+        </p>
+        <ErrorText error={copies.error} />
+        {copies.data && copies.data.copies.length === 0 && (
+          <p className="text-sm text-slate-500">None kept yet.</p>
+        )}
+        {copies.data && copies.data.copies.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left text-slate-600">
+                  <th className="p-1">Pay application</th>
+                  <th className="p-1">Statement date</th>
+                  <th className="p-1">Given to</th>
+                  <th className="p-1 text-right">Parties</th>
+                  <th className="p-1 text-right">Owing</th>
+                  <th className="p-1 text-right">Balance</th>
+                  <th className="p-1">Kept</th>
+                  <th className="p-1" />
+                </tr>
+              </thead>
+              <tbody>
+                {copies.data.copies.map((k) => (
+                  <tr key={k.id} className="border-t align-top">
+                    <td className="p-1">{k.payApp || "(none named)"}</td>
+                    <td className="p-1">{k.statementDate}</td>
+                    <td className="p-1">{k.givenTo}</td>
+                    <td className="p-1 text-right">{k.partyCount}</td>
+                    <td className="p-1 text-right">{formatCents(k.owingCents)}</td>
+                    <td className="p-1 text-right">{formatCents(k.balanceCents)}</td>
+                    <td className="p-1 text-xs text-slate-500">
+                      {new Date(k.updatedAt).toLocaleDateString()}
+                      {k.savedByName ? ` by ${k.savedByName}` : ""}
+                    </td>
+                    <td className="p-1">
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        <a
+                          className="underline"
+                          href={projectPath(
+                            orgId,
+                            projectId,
+                            `/sworn-statement/copies/${encodeURIComponent(k.id)}/statement.pdf`,
+                          )}
+                        >
+                          PDF
+                        </a>
+                        <button
+                          type="button"
+                          className="underline"
+                          onClick={() => {
+                            if (window.confirm("Replace the form with this kept statement?")) {
+                              openCopy.mutate(k.id);
+                            }
+                          }}
+                        >
+                          Open in the form
+                        </button>
+                        {canSave && (
+                          <button
+                            type="button"
+                            className="text-slate-500 underline"
+                            onClick={() => {
+                              const what = k.payApp || k.statementDate;
+                              if (window.confirm(`Remove the kept statement for ${what}?`)) {
+                                removeCopy.mutate(k.id);
+                              }
+                            }}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <ErrorText error={openCopy.error} />
+        <ErrorText error={removeCopy.error} />
       </section>
     </div>
   );

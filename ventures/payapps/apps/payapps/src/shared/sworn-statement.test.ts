@@ -234,3 +234,16 @@ describe("header and file name", () => {
     expect(swornStatementFileName({ ...s, payApp: "" })).toBe("sworn-statement-2026-11-26.pdf");
   });
 });
+
+describe("swornCopyKey", () => {
+  it("is the pay application named, ignoring case and spacing, else the date", async () => {
+    const { swornCopyKey } = await import("./sworn-statement");
+    expect(
+      swornCopyKey({ payApp: " No. 4,  period to 2026-10-31", statementDate: "2026-11-26" }),
+    ).toBe(swornCopyKey({ payApp: "no. 4, period to 2026-10-31", statementDate: "2026-12-01" }));
+    expect(swornCopyKey({ payApp: "", statementDate: "2026-11-26" })).toBe("date:2026-11-26");
+    expect(swornCopyKey({ payApp: "No. 5", statementDate: "2026-11-26" })).not.toBe(
+      swornCopyKey({ payApp: "No. 4", statementDate: "2026-11-26" }),
+    );
+  });
+});
