@@ -123,7 +123,6 @@ export function msAffidavitOfNonpayment(): NoticeForm {
   };
 }
 
-
 export interface MsSixtyDays {
   /** The waiver's date (YYYY-MM-DD). */
   signedOn: string;

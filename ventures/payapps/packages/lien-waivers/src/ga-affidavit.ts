@@ -216,7 +216,6 @@ export function gaAffidavitOfNonpayment(): NoticeForm {
   };
 }
 
-
 export interface GaNinetyDays {
   /** The waiver's date (YYYY-MM-DD). */
   signedOn: string;

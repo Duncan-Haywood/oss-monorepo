@@ -293,6 +293,10 @@ test("MS sixty days refuses a date that is not YYYY-MM-DD instead of saying the 
   // came back as `ended: false` with a meaningless `daysLeft` (46,358 for "", null for "12/01/2026").
   for (const bad of ["", "2026", "2026-12", "2026-02-30", "12/01/2026", "2026-1-5"]) {
     assert.throws(() => msSixtyDays("2026-10-05", bad), RangeError, `today ${JSON.stringify(bad)}`);
-    assert.throws(() => msSixtyDays(bad, "2026-11-26"), RangeError, `signedOn ${JSON.stringify(bad)}`);
+    assert.throws(
+      () => msSixtyDays(bad, "2026-11-26"),
+      RangeError,
+      `signedOn ${JSON.stringify(bad)}`,
+    );
   }
 });
