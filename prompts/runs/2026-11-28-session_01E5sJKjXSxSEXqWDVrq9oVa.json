@@ -35,6 +35,10 @@
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "`redteam.py targets --under ventures/jobshop-quote` lists only 44 .mjs/billing files until `pnpm install` has run in the workspace; vitest-guarded app files like src/shared/*.ts are invisible, which the prompt does not say (the hint is only in redteam.py's _vitest_suite docstring)."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "Two venture PRs that each regenerate catalogue-export can both pass CI and still leave main red (a footer link added by one is missing from the other's new page); nothing re-exports after a merge."
     }
   ],
   "deviations": [
@@ -53,7 +57,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Targets: jobshop-quote qbo-invoice.ts (new in PR #19988) and customer-link.ts (public acceptance form). Needed `pnpm install --frozen-lockfile` in ventures/jobshop-quote (6 s) for redteam.py to see vitest suites. Catch rate 17/22 before, 22/22 after. Local checks: unit 707/707, typecheck clean, biome clean. Guard added: tests only; sibling sweep of the ISO_DATE regex across payapps/cmmc/einvoice-preflight found no other non-round-trip validator.",
+  "notes": "Targets: jobshop-quote qbo-invoice.ts (new in PR #19988) and customer-link.ts (public acceptance form). Needed `pnpm install --frozen-lockfile` in ventures/jobshop-quote (6 s) for redteam.py to see vitest suites. Catch rate 17/22 before, 22/22 after. Local checks: unit 707/707, typecheck clean, biome clean. Guard added: tests only; sibling sweep of the ISO_DATE regex across payapps/cmmc/einvoice-preflight found no other non-round-trip validator. CI then showed jobshop-site red on main (stale catalogue export from a merge race); regenerated and recorded as a second real defect.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -393,6 +397,12 @@
         "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
         "issue": "usDate (and so invoiceImportCsv) accepted impossible days such as 2026-02-30 or 2026-02-29 in a non-leap year: the pattern check passed, the CSV printed 02/30/2026 as the invoice date while Date.parse rolled the due date from 03/02. Its error says 'not a calendar day', so the guard passed the input it exists to reject. Fixed with a round-trip check and a test.",
         "patched": true
+      },
+      {
+        "file": "ventures/jobshop-quote/apps/jobshop-site/catalogue-export/quickbooks-invoices-from-quotes.html",
+        "issue": "Red on main: catalogue-export test failed because the page from PR #19988 was exported before a concurrently merged PR added the 'Material cost' footer link. Regenerated with pnpm export:catalogue; jobshop-site suite 163/163.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20001"
       }
     ]
   },
