@@ -81,6 +81,7 @@ export const GROUPS = [
   ["Measured against the alternatives", [
     ["vs-stud-per-foot-rule.html", "Takeoff vs. the stud-per-foot rule"],
     ["vs-ordering-lumber-by-hand.html", "Takeoff vs. ordering lumber by hand"],
+    ["lumber-waste-factor.html", "Framing lumber waste factor, measured"],
   ]],
 ];
 

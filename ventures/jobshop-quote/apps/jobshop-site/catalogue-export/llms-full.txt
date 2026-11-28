@@ -590,7 +590,9 @@ delivery date. Anything missing is a question to the customer, not a guess.
 - Price the material from the blank, not the part. Size the stock you will
 actually cut: the part's envelope plus facing and clamping allowance, rounded to a size you can buy.
 Weight times price per pound, plus a share for saw kerf and drop, or the price of a whole bar or
-plate when that is how you buy it. Keep the supplier's minimum charge.
+plate when that is how you buy it. Keep the supplier's minimum charge. (The
+material cost guide works one
+part through all four ways of buying stock.)
 
 - List the operations and time each one. For each setup, the minutes to load the
 program, set work offsets, touch off tools and run a first article; for each part, the cycle time
@@ -1556,6 +1558,149 @@ export-control, tax or quality-certification advice; the standards and regulatio
 read in their current text. Check every quote before you send it.
 
 ### Review and quote your next RFQ in one place
+
+The Early access plan is free and needs no card.
+
+Start free
+
+## How to calculate material cost for machining
+
+Source: https://marisstella.app/jobshop/machining-material-cost
+
+Guide
+
+## How to calculate material cost for a machining quote
+
+Material is the line on a machining quote that is easiest to get roughly right and
+easiest to get quietly wrong: a blank sized from the part instead of the stock, a price from last
+quarter, a supplier minimum left off a one-piece order. Here is the method, the four ways shops buy
+stock, one bracket priced all four ways at 1, 10 and 100, and what the
+numbers show.
+
+### The method in five steps
+
+- Size the blank, not the part. Take the part's envelope (its bounding box) and add
+stock on every side for facing, clamping and cleanup, then round up to a size you can buy or saw.
+Turned parts add a cut-off and facing allowance to the length and take the next bar diameter up.
+
+- Weigh it. Weight = length × width × thickness (or π × r² × length for round bar) ×
+density in lb/in³. Take the density from the alloy's datasheet or your supplier; a figure in g/cm³
+converts by × 0.0361273 (16.387064 cm³ per in³ ÷ 453.59237 g per lb).
+
+- Price it the way you buy it. Plate cut to size is often priced by weight (per
+pound or per hundredweight, 100 lb). Bar, tube and extrusion are priced by length, and either you bill
+the length each part uses or, when the rest of the bar has no other job to go to, the whole bars the
+order needs. Precut blanks and sheets are priced per piece. Add a share for saw kerf and drop where you
+price by weight or by length used.
+
+- Price the parts you start, not the parts you ship. If you expect some parts to
+scrap, the order needs more blanks: parts started = parts shipped ÷ (1 − fallout), rounded up.
+
+- Keep the minimum and add your markup. Suppliers have minimum charges and cut
+charges; a one-off part still pays them. Then the markup on material: handling, ordering, storage and
+the cash tied up until the customer pays.
+
+### A worked example
+
+A 6061 aluminum bracket whose model measures 4 × 3 × 0.5 in,
+quoted at 1, 10 and 100 with 3% expected
+fallout and a 20% material markup. Every price, allowance and scrap
+share here is made up to show the arithmetic; they are not market prices for any metal,
+supplier or region. Use your supplier's current prices.
+
+- Blank: 0.0625 in a side on 4 × 3 ×
+0.5 in, rounded up to the next 1/8 in, is 4.125 × 3.125 ×
+0.625 in: 8.057 in³, and at 0.0975 lb/in³,
+0.786 lb.
+
+- Plate: 6061-T6 aluminum plate, 5/8 in, quoted by the supplier at
+$525.00 per hundredweight, which is $5.25 a pound, plus
+25% for kerf and drop and a $40.00 minimum
+charge.
+
+- Flat bar: 5/8 × 3-1/4 in 6061-T6 aluminum flat bar at $14.80
+a foot, sold in 12 ft bars ($177.60 a bar). Each part takes
+4.125 in plus 0.125 in for the saw and facing, 4.25 in; after
+a 2 in end that cannot become a part, one bar gives 33 blanks.
+
+- Precut blank: 6061-T6 precut blank, 5/8 × 3-1/8 × 4-1/8 in, $13.50 a piece,
+one part each.
+
+- Starts: at 3% fallout, 1 part needs
+2 starts, 10 need 11 and 100 need
+104.
+
+Material for the made-up bracket, before markup, for the whole line, and per part shipped (rounded up to the cent). Checked to the cent against Job Shop Quote's costing engine.
+Bought as1 (2 started)10 (11 started)100 (104 started)
+
+Plate by the pound ($5.25/lb, 25% scrap, $40.00 minimum)$40.00$40.00 a part$56.70$5.67 a part$536.12$5.37 a partFlat bar by the foot used ($14.80/ft, 10% scrap)$11.53$11.53 a part$63.42$6.35 a part$599.65$6.00 a partFlat bar in whole 12 ft bars (33 parts a bar)$177.60$177.60 a part$177.60$17.76 a part$710.40$7.11 a partPrecut blank ($13.50 each)$27.00$27.00 a part$148.50$14.85 a part$1,404.00$14.04 a part
+
+What the table shows:
+
+- At one part, the minimum is the price. Two plate blanks come to
+$10.31 by weight, but the $40.00 minimum is what the
+supplier bills, so it is what the quote must carry. Leave it off and a one-piece order loses it.
+
+- Whole bars cost the most on small orders. Buying a 12 ft bar
+for 2 blanks puts $177.60 on the quote against
+$11.53 for the length used. Which one is right depends on whether the
+rest of that bar has another job to go to; if it will sit on the rack, bill the bar.
+
+- At volume, the drop is in the bar count. 104 blanks at
+33 a bar need 4 bars, and the last one is only partly used: it has room
+for 28 more blanks, about 119 in, billed with
+the order.
+
+- Precut blanks cost more per part and save saw time. At 100 they
+are $1,404.00 against $536.12 from
+plate, a gap that has to be weighed against the sawing, squaring and handling time the plate needs,
+which belongs on the routing, not in the material line.
+
+- Markup comes last. At 20%, the 100-part
+plate line goes from $536.12 to
+$643.34.
+
+### Mistakes that lose money on material
+
+- Pricing from the finished part. The model's volume is what is left after
+machining; you buy the blank. On a pocketed part the blank can weigh several times the part.
+
+- An old price. Metal prices move from month to month. A rate card typed in once
+quotes last season's metal; date every price and check the old ones before you send.
+
+- Pricing the parts shipped. At 3% fallout, a hundred parts shipped means
+a hundred and four blanks bought.
+
+- Dropping the minimum and cut charges. They are small on a big order and most of
+the cost on a small one.
+
+- Mixing up the two kinds of scrap. Kerf and drop are material lost from each
+blank; fallout is whole parts lost. Count each once.
+
+### Doing it in Job Shop Quote
+
+Put each material on the rate card once, the way you buy it: by weight (a price per pound or per
+hundredweight, kept exactly as the supplier quotes it, with the density and a scrap share), by length (a
+price per foot or per metre, the cut allowance and, if you buy fixed bars, the bar length and remnant,
+so a line is charged the whole bars it needs), or by the stock piece with how many parts it yields; each
+with its minimum charge. When an RFQ comes with a STEP model, Job Shop Quote suggests the blank from the
+part's bounding box as above, and you can change it. Each line is priced on the parts started at the
+line's fallout, with the material markup from your rate card, and a material with no price or no blank
+size blocks the line instead of pricing it as free. Every price keeps the date it was set, and a draft
+quote warns when it prices from one older than your limit; see
+material price tracking. The
+charges in the table are the ones the app gives for the same inputs, checked by a test in its code.
+
+For the rest of the price (setups, cycle time, outside processes and quantity breaks), see
+how to quote a CNC machining job
+and how to estimate CNC
+machining time.
+
+This page explains a common estimating method. It is not engineering, accounting
+or financial advice, it does not quote metal prices, and the figures in it are made up. Check every
+quote before you send it.
+
+### Price your material the way you buy it
 
 The Early access plan is free and needs no card.
 

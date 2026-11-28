@@ -1,0 +1,381 @@
+# Arizona Revised Statutes, title 33, chapter 7, article 6 (mechanics' liens): §§ 33-981, 33-992.01, 33-992.02, 33-993, 33-1002.
+# Text from www.azleg.gov/ars/33/<section>.htm, read 2026-11-28, HTML stripped to text. azprelim.test.mjs checks every quoted phrase on arizona-preliminary-notice.html against this file.
+
+===== https://www.azleg.gov/ars/33/00981.htm
+
+33-981 - Lien for labor; professional services or materials used in construction, alteration or repair of structures; preliminary twenty day notice; exceptions
+
+33-981. Lien for labor; professional services or materials used in construction, alteration or repair of structures; preliminary twenty day notice; exceptions
+
+A. Except as provided in sections 33-1002 and 33-1003, every person who labors or furnishes professional services, materials, machinery, fixtures or tools in the construction, alteration or repair of any building, or other structure or improvement, shall have a lien on such building, structure or improvement for the work or labor done or professional services, materials, machinery, fixtures or tools furnished, whether the work was done or the articles were furnished at the instance of the owner of the building, structure or improvement, or his agent.
+
+B. Every contractor, subcontractor, architect, builder or other person having charge or control of the construction, alteration or repair, either wholly or in part, of any building, structure or improvement is the agent of the owner for the purposes of this article, and the owner shall be liable for the reasonable value of labor or materials furnished to his agent.
+
+C. A person who is required to be licensed as a contractor but who does not hold a valid license as such contractor issued pursuant to title 32, chapter 10 shall not have the lien rights provided for in this section.
+
+D. A person required to give preliminary twenty day notice pursuant to section 33-992.01 is entitled to enforce the lien rights provided for in this section only if he has given such notice and has made proof of service pursuant to section 33-992.02.
+
+E. A person who furnishes professional services but who does not hold a valid certificate of registration issued pursuant to title 32, chapter 1 shall not have the lien rights provided for in this section.
+
+F. A person who furnishes professional services is entitled to enforce the lien rights provided for in this section only if such person has an agreement with the owner of the property or with an architect, an engineer or a contractor who has an agreement with the owner of the property.
+
+===== https://www.azleg.gov/ars/33/00992-01.htm
+
+33-992.01 - Preliminary twenty day notice; definitions; content; election; waiver; service; single service; contract
+
+33-992.01. Preliminary twenty day notice; definitions; content; election; waiver; service; single service; contract
+
+A. For the purposes of this section:
+
+1. "Construction lender" means any mortgagee or beneficiary under a deed of trust lending funds all or a portion of which are used to defray the cost of the construction, alteration, repair or improvement, or any assignee or successor in interest of either.
+
+2. "Original contractor" means any contractor who has a direct contractual relationship with the owner.
+
+3. "Owner" means the person, or the person's successor in interest, that causes a building, structure or improvement to be constructed, altered or repaired, whether the interest or estate of the person is in fee, as vendee under a contract to purchase, as lessee, or other interest or estate less than fee. If an interest or estate is held by two or more persons as community property, joint tenants or tenants in common, any one or more of the persons may be deemed the owner.
+
+4. "Preliminary twenty day notice" means one or more written notices from a claimant that are given before the recording of a mechanic's lien and that are required to be given pursuant to this section.
+
+B. Except for a person performing actual labor for wages, every person who furnishes labor, professional services, materials, machinery, fixtures or tools for which a lien otherwise may be claimed under this article shall, as a necessary prerequisite to the validity of any claim of lien, serve the owner or reputed owner, the original contractor or reputed contractor, the construction lender, if any, or reputed construction lender, if any, and the person with whom the claimant has contracted for the purchase of those items with a written preliminary twenty day notice as prescribed by this section.
+
+C. The preliminary twenty day notice referred to in subsection B of this section shall be given not later than twenty days after the claimant has first furnished labor, professional services, materials, machinery, fixtures or tools to the jobsite and shall contain the following information:
+
+1. A general description of the labor, professional services, materials, machinery, fixtures or tools furnished or to be furnished and an estimate of the total price thereof.
+
+2. The name and address of the person furnishing labor, professional services, materials, machinery, fixtures or tools.
+
+3. The name of the person who contracted for the purchase of labor, professional services, materials, machinery, fixtures or tools.
+
+4. A legal description, subdivision plat, street address, location with respect to commonly known roads or other landmarks in the area or any other description of the jobsite sufficient for identification.
+
+5. The following statement in bold-faced type:
+
+In accordance with Arizona Revised Statutes section 33-992.01, this is not a lien and this is not a reflection on the integrity of any contractor or subcontractor.
+
+Notice to Property Owner
+
+If bills are not paid in full for the labor, professional services, materials, machinery, fixtures or tools furnished or to be furnished, a mechanic's lien leading to the loss, through court foreclosure proceedings, of all or part of your property being improved may be placed against the property. You may wish to protect yourself against this consequence by either:
+
+1. Requiring your contractor to furnish a conditional waiver and release pursuant to Arizona Revised Statutes section 33-1008, subsection D, paragraphs 1 and 3 signed by the person or firm giving you this notice before you make payment to your contractor.
+
+2. Requiring your contractor to furnish an unconditional waiver and release pursuant to Arizona Revised Statutes section 33-1008, subsection D, paragraphs 2 and 4 signed by the person or firm giving you this notice after you make payment to your contractor.
+
+3. Using any other method or device that is appropriate under the circumstances.
+
+D. The preliminary notice given by any claimant shall follow substantially the following form:
+
+Arizona Preliminary Twenty Day Lien Notice
+
+In accordance with Arizona Revised Statutes section 33-992.01, this is not a lien. This is not a reflection on the integrity of any contractor or subcontractor.
+
+The name and address of This preliminary lien notice has
+
+the owner or reputed been completed by (name and
+
+owner are: address of claimant):
+
+ Date: _________________________
+
+ By: ___________________________
+
+ Address: ______________________
+
+The name and address You are hereby notified that the
+
+of the original claimant has furnished or will
+
+contractor are: furnish labor, professional
+
+ services, materials, machinery,
+
+ fixtures or tools of the
+
+ following general description:
+
+The name and address of
+
+any lender or reputed
+
+lender and assigns are:
+
+ In the construction, alteration or
+
+ repair of the building, structure
+
+ or improvement located at:
+
+The name and address
+
+of the person with
+
+whom the claimant 
+
+has contracted are: And situated on that certain
+
+ lot(s) or parcel(s) of land in
+
+ _____________ County, Arizona,
+
+ described as follows:
+
+ An estimate of the total price of
+
+ the labor, professional services,
+
+ materials, machinery, fixtures
+
+ or tools furnished or to be
+
+ furnished is: $_________________
+
+(The following statement shall be in bold-faced type.)
+
+Notice to Property Owner
+
+If bills are not paid in full for the labor, professional services, materials, machinery, fixtures or tools furnished, or to be furnished, a mechanic's lien leading to the loss, through court foreclosure proceedings, of all or part of your property being improved may be placed against the property. You may wish to protect yourself against this consequence by either:
+
+1. Requiring your contractor to furnish a conditional waiver and release pursuant to Arizona Revised Statutes section 33-1008, subsection D, paragraphs 1 and 3 signed by the person or firm giving you this notice before you make payment to your contractor.
+
+2. Requiring your contractor to furnish an unconditional waiver and release pursuant to Arizona Revised Statutes section 33-1008, subsection D, paragraphs 2 and 4 signed by the person or firm giving you this notice after you make payment to your contractor.
+
+3. Using any other method or device that is appropriate under the circumstances.
+
+(The following language shall be in type at least as large as the largest type otherwise on the document.)
+
+Within ten days after the receipt of this preliminary twenty day notice the owner or other interested party is required to furnish all information necessary to correct any inaccuracies in the notice pursuant to Arizona Revised Statutes section 33-992.01, subsection J or lose as a defense any inaccuracy of that information.
+
+Within ten days after the receipt of this preliminary twenty day notice if any payment bond has been recorded in compliance with Arizona Revised Statutes section 33-1003, the owner must provide a copy of the payment bond, including the name and address of the surety company and bonding agent providing the payment bond to the person who has given the preliminary twenty day notice. In the event that the owner or other interested party fails to provide the bond information within that ten day period, the claimant shall retain lien rights to the extent precluded or prejudiced from asserting a claim against the bond as a result of not timely receiving the bond information.
+
+Dated: ___________________ ___________________________
+
+(Company name)
+
+By: ______________________
+
+ (Signature)
+
+ ______________________
+
+ (Title)
+
+(Acknowledgement of receipt language from Arizona Revised Statutes section 33-992.02 shall be inserted here.)
+
+E. If labor, professional services, materials, machinery, fixtures or tools are furnished to a jobsite by a person who elects not to give a preliminary twenty day notice as provided in subsection B of this section, that person is not precluded from giving a preliminary twenty day notice not later than twenty days after furnishing other labor, professional services, materials, machinery, fixtures or tools to the same jobsite. The person, however, is entitled to claim a lien only for such labor, professional services, materials, machinery, fixtures or tools furnished within twenty days before the service of the notice and at any time thereafter.
+
+F. The notice or notices required by this section may be given by mailing the notice by first class mail sent with a certificate of mailing, registered or certified mail, postage prepaid in all cases, addressed to the person to whom notice is to be given at the person's residence or business address. Service is complete at the time of the deposit of notice in the mail.
+
+G. A person required by this section to give notice to the owner, to an original contractor, to the construction lender, if any, and to the person with whom the claimant has contracted need give only one notice to the owner, to the original contractor, to the construction lender, if any, and to the person with whom the claimant has contracted with respect to all labor, professional services, materials, machinery, fixtures or tools furnished for the building, structure or improvement, unless the actual estimated total price for the labor, professional services, materials, machinery, fixtures or tools furnished or to be furnished exceeds by thirty percent or more the total price in any prior original or subsequent preliminary notice or unless the labor, professional services, materials, machinery, fixtures or tools are furnished under contracts with more than one subcontractor, in which case notice requirements shall be met for all additional labor, professional services, materials, machinery, fixtures or tools.
+
+H. If a notice contains a general description required by subsection C of this section of the labor, professional services, materials, machinery, fixtures or tools furnished up to the date of notice, it is not defective because after the date the person giving notice furnishes labor, professional services, materials, machinery, fixtures or tools that are not within the scope of the general description, or exceed by less than thirty percent the estimated total price thereof.
+
+I. A notice that is otherwise compliant with this section is not defective based on the failure to use bold-faced type as prescribed by this section or the failure to use type at least as large as the largest type otherwise on the document as prescribed by this section, or both.
+
+J. Within ten days after receipt of a written request from any person or the person's agent intending to file a preliminary twenty day notice, which request shall identify the person, the person's address, the jobsite and the general nature of the person's labor, professional services, materials, machinery or tools to which the preliminary twenty day notice shall apply, or within ten days after the receipt of a preliminary twenty day notice, the owner or other interested party shall furnish the person a written statement containing the following information:
+
+1. The legal description, subdivision plat, street address or location with respect to commonly known roads or other landmarks in the area, or any other description of the jobsite sufficient for identification.
+
+2. The name and address of the owner or reputed owner.
+
+3. The name and address of the original contractor or reputed contractor.
+
+4. The name and address of the construction lender, if any, or reputed construction lender.
+
+5. If any payment bond has been recorded pursuant to section 33-1003, a copy of the bond and the name and address of the surety company and bonding agent, if any, providing the payment bond.
+
+K. Failure of the owner or other interested party to furnish the information required by this section does not excuse any claimant from timely giving a preliminary twenty day notice, but it does stop the owner from raising as a defense any inaccuracy of the information in a preliminary twenty day notice, provided the claimant's preliminary twenty day notice of lien otherwise complies with this chapter. If the information is received by the claimant after the claimant has given a preliminary twenty day notice and the information contained in the preliminary twenty day notice is inaccurate, the claimant shall, within thirty days after the receipt of this information, give an amended preliminary twenty day notice in the manner provided in this section. An amended preliminary twenty day notice is considered as having been given at the same time as the original preliminary twenty day notice, except that the amended preliminary twenty day notice is effective only as to work performed, materials supplied or professional services rendered twenty days before the date of the amended preliminary twenty day notice or the date the original preliminary twenty day notice was given to the owner, whichever occurs first. If a payment bond has been recorded in compliance with section 33-1003 and the owner or other interested party fails to furnish a copy of the bond and the other information as required by this section, the claimant shall retain lien rights to the extent precluded or prejudiced from asserting a claim against the bond as a direct result of not timely receiving a copy of the bond and the other information from the owner or other interested party.
+
+===== https://www.azleg.gov/ars/33/00992-02.htm
+
+33-992.02 - Proof of mailing of preliminary twenty day notice; receipt; affidavit
+
+33-992.02. Proof of mailing of preliminary twenty day notice; receipt; affidavit
+
+Proof that the preliminary twenty day notice required by section 33-992.01 was given in accordance with section 33-992.01, subsection F shall be made as follows:
+
+1. If given by mail, by an acknowledgment of receipt of the notice in a form substantially as follows:
+
+ "____________________________
+
+ Signature of sender
+
+Acknowledgment of receipt of preliminary twenty day notice
+
+This acknowledges receipt on (insert date) of a copy of
+
+the preliminary twenty day notice at (insert address) .
+
+Date: _______________________________________
+
+ (Date this acknowledgment is executed)
+
+ _____________________________________
+
+ Signature of person acknowledging
+
+ receipt, with title if acknowledgment
+
+ is made on behalf of another person"
+
+2. If a person to whom the notice is served pursuant to section 33-992.01, subsection F fails to complete the acknowledgment or fails to complete and return the acknowledgment within thirty days from the date of mailing, proof of mailing may be made by affidavit of the person making the mailing, showing the time, place and manner of mailing and facts showing that such service was made in accordance with section 33-992.01. The affidavit shall show the name and address of the person to whom a copy of the preliminary twenty day notice was mailed, and, if appropriate, the title or capacity in which he was given the notice. If mailing was made by first class mail sent with a certificate of mailing, the certificate of mailing shall be attached to the affidavit. If the mailing was by certified or registered mail, the receipt of certification or registration shall be attached to the affidavit.
+
+===== https://www.azleg.gov/ars/33/00993.htm
+
+33-993 - Procedure to perfect lien; notice and claim of lien; service; recording; definitions
+
+33-993. Procedure to perfect lien; notice and claim of lien; service; recording; definitions
+
+A. In order to impress and secure the lien provided for in this article, every person claiming the benefits of this article, within one hundred twenty days after completion of a building, structure or improvement, or any alteration or repair of such building, structure or improvement, or if a notice of completion has been recorded, within sixty days after recordation of such notice, shall make duplicate copies of a notice and claim of lien and record one copy with the county recorder of the county in which the property or some part of the property is located, and within a reasonable time thereafter serve the remaining copy upon the owner of the building, structure or improvement, if he can be found within the county. The notice and claim of lien shall be made under oath by the claimant or someone with knowledge of the facts and shall contain:
+
+1. The legal description of the lands and improvements to be charged with a lien.
+
+2. The name of the owner or reputed owner of the property concerned, if known, and the name of the person by whom the lienor was employed or to whom he furnished materials.
+
+3. A statement of the terms, time given and conditions of the contract, if it is oral, or a copy of the contract, if it is written.
+
+4. A statement of the lienor's demand, after deducting just credits and offsets.
+
+5. A statement of the date of completion of the building, structure or improvement, or any alteration or repair of such building, structure or improvement.
+
+6. A statement of the date the preliminary twenty day notice required by section 33-992.01 was given. A copy of such preliminary twenty day notice and the proof of mailing required by section 33-992.02 shall be attached.
+
+B. For purposes of this section, if a work of improvement consists of the construction for residential occupancy of more than one separate building without regard to whether the buildings are constructed pursuant to separate contracts or a single contract, each building is a separate work and the time within which to perfect a lien by recording the notice of lien pursuant to subsection A of this section commences to run on the completion of each separate building. For purposes of this subsection, "separate building" means one structure of a work of improvement and any garages or other appurtenant buildings in a multibuilding residential project or residential subdivision.
+
+C. For the purposes of subsection A of this section, "completion" means the earliest of the following events:
+
+1. Thirty days after final inspection and written final acceptance by the governmental body which issued the building permit for the building, structure or improvement.
+
+2. Cessation of labor for a period of sixty consecutive days, except when such cessation of labor is due to a strike, shortage of materials or act of God.
+
+D. If no building permit is issued or if the governmental body that issued the building permit for the building, structure or improvement does not issue final inspections and written final acceptances, then "completion" for the purposes of subsection A of this section means the last date on which any labor, materials, fixtures or tools were furnished to the property.
+
+E. For the purposes of this section, "notice of completion" means a written notice which the owner or its agent may elect to record at any time after completion of construction as defined in subsection C of this section for the purpose of shortening the lien period, as provided in subsection A of this section. A notice of completion shall be signed and verified by the owner or its agent and shall contain the following information:
+
+1. The name and address of the owner.
+
+2. The nature of the interest or estate of the owner.
+
+3. The legal description of the jobsite and the street address. The validity of the notice is not affected by the fact that the street address recited is erroneous or that such street address is omitted.
+
+4. The name of the original contractor, if any.
+
+5. The names and addresses of any predecessors in interest if the property was transferred after the beginning of the work or improvement.
+
+6. The nature of the improvements to the real property.
+
+F. The notice of completion shall follow substantially the following form:
+
+Notice of Completion
+
+Notice is hereby given that:
+
+1. The undersigned is owner of the interest or estate stated below in the property hereinafter described, or the undersigned is the owner's agent.
+
+2. The full name of the undersigned is _______________.
+
+3. The full address of the undersigned is _______________ ______________________________________________________.
+
+4. The nature of the interest or estate of the owner is: in fee. _________________________________ (If other than fee, strike "In Fee" and insert, for example, "Purchaser Under Contract of Purchase" or "Lessee".)
+
+5. The full names and full addresses of all persons, if any, who hold interest or estate with the undersigned such as joint tenants or tenants in common are:
+
+Name Address
+
+______________________________________________________________
+
+______________________________________________________________
+
+______________________________________________________________
+
+6. The full names and full addresses of the predecessors in interest of the undersigned, if the property was transferred after the beginning of the work or improvement:
+
+Name Address
+
+______________________________________________________________
+
+______________________________________________________________
+
+______________________________________________________________
+
+7. The nature of the improvements to the real property ______________________________________________________.
+
+8. The work of improvement on the property hereinafter described was completed in accordance with the definition of completion in Arizona Revised Statutes section 33-993, subsection C. (Fill in the appropriate completion date as defined in Arizona Revised Statutes section 33-993, subsection C.)
+
+(a) - Date _____________________________________________
+
+ (thirty days after written final acceptance
+
+ by governmental body)
+
+(b) - Date _____________________________________________
+
+ (sixty days after cessation of labor) 
+
+9. The name of the original contractor, if any, for such work or improvement is _______________________________________.
+
+ (if no contractor, insert "none") 
+
+10. The street address of the property is ____________ _______________________________________________________________
+
+ (include both address and city with zip code) 
+
+11. The legal description of property described above _______________________________________________________________
+
+ (attach exhibit if necessary) 
+
+Verification
+
+I, the undersigned, certify that I am the owner, the owner's agent for the property or another interested party in the property, described in the above notice, or I certify that I am the original contractor of the improvements to the real property described in the above notice. I have read the foregoing notice and know and understand the contents thereof, and the facts stated therein are true and correct. I declare under penalty of perjury that the foregoing is true and correct.
+
+Executed on ______________ at _____________________, Arizona.
+
+ (date) (place where signed)
+
+ ____________________________
+
+ (print name)
+
+ ____________________________
+
+ (personal signature)
+
+ ____________________________
+
+ (title)
+
+(Acknowledgement)
+
+Each notice of completion shall contain the following language in type at least as large as the largest type that otherwise appears on the document:
+
+In order to shorten the lien period pursuant to Arizona Revised Statutes section 33-993, subsection A, a copy of the notice of completion and a written statement of the date of recording and the county recorder's record location information shall be served by certified or registered mail, postage prepaid, to the owner, the original contractor and all persons from whom the person recording this notice has previously received a preliminary twenty day notice as prescribed by Arizona Revised Statutes section 33-993, subsection I.
+
+Notice: Receipt of a notice of completion may alter the time you have to impress and secure a lien in accordance with Arizona Revised Statutes section 33-993, subsection A.
+
+G. If there is more than one owner, any notice of completion signed by less than all such owners shall recite the name and address of all such owners. If the notice of completion is signed by a successor in interest, it shall recite the names and addresses of his transferor or transferors.
+
+H. A notice of completion shall be recorded in the office of the county recorder of the county in which the property or some part of the property is located. The county recorder of the county in which the notice of completion is recorded shall index the notice of completion under the index classification in which mechanics' and materialmen's liens are recorded.
+
+I. If a notice of completion has been recorded, the person recording the notice, within fifteen days of recording, shall mail by certified or registered mail postage prepaid a copy of the notice of completion and a written statement of the date of recording and the county recorder's record location information to the original contractor and all persons from whom the owner has previously received a preliminary twenty day notice. In the event the owner or its agent fails to mail a copy of the notice of completion and a written statement of the date of recording and the county recorder's record location information within fifteen days of recording to any person from whom the owner has received a preliminary twenty day notice, such person shall have one hundred twenty days from completion as defined in section 33-993 to impress and secure the lien provided for in this article.
+
+===== https://www.azleg.gov/ars/33/01002.htm
+
+33-1002 - Definitions; inapplicability of certain liens to owneroccupied dwelling; waiver void
+
+33-1002. Definitions; inapplicability of certain liens to owner-occupied dwelling; waiver void
+
+A. In this section:
+
+1. "Dwelling" means real property upon which there has been constructed or is to be constructed any building, structure or improvement which is designed for either single one-family or single two-family residential purposes or activities related thereto, including an apartment in a horizontal property regime or other condominium.
+
+2. "Owner-occupant" means a natural person who:
+
+(a) Prior to commencement of the construction, alteration, repair or improvement holds legal or equitable title to the dwelling by a deed or contract for the conveyance of real property recorded with the county recorder of the county in which the dwelling is located, and
+
+(b) Resides or intends to reside in the dwelling at least thirty days during the twelve-month period immediately following completion of the construction, alteration, repair or improvement and does not intend to sell or lease the dwelling to others. Residence in the dwelling or intent to reside in the dwelling may be evidenced by the following or other physical acts:
+
+(i) The placing of his or her personal belongings and furniture in the dwelling, and
+
+(ii) Occupancy either by the person or members of his or her family. A single act shall not establish a person as an owner-occupant if such person permits exclusive occupancy by other than members of his or her family for other than temporary purposes thereby negating his or her intent to reside in the dwelling primarily for use as his or her home.
+
+B. No lien provided for in this article shall be allowed or recorded by the person claiming a lien against the dwelling of a person who became an owner-occupant prior to the construction, alteration, repair or improvement, except by a person having executed in writing a contract directly with the owner-occupant.
+
+C. Any provision of an agreement made or entered into by an owner-occupant which waives the provisions of this section is void.
+

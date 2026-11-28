@@ -131,6 +131,7 @@ function containsWhole(hay: string, needle: string): boolean {
 export function integersIn(s: string): Set<number> {
   const out = new Set<number>();
   const text = normalize(s);
+  for (const n of slashListsIn(text)) out.add(n);
   for (const m of text.matchAll(/\d{1,3}(?:,\d{3})+|\d+/g)) {
     const i = m.index ?? 0;
     const before = text.slice(0, i);
@@ -141,6 +142,46 @@ export function integersIn(s: string): Set<number> {
     }
     if (/\brev(ision)?\.?\s*#?\s*$/.test(before)) continue;
     out.add(Number(m[0].replace(/,/g, "")));
+  }
+  return out;
+}
+
+const SLASH_LIST =
+  /\d{1,3}(?:,\d{3})+(?:\/(?:\d{1,3}(?:,\d{3})+|\d+))+|\d+(?:\/(?:\d{1,3}(?:,\d{3})+|\d+))+/g;
+const DATE_WORD_BEFORE =
+  /\b(?:due|by|on|date[ds]?|dated|deliver(?:y|ed)?|ship(?:ped)?|week|wk)\s*[:#-]?\s*$/;
+
+/**
+ * Quantity breaks written with slashes, "Qty 10/25/50" or "100/250/500 pcs": each number is a
+ * quantity. Only a run that cannot be something else counts:
+ *   - it stands alone (not inside "12345/500-A"; "pcs", "ea" or "x" may follow);
+ *   - it rises (10 < 25 < 50), as quantity breaks do; "50/25" is not read;
+ *   - no part has a leading zero ("01/02/03" is a date);
+ *   - two parts are not a fraction of an inch ("1/2", "3/16");
+ *   - three parts are not a date: m/d/yyyy, or m/d/yy with a 20xx year from 2020 to 2040
+ *     ("1/15/26", "10/20/30": blank, for the estimator), and nothing right after "due" or "by".
+ * Four or more rising parts are never a date. Anything else stays one token, so it adds nothing.
+ */
+function slashListsIn(text: string): number[] {
+  const out: number[] = [];
+  for (const m of text.matchAll(SLASH_LIST)) {
+    const i = m.index ?? 0;
+    const before = text.slice(0, i);
+    const after = text.slice(i + m[0].length);
+    if (/[a-z0-9.\-/#_,]$/.test(before)) continue;
+    if (/^[a-z0-9.\-/#_]/.test(after) && !/^(pcs?|ea|x)\b/.test(after)) continue;
+    if (DATE_WORD_BEFORE.test(before)) continue;
+    const segs = m[0].split("/");
+    if (segs.some((g) => /^0/.test(g))) continue;
+    const nums = segs.map((g) => Number(g.replace(/,/g, "")));
+    if (!nums.every((n, k) => k === 0 || n > (nums[k - 1] ?? 0))) continue;
+    if (nums.length === 2 && [2, 4, 8, 16, 32, 64].includes(nums[1] ?? 0)) continue;
+    if (nums.length === 3) {
+      const [mo = 0, d = 0, y = 0] = nums;
+      const yearShaped = (segs[2]?.length === 4 && y >= 1900) || (y >= 20 && y <= 40);
+      if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31 && yearShaped) continue;
+    }
+    out.push(...nums);
   }
   return out;
 }

@@ -14369,6 +14369,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // Before the offline layer, which hashes the finished pages. The deploy
   // runs the same pass again over pages written after build.mjs (the
   // development dashboard, the daily brief); it skips pages already done.
+  // With site.json's `beacon: "zone"` it adds nothing: the zone injects the
+  // beacon, and a second tag stopped every apex page view counting (2026-11-28).
   if (analyticsOn()) await injectWebAnalytics(outDir, SITE_ANALYTICS_TOKEN);
 
   // Universal light/dark (platform/theme/): every page follows the visitor's

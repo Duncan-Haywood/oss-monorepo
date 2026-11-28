@@ -8,6 +8,7 @@
 
 import { daysBetween } from "./cash-report";
 import { pmGreeting } from "./change-order-email";
+import { formatCents } from "./money";
 
 /** Who listed the item at the walk-through (or that it is the contractor's own). */
 export const PUNCH_SOURCES = ["gc", "architect", "owner", "inspector", "own"] as const;
@@ -245,4 +246,97 @@ export function parsePastedPunchList(
     }
   }
   return out;
+}
+
+/** One punch item as the weekly email reads it across the company's active jobs. */
+export interface CompanyPunchInput
+  extends Pick<
+    PunchItemFacts,
+    "number" | "description" | "location" | "dueOn" | "completedOn" | "acceptedOn" | "disputeNote"
+  > {
+  projectId: string;
+  projectName: string;
+  projectNumber: string | null;
+  gcName: string;
+}
+
+/** One job's punch items past the due date the contractor entered, not yet fixed. */
+export interface PunchJobOverdue {
+  projectId: string;
+  projectName: string;
+  projectNumber: string | null;
+  gcName: string;
+  /** How many items on the job are overdue. */
+  overdue: number;
+  /** The item longest past due (lowest number on a tie). */
+  oldest: Pick<PunchItemFacts, "number" | "location" | "description"> & { dueOn: string };
+  /** Calendar days the oldest is past due. */
+  daysOverdue: number;
+  /** Retainage held on the job, from the cash report; 0 when none or not known. */
+  retainageHeldCents: number;
+}
+
+/**
+ * Jobs with punch items past the due date entered and not fixed (open, not done, accepted or
+ * disputed), grouped by job, the longest overdue first. A done item waiting on the GC's back-check
+ * is not the contractor's to chase, so it never counts; nor does an item with no due date.
+ */
+export function punchOverdueByJob(
+  inputs: readonly CompanyPunchInput[],
+  today: string,
+  retainageByJob: ReadonlyMap<string, number> = new Map(),
+): PunchJobOverdue[] {
+  const byJob = new Map<string, PunchJobOverdue>();
+  for (const i of inputs) {
+    if (punchStatus(i, today) !== "overdue" || !i.dueOn) continue;
+    const days = punchDaysOverdue(i, today);
+    const cur = byJob.get(i.projectId);
+    const oldest = {
+      number: i.number,
+      location: i.location,
+      description: i.description,
+      dueOn: i.dueOn,
+    };
+    if (!cur) {
+      byJob.set(i.projectId, {
+        projectId: i.projectId,
+        projectName: i.projectName,
+        projectNumber: i.projectNumber,
+        gcName: i.gcName,
+        overdue: 1,
+        oldest,
+        daysOverdue: days,
+        retainageHeldCents: Math.max(0, retainageByJob.get(i.projectId) ?? 0),
+      });
+      continue;
+    }
+    cur.overdue++;
+    if (days > cur.daysOverdue || (days === cur.daysOverdue && i.number < cur.oldest.number)) {
+      cur.oldest = oldest;
+      cur.daysOverdue = days;
+    }
+  }
+  return [...byJob.values()].sort(
+    (a, b) =>
+      b.daysOverdue - a.daysOverdue ||
+      b.overdue - a.overdue ||
+      a.projectName.localeCompare(b.projectName),
+  );
+}
+
+/**
+ * "Clinic TI (#2207, Harbor Builders): 3 punch items past due. Longest: P-004, Room 104: Missing
+ * cover plate, due 2026-11-16, 12 days ago. $18,400.00 retainage held on the job."
+ */
+export function punchOverdueText(j: PunchJobOverdue): string {
+  const job = `${j.projectName.trim()} (${j.projectNumber?.trim() ? `#${j.projectNumber.trim()}, ` : ""}${j.gcName.trim()})`;
+  const count = `${j.overdue} punch item${j.overdue === 1 ? "" : "s"} past due`;
+  // Overdue means the due date is before today, so it is at least a day ago.
+  const age = j.daysOverdue === 1 ? "yesterday" : `${j.daysOverdue} days ago`;
+  const which = j.overdue === 1 ? "" : "Longest: ";
+  const held =
+    j.retainageHeldCents > 0
+      ? ` ${formatCents(j.retainageHeldCents)} retainage held on the job.`
+      : "";
+  return `${job}: ${count}. ${which}${punchLine(j.oldest)}, due ${j.oldest.dueOn}, ${age}.${held}`;
 }

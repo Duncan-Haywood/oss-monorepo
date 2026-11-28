@@ -300,6 +300,8 @@ it("previews the weekly list by jobs and insurance certificates to renew", () =>
     moreDocuments: 0,
     dailyGaps: [],
     moreDailyGaps: 0,
+    punchJobs: [],
+    morePunchJobs: 0,
   };
   const cert = {
     id: "c",
@@ -320,6 +322,17 @@ it("previews the weekly list by jobs and insurance certificates to renew", () =>
       moreDailyGaps: 2,
     }),
   ).toBe("This week's list would cover 1 job and weekdays without a daily report on 2 jobs.");
+  expect(
+    digestPreviewText({
+      ...base,
+      certificates: [],
+      moreCertificates: 0,
+      morePunchJobs: 1,
+      moreDailyGaps: 2,
+    }),
+  ).toBe(
+    "This week's list would cover punch items past due on 1 job and weekdays without a daily report on 2 jobs.",
+  );
   expect(
     digestPreviewText({ ...base, moreJobs: 2, certificates: [cert], moreCertificates: 2 }),
   ).toBe("This week's list would cover 2 jobs and 3 insurance certificates to renew.");

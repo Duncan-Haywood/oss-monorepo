@@ -37,24 +37,15 @@ class DriftTest(unittest.TestCase):
         self.assertIn("crypto.ts", errors[0])
 
     def test_test_drift_fails(self):
-        # A stronger case in one copy only leaves the siblings' identical code unguarded.
+        # 2026-11-28: a guard added to one copy's tests left its identical siblings unguarded.
         (self.dirs[1] / "crypto.test.ts").write_text("// stronger test\n")
-        errors, notes = cbc.drift(self.dirs)
-        self.assertEqual(notes, [])
+        errors, _ = cbc.drift(self.dirs)
         self.assertEqual(len(errors), 1)
         self.assertIn("crypto.test.ts: billing test copies differ", errors[0])
 
-    def test_allowed_test_drift_is_a_note(self):
-        (self.dirs[1] / "crypto.test.ts").write_text("// product case\n")
-        saved = dict(cbc.TESTS_ALLOWED_TO_DIFFER)
-        cbc.TESTS_ALLOWED_TO_DIFFER["crypto.test.ts"] = "test fixture"
-        try:
-            errors, notes = cbc.drift(self.dirs)
-        finally:
-            cbc.TESTS_ALLOWED_TO_DIFFER.clear()
-            cbc.TESTS_ALLOWED_TO_DIFFER.update(saved)
-        self.assertEqual(errors, [])
-        self.assertEqual(len(notes), 1)
+    def test_product_named_test_in_one_copy_is_not_owed(self):
+        (self.dirs[0] / "crypto.a.test.ts").write_text("// a-only case\n")
+        self.assertEqual(cbc.drift(self.dirs), ([], []))
 
     def test_file_in_one_copy_only_is_ignored(self):
         (self.dirs[0] / "only-here.ts").write_text("x\n")

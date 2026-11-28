@@ -765,7 +765,21 @@ def page_checks(slugs):
     return True, ok, out
 
 
-def slowest_table(times, n, passes=None):
+STALE_DAYS = 7
+
+
+def staleness(taken, now=None):
+    """Days since the times file was taken, or None if `taken` is unreadable."""
+    import datetime
+    try:
+        when = datetime.datetime.strptime(taken, "%Y-%m-%dT%H:%MZ").replace(tzinfo=datetime.timezone.utc)
+    except (TypeError, ValueError):
+        return None
+    now = now or datetime.datetime.now(datetime.timezone.utc)
+    return (now - when).days
+
+
+def slowest_table(times, n, passes=None, taken=None):
     """The n slowest suites as a Markdown table. Perf runs re-timed suites by
     hand because no list of suite times existed (doc friction 2026-11-11);
     `--slowest 30` over every venture makes that one command.
@@ -779,8 +793,19 @@ def slowest_table(times, n, passes=None):
     if passes is None:
         return "\n".join(["| venture | seconds |", "|---|---:|",
                           *(f"| {slug} | {secs:.1f} |" for slug, secs in rows)])
+    # A perf write-up dated after the timing means the suite has probably
+    # changed since: its seconds are a pre-fix number (doc friction
+    # 2026-11-25..28: a ten-day-old file put suites with 6-12 perf passes on
+    # top, so the ranking pointed at dead ends).
+    day = (taken or "")[:10]
+
+    def latest(slug):
+        if not passes(slug):
+            return ""
+        last = passes(slug)[0][0]
+        return f"{last} (after timing: re-time)" if day and last > day else last
     return "\n".join(["| venture | seconds | perf write-ups | latest |", "|---|---:|---:|---|",
-                      *(f"| {slug} | {secs:.1f} | {len(passes(slug))} | {passes(slug)[0][0] if passes(slug) else ''} |"
+                      *(f"| {slug} | {secs:.1f} | {len(passes(slug))} | {latest(slug)} |"
                         for slug, secs in rows)])
 
 
@@ -849,8 +874,13 @@ def main(argv):
             return 1
         print(f"{len(data['seconds'])} suites timed {data.get('taken')} at {data.get('commit')} "
               f"({data.get('jobs')} jobs on {data.get('cpus')} cores)")
+        age = staleness(data.get("taken"))
+        if age is not None and age >= STALE_DAYS:
+            print(f"STALE: taken {age} days ago. Refresh one suite with "
+                  "`run_venture_tests.py --write-times <slug>` (keeps the other rows), "
+                  "or all with `--write-times` and no slugs (~25 min on 4 cores, 2026-11-28; run_in_background).")
         print(slowest_table(data["seconds"], args.times, passes=functools.lru_cache(None)(
-            suite_file_times.perf_history)))
+            suite_file_times.perf_history), taken=data.get("taken")))
         print("\nTimes are relative (suites ran in parallel). Which file is slow, timed alone: "
               "python3 platform/ci/suite_file_times.py <slug>")
         print("Not timed here: the pnpm/npm suites ventures run in workflows of their own (payapps, "

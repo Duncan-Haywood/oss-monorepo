@@ -2,5 +2,7 @@
   "provider": "cloudflare-web-analytics",
   "host": "marisstella.app",
   "token": "",
-  "note": "The Cloudflare Web Analytics site token for host. It is public by design: every page carries it in the beacon tag. Empty = the deploy asks the Cloudflare API for it (provision.mjs); paste it here to skip that. platform/analytics/README.md."
+  "beacon": "zone",
+  "note": "The Cloudflare Web Analytics site token for host. It is public by design: every page carries it in the beacon tag. Empty = the deploy asks the Cloudflare API for it (provision.mjs); paste it here to skip that. platform/analytics/README.md.",
+  "beacon_note": "Who puts the beacon on the pages. \"zone\": Cloudflare's automatic setup injects it into every HTML response on the zone, so the build adds no tag of its own; the token still switches on the analytics wording in the legal pages. \"build\": the build adds the manual snippet (for a host Cloudflare does not inject on). Measured 2026-11-28: with both the zone's beacon and the build's tag on a marisstella.app page, the build's tag ran first and its POST to /cdn-cgi/rum failed (404, no CORS header), so no apex page view was counted; with the build's tag removed the zone's beacon posted 204. docs/reports/2026-11-28-apex-analytics-double-beacon.md."
 }
