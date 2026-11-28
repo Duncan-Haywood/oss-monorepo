@@ -281,7 +281,10 @@ function platformPage(p) {
         : p.slug === "whatnot"
           ? `
   <p>Taxes on Whatnot sales, the 1099-K, tips, giveaways and the sales tax Whatnot collects, with one week worked through: <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>.</p>`
-          : ""
+          : p.slug === "stockx"
+            ? `
+  <p>Taxes on StockX sales, its seller fees, the 1099-K and why it can read lower than your sales, with three flips worked through: <a href="${href("/stockx-taxes")}">StockX taxes</a>.</p>`
+            : ""
   }
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
@@ -1438,6 +1441,182 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "Whatnot taxes", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// The StockX taxes page. StockX publishes no column list for StockX Pro's sales export, so unlike the eBay,
+// Poshmark and Whatnot pages the example is not an importer fixture: it is three invented Verified
+// Marketplace sales at the Level 1 rates StockX publishes, entered through the column-mapped import
+// (apps/seller-books/docs/IMPORTERS.md, "Column-mapped CSV"). The app reads each fee from the seller's own
+// file and never applies these rates; test/site.test.mjs holds the arithmetic. StockX's help articles were
+// read 2026-11-28 through a page-reading fetch (curl from the session gets 403 from its help centre): the
+// seller fees article and the tax and 1099 article (the 2025 tax year's). No StockX help article on sales
+// tax was found; the marketplace-collects reading is from a secondary source, linked and labelled as such.
+export const STOCKX_CHECKED_ON = "2026-11-28";
+export const STOCKX_FEES_URL =
+  "https://stockx.com/help/en-US/articles/What-are-StockXs-fees-for-sellers";
+export const STOCKX_FEES_QUOTE =
+  "The seller pays a 3% payment processing fee plus a transaction fee determined by Seller Level in the StockX Seller Program.";
+export const STOCKX_FEE_BASE_QUOTE =
+  "The transaction fee decreases as Seller Level increases, and StockX calculates the transaction fee on the final sale price.";
+export const STOCKX_LIVE_QUOTE =
+  "Starting December 1, 2026, StockX is implementing a transaction fee for all sellers on the StockX Live Marketplace.";
+export const STOCKX_LISTINGS_QUOTE =
+  "The buyer covers the processing fee, shipping fee, and optional verification fee.";
+export const STOCKX_TAX_URL =
+  "https://stockx.com/help/articles/tax-and-1099-information-for-us-sellers";
+export const STOCKX_GROSS_QUOTE =
+  "The gross amount is the total payout amount of each sale made on StockX.";
+export const STOCKX_HYPERWALLET_QUOTE =
+  "Form 1099-K in Hyperwallet cannot be accessed via mobile web or the StockX app.";
+export const STOCKX_EXPORT_URL = "https://stockx.com/news/export-your-sales-history-in-stockx-pro/";
+const STOCKX_SALES_TAX_SECONDARY = "https://zamp.com/blog/stockx-collect-sales-tax-sellers";
+/** Level 1 of the Verified Marketplace, as StockX's fees article lists it (basis points). */
+export const STOCKX_LEVEL1 = { transactionBp: 900, processingBp: 300, minimumFeeCents: 500 };
+/** Three invented Verified Marketplace sales and what each pair cost; every figure is made up. */
+export const STOCKX_EXAMPLE = [
+  { title: "Running shoe, size 10 (deadstock)", priceCents: 22000, costCents: 16000 },
+  { title: "Retro basketball shoe, size 9", priceCents: 15000, costCents: 11000 },
+  { title: "Graphic hoodie, size L", priceCents: 9500, costCents: 6000 },
+];
+/** A fee in cents from a rate in basis points, rounded half up. */
+const bpOf = (cents, bp) => Math.round((cents * bp) / 10000);
+/** One sale's fees at the published Level 1 rates; the minimum never binds in the example (checked in the test). */
+export function stockxFees(priceCents, level = STOCKX_LEVEL1) {
+  const transaction = Math.max(bpOf(priceCents, level.transactionBp), level.minimumFeeCents);
+  const processing = bpOf(priceCents, level.processingBp);
+  return { transaction, processing, payout: priceCents - transaction - processing };
+}
+/** The example's Schedule C lines: 1 gross receipts, 10 fees, Part III cost of goods, and the payouts. */
+export function stockxLines(rows = STOCKX_EXAMPLE) {
+  const f = rows.map((r) => stockxFees(r.priceCents));
+  const sum = (xs) => xs.reduce((a, b) => a + b, 0);
+  const line1 = sum(rows.map((r) => r.priceCents));
+  const line10 = sum(f.map((x) => x.transaction + x.processing));
+  const cogs = sum(rows.map((r) => r.costCents));
+  return {
+    line1,
+    line10,
+    cogs,
+    payouts: sum(f.map((x) => x.payout)),
+    profit: line1 - line10 - cogs,
+  };
+}
+
+function stockxTaxes() {
+  const path = "/stockx-taxes";
+  const title = "StockX taxes for sneaker resellers";
+  const description =
+    "Do you pay taxes on StockX sales? StockX's seller fees, when it sends a 1099-K and what its gross amount counts, and three sneaker flips worked to Schedule C.";
+  const cents = (c) => `${c < 0 ? "−" : ""}$${(Math.abs(c) / 100).toFixed(2)}`;
+  const L = stockxLines();
+  const pct = (bp) => `${bp / 100}%`;
+  const faqs = [
+    {
+      q: "Do I have to pay taxes on StockX sales?",
+      a: "On the profit from pairs you bought to resell, yes, whether or not a form arrives. A pair from your own closet sold for less than you paid is not income. Buying releases, restocks or lots to flip is usually a business, reported on Schedule C, where the fees and what each pair cost you come off before any tax.",
+    },
+    {
+      q: "Does StockX send a 1099-K?",
+      a: `When a U.S. seller passes the federal threshold: for 2025 and 2026, $20,000 in gross payments and 200 transactions; some states are lower. The form comes through Hyperwallet, on a computer: “${STOCKX_HYPERWALLET_QUOTE}” The income is reportable either way.`,
+    },
+    {
+      q: "Why doesn't my StockX 1099-K match my sales?",
+      a: `StockX's tax article says “${STOCKX_GROSS_QUOTE}” A payout is what is left after StockX's fees, so a form built on payouts comes in below your sale prices by about the fees. In the example on this page the three sale prices add up to ${cents(L.line1)} and the payouts to ${cents(L.payouts)}; the ${cents(L.line1 - L.payouts)} between them is the fees, which you report on line 10 rather than leave out of line 1.`,
+    },
+    {
+      q: "Are StockX fees tax deductible?",
+      a: `For a business, yes: the transaction fee and the ${pct(STOCKX_LEVEL1.processingBp)} payment processing fee are costs of selling, on Schedule C line 10, commissions and fees. They are only deductible once, so if you report payouts as your sales, the fees are already out and must not be deducted again.`,
+    },
+    {
+      q: "Do I collect sales tax on StockX sales?",
+      a: "StockX charges the buyer sales tax at checkout, and it is generally counted as a marketplace facilitator that collects and remits it, so it is not your sale and not your income. StockX's own help centre had no current article saying which states; check it, and your state, if you also sell off StockX.",
+    },
+  ];
+  const exRows = STOCKX_EXAMPLE.map((r) => {
+    const f = stockxFees(r.priceCents);
+    return `        <tr><th scope="row">${esc(r.title)}</th><td>${cents(r.priceCents)}</td><td>${cents(f.transaction)}</td><td>${cents(f.processing)}</td><td>${cents(f.payout)}</td><td>${cents(r.costCents)}</td></tr>`;
+  }).join("\n");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">StockX pays you the sale price less two fees, and the pair you sold cost you something before it ever shipped. Neither the payout nor the sale price is your profit. Here is what is taxable, what StockX charges, when it sends a 1099-K and why that form can read lower than your sales, with three invented flips worked into Schedule C lines.</p>
+  <h2>Is it taxable?</h2>
+  <p>Selling pairs from your own rotation for less than you paid is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). Buying releases or restocks to resell is business or hobby income, whatever the forms say. A business reports gross sales on Schedule C and deducts what made them: StockX's fees, <a href="${href("/cost-of-goods-sold")}">what each pair cost</a>, shipping you paid and <a href="${href("/mileage-deduction")}">the miles</a> to pick up and drop off.</p>
+  <h2>What StockX charges a seller</h2>
+  <p>On the Verified Marketplace, StockX's <a href="${STOCKX_FEES_URL}">seller fees article</a>: &ldquo;${esc(STOCKX_FEES_QUOTE)}&rdquo; and &ldquo;${esc(STOCKX_FEE_BASE_QUOTE)}&rdquo; It lists base transaction fees of 9% at Level 1 down to 7% at Level 5, and a $5.00 minimum seller fee in the U.S. Its other two marketplaces differ. On Listings, &ldquo;${esc(STOCKX_LISTINGS_QUOTE)}&rdquo; And on Live, &ldquo;${esc(STOCKX_LIVE_QUOTE)}&rdquo; with discounts for early sellers. Your Seller Level moves with your sales, so the rate on one sale can differ from the rate on the next: the books should take each fee from your sales history, not from a rate.</p>
+  <h2>When StockX sends a 1099-K</h2>
+  <p>StockX's <a href="${STOCKX_TAX_URL}">tax and 1099 article</a> (written for the 2025 tax year) says it issues the form to U.S. sellers with $20,000 or more in gross payments and 200 or more transactions, the federal threshold that also holds for 2026 (<a href="${IRS_1099K_FAQ_GENERAL}">IRS general FAQs</a>); some states are lower. The form is in your Hyperwallet portal: &ldquo;${esc(STOCKX_HYPERWALLET_QUOTE)}&rdquo; No form does not mean no income.</p>
+  <p>Read the article's definition before you compare the form with your books: &ldquo;${esc(STOCKX_GROSS_QUOTE)}&rdquo; If box 1a adds up payouts, it is your sales less StockX's fees. Report the sale prices on line 1 and the fees on line 10, and the two routes meet at the same net; just do not take the fees off twice. More on matching a form to your books: <a href="${href("/1099-k")}">Form 1099-K for resellers</a>.</p>
+  <h2>Three flips worked through</h2>
+  <div class="worked">
+    <p class="muted">Three invented Verified Marketplace sales by a Level 1 seller, at the rates StockX's fees article lists: a ${pct(STOCKX_LEVEL1.transactionBp)} transaction fee and a ${pct(STOCKX_LEVEL1.processingBp)} processing fee, both taken here on the sale price (the article says so of the transaction fee). Every figure, the costs included, is made up.</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Sale</th><th scope="col">Sale price</th><th scope="col">Transaction fee</th><th scope="col">Processing fee</th><th scope="col">Payout</th><th scope="col">What the pair cost</th></tr></thead>
+      <tbody>
+${exRows}
+      </tbody>
+    </table></div>
+    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong>; line 10, commissions and fees, <strong>${cents(L.line10)}</strong>; cost of goods sold (Part III, onto line 4), <strong>${cents(L.cogs)}</strong>. The payouts add up to ${cents(L.payouts)}, which is line 1 less line 10. The profit before any other expense is <strong>${cents(L.profit)}</strong>, less than a fifth of what StockX paid out.</p>
+    <p class="muted">Every fee here is above the $5.00 minimum. On a cheap item the minimum can be most of the fee; that is one reason the books read each fee from your file instead of applying a rate.</p>
+  </div>
+  <h2>Sales tax</h2>
+  <p>The sales tax a StockX buyer pays at checkout is collected by StockX, as a marketplace facilitator, in the states that require it (a <a href="${STOCKX_SALES_TAX_SECONDARY}">secondary summary</a>; StockX's help centre had no current article listing the states on ${esc(STOCKX_CHECKED_ON)}). It is the buyer's tax, already handled, so ${esc(SITE_NAME)} keeps it out of your sales and your income. More in <a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>.</p>
+  <h2>Keeping the books in ${esc(SITE_NAME)}</h2>
+  <p>StockX Pro's Export History gives the past two years of sales as a CSV (<a href="${STOCKX_EXPORT_URL}">StockX's announcement</a>). StockX does not publish that file's columns, so ${esc(SITE_NAME)} does not guess them: you choose the file once, say which column is the date, the price, each fee and the payout, and the choice is saved for the next file. Each sale lands with its own fees, and a re-imported file adds nothing twice. Record what each pair cost, link it to its sale, and cost of goods follows. Sell on eBay or Grailed too? They go in the same books (see the <a href="${href("/platforms/stockx")}">StockX page</a> and the others).</p>
+  <p class="muted">StockX's articles were read on ${esc(STOCKX_CHECKED_ON)}; fees, levels and thresholds change, so check its help centre and the IRS before you file.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "sx" })}</div>`;
+  const text = `# ${title}
+
+StockX pays you the sale price less two fees; neither the payout nor the sale price is your profit.
+
+## Is it taxable?
+
+Personal pairs sold at a loss are not income. Pairs bought to resell are business or hobby income. A business reports gross sales on Schedule C and deducts StockX's fees, what each pair cost, shipping it paid and mileage.
+
+## Seller fees
+
+"${STOCKX_FEES_QUOTE}" "${STOCKX_FEE_BASE_QUOTE}" Base transaction fee 9% at Level 1 to 7% at Level 5; $5.00 minimum seller fee in the U.S. Listings: "${STOCKX_LISTINGS_QUOTE}" Live: "${STOCKX_LIVE_QUOTE}" (${STOCKX_FEES_URL})
+
+## The 1099-K
+
+$20,000 and 200 transactions federally (${IRS_1099K_FAQ_GENERAL}); some states are lower. "${STOCKX_HYPERWALLET_QUOTE}" "${STOCKX_GROSS_QUOTE}" (${STOCKX_TAX_URL}) Report sale prices on line 1 and fees on line 10; do not deduct the fees twice.
+
+## Three flips worked through
+
+Invented Level 1 Verified Marketplace sales: ${STOCKX_EXAMPLE.map((r) => `${r.title}: price ${cents(r.priceCents)}, payout ${cents(stockxFees(r.priceCents).payout)}, cost ${cents(r.costCents)}`).join("; ")}. Schedule C: line 1 ${cents(L.line1)}, line 10 ${cents(L.line10)}, cost of goods ${cents(L.cogs)}; payouts ${cents(L.payouts)}; profit ${cents(L.profit)}.
+
+## Keeping the books
+
+StockX Pro's Export History CSV (${STOCKX_EXPORT_URL}), imported by matching its columns once. Read ${STOCKX_CHECKED_ON}.
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "StockX taxes", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -3810,6 +3989,7 @@ export function allPages() {
     poshmarkTaxes(),
     ebayTaxes(),
     whatnotTaxes(),
+    stockxTaxes(),
     costOfGoodsSold(),
     inventorySpreadsheet(),
     sellThrough(),
