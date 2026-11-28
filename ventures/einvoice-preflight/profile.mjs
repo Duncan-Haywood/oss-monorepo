@@ -399,11 +399,14 @@ export function inspectFrenchProfile(invoice) {
         "/notes",
       ));
     }
-    if (!/livraisons? de biens|prestations? de services?|op[eé]ration mixte|\bgoods\b|\bservices\b|\bmixed\b/i.test(text)) {
+    // The billing mode (BT-23, BR-FR-08) states the category by its letter: B goods, S services,
+    // M both. An invoice that carries one says it in a structured field, so no note is needed.
+    const billingMode = /^[BSM][1-9]$/.test(str(invoice.profile_id).trim());
+    if (!billingMode && !/livraisons? de biens|prestations? de services?|op[eé]ration mixte|\bgoods\b|\bservices\b|\bmixed\b/i.test(text)) {
       findings.push(finding(
         "FR-008",
         "No category of operation (goods, services or mixed) is stated in the notes.",
-        "Add a note such as: Catégorie d'opération : prestation de services (or livraison de biens, or opération mixte). The reform lists it among the invoice data; confirm with your platform whether it wants it as a structured field.",
+        "Set the billing mode (BT-23: B1 goods, S1 services, M1 both, on an ordinary invoice), whose letter states the category, or add a note such as: Catégorie d'opération : prestation de services. The reform lists it among the invoice data.",
         "/notes",
       ));
     }

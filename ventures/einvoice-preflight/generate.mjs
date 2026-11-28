@@ -30,6 +30,11 @@ export const PROFILES = {
     customization: "urn:cen.eu:en16931:2017",
     profileId: "",
   },
+  france: {
+    label: "France, EN 16931 with the BR-FR rules (2026 reform)",
+    customization: "urn:cen.eu:en16931:2017",
+    profileId: "", // the billing mode (cadre de facturation, BT-23, BR-FR-08); a draft's `billing_mode` sets it
+  },
   hr: {
     label: "HR-CIUS 2025 with the HR extension (Croatia, Fiskalizacija 2.0)",
     customization: "urn:cen.eu:en16931:2017#compliant#urn:mfin.gov.hr:cius-2025:1.0#conformant#urn:mfin.gov.hr:ext-2025:1.0",
@@ -66,6 +71,24 @@ const hrOutOfScope = (label) => (Object.hasOwn(HR_OUT_OF_SCOPE, label) ? HR_OUT_
 const HR_NO_KPD = new Set(["386", "81", "83", "261", "262", "296", "308", "381", "396", "420", "458", "532"]);
 
 const NEEDS_REASON = new Set(["E", "AE", "K", "G", "O"]);
+// France (BR-FR rules of FNFE-MPE, the controls the platforms agréées run): the billing modes BT-23
+// may take (BR-FR-08), and the three notes every invoice carries with their subject code (BR-FR-05).
+export const FR_BILLING_MODES = ["B1", "S1", "M1", "B2", "S2", "M2", "S3", "B4", "S4", "M4", "S5", "S6", "B7", "S7", "B8", "S8", "M8", "B9", "S9", "M9"];
+export const FR_REQUIRED_NOTES = {
+  PMD: "Pénalités de retard : taux d'intérêt de la BCE majoré de 10 points.",
+  PMT: "Indemnité forfaitaire pour frais de recouvrement : 40 euros.",
+  AAB: "Pas d'escompte pour paiement anticipé.",
+};
+// The SIREN's check digit (Luhn), as INSEE assigns it.
+function luhnOk(digits) {
+  let sum = 0;
+  for (let i = 0; i < digits.length; i++) {
+    let v = +digits[digits.length - 1 - i];
+    if (i % 2) { v *= 2; if (v > 9) v -= 9; }
+    sum += v;
+  }
+  return sum % 10 === 0;
+}
 const CATEGORIES = new Set(["S", "Z", ...NEEDS_REASON]);
 const UNIT_CODES = new Set(["C62", "HUR", "DAY", "MON", "KGM", "LTR", "MTR", "MTK", "KMT", "WEE", "ANN", "SET", "PCE"]);
 const UNIT_ALIASES = {
@@ -120,6 +143,9 @@ function normalizeParty(raw, role) {
     vat_id: text(p.vat_id).replace(/\s+/g, "").toUpperCase(),
     tax_number: text(p.tax_number),
     company_id: text(p.company_id),
+    // BT-30 / BT-47, the legal registration id (France: the SIREN, scheme 0002).
+    legal_id: text(p.legal_id).replace(/\s+/g, ""),
+    legal_scheme: text(p.legal_scheme) || (text(p.country).toUpperCase() === "FR" && /^\d{9}(\d{5})?$/.test(text(p.legal_id).replace(/\s+/g, "")) ? "0002" : ""),
     endpoint: endpoint && text(endpoint.id) ? { scheme: text(endpoint.scheme), id: text(endpoint.id) } : null,
     contact: { name: text(contact.name), phone: text(contact.phone), email: text(contact.email) },
   };
@@ -135,8 +161,9 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   const warn = (path, message) => warnings.push({ path, message });
 
   const d = draft && typeof draft === "object" ? draft : {};
-  if (!PROFILES[profile]) err("profile", `Unknown profile "${profile}". Use xrechnung, peppol, en16931 or hr.`);
+  if (!PROFILES[profile]) err("profile", `Unknown profile "${profile}". Use xrechnung, peppol, en16931, france or hr.`);
   const hr = profile === "hr";
+  const fr = profile === "france";
 
   const kind = /credit/i.test(text(d.document_type)) ? "credit_note" : "invoice";
   const currency = (text(d.currency) || "EUR").toUpperCase();
@@ -158,7 +185,8 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   }
   if (seller.name && !seller.city) err("seller.city", "The seller's city is required.");
   if (seller.name && !seller.vat_id && !seller.tax_number) {
-    err("seller.vat_id", "The seller needs a VAT ID or a national tax number (EN 16931 rule BR-CO-9 / BT-31 or BT-32).");
+    err("seller.vat_id", "The seller needs a VAT ID or a national tax number (EN 16931 rule BR-CO-9 / BT-31 or BT-32)." +
+      (fr || seller.country === "FR" ? " A SIREN alone is not enough: the EN 16931 rules for each VAT category (BR-S-02, BR-E-02 and the like) want BT-31 or BT-32 too, also under the franchise en base (art. 293 B du CGI). Ask your plateforme agréée or your accountant which identifier it expects." : ""));
   }
   if (seller.vat_id && !/^[A-Z]{2}[A-Z0-9]{2,12}$/.test(seller.vat_id)) {
     err("seller.vat_id", "VAT ID should start with a 2-letter country prefix, e.g. DE136695976.");
@@ -180,10 +208,10 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   if (profile === "peppol" && !text(d.buyer_reference) && !text(d.order_reference)) {
     warn("buyer_reference", "Peppol BIS requires a buyer reference or an order reference (PEPPOL-EN16931-R003).");
   }
-  if (profile !== "en16931" && !hr && !seller.endpoint) {
+  if (profile !== "en16931" && !hr && !fr && !seller.endpoint) {
     warn("seller.endpoint", "Peppol and XRechnung require the seller's electronic address (BT-34), e.g. {\"scheme\":\"EM\",\"id\":\"billing@you.example\"}.");
   }
-  if (profile !== "en16931" && !hr && !buyer.endpoint) {
+  if (profile !== "en16931" && !hr && !fr && !buyer.endpoint) {
     warn("buyer.endpoint", "Peppol and XRechnung require the buyer's electronic address (BT-49), e.g. {\"scheme\":\"EM\",\"id\":\"ap@them.example\"}.");
   }
 
@@ -197,6 +225,10 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
     if (percent === null || percent < 0 || percent > 100) err(`${path}.tax_percent`, "VAT percent must be a number from 0 to 100.");
     let category = text(l.tax_category).toUpperCase();
     let reason = text(l.tax_reason);
+    // BT-121, the exemption reason code from the VATEX list. Under the France profile an exempt
+    // line whose reason cites art. 293 B du CGI (the franchise en base) gets VATEX-FR-FRANCHISE.
+    let reason_code = text(l.tax_reason_code).toUpperCase();
+    if (reason_code && !/^VATEX-[A-Z0-9-]+$/.test(reason_code)) err(`${path}.tax_reason_code`, `Exemption reason code "${text(l.tax_reason_code)}" is not a VATEX code (e.g. VATEX-EU-AE, VATEX-FR-FRANCHISE).`);
     let label = text(l.hr_label).toUpperCase().replace(/^HR:/, "");
     if (label && !hr) {
       err(`${path}.hr_label`, "hr_label is one of Croatia's out-of-scope labels (HR:POVNAK, HR:PP, HR:PPMV, HR:N): use the hr profile, or leave it out.");
@@ -222,8 +254,9 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
       err(`${path}.tax_reason`, `Category ${category} needs an exemption reason, e.g. "Reverse charge" (AE), "Intra-community supply" (K), "Kleinunternehmer § 19 UStG" (E).`);
     }
     if (percent === null) return null;
+    if (fr && !reason_code && category === "E" && /293\s*B/i.test(reason)) reason_code = "VATEX-FR-FRANCHISE";
     const en_reason = label && !reason.startsWith("#HR:") ? `#HR:${label}#${reason}` : reason;
-    return { category, percent: label ? 0 : percent, reason, en_reason, hr_label: label };
+    return { category, percent: label ? 0 : percent, reason, en_reason, reason_code, hr_label: label };
   };
 
   const lines = [];
@@ -287,14 +320,19 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   const groups = new Map();
   for (const it of items) {
     const key = `${it.category}|${it.percent}`;
-    const g = groups.get(key) || { category: it.category, percent: it.percent, reasons: [], taxable: 0, tax: 0 };
+    const g = groups.get(key) || { category: it.category, percent: it.percent, reasons: [], codes: [], taxable: 0, tax: 0 };
     g.taxable += it.signed;
     if (it.en_reason && !g.reasons.includes(it.en_reason)) g.reasons.push(it.en_reason);
+    if (it.reason_code && !g.codes.includes(it.reason_code)) g.codes.push(it.reason_code);
     groups.set(key, g);
   }
-  const breakdown = [...groups.values()].map(({ reasons, ...g }) => ({
+  for (const g of groups.values()) {
+    if (g.codes.length > 1) err("lines", `VAT category ${g.category} ${g.percent} % has more than one exemption reason code (${g.codes.join(", ")}); a VAT breakdown row carries one (BT-121): put them on separate invoices.`);
+  }
+  const breakdown = [...groups.values()].map(({ reasons, codes, ...g }) => ({
     ...g,
     reason: reasons.join("; "),
+    reason_code: codes[0] || "",
     tax: g.category === "S" ? cents((g.taxable / 100) * (g.percent / 100)) : 0,
   }));
   for (const g of breakdown) {
@@ -312,6 +350,20 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   const prepaid = cents(prepaidNum || 0);
   if (prepaid > gross) warn("prepaid", "Prepaid amount is larger than the invoice total.");
   const due_amount = gross - prepaid;
+
+  // Notes with a subject code (BG-1: BT-22 text, BT-21 code from UNTDID 4451, e.g. PMD, PMT, AAB).
+  const notes = [];
+  if (d.notes !== undefined && d.notes !== null && d.notes !== "") {
+    if (!Array.isArray(d.notes)) err("notes", "notes must be a list of { subject, text }.");
+    else d.notes.forEach((n0, i) => {
+      const n = n0 && typeof n0 === "object" ? n0 : { text: n0 };
+      const subject = text(n.subject).toUpperCase();
+      const body = text(n.text);
+      if (!body) return;
+      if (subject && !/^[A-Z]{3}$/.test(subject)) err(`notes[${i}].subject`, `Note subject "${text(n.subject)}" should be a 3-letter UNTDID 4451 code such as PMD, PMT, AAB or REG.`);
+      notes.push({ subject, text: body });
+    });
+  }
 
   if (kind === "credit_note" && !text(d.original_invoice)) {
     warn("original_invoice", "A credit note should name the invoice it corrects (BT-25).");
@@ -403,6 +455,35 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
     seller.operator = operator;
   }
 
+  // France: the BR-FR rules (FNFE-MPE) that the platforms agréées run, checked here so the file is
+  // not written only to be refused. Measured with the official rule files: micro-entrepreneur-bench.mjs.
+  let frMode = "";
+  if (fr) {
+    frMode = text(d.billing_mode).toUpperCase();
+    if (!FR_BILLING_MODES.includes(frMode)) {
+      err("billing_mode", `France requires the billing mode (cadre de facturation, BT-23, BR-FR-08): B1 for goods, S1 for services, M1 for both, on an ordinary invoice not yet paid. Accepted: ${FR_BILLING_MODES.join(", ")}.`);
+    }
+    if (number && (number.length > 35 || !/^[A-Za-z0-9+_/-]+$/.test(number))) {
+      err("number", "France allows at most 35 characters in the invoice number, letters, digits and + - _ / only, no spaces (BR-FR-01, BR-FR-02).");
+    }
+    if (seller.country === "FR") {
+      if (!seller.legal_id) err("seller.legal_id", "France requires the seller's SIREN (BT-30, BR-FR-10): the 9 digits on your Kbis or INSEE avis de situation.");
+      else if (!/^\d{9}$/.test(seller.legal_id)) err("seller.legal_id", "The seller's SIREN must be exactly 9 digits (BR-FR-10); a 14-digit SIRET is not accepted here.");
+      else if (!luhnOk(seller.legal_id)) err("seller.legal_id", "The seller's SIREN fails its check digit: copy it again from the Kbis or INSEE avis de situation.");
+    }
+    if (buyer.country === "FR") {
+      if (!buyer.legal_id) warn("buyer.legal_id", "A French buyer's SIREN (BT-47) is how a platform routes the invoice to them: ask your customer for it.");
+      else if (!/^\d{9}(\d{5})?$/.test(buyer.legal_id) || !luhnOk(buyer.legal_id)) err("buyer.legal_id", "The buyer's SIREN (9 digits) or SIRET (14 digits) fails its check digit.");
+    }
+    if (kind === "invoice") {
+      for (const [code, example] of Object.entries(FR_REQUIRED_NOTES)) {
+        if (!notes.some((n) => n.subject === code)) err("notes", `France requires a note with subject code ${code} (BR-FR-05), e.g. { "subject": "${code}", "text": "${example}" }.`);
+      }
+    }
+    if (!seller.endpoint) warn("seller.endpoint", "France requires the seller's electronic address (BT-34, BR-FR-13): the address your platform registered for you in the directory (annuaire).");
+    if (!buyer.endpoint) warn("buyer.endpoint", "France requires the buyer's electronic address (BT-49, BR-FR-12): look it up in the directory (annuaire), or ask your customer or your platform.");
+  }
+
   const pay = d.payment && typeof d.payment === "object" ? d.payment : {};
   const iban = text(pay.iban).replace(/\s+/g, "").toUpperCase();
   const payment = {
@@ -425,7 +506,7 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
       period: period && (period.start || period.end) ? { start: text(period.start), end: text(period.end) } : null,
       delivery_date: delivery && dateOk(delivery) ? delivery : "", delivery_country: deliveryCountry,
       seller, buyer, lines, allowances, charges, breakdown, payment,
-      issue_time: time, process: hrProcess, hr_extension: hrData,
+      notes, issue_time: time, process: hr ? hrProcess : frMode, hr_extension: hrData,
       totals: { net: netTotal, allowances: allowanceTotal, charges: chargeTotal, taxable: taxBasis, tax: taxTotal, gross, prepaid, due: due_amount },
     },
   };
@@ -451,7 +532,8 @@ function ublParty(p) {
   if (p.tax_number) {
     x.push(`      <cac:PartyTaxScheme>\n        <cbc:CompanyID>${esc(p.tax_number)}</cbc:CompanyID>\n        <cac:TaxScheme><cbc:ID>FC</cbc:ID></cac:TaxScheme>\n      </cac:PartyTaxScheme>`);
   }
-  x.push(`      <cac:PartyLegalEntity><cbc:RegistrationName>${esc(p.name)}</cbc:RegistrationName></cac:PartyLegalEntity>`);
+  const legal = p.legal_id ? `<cbc:CompanyID${p.legal_scheme ? ` schemeID="${esc(p.legal_scheme)}"` : ""}>${esc(p.legal_id)}</cbc:CompanyID>` : "";
+  x.push(`      <cac:PartyLegalEntity><cbc:RegistrationName>${esc(p.name)}</cbc:RegistrationName>${legal}</cac:PartyLegalEntity>`);
   const c = p.contact;
   if (c.name || c.phone || c.email) {
     const parts = [];
@@ -465,9 +547,10 @@ function ublParty(p) {
 
 const amt = (name, value, cur, indent = "    ") => `${indent}<cbc:${name} currencyID="${esc(cur)}">${fixed(value)}</cbc:${name}>`;
 
-function taxCategoryXml(category, percent, reason, indent) {
+function taxCategoryXml(category, percent, reason, indent, code = "") {
   const lines = [`${indent}<cac:TaxCategory>`, `${indent}  <cbc:ID>${category}</cbc:ID>`];
   if (category !== "O") lines.push(`${indent}  <cbc:Percent>${percent}</cbc:Percent>`); // BR-O-05: no rate when not subject to VAT
+  if (code) lines.push(`${indent}  <cbc:TaxExemptionReasonCode>${esc(code)}</cbc:TaxExemptionReasonCode>`);
   if (reason) lines.push(`${indent}  <cbc:TaxExemptionReason>${esc(reason)}</cbc:TaxExemptionReason>`);
   lines.push(`${indent}  <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>`, `${indent}</cac:TaxCategory>`);
   return lines.join("\n");
@@ -518,7 +601,7 @@ export function toUbl(doc) {
   o.push(`    xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">`);
   if (ext) o.push(hrExtensionXml(doc));
   o.push(`  <cbc:CustomizationID>${esc(prof.customization)}</cbc:CustomizationID>`);
-  const profileId = hr ? doc.process : prof.profileId;
+  const profileId = hr || doc.profile === "france" ? doc.process : prof.profileId;
   if (profileId) o.push(`  <cbc:ProfileID>${esc(profileId)}</cbc:ProfileID>`);
   o.push(`  <cbc:ID>${esc(doc.number)}</cbc:ID>`);
   o.push(`  <cbc:IssueDate>${doc.issue_date}</cbc:IssueDate>`);
@@ -526,6 +609,8 @@ export function toUbl(doc) {
   if (!credit && doc.due_date) o.push(`  <cbc:DueDate>${doc.due_date}</cbc:DueDate>`);
   o.push(`  <cbc:${credit ? "CreditNoteTypeCode>381</cbc:CreditNoteTypeCode" : "InvoiceTypeCode>380</cbc:InvoiceTypeCode"}>`);
   if (doc.note) o.push(`  <cbc:Note>${esc(doc.note)}</cbc:Note>`);
+  // A coded note in UBL: "#CODE#text", the convention of Peppol BIS and the French rules.
+  for (const n of doc.notes || []) o.push(`  <cbc:Note>${esc(n.subject ? `#${n.subject}#${n.text}` : n.text)}</cbc:Note>`);
   o.push(`  <cbc:DocumentCurrencyCode>${esc(cur)}</cbc:DocumentCurrencyCode>`);
   if (doc.buyer_reference) o.push(`  <cbc:BuyerReference>${esc(doc.buyer_reference)}</cbc:BuyerReference>`);
   if (doc.period) {
@@ -587,7 +672,7 @@ export function toUbl(doc) {
     o.push(`    <cac:TaxSubtotal>`);
     o.push(amt("TaxableAmount", g.taxable, cur, "      "));
     o.push(amt("TaxAmount", g.tax, cur, "      "));
-    o.push(taxCategoryXml(g.category, g.percent, g.reason, "      "));
+    o.push(taxCategoryXml(g.category, g.percent, g.reason, "      ", g.reason_code));
     o.push(`    </cac:TaxSubtotal>`);
   }
   o.push(`  </cac:TaxTotal>`);
@@ -636,6 +721,7 @@ function ciiParty(tag, p) {
   const o = [`      <ram:${tag}>`];
   if (p.company_id) o.push(`        <ram:ID>${esc(p.company_id)}</ram:ID>`);
   o.push(`        <ram:Name>${esc(p.name)}</ram:Name>`);
+  if (p.legal_id) o.push(`        <ram:SpecifiedLegalOrganization><ram:ID${p.legal_scheme ? ` schemeID="${esc(p.legal_scheme)}"` : ""}>${esc(p.legal_id)}</ram:ID></ram:SpecifiedLegalOrganization>`);
   const c = p.contact;
   if (c.name || c.phone || c.email) {
     o.push(`        <ram:DefinedTradeContact>`);
@@ -668,7 +754,8 @@ export function toCii(doc) {
   o.push(`    xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"`);
   o.push(`    xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100">`);
   o.push(`  <rsm:ExchangedDocumentContext>`);
-  if (prof.profileId) o.push(`    <ram:BusinessProcessSpecifiedDocumentContextParameter><ram:ID>${esc(prof.profileId)}</ram:ID></ram:BusinessProcessSpecifiedDocumentContextParameter>`);
+  const processId = doc.profile === "france" ? doc.process : prof.profileId;
+  if (processId) o.push(`    <ram:BusinessProcessSpecifiedDocumentContextParameter><ram:ID>${esc(processId)}</ram:ID></ram:BusinessProcessSpecifiedDocumentContextParameter>`);
   o.push(`    <ram:GuidelineSpecifiedDocumentContextParameter><ram:ID>${esc(prof.customization)}</ram:ID></ram:GuidelineSpecifiedDocumentContextParameter>`);
   o.push(`  </rsm:ExchangedDocumentContext>`);
   o.push(`  <rsm:ExchangedDocument>`);
@@ -676,6 +763,7 @@ export function toCii(doc) {
   o.push(`    <ram:TypeCode>${doc.kind === "credit_note" ? 381 : 380}</ram:TypeCode>`);
   o.push(`    <ram:IssueDateTime>\n${ciiDate(doc.issue_date)}\n    </ram:IssueDateTime>`);
   if (doc.note) o.push(`    <ram:IncludedNote><ram:Content>${esc(doc.note)}</ram:Content></ram:IncludedNote>`);
+  for (const n of doc.notes || []) o.push(`    <ram:IncludedNote><ram:Content>${esc(n.text)}</ram:Content>${n.subject ? `<ram:SubjectCode>${esc(n.subject)}</ram:SubjectCode>` : ""}</ram:IncludedNote>`);
   o.push(`  </rsm:ExchangedDocument>`);
   o.push(`  <rsm:SupplyChainTradeTransaction>`);
   for (const l of doc.lines) {
@@ -726,6 +814,7 @@ export function toCii(doc) {
     if (g.reason) o.push(`        <ram:ExemptionReason>${esc(g.reason)}</ram:ExemptionReason>`);
     o.push(`        <ram:BasisAmount>${fixed(g.taxable)}</ram:BasisAmount>`);
     o.push(`        <ram:CategoryCode>${g.category}</ram:CategoryCode>`);
+    if (g.reason_code) o.push(`        <ram:ExemptionReasonCode>${esc(g.reason_code)}</ram:ExemptionReasonCode>`);
     if (g.category !== "O") o.push(`        <ram:RateApplicablePercent>${g.percent}</ram:RateApplicablePercent>`);
     o.push(`      </ram:ApplicableTradeTax>`);
   }

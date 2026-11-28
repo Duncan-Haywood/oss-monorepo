@@ -4,6 +4,7 @@
 
 ## Parked from flagships.yaml `next:`
 
+- (2026-11-28) the creator's France profile (BT-30 SIREN, BT-23 billing mode, coded PMD/PMT/AAB notes, BT-121 VATEX codes; generate.mjs, generate-france.test.mjs, micro-entrepreneur-bench.mjs) landed in the free edition only: port it to ventures/einvoice-pro/apps/einvoice-preflight/generate.mjs (its creator has diverged: line allowances, more units), and check a real platform's answer to a franchise-en-base invoice without a VAT number (BR-E-02)
 - (2026-11-16) a real Ginfes, Betha or DSF reply
 - (2026-11-16) refresh the Bulgaria page when its draft passes
 - (2026-11-17) ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba,...) landed (README): open: a DSF 1.00/Abaco file
