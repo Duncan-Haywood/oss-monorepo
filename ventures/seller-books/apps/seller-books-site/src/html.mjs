@@ -120,6 +120,7 @@ ${page.body}
       <a href="${href("/poshmark-taxes")}">Poshmark taxes</a>
       <a href="${href("/ebay-taxes")}">eBay taxes</a>
       <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>
+      <a href="${href("/amazon-seller-taxes")}">Amazon seller taxes</a>
       <a href="${href("/cost-of-goods-sold")}">Cost of goods sold</a>
       <a href="${href("/reseller-inventory-spreadsheet")}">Inventory spreadsheet</a>
       <a href="${href("/mileage-deduction")}">Mileage deduction</a>

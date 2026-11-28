@@ -9,6 +9,9 @@ import { BASE_PATH, FEATURES, PLATFORMS, SITE_URL, TIERS } from "../src/content.
 import { esc } from "../src/html.mjs";
 import {
   ALTERNATIVES,
+  AMAZON_CHECKED_ON,
+  AMAZON_EXAMPLE,
+  amazonLines,
   COGS_EXAMPLE,
   COMPARE_CHECKED_ON,
   cogsLines,
@@ -1177,6 +1180,141 @@ describe("the Whatnot taxes page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/whatnot-taxes)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/whatnot-taxes`));
+  });
+});
+
+describe("the Amazon seller taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/amazon-seller-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+  // The fixture quotes every field and its dates hold commas: a small quoted-CSV reader.
+  const fields = (line) =>
+    [...line.matchAll(/"((?:[^"]|"")*)"/g)].map((m) => m[1].replaceAll('""', '"'));
+
+  test("the example is the importer's own fixture, row for row", () => {
+    const lines = appFile("test/fixtures/amazon-date-range-report.csv").trim().split("\n");
+    const h = lines.findIndex((l) => l.startsWith('"date/time"'));
+    const cols = fields(lines[h]);
+    const rows = lines.slice(h + 1).map(fields);
+    const at = (r, name) => r[cols.indexOf(name)];
+    const money = (v) => Math.round(Number(v || "0") * 100);
+    const known = new Set([
+      "Order",
+      "Refund",
+      "Service Fee",
+      "FBA Inventory Fee",
+      "Adjustment",
+      "Shipping Services",
+    ]);
+    const counted = rows.filter(
+      (r) => known.has(at(r, "type")) && at(r, "marketplace") === "amazon.com",
+    );
+    assert.equal(
+      rows.length - counted.length,
+      3,
+      "transfer, amazon.ca and the unknown type skipped",
+    );
+    assert.equal(counted.length, AMAZON_EXAMPLE.length);
+    counted.forEach((r, i) => {
+      const ex = AMAZON_EXAMPLE[i];
+      assert.equal(ex.type, at(r, "type"), ex.title);
+      assert.equal(ex.totalCents, money(at(r, "total")), ex.title);
+      const goods = money(at(r, "product sales")) + money(at(r, "promotional rebates"));
+      const ship = money(at(r, "shipping credits")) + money(at(r, "gift wrap credits"));
+      const fees = -[
+        "selling fees",
+        "fba fees",
+        "other transaction fees",
+        "Regulatory Fee",
+        "Tax On Regulatory Fee",
+        "other",
+      ]
+        .map((c) => money(at(r, c)))
+        .reduce((a, b) => a + b, 0);
+      if (ex.type === "Order") {
+        assert.equal(ex.grossCents, goods + ship, ex.title);
+        assert.equal(ex.feeCents, fees, ex.title);
+        // The tax goes in and back out on the same row.
+        const tax = [
+          "product sales tax",
+          "shipping credits tax",
+          "giftwrap credits tax",
+          "promotional rebates tax",
+        ]
+          .map((c) => money(at(r, c)))
+          .reduce((a, b) => a + b, 0);
+        assert.equal(tax + money(at(r, "marketplace withheld tax")), 0, ex.title);
+      } else if (ex.type === "Refund") {
+        assert.equal(ex.returnCents, -(goods + ship), ex.title);
+        assert.equal(ex.feeCents, fees, ex.title);
+      } else {
+        const d = at(r, "description");
+        const amount = -money(at(r, "total"));
+        if (ex.type === "Shipping Services") assert.equal(ex.postageCents, amount);
+        else if (/Subscription/.test(d)) assert.equal(ex.softwareCents, amount);
+        else if (/Advertising/.test(d)) assert.equal(ex.adCents, amount);
+        else assert.equal(ex.feeCents, amount, ex.title);
+      }
+    });
+    const imp = appFile("src/worker/services/importers/amazon.ts");
+    assert.match(
+      imp,
+      /const itemCents = money\(row\.get\("productSales"\)\) \+ money\(row\.get\("promoRebates"\)\)/,
+    );
+    assert.match(imp, /fbainventoryfee: "fulfillment"/);
+    assert.match(imp, /adjustment: "other"/);
+    assert.match(imp, /shippingservices: "shipping_label"/);
+    assert.match(imp, /transfer: "skip"/);
+    assert.match(imp, /\/subscription\/\.test\(d\)/);
+    const sc = appFile("src/worker/services/books/schedule-c.ts");
+    assert.match(
+      sc,
+      /else if \(c\.kind === "subscription"\) add\("27a:software", c\.amountCents\)/,
+    );
+    assert.match(sc, /else add\(c\.kind === "advertising" \? "8" : "10", c\.amountCents\)/);
+  });
+
+  test("the Schedule C lines, by hand", () => {
+    assert.deepEqual(amazonLines(), {
+      line1: 6999,
+      line2: 2500,
+      line8: 1234,
+      line10: 975,
+      line27a: 4609,
+      net: -2319,
+    });
+    const L = amazonLines();
+    assert.equal(L.line1 - L.line2 - L.line8 - L.line10 - L.line27a, L.net);
+    const html = htmlOf(page());
+    for (const s of [
+      "$69.99",
+      "$25.00",
+      "$12.34",
+      "$9.75",
+      "$46.09",
+      "−$23.19",
+      "$39.99",
+      "$6.10",
+      "$8.50",
+    ])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("quotes no Amazon page and says so, with the IRS threshold sourced", () => {
+    const html = htmlOf(page());
+    assert.match(AMAZON_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(html.includes("https://www.irs.gov/newsroom/form-1099-k-faqs-general-information"));
+    assert.ok(html.includes('"@type":"FAQPage"'));
+    assert.ok(html.includes("did not load for us"));
+    assert.ok(!/sellercentral\.amazon\.com|sell\.amazon\.com/.test(html));
+  });
+
+  test("linked from the Amazon platform page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/amazon-seller-taxes"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/platforms/amazon")).includes(link));
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/amazon-seller-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/amazon-seller-taxes`));
   });
 });
 
