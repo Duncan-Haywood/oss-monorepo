@@ -507,7 +507,7 @@ export function rateSheetProblem(s: TmRateSheet): string | null {
       if (!key) return `${n}: enter the ${kind === "labor" ? "trade" : kind}`;
       if (seen.has(key)) return `${label}: "${l.name.trim()}" is on the sheet twice`;
       seen.add(key);
-      if (!Number.isInteger(l.rateCents) || l.rateCents < 0 || l.rateCents > MAX_TM_RATE_CENTS) {
+      if (!Number.isSafeInteger(l.rateCents) || l.rateCents < 0 || l.rateCents > MAX_TM_RATE_CENTS) {
         return `${n}: enter the rate in dollars and cents`;
       }
     }

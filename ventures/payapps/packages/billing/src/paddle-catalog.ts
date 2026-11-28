@@ -78,9 +78,9 @@ export function validateCatalog(raw: unknown): CatalogFile {
     if (!PLAN_KEY_RE.test(String(p.key))) fail(`bad plan key ${JSON.stringify(p.key)}`);
     if (seen.has(p.key)) fail(`duplicate plan ${p.key}`);
     seen.add(p.key);
-    if (!Number.isInteger(p.monthlyCents) || p.monthlyCents <= 0)
+    if (!Number.isSafeInteger(p.monthlyCents) || p.monthlyCents <= 0)
       fail(`${p.key}: monthlyCents must be a positive integer`);
-    if (p.annualCents !== null && (!Number.isInteger(p.annualCents) || p.annualCents <= 0)) {
+    if (p.annualCents !== null && (!Number.isSafeInteger(p.annualCents) || p.annualCents <= 0)) {
       fail(`${p.key}: annualCents must be a positive integer or null`);
     }
     if (typeof p.name !== "string" || !p.name.trim()) fail(`${p.key}: missing name`);
