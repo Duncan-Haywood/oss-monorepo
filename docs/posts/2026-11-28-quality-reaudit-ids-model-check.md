@@ -3,7 +3,7 @@ title: "Re-audit: the IDS checker read 77 °F as −688.8 K; fixed, and CI now g
 seo_title: "Fahrenheit in IFC: IfcConversionBasedUnitWithOffset and IDS checks"
 date: 2026-11-28
 tags: [quality-audit, evaluation, construction, bim, ids-model-check]
-description: "A re-check of IDS Model Check against its 2026-11-19 audit. Four of five defects are closed and CI now gates the 334 buildingSMART test pairs. A new one turned up: Fahrenheit models got the wrong verdict on every temperature check. It is fixed."
+description: "IDS Model Check re-audited: four of five defects closed, CI gates the 334 test pairs, and a Fahrenheit conversion bug was found and fixed."
 ---
 
 [IDS Model Check](https://marisstella.app/ids-model-check/) checks an IFC
