@@ -1,12 +1,22 @@
 ---
-title: "Mechanics lien deadlines in ten states, now with North Carolina, New York and Ohio"
-seo_title: "Mechanics lien deadlines by state: NC, NY, OH, CA, TX, FL and 4 more"
+title: "Mechanics lien deadlines in sixteen states, now with Michigan, Minnesota, Nevada, Oregon, Utah and Virginia"
+seo_title: "Mechanics lien deadlines by state: MI, MN, NV, OR, UT, VA, CA, TX, FL and 7 more"
 date: 2026-11-10
 tags: [construction, subcontractors, mechanics-lien, lien-waivers, pay-app-guides, payapps, for-customers]
-description: "Preliminary notice and lien filing deadlines for subcontractors in ten states, with the statute for each, now tracked on every job in PayApps."
+description: "Lien filing deadlines for subcontractors in sixteen states, and the preliminary notice in eleven, with the statute for each, in a free calculator and on every job in PayApps."
 ---
 
-The free [mechanics lien deadline calculator](https://marisstella.app/mechanics-lien-deadline-calculator/) takes your first and last day on a job and shows the two dates that keep a lien alive: the early notice and the lien filing. It covers ten states.
+The free [mechanics lien deadline calculator](https://marisstella.app/mechanics-lien-deadline-calculator/) takes your first and last day on a job and shows the two dates that keep a lien alive: the early notice and the lien filing. It covers sixteen states.
+
+## Michigan, Minnesota, Nevada, Oregon, Utah and Virginia in the free calculator (added 2026-11-28)
+
+The six states below were in PayApps only. The free calculator now has them too, with the same rules: they were copied from PayApps' rule file, and a test now runs every one of the sixteen states through both copies on 90 combinations of last day, completion date, notice of completion and project type, and fails if a single date differs. It passed on all sixteen the day the states were added.
+
+Michigan also gets its early notice: a notice of furnishing to the designee and the general contractor named in the notice of commencement "within 20 days after furnishing the first labor or material" (MCL 570.1109(1)). A late one is not fatal there. It keeps the lien for work after it is served, and for work before it except to the extent the owner already paid the contractor for your work on a sworn statement or a lien waiver (subsections 5 and 6), so the calculator says to serve it now rather than giving a look-back date. If the owner has not recorded a notice of commencement, the 20 days have not started (MCL 570.1108(10)).
+
+For the other five, only the lien filing is dated. Their early notices (Nevada's notice of right to lien, Utah's preliminary notice in the State Construction Registry, and the others) were not read for this tool, so the result says "not dated here" and tells you to check, rather than saying no notice is needed. A missed notice can cost the lien.
+
+Two results changed shape with these states. In Nevada a completion date before your own last day is not used, since the statute counts from the later of the two. In Oregon and Virginia an entered completion date can move the deadline **earlier**, because they take whichever comes first, so the calculator now says so instead of promising that completion only moves it later.
 
 ## The lien deadline on every job, in PayApps (added 2026-11-27)
 
@@ -22,7 +32,7 @@ The same limits as the calculator apply. A weekend date moves back to the Friday
 
 ## Six more states in PayApps: Michigan, Minnesota, Nevada, Oregon, Utah and Virginia (added 2026-11-27)
 
-The job page's lien deadline now covers sixteen states. These six were read whole on each legislature's own site on 2026-11-27 (legislature.mi.gov, revisor.mn.gov, leg.state.nv.us, oregonlegislature.gov, le.utah.gov, law.lis.virginia.gov), not taken from secondary explainers. They are in PayApps only for now, not yet in the free calculator.
+The job page's lien deadline now covers sixteen states. These six were read whole on each legislature's own site on 2026-11-27 (legislature.mi.gov, revisor.mn.gov, leg.state.nv.us, oregonlegislature.gov, le.utah.gov, law.lis.virginia.gov), not taken from secondary explainers. Since 2026-11-28 they are in the free calculator as well (above).
 
 | State | Lien filing deadline | What PayApps asks for | Statute |
 |---|---|---|---|
@@ -80,10 +90,10 @@ A worked example: you start on a California job on 10 March 2026 and last work t
 
 ## The other six
 
-California, Texas, Florida, Arizona, Washington and Georgia are in the calculator too, with Texas's month-by-month notices, Georgia's second-tier rule and Washington's first-tier exemption. Nevada, Oregon and Utah are still left out because the sources we could read disagree, and a wrong lien date costs a subcontractor the lien.
+California, Texas, Florida, Arizona, Washington and Georgia are in the calculator too, with Texas's month-by-month notices, Georgia's second-tier rule and Washington's first-tier exemption. Nevada, Oregon and Utah were left out of the calculator until 2026-11-28 because the secondary sources disagreed; they came in only once PayApps had read each statute on the legislature's own site.
 
 ## Where this fits
 
-Lien deadlines are one piece of the monthly billing paperwork a subcontractor does: the pay application, retainage, and a lien waiver with every payment. The [pay application guides](https://marisstella.app/pay-app-guides/) cover the rest, and the [lien waiver checker](https://marisstella.app/lien-waiver-checker/) reads a waiver before you sign it. A hosted pay-app product for subcontractors is in development at [marisstella.app/industries/construction](https://marisstella.app/industries/construction/).
+Lien deadlines are one piece of the monthly billing paperwork a subcontractor does: the pay application, retainage, and a lien waiver with every payment. The [pay application guides](https://marisstella.app/pay-app-guides/) cover the rest, and the [lien waiver checker](https://marisstella.app/lien-waiver-checker/) reads a waiver before you sign it. [PayApps](https://payapps.marisstella.app/?signup&from=posts/mechanics-lien-deadlines) keeps the same sixteen states' lien dates on every job and warns you 45 days ahead on any job that still owes you money; it is open now, free on one job.
 
 Not legal advice. Check the linked statute or ask a construction attorney before relying on any date.
