@@ -2773,6 +2773,24 @@ nothing to copy. No customers yet. Paid plans are dark
   California public jobs: date from the recorded notice of completion when the job has one (the
   `notice_of_completion_on` column the private-job panel already keeps, today cleared on public
   jobs), and re-read the sections on leginfo once it answers.
+- State bond claims, Oklahoma and the District of Columbia (2026-11-28, state-bond-claims-ok-in-vt,
+  every plan). 61 O.S. §§ 1, 2 read on oscn.net (it answered a plain fetch this time, no Turnstile
+  challenge) and D.C. Code §§ 2-201.01 to 2-201.03 on code.dccouncil.gov that day; excerpts appended
+  to `ventures/pay-app-guides/sources/state-bond-claims.txt`. Oklahoma: anyone in contract with a
+  subcontractor "regardless of tier" gives the contractor and the surety written notice within 90
+  days of the last day (§ 2(B)(1)); everyone files a claim or sues within one year, or two years
+  once a claim was filed within the first (§ 2(A)): three dated steps. Because the statute names
+  every tier, a new optional `anyTier` on `StateBondRule` replaces the remote-tier caution ("turns on
+  how the state reads subcontractor") with the statute's own words. D.C. copies the Miller Act: a
+  sub's sub's 90-day registered-mail notice and a one-year suit, both from the last day, in the
+  District's name in the Superior Court; notes give the $25,000 threshold, the half-the-contract
+  bond amount and the Mayor's waiver. Thirty-four states and D.C. in `STATE_BOND_RULES`. Tests in
+  `src/shared/state-bond.test.ts` (worked dates, a Saturday anniversary moved to Friday, the remote
+  note); the public guide, its FAQ, llms-answers, the customer post and the construction page gain
+  the rows. Not done: Indiana (iga.in.gov serves only an empty JavaScript shell, its bundle URL
+  included, through the proxy) and Vermont (no payment bond claim statute found in Title 29's
+  chapters; not added rather than guessed). Still unreached: New Mexico (nmonesource 403 headless),
+  Hawaii (403), Connecticut and West Virginia (no answer).
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the

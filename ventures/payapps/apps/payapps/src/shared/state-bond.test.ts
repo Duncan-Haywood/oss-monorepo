@@ -22,13 +22,14 @@ const dueOf = (r: ReturnType<typeof checked>, citation: string) =>
   r.steps.find((s) => s.citation === citation)?.dueOn;
 
 describe("state bond claims", () => {
-  it("covers the thirty-three states read, each with a statute link on its legislature's site", () => {
+  it("covers the thirty-four states and the District read, each with a statute link on its legislature's site", () => {
     expect(STATE_BOND_STATES).toEqual([
       "AK",
       "AL",
       "AZ",
       "CA",
       "CO",
+      "DC",
       "DE",
       "FL",
       "IA",
@@ -48,6 +49,7 @@ describe("state bond claims", () => {
       "NV",
       "NY",
       "OH",
+      "OK",
       "OR",
       "RI",
       "SC",
@@ -259,6 +261,45 @@ describe("state bond claims", () => {
     expect(sd.steps.map((s) => s.citation)).toEqual(["S.D. Codified Laws § 5-21-6"]);
     expect(sd.dated).toEqual([]);
     expect(sd.steps[0]?.waitsFor).toMatch(/final settlement/);
+  });
+
+  it("Oklahoma: 90-day notice to the contractor and surety from any tier below; one year to claim or sue, two once a claim is filed", () => {
+    const ok = checked("OK", "second");
+    // 10 July + 90 days = Thursday 8 October 2026; one year on, Saturday 10 July 2027 moves back
+    // to Friday 9 July; two years on, Monday 10 July 2028.
+    expect(dueOf(ok, "61 O.S. § 2(B)(1)")).toBe("2026-10-08");
+    const year = ok.steps.find((s) => s.citation === "61 O.S. § 2(A)");
+    expect(year?.statutoryOn).toBe("2027-07-10");
+    expect(year?.dueOn).toBe("2027-07-09");
+    expect(dueOf(ok, "61 O.S. § 2(A), claim filed")).toBe("2028-07-10");
+    expect(ok.dated.map((s) => s.citation)).toEqual([
+      "61 O.S. § 2(B)(1)",
+      "61 O.S. § 2(A)",
+      "61 O.S. § 2(A), claim filed",
+    ]);
+    // A first-tier sub gives no notice.
+    expect(checked("OK", "first").steps.map((s) => s.citation)).toEqual([
+      "61 O.S. § 2(A)",
+      "61 O.S. § 2(A), claim filed",
+    ]);
+    // "Regardless of tier": a remote claimant is told the bond reaches it, not that it may not.
+    const remote = checked("OK", "remote");
+    expect(remote.notes[0]).toMatch(/regardless of tier/);
+    expect(remote.notes.join(" ")).not.toMatch(/further down the chain/);
+    expect(remote.steps.map((s) => s.citation)[0]).toBe("61 O.S. § 2(B)(1)");
+  });
+
+  it("District of Columbia: 90-day registered-mail notice for a sub's sub, one year to sue in the District's name", () => {
+    const dc = checked("DC", "second");
+    // 10 July + 90 days = Thursday 8 October 2026; one year on, Saturday 10 July 2027 -> Friday 9 July.
+    expect(dueOf(dc, "D.C. Code § 2-201.02(a)")).toBe("2026-10-08");
+    expect(dueOf(dc, "D.C. Code § 2-201.02(b)")).toBe("2027-07-09");
+    expect(checked("DC", "first").steps.map((s) => s.citation)).toEqual([
+      "D.C. Code § 2-201.02(b)",
+    ]);
+    expect(dc.notes.join(" ")).toMatch(/over \$25,000/);
+    // The usual caution for a claimant further down the chain still applies here.
+    expect(checked("DC", "remote").notes[0]).toMatch(/further down the chain/);
   });
 
   it("Alaska: 90-day notice by registered mail for a sub's sub; the suit waits on final settlement", () => {
