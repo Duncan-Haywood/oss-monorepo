@@ -78,6 +78,7 @@ export {
   msAffidavitOfNonpayment,
   msSixtyDays,
 } from "./ms-affidavit.ts";
+export { type MsPeriod, msClosedDay, msLegalHoliday, msPeriodEnd } from "./ms-dates.ts";
 export {
   CA_NOTICE_ID,
   type NoticeDocument,
