@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XRechnung oder ZUGFeRD? Der Unterschied, gemessen</title>
+<meta name="description" content="XRechnung oder ZUGFeRD: dieselbe Rechnung in beiden Formaten geprüft. Fünf Angaben verlangt nur die XRechnung; was das BMF zu beiden sagt.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/xrechnung-oder-zugferd.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XRechnung oder ZUGFeRD? Der Unterschied, gemessen">
+<meta property="og:description" content="XRechnung oder ZUGFeRD: dieselbe Rechnung in beiden Formaten geprüft. Fünf Angaben verlangt nur die XRechnung; was das BMF zu beiden sagt.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/xrechnung-oder-zugferd.html">
+<meta property="og:locale" content="de_DE">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Was ist der Unterschied zwischen XRechnung und ZUGFeRD?", "acceptedAnswer": {"@type": "Answer", "text": "Beide sind E-Rechnungen nach der europäischen Norm EN 16931. Die XRechnung ist eine reine XML-Datei (UBL oder CII) nach den Vorgaben der KoSIT, ohne Bildteil. ZUGFeRD ist eine PDF/A-3-Datei mit lesbarer Seite und eingebetteter CII-XML, entwickelt vom FeRD. Die XRechnung verlangt einige Angaben mehr: In unserem Versuch mit derselben Rechnung fielen fünf Auslassungen (Käuferreferenz, Kontakt des Verkäufers, dessen Telefonnummer, Zahlungsanweisungen, Ort des Käufers) nur als XRechnung durch die offiziellen Regeln, als ZUGFeRD EN 16931 keine."}}, {"@type": "Question", "name": "Ist ZUGFeRD eine gültige E-Rechnung?", "acceptedAnswer": {"@type": "Answer", "text": "Laut BMF erfüllen XRechnung und ZUGFeRD ab Version 2.0.1 die umsatzsteuerlichen Voraussetzungen, mit Ausnahme der ZUGFeRD-Profile MINIMUM und BASIC-WL. Ob eine bestimmte Datei die Norm und ihre Geschäftsregeln einhält, ist damit noch nicht gesagt: Das zeigt erst eine Prüfung der Datei."}}, {"@type": "Question", "name": "Was gilt, wenn PDF-Ansicht und XML einer ZUGFeRD-Rechnung abweichen?", "acceptedAnswer": {"@type": "Answer", "text": "Laut BMF bilden bei hybriden E-Rechnungen die Daten im strukturierten Teil (der XML) den führenden Teil; weicht die lesbare PDF-Seite davon ab, ist die XML maßgebend. Prüfen Sie deshalb die XML, nicht nur das Druckbild."}}, {"@type": "Question", "name": "Welches Format soll ich an meine Kunden schicken?", "acceptedAnswer": {"@type": "Answer", "text": "Was der Empfänger annimmt. Behörden und Kunden mit eigenem Eingangsportal verlangen oft die XRechnung; Kunden, die Rechnungen noch von Hand lesen, kommen mit ZUGFeRD ohne zusätzlichen Viewer aus. Eine ZUGFeRD-Datei im Profil XRECHNUNG verbindet beides, muss dann aber auch alle XRechnung-Pflichtangaben enthalten. Klären Sie das Format mit dem Empfänger und Ihrer Steuerberatung."}}, {"@type": "Question", "name": "Wie öffne ich eine XRechnung ohne Software?", "acceptedAnswer": {"@type": "Answer", "text": "Eine XRechnung hat keine PDF-Seite. Laut BMF kann man sie unter anderem mit dem kostenlosen E-Rechnungsviewer der Finanzverwaltung im ELSTER-Portal (e-rechnung.elster.de) lesbar darstellen; ZUGFeRD-Rechnungen zeigen ihre PDF-Seite in jedem PDF-Programm."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.cta{display:inline-block;background:#0b5f8a;color:#fff;padding:.6rem 1rem;border-radius:10px;text-decoration:none;font-weight:600;margin:.2rem .4rem .2rem 0}.cta.alt{background:#fff;color:#0b5f8a;border:1px solid #0b5f8a}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./" hreflang="en">E-invoice Preflight</a> · <a href="e-rechnung-pruefen.html">E-Rechnung prüfen</a></p>
+<header>
+<h1>XRechnung oder ZUGFeRD? Der Unterschied, an derselben Rechnung gemessen</h1>
+<p class="lede">Beide Formate sind E-Rechnungen nach EN 16931, und beide erkennt das BMF an. Der Unterschied liegt in der Form (reine XML oder PDF mit XML darin) und in einigen Angaben, die nur die XRechnung verlangt. Welche das sind, haben wir nicht abgeschrieben, sondern gemessen: dieselbe Rechnung in beiden Formaten erzeugt und mit den offiziellen Regeln geprüft, jeweils mit einer fehlenden Angabe.</p>
+<p><a class="cta" href="create.html" hreflang="en">E-Rechnung erstellen</a> <a class="cta alt" href="./?profil=xrechnung#drop">XRechnung prüfen</a> <a class="cta alt" href="./?profil=en16931#drop">ZUGFeRD prüfen</a></p>
+<p class="fine">Ersteller und Prüfer sind kostenlos, ohne Konto, und laufen im Browser; die Oberfläche ist bisher englisch.</p>
+</header>
+<section>
+<h2>Die beiden Formate im Überblick</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col"></th><th scope="col">XRechnung</th><th scope="col">ZUGFeRD (ab 2.0.1)</th></tr></thead>
+<tbody>
+<tr><td>Form</td><td>reine XML-Datei, als UBL oder CII</td><td>PDF/A-3 mit lesbarer Seite und eingebetteter CII-XML (inhaltsgleich mit dem französischen Factur-X)</td></tr>
+<tr><td>Herausgeber</td><td>Koordinierungsstelle für IT-Standards (KoSIT)</td><td>Forum elektronische Rechnung Deutschland (FeRD)</td></tr>
+<tr><td>Gilt als E-Rechnung (BMF)</td><td>ja</td><td>ja, außer den Profilen MINIMUM und BASIC-WL</td></tr>
+<tr><td>Lesbar ohne Zusatzsoftware</td><td>nein, braucht einen Viewer (z. B. den der Finanzverwaltung im ELSTER-Portal)</td><td>ja, die PDF-Seite; maßgebend ist aber die XML</td></tr>
+<tr><td>Zusätzliche Pflichtangaben</td><td>ja, die BR-DE-Regeln (siehe Messung unten)</td><td>im Profil EN 16931 nur die der Norm; im Profil XRECHNUNG dieselben wie die XRechnung</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Quelle für die Einordnung: <a href="https://www.bundesfinanzministerium.de/Content/DE/FAQ/e-rechnung.html" rel="noopener">BMF, Fragen und Antworten zur E-Rechnung</a> (Fragen 7, 12a und 16), am 28. November 2026 gelesen. Für Rechnungen an Behörden des Bundes gilt daneben die E-Rechnungsverordnung (ERechV) mit dem Versand über OZG-RE; Hinweise gibt <a href="https://www.e-rechnung-bund.de/" rel="noopener">e-rechnung-bund.de</a>.</p>
+</section>
+<section>
+<h2>Gemessen: was nur die XRechnung verlangt</h2>
+<p>Ausgangspunkt ist die Beispielrechnung des Erstellers (ein Berliner Verkäufer, ein Hamburger Käufer, zwei Positionen zu 19 und 7 Prozent). Sie wurde als XRechnung (CII) und als ZUGFeRD im Profil EN 16931 (CII) erzeugt, jedes Mal mit einer fehlenden Angabe, und dann geprüft: mit dem offiziellen EN-16931-Schematron und, für die XRechnung, den XRechnung-Regeln der KoSIT, ausgewählt über die Spezifikationskennung (BT-24) der Datei.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Fehlende Angabe</th><th scope="col">als XRechnung</th><th scope="col">als ZUGFeRD EN 16931</th></tr></thead>
+<tbody>
+<tr><td>nichts (vollständige Rechnung)</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>Käuferreferenz / Leitweg-ID (BT-10)</td><td>abgewiesen: <a href="rules/de/br-de-15.html">BR-DE-15</a></td><td>keine Meldung</td></tr>
+<tr><td>Kontakt des Verkäufers (BG-6)</td><td>abgewiesen: <a href="rules/de/br-de-2.html">BR-DE-2</a></td><td>keine Meldung</td></tr>
+<tr><td>nur die Telefonnummer des Verkäufers (BT-42)</td><td>abgewiesen: <a href="rules/de/br-de-6.html">BR-DE-6</a>, dazu eine Warnung BR-DE-27</td><td>keine Meldung</td></tr>
+<tr><td>Zahlungsanweisungen, IBAN (BG-16)</td><td>abgewiesen: <a href="rules/de/br-de-1.html">BR-DE-1</a></td><td>keine Meldung</td></tr>
+<tr><td>Ort des Käufers (BT-52)</td><td>abgewiesen: <a href="rules/de/br-de-8.html">BR-DE-8</a></td><td>keine Meldung</td></tr>
+<tr><td>Liefer- oder Leistungsdatum (BT-72)</td><td>nur ein Hinweis: <a href="rules/de/br-de-tmp-32.html">BR-DE-TMP-32</a></td><td>keine Meldung</td></tr>
+</tbody>
+</table>
+</div>
+<p class="note">„Abgewiesen“ heißt: Die offizielle Regel meldet einen Fehler der Stufe „fatal“, den ein Validator wie der der KoSIT als nicht bestanden wertet. Die eigenen Prüfungen des Prüfers melden dieselben fünf Lücken der XRechnung (XR-001, -003, -004, -006) und bei ZUGFeRD ebenfalls nichts. Gemessen am 28. November 2026 mit <code>xrechnung-zugferd-bench.mjs</code> im Quellcode dieses Werkzeugs; die Tabelle ist an das Ergebnis des Skripts gebunden.</p>
+<p>Das ist der Kern des Unterschieds. Wer eine ZUGFeRD-Rechnung im Profil EN 16931 ohne Leitweg-ID, ohne Telefonnummer oder ohne IBAN verschickt, besteht die Norm. Dieselbe Rechnung als XRechnung, oder als ZUGFeRD im Profil XRECHNUNG, wird an diesen Stellen zurückgewiesen. Wer die XRechnung verlangt, kann die schlankere Datei deshalb zurückweisen, obwohl sie die Norm erfüllt.</p>
+</section>
+<section>
+<h2>Wie groß die Dateien sind</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Datei (dieselbe Rechnung)</th><th scope="col">Größe</th></tr></thead>
+<tbody>
+<tr><td>XRechnung, UBL (XML)</td><td>5 KB</td></tr>
+<tr><td>XRechnung, CII (XML)</td><td>7 KB</td></tr>
+<tr><td>ZUGFeRD EN 16931 (PDF/A-3 mit CII)</td><td>45 KB</td></tr>
+<tr><td>ZUGFeRD XRECHNUNG (PDF/A-3 mit CII)</td><td>45 KB</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Erzeugt mit dem kostenlosen Ersteller. Gut die Hälfte der PDF sind die zwei eingebetteten Schriften (zusammen rund 23 KB), denn PDF/A verlangt eingebettete Schriften; die XML darin hat rund 6 KB. Andere Programme erzeugen andere Größen.</p>
+</section>
+<section>
+<h2>Welches Format für wen?</h2>
+<ul>
+<li><strong>Rechnungen an Behörden:</strong> in der Regel die XRechnung mit der Leitweg-ID des Auftraggebers als Käuferreferenz. Was das Eingangsportal annimmt, steht in den Vorgaben des Auftraggebers.</li>
+<li><strong>Kunden, die Rechnungen noch lesen statt einzulesen:</strong> ZUGFeRD im Profil EN 16931. Die PDF-Seite lässt sich ohne Viewer öffnen, die XML erfüllt die Norm.</li>
+<li><strong>Kunden mit eigenem Eingangsportal oder ERP:</strong> fragen, was das Portal verlangt. Manche Portale verlangen die XRechnung auch von Unternehmen, andere nehmen ZUGFeRD.</li>
+<li><strong>Beides auf einmal:</strong> ZUGFeRD im Profil XRECHNUNG, eine PDF mit einer XRechnung darin. Sie muss dann alle Angaben der Tabelle oben enthalten.</li>
+<li><strong>Nicht:</strong> ZUGFeRD MINIMUM oder BASIC-WL für Rechnungen an inländische Unternehmen. Laut BMF sind diese beiden Profile keine E-Rechnung.</li>
+</ul>
+<p>Ab wann die E-Rechnung für Sie Pflicht ist (2027 oder 2028) und welche Übergangsfristen gelten, steht auf der Seite <a href="e-rechnung-pruefen.html">E-Rechnung prüfen</a>.</p>
+</section>
+<section>
+<h2>Für Steuerberater und Rechnungsteams</h2>
+<p>Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch erklärt, eine korrigierte Datei vorschlägt, ZUGFeRD-Dateien in den Profilen MINIMUM und BASIC-WL eigens markiert und viele Mandanten auf einmal prüft, ist in Entwicklung. Noch ist nichts zu kaufen: <a href="https://marisstella.app/industries/eu-e-invoicing/">Frühzugang und Fristen</a>.</p>
+</section>
+<section id="faq">
+<h2>Häufige Fragen</h2>
+<h3>Was ist der Unterschied zwischen XRechnung und ZUGFeRD?</h3>
+<p>Beide sind E-Rechnungen nach der europäischen Norm EN 16931. Die XRechnung ist eine reine XML-Datei (UBL oder CII) nach den Vorgaben der KoSIT, ohne Bildteil. ZUGFeRD ist eine PDF/A-3-Datei mit lesbarer Seite und eingebetteter CII-XML, entwickelt vom FeRD. Die XRechnung verlangt einige Angaben mehr: In unserem Versuch mit derselben Rechnung fielen fünf Auslassungen (Käuferreferenz, Kontakt des Verkäufers, dessen Telefonnummer, Zahlungsanweisungen, Ort des Käufers) nur als XRechnung durch die offiziellen Regeln, als ZUGFeRD EN 16931 keine.</p>
+<h3>Ist ZUGFeRD eine gültige E-Rechnung?</h3>
+<p>Laut BMF erfüllen XRechnung und ZUGFeRD ab Version 2.0.1 die umsatzsteuerlichen Voraussetzungen, mit Ausnahme der ZUGFeRD-Profile MINIMUM und BASIC-WL. Ob eine bestimmte Datei die Norm und ihre Geschäftsregeln einhält, ist damit noch nicht gesagt: Das zeigt erst eine Prüfung der Datei.</p>
+<h3>Was gilt, wenn PDF-Ansicht und XML einer ZUGFeRD-Rechnung abweichen?</h3>
+<p>Laut BMF bilden bei hybriden E-Rechnungen die Daten im strukturierten Teil (der XML) den führenden Teil; weicht die lesbare PDF-Seite davon ab, ist die XML maßgebend. Prüfen Sie deshalb die XML, nicht nur das Druckbild.</p>
+<h3>Welches Format soll ich an meine Kunden schicken?</h3>
+<p>Was der Empfänger annimmt. Behörden und Kunden mit eigenem Eingangsportal verlangen oft die XRechnung; Kunden, die Rechnungen noch von Hand lesen, kommen mit ZUGFeRD ohne zusätzlichen Viewer aus. Eine ZUGFeRD-Datei im Profil XRECHNUNG verbindet beides, muss dann aber auch alle XRechnung-Pflichtangaben enthalten. Klären Sie das Format mit dem Empfänger und Ihrer Steuerberatung.</p>
+<h3>Wie öffne ich eine XRechnung ohne Software?</h3>
+<p>Eine XRechnung hat keine PDF-Seite. Laut BMF kann man sie unter anderem mit dem kostenlosen E-Rechnungsviewer der Finanzverwaltung im ELSTER-Portal (e-rechnung.elster.de) lesbar darstellen; ZUGFeRD-Rechnungen zeigen ihre PDF-Seite in jedem PDF-Programm.</p>
+</section>
+<footer>
+<p><strong>Ohne Gewähr (no warranty).</strong> Dieses Werkzeug ist kostenlos und wird ohne jede ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Es ist keine Rechts-, Steuer-, Finanz- oder Buchhaltungsberatung und ersetzt keine fachkundige Person (not legal, tax, financial, or accounting advice). <strong>Prüfen Sie das Ergebnis selbst, bevor Sie sich darauf verlassen.</strong> Soweit gesetzlich zulässig, haften die Autoren nicht für Schäden aus der Nutzung.</p>
+<p><strong>Nichts verlässt Ihren Browser.</strong> Alle Prüfungen laufen lokal. Fristen und Schwellenwerte können sich ändern; maßgeblich sind die aktuellen Texte des Bundesministeriums der Finanzen.</p>
+<p class="support">Free to use and source available. Kostenlos und quelloffen: der <a href="LICENSE" rel="noopener">Code steht unter der FSL-1.1-MIT-Lizenz</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> ist freiwillig und ändert nichts an dem, was das Werkzeug tut.</p>
+</footer>
+</main>
+</body></html>

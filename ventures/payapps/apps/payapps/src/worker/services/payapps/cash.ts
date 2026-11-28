@@ -153,6 +153,15 @@ export function toCashInput(
                   closedOn: a.shortClosedOn,
                 }
               : null,
+          interestSettled:
+            a.interestSettlement && a.interestSettledOn && a.interestSettledCents !== null
+              ? {
+                  kind: a.interestSettlement,
+                  on: a.interestSettledOn,
+                  cents: a.interestSettledCents,
+                  note: a.interestSettledNote,
+                }
+              : null,
         },
       ];
     }),
@@ -386,10 +395,11 @@ export function cashReportCsv(r: CashReport): string {
       : null,
     p.lateInterest ? amt(p.interestCents) : null,
     p.lateInterest ? amt(p.paidLateInterestCents) : null,
-    p.paidLate
+    [...p.paidLate, ...p.paidLateSettled]
+      .sort((x, y) => x.number - y.number)
       .map(
         (a) =>
-          `#${a.number} due ${a.dueOn}, paid ${a.paidOn} (${a.daysLate} days): ${amt(a.interestCents)}`,
+          `#${a.number} due ${a.dueOn}, paid ${a.paidOn} (${a.daysLate} days): ${amt(a.interestCents)}${a.settled ? ` (${a.settled.kind} ${a.settled.on})` : ""}`,
       )
       .join("; ") || null,
   ]);
@@ -435,7 +445,7 @@ export function cashReportCsv(r: CashReport): string {
     ...rows,
     total,
     [
-      `As of ${r.asOf}. Drafts are not counted. Past due and the next 30 days count only jobs with pay terms set, and on pay-when-paid jobs only applications whose owner payment to the GC is recorded or whose job has an outer limit (the rest is under "Waiting on the owner's payment"). Pending change orders (additions) adds up those waiting for the GC's approval that add money; deductions are listed but not added. Backcharged, disputed and written off are balances of applications paid short that were closed: they count as neither paid nor outstanding. Interest is simple interest at each job's late-payment rate, not in any other column: on past-due applications to the report date, and on applications paid late in the last ${PAID_LATE_WINDOW_DAYS} days from the due date to the last payment.`,
+      `As of ${r.asOf}. Drafts are not counted. Past due and the next 30 days count only jobs with pay terms set, and on pay-when-paid jobs only applications whose owner payment to the GC is recorded or whose job has an outer limit (the rest is under "Waiting on the owner's payment"). Pending change orders (additions) adds up those waiting for the GC's approval that add money; deductions are listed but not added. Backcharged, disputed and written off are balances of applications paid short that were closed: they count as neither paid nor outstanding. Interest is simple interest at each job's late-payment rate, not in any other column: on past-due applications to the report date, and on applications paid late in the last ${PAID_LATE_WINDOW_DAYS} days from the due date to the last payment; "Interest earned on applications paid late" leaves out those marked billed or waived, which the last column names.`,
     ],
   ];
   return `${lines.map((l) => l.map(csvCell).join(",")).join("\r\n")}\r\n`;

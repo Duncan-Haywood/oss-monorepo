@@ -1110,6 +1110,38 @@ fails if any minute differs. The app does not work out speeds and feeds,
 finishing passes, tool changes or loading time; the estimator types those
 in. All the figures are made up, and the guide says so.
 
+## Update, 28 November 2026: quoting the work you send out
+
+Heat treat, anodize, plating and black oxide are the part of a quote whose
+price someone else sets. A new guide covers them: [how to quote outside
+processing](https://marisstella.app/jobshop/how-to-quote-outside-processing).
+It turns a per-pound heat-treat price into a per-part charge from the
+finished weight, takes the larger of per-part × parts sent and the vendor's
+lot minimum, counts the spares sent for fallout, adds freight and the
+certificate, and marks the outside work up. The worked example is a made-up
+4140 clamp block, hardened by one vendor and black oxided by another, at 5,
+50 and 250 pieces. It is priced twice: properly, and the common shortcut of
+multiplying each vendor's per-part price by the quantity. Three things the
+comparison shows:
+
+- **At 5 pieces the shortcut quotes less than half the job.** The vendors
+  would bill $10.74 and $7.20 by the part; their minimums are $175 and $85.
+  With freight and the certificate, outside costs are 51% of the cost, and
+  the multiplied quote is $391.45 against $810.50.
+- **The minimums still bind at 50.** 52 parts sent is below both break-even
+  counts (71 for the black oxide, 98 for the heat treat), so the outside
+  charge is the same as at 5. The shortfall is $281.50, about $5.63 a part,
+  easy to miss in a $2,371 quote.
+- **At 250 the per-part prices are right,** and what is still missing is the
+  $115 of freight and certificate and the markup: $252.50.
+
+Job Shop Quote holds each finish as a rate-card entry with a per-part charge
+and a lot minimum, marked up at its own outside-service rate, with freight
+and certificates as extras on the line. It does not price a finish by the
+pound or by area; the estimator types the per-part figure. A test prices the
+block both ways with the app's costing engine and fails if any quantity
+break differs by a cent. All the figures are made up, and the guide says so.
+
 ## Update, 28 November 2026: markup, margin and where the profit sits
 
 A new guide, [machine shop markup and
@@ -1207,3 +1239,77 @@ And a company that has set up sales tax cannot import invoices this way at
 all. The new page, [QuickBooks invoices from
 quotes](https://marisstella.app/jobshop/quickbooks-invoices-from-quotes),
 lists what it does and does not do.
+
+## Update, 28 November 2026: setting quantity breaks from your own costs
+
+A new guide, [how to set quantity price breaks on machined
+parts](https://marisstella.app/jobshop/quantity-price-breaks), takes the same
+made-up anodized bracket the CNC quoting guide uses and prices it at eight
+quantities, from 1 to 500. Eight is the most one quote line in Job Shop Quote
+can carry. The table splits each price into what a part pays for setup, run
+time, material and the anodizer's charge. The guide then reads off what a
+shop needs in order to set its breaks:
+
+- **Fallout rounds up to whole parts.** With 3% expected scrap, one bracket
+  means starting two, so the one-off pays run time on both.
+- **Each minimum ends at its own quantity.** The $150 anodize lot charge
+  covers every order under 41 parts, so a break at 40 still pays all of it,
+  and a break at 50 spreads it.
+- **The price stops falling.** At 100 parts the price each is within 5% of
+  the long-run floor ($68.26), and at 500 within 0.9%. A lower price at volume
+  has to come from the process, not from the break.
+- **Orders between breaks need a written rule.** A PO for 40 against breaks
+  at 25 and 50 is $3,309.20 at the lower break's price and $3,063.20 priced on
+  its own. At the upper break's price, which is what a buyer will ask for, it
+  is $2,977.60.
+- **Releases are lots.** 500 parts in five releases of 100 cost $1,380 more
+  than one run of 500.
+
+A test prices every break and the in-between order with the app's own costing
+engine and fails if any cent differs. All the figures are made up, and the
+guide says so.
+
+## Update, 28 November 2026: what a rush job should cost
+
+When a customer needs parts in days rather than weeks, many shops add a flat
+expedite percentage to the normal price. The new guide, [how to price a rush
+job in a machine shop](https://marisstella.app/jobshop/how-to-price-a-rush-job),
+costs the rush line by line instead. It reuses the made-up anodized bracket
+from the CNC guide and quotes it twice. In the rush version the machining runs
+at an overtime rate, the job already on the mill is torn down and set up again
+later, the plate comes same-day, and the anodizer charges its expedite price
+and lot minimum. All the figures are made up, and the guide says so. At 1, 10
+and 100 parts:
+
+- **The rush adds 72.2%, 45.6% and 21.2%.** The bumped setup, the delivery
+  and the higher anodize minimum are charged once per order, so they weigh
+  most on small lots. The overtime premium grows with the hours, so on a
+  large lot it is most of the extra cost.
+- **A flat 25% is wrong both ways.** It is $277.44 short at one part and
+  $233.97 short at ten. At 100 it charges $269.25 more than the rush costs.
+
+Job Shop Quote has no rush switch. You put the overtime rate on the rate card
+as a second machine and add the bumped job as a setup-only operation. The
+expedite goes in as its own finishing operation and the delivery as an extra.
+A test in the app prices both versions through its costing engine and fails
+if any figure differs by a cent.
+
+## Update, 28 November 2026: pricing the first article report
+
+The RFQ checklist warns that a first-article report is often unpriced. The
+new guide, [how to quote first article inspection
+(AS9102)](https://marisstella.app/jobshop/how-to-quote-first-article-inspection),
+puts a number on it. It explains what the three AS9102 forms record. It
+separates the report from the first-piece check a setup already includes. It
+lists the changes that make a new or partial first article due, and says how
+to word the quote so nobody argues about it later.
+
+The worked example takes the anodized bracket from the CNC guide and adds 195
+minutes of ballooning, measuring and paperwork at a made-up $95 inspection
+rate, plus a $25 vendor certificate. On one part, the full first article adds
+$337.50 to a $587.26 price, 36% of the total. At 10 parts it adds $33.75 a
+part, and at 100 it adds $3.38. A partial first article after a revision adds
+$118.75. A test in Job Shop Quote prices all three versions through the app's
+costing engine, with inspection as setup-only operations on a second machine,
+and fails if any figure differs by a cent. The times and rates are made up,
+and the page says so.

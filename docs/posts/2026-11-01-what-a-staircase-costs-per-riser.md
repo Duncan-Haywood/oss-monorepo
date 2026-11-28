@@ -3,6 +3,7 @@ title: "What a staircase costs: a per-riser labor line in the framing budget"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, estimating]
 description: The framing takeoff budget now prices stair labor per riser from a rate you type, across every flight in the plan.
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 Stair carpenters often quote by the riser, so the budget now does too. Type `laborStairRiser` under `prices` and the Labor section gains a line: the risers of every stair in the plan (both flights of a stair with a landing, and a deck's own stair) times your rate. Labor is not taxed or given contingency, like the other labor lines.

@@ -4,6 +4,7 @@ seo_title: "Checking a doubled trimmer joist under a stairwell header load"
 date: 2026-10-31
 tags: [wall-framing-takeoff, construction, floor-framing, engineering]
 description: "wall-framing-takeoff now checks the doubled trimmer joist beside a stairwell for bending, shear and live deflection under the header's end reaction."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*

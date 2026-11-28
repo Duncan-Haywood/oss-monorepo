@@ -2637,6 +2637,15 @@ nothing to copy. No customers yet. Paid plans are dark
   end (the rate, interest on past-due applications, interest on applications paid late, and which).
   An application only marked paid, with payments short of what it paid, is left out: its pay date is
   not known.
+- Late-payment interest, part 3a (2026-11-28, interest-settlement, every plan): each application on
+  "Interest earned on late payments" can be marked billed (on the next application or a separate
+  invoice) or waived, with the day and an optional note (`PUT .../pay-apps/:id/late-interest`,
+  `services/payapps/interest-settlement.ts`, migration 0092). A marked one leaves the list and the
+  job's next steps, and sits under "Billed or waived" with the interest figure of the day it was
+  marked and an undo; the totals gain `paidLateBilledCents`. Refused for an application not on the
+  paid-late list, a future day or one before the last payment; deleting a payment (the application
+  reopens) clears the mark. The history logs each mark and undo; the cash CSV's last column names
+  billed or waived ones.
 - Fix, retainage rate cut after a line's release (2026-11-27, retainage-rate-cut): a line whose
   retainage was released in full (10% of $10,000, $1,000 released) went to -$500 when a later
   application cut the rate to 5% (the common "5% after half complete") or to 0% for the final
@@ -2724,10 +2733,10 @@ nothing to copy. No customers yet. Paid plans are dark
 
 ## Next (suite, by promise)
 
-- Late-payment interest, part 3 (part 2, interest earned on applications paid late with its email
-  draft and the cash CSV columns, done 2026-11-27): an interest line on the next pay application or
-  a separate invoice to QuickBooks, a "billed" or "waived" mark per application so the list can be
-  cleared before its year is up, and the paid-late total in the weekly email, if contractors ask.
+- Late-payment interest, part 3b (part 3a, the billed or waived mark per application, done
+  2026-11-28): "Mark billed" sending a separate invoice for the interest to QuickBooks, or adding it
+  as a line on the next pay application, and the paid-late total in the weekly email, if contractors
+  ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if

@@ -15,6 +15,7 @@ import {
 import { ANNUAL_DISCOUNT, EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/plans";
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAME } from "./config";
 import { EXAMPLE as CYCLE_EXAMPLE, cycleTimeExample, DEEP_HOLE_RATIO } from "./cycle-time-example";
+import { EXAMPLE as FAI_EXAMPLE, type FaiVariant, priceFaiExample } from "./fai-example";
 import { type Html, html } from "./html";
 import {
   type MarkupBreak,
@@ -35,9 +36,12 @@ import {
   markupCents as materialMarkupCents,
 } from "./material-cost-example";
 import { MODULES } from "./module-data";
+import { EXAMPLE as OUTSIDE_EXAMPLE, priceOutsideExample } from "./outside-processing-example";
+import { BREAK_QUANTITIES, EXAMPLE as BREAKS_EXAMPLE, quantityBreaks } from "./quantity-breaks";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
 import { CSV_COLUMNS, CSV_FILE, exampleQuote, TERMS_CHECKLIST } from "./quote-template";
 import { RFQ_CHECKS, RFQ_CSV_COLUMNS, RFQ_CSV_FILE, RFQ_SECTIONS } from "./rfq-checklist";
+import { compareRush, RUSH, rushLine } from "./rush-example";
 import { flatBlank, priceSheetExample, EXAMPLE as SHEET_EXAMPLE } from "./sheet-metal-example";
 import {
   EMPLOYER_FICA,
@@ -1394,7 +1398,8 @@ export function quoteGuidePage(ctx: RenderContext): Html {
     quote sheet metal and laser cut parts</a>; welded frames and fabrications:
     <a class="link" href="${href(ctx, "/how-to-quote-welding")}">how to quote welding jobs</a>. What to put on the quote you send, with a template to
     download: <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote
-    template</a>.</p>
+    template</a>. A customer who needs the parts sooner:
+    <a class="link" href="${href(ctx, "/how-to-price-a-rush-job")}">how to price a rush job</a>.</p>
     <p class="fineprint">This page explains a common costing method. It is not accounting, tax or
     financial advice, and the prices, times and rates in it are made up. Check every quote before you send
     it.</p>
@@ -1956,6 +1961,230 @@ export function turningGuidePage(ctx: RenderContext): Html {
   </div>
 </section>
 ${ctaBand(ctx, "Quote your next turned part this way", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
+/**
+ * A guide aimed at the searches estimators make for work sent to a vendor ("how to quote outside
+ * processing", "heat treat cost per pound", "how to quote anodizing", "outside service markup machine
+ * shop", "plating lot charge"). Method plus one made-up steel block hardened by a heat treater who
+ * charges by the pound and black oxided by a second vendor, priced in ./outside-processing-example to
+ * the cent the app's costing engine gives, next to the "naive" quote that multiplies the vendors'
+ * per-part prices by the quantity (apps/jobshop-quote/test/unit/site-outside-processing-example.test.ts).
+ * No industry prices are quoted.
+ */
+export function outsideProcessingGuidePage(ctx: RenderContext): Html {
+  const e = OUTSIDE_EXAMPLE;
+  const r = priceOutsideExample(e);
+  const [small, mid, large] = r.breaks;
+  const [nSmall, nMid, nLarge] = r.naiveBreaks;
+  const [heat, coat] = r.charges;
+  const [heatSvc, coatSvc] = r.services;
+  if (!small || !mid || !large || !nSmall || !nMid || !nLarge)
+    throw new Error("the outside processing guide example quotes three quantities");
+  if (!heat || !coat || !heatSvc || !coatSvc)
+    throw new Error("the example has two outside services");
+  const pctBps = (bps: number) => `${bps / 100}%`;
+  const pctOf = (part: number, whole: number) => `${Math.round((part / whole) * 100)}%`;
+  const rateOf = (i: number) => usdCents(e.machines[i]?.hourlyRateCents ?? 0);
+  const machineName = (i: number) => e.machines[i]?.name ?? "";
+  const qty = (n: number) => n.toLocaleString("en-US");
+  const outsideOf = (b: (typeof r.breaks)[number]) => b.finishingCents + b.extrasCents;
+  const extrasTotal = e.extras.reduce((s, x) => s + x.lotCents, 0);
+  const lines: [string, (b: (typeof r.breaks)[number], i: number) => string][] = [
+    ["Parts started", (b) => qty(b.starts)],
+    ["Material", (b) => usdCents(b.materialCents)],
+    ["Setup and first article", (b) => usdCents(b.setupCents)],
+    ["Run time", (b) => usdCents(b.runCents)],
+    [
+      "Heat treat (outside)",
+      (_b, i) => `${usdCents(heat.cents[i] ?? 0)}${heat.atMinimum[i] ? " (minimum)" : ""}`,
+    ],
+    [
+      "Black oxide (outside)",
+      (_b, i) => `${usdCents(coat.cents[i] ?? 0)}${coat.atMinimum[i] ? " (minimum)" : ""}`,
+    ],
+    ["Freight and certificate", (b) => usdCents(b.extrasCents)],
+    ["Cost", (b) => usdCents(b.costCents)],
+    ["Markup", (b) => usdCents(b.markupCents)],
+    ["Price each", (b) => usdCents(b.unitPriceCents)],
+    ["Line total", (b) => usdCents(b.totalCents)],
+  ];
+  const naiveRow = (label: string, f: (n: (typeof r.naiveBreaks)[number], i: number) => string) =>
+    html`<tr><th scope="row">${label}</th>${r.naiveBreaks.map((n, i) => html`<td>${f(n, i)}</td>`)}</tr>`;
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to quote outside processing: heat treat, anodize and plating</h1>
+    <p class="lead">Work you send out is the one part of a quote whose price someone else sets, and the
+    vendor's minimum charge is easy to miss. On a short run it can be most of the price. Here is the
+    method, a worked example at ${small.quantity}, ${mid.quantity} and ${large.quantity} parts, and what
+    the quote looks like if you just multiply the vendor's per-part price by the quantity.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>The method in six steps</h2>
+    <ol>
+      <li><strong>Read the drawing for every process after machining.</strong> Heat treat and the
+      hardness, anodize type, class and colour, plating and thickness, black oxide, passivation, paint or
+      powder coat, and the spec each one calls out (for example MIL-A-8625 for anodize or AMS 2759 for
+      steel heat treat). Note masked surfaces, threads to protect and any certificate the customer wants
+      back. A finish with no spec is a question to the customer, not a guess.</li>
+      <li><strong>Get each vendor's price in the unit they bill.</strong> Heat treaters often price by the
+      pound of parts, platers and anodizers by the part, the rack or the area, and nearly all of them
+      have a minimum charge per lot. Ask for masking, racking, stripping and certificate charges and the
+      turnaround as well.</li>
+      <li><strong>Turn it into a price per part and a lot minimum.</strong> A per-pound price times the
+      finished part's weight (what goes in the furnace, not the blank) is the per-part charge. The
+      vendor bills the larger of per-part × parts sent and the lot minimum.</li>
+      <li><strong>Count the parts you send, not the parts you ship.</strong> With fallout, you machine
+      and send more parts than the order, and the vendor charges for each one.</li>
+      <li><strong>Add the cost of getting it there and back.</strong> Freight or the driver's time to each
+      vendor and back, packaging, and the certificates. These are per lot, so they hit a small order
+      hardest.</li>
+      <li><strong>Mark it up and quote every quantity.</strong> A markup on outside work pays for
+      chasing the vendor, the parts' time off your floor and the risk of a rejected lot. Repeat the sum
+      at each break: the minimums spread differently at each.</li>
+    </ol>
+
+    <h2>A worked example</h2>
+    <p>A ${e.partName}: ${e.materialName}, milled from a ${e.blank.lengthIn} × ${e.blank.widthIn} ×
+    ${e.blank.thicknessIn} in blank in two setups, deburred and inspected, then hardened and tempered
+    by a heat treater who charges by the pound and black oxided by a second vendor.
+    <strong>Every number here is made up to show the arithmetic</strong>; they are not prices, rates
+    or minimums for any vendor, process or region. Use your own vendors' quotes.</p>
+    <h3>The outside services</h3>
+    <ul>
+      <li><strong>${heatSvc.name}:</strong> ${usdCents(e.heatTreatPerLbCents)} a pound. The machined
+      block weighs ${e.finishedWeightLb} lb (from the model; the blank was ${r.blankWeightLb.toFixed(2)}
+      lb), so ${e.finishedWeightLb} × ${usdCents(e.heatTreatPerLbCents)} = ${usdCents(heatSvc.perPartCents)}
+      a part, with a ${usdCents(heatSvc.lotChargeCents)} minimum a lot. The minimum stops binding at
+      ${usdCents(heatSvc.lotChargeCents)} ÷ ${usdCents(heatSvc.perPartCents)} = ${heat.crossoverStarts}
+      parts sent.</li>
+      <li><strong>${coatSvc.name}:</strong> ${usdCents(coatSvc.perPartCents)} a part, minimum
+      ${usdCents(coatSvc.lotChargeCents)} a lot, which stops binding at ${coat.crossoverStarts} parts.</li>
+      ${e.extras.map((x) => html`<li><strong>${x.label}:</strong> ${usdCents(x.lotCents)} a lot.</li>`)}
+    </ul>
+    <h3>The rest</h3>
+    <ul>
+      <li><strong>Material:</strong> ${r.blankWeightLb.toFixed(2)} lb a blank at
+      ${usdCents(e.pricePerLbCents)} a pound plus ${pctBps(e.scrapBps)} for kerf and facing, at least
+      ${usdCents(e.materialMinChargeCents)} a line.</li>
+      ${e.operations.map(
+        (o) =>
+          html`<li><strong>${o.label}</strong> on the ${machineName(o.machine).toLowerCase()} at
+          ${rateOf(o.machine)} an hour: ${[
+            o.setupMinutes ? `${o.setupMinutes} min setup` : "",
+            o.cycleMinutesPerPart ? `${o.cycleMinutesPerPart} min a part` : "",
+          ]
+            .filter(Boolean)
+            .join(", ")}.</li>`,
+      )}
+      <li><strong>Fallout:</strong> ${pctBps(e.falloutBps)}, so ${small.quantity} parts start
+      ${small.starts}, ${mid.quantity} start ${mid.starts} and ${large.quantity} start ${large.starts},
+      and both vendors are paid on the parts started.</li>
+      <li><strong>Markup:</strong> ${pctBps(e.outsideServiceMarkupBps)} on the outside services,
+      ${pctBps(e.materialMarkupBps)} on material, freight and the certificate (bought-in costs), none on
+      labor (the shop rates are taken to hold the margin already); a ${usdCents(e.minimumLineCents)}
+      minimum per line.</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up steel block at three quantities. "(minimum)" marks a vendor's lot minimum setting the charge. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.</caption>
+        <thead><tr><th scope="col">Line</th>${r.breaks.map((b) => html`<th scope="col">${qty(b.quantity)} parts</th>`)}</tr></thead>
+        <tbody>
+          ${lines.map(
+            ([label, cell]) =>
+              html`<tr><th scope="row">${label}</th>${r.breaks.map((b, i) => html`<td>${cell(b, i)}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>The quote you get by multiplying</h2>
+    <p>The common shortcut is to take each vendor's per-part price, multiply it by the quantity and add
+    it at cost: no minimums, no freight, no certificate, no markup. Priced that way, with everything
+    else the same:</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The same block with the outside work priced as per-part × parts only. Shortfall = the full quote's line total less this one's.</caption>
+        <thead><tr><th scope="col">Line</th>${r.naiveBreaks.map((n) => html`<th scope="col">${qty(n.quantity)} parts</th>`)}</tr></thead>
+        <tbody>
+          ${naiveRow("Outside work", (n) => usdCents(n.finishingCents))}
+          ${naiveRow("Price each", (n) => usdCents(n.unitPriceCents))}
+          ${naiveRow("Line total", (n) => usdCents(n.totalCents))}
+          ${naiveRow("Shortfall", (n, i) => usdCents((r.breaks[i]?.totalCents ?? 0) - n.totalCents))}
+        </tbody>
+      </table>
+    </div>
+    <p>What the two tables show:</p>
+    <ul>
+      <li><strong>On a short run the minimums are the outside price.</strong> At ${small.quantity} parts
+      the vendors would bill ${usdCents(heatSvc.perPartCents * small.starts)} and
+      ${usdCents(coatSvc.perPartCents * small.starts)} by the part; they bill
+      ${usdCents(heatSvc.lotChargeCents)} and ${usdCents(coatSvc.lotChargeCents)}. With freight and the
+      certificate, outside costs are ${usdCents(outsideOf(small))}, ${pctOf(outsideOf(small), small.costCents)}
+      of the cost. The multiplied quote comes to ${usdCents(nSmall.totalCents)} against
+      ${usdCents(small.totalCents)}: ${pctOf(nSmall.totalCents, small.totalCents)} of what the job
+      should be priced at.</li>
+      <li><strong>The minimums still bind at ${mid.quantity}.</strong> ${mid.starts} parts sent is below
+      both break-even counts (${coat.crossoverStarts} and ${heat.crossoverStarts}), so the outside
+      charge is the same ${usdCents(mid.finishingCents)} as at ${small.quantity}. The shortfall is
+      ${usdCents(mid.totalCents - nMid.totalCents)}, about ${usdCents(Math.round((mid.totalCents - nMid.totalCents) / mid.quantity))}
+      a part, which is easy to miss in a ${usdCents(mid.totalCents)} quote.</li>
+      <li><strong>At volume the gap is the freight and the markup.</strong> At ${large.quantity} parts
+      both vendors bill by the part, so the multiplied outside cost is right; what is still missing is
+      ${usdCents(extrasTotal)} of freight and certificate and the markup on outside work, a shortfall of
+      ${usdCents(large.totalCents - nLarge.totalCents)}.</li>
+      <li><strong>The price each falls</strong> from ${usdCents(small.unitPriceCents)} to
+      ${usdCents(mid.unitPriceCents)} to ${usdCents(large.unitPriceCents)}, and the lot minimums and
+      freight are a large part of why. When a customer orders small lots of a repeat part, it can pay to
+      offer a larger run held in stock, or to send it out with other jobs going to the same vendor.</li>
+    </ul>
+
+    <h2>Mistakes that lose money on jobs you win</h2>
+    <ul>
+      <li><strong>Pricing the vendor's per-part rate without the lot minimum.</strong> Above: the
+      smaller the order, the bigger the miss.</li>
+      <li><strong>Weighing the blank, or nothing.</strong> A per-pound price applies to what goes in the
+      furnace. Use the finished weight, and include any fixture or basket weight the vendor charges
+      for.</li>
+      <li><strong>Sending the order quantity.</strong> Spares for fallout and first articles go through
+      the vendor too, and are billed.</li>
+      <li><strong>Forgetting the trip.</strong> Freight or a driver's half day each way, packaging, and the
+      certificate are real costs on every lot.</li>
+      <li><strong>Quoting a stale vendor price.</strong> Platers and heat treaters change prices and
+      minimums; keep their current quotes on file and date them.</li>
+      <li><strong>Leaving vendor days out of the lead time.</strong> The parts are off your floor for the
+      vendor's turnaround plus the trips. Add it to the date you promise; see
+      <a class="link" href="${href(ctx, "/machine-shop-lead-time")}">quoting lead times from shop
+      load</a>.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>In ${SITE_NAME} each finishing step is a rate-card entry with a per-part charge and a lot minimum,
+    marked as an outside service or done in house. Outside services take their own markup, separate
+    from labor and material, and freight, certificates and other bought-in items go on a line as extras,
+    per part or per lot. A quote line prices each break the way the tables above do: the vendor's charge
+    is the larger of per-part × parts started and the lot minimum, and the quote's basis prints each
+    finish's per-part charge and minimum. ${SITE_NAME} does not price a finish by the pound or by area: type
+    the per-part charge you work out from the vendor's quote. The example above is priced to the cent
+    the app gives for the same inputs, both ways, checked by a test in its code. Finishing entries can
+    be imported from a CSV with the rest of the rate card, and a
+    won quote's <a class="link" href="${href(ctx, "/job-traveler-software")}">job traveler</a> lists the
+    finishing and outside services after the operations.</p>
+    <p>For the rest of the quote, see <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how
+    to quote a CNC machining job</a>, <a class="link" href="${href(ctx, "/how-to-quote-cnc-turning")}">how
+    to quote turned parts</a> and <a class="link" href="${href(ctx, "/how-to-quote-sheet-metal")}">sheet
+    metal</a>; for your shop rate, <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how to
+    work out a machine shop hourly rate</a>; for what goes on the quote you send, the
+    <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote template</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax,
+    engineering or financial advice, and the prices, minimums, times and rates in it are made up.
+    Check every quote before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Quote your next outside-processed part this way", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
 /**
@@ -2675,6 +2904,530 @@ export function materialCostGuidePage(ctx: RenderContext): Html {
 ${ctaBand(ctx, "Price your material the way you buy it", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
+/**
+ * A guide aimed at the searches shops make when they set price breaks ("quantity price breaks",
+ * "machining price breaks", "how to set quantity breaks on a quote", "volume pricing machined parts").
+ * The CNC guide's made-up bracket at eight quantities, the most one line in the app carries, priced in
+ * ./quantity-breaks to the cent the app's costing engine gives
+ * (apps/jobshop-quote/test/unit/site-quantity-breaks.test.ts). No industry figures are quoted.
+ */
+export function quantityBreaksGuidePage(ctx: RenderContext): Html {
+  const e = BREAKS_EXAMPLE;
+  const r = quantityBreaks();
+  const byQ = (q: number) => {
+    const b = r.breaks.find((x) => x.quantity === q);
+    const s = r.shares.find((x) => x.quantity === q);
+    if (!b || !s) throw new Error(`the quantity breaks guide quotes ${q}`);
+    return { b, s };
+  };
+  const one = byQ(1);
+  const hundred = byQ(100);
+  const last = byQ(BREAK_QUANTITIES[BREAK_QUANTITIES.length - 1] ?? 1);
+  const ib = r.inBetween;
+  const releases = last.b.quantity / hundred.b.quantity;
+  const releasesTotal = hundred.b.totalCents * releases;
+  const pctOf = (x: number, digits = 0) => `${(x * 100).toFixed(digits)}%`;
+  const each = (c: number) => usdCents(Math.round(c));
+  const qty = (q: number) => q.toLocaleString("en-US");
+  const rows: [string, (q: number) => string][] = [
+    ["Parts started", (q) => qty(byQ(q).b.starts)],
+    ["Setup each", (q) => each(byQ(q).s.setupEach)],
+    ["Run time each", (q) => each(byQ(q).s.runEach)],
+    ["Material each", (q) => each(byQ(q).s.materialEach)],
+    ["Anodize each", (q) => each(byQ(q).s.finishingEach)],
+    ["Markup each", (q) => each(byQ(q).s.markupEach)],
+    ["Price each", (q) => usdCents(byQ(q).b.unitPriceCents)],
+    ["Line total", (q) => usdCents(byQ(q).b.totalCents)],
+    ["Setup share of the price", (q) => pctOf(byQ(q).s.setupShare, 1)],
+    ["Above the long-run floor", (q) => pctOf(byQ(q).s.overFloor, 1)],
+  ];
+  const lineMinimumNote =
+    r.lineMinimumBreaks.length === 0
+      ? html`The ${usdCents(e.minimumLineCents)} line minimum never applies here: even one bracket costs more
+      than that. On a cheaper part it lifts the smallest breaks to the same total, so a buyer pays the
+      same for one part as for several; quote those breaks anyway, so the buyer sees why.`
+      : html`The ${usdCents(e.minimumLineCents)} line minimum lifts the ${r.lineMinimumBreaks.join(", ")}
+      break${r.lineMinimumBreaks.length === 1 ? "" : "s"} to the same total.`;
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to set quantity price breaks on machined parts</h1>
+    <p class="lead">The price each falls with quantity because some costs are paid once per lot and the rest
+    once per part. Work out which is which and you can tell where a break earns its place, where the price
+    has stopped falling, and what to charge for an order between two breaks. Here is the method and one part
+    worked at ${BREAK_QUANTITIES.length} quantities.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>Why the price each falls</h2>
+    <p>Every cost on a machined part belongs to one of two kinds:</p>
+    <ul>
+      <li><strong>Once per lot:</strong> programming, setups, the first-article check, and the minimum
+      charges (the anodizer's lot charge, the supplier's material minimum, your own minimum per line). They
+      cost the same for one part or five hundred.</li>
+      <li><strong>Once per part:</strong> cycle time, loading and deburring, the blank, the vendor's per-part
+      charge. They grow with every part started, scrap included.</li>
+    </ul>
+    <p>So the price each is roughly <em>per-part cost + once-per-lot cost ÷ quantity</em>. The first term is
+    a floor the price never goes below; the second falls fast and then hardly at all. A quantity break is
+    worth quoting where the second term still matters.</p>
+
+    <h2>A worked example at ${BREAK_QUANTITIES.length} quantities</h2>
+    <p>The same ${e.partName} as in <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to
+    quote a CNC machining job</a>: ${e.materialName}, two milling setups and a deburr on a
+    ${e.machineName} at ${usdCents(e.hourlyRateCents)} an hour, clear anodize by a vendor at
+    ${usdCents(e.finishingPerPartCents)} a part with a ${usdCents(e.finishingLotChargeCents)} lot charge,
+    a ${usdCents(e.materialMinChargeCents)} material minimum, ${e.falloutBps / 100}% expected fallout, and a
+    ${usdCents(e.minimumLineCents)} minimum per line. <strong>Every number is made up to show the
+    arithmetic</strong>; none is a typical price, time or rate. Use your own.</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up bracket at each break, per part shipped. Each component is priced for the whole lot, rounded to the cent, then divided by the quantity; the price each is rounded up to the cent. The floor is the price each as the quantity grows without end (${each(r.floorEachCents)}).</caption>
+        <thead><tr><th scope="col">Per part</th>${BREAK_QUANTITIES.map((q) => html`<th scope="col">${qty(q)}</th>`)}</tr></thead>
+        <tbody>
+          ${rows.map(
+            ([label, cell]) =>
+              html`<tr><th scope="row">${label}</th>${BREAK_QUANTITIES.map((q) => html`<td>${cell(q)}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>Fallout rounds up to whole parts.</strong> ${e.falloutBps / 100}% expected scrap means
+      starting ${one.b.starts} brackets to ship one, so the one-off pays run time on
+      ${one.b.starts} parts (${each(one.s.runEach)}, against ${each(hundred.s.runEach)} each at
+      ${qty(hundred.b.quantity)}). On small lots the extra part is the honest price of the risk; leave it out
+      and a one-off that scraps is made twice and paid for once.</li>
+      <li><strong>Setup decides the small breaks.</strong> At one part, setup is
+      ${pctOf(one.s.setupShare, 1)} of the price; it falls under a tenth of the price each from
+      ${qty(r.setupTenthAt)} parts. Most of the fall from ${usdCents(one.b.unitPriceCents)} to
+      ${usdCents(hundred.b.unitPriceCents)} each happens before then.</li>
+      <li><strong>Each minimum stops applying at its own quantity.</strong> The material minimum covers
+      orders under ${qty(r.materialMinimumEndsAt)}; the anodizer's lot charge covers every order under
+      ${qty(r.lotChargeEndsAt)}, so up to ${qty(r.lotChargeEndsAt - 1)} parts the anodize costs the same
+      ${usdCents(e.finishingLotChargeCents)} in all. ${lineMinimumNote}</li>
+      <li><strong>Past a point the breaks stop meaning much.</strong> The floor is ${each(r.floorEachCents)}
+      a part: run time, the blank and the per-part anodize, marked up, over the
+      ${100 - e.falloutBps / 100}% that ship good. At ${qty(hundred.b.quantity)} the price is
+      ${pctOf(hundred.s.overFloor, 1)} above it, at ${qty(last.b.quantity)} ${pctOf(last.s.overFloor, 1)}.
+      A lower price at volume has to come from a shorter cycle, a better blank or a cheaper vendor, not
+      from the break.</li>
+    </ul>
+
+    <h2>Choosing which breaks to quote</h2>
+    <ol>
+      <li><strong>Quote what the RFQ asks for first.</strong> The buyer's quantities, and the yearly or
+      release quantity if the RFQ gives one. A break nobody will order is noise on the quote.</li>
+      <li><strong>Add the small lot you would rather not run.</strong> One or a few parts, priced honestly,
+      shows the buyer what a short run costs and stops a one-off being ordered at the volume price.</li>
+      <li><strong>Put breaks just past where a minimum ends.</strong> Here the lot charge stops applying at
+      ${qty(r.lotChargeEndsAt)}: a break at ${qty(r.lotChargeEndsAt - 1)} still pays the whole lot charge,
+      one at ${qty(ib.upper.quantity)} spreads it as far as it goes.</li>
+      <li><strong>Stop where the price stops falling.</strong> Once a break is within a few percent of the
+      floor, a larger one tells the buyer little; a separate quote for a blanket order is clearer.</li>
+    </ol>
+
+    <h2>Orders that fall between two breaks</h2>
+    <p>The buyer saw ${qty(ib.lower.quantity)} at ${usdCents(ib.lower.unitPriceCents)} and
+    ${qty(ib.upper.quantity)} at ${usdCents(ib.upper.unitPriceCents)}, and sends a PO for
+    ${qty(ib.quantity)}. Three ways to price it:</p>
+    <ul>
+      <li><strong>At the lower break's price each:</strong> ${qty(ib.quantity)} × ${usdCents(ib.lower.unitPriceCents)}
+      = ${usdCents(ib.atLowerTotalCents)}. Safe for the shop, and the usual written rule.</li>
+      <li><strong>Priced on its own:</strong> ${usdCents(ib.own.unitPriceCents)} each,
+      ${usdCents(ib.own.totalCents)}, by the same arithmetic as the breaks
+      (${qty(ib.own.starts)} parts started).</li>
+      <li><strong>At the upper break's price each,</strong> which is what a buyer will ask for:
+      ${usdCents(ib.atUpperTotalCents)}, ${usdCents(ib.own.totalCents - ib.atUpperTotalCents)} under the
+      order's own price. The setup and the lot charge are spread over fewer parts than that price
+      assumed.</li>
+    </ul>
+    <p>Whichever you choose, write it in the quote's terms ("quantities between breaks are priced at the
+    next lower break") so the PO accepts it before work starts. The
+    <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote template</a>
+    lists the other terms worth deciding once, overruns and underruns among them; add this one beside
+    them.</p>
+
+    <h2>Releases are lots too</h2>
+    <p>A buyer who orders ${qty(last.b.quantity)} but takes them in ${releases} releases of
+    ${qty(hundred.b.quantity)} pays you for ${releases} setups. Priced as ${releases} runs of
+    ${qty(hundred.b.quantity)}, the order is ${usdCents(releasesTotal)}; as one run of
+    ${qty(last.b.quantity)}, ${usdCents(last.b.totalCents)}. The ${usdCents(releasesTotal - last.b.totalCents)}
+    difference is the setups and smaller spreads you would give away by quoting the yearly quantity's
+    price for release-sized runs. Price the run you will actually make, or quote the yearly price on the
+    condition that the shop runs the whole quantity at once and holds the stock.</p>
+
+    <h2>Mistakes that lose money</h2>
+    <ul>
+      <li><strong>Discounting by a percentage table.</strong> "10% off at 50, 20% off at 100" ignores where
+      your costs actually sit; on this part the price each at ${qty(hundred.b.quantity)} is
+      ${pctOf(1 - hundred.b.unitPriceCents / one.b.unitPriceCents)} below the one-off, and on a part with a
+      short setup it would be far less.</li>
+      <li><strong>Pricing every break from the one-off's starts.</strong> Fallout and scrap are per part
+      started; each break needs its own count.</li>
+      <li><strong>Forgetting the vendor's minimum below its break-even.</strong> Under the lot charge's
+      quantity, the outside service is a fixed cost, not a per-part one.</li>
+      <li><strong>Letting a PO quantity pick its own price.</strong> Without a written rule the buyer reads
+      the nearest break in their favour.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>Each quote line in ${SITE_NAME} carries up to eight quantity breaks, each priced on its own parts
+    started, with the material, setup, run time, finishing, markup and line minimum worked out per break and
+    the rate behind every figure listed under the table; the same quantity twice is refused. The quote PDF
+    prints the price each at every break and none of the costs. A customer accepting the quote online can
+    pick only the breaks it carries; any other quantity needs a new quote, so a PO never picks its own
+    price. The example above is priced to the cent the app gives for the same inputs, checked by a test in
+    its code. You can <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a>.</p>
+    <p>For the rate behind the setup and run time, see
+    <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how to work out a machine shop hourly
+    rate</a>; for the cycle time itself,
+    <a class="link" href="${href(ctx, "/how-to-estimate-cnc-machining-time")}">how to estimate CNC machining
+    time</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax, legal or
+    financial advice, and the prices, times and rates in it are made up. Check every quote before you send
+    it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Quote every break from your own rates", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
+/**
+ * A guide aimed at the searches shops make when a customer needs parts sooner than the normal lead
+ * time ("how to price a rush job", "expedite fee machine shop", "rush charge CNC", "how much to charge
+ * for rush orders"). The CNC guide's made-up bracket quoted twice, normal and rush, with the rush costs
+ * as their own lines (overtime rate, the bumped job, same-day material, the anodizer's expedite),
+ * priced in ./rush-example to the cent the app's costing engine gives
+ * (apps/jobshop-quote/test/unit/site-rush-example.test.ts), and set against a flat surcharge.
+ */
+export function rushGuidePage(ctx: RenderContext): Html {
+  const r = RUSH;
+  const rows = compareRush(r);
+  const [one, ten, hundred] = rows;
+  if (!one || !ten || !hundred) throw new Error("the rush guide example quotes three quantities");
+  const line = rushLine(r);
+  const normalRate = line.machines[0]?.hourlyRateCents ?? 0;
+  const overtimeRate = line.machines[1]?.hourlyRateCents ?? 0;
+  const otOps = r.overtimeOperations
+    .map((i) => line.operations[i]?.label ?? "")
+    .filter(Boolean)
+    .map((l) => `“${l}”`);
+  const pctBps = (bps: number) =>
+    `${(bps / 100).toLocaleString("en-US", { maximumFractionDigits: 1 })}%`;
+  const qty = (q: number) => `${q.toLocaleString("en-US")} ${q === 1 ? "part" : "parts"}`;
+  const bumpedCents = Math.round((r.bumpedJobMinutes / 60) * normalRate);
+  const under = rows.filter((c) => c.flatMinusRushCents < 0);
+  const over = rows.filter((c) => c.flatMinusRushCents > 0);
+  const lines: [string, (c: (typeof rows)[number]) => string][] = [
+    ["Normal lead time: line total", (c) => usdCents(c.normal.totalCents)],
+    ["Rush: setups (incl. the bumped job)", (c) => usdCents(c.rush.setupCents)],
+    ["Rush: run time", (c) => usdCents(c.rush.runCents)],
+    ["Rush: anodize, expedited", (c) => usdCents(c.rush.finishingCents)],
+    ["Rush: same-day plate delivery", (c) => usdCents(c.rush.extrasCents)],
+    ["Rush: line total", (c) => usdCents(c.rush.totalCents)],
+    ["What the rush adds", (c) => `${usdCents(c.premiumCents)} (${pctBps(c.premiumBps)})`],
+    [`Normal + flat ${pctBps(r.flatSurchargeBps)}`, (c) => usdCents(c.flatCents)],
+    [
+      "Flat surcharge vs the costed rush",
+      (c) =>
+        c.flatMinusRushCents < 0
+          ? `${usdCents(-c.flatMinusRushCents)} short`
+          : `${usdCents(c.flatMinusRushCents)} over`,
+    ],
+  ];
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to price a rush job in a machine shop</h1>
+    <p class="lead">A rush costs the shop real money: overtime, the job it pushes aside, material and
+    outside processing bought fast. A flat expedite fee guesses at that. Here is how to cost a rush the
+    way you cost any job, a worked example at ${one.quantity}, ${ten.quantity} and ${hundred.quantity}
+    parts, and why one percentage cannot be right at every quantity.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>What a rush actually costs</h2>
+    <ol>
+      <li><strong>Hours at a higher rate.</strong> Work done on overtime, a second shift or a weekend
+      costs the operator's premium and the payroll costs on it. Price those hours at a second rate for
+      the same machine, not by stretching the cycle time.</li>
+      <li><strong>The job it bumps.</strong> If another customer's job is set up on the machine you
+      need, pulling it off means tearing it down now and setting it up again later. That setup is paid
+      twice, and the rush is what causes it.</li>
+      <li><strong>Material bought fast.</strong> Same-day or next-day delivery, a cut-to-size charge
+      from a distributor's counter, or a price above your usual supplier's for stock that is on a shelf
+      today.</li>
+      <li><strong>Outside processing expedited.</strong> Platers, anodizers, heat treaters and coaters
+      often run an expedited service at a higher price or a higher lot minimum. Ask them; their quote
+      is the number to use.</li>
+      <li><strong>Inspection and paperwork on the same clock.</strong> A first article, certs or a
+      customer's source inspection still have to happen, now inside the shorter window.</li>
+      <li><strong>The promises you move.</strong> Other jobs ship later. That is not a line on this
+      quote, but it is a reason to decide whether to take the rush at all, and what lead time you can
+      actually promise without breaking the others.</li>
+    </ol>
+
+    <h2>A worked example</h2>
+    <p>The ${QUOTE_EXAMPLE.partName} from the <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">CNC
+    quoting guide</a>, quoted at its normal lead time there, and here again as a rush.
+    <strong>Every number is made up to show the arithmetic</strong>; none is a typical overtime premium,
+    expedite price or surcharge for any region or trade. Use your own.</p>
+    <ul>
+      <li><strong>Overtime:</strong> ${otOps.join(", ")} run on overtime, at the mill's
+      ${usdCents(normalRate)} an hour plus a ${usdCents(r.overtimePremiumCents)} premium =
+      ${usdCents(overtimeRate)} an hour. Programming and the first-article check stay on the normal shift
+      at ${usdCents(normalRate)}.</li>
+      <li><strong>The bumped job:</strong> ${r.bumpedJobMinutes} min to tear down the job that was on the
+      mill and set it up again later, at the normal rate: ${usdCents(bumpedCents)}, once per order.</li>
+      <li><strong>Material:</strong> the same plate and price per pound, plus
+      ${usdCents(r.materialDeliveryCents)} for same-day delivery, once per order.</li>
+      <li><strong>${r.finishing.name}:</strong> ${usdCents(r.finishing.perPartCents)} a part, minimum
+      ${usdCents(r.finishing.lotChargeCents)} a lot (the normal service in the CNC guide is cheaper).</li>
+      <li><strong>Markups:</strong> as in the CNC guide; the delivery charge is a purchased item, so it
+      takes the material markup.</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up bracket, normal and rush, at three quantities. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.</caption>
+        <thead><tr><th scope="col">Line</th>${rows.map((c) => html`<th scope="col">${qty(c.quantity)}</th>`)}</tr></thead>
+        <tbody>
+          ${lines.map(
+            ([label, cell]) =>
+              html`<tr><th scope="row">${label}</th>${rows.map((c) => html`<td>${cell(c)}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>The rush adds a different share at every quantity.</strong> Costed line by line it
+      adds ${pctBps(one.premiumBps)} at ${qty(one.quantity)}, ${pctBps(ten.premiumBps)} at
+      ${qty(ten.quantity)} and ${pctBps(hundred.premiumBps)} at ${qty(hundred.quantity)}. The bumped
+      setup, the delivery and the anodizer's higher minimum are fixed per order, so they weigh most on a
+      small lot; the overtime premium grows with the hours, so it is most of the rush on a large one.</li>
+      <li><strong>A flat ${pctBps(r.flatSurchargeBps)} is wrong both ways.</strong> It comes up
+      ${under.map((c) => `${usdCents(-c.flatMinusRushCents)} short at ${qty(c.quantity)}`).join(" and ")}${
+        over.length
+          ? html`, and charges ${over.map((c) => `${usdCents(c.flatMinusRushCents)} more than the rush costs at ${qty(c.quantity)}`).join(" and ")}`
+          : ""
+      }. Short means the shop pays for the customer's deadline; over means the shop is easier to beat
+      on the next rush.</li>
+      <li><strong>If you want a margin for the disruption, add it on purpose.</strong> Cost the rush,
+      then add a premium you choose for the promises it moves. Then you know what the premium is and
+      what is just cost.</li>
+    </ul>
+
+    <h2>Before you say yes</h2>
+    <ul>
+      <li><strong>Check the machines, not your memory.</strong> Which jobs are on the machines this
+      operation needs, and when do they finish? A rush that only fits by making two other jobs late is
+      a decision, not a quote.</li>
+      <li><strong>Call the outside vendors first.</strong> An anodizer or heat treater who cannot do it
+      in time sets the lead time, whatever your own shop can do.</li>
+      <li><strong>Quote the rush and the normal lead time side by side.</strong> Two lines, two dates,
+      two prices. The customer picks, and the rush price reads as a choice, not a penalty.</li>
+      <li><strong>Write the date as a condition.</strong> "Ships N working days after the order and the
+      approved drawing" protects the date from a purchase order that arrives two days late.</li>
+      <li><strong>Keep the rush in its own lines.</strong> Priced as separate lines, or as its own
+      revision of the quote, the rush can be taken off again: when the same part comes back on a normal
+      lead time, it is the normal price that gets reused, not last time's expedite.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>${SITE_NAME} has no rush switch: a rush is priced like any other line, with the rush costs typed
+    in. Add the overtime rate as a second machine on your rate card ("${line.machines[1]?.name ?? ""}"),
+    put the operations that run on overtime on it, add the bumped job as an operation with setup only,
+    the expedited service as its own finishing operation with its lot minimum, and the delivery as an
+    extra per order. Every quantity break then follows, each figure showing the rate it came from. The
+    example above is priced to the cent the app gives for the same inputs, checked by a test in its code.
+    To see whether a date needs a rush at all, the app's
+    <a class="link" href="${href(ctx, "/machine-shop-lead-time")}">shop load and lead time</a> page
+    places your open jobs on the machines and gives each quantity break a lead time behind them. Revise a
+    sent quote to offer the rush as a second version.</p>
+    <p>The rest of the price: <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to
+    quote a CNC machining job</a>, <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how
+    to work out a machine shop hourly rate</a>, and what goes on the quote you send, the
+    <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote template</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax, legal or
+    financial advice, it does not say what overtime pay the law requires, and the rates, premiums,
+    prices and times in it are made up. Check every quote before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Quote your next rush with every cost on it", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
+/**
+ * A guide aimed at the searches aerospace and defense job shops make about first articles ("how to
+ * quote first article inspection", "AS9102 FAI cost", "first article inspection charge"): what an
+ * AS9102 first article is and is not, what the work takes, when a partial one is due, and how to put
+ * it on the quote, with a worked example whose prices the app's engine checks to the cent
+ * (./fai-example and its test in apps/jobshop-quote).
+ */
+export function faiGuidePage(ctx: RenderContext): Html {
+  const e = FAI_EXAMPLE;
+  const results = priceFaiExample(e);
+  const byKey = (k: FaiVariant["key"]) => {
+    const r = results.find((x) => x.key === k);
+    const v = e.variants.find((x) => x.key === k);
+    if (!r || !v) throw new Error(`the first-article example has no ${k} variant`);
+    return { r, v };
+  };
+  const none = byKey("none");
+  const full = byKey("full");
+  const delta = byKey("delta");
+  const [one, ten, hundred] = full.r.breaks;
+  if (!one || !ten || !hundred)
+    throw new Error("the first-article example quotes three quantities");
+  const b = e.base;
+  const rate = usdCents(e.inspectionHourlyRateCents);
+  const firstPiece = b.operations.find((o) => /first-article/i.test(o.label));
+  const addedTotal = (k: FaiVariant["key"], j: number) =>
+    (byKey(k).r.breaks[j]?.totalCents ?? 0) - (none.r.breaks[j]?.totalCents ?? 0);
+  const addedUnit = (k: FaiVariant["key"], j: number) =>
+    (byKey(k).r.breaks[j]?.unitPriceCents ?? 0) - (none.r.breaks[j]?.unitPriceCents ?? 0);
+  const certMarkup = Math.round(
+    full.v.extras.reduce((s, x) => s + x.lotCents, 0) * (b.materialMarkupBps / 10_000),
+  );
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to quote first article inspection (AS9102)</h1>
+    <p class="lead">An aerospace PO that calls for a first article inspection report asks for hours of
+    work that never touch a machine: ballooning the drawing, measuring every characteristic on the first
+    part and filling in the forms. On a small order that work can cost more than the machining, and it is
+    the line shops most often leave off. Here is what the work is, when a partial first article is due,
+    and one part priced with and without it at ${one.quantity}, ${ten.quantity} and
+    ${hundred.quantity}.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>What a first article is, and what it is not</h2>
+    <p>AS9102 is the aerospace standard for first article inspection (FAI): a documented check, on a part
+    from the first production run, that every design characteristic on the drawing and every requirement
+    on the PO was met. It is recorded on three forms:</p>
+    <ul>
+      <li><strong>Form 1, part number accountability:</strong> the part, its drawing and revision, and any
+      sub-assemblies.</li>
+      <li><strong>Form 2, product accountability:</strong> the raw material, the specifications, the special
+      processes (plating, anodizing, heat treat and the like) and any functional tests, each with the
+      certificate that proves it.</li>
+      <li><strong>Form 3, characteristic accountability:</strong> every dimension, tolerance and note on
+      the drawing, numbered (ballooned) on the drawing and listed with its measured result.</li>
+    </ul>
+    <p>A first-piece check is not a first article. Measuring the critical features of the first part off
+    the machine before running the rest is part of the setup, and the
+    <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">CNC quoting guide</a> prices it as
+    such (${firstPiece?.setupMinutes ?? 0} minutes on the mill). An AS9102 report is a separate job with a
+    separate deliverable, and it stays on the routing in every variant below. Which revision of AS9102
+    applies, and whether the customer accepts their own form or software output, is set by the PO and
+    its quality clauses: read them before you price.</p>
+
+    <h2>What the work takes</h2>
+    <ol>
+      <li><strong>Balloon the drawing.</strong> Number every characteristic: each dimension, tolerance,
+      thread, surface finish, note and flag note. A busy drawing can carry well over a hundred.</li>
+      <li><strong>Plan the inspection.</strong> Decide which gauge or CMM program checks each one; a CMM
+      program written for the first article is time too.</li>
+      <li><strong>Measure the first part.</strong> Every characteristic, with the result written down, not
+      just a pass.</li>
+      <li><strong>Collect the certificates.</strong> Mill certs for the material and a certificate from
+      every special-process vendor, some of whom charge for one.</li>
+      <li><strong>Fill in the forms and file them.</strong> And answer the customer's questions when their
+      quality team reviews the package.</li>
+    </ol>
+    <p>None of that scales with quantity: it is the same for one part as for a thousand, so it belongs in
+    the quote as a charge per line or per order, not per part.</p>
+
+    <h2>A worked example</h2>
+    <p>The anodized 6061 ${b.partName} from the CNC quoting guide, now for a customer whose PO calls for
+    an AS9102 first article. Inspection time is charged at ${rate} an hour (a CMM and bench rate of its
+    own, lower than the mill's ${usdCents(b.hourlyRateCents)}). <strong>Every time, rate and price here is
+    made up to show the arithmetic</strong>; none of it is a benchmark for what a first article takes or
+    costs, and AS9102 sets no price.</p>
+    <ul>
+      ${[full, delta].map(
+        ({ r, v }) =>
+          html`<li><strong>${v.label}:</strong> ${v.inspection.map((o) => `${o.label.charAt(0).toLowerCase() + o.label.slice(1)} (${o.setupMinutes} min)`).join(", ")}${
+            v.extras.length > 0
+              ? html`, plus the ${v.extras.map((x) => `${x.label.charAt(0).toLowerCase()}${x.label.slice(1)} (${usdCents(x.lotCents)})`).join(", ")}`
+              : ""
+          }: ${r.inspectionMinutes} minutes, ${usdCents(r.faiCostCents)} before markup.</li>`,
+      )}
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up bracket's price per part and for the line, by first-article variant. Checked to the cent against ${SITE_NAME}'s costing engine.</caption>
+        <thead><tr><th scope="col">Variant</th>${full.r.breaks.map((br) => html`<th scope="col">${br.quantity}</th>`)}</tr></thead>
+        <tbody>
+          ${[none, full, delta].map(
+            ({ r, v }) =>
+              html`<tr><th scope="row">${v.label}</th>${r.breaks.map(
+                (br) =>
+                  html`<td>${usdCents(br.unitPriceCents)} each<br><span class="fineprint">${usdCents(br.totalCents)} for the line</span></td>`,
+              )}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>On one part, the first article is ${Math.round((100 * addedTotal("full", 0)) / (full.r.breaks[0]?.totalCents ?? 1))}% of the price.</strong> The full report adds
+      ${usdCents(addedTotal("full", 0))} to a ${usdCents(none.r.breaks[0]?.totalCents ?? 0)} part
+      (${usdCents(full.r.faiCostCents)} of inspection and certificate, and ${usdCents(certMarkup)} of markup
+      on the certificate). Quote it without that line and the shop does that work for nothing.</li>
+      <li><strong>Spread over the order, it fades.</strong> At ${ten.quantity} parts it adds
+      ${usdCents(addedUnit("full", 1))} a part; at ${hundred.quantity}, ${usdCents(addedUnit("full", 2))}. The
+      charge is the same; only the share each part carries changes.</li>
+      <li><strong>A partial first article is a smaller charge, not none.</strong> After a revision that
+      changes a few characteristics, re-ballooning and measuring only those, and updating the forms, adds
+      ${usdCents(addedTotal("delta", 0))} to the line here, against ${usdCents(addedTotal("full", 0))} for a
+      full one.</li>
+    </ul>
+
+    <h2>When a new or partial first article is due</h2>
+    <p>Once a part has a complete first article, repeat orders do not need another, until something
+    changes. The events AS9102 lists include a change to the design that affects the part's
+    characteristics, a change in the manufacturing source, process, inspection method, location,
+    tooling or materials, and a lapse in production (two years in the standard). The customer can ask for
+    more. A partial ("delta") first article covers only what the change affected. So check, on every repeat
+    RFQ: has the revision changed, has anything about how you make it changed, and when did you last ship
+    it? Your own records answer the last two; the drawing answers the first.</p>
+
+    <h2>How to put it on the quote</h2>
+    <ul>
+      <li><strong>Price it as time, at an inspection rate.</strong> Minutes on the inspection bench or the
+      CMM, charged once per line, the same way you charge a setup.</li>
+      <li><strong>Say it on the quote.</strong> "Includes AS9102 first article report" or "first article
+      report not included" in the notes settles the question before the PO arrives, not after. When a
+      customer wants it priced separately, give it a line of its own at quantity one.</li>
+      <li><strong>Carry the vendors' certificate charges.</strong> They are small and easy to forget.</li>
+      <li><strong>Do not charge it again on a repeat order that does not need it,</strong> and do not
+      forget the partial one when the revision changes.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>Add your inspection bench or CMM to the rate card as a machine with its own rate. On a quote line,
+    add the first article as operations on that machine with setup minutes and a cycle time of zero (the
+    app accepts zero for setup-only work such as programming or a first article), and a certificate
+    charge as an extra with a lot amount. The app then charges it once for the line, spreads it across
+    each quantity break, and prints the per-part prices. The prices in the table are the ones the app gives
+    for the same inputs, checked by a test in its code. ${SITE_NAME} does not fill in AS9102 forms or
+    balloon drawings; it prices the work. The
+    <a class="link" href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a> has the question
+    to ask before you price: is a first article required, and to which standard?</p>
+    <p class="fineprint">This page explains a common estimating approach and summarises a published
+    standard in plain words. It is not quality, legal or engineering advice, it is not a substitute for
+    the standard or your customer's requirements, and the figures in it are made up. Check every quote
+    before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Put the first article on the quote, every time", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
 /** Path → body renderer. The Worker uses earlyAccessPage directly for error re-renders. */
 export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/": homePage,
@@ -2687,11 +3440,15 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/how-to-quote-cnc-machining": quoteGuidePage,
   "/how-to-quote-sheet-metal": sheetMetalGuidePage,
   "/how-to-quote-welding": weldingGuidePage,
+  "/quantity-price-breaks": quantityBreaksGuidePage,
   "/how-to-quote-cnc-turning": turningGuidePage,
+  "/how-to-quote-outside-processing": outsideProcessingGuidePage,
   "/how-to-estimate-cnc-machining-time": cycleTimeGuidePage,
   "/machine-shop-quote-template": quoteTemplatePage,
   "/machining-material-cost": materialCostGuidePage,
   "/rfq-review-checklist": rfqChecklistPage,
+  "/how-to-price-a-rush-job": rushGuidePage,
+  "/how-to-quote-first-article-inspection": faiGuidePage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
   "/early-access/thanks": thanksPage,

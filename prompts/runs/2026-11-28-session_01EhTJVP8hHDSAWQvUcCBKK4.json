@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVP8hHDSAWQvUcCBKK4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T05:56:00Z",
+  "ended": "2026-11-28T06:05:49Z",
+  "wall_minutes": 10.06,
+  "tokens_in": 9675405,
+  "tokens_out": 33216,
+  "cost_usd": 3.6459,
+  "tool_calls": 86,
+  "task": "payapps (bet #1): late-payment interest part 3a, billed or waived mark per paid-late application [interest-settlement]",
+  "projects": [
+    "payapps",
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20014",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First CSV assertion in the new worker test expected 675.00; the cash CSV writes 675",
+      "fix": "assertion corrected; the CSV format is the existing one"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0: security_next.py listed alert #1522 as workable, but --claim a minute later said another run held it; the read-then-claim race costs a run a few minutes each time"
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "~2,750 lines; the 'Next' list is at the very end, so finding open work means grep for '^## ' first"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "'Most PRs carry a new post': extended the existing prompt-payment-laws guide instead (owner 2026-11-24: consolidate posts)",
+      "did": "one paragraph added to the customer guide that covers late-payment interest",
+      "result": "guide tests pass"
+    }
+  ],
+  "writeups": [
+    "ventures/pay-app-guides/prompt-payment-laws.html (extended)",
+    "ventures/payapps/apps/payapps/ROADMAP.md (part 3a done, 3b next)"
+  ],
+  "goal": "$10k MRR: deepen the receivables module of the top-ranked bet so a paying sub can clear the interest to-do list",
+  "notes": "Security queue: only workable alert (#1522) was claimed by another run between read and --claim; ideas inbox empty; routed ventures by draw. Verification: tsc clean; biome clean on changed files; payapps full pnpm test: unit 164 files / 1582 passed, 4 skipped; worker 98 files / 619 passed; payapps-site 55/55; pay-app-guides venture tests pass. Migration 0092 checked free on origin/main before push.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "88b874ec-aae7-5548-9715-bcb258b09922",
+    "transcripts": 1,
+    "first": "2026-11-28T05:56:00Z",
+    "last": "2026-11-28T06:06:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 156,
+        "output": 33216,
+        "thinking": 4141,
+        "cache_read": 9541153,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134096,
+        "api_equivalent_usd": 3.6459,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 156,
+      "output": 33216,
+      "thinking": 4141,
+      "cache_read": 9541153,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134096,
+      "api_equivalent_usd": 3.6459,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 82,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.06,
+      "active_minutes": 10.06,
+      "model_minutes": 5.99,
+      "tool_minutes": 4.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior full-stack engineer: schema+migration, API, report split, UI, tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 164.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

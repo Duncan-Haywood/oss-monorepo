@@ -15,7 +15,10 @@ const base = readFileSync(new URL("./examples/ubl-invoice.xml", import.meta.url)
 // One S 11% line of net 9,876,543,210,987.65 IDR: tax 1,086,419,753,208.6415 ->
 // 1,086,419,753,208.64; gross 10,962,962,964,196.29.
 function idrInvoice() {
-  const [head] = base.replace(/<!--[\s\S]*?-->/, "").split("<cac:TaxTotal>");
+  // Strip comments to a fixed point so no "<!--" survives a nested or split one.
+  let bare = base, prev;
+  do { prev = bare; bare = bare.replace(/<!--[\s\S]*?-->/g, ""); } while (bare !== prev);
+  const [head] = bare.split("<cac:TaxTotal>");
   const c = "IDR";
   const net = "9876543210987.65", tax = "1086419753208.64", gross = "10962962964196.29";
   return head.replaceAll("EUR", c) + `<cac:TaxTotal><cbc:TaxAmount currencyID="${c}">${tax}</cbc:TaxAmount>

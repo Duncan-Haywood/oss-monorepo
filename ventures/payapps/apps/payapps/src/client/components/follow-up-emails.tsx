@@ -20,8 +20,11 @@ import {
 } from "@shared/follow-up-email";
 import { rateLabel } from "@shared/late-interest";
 import { formatCents } from "@shared/money";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { api, projectPath } from "../lib/api";
+import { ErrorText } from "./error";
 
 const KIND_LABELS: Record<FollowUpKind, string> = {
   status: "Not due yet: check it is in for processing",
@@ -129,6 +132,134 @@ function OutstandingDraft({
   return <Draft orgId={orgId} job={job} initial={initial} note={KIND_LABELS[initial.kind]} />;
 }
 
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
+type SettleBody =
+  | { settlement: "billed" | "waived"; on: string; note: string | null }
+  | { settlement: null };
+
+/** PUT .../pay-apps/:id/late-interest, then reload the cash report. */
+function useSettle(orgId: string, job: CashReportProject, app: PaidLateApp) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: SettleBody) =>
+      api(
+        projectPath(orgId, job.id, `/pay-apps/${encodeURIComponent(app.payAppId)}/late-interest`),
+        { method: "PUT", body },
+      ),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["cash", orgId] }),
+  });
+}
+
+/**
+ * "Mark billed" / "Mark waived": the day (today by default) and an optional note, such as the invoice
+ * number or why it was let go. The application then leaves the list.
+ */
+function SettleForm({
+  orgId,
+  job,
+  app,
+}: {
+  orgId: string;
+  job: CashReportProject;
+  app: PaidLateApp;
+}) {
+  const [kind, setKind] = useState<"billed" | "waived" | null>(null);
+  const [on, setOn] = useState(todayIso());
+  const [note, setNote] = useState("");
+  const settle = useSettle(orgId, job, app);
+  if (kind === null) {
+    return (
+      <span className="flex gap-3 text-sm">
+        <button type="button" className="underline" onClick={() => setKind("billed")}>
+          Mark billed
+        </button>
+        <button type="button" className="underline" onClick={() => setKind("waived")}>
+          Mark waived
+        </button>
+      </span>
+    );
+  }
+  const id = `settle-${app.payAppId}`;
+  return (
+    <form
+      className="mt-2 flex w-full flex-wrap items-end gap-2 rounded border border-slate-200 p-2 text-xs"
+      onSubmit={(e) => {
+        e.preventDefault();
+        settle.mutate({ settlement: kind, on, note: note.trim() || null });
+      }}
+    >
+      <span className="w-full text-slate-500">
+        {kind === "billed"
+          ? `Interest of ${formatCents(app.interestCents)} on #${app.number} billed to ${job.gcName}: on the next application or a separate invoice.`
+          : `Interest of ${formatCents(app.interestCents)} on #${app.number} let go: it stays in the history.`}
+      </span>
+      <label htmlFor={`${id}-on`}>
+        {kind === "billed" ? "Billed on" : "Waived on"}
+        <input
+          id={`${id}-on`}
+          type="date"
+          className="input ml-1"
+          value={on}
+          min={app.paidOn}
+          max={todayIso()}
+          onChange={(e) => setOn(e.target.value)}
+          required
+        />
+      </label>
+      <label htmlFor={`${id}-note`} className="grow">
+        Note (optional)
+        <input
+          id={`${id}-note`}
+          className="input ml-1 w-full max-w-xs"
+          value={note}
+          maxLength={500}
+          placeholder={kind === "billed" ? "Invoice 1042, or pay app #7" : "Kept the relationship"}
+          onChange={(e) => setNote(e.target.value)}
+        />
+      </label>
+      <button type="submit" className="btn" disabled={settle.isPending}>
+        {kind === "billed" ? "Mark billed" : "Mark waived"}
+      </button>
+      <button type="button" className="underline" onClick={() => setKind(null)}>
+        Cancel
+      </button>
+      {settle.error && <ErrorText error={settle.error} />}
+    </form>
+  );
+}
+
+/** A settled application's line, with an undo that puts it back on the list. */
+function SettledRow({
+  orgId,
+  job,
+  app,
+}: {
+  orgId: string;
+  job: CashReportProject;
+  app: PaidLateApp;
+}) {
+  const settle = useSettle(orgId, job, app);
+  const s = app.settled;
+  if (!s) return null;
+  return (
+    <li className="py-1">
+      <span className="font-medium">{job.name}</span> · #{app.number} · {formatCents(s.cents)}{" "}
+      {s.kind === "billed" ? "billed" : "waived"} on {s.on}
+      {s.note ? ` · ${s.note}` : ""}{" "}
+      <button
+        type="button"
+        className="underline"
+        disabled={settle.isPending}
+        onClick={() => settle.mutate({ settlement: null })}
+      >
+        Undo
+      </button>
+      {settle.error && <ErrorText error={settle.error} />}
+    </li>
+  );
+}
+
 /**
  * "Interest earned on late payments": each application paid after its due date on a job with a
  * late-payment rate, the interest it earned up to the payment (src/shared/cash-report.ts,
@@ -146,8 +277,11 @@ export function PaidLateInterest({
   const rows: { job: CashReportProject; app: PaidLateApp }[] = report.projects.flatMap((job) =>
     job.paidLate.map((app) => ({ job, app })),
   );
+  const settled: { job: CashReportProject; app: PaidLateApp }[] = report.projects.flatMap((job) =>
+    (job.paidLateSettled ?? []).map((app) => ({ job, app })),
+  );
   const [open, setOpen] = useState<string | null>(null);
-  if (rows.length === 0) return null;
+  if (rows.length === 0 && settled.length === 0) return null;
   return (
     <section className="card space-y-2" aria-labelledby="paid-late-interest">
       <h2 id="paid-late-interest" className="font-semibold">
@@ -159,8 +293,11 @@ export function PaidLateInterest({
         date to the last payment, so the figure no longer grows. Whether you can collect it depends
         on your subcontract, any statute that applies and any waiver you signed: check before you
         ask. {formatCents(report.totals.paidLateInterestCents)} in all; it is not in the totals
-        above.
+        above. Mark each one billed or waived once you have dealt with it.
       </p>
+      {rows.length === 0 && (
+        <p className="text-sm text-slate-600">Nothing left to decide: every one is marked.</p>
+      )}
       <ul className="divide-y divide-slate-100 text-sm">
         {rows.map(({ job, app }) => (
           <li key={app.payAppId} className="py-2">
@@ -174,14 +311,17 @@ export function PaidLateInterest({
                   {job.lateInterest ? ` · ${rateLabel(job.lateInterest)}` : ""}
                 </span>
               </span>
-              <button
-                type="button"
-                className="underline"
-                aria-expanded={open === app.payAppId}
-                onClick={() => setOpen(open === app.payAppId ? null : app.payAppId)}
-              >
-                {open === app.payAppId ? "Hide draft" : `Draft interest email for #${app.number}`}
-              </button>
+              <span className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  className="underline"
+                  aria-expanded={open === app.payAppId}
+                  onClick={() => setOpen(open === app.payAppId ? null : app.payAppId)}
+                >
+                  {open === app.payAppId ? "Hide draft" : `Draft interest email for #${app.number}`}
+                </button>
+                <SettleForm orgId={orgId} job={job} app={app} />
+              </span>
             </div>
             {open === app.payAppId && (
               <Draft
@@ -194,6 +334,22 @@ export function PaidLateInterest({
           </li>
         ))}
       </ul>
+      {settled.length > 0 && (
+        <details className="text-sm">
+          <summary className="cursor-pointer text-slate-600">
+            Billed or waived ({settled.length}
+            {report.totals.paidLateBilledCents > 0
+              ? `; ${formatCents(report.totals.paidLateBilledCents)} billed`
+              : ""}
+            )
+          </summary>
+          <ul className="divide-y divide-slate-100">
+            {settled.map(({ job, app }) => (
+              <SettledRow key={app.payAppId} orgId={orgId} job={job} app={app} />
+            ))}
+          </ul>
+        </details>
+      )}
     </section>
   );
 }

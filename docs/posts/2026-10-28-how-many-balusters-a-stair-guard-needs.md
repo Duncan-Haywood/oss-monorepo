@@ -4,6 +4,7 @@ seo_title: "How many balusters does a 9-foot stair guard need?"
 date: 2026-10-28
 description: "A worked guard and handrail layout for a 14-riser stair: posts, balusters under the 4 in sphere rule, rails and handrail length."
 tags: [wall-framing-takeoff, stairs, construction]
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 # How many balusters does a 9-foot stair guard need?

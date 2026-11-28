@@ -291,6 +291,7 @@ describe("the interest email for an application paid late", () => {
     daysLate: 30,
     paidCents: 2_700_000,
     interestCents: 33_500,
+    settled: null,
   };
   const tx = {
     bps: 150,

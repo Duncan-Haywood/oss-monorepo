@@ -3,6 +3,7 @@ title: "How long must a stair stringer bear on its support?"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, construction]
 description: The framing takeoff's stringer check now reports the shortest bearing length that keeps compression perpendicular to grain under a typed allowable.
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 The stringer check already reported bearing stress for a bearing length you typed (3.5 in unless changed). It now also turns the question around: how short can the bearing be?

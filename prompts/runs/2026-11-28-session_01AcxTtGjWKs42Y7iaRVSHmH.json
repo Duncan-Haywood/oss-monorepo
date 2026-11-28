@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtGjWKs42Y7iaRVSHmH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T04:07:35Z",
+  "ended": "2026-11-28T04:17:09Z",
+  "wall_minutes": 9.75,
+  "tokens_in": 8326089,
+  "tokens_out": 37066,
+  "cost_usd": 3.7358,
+  "tool_calls": 69,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19989",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First jobshop-site build failed typecheck (array index possibly undefined) and the 70-160 char description test; both fixed before commit.",
+    "A claim that the quote template lists a between-breaks term was false; caught by grepping TERMS_CHECKLIST and reworded.",
+    "jobshop-site CI failed on biome ci: my scripted import removal missed after biome reordered the import block (unused IN_BETWEEN_QUANTITY), then a format diff. I had run `biome check` on src only and read its tail; `npx biome ci .` from ventures/jobshop-quote is what CI runs. Fixed in two follow-up commits."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Every bet's ROADMAP Next list is 'waits on demand', and parallel runs are taking the same bet #2 front-door guides (markup and outside-processing PRs were open when I started); the --bets 'fewest front-door PRs' count missed the guides titled 'jobshop-quote (bet #2)' rather than 'jobshop-site'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bet #1 (PayApps) had no free ungated item; I took bet #2's front door as roadmap_claim --bets advised.",
+      "did": "A quantity-price-breaks guide checked against the engine",
+      "result": "merged with tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (dated update, 28 November: quantity breaks)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; no ideas. Before choosing, probed every live-app URL the marketing sites link to (sign-up, sign-in, legal) in Chromium: all render; seller-books /app 404s but appears only in a negative test. Checks: jobshop-site unit 162 passed, typecheck clean, biome clean; jobshop-quote site-* tests 21 passed; platform/pages/jobshop-site.test.mjs 6 passed; Playwright desktop + iPhone 13 render with no page overflow.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2da23d79-358f-5e62-b2c9-e779903e601f",
+    "transcripts": 1,
+    "first": "2026-11-28T04:07:35Z",
+    "last": "2026-11-28T04:17:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 120,
+        "output": 37066,
+        "thinking": 8345,
+        "cache_read": 8155614,
+        "cache_write_5m": 0,
+        "cache_write_1h": 170355,
+        "api_equivalent_usd": 3.7358,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 120,
+      "output": 37066,
+      "thinking": 8345,
+      "cache_read": 8155614,
+      "cache_write_5m": 0,
+      "cache_write_1h": 170355,
+      "api_equivalent_usd": 3.7358,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 61,
+      "Read": 3,
+      "Write": 2,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.75,
+      "active_minutes": 9.75,
+      "model_minutes": 6.51,
+      "tool_minutes": 3.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "a senior estimator-writer drafting a costed guide, the arithmetic module and an engine test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 133.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

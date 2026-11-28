@@ -48,7 +48,7 @@
 //   retainage is counted again under retainageWaitingOnCloseoutCents until nothing does.
 import { billingCutoff, billingCutoffText } from "./billing-cutoff";
 import type { CloseoutReadiness } from "./closeout";
-import type { PayAppStatus, PayTermsBasis, ShortCloseReason } from "./enums";
+import type { InterestSettlement, PayAppStatus, PayTermsBasis, ShortCloseReason } from "./enums";
 import {
   type GaWaiverClock,
   gaClockNeedsAction,
@@ -106,6 +106,17 @@ export interface CashReportAppInput {
     note: string | null;
     closedOn: string;
   } | null;
+  /** What the contractor did with the interest a late payment earned, or null (still to decide). */
+  interestSettled?: InterestSettled | null;
+}
+
+/** A paid-late application's interest, billed to the GC or waived (src/shared/enums.ts). */
+export interface InterestSettled {
+  kind: InterestSettlement;
+  on: string;
+  /** The interest figure when it was marked. */
+  cents: number;
+  note: string | null;
 }
 
 export interface ClosedShortApp {
@@ -274,6 +285,8 @@ export interface PaidLateApp {
   /** What was paid (expected less any balance closed short): the balance the interest ran on. */
   paidCents: number;
   interestCents: number;
+  /** Billed or waived, or null while the contractor has not dealt with it. */
+  settled: InterestSettled | null;
 }
 
 /**
@@ -315,6 +328,7 @@ export function paidLateApps(
       daysLate: interest.daysLate,
       paidCents: pos.paidCents,
       interestCents: interest.interestCents,
+      settled: a.interestSettled ?? null,
     });
   }
   return out.sort((x, y) => x.number - y.number);
@@ -362,10 +376,17 @@ export interface CashReportProject {
   interestCents: number;
   /** The job's late-payment rate, or null when not tracked. */
   lateInterest: LateInterestTerms | null;
-  /** Applications paid late in the last PAID_LATE_WINDOW_DAYS, with the interest each earned. */
+  /**
+   * Applications paid late in the last PAID_LATE_WINDOW_DAYS whose interest is not billed or waived
+   * yet, with the interest each earned: the to-do list.
+   */
   paidLate: PaidLateApp[];
   /** Interest earned on those applications (0 without a late-payment rate). */
   paidLateInterestCents: number;
+  /** Applications paid late in the same window whose interest was marked billed or waived. */
+  paidLateSettled: PaidLateApp[];
+  /** Interest marked billed on those (the figure when marked). */
+  paidLateBilledCents: number;
   /** Still owed and due within 30 days of the report date (0 without pay terms). */
   dueNext30Cents: number;
   /** Pay-when-paid: still owed on applications whose owner payment is not recorded yet. */
@@ -422,6 +443,8 @@ export interface CashReport {
     interestCents: number;
     /** Interest earned on applications paid late in the last PAID_LATE_WINDOW_DAYS, across jobs. */
     paidLateInterestCents: number;
+    /** Of the same window's paid-late interest, what was marked billed to the GC. */
+    paidLateBilledCents: number;
     dueNext30Cents: number;
     /** Owed on jobs with no pay terms set: left out of past due and the 30-day forecast. */
     noTermsOutstandingCents: number;
@@ -849,7 +872,13 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
     );
   });
   for (const w of toSend) actions.push(waiverToSendText(w, p.gcName));
-  const paidLate = paidLateApps(p.lateInterest ?? null, terms, basis, outerDays, sent, asOf);
+  const paidLateAll = paidLateApps(p.lateInterest ?? null, terms, basis, outerDays, sent, asOf);
+  const paidLate = paidLateAll.filter((a) => a.settled === null);
+  const paidLateSettled = paidLateAll.filter((a) => a.settled !== null);
+  const paidLateBilledCents = paidLateSettled.reduce(
+    (s, a) => s + (a.settled?.kind === "billed" ? a.settled.cents : 0),
+    0,
+  );
   const paidLateInterestCents = paidLate.reduce((s, a) => s + a.interestCents, 0);
   const paidLateAction = p.lateInterest ? paidLateText(paidLate, p.lateInterest, p.gcName) : null;
   if (paidLateAction) actions.push(paidLateAction);
@@ -955,6 +984,8 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
     lateInterest: p.lateInterest ?? null,
     paidLate,
     paidLateInterestCents,
+    paidLateSettled,
+    paidLateBilledCents,
     dueNext30Cents,
     awaitingOwnerCents,
     retainageHeldCents,
@@ -1004,6 +1035,7 @@ export function cashReport(projects: CashReportProjectInput[], asOf: string): Ca
       pastDueCents: sum((r) => r.pastDueCents),
       interestCents: sum((r) => r.interestCents),
       paidLateInterestCents: sum((r) => r.paidLateInterestCents),
+      paidLateBilledCents: sum((r) => r.paidLateBilledCents),
       dueNext30Cents: sum((r) => r.dueNext30Cents),
       noTermsOutstandingCents: sum((r) => (r.payTermsDays === null ? r.outstandingCents : 0)),
       awaitingOwnerCents: sum((r) => r.awaitingOwnerCents),

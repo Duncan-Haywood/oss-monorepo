@@ -76,6 +76,11 @@ export const MODULES: readonly ModuleData[] = [
     guides: [
       { label: "How to quote a CNC machining job", path: "/how-to-quote-cnc-machining" },
       { label: "How to quote CNC turning and lathe parts", path: "/how-to-quote-cnc-turning" },
+      {
+        label: "How to quote outside processing (heat treat, plating)",
+        path: "/how-to-quote-outside-processing",
+      },
+      { label: "How to set quantity price breaks", path: "/quantity-price-breaks" },
       { label: "How to work out a machine shop hourly rate", path: "/machine-shop-hourly-rate" },
       { label: "Machine shop markup and margin", path: "/machine-shop-markup" },
       { label: "Machine shop quote template (free CSV)", path: "/machine-shop-quote-template" },
@@ -245,6 +250,7 @@ export const MODULES: readonly ModuleData[] = [
     guides: [
       { label: "Machine shop quote template (free CSV)", path: "/machine-shop-quote-template" },
       { label: "How to quote a CNC machining job", path: "/how-to-quote-cnc-machining" },
+      { label: "How to set quantity price breaks", path: "/quantity-price-breaks" },
     ],
     faq: {
       q: "Does my customer need an account?",
@@ -410,7 +416,12 @@ export const MODULES: readonly ModuleData[] = [
       'A machine with no hours a day or a line with no cycle time is listed as "can\'t plan" with the reason',
     ],
     guides: [
+      { label: "How to price a rush job", path: "/how-to-price-a-rush-job" },
       { label: "How to work out a machine shop hourly rate", path: "/machine-shop-hourly-rate" },
+      {
+        label: "How to quote outside processing (heat treat, plating)",
+        path: "/how-to-quote-outside-processing",
+      },
       { label: "Machine shop quote template (free CSV)", path: "/machine-shop-quote-template" },
     ],
     faq: {

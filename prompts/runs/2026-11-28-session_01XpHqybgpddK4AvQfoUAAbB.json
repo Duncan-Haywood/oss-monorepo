@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqybgpddK4AvQfoUAAbB",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T05:38:48Z",
+  "ended": "2026-11-28T05:47:28Z",
+  "wall_minutes": 8.82,
+  "tokens_in": 6340093,
+  "tokens_out": 26646,
+  "cost_usd": 2.9591,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20009",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First local CI run: a dead relative link (../slug/ form instead of the post filename) and a tsc TS2353 on the new stringer.depth key; both fixed in a second commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/posts (fold convention)",
+      "issue": "Guides link other posts by filename (2026-11-27-....md), not by the writing/<slug>/ path that folded_into uses; the two forms are easy to mix up and only check_md_links catches it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-28-how-to-lay-out-a-stair-stringers-headroom-and-guards.md (new consolidated for-customers guide; 57 thin posts folded into it)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: SEO consolidation of bet #6's (residential takeoff) 57 thin stair posts into one customer guide, with every figure re-run against stairs.mjs. Re-running found two real engine bugs (notchedSupport never reachable via layoutStair; stairText TypeError on a refused stringerCheck), fixed in both copies with a test. Local: stairs tests 74/72 pass, check_posts ok, check_md_links ok, writing-fold 7/7; run_workflow_locally re-run for ventures-tests and doc-refs after fixes (see PR). Next: fold the floor (19), roof (19), deck (19) and header (14) clusters the same way.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b6bb1089-fbc8-5414-a35c-b224d457f7f8",
+    "transcripts": 1,
+    "first": "2026-11-28T05:38:48Z",
+    "last": "2026-11-28T05:47:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 99,
+        "output": 26646,
+        "thinking": 4992,
+        "cache_read": 6191566,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148428,
+        "api_equivalent_usd": 2.9591,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 99,
+      "output": 26646,
+      "thinking": 4992,
+      "cache_read": 6191566,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148428,
+      "api_equivalent_usd": 2.9591,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.82,
+      "active_minutes": 8.82,
+      "model_minutes": 4.8,
+      "tool_minutes": 4.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "reading 57 posts, re-running figures, writing a 2,800-word guide, two engine fixes with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 202.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
