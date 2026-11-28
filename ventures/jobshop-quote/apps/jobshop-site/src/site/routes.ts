@@ -176,6 +176,26 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/rfq-review-checklist",
+      label: "RFQ review checklist",
+      title: `RFQ review checklist for machine shops (free CSV) · ${SITE_NAME}`,
+      description:
+        "What to check on an RFQ before you quote: drawings and revisions, material, tolerances, finishes, quantities, certs, first article, flowdowns and terms.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
+      path: "/machining-material-cost",
+      label: "How to calculate material cost for machining",
+      title: `How to calculate material cost for a machining quote · ${SITE_NAME}`,
+      description:
+        "Price CNC material from the blank: size and weigh it, price it by the pound, the foot, whole bars or the piece, then fallout, minimums and markup.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: "2026-11-28",
+    },
+    {
       path: "/faq",
       label: "FAQ",
       title: `Frequently asked questions · ${SITE_NAME}`,

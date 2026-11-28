@@ -211,6 +211,13 @@ Ticked items are on `main`.
       wall (SVG elevation with member marks, dimension chain, parts table; CLI
       `--drawings`, page button). Per-panel weights and cut lists (plates trimmed to the panel) landed 2026-10-22 in the shop drawings. Sheathing weight on panels (gable walls too, 2026-10-29) and per-panel sheets landed. Sheathing sheet marks (green outlines with the sheet id on each wall sheet when sheathing is computed) landed 2026-10-31 (`drawings.mjs`, test-checked; gable walls draw none). A PDF without the browser landed 2026-10-27 (`pdf.mjs`, CLI `--pdf`, page button).
 
+- [x] **Waste factors, measured** (2026-11-28, in the free edition `ventures/wall-framing-takeoff/`: `waste-bench.mjs`,
+      `lumber-waste-factor.html`, served at /wall-framing-takeoff/; bets.md
+      growth path "waste factors"): cutting waste of the stud-size order on three houses for four ways
+      of buying (0.2 to 0.4% from every length with a cut plan, 18.9 to 29.8% with none), kept apart
+      from the typed cull allowance; page figures pinned to the bench by `waste-bench.test.mjs`.
+      Next, if people use it: the same split for sheathing sheets and siding.
+
 ### 2. Getting the house in without typing
 
 - [x] (2026-10-29, `sketch.mjs`, page card; click-checked in Chromium; no move/resize or tracing yet) A browser plan editor: draw walls on a grid, drop doors and windows,

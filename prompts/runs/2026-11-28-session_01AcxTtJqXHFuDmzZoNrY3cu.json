@@ -17,10 +17,9 @@
   "tokens_out": 52335,
   "cost_usd": 5.2906,
   "tool_calls": 100,
-  "task": "Bet #1 PayApps: Arizona preliminary twenty day notice (A.R.S. § 33-992.01) in the job's notice panel, plus a front-door page",
+  "task": "Bet #1 PayApps: Arizona preliminary twenty day notice (A.R.S. § 33-992.01) printed from the job's notice panel",
   "projects": [
-    "payapps",
-    "pay-app-guides"
+    "payapps"
   ],
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19972",
   "repo": "Duncan-Haywood/oss-monorepo",
@@ -30,7 +29,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 13,
+  "tests_added": 9,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
@@ -46,23 +45,27 @@
     {
       "file": "prompts/ventures/prompt-1.md",
       "issue": "A new pay-app-guides page also needs an entry in platform/pages/industry-construction.mjs; only the 5-minute venture-preflight finds that, the venture's own tests do not."
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "Searched 'arizona-preliminary' and 'az-preliminary-twenty-day-notice' at pick time and again before the PR: no hit, yet PR #19973 (slug arizona-preliminary-notice) opened minutes later and both runs built the same pay-app-guides page with the same filenames. The roadmap claim was on payapps, theirs on pay-app-guides, so neither claim saw the other; front-door pages for one bet could share a claim namespace."
     }
   ],
   "deviations": [
     {
       "file": "prompts/goals.md",
-      "why": "No new blog post: the write-up is the customer-facing Arizona guide page itself (search-aimed, for-customers), per the 2026-11-24 consolidate-posts direction.",
-      "did": "Shipped arizona-preliminary-notice.html in the existing pay-app-guides front door instead of a post.",
-      "result": "Page merged with FAQ markup, llms.txt and sitemap entries."
+      "why": "No new post: a parallel run's PR #19973 shipped the Arizona guide page and post the same hour; this PR's customer-facing write-up is the correction to that page's CTA.",
+      "did": "Dropped my own duplicate front-door page on the merge of main, kept #19973's richer version, and fixed its now-false 'does not print this preliminary notice yet' line.",
+      "result": "One Arizona page on main, linked to a product that now does what it says."
     }
   ],
   "writeups": [
-    "ventures/pay-app-guides/arizona-preliminary-notice.html",
     "ventures/payapps/apps/payapps/ROADMAP.md (Done entry)",
-    "ventures/payapps/packages/lien-waivers/README.md"
+    "ventures/payapps/packages/lien-waivers/README.md",
+    "ventures/pay-app-guides/arizona-preliminary-notice.html (CTA corrected: PayApps now prints the notice; page itself from PR #19973)"
   ],
   "goal": null,
-  "notes": "Statute text fetched from azleg.gov (33-992.01, 33-992.02, and titles of 33-981/33-993 to confirm cited sections) on 2026-11-28 and snapshotted in packages/lien-waivers/sources/az-33-992.txt. Verified locally: lien-waivers package node --test 282/282; payapps typecheck clean; payapps worker notices.test.ts 9/9 (new Arizona case); full payapps unit suite 1575 passed with 1 unrelated timeout (opening-balance.test.tsx, 5 s limit under parallel load; passes 2/2 alone), worker suite 615/615; pay-app-guides node --test 383/383; biome clean on changed TS. Rendered the Arizona notice PDF and looked at it: a long receipt label overran its signature line, fixed by putting the statute caption under a short label. Phone-width (390px) check of the new page: no horizontal scroll, no console errors. venture-preflight first failed on two site tests: the new page was missing from the construction industry page (platform/pages/industry-construction.mjs, added) and ventures/einvoice-preflight's llms.txt Answers were stale on main after #19965 (regenerated with platform/pages/llms-answers.mjs and carried here). Rerun: preflight clean for pay-app-guides.",
+  "notes": "Statute text fetched from azleg.gov (33-992.01, 33-992.02, and titles of 33-981/33-993 to confirm cited sections) on 2026-11-28 and snapshotted in packages/lien-waivers/sources/az-33-992.txt. Verified locally: lien-waivers package node --test 282/282; payapps typecheck clean; payapps worker notices.test.ts 9/9 (new Arizona case); full payapps unit suite 1575 passed with 1 unrelated timeout (opening-balance.test.tsx, 5 s limit under parallel load; passes 2/2 alone), worker suite 615/615; pay-app-guides node --test 383/383; biome clean on changed TS. Rendered the Arizona notice PDF and looked at it: a long receipt label overran its signature line, fixed by putting the statute caption under a short label. Phone-width (390px) check of the new page: no horizontal scroll, no console errors. venture-preflight first failed on two site tests: the new page was missing from the construction industry page (platform/pages/industry-construction.mjs, added) and ventures/einvoice-preflight's llms.txt Answers were stale on main after #19965 (regenerated with platform/pages/llms-answers.mjs and carried here). Rerun: preflight clean for pay-app-guides. On merging main for the final merge, PR #19973 (another run) had landed arizona-preliminary-notice.html, azprelim.mjs and its test under the same names, a richer version (roles, owner-occupied homes, 30% re-notice, recording date, draft). I took main's version of every pay-app-guides and industry-construction file, dropped mine, and corrected its CTA, which said PayApps does not print the notice yet. pay-app-guides node --test 393/393 after the merge; state-forms --check clean.",
   "corrections": [],
   "redteam": null,
   "usage": {

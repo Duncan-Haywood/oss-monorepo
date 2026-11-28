@@ -1,0 +1,289 @@
+{
+ "date": "2026-11-28",
+ "subject": "ventures/einvoice-preflight",
+ "stratum": "venture",
+ "seed": "2026-11-28-a5ae",
+ "drawn_by": "reaudit",
+ "prior_audit": "portfolio/quality/audits/2026-11-19-einvoice-preflight.json",
+ "auditor": "agent session (Claude), see run record prompts/runs/ for 2026-11-28 quality/0",
+ "status": "audited",
+ "professional": "an e-invoicing integration consultant who signs off ERP output for Peppol/XRechnung/EN 16931 (checks first: does the pre-screen agree with CEN's own Schematron on correct and broken files, and does the auto-repair ever damage a correct invoice)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Oracle: CEN's EN16931-UBL-validation.xslt (validation-1.3.17 release zip from ConnectingEurope/eInvoicing-EN16931) under SaxonC-HE (pip saxonche), plus Python decimal ROUND_HALF_UP. 8 generated UBL invoices (gen.py from examples/ubl-invoice.xml): correct IDR 12,345,678,901.23 at 11% (the prior high defect), correct IDR 9,876,543,210,987.65 at 11%, half-cent ties 1.50x19% and 26.75x10%, a breakdown tax 0.01, 0.90 and 1.50 off, a buyer with endpoint but no BT-46. Built-in route (report.mjs preflightDocuments): no finding on the 5 correct files, warning INV-038 on the 0.01/0.90 files (CEN passes), blocking INV-038+INV-018 on the 1.50 file (CEN fails BR-CO-17, BR-S-09): 8 of 8 agree with CEN. Official route adds only XRechnung BR-DE-* (the files declare XRechnung). Python CLI: same verdicts on all 8. repairUbl on the 10^10 IDR file: unchanged (prior defect closed). repairUbl on the 10^13 IDR file before the fix: gross and due rewritten 10962962964196.29 -> .30, CEN then fails BR-CO-15 (new low defect, fixed in this PR; CEN passes the repaired file after). VAT: 3,000 numbers over 20 EU countries vs python-stdnum 2.x: 2,963 agree, 37 differ, all in the documented deliberate list (CZ/SK birth-number months and SK third digit strict, BG 10-digit and ES X lenient, DE leading 0; README:73, :1749). Capped at 3 because the repair defect existed on arrival.",
+  "completeness": "Every prior defect re-checked (prior_defects). Exercised end to end: UBL reader + built-in checks, official Schematron route, repairUbl, Python CLI, VAT check digits, eval/page-cli-parity.mjs, served copy (served-copy.mjs: clean). Documented open gaps: NO/CH VAT and PDF envelope checks absent from the Python CLI (NEXT.md:33). No stubs met.",
+  "verification": "`node --test` in the subject with slimdom@4.3.5/fontoxpath@3.34.0 installed as CI does: 2400 tests, 2383 pass, 0 fail, 17 skip (35.8 s) on arrival; 2403/2386/0/17 after this PR. Python: `PYTHONPATH=src python3 -m unittest discover -s tests`: 447 OK. CI (.github/workflows/einvoice-preflight-ci.yml:87) now installs both packages before `node --test`, so the official-route tests run (prior defect 4 closed). Five mutants via quality_mutate.py, all caught: BG EGN remainder-10 -> 1 and CZ 10-digit `% 10` dropped (both survived in the prior audit), checks.mjs tie precision 15 -> 12, BR-CO-17 tolerance `< 100` -> `<= 100`, repair fmt without the tie fix. Gap: no test had an amount of 10^13 or more (added in this PR).",
+  "craft": "Read checks.mjs:1-60,110-126, breakdown.mjs:20-140, repair-ubl.mjs:36-60,425-460, vat.mjs:180-226,1013-1030, CI workflow. The same rounding idiom is still pasted in checks, breakdown, adjustment, linenet (identical) plus variants in creditlink and repair-ubl x2; this PR had to patch four copies to fix one defect. README.md is 397,748 bytes of dated run log (393 KB on 2026-11-19). JS blocking INV-038 fix said `Set tax to 38` while its INV-018 sibling and the CLI said `38.00` (fixed here). Positives: rule comments cite the CEN/Peppol rule they implement; the BR-CO-17 tolerance is one named function with its CEN reference.",
+  "claims": "Checked: checks.mjs:1-6 now says what differs between page and CLI and points to eval/page-cli-parity.mjs, which I ran: the shipped files differ only by PDF-001 on 3 PDFs, as index.html:259-264 says (prior defect 1 closed). llms.txt:7 BR-CO-17 claim (warning within one unit, failure at a full unit) matches my 0.01/0.90/1.50 runs against CEN. llms.txt:3 'runs the official EN 16931, XRechnung and Peppol rules' matches the official route output. Disclaimer index.html:393 present. Served llms.txt/sitemap/robots clean. The README:1212 'INV-005 ... a style note' is still in a dated log entry, but README:1165 states the current rule.",
+  "fitness": "Integrator's job walked: drop the ERP UBL, read rule ids and fixes, tick official rules, repair arithmetic. Per-line VAT rounding now warns instead of blocking (the prior first-hour gap), a buyer identified by VAT id, legal id or endpoint no longer draws INV-005, and Indonesian-scale amounts check and repair correctly up to 10^13 after this PR. Remaining: CLI users lack NO/CH VAT and PDF checks.",
+  "domain": "Compared with CEN EN 16931 Schematron 1.3.17 and its BR-CO-17 assert (abs(tax)-1 < round(taxable x rate) < abs(tax)+1): the built-in tolerance now matches (strictly under one unit; the `<= 100` mutant is caught). Remaining departure: INV-005 still blocks a buyer known by name alone, where BT-46/47/48 are optional in EN 16931; documented as deliberate (README:1165, checks.mjs:114-117). VAT algorithms agree with stdnum outside the documented list."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "correct IDR invoice, line 12,345,678,901.23 at 11% (prior high defect)",
+   "method": "Python decimal ROUND_HALF_UP: tax 1,358,024,679.14, gross 13,703,703,580.37; CEN XSLT 1.3.17 under SaxonC-HE",
+   "command": "python3 gen.py inv; cen.py inv EN16931-UBL-validation.xslt; node tool.mjs inv",
+   "expected": "no arithmetic finding; CEN none",
+   "observed": "built-in none, official route only BR-DE-*, CEN none, Python CLI passed",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "repairUbl on that 10^10 IDR invoice",
+   "method": "CEN XSLT on the repaired output",
+   "command": "node -e repairUbl(inv/idr.xml); cen.py rep",
+   "expected": "unchanged; CEN passes",
+   "observed": "0 changes, CEN none",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "repairUbl on a correct IDR invoice, net 9,876,543,210,987.65 at 11%",
+   "method": "Python decimal: tax 1,086,419,753,208.64, gross 10,962,962,964,196.29; CEN XSLT on the output",
+   "command": "node -e repairUbl(inv/idr13.xml); cen.py rep",
+   "expected": "unchanged; CEN passes",
+   "observed": "gross and due rewritten to ...196.30; CEN fails BR-CO-15 (before this PR's fix; after it 0 changes, CEN none)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "half-cent ties 1.50 x 19% and 26.75 x 10%",
+   "method": "Python decimal ROUND_HALF_UP: 0.29 and 2.68; CEN",
+   "command": "node tool.mjs inv (tie, tie2)",
+   "expected": "no finding with tax 0.29 / 2.68",
+   "observed": "none; CEN none",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "BR-CO-17: breakdown tax 0.01, 0.90 and 1.50 off taxable x rate",
+   "method": "CEN Schematron BR-CO-17 assert, run under SaxonC",
+   "command": "node tool.mjs inv (taxoff1, taxoff90, taxoff150); cen.py inv",
+   "expected": "CEN passes 0.01 and 0.90, fails 1.50; tool warns, warns, blocks",
+   "observed": "INV-038 warning, warning, blocking INV-038+INV-018; CEN none, none, BR-CO-17+BR-S-09",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "buyer with endpoint but no BT-46",
+   "method": "EN 16931 BT-46 0..1; CEN",
+   "command": "node tool.mjs inv (nobuyerid)",
+   "expected": "no blocking finding",
+   "observed": "none (name-only buyers still draw INV-005 by design, checks.mjs:114-117)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "VAT check digits, 20 EU countries, 3,000 numbers",
+   "method": "python-stdnum eu.vat as oracle",
+   "command": "v/bin/python vatgen.py; node -e inspectPartyVat over vat.json",
+   "expected": "agreement outside the documented deliberate list",
+   "observed": "2,963 of 3,000; the 37 differences are CZ/SK months, SK third digit, BG 10-digit, ES X, DE leading 0, all documented at README:73/:1749",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "JS and Python suites, with the official-route deps CI installs",
+   "method": "run here",
+   "command": "npm i --no-save slimdom@4.3.5 fontoxpath@3.34.0; node --test; PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "green, official-route tests not skipped",
+   "observed": "2400 tests, 2383 pass, 0 fail, 17 skip; Python 447 OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "CI runs the official-route tests (prior defect 4)",
+   "method": "read the workflow",
+   "command": "sed -n 80,90p .github/workflows/einvoice-preflight-ci.yml",
+   "expected": "slimdom/fontoxpath installed before node --test",
+   "observed": "line 87 installs both pinned, line 88 runs node --test",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "page/CLI parity claim (prior defect 1)",
+   "method": "run the shipped parity harness",
+   "command": "node eval/page-cli-parity.mjs",
+   "expected": "index.html:259-264: same rules on the shipped JSON/UBL/CII/Factur-X files except PDF notes",
+   "observed": "only PDF-001 on 3 PDFs differs",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt:7 BR-CO-17 rounding claim",
+   "method": "the three tax-off files against CEN",
+   "command": "node tool.mjs inv",
+   "expected": "warning under one unit, failure at a full unit",
+   "observed": "as claimed",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served llms.txt, sitemap, robots, canonicals",
+   "method": "deploy rewrite replay",
+   "command": "node platform/pages/served-copy.mjs einvoice-preflight",
+   "expected": "no placeholder or retired origin",
+   "observed": "none left",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "JS and CLI fix texts for a blocking INV-038",
+   "method": "same file through both",
+   "command": "node tool.mjs inv/taxoff150.xml; PYTHONPATH=src python3 -m einvoice_preflight inv/taxoff150.xml",
+   "expected": "same figure",
+   "observed": "JS 'Set tax to 38', CLI 'Set tax to 38.00' (fixed in this PR)",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "vat.mjs:193",
+   "change": "if (egn === 10) egn = 0; -> if (egn === 10) egn = 1;",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "vat.mjs:224",
+   "change": "(Number(b.slice(0, 9)) % 11) % 10 === ... -> (Number(b.slice(0, 9)) % 11) === ...",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "checks.mjs:34",
+   "change": "toPrecision(15) -> toPrecision(12)",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "breakdown.mjs:30",
+   "change": ": cents < 100; -> : cents <= 100;",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "repair-ubl.mjs:39",
+   "change": "roundHalfUpToCents(n).toFixed(2) -> (Math.round(n * 100) / 100).toFixed(2)",
+   "caught": true,
+   "test_cmd": "node --test repair-ubl.test.mjs repair.test.mjs repair-fuzz.test.mjs"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "high",
+   "basis": "marked",
+   "status": "closed",
+   "what": "amounts of 10^10 or more truncated by 12-digit rounding; correct IDR invoice drew wrong fixes and a damaging repair",
+   "evidence": "precision now 15 (checks.mjs:34 and copies); the 12,345,678,901.23 IDR file draws nothing and repairs to itself; CEN passes. The same idiom still cut a cent at 10^13 (new defect 0 below)"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "page/CLI parity claim false",
+   "evidence": "checks.mjs:1-6 and index.html:259-264 now state the differences; eval/page-cli-parity.mjs confirms them"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "BR-CO-17 enforced to the cent as blocking",
+   "evidence": "breakdown.mjs:26-31 warns under one unit; 0.01/0.90 files warn, 1.50 blocks, as CEN; `<= 100` mutant caught"
+  },
+  {
+   "index": 3,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "no remainder-10 test for BG EGN / CZ 10-digit",
+   "evidence": "both mutants now fail the suite"
+  },
+  {
+   "index": 4,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "CI skipped the official-route tests",
+   "evidence": "einvoice-preflight-ci.yml:87 installs slimdom and fontoxpath"
+  },
+  {
+   "index": 5,
+   "severity": "low",
+   "basis": "open",
+   "status": "partial",
+   "what": "INV-005 blocks a buyer with no BT-46",
+   "evidence": "no longer fires when the buyer has a VAT id, legal id or endpoint (checks.mjs:114-119); a name-only buyer still draws a blocking INV-005 that CEN would pass, documented as deliberate at README:1165"
+  },
+  {
+   "index": 6,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "NO/CH VAT not in the Python port",
+   "evidence": "no NO/CH rule in src/einvoice_preflight/vat.py; listed open in NEXT.md:33"
+  },
+  {
+   "index": 7,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "rounding idiom copy-pasted; README a run log",
+   "evidence": "four identical copies plus three variants remain (this PR patched four); README 397,748 bytes"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "low",
+   "what": "Rounding at 15 significant digits still cut a real cent from 10^13 units: repairUbl rewrote the gross and due of a correct IDR invoice (net 9,876,543,210,987.65 at 11%) from 10,962,962,964,196.29 to .30, which CEN then rejects (BR-CO-15); the checker itself reported nothing, so the page offered a repair the report never asked for. Fixed in this PR: past 10^15 cents the double has no sub-cent noise to settle, so it is rounded directly; large-amount-rounding.test.mjs fails 3 of 3 without the fix.",
+   "where": "ventures/einvoice-preflight/checks.mjs:34 (same idiom breakdown.mjs:39, adjustment.mjs:14, linenet.mjs:14)",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19982"
+  },
+  {
+   "severity": "low",
+   "what": "Blocking INV-038 fix text gave the tax unformatted ('Set tax to 38') where INV-018 and the Python CLI give '38.00'; also in the committed sample audit pack. Fixed in this PR with formatCents and a test.",
+   "where": "ventures/einvoice-preflight/breakdown.mjs:139",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19982"
+  },
+  {
+   "severity": "low",
+   "what": "Prior defect 7 persists: the rounding helper is still copied in seven places, so this round's fix had to touch four files; README.md has grown to 397,748 bytes of dated run log.",
+   "where": "ventures/einvoice-preflight/checks.mjs:30-35, ventures/einvoice-preflight/README.md",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Prior defect 6 persists: Norway and Switzerland VAT check digits are JS only; the Python CLI passes a mistyped NO/CH number.",
+   "where": "ventures/einvoice-preflight/src/einvoice_preflight/vat.py",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Prior defect 5, narrowed: a buyer known by name alone still draws a blocking INV-005 though BT-46/47/48 are optional in EN 16931 (deliberate, documented at README:1165).",
+   "where": "ventures/einvoice-preflight/checks.mjs:118-122",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/19982"
+ ],
+ "verdict": "Fifth audit, first to meet the bar. Fix PRs #17724, #18913, #18785 and #19757 closed five of the eight 2026-11-19 defects, the high one included. On 8 generated invoices the built-in route, the official route and the Python CLI all agree with CEN's own EN 16931 Schematron 1.3.17 run under SaxonC: the 10^10 IDR invoice is clean, per-line rounding under one unit warns, a full unit off blocks. All 5 seeded mutants fail the suite, including the two remainder-10 mutants that survived twice before, and CI now runs the official-route tests. VAT check digits agree with python-stdnum on 2,963 of 3,000 numbers, and the 37 differences are documented. One new defect on arrival: from 10^13 units the repair still damaged a correct invoice (gross off by a cent, then rejected by CEN). It is fixed in this PR with a test, but scores are before the fix, so correctness stays 3. Craft stays 2: the rounding helper is copied seven times and the README is a 398 KB log. NO/CH VAT is still missing from the Python CLI, and a name-only buyer still draws a stricter-than-EN-16931 INV-005."
+}
