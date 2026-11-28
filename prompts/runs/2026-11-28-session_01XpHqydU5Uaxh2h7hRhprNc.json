@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqydU5Uaxh2h7hRhprNc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T14:39:21Z",
+  "ended": "2026-11-28T14:46:06Z",
+  "wall_minutes": 6.93,
+  "tokens_in": 5207396,
+  "tokens_out": 25106,
+  "cost_usd": 2.4806,
+  "tool_calls": 49,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20145",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "node --test test/ (a directory) fails with MODULE_NOT_FOUND on Node 22; test/*.test.mjs works, as CLAUDE.md says",
+    "first Etsy page description was 164 characters; the site's honesty test caught it",
+    "merge conflicts with main twice (Whatnot then Mercari taxes pages landed during CI); resolved by taking main and re-applying the Etsy additions"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says bet #5 has the fewest front-door PRs while three Seller Books platform-tax pages (depop, mercari, whatnot) were already claimed; the per-app listing showed this but --bets did not"
+    },
+    {
+      "file": "ventures/seller-books/biome.json",
+      "issue": "biome is not installed in the clone; had to npm-install @biomejs/biome@2.6.8 into the scratchpad to run the check CI runs"
+    },
+    {
+      "file": "ventures/seller-books/apps/seller-books-site/src/pages.mjs",
+      "issue": "every platform-tax page edits the same nested ternary in platformPage, the allPages list, the footer and the llms list, so parallel runs (Whatnot, Mercari, Etsy today) conflict on every merge; a per-platform taxesPage field in PLATFORMS would let them land without conflicts"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bets #1-#6 had no free ungated ROADMAP item; took a front-door search page for bet #5 (the least-worked demand side), not a feature",
+      "did": "Etsy taxes page built from the importer's own fixtures",
+      "result": "merged with tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (new dated Etsy section)"
+  ],
+  "goal": null,
+  "notes": "seller-books-site node --test: 121 pass 0 fail; biome check clean. Etsy quotes from help.etsy.com articles 115014483627 and 360000343968, read 2026-11-28 via WebFetch; etsy.com/legal/fees returns 403.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1ae6b2bd-8876-5d15-afc3-5e7db6601e25",
+    "transcripts": 1,
+    "first": "2026-11-28T14:39:21Z",
+    "last": "2026-11-28T14:46:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 97,
+        "output": 25106,
+        "thinking": 3425,
+        "cache_read": 5087217,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120082,
+        "api_equivalent_usd": 2.4806,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 97,
+      "output": 25106,
+      "thinking": 3425,
+      "cache_read": 5087217,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120082,
+      "api_equivalent_usd": 2.4806,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 41,
+      "WebFetch": 3,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.93,
+      "active_minutes": 6.93,
+      "model_minutes": 4.8,
+      "tool_minutes": 2.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "researching Etsy's fee and tax wording, working two exports to Schedule C by hand, writing and testing one page",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 120.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
