@@ -34,7 +34,8 @@
     "A Bash call that started a background http.server and Playwright in one compound command was refused by the rm safety check (no rm in it); split into separate calls.",
     "CI security-scan: gitleaks generic-api-key on a sha256 in SOURCES.md sitting beside the word 'API'; moved the hashes into their own block.",
     "CI validate: portfolio/monetization/transition.json stale against main (source line counts); regenerated with transition.py --write.",
-    "CI test: main's title-length test failed on jobshop-site machining-tolerances (78 chars, from PR #20036, tolerance-check); fixed forward to 67 in routes.ts and the export."
+    "CI test: main's title-length test failed on jobshop-site machining-tolerances (78 chars, from PR #20036, tolerance-check); fixed forward to 67 in routes.ts and the export.",
+    "CI test: build.test.mjs 'offline bundle stays small' failed: the services category's gzipped offline bundle went from just under 4 MiB to 4.19 MB with the CUI page. Split services into a 'Job shops & fabrication' sub-group (services-shops) and services-other, as the test's own comment asks, instead of raising the line; 8 placement expectations moved from null to services-other."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -53,6 +54,10 @@
     {
       "file": "platform/security/scan.py (gitleaks)",
       "issue": "A source-hash table with 'API' in the same row trips generic-api-key; SOURCES.md in other ventures put hashes beside 'versioner API' too. Worth a note in docs/security/risk-review.md or a hash-shaped allowlist."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight runs the site tests minus build.test.mjs, so the 4 MiB per-category offline bundle check (build.test.mjs) is only caught in CI; services was ~5 KB under the line, so any services venture could trip it. Running that one test in preflight would have caught it locally."
     }
   ],
   "deviations": [
