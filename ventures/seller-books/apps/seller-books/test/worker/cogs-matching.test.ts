@@ -216,3 +216,40 @@ describe("cost of goods: which items an order sold", () => {
     expect(await pnlTotal(userId, orgId)).toMatchObject({ cogsCents: 1000, ordersWithoutCost: 2 });
   });
 });
+
+// The 2026-11-26 quality audit's two surviving mutants (dropping the in_stock filter, dropping oldest-first
+// ordering) still survived on 2026-11-28: every earlier test had at most two candidate items, both in stock
+// and added oldest first. Here the items are added out of date order and one is already written off.
+describe("cost of goods: which in-stock items, in what order", () => {
+  it("takes the two oldest items still in stock, not the newest one added first or one written off", async () => {
+    const t = await setupTenant();
+    const pyrex = (acquiredDate: string, costCents: number) =>
+      addItem(t.userId, t.orgId, { title: "Pyrex bowl", sku: "SKU-PYREX-2", acquiredDate, costCents });
+    const newest = await pyrex("2025-12-01", 1500); // added first, bought last
+    const oldest = await pyrex("2025-11-01", 1000);
+    const middle = await pyrex("2025-11-15", 1200);
+    const gone = await pyrex("2025-10-01", 900); // oldest of all, but written off before the sale
+    const off = await api(`/api/orgs/${t.orgId}/inventory/items/${gone.id}`, {
+      method: "PATCH",
+      as: t.userId,
+      json: { status: "written_off", disposedDate: "2025-12-15" },
+    });
+    expect(off.status).toBe(200);
+
+    const res = await api(`/api/orgs/${t.orgId}/imports`, {
+      method: "POST",
+      as: t.userId,
+      json: { report: "ebay_transaction_report", fileName: "ebay.csv", csv: ebayCsv },
+    });
+    expect(res.status).toBe(201);
+    expect((await json<{ itemsLinked: number }>(res)).itemsLinked).toBe(2);
+
+    const byId = new Map((await items(t.userId, t.orgId)).map((i) => [i.id, i]));
+    expect(byId.get(oldest.id)).toMatchObject({ status: "sold", disposedDate: "2026-01-18" });
+    expect(byId.get(middle.id)).toMatchObject({ status: "sold", disposedDate: "2026-01-18" });
+    expect(byId.get(newest.id)).toMatchObject({ status: "in_stock", disposedDate: null });
+    expect(byId.get(gone.id)).toMatchObject({ status: "written_off", disposedDate: "2025-12-15" });
+    // $10.00 + $12.00, first in first out; the $15.00 bowl closes the year on hand.
+    expect((await pnlTotal(t.userId, t.orgId)).cogsCents).toBe(2200);
+  });
+});
