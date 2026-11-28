@@ -30,13 +30,18 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First facePieces-free version sampled sections at a few depths; on a bay's leaning side planes that missed part of a course (a 0-length piece). Caught by a sanity print, fixed with the exact shadow of face-and-band; a random-bay fuzz then caught a pre-existing 0-length-remainder bug in layRun."
+    "First facePieces-free version sampled sections at a few depths; on a bay's leaning side planes that missed part of a course (a 0-length piece). Caught by a sanity print, fixed with the exact shadow of face-and-band; a random-bay fuzz then caught a pre-existing 0-length-remainder bug in layRun.",
+    "CI changed-ventures failed on a typecheck (a JSDoc @type comment separated from its const by a new comment line); fixed with platform/pages/typecheck.mjs residential-takeoff, which run_venture_tests.py does not run locally."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "--bets said 'Start here: bet #4 cmmc, item #1', but that item's only open part (gauge-list-import) was already claimed 9 min earlier; every bet's Next list was 'waits on demand', so the real free work was a Next inside a ROADMAP milestone prose line (residential takeoff, item 6) that the tool does not list."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "A local pass is said to be the CI pass, but the changed-ventures job also runs platform/pages/typecheck.mjs for @ts-check files, which this command skips; a type error went red only in CI."
     }
   ],
   "deviations": [

@@ -188,9 +188,9 @@ export function facePieces(p, i, face, d0, d1) {
   const f = frame(p, i);
   const D = (/** @type {Pt} */ q) => (q.x - f.a.x) * f.nx + (q.y - f.a.y) * f.ny;
   const T = (/** @type {Pt} */ q) => (q.x - f.a.x) * f.ux + (q.y - f.a.y) * f.uy;
-  /** @type {[number, number][]} */
   // the band's ends taken OFF inside, as coursePieces samples them (a level ridge at a band's end carries float error)
   const lo = d0 + OFF, hi = d1 - OFF;
+  /** @type {[number, number][]} */
   const all = [...faceSection(p, i, face, lo), ...faceSection(p, i, face, hi)];
   for (let j = 0; j < face.length; j++) {
     const a = face[j], b = face[(j + 1) % face.length];
