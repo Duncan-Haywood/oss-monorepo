@@ -1,8 +1,11 @@
 // /orgs/$orgId/projects/$projectId/sworn-statement : the contractor's sworn statement that goes with a
 // pay application (src/shared/sworn-statement.ts). Prefilled from the job and its purchase orders and
-// subcontracts, typed here, checked live, printed by the Worker; nothing is stored on the server. The
-// draft is kept in this browser only, so next month starts from this month's parties.
+// subcontracts, typed here, checked live, printed by the Worker. The draft is saved with the job
+// (GET/PUT .../sworn-statement/draft) as an editor types, so next month starts from this month's
+// parties and paid column on any computer; a viewer's changes stay in their browser. A draft kept in
+// this browser before drafts were saved with the job is picked up once and saved.
 import type { JobCostDto, ProjectDetailDto } from "@shared/api/types";
+import { type MemberRole, ROLE_RANK } from "@shared/enums";
 import { formatCents } from "@shared/money";
 import {
   computeSwornStatement,
@@ -10,6 +13,7 @@ import {
   SWORN_STATE_LABELS,
   SWORN_STATEMENT_NOTICE,
   SWORN_STATES,
+  type SwornDraftDto,
   type SwornRowInput,
   type SwornStatementInput,
   swornHasErrors,
@@ -17,9 +21,9 @@ import {
   swornRowsFromCommitments,
   swornStatementSchema,
 } from "@shared/sworn-statement";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ErrorText } from "../components/error";
 import { meQuery } from "../components/layout";
 import { MoneyInput } from "../components/money-input";
@@ -74,6 +78,10 @@ function saveDraft(key: string, d: Draft | null) {
   }
 }
 
+/** The draft as sent to the server: the row keys are this page's own. */
+const forServer = (d: Draft) => ({ ...d, rows: d.rows.map(({ uid: _uid, ...r }) => r) });
+const SAVE_DELAY_MS = 800;
+
 const ISSUE_CLASS = { error: "text-red-700", warning: "text-amber-800", note: "text-slate-600" };
 
 function Field(props: { label: string; children: React.ReactNode; className?: string }) {
@@ -99,9 +107,26 @@ export function SwornStatementPage() {
     queryFn: () => api<JobCostDto>(projectPath(orgId, projectId, "/job-cost")),
   });
   const me = useQuery(meQuery);
-  const orgName = me.data?.memberships.find((m) => m.orgId === orgId)?.orgName ?? "";
+  const queryClient = useQueryClient();
+  const membership = me.data?.memberships.find((m) => m.orgId === orgId);
+  const orgName = membership?.orgName ?? "";
+  const role: MemberRole | null = membership?.role ?? null;
+  const canSave = role !== null && ROLE_RANK[role] >= ROLE_RANK.editor;
+  const saved = useQuery({
+    queryKey: ["sworn-draft", orgId, projectId],
+    queryFn: () => api<SwornDraftDto>(projectPath(orgId, projectId, "/sworn-statement/draft")),
+    // Loaded once per visit: the page's own state is the draft from then on.
+    staleTime: Number.POSITIVE_INFINITY,
+    refetchOnWindowFocus: false,
+  });
   const key = storageKey(orgId, projectId);
   const [draft, setDraft] = useState<Draft | null>(null);
+  /** The last draft the server holds, as JSON, so an unchanged draft is not saved again. */
+  const lastSaved = useRef<string | null>(null);
+  const [savedInfo, setSavedInfo] = useState<{ at: string | null; by: string | null }>({
+    at: null,
+    by: null,
+  });
   const header = useMemo(
     () => (q.data ? swornHeaderFromProject(q.data, orgName, today()) : null),
     [q.data, orgName],
@@ -113,10 +138,15 @@ export function SwornStatementPage() {
   );
 
   useEffect(() => {
-    if (draft || !header || jc.isLoading) return;
-    const saved = loadDraft(key);
+    if (draft || !header || jc.isLoading || saved.isLoading || !me.data) return;
+    const server = saved.data?.draft ?? null;
+    if (server) {
+      lastSaved.current = JSON.stringify(server);
+      setSavedInfo({ at: saved.data?.updatedAt ?? null, by: saved.data?.updatedByName ?? null });
+    }
+    const kept = server ? { ...server, rows: withUid(server.rows) } : loadDraft(key);
     setDraft(
-      saved ?? {
+      kept ?? {
         ...header,
         rows: withUid(
           prefill.length
@@ -125,11 +155,47 @@ export function SwornStatementPage() {
         ),
       },
     );
-  }, [header, prefill, draft, key, jc.isLoading]);
+  }, [header, prefill, draft, key, jc.isLoading, saved.isLoading, saved.data, me.data]);
+
+  const save = useMutation({
+    mutationFn: (body: ReturnType<typeof forServer>) =>
+      api<SwornDraftDto>(projectPath(orgId, projectId, "/sworn-statement/draft"), {
+        method: "PUT",
+        body,
+      }),
+    onSuccess: (res, body) => {
+      lastSaved.current = JSON.stringify(res.draft ?? body);
+      setSavedInfo({ at: res.updatedAt, by: res.updatedByName });
+      // Saved with the job: the browser copy is no longer needed.
+      saveDraft(key, null);
+    },
+  });
+  const saveMutate = save.mutate;
 
   useEffect(() => {
-    if (draft) saveDraft(key, draft);
-  }, [draft, key]);
+    if (!draft) return;
+    if (!canSave) {
+      saveDraft(key, draft);
+      return;
+    }
+    const body = forServer(draft);
+    if (JSON.stringify(body) === lastSaved.current) return;
+    const t = setTimeout(() => saveMutate(body), SAVE_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [draft, key, canSave, saveMutate]);
+
+  const clear = useMutation({
+    mutationFn: () =>
+      api(projectPath(orgId, projectId, "/sworn-statement/draft"), { method: "DELETE" }),
+    onSuccess: () => {
+      lastSaved.current = null;
+      setSavedInfo({ at: null, by: null });
+      const none: SwornDraftDto = { draft: null, updatedAt: null, updatedByName: null };
+      queryClient.setQueryData(["sworn-draft", orgId, projectId], none);
+      saveDraft(key, null);
+      setDraft(null);
+    },
+  });
 
   const parsed = useMemo(() => (draft ? swornStatementSchema.safeParse(draft) : null), [draft]);
   const computed = useMemo(
@@ -149,6 +215,7 @@ export function SwornStatementPage() {
   });
 
   if (q.error) return <ErrorText error={q.error} />;
+  if (saved.error) return <ErrorText error={saved.error} />;
   if (!q.data || !draft || !header) return <p className="text-sm text-slate-500">Loading…</p>;
   const p = q.data;
   const set = (patch: Partial<Draft>) => setDraft({ ...draft, ...patch });
@@ -195,8 +262,8 @@ export function SwornStatementPage() {
           (770 ILCS 60/5) and Michigan (MCL 570.1110) write it into their lien laws; lenders and
           title companies ask for it elsewhere before they release a draw. The parties start from
           this job's purchase orders and subcontracts in Job cost; fill in what you have paid and
-          owe from your books. Nothing here is saved on our servers: the draft stays in this browser
-          so next month can start from this month's list.
+          owe from your books. The list is saved with the job as you type, so next month can start
+          from this month's parties on any computer (a viewer's changes stay in their own browser).
         </p>
       </div>
 
@@ -514,7 +581,9 @@ export function SwornStatementPage() {
             type="button"
             className="btn-secondary"
             onClick={() => {
-              if (window.confirm("Clear this statement and the list saved in this browser?")) {
+              if (!window.confirm("Clear this statement and the list saved with this job?")) return;
+              if (canSave) clear.mutate();
+              else {
                 saveDraft(key, null);
                 setDraft(null);
               }
@@ -524,6 +593,20 @@ export function SwornStatementPage() {
           </button>
         </div>
         <ErrorText error={print.error} />
+        <ErrorText error={clear.error} />
+        <p className="text-xs text-slate-500" aria-live="polite">
+          {!canSave
+            ? "You can view this company's jobs, so your changes are kept in this browser only."
+            : save.isPending
+              ? "Saving…"
+              : save.isError
+                ? `Not saved: ${save.error.message}. Your next change tries again.`
+                : savedInfo.at
+                  ? `Saved with the job${savedInfo.by ? ` by ${savedInfo.by}` : ""}, ${new Date(
+                      savedInfo.at,
+                    ).toLocaleString()}.`
+                  : "Not saved with the job yet."}
+        </p>
         <p className="text-xs text-slate-500">{SWORN_STATEMENT_NOTICE}</p>
       </section>
     </div>

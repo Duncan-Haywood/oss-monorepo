@@ -219,4 +219,103 @@ describe("document control", () => {
     const outsiderRead = await api(path(t, "/documents"), { as: other.userId });
     expect(outsiderRead.status).toBe(404);
   });
+
+  it("links an evidence file as each revision's controlled copy, and the history keeps it", async () => {
+    const t = await setupTenant();
+    const upload = async (name: string, body: string, as = t) => {
+      const fd = new FormData();
+      fd.set("file", new File([body], name, { type: "application/pdf" }));
+      fd.set("title", name);
+      fd.set("noCui", "true");
+      return json<{ id: string; sha256: string }>(
+        api(path(as, "/evidence"), { method: "POST", as: as.userId, body: fd }),
+        201,
+      );
+    };
+    const revA = await upload("QP-7.5-01 rev A.pdf", "rev A text");
+    const d = await json<Doc>(add(t, procedure({ location: "" })), 201);
+
+    // Another org's file never links.
+    const other = await setupTenant("owner", "Other Shop");
+    const foreign = await upload("theirs.pdf", "x", other);
+    const refused = await post(t, d.id, "release", {
+      approvedOn: daysAgo(10),
+      evidenceId: foreign.id,
+    });
+    expect(refused.status).toBe(400);
+    // Linking a file needs a released revision.
+    const early = await api(path(t, `/documents/${d.id}/file`), {
+      method: "PUT",
+      as: t.userId,
+      json: { evidenceId: revA.id },
+    });
+    expect(early.status).toBe(409);
+
+    await json(post(t, d.id, "release", { approvedOn: daysAgo(10), evidenceId: revA.id }));
+    let l = await list(t);
+    const item = l.items[0] as unknown as {
+      evidenceId: string;
+      file: { fileName: string } | null;
+      issues: { message: string }[];
+    };
+    expect(item.evidenceId).toBe(revA.id);
+    expect(item.file?.fileName).toBe("QP-7.5-01 rev A.pdf");
+    // A linked file counts as the controlled copy's location.
+    expect(item.issues.some((i) => i.message.includes("controlled copy"))).toBe(false);
+    let h = (await history(t, d.id)).items as unknown as {
+      revision: string;
+      fileName: string | null;
+      fileSha256: string | null;
+      fileEvidenceId: string | null;
+    }[];
+    expect(h[0]).toMatchObject({ revision: "A", fileName: "QP-7.5-01 rev A.pdf" });
+    expect(h[0]?.fileSha256).toBe(revA.sha256);
+
+    const csv = await (await api(path(t, "/documents/export.csv"), { as: t.userId })).text();
+    expect(csv).toContain("Controlled copy (evidence),Controlled copy SHA-256");
+    expect(csv).toContain(`QP-7.5-01 rev A.pdf,${revA.sha256}`);
+
+    // Rev B released without a file: rev A's file is not carried over to it.
+    await json(post(t, d.id, "revise", {}));
+    await json(post(t, d.id, "release", { approvedOn: daysAgo(2), changeSummary: "New step 4" }));
+    l = await list(t);
+    expect((l.items[0] as unknown as { evidenceId: string | null }).evidenceId).toBeNull();
+    // ... then linked afterwards, which also fills rev B's history row.
+    const revB = await upload("QP-7.5-01 rev B.pdf", "rev B text");
+    await json(
+      api(path(t, `/documents/${d.id}/file`), {
+        method: "PUT",
+        as: t.userId,
+        json: { evidenceId: revB.id },
+      }),
+    );
+    h = (await history(t, d.id)).items as unknown as typeof h;
+    expect(h.map((e) => [e.revision, e.fileName])).toEqual([
+      ["B", "QP-7.5-01 rev B.pdf"],
+      ["A", "QP-7.5-01 rev A.pdf"],
+    ]);
+
+    // Deleting rev A's file drops the id but keeps its name and hash in the history.
+    await json(api(path(t, `/evidence/${revA.id}`), { method: "DELETE", as: t.userId }));
+    h = (await history(t, d.id)).items as unknown as typeof h;
+    expect(h[1]).toMatchObject({
+      fileEvidenceId: null,
+      fileName: "QP-7.5-01 rev A.pdf",
+      fileSha256: revA.sha256,
+    });
+    // Deleting the file in force unlinks the document.
+    await json(api(path(t, `/evidence/${revB.id}`), { method: "DELETE", as: t.userId }));
+    l = await list(t);
+    expect((l.items[0] as unknown as { evidenceId: string | null }).evidenceId).toBeNull();
+
+    // Viewers cannot link.
+    const viewer = await createTestUser("Viewer");
+    await addToOrg(t.orgId, viewer.id, "viewer");
+    const byViewer = await api(path(t, `/documents/${d.id}/file`), {
+      method: "PUT",
+      as: viewer.id,
+      json: { evidenceId: null },
+    });
+    expect(byViewer.status).toBe(403);
+  });
 });

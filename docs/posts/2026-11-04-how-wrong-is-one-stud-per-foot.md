@@ -142,3 +142,39 @@ first hip layout; the paid edition, Residential Takeoff, orders the second.
 No valleys, dormers or damaged sheets; the table is on
 `ventures/wall-framing-takeoff/roof-sheathing-waste-factor.html`, pinned to the
 benchmark by a test.
+
+## Price the order with your yard's price list, not by the foot (2026-11-28)
+
+Choosing which board lengths to buy is the part of a framing order that
+software does better than a person: each plate run and header has to come out
+of some mix of 8 to 16 ft boards, and the cheapest mix depends on what each
+length costs. With no prices the takeoff minimises the length bought. Yards do
+not always charge the same per foot for every length: precut studs are often
+priced on their own, and long boards can cost more a foot. When they do, the
+cheapest order by length is not the cheapest by money.
+
+The residential takeoff now reads the yard's price list as a CSV, the
+description and price columns most quote exports have (`2x4-8' SPF #2, 4.12`,
+`2X6X16, 13.90`, prices each, per lineal foot or per thousand board feet). It
+reprices the lumber list, so the order is chosen on those prices; fills the
+budget's prices for sheets and roofing that the list names by use; and lists
+every row it did not read and why, rather than guessing what a "7/16 OSB 4x8"
+with no use given is for.
+
+We measured the difference on the invented example house and one generated
+plan (`pricelist-bench.mjs`): the same board lengths, ordered once by length
+and priced afterwards, once on the prices. The price lists are invented shapes,
+not any yard's prices:
+
+| Price list (invented) | Example house | Generated plan |
+|---|---|---|
+| Same price per foot for every length | 0.0% | -0.1% |
+| Precut studs 15% cheaper per foot | 1.3% | 1.3% |
+| Long boards dearer (+2% a foot per foot over 8 ft) | 1.8% | 2.7% |
+| Both | 3.9% | 5.3% |
+
+On a flat per-foot list there is nothing to win (the -0.1% is the optimiser's
+own gap). Where the yard's per-foot price varies by length, a few percent of
+the lumber bill comes back by ordering differently, more boards, less money. A
+real yard's list will have its own shape; run it through and the order shows
+the cost.
