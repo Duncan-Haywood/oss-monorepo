@@ -2,7 +2,7 @@
 title: "A free pay application template in Excel whose totals cannot drift"
 seo_title: "Free pay application template (Excel) with live formulas"
 date: 2026-11-25
-updated: 2026-11-27
+updated: 2026-11-28
 tags: [construction, subcontractors, pay-applications, retainage, excel, pay-application-generator, for-customers]
 description: "The pay application generator now downloads a blank .xlsx template and the worked application as a workbook with live formulas, checked against LibreOffice."
 ---
@@ -211,3 +211,36 @@ a $3,000.00 deposit off, $16,008.00 due) in LibreOffice and compares it
 with the page. The page also says when a GC will want a pay application
 instead, and how to move invoice lines onto a schedule of values when that
 happens.
+
+## Update, 2026-11-28: the same workbook out of PayApps, every month
+
+Once a job is in [PayApps](https://marisstella.app/payapps/pay-application-software),
+the application page has an **Excel** button next to PDF and CSV. It
+downloads one workbook with two sheets: the application summary (lines 1
+to 9, the retainage rates, the change orders approved before and during
+the period) and the continuation sheet (columns A to I, the retainage
+released this period and, on a unit-price job, the quantities).
+
+It is built like the free template. Amounts are numbers, not text. The
+columns that are sums are formulas: G is D + E + F, the percentage is
+G / C, H is C − G, each total is a SUM over the lines, and summary line 4
+points at the continuation sheet's G total. So a GC's accountant who asks
+for the pay app "in Excel" can check it by clicking a cell, not by
+re-adding a printout.
+
+Each formula is saved with the figure PayApps already worked out, and a
+formula is only written where that figure equals it to the cent. In the
+one case where the two could disagree, the cell keeps PayApps' figure,
+because the workbook must never say something different from the PDF the
+GC also gets. Two checks back this up. LibreOffice opens the file and
+recalculates every formula to the same totals as the app. And PayApps' own
+"fill from your last continuation sheet" import reads the file back, with
+the application number, the period and the work to date on each line. A
+job billed here can start mid-job somewhere else, so the export never
+traps a contractor's billing history in PayApps.
+
+What it does not do: fill a GC's own Excel template cell by cell. Most
+GCs who send a template also run a portal, and PayApps already writes the
+files Procore, Textura, GCPay and Trimble Pay take. If your GC's template
+is a plain spreadsheet, the continuation sheet's columns are in the
+standard order, so you can paste them straight in.

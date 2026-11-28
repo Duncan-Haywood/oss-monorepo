@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVNaLMm7Vgi97ypLAzQ",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T09:55:59Z",
+  "ended": "2026-11-28T10:04:38Z",
+  "wall_minutes": 8.79,
+  "tokens_in": 1851526,
+  "tokens_out": 26510,
+  "cost_usd": 1.5672,
+  "tool_calls": 22,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20072",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "pages test red from another PR's page (title/description length); fixed forward here"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "The first list entry I considered (Joseph of Arimathea) mostly repeats episode 177's burial scene. List entries that overlap a done episode should say so, or be pruned when the earlier episode lands."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "No new blog post: this track's deliverable is the episode itself, and the series page and llms.txt are regenerated from it.",
+      "did": "Shipped the episode and the list updates only.",
+      "result": "The episode page and llms.txt are regenerated; no post was needed."
+    }
+  ],
+  "writeups": [
+    "ventures/saints-by-candlelight/episodes/184-david-at-the-gate-of-gath.md"
+  ],
+  "goal": null,
+  "notes": "Project: saints-by-candlelight. Piece: david-at-the-gate-of-gath (episode 184, 6,179 spoken words, text only; audio at 581 MB is over the 400 MB cap). Security queue: none workable. Ideas inbox: empty. Checks: check-script ok, venture node --test 21/21, og-description test pass, run_workflow_locally --for-changes 11/11 (CodeQL and security gate reached no verdict locally; CI is their verdict). CI's pages test failed on main's breakage from PR #20062 (SPRS page title 79 chars, description 172); fixed forward in this PR (60 and 154), then main landed its own fix and the merge took main's version. The same CI run also failed the services offline bundle at 4.2 MB, but that test passes locally on the merged tree; treated as at-the-edge noise and re-run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6a21a2a7-f628-552d-b008-1544b63a8750",
+    "transcripts": 1,
+    "first": "2026-11-28T09:55:59Z",
+    "last": "2026-11-28T10:04:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 21,
+        "input": 44,
+        "output": 26510,
+        "thinking": 8687,
+        "cache_read": 1766031,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85451,
+        "api_equivalent_usd": 1.5672,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 21,
+      "input": 44,
+      "output": 26510,
+      "thinking": 8687,
+      "cache_read": 1766031,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85451,
+      "api_equivalent_usd": 1.5672,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.954,
+    "tool_calls": 22,
+    "tools": {
+      "Bash": 18,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.79,
+      "active_minutes": 8.79,
+      "model_minutes": 4.77,
+      "tool_minutes": 4.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a 6,000-word researched script at about 1,000 words an hour including the source checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 382.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

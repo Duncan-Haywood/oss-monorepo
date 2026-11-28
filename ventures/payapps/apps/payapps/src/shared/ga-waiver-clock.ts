@@ -39,6 +39,15 @@
 // ga_affidavit_* columns, named for Georgia, which came first) and the same stages serve both
 // states; `NONPAYMENT_RULES` holds what differs. The count is checked against the package's
 // msSixtyDays in the test.
+//
+// Mississippi's time computation (2026-11-28): § 85-7-425 counts time under the lien article by
+// § 1-3-67, read 2026-11-28 (packages/lien-waivers/src/ms-dates.ts). When the 60th day is a Saturday,
+// Sunday or legal holiday the period runs to the end of the next day that is not (`lastDay`); the
+// days left still count to the 60th day, so the reminder never comes later than before, and the
+// text names both days. The two days to the owner's copy leave out the Saturdays, Sundays and legal
+// holidays in between (a period under seven days). Georgia's own rule (O.C.G.A. § 1-3-1) is not
+// read, so Georgia still counts plain calendar days.
+import { msLegalHoliday, msPeriodEnd } from "@lien-waivers/ms-dates";
 import type { GaContractorCopy, WaiverKind, WaiverStatus } from "./enums";
 import { formatCents } from "./money";
 
@@ -78,7 +87,8 @@ export const NONPAYMENT_RULES: Readonly<Record<"GA" | "MS", NonpaymentRule>> = {
     stateName: "Mississippi",
     days: 60,
     copyDays: 2,
-    copyDaysWord: "two days",
+    copyDaysWord:
+      "two days, not counting Saturdays, Sundays or legal holidays (Miss. Code Ann. § 1-3-67)",
     contractorCopy: false,
     cite: "Miss. Code Ann. § 85-7-419(5)(b)",
     suspendCite: "Miss. Code Ann. § 85-7-419(5)(e)",
@@ -147,15 +157,20 @@ export interface GaWaiverClock {
   endsOn: string;
   /** Days from today to endsOn: 0 on the last day, negative once passed. */
   daysLeft: number;
+  /**
+   * Mississippi only, when endsOn is a Saturday, Sunday or legal holiday: the day § 1-3-67 runs
+   * the period to, and why it moved.
+   */
+  lastDay?: { on: string; daysLeft: number; because: string };
   /** How much of the waiver's amount is not recorded as received. */
   unpaidCents: number;
   waiverAmountCents: number;
   stage: GaClockStage;
   /** Set once an affidavit of nonpayment is recorded as filed. */
   filing?: GaAffidavitFiling & {
-    /** Filed after the ninety days ended: the statute asks for it "prior to the expiration". */
+    /** Filed after the period ended (in Mississippi, after `lastDay`): the statute asks for it "prior to the expiration". */
     late: boolean;
-    /** Last day to send the owner's copy (filedOn + 7 in Georgia, + 2 in Mississippi). */
+    /** Last day to send the owner's copy (filedOn + 7 in Georgia; in Mississippi two days without weekends and legal holidays). */
     copyDueOn: string;
     /** Days from today to copyDueOn; negative once passed. */
     copyDaysLeft: number;
@@ -212,11 +227,20 @@ export function gaWaiverClocks(
             ? "released"
             : "paid-after-filing",
     };
-    if (filed && !Number.isNaN(utc(filed.filedOn))) {
-      const copyDueOn = addDays(filed.filedOn, rule.copyDays);
+    if (rule.state === "MS") {
+      const p = msPeriodEnd(w.sentOn, rule.days);
+      if (p.moved) {
+        clock.lastDay = { on: p.lastDay, daysLeft: days(p.lastDay), because: closedBecause(p) };
+      }
+    }
+    if (filed && ISO_DAY.test(filed.filedOn) && !Number.isNaN(utc(filed.filedOn))) {
+      const copyDueOn =
+        rule.state === "MS"
+          ? msPeriodEnd(filed.filedOn, rule.copyDays).lastDay
+          : addDays(filed.filedOn, rule.copyDays);
       clock.filing = {
         ...filed,
-        late: filed.filedOn > endsOn,
+        late: filed.filedOn > (clock.lastDay?.on ?? endsOn),
         copyDueOn,
         copyDaysLeft: days(copyDueOn),
       };
@@ -224,6 +248,16 @@ export function gaWaiverClocks(
     out.push(clock);
   }
   return out;
+}
+
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+/** Why the 60th day moved: "a Saturday", or "a Friday, Christmas Day" (a legal holiday). */
+function closedBecause(p: { calendarEnd: string }): string {
+  const weekday = WEEKDAYS[new Date(utc(p.calendarEnd)).getUTCDay()] ?? "";
+  const holiday = msLegalHoliday(p.calendarEnd);
+  return holiday ? `a ${weekday}, ${holiday}, a legal holiday` : `a ${weekday}`;
 }
 
 const plural = (n: number) => `${n} day${n === 1 ? "" : "s"}`;
@@ -282,8 +316,16 @@ export function gaClockText(c: GaWaiverClock): string {
     c.state === "MS"
       ? "the amount in it is deemed paid in full"
       : "the waiver is conclusively effective";
+  const moved = c.lastDay;
+  if (c.daysLeft < 0 && moved && moved.daysLeft >= 0) {
+    const by =
+      moved.daysLeft === 0
+        ? `the end of today, ${moved.on}`
+        : `the end of ${moved.on}, in ${plural(moved.daysLeft)}`;
+    return `${name}: the 60th day after the lien waiver for application #${c.number} (marked sent ${c.signedOn}) was ${c.endsOn}, ${moved.because}, and ${unpaid}. Miss. Code Ann. § 1-3-67 (by § 85-7-425) runs the period to ${by}. File an affidavit of nonpayment in the property's county and send the owner a copy before then, or the amount in the waiver is deemed paid in full (${r.cite}). If you filed one, record it on the pay app. If the money came in, record the payment.`;
+  }
   if (c.daysLeft < 0) {
-    return `${name}: the ${r.days} days after the lien waiver for application #${c.number} (marked sent ${c.signedOn}) ended on ${c.endsOn} and ${unpaid}. Unless you filed an affidavit of nonpayment before then, ${effective} (${r.cite}); ask counsel what is left. If you filed one, record it on the pay app. If the money came in, record the payment.`;
+    return `${name}: the ${r.days} days after the lien waiver for application #${c.number} (marked sent ${c.signedOn}) ended on ${moved?.on ?? c.endsOn} and ${unpaid}. Unless you filed an affidavit of nonpayment before then, ${effective} (${r.cite}); ask counsel what is left. If you filed one, record it on the pay app. If the money came in, record the payment.`;
   }
   const when =
     c.daysLeft === 0
@@ -293,7 +335,10 @@ export function gaClockText(c: GaWaiverClock): string {
     c.state === "MS"
       ? "the amount in the waiver is deemed paid in full anyway unless you file an affidavit of nonpayment in the property's county first and send the owner a copy"
       : "the waiver becomes effective anyway unless you file an affidavit of nonpayment in the property's county first";
-  return `${name}: the lien waiver for application #${c.number} was marked sent ${c.signedOn} and ${unpaid}; ${when}. If it is not paid by then, ${anyway} (${r.cite}). PayApps prints the affidavit from the waiver and records it once filed. If the money came in, record the payment.`;
+  const movedNote = moved
+    ? ` The ${r.days}th day is ${moved.because}, so Miss. Code Ann. § 1-3-67 (by § 85-7-425) runs the period to the end of ${moved.on}; the clerk's office is closed on the ${r.days}th day, so file before it if you can.`
+    : "";
+  return `${name}: the lien waiver for application #${c.number} was marked sent ${c.signedOn} and ${unpaid}; ${when}. If it is not paid by then, ${anyway} (${r.cite}).${movedNote} PayApps prints the affidavit from the waiver and records it once filed. If the money came in, record the payment.`;
 }
 
 /**
@@ -314,6 +359,7 @@ export function gaContractorCopyPending(f: GaAffidavitFiling, state: string = "G
  * (copies sent), a paid one with nothing signed and a released one are shown on the pay app only.
  */
 export function gaClockNeedsAction(c: GaWaiverClock): boolean {
+  // A 60th day § 1-3-67 moved is at most a few days back, well inside the 30 days after.
   if (c.stage === "running") return Math.abs(c.daysLeft) <= GA_REMIND_DAYS;
   const f = c.filing;
   if (!f) return false;

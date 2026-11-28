@@ -3,6 +3,8 @@
 // not cover shows its 60 days, the affidavit comes prefilled from the waiver (no unpaid-amount blank)
 // and prints at Crew, the filing and its 2-day copy to the owner are recorded, no contractor's copy
 // is ever asked, the (5)(c) affidavit of payment is recorded after payment, and another org sees none of it.
+
+import { msPeriodEnd } from "@lien-waivers/ms-dates";
 import type {
   GaAffidavitDto,
   PayAppDetailDto,
@@ -154,7 +156,11 @@ describe("Mississippi affidavit of nonpayment", () => {
       json: { filedOn: today(), county: "Hinds County", recording: "Book 12, page 3" },
     });
     expect(w.gaClock).toMatchObject({ state: "MS", stage: "filed" });
-    expect(w.gaClock?.filing).toMatchObject({ county: "Hinds", copyDueOn: plusDays(2) });
+    // Two days without the weekends and legal holidays in between (§ 1-3-67).
+    expect(w.gaClock?.filing).toMatchObject({
+      county: "Hinds",
+      copyDueOn: msPeriodEnd(today(), 2).lastDay,
+    });
     let cash = await call<{ projects: { actions: string[] }[] }>(
       `/api/orgs/${t.orgId}/reports/cash`,
       { as: t.as },

@@ -42,6 +42,12 @@ package), with the subscription kept for the contractor suite ([`docs/PRICING.md
   against a public key. `apps/wall-framing-takeoff/checkout.mjs` is generated from
   `platform/billing/catalogue.mjs` and holds no Paddle values yet, so the paid path is dark, no Buy
   button shows and every feature is open (`plans.mjs`); the page says so.
+- **Sale terms served** (2026-11-28): `apps/wall-framing-takeoff/terms.html` (Terms of Sale),
+  `refunds.html` (30-day full refund through Paddle) and `privacy.html` (plans stay in the browser,
+  cookieless Cloudflare Web Analytics from the host, what Paddle and the billing Worker see) are copied
+  to `/residential-takeoff/` and linked from the page footer and the bid-package card, the pages
+  Paddle's website review asks for. The page's footer no longer says it has "no analytics vendors"
+  (`platform/pages/analytics-claims.test.mjs` now reads these pages).
 - **Before the first sale** (owner steps, `platform/billing/README.md`, "Going live"): the billing
   Worker on its own account, the key pair, the client-side token, and a "Job report" product at $29
   whose `pri_...` id goes in the catalogue's `residential-takeoff` row; then one sandbox purchase

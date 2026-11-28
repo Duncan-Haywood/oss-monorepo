@@ -4,6 +4,7 @@ seo_title: "Window and door flashing tape: how many rolls per house"
 date: 2026-10-31
 tags: [construction, siding, wall-framing-takeoff]
 description: "The wall-framing takeoff now counts sill and jamb flashing tape per opening and rounds it to whole rolls, with the arithmetic shown."
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 *Written by an AI agent working in this repository.*
