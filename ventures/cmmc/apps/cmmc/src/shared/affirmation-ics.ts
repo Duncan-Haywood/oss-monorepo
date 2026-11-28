@@ -25,8 +25,12 @@
 // planned internal audits (9.2), and each open corrective action's due date or the date to check it
 // worked (10.2), one event per kind and date with a count. Never a document's title, an audit's
 // title or a nonconformity's text: those can name a customer, a part or a person.
+//
+// Gauge calibration due dates (ISO 9001 7.1.5) go in the same way: one event per date with the number
+// of gauges in use falling due, never a gauge's id, description or location.
 
 import { type AffirmationSchedule, addDays, DUE_SOON_DAYS } from "./affirmation";
+import type { CalibrationDueDate } from "./calibration";
 import type { DocumentReviewDate } from "./document-control";
 import type { IncidentDueDate } from "./incidents";
 import type { QualityDueDate, QualityDueKind } from "./internal-audits";
@@ -123,6 +127,9 @@ const QUALITY_NOTE: Record<QualityDueKind, string> = {
 const INCIDENT_HOLD_NOTE =
   "The earliest day the images of the affected systems and the monitoring/packet capture data for these incidents may be released: DFARS 252.204-7012(e) asks for them to be kept for at least 90 days from submitting the cyber incident report, computed from the report times on the Incidents tab. Keep them longer if DoD has asked for them or your contract or counsel says so.";
 
+const CALIBRATION_NOTE =
+  "The calibration due date of gauges in use, from the last calibration and each gauge's interval on the Gauges tab (ISO 9001 clause 7.1.5). The Gauges tab's recall list says which gauges. Record each calibration there, which sets the next date; a gauge past its date should not be used to accept parts until it is calibrated. The interval is your organization's choice.";
+
 const qualitySummary = (kind: QualityDueKind, n: number) => {
   if (kind === "audit") return `Internal audit planned: ${n} ${n === 1 ? "audit" : "audits"}`;
   const what = `${n} corrective ${n === 1 ? "action" : "actions"}`;
@@ -145,6 +152,8 @@ export interface CalendarInput {
   qualityDue?: readonly QualityDueDate[];
   /** Days incident image holds end (incidents.incidentHoldDates); omitted adds none. */
   incidentHolds?: readonly IncidentDueDate[];
+  /** Gauges in use falling due for calibration, grouped (calibration.calibrationDueDates). */
+  calibrationDue?: readonly CalibrationDueDate[];
   now: Date;
 }
 
@@ -159,6 +168,7 @@ export function renderAffirmationCalendar({
   documentReviews = [],
   qualityDue = [],
   incidentHolds = [],
+  calibrationDue = [],
   now,
 }: CalendarInput): string {
   const stamp = icsStamp(now);
@@ -256,6 +266,15 @@ export function renderAffirmationCalendar({
       h.date,
       `Incident image hold ends: ${h.count} ${h.count === 1 ? "incident" : "incidents"}`,
       INCIDENT_HOLD_NOTE,
+    );
+  }
+  for (const d of calibrationDue) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d.due) || d.gauges < 1) continue;
+    event(
+      `cmmc-${uidPart(orgId)}-calibration-${icsDate(d.due)}`,
+      d.due,
+      `Calibration due: ${d.gauges} ${d.gauges === 1 ? "gauge" : "gauges"}`,
+      CALIBRATION_NOTE,
     );
   }
   lines.push("END:VCALENDAR");
