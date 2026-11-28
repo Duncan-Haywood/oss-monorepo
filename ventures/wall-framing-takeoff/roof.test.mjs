@@ -518,3 +518,22 @@ test("2026-11-09: validateRoof reports a missing stock list instead of throwing"
   assert.doesNotThrow(() => validateRoof(r));
   assert.ok(validateRoof(r).some((m) => /No 2x8 boards/.test(m)));
 });
+
+test("the notes never say nails are ignored while the takeoff counts them (gable, hip, cross wing)", () => {
+  // Until 2026-11-28 the gable and hip notes said shingle quantities "ignore ... nails" while the
+  // same result (and the roof calculator page's output) listed pounds and boxes of roofing nails.
+  const p = { ...samplePlan(), walls: [], stock: [...samplePlan().stock, { size: "2x10", length: 288, price: 30 }, { size: "2x8", length: 288, price: 30 }] };
+  const roofs = [
+    sampleRoof(),
+    { ...sampleRoof(), width: 192, length: 288, shape: "hip" },
+    { ...sampleRoof(), wing: { width: 192, projection: 144 } },
+    { ...sampleRoof(), wing: { width: 120, projection: 96, at: 96 }, wing2: { width: 120, projection: 96, at: 384 } },
+  ];
+  for (const r of roofs) {
+    const l = layoutRoof(r, p);
+    assert.ok(l.ok, l.errors?.join("; "));
+    assert.ok(l.roofing.nails > 0);
+    for (const n of l.notes) assert.doesNotMatch(n, /ignore[^.;]*\bnails\b/, n);
+    assert.equal(l.notes.filter((n) => /roofing nails use the typed rate/.test(n)).length, 1, `${r.shape ?? "gable"}${r.wing ? " wing" : ""}${r.wing2 ? "s" : ""}`);
+  }
+});

@@ -8,6 +8,7 @@ import {
   normalize,
   verifyExtraction,
 } from "@shared/extraction";
+import { draftCharacteristics, form3Csv } from "@shared/fai-characteristics";
 import type { CadUnit } from "@shared/geometry";
 import { countPdfPages, filePages, rfqUnitsForPages } from "@shared/pdf-pages";
 import { readRfqByRules } from "@shared/rule-reader";
@@ -706,4 +707,46 @@ export async function getFile(ctx: AppContext, orgId: string, rfqId: string, fil
   const obj = await ctx.env.FILES.get(f.r2Key);
   if (!obj) throw notFound("File");
   return { file: f, body: obj.body };
+}
+
+/**
+ * First article, part 1: a draft AS9102 Form 3 characteristic list from one drawing's text
+ * (shared/fai-characteristics.ts). The part number and revision come from the RFQ's part whose
+ * number the file name carries, or its only part. Refused when no text was read from the file.
+ */
+export async function characteristicsCsv(
+  ctx: AppContext,
+  orgId: string,
+  rfqId: string,
+  fileId: string,
+): Promise<{ csv: string; fileName: string; count: number }> {
+  const f = await ctx.db
+    .select({ fileName: rfqFiles.fileName, extractedText: rfqFiles.extractedText })
+    .from(rfqFiles)
+    .where(and(eq(rfqFiles.id, fileId), eq(rfqFiles.rfqId, rfqId), eq(rfqFiles.orgId, orgId)))
+    .get();
+  if (!f) throw notFound("File");
+  if (!f.extractedText?.trim()) {
+    throw badRequest(
+      "No text was read from this file (a scan or a CAD file), so there is nothing to list.",
+    );
+  }
+  const parts = await ctx.db
+    .select({ partNumber: rfqParts.partNumber, revision: rfqParts.revision })
+    .from(rfqParts)
+    .where(and(eq(rfqParts.rfqId, rfqId), eq(rfqParts.orgId, orgId)))
+    .orderBy(asc(rfqParts.position))
+    .all();
+  const upper = f.fileName.toUpperCase();
+  const part =
+    parts.find((p) => p.partNumber && upper.includes(p.partNumber.toUpperCase())) ??
+    (parts.length === 1 ? parts[0] : undefined);
+  const draft = draftCharacteristics(f.extractedText);
+  const csv = form3Csv(draft, {
+    fileName: f.fileName,
+    partNumber: part?.partNumber ?? null,
+    revision: part?.revision ?? null,
+  });
+  const base = f.fileName.replace(/\.[A-Za-z0-9]{1,5}$/, "") || "drawing";
+  return { csv, fileName: `${base}-form3-draft.csv`, count: draft.characteristics.length };
 }

@@ -4,6 +4,7 @@ seo_title: "E-invoicing in China (e-fapiao) and Ukraine (ERPN tax invoices)"
 date: 2026-11-04
 tags: [einvoice-preflight, e-invoicing, china, ukraine]
 description: "E-invoice Preflight now covers 79 countries: China's e-fapiao is rolling out by region, and Ukraine's tax invoices must be registered in the ERPN."
+folded_into: einvoice-preflight/e-invoicing-mandates-by-country
 ---
 
 The mandates-by-country table grows from 77 to 79 rows.

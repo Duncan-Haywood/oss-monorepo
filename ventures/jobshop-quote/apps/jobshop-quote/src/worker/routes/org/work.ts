@@ -64,11 +64,13 @@ import {
   setFollowUpDays,
 } from "../../services/quotes/follow-ups";
 import { copyLineFrom, partHistory, rfqPartHistory } from "../../services/quotes/history";
+import { readShipmentQuery, shipmentPdf } from "../../services/quotes/shipment";
 import { parseTravelerQuery, travelerPdf } from "../../services/quotes/traveler";
 import { loadRateCard } from "../../services/ratecard";
 import {
   addFiles,
   addPart,
+  characteristicsCsv,
   createRfq,
   deletePart,
   extractRfq,
@@ -181,6 +183,24 @@ export const rfqRoutes = new Hono<AppEnv>()
         "Content-Type": file.mimeType,
         "Content-Disposition": contentDisposition(file.fileName),
         "Content-Security-Policy": "default-src 'none'; sandbox",
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "private, no-store",
+      },
+    });
+  })
+  // First article: a draft AS9102 Form 3 characteristic list from this drawing's text.
+  .get("/:rfqId/files/:fileId/form3.csv", async (c) => {
+    const { csv, fileName } = await characteristicsCsv(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("rfqId"),
+      c.req.param("fileId"),
+    );
+    // A BOM so Excel opens the ± and ⌀ signs as UTF-8.
+    return new Response(`\uFEFF${csv}`, {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": contentDisposition(fileName),
         "X-Content-Type-Options": "nosniff",
         "Cache-Control": "private, no-store",
       },
@@ -395,6 +415,25 @@ export const quoteRoutes = new Hono<AppEnv>()
       c.var.tenant.orgId,
       c.req.param("quoteId"),
       parseTravelerQuery(c.req.query()),
+    );
+    return new Response(bytes, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": contentDisposition(`${label}.pdf`),
+        "Content-Security-Policy": "default-src 'none'; sandbox",
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "private, no-store",
+      },
+    });
+  })
+  // Packing slip and certificate of conformance once a quote is won:
+  // `?ship=YYYY-MM-DD&qty.<lineId>=N&lot.<lineId>=H123&signer=Name, title&to=line1%0Aline2&coc=0`.
+  .get("/:quoteId/shipment.pdf", async (c) => {
+    const { bytes, label } = await shipmentPdf(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("quoteId"),
+      readShipmentQuery(c.req.query()),
     );
     return new Response(bytes, {
       headers: {

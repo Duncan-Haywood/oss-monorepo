@@ -11,6 +11,7 @@ import type {
 } from "@shared/controls";
 import type { DocEventKind, DocKind, DocOrigin, DocStatus } from "@shared/document-control";
 import type { ObjectiveResult, PoamStatus } from "@shared/enums";
+import type { Affects, ClauseAnswer, IncidentRole, TimelineEntry, Tri } from "@shared/incidents";
 import type { AuditStatus, CaSource, FindingKind } from "@shared/internal-audits";
 import type { DepartureKind } from "@shared/personnel";
 import type { QualityStatus } from "@shared/quality";
@@ -615,4 +616,40 @@ export const correctiveAction = sqliteTable(
     updatedAt: updatedAt(),
   },
   (t) => [uniqueIndex("corrective_action_org_ref_uq").on(t.orgId, t.ref)],
+);
+
+/**
+ * A cyber incident on the register (IR.L2-3.6.1, 3.6.2; src/shared/incidents): when it was
+ * discovered and reported (instants, ISO 8601 UTC), the DoD report number, whether DFARS
+ * 252.204-7012 applies, the checklist ticks and a timeline. The clocks and the stage are read from
+ * these fields, never stored.
+ */
+export const incident = sqliteTable(
+  "incident",
+  {
+    id: text("id").primaryKey(),
+    orgId: orgRef(),
+    title: text("title").notNull(),
+    clause: text("clause").$type<ClauseAnswer>().notNull().default("unsure"),
+    affects: text("affects").$type<Affects>().notNull().default("unsure"),
+    role: text("role").$type<IncidentRole>().notNull().default("prime"),
+    higherTier: text("higher_tier").notNull().default(""),
+    contractRef: text("contract_ref").notNull().default(""),
+    discoveredAt: text("discovered_at").notNull(),
+    reportedAt: text("reported_at"),
+    reportNumber: text("report_number").notNull().default(""),
+    higherTierNotifiedAt: text("higher_tier_notified_at"),
+    malware: text("malware").$type<Tri>().notNull().default("unknown"),
+    cloud: text("cloud").$type<Tri>().notNull().default("unknown"),
+    systems: text("systems").notNull().default(""),
+    summary: text("summary").notNull().default(""),
+    steps: json<Record<string, boolean>>("steps").notNull(),
+    timeline: json<TimelineEntry[]>("timeline").notNull(),
+    /** YYYY-MM-DD handling finished, or null while open. */
+    closedOn: text("closed_on"),
+    lessons: text("lessons").notNull().default(""),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("incident_org_idx").on(t.orgId, t.discoveredAt)],
 );

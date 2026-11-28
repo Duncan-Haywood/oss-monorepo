@@ -364,6 +364,37 @@ export const MODULES: readonly ModuleData[] = [
     },
   },
   {
+    id: "certificate-of-conformance",
+    path: "/certificate-of-conformance-software",
+    label: "Packing slips and certificates of conformance",
+    title: "Certificate of conformance software for machine shops",
+    description:
+      "Print a packing slip and a certificate of conformance for a machine shop order: part, revision, quantity shipped, material, outside processing and heat/lot.",
+    h1: "A packing slip and certificate of conformance from the quote you won",
+    intro:
+      "Many machined-part POs ask for a certificate of conformance in the box, and the quote already holds the part numbers, revisions, material and outside processing it lists. On a won quote, the app prints the packing slip and the certificate together, with no prices, for your quality person to sign.",
+    does: [
+      "A packing slip: your shop's name and address, the customer, PO, quote and ship date, the ship-to address, and per part the quantity ordered and shipped, with partial shipments marked",
+      "A certificate of conformance: per part the revision, quantity shipped, material (or customer-supplied), outside processing by name and the heat or lot number you enter",
+      "A conformance statement to the PO, drawings and revisions over a blank signature line, with the signer's name and title if you type them",
+      "Quantities from the job's saved PO quantities, the break the customer accepted online, or the line's only break; a partial shipment is typed per part, and a multi-break line with none of these is refused, never guessed",
+      'A part with no revision on the quote prints "not given" instead of being left blank, and a blank heat/lot box prints a line to write on',
+    ],
+    limits: [
+      "The app does not record shipments: partial shipments to date are not totalled, and a packing slip has no number of its own",
+      "The certificate is your shop's statement for your signature; the app does not check the parts, keep inspection records or attach material certs",
+      "Won quotes only",
+    ],
+    guides: [
+      { label: "Job travelers from won quotes", path: "/job-traveler-software" },
+      { label: "How to quote outside processing", path: "/how-to-quote-outside-processing" },
+    ],
+    faq: {
+      q: "Who signs the certificate of conformance?",
+      a: "Your shop does. The app prints the parts, revisions, quantities, material and lot numbers from the quote and what you type, under a statement that the parts conform to the PO and drawings, and leaves the signature line blank for the person who can say so.",
+    },
+  },
+  {
     id: "quickbooks-import",
     path: "/quickbooks-invoices-from-quotes",
     label: "QuickBooks invoices from quotes",

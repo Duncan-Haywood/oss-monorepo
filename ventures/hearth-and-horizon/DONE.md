@@ -494,6 +494,18 @@ calculation. `node bible_done.mjs` moves new Done entries here.
   taper says compound does not stop wood shrinking. The dry-out started the
   same month; with both columns the compound is worth about 0.19 (1.3 fewer to
   about one more) and the dry-out about 2.4 (1.3 to 3.6). Callback $280.
+- *(Done: Yes or No by Five, Ferris Brook (invented), Kings County, Nova Scotia, Thu 13 to Sun 16 Nov 2059; text only. 10 m³ 100 mm slab; maturity datum -10 °C, plain 600 / hot mix 480 °C·h to 3.5 MPa (invented curve); blankets reach 600 about 20:00 Sat, heated about 02:10 Sat, stair corner about 07:35 Sat after a torn tarp at 03:00; $1,640 against limits of $500 agent, $2,500 foreman.)* *Yes or no by five* (proposed 2026-11-28): the
+  message nobody could read. A small builder's office agent sees the forecast
+  turn hard cold the afternoon before a basement slab pour, while the owner is
+  on a silent retreat and the foreman, who may approve site spending, is on a
+  roof. Its first message is long, careful and defensible, and the foreman
+  skims the first line and answers "pour it, blankets". Cold-weather concrete:
+  protect from freezing until about 3.5 MPa (ACI 306); a thin slab loses heat
+  fastest; indirect-fired heat, not open flame, in an enclosed basement. The
+  agent could cancel the truck itself before the free deadline and does not:
+  it asks the plant to move the deadline, holds the heaters, and rewrites the
+  message with the decision in its first line. 'cold weather', 'maturity' and
+  'accelerator' are unused in `overlap.mjs`.
 
 ## Little Lamps
 

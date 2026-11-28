@@ -385,7 +385,7 @@ ${CLAUSES.map(block).join("\n")}
 <h2>What to do when a PO lists them</h2>
 <ol>
   <li><strong>Look at what the order will send you</strong>, not only the clause list, which is often boilerplate. POs, schedules
-  and ordinary paperwork are FCI. A drawing or data marked CUI is usually covered defense information (7012 defines it). Ask the buyer in writing when it
+  and ordinary paperwork are FCI. A drawing or data marked CUI is usually covered defense information (7012 defines it). <a href="/fci-vs-cui">FCI vs CUI</a> sorts the usual paperwork. Ask the buyer in writing when it
   is unclear.</li>
   <li><strong>FCI only:</strong> meet the <a href="/cmmc-level-1-requirements">15 Level 1 requirements</a>; if 7021 names
   Level 1 (Self), enter the self-assessment in SPRS and affirm every year.</li>

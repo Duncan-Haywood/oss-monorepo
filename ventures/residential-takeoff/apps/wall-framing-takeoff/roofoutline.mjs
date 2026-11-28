@@ -16,7 +16,7 @@
 //     an angle) get the same results from skeleton.mjs (2026-11-27): the area and
 //     eave length are exact the same way, and the hips and valleys bisect the eave
 //     line's corners. Only the square-cornered sides are framed or laid out in
-//     sheathing courses; an angled outline gets squares and roof lines only.
+//     sheathing courses; an angled outline gets squares, roof lines and rafters (no courses).
 //  2. Where the outline is a rectangle (gable or hip), or one rectangle with up to
 //     two narrower rectangles attached to its long sides (an L, T, U or cross
 //     plan, framed as a gable main roof with cross wings), `roofFromOutline`
@@ -255,7 +255,7 @@ function angledRoof(points, pitch, overhang) {
     notes: [
       `All-hip roof at ${pitch}:12 with a ${overhang} in eave all round: sloped area = plan area inside the eave line x ${k.toFixed(4)} (exact for one pitch and level eaves, whatever the ridges and hips do). The outline has angled sides, so the eave line's corners are mitred: each corner sits where its two sides, moved out ${overhang} in, meet.`,
       `Roof lines of that roof: ${roofLines.ridges} ridge${roofLines.ridges === 1 ? "" : "s"} of ${ft(roofLines.ridgeFeet)} ft in all, ${roofLines.hips} hip${roofLines.hips === 1 ? "" : "s"} of ${ft(roofLines.hipFeet)} ft and ${roofLines.valleys} valle${roofLines.valleys === 1 ? "y" : "ys"} of ${ft(roofLines.valleyFeet)} ft along the slope (${convex} hips start at the eave line's outside corners and ${reflex} valle${reflex === 1 ? "y" : "ys"} at its inside corners${roofLines.hips + roofLines.valleys > points.length ? "; the rest start higher up, where the roof's lines meet" : ""}). The highest point is ${(roofLines.peakIn / 12).toFixed(2)} ft above the eave edge, measured on the roof planes (no rafter depth, heel or fascia). Every hip and valley bisects its corner in plan (45 degrees only at square corners); every plane is at the one pitch typed.`,
-      "Angled sides: the rafters and the sheathing courses are laid out for square-cornered outlines only, so this roof gets its squares, eave length and roof lines, not a lumber order for its framing or a sheet count.",
+      "Angled sides: the rafters are laid out on each plane square to its own eave side (framed when the plan lists the rafter, hip and ridge boards); the sheathing courses are laid out for square-cornered outlines only, so this roof gets no sheet count.",
     ],
   };
 }

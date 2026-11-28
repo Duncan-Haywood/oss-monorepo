@@ -133,6 +133,21 @@ commonly use; ISO 9001 itself does not grade findings. The 12-month coverage win
 warnings and the 90-day default before an effectiveness check are the app's choices, not periods the
 standard sets (it sets none), and the page says so. AS9100D additions are not covered.
 
+## Incidents (`src/shared/incidents.ts`)
+
+Read on 2026-11-28 from the DITA source GSA publishes for acquisition.gov,
+`https://raw.githubusercontent.com/GSA/GSA-Acquisition-DFARS/master/dita/252.204-7012.dita`, DFARS
+252.204-7012 (MAY 2024), sha256 `99af021d6f34a1a2b8def660f9b7bd6d219c910c3dfd84a9db9591e5a73b18c1`.
+All four `INCIDENT_QUOTES` are verbatim substrings of that file with tags removed and whitespace
+collapsed, checked by script; `incidents.test.ts` pins their hash. The paragraph letters each checklist
+step cites ((a), (b)(2)(ii)(D), (c)(1)(i), (c)(1)(ii), (c)(3), (d) to (h), (l), (m)(2)(ii)) were
+checked against the same text. The checklist's wording and the applicability reading come from the
+free front door, `ventures/machine-shop-guides/incident.mjs` (read from the same source 2026-11-25).
+
+The app's own choices, not the clause's: the image-hold date adds one hour to 90 days of elapsed time
+so a daylight-saving change can only make it later (the clause says "at least"); "closed" is the shop's
+own close date. NIST SP 800-171 Rev. 2 3.6.1 to 3.6.3 are cited by number only.
+
 ## Suppliers (`src/shared/suppliers.ts`)
 
 Read on 2026-11-26. ecfr.gov and acquisition.gov refused this environment that day, so the DFARS text came

@@ -4,6 +4,7 @@ seo_title: "Moldova e-Factura added: E-invoice Preflight reaches 82 countries"
 date: 2026-11-05
 tags: [einvoice-preflight, e-invoicing, moldova]
 description: "E-invoice Preflight now covers 82 countries: Moldova's SFS e-Factura, with B2B use reported mandatory from 1 October 2026 after a January pilot."
+folded_into: einvoice-preflight/moldova-e-factura-e-invoice-mandate
 ---
 
 The mandates-by-country table grows from 81 to 82 rows.

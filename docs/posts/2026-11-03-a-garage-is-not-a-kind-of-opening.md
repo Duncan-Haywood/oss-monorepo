@@ -4,6 +4,7 @@ seo_title: "Wall framing takeoff input checks: door height and opening kind"
 date: 2026-11-03
 tags: [wall-framing-takeoff, construction, validation]
 description: "Probing hostile wall plans by hand found two that a framing takeoff accepted and answered with confident nonsense. Both are now refused with a reason."
+folded_into: writing/window-and-door-headers-size-plies-jacks-and-what-to-order/
 ---
 
 A takeoff that says "ok" is a promise. We keep breaking that promise on purpose, by hand, to find where it is false.

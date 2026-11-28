@@ -36,6 +36,26 @@ import {
 } from "@shared/document-control";
 import { MEMBER_ROLES, OBJECTIVE_RESULTS, POAM_STATUSES } from "@shared/enums";
 import {
+  AFFECTS,
+  AFFECTS_LABEL,
+  CLAUSE_ANSWERS,
+  CLAUSE_LABEL,
+  INCIDENT_QUOTES,
+  INCIDENT_RULE_VERIFICATION,
+  INCIDENT_STAGE_LABEL,
+  INCIDENT_STEPS,
+  incidentRecordMarkdown,
+  incidentsCsv,
+  isInstant,
+  MAX_TIMELINE_ENTRIES,
+  PRESERVE_DAYS,
+  REPORT_HOURS,
+  ROLE_LABEL,
+  ROLES,
+  TRI,
+  TRI_LABEL,
+} from "@shared/incidents";
+import {
   AUDIT_COVERAGE_MONTHS,
   AUDIT_STATUS_LABEL,
   AUDIT_STATUSES,
@@ -159,6 +179,16 @@ import {
   listEvidence,
   uploadEvidence,
 } from "../../services/evidence";
+import {
+  createIncident,
+  deleteIncident,
+  describeIncident,
+  getIncident,
+  incidentHoldDatesFor,
+  incidentList,
+  listIncidents,
+  updateIncident,
+} from "../../services/incidents";
 import {
   addFinding,
   auditProgramme,
@@ -824,6 +854,105 @@ routes.delete("/suppliers/:id", requireRole("editor"), async (c) => {
   return c.json({ ok: true });
 });
 
+// ---- Cyber incidents (IR.L2-3.6.1, 3.6.2; DFARS 252.204-7012 (c) to (m)) ----
+// On every plan (services/incidents says why). Every member reads; editors record; only admins delete,
+// since a deleted incident is evidence gone. Times are instants (ISO 8601 UTC); the browser converts.
+const instant = z
+  .string()
+  .max(40)
+  .refine(isInstant, "Use an ISO 8601 time in UTC, e.g. 2026-11-28T14:05:00.000Z");
+const incidentBody = z.object({
+  title: z.string().trim().min(1).max(200),
+  clause: z.enum(CLAUSE_ANSWERS).optional(),
+  affects: z.enum(AFFECTS).optional(),
+  role: z.enum(ROLES).optional(),
+  higherTier: text(200).optional(),
+  contractRef: text(200).optional(),
+  discoveredAt: instant,
+  reportedAt: instant.nullable().optional(),
+  reportNumber: text(100).optional(),
+  higherTierNotifiedAt: instant.nullable().optional(),
+  malware: z.enum(TRI).optional(),
+  cloud: z.enum(TRI).optional(),
+  systems: text(4000).optional(),
+  summary: text(8000).optional(),
+  steps: z.record(z.string().max(40), z.boolean()).optional(),
+  timeline: z
+    .array(z.object({ at: instant, text: z.string().trim().min(1).max(1000) }))
+    .max(MAX_TIMELINE_ENTRIES)
+    .optional(),
+  closedOn: isoDay,
+  lessons: text(8000).optional(),
+});
+
+routes.get("/incidents", async (c) =>
+  c.json({
+    ...(await incidentList(c.var.ctx, c.var.tenant.orgId)),
+    clauseOptions: CLAUSE_ANSWERS.map((key) => ({ key, label: CLAUSE_LABEL[key] })),
+    affectsOptions: AFFECTS.map((key) => ({ key, label: AFFECTS_LABEL[key] })),
+    roleOptions: ROLES.map((key) => ({ key, label: ROLE_LABEL[key] })),
+    triOptions: TRI.map((key) => ({ key, label: TRI_LABEL[key] })),
+    stageLabels: INCIDENT_STAGE_LABEL,
+    steps: INCIDENT_STEPS.map(({ when: _w, ...s }) => s),
+    reportHours: REPORT_HOURS,
+    preserveDays: PRESERVE_DAYS,
+    quotes: INCIDENT_QUOTES,
+    verification: INCIDENT_RULE_VERIFICATION,
+  }),
+);
+routes.get("/incidents/export.csv", async (c) => {
+  const { ctx, tenant } = c.var;
+  const csv = incidentsCsv(await listIncidents(ctx, tenant.orgId), ctx.now());
+  return new Response(csv, {
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": 'attachment; filename="cyber-incident-register.csv"',
+      "Cache-Control": "private, no-store",
+    },
+  });
+});
+routes.get("/incidents/:id/record.md", async (c) => {
+  const { ctx, tenant } = c.var;
+  const [row, { org }] = await Promise.all([
+    getIncident(ctx, tenant.orgId, c.req.param("id")),
+    getOrg(ctx, tenant.orgId),
+  ]);
+  const md = incidentRecordMarkdown(row, { orgName: org.name, now: ctx.now() });
+  return new Response(md, {
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      "Content-Disposition": 'attachment; filename="cyber-incident-record.md"',
+      "Cache-Control": "private, no-store",
+    },
+  });
+});
+routes.post("/incidents", requireRole("editor"), validate("json", incidentBody), async (c) => {
+  const t = c.var.tenant;
+  const row = await createIncident(c.var.ctx, t.orgId, t.userId, c.req.valid("json"));
+  return c.json(describeIncident(row, c.var.ctx.now()), 201);
+});
+routes.patch(
+  "/incidents/:id",
+  requireRole("editor"),
+  validate("json", incidentBody.partial()),
+  async (c) => {
+    const t = c.var.tenant;
+    const row = await updateIncident(
+      c.var.ctx,
+      t.orgId,
+      t.userId,
+      c.req.param("id"),
+      c.req.valid("json"),
+    );
+    return c.json(describeIncident(row, c.var.ctx.now()));
+  },
+);
+routes.delete("/incidents/:id", requireRole("admin"), async (c) => {
+  const t = c.var.tenant;
+  await deleteIncident(c.var.ctx, t.orgId, t.userId, c.req.param("id"));
+  return c.json({ ok: true });
+});
+
 // ---- Personnel and training records (AT.L2-3.2.1 to 3.2.3, PS.L2-3.9.1 and 3.9.2) ----
 // Same gates as the asset inventory: every member reads on every plan, recording needs the Level 2
 // plan, deleting works on any plan. The refresher interval is an admin setting.
@@ -1069,16 +1198,25 @@ routes.get("/affirmations", async (c) =>
 // sending email. Every member may download it, like the list it is built from.
 routes.get("/affirmations/calendar.ics", async (c) => {
   const t = c.var.tenant;
-  const [{ org }, data, policyReviews, trainingDue, supplierDue, documentReviews, qualityDue] =
-    await Promise.all([
-      getOrg(c.var.ctx, t.orgId),
-      listAffirmations(c.var.ctx, t.orgId),
-      policyReviewDates(c.var.ctx, t.orgId),
-      trainingDueDatesFor(c.var.ctx, t.orgId),
-      supplierDueDatesFor(c.var.ctx, t.orgId),
-      documentReviewDatesFor(c.var.ctx, t.orgId),
-      qualityDueDatesFor(c.var.ctx, t.orgId),
-    ]);
+  const [
+    { org },
+    data,
+    policyReviews,
+    trainingDue,
+    supplierDue,
+    documentReviews,
+    qualityDue,
+    incidentHolds,
+  ] = await Promise.all([
+    getOrg(c.var.ctx, t.orgId),
+    listAffirmations(c.var.ctx, t.orgId),
+    policyReviewDates(c.var.ctx, t.orgId),
+    trainingDueDatesFor(c.var.ctx, t.orgId),
+    supplierDueDatesFor(c.var.ctx, t.orgId),
+    documentReviewDatesFor(c.var.ctx, t.orgId),
+    qualityDueDatesFor(c.var.ctx, t.orgId),
+    incidentHoldDatesFor(c.var.ctx, t.orgId),
+  ]);
   const ics = renderAffirmationCalendar({
     orgId: t.orgId,
     orgName: org.name,
@@ -1088,6 +1226,7 @@ routes.get("/affirmations/calendar.ics", async (c) => {
     supplierDue,
     documentReviews,
     qualityDue,
+    incidentHolds,
     now: c.var.ctx.now(),
   });
   return new Response(ics, {

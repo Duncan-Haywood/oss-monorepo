@@ -20,6 +20,10 @@ export const alias = {
   "@lien-waivers/tx-dates": fileURLToPath(
     new URL("../../packages/lien-waivers/src/tx-dates.ts", import.meta.url),
   ),
+  // Mississippi's time computation (§ 1-3-67, pure date math), for the browser, likewise.
+  "@lien-waivers/ms-dates": fileURLToPath(
+    new URL("../../packages/lien-waivers/src/ms-dates.ts", import.meta.url),
+  ),
   // Lien waiver forms (packages/lien-waivers), consumed as source the same way.
   "@lien-waivers": fileURLToPath(
     new URL("../../packages/lien-waivers/src/index.ts", import.meta.url),

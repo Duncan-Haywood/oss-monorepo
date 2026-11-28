@@ -290,10 +290,17 @@ export class Model {
     if (u.type === "IFCCONVERSIONBASEDUNIT" || u.type === "IFCCONVERSIONBASEDUNITWITHOFFSET") {
       const mwu = this.get(this.attr(u, "ConversionFactor"));
       const vc = this.attr(mwu, "ValueComponent");
-      const val = vc && vc.typed ? vc.value : vc;
+      let val = Number(vc && vc.typed ? vc.value : vc);
       const base = this.unitScale(this.get(this.attr(mwu, "UnitComponent")));
       const off = u.type === "IFCCONVERSIONBASEDUNITWITHOFFSET" ? Number(this.attr(u, "ConversionOffset")) || 0 : 0;
-      return { scale: Number(val) * base.scale, offset: base.offset + off * Number(val) * base.scale };
+      // The offset is in the converted unit: SI = (value - offset) * factor. IFC4's own
+      // IfcConversionBasedUnitWithOffset example (and IfcOpenShell's "fahrenheit") writes
+      // Fahrenheit as factor 1.8 K, offset -459.67, from f = k * 1.8 - 459.67, so its
+      // factor runs SI -> unit; a temperature degree of 1.8 K does not exist, so a 1.8
+      // temperature factor is read as that example and inverted. 77 F = 298.15 K.
+      const ut = (this.attr(u, "UnitType") || {}).enum;
+      if (ut === "THERMODYNAMICTEMPERATUREUNIT" && Math.abs(val - 1.8) < 1e-9) val = 1 / 1.8;
+      return { scale: val * base.scale, offset: base.offset - off * val * base.scale };
     }
     return { scale: 1, offset: 0 };
   }

@@ -130,7 +130,7 @@ function AuthForm() {
       </h1>
       <p className="text-sm text-slate-600">
         Pay applications for specialty subcontractors: schedule of values, change orders, retainage,
-        and an application summary with continuation sheet as PDF and CSV.
+        and an application summary with continuation sheet as PDF, Excel and CSV.
       </p>
       {window.location.pathname === "/invitations" && (
         <p role="status" className="text-sm font-medium text-slate-800">
