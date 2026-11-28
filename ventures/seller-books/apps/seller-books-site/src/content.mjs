@@ -343,7 +343,7 @@ export const FEATURES = [
   {
     key: "schedule-c",
     title: "A Schedule C worksheet",
-    body: "At year end you get your totals grouped the way Schedule C (Form 1040) asks for them: gross receipts, returns, cost of goods sold with beginning and ending inventory, car and truck, commissions and fees, supplies and other expenses, and the home office line by the simplified method if you keep your stock at home. One download gives your tax preparer everything behind it in a ZIP: the worksheet, every sale and fee, the closing inventory, the mileage log and the expenses, with a note saying which line each file adds up to. A worksheet for you or your tax preparer, not a filed return.",
+    body: "At year end you get your totals grouped the way Schedule C (Form 1040) asks for them: gross receipts, returns, cost of goods sold with beginning and ending inventory, car and truck, commissions and fees, supplies and other expenses, and the home office line by the simplified method if you keep your stock at home. One download gives your tax preparer everything behind it in a ZIP: the worksheet, every sale and fee, the closing inventory, the mileage log, the expenses and the receipt photos or PDFs you attached to them, with a note saying which line each file adds up to. A worksheet for you or your tax preparer, not a filed return.",
   },
   {
     key: "quarterly",

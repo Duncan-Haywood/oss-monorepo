@@ -598,6 +598,42 @@ Schedule C page, and each file adds up to its own worksheet figure.
 These are your own records, in a form you can file away or send on. They are
 not a return and not tax advice.
 
+## The receipt, kept with the expense (added 2026-11-28)
+
+An expense list says what you spent. If anyone ever asks, the receipt is what
+shows it. The IRS's recordkeeping guide for small businesses,
+[Publication 583](https://www.irs.gov/publications/p583), lists the papers
+that support an expense: receipts, invoices, card slips, account statements
+and canceled checks. For most resellers those are a shoebox of thermal paper
+from the shipping-supply store and a folder of emailed PDFs.
+
+Seller Books now keeps them with the expense. Open "Receipts" on an
+expense's row and add a photo straight from your phone (JPEG, PNG, WebP or an
+iPhone's HEIC) or a PDF, up to five files of 10 MB each per expense: the
+receipt and its card slip, or a two-page invoice. The row then says how many
+receipts it carries, so an expense with none stands out. Anyone in the shop
+can open them; editors can add and delete them.
+
+At year end the "Everything for your preparer" ZIP gets a `receipts/` folder
+with every receipt on that year's expenses. Each file is named by its
+expense's date, vendor and amount, for example
+`2026-03-04 Uline 42.17 ….pdf`, so it lines up with the expense list in the
+same ZIP. The README says how many expenses have one.
+
+Some limits, said plainly:
+
+- A file has to be what its name says. A `.pdf` that is really a web page, or
+  a `.png` that is really a PDF, is refused, and the message says why.
+- Seller Books does not read anything off the receipt. The amount, date and
+  vendor are what you typed on the expense.
+- For now receipts are kept in the app's database, so each shop has 50 MB
+  for them. At 2 to 5 MB a full-size phone photo, that is 10 to 25 photos;
+  a document-scan mode or a smaller photo size fits many more. Deleting
+  an expense deletes its receipts.
+
+Keeping a receipt is a record, not a ruling: whether a cost is deductible is
+still a question for you or your preparer.
+
 ## Two of the same thing in one order (added 2026-11-26)
 
 A buyer takes two of the bowls you listed under one SKU. eBay reports that as

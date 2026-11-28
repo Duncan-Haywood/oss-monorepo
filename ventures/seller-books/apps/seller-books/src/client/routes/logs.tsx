@@ -1,12 +1,20 @@
 // Mileage log and expenses.
-import { EXPENSE_CATEGORIES, PLATFORM_LABELS, type Platform, SALE_CHANNELS } from "@shared/enums";
+import {
+  EXPENSE_CATEGORIES,
+  type MemberRole,
+  PLATFORM_LABELS,
+  type Platform,
+  ROLE_RANK,
+  SALE_CHANNELS,
+} from "@shared/enums";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { Fragment, useState } from "react";
+import { ExpenseReceipts } from "../components/expense-receipts";
 import { MileageImport } from "../components/mileage-import";
 import { StatementImport } from "../components/statement-import";
 import { api, dollarsToCents, orgPath, today, usd } from "../lib/api";
 import { useOrgId } from "./org";
-import { ErrorText } from "./public";
+import { ErrorText, useMe } from "./public";
 
 interface Trip {
   id: string;
@@ -170,11 +178,15 @@ interface Expense {
   vendor: string | null;
   memo: string | null;
   platform: string | null;
+  receiptCount?: number;
 }
 
 export function ExpensesPage() {
   const orgId = useOrgId();
   const qc = useQueryClient();
+  const role = useMe().data?.memberships.find((m) => m.orgId === orgId)?.role;
+  const canEdit = role != null && (ROLE_RANK[role as MemberRole] ?? 0) >= ROLE_RANK.editor;
+  const [openReceipts, setOpenReceipts] = useState<string | null>(null);
   const list = useQuery({
     queryKey: ["expenses", orgId],
     queryFn: () => api<{ items: Expense[] }>(orgPath(orgId, "/expenses?limit=500")),
@@ -215,7 +227,8 @@ export function ExpensesPage() {
       <p className="text-sm text-stone-600">
         Costs that are not in your marketplace reports: packaging, supplies, software, a storage
         unit. Don't enter inventory purchases here (add them under Inventory) or fees already in an
-        imported report.
+        imported report. Keep each receipt with its expense: open "Receipts" on its row to add a
+        photo or PDF, and the year-end ZIP for your preparer carries them all.
       </p>
       <form
         className="card grid gap-2 md:grid-cols-6"
@@ -297,30 +310,54 @@ export function ExpensesPage() {
               <th>Vendor</th>
               <th>Platform</th>
               <th className="num">Amount</th>
+              <th>Receipts</th>
               <th />
             </tr>
           </thead>
           <tbody>
             {list.data?.items.map((e) => (
-              <tr key={e.id}>
-                <td>{e.date}</td>
-                <td>{e.category.replace(/_/g, " ")}</td>
-                <td>
-                  {e.vendor}
-                  {e.memo && <span className="ml-1 text-xs text-stone-500">{e.memo}</span>}
-                </td>
-                <td>{e.platform ? PLATFORM_LABELS[e.platform as Platform] : "—"}</td>
-                <td className="num">{usd(e.amountCents)}</td>
-                <td>
-                  <button
-                    type="button"
-                    className="text-xs text-red-700 underline"
-                    onClick={() => remove.mutate(e.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
+              <Fragment key={e.id}>
+                <tr>
+                  <td>{e.date}</td>
+                  <td>{e.category.replace(/_/g, " ")}</td>
+                  <td>
+                    {e.vendor}
+                    {e.memo && <span className="ml-1 text-xs text-stone-500">{e.memo}</span>}
+                  </td>
+                  <td>{e.platform ? PLATFORM_LABELS[e.platform as Platform] : "—"}</td>
+                  <td className="num">{usd(e.amountCents)}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="text-xs underline"
+                      aria-expanded={openReceipts === e.id}
+                      onClick={() => setOpenReceipts(openReceipts === e.id ? null : e.id)}
+                    >
+                      {e.receiptCount
+                        ? `${e.receiptCount} receipt${e.receiptCount > 1 ? "s" : ""}`
+                        : canEdit
+                          ? "Add"
+                          : "None"}
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className="text-xs text-red-700 underline"
+                      onClick={() => remove.mutate(e.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+                {openReceipts === e.id && (
+                  <tr>
+                    <td colSpan={7}>
+                      <ExpenseReceipts orgId={orgId} expenseId={e.id} canEdit={canEdit} />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             ))}
           </tbody>
         </table>
