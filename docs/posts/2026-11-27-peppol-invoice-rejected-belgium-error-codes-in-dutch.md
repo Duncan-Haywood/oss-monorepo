@@ -79,6 +79,31 @@ The pages explain a rejection after it happens. The
 and it runs the official EN 16931 and Peppol BIS Billing 3 rules in your browser, along with checks of
 its own (the `0208` check digits among them). The file isn't uploaded.
 
+### Update, 28 November: one invoice, nine mistakes, measured
+
+There is now a Dutch landing page for the checker as well:
+**[Peppol-factuur controleren](https://marisstella.app/einvoice-preflight/peppol-factuur-controleren.html)**.
+It opens the checker with the Peppol rules switched on and carries a measurement. We had the free
+creator write one Peppol BIS 3.0 invoice between two Belgian companies, addressed by enterprise
+number (`0208`), then put in one common mistake at a time and ran each file through the checker's
+own rules and the official Peppol rules (3.0.22, and the 3.1.0 release access points enforce from
+24 February 2027):
+
+| Mistake | Built-in | Peppol 3.0.22 | Peppol 3.1.0 |
+|---|---|---|---|
+| buyer's address written `BE0765432146`, `0765.432.146`, `765432146`, or with two digits swapped | INV-041, blocks | PEPPOL-COMMON-R043, fatal | R043, fatal |
+| the same two digits swapped in the buyer's VAT number | INV-023, blocks | nothing | PEPPOL-COMMON-R062, warning |
+| no buyer reference and no order number | PP-005, blocks | PEPPOL-EN16931-R003, fatal | R003, fatal |
+| a mistyped IBAN | INV-025, blocks | nothing | nothing |
+| a different, valid enterprise number as the sender's address | nothing | nothing | nothing |
+
+Three things stand out. The ways an enterprise number is usually printed on letterhead (with `BE`,
+with dots) are all fatal as a Peppol address. A mistyped VAT number or IBAN passes the official
+3.0.22 rules, so only a check of its own catches it before your customer does. And no rule notices
+a valid number that belongs to someone else: that needs the Peppol Directory or your access point.
+The numbers are made-up examples with valid check digits; `node belgium-peppol-bench.mjs` in
+`ventures/einvoice-preflight` reprints the table, and the page's test fails if it drifts.
+
 For accountants with many clients, a paid fix-and-explain service is in development. It explains
 each failed rule in Dutch, French, German or English and proposes a corrected file. Early access is
 on the [EU e-invoicing page](https://marisstella.app/industries/eu-e-invoicing/).
