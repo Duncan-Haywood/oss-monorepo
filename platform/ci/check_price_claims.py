@@ -48,6 +48,9 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from repo_files import ls_files  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 ANNUAL_DISCOUNT = 0.1  # packages/billing/src/pricing.ts, ANNUAL_DISCOUNT
 
@@ -185,11 +188,7 @@ def claims(line: str, plans: list[Plan]):
 
 def _tracked(root: Path, paths: list[str]) -> list[Path]:
     try:
-        out = subprocess.run(
-            ["git", "-C", str(root), "ls-files", "--", *paths],
-            capture_output=True, text=True, check=True,
-        ).stdout.splitlines()
-        return [root / p for p in out]
+        return [root / p for p in ls_files(root, *paths)]
     except (OSError, subprocess.CalledProcessError):
         files = []
         for p in paths:

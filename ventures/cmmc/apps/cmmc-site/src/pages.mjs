@@ -380,8 +380,7 @@ ${cta}`,
           path: "/pricing",
           kind: "pricing",
           title: `Pricing (proposed, early access) · ${SITE_NAME}`,
-          description:
-            `Proposed plans: Level 1 free, Level 2 with SSP, POA&M and SPRS score ${usd(publicPlans().find((p) => p.priceCents > 0).priceCents)}/month, compared with FutureFeed, PreVeil Pass and consultant fees. Free during early access.`,
+          description: `Proposed plans: Level 1 free, Level 2 with SSP, POA&M and SPRS score ${usd(publicPlans().find((p) => p.priceCents > 0).priceCents)}/month, compared with FutureFeed, PreVeil Pass and consultant fees. Free during early access.`,
           changefreq: "monthly",
           priority: 0.8,
           body: `<h1>Pricing</h1>
