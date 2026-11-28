@@ -89,7 +89,7 @@ docker/                 nginx config for private docs serve
 
 ## What to build first (ROI)
 
-For the Italy leather boutique pilot, delivery order follows **profit impact per euro of build**, not sensor count. **Start at ranks 1–3** (door+POS, desirability gap, upsell) — they typically pay back a Core subscription with one extra sale/month at pilot AOV.
+For the Italy leather boutique pilot, delivery order follows **profit impact per euro of build**, not sensor count. **Start at ranks 1–3** (door+POS, desirability gap, upsell) — at the pilot assumptions (€180 to €450 order value, 55% to 70% margin) covering a Core subscription takes about 0.5 to 2.5 extra sales a month.
 
 1. **Door + POS join** — conversion % and revenue per entrant (ranks 1, 4, 5)
 2. **SKU desirability gap + upsell** — margin, cash recovery, and AOV (ranks 2–3)
@@ -120,6 +120,11 @@ From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-reta
 - Fixed since the audit: the sales pages count gross profit, not revenue. At the pilot assumptions (€180 to €450 order value, 55% to 70% margin) one sale earns €99 to €315, so Core (€149 to €249 a month) takes about 0.5 to 2.5 extra sales a month (`apps/docs/test/pricing-claims.test.mjs`).
 - The door camera is a stub; SKU gap, upsell and experiments are demo data only.
 - Italian workplace camera rules (Statuto dei Lavoratori, art. 4) are not covered on the privacy page.
+
+From the re-audit of 2026-11-28 ([`portfolio/quality/audits/2026-11-28-retail-pilot-intel-reaudit.json`](../../portfolio/quality/audits/2026-11-28-retail-pilot-intel-reaudit.json)):
+
+- Fixed in the same PR: a POS `closed_at` with no UTC offset is read as the store's wall-clock time (Europe/Rome; `--tz` or `STORE_TZ` on the POS CLI), not the importing server's zone; a currency that is not a three-letter ISO 4217 code is rejected instead of becoming EUR.
+- Still open: a CSV must be comma-delimited with English headers and integer cents (a semicolon export imports nothing, with every row reported as "missing"); one malformed JSON file in the inbox stops the whole sync without naming the file; in a zone whose clocks change at midnight (Havana, Santiago) the first hour of that day is placed on the previous day (Rome changes at 02:00 and 03:00 and is right).
 
 ## License
 
