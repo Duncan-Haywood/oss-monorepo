@@ -4,6 +4,7 @@ seo_title: "Stair reaction on the stairwell header in a framing takeoff"
 date: 2026-10-31
 tags: [wall-framing-takeoff, construction, stairs, floor-framing]
 description: "wall-framing-takeoff now carries a stair's top reaction onto the stairwell header from the page, not only the command line."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*

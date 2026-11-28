@@ -93,16 +93,45 @@ test("opening trim: head, jambs and a window sill, packed by hand (2026-10-30)",
   assert.equal(layoutSiding({ trimWidth: 9 }, p).ok, false);
 });
 
+test("lap courses at a window's head and sill are notched and run on across it; the boards never fall below the net area (2026-11-28)", () => {
+  // 120 in wall, 96 in high, 8 in exposure: 12 courses. Window x 40..76, y 36..72 (36 x 36). It clears courses 5 to 8
+  // (y 40..72) edge to edge, so those split into 40 + 44 in; courses 4 (y 32..40) and 9 (y 72..80) only meet it and run on.
+  const p = plan([{ id: "A", length: 120, openings: [{ kind: "window", offset: 40, width: 36, height: 36, headerHeight: 72 }] }]);
+  const s = layoutSiding({ waste: 0, exposure: 8, stock: 144, height: 96 }, p);
+  assert.equal(s.courses, 12);
+  assert.ok(Math.abs(s.runFeet * 12 - (8 * 120 + 4 * (40 + 44))) < 1e-9);
+  // Before the fix every course the window touched split (6 x 84 + 6 x 120 = 1224 in), below the 1278 in the net area needs.
+  assert.ok(s.runFeet * 12 * 8 >= s.netSqFt * 144 - 1e-6);
+  // A random spread of walls and openings: the run times the exposure always covers the net area.
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 200; i++) {
+    const length = 96 + Math.floor(rnd() * 300), ops = [];
+    for (let x = 6; x < length - 30; x += 30 + Math.floor(rnd() * 60)) {
+      const width = 18 + Math.floor(rnd() * Math.min(48, length - x - 6)), height = 24 + Math.floor(rnd() * 56);
+      if (x + width > length) break;
+      ops.push({ kind: rnd() < 0.2 ? "door" : "window", offset: x, width, height: Math.min(height, 80), headerHeight: 80 });
+      x += width;
+    }
+    const exposure = 4 + Math.floor(rnd() * 5);
+    const r = layoutSiding({ waste: 0, exposure, stock: 144, height: 96 }, plan([{ id: "R", length, openings: ops }]));
+    assert.ok(r.ok);
+    assert.ok(r.runFeet * 12 * exposure >= r.netSqFt * 144 - 1e-6, `case ${i}`);
+  }
+});
+
 test("vertical siding: columns, pieces round an opening, gable and refusal, by hand (2026-10-30)", () => {
-  // 120 in wall, 8 ft high, 12 in boards: 10 columns; window x 40..76 (36 wide), y 36..72 touches columns 3,4,5,6 (x 36..84)
+  // 120 in wall, 8 ft high, 12 in boards: 10 columns; window x 40..76 (36 wide), y 36..72 touches columns 3,4,5,6 (x 36..84).
+  // Since 2026-11-28 only the columns it covers edge to edge (x 48..60, 60..72) are split; columns 3 and 6, which it
+  // clips by 8 and 4 in, are notched boards of full length.
   const p = plan([{ id: "A", length: 120, openings: [{ kind: "window", offset: 40, width: 36, height: 36, headerHeight: 72 }] }]);
   const s = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 96 }, p);
   assert.equal(s.style, "vertical");
   assert.equal(s.courses, 10);
-  // 6 full 96 in boards + 4 columns x (36 below + 24 above) = 576 + 240 = 816 in
-  assert.ok(Math.abs(s.runFeet * 12 - 816) < 1e-9);
-  // 6 boards of 96; the eight pieces of 36 and 24 pack into 96 in boards: 36+36+24 | 36+36+24 | 24+24 -> 3 boards
-  assert.equal(s.boards, 6 + 3);
+  // 8 full 96 in boards + 2 columns x (36 below + 24 above) = 768 + 120 = 888 in
+  assert.ok(Math.abs(s.runFeet * 12 - 888) < 1e-9);
+  // 8 boards of 96; the four pieces of 36 and 24 pack into 96 in boards: 36+36+24 | 24 -> 2 boards
+  assert.equal(s.boards, 8 + 2);
   assert.ok(sidingText(s)[0].includes("Siding (vertical)"));
   // gable: 120 wide, 6:12, 12 in columns; the column holding the peak (x 60) is 96 + 30 long; first column 96 + 0.5 * 12 = 102
   const g = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 144 }, plan([{ id: "G", length: 120, gable: { pitch: 6 } }]));

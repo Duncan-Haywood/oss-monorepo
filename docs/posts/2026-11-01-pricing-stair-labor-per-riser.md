@@ -3,6 +3,7 @@ title: "Pricing stair labor per riser in a framing budget"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, budget, construction]
 description: The framing takeoff's budget now has a stair labor line, priced by the riser count the stair layout already knows, with your own typed rate.
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 Stairs were the one built element of the takeoff with lumber in the order but no labor line in the budget. Stair carpenters usually quote by the riser, so `laborStairRiser` multiplies the riser count the layout already computed by the rate you type.

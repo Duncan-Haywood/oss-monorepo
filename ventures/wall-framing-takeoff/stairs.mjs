@@ -142,7 +142,7 @@ export function layoutStair(input, plan) {
     hardware: { topConnectors: stringers, footAnchors: stringers },
     // Stock (2026-10-30): the shortest listed board that holds one stringer, for the framer's buy list (null with no plan).
     stringerStock: plan ? { size: s.stringer, length: Math.min(...plan.stock.filter((x) => x.size === s.stringer && x.length >= stringerLength - 1e-9).map((x) => x.length)), count: stringers } : null,
-    stringerCheck: input.stringerCheck ? checkStringer({ stringer: { spacing: treadSpan, throat, count: stringers }, run }, input.stringerCheck) : null,
+    stringerCheck: input.stringerCheck ? checkStringer({ stringer: { spacing: treadSpan, throat, count: stringers, depth }, run }, input.stringerCheck) : null,
     treadCheck: input.treadCheck ? checkTread({ span: treadSpan, thickness: s.treadThickness, width: bw }, input.treadCheck) : null,
     postCheck: input.postCheck && rail ? checkGuardPost({ width: rail.posts.width, depth: rail.posts.width, height: rail.guardHeight }, input.postCheck) : null,
     treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, riserStock: riserBoards, width: s.width,
@@ -236,12 +236,12 @@ export function stairCuts(l) {
  * simply supported beam spanning the total run with no mid support. The section is the throat under the notches
  * (the conservative cut-section, 1-1/2 in thick), for bending, shear at the support and deflection (span/240
  * unless `deflLimit`). A hand check for a framer or plan reviewer; the engineer of record's call governs.
- * @param {{stringer:{spacing:number, throat:number, count?:number}, run:number}} l
+ * @param {{stringer:{spacing:number, throat:number, count?:number, depth?:number}, run:number}} l
  * @param {{liveLoad:number, deadLoad:number, Fb:number, Fv:number, E:number, deflLimit?:number, thickness?:number, connectorCapacity?:number, bearingFcPerp?:number, bearingLength?:number, notchedSupport?:boolean|number}} c
  */
 export function checkStringer(l, c) {
   const errors = [];
-  if (!l || typeof l !== "object" || !l.stringer || typeof l.stringer !== "object" || !(l.run > 0)) return { ok: false, errors: ["checkStringer needs a stair layout from layoutStair (with a stringer and a run)."] };
+  if (!l || typeof l !== "object" || !l.stringer || typeof l.stringer !== "object" || !(l.run > 0)) return { ok: false, errors: ["checkStringer needs a stair layout from layoutStair (with a stringer and a run)."], warnings: [] };
   for (const [k, lo, hi] of [["liveLoad", 1, 200], ["deadLoad", 0, 200], ["Fb", 10, 5000], ["Fv", 1, 500], ["E", 200000, 3000000]]) {
     if (c?.[k] == null || !(c[k] >= lo && c[k] <= hi)) errors.push(`stringerCheck.${k} must be typed, from ${lo} to ${hi} (${k === "liveLoad" || k === "deadLoad" ? "psf" : "psi"}); no default is shipped.`);
   }
@@ -251,9 +251,9 @@ export function checkStringer(l, c) {
   if (c?.bearingLength != null && !(c.bearingLength >= 1 && c.bearingLength <= 24)) errors.push("stringerCheck.bearingLength is the bearing length in inches, from 1 to 24 (3.5 unless typed).");
   const boardDepth = /** @type {any} */ (l.stringer).depth;
   if (c?.notchedSupport != null && c.notchedSupport !== false && !(c.notchedSupport === true ? boardDepth > 0 : c.notchedSupport > 0 && c.notchedSupport < boardDepth)) errors.push("stringerCheck.notchedSupport is true (the throat is what is left at the support) or the depth in inches left at the support, under the board's depth.");
-  if (errors.length) return { ok: false, errors };
+  if (errors.length) return { ok: false, errors, warnings: [] };
   const b = c.thickness ?? 1.5, d = l.stringer.throat, L = l.run;
-  if (!(d > 0)) return { ok: false, errors: ["The throat under the notches is zero or negative; there is no section to check."] };
+  if (!(d > 0)) return { ok: false, errors: ["The throat under the notches is zero or negative; there is no section to check."], warnings: [] };
   const w = ((c.liveLoad + c.deadLoad) * l.stringer.spacing) / 12 / 12; // lb per horizontal inch
   const M = (w * L * L) / 8, V = (w * L) / 2;
   const S = (b * d * d) / 6, I = (b * d ** 3) / 12;

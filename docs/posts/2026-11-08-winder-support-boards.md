@@ -3,6 +3,7 @@ title: "How many boards do a winder stair's radial supports need?"
 date: 2026-11-08
 tags: [construction, stairs, wall-framing-takeoff]
 description: "The stair tool now turns a winder's radial supports into a stock-board count, checked by hand arithmetic."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 A winder turn is framed with one radial support under every tread edge: with three treads that is four supports, each as long as the stair is wide. The takeoff already reported the supports and their total length. It did not say how many boards to buy.

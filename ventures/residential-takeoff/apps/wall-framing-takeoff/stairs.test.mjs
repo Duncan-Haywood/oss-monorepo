@@ -700,3 +700,24 @@ test("landing guard: refuses a bad edge list with a reason, not a TypeError", ()
   }
   assert.equal(layoutLandingGuard([96], /** @type {any} */ (null)).posts.count, 3);
 });
+
+// 2026-11-28: layoutStair passed no board depth to checkStringer, so notchedSupport (the page's field and the plan key)
+// was refused on every real stair; and a stringerCheck refused for a missing value made stairText throw (no warnings list).
+test("notched support works through layoutStair; a refused stringer check is reported, not thrown", () => {
+  const c = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1600000 };
+  const three = layoutStair({ totalRise: 108, stringer: "2x12", stringerCheck: { ...c, notchedSupport: 3 } });
+  assert.deepEqual(three.stringerCheck.errors, []);
+  // 2/3 x 180 x 1.5 x 3 x (3 / 11.25) = 144 lb
+  assert.ok(Math.abs(three.stringerCheck.notchCapacity - 144) < 1e-9, String(three.stringerCheck.notchCapacity));
+  assert.ok(stairText(three).some((x) => /End shear \d+ lb exceeds 144 lb/.test(x)));
+  const throat = layoutStair({ totalRise: 108, stringer: "2x12", stringerCheck: { ...c, notchedSupport: true } });
+  const d = throat.stringer.throat;
+  assert.ok(Math.abs(throat.stringerCheck.notchCapacity - (2 / 3) * 180 * 1.5 * d * (d / 11.25)) < 1e-9);
+  const tooDeep = layoutStair({ totalRise: 108, stringer: "2x12", stringerCheck: { ...c, notchedSupport: 12 } });
+  assert.equal(tooDeep.stringerCheck.errors.length, 1);
+  const partial = layoutStair({ totalRise: 108, stringerCheck: { liveLoad: 40 } });
+  const text = stairText(partial);
+  assert.ok(text.some((x) => /Note: stringerCheck\.Fb must be typed/.test(x)));
+  assert.ok(!text.some((x) => /Stringer check \(/.test(x)));
+  assert.deepEqual(checkStringer(null, c).warnings, []);
+});

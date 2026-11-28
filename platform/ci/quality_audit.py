@@ -645,6 +645,7 @@ def main(argv: list[str] | None = None) -> int:
     qu.add_argument("--seed", default=None,
                     help="default: today's date plus a random tail; subjects are shuffled by it within a severity")
     qu.add_argument("--research", action="store_true", help=paused_help)
+    qu.add_argument("--paid", action="store_true", help="only the for-profit products (transition.py's numbered rows), which the quality prompt says to prefer")
     qu.add_argument("--oldest-first", action="store_true", help="the fixed order (oldest audit first), no shuffle")
     qu.add_argument("--no-fetch", action="store_true",
                     help="in a shallow clone, do not fetch main back to the oldest shown audit (the check may say unknown)")
@@ -670,6 +671,7 @@ def main(argv: list[str] | None = None) -> int:
     ra.add_argument("--seed", default=None, help="default: today's date plus a random tail, so parallel sessions spread out")
     ra.add_argument("--no-prs", action="store_true", help="skip the open-PR search that puts subjects in flight last")
     ra.add_argument("--research", action="store_true", help=paused_help)
+    ra.add_argument("--paid", action="store_true", help="only the for-profit products (transition.py's numbered rows), which the quality prompt says to prefer")
     args = ap.parse_args(argv)
 
     if args.cmd == "sample":

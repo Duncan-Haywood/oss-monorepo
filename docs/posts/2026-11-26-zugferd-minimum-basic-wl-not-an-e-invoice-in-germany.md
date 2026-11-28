@@ -98,5 +98,39 @@ publishes and on 1,499 randomly altered copies of them. The verdict matched
 libxml2 on every file. Code lists are still left to the business rules, as
 for the other profiles.
 
+**Update, 2026-11-28: XRechnung or ZUGFeRD, measured on one invoice.** The
+question we hear next is which of the two formats to send. Both count as an
+e-invoice (MINIMUM and BASIC WL aside), so the difference is in the form and
+in the fields. We generated the creator's example invoice (a Berlin seller, a
+Hamburg buyer, lines at 19% and 7%) as an XRechnung and as ZUGFeRD in the
+EN 16931 profile, both in CII, leaving out one field at a time. Then we ran
+the official EN 16931 Schematron and, for the XRechnung, KoSIT's XRechnung
+rules on each file.
+
+| Left out | As XRechnung | As ZUGFeRD EN 16931 |
+|---|---|---|
+| nothing | passes | passes |
+| buyer reference / Leitweg-ID (BT-10) | fails BR-DE-15 | passes |
+| seller contact (BG-6) | fails BR-DE-2 | passes |
+| only the seller's phone number (BT-42) | fails BR-DE-6, warning BR-DE-27 | passes |
+| payment instructions (BG-16) | fails BR-DE-1 | passes |
+| buyer city (BT-52) | fails BR-DE-8 | passes |
+| delivery date (BT-72) | information only, BR-DE-TMP-32 | passes |
+
+So five omissions pass the European standard and fail only XRechnung. A
+customer or authority that asks for XRechnung can refuse the leaner file even
+though it meets EN 16931. A ZUGFeRD PDF in the XRECHNUNG profile has to carry
+all five fields. The files differ in size too: 5 KB as XRechnung UBL, 7 KB as
+CII, 45 KB as a ZUGFeRD PDF, of which about 23 KB are the two embedded fonts
+that PDF/A requires.
+
+This time we read the BMF's FAQ directly. It also says that in a hybrid file
+such as ZUGFeRD the XML is the leading part: where the readable PDF page and
+the XML differ, the XML counts. The German write-up, with links to each rule's
+explanation, is
+[XRechnung oder ZUGFeRD?](https://marisstella.app/einvoice-preflight/xrechnung-oder-zugferd.html).
+`xrechnung-zugferd-bench.mjs` in the tool's source reproduces the table, and
+the page's test fails if the creator or the checker changes a result.
+
 This is not tax advice. Whether a particular invoice must be an e-invoice
 depends on the transaction and the dates above; your tax adviser decides.

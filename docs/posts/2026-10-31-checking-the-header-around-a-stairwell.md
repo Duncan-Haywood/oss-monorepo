@@ -4,6 +4,7 @@ seo_title: "How to check a doubled floor header at a stairwell opening"
 date: 2026-10-31
 tags: [construction, framing, wall-framing-takeoff, engineering]
 description: "The wall-framing takeoff now checks the doubled header at a stairwell for bending, shear and deflection, from loads and lumber values you type in."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*

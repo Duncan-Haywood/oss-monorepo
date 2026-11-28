@@ -83,6 +83,7 @@ export const GROUPS = [
     ["vs-ordering-lumber-by-hand.html", "Takeoff vs. ordering lumber by hand"],
     ["lumber-waste-factor.html", "Framing lumber waste factor, measured"],
     ["roof-sheathing-sheets.html", "Roof sheathing sheets, counted"],
+    ["roof-sheathing-waste-factor.html", "Roof sheathing waste factor, hip vs. gable"],
   ]],
 ];
 

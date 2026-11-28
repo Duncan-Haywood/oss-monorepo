@@ -3,6 +3,7 @@ title: "A notch at the stringer's support cuts its shear capacity"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, construction]
 description: The stair stringer check now compares end shear with the reduced capacity of a board notched on its tension face at the support.
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 When a stair stringer bears on a ledger or a landing and is notched there, the board's shear capacity drops much faster than the lost depth suggests. The framing takeoff's `stringerCheck` now takes `notchedSupport` (`true` to use the throat as the depth left, or the inches left) and compares the end reaction with (2/3) Fv b dn (dn/d), the notched-member form in the NDS for a tension-face notch, where d is the board depth. You type Fv; nothing is shipped.

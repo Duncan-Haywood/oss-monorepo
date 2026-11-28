@@ -3,6 +3,7 @@ title: "Will a stair tread hold a 300 lb point load between its stringers?"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, construction]
 description: The framing takeoff's stair module now checks one tread board in bending and deflection under a typed concentrated load at midspan between stringers.
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 Stringer strength gets the attention, but the part a foot lands on is the tread board. The model residential code asks a tread to carry a concentrated load at midspan within a deflection limit, and the span is set by the stringer spacing the takeoff has already worked out.

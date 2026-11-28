@@ -16,6 +16,7 @@ import { useState } from "react";
 import { api } from "../lib/api";
 import type { OrgInfo } from "../lib/types";
 import { btnCls, btnGhostCls, Card, ErrorText, Field, inputCls } from "../ui";
+import { SupplierImport } from "./SupplierImport";
 
 export interface SupplierItem {
   id: string;
@@ -101,6 +102,7 @@ export function SuppliersView({
   const refresh = () => qc.invalidateQueries({ queryKey: ["suppliers", orgId] });
   const [form, setForm] = useState(EMPTY);
   const [editing, setEditing] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
   // The level in the associated prime contract: only an input to the 32 CFR 170.23 suggestion, not saved.
   const [primeLevel, setPrimeLevel] = useState<SupplierLevel | null>(null);
   const reset = () => {
@@ -145,14 +147,30 @@ export function SuppliersView({
   const notes = data?.check.issues.filter((i) => i.kind === "note") ?? [];
   return (
     <div className="space-y-4">
+      {importing && data && (
+        <SupplierImport
+          orgId={orgId}
+          today={data.today}
+          level2={info.plan.level2}
+          infoOptions={data.infoOptions}
+          onClose={() => setImporting(false)}
+        />
+      )}
       <Card
         title="Subcontractors and suppliers"
         actions={
-          data && data.items.length > 0 ? (
-            <a className={btnGhostCls} href={`/api/orgs/${orgId}/suppliers/export.csv`}>
-              Download CSV
-            </a>
-          ) : null
+          <div className="flex gap-2">
+            {canEdit && !importing && (
+              <button type="button" className={btnGhostCls} onClick={() => setImporting(true)}>
+                Import a supplier list
+              </button>
+            )}
+            {data && data.items.length > 0 && (
+              <a className={btnGhostCls} href={`/api/orgs/${orgId}/suppliers/export.csv`}>
+                Download CSV
+              </a>
+            )}
+          </div>
         }
       >
         <ErrorText error={list.error} />

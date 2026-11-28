@@ -4,6 +4,7 @@ seo_title: "Stair landing guard lumber takeoff in the browser"
 date: 2026-10-31
 tags: [wall-framing-takeoff, construction, stairs]
 description: "The wall-framing takeoff page now takes the open edges of a stair landing and adds their guard posts, balusters and rails to the lumber order."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*
