@@ -52,6 +52,33 @@ When the GC asks for something new at the end, you can point to what was actuall
 Some won't apply to your job. Write down why ("no equipment to train on") instead of just leaving
 it off the list. That way, the question doesn't come up again a month later.
 
+## The sworn papers: G706, G706A and G707
+
+On AIA jobs, and on many others whose GC copies the owner's close-out requirements into the
+subcontract, the final check also waits on sworn papers. The 1994 AIA forms are the usual ones
+(read on AIA Contract Documents' public previews and help centre, 2026-11-28):
+
+- **G706, Contractor's Affidavit of Payment of Debts and Claims.** You swear that everyone who
+  furnished labor, materials or equipment has been paid and every known claim is settled,
+  "except as listed below". AIA's summary says it is "typically executed as a condition of final
+  payment", and it is signed before a notary.
+- **G706A, Contractor's Affidavit of Release of Liens.** You swear that the final lien waivers
+  attached cover you and everyone below you who may have lien rights, except as listed.
+- **G707, Consent of Surety to Final Payment.** Your surety's sign-off on a bonded job. You don't
+  sign it, but you have to ask for it, and it can be the slowest paper in the stack.
+
+The exceptions box is where subs get it wrong. A supplier's last invoice, a sub's retainage you
+haven't paid yet, or an extra someone claims and you dispute: each is an exception until it is
+paid or settled. Writing "None" over an open item makes a sworn statement false. AIA's summary
+also notes the owner can ask for a lien bond or indemnity bond to cover each exception.
+
+The free [final payment affidavit builder](https://marisstella.app/pay-app-guides/final-payment-affidavit.html)
+reads your list of subs and suppliers (contract, paid to date, final waiver held, open claim). It
+writes the exceptions text, lists the final waivers still to collect, and flags lower tiers who
+are owed more than your final payment. It also adds the consent of surety on bonded work and points
+to the state's statutory waiver forms where there are some. It runs in the browser and uploads
+nothing.
+
 ## Close the punch list first
 
 The documents are usually the slow part, but the punch list is the gate GCs name first. A few

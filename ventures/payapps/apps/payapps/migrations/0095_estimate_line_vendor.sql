@@ -1,0 +1,1 @@
+ALTER TABLE `estimate_lines` ADD `vendor` text;

@@ -55,6 +55,7 @@ export const GROUPS = [
     ["notice-of-intent-to-lien.html", "Notice of intent to lien (CO, MO, ND, WY)"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],
+    ["final-payment-affidavit.html", "Final payment affidavit (G706) exceptions"],
     ["paid-short.html", "Paid short? Reconcile the check"],
     ["joint-checks.html", "Joint check splitter and split letter"],
     ["miller-act-payment-bond-claims.html", "Miller Act bond claim deadlines (federal jobs)"],
