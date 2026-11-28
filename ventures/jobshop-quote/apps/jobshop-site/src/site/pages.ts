@@ -20,7 +20,6 @@ import { MODULES } from "./module-data";
 import {
   BREAK_QUANTITIES,
   EXAMPLE as BREAKS_EXAMPLE,
-  IN_BETWEEN_QUANTITY,
   quantityBreaks,
 } from "./quantity-breaks";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
