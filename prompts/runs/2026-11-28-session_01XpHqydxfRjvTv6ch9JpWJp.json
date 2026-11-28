@@ -37,6 +37,10 @@
     {
       "file": "ventures/payapps/apps/payapps/ROADMAP.md",
       "issue": "Nearly every Next item waits on 'if people ask' with no customers yet, so picking a bet-#1 task meant hunting for an unlisted safe-side fix; the 2,700-line Done section is costly to scan."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Main moved fast enough that this PR hit merge conflicts four times in ~3 h while waiting on starved runners; the Security gate sat queued ~50 min. Two sessions independently fixed the same red pages test (services bundle) because nothing marks a red-main fix as claimed."
     }
   ],
   "deviations": [
@@ -52,7 +56,7 @@
     "ventures/mechanics-lien-deadline-calculator/README.md"
   ],
   "goal": null,
-  "notes": "Explore idea: lien/bond act-by dates skip observed federal holidays (safe side), in PayApps (bet #1) and its free lien-deadline front door, kept in parity. Found a Texas bond notice on Washington's Birthday 2027 shown as due that day. Verified: payapps unit 1603 pass, worker lien/bond 169 pass, tsc clean, calculator node tests 68 pass. CI then showed the catalogue build test red on main (services offline bundle 4,203,110 B, 8.8 KB over 4 MiB; this PR added ~1 KB): fixed by moving the six machine/fabrication shop tools into a new job-shops section (services then under 3.9 MB); full platform/pages suite 2233 pass after the count update.",
+  "notes": "Explore idea: lien/bond act-by dates skip observed federal holidays (safe side), in PayApps (bet #1) and its free lien-deadline front door, kept in parity. Found a Texas bond notice on Washington's Birthday 2027 shown as due that day. Verified: payapps unit 1603 pass, worker lien/bond 169 pass, tsc clean, calculator node tests 68 pass. CI then showed the catalogue build test red on main (services offline bundle 4,203,110 B, 8.8 KB over 4 MiB; this PR added ~1 KB): fixed by moving the six machine/fabrication shop tools into a new job-shops section (services then under 3.9 MB); full platform/pages suite 2233 pass after the count update. A parallel session landed the same job-shops split on main (5 slugs) before this PR merged; this PR took main's copy, so its final diff is the holiday rule only.",
   "corrections": [],
   "redteam": null,
   "usage": {
