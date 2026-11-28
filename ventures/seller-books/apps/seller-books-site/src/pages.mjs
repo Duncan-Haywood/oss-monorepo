@@ -284,7 +284,10 @@ function platformPage(p) {
           : p.slug === "whatnot"
             ? `
   <p>Taxes on Whatnot sales, the 1099-K, tips, giveaways and the sales tax Whatnot collects, with one week worked through: <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>.</p>`
-            : ""
+            : p.slug === "tiktok-shop"
+              ? `
+  <p>Taxes on TikTok Shop sales, the 1099-K, creator commissions and the sales tax TikTok Shop collects, with one statement worked through: <a href="${href("/tiktok-shop-taxes")}">TikTok Shop taxes</a>.</p>`
+              : ""
   }
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
@@ -1666,6 +1669,209 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "Mercari taxes", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// /tiktok-shop-taxes: the search TikTok Shop sellers make ("do I have to pay taxes on TikTok Shop",
+// "TikTok Shop 1099-K"). The worked example is the app's own fixture (apps/seller-books/test/fixtures/
+// tiktok-shop-statement.csv, an invented statement's Order details sheet) taken through the importer's
+// arithmetic (importers/tiktok.ts): an order's sale is Gross sales less Seller discount plus the
+// Customer-paid shipping fee, the label TikTok Shop charged is postage (line 27a), the referral and
+// refund administration fees are line 10, affiliate commissions are advertising (line 8), a refund is
+// returns (line 2), an adjustment row is a charge (a logistics reimbursement credits postage, a deduction
+// is a fee), and the GBP and Reserve rows are skipped (services/books/schedule-c.ts). test/site.test.mjs
+// re-reads the fixture and checks every figure. TikTok's own 1099-K FAQ (Seller University) could not be
+// opened from the build environment (its host does not resolve here), so the page links it and states only
+// the IRS threshold and what the form counts, not quotes.
+export const TIKTOK_CHECKED_ON = "2026-11-28";
+export const TIKTOK_1099K_FAQ_URL =
+  "https://seller-us.tiktok.com/university/essay?knowledge_id=80339993577259&lang=en";
+/**
+ * The USD rows of the app's TikTok Shop fixture that the importer books, in file order (the GBP row and
+ * the Reserve row are skipped). kind: order, refunded (an order fully refunded on a later statement),
+ * credit (a logistics reimbursement), deduction. sale = Gross sales − Seller discount + Customer-paid
+ * shipping; fees = referral + transaction + refund administration; affiliate = Affiliate commission;
+ * ship = the label postage; refund = the item value given back.
+ */
+export const TIKTOK_EXAMPLE = [
+  {
+    title: "Order 1: $40 item, $8 seller discount, creator-sold",
+    kind: "order",
+    saleCents: 3200,
+    feesCents: 192,
+    affiliateCents: 640,
+    shipCents: 550,
+    refundCents: 0,
+    totalCents: 1818,
+    salesTaxCents: 256,
+  },
+  {
+    title: "Order 2: two items, buyer paid $4.99 shipping",
+    kind: "order",
+    saleCents: 2999,
+    feesCents: 150,
+    affiliateCents: 0,
+    shipCents: 499,
+    refundCents: 0,
+    totalCents: 2350,
+    salesTaxCents: 175,
+  },
+  {
+    title: "Order 3: sold, then refunded in full",
+    kind: "refunded",
+    saleCents: 3000,
+    feesCents: 36,
+    affiliateCents: 0,
+    shipCents: 500,
+    refundCents: 3000,
+    totalCents: -536,
+    salesTaxCents: 0,
+  },
+  {
+    title: "Logistics reimbursement",
+    kind: "credit",
+    saleCents: 0,
+    feesCents: 0,
+    affiliateCents: 0,
+    shipCents: -325,
+    refundCents: 0,
+    totalCents: 325,
+    salesTaxCents: 0,
+  },
+  {
+    title: "Deduction incurred by seller",
+    kind: "deduction",
+    saleCents: 0,
+    feesCents: 200,
+    affiliateCents: 0,
+    shipCents: 0,
+    refundCents: 0,
+    totalCents: -200,
+    salesTaxCents: 0,
+  },
+];
+/** Schedule C lines 1, 2, 8, 10 and 27a; net is the settlement total; tax is the sales tax TikTok Shop collected. */
+export function tiktokLines(rows = TIKTOK_EXAMPLE) {
+  const sum = (f) => rows.reduce((a, r) => a + f(r), 0);
+  return {
+    line1: sum((r) => r.saleCents),
+    line2: sum((r) => r.refundCents),
+    line8: sum((r) => r.affiliateCents),
+    line10: sum((r) => r.feesCents),
+    line27a: sum((r) => r.shipCents),
+    net: sum((r) => r.totalCents),
+    salesTax: sum((r) => r.salesTaxCents),
+  };
+}
+
+function tiktokShopTaxes() {
+  const path = "/tiktok-shop-taxes";
+  const title = "TikTok Shop taxes for sellers";
+  const description =
+    "Do you pay taxes on TikTok Shop sales? The 1099-K, the sales tax TikTok Shop collects, creator commissions and one statement worked line by line to Schedule C.";
+  const cents = (c) => `${c < 0 ? "−" : ""}$${(Math.abs(c) / 100).toFixed(2)}`;
+  const L = tiktokLines();
+  const faqs = [
+    {
+      q: "Do I have to pay taxes on TikTok Shop sales?",
+      a: "On the profit from things you bought or made to sell, yes, whether or not a form arrives. Clearing out your own closet at a loss is not income. Selling regularly to make money is usually a business, reported on Schedule C.",
+    },
+    {
+      q: "Does TikTok Shop send a 1099-K?",
+      a: "To U.S. sellers who pass the reporting threshold: for 2026, more than $20,000 and more than 200 transactions federally, lower in some states. It counts gross sales, before TikTok Shop's fees, creator commissions and the shipping labels it charged you, so it is larger than what was paid out. The income is reportable with or without the form.",
+    },
+    {
+      q: "Are affiliate creator commissions deductible?",
+      a: `Yes, as a cost of selling. ${SITE_NAME} files them as advertising (Schedule C line 8), apart from TikTok Shop's own referral fee (line 10), so you can see what creators cost you. In the example, a creator-sold $32 order paid ${cents(640)} in commission against ${cents(192)} in referral fee.`,
+    },
+    {
+      q: "Do I collect sales tax on TikTok Shop?",
+      a: "Not on TikTok Shop orders in states with marketplace facilitator laws, which is every state with a sales tax: the marketplace collects and sends it. The tax is on your statement but it is the buyer's money, not your income. Sales you ring up yourself off the platform follow your state's own rules.",
+    },
+    {
+      q: "Why doesn't my payout match my statement?",
+      a: "A statement can hold part of the money back as a reserve and release it later. A reserve is a timing difference, not a cost, so the books leave it out; the sales and fees behind it are counted when they settle.",
+    },
+  ];
+  const cell = (c) => (c ? cents(c) : "—");
+  const exRows = TIKTOK_EXAMPLE.map(
+    (r) =>
+      `        <tr><th scope="row">${esc(r.title)}</th><td>${cell(r.saleCents)}</td><td>${cell(r.feesCents)}</td><td>${cell(r.affiliateCents)}</td><td>${cell(r.shipCents)}</td><td>${cell(r.refundCents)}</td><td>${cents(r.totalCents)}</td></tr>`,
+  ).join("\n");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">TikTok Shop pays you what is left of each order after its referral fee, a creator's commission and the shipping label, and a statement mixes those orders with refunds, reimbursements, deductions and reserves. The total settled is not the number you report. Here is what is taxable, what the 1099-K counts, and one statement worked into Schedule C lines.</p>
+  <h2>Is it taxable?</h2>
+  <p>Selling your own used things for less than you paid is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). Buying stock to resell, or making products to sell, is business or hobby income, whatever the forms say. A business reports gross sales on Schedule C and deducts what made them: TikTok Shop's fees, creator commissions, the labels you paid for, <a href="${href("/cost-of-goods-sold")}">the cost of the items</a> that sold and <a href="${href("/mileage-deduction")}">the miles</a> to source them.</p>
+  <h2>When TikTok Shop sends a 1099-K</h2>
+  <p>The federal threshold is more than $20,000 and more than 200 transactions in the year (<a href="${IRS_1099K_FAQ_GENERAL}">IRS general FAQs</a>); some states are lower. TikTok Shop answers its sellers' questions about the form in its <a href="${TIKTOK_1099K_FAQ_URL}">1099-K and tax form FAQs</a>, and Seller Center keeps the form with your tax details. <a href="${href("/1099-k")}">Box 1a counts gross payments</a>, before fees, commissions and labels come out, so it will be larger than your payouts. No form does not mean no income.</p>
+  <h2>What one statement looks like</h2>
+  <p>A statement exported from Seller Center (Finances, Statements) is an Excel workbook; its Order details sheet has one row per order line or adjustment. Each order row gives Gross sales, your Seller discount, the shipping the buyer paid and the label TikTok Shop charged, Fees broken into the referral fee, transaction fee, refund administration fee and Affiliate commission, the Sales tax payment and the Total settlement amount. TikTok Shop defines that total as net sales plus shipping plus fees plus adjustments, with costs negative.</p>
+  <div class="worked">
+    <p class="muted">One invented statement: the U.S. rows of the sample Order details sheet ${esc(SITE_NAME)}'s TikTok Shop importer is tested on (a row in pounds and a reserve hold are skipped):</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Row</th><th scope="col">Sale (after discount, with buyer's shipping)</th><th scope="col">TikTok Shop fees</th><th scope="col">Creator commission</th><th scope="col">Label postage</th><th scope="col">Refund</th><th scope="col">Total settlement amount</th></tr></thead>
+      <tbody>
+${exRows}
+      </tbody>
+    </table></div>
+    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong> (the three orders after the seller discount, with the ${cents(499)} the buyer paid for shipping); line 2, returns and allowances, <strong>${cents(L.line2)}</strong> (the refunded order); line 8, advertising, <strong>${cents(L.line8)}</strong> (the creator's commission); line 10, commissions and fees, <strong>${cents(L.line10)}</strong> (referral and refund administration fees, and the deduction); line 27a, postage, <strong>${cents(L.line27a)}</strong> (three labels less the ${cents(325)} logistics reimbursement). Line 1 less those four is ${cents(L.line1 - L.line2 - L.line8 - L.line10 - L.line27a)}, exactly the rows' Total settlement amounts added up; the items' cost comes off after that.</p>
+    <p class="muted">The ${cents(800)} seller discount on order 1 is not an expense: the sale is the price after it. Order 3 was sold in March and refunded on the April statement, so it shows in both line 1 and line 2, and its label and the ${cents(36)} refund administration fee stay as costs. The ${cents(L.salesTax)} of sales tax on the two kept orders is not on any line: TikTok Shop collected it for the states.</p>
+  </div>
+  <h2>Creator commissions</h2>
+  <p>An affiliate creator who sells your item through a video or live stream takes a commission you set, and on order 1 it was more than three times TikTok Shop's referral fee. Both are costs of the sale, but only one is the platform's fee. ${esc(SITE_NAME)} keeps the Affiliate commission column on line 8, so the profit-by-platform report shows what creators cost you next to what they sold.</p>
+  <h2>Reimbursements, deductions and reserves</h2>
+  <p>Adjustment rows have their own Type. A logistics reimbursement credits back postage; a deduction incurred by the seller is a charge filed with fees. A reimbursement for stock TikTok Shop lost or damaged may belong on line 6, other income, instead: the importer counts them and says so, and the stock should be marked written off. A Reserve row moves money between your balance and a hold. It is not income or a cost, so it is skipped with a reason.</p>
+  <h2>Sales tax</h2>
+  <p>TikTok Shop collects and sends sales tax on its orders in the states whose marketplace facilitator laws require it. The Sales tax payment column is the buyer's tax, already handled, so ${esc(SITE_NAME)} keeps it out of gross receipts. More in <a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>.</p>
+  <h2>Keeping the books in ${esc(SITE_NAME)}</h2>
+  <p>Export each statement from Seller Center, save its Order details sheet as CSV and import it; every row is kept once, so an overlapping export is not counted twice. Orders, refunds, creator commissions, labels and adjustments land on the right lines, rows in another currency are set aside with a reason, and a row whose columns do not add up to its Total settlement amount is named. Link the items to their sales and cost of goods follows. Sell on eBay, Poshmark or Whatnot too? They go in the same books (see the <a href="${href("/platforms/tiktok-shop")}">TikTok Shop page</a>).</p>
+  <p class="muted">Checked on ${esc(TIKTOK_CHECKED_ON)}. TikTok Shop's statement columns and its tax pages change, so check Seller Center and the IRS before you file.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "tt" })}</div>`;
+  const text = `# ${title}
+
+TikTok Shop pays you what is left of each order after its referral fee, a creator's commission and the shipping label, so the total settled is not the number you report.
+
+## Is it taxable?
+
+Personal items sold at a loss are not income. Items bought or made to sell are business or hobby income. A business reports gross sales on Schedule C and deducts TikTok Shop's fees, creator commissions, labels, cost of goods and mileage.
+
+## The 1099-K
+
+Federal threshold: more than $20,000 and more than 200 transactions (${IRS_1099K_FAQ_GENERAL}); some states are lower. TikTok Shop's FAQ: ${TIKTOK_1099K_FAQ_URL}. Box 1a is gross, before fees, commissions and labels.
+
+## One statement worked through
+
+Invented example (the importer's sample Order details sheet, U.S. rows): ${TIKTOK_EXAMPLE.map((r) => `${r.title}: total ${cents(r.totalCents)}`).join("; ")}. Schedule C: line 1 ${cents(L.line1)}, line 2 ${cents(L.line2)}, line 8 ${cents(L.line8)} (creator commission), line 10 ${cents(L.line10)}, line 27a ${cents(L.line27a)}; net ${cents(L.net)}, the Total settlement amounts' total. Sales tax collected by TikTok Shop, ${cents(L.salesTax)}, is not income.
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "TikTok Shop taxes", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -4323,6 +4529,7 @@ export function allPages() {
     ebayTaxes(),
     whatnotTaxes(),
     mercariTaxes(),
+    tiktokShopTaxes(),
     costOfGoodsSold(),
     inventorySpreadsheet(),
     sellThrough(),

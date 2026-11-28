@@ -63,6 +63,10 @@ import {
   SHOTS,
   STOCK_EXAMPLE,
   stockExampleFigures,
+  TIKTOK_1099K_FAQ_URL,
+  TIKTOK_CHECKED_ON,
+  TIKTOK_EXAMPLE,
+  tiktokLines,
   WHATNOT_1099K_QUOTE,
   WHATNOT_1099K_URL,
   WHATNOT_CHECKED_ON,
@@ -1334,6 +1338,117 @@ describe("the Mercari taxes page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/mercari-taxes)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/mercari-taxes`));
+  });
+});
+
+describe("the TikTok Shop taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/tiktok-shop-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("the example is the importer's own fixture, row for row", () => {
+    const [head, ...lines] = appFile("test/fixtures/tiktok-shop-statement.csv").trim().split("\n");
+    const cols = head.split(",");
+    const at = (row, name) => row.split(",")[cols.indexOf(name)];
+    const money = (v) => Math.round(Number(v || "0") * 100);
+    const neg = (c) => 0 - c || 0;
+    const booked = lines.filter((l) => at(l, "Currency") === "USD" && at(l, "Type") !== "Reserve");
+    assert.equal(lines.length - booked.length, 2, "the GBP row and the Reserve row are skipped");
+    assert.equal(booked.length, TIKTOK_EXAMPLE.length);
+    booked.forEach((l, i) => {
+      const r = TIKTOK_EXAMPLE[i];
+      assert.equal(r.totalCents, money(at(l, "Total settlement amount")), r.title);
+      const type = at(l, "Type");
+      if (type === "Order") {
+        const sale =
+          money(at(l, "Gross sales")) +
+          money(at(l, "Seller discount")) +
+          money(at(l, "Customer-paid shipping fee"));
+        assert.equal(r.saleCents, sale, r.title);
+        assert.equal(r.refundCents, neg(money(at(l, "Gross sales refund"))), r.title);
+        const fees = ["Referral fee", "Transaction fee", "Refund administration fee"]
+          .map((c) => neg(money(at(l, c))))
+          .reduce((a, b) => a + b, 0);
+        assert.equal(r.feesCents, fees, r.title);
+        assert.equal(r.affiliateCents, neg(money(at(l, "Affiliate commission"))), r.title);
+        // Label postage: buyer-paid shipping less the net Shipping column (the importer's rule).
+        assert.equal(
+          r.shipCents,
+          money(at(l, "Customer-paid shipping fee")) - money(at(l, "Shipping")),
+          r.title,
+        );
+        assert.equal(r.salesTaxCents, r.refundCents ? 0 : money(at(l, "Sales tax payment")));
+        assert.equal(r.kind, r.refundCents ? "refunded" : "order");
+      } else {
+        const adj = money(at(l, "Adjustment amount"));
+        if (/reimbursement/i.test(type)) assert.equal(r.shipCents, -adj, r.title);
+        else assert.equal(r.feesCents, -adj, r.title);
+      }
+      assert.equal(
+        r.saleCents - r.refundCents - r.feesCents - r.affiliateCents - r.shipCents,
+        r.totalCents,
+        r.title,
+      );
+    });
+    const imp = appFile("src/worker/services/importers/tiktok.ts");
+    assert.match(imp, /\["affiliateCommission", "advertising"\]/);
+    assert.match(imp, /\["referralFee", "commission"\]/);
+    assert.match(imp, /\["refundAdminFee", "commission"\]/);
+    assert.match(
+      imp,
+      /if \(\/shipping\|logistic\|label\|postage\/\.test\(t\)\) return "shipping_label"/,
+    );
+    assert.match(imp, /\/reserve\|payout\|withdraw\|transfer\/\.test\(t\)\) return "skip"/);
+    assert.match(imp, /only US shops, in USD, are supported/);
+    const sc = appFile("src/worker/services/books/schedule-c.ts");
+    assert.match(sc, /gross \+= s\.itemCents \+ s\.shippingChargedCents/);
+    assert.match(sc, /add\(f\.kind === "advertising" \? "8" : "10", f\.amountCents\)/);
+    assert.match(sc, /if \(c\.kind === "shipping_label"\) add\("27a:postage", c\.amountCents\)/);
+  });
+
+  test("the Schedule C lines, by hand", () => {
+    assert.deepEqual(tiktokLines(), {
+      line1: 9199,
+      line2: 3000,
+      line8: 640,
+      line10: 578,
+      line27a: 1224,
+      net: 3757,
+      salesTax: 431,
+    });
+    const L = tiktokLines();
+    assert.equal(L.line1 - L.line2 - L.line8 - L.line10 - L.line27a, L.net);
+    const html = htmlOf(page());
+    for (const s of ["$91.99", "$30.00", "$6.40", "$5.78", "$12.24", "$37.57", "$4.31", "$3.25"])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("sources linked, the check dated, FAQ markup present", () => {
+    const html = htmlOf(page());
+    assert.match(TIKTOK_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    assert.match(TIKTOK_1099K_FAQ_URL, /^https:\/\/seller-us\.tiktok\.com\/university\//);
+    assert.ok(
+      html.includes(TIKTOK_1099K_FAQ_URL) ||
+        html.includes(TIKTOK_1099K_FAQ_URL.replaceAll("&", "&amp;")),
+      "TikTok Shop's 1099-K FAQ",
+    );
+    for (const s of [
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("linked from the TikTok Shop platform page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/tiktok-shop-taxes"`;
+    assert.ok(
+      htmlOf(pages.find((p) => p.path === "/platforms/tiktok-shop")).includes(
+        "one statement worked through",
+      ),
+    );
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/tiktok-shop-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/tiktok-shop-taxes`));
   });
 });
 
