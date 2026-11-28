@@ -162,6 +162,16 @@ test("amountInWords writes dollars as cheques do", () => {
     amountInWords(200_001_000_99),
     "Two Hundred Million One Thousand and 99/100 Dollars",
   );
+  // Each tens word on its exact boundary: 20 is TENS, not ONES[20] (undefined).
+  assert.equal(amountInWords(2_000), "Twenty and 00/100 Dollars");
+  assert.equal(amountInWords(9_000), "Ninety and 00/100 Dollars");
+  assert.equal(amountInWords(2_100), "Twenty-One and 00/100 Dollars");
+  assert.equal(
+    amountInWords(99_999_999_999_999),
+    "Nine Hundred Ninety-Nine Billion Nine Hundred Ninety-Nine Million Nine Hundred Ninety-Nine Thousand Nine Hundred Ninety-Nine and 99/100 Dollars",
+  );
+  // $1 trillion has no scale word: it throws rather than print "One" with no "Trillion".
+  assert.throws(() => amountInWords(100_000_000_000_000), RangeError);
   assert.throws(() => amountInWords(-1), RangeError);
   assert.throws(() => amountInWords(1.5), RangeError);
 });

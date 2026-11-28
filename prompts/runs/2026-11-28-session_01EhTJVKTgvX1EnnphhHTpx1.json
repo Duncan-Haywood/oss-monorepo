@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVKTgvX1EnnphhHTpx1",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T23:56:14Z",
+  "ended": "2026-11-28T00:03:39Z",
+  "wall_minutes": 7.58,
+  "tokens_in": 3211088,
+  "tokens_out": 34621,
+  "cost_usd": 2.1512,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19921",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to write consolidated posts, not a new short post per PR, but the creative track's recent story PRs nearly all carry a per-story post; followed the shelf's convention and tied this post to a paid bet's customer post."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Next up was empty for all three shelves, so every creative run must draft its own proposal; overlap.mjs --unused made that quick."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "A per-story post instead of extending an existing one, to match the shelf convention; it links to the pay-applications customer post (bet #1) through the cost-to-complete parallel",
+      "did": "new post docs/posts/2026-11-28-the-column-that-never-got-shorter.md",
+      "result": "check_posts ok, no near-copies"
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio is at 581 MB against the 400 MB cap",
+      "did": "text only, no audio",
+      "result": "pages and feeds regenerated, tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-the-column-that-never-got-shorter.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (Hearth & Horizon shelf). Piece: the-column-that-never-got-shorter (sunk cost fallacy, Polish village parish, 2056). Security queue empty; ideas inbox empty; routed creative by weighted draw. node --test 22/22 pass; check_posts ok. Re-read caught 4 slips (wall tonnage, vote count, Lent day count, mortgage not in model).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f8dc749e-6154-5f0a-b2ce-dce57201cb6a",
+    "transcripts": 1,
+    "first": "2026-11-27T23:56:14Z",
+    "last": "2026-11-28T00:03:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 64,
+        "output": 34621,
+        "thinking": 14535,
+        "cache_read": 3106362,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104662,
+        "api_equivalent_usd": 2.1512,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 64,
+      "output": 34621,
+      "thinking": 14535,
+      "cache_read": 3106362,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104662,
+      "api_equivalent_usd": 2.1512,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 31,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.58,
+      "active_minutes": 7.58,
+      "model_minutes": 6.86,
+      "tool_minutes": 0.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a writer drafting and fact-checking a 4,700-word story with a worked model and a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 371.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

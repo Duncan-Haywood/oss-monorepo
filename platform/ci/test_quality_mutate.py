@@ -78,6 +78,52 @@ class MutateTextTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             qm.mutate_text(CALC, "nope", "x", None)
 
+    def test_missing_multiline_old_says_why(self):
+        text = "if (a) {\n    return b;\n}\n"
+        cases = [("if (a) {\\n    return b;", "literal backslash-n"),
+                 ("if (a) {\n  return b;", "different whitespace")]
+        for old, why in cases:
+            with self.assertRaises(ValueError) as e:
+                qm.mutate_text(text, old, "x", None)
+            self.assertIn(why, str(e.exception))
+        with self.assertRaises(ValueError) as e:
+            qm.mutate_text(text.replace("\n", "\r\n"), "if (a) {\n    return b;", "x", None)
+        self.assertIn("CRLF", str(e.exception))
+        with self.assertRaises(ValueError) as e:
+            qm.mutate_text(text, "nope", "x", None)
+        self.assertEqual(str(e.exception), "--old does not occur in the file")
+
+
+class MissingInstallTest(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.repo = Path(self._tmp.name)
+        self.app = self.repo / "ventures/w/apps/x"
+        self.app.mkdir(parents=True)
+        (self.app / "package.json").write_text('{"devDependencies": {"vitest": "5"}}')
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def test_workspace_lockfile_without_node_modules(self):
+        (self.repo / "ventures/w/pnpm-lock.yaml").write_text("")
+        got = qm.missing_install(self.repo, Path("ventures/w/apps/x"))
+        self.assertEqual(got, ((self.repo / "ventures/w").resolve(), "pnpm install --frozen-lockfile"))
+        (self.repo / "ventures/w/node_modules").mkdir()
+        self.assertIsNone(qm.missing_install(self.repo, Path("ventures/w/apps/x")))
+
+    def test_lockfile_at_the_checkout_top(self):
+        # a private-monorepo clone: pnpm-lock.yaml at the root, above apps/<name>
+        (self.repo / "pnpm-lock.yaml").write_text("")
+        got = qm.missing_install(self.repo, Path("ventures/w/apps/x"))
+        self.assertEqual(got[1], "pnpm install --frozen-lockfile")
+
+    def test_bare_package_json(self):
+        got = qm.missing_install(self.repo, Path("ventures/w/apps/x"))
+        self.assertEqual(got, (self.app.resolve(), "npm install"))
+        (self.app / "package.json").write_text('{"name": "no-deps"}')
+        self.assertIsNone(qm.missing_install(self.repo, Path("ventures/w/apps/x")))
+
 
 class MainTest(Fixture):
     def test_caught_and_tree_untouched(self):
@@ -173,6 +219,29 @@ class MainTest(Fixture):
         self.assertEqual(code, 2)
         self.assertIn("hint: the command runs in ventures/a/, so `ventures/a` is written from the "
                       "repository root; write `.`", err.getvalue())
+
+    def test_red_baseline_without_node_modules_says_install(self):
+        a = self.repo / "ventures/a"
+        (a / "package.json").write_text('{"devDependencies": {"vitest": "5"}}')
+        (a / "package-lock.json").write_text("{}")
+        (a / "node_modules/pkg").rmdir()
+        (a / "node_modules").rmdir()
+        (self.repo / "ventures/b/helper.py").write_text("def k():\n    return 8\n")
+        err = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            code = qm.main([str(a / "calc.py"), "--old", "x > 100", "--new", "x >= 100",
+                            "--", sys.executable, "-m", "unittest", "-q"])
+        self.assertEqual(code, 2)
+        self.assertIn("hint: ventures/a/ has no node_modules", err.getvalue())
+        self.assertIn("`cd ventures/a && npm ci`", err.getvalue())
+
+    def test_a_test_program_that_does_not_exist_is_a_red_baseline(self):
+        err = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            code = qm.main([str(self.repo / "ventures/a/calc.py"), "--old", "x > 100", "--new", "x >= 100",
+                            "--", "./node_modules/.bin/vitest", "run"])
+        self.assertEqual(code, 2)
+        self.assertIn("cannot start ./node_modules/.bin/vitest", err.getvalue())
 
     def test_repo_relative_args(self):
         cwd = Path("ventures/a")

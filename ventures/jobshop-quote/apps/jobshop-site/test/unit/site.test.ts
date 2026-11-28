@@ -4,6 +4,7 @@ import { CMMC_SITE_URL, LAUNCH, type Launch } from "@site/config";
 import { esc } from "@site/html";
 import { statusLine } from "@site/layout";
 import { AI_OFF, ALTERNATIVES, SHOTS } from "@site/pages";
+import { CSV_FILE } from "@site/quote-template";
 import { PUBLIC_ROUTES, publicRoutes } from "@site/routes";
 import { describe, expect, it } from "vitest";
 
@@ -88,6 +89,7 @@ describe("prerendered pages", () => {
       ...PUBLIC_ROUTES_OPEN.map((r) => `/jobshop${r.path === "/" ? "/" : r.path}`),
       "/jobshop/styles.css",
       "/jobshop/favicon.svg",
+      `/jobshop/${CSV_FILE}`,
       ...Object.values(SHOTS).map((s) => `/jobshop/shots/${s.file}`),
     ]);
     for (const p of pages) {

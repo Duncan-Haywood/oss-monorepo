@@ -134,6 +134,19 @@ class CampaignTest(unittest.TestCase):
         (app / "package.json").write_text(json.dumps({"scripts": {"test": "vitest run"}}))
         (app / "src" / "a.ts").write_text("export const a = 1 > 0;\n")
         self.assertIsNone(redteam.suite_for(app / "src" / "a.ts", self.repo))  # needs install
+        # Installed, with a unit config and a sibling test: the sibling runs under vitest.
+        (app / "vitest.unit.config.ts").write_text("export default {};\n")
+        (app / "src" / "a.test.ts").write_text("import './a';\n")
+        (app / "src" / "b.ts").write_text("export const b = 2 > 1;\n")
+        self.assertIsNone(redteam.suite_for(app / "src" / "a.ts", self.repo))  # no node_modules
+        vitest = app / "node_modules" / ".bin" / "vitest"
+        vitest.parent.mkdir(parents=True)
+        vitest.write_text("#!/bin/sh\n")
+        self.assertEqual(redteam.suite_for(app / "src" / "a.ts", self.repo),
+                         ([str(vitest), "run", "--config", "vitest.unit.config.ts", "src/a.test.ts"],
+                          app))
+        self.assertIsNone(redteam.suite_for(app / "src" / "b.ts", self.repo))  # no sibling test
+        self.assertIsNone(redteam.suite_for(app / "src" / "a.test.ts", self.repo))
 
     def test_typescript_declarations_are_not_mutated(self):
         ts = "export type N = Array<1>;\ninterface P { n: 1 }\nexport const g = (a: number) => a > 2;\n"

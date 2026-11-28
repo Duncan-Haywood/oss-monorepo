@@ -16,6 +16,7 @@ import { ANNUAL_DISCOUNT, EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/pl
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAME } from "./config";
 import { type Html, html } from "./html";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
+import { CSV_COLUMNS, CSV_FILE, exampleQuote, TERMS_CHECKLIST } from "./quote-template";
 import { flatBlank, priceSheetExample, EXAMPLE as SHEET_EXAMPLE } from "./sheet-metal-example";
 import {
   EMPLOYER_FICA,
@@ -1329,7 +1330,9 @@ export function quoteGuidePage(ctx: RenderContext): Html {
     <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a> or
     <a class="link" href="${href(ctx, "/compare")}">compare it with other quoting software</a>. Laser,
     plasma or press-brake work: see <a class="link" href="${href(ctx, "/how-to-quote-sheet-metal")}">how to
-    quote sheet metal and laser cut parts</a>.</p>
+    quote sheet metal and laser cut parts</a>. What to put on the quote you send, with a template to
+    download: <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote
+    template</a>.</p>
     <p class="fineprint">This page explains a common costing method. It is not accounting, tax or
     financial advice, and the prices, times and rates in it are made up. Check every quote before you send
     it.</p>
@@ -1497,13 +1500,154 @@ export function sheetMetalGuidePage(ctx: RenderContext): Html {
     <p>No account needed to try the arithmetic: the free
     <a class="link" href="https://marisstella.app/dxf-nesting/">DXF nesting tool</a> nests your parts in the
     browser and prices the nest from your rates. For machined parts, see
-    <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to quote a CNC machining job</a>.</p>
+    <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to quote a CNC machining job</a>;
+    for what goes on the quote you send, the
+    <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote template</a>.</p>
     <p class="fineprint">This page explains a common costing method. It is not accounting, tax or
     financial advice, and the speeds, prices, times and rates in it are made up. Check every quote before
     you send it.</p>
   </div>
 </section>
 ${ctaBand(ctx, "Quote your next sheet-metal RFQ this way", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
+/**
+ * A guide aimed at the searches estimators make for a quote form ("machine shop quote template",
+ * "CNC quote template", "machining quote form"): what goes on a quote and why, what stays off it,
+ * the terms to decide once, a filled-in example (the CNC guide's bracket at its engine-checked
+ * prices, ./quote-template) and a CSV template to download. Nothing here is legal advice, and the
+ * terms are listed as decisions, never as wording to copy.
+ */
+export function quoteTemplatePage(ctx: RenderContext): Html {
+  const q = exampleQuote();
+  const fields: [string, string][] = [
+    [
+      "Your shop's name, address, phone and email",
+      "So the buyer can reach the person who quoted, and a purchase order goes to the right place.",
+    ],
+    [
+      "Quote number and revision",
+      "One number per quote, and a revision label when you re-quote, so a PO names exactly which prices it accepts.",
+    ],
+    [
+      "Date and valid-until date",
+      "Material and machine time get repriced; a quote without an end date can be held against you a year later.",
+    ],
+    [
+      "Customer company, contact and their RFQ number",
+      "Buyers send many RFQs; their reference is how they match your quote to theirs.",
+    ],
+    [
+      "Part number and drawing revision for every line",
+      "The price is for that revision. When the drawing changes, the revision on your quote shows which one you priced.",
+    ],
+    [
+      "Description: material, finish and anything else priced in",
+      "The buyer compares quotes line by line; saying “6061-T6, clear anodize, certs included” stops a cheaper quote that left them out looking like the same thing.",
+    ],
+    [
+      "Every quantity asked for, with unit and extended price",
+      "Setup and lot minimums spread differently at each quantity, so each break gets its own price, not one price each.",
+    ],
+    [
+      "Lead time, counted from the order",
+      "“3 weeks after receipt of order” holds; a calendar date goes stale while the buyer decides.",
+    ],
+    [
+      "Notes: assumptions and exceptions",
+      "Anything you assumed (a tolerance, a material substitute, an inspection level) written down before the PO, not argued about after.",
+    ],
+    [
+      "Terms",
+      "Payment, shipping, overruns and the rest, decided once and printed on every quote (list below).",
+    ],
+  ];
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>Machine shop quote template</h1>
+    <p class="lead">What a CNC or fabrication quote needs on it, what to keep off it, the terms to decide
+    once, a filled-in example and a free template to download. The buyer reads a quote to compare it with
+    two others and to write a purchase order from it; every field below serves one of those.</p>
+    <p class="actions"><a class="btn btn-secondary" href="${href(ctx, `/${CSV_FILE}`)}" download>Download the template (CSV)</a></p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>What goes on a machine shop quote</h2>
+    <div class="table-wrap">
+      <table class="compare">
+        <thead><tr><th scope="col">Field</th><th scope="col">Why it is there</th></tr></thead>
+        <tbody>
+          ${fields.map(([f, why]) => html`<tr><th scope="row">${f}</th><td>${why}</td></tr>`)}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>What stays off it</h2>
+    <p>Your cost basis. The customer sees a price for each part at each quantity; your hourly rates, setup
+    and cycle minutes, material cost and markup stay in your own records. A quote that shows them invites
+    the buyer to negotiate each one, and tells a competitor your rates. Keep the basis with the quote on
+    your side, so you can answer when a reorder is priced differently
+    (<a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how a machining price is built</a>).</p>
+
+    <h2>A filled-in example</h2>
+    <p><strong>The shop, customer, part, dates and prices are made up.</strong> The prices are the worked
+    example in <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to quote a CNC
+    machining job</a>, priced at three quantities.</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">${q.shopName}: quote ${q.quoteLabel}, dated ${q.issuedOn}, valid until
+        ${q.validUntil}. Prepared for ${q.customerCompany}, ${q.customerContact}. Lead time: ${q.leadTime}.</caption>
+        <thead><tr><th scope="col">Part</th><th scope="col">Qty</th><th scope="col">Unit price</th><th scope="col">Extended</th></tr></thead>
+        <tbody>
+          ${q.lines.map((line) =>
+            line.breaks.map(
+              (b, i) =>
+                html`<tr>${i === 0 ? html`<th scope="row" rowspan="${line.breaks.length}">${line.partNumber} Rev ${line.revision}<br><span class="fineprint">${line.description}. ${line.material}, ${line.finish.toLowerCase()}.</span></th>` : ""}<td>${b.quantity.toLocaleString("en-US")}</td><td>${usdCents(b.unitPriceCents)}</td><td>${usdCents(b.totalCents)}</td></tr>`,
+            ),
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p><strong>Notes</strong></p>
+    <ul>
+      ${q.notes.map((n) => html`<li>${n}</li>`)}
+    </ul>
+
+    <h2>Terms to decide once</h2>
+    <p>Each of these is a question your terms should answer. Decide them for your shop, put them in one
+    paragraph and print it on every quote. They are prompts, not wording to copy: have your own terms
+    and conditions reviewed by someone qualified where you do business.</p>
+    <ul>
+      ${TERMS_CHECKLIST.map((t) => html`<li><strong>${t.term}.</strong> ${t.question}</li>`)}
+    </ul>
+
+    <h2>The template</h2>
+    <p><a class="link" href="${href(ctx, `/${CSV_FILE}`)}" download>${CSV_FILE}</a> opens in Excel,
+    Google Sheets or LibreOffice. It has the columns ${CSV_COLUMNS.join(", ")}: one row per quantity
+    break, so a part quoted at three quantities takes three rows with the same line number. The example
+    rows are marked; delete them. It holds plain values, no formulas: work out the extended price as
+    quantity × unit price, and put your shop's header, the customer, the dates and your terms above the
+    table when you print it.</p>
+    <p>A spreadsheet works for a few quotes a week. It stops working when you need to find what you quoted
+    a part at last time, re-quote a revision, see which quotes are about to expire or remember to follow up.</p>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>${SITE_NAME} builds this quote as a PDF from your rate card: your shop's name, logo and contact
+    lines, a quote number with revisions (“Q-1001 Rev 2, replaces Q-1001”), the date, a valid-until
+    date from your default number of days, the customer, a lead time from your default, every part with its
+    revision and description, a row per quantity break with unit and extended prices, the quote's notes and
+    your terms, saved once in the rate card. It never prints your rates, times or markup. The estimator
+    checks and sends it; the customer gets a link to accept or decline, and the app reminds you about
+    follow-ups and quotes about to expire. You can
+    <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a>.</p>
+    <p class="fineprint">This page describes common practice for job-shop quotes. It is not legal, tax or
+    financial advice, and the example's names, dates and prices are made up. Check every quote before you
+    send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Send your next quote from your own rate card", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
 /** Path → body renderer. The Worker uses earlyAccessPage directly for error re-renders. */
@@ -1516,6 +1660,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/machine-shop-hourly-rate": shopRatePage,
   "/how-to-quote-cnc-machining": quoteGuidePage,
   "/how-to-quote-sheet-metal": sheetMetalGuidePage,
+  "/machine-shop-quote-template": quoteTemplatePage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
   "/early-access/thanks": thanksPage,

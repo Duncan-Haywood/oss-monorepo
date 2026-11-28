@@ -6,12 +6,26 @@
 import { isCadFile } from "./geometry";
 import { countPdfPages, filePages, rfqUnitsForPages } from "./pdf-pages";
 
-/** The stored media type of an upload: the browser's type, else from the name (.pdf, .txt). */
+/** Non-standard labels mail clients and browsers put on PDFs. */
+const PDF_ALIASES = new Set([
+  "application/x-pdf",
+  "application/acrobat",
+  "application/vnd.pdf",
+  "applications/vnd.pdf",
+  "text/pdf",
+  "text/x-pdf",
+]);
+
+/**
+ * The stored media type of an upload: the browser's type, else from the name (.pdf, .txt). A file
+ * named .pdf, or labelled with a PDF alias, is always application/pdf: the type is the sender's
+ * claim, and a PDF stored under another type would be counted as no drawing pages at all.
+ */
 export function uploadMimeType(name: string, type: string): string {
   const mime = type.split(";")[0]?.trim().toLowerCase() ?? "";
-  if (mime && mime !== "application/octet-stream") return mime;
   const lower = name.toLowerCase();
-  if (lower.endsWith(".pdf")) return "application/pdf";
+  if (lower.endsWith(".pdf") || PDF_ALIASES.has(mime)) return "application/pdf";
+  if (mime && mime !== "application/octet-stream") return mime;
   if (lower.endsWith(".txt")) return "text/plain";
   return mime || "application/octet-stream";
 }
