@@ -236,6 +236,18 @@ export function cashDigest(
         : `Owed on sent applications: ${formatCents(t.outstandingCents)}.`,
     );
   }
+  if (t.interestCents > 0) {
+    summary.push(
+      `Interest accrued on the past-due applications at your jobs' late-payment rates: ${formatCents(t.interestCents)}, and still running until they are paid.`,
+    );
+  }
+  if (t.paidLateInterestCents > 0) {
+    const apps = report.projects.reduce((n, p) => n + (p.paidLate?.length ?? 0), 0);
+    const which = apps === 1 ? "1 application" : `${apps} applications`;
+    summary.push(
+      `Interest earned on ${which} paid late, not billed or waived yet: ${formatCents(t.paidLateInterestCents)}. Mark each one billed or waived on the cash page once you decide.`,
+    );
+  }
   if (t.awaitingOwnerCents > 0) {
     summary.push(
       `Waiting on the owner's payment to the GC (pay-when-paid, no due date yet): ${formatCents(t.awaitingOwnerCents)}.`,

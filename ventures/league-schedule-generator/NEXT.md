@@ -45,3 +45,7 @@
 - (2026-11-23) next: a real league's fields and teams. 2026-11-23 drawn colour (E.5) and TRF XXC: arbiters' colours on 4,358/4,358 boards, byes 21/24 (eval/swiss-colour-truth.txt)
 - (2026-11-25) officials pick and give back games (officiating.mjs, 2026-11-20; moved to HISTORY.md with its open step): next a real league's referees
 - (2026-11-25) cards and suspensions (discipline.mjs, 2026-11-21; moved to HISTORY.md with its open step): next a real league's cards
+
+## From the quality re-audit (2026-11-28, `portfolio/quality/audits/2026-11-28-league-schedule-generator-reaudit.json`)
+
+- README.md is 6,639 lines, mostly a dated experiment log (4,920 at round 87). Split it: a user-facing README (what it does, how to run it, limits) and the experiment log into HISTORY.md or `eval/`.

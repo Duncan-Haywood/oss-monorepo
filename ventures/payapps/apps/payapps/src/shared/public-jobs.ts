@@ -5,7 +5,7 @@
 //    dates PayApps counts here: the 90-day notice a second-tier claimant gives the prime, and the
 //    one-year limit on the suit. They take the lien deadline's place on the job page, the cash page
 //    and the weekly email. State and local jobs have each state's own bond law ("little Miller
-//    Act"): there it shows no lien date, and lists the bond claim steps in the thirty-two states of
+//    Act"): there it shows no lien date, and lists the bond claim steps in the thirty-three states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
 //    checked against the cap in the 26 states the public guide lists.
@@ -583,6 +583,20 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "The contracting body must give a certified copy of the bond and contract on written request (§ 34-223(C)).",
     ],
   },
+  CA: {
+    name: "California",
+    law: "Cal. Civ. Code §§ 9100-9566",
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=9558",
+    checkedOn: "2026-11-28",
+    notes: [
+      "Every date here counts from acceptance as if the public body recorded its notice of completion that same day, the earliest the deadlines can fall. If a notice of completion, acceptance or cessation is recorded later (it may be up to 15 days after completion, § 9204), the stop payment notice is due 30 days after that recording; if none is recorded, 90 days after completion (§ 9356(b)), and the two suits move with it. Ask the public body whether and when it recorded one.",
+      "Completion is the earlier of acceptance and 60 days in a row with no labor on the whole project (§ 9200; the 60 days do not apply to State Contract Act contracts). If work stopped for 60 days before acceptance, the dates run from then.",
+      "The stop payment notice is signed and verified, states the amount due for work through its date (§ 9352), and goes to the public body's disbursing officer, or for a state contract to the director of the department that awarded it (§ 9354). Pay the public body $10 with it and it must tell you the deadline to sue (§ 9362).",
+      "A claimant who missed the preliminary notice can still claim on the bond with written notice to the surety and the bond principal within 15 days after a notice of completion is recorded, or 75 days after completion if none is (§ 9560(b), (c)).",
+      "A payment bond is required on a public works contract over $25,000 (§ 9550(a)); § 9550 does not cover a state entity's contract, which Public Contract Code § 7103 bonds. A direct contractor (the prime) has no stop payment notice or bond claim (§ 9100(b)). The prevailing party in a bond suit gets a reasonable attorney's fee (§ 9564(c)).",
+      "Read from california.public.law, which republishes the official text; leginfo.legislature.ca.gov refused this session's connection.",
+    ],
+  },
   CO: {
     name: "Colorado",
     law: "C.R.S. §§ 38-26-105 to 38-26-107",
@@ -1132,6 +1146,59 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
           LAST,
         ),
       ];
+    case "CA": {
+      // § 9356(a): 30 days after a recorded notice of completion, which may be recorded the day of
+      // completion: the earliest the stop payment notice period can end, counted from acceptance.
+      const spnEnds = A ? addDays(A, 30) : null;
+      const PERIOD =
+        "the end of the stop payment notice period (30 days after acceptance at the earliest)";
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the preliminary notice to the public body and the direct contractor",
+            citation: "Cal. Civ. Code §§ 9300, 9304",
+            rule: "when you start: a stop payment notice or bond claim covers only work provided within 20 days before it is given and after",
+          },
+          null,
+          null,
+          "the day you first furnished",
+        ),
+        step(
+          {
+            who: "all",
+            act: "Give the public body a stop payment notice",
+            citation: "Cal. Civ. Code § 9356",
+            rule: `within 30 days after a notice of completion is recorded, or 90 days after completion if none is; dated from ${ACCEPTED}, the earliest`,
+          },
+          A,
+          days(30),
+          ACCEPTED,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Sue the public body and the direct contractor to enforce the stop payment notice",
+            citation: "Cal. Civ. Code § 9502(a), (b)",
+            rule: "at least 10 days after giving the notice, and not later than 90 days after the stop payment notice period ends",
+          },
+          spnEnds,
+          days(90),
+          PERIOD,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "Cal. Civ. Code § 9558",
+            rule: "any time after you stop providing work, and not later than six months after the stop payment notice period ends",
+          },
+          spnEnds,
+          (iso) => addMonths(iso, 6),
+          PERIOD,
+        ),
+      ];
+    }
     case "CO": {
       const SETTLED = "the final settlement date the public body publishes";
       return [

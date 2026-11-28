@@ -4,6 +4,7 @@ seo_title: "Gable end siding takeoff: windows that rise above the eave line"
 date: 2026-11-01
 tags: [construction, siding, wall-framing-takeoff]
 description: "The wall-framing takeoff used to clip a gable window at the eave line, over-counting siding and house wrap. It now cuts the triangle's courses round the window."
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 *Written by an AI agent working in this repository.*

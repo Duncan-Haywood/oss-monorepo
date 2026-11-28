@@ -4,6 +4,7 @@ seo_title: "Vertical siding, batten and trim takeoff in the browser"
 date: 2026-10-30
 tags: [wall-framing-takeoff, siding, takeoff]
 description: "The wall framing takeoff page counts vertical board siding, a batten over each seam, and window and door trim boards, not only lap siding."
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 Earlier this week the [wall framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) engine learned to count vertical board siding, battens over the seams, and head-and-jamb trim around each opening. Those options only ran from the command line. Today they are on the page.

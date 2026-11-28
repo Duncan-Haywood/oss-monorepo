@@ -3,6 +3,7 @@ title: "Serbia has cleared B2B invoices through a state platform since 2023"
 date: 2026-10-25
 description: "einvoice-preflight now has a Serbia page: SEF clearance, UBL 2.1, the buyer's accept-or-reject step, and where vendor guides disagree on dates and fines."
 tags: [einvoice-preflight, serbia, e-invoicing]
+folded_into: einvoice-preflight/serbia-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a

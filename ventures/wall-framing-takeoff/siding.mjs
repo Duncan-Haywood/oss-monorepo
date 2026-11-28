@@ -223,6 +223,6 @@ export function sidingText(s) {
   if (s.tape) l.push(`  Opening tape: ${s.tape.openings} opening(s), ${s.tape.feet.toFixed(0)} ft of sill and jamb runs in ${s.tape.rollFeet} ft rolls -> ${s.tape.rolls} roll(s) (waste added)${s.tape.price != null ? `, ${(s.tape.rolls * s.tape.price).toFixed(2)} at ${s.tape.price} each` : ""}`);
   if (s.caulk) l.push(`  Caulk: ${s.caulk.feet.toFixed(0)} ft round openings and corner boards, ${s.caulk.bead} in fillet bead, ${s.caulk.feetPerTube.toFixed(0)} ft per ${s.caulk.tubeOz} oz tube -> ${s.caulk.tubes} tube(s) (waste added)${s.caulk.price != null ? `, ${(s.caulk.tubes * s.caulk.price).toFixed(2)} at ${s.caulk.price} each` : ""}`);
   if (s.nails) l.push(`  Siding nails: ${s.nails.count} at ${s.nails.spacing} in along ${s.nails.rows} row(s) of runs, ${s.nails.lb.toFixed(1)} lb -> ${s.nails.boxes} box(es) of ${s.nails.boxLb} lb${s.nails.price != null ? `, ${(s.nails.boxes * s.nails.price).toFixed(2)} at ${s.nails.price} each` : ""}`);
-  l.push(`  Soffit and fascia, ${s.trim ? "" : "window and door trim, "}flashing, ${s.nails ? "" : "nails, "}${s.caulk ? "" : "caulk, "}and paint are not counted; exposure, stock lengths, coverage and prices are figures you type.`);
+  l.push(`  Soffit and fascia, ${s.trim ? "" : "window and door trim, "}${s.flashing && s.tape ? "" : s.flashing ? "sill and jamb flashing, " : s.tape ? "head flashing, " : "flashing, "}${s.nails ? "" : "nails, "}${s.caulk ? "" : "caulk, "}and paint are not counted; exposure, stock lengths, coverage and prices are figures you type.`);
   return l;
 }

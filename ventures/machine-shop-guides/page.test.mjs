@@ -3,6 +3,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { apply } from "./cta.mjs";
 
+// Escape every regex metacharacter, backslash included, before building a RegExp from data.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "nist-800-171-policy-templates", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "how-to-submit-sprs-score", "cmmc-cost", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "corrective-action-report", "cui-markings", "iso-9001-internal-audit-checklist", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software", "machining-quote-template", "machine-hour-rate"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
@@ -243,7 +246,7 @@ test("CMMC cost page: quotes pinned, figures from the rule, DOM from text, nothi
 test("SPRS submission guide cites SPRS's own guides and claims no submission", () => {
   const html = read("how-to-submit-sprs-score");
   for (const pdf of ["NISTSP800-171QuickEntryGuide.pdf", "CMMCQuickEntryGuide.pdf", "CMMCL2SelfQuickEntryGuide.pdf", "SPRS_Access_CyberReports.pdf"]) {
-    assert.match(html, new RegExp(`https://www\\.sprs\\.csd\\.disa\\.mil/pdf/${pdf.replace(/\./g, "\\.")}`), pdf);
+    assert.match(html, new RegExp(`https://www\\.sprs\\.csd\\.disa\\.mil/pdf/${escapeRegExp(pdf)}`), pdf);
   }
   assert.match(html, /read on 28 November 2026/);
   assert.match(html, /SPRS Cyber Vendor User/);

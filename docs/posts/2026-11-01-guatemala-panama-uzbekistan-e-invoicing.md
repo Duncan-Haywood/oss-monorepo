@@ -4,6 +4,7 @@ seo_title: "E-invoicing: Guatemala, Panama, Uzbekistan"
 date: 2026-11-01
 tags: [einvoice-preflight, e-invoicing, guatemala, panama, uzbekistan]
 description: "E-invoice Preflight now covers 67 countries: Panama's 2026 provider duties, Guatemala's FEL certifiers, Uzbekistan's EHF clearance, and where sources disagree."
+folded_into: einvoice-preflight/e-invoicing-mandates-by-country
 ---
 
 E-invoice Preflight's mandates-by-country table grows from 64 to 67 rows.

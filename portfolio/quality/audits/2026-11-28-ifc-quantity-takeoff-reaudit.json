@@ -1,0 +1,281 @@
+{
+ "date": "2026-11-28",
+ "subject": "ventures/ifc-quantity-takeoff",
+ "stratum": "flagship",
+ "seed": "2026-11-28-421f",
+ "drawn_by": "reaudit",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior quantity surveyor / cost estimator who prices from BIM models (CostX/Solibri ITO user); first checks: steel by length and mass, openings deducted, units, stored-vs-model disagreements",
+ "prior_audit": "portfolio/quality/audits/2026-11-22-ifc-quantity-takeoff.json",
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "medium",
+   "basis": "open",
+   "status": "closed",
+   "what": "three core mutants survived (ellipse ratio, revolve axis offset, CENTI)",
+   "evidence": "all three now fail tests (geom.test.mjs 'audit 2026-11-22' test)"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "open",
+   "status": "closed",
+   "what": "member length and steel mass only from stored Qto",
+   "evidence": "IPE 300 and RHS with no Qto: length from the body, weight volume x 7850; BoQ notes 'no length' / 'no weight' counts"
+  },
+  {
+   "index": 2,
+   "severity": "low",
+   "basis": "open",
+   "status": "closed",
+   "what": "unexplained stored NetVolume summed silently",
+   "evidence": "BoQ lists 'Volumes in doubt' with both sums; --unexplained geometry sums 2.16 instead of 2.376"
+  },
+  {
+   "index": 3,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "page 9,184 of 9,314 stale",
+   "evidence": "0 hits in index.html, README, llms.txt"
+  },
+  {
+   "index": 4,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "README '13 public models' for the 8-model figure",
+   "evidence": "README:249 now says 8 public models"
+  },
+  {
+   "index": 5,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "revolved solid has no box",
+   "evidence": "Ring row basis 'geometry not read' on arrival; also cylinders, spheres, cones",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20108"
+  },
+  {
+   "index": 6,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "very large modules",
+   "evidence": "geom.mjs 3,227 lines (was 2,013), qto.mjs 2,001 (was 1,367); index.html BoQ notes line still ~1,800 characters"
+  }
+ ],
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Six outputs recomputed by hand on two IFC files the auditor wrote (eval/audit-2026-11-28/, committed so a reader can rerun): IPE 300 section 53.81 cm2 matches the ArcelorMittal table, 6 m, 253.5 kg (table 42.2 kg/m x 6 = 253.2; difference is the table's rounding); RHS 200x100x8 4,544 mm2; wall with through window 2.4/2.16 m3 and 10.8 m2 net side; revolved ring 0.062832 m3 (Pappus); round column 0.589049 m3; centimetre slab 5 m3 / 20 m2. All pass. Not 4: formulas and tables only, no second takeoff tool run by this auditor.",
+  "completeness": "Prior claims rechecked from the CLI: BoQ by class, rows with stored vs computed, --unexplained geometry, member length and steel weight from geometry (new since 2026-11-22), centimetre units. Browser page and 3D viewer not walked (page.test.mjs covers the page's text). The revolved/CSG box gap left one claimed rule (Uniformat by placement) unapplied to those bodies.",
+  "verification": "`node --test '*.test.mjs'`: 297/297 on arrival. Seven mutants: the three that survived on 2026-11-22 (ellipse ratio, revolve axis offset, CENTI) and four new in steel weight, density, computed length and the --unexplained switch: all seven caught. The revolved box gap had no test (it is a missing feature, so no mutant could show it).",
+  "craft": "Read geom.mjs revolved/CSG cases and the item union, qto.mjs rowQuantities and lengthAndWeight (1806-1872), worldBox (1505). Clear comments citing evals, Unresolved instead of guesses. Defects: revolved/CSG bodies had no box (fixed here); modules keep growing (geom.mjs 3,227, qto.mjs 2,001).",
+  "claims": "The two stale figures from 2026-11-22 are gone; the member length/weight paragraph is backed by eval/member-length-weight-2026-11-22.md; no-warranty disclaimer on the page, 'has not been reviewed by' a QS in README; served copy clean.",
+  "fitness": "The steel job that failed on 2026-11-22 now works: an unquantified IPE beam and RHS post get 6 m / 253.5 kg and 4 m / 142.7 kg with the source named, so per-m and per-kg rates price them. An unexplained stored NetVolume shows both sums on the line and can be switched to the geometry. Usable for model-quantity extraction and checking within its stated limits.",
+  "domain": "Against NRM2/CESMM practice and CostX/Solibri ITO: net volumes with openings deducted, per-section void thresholds without claiming a standard's values, steel by mass from geometry at 7,850 kg/m3 (the usual design density) when no weight is stored, Uniformat II per NISTIR 6389. Remaining departures, all stated: girthed, extra-over and built-in-member rules left to the user; hollow profiles without stored radii are measured with square corners (as modelled)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "IPE 300 steel beam, IfcIShapeProfileDef 150x300 tw 7.1 tf 10.7 r 15, 6 m, no stored Qto",
+   "method": "ArcelorMittal IPE 300 table A = 53.81 cm2, 42.2 kg/m; hand 2*b*tf + (h-2tf)*tw + (4-pi)r^2",
+   "command": "node ventures/ifc-quantity-takeoff/cli.mjs ventures/ifc-quantity-takeoff/eval/audit-2026-11-28/audit-mm.ifc --rows /dev/stdout",
+   "expected": "0.005381 m2, 0.032287 m3, length 6, ~253 kg",
+   "observed": "0.005381 m2, 0.032287 m3, BoQ length 6, 253.456 kg (computed volume x 7850)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "RHS 200x100x8 steel post, IfcRectangleHollowProfileDef with no corner radii, 4 m",
+   "method": "hand 200*100 - 184*84 = 4,544 mm2; x 7850",
+   "command": "node ventures/ifc-quantity-takeoff/cli.mjs ventures/ifc-quantity-takeoff/eval/audit-2026-11-28/audit-mm.ifc --rows /dev/stdout",
+   "expected": "0.018176 m3, 4 m, 142.68 kg",
+   "observed": "0.018176 m3, 4 m, 142.6816 kg",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Wall 4 x 0.2 x 3 m with a 1.2 x 1.0 m through window opening",
+   "method": "hand: 2.4 - 0.24 m3; side 12 - 1.2 m2",
+   "command": "node ventures/ifc-quantity-takeoff/cli.mjs ventures/ifc-quantity-takeoff/eval/audit-2026-11-28/audit-mm.ifc --rows /dev/stdout",
+   "expected": "gross 2.4, net 2.16, net side 10.8",
+   "observed": "2.4 / 2.16 / 10.8",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "IfcRevolvedAreaSolid 100x200 mm rectangle at radius 500, full turn about y",
+   "method": "Pappus 2*pi*R*A",
+   "command": "node ventures/ifc-quantity-takeoff/cli.mjs ventures/ifc-quantity-takeoff/eval/audit-2026-11-28/audit-mm.ifc --rows /dev/stdout",
+   "expected": "0.0628319 m3",
+   "observed": "0.062832",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Round column IfcCircleProfileDef r 250 mm, 3 m",
+   "method": "pi r^2 h",
+   "command": "node ventures/ifc-quantity-takeoff/cli.mjs ventures/ifc-quantity-takeoff/eval/audit-2026-11-28/audit-mm.ifc --rows /dev/stdout",
+   "expected": "0.589049 m3, cross-section 0.19635 m2",
+   "observed": "0.589049, 0.19635",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Slab 500 x 400 x 25 cm in a CENTI length unit",
+   "method": "SI prefix centi = 1e-2: 5 m x 4 m x 0.25 m",
+   "command": "node ventures/ifc-quantity-takeoff/cli.mjs ventures/ifc-quantity-takeoff/eval/audit-2026-11-28/audit-cm.ifc --by class",
+   "expected": "5 m3, 20 m2",
+   "observed": "5 m3, 20 m2",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Stored NetVolume 10% over the geometry, no named cause (prior defect 2)",
+   "method": "estimator practice: show both figures; let the estimator sum the geometry",
+   "command": "node ventures/ifc-quantity-takeoff/cli.mjs ventures/ifc-quantity-takeoff/eval/audit-2026-11-28/audit-mm.ifc --by class && node ventures/ifc-quantity-takeoff/cli.mjs ventures/ifc-quantity-takeoff/eval/audit-2026-11-28/audit-mm.ifc --by class --unexplained geometry",
+   "expected": "line shows the range; geometry option sums 2.16",
+   "observed": "default line: 2.376 with 'Volumes in doubt' 1, stored 2.376, geometry 2.16; --unexplained geometry: 2.16",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Steel members with no stored Qto priced per m / kg (prior defect 1)",
+   "method": "NRM2 measures structural steel by mass; extrusion gives length",
+   "command": "node ventures/ifc-quantity-takeoff/cli.mjs ventures/ifc-quantity-takeoff/eval/audit-2026-11-28/audit-mm.ifc --rows /dev/stdout",
+   "expected": "length and mass from geometry",
+   "observed": "IPE 6 m 253.5 kg, RHS 4 m 142.7 kg, 'Weight from: computed volume x 7850 kg/m3 (steel)'",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Revolved solid's Uniformat basis (prior defect 5)",
+   "method": "a body whose volume was computed has a place",
+   "command": "node ventures/ifc-quantity-takeoff/cli.mjs ventures/ifc-quantity-takeoff/eval/audit-2026-11-28/audit-mm.ifc --rows /dev/stdout",
+   "expected": "basis from geometry",
+   "observed": "'frame member: floor or roof construction cannot be told (geometry not read)': no box (before this PR's fix)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/ifc-quantity-takeoff && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "297/297 pass, 4.0 s (before the fix; 299/299 after)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "The three mutants that survived on 2026-11-22",
+   "method": "platform/ci/quality_mutate.py",
+   "command": "python3 platform/ci/quality_mutate.py ventures/ifc-quantity-takeoff/geom.mjs --old 'const b = n(4) / n(3);' --new 'const b = n(3) / n(4);' -- node --test '*.test.mjs'",
+   "expected": "caught",
+   "observed": "all three caught (ellipse ratio, revolve axis offset, CENTI)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Stale figures named in the prior audit",
+   "method": "grep page, README, llms.txt",
+   "command": "grep -c '9,184 of 9,314' ventures/ifc-quantity-takeoff/index.html; grep -n '4,863' ventures/ifc-quantity-takeoff/README.md",
+   "expected": "gone; 8 models",
+   "observed": "0 hits; README:249 'On the 8 public models that store volumes'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Member length / steel weight claim (README:259)",
+   "method": "backing eval file",
+   "command": "grep -n '4,952' ventures/ifc-quantity-takeoff/eval/member-length-weight-2026-11-22.md",
+   "expected": "eval file carries the figures",
+   "observed": "eval/member-length-weight-2026-11-22.md present and cited",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, served URLs, no-review statement",
+   "method": "index.html:272, README:470, served copy",
+   "command": "node platform/pages/served-copy.mjs ifc-quantity-takeoff",
+   "expected": "present; no placeholder origins",
+   "observed": "No-warranty paragraph present; 'has not been reviewed by one'; no placeholder or retired origin",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "geom.mjs:1500",
+   "change": "const b = n(4) / n(3); -> const b = n(3) / n(4);",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "geom.mjs:1767",
+   "change": "const rel = [cx - p[0], cy - p[1], -p[2]]; -> const rel = [cx, cy, -p[2]];",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "qto.mjs:38",
+   "change": "CENTI: 1e-2 -> CENTI: 1e-3",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "qto.mjs:1711",
+   "change": "STEEL_DENSITY = 7850 -> 7800",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "qto.mjs:1823",
+   "change": "--unexplained geometry keeps storedNet (storedNet = null dropped)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "qto.mjs:1859",
+   "change": "computed-length fallback removed",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "qto.mjs:1871",
+   "change": "steel density weight halved",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "low",
+   "what": "Revolved areas and CSG primitives (cylinder, sphere, cone) had no faces and so no box: Uniformat basis 'geometry not read', room and member-support rules skip them. Fixed in this PR (loose bounding points).",
+   "where": "ventures/ifc-quantity-takeoff/geom.mjs:1806",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20108"
+  },
+  {
+   "severity": "low",
+   "what": "Modules keep growing: geom.mjs 3,227 lines, qto.mjs 2,001; the page's BoQ notes are one ~1,800-character line.",
+   "where": "ventures/ifc-quantity-takeoff/index.html:675",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/20108"
+ ],
+ "verdict": "Meets the bar on re-audit. All six outputs recomputed by hand on auditor-written IFC files match (IPE 300 against the steel table, RHS, a wall with a through window, a revolved ring, a round column, a centimetre slab). Five of the seven 2026-11-22 defects are closed: the three surviving mutants now fail tests, unquantified steel gets length and mass from geometry, and an unexplained stored volume shows both sums with a switch to the geometry. Still open on arrival: revolved solids (and cylinders, spheres, cones) had no box, so their Uniformat basis read 'geometry not read' (fixed in PR #20108 with two tests), and the modules keep growing (geom.mjs 3,227 lines)."
+}

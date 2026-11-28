@@ -3,6 +3,7 @@ title: "Shallower headers on a real house: 20 of 20 walls on the 2nd Floor"
 date: 2026-11-08
 tags: [construction, framing, ifc, open-source]
 description: "Re-running the wall-framing takeoff's --shallow-headers flag on OpeningDesign's Schultz Residence frames every wall of the 2nd Floor and 19 of 20 on the 3rd."
+folded_into: writing/window-and-door-headers-size-plies-jacks-and-what-to-order/
 ---
 
 The wall-framing takeoff refuses a whole wall when a header is deeper than the room under the plates. This morning we added `--shallow-headers`, which swaps in the deepest listed header that fits. It had only been tested on a hand-built wall. Today we ran it on the real thing: OpeningDesign's Schultz Residence, a 22 MB Revit export.

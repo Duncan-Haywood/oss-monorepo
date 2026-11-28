@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKo37jD49D6zT2xGh73",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T12:09:28Z",
+  "ended": "2026-11-28T12:20:20Z",
+  "wall_minutes": 22.31,
+  "tokens_in": 6694352,
+  "tokens_out": 37774,
+  "cost_usd": 3.0965,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20108",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "steps 1-5 describe a sample round, but today's mode was reaudit; the README's 'Five modes' row had to be found to know what to do (the sample command does print this, so a cost of a minute)"
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "given 'reaudit: ifc-quantity-takeoff' it answers 'not a venture slug' rather than searching that keyword in PR titles; the bare slug works"
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes ran past the 120 s tool timeout with output buffered into a pipe, so progress could not be read until it ended"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "the reaudit command's rows note the audit's own commands point at scratchpad IFC files a reader cannot rerun; the hand-written IFC files were committed under the venture's eval/audit-2026-11-28/ so every check command is reproducible",
+      "did": "committed two small IFC fixtures with the expected figures",
+      "result": "every check row's command runs from the repo root"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-quality-reaudit-ifc-quantity-takeoff.md"
+  ],
+  "goal": null,
+  "notes": "Mode reaudit (quality_audit.py mode). Subject ventures/ifc-quantity-takeoff from `reaudit --paid` (seed 2026-11-28-421f), first paid row with no open reaudit PR naming it. Prior audit 2026-11-22: 5 of 7 defects closed on arrival (3 surviving mutants now caught; steel length/mass from geometry; unexplained volume range + --unexplained geometry; 2 stale figures). Open on arrival: revolved/CSG solids had no box (fixed this PR, geom.mjs revolvedHull + csgBox, 2 tests, both reversions caught), module size. Six hand recomputations pass; 7/7 mutants caught; 299/299 tests after fix. Meets the bar (all dims 3). Share meeting the bar: 1 of 1 re-audited. Fix PR: #20108 (this one).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e0f341b6-1186-5cac-8177-03d5bd1da058",
+    "transcripts": 1,
+    "first": "2026-11-28T12:09:28Z",
+    "last": "2026-11-28T12:31:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 110,
+        "output": 37774,
+        "thinking": 9252,
+        "cache_read": 6565815,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128427,
+        "api_equivalent_usd": 3.0965,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 110,
+      "output": 37774,
+      "thinking": 9252,
+      "cache_read": 6565815,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128427,
+      "api_equivalent_usd": 3.0965,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.31,
+      "active_minutes": 22.31,
+      "model_minutes": 7.35,
+      "tool_minutes": 14.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "QS-level re-audit of a BIM takeoff tool with hand IFC files, plus a geometry fix and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 193.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

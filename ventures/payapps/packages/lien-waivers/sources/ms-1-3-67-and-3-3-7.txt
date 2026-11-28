@@ -1,0 +1,15 @@
+# Miss. Code Ann. § 1-3-67 and § 3-3-7(1), the time computation § 85-7-425 points to and the legal holidays it names.
+# Source: FindLaw's copy of the Mississippi Code,
+#   https://codes.findlaw.com/ms/title-1-laws-and-statutes/ms-code-sect-1-3-67/ and
+#   https://codes.findlaw.com/ms/title-3-state-sovereignty-jurisdiction-and-holidays/ms-code-sect-3-3-7/
+# Read: 2026-11-28, through the session's fetch tool, which returns the text in short exact pieces; the
+# pieces are joined here in order (no words changed; the joins were checked). Justia's 2017 copy of § 1-3-67
+# (law.justia.com, 403 to this session's direct requests) agrees in the words a search result showed ("period
+# runs until the end of the next day which is not a Saturday, a Sunday, a legal holiday, or any other day when
+# the courthouse or the clerk's office is closed"). FindLaw says its codes may not reflect the latest law; the
+# official Code (LexisNexis) was not read. § 85-7-425, as a search result quoted it: "the computation of time
+# under this article shall be determined pursuant to Section 1-3-67". Only § 3-3-7(1) is kept below; (2) lets a
+# county or city swap one holiday for Mardi Gras or another day, (3)-(7) are days of recognition, none of them
+# a legal holiday. Public law. test/ms-dates.test.ts checks src/ms-dates.ts against this file.
+§ 1-3-67. When process shall be required to be served or notice given any number of days, the day of the act, event or default from which the designated period of time begins to run shall not be included. The last day of the period so computed shall be included unless it is a Saturday, a Sunday or a legal holiday, or any other day when the courthouse or the clerk's office is in fact closed, whether with or without legal authority, in which event the period runs until the end of the next day which is not a Saturday, a Sunday, a legal holiday, or any other day when the courthouse or the clerk's office is closed. When the period of time prescribed or allowed is less than seven (7) days, intermediate Saturdays, Sundays and legal holidays shall be excluded in the computation.
+§ 3-3-7(1). Except as otherwise provided in subsection (2) of this section, the following are declared to be legal holidays, viz: the first day of January (New Year's Day); the third Monday of January (Robert E. Lee's birthday and Dr. Martin Luther King, Jr.'s birthday); the third Monday of February (Washington's birthday); the last Monday of April (Confederate Memorial Day); the last Monday of May (National Memorial Day and Jefferson Davis' birthday); the fourth day of July (Independence Day); the first Monday of September (Labor Day); the eleventh day of November (Armistice or Veterans' Day); the day fixed by proclamation by the Governor of Mississippi as a day of Thanksgiving, which shall be fixed to correspond to the date proclaimed by the President of the United States (Thanksgiving Day); and the twenty-fifth day of December (Christmas Day). In the event any holiday hereinbefore declared legal shall fall on Sunday, then the next following day shall be a legal holiday.

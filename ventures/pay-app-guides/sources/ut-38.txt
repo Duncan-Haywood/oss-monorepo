@@ -1,0 +1,353 @@
+# Utah Code, title 38, chapters 1a (Preconstruction and Construction Liens) and 1b (Government Construction Projects), and § 68-3-7: §§ 38-1a-102, 38-1a-501, 38-1a-502, 38-1a-503, 38-1a-506, 38-1a-507, 38-1a-701, 38-1b-202, 68-3-7.
+# Text from le.utah.gov/xcode/<Title>/<Chapter>/<version>.html (the version the section page serves as current), read 2026-11-28, HTML stripped to text. utprelim.test.mjs checks every quoted phrase on utah-preliminary-notice.html against this file.
+
+===== https://le.utah.gov/xcode/Title38/Chapter1A/C38-1a-S102_2022050420220504.html
+
+Index Utah Code
+Title 38 Liens
+Chapter 1a Preconstruction and Construction Liens
+Part 1 General Provisions
+Section 102 Definitions.
+(Effective 5/4/2022)
+Effective 5/4/2022
+38-1a-102. 
+Definitions.
+     As used in this chapter:
+(1) "Alternate means" means a method of filing a legible and complete notice or other document with the registry other than electronically, as established by the division by rule.
+(2) "Anticipated improvement" means an improvement:
+(a) for which preconstruction service is performed; and
+(b) that is anticipated to follow the performing of preconstruction service.
+(3) "Applicable county recorder" means the office of the recorder of each county in which any part of the property on which a claimant claims or intends to claim a preconstruction or construction lien is located.
+(4) "Bona fide loan" means a loan to an owner or owner-builder by a lender in which the owner or owner-builder has no financial or beneficial interest greater than 5% of the voting shares or other ownership interest.
+(5) "Claimant" means a person entitled to claim a preconstruction or construction lien.
+(6) "Compensation" means the payment of money for a service rendered or an expense incurred, whether based on:
+(a) time and expense, lump sum, stipulated sum, percentage of cost, cost plus fixed or percentage fee, or commission; or
+(b) a combination of the bases listed in Subsection (6)(a) .
+(7) "Construction lender" means a person who makes a construction loan.
+(8) "Construction lien" means a lien under this chapter for construction work.
+(9) "Construction loan" does not include a consumer loan secured by the equity in a consumer's home.
+(10) "Construction project" means an improvement that is constructed pursuant to an original contract.
+(11) "Construction work":
+(a) means labor, service, material, or equipment provided for the purpose and during the process of constructing, altering, or repairing an improvement; and
+(b) includes scheduling, estimating, staking, supervising, managing, materials testing, inspection, observation, and quality control or assurance involved in constructing, altering, or repairing an improvement.
+(12) "Contestable notice" means a notice of preconstruction service under Section 38-1a-401 , a preliminary notice under Section 38-1a-501 , or a notice of completion under Section 38-1a-506 .
+(13) "Contesting person" means an owner, original contractor, subcontractor, or other interested person.
+(14) "Designated agent" means the third party the division contracts with as provided in Section 38-1a-202 to create and maintain the registry.
+(15) "Division" means the Division of Professional Licensing created in Section 58-1-103 .
+(16) "Entry number" means the reference number that:
+(a) the designated agent assigns to each notice or other document filed with the registry; and
+(b) is unique for each notice or other document.
+(17) "Final completion" means:
+(a) the date of issuance of a permanent certificate of occupancy by the local government entity having jurisdiction over a construction project, if a permanent certificate of occupancy is required;
+(b) the date of the final inspection of construction work by the local government entity having jurisdiction over a construction project, if an inspection is required under a state-adopted building code applicable to the construction work, but no certificate of occupancy is required;
+(c) unless the owner is holding payment to ensure completion of construction work, the date on which there remains no substantial work to be completed to finish the construction work under the original contract, if a certificate of occupancy is not required and a final inspection is not required under an applicable state-adopted building code; or
+(d) the last date on which substantial work was performed under the original contract, if, because the original contract is terminated before completion of the construction work defined by the original contract, the local government entity having jurisdiction over a construction project does not issue a certificate of occupancy or perform a final inspection.
+(18) "Final lien waiver" means a form that complies with Subsection 38-1a-802(4)(c) .
+(19) "First preliminary notice filing" means a preliminary notice that:
+(a) is the earliest preliminary notice filed on a construction project for which the preliminary notice is filed;
+(b) is filed on a construction project that, at the time the preliminary notice is filed, has not reached final completion; and
+(c) is not canceled under Section 38-1a-307 .
+(20) "Government project-identifying information" has the same meaning as defined in Section 38-1b-102 .
+(21) "Improvement" means:
+(a) a building, infrastructure, utility, or other human-made structure or object constructed on or for and affixed to real property; or
+(b) a repair, modification, or alteration of a building, infrastructure, utility, or object referred to in Subsection (21)(a) .
+(22) "Interested person" means a person that may be affected by a construction project.
+(23) "Notice of commencement" means a notice required under Section 38-1b-201 for a government project as defined in Section 38-1b-102 .
+(24) "Original contract":
+(a) means a contract between an owner and an original contractor for preconstruction service or construction work; and
+(b) does not include a contract between an owner-builder and another person.
+(25) "Original contractor" means a person, including an owner-builder, that contracts with an owner to provide preconstruction service or construction work.
+(26) "Owner" means a person who possesses an interest in a project property and contracts with an original contractor for preconstruction service or construction work.
+(27) "Owner-builder" means an owner, including an owner who is also an original contractor, who:
+(a) contracts with one or more other persons for preconstruction service or construction work for an improvement on the owner's real property; and
+(b) obtains a building permit for the improvement.
+(28) "Preconstruction lien" means a lien under this chapter for a preconstruction service.
+(29) "Preconstruction service":
+(a) means to plan or design, or to assist in the planning or design of, an improvement or a proposed improvement:
+(i) before construction of the improvement commences; and
+(ii) for compensation separate from any compensation paid or to be paid for construction work for the improvement; and
+(b) includes consulting, conducting a site investigation or assessment, programming, preconstruction cost or quantity estimating, preconstruction scheduling, performing a preconstruction construction feasibility review, procuring construction services, and preparing a study, report, rendering, model, boundary or topographic survey, plat, map, design, plan, drawing, specification, or contract document.
+(30) "Private project" means a construction project that is not a government project.
+(31) "Project property" means the real property interest on or for which preconstruction service or construction work is or will be provided.
+(32) "Registry" means the State Construction Registry under Part 2, State Construction Registry .
+(33) "Required notice" means:
+(a) a notice of preconstruction service under Section 38-1a-401 ;
+(b) a preliminary notice under Section 38-1a-501 or Section 38-1b-202 ;
+(c) a notice of commencement;
+(d) a notice of construction loan under Section 38-1a-601 ;
+(e) a notice under Section 38-1a-602 concerning a construction loan default;
+(f) a notice of intent to obtain final completion under Section 38-1a-506 ; or
+(g) a notice of completion under Section 38-1a-507 .
+(34) "Subcontractor" means a person that contracts to provide preconstruction service or construction work to:
+(a) a person other than the owner; or
+(b) the owner, if the owner is an owner-builder.
+(35) "Substantial work" does not include repair work or warranty work.
+(36) "Supervisory subcontractor" means a person that:
+(a) is a subcontractor under contract to provide preconstruction service or construction work; and
+(b) contracts with one or more other subcontractors for the other subcontractor or subcontractors to provide preconstruction service or construction work that the person is under contract to provide.
+Amended by Chapter 415 , 2022 General Session Amended by Chapter 429 , 2022 General Session
+
+===== https://le.utah.gov/xcode/Title38/Chapter1A/C38-1a-S501_2014040320140513.html
+
+Index Utah Code
+Title 38 Liens
+Chapter 1a Preconstruction and Construction Liens
+Part 5 Construction Lien Provisions
+Section 501 Preliminary notice.
+(Effective 5/13/2014)
+Effective 5/13/2014
+38-1a-501. 
+Preliminary notice.
+(1) (a) A person who desires to claim a construction lien on real property shall file a preliminary notice with the registry no later than 20 days after the day on which the person commences providing construction work on the real property.
+(b) Subject to Subsection (1)(c) , a preliminary notice is effective as to all construction work that the person filing the notice provides to the construction project under a single original contract, including construction work that the person provides to more than one supervisory subcontractor under that original contract.
+(c) (i) A person who desires to claim a construction lien on real property but fails to file a timely preliminary notice within the period specified in Subsection (1)(a) may, subject to Subsection (1)(d) , file a preliminary notice with the registry after the period specified in Subsection (1)(a) .
+(ii) A person who files a preliminary notice under Subsection (1)(c)(i) may not claim a construction lien for construction work the person provides to the construction project before the date that is five days after the preliminary notice is filed.
+(d) Notwithstanding Subsections (1)(a) and (c) , a preliminary notice has no effect if it is filed more than 10 days after the filing of a notice of completion under Section 38-1a-507 for the construction project for which the preliminary notice is filed.
+(e) A person who fails to file a preliminary notice as required in this section may not claim a construction lien.
+(f) A preliminary notice that is filed with the registry as provided in this section is considered to be filed at the time of the first preliminary notice filing.
+(g) If a preliminary notice filed with the registry includes the tax parcel identification number of a parcel not previously associated in the registry with a construction project, the designated agent shall promptly notify the person who filed the preliminary notice that:
+(i) the preliminary notice includes a tax parcel identification number of a parcel not previously associated in the registry with a construction project; and
+(ii) the likely explanation is that:
+(A) the preliminary notice is the first filing for the project; or
+(B) the tax parcel identification number is incorrectly stated in the preliminary notice.
+(h) A preliminary notice shall include:
+(i) the name, address, telephone number, and email address of the person providing the construction work for which the preliminary notice is filed;
+(ii) the name and address of the person who contracted with the claimant for the construction work;
+(iii) the name of the record or reputed owner;
+(iv) the name of the original contractor for construction work under which the claimant is providing or will provide construction work;
+(v) the address of the project property or a description of the location of the project;
+(vi) the name of the county in which the project property is located; and
+(vii) (A) the tax parcel identification number of each parcel included in the project property;
+(B) the entry number of a previously filed notice of construction loan under Section 38-1a-601 on the same project;
+(C) the entry number of a previously filed preliminary notice on the same project that includes the tax parcel identification number of each parcel included in the project property; or
+(D) the entry number of the building permit issued for the project.
+(i) A preliminary notice may include:
+(i) the subdivision, development, or other project name applicable to the construction project for which the preliminary notice is filed; and
+(ii) the lot or parcel number of each lot or parcel that is included in the project property.
+(2) (a) Except as provided in Subsection (2)(b) , the burden is upon the person filing the preliminary notice to prove that the person has substantially complied with the requirements of this section.
+(b) A person has substantially complied with the requirements of this section if the person files a preliminary notice that links, within the registry, to a preliminary notice filed by an original contractor for the same construction project, using the entry number assigned to the original contractor's preliminary notice.
+(c) Substantial compliance with the requirements of Subsections (1)(h)(iii) through (vii) may be established by a person's reasonable reliance on information in the registry provided by a previously filed:
+(i) notice of construction loan under Section 38-1a-601 ;
+(ii) preliminary notice; or
+(iii) building permit.
+(3) (a) Subject to Subsection (3)(b) , a person required by this section to give preliminary notice is required to give only one notice for each construction project.
+(b) If the construction work is provided pursuant to contracts under more than one original contract for construction work, the notice requirements shall be met with respect to the construction work provided under each original contract.
+(4) A person filing a preliminary notice by alternate means is responsible for verifying and changing any incorrect information in the preliminary notice before the expiration of the time period during which the notice is required to be filed.
+(5) A person who files a preliminary notice that contains inaccurate or incomplete information may not be held liable for damages suffered by any other person who relies on the inaccurate or incomplete information in filing a preliminary notice.
+Amended by Chapter 293 , 2014 General Session
+
+===== https://le.utah.gov/xcode/Title38/Chapter1A/C38-1a-S502_1800010118000101.html
+
+Index Utah Code
+Title 38 Liens
+Chapter 1a Preconstruction and Construction Liens
+Part 5 Construction Lien Provisions
+Section 502 Notice of construction lien -- Contents -- Recording -- Service on owner.
+38-1a-502. 
+Notice of construction lien -- Contents -- Recording -- Service on owner.
+(1) (a) A person who desires to claim a construction lien shall submit for recording in the office of each applicable county recorder a notice of construction lien no later than, except as provided in Subsection (1)(b) :
+(i) 180 days after the date on which final completion of the original contract occurs, if no notice of completion is filed under Section 38-1a-507 ; or
+(ii) 90 days after the date on which a notice of completion is filed under Section 38-1a-507 , but not later than 180 days after the date on which final completion of the original contract occurs.
+(b) A subcontractor who provides substantial work after a certificate of occupancy is issued or a required final inspection is completed and desires to claim a construction lien shall submit for recording in the office of each applicable county recorder a notice of construction lien no later than 180 days after final completion of that subcontractor's work.
+(2) A notice of construction lien shall contain:
+(a) the name of the reputed owner if known or, if not known, the name of the record owner;
+(b) the name of the person by whom the claimant was employed or to whom the claimant provided construction work;
+(c) the time when the claimant first and last provided construction work;
+(d) a description of the project property, sufficient for identification;
+(e) the name, current address, and current phone number of the claimant;
+(f) the amount claimed under the construction lien;
+(g) the signature of the claimant or the claimant's authorized agent;
+(h) an acknowledgment or certificate as required under Title 57, Chapter 3, Recording of Documents ; and
+(i) if the construction lien is on an owner-occupied residence, as defined in Section 38-11-102 , a statement describing what steps an owner, as defined in Section 38-11-102 , may take to require a lien claimant to remove the lien in accordance with Section 38-11-107 .
+(3) (a) A county recorder:
+(i) shall record each notice of construction lien in an index maintained for that purpose; and
+(ii) need not verify that a valid preliminary notice is filed with respect to the claimed construction lien.
+(b) All persons are considered to have notice of a notice of construction lien from the time it is recorded.
+(4) (a) Within 30 days after filing a notice of construction lien, the claimant shall deliver or mail by certified mail a copy of the notice to the reputed owner or the record owner.
+(b) If the record owner's current address is not readily available to the claimant, the claimant may mail a copy of the notice to the last known address of the record owner, using the names and addresses appearing on the last completed real property assessment rolls of the county where the project property is located.
+(c) Failure to deliver or mail the notice of lien to the reputed owner or record owner precludes the claimant from an award of costs and attorney fees against the reputed owner or record owner in an action to enforce the construction lien.
+(5) The division shall make rules governing the form of the statement required under Subsection (2)(i) .
+Renumbered and Amended by Chapter 278 , 2012 General Session
+
+===== https://le.utah.gov/xcode/Title38/Chapter1A/C38-1a-S503_2014040320140513.html
+
+Index Utah Code
+Title 38 Liens
+Chapter 1a Preconstruction and Construction Liens
+Part 5 Construction Lien Provisions
+Section 503 Relation back and priority of liens.
+(Effective 5/13/2014)
+Effective 5/13/2014
+38-1a-503. 
+Relation back and priority of liens.
+(1) A construction lien relates back to, and takes effect as of, the time of the first preliminary notice filing.
+(2) (a) Subject to Subsection (2)(b) , a construction lien has priority over:
+(i) any lien, mortgage, or other encumbrance that attaches after the first preliminary notice filing; and
+(ii) any lien, mortgage, or other encumbrance of which the claimant had no notice and which was unrecorded at the time of the first preliminary notice filing.
+(b) A recorded mortgage or trust deed that secures a construction loan attaches immediately before the first preliminary notice filing for the construction project if each claimant that has a preliminary notice on file on the construction project before the mortgage or trust deed was recorded receives full payment for all construction work the claimant performed before the mortgage or trust deed was recorded, regardless of whether the claimant receives full payment before or after the day on which the mortgage or trust deed is recorded.
+Amended by Chapter 293 , 2014 General Session
+
+===== https://le.utah.gov/xcode/Title38/Chapter1A/C38-1a-S506_2022050420220504.html
+
+Index Utah Code
+Title 38 Liens
+Chapter 1a Preconstruction and Construction Liens
+Part 5 Construction Lien Provisions
+Section 506 Notice of intent to obtain final completion.
+(Effective 5/4/2022)
+Effective 5/4/2022
+38-1a-506. 
+Notice of intent to obtain final completion.
+(1) An owner of a nonresidential construction project that is registered with the registry, or an original contractor of a commercial nonresidential construction project that is registered with the registry under Section 38-1a-501 , shall file with the registry a notice of intent to obtain final completion as provided in this section if:
+(a) the completion of performance time under the original contract for construction work is greater than 120 days;
+(b) the total original construction contract price exceeds $500,000; and
+(c) the original contractor or owner has not obtained a payment bond in accordance with Section 14-2-1 .
+(2) The notice of intent described in Subsection (1) shall be filed at least 45 days before the day on which the owner or original contractor of a commercial nonresidential construction project files or could have filed a notice of completion under Section 38-1a-507 .
+(3) A person who provides construction work to an owner or original contractor who files a notice of intent in accordance with Subsection (1) shall file an amendment to the person's preliminary notice previously filed by the person as required in Section 38-1a-501 :
+(a) that includes:
+(i) a good faith estimate of the total amount remaining due to complete the contract, purchase order, or agreement relating to the person's approved construction work;
+(ii) the identification of each original contractor or subcontractor with whom the person has a contract or contracts for providing construction work; and
+(iii) a separate statement of all known amounts or categories of work in dispute; and
+(b) no later than 20 days after the day on which the owner or original contractor files a notice of intent.
+(4) (a) A person described in Subsection (3) may demand a statement of adequate assurance from the owner, original contractor, or subcontractor with whom the person has privity of contract no later than 10 days after the day on which the person files a balance statement in accordance with Subsection (3) from an owner, original contractor, or subcontractor who is in privity of contract with the person.
+(b) A demand for adequate assurance as described in Subsection (4)(a) may include a request for a statement from the owner, original contractor, or subcontractor that the owner, original contractor, or subcontractor has sufficient funds dedicated and available to pay for all sums due to the person filing for the adequate assurances or that will become due in order to complete a construction project.
+(c) A person who demands adequate assurance under Subsection (4)(a) shall deliver copies of the demand to the owner and original contractor:
+(i) by hand delivery with a responsible party's acknowledgment of receipt;
+(ii) by certified mail with a return receipt; or
+(iii) as provided under Rule 4, Utah Rules of Civil Procedure.
+(5) (a) A person described in Subsection (3) may bring a legal action against a party with whom the person is in privity of contract, including a request for injunctive or declaratory relief, to determine the adequacy of the funds of the owner, original contractor, or subcontractor with whom the demanding person contracted if, after the person demands adequate assurance in accordance with the requirements of this section:
+(i) the owner, original contractor, or subcontractor fails to provide adequate assurance that the owner, original contractor, or subcontractor has sufficient available funds, or access to financing or other sufficient available funds, to pay for the completion of the demanding person's approved work on the construction project; or
+(ii) the parties disagree, in good faith, as to whether there are adequate funds, or access to financing or other sufficient available funds, to pay for the completion of the demanding person's approved work on the construction project.
+(b) If a court finds that an owner, original contractor, or subcontractor has failed to provide adequate assurance in accordance with Subsection (4)(a) , the court may require the owner, original contractor, or subcontractor to post adequate security with the court sufficient to assure timely payment of the remaining contract balance for the approved work of the person seeking adequate assurance, including:
+(i) cash;
+(ii) a bond;
+(iii) an irrevocable letter of credit;
+(iv) property;
+(v) financing; or
+(vi) another form of security approved by the court.
+(6) (a) A person is subject to the civil penalty described in Subsection (6)(b) , if the person files a balance statement described in Subsection (3) that misrepresents the amount due under the contract with the intent to:
+(i) charge an owner, original contractor, or subcontractor more than the actual amount due; or
+(ii) procure any other unfair advantage or benefit on the person's behalf.
+(b) The civil penalty described in Subsection (6)(a) is the greater of:
+(i) twice the amount by which the balance statement filed under Subsection (3) exceeds the amount actually remaining due under the contract for completion of construction; and
+(ii) the actual damages incurred by the owner, original contractor, or subcontractor.
+(7) A court shall award reasonable attorney fees to a prevailing party for an action brought under this section.
+(8) Failure to comply with the requirements established in this section does not affect any other requirement or right under this chapter.
+(9) A person who has not filed a preliminary notice as required under Section 38-1a-501 is not entitled to a right or a remedy provided in this section.
+(10) This section does not create a cause of action against a person with whom the demanding party is not in privity of contract.
+Amended by Chapter 429 , 2022 General Session
+
+===== https://le.utah.gov/xcode/Title38/Chapter1A/C38-1a-S507_1800010118000101.html
+
+Index Utah Code
+Title 38 Liens
+Chapter 1a Preconstruction and Construction Liens
+Part 5 Construction Lien Provisions
+Section 507 Notice of completion.
+38-1a-507. 
+Notice of completion.
+(1) (a) Upon final completion of a construction project, a notice of completion may be filed with the registry by:
+(i) an owner;
+(ii) an original contractor for construction work;
+(iii) a lender that has provided financing for the construction project;
+(iv) a surety that has provided bonding for the construction project; or
+(v) a title company issuing a title insurance policy on the construction project.
+(b) A notice of completion shall include:
+(i) the name, address, telephone number, and email address of the person filing the notice of completion;
+(ii) the name of the county in which the project property is located;
+(iii) for a private project:
+(A) the tax parcel identification number of each parcel included in the project property;
+(B) the entry number of a preliminary notice on the same project that includes the tax parcel identification number of each parcel included in the project property; or
+(C) the entry number of the building permit issued for the project;
+(iv) for a government project, the government project-identifying information;
+(v) the date on which final completion is alleged to have occurred; and
+(vi) the method used to determine final completion.
+(2) A person filing a notice of completion by alternate means is responsible for verifying and changing any incorrect information in the notice of completion before the expiration of the time period during which the notice is required to be filed.
+Renumbered and Amended by Chapter 278 , 2012 General Session
+
+===== https://le.utah.gov/xcode/Title38/Chapter1A/C38-1a-S701_1800010118000101.html
+
+Index Utah Code
+Title 38 Liens
+Chapter 1a Preconstruction and Construction Liens
+Part 7 Enforcement of Preconstruction and Construction Liens
+Section 701 Action to enforce lien -- Time for filing action -- Notice of pendency of action -- Action involving a residence.
+38-1a-701. 
+Action to enforce lien -- Time for filing action -- Notice of pendency of action -- Action involving a residence.
+(1) As used in this section:
+(a) "Owner" has the same meaning as defined in Section 38-11-102 .
+(b) "Residence" has the same meaning as defined in Section 38-11-102 .
+(2) In order to enforce a preconstruction lien or construction lien, a claimant shall file an action to enforce the lien:
+(a) except as provided in Subsection (2)(b) , within 180 days after the day on which the claimant files:
+(i) a notice of preconstruction lien under Section 38-1a-402 , for a preconstruction lien; or
+(ii) a notice of construction lien under Section 38-1a-502 , for a construction lien; or
+(b) if an owner files for protection under the bankruptcy laws of the United States before the expiration of the 180-day period under Subsection (2)(a) , within 90 days after the automatic stay under the bankruptcy proceeding is lifted or expires.
+(3) (a) (i) Within the time period provided in Subsection (2) for filing an action, a claimant shall file for record with each applicable county recorder a notice of the pendency of the action, in the manner provided for actions affecting the title or right to possession of real property.
+(ii) If a claimant fails to file for record a notice of the pendency of the action, as required in Subsection (3)(a)(i) , the preconstruction lien or construction lien, as applicable, is void, except as to persons who have been made parties to the action and persons having actual knowledge of the commencement of the action.
+(b) The burden of proof is upon the claimant and those claiming under the claimant to show actual knowledge under Subsection (3)(a)(ii) .
+(4) (a) A preconstruction lien or construction lien is automatically and immediately void if an action to enforce the lien is not filed within the time required by this section.
+(b) Notwithstanding Section 78B-2-111 , a court has no subject matter jurisdiction to adjudicate a preconstruction or construction lien that becomes void under Subsection (4)(a) .
+(5) This section may not be interpreted to impair or affect the right of any person to whom a debt may be due for any preconstruction service or construction work to maintain a personal action to recover the debt.
+(6) (a) If a claimant files an action to enforce a preconstruction or construction lien involving a residence, the claimant shall include with the service of the complaint on the owner of the residence:
+(i) instructions to the owner of the residence relating to the owner's rights under Title 38, Chapter 11, Residence Lien Restriction and Lien Recovery Fund Act ; and
+(ii) a form to enable the owner of the residence to specify the grounds upon which the owner may exercise available rights under Title 38, Chapter 11, Residence Lien Restriction and Lien Recovery Fund Act .
+(b) The instructions and form required by Subsection (6)(a) shall meet the requirements established by the division by rule.
+(c) If a claimant fails to provide to the owner of the residence the instructions and form required by Subsection (6)(a) , the claimant is barred from maintaining or enforcing the preconstruction or construction lien upon the residence.
+(d) A court shall stay an action to determine the rights and liabilities of an owner of a residence under this chapter, Title 38, Chapter 11, Residence Lien Restriction and Lien Recovery Fund Act , and Title 14, Chapter 2, Private Contracts , until after the owner is given a reasonable period of time to:
+(i) establish compliance with Subsections 38-11-204(4)(a) and (4)(b) through an informal proceeding, as set forth in Title 63G, Chapter 4, Administrative Procedures Act , commenced at the division within 30 days after the owner is served with summons in the foreclosure action; and
+(ii) obtain a certificate of compliance or denial of certificate of compliance, as defined in Section 38-11-102 .
+(e) An owner applying for a certificate of compliance under Subsection (6)(d) shall send by certified mail to all claimants:
+(i) a copy of the application for a certificate of compliance; and
+(ii) all materials filed in connection with the application.
+(f) The division shall notify all claimants listed in an owner's application for a certificate of compliance under Subsection (6)(d) of the issuance or denial of a certificate of compliance.
+Renumbered and Amended by Chapter 278 , 2012 General Session
+
+===== https://le.utah.gov/xcode/Title38/Chapter1B/C38-1b-S202_1800010118000101.html
+
+Index Utah Code
+Title 38 Liens
+Chapter 1b Government Construction Projects
+Part 2 Notices Relating to Government Projects
+Section 202 Preliminary notice on government project.
+38-1b-202. 
+Preliminary notice on government project.
+(1) (a) Except for a person who has a contract with an owner or an owner-builder or a laborer compensated with wages, a subcontractor on a government project shall file a preliminary notice with the registry by the later of:
+(i) 20 days after the subcontractor commences providing construction work to the construction project; and
+(ii) 20 days after the filing of a notice of commencement, if the subcontractor's work commences before the filing of the first notice of commencement.
+(b) Subsection (1) does not exempt the following from complying with the requirements of this section:
+(i) a temporary labor service company or organization;
+(ii) a professional employer company or organization; or
+(iii) any other entity that provides labor.
+(2) A preliminary notice filed within the period described in Subsection (1) is effective as to all construction work that the subcontractor provides to the construction project, including construction work that the subcontractor provides to more than one contractor or subcontractor.
+(3) (a) If more than one notice of commencement is filed for a project, a person may attach a preliminary notice to any notice of commencement filed for the project.
+(b) A preliminary notice attached to an untimely notice of commencement is valid if there is also a valid and timely notice of commencement for the project.
+(4) A preliminary notice filed after the period prescribed by Subsection (1) becomes effective on the date that is five days after the date on which the preliminary notice is filed.
+(5) Except as provided in Subsection (8) , failure to file a preliminary notice within the period required by Subsection (1) precludes a person from maintaining any claim for compensation earned for construction work provided to the construction project before the the date that is five days after the preliminary notice was filed, except as against the person with whom the person contracted.
+(6) A preliminary notice on a government project shall include:
+(a) the government project-identifying information;
+(b) the name, address, and telephone number of the person providing the construction work;
+(c) the name and address of the person who contracted with the claimant for the providing of construction work;
+(d) the name of the record or reputed owner;
+(e) the name of the original contractor under which the claimant is performing or will perform its work; and
+(f) the address of the project property or a description of the location of the project property.
+(7) Upon request, an original contractor shall provide a subcontractor with the number assigned to the project by the designated agent.
+(8) A person who provides construction work before the filing of a notice of commencement need not file a preliminary notice to maintain any right the person would otherwise have, if the notice of commencement is filed more than 15 days after the day on which the person begins work on the project.
+(9) The burden is upon the person filing a preliminary notice to prove that the person has substantially complied with the requirements of this section.
+(10) Subsections 38-1a-501(1)(e) and (f) and (3) apply to a preliminary notice on a government project under this section to the same extent that those subsections apply under Section 38-1a-501 to a preliminary notice on a project that is not a government project.
+Renumbered and Amended by Chapter 278 , 2012 General Session Amended by Chapter 330 , 2012 General Session Amended by Chapter 369 , 2012 General Session
+
+===== https://le.utah.gov/xcode/Title68/Chapter3/C68-3-S7_1800010118000101.html
+
+Index Utah Code
+Title 68 Statutes
+Chapter 3 Construction
+Section 7 Time, how computed.
+68-3-7. 
+Time, how computed.
+(1) A person shall compute the period of time provided by law to perform an act by:
+(a) excluding the first day; and
+(b) except as provided in Subsection (2) , including the last day.
+(2) If the last day is a legal holiday, a Saturday, or a Sunday, then a person shall:
+(a) exclude the day described in this Subsection (2) from the time computation described in Subsection (1) ; and
+(b) compute the period of time to include the end of the next day that is not a legal holiday, a Saturday, or a Sunday.
+Amended by Chapter 236 , 2012 General Session

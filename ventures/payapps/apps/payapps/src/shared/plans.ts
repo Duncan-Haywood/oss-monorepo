@@ -37,7 +37,7 @@ export const PLAN_LIST: readonly Plan[] = [
     key: "free",
     name: "Free",
     description:
-      "One active job: schedule of values, change orders, retainage, pay-app PDF and CSV.",
+      "One active job: schedule of values, change orders, retainage, pay-app PDF, Excel and CSV.",
     priceCents: 0,
     annualPriceCents: null,
     purchasable: false,

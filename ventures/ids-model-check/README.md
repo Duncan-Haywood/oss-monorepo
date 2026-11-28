@@ -2210,7 +2210,11 @@ faster than IfcTester; its point is needing no install.
   reference and complex properties are not supported (fail). With a
   `dataType`, only values of that type are compared. Measures are converted to
   SI from the property's unit or the project unit before comparing (SI prefixes,
-  squared and cubed units, conversion-based units such as feet, Celsius offset;
+  squared and cubed units, conversion-based units such as feet, Celsius offset,
+  and offset units such as Fahrenheit, where SI = (value - ConversionOffset) x
+  factor and a 1.8 temperature factor is read as IFC4's own Fahrenheit example,
+  so 77 F = 298.15 K; IfcTester 0.9.0.post1 reads that 77 F as 138.6, and this
+  checker read it as -688.8 until the 2026-11-28 quality re-audit;
   derived units are taken as SI).
 - **Bounded properties:** a single IDS value must equal the lower bound, the
   upper bound or the set point; a range restriction needs both bounds inside
