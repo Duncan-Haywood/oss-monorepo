@@ -27,7 +27,7 @@
  "lines_added": null,
  "lines_removed": null,
  "merged": null,
- "ci_failures_before_green": 1,
+ "ci_failures_before_green": 2,
  "review_findings": null,
  "tests_added": 9,
  "outcome": "success",
@@ -39,6 +39,10 @@
   {
    "what": "browser-test (einvoice-preflight-ci) failed: the new test read ventures/einvoice-pro/.../deadlines.mjs, which the job's sparse checkout leaves out",
    "fix": "split the cross-check into its own test that skips when the file is absent; it still runs locally and in ventures-tests"
+  },
+  {
+   "what": "priv-portfolio-pages test: ventures/einvoice-preflight/llms-answers.txt out of date after adding a page with an FAQ",
+   "fix": "ran node platform/pages/llms-answers.mjs ventures/einvoice-preflight; platform/pages suite had exactly that one failure locally"
   }
  ],
  "integrity_issues": [],
@@ -58,6 +62,10 @@
   {
    "file": ".github/workflows/einvoice-preflight-ci.yml",
    "issue": "sparse checkout (venture + platform/billing) is documented only in the workflow; a test reading a sibling venture passes locally and fails there. run_workflow_locally --for-changes ran the steps in the full tree, so it did not catch it"
+  },
+  {
+   "file": "ventures/einvoice-preflight (llms.txt / llms-answers.txt)",
+   "issue": "adding a page means hand-editing llms.txt but regenerating llms-answers.txt; nothing in the venture's own tests or run_workflow_locally --for-changes (content-only diff defers priv-portfolio-pages) flags the stale answers file"
   }
  ],
  "deviations": [
