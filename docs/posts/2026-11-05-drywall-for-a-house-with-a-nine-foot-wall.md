@@ -4,6 +4,7 @@ seo_title: "Drywall sheet count when wall heights differ: a framing takeoff fix"
 date: 2026-11-05
 tags: [wall-framing-takeoff, construction, drywall]
 description: "The framing takeoff let one wall have its own stud length, but the drywall count still hung every wall to the plan's height. It now follows each wall."
+folded_into: writing/drywall-takeoff-sheets-screws-tape-compound-and-corner-bead/
 ---
 
 A wall in the `wall-framing-takeoff` plan can set its own `studLength`, so a 9 ft first-floor wall can sit beside 8 ft ones. The studs, kings, cripples and blocking followed. The drywall count did not: it hung every wall to the plan's height and undercounted the tall one.

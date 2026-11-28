@@ -3,6 +3,7 @@ title: "Drywall joints on studs, now a dropdown in the wall framing takeoff"
 date: 2026-10-27
 description: "The wall framing takeoff page can now snap drywall end joints to studs, so the sheet count reflects boards cut to land on framing."
 tags: [wall-framing-takeoff, construction, drywall]
+folded_into: writing/drywall-takeoff-sheets-screws-tape-compound-and-corner-bead/
 ---
 
 [wall-framing-takeoff](../../ventures/wall-framing-takeoff/) counted drywall sheets from wall areas, but a butt joint that lands between studs has nothing to screw to. The engine learned to snap wall end joints to studs on 2026-10-26 (CLI only). The page now has a "Wall end joints" control with three choices: not placed (sheet count only), snapped to studs, or placed without snapping, which reports how many joints land off framing.

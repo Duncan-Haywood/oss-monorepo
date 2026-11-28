@@ -9,7 +9,10 @@
 // the row, one that covers only part of it is a cut-out in a continuous run.
 // Runs of one band width are packed into sheets of the chosen length (first-fit
 // decreasing, end joints are not forced onto studs), so a short run reuses the
-// offcut of a long one. A ripped band's leftover strip is not reused.
+// offcut of a long one. A ripped band is cut as strips of full sheet length,
+// side by side from one 48 in sheet (four 12 in strips, two 24 in ones), so a
+// 9 ft wall's 12 in course buys a quarter of the sheets it covers; strips of
+// different widths are not combined on one sheet.
 // Screws, tape and compound are rates you type, not measured.
 import { THICK, DEPTH, formatLength, layoutWall } from "./engine.mjs";
 
@@ -26,6 +29,9 @@ export function sampleDrywall() {
 export function validateDrywall(d) {
   const e = [];
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Drywall settings are an object."];
+  // shapes first: a shared link or a hand-edited plan can carry any JSON, and the loops below index into these
+  if (d.ceiling != null && !(Array.isArray(d.ceiling) && d.ceiling.every((c) => c && typeof c === "object" && !Array.isArray(c)))) return ["Drywall ceiling must be a list of { width, depth } rooms."];
+  for (const [i, c] of (d.ceiling || []).entries()) if (c.steps != null && !(Array.isArray(c.steps) && c.steps.every((st) => st && typeof st === "object" && !Array.isArray(st)))) return [`Ceiling ${i + 1} steps must be a list of { length, drop }.`];
   if (![96, 108, 120, 144, 192].includes(d.sheetLength ?? 96)) e.push("Drywall sheet length must be 8, 9, 10, 12 or 16 ft (96, 108, 120, 144 or 192 in).");
   if (d.height != null && !(d.height >= 72 && d.height <= 192)) e.push("Drywall hang height must be between 6 and 16 ft.");
   for (const [i, c] of (d.ceiling || []).entries()) if (!(typeof c.width === "number" && typeof c.depth === "number" && c.width >= 24 && c.depth >= 24)) e.push(`Ceiling ${i + 1} must be at least 2 ft each way.`);
@@ -39,6 +45,10 @@ export function validateDrywall(d) {
   if (d.tapeRollFt != null && !(d.tapeRollFt >= 50 && d.tapeRollFt <= 1000)) e.push("Tape roll length must be between 50 and 1000 ft.");
   if (d.beadStickFt != null && ![8, 9, 10, 12].includes(d.beadStickFt)) e.push("Corner bead stick length must be 8, 9, 10 or 12 ft.");
   if (d.waste != null && !(d.waste >= 0 && d.waste <= 0.3)) e.push("Waste must be between 0 and 0.3.");
+  if (d.compoundPailGal != null && !(typeof d.compoundPailGal === "number" && d.compoundPailGal > 0 && d.compoundPailGal <= 10)) e.push("Compound pail size must be more than 0 and at most 10 gallons.");
+  if (d.price != null && !(typeof d.price === "number" && Number.isFinite(d.price) && d.price >= 0)) e.push("Drywall sheet price must be a number of 0 or more.");
+  if (d.faces != null && d.faces !== "inside" && d.faces !== "both") e.push('Drywall faces must be "inside" or "both".');
+  if (d.openingBead != null && typeof d.openingBead !== "boolean") e.push("openingBead must be true or false.");
   if (d.screwsPerSqFt != null && !(d.screwsPerSqFt > 0 && d.screwsPerSqFt <= 4)) e.push("Screws per sq ft must be between 0 and 4.");
   return e;
 }
@@ -212,9 +222,12 @@ export function layoutDrywall(d, plan, roof = null) {
   let sheets = 0;
   const bandSheets = [];
   for (const [w, runs] of [...bands.entries()].sort((a, b) => b[0] - a[0])) {
-    const n = pack(runs, len);
-    sheets += n; hungSqIn += n * w * len;
-    bandSheets.push({ band: w, runs: runs.length, sheets: n });
+    // strips of this band's width and a full sheet's length; a 48 in sheet rips into floor(48 / w) of them
+    const strips = pack(runs, len);
+    const perSheet = Math.max(1, Math.floor(BAND / w + EPS));
+    const n = Math.ceil(strips / perSheet - EPS);
+    sheets += n; hungSqIn += strips * w * len;
+    bandSheets.push({ band: w, runs: runs.length, strips, perSheet, sheets: n });
   }
   const sheetSqFt = (BAND * len) / 144;
   const netSqFt = netSqIn / 144;
@@ -232,7 +245,7 @@ export function layoutDrywall(d, plan, roof = null) {
     finishing: { seamFt: Math.ceil(seamIn / 12), cornerFt: Math.ceil(cornerIn / 12), insideCornerFt: Math.ceil(insideIn / 12), tapeFt, tapeRolls: Math.ceil(tapeFt / rollFt), rollFt, compoundGal, compoundGalPerSqFt: galRate, compoundPails: Math.ceil(compoundGal / pailGal - EPS), pailGal, beadFt, beadSticks: Math.ceil((beadFt * (1 + waste)) / beadStick - EPS), beadStickFt: beadStick }, hangHeight: height, walls, ceilings, bandSheets,
     sheets: { count: sheets, perSheetSqFt: sheetSqFt, price: d.price ?? null, cost: d.price != null ? sheets * d.price : null },
     netSqFt, boughtSqFt: sheets * sheetSqFt, screws, waste,
-    assumptions: { screwsPerSqFt: d.screwsPerSqFt ?? 1, rule: snap ? "horizontal 48 in courses, wall end joints snapped to studs, kings and jacks, ripped strips not reused" : "horizontal 48 in courses, end joints not placed on studs, ripped strips not reused" },
+    assumptions: { screwsPerSqFt: d.screwsPerSqFt ?? 1, rule: snap ? "horizontal 48 in courses, wall end joints snapped to studs, kings and jacks, a ripped course cut as strips side by side from one sheet" : "horizontal 48 in courses, end joints not placed on studs, a ripped course cut as strips side by side from one sheet" },
   };
 }
 
@@ -240,7 +253,7 @@ export function layoutDrywall(d, plan, roof = null) {
 export function drywallText(d) {
   const l = [];
   l.push(`  ${d.sheets.count} sheets of 4 x ${d.sheetLength / 12} ft (${d.boughtSqFt.toFixed(0)} sq ft bought for ${d.netSqFt.toFixed(0)} sq ft of faces, hung ${formatLength(d.hangHeight)} high)`);
-  for (const b of d.bandSheets) l.push(`    ${b.band === BAND ? "full 4 ft courses" : `ripped ${formatLength(b.band)} course`}: ${b.runs} runs -> ${b.sheets} sheets`);
+  for (const b of d.bandSheets) l.push(`    ${b.band === BAND ? "full 4 ft courses" : `ripped ${formatLength(b.band)} course`}: ${b.runs} runs -> ${b.perSheet > 1 ? `${b.strips} strips, ${b.perSheet} to a sheet = ` : ""}${b.sheets} sheets`);
   l.push(`  ${d.screws} screws at ${d.assumptions.screwsPerSqFt} per sq ft plus ${(100 * d.waste).toFixed(0)}% (a rate you type, not a schedule)`);
   if (d.sheets.cost != null) l.push(`  sheets at ${d.sheets.price} each: ${d.sheets.cost.toFixed(2)}`);
   const f = d.finishing;

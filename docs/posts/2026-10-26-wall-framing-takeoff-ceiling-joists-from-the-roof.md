@@ -3,6 +3,7 @@ title: "Drywall ceilings now follow the roof's own ceiling joists"
 date: 2026-10-26
 description: "The wall framing takeoff reads ceiling joist positions from its roof layout, so drywall end joints land on the joists the plan actually has."
 tags: [wall-framing-takeoff, construction, drywall]
+folded_into: writing/drywall-takeoff-sheets-screws-tape-compound-and-corner-bead/
 ---
 
 [wall-framing-takeoff](../../ventures/wall-framing-takeoff/) could snap ceiling drywall joints to joists, but only on a joist spacing the user typed in a second time. If the roof was framed at 24 in and the drywall said 16 in, the answer quietly disagreed with the plan.

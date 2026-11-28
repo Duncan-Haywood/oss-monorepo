@@ -316,3 +316,41 @@ test("the band under the rake reaches the material list through the CLI (rake-ba
   assert.ok(banded.notes.some((n) => n.includes("a band 8 in tall under the rake on each (37.33 sq ft) is in the siding and wrap")));
   assert.ok(gabled.notes.some((n) => n.includes("type the siding's rakeHeel to count it")));
 });
+
+test("drywall: the drywall module's counts are the Drywall rows, kept out of the sheet total, priced only from the typed sheet price", async () => {
+  const { layoutDrywall } = await import("./drywall.mjs");
+  const p = samplePlan();
+  const dw = layoutDrywall({ sheetLength: 96, price: 14, ceiling: [{ width: 480, depth: 336, steps: [{ length: 144, drop: 12 }] }] }, p);
+  assert.equal(dw.ok, true, String(dw.errors));
+  const rd = { ...r, drywall: dw };
+  const ml = materialList(rd);
+  const rows = Object.fromEntries(ml.rows.filter((x) => x.section === "Drywall").map((x) => [x.item, x]));
+  assert.equal(rows["drywall sheets"].qty, dw.sheets.count);
+  assert.equal(rows["drywall sheets"].qty, 107); // 106 full-width sheets and one sheet ripped into the step's 12 in strips
+  assert.equal(rows["drywall sheets"].size, "4x8");
+  assert.match(rows["drywall sheets"].note, /12 in course ripped 4 strips to a sheet/);
+  assert.equal(rows["drywall screws"].qty, dw.screws);
+  assert.equal(rows["joint tape"].qty, dw.finishing.tapeRolls);
+  assert.equal(rows["joint compound"].qty, dw.finishing.compoundPails);
+  assert.equal(rows["corner bead"].qty, dw.finishing.beadSticks);
+  assert.equal(rows["drywall area"].qty, Math.round(dw.netSqFt * 100) / 100);
+  // drywall is not a lumberyard structural panel: the totals do not move, and unpriced rows carry no cost
+  assert.deepEqual(ml.totals, m.totals);
+  assert.ok(ml.rows.filter((x) => x.section === "Drywall").every((x) => x.cost === undefined));
+  // priced: only the sheets have a typed price, and the list's cost rises by exactly the drywall module's own cost
+  const pm = materialList(rd, { priced: true }), base = materialList(r, { priced: true });
+  assert.equal(pm.rows.find((x) => x.item === "drywall sheets").cost, dw.sheets.cost);
+  assert.equal(Math.round((pm.totals.cost - base.totals.cost) * 100) / 100, dw.sheets.cost);
+  assert.equal(pm.rows.find((x) => x.item === "joint tape").cost, undefined);
+  // a failed drywall layout adds nothing
+  assert.equal(materialList({ ...r, drywall: { ok: false, errors: ["x"] } }).rows.some((x) => x.section === "Drywall"), false);
+});
+
+test("drywall: the CLI's --material-list carries the plan's drywall", () => {
+  const p = samplePlan();
+  p.drywall = { ceiling: [{ width: 480, depth: 336 }] };
+  const out = main(["plan.json", "--material-list", "--json"], () => JSON.stringify(p));
+  assert.equal(out.code, 0, out.out.slice(0, 400));
+  const j = JSON.parse(out.out);
+  assert.equal(j.rows.find((x) => x.item === "drywall sheets").qty, 106);
+});

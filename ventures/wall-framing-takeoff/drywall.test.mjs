@@ -41,7 +41,23 @@ test("a 9 ft wall gets a ripped 12 in course", () => {
 
 test("ceiling rows are 48 in; validation and CLI", () => {
   const l = layoutDrywall({ ceiling: [{ width: 192, depth: 100 }] }, plan([]));
-  assert.equal(l.sheets.count, 6); // two 48 in rows of two sheets each, and a 4 in strip row of 192 in = two more sheets (strips are not reused)
+  assert.equal(l.sheets.count, 5); // two 48 in rows of two sheets each, and a 4 in strip row of 192 in: two 96 in strips, both ripped from one sheet
+});
+
+test("a ripped course is cut as strips from one sheet: four 12 in strips to a 4 ft sheet", () => {
+  // 12 x 12 ft room, 9 ft walls, one 3 ft door, a ceiling, 8 ft sheets (the drywall calculator's inputs at 9 ft)
+  const room = { studLength: 103.5, defaultHeaderHeight: 80, walls: [{ id: "A", length: 144, openings: [{ offset: 12, width: 36, height: 80 }] }, { id: "B", length: 144 }, { id: "C", length: 144 }, { id: "D", length: 144 }] };
+  const l = layoutDrywall({ sheetLength: 96, height: 108, faces: "inside", ceiling: [{ width: 144, depth: 144 }] }, room);
+  const rip = l.bandSheets.find((b) => b.band === 12);
+  // four 144 in runs: four whole 96 in strips and four 48 in rests, two to a strip = 6 strips, 4 to a sheet = 2 sheets (it was 6)
+  assert.deepEqual([rip.runs, rip.strips, rip.perSheet, rip.sheets], [4, 6, 4, 2]);
+  assert.equal(l.sheets.count, 19); // 17 full-width sheets for the 48 in courses and the ceiling, plus 2; by area 556 / 32 = 17.4
+  // a 30 in course leaves an 18 in rest that is not a second 30 in strip: one strip to a sheet
+  const tall = layoutDrywall({ height: 126 }, plan([{ id: "A", length: 96 }]));
+  assert.deepEqual(tall.bandSheets.map((b) => [b.band, b.perSheet, b.sheets]), [[48, 1, 2], [30, 1, 1]]);
+  // a 24 in ceiling course: two strips to a sheet
+  const c = layoutDrywall({ ceiling: [{ width: 192, depth: 120 }] }, plan([]));
+  assert.deepEqual(c.bandSheets.map((b) => [b.band, b.strips, b.sheets]), [[48, 4, 4], [24, 2, 1]]);
 });
 
 test("bad input is refused", () => {

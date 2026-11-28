@@ -3,6 +3,7 @@ title: "Counting drywall sheets by layout instead of area divided by 32"
 date: 2026-10-24
 description: "The wall-framing takeoff now counts drywall by laying out 4 ft courses, splitting them at doors and packing offcuts, instead of dividing square feet by a sheet."
 tags: [construction, drywall, takeoff, open-source]
+folded_into: writing/drywall-takeoff-sheets-screws-tape-compound-and-corner-bead/
 ---
 
 # Counting drywall sheets by layout instead of area divided by 32

@@ -3,6 +3,7 @@ title: "Ceiling drywall joints now land on joists in the wall framing takeoff"
 date: 2026-10-26
 description: "The drywall estimate can snap ceiling sheet ends to joists, not only wall sheet ends to studs."
 tags: [wall-framing-takeoff, construction, drywall]
+folded_into: writing/drywall-takeoff-sheets-screws-tape-compound-and-corner-bead/
 ---
 
 A butt joint on a ceiling that falls between joists has nothing to screw to. [wall-framing-takeoff](../../ventures/wall-framing-takeoff/) already snapped wall joints to studs; the plan key `drywall.ceilingJoistSpacing` (12, 16, 19.2 or 24 in) now does the same for ceilings, with `jointsOnStuds: true` to turn snapping on.

@@ -3,6 +3,7 @@ title: "Counting corner bead around windows and doors in a drywall takeoff"
 date: 2026-10-24
 description: "The wall-framing takeoff now counts corner bead around openings: two jambs and a head per drywalled face, rounded up to sticks with waste."
 tags: [construction, drywall, takeoff, open-source]
+folded_into: writing/drywall-takeoff-sheets-screws-tape-compound-and-corner-bead/
 ---
 
 # Counting corner bead around windows and doors

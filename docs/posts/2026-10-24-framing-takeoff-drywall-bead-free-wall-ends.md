@@ -3,6 +3,7 @@ title: "A framing takeoff that could not say a wall was a partition"
 date: 2026-10-24
 description: "The wall-framing takeoff counted drywall corner bead on free wall ends, but the page had no way to set it. Two new columns close the gap."
 tags: [construction, drywall, framing, tools]
+folded_into: writing/drywall-takeoff-sheets-screws-tape-compound-and-corner-bead/
 ---
 
 # A framing takeoff that could not say a wall was a partition
