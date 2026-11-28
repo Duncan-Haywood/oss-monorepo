@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { beaconTag, injectBeacon, injectDir, normaliseToken, resolveToken, BEACON_SRC } from './web-analytics.mjs';
+import { beaconMode, beaconTag, injectBeacon, injectDir, normaliseToken, resolveToken, BEACON_SRC } from './web-analytics.mjs';
 import { matchSite, provision } from './provision.mjs';
 
 // Built, not written out: a 32-hex literal reads as an API key to gitleaks.
@@ -36,9 +36,30 @@ test('injectDir walks nested pages', async () => {
   await fs.writeFile(path.join(dir, 'index.html'), PAGE);
   await fs.writeFile(path.join(dir, 'a', 'index.html'), PAGE);
   await fs.writeFile(path.join(dir, 'a', 'x.js'), 'x');
-  assert.deepEqual(await injectDir(dir, TOKEN), { changed: 2, seen: 2 });
+  assert.deepEqual(await injectDir(dir, TOKEN, { mode: 'build' }), { changed: 2, seen: 2 });
   assert.ok((await fs.readFile(path.join(dir, 'a', 'index.html'), 'utf8')).includes(BEACON_SRC));
-  assert.deepEqual(await injectDir(dir, TOKEN), { changed: 0, seen: 2 });
+  assert.deepEqual(await injectDir(dir, TOKEN, { mode: 'build' }), { changed: 0, seen: 2 });
+});
+
+test('zone mode adds no tag: the zone already injects one and a second stops the count', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'wa-'));
+  await fs.writeFile(path.join(dir, 'index.html'), PAGE);
+  assert.deepEqual(await injectDir(dir, TOKEN, { mode: 'zone' }), { changed: 0, seen: 0, zone: true });
+  assert.equal(await fs.readFile(path.join(dir, 'index.html'), 'utf8'), PAGE);
+});
+
+test('beaconMode reads site.json; the committed one says the zone injects', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'wa-'));
+  const siteFile = path.join(dir, 'site.json');
+  assert.equal(await beaconMode({ siteFile }), 'build');
+  await fs.writeFile(siteFile, JSON.stringify({ token: '' }));
+  assert.equal(await beaconMode({ siteFile }), 'build');
+  await fs.writeFile(siteFile, JSON.stringify({ beacon: 'zone' }));
+  assert.equal(await beaconMode({ siteFile }), 'zone');
+  await fs.writeFile(siteFile, JSON.stringify({ beacon: 'both' }));
+  await assert.rejects(beaconMode({ siteFile }));
+  // marisstella.app is a Cloudflare zone with automatic setup on (measured 2026-11-28).
+  assert.equal(await beaconMode(), 'zone');
 });
 
 test('resolveToken prefers an explicit value, then site.json', async () => {

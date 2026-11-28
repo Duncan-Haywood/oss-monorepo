@@ -2,7 +2,9 @@
 // a pasted list added in one go, all or nothing; the PDF and CSV; editors write, viewers read;
 // another company's job and items answer 404.
 import type { ProjectDto, PunchItemDto, PunchListDto } from "@shared/api/types";
+import type { CashDigest } from "@shared/cash-digest";
 import { addDays } from "@shared/cash-report";
+import { digestEmail } from "@worker/services/payapps/digest";
 import { describe, expect, it } from "vitest";
 import { addToOrg, api, call, createTestUser, setupTenant } from "./helpers";
 
@@ -238,5 +240,45 @@ describe("punch list", () => {
     expect((await api(`${b.url}/${itA.id}`, { method: "DELETE", as: b.as })).status).toBe(404);
     const still = await call<PunchListDto>(a.url, { as: a.as });
     expect(still.items[0]?.description).toBe("A");
+  });
+});
+
+describe("punch items in the weekly email", () => {
+  it("lists a job's overdue items until they are fixed", async () => {
+    const { url, as, orgId, projectId } = await job("Mesa Clinic TI");
+    const preview = async () =>
+      (await call<{ preview: CashDigest | null }>(`/api/orgs/${orgId}/digest`, { as })).preview;
+    const add = (description: string, dueOn: string | null) =>
+      call<PunchItemDto>(url, {
+        method: "POST",
+        as,
+        expect: 201,
+        json: { description, location: "Room 104", listedOn: addDays(today(), -20), dueOn },
+      });
+    await add("Not due yet", addDays(today(), 3));
+    await add("No due date", null);
+    expect((await preview())?.punchJobs ?? []).toEqual([]);
+
+    const late = await add("Missing cover plate", addDays(today(), -9));
+    await add("Touch up paint", addDays(today(), -2));
+    const d = await preview();
+    expect(d?.punchJobs).toHaveLength(1);
+    expect(d?.punchJobs[0]).toMatchObject({ projectId, overdue: 2, daysOverdue: 9 });
+    if (!d) throw new Error("expected a preview");
+    const mail = digestEmail(
+      d,
+      { orgId, orgName: "Volt Electric", userName: "Sam" },
+      { APP_URL: "https://app.example" },
+    );
+    expect(mail.text).toContain("Punch list items past due");
+    expect(mail.text).toContain("from your punch lists");
+    expect(mail.text).toMatch(
+      /Mesa Clinic TI \(Harbor Builders\): 2 punch items past due\. Longest: P-003, Room 104: Missing cover plate, due \d{4}-\d{2}-\d{2}, 9 days ago\. https:\/\/app\.example\/orgs\/[^/]+\/projects\/[^/#]+#punch-list/,
+    );
+    expect(mail.html).toContain("#punch-list");
+
+    // Fixed (waiting on the GC's back-check) is no longer the contractor's to chase.
+    await call(`${url}/${late.id}`, { method: "PATCH", as, json: { completedOn: today() } });
+    expect((await preview())?.punchJobs[0]).toMatchObject({ overdue: 1, daysOverdue: 2 });
   });
 });

@@ -8,7 +8,8 @@
 // RFIs past their response date with no answer, across active jobs (services/payapps/rfis.ts), and
 // the submittals to chase: overdue back, late to send or to resubmit (services/payapps/submittals.ts),
 // and the signed T&M tickets not yet on a change order (services/payapps/tm-tickets.ts), and the
-// weekdays missing from the daily logs someone is keeping (services/payapps/daily-reports.ts).
+// weekdays missing from the daily logs someone is keeping (services/payapps/daily-reports.ts), and
+// the punch list items past their due date and not fixed (services/payapps/punch-list.ts).
 import {
   addDays,
   type CashDigest,
@@ -29,6 +30,7 @@ import {
 } from "@shared/cash-digest";
 import { dailyReportGapText } from "@shared/daily-reports";
 import { LOWER_TIER_ANCHOR, lowerTierToChaseText } from "@shared/lower-tier-waivers";
+import { PUNCH_LIST_ANCHOR, punchOverdueText } from "@shared/punch-list";
 import { overdueRfiText, RFI_LOG_ANCHOR } from "@shared/rfi";
 import { submittalToChaseText } from "@shared/submittals";
 import { tmToBillText } from "@shared/tm-tickets";
@@ -43,6 +45,7 @@ import { isoDay, orgCashReport } from "./cash";
 import { companyDailyReportJobs } from "./daily-reports";
 import { loadHolidayCalendar } from "./holidays";
 import { companyLowerTierInputs } from "./lower-tier-waivers";
+import { companyPunchInputs } from "./punch-list";
 import { companyRfiInputs } from "./rfis";
 import { companySubmittalInputs } from "./submittals";
 import { companyTmTicketInputs } from "./tm-tickets";
@@ -180,18 +183,29 @@ export async function digestUnsubscribeLinks(
 
 /** What this week's email would say for the company, or null when there is nothing to chase. */
 export async function previewDigest(ctx: AppContext, orgId: string): Promise<CashDigest | null> {
-  const [report, certificates, rfis, submittals, tmTickets, lowerTier, documents, daily, holidays] =
-    await Promise.all([
-      orgCashReport(ctx, orgId, { excludeSample: true }),
-      certificateInputs(ctx, orgId),
-      companyRfiInputs(ctx, orgId, { excludeSample: true }),
-      companySubmittalInputs(ctx, orgId, { excludeSample: true }),
-      companyTmTicketInputs(ctx, orgId, { excludeSample: true }),
-      companyLowerTierInputs(ctx, orgId, { excludeSample: true }),
-      companyDocumentInputs(ctx, orgId),
-      companyDailyReportJobs(ctx, orgId, { excludeSample: true }),
-      loadHolidayCalendar(ctx, orgId),
-    ]);
+  const [
+    report,
+    certificates,
+    rfis,
+    submittals,
+    tmTickets,
+    lowerTier,
+    documents,
+    daily,
+    holidays,
+    punch,
+  ] = await Promise.all([
+    orgCashReport(ctx, orgId, { excludeSample: true }),
+    certificateInputs(ctx, orgId),
+    companyRfiInputs(ctx, orgId, { excludeSample: true }),
+    companySubmittalInputs(ctx, orgId, { excludeSample: true }),
+    companyTmTicketInputs(ctx, orgId, { excludeSample: true }),
+    companyLowerTierInputs(ctx, orgId, { excludeSample: true }),
+    companyDocumentInputs(ctx, orgId),
+    companyDailyReportJobs(ctx, orgId, { excludeSample: true }),
+    loadHolidayCalendar(ctx, orgId),
+    companyPunchInputs(ctx, orgId, { excludeSample: true }),
+  ]);
   return cashDigest(
     report,
     undefined,
@@ -203,6 +217,7 @@ export async function previewDigest(ctx: AppContext, orgId: string): Promise<Cas
     documents,
     daily,
     holidays,
+    punch,
   );
 }
 
@@ -233,6 +248,7 @@ export function digestEmail(
     ...(d.submittals.length > 0 ? ["your submittal logs"] : []),
     ...(d.tmJobs.length > 0 ? ["your T&M tickets"] : []),
     ...(d.lowerTier.length > 0 ? ["your lower-tier waiver lists"] : []),
+    ...(d.punchJobs.length > 0 ? ["your punch lists"] : []),
     ...(d.dailyGaps.length > 0 ? ["your daily reports"] : []),
   ];
   const sourceText =
@@ -293,6 +309,16 @@ export function digestEmail(
   const moreLt =
     d.moreLowerTier > 0
       ? `${d.moreLowerTier} more pay application${d.moreLowerTier === 1 ? " has" : "s have"} lower-tier waivers still out on the projects page.`
+      : null;
+  const punchHeading = "Punch list items past due";
+  const punchUrl = (j: CashDigest["punchJobs"][number]) =>
+    `${projectsUrl}/projects/${encodeURIComponent(j.projectId)}#${PUNCH_LIST_ANCHOR}`;
+  const punchLines = d.punchJobs.map(punchOverdueText);
+  const punchNote =
+    "The due dates are the ones you entered. Mark an item fixed on its job's punch list when the work is done; the back-check email to the GC is drafted there, with the list as a PDF.";
+  const morePunch =
+    d.morePunchJobs > 0
+      ? `${d.morePunchJobs} more job${d.morePunchJobs === 1 ? " has" : "s have"} punch items past due on the projects page.`
       : null;
   const gapHeading = "Weekdays without a daily report";
   const gapUrl = (g: CashDigest["dailyGaps"][number]) =>
@@ -385,6 +411,15 @@ export function digestEmail(
           "",
         ]
       : []),
+    ...(punchLines.length
+      ? [
+          punchHeading,
+          ...d.punchJobs.map((j, i) => `  - ${punchLines[i]} ${punchUrl(j)}`),
+          ...(morePunch ? [`  ${morePunch} ${projectsUrl}`] : []),
+          `  ${punchNote}`,
+          "",
+        ]
+      : []),
     ...(gapLines.length
       ? [
           gapHeading,
@@ -467,6 +502,18 @@ export function digestEmail(
         ]
           .map((i) => `<li style="margin:0 0 6px">${i}</li>`)
           .join("")}</ul>${p(ltNote)}`
+      : "",
+    punchLines.length
+      ? `${p(punchHeading, "margin:0 0 6px;font-weight:600")}<ul style="margin:0 0 16px;padding-left:20px">${[
+          ...d.punchJobs.map(
+            (j, i) => `<a href="${escapeHtml(punchUrl(j))}">${escapeHtml(punchLines[i] ?? "")}</a>`,
+          ),
+          ...(morePunch
+            ? [`<a href="${escapeHtml(projectsUrl)}">${escapeHtml(morePunch)}</a>`]
+            : []),
+        ]
+          .map((i) => `<li style="margin:0 0 6px">${i}</li>`)
+          .join("")}</ul>${p(punchNote)}`
       : "",
     gapLines.length
       ? `${p(gapHeading, "margin:0 0 6px;font-weight:600")}<ul style="margin:0 0 16px;padding-left:20px">${[

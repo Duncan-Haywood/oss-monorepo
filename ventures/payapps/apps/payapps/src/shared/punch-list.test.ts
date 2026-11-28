@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   backCheckEmail,
+  type CompanyPunchInput,
   nextPunchNumber,
   type PunchItemFacts,
   parsePastedPunchList,
@@ -8,6 +9,8 @@ import {
   punchDaysOverdue,
   punchLabel,
   punchLine,
+  punchOverdueByJob,
+  punchOverdueText,
   punchStatus,
   readyForBackCheck,
   summarizePunchList,
@@ -210,5 +213,82 @@ describe("parsePastedPunchList", () => {
     expect(parsePastedPunchList("Re-caulk window W-3")).toEqual([
       { location: null, description: "Re-caulk window W-3" },
     ]);
+  });
+});
+
+describe("punchOverdueByJob", () => {
+  const ci = (over: Partial<CompanyPunchInput> = {}): CompanyPunchInput => ({
+    projectId: "p1",
+    projectName: "Riverside Clinic",
+    projectNumber: "2207",
+    gcName: "Harbor Builders",
+    number: 1,
+    description: "Missing cover plate",
+    location: "Room 104",
+    dueOn: "2026-11-20",
+    completedOn: null,
+    acceptedOn: null,
+    disputeNote: null,
+    ...over,
+  });
+
+  it("groups overdue items by job and names the longest overdue", () => {
+    const jobs = punchOverdueByJob(
+      [
+        ci({ number: 1, dueOn: "2026-11-22" }),
+        ci({ number: 4, dueOn: "2026-11-14", location: null, description: "Caulk at sink" }),
+        ci({ number: 2, dueOn: "2026-11-14" }),
+        ci({ projectId: "p2", projectName: "Mesa Library", number: 1, dueOn: "2026-11-25" }),
+      ],
+      TODAY,
+      new Map([["p1", 1_840_000]]),
+    );
+    expect(jobs.map((j) => j.projectId)).toEqual(["p1", "p2"]);
+    expect(jobs[0]).toMatchObject({
+      overdue: 3,
+      daysOverdue: 12,
+      oldest: { number: 2, dueOn: "2026-11-14" },
+      retainageHeldCents: 1_840_000,
+    });
+    expect(jobs[1]).toMatchObject({ overdue: 1, daysOverdue: 1, retainageHeldCents: 0 });
+  });
+
+  it("leaves out items not yet due, with no due date, fixed, accepted or disputed", () => {
+    expect(
+      punchOverdueByJob(
+        [
+          ci({ dueOn: TODAY }),
+          ci({ dueOn: "2026-11-30" }),
+          ci({ dueOn: null }),
+          ci({ completedOn: "2026-11-24" }),
+          ci({ completedOn: "2026-11-24", acceptedOn: "2026-11-25" }),
+          ci({ disputeNote: "Drywall scope" }),
+        ],
+        TODAY,
+      ),
+    ).toEqual([]);
+  });
+
+  it("reads as one line per job", () => {
+    const [many, one] = punchOverdueByJob(
+      [
+        ci({ number: 2, dueOn: "2026-11-14" }),
+        ci({ number: 3 }),
+        ci({
+          projectId: "p2",
+          projectName: "Mesa Library",
+          projectNumber: null,
+          dueOn: "2026-11-25",
+        }),
+      ],
+      TODAY,
+      new Map([["p1", 1_840_000]]),
+    );
+    expect(many && punchOverdueText(many)).toBe(
+      "Riverside Clinic (#2207, Harbor Builders): 2 punch items past due. Longest: P-002, Room 104: Missing cover plate, due 2026-11-14, 12 days ago. $18,400.00 retainage held on the job.",
+    );
+    expect(one && punchOverdueText(one)).toBe(
+      "Mesa Library (Harbor Builders): 1 punch item past due. P-001, Room 104: Missing cover plate, due 2026-11-25, yesterday.",
+    );
   });
 });

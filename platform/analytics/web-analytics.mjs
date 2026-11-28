@@ -49,10 +49,31 @@ async function* htmlFiles(dir) {
   }
 }
 
-export async function injectDir(dir, token) {
+/** Who puts the beacon on the pages, from site.json's `beacon`: 'zone' when
+ *  Cloudflare's automatic setup injects it into every HTML response (the
+ *  build then adds nothing), 'build' (the default) for the manual snippet.
+ *  Both at once breaks counting: measured 2026-11-28 on marisstella.app, the
+ *  build's tag ran first and its POST to /cdn-cgi/rum failed, while the
+ *  zone's beacon alone posted 204
+ *  (docs/reports/2026-11-28-apex-analytics-double-beacon.md). */
+export async function beaconMode({ siteFile } = {}) {
+  let site;
+  try {
+    site = JSON.parse(await fs.readFile(siteFile ?? new URL('./site.json', import.meta.url), 'utf8'));
+  } catch (err) {
+    if (err.code === 'ENOENT') return 'build';
+    throw err;
+  }
+  const mode = site.beacon ?? 'build';
+  if (mode !== 'zone' && mode !== 'build') throw new Error(`site.json beacon must be "zone" or "build", got ${JSON.stringify(mode)}`);
+  return mode;
+}
+
+export async function injectDir(dir, token, { mode } = {}) {
   let changed = 0;
   let seen = 0;
   if (!normaliseToken(token)) return { changed, seen };
+  if ((mode ?? await beaconMode()) === 'zone') return { changed, seen, zone: true };
   for await (const file of htmlFiles(dir)) {
     seen += 1;
     const html = await fs.readFile(file, 'utf8');
@@ -90,7 +111,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   if (!token) {
     console.log('web analytics: no token (site.json empty and PAGES_WEB_ANALYTICS_TOKEN unset); pages left without the beacon.');
   } else {
-    const { changed, seen } = await injectDir(dir, token);
-    console.log(`web analytics: beacon added to ${changed} of ${seen} HTML page(s).`);
+    const { changed, seen, zone } = await injectDir(dir, token);
+    console.log(zone
+      ? 'web analytics: site.json says the zone injects the beacon; no tag added (a second one stops the count).'
+      : `web analytics: beacon added to ${changed} of ${seen} HTML page(s).`);
   }
 }

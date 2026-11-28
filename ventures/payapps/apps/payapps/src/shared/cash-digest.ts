@@ -46,8 +46,15 @@
 //   workday finds the gaps when a delay or a backcharge is argued, and the day is easiest to write up
 //   that week. Unlike the lines above, gaps alone never send the email: a sub is often not on site
 //   every weekday, and an email about days nobody worked would teach people to ignore the next one.
+// - Jobs with punch list items past the due date the contractor entered and not fixed yet
+//   (src/shared/punch-list.ts, punchOverdueByJob), the longest overdue first, capped at
+//   MAX_DIGEST_PUNCH_JOBS, each with the retainage the cash report says the job holds. The GC
+//   releases retainage once the punch list is signed off, and a late item is the usual reason a
+//   back-charge or a held release is argued, so like an overdue RFI it is enough on its own to send
+//   the email. Items fixed and waiting on the GC's back-check, disputed ones and ones with no due
+//   date never count.
 // - No next step anywhere, no certificate or document to renew, no overdue RFI, no submittal to
-//   chase, no signed T&M ticket to bill and no lower-tier waiver out: no email (null). An email that says "nothing
+//   chase, no signed T&M ticket to bill, no lower-tier waiver out and no overdue punch item: no email (null). An email that says "nothing
 //   to do" teaches people to ignore the next one.
 // - Jobs are in the report's order (most money owed first) and capped at MAX_DIGEST_JOBS; the rest
 //   are counted and the email links to the page that lists them all.
@@ -73,6 +80,7 @@ import {
   lowerTierToChase,
 } from "./lower-tier-waivers";
 import { formatCents } from "./money";
+import { type CompanyPunchInput, type PunchJobOverdue, punchOverdueByJob } from "./punch-list";
 import { type CompanyRfiInput, type OverdueRfi, overdueRfis } from "./rfi";
 import type { HolidayCalendar } from "./schedule";
 import { type CompanySubmittalInput, type SubmittalToChase, submittalsToChase } from "./submittals";
@@ -93,6 +101,8 @@ export const MAX_DIGEST_TM_JOBS = 10;
 export const MAX_DIGEST_LOWER_TIER = 10;
 /** Jobs with weekdays missing from the daily log, listed one by one; any more are counted. */
 export const MAX_DIGEST_DAILY_GAPS = 10;
+/** Jobs with overdue punch items, listed one by one; any more are counted. */
+export const MAX_DIGEST_PUNCH_JOBS = 10;
 
 /** One certificate to renew, as the email lists it. */
 export interface CashDigestCertificate {
@@ -177,6 +187,10 @@ export interface CashDigest {
   dailyGaps: DailyReportGap[];
   /** Jobs with missing days left out by the cap. */
   moreDailyGaps: number;
+  /** Jobs with punch items past due and not fixed, the longest overdue first, capped. */
+  punchJobs: PunchJobOverdue[];
+  /** Jobs with overdue punch items left out by the cap. */
+  morePunchJobs: number;
 }
 
 export function cashDigest(
@@ -190,6 +204,7 @@ export function cashDigest(
   documents: CompanyDocumentInput[] = [],
   dailyReportJobs: CompanyDailyReportJob[] = [],
   holidays: HolidayCalendar = new Map(),
+  punchItems: CompanyPunchInput[] = [],
 ): CashDigest | null {
   const withSteps = report.projects.filter((p) => p.actions.length > 0);
   const renew = certificatesNeedingRenewal(certificates, report.asOf);
@@ -198,6 +213,8 @@ export function cashDigest(
   const toBill = ticketsToBill(tmTickets, report.asOf);
   const ltOut = lowerTierToChase(lowerTierRows, report.asOf);
   const docs = documentsNeedingRenewal(documents, report.asOf);
+  const retainageByJob = new Map(report.projects.map((p) => [p.id, p.retainageHeldCents]));
+  const punch = punchOverdueByJob(punchItems, report.asOf, retainageByJob);
   if (
     withSteps.length === 0 &&
     renew.length === 0 &&
@@ -205,7 +222,8 @@ export function cashDigest(
     late.length === 0 &&
     chase.length === 0 &&
     toBill.length === 0 &&
-    ltOut.length === 0
+    ltOut.length === 0 &&
+    punch.length === 0
   )
     return null;
   const gaps = dailyReportGaps(dailyReportJobs, report.asOf, holidays);
@@ -286,6 +304,11 @@ export function cashDigest(
     const apps = ltOut.length === 1 ? "1 pay application" : `${ltOut.length} pay applications`;
     summary.push(`Lower-tier lien waivers still out: ${n} on ${apps}.`);
   }
+  if (punch.length > 0) {
+    const n = punch.reduce((sum, j) => sum + j.overdue, 0);
+    const jobsText = punch.length === 1 ? "1 job" : `${punch.length} jobs`;
+    summary.push(`Punch list items past due and not fixed: ${n} on ${jobsText}.`);
+  }
   if (gaps.length > 0) {
     const days = gaps.reduce((n, g) => n + g.days.length, 0);
     const jobsText = gaps.length === 1 ? "1 job" : `${gaps.length} jobs`;
@@ -342,6 +365,8 @@ export function cashDigest(
     moreLowerTier: Math.max(0, ltOut.length - MAX_DIGEST_LOWER_TIER),
     dailyGaps: gaps.slice(0, MAX_DIGEST_DAILY_GAPS),
     moreDailyGaps: Math.max(0, gaps.length - MAX_DIGEST_DAILY_GAPS),
+    punchJobs: punch.slice(0, MAX_DIGEST_PUNCH_JOBS),
+    morePunchJobs: Math.max(0, punch.length - MAX_DIGEST_PUNCH_JOBS),
   };
 }
 

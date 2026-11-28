@@ -331,3 +331,62 @@ td {
     grid-template-columns: 1fr;
   }
 }
+
+/* Stills of the app on the home page (src/pages.mjs, SHOTS). The app is light, so the stills stay
+   light in dark mode, framed by the same border. On a phone only the phone still is shown (the laptop
+   one is too small to read there; it is lazy, so a hidden copy is never fetched), the worksheet swaps to
+   a phone crop through <picture>, and the stock still, whose lot table needs a laptop's width, is left out. */
+.shots figure {
+  margin: 0;
+}
+.shot-frame {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 8%);
+}
+.shot-frame a,
+.shot-frame img {
+  display: block;
+}
+.shot-frame img {
+  width: 100%;
+  height: auto;
+}
+.shot-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 200px;
+  gap: 20px;
+  align-items: start;
+}
+.shot-hero figcaption,
+.shot-pair figcaption {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-top: 8px;
+}
+.shot-hero figcaption {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+.shot-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+@media (max-width: 720px) {
+  .shot-hero {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .shots .shot-wide {
+    display: none;
+  }
+  .shot-hero .shot-phone,
+  .shot-pair .shot-frame {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+}

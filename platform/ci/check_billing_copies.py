@@ -10,9 +10,13 @@ checkout-token.ts or crypto.ts that reaches one product and not its siblings
 would leave three products open with no signal, so this check holds every
 non-test source file that two or more copies share to be byte-identical.
 
-Product-specific files are named in ALLOWED_TO_DIFFER. Test files may differ
-(each product can add its own cases), but the check prints a note for a test
-file a copy lacks or that differs, so a stronger guard can be ported.
+Product-specific files are named in ALLOWED_TO_DIFFER. A test file two or
+more copies share must be byte-identical too (2026-11-28, red team): the
+sources were identical in all five copies, yet seven test files had drifted
+into 2-3 variants each, every one holding a guard (a red-team test, a CodeQL
+host fix, a cancel-link case) its siblings lacked, so a mutant one copy's
+tests caught escaped in the others. A product's own cases go in a test file
+named for that product (`paddle.payapps.test.ts`), which no sibling owes.
 
     python3 platform/ci/check_billing_copies.py      # exit 1 on drift
 """
@@ -47,7 +51,9 @@ def drift(dirs: list[Path]) -> tuple[list[str], list[str]]:
         groups = "; ".join(
             ", ".join(str(p.relative_to(REPO)).split("/")[1] for p in ps) for ps in variants.values())
         if name.endswith(".test.ts"):
-            notes.append(f"note: {name} differs between copies ({groups})")
+            errors.append(
+                f"{name}: billing test copies differ ({groups}); merge every copy's cases into one"
+                " file and copy it to all (product-only cases: a <name>.<venture>.test.ts file)")
         elif name not in ALLOWED_TO_DIFFER:
             errors.append(f"{name}: billing copies differ ({groups}); port the change to every copy")
     errors.extend(missing_tests(dirs))

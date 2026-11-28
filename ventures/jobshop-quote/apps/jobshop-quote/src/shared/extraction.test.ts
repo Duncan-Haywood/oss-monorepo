@@ -3,6 +3,7 @@ import { DRAWING_TEXT, RFQ_EMAIL } from "../../test/fixtures/rfq";
 import { fakeExtract } from "../worker/services/rfq/fake-llm";
 import {
   digitTokens,
+  integersIn,
   type LlmExtraction,
   matchFinishingOps,
   matchMaterial,
@@ -143,6 +144,29 @@ Due Dec 5 2026, decimal marking per spec`;
       one({ quantities: { values: [2], quote: "Part number: ABC-100 Rev 2" } })?.quantities,
     ).toEqual([]);
     expect(one({ quantities: { values: [500], quote: "PN 12345-500" } })?.quantities).toEqual([]);
+  });
+
+  it("reads quantity breaks written with slashes, and nothing that only looks like them", () => {
+    const q = (quote: string) => [...integersIn(quote)].sort((a, b) => a - b);
+    expect(q("Qty: 10/25/50")).toEqual([10, 25, 50]);
+    expect(q("Qty 100/250/500 pcs")).toEqual([100, 250, 500]);
+    expect(q("QTY 50/100pcs")).toEqual([50, 100]);
+    expect(q("Qty: 1,000/2,500/5,000")).toEqual([1000, 2500, 5000]);
+    expect(q("Qty: 5/10/25/50")).toEqual([5, 10, 25, 50]); // four parts: never a date
+    expect(q("Qty 10 / 25 / 50")).toEqual([10, 25, 50]); // spaced, as before
+    // Dates, fractions, part numbers and falling runs add nothing.
+    expect(q("Qty 25, need by 12/18/2026")).toEqual([25]);
+    expect(q("Qty 25 ship 1/15/26")).toEqual([25]);
+    expect(q("Qty 25 on 1/15/26")).toEqual([25]);
+    expect(q("Qty 10/20/30")).toEqual([]); // could be Oct 20, 2030: left for the estimator
+    expect(q("Qty 4, 1/2-13 tapped")).toEqual([4]);
+    expect(q("Qty 4, 3/16 thick")).toEqual([4]);
+    expect(q("PN 12345/500-A")).toEqual([]);
+    expect(q("Qty 50/25")).toEqual([]);
+    expect(q("Qty 01/02/03")).toEqual([]);
+    const src = "Part number: BRK-1001 Rev B\nQty: 10/25/50";
+    const raw = onePart({ quantities: { values: [10, 25, 50], quote: "Qty: 10/25/50" } });
+    expect(verifyExtraction(raw, src).parts[0]?.quantities).toEqual([10, 25, 50]);
   });
 });
 

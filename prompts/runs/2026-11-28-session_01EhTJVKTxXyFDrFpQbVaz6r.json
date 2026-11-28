@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVKTxXyFDrFpQbVaz6r",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T03:56:07Z",
+  "ended": "2026-11-28T04:11:03Z",
+  "wall_minutes": 15.15,
+  "tokens_in": 8866957,
+  "tokens_out": 40193,
+  "cost_usd": 3.7054,
+  "tool_calls": 76,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19982",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "The first push was blocked by the post front-matter hook (description 164 chars, seo_title 83); fixed in a separate commit.",
+    "The first quality_mutate run of the repair-ubl mutant printed no row inside a grep filter; a rerun on the repair tests gave it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "`reaudit` lists free calculators first; the track prompt's north-star line says to prefer paid products, but the command has no filter for them, so I grepped `--limit 400` output against transition.py's list by hand."
+    },
+    {
+      "file": "ventures/einvoice-preflight (python tests)",
+      "issue": "`python3 -m unittest discover -s tests` from the subject root fails with 31 import errors; it needs PYTHONPATH=src, which neither the CI line shown nor the venture's README states in a findable place."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/quality_audit.py reaudit order",
+      "why": "The seeded queue put free calculators (online-business-valuation-calculator, etc.) first; the quality prompt's north star says to prefer a for-profit product, so I took einvoice-preflight (bet #3), whose fix PR #19757 had just merged.",
+      "did": "re-audited einvoice-preflight instead of the top row",
+      "result": "found and fixed a real repair defect in a paid product; the subject now meets the bar"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-quality-reaudit-einvoice-preflight.md",
+    "portfolio/quality/audits/2026-11-28-einvoice-preflight-reaudit.json"
+  ],
+  "goal": null,
+  "notes": "Quality mode reaudit (seed 2026-11-28-a5ae). Subject ventures/einvoice-preflight (prior audit 2026-11-19). Share meeting the bar: 1 of 1 re-audited (re-audits are not part of the sampled share). Prior defects: 5 closed (incl. the high), 1 partial, 2 open. New: 1 low logic-error (repair cut a cent at 10^13, CEN BR-CO-15) and 1 low fix-text format, both fixed in this PR (fix_prs: PR #19982). Oracle: CEN EN16931-UBL-validation.xslt 1.3.17 under SaxonC-HE; 8 of 8 generated invoices agree. 5 of 5 mutants caught. Local checks: node --test 2403 tests, 2386 pass, 0 fail, 17 skip (with slimdom/fontoxpath); Python 447 OK with PYTHONPATH=src; quality_audit.py validate 0 problems; risk_review nothing triggered; post front matter clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e248a5bb-6028-5fcb-9b70-77a32a0c239e",
+    "transcripts": 1,
+    "first": "2026-11-28T03:56:07Z",
+    "last": "2026-11-28T04:11:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 137,
+        "output": 40193,
+        "thinking": 7264,
+        "cache_read": 8722246,
+        "cache_write_5m": 0,
+        "cache_write_1h": 144574,
+        "api_equivalent_usd": 3.7054,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 137,
+      "output": 40193,
+      "thinking": 7264,
+      "cache_read": 8722246,
+      "cache_write_5m": 0,
+      "cache_write_1h": 144574,
+      "api_equivalent_usd": 3.7054,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 73,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.15,
+      "active_minutes": 15.15,
+      "model_minutes": 7.24,
+      "tool_minutes": 7.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a QA engineer setting up CEN Saxon oracle, generating invoices, mutation runs and a small fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 161.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

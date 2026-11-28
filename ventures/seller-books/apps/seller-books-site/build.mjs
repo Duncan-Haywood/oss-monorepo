@@ -31,7 +31,7 @@ import { allPages } from "./src/pages.mjs";
 const HERE = dirname(fileURLToPath(import.meta.url));
 
 /** Content date for <lastmod>; bump when the copy changes (kept fixed so builds are reproducible). */
-export const LAST_UPDATED = "2026-11-27";
+export const LAST_UPDATED = "2026-11-28";
 
 /** Same list as apps/grants/scripts/prerender.mjs AI_CRAWLERS. */
 export const AI_CRAWLERS = [

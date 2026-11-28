@@ -4,9 +4,10 @@ import {
   isWithinPastDueGrace,
   nextPastDueSince,
   PAST_DUE_GRACE_DAYS,
+  PAST_DUE_GRACE_MS,
   pastDueGraceUntil,
 } from "./grace.ts";
-import { addMonthsUtc, periodKeyFor } from "./period.ts";
+import { addMonthsUtc, periodKeyFor, quotaPeriodStart } from "./period.ts";
 
 const DAY = 86_400_000;
 const since = new Date("2026-11-10T00:00:00Z");
@@ -14,6 +15,7 @@ const since = new Date("2026-11-10T00:00:00Z");
 describe("past_due grace period", () => {
   it("lasts PAST_DUE_GRACE_DAYS from the first past_due event", () => {
     assert.equal(PAST_DUE_GRACE_DAYS, 7);
+    assert.equal(PAST_DUE_GRACE_MS, 7 * DAY);
     assert.deepEqual(pastDueGraceUntil("past_due", since), new Date("2026-11-17T00:00:00Z"));
     assert.equal(
       isWithinPastDueGrace("past_due", since, new Date(since.getTime() + 6 * DAY)),
@@ -88,5 +90,12 @@ describe("quota period keys", () => {
       periodKeyFor(new Date("2027-01-01T00:00:00Z"), new Date("2026-11-19T00:00:00Z")),
       "2026-11",
     );
+  });
+
+  it("starts the first period at the anchor itself when now is the anchor instant", () => {
+    // A new subscription's usage at the very instant of its period start belongs to the
+    // anchored period, not to the calendar month (red team 2026-11-27: `>` vs `>=`).
+    const anchor = new Date("2026-10-15T08:00:00Z");
+    assert.equal(quotaPeriodStart(anchor, new Date(anchor)).toISOString(), anchor.toISOString());
   });
 });

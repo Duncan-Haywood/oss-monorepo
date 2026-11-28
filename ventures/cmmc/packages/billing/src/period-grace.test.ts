@@ -4,6 +4,7 @@ import {
   isWithinPastDueGrace,
   nextPastDueSince,
   PAST_DUE_GRACE_DAYS,
+  PAST_DUE_GRACE_MS,
   pastDueGraceUntil,
 } from "./grace.ts";
 import { addMonthsUtc, periodKeyFor, quotaPeriodStart } from "./period.ts";
@@ -14,6 +15,7 @@ const since = new Date("2026-11-10T00:00:00Z");
 describe("past_due grace period", () => {
   it("lasts PAST_DUE_GRACE_DAYS from the first past_due event", () => {
     assert.equal(PAST_DUE_GRACE_DAYS, 7);
+    assert.equal(PAST_DUE_GRACE_MS, 7 * DAY);
     assert.deepEqual(pastDueGraceUntil("past_due", since), new Date("2026-11-17T00:00:00Z"));
     assert.equal(
       isWithinPastDueGrace("past_due", since, new Date(since.getTime() + 6 * DAY)),

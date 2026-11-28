@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtJYAWA9ojhWxX1MfXX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T04:06:47Z",
+  "ended": "2026-11-28T04:12:06Z",
+  "wall_minutes": 5.95,
+  "tokens_in": 5742640,
+  "tokens_out": 24549,
+  "cost_usd": 2.6342,
+  "tool_calls": 54,
+  "task": "payapps (bet #1): punch list part 2b, overdue punch items across jobs in the weekly email",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19985",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "2,800 lines; the Next list is at the bottom (grep '^## ' first). Finding a slice not already done took several reads."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/src/shared/cash-digest.ts",
+      "issue": "cashDigest takes 11 positional parameters; adding a twelfth means passing [] for every slot in tests. An options object would be easier for the next addition."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs not run: the change is inside the payapps Worker app and touches no catalogue page",
+      "did": "ran typecheck, biome, the full unit suite and the full worker suite instead",
+      "result": "all green"
+    },
+    {
+      "file": "prompts/goals.md (Write about the work)",
+      "why": "no new post: a weekly-email line item is too thin for its own post, and the owner asked for consolidated posts",
+      "did": "documented it in docs/EMAIL.md and the ROADMAP; the next payapps-site or retainage-post run can fold it into the punch list section",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "ventures/payapps/apps/payapps/docs/EMAIL.md (extended)",
+    "ventures/payapps/apps/payapps/ROADMAP.md (punch list part 2b)"
+  ],
+  "goal": null,
+  "notes": "Local checks: pnpm typecheck clean; biome no new diagnostics (28 warnings pre-existing); pnpm test:unit 164 files, 1581 passed; worker punch-list/digest/tm-tickets suites 36 passed; full pnpm test:worker 97 files, 615 passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "89dc2416-9c4f-5c07-96fc-d498b4081b44",
+    "transcripts": 1,
+    "first": "2026-11-28T04:06:47Z",
+    "last": "2026-11-28T04:12:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 101,
+        "output": 24549,
+        "thinking": 2665,
+        "cache_read": 5615066,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127473,
+        "api_equivalent_usd": 2.6342,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 101,
+      "output": 24549,
+      "thinking": 2665,
+      "cache_read": 5615066,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127473,
+      "api_equivalent_usd": 2.6342,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.95,
+      "active_minutes": 5.95,
+      "model_minutes": 4.04,
+      "tool_minutes": 1.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "rules, service query, email wiring, 7 tests, docs and policy bump for an engineer new to the codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 189.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
