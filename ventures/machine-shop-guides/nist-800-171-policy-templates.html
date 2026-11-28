@@ -110,7 +110,7 @@
       const c = coverage(f, statements);
       const link = el("a", { href: "#preview-card", textContent: f + " " + FAMILIES[f] });
       if (f === current) link.setAttribute("aria-current", "true");
-      link.addEventListener("click", (e) => { e.preventDefault(); current = f; paint(); $("preview-card").scrollIntoView({ behavior: "smooth" }); });
+      link.addEventListener("click", (e) => { e.preventDefault(); current = f; paint(); $("preview-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); });
       tr.append(el("td", {}, box), el("td", {}, link), el("td", { className: "num " + (c.written === c.total ? "good" : ""), textContent: c.written + " of " + c.total }));
       tb.append(tr);
     }
