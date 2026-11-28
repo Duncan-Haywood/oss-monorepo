@@ -29,7 +29,12 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "pages build failed on PR: new page description 174 chars > 160",
+      "fix": "shortened to 140, test added, full catalogue build + check.mjs run locally"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +44,10 @@
     {
       "file": "ventures/cmmc/apps/cmmc/src/shared/controls/csv-import.ts",
       "issue": "Header hints match broad words (status matches 'assessment' and 'met'; notes matches 'gaps', 'findings'), so a template's column names must avoid them; noted in assessment-sheet.mjs and pinned by a test."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight said 'clean for cmmc' and skipped the site build ('not a catalogue entry'), but the catalogue's check.mjs builds cmmc-site and failed the PR on a 174-character description; cmmc-site's own tests did not check the 160-character budget (added one for this page)."
     }
   ],
   "deviations": [
