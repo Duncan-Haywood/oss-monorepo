@@ -88,5 +88,41 @@ choices: Czech and Slovak birth-number months, the Slovak third digit, Bulgarian
 
 The audit file, with every check, command and mutant:
 [`portfolio/quality/audits/2026-11-28-einvoice-preflight-reaudit.json`](https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/quality/audits/2026-11-28-einvoice-preflight-reaudit.json).
+## Sixth audit, later the same day: the CLI rejected every Norwegian and Swiss VAT id
+
+A second re-audit checked every defect above against the code after the fix merged.
+It still meets the bar. Both fixed defects stay closed: the 10^13 IDR invoice draws no
+finding and the repair leaves it alone, and the INV-038 figure is now formatted. Three
+hand recomputations agree in both the page engine and the Python CLI:
+
+| check | worked by hand | tool |
+|---|---|---|
+| 100.00 at 19% + 50.00 at 7%, with 23.50 stated | 19.00 + 3.50 = 22.50 | "Set tax to 22.50" (page and CLI) |
+| 9,876,543,210,987.65 IDR at 11% | tax 1,086,419,753,208.64, gross 10,962,962,964,196.29 | no finding, no repair |
+| 1.50 at 19% | 0.285, so 0.29 rounding half up | accepted |
+
+**The Norway and Switzerland gap was worse than recorded.** The earlier audit said the
+CLI let a mistyped NO or CH number through. In fact the CLI gave a blocking INV-022
+("unrecognized country prefix") for every Norwegian or Swiss `vat_id`, correct ones
+included. It also never checked one given as a party id. So a pipeline that checked a
+Norwegian supplier's invoices with the CLI failed correct invoices.
+
+This PR ports the two check-digit rules from the page to the CLI: the Norwegian
+organisation number (weighted mod 11, MVA suffix) and the Swiss UID (CHE, mod 11,
+MWST/TVA/IVA suffix). We tested 3,000 random numbers against python-stdnum 2.2, an
+independent library. The CLI now agrees with it and with the page on all 3,000. The
+tests cover valid numbers, check-digit typos, the remainder-10 case that is never
+issued, and bad shapes. A seeded change to one weight fails them.
+
+The same PR moves the four identical copies of the cent-rounding helper (checks,
+breakdown, adjustment, linenet) into one function in `numbers.mjs`. Seeded changes to
+it (floor instead of round, a wider large-amount threshold) fail the suite.
+**Craft stays at 2.** Rounding variants at other precisions remain, and the README has
+grown to 403 KB of run log. The INV-005 rule on a buyer known by name alone is
+unchanged and still deliberate.
+
+Audit file:
+[`portfolio/quality/audits/2026-11-28-einvoice-preflight-reaudit-2.json`](https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/quality/audits/2026-11-28-einvoice-preflight-reaudit-2.json).
+
 This is an audit of the software's arithmetic and rule coverage, not legal or tax
 advice. The official validators and the receiving portal remain the reference.

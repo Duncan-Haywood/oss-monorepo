@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtJshFDVHCqT9h46nEV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T16:07:00Z",
+  "ended": "2026-11-28T16:18:42Z",
+  "wall_minutes": 21.23,
+  "tokens_in": 13449047,
+  "tokens_out": 57557,
+  "cost_usd": 5.4515,
+  "tool_calls": 90,
+  "task": "Ohio notice of furnishing (Ohio Rev. Code \u00a7 1311.05) in PayApps' preliminary notice panel, plus a front-door guide with a 21-day calculator",
+  "projects": [
+    "payapps",
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20169",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [
+    "pay-app-guides full suite: change-order-template.test.mjs 'recalculated' failed once on a soffice conversion while the suite ran in parallel; it passed alone (7/7) and in the full rerun (438/438). It has nothing to do with this change."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reports 'no free, ungated item' for every bet and points to the bet with the fewest claims; the useful pointer was its own line that 44 of 65 Next items wait on demand, so the front-door gap (state notices not yet covered) had to be found by listing pages by hand."
+    },
+    {
+      "file": "ventures/pay-app-guides/nav.mjs",
+      "issue": "The header says what to update when you add a page (GROUPS, industry-construction.mjs, llms-answers.mjs) but not sitemap.xml, llms.txt, README.md or page.test.mjs FAQ_PAGES; I found those by reading the files the Michigan PR (#20018) touched."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md (Ohio update section)"
+  ],
+  "goal": "bet #1 PayApps: one more statutory notice a paying Crew customer in Ohio needs, plus a search page for 'Ohio notice of furnishing' that sends visitors to sign-up",
+  "notes": "Security queue empty (exit 3); IDEAS.md and requests empty; routed ventures/1 by draw. Bet #1 had no free roadmap item, so I took the demand side: Ohio is a large specialty-trade state, and its notice of furnishing had no guide and no app support (Michigan's landed earlier today in PR #20018). I read the statute on codes.ohio.gov (it answered through the proxy) and saved a snapshot to both packages. Checks run here: lien-waivers node --test 304/304; payapps vitest worker notices.test.ts 11/11 (new Ohio case); pnpm -r typecheck clean; biome clean on the changed files; run_venture_tests pay-app-guides 438/438 and site page checks ok on the rerun; venture-preflight pay-app-guides clean (EXIT=0). An earlier run caught a meta description over 160 characters and an og:description over 200; both are shortened. Deliberate form deviations, documented in oh-notice.ts and on the page: a line is added for the original contractor's address and after 'Date:', which the statute prints with no line, and the statute's quotation marks around the form are left off.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d3fe1d23-477c-5364-bae2-c92849f361df",
+    "transcripts": 1,
+    "first": "2026-11-28T16:07:00Z",
+    "last": "2026-11-28T16:28:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 86,
+        "input": 165,
+        "output": 57557,
+        "thinking": 7112,
+        "cache_read": 13242480,
+        "cache_write_5m": 0,
+        "cache_write_1h": 206402,
+        "api_equivalent_usd": 5.4515,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 86,
+      "input": 165,
+      "output": 57557,
+      "thinking": 7112,
+      "cache_read": 13242480,
+      "cache_write_5m": 0,
+      "cache_write_1h": 206402,
+      "api_equivalent_usd": 5.4515,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 83,
+      "Write": 4,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.23,
+      "active_minutes": 21.23,
+      "model_minutes": 9.46,
+      "tool_minutes": 11.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "reading six Ohio sections, encoding and testing the form, a calculator page with tests, app wiring and an API test: about a day and a half for a mid-level engineer who knows lien law",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 183.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

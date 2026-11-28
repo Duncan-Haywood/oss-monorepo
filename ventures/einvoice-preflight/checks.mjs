@@ -1,8 +1,9 @@
 // Format-neutral invoice checks. src/einvoice_preflight/checks.py mirrors the
 // core of this file for the Python CLI, which reads JSON, UBL, CII and Factur-X
 // only, has no warning or note severity (silent on INV-061/063/064), skips the
-// PDF envelope checks (PDF-001..006), Norway and Switzerland VAT and the
-// profile options, and some fix texts differ (README, NEXT.md).
+// PDF envelope checks (PDF-001..006) and the profile options, and some fix texts
+// differ (README, NEXT.md). Norway and Switzerland VAT check digits run in both
+// since 2026-11-28.
 // eval/page-cli-parity.mjs measures where the two differ on the shipped files.
 // This is an observation, not a legal validity claim.
 
@@ -22,21 +23,13 @@ import { inspectLineExtension } from "./lineext.mjs";
 import { inspectPaymentTerms } from "./terms.mjs";
 import { inspectNlVatShape, inspectPartyVat } from "./vat.mjs";
 import { acceptedLineNet, flatTaxTotal, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
-import { parseDecimal } from "./numbers.mjs";
+import { parseDecimal, roundHalfUpToCents } from "./numbers.mjs";
 import { inspectXmlValues } from "./xmlvalues.mjs";
 
 // numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
 const parseNumber = parseDecimal;
 
-export function roundHalfUpToCents(value) {
-  if (!Number.isFinite(value)) return null;
-  const sign = value < 0 ? -1 : 1;
-  // toPrecision(15) settles float noise on half-cent ties; from 10^15 cents (10^13
-  // units) the double has no sub-cent digits to settle, and 15 digits would cut a
-  // real cent (quality reaudit 2026-11-28: a correct 10^13 IDR gross was rewritten).
-  const scaled = Math.abs(value) * 100;
-  return (sign * Math.round(scaled < 1e15 ? Number(scaled.toPrecision(15)) : scaled)) / 100;
-}
+export { roundHalfUpToCents };
 
 // Hungarian VAT is stated in whole forints, so a HUF invoice may round its tax
 // total to the unit instead of the cent. Accepted only when the stated total is

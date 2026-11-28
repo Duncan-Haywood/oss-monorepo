@@ -132,9 +132,12 @@ in order:
      by THICK / 2 over the sine of the angle at a hip or valley; 60 turned houses frame as they do square, 150 clipped and
      bay outlines checked end by end against the roof lines' heights; the faces also frame square-cornered outlines,
      identical to the L-infinity rule except where two collinear eave sides share the plane above a bump-out, which the
-     old rule framed twice, rafters 4 in apart; `hipframe-angled.test.mjs`, `eval-angled-roof-click.mjs`). Next: sheathing
-     courses on the angled planes (`outlinesheathing.mjs` still takes square-cornered outlines only and says so), and a
-     DXF exterior loop with angled walls;
+     old rule framed twice, rafters 4 in apart; `hipframe-angled.test.mjs`, `eval-angled-roof-click.mjs`). Sheathing
+     courses on the angled planes: **done 2026-11-28** (angled-plane-sheathing-courses: `faceSection` in
+     `outlinesheathing.mjs`, each plane's section at a depth from its traced face; turned rectangles, Ls and Zs sheathe
+     piece for piece as square, framed joints and blocks the same; 120 clipped and 60 bay outlines covered point by point,
+     areas checked; offcuts at angled corners not reused; `outlinesheathing-angled.test.mjs`). Next: reuse the offcuts
+     cut at angled hips and valleys (a different triangle per corner angle), and a DXF exterior loop with angled walls;
    - read the roof outline from a roof-plan layer in a DXF, not only from the exterior
      wall loop: **done 2026-11-27** (roof-outline-from-dxf-roof-layer: `roofdxf.mjs`, the outer
      boundary of the roof layer's lines, ridges and hips inside ignored; the overhang measured

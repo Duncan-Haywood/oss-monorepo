@@ -237,9 +237,22 @@ rafters stand within two thicknesses of each other. The same faces now frame squ
 outlines: identical to the old L-infinity rule on every one of 300 random outlines without two
 eave sides on one line, and where there are two (a bump-out or bay on one wall) they fix a bug:
 the old rule framed the plane above the bump from both sides, rafters 4 in apart (3 such pairs
-on one 46 x 26 ft test outline). The sheathing courses are still laid out for square-cornered
-outlines only: an angled outline says so in the notes, on the page and in the CLI, and its
-material list carries the rafters but no sheet count.
+on one 46 x 26 ft test outline). Since 2026-11-28 the **sheathing courses are laid on the angled
+planes too** (`faceSection` in `outlinesheathing.mjs`): each plane is its traced face, and its
+section at plan depth d is where the line d inside its eave side crosses that face, so the
+courses, pieces, joints on rafters and offcut reuse run as on a square outline. A hip or valley
+off a square corner moves a course's end one plan inch per inch of depth, so its offcut is reused
+as before; one off an angled corner does not, and its offcut is not reused (an upper bound, said
+in the notes). The 40 x 24 ft bay house at 6:12 takes 48 sheets of 4 x 8 for 1,236 sq ft. Checks
+(`outlinesheathing-angled.test.mjs`): the rectangle, L and Z turned 17, 30 and 45 degrees at three
+pitches sheathe exactly as they do square to the axes, piece for piece, and framed the same joints
+and blocks; on 120 random outlines with clipped corners and 60 random bay houses the planes' areas
+match the eave line's and every one of over 15,000 sampled points is under a piece of its own
+plane's course. A bay's sides lean (both ends of a course move the same way), so a course's
+pieces there are the exact shadow of its face's part in the band (`facePieces`), not sampled
+sections. The plain 40 x 24 ft house takes 43 sheets for 1,221 sq ft, so the bay adds 1% of area
+and 5 sheets. Found on the way: a run a hair over a multiple of the sheet length gave a piece of
+no length on any outline; that remainder (under 1/32 in) is now left off.
 Since 2026-11-26 that all-hip roof's **sheathing is laid in courses** (`outlinesheathing.mjs`,
 CLI ROOF section, the page's roof card, a "roof sheathing (all-hip, from outline)" row on the
 material list and a "Roof sheathing sheets" budget line priced by `roofSheet`): each plane rises from one
