@@ -63,7 +63,11 @@ describe("classifyPaddleKey", () => {
   });
 
   it("a truncated pdl_..._apikey_ paste is not called the right kind of key", () => {
-    for (const k of ["pdl_live_apikey_abc", "pdl_sdbx_apikey_01hzz"]) {
+    // Joined from parts, like the fixtures above, so secret scanners do not read them as keys.
+    for (const k of [
+      ["pdl", "live", "apikey", "abc"],
+      ["pdl", "sdbx", "apikey", "01hzz"],
+    ].map((p) => p.join("_"))) {
       const s = classifyPaddleKey(k);
       assert.equal(s.kind, "unrecognised", k);
       assert.equal(s.usable, false, k);
