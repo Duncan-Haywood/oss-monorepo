@@ -5,7 +5,7 @@
 //    dates PayApps counts here: the 90-day notice a second-tier claimant gives the prime, and the
 //    one-year limit on the suit. They take the lien deadline's place on the job page, the cash page
 //    and the weekly email. State and local jobs have each state's own bond law ("little Miller
-//    Act"): there it shows no lien date, and lists the bond claim steps in the seventeen states of
+//    Act"): there it shows no lien date, and lists the bond claim steps in the twenty states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
 //    checked against the cap in the 16 states the public guide lists.
@@ -437,6 +437,18 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "The contracting body must give a certified copy of the bond and contract on written request (§ 34-223(C)).",
     ],
   },
+  CO: {
+    name: "Colorado",
+    law: "C.R.S. §§ 38-26-105 to 38-26-107",
+    url: "https://leg.colorado.gov/sites/default/files/images/olls/crs2024-title-38.pdf",
+    checkedOn: "2026-11-28",
+    notes: [
+      "Both steps count from the final settlement date the public body fixes and publishes, at least ten days ahead, on a contract over $150,000 (§ 38-26-107(1)): watch for the notice, or ask the public body for the date.",
+      "A filed claim keeps the public body withholding funds only for 90 days after the published settlement date, unless you sue in that time and file a notice of lis pendens with it (§ 38-26-107(2)).",
+      "On a county, city or school district contract over $50,000, § 38-26-105(1) also says an action on its bond must be brought within six months after the completion of the work, a day PayApps does not know.",
+      "Bonds are required on local contracts over $50,000 and state contracts over $150,000 (§ 38-26-106(3)); the surety owes 8% a year interest on what it pays (§ 38-26-106(2)). Read from the 2024 printout of the Colorado Revised Statutes, the latest the General Assembly's site serves.",
+    ],
+  },
   FL: {
     name: "Florida",
     law: "Fla. Stat. § 255.05",
@@ -458,6 +470,18 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "A suit may be brought once you are unpaid 90 days after your last day. The notice goes by registered or certified mail to the contractor's office, place of business or residence, and states the amount claimed and who you worked for.",
       "A subcontractor of the contractor sues within one year from the day final payment under its subcontract became due, a day PayApps does not know; PayApps shows one year from your last day, usually the earlier one.",
       "The contracting body gives a certified copy of the bond and the contract to anyone who submits an affidavit that they are unpaid.",
+    ],
+  },
+  IA: {
+    name: "Iowa",
+    law: "Iowa Code ch. 573",
+    url: "https://www.legis.iowa.gov/docs/code/573.pdf",
+    checkedOn: "2026-11-28",
+    notes: [
+      "The claim is against the retained fund and the bond together: file an itemized, sworn, written statement with the officer, board or commission that let the contract (a county highway job: the county auditor, § 573.8). A claim filed after the 30 days still counts while the public body has not paid the full contract price and no action is pending (§ 573.10(2)).",
+      "The action is brought in equity in the county of the improvement, not before 30 days after completion and final acceptance (§ 573.16(1)). If the contractor serves you a written demand to sue, sue within 30 days or the funds are released (§ 573.16(2)).",
+      "Where the public body releases retained funds at 95% completion, the same 30 and 60 days count from the day 95% of the contract was completed instead (§ 573.15A). Ask the public body which it used.",
+      "A supplier furnishing only materials to a subcontractor who furnishes only materials has no claim (§ 573.7(2)). The start-of-work notice does not apply to highway, bridge or culvert projects (§ 573.15(2)).",
     ],
   },
   MA: {
@@ -482,6 +506,18 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "The notice goes by certified mail to the contractor's residence or a place where it has an office or does business, and states with substantial accuracy the amount claimed and who you worked for (§ 17-108(b)(2)).",
       "A contract term that waives the right to sue on the bond, or makes it wait on the public body paying, is void (§ 17-108(d)).",
       "These sections govern payment security on contracts subject to the subtitle. A county or city job's bond may rest on local law: read the bond.",
+    ],
+  },
+  ME: {
+    name: "Maine",
+    law: "14 M.R.S. § 871",
+    url: "https://legislature.maine.gov/statutes/14/title14sec871.html",
+    checkedOn: "2026-11-28",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day, in the county where the work is (§ 871(4), (6)).",
+      "The notice goes by registered or certified mail to any place the contractor keeps an office or does business, or its residence, and states with substantial accuracy the amount claimed and who you worked for.",
+      "A material supplier whose claim cannot be worked out until the public body sets the final quantity estimates has 90 days, and one year to sue, from that determination instead (§ 871(4)).",
+      "The payment bond is required on contracts over $125,000, and the contracting body gives a certified copy of the bond and contract to an unpaid claimant who asks in writing.",
     ],
   },
   MO: {
@@ -740,6 +776,94 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
             act: "Bring suit on the payment bond",
             citation: "Idaho Code § 54-1927 (limitation)",
             rule: `within one year from ${LAST} (a sub of the prime: from the day final payment under the subcontract became due)`,
+          },
+          L,
+          addOneYear,
+          LAST,
+        ),
+      ];
+    case "CO": {
+      const SETTLED = "the final settlement date the public body publishes";
+      return [
+        step(
+          {
+            who: "all",
+            act: "File a verified statement of the amount due with the public body that awarded the contract",
+            citation: "C.R.S. § 38-26-107(1)",
+            rule: "at any time up to and including the time of final settlement",
+          },
+          null,
+          null,
+          SETTLED,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit against the surety on the bond, and file a notice of lis pendens with the public body",
+            citation: "C.R.S. § 38-26-107(2), (3)",
+            rule: "within 90 days following the date fixed for final settlement as published",
+          },
+          null,
+          null,
+          SETTLED,
+        ),
+      ];
+    }
+    case "IA":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the principal contractor a one-time written notice of your name, mailing address and telephone number and the subcontractor you work for",
+            citation: "Iowa Code § 573.15(1)",
+            rule: "within 30 days of first performing labor or furnishing material",
+          },
+          null,
+          null,
+          "your first day of labor or material",
+        ),
+        step(
+          {
+            who: "all",
+            act: "File an itemized, sworn, written statement of your claim with the officer or board that let the contract",
+            citation: "Iowa Code § 573.10(1)",
+            rule: "before the end of the 30 days immediately following completion and final acceptance of the improvement",
+          },
+          A,
+          days(30),
+          ACCEPTED,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring an action in equity to adjudicate the retained fund or enforce the bond",
+            citation: "Iowa Code § 573.16(1)",
+            rule: "after 30 and not later than 60 days following completion and final acceptance of the improvement",
+          },
+          A,
+          days(60),
+          ACCEPTED,
+        ),
+      ];
+    case "ME":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of your claim",
+            citation: "14 M.R.S. § 871(4)",
+            rule: `within 90 days from ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "14 M.R.S. § 871(4)",
+            rule: `not after one year from ${LAST}`,
           },
           L,
           addOneYear,
