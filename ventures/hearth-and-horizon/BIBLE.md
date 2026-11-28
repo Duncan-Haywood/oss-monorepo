@@ -398,8 +398,6 @@ before writing the first scene.
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
-- *Eligius and the two golden seats* *(Drafting, 2026-11-28.)* (1 December, Saint Eligius, bishop, in the Roman Martyrology; not on the General Roman Calendar, so say so; proposed 2026-11-28): after *Bonaventure and the Name at the Bedside* (a great man at small work), one about honest work with other people's materials: the goldsmith from near Limoges who, given gold for one seat for King Clothar II, made two, and later spent his wealth freeing captives. Check before drafting: his dates (born about 588 at Chaptelat near Limoges; trained under the goldsmith Abbo; at court under Clothar II and Dagobert I; founded Solignac; bishop of Noyon from 641; died 1 December, about 660), that the main source is the *Life of Eligius* attributed to his friend Audoin of Rouen, surviving in a later reworked form, and that the horse's leg he took off to shoe is a late-medieval legend (leave it to the note). An invented child, perhaps a girl who sweeps the workshop floor for gold dust. 'Eligius' is unused in `overlap.mjs`.
-
 ## What not to do
 
 - No cliffhanger endings that depend on a sequel. Each story stands alone.
