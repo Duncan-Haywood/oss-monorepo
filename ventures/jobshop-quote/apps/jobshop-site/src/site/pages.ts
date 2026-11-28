@@ -64,6 +64,8 @@ import {
 import {
   ISO2768_RANGES,
   ISO2768_ROWS,
+  IT_ROWS,
+  IT_SIZE_LIMITS_MM,
   inchZone,
   BANDS as TOLERANCE_BANDS,
   CALLOUTS as TOLERANCE_CALLOUTS,
@@ -3439,7 +3441,10 @@ export function faiGuidePage(ctx: RenderContext): Html {
     drawing's text (toleranced dimensions with their limits, geometric tolerances, threads, finishes,
     numbered notes, material and finish), numbered so the numbers can be the balloon numbers. It is a
     draft to check against the drawing: a dimension with no text on the PDF, or a scanned drawing,
-    is not in it. ${SITE_NAME} does not fill in Forms 1 and 2, draw the balloons or record results. The
+    is not in it. Beside it, "Inspect first article" opens the same list as a screen: enter each
+    row's zone, result, tooling and nonconformance number, mark false reads, add what the text missed,
+    and each row shows accept, reject or open as you type, judged against its limits. The CSV then
+    carries the results and verdicts. ${SITE_NAME} does not fill in Forms 1 and 2 or draw the balloons. The
     <a class="link" href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a> has the question
     to ask before you price: is a first article required, and to which standard?</p>
     <p class="fineprint">This page explains a common estimating approach and summarises a published
@@ -3531,8 +3536,24 @@ export function toleranceGuidePage(ctx: RenderContext): Html {
     zone relative to the nominal size; the number is the IT grade, which sets its width, and that width
     grows with the size. On an 18 to 30 mm feature, IT6 is 13 µm (about .0005 in) and IT7 is 21 µm
     (about .0008 in): an H7 bore of that size is a precision feature by the bands above, which is why it
-    usually means a reamer or a boring bar and a bore gauge, not a drill. Look up the size you have in
-    the standard's tables before you quote it.</p>
+    usually means a reamer or a boring bar and a bore gauge, not a drill. The grade's width at each size:</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">ISO 286-1 standard tolerance grades, µm, by nominal size in mm (over the
+        previous size, up to and including the one named). 25.4 µm is .001 in.</caption>
+        <thead><tr><th scope="col">Grade</th>${IT_SIZE_LIMITS_MM.map((hi, i) => html`<th scope="col">${i === 0 ? "up to" : "over"} ${i === 0 ? hi : `${IT_SIZE_LIMITS_MM[i - 1]}–${hi}`}</th>`)}</tr></thead>
+        <tbody>
+          ${IT_ROWS.map(
+            (r) =>
+              html`<tr><th scope="row">IT${r.grade}</th>${r.um.map((v) => html`<td>${v}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>So an H7 bore is 15 µm wide at 8 mm and 25 µm at 40 mm: the same callout is tighter on a small
+    hole than on a large one. Zone widths here are the grade's; where the zone sits (the H, g or js)
+    is in ISO 286-2's deviation tables, which matter for the gauge, not for how hard the zone is to
+    hold.</p>
 
     <h2>Where the cost goes on the quote</h2>
     <p>Tolerance has no price of its own. It costs money through the work it adds, and that work belongs
@@ -3561,10 +3582,13 @@ export function toleranceGuidePage(ctx: RenderContext): Html {
     <p>The RFQ review reads the tolerance text from the customer's email or drawing (the AI reader keeps it
     exactly as written) and, when the tightest tolerance is tighter than ±.005 in, names it with its zone
     and band and says what to check: "Precision: +.0005/-.0000, a 0.00050 in (0.013 mm) zone." It reads
-    ±, +/-, one-sided limits, inches and millimetres (comma decimals too), ISO 2768 classes and ISO 286 fits,
+    ±, +/-, one-sided limits, limit dimensions, inches and millimetres (comma decimals too), ISO 2768 classes and ISO 286 fits,
     and skips angles. It never changes a price: the minutes, operations and fallout above are yours to
-    add, and the quote is priced from your rate card. Fits and ISO 2768 classes are read at a typical size
-    (the note says which), because the RFQ does not say how big the feature is. The
+    add, and the quote is priced from your rate card. A fit with its size written before it (Ø40 H7, 20H7)
+    is read at that size from the table above; a fit with no size and an ISO 2768 class are read at a
+    typical size, and the note says which. Limit dimensions written as two sizes (.4995/.5000,
+    12.000-12.010) are read as the zone between them. The same note shows on the quote line, beside the
+    operations where you set the cycle times. The
     <a class="link" href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a> has the
     tolerance questions to ask before you price.</p>
     <p class="fineprint">This page explains common estimating practice and summarises published

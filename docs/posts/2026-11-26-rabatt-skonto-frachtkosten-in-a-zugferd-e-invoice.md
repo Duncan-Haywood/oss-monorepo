@@ -3,7 +3,7 @@ title: "Rabatt, Skonto and Frachtkosten: where a discount goes when your PDF inv
 seo_title: "Rabatt, Skonto and freight in a ZUGFeRD or XRechnung e-invoice"
 date: 2026-11-26
 tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, germany, france, accountants]
-description: "Where a row discount, an invoice discount, Skonto and freight go in a ZUGFeRD or XRechnung e-invoice, and how our PDF converter reads them."
+description: "Where a row discount, an invoice discount, Skonto and freight go in a ZUGFeRD or XRechnung e-invoice, and the #SKONTO# line the buyer can read."
 ---
 
 Most small firms in Germany and France still send invoices as a PDF from Word,
@@ -196,6 +196,49 @@ or per tonne (`12 t`) were not read at all, so the totals check failed. They
 now come through as the standard unit codes MTQ and TNE. We tested this on one
 landscaping invoice of our own, printed by Chromium and by LibreOffice. All 13
 rows read in both prints, and the Factur-X built from each passes the checker.
+
+## Skonto the buyer's system can read
+
+Skonto stays out of the totals, as above, but XRechnung gives it a fixed
+place and form. It goes in the payment terms (BT-20) as one line per
+discount level, each line ended by a line break:
+
+```
+Zahlbar innerhalb von 30 Tagen netto.
+#SKONTO#TAGE=10#PROZENT=2.00#
+#SKONTO#TAGE=20#PROZENT=1.00#
+```
+
+`#BASISBETRAG=1200.00#` can follow the percentage when the discount applies
+to only part of the amount. The German rule for this is BR-DE-18 in KoSIT's
+XRechnung rules. It reads the payment terms line by line, but only the lines
+that begin with `#`. On 28 November we wrote 16 versions of the payment terms
+into one XRechnung, in UBL and in CII, and ran the official EN 16931 and
+XRechnung rules on each (`skonto-bench.mjs` in the free checker's folder):
+
+| How the Skonto was written | Official rules | Our checker |
+|---|---|---|
+| `#SKONTO#TAGE=10#PROZENT=2.00#` with a line break (also with a Basisbetrag, two levels, a text line above, or a Windows line ending) | pass | pass |
+| no line break after the last line | BR-DE-18 | BR-DE-18 |
+| `2,00` (comma), `2.0`, `2`, `2.00%`, lower case, a space, no closing `#`, two levels on one line | BR-DE-18 | BR-DE-18 |
+| `SKONTO#TAGE=10#PROZENT=2.00#` (no leading `#`) | **pass** | XR-013 warning |
+| "2 % Skonto bei Zahlung innerhalb von 10 Tagen" (words only) | **pass** | XR-013 warning |
+
+The last two rows matter most. The file passes every official rule, so
+nothing tells you anything is wrong. The buyer's accounts-payable system
+still finds no Skonto it can read, so it will not offer the early-payment
+discount on its own. Since 28 November the checker warns on both (XR-013).
+When your words give one percentage and one number of days, the warning
+spells out the line to add. Your own sentence can stay above it.
+
+The same test found a bug in our own free e-invoice creator. It trimmed the
+payment terms, which removed the line break after the last line. So a
+correctly typed `#SKONTO#TAGE=10#PROZENT=2.00#` produced a file that BR-DE-18
+refused. That is fixed: every correct form in the table now comes out of the
+creator passing. In the paid workspace, a new safe fix rewrites the slips in
+the third row into the correct form and re-checks the file before offering it.
+It leaves Skonto written in words to you, because reading days and percentages
+out of a sentence would be a guess.
 
 **Not done yet:** scanned PDFs (no text layer).
 
