@@ -26,15 +26,15 @@ const DAY = 86400000;
 
 const ALIASES = {
   vendor: ["vendor", "subcontractor", "sub", "company", "insured", "name", "contractor"],
-  coverage: ["coverage", "policy type", "type", "line", "policy"],
+  coverage: ["coverage", "policy type", "type", "line", "policy", "type of insurance", "insurance type", "type of coverage"],
   carrier: ["carrier", "insurer", "company name", "insurer name"],
   policy: ["policy number", "policy no", "policy #", "policy_number", "number"],
   limit: ["each occurrence", "limit", "each_occurrence", "per occurrence", "occurrence", "each accident", "csl", "combined single limit", "each claim"],
   aggregate: ["aggregate", "general aggregate", "agg"],
-  effective: ["effective", "effective date", "eff", "start", "policy effective"],
-  expiry: ["expiration", "expiry", "expiration date", "exp", "end", "policy expiration", "expires"],
-  ai: ["additional insured", "ai", "additional_insured"],
-  waiver: ["waiver of subrogation", "waiver", "wos", "subrogation waived"],
+  effective: ["effective", "effective date", "eff", "start", "policy effective", "policy eff", "policy eff date", "policy eff mm dd yyyy", "eff date"],
+  expiry: ["expiration", "expiry", "expiration date", "exp", "end", "policy expiration", "expires", "policy exp", "policy exp date", "policy exp mm dd yyyy", "exp date"],
+  ai: ["additional insured", "ai", "additional_insured", "addl insd", "addl insured", "add l insd", "addl ins"],
+  waiver: ["waiver of subrogation", "waiver", "wos", "subrogation waived", "subr wvd", "subr waived"],
   pnc: ["primary non-contributory", "primary and non-contributory", "pnc", "primary noncontributory", "primary & non-contributory"],
 };
 
@@ -64,12 +64,14 @@ export function normalizeCoverage(s) {
   const t = norm(s);
   if (!t) return null;
   if (/umbrella|excess|\bxs\b/.test(t)) return "UMB";
-  if (/work|comp|\bwc\b|employers/.test(t)) return "WC";
+  // Whole words only: "comp" inside "completed operations" or "work" inside "network" is not
+  // workers' compensation (quality re-audit 2026-11-28).
+  if (/\bworkers?\b|\bworkmen s\b|\bcomp\b|compensation|\bwc\b|employers/.test(t)) return "WC";
   if (/auto|vehicle|\bba\b/.test(t)) return "AUTO";
   if (/profession|e&o|errors|omissions|\bpl\b/.test(t)) return "PRO";
   // Other liability lines (pollution, liquor, cyber, garage ...) are not general liability and
   // must not satisfy a GL requirement; they are left unrecognised.
-  if (/pollution|liquor|cyber|garage|recall|directors|d&o|employment practices|\bepl\b|fiduciary|crime|aircraft|aviation|marine/.test(t)) return null;
+  if (/pollution|liquor|cyber|network|privacy|garage|recall|directors|d&o|employment practices|\bepl\b|fiduciary|crime|aircraft|aviation|marine/.test(t)) return null;
   if (/general|\bgl\b|\bcgl\b|\bclg\b|liability/.test(t)) return "GL";
   return null;
 }
@@ -135,6 +137,32 @@ export const DEFAULT_REQUIREMENTS = {
   waiver: true,
   pnc: false,
 };
+
+// The page's requirement fields, read strictly: a figure that cannot be read is reported, never
+// silently turned into 0 (which would switch that check off). Blank means "not required" only
+// for the optional umbrella and professional lines; blank lead time is an error too.
+export function readRequirements(fields) {
+  const problems = [];
+  const amount = (key, label, optional) => {
+    const raw = String(fields[key] ?? "").trim();
+    if (!raw && optional) return 0;
+    const v = parseMoney(raw);
+    if (!Number.isFinite(v) || v < 0) { problems.push(`${label}: cannot read "${raw}". Write a dollar amount such as 1,000,000 or 1M${optional ? ", or 0 if not required" : ", or 0 to skip the check"}.`); return null; }
+    return v;
+  };
+  const leadRaw = String(fields.lead ?? "").trim();
+  const leadDays = /^\d+$/.test(leadRaw) ? Number(leadRaw) : null;
+  if (leadDays == null) problems.push(`Lead time: cannot read "${leadRaw}". Write a whole number of days such as 30.`);
+  const req = {
+    GL: { limit: amount("glOcc", "General liability, each occurrence"), aggregate: amount("glAgg", "General liability, aggregate") },
+    AUTO: { limit: amount("autoCsl", "Auto, combined single limit") },
+    WC: { limit: amount("wcEl", "Employers' liability, each accident") },
+    UMB: { limit: amount("umb", "Umbrella / excess", true) },
+    PRO: { limit: amount("pro", "Professional liability", true) },
+    leadDays, additionalInsured: !!fields.additionalInsured, waiver: !!fields.waiver, pnc: !!fields.pnc, umbrellaCounts: !!fields.umbrellaCounts,
+  };
+  return { req, problems };
+}
 
 // parse(): rows from the list, plus findings about the list itself.
 export function readList(text) {
@@ -213,7 +241,11 @@ export function check(text, req = {}, asOf) {
       if (state === "expired") { add(v, { severity: "error", coverage: c, line: p.line, title: `${label}: expired ${isoDay(p.expiry)}`, detail: `Expired ${asOf - p.expiry} day${asOf - p.expiry === 1 ? "" : "s"} ago${where}. Ask for a current certificate before the vendor works.` }); continue; }
       if (state === "future") { add(v, { severity: "error", coverage: c, line: p.line, title: `${label}: not in force until ${isoDay(p.effective)}`, detail: `The only policy listed starts ${isoDay(p.effective)}${where}.` }); continue; }
       const left = p.expiry - asOf;
-      if (left <= r.leadDays) add(v, { severity: left <= 7 ? "error" : "warning", coverage: c, line: p.line, title: `${label}: expires ${isoDay(p.expiry)} (${left} day${left === 1 ? "" : "s"})`, detail: `Inside your ${r.leadDays}-day lead time${where}. Ask for the renewal certificate now.`, expiry: p.expiry });
+      // A renewal already on the list that starts by the old expiration date (12:01 a.m. periods)
+      // means there is nothing to chase; say so instead of warning (quality audit 2026-11-12).
+      const renewal = left <= r.leadDays && v.policies.filter((q) => q !== p && q.coverage === c && q.effective != null && q.expiry != null && q.effective > (p.effective ?? -Infinity) && q.effective <= p.expiry && q.expiry > p.expiry).sort((a, b) => b.expiry - a.expiry)[0];
+      if (renewal) add(v, { severity: "info", coverage: c, line: p.line, title: `${label}: expires ${isoDay(p.expiry)}, renewal on file`, detail: `The renewal on line ${renewal.line} runs ${isoDay(renewal.effective)} to ${isoDay(renewal.expiry)}. Check its limits and endorsements when its certificate arrives.` });
+      else if (left <= r.leadDays) add(v, { severity: left <= 7 ? "error" : "warning", coverage: c, line: p.line, title: `${label}: expires ${isoDay(p.expiry)} (${left} day${left === 1 ? "" : "s"})`, detail: `Inside your ${r.leadDays}-day lead time${where}. Ask for the renewal certificate now.`, expiry: p.expiry });
       // Limits.
       const checkLimit = (field, needed, name) => {
         if (!needed) return;

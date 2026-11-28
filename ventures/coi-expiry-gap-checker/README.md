@@ -31,13 +31,13 @@ cd ventures/coi-expiry-gap-checker && node --test '*.test.mjs'
 
 ## Known gaps
 
-From the quality audit of 2026-11-12 (`portfolio/quality/audits/2026-11-12-coi-expiry-gap-checker.json`), not yet fixed:
+The quality audit of 2026-11-12 (`portfolio/quality/audits/2026-11-12-coi-expiry-gap-checker.json`) was
+re-checked on 2026-11-28 (`portfolio/quality/audits/2026-11-28-coi-expiry-gap-checker.json`). Still open:
 
-- A renewal certificate already on the list does not clear the lead-time warning on the policy it replaces, so that policy still appears on the chase list.
-- Column headings printed on the ACORD 25 form (TYPE OF INSURANCE, POLICY EFF, POLICY EXP, ADDL INSD, SUBR WVD) are not recognised as aliases.
-- A requirement the page cannot read (for example "1 million") becomes 0 and turns that limit check off; a blank lead time becomes 0.
-- Employers' liability is checked on each accident only; the two disease limits are not.
-- Calendar export does not escape semicolons as RFC 5545 requires.
+- Employers' liability is checked on each accident only; the two disease limits printed on the
+  ACORD 25 (each employee, policy limit) are not compared.
+- A renewal that clears the lead-time warning is not itself checked for limits or endorsements
+  until it is the policy in force; the finding says to check them when its certificate arrives.
 
 ## License
 
