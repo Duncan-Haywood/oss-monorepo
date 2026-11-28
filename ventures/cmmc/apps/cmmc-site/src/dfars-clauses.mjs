@@ -316,7 +316,7 @@ export function dfarsClausesPage({ cite, statusBox, sourcesList, cta }) {
     },
     {
       q: "How do I post a Basic Assessment score to SPRS?",
-      a: "7019 and 7020 let you email the summary score of a Basic Assessment to webptsmh@navy.mil for posting, with the standard assessed, who did the assessment, the CAGE codes each SSP covers, the date, the score out of 110 and the date you expect to reach 110. For a CMMC self-assessment under 7021 and 7025 you enter the results in SPRS yourself, and SPRS then issues the CMMC UID. The score itself comes from the DoD Assessment Methodology.",
+      a: '7019 and 7020 let you email the summary score of a Basic Assessment to webptsmh@navy.mil for posting, with the standard assessed, who did the assessment, the CAGE codes each SSP covers, the date, the score out of 110 and the date you expect to reach 110. For a CMMC self-assessment under 7021 and 7025 you enter the results in SPRS yourself, and SPRS then issues the CMMC UID. The score itself comes from the DoD Assessment Methodology. Step by step, from the SPRS guides: <a href="/how-to-submit-sprs-score">how to submit your SPRS score</a>.',
     },
     {
       q: "My purchase order lists these clauses but I only get POs and delivery dates. Which apply?",
