@@ -397,6 +397,19 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *Yes or no by five* *(Drafting, 2026-11-28.)* (proposed 2026-11-28): the
+  message nobody could read. A small builder's office agent sees the forecast
+  turn hard cold the afternoon before a basement slab pour, while the owner is
+  on a silent retreat and the foreman, who may approve site spending, is on a
+  roof. Its first message is long, careful and defensible, and the foreman
+  skims the first line and answers "pour it, blankets". Cold-weather concrete:
+  protect from freezing until about 3.5 MPa (ACI 306); a thin slab loses heat
+  fastest; indirect-fired heat, not open flame, in an enclosed basement. The
+  agent could cancel the truck itself before the free deadline and does not:
+  it asks the plant to move the deadline, holds the heaters, and rewrites the
+  message with the decision in its first line. 'cold weather', 'maturity' and
+  'accelerator' are unused in `overlap.mjs`.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
