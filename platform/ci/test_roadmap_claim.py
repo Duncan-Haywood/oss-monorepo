@@ -735,6 +735,31 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("Untouched topic: 'subcontractor compliance documents'", out)
         self.assertIn("--slug subcontractor-compliance-documents-<part>", out)
 
+    def test_roadmap_done_names_topic_in_its_own_words(self):
+        # 2026-11-28 explore run: --bets named 'win rates' untouched beside five "Win/loss
+        # analytics" bullets, and 'QuickBooks invoicing', 'policy templates' and 'supplier
+        # flow-down' likewise. The topic's rarest word that the Done list holds is enough.
+        done = rc.roadmap_done(
+            "# R\n\n## Done\n\n"
+            "- Rate card (2026-11-25): machine rates.\n"
+            "- Rate-card import (2026-11-25): a CSV.\n"
+            "- Win/loss analytics (2026-11-25): a page.\n"
+            "- Win/loss analytics, part 2 (2026-11-25): by month.\n"
+            "- QuickBooks Online, part 1 (2026-11-26): invoices.\n"
+            "- Security policies (2026-11-26): drafts.\n"
+            "- Suppliers, part 3: flow-down clauses.\n"
+            "- Job page on a phone (2026-11-27)\n"
+            "- Sample job (2026-11-25)\n"
+            "- Job costing, part 1 (2026-11-26): costs.\n")
+        self.assertEqual(rc.topic_done("win rates", done), 2)  # the two Win/loss, not Rate card
+        self.assertEqual(rc.topic_done("QuickBooks invoicing", done), 1)
+        self.assertEqual(rc.topic_done("policy templates", done), 1)
+        self.assertEqual(rc.topic_done("supplier flow-down", done), 1)
+        self.assertEqual(rc.topic_done("job costing", done), 1)  # "cost" is the key, not "job"
+        self.assertEqual(rc.topic_done("AS9100 additions", done), 0)
+        self.assertEqual(rc.topic_done("more sales platforms", done), 0)  # generic words alone
+        self.assertEqual(rc.topic_words("policies"), rc.topic_words("policy"))
+
     def test_growth_topic_with_merged_claims_is_not_untouched(self):
         # 2026-11-27 friction (eight runs): "Untouched topic: 'PDF to ZUGFeRD conversion'" in the
         # same output that listed 8 merged claims on it. Untouched now means no claim at all.

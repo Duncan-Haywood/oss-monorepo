@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, orgPath, usd } from "../lib/api";
+import { count } from "../lib/count";
 import { ErrorText } from "../routes/public";
 
 interface SheetSummary {
@@ -81,7 +82,7 @@ export function SheetImport({ orgId }: { orgId: string }) {
             disabled={send.isPending}
             onClick={() => send.mutate(false)}
           >
-            Import {s.itemsCreated} items
+            Import {count(s.itemsCreated, "item")}
           </button>
         )}
       </div>
@@ -89,9 +90,9 @@ export function SheetImport({ orgId }: { orgId: string }) {
       {s && (
         <div className="space-y-1 text-sm">
           <p>
-            {s.dryRun ? "Would add" : "Added"} {s.itemsCreated} items costing{" "}
-            {usd(s.totalCostCents)} from {s.rowCount} rows. {s.duplicatesSkipped} already in your
-            books, {s.rowsSkipped} rows skipped, {s.salesLinked} earlier{" "}
+            {s.dryRun ? "Would add" : "Added"} {count(s.itemsCreated, "item")} costing{" "}
+            {usd(s.totalCostCents)} from {count(s.rowCount, "row")}. {s.duplicatesSkipped} already
+            in your books, {count(s.rowsSkipped, "row")} skipped, {s.salesLinked} earlier{" "}
             {s.salesLinked === 1 ? "sale" : "sales"} {s.dryRun ? "would be" : ""} linked by SKU.
           </p>
           <p className="text-xs text-stone-500">

@@ -360,6 +360,17 @@ their course count does not reuse the hip offcuts, so it is an upper bound. The 
 `roof-sheathing-sheets.html` shows the table and a pitch factor table; `roof-sheathing-bench.test.mjs`
 fails if a figure or a summary sentence drifts from the bench. Generated roofs, not a builder's order.
 
+## Wall sheathing, counted against wall area / 32 + 10% (measured 2026-11-28)
+
+`node wall-sheathing-bench.mjs` sheathes four generated houses (40 x 24, 48 x 28, 60 x 32 and
+70 x 36 ft, one 36 x 48 in window per 12 ft of perimeter, two doors) at 8, 9 and 10 ft precut walls
+with `sheathe` from `houseSheathingPlan`, standing up (4x8 over 96 in, else the shortest sheet that
+covers) and laid flat (4x8 courses), and sets each count beside wall area / sheet area + 10%, with
+and without the openings. Standing up the count is 32, 39, 47 and 55 at every height (perimeter / 4 ft
+plus 0 to 2); the net-area rule is short on all 32 cases (2 to 19 sheets); laid flat, a 12 in third
+course on the 97-1/8 in wall and a 25-1/8 in top course on 10 ft walls put the gross rule 5 to 10
+short. The page `wall-sheathing-sheets.html` shows both tables; `wall-sheathing-bench.test.mjs` fails
+if a figure or summary sentence drifts. Generated houses, not a builder's order.
 `ventures/residential-takeoff/apps/wall-framing-takeoff/roof-waste-bench.mjs` (in the paid folder,
 which is not published, so the served copy of this one never imports a file the site lacks) lays out
 4x8 roof sheathing on 16 rectangular roofs (24 x 36 to 36 x 60 ft, 4:12 to 10:12, 12 in overhang all

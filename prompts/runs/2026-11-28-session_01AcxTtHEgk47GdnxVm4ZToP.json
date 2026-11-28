@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtHEgk47GdnxVm4ZToP",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T07:06:06Z",
+  "ended": "2026-11-28T07:14:57Z",
+  "wall_minutes": 9.01,
+  "tokens_in": 8701415,
+  "tokens_out": 44058,
+  "cost_usd": 3.872,
+  "tool_calls": 70,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20033",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets suggested an untouched 'win rates' topic for jobshop-quote, but its ROADMAP Done already has two Win/loss analytics parts; the topic match goes by claim slugs, not the Done list"
+    },
+    {
+      "file": "ventures/einvoice-preflight vs ventures/einvoice-pro/apps/einvoice-preflight",
+      "issue": "two copies of generate.mjs/create.html; nothing says which edits must be ported, so I found the paid copy by hand"
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "Two sessions built the same e-rechnung-kleinunternehmer page in parallel; slug_dupe was clean when both started and when I opened my PR, and PR #20032 merged ten minutes before my merge. A roadmap_claim --slug at task pick would have shown the claim; I skipped the claim because the bet had no free Next item."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "its site page checks leave out platform/pages/description-length.test.mjs, so a 180-character meta description passed locally and failed CI's test job"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bet #1 (payapps) had no free, ungated Next item and 2 live claims; --bets pointed to bet #3's front door as the least worked",
+      "did": "Built a bet #3 front-door page with a measurement, and fixed the creator bug the measurement found",
+      "result": "page plus a real fix in the free and paid creators"
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "The parallel PR #20032 landed the same page and the same creator fix first",
+      "did": "Merged main and took its version of every file, dropped my duplicate post (consolidation), and kept only what mine measured that theirs did not: three rows (S at 0 %, BR-S-05; Z with the note, BR-Z-10; Steuernummer in the VAT ID field, BR-CO-09) plus the parked built-in check",
+      "result": "follow-up extends the landed page instead of a second one"
+    }
+  ],
+  "writeups": [
+    "ventures/einvoice-preflight/e-rechnung-kleinunternehmer.html (three measured rows added)"
+  ],
+  "goal": null,
+  "notes": "Security queue: 0 workable (exit 3). Ideas inbox empty. run_venture_tests einvoice-preflight einvoice-pro: 0 failed (2878 + 2792 tests); official Schematron test run locally with slimdom/fontoxpath no-save. Finding: a § 19 invoice with only a Steuernummer fails BR-CO-26 under the official rules; the creator wrote it and the built-in checks passed it. The creator now refuses it; the built-in check is parked in NEXT.md. Superseded in part by PR #20032 (same page and fix, merged first); this PR became the follow-up adding three measured variants to its bench, page and test. Also fixed main's red title-length test from PR #20036: jobshop machining-tolerances title cut to 68 characters, in routes.ts and the committed catalogue export (exporter needs tsx, absent here, so the export was edited to match).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8b352eb0-4ddb-5385-90e7-476c86dbaa66",
+    "transcripts": 1,
+    "first": "2026-11-28T07:06:06Z",
+    "last": "2026-11-28T07:15:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 124,
+        "output": 44058,
+        "thinking": 8525,
+        "cache_read": 8541026,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160265,
+        "api_equivalent_usd": 3.872,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 124,
+      "output": 44058,
+      "thinking": 8525,
+      "cache_read": 8541026,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160265,
+      "api_equivalent_usd": 3.872,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 64,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.01,
+      "active_minutes": 9.01,
+      "model_minutes": 6.92,
+      "tool_minutes": 2.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "research the § 19 sources, write the bench, page, test, creator fix and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 129.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

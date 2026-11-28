@@ -117,7 +117,7 @@ export function StockPage() {
 
           <section className="card overflow-x-auto">
             <h2 className="mb-2 font-medium">Days to sell, by platform</h2>
-            <table className="table">
+            <table className="table table-stack">
               <thead>
                 <tr>
                   <th>Platform</th>
@@ -132,11 +132,21 @@ export function StockPage() {
                 {[...r.speed, r.speedTotal].map((s) => (
                   <tr key={s.platform} className={s.platform === "all" ? "font-medium" : ""}>
                     <td>{s.platform === "all" ? "All" : platformLabel(s.platform)}</td>
-                    <td className="num">{s.sold}</td>
-                    <td className="num">{days(s.medianDays)}</td>
-                    <td className="num">{days(s.meanDays)}</td>
-                    <td className="num">{usd(s.proceedsCents)}</td>
-                    <td className="num">{usd(s.costCents)}</td>
+                    <td data-label="Sold" className="num">
+                      {s.sold}
+                    </td>
+                    <td data-label="Median days" className="num">
+                      {days(s.medianDays)}
+                    </td>
+                    <td data-label="Mean days" className="num">
+                      {days(s.meanDays)}
+                    </td>
+                    <td data-label="Proceeds" className="num">
+                      {usd(s.proceedsCents)}
+                    </td>
+                    <td data-label="Cost" className="num">
+                      {usd(s.costCents)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -148,7 +158,7 @@ export function StockPage() {
             {r.lots.length === 0 ? (
               <p className="text-sm text-stone-600">No lots yet. Add one on the Inventory page.</p>
             ) : (
-              <table className="table">
+              <table className="table table-stack">
                 <thead>
                   <tr>
                     <th>Lot</th>
@@ -166,17 +176,24 @@ export function StockPage() {
                         {l.name}
                         <span className="block text-xs text-stone-500">{l.acquiredDate}</span>
                       </td>
-                      <td className="num">{usd(l.totalCostCents)}</td>
-                      <td className="num">
+                      <td data-label="Cost" className="num">
+                        {usd(l.totalCostCents)}
+                      </td>
+                      <td data-label="Sold / items" className="num">
                         {l.sold} / {l.items}
                       </td>
-                      <td className="num">{usd(l.proceedsCents)}</td>
+                      <td data-label="Proceeds" className="num">
+                        {usd(l.proceedsCents)}
+                      </td>
                       <td
+                        data-label="Recovered"
                         className={`num font-medium ${l.paybackCents < 0 ? "text-red-700" : "text-brand-700"}`}
                       >
                         {l.recoveredPercent == null ? "–" : `${l.recoveredPercent}%`}
                       </td>
-                      <td className="num">{usd(l.inStockCostCents)}</td>
+                      <td data-label="Still in stock" className="num">
+                        {usd(l.inStockCostCents)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -195,7 +212,7 @@ export function StockPage() {
             {r.sources.length === 0 ? (
               <p className="text-sm text-stone-600">Nothing sold in the period or in stock.</p>
             ) : (
-              <table className="table">
+              <table className="table table-stack">
                 <thead>
                   <tr>
                     <th>Source</th>
@@ -214,19 +231,28 @@ export function StockPage() {
                       <td>
                         {s.source ?? <span className="text-stone-500">No source recorded</span>}
                       </td>
-                      <td className="num">{s.sold}</td>
-                      <td className="num">{usd(s.proceedsCents)}</td>
-                      <td className="num">{usd(s.costCents)}</td>
+                      <td data-label="Sold" className="num">
+                        {s.sold}
+                      </td>
+                      <td data-label="Proceeds" className="num">
+                        {usd(s.proceedsCents)}
+                      </td>
+                      <td data-label="Cost" className="num">
+                        {usd(s.costCents)}
+                      </td>
                       <td
+                        data-label="Profit"
                         className={`num font-medium ${s.profitCents < 0 ? "text-red-700" : "text-brand-700"}`}
                       >
                         {usd(s.profitCents)}
                       </td>
-                      <td className="num">
+                      <td data-label="Return" className="num">
                         {s.returnPercent == null ? "–" : `${s.returnPercent}%`}
                       </td>
-                      <td className="num">{days(s.medianDays)}</td>
-                      <td className="num">
+                      <td data-label="Median days" className="num">
+                        {days(s.medianDays)}
+                      </td>
+                      <td data-label="In stock (cost)" className="num">
                         {s.inStock} ({usd(s.inStockCostCents)})
                       </td>
                     </tr>

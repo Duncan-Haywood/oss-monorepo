@@ -246,6 +246,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: "2026-11-28",
     },
     {
+      path: "/machining-tolerances",
+      label: "How tolerances change a machining quote",
+      title: `Machining tolerances: how to quote tight tolerances · ${SITE_NAME}`,
+      description:
+        "Read a tolerance as a zone, the four bands from standard to precision, ISO 2768 and H7 fits in inches, and where tight tolerances add cost on a quote.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: "2026-11-28",
+    },
+    {
       path: "/faq",
       label: "FAQ",
       title: `Frequently asked questions · ${SITE_NAME}`,

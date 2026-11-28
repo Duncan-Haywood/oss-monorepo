@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, orgPath } from "../lib/api";
+import { count } from "../lib/count";
 import { ErrorText } from "../routes/public";
 
 interface Row {
@@ -152,8 +153,8 @@ export function MileageImport({ orgId }: { orgId: string }) {
       {p && (
         <div className="space-y-2 text-sm">
           <p>
-            {p.rows.length} business trips read from {p.rowCount} rows; {ticked.length} ticked,{" "}
-            {tickedMiles.toFixed(1)} miles.
+            {count(p.rows.length, "business trip")} read from {count(p.rowCount, "row")};{" "}
+            {ticked.length} ticked, {tickedMiles.toFixed(1)} miles.
           </p>
           <p className="text-xs text-stone-500">
             Columns read:{" "}
@@ -243,7 +244,7 @@ export function MileageImport({ orgId }: { orgId: string }) {
           <ErrorText error={save.error} />
           {p.skipped.length > 0 && (
             <details className="text-xs text-stone-600">
-              <summary>{p.skipped.length} rows left out</summary>
+              <summary>{count(p.skipped.length, "row")} left out</summary>
               <ul className="list-disc pl-5">
                 {p.skipped.map((k) => (
                   <li key={k.line}>

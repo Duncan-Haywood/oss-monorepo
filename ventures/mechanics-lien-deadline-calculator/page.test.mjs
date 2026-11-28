@@ -38,9 +38,9 @@ test("the page names every modeled state, counts them right and does not pretend
   const html = page("index.html");
   for (const { name } of Object.values(STATE_RULES)) assert.match(html, new RegExp(name));
   for (const code of Object.keys(STATE_RULES)) assert.match(html, new RegExp(`<option value="${code}"`), code);
-  assert.match(html, /Ten states only/);
-  assert.match(html, /<title>[^<]*Free, 10 States<\/title>/);
-  assert.equal(Object.keys(STATE_RULES).length, 10);
+  assert.match(html, /Sixteen states only/);
+  assert.match(html, /<title>[^<]*Free, 16 States<\/title>/);
+  assert.equal(Object.keys(STATE_RULES).length, 16);
 });
 
 test("the usage events are counted separately", () => {

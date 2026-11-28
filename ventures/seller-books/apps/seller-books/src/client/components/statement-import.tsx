@@ -4,6 +4,7 @@ import { EXPENSE_CATEGORIES, type ExpenseCategory } from "@shared/enums";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, orgPath, usd } from "../lib/api";
+import { count } from "../lib/count";
 import { ErrorText } from "../routes/public";
 
 type ChargesAre = "positive" | "negative";
@@ -174,8 +175,8 @@ export function StatementImport({ orgId }: { orgId: string }) {
       {p && (
         <div className="space-y-2 text-sm">
           <p>
-            {p.rows.length} purchases read from {p.rowCount} rows; {ticked.length} ticked, totalling{" "}
-            {usd(tickedCents)}.
+            {count(p.rows.length, "purchase")} read from {count(p.rowCount, "row")}; {ticked.length}{" "}
+            ticked, totalling {usd(tickedCents)}.
           </p>
           <p className="text-xs text-stone-500">
             Columns read:{" "}
@@ -292,7 +293,7 @@ export function StatementImport({ orgId }: { orgId: string }) {
           <ErrorText error={save.error} />
           {p.skipped.length > 0 && (
             <details className="text-xs text-stone-600">
-              <summary>{p.skipped.length} rows left out</summary>
+              <summary>{count(p.skipped.length, "row")} left out</summary>
               <ul className="list-disc pl-5">
                 {p.skipped.map((k) => (
                   <li key={k.line}>

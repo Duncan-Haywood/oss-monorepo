@@ -35,6 +35,17 @@ one page, and a test (skipped where poppler is absent) repairs the credit note
 with defects, checks `pdfinfo` reads one page with no syntax error and that
 `pdfdetach` returns exactly the corrected XML. veraPDF and Acrobat are still unrun.
 
+**XRechnung viewer, in German (2026-11-28, `xrechnung-anzeigen.html`).** A received XRechnung
+(UBL or CII) or the XML inside a ZUGFeRD / Factur-X PDF shown as a readable invoice: document type,
+number, dates, Leitweg-ID, both parties, lines, VAT per rate or category, gross, prepaid, payable,
+payment means, IBAN, notes and the profile named from BT-24. `viewer-load.mjs` reads the file with
+the checker's own `ubl.mjs` / `cii.mjs` / `facturx.mjs`; `viewer.mjs` renders it, decoding XML
+references once and escaping every value, with amounts formatted from their decimal text (no
+floating point). It shows what the file says and recomputes nothing; a button opens the checker with
+the XRechnung rules preset. Not shown: units, item ids, attachments, ZUGFeRD 1.0 and non-EN 16931
+national formats. Usage event `xrechnung_viewed` (local, opt-out). Tested on every EN 16931 example
+in `examples/` and a hostile file (`xrechnung-anzeigen.test.mjs`), and in Chromium at 390 px.
+
 **PDF envelope checks (2026-10-30, `pdf-envelope.mjs`).** A Factur-X PDF now also
 gets four checks on the PDF around the XML: PDF-001 (no PDF/A-3 marker in the
 XMP; a note, not blocking), PDF-002 (attachment not named factur-x.xml,
