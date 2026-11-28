@@ -4,6 +4,7 @@
 // the draft missed, and sees each row's accept / reject as they type (shared/fai-results.ts judges
 // it, the same code the server and the CSV use). Saved per drawing file.
 
+import type { FormsDraft } from "@shared/fai-forms";
 import {
   addedNumbers,
   buildRows,
@@ -22,6 +23,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Badge, Button, Card, ErrorText, Field, Input, Select } from "../components/ui";
 import { api, orgApi, queryClient } from "../lib/api";
 import { canEstimate, useOrg, useOrgId } from "./layout";
+
+type FormsDto = FormsDraft & { fileName: string };
 
 const TONE = { accept: "green", reject: "red", open: "amber", "n/a": "stone" } as const;
 
@@ -205,7 +208,106 @@ export function FirstArticlePage() {
           }}
         />
       )}
+
+      <FormsCard orgId={orgId} rfqId={rfqId} fileId={fileId} />
     </div>
+  );
+}
+
+const FORM2_KIND = {
+  material: "Material",
+  "special process": "Special process",
+  "functional test": "Functional test",
+} as const;
+
+/** Part 2b: AS9102 Forms 1 and 2 drafted from the RFQ, the shop, the won quote and the drawing. */
+function FormsCard({ orgId, rfqId, fileId }: { orgId: string; rfqId: string; fileId: string }) {
+  const forms = useQuery({
+    queryKey: ["first-article-forms", orgId, rfqId, fileId],
+    queryFn: () =>
+      api<FormsDto>(orgApi(orgId, `/rfqs/${rfqId}/files/${fileId}/first-article/forms`)),
+  });
+  return (
+    <Card
+      title="Forms 1 and 2"
+      actions={
+        <a
+          className="text-sm text-sky-800 underline"
+          href={orgApi(orgId, `/rfqs/${rfqId}/files/${fileId}/forms-1-2.csv`)}
+        >
+          Forms 1 and 2 (CSV)
+        </a>
+      }
+    >
+      {forms.isLoading && <p className="text-sm text-stone-600">Loading…</p>}
+      {forms.error && <ErrorText error={forms.error} />}
+      {forms.data && (
+        <div className="flex flex-col gap-3" data-testid="fai-forms">
+          <p className="text-sm text-stone-600">
+            Form 1 is filled from the RFQ&apos;s part, your shop name, the won quote&apos;s PO
+            number and the drawing&apos;s title block. Form 2 lists each material, special process
+            and functional test the drawing&apos;s text calls up, with its specification. Blank
+            fields are ones these records cannot know (serial number, supplier code, certificate
+            numbers, signatures). Check every Form 2 row against the drawing and attach each
+            certificate.
+          </p>
+          <dl className="grid grid-cols-1 gap-x-4 gap-y-1 text-sm sm:grid-cols-2">
+            {forms.data.form1.map((f) => (
+              <div key={f.label} className="flex gap-2">
+                <dt className="min-w-[11rem] text-stone-500">{f.label}</dt>
+                <dd>
+                  {f.value || <span className="text-stone-400">blank</span>}{" "}
+                  <span className="text-xs text-stone-500">({f.from})</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[40rem] text-left text-sm">
+              <thead className="text-xs text-stone-500">
+                <tr>
+                  <th className="py-1 pr-2">No.</th>
+                  <th className="py-1 pr-2">Type</th>
+                  <th className="py-1 pr-2">Material or process</th>
+                  <th className="py-1 pr-2">Specification</th>
+                  <th className="py-1 pr-2">Code</th>
+                  <th className="py-1 pr-2">From</th>
+                </tr>
+              </thead>
+              <tbody>
+                {forms.data.form2.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-1 text-stone-600">
+                      No material or process was read from the drawing&apos;s text: list them from
+                      the drawing.
+                    </td>
+                  </tr>
+                )}
+                {forms.data.form2.map((r) => (
+                  <tr key={r.no} className="border-t border-stone-200 align-top">
+                    <td className="py-1 pr-2">{r.no}</td>
+                    <td className="py-1 pr-2">{FORM2_KIND[r.kind]}</td>
+                    <td className="py-1 pr-2">{r.name}</td>
+                    <td className="py-1 pr-2">{r.spec ?? "—"}</td>
+                    <td className="py-1 pr-2">{r.code ?? ""}</td>
+                    <td className="py-1 pr-2 text-xs text-stone-600">
+                      {r.line ? `line ${r.line}: ` : ""}
+                      {r.source}
+                      {r.check && <div className="text-amber-800">{r.check}</div>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {forms.data.standards.length > 0 && (
+            <p className="text-xs text-stone-600">
+              Drawing standards (not Form 2 rows): {forms.data.standards.join("; ")}
+            </p>
+          )}
+        </div>
+      )}
+    </Card>
   );
 }
 

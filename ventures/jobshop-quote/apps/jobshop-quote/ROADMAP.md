@@ -923,6 +923,24 @@ checks the pair. No customers yet.
   the second, and a reject without an NCR is what gets a report sent back. Unit tests in
   `src/shared/fai-results.test.ts`, routes in `test/worker/fai-form3.test.ts`.
 
+- First article Forms 1 and 2, part 2b (2026-11-28, every plan, fai-forms-1-2): the first article
+  screen has a "Forms 1 and 2" card and a CSV (`GET /rfqs/:id/files/:fileId/first-article/forms`,
+  `.../forms-1-2.csv`). Form 1 is filled from the RFQ's part (number, name, revision), the drawing's
+  title block (drawing number and revision, "DWG NO: BRK-1001 REV B"), the shop's name and the PO
+  number of the RFQ's won quote, each field saying where it came from; the serial number, report
+  number, supplier code, process reference and signatures stay blank and say who fills them. Form 2
+  lists every material, special process and functional test the drawing's text calls up, in Form 2's
+  order: each specification found (AMS, AMS-QQ, MIL, QQ, ASTM, AWS, NAS 410) with the type, class,
+  method or grade written after it, named by its family when the line has no process word (AMS 2700
+  is a passivation, AMS 2759 a heat treat, ASTM E1417 a penetrant inspection), and the RFQ part's
+  material and finish added where the drawing's text lacked them. A material or process with no
+  specification on the drawing is flagged, never given a guessed one; drawing standards (ASME Y14.5,
+  ISO 2768) are listed apart, not as Form 2 rows; a "PLATE" that is stock on the material line or a
+  title is not read as plating. `src/shared/fai-forms.ts` (unit tests beside it),
+  `src/worker/services/rfq/fai-forms.ts`, `test/worker/fai-forms.test.ts` (won-quote PO, CSV,
+  scan refusal, tenancy). Why: Form 2 missing a process called up in a note is a common reason a
+  report comes back, and re-reading the drawing for every spec is the slow part of it.
+
 ## Next
 
 3. **launch** (first deploy done 2026-11-27, run 46013246899; the run on
@@ -1085,9 +1103,10 @@ checks the pair. No customers yet.
     dimension's size when a tolerance line pairs a size with the class, and band limits an admin can
     set per shop, if shops ask.
 
-17. First article list, part 2b (part 1, the results screen, part 2a, and balloons on a copy of the
-    drawing PDF, done 2026-11-28): Forms 1 and 2 filled from the quote (part number, revision,
-    material and finish certificates), the drawing zone from the PDF's text positions (the positions
+17. First article list, part 2b (part 1, the results screen, part 2a, balloons on a copy of the
+    drawing PDF, and Forms 1 and 2 drafted, done 2026-11-28; next for the forms: Form 2's certificate
+    numbers and process supplier codes entered and saved per row, and its rows printed from the
+    quote's outside-service vendors, if shops use the card): the drawing zone from the PDF's text positions (the positions
     are now read, `readPdfLayout`; the zone needs the border's zone letters and numbers located on the
     sheet), and results for more than one part per sheet, if shops use the screen. Balloons, next: a
     leader line to the feature when the callout is far from it, balloons for rows the inspector adds

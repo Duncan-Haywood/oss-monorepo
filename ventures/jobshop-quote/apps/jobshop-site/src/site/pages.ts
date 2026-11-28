@@ -3447,7 +3447,13 @@ export function faiGuidePage(ctx: RenderContext): Html {
     carries the results and verdicts. "Ballooned drawing" downloads the same PDF with a numbered
     balloon beside each listed characteristic it found in the drawing's text, with the CSV's row
     numbers; the drawing itself is left as it was, and a characteristic whose text was not found gets
-    no balloon rather than a guessed one. ${SITE_NAME} does not fill in Forms 1 and 2. The
+    no balloon rather than a guessed one. "Forms 1 and 2" drafts the other two forms: Form 1 from the
+    RFQ's part, your shop name, the won quote's PO number and the drawing's title block, and Form 2 as a
+    list of every material, special process and functional test the drawing's text calls up (an
+    anodize per MIL-A-8625 in the finish block, a penetrant inspection in note 2), each with the
+    specification and type or class written beside it, and a flag where the drawing names no
+    specification. The serial number, your supplier code, certificate numbers and signatures are left
+    for you: the records cannot know them. The
     <a class="link" href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a> has the question
     to ask before you price: is a first article required, and to which standard?</p>
     <p class="fineprint">This page explains a common estimating approach and summarises a published
