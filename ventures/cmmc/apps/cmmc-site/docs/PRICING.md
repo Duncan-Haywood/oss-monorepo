@@ -1,7 +1,12 @@
 # Pricing proposal (CMMC workspace)
 
-Status: **proposal for the owner**, 2026-11-24. The site shows these prices as "proposed, free during
-early access". Nothing is charged yet; checkout belongs to `apps/cmmc` once it ships.
+<!-- price-claims: historical (platform/ci/check_price_claims.py skips this file) -->
+Status: **superseded.** This is the 2026-11-24 proposal, kept for its reasoning and cost table. The
+prices that are sold are the app's catalog, `apps/cmmc/src/shared/plans.ts`: Level 1 free, Level 2
+$249 a month ($2,689 a year), Level 2 + Quality $399 a month ($4,309 a year), and the site's pricing
+page renders from it (`src/plans.mjs`, checked by `test/plans.test.mjs`). At $249 Level 2 costs more
+than FutureFeed's Level 2 total (about $183), so reasoning point 1 below no longer holds; the site
+says FutureFeed is cheaper for a checklist alone. Nothing is charged yet.
 
 ## Proposed plans (billed annually)
 
