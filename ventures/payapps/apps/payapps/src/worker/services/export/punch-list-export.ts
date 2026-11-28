@@ -117,6 +117,8 @@ export function punchListPdf(doc: PunchListDocument): Uint8Array {
     if (it.source) extra.push(`Listed by ${PUNCH_SOURCE_LABELS[it.source].toLowerCase()}`);
     if (it.listedOn) extra.push(`on ${it.listedOn}`);
     if (it.dueOn) extra.push(`due ${it.dueOn}`);
+    if (it.fileCount > 0)
+      extra.push(`(${it.fileCount} photo${it.fileCount === 1 ? "" : "s"} kept)`);
     const notes = [extra.join(" "), it.disputeNote ? `Not ours: ${it.disputeNote}` : ""]
       .filter(Boolean)
       .flatMap((t) => wrapText(t, cols.item.w - 8, 7));
@@ -182,6 +184,7 @@ const PUNCH_CSV_HEADER = [
   "Date accepted",
   "Accepted by",
   "Not ours (why)",
+  "Photos kept",
 ];
 
 /** One row per item, in number order; a spreadsheet formula in any text cell is neutralised. */
@@ -203,6 +206,7 @@ export function punchListCsv(doc: PunchListDocument): string {
         r.acceptedOn,
         r.acceptedBy,
         r.disputeNote,
+        r.fileCount,
       ]
         .map(csvCell)
         .join(","),

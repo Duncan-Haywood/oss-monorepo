@@ -273,6 +273,8 @@ export interface PunchItemDto {
   /** Computed for today (src/shared/punch-list.ts). */
   status: PunchStatus;
   daysOverdue: number;
+  /** Photos kept with the item (services/payapps/punch-item-files.ts). */
+  fileCount: number;
 }
 
 export interface LowerTierWaiverDto {

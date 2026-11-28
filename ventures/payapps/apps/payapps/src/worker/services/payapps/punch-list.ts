@@ -17,6 +17,7 @@ import { organization, punchItems } from "../../db/schema";
 import { badRequest, conflict, notFound } from "../../lib/errors";
 import { newId } from "../../lib/ids";
 import { getProjectRow, type ProjectRow } from "./bundle";
+import { punchItemFileCounts } from "./punch-item-files";
 
 type PunchRow = typeof punchItems.$inferSelect;
 
@@ -28,7 +29,7 @@ const today = (ctx: AppContext) => ctx.now().toISOString().slice(0, 10);
 /** Blank strings stored as null, so a cleared field reads as "not entered". */
 const blank = (v: string | null | undefined) => (v?.trim() ? v.trim() : null);
 
-function toDto(r: PunchRow, day: string): PunchItemDto {
+function toDto(r: PunchRow, day: string, fileCount = 0): PunchItemDto {
   return {
     id: r.id,
     number: r.number,
@@ -44,6 +45,7 @@ function toDto(r: PunchRow, day: string): PunchItemDto {
     disputeNote: r.disputeNote,
     status: punchStatus(r, day),
     daysOverdue: punchDaysOverdue(r, day),
+    fileCount,
   };
 }
 
@@ -62,10 +64,13 @@ export async function listPunchItems(
   projectId: string,
 ): Promise<PunchListDto> {
   await getProjectRow(ctx, orgId, projectId);
-  const list = await rows(ctx, orgId, projectId);
+  const [list, counts] = await Promise.all([
+    rows(ctx, orgId, projectId),
+    punchItemFileCounts(ctx, orgId, projectId),
+  ]);
   const day = today(ctx);
   return {
-    items: list.map((r) => toDto(r, day)),
+    items: list.map((r) => toDto(r, day, counts.get(r.id) ?? 0)),
     summary: summarizePunchList(list, day),
     nextNumber: nextPunchNumber(list.map((r) => r.number)),
     today: day,
@@ -206,7 +211,11 @@ export async function updatePunchItem(
         ),
       );
   }
-  return toDto(await getRow(ctx, orgId, projectId, itemId), today(ctx));
+  const [after, counts] = await Promise.all([
+    getRow(ctx, orgId, projectId, itemId),
+    punchItemFileCounts(ctx, orgId, projectId),
+  ]);
+  return toDto(after, today(ctx), counts.get(itemId) ?? 0);
 }
 
 export async function deletePunchItem(

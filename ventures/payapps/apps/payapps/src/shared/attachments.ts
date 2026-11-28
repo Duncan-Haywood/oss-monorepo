@@ -121,6 +121,26 @@ export const TM_TICKET_CATEGORY_LABELS: Record<AttachmentCategory, string> = {
   other: "Other",
 };
 
+/**
+ * Photos kept with one punch list item: the item as listed (before), the item fixed (after: the
+ * proof a back-check or a retainage release leans on), and the GC's marked-up sheet or punch page
+ * the item came from. The kinds reuse the stored categories: "photo" is before, "signed" is after.
+ */
+export const PUNCH_CATEGORY_LABELS: Record<AttachmentCategory, string> = {
+  backup: "Marked-up sheet or the GC's punch page",
+  photo: "Before: the item as listed",
+  signed: "After: the item fixed",
+  other: "Other",
+};
+
+/** Short kind names for a punch item's photos on its row and in the PDF's photo column. */
+export const PUNCH_FILE_KIND: Record<AttachmentCategory, string> = {
+  backup: "Sheet",
+  photo: "Before",
+  signed: "After",
+  other: "Other",
+};
+
 /** Short kind names for a submittal's transmittal "Enclosed" list and its packet index. */
 export const SUBMITTAL_FILE_KIND: Record<AttachmentCategory, string> = {
   backup: "Product data / drawings",
@@ -154,6 +174,8 @@ export const MAX_ATTACHMENTS_PER_DAILY_REPORT = 30;
 export const MAX_ATTACHMENTS_PER_CLOSEOUT_ITEM = 30;
 /** Files on one T&M ticket (photos of the work, material receipts, the signed paper copy). */
 export const MAX_ATTACHMENTS_PER_TM_TICKET = 20;
+/** Photos on one punch list item (before, after and the marked-up sheet). */
+export const MAX_ATTACHMENTS_PER_PUNCH_ITEM = 10;
 export const MAX_FILE_NAME_LENGTH = 120;
 
 /**

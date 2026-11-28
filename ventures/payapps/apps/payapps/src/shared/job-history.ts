@@ -16,6 +16,7 @@ import {
   type TxNoticeRecipient,
 } from "@lien-waivers";
 import { formatCents } from "./money";
+import { punchLabel } from "./punch-list";
 import { type RfiFacts, rfiLabel } from "./rfi";
 import { type TmLines, type TmMarkups, tmLabel } from "./tm-tickets";
 
@@ -74,6 +75,8 @@ export const JOB_EVENT_ACTIONS = [
   "tm_ticket_deleted",
   "tm_ticket_file_added",
   "tm_ticket_file_deleted",
+  "punch_file_added",
+  "punch_file_deleted",
 ] as const;
 export type JobEventAction = (typeof JOB_EVENT_ACTIONS)[number];
 
@@ -142,6 +145,8 @@ export interface JobEventData {
   signedBy?: string;
   signedTitle?: string | null;
   drawn?: boolean;
+  /** Punch list item number on the job (printed "P-004"). */
+  punchNumber?: number;
 }
 
 const JOB_FIELD_LABELS: Record<string, string> = {
@@ -204,6 +209,8 @@ const days = (n: number | null | undefined) =>
 const line = (d: JobEventData) =>
   `Line ${d.itemNumber ?? ""}${d.description ? ` (${d.description})` : ""}`;
 const co = (d: JobEventData) => `Change order ${d.changeOrderNumber ?? ""}`;
+const punch = (d: JobEventData) =>
+  d.punchNumber === undefined ? "Punch item" : `Punch item ${punchLabel(d.punchNumber)}`;
 const rfi = (d: JobEventData) => (d.rfiNumber === undefined ? "RFI" : rfiLabel(d.rfiNumber));
 
 const RFI_FIELD_LABELS: Record<string, string> = {
@@ -479,6 +486,10 @@ export function describeJobEvent(action: JobEventAction, d: JobEventData = {}): 
       return `${tm(d)}: file attached, ${d.fileName ?? ""}`;
     case "tm_ticket_file_deleted":
       return `${tm(d)}: file removed, ${d.fileName ?? ""}`;
+    case "punch_file_added":
+      return `${punch(d)}: photo attached, ${d.fileName ?? ""}`;
+    case "punch_file_deleted":
+      return `${punch(d)}: photo removed, ${d.fileName ?? ""}`;
   }
 }
 
