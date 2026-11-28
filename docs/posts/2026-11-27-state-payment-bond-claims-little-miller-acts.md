@@ -1,9 +1,9 @@
 ---
-title: "Not paid on a state or city job? Bond claim deadlines in thirty states, California included, read from the statutes"
-seo_title: "Little Miller Act deadlines: state payment bond claims in 30 states, with California"
+title: "Not paid on a state or city job? Bond claim deadlines in thirty states, read from the statutes"
+seo_title: "Little Miller Act deadlines: state payment bond claims in 30 states"
 date: 2026-11-27
 tags: [for-customers, payapps, construction, pay-app-guides, public-jobs]
-description: "No lien on public work, so subs claim on the payment bond. The notice and suit deadlines in 30 states, California's stop payment notice included, read from each state's statute."
+description: "No lien on public work, so subs claim on the payment bond. Notice and suit deadlines in 30 states, California included, read from each state's statute."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: bond claim rights are lost
