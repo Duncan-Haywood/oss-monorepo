@@ -2460,6 +2460,126 @@ The Early access plan is free and needs no card.
 
 Start free
 
+## How tolerances change a machining quote
+
+Source: https://marisstella.app/jobshop/machining-tolerances
+
+Guide
+
+## How tolerances change a machining quote
+
+Two drawings of the same part can cost very different amounts to make, and the
+difference is often one callout: a bore at ±.005 is a drill and a pass, the same bore at ±.0005 can be
+a reamer, a slower finish, a gauge and a check on every part. Here is how to read a tolerance as a
+zone, the four bands estimators sort them into, what ISO 2768 and fits like H7 mean in inches, and
+where the cost goes on the quote.
+
+### Read a tolerance as a zone
+
+A tolerance is the room a dimension has to vary. What decides how hard it is to hold is the full
+width of that room, the tolerance zone, not how it is written. ±.001 is a zone of
+.002 in; +.002/-.000 is a zone of .002 in too, with all of it on one side. A tight one-sided tolerance
+can be as hard as a looser-looking bilateral one, so convert every callout to its zone before you
+compare them. On a drawing, the tightest zone usually sets the process, the machine and the inspection
+for the whole part.
+
+### Four bands, and what each asks of the shop
+
+Estimators sort tolerances into rough bands. The limits below are shop-floor rules of thumb, not a
+standard: what counts as tight depends on the material, the feature, its size and your machines. They
+are the defaults Job Shop Quote's tolerance check uses.
+
+Tolerance bands by zone, in inches. Rules of thumb, not a standard.
+BandToleranceWhat it usually asks
+
+Standard±.005 in and looser (a zone of .010 in or more)Ordinary roughing and finishing on a CNC mill or lathe, checked with calipers.Close±.001 up to ±.005 in (a zone of .002 to under .010 in)A finish pass and a micrometer or bore gauge on the feature; most CNC machines hold it.Tight±.0005 up to ±.001 in (a zone of .001 to under .002 in)Finish passes at a lighter cut, tool wear watched, in-process gauging, and more parts checked per lot.Precisiontighter than ±.0005 in (a zone under .001 in)Often grinding, honing or reaming to size, a temperature-stable check and a CMM or air gauge; some shops send it out.
+
+### Callouts as they arrive, read as zones
+
+RFQs bring tolerances in every form: thousandths in an email, millimetres with a comma decimal from
+a European customer, a general tolerance class in the title block, a fit symbol on a bore. Each row
+below is read by the same code that reads an RFQ in Job Shop Quote, and a test in the app checks that
+this table matches what it shows.
+
+Each callout's full zone in inches and millimetres, and its band. * The zone depends on the feature's size; shown for the size named.
+CalloutMeansZoneBand
+
++/- .005Five thousandths either way0.0100 in0.254 mmStandard±.002Two thousandths either way0.0040 in0.102 mmClose+.002/-.000Up to two thousandths over, nothing under (one-sided)0.0020 in0.051 mmClose±.0005Half a thousandth either way0.0010 in0.025 mmTight+.0005/-.0000Half a thousandth over, nothing under0.00050 in0.013 mmPrecision±0,02 mmTwo hundredths of a millimetre either way (a comma decimal)0.0016 in0.040 mmTightISO 2768-mThe general tolerance class 'medium': ±0.2 mm on a 6 to 30 mm dimension0.0157 in0.400 mm *StandardISO 2768-fThe general tolerance class 'fine': ±0.1 mm on a 6 to 30 mm dimension0.0079 in0.200 mm *CloseH7An ISO 286 hole fit, grade IT7: a 21 µm zone on an 18 to 30 mm bore0.00083 in0.021 mm *Precision
+
+### ISO 2768: the general tolerance in the title block
+
+A drawing that says "ISO 2768-m" (often with a second letter, K, H or L, for the geometric
+tolerances) sets the tolerance of every dimension that has none of its own. The value grows with the
+size of the dimension. The linear values from ISO 2768-1, in millimetres either way:
+
+ISO 2768-1 general tolerances for linear dimensions, ± mm, by nominal size in mm. Larger sizes are in the standard.
+Classover 0.5–3over 3–6over 6–30over 30–120over 120–400
+
+f (fine)±0.05±0.05±0.1±0.15±0.2m (medium)±0.1±0.1±0.2±0.3±0.5c (coarse)±0.2±0.3±0.5±0.8±1.2v (very coarse)—±0.5±1±1.5±2.5
+
+The first column starts at 0.5 mm and the others start just above the size named, so "over 6–30"
+means over 6 up to 30 mm. A general class rarely sets the price on its own: "fine" on a 20 mm dimension
+is ±0.1 mm, about ±.004 in, a close tolerance most CNC work holds. The dimensions toleranced on their
+own are the ones to look for.
+
+### Fits: H7, g6 and the rest
+
+A letter and number on a bore or a pin (H7, h6, H7/g6) is an ISO 286 fit. The letter places the
+zone relative to the nominal size; the number is the IT grade, which sets its width, and that width
+grows with the size. On an 18 to 30 mm feature, IT6 is 13 µm (about .0005 in) and IT7 is 21 µm
+(about .0008 in): an H7 bore of that size is a precision feature by the bands above, which is why it
+usually means a reamer or a boring bar and a bore gauge, not a drill. Look up the size you have in
+the standard's tables before you quote it.
+
+### Where the cost goes on the quote
+
+Tolerance has no price of its own. It costs money through the work it adds, and that work belongs
+on the quote line where you can see it:
+
+- Run time. Finish passes at a lighter cut, a slower feed, a spring pass, tool
+changes to keep wear in check. Add the minutes to the operation's cycle time; the
+machining time guide
+shows how cycle time builds up.
+
+- An extra operation. Reaming, honing or grinding to size is an operation of its
+own, in house or as an
+outside process.
+
+- Inspection. A gauge you need to buy or calibrate, a CMM program, checking every
+part instead of a sample. Inspection time is setup minutes on an inspection machine, charged once
+per line, the same way the
+first article guide
+prices it.
+
+- Fallout. The tighter the zone, the more parts land outside it. Start more parts
+than the order: a fallout percentage on the line does this.
+
+- Or a question. A tolerance tighter than the part's function needs is common.
+Asking the customer whether ±.0005 on a clearance hole could be ±.002 can be worth more than
+pricing it.
+
+### Doing it in Job Shop Quote
+
+The RFQ review reads the tolerance text from the customer's email or drawing (the AI reader keeps it
+exactly as written) and, when the tightest tolerance is tighter than ±.005 in, names it with its zone
+and band and says what to check: "Precision: +.0005/-.0000, a 0.00050 in (0.013 mm) zone." It reads
+±, +/-, one-sided limits, inches and millimetres (comma decimals too), ISO 2768 classes and ISO 286 fits,
+and skips angles. It never changes a price: the minutes, operations and fallout above are yours to
+add, and the quote is priced from your rate card. Fits and ISO 2768 classes are read at a typical size
+(the note says which), because the RFQ does not say how big the feature is. The
+RFQ review checklist has the
+tolerance questions to ask before you price.
+
+This page explains common estimating practice and summarises published
+standards in plain words. It is not engineering advice and not a substitute for ISO 2768, ISO 286 or
+your customer's drawing. The band limits are rules of thumb. Check every quote before you send it.
+
+### See the tightest tolerance before you price the part
+
+The Early access plan is free and needs no card.
+
+Start free
+
 ## FAQ
 
 Source: https://marisstella.app/jobshop/faq

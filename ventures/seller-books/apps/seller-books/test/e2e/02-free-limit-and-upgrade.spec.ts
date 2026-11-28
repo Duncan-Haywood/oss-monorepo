@@ -17,7 +17,7 @@ test("the Free plan refuses a second platform until a paid plan is confirmed", a
     "eBay: Transaction report (Payments > Reports)",
     "ebay-transaction-report.csv",
   );
-  await expect(page.getByText(/other charges imported/)).toContainText(
+  await expect(page.getByText(/other charges? imported/)).toContainText(
     "3 sales and 2 other charges",
   );
 
@@ -55,6 +55,6 @@ test("the Free plan refuses a second platform until a paid plan is confirmed", a
   await expect(page.getByRole("button", { name: "Manage payment and invoices" })).toBeVisible();
 
   await importReport(page, "Poshmark: My Sales Report", "poshmark-my-sales-report.csv");
-  await expect(page.getByText(/other charges imported/)).toBeVisible();
+  await expect(page.getByText(/other charges? imported/)).toBeVisible();
   await expect(card(page, "Past imports").getByRole("row", { name: /Poshmark/ })).toBeVisible();
 });
