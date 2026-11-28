@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "First jobshop-site build failed typecheck (array index possibly undefined) and the 70-160 char description test; both fixed before commit.",
-    "A claim that the quote template lists a between-breaks term was false; caught by grepping TERMS_CHECKLIST and reworded."
+    "A claim that the quote template lists a between-breaks term was false; caught by grepping TERMS_CHECKLIST and reworded.",
+    "jobshop-site CI failed on biome ci: my scripted import removal missed after biome reordered the import block (unused IN_BETWEEN_QUANTITY), then a format diff. I had run `biome check` on src only and read its tail; `npx biome ci .` from ventures/jobshop-quote is what CI runs. Fixed in two follow-up commits."
   ],
   "integrity_issues": [],
   "doc_friction": [
