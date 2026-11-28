@@ -15,6 +15,7 @@ import {
 } from "./config";
 import { canonical, type DocumentContext, renderDocument } from "./layout";
 import { faqs, PAGE_BODIES } from "./pages";
+import { CSV_FILE, templateCsv } from "./quote-template";
 import { type PublicRoute, publicRoutes } from "./routes";
 
 /** Same list as apps/grants: named so the policy is explicit; each group repeats the "*" rules. */
@@ -345,6 +346,8 @@ export function buildSite(opts: BuildOptions): Map<string, string> {
   files.set("robots.txt", robots(ctx));
   files.set("llms.txt", llmsTxt(ctx));
   files.set("llms-full.txt", llmsFullTxt(ctx, pages));
+  // The quote template guide's download (src/site/quote-template.ts).
+  files.set(CSV_FILE, templateCsv());
   return files;
 }
 

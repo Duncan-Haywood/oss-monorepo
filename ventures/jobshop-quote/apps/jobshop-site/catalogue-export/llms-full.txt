@@ -680,7 +680,9 @@ for the same inputs, checked by a test in its code. You can
 see how a quote is built or
 compare it with other quoting software. Laser,
 plasma or press-brake work: see how to
-quote sheet metal and laser cut parts.
+quote sheet metal and laser cut parts. What to put on the quote you send, with a template to
+download: machine shop quote
+template.
 
 This page explains a common costing method. It is not accounting, tax or
 financial advice, and the prices, times and rates in it are made up. Check every quote before you send
@@ -835,13 +837,110 @@ app gives for the same inputs, checked by a test in its code.
 No account needed to try the arithmetic: the free
 DXF nesting tool nests your parts in the
 browser and prices the nest from your rates. For machined parts, see
-how to quote a CNC machining job.
+how to quote a CNC machining job;
+for what goes on the quote you send, the
+machine shop quote template.
 
 This page explains a common costing method. It is not accounting, tax or
 financial advice, and the speeds, prices, times and rates in it are made up. Check every quote before
 you send it.
 
 ### Quote your next sheet-metal RFQ this way
+
+The Early access plan is free and needs no card.
+
+Start free
+
+## Machine shop quote template
+
+Source: https://marisstella.app/jobshop/machine-shop-quote-template
+
+Guide
+
+## Machine shop quote template
+
+What a CNC or fabrication quote needs on it, what to keep off it, the terms to decide
+once, a filled-in example and a free template to download. The buyer reads a quote to compare it with
+two others and to write a purchase order from it; every field below serves one of those.
+
+Download the template (CSV)
+
+### What goes on a machine shop quote
+
+FieldWhy it is there
+
+Your shop's name, address, phone and emailSo the buyer can reach the person who quoted, and a purchase order goes to the right place.Quote number and revisionOne number per quote, and a revision label when you re-quote, so a PO names exactly which prices it accepts.Date and valid-until dateMaterial and machine time get repriced; a quote without an end date can be held against you a year later.Customer company, contact and their RFQ numberBuyers send many RFQs; their reference is how they match your quote to theirs.Part number and drawing revision for every lineThe price is for that revision. When the drawing changes, the revision on your quote shows which one you priced.Description: material, finish and anything else priced inThe buyer compares quotes line by line; saying “6061-T6, clear anodize, certs included” stops a cheaper quote that left them out looking like the same thing.Every quantity asked for, with unit and extended priceSetup and lot minimums spread differently at each quantity, so each break gets its own price, not one price each.Lead time, counted from the order“3 weeks after receipt of order” holds; a calendar date goes stale while the buyer decides.Notes: assumptions and exceptionsAnything you assumed (a tolerance, a material substitute, an inspection level) written down before the PO, not argued about after.TermsPayment, shipping, overruns and the rest, decided once and printed on every quote (list below).
+
+### What stays off it
+
+Your cost basis. The customer sees a price for each part at each quantity; your hourly rates, setup
+and cycle minutes, material cost and markup stay in your own records. A quote that shows them invites
+the buyer to negotiate each one, and tells a competitor your rates. Keep the basis with the quote on
+your side, so you can answer when a reorder is priced differently
+(how a machining price is built).
+
+### A filled-in example
+
+The shop, customer, part, dates and prices are made up. The prices are the worked
+example in how to quote a CNC
+machining job, priced at three quantities.
+
+Example Precision Machining: quote Q-1001, dated 2026-11-27, valid until
+2026-12-27. Prepared for Example Customer Co., A. Buyer, purchasing. Lead time: 3 weeks after receipt of order.
+PartQtyUnit priceExtended
+
+BRK-1001 Rev BMounting bracket, per drawing BRK-1001 Rev B. 6061-T6 aluminum, clear anodize (outside vendor).1$587.26$587.2610$113.53$1,135.30100$71.65$7,165.00
+
+Notes
+
+- Quoted to drawing BRK-1001 Rev B dated 2026-11-20. A later revision is a new quote.
+- Material certifications included. First-article inspection report included on the first lot.
+- Customer RFQ 2291.
+
+### Terms to decide once
+
+Each of these is a question your terms should answer. Decide them for your shop, put them in one
+paragraph and print it on every quote. They are prompts, not wording to copy: have your own terms
+and conditions reviewed by someone qualified where you do business.
+
+- Validity. How many days the prices hold, and what happens after: a re-quote, or prices adjusted for material.
+- Payment. Net 30 or another term, a deposit on large or first orders, and whether you take cards.
+- Drawing revision. That the price is for the revision quoted, and a change to the drawing is a new quote or a change order.
+- Overruns and underruns. Whether you may ship a few parts over or under the order quantity, and how those are billed.
+- Inspection and paperwork. Which certifications, first-article or CMM reports are included, and which are charged extra.
+- Shipping. Where ownership and risk pass (FOB your dock or theirs, or an Incoterm), and who pays freight.
+- Customer-supplied material. Who carries the cost when material or parts the customer supplied scrap through no fault of yours.
+- Changes and cancellation. What the customer owes for material bought and work done when an order is changed or cancelled.
+- Export-controlled drawings. Whether you accept ITAR or EAR technical data, and how the customer must mark and send it.
+
+### The template
+
+machine-shop-quote-template.csv opens in Excel,
+Google Sheets or LibreOffice. It has the columns Line, Part number, Drawing revision, Description, Material, Finish, Quantity, Unit price, Extended price, Lead time, Notes: one row per quantity
+break, so a part quoted at three quantities takes three rows with the same line number. The example
+rows are marked; delete them. It holds plain values, no formulas: work out the extended price as
+quantity × unit price, and put your shop's header, the customer, the dates and your terms above the
+table when you print it.
+
+A spreadsheet works for a few quotes a week. It stops working when you need to find what you quoted
+a part at last time, re-quote a revision, see which quotes are about to expire or remember to follow up.
+
+### Doing it in Job Shop Quote
+
+Job Shop Quote builds this quote as a PDF from your rate card: your shop's name, logo and contact
+lines, a quote number with revisions (“Q-1001 Rev 2, replaces Q-1001”), the date, a valid-until
+date from your default number of days, the customer, a lead time from your default, every part with its
+revision and description, a row per quantity break with unit and extended prices, the quote's notes and
+your terms, saved once in the rate card. It never prints your rates, times or markup. The estimator
+checks and sends it; the customer gets a link to accept or decline, and the app reminds you about
+follow-ups and quotes about to expire. You can
+see how a quote is built.
+
+This page describes common practice for job-shop quotes. It is not legal, tax or
+financial advice, and the example's names, dates and prices are made up. Check every quote before you
+send it.
+
+### Send your next quote from your own rate card
 
 The Early access plan is free and needs no card.
 
