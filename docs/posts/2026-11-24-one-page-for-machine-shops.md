@@ -1110,6 +1110,31 @@ fails if any minute differs. The app does not work out speeds and feeds,
 finishing passes, tool changes or loading time; the estimator types those
 in. All the figures are made up, and the guide says so.
 
+## Update, 28 November 2026: markup, margin and where the profit sits
+
+A new guide, [machine shop markup and
+margin](https://marisstella.app/jobshop/machine-shop-markup), takes the same
+made-up anodized bracket and asks where its profit comes from. Three things
+it shows:
+
+- **The markup line looks thin because the profit is in the rate.** The mill
+  bills $123.85 an hour, the hourly-rate guide's $99.08 cost at a 20% margin,
+  so labor carries no markup. The quote's markup line is 4.7% of its costs at
+  one part and 2.4% at a hundred, but the margin over the shop's full cost is
+  17.6% to 18.7%.
+- **The same margin can be written two ways.** The mill at $99.08 with a 25%
+  labor markup prices the job within a cent of the $123.85 rate with none.
+  Doing both is one 15% markup on everything: $57.90 more on the one-off and
+  $879.00 more on the hundred, the margin charged twice on labor.
+- **Outside work at cost hurts most on small orders.** Passing the material
+  and the anodize through at cost drops the one-off's margin to 13.8%, because
+  the vendor's $150 lot charge is 26% of its price.
+
+Job Shop Quote keeps a separate labor, material and outside-service markup
+and a line minimum on the rate card. A test runs all four policies through
+the app's costing engine and fails if any quantity break differs by a cent.
+All the figures are made up, and the guide says so.
+
 ## Update, 28 November 2026: what the material line should cost
 
 Another guide covers the first line of every machining quote: [how to
@@ -1155,6 +1180,33 @@ For 11 of the checks, the page says what Job Shop Quote does today. Examples:
 drawing to its part number, and STEP holes pre-filling the drilling. A test
 fails if the page drops a check or the CSV gets a cell a spreadsheet would run
 as a formula.
+
+## Update, 28 November 2026: the won quote into QuickBooks without retyping it
+
+Once a quote is won, somebody types it into QuickBooks again as an invoice:
+the customer, each part, the quantity, the price, the PO. Job Shop Quote has a
+one-click send to a connected QuickBooks Online company, but that needs
+Intuit's keys on our server and is not switched on yet. So a won quote's
+QuickBooks card now also has **Download invoice CSV**: the same invoice as a
+file for QuickBooks Online's own invoice import (Settings, Import data,
+Invoices). It works today, with no connection.
+
+The file has one row per part. Each row has the quantity it was quoted at and
+that quantity's stored unit price and amount. If the customer accepted online,
+the file uses the quantity they accepted. A part quoted at several quantities
+with no pick is refused by name, never priced between breaks. The invoice
+number is the quote's (Q1001, or Q1001-R2 for a revision), and "Your PO ...
+Per our quote ..." goes on the invoice as its message. The due date comes from
+"Net N" in your quote terms, or 30 days, and you can change it before
+downloading. No costs, rates or markups go in the file.
+
+Three QuickBooks limits worth knowing before you try it, all from Intuit's help
+pages. Turn on custom transaction numbers, or QuickBooks replaces Q1001 with
+its own number. Tick "add new customers" for a customer new to your books.
+And a company that has set up sales tax cannot import invoices this way at
+all. The new page, [QuickBooks invoices from
+quotes](https://marisstella.app/jobshop/quickbooks-invoices-from-quotes),
+lists what it does and does not do.
 
 ## Update, 28 November 2026: what a rush job should cost
 

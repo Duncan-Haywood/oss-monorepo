@@ -1002,6 +1002,17 @@ export const sendQuoteInvoiceSchema = z
   })
   .strict();
 
+/**
+ * POST /quotes/:id/quickbooks.csv: the same choices as the send, plus the days until the invoice is
+ * due (QuickBooks' import needs a due date). Any member: it holds only what the quote page shows.
+ */
+export const invoiceCsvSchema = z
+  .object({
+    choices: sendQuoteInvoiceSchema.shape.choices,
+    dueDays: z.number().int().min(0).max(365),
+  })
+  .strict();
+
 export interface QuickBooksStatusDto {
   /** False until the owner sets the Intuit app's keys on this server (dark). */
   available: boolean;
@@ -1059,6 +1070,8 @@ export interface QuoteQuickBooksDto {
   docNumber: string;
   /** The message printed on the invoice (PO and quote). */
   memo: string;
+  /** Days until due for the import file: "Net N" from the quote terms, else 30. */
+  defaultDueDays: number;
 }
 
 // ---- Billing (docs/BILLING.md) --------------------------------------------------------------------

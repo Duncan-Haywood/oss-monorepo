@@ -17,6 +17,17 @@ import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAM
 import { EXAMPLE as CYCLE_EXAMPLE, cycleTimeExample, DEEP_HOLE_RATIO } from "./cycle-time-example";
 import { type Html, html } from "./html";
 import {
+  type MarkupBreak,
+  marginFromMarkup,
+  markupFromMargin,
+  pct1,
+  priceAllPolicies,
+  RATE_COST_CENTS,
+  RATE_MARGIN,
+  TABLE_MARGINS,
+  TABLE_MARKUPS,
+} from "./markup-example";
+import {
   LB_PER_IN3_PER_G_PER_CM3,
   EXAMPLE as MATERIAL_EXAMPLE,
   METHODS,
@@ -2126,6 +2137,171 @@ ${ctaBand(ctx, "Quote your next machined part this way", ctx.launch.open ? "The 
  * prices, ./quote-template) and a CSV template to download. Nothing here is legal advice, and the
  * terms are listed as decisions, never as wording to copy.
  */
+export function markupGuidePage(ctx: RenderContext): Html {
+  const e = QUOTE_EXAMPLE;
+  const results = priceAllPolicies();
+  const [split, atCost, passThrough, flat] = results;
+  if (!split || !atCost || !passThrough || !flat)
+    throw new Error("the markup guide compares four policies");
+  const [s1, s10, s100] = split.breaks;
+  const [p1, , p100] = passThrough.breaks;
+  const [f1, , f100] = flat.breaks;
+  if (!s1 || !s10 || !s100 || !p1 || !p100 || !f1 || !f100)
+    throw new Error("the markup guide quotes three quantities");
+  const pctBps = (bps: number) => `${bps / 100}%`;
+  const qtys = split.breaks.map((b) => b.quantity.toLocaleString("en-US"));
+  const bucketRows: [string, (b: MarkupBreak) => string][] = [
+    ["Material (cost)", (b) => usdCents(b.materialCents)],
+    [`Material markup, ${pctBps(e.materialMarkupBps)}`, (b) => usdCents(b.materialMarkupCents)],
+    ["Setup and run (at the mill's rate)", (b) => usdCents(b.setupCents + b.runCents)],
+    [`Labor markup, ${pctBps(e.laborMarkupBps)}`, (b) => usdCents(b.laborMarkupCents)],
+    ["Anodize (vendor's charge)", (b) => usdCents(b.finishingCents)],
+    [
+      `Outside-service markup, ${pctBps(e.outsideServiceMarkupBps)}`,
+      (b) => usdCents(b.outsideMarkupCents),
+    ],
+    ["Line total", (b) => usdCents(b.totalCents)],
+    ["Markup over the quote's costs", (b) => pct1(b.markupOnCost)],
+    ["Margin over your full cost", (b) => pct1(b.marginOnFullCost)],
+  ];
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>Machine shop markup and margin</h1>
+    <p class="lead">How much to mark up material, shop labor and outside processing on a machining
+    quote, the difference between markup and margin, and what four common markup policies do to the price
+    of one job at 1, 10 and 100 parts.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>Markup and margin are not the same number</h2>
+    <p>Markup is added to the cost: a part that costs $100 with a 25% markup sells for $125. Margin is the
+    share of the price you keep: $25 of $125 is a 20% margin. So a 25% markup and a 20% margin are the
+    same price, and a shop that says "we work on 20%" has to know which it means, because a 20% markup
+    keeps only ${pct1(marginFromMarkup(0.2))} of the price.</p>
+    <ul>
+      <li><strong>Margin from markup:</strong> markup ÷ (1 + markup).</li>
+      <li><strong>Markup for a margin:</strong> margin ÷ (1 − margin).</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">Exact conversions, rounded to one decimal.</caption>
+        <thead><tr><th scope="col">Markup on cost</th><th scope="col">Margin it gives</th><th scope="col">Margin you want</th><th scope="col">Markup it needs</th></tr></thead>
+        <tbody>
+          ${TABLE_MARKUPS.map((m, i) => {
+            const g = TABLE_MARGINS[i] ?? 0;
+            return html`<tr><th scope="row">${pct1(m)}</th><td>${pct1(marginFromMarkup(m))}</td><th scope="row">${pct1(g)}</th><td>${pct1(markupFromMargin(g))}</td></tr>`;
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Three markups, not one</h2>
+    <p>A quote line has costs of different kinds, and each carries a different risk and a different amount
+    of your money for a different time. Most quoting systems, ${SITE_NAME} included, keep a separate markup
+    for each:</p>
+    <ul>
+      <li><strong>Shop labor (setup and run).</strong> If your hourly rate was worked out as cost divided by one
+      minus a margin (<a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how to work out a
+      machine shop hourly rate</a>), the profit is already in the rate and the labor markup is 0%. If your rate
+      is the bare cost of a billable hour, the labor markup is where the profit goes. Doing both charges the
+      margin twice; doing neither works for nothing.</li>
+      <li><strong>Material.</strong> You buy it before the job, carry the cash until the customer pays, pay for
+      the saw cut and the drop, and eat the bar that turns out bad. A markup on material pays for that.
+      Some shops pass material through at cost on large customer-specified buys to stay competitive; that
+      is a decision to make per customer, not by default.</li>
+      <li><strong>Outside services (anodize, plating, heat treat, passivation).</strong> The vendor's lot
+      minimum, the freight both ways, the chasing, and the parts that come back wrong are yours. The
+      markup pays for handling them. Hardware, certificates and crating you buy for the job are purchased
+      items like material.</li>
+    </ul>
+    <p>Then two floors under the whole line: the <strong>vendor's lot minimum</strong> on each outside service
+    (a $150 anodize lot costs $150 for one part or forty) and your own <strong>line minimum</strong>, the
+    smallest price you will open a job for.</p>
+
+    <h2>A worked example</h2>
+    <p>The anodized 6061 bracket from <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to
+    quote a CNC machining job</a>: two milling setups, a deburr, an outside clear anodize at
+    ${usdCents(e.finishingPerPartCents)} a part with a ${usdCents(e.finishingLotChargeCents)} lot minimum, ${pctBps(e.falloutBps)}
+    fallout, on a mill at ${usdCents(e.hourlyRateCents)} an hour, which is the hourly-rate guide's
+    ${usdCents(RATE_COST_CENTS)} cost of a billable hour at a ${pct1(RATE_MARGIN)} margin. <strong>Every number
+    is made up to show the arithmetic</strong>; none is a typical figure. Here is where its markup comes from:</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">${split.policy.note} Each markup rounded to the cent; the price each rounded up to the cent, as the app does.</caption>
+        <thead><tr><th scope="col">Quantity</th>${qtys.map((q) => html`<th scope="col">${q}</th>`)}</tr></thead>
+        <tbody>
+          ${bucketRows.map(([label, f]) => html`<tr><th scope="row">${label}</th>${split.breaks.map((b) => html`<td>${f(b)}</td>`)}</tr>`)}
+        </tbody>
+      </table>
+    </div>
+    <p>Two things to read from it. First, the markup line looks thin: ${pct1(s1.markupOnCost)} over the quote's
+    costs at one part, ${pct1(s100.markupOnCost)} at a hundred. That is because the profit is in the mill's rate,
+    not in the markup line, and your margin over your full cost (labor at ${usdCents(RATE_COST_CENTS)} an hour) is
+    ${pct1(s1.marginOnFullCost)} to ${pct1(s100.marginOnFullCost)}. Judge a quote by that, not by its markup line.
+    Second, it never reaches the rate's ${pct1(RATE_MARGIN)}: material and the anodize are marked up
+    ${pctBps(e.materialMarkupBps)}, which is a ${pct1(marginFromMarkup(e.materialMarkupBps / 10_000))} margin, so the more of the
+    price they make up, the lower the blend. At one part the anodize lot alone is
+    ${Math.round((s1.finishingCents / s1.totalCents) * 100)}% of the price.</p>
+
+    <h2>Four markup policies on the same job</h2>
+    <p>The same bracket, priced by ${SITE_NAME}'s costing engine under four settings:</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">Line totals; margin over the shop's full cost (labor at ${usdCents(RATE_COST_CENTS)} an hour) underneath.</caption>
+        <thead><tr><th scope="col">Policy</th>${qtys.map((q) => html`<th scope="col">${q} part${q === "1" ? "" : "s"}</th>`)}</tr></thead>
+        <tbody>
+          ${results.map(
+            (r) =>
+              html`<tr><th scope="row">${r.policy.label}<br><span class="fineprint">${r.policy.note}</span></th>${r.breaks.map((b) => html`<td>${usdCents(b.totalCents)}<br><span class="fineprint">${pct1(b.marginOnFullCost)} margin</span></td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li><strong>Rate at cost with a 25% labor markup</strong> lands on the same prices as the first card, to
+      the cent or within one: a ${pct1(RATE_MARGIN)} margin in the rate and a 25% markup on a cost rate are the same
+      thing. Pick one way of writing it and use it everywhere.</li>
+      <li><strong>Passing material and the anodize through at cost</strong> takes ${usdCents(s1.totalCents - p1.totalCents)}
+      off the one-off and ${usdCents(s100.totalCents - p100.totalCents)} off the hundred, and the margin falls to
+      ${pct1(p1.marginOnFullCost)} at one part, where the vendor's lot charge is a large share of the price.</li>
+      <li><strong>One 15% markup on everything</strong> charges the margin twice on labor: ${usdCents(f1.totalCents - s1.totalCents)}
+      more on the one-off and ${usdCents(f100.totalCents - s100.totalCents)} more on the hundred. That can be a fair
+      price for a hot job; on a competitive RFQ it is the quote that loses without anyone telling you why.</li>
+    </ul>
+
+    <h2>Mistakes that cost margin</h2>
+    <ul>
+      <li><strong>Calling a markup a margin.</strong> The table above: a 20% markup is a ${pct1(marginFromMarkup(0.2))} margin.</li>
+      <li><strong>Adding a labor markup to a rate that already has the profit in it</strong>, or neither.</li>
+      <li><strong>Outside work at cost.</strong> The lot minimum, the freight and the rework when a batch comes back
+      wrong are real costs; a markup on outside services is how they get paid.</li>
+      <li><strong>Forgetting the lot minimum.</strong> A plating vendor's minimum spread over two parts is most of
+      their price; quote it as a lot charge, not as a per-part figure from a big run.</li>
+      <li><strong>No line minimum.</strong> Opening a job, programming, paperwork and shipping cost the same for
+      a one-off as for a run. A minimum per line keeps the smallest jobs from being done at a loss; in the example it
+      does not bind, because the bracket's setup and anodize lot already put it well above
+      ${usdCents(e.minimumLineCents)}.</li>
+      <li><strong>Judging by the markup line.</strong> Look at what is left after your full cost, at each
+      quantity, because the share each cost takes changes with quantity.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>${SITE_NAME}'s rate card holds a labor markup, a material markup, an outside-service markup and a line
+    minimum, and each finishing operation is marked as in-house (marked up as labor) or outside (marked up
+    at the outside-service rate) with its own lot charge. Hardware, certificates and other purchased extras
+    take the material markup. Every quote line shows the markup it used next to the cost, at every quantity,
+    and the customer's PDF never prints any of it. You can
+    <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a>.</p>
+    <p class="fineprint">This page explains common costing arithmetic. It is not accounting, tax or financial
+    advice, and the example's numbers are made up. What markup the market will bear depends on your
+    customers, your work and your competitors.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Set your markups once, quote every RFQ from them", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
 export function quoteTemplatePage(ctx: RenderContext): Html {
   const q = exampleQuote();
   const fields: [string, string][] = [
@@ -2674,6 +2850,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/for-cmmc-shops": cmmcPage,
   "/compare": comparePage,
   "/machine-shop-hourly-rate": shopRatePage,
+  "/machine-shop-markup": markupGuidePage,
   "/how-to-quote-cnc-machining": quoteGuidePage,
   "/how-to-quote-sheet-metal": sheetMetalGuidePage,
   "/how-to-quote-welding": weldingGuidePage,

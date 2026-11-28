@@ -93,12 +93,21 @@ def repo_of(remote="origin"):
     return f"{m.group(1)}/{m.group(2)}" if m else None
 
 
-def search_prs(slug, days, repo, run=subprocess.run, today=None):
+def words(text):
+    """`text` lower-cased with runs of hyphens, underscores and spaces as one space."""
+    return re.sub(r"[-_\s]+", " ", text.lower()).strip()
+
+
+def search_prs(slug, days, repo, run=subprocess.run, today=None, loose=None):
     """(merged, open) PRs whose title contains `slug`, merged or still open within `days`,
     as "#N YYYY-MM-DD title" lines; None when the search cannot be made.
 
     GitHub's search matches words loosely ("follow up weekdays" for follow-up-weekdays),
-    so a hit counts only when the title holds the slug itself, case aside."""
+    so a hit counts only when the title holds the slug itself, case aside. A title that
+    spells the slug with spaces instead ("redteam: billing copies" for billing-copies) is
+    appended to `loose`, when given, as a possible match that does not count: on
+    2026-11-28 a run checked `billing-copies`, was told "no duplicate", and rebuilt the
+    fix an open PR titled "billing copies" merged an hour later (PR #19979)."""
     today = today or dt.date.today()
     since = (today - dt.timedelta(days=days)).isoformat()
     q = f'repo:{repo} is:pr in:title "{slug}" updated:>={since}'
@@ -113,9 +122,12 @@ def search_prs(slug, days, repo, run=subprocess.run, today=None):
     merged, open_ = [], []
     for it in items:
         title = it.get("title") or ""
-        if slug.lower() not in title.lower():
-            continue
         at = ((it.get("pull_request") or {}).get("merged_at") or "")[:10]
+        if slug.lower() not in title.lower():
+            if loose is not None and words(slug) in words(title) and (
+                    it.get("state") == "open" or (at and at >= since)):
+                loose.append(f"#{it['number']} {'open' if it.get('state') == 'open' else at} {title}")
+            continue
         if it.get("state") == "open":
             open_.append(f"#{it['number']} {(it.get('created_at') or '')[:10]} {title}")
         elif at and at >= since:
@@ -174,7 +186,8 @@ def main(argv=None):
     # 2026-11-26 reported the wait). The tip refresh still runs: the git checks of
     # ventures/<slug> and of branches need a current ref, not a deep one.
     repo = None if a.no_search else repo_of(a.remote)
-    found = search_prs(a.slug, a.days, repo) if repo else None
+    loose = []
+    found = search_prs(a.slug, a.days, repo, loose=loose) if repo else None
     cut = refresh(a.remote, a.days, a.budget, deepen=found is None) if not a.no_fetch else None
     try:
         on_main, commits, branches = check(a.slug, a.days, a.remote)
@@ -204,7 +217,9 @@ def main(argv=None):
         print(f"notice: open PR {o} names this slug; extend it unless it is your own")
     for b in branches:
         print(f"notice: branch {b} names this slug; check its PR before building")
-    if not (on_main or commits or branches or merged or open_):
+    for m in loose:
+        print(f"notice: PR {m} may be the same work (slug spelled with spaces); read it before building")
+    if not (on_main or commits or branches or merged or open_ or loose):
         print(f"{a.slug}: no duplicate found")
     return 1 if (on_main or commits or merged) else 0
 

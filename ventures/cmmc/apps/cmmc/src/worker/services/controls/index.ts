@@ -73,7 +73,8 @@ export interface ControlPatch {
   notes?: string;
   statement?: string;
   draftStatement?: string | null;
-  objectiveResults?: Record<string, ObjectiveResult>;
+  /** A null value clears that objective back to unanswered. */
+  objectiveResults?: Record<string, ObjectiveResult | null>;
 }
 
 export async function updateControl(
@@ -115,7 +116,12 @@ export async function updateControl(
   }
   if (patch.draftStatement !== undefined) set.draftStatement = patch.draftStatement;
   if (patch.objectiveResults !== undefined) {
-    set.objectiveResults = { ...(existing.objectiveResults ?? {}), ...patch.objectiveResults };
+    const merged: Record<string, ObjectiveResult> = { ...(existing.objectiveResults ?? {}) };
+    for (const [k, v] of Object.entries(patch.objectiveResults)) {
+      if (v === null) delete merged[k];
+      else merged[k] = v;
+    }
+    set.objectiveResults = merged;
   }
   await ctx.db
     .update(controlRecord)

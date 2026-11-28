@@ -47,7 +47,7 @@ describe("preliminary notices", () => {
   it("on Free: the overview loads, printing needs Crew (402)", async () => {
     const o = await call<NoticeOverviewDto>(`${base}/notices?state=WY`, { as });
     expect(o.enabled).toBe(false);
-    expect(o.states).toEqual(["CA", "FL", "TX", "WY"]);
+    expect(o.states).toEqual(["AZ", "CA", "FL", "TX", "WY"]);
     const res = await print({
       state: "WY",
       formId: "WY/preliminary-notice/statutory",
@@ -303,6 +303,59 @@ describe("preliminary notices", () => {
       fields: { ...fields, claimAmount: "$9,250.00" },
     });
     expect(wrong.status).toBe(400);
+  });
+
+  it("Arizona: the § 33-992.01 twenty day notice, the GC prefilled as the party contracted with", async () => {
+    await grantPlan(orgId, "crew", "active");
+    const p = await call<ProjectDto>(`/api/orgs/${orgId}/projects`, {
+      method: "POST",
+      as,
+      expect: 201,
+      json: {
+        name: "Desert Clinic TI",
+        location: "4100 N Central Ave, Phoenix AZ 85012",
+        gcName: "Saguaro Builders Inc.",
+        gcAddress: "700 E Jefferson St, Phoenix AZ 85034",
+        ownerName: "Desert Clinic Partners LLC",
+        originalContractSumCents: 18_450_000,
+      },
+    });
+    const azBase = `/api/orgs/${orgId}/projects/${p.id}`;
+    const o = await call<NoticeOverviewDto>(`${azBase}/notices?state=AZ`, { as });
+    expect(o.notices.map((n) => n.id)).toEqual(["AZ/preliminary-twenty-day-notice/statutory"]);
+    const n = o.notices[0];
+    expect(n?.citation).toBe("Ariz. Rev. Stat. §§ 33-992.01, 33-992.02");
+    expect(n?.sendTo).toMatch(/original contractor or reputed contractor/);
+    expect(o.prefill).toMatchObject({
+      ownerNameAddress: "Desert Clinic Partners LLC",
+      directContractor: "Saguaro Builders Inc.\n700 E Jefferson St, Phoenix AZ 85034",
+      contractedWith: "Saguaro Builders Inc.\n700 E Jefferson St, Phoenix AZ 85034",
+      propertyAddress: "4100 N Central Ave, Phoenix AZ 85012",
+      estimate: "$184,500.00",
+    });
+    expect(o.prefill.claimantName).toBeTruthy();
+    const fields: Record<string, string> = {};
+    for (const f of n?.fields ?? []) if (o.prefill[f.key]) fields[f.key] = o.prefill[f.key] ?? "";
+    // What the job does not know: the claimant's address, the work and the county.
+    const missing = await print({ state: "AZ", formId: n?.id, fields }, as, azBase);
+    expect(missing.status).toBe(400);
+    const res = await print(
+      {
+        state: "AZ",
+        formId: n?.id,
+        fields: {
+          ...fields,
+          claimantAddress: "88 W Washington St, Phoenix AZ 85003",
+          workDescription: "Electrical rough-in and finish, labor and materials",
+          county: "Maricopa",
+        },
+      },
+      as,
+      azBase,
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Disposition")).toContain("preliminary-notice-AZ.pdf");
+    expect((await res.text()).startsWith("%PDF-")).toBe(true);
   });
 
   it("a state with no encoded notice lists none", async () => {

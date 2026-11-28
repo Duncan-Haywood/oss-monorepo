@@ -2658,6 +2658,21 @@ nothing to copy. No customers yet. Paid plans are dark
   the module's anchor (the weekly email's `#rfis`), and stays open once anything is in it
   (`src/client/components/start-open.tsx`). Same page now ~2,280 px and ~3,290 px. Checked in
   `test/e2e/01-first-pay-app.spec.ts`.
+- Preliminary notice: Arizona (2026-11-28, az-preliminary-twenty-day-notice, Crew and up, with lien
+  waivers). The job page's "Preliminary notice of right to lien" panel now prints Arizona's preliminary
+  twenty day notice (Ariz. Rev. Stat. § 33-992.01), the notice every sub, supplier and design
+  professional (not a wage laborer) serves on the owner, the original contractor, the lender and the
+  party it contracted with "as a necessary prerequisite to the validity of any claim of lien".
+  Subsection D prescribes a whole form, so it prints whole: every caption in the statute's words, the
+  boldface Notice to Property Owner, the two ten-day paragraphs at the page's largest type, and the
+  § 33-992.02(1) acknowledgment of receipt where the form says to insert it. Prefilled from the job:
+  owner, GC and address (as original contractor and as the party contracted with), site, company and
+  the estimate (contract sum plus approved change orders); the user adds the company's address, the
+  work, the county and, optionally, the lender and legal description. `packages/lien-waivers/src/az-notice.ts`,
+  snapshot `sources/az-33-992.txt` (azleg.gov, read 2026-11-28), checked word for word by
+  `test/az-notice.test.ts`; API test in `test/worker/notices.test.ts`. Not yet: counting Arizona's 20
+  days on the job and a log of notices mailed (as California's), and the § 33-992.02(2) affidavit of
+  mailing.
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2695,7 +2710,9 @@ nothing to copy. No customers yet. Paid plans are dark
 - Done 2026-11-28 (payapps-site-module-pages): the marketing site has a landing page per built module (16, from
   pay application and lien waiver software to T&M tickets), each with the plan that includes it, the free guides on the
   topic and a sign-up link tagged `from=payapps-site/module/<feature>`, in the sitemap and llms.txt, linked from the
-  features page (`apps/payapps-site/src/shared/modules.ts`). Next: read which module pages bring sign-ups once the
+  features page (`apps/payapps-site/src/shared/modules.ts`). Done 2026-11-28 (payapps-site-module-pages-part-2): four more for
+  the built modules that had none (job schedule and three-week lookahead, crew timesheets, close-out documents, lower-tier
+  waivers), 20 in all. Next: read which module pages bring sign-ups once the
   `from` tags have counts, and give the leaders a still from `pnpm stills`
 - Done 2026-11-27 (launch-signups-open): the free guides point at sign-up (`APP_URL` in
   `ventures/pay-app-guides/cta.mjs`, now https://payapps.marisstella.app; 42 pages say "open now", name

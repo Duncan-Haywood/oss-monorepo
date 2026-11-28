@@ -1,0 +1,520 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKn6dJJDh4s7nk5UPan",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T04:09:14Z",
+  "ended": "2026-11-28T04:09:50Z",
+  "wall_minutes": 4.92,
+  "tokens_in": 3785619,
+  "tokens_out": 17328,
+  "cost_usd": 1.8045,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19987",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Duplicate PRs' says run slug_dupe.py <slug>; it said 'no duplicate' for billing-copies while #19979 'billing copies' was open, and this run's main fix was superseded. Fixed slug_dupe to notice spaced titles."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Two red-team runs on the same day both landed on billing copies; the prompt has no step to check open redteam PRs' targets before seeding."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer-facing post: the work is test and CI-guard hardening with nothing a customer would search for.",
+      "did": "Wrote an agent doc in docs/reports/ instead.",
+      "result": "The next run knows test fixes must reach all five billing copies."
+    }
+  ],
+  "writeups": [
+    "docs/reports/redteam-2026-11-28-billing-test-copies.md"
+  ],
+  "goal": null,
+  "notes": "24 mutants: notices.ts 6/8 (2 equivalent), tx-dates.ts 8/8, cmmc subscription-events.ts 7/8 (1 equivalent). This run's billing test port + check_billing_copies tightening duplicated #19979 (merged first) and was dropped in the merge to main. Shipped instead: slug_dupe.py loose-title notice (unit tests OK; live run lists #19979). Verification before the merge: 5 billing suites green, tsc clean; after: check_billing_copies exit 0, test_check_billing_copies OK, test_slug_dupe OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+        "test": "node --test test/**/*.test.ts  (in ventures/payapps/packages/lien-waivers)",
+        "seed": 95554068,
+        "commit": "ecddc19c4",
+        "sites": 42,
+        "baseline_seconds": 2.0,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 81,
+            "col": 10,
+            "operator": "true-to-false",
+            "before": "| { ok: true; document: NoticeDocument }",
+            "after": "| { ok: false; document: NoticeDocument }",
+            "line_text": "  | { ok: true; document: NoticeDocument }",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Type-only: flips the literal in the NoticeRenderResult type annotation. Node strips types at runtime, so no rendered notice changes; tsc --noEmit (the package's typecheck script) rejects it."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 226,
+            "col": 14,
+            "operator": "true-to-false",
+            "before": "required: true,",
+            "after": "required: false,",
+            "line_text": "    required: true,",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 284,
+            "col": 14,
+            "operator": "false-to-true",
+            "before": "required: false,",
+            "after": "required: true,",
+            "line_text": "    required: false,",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 303,
+            "col": 36,
+            "operator": "eq-flip",
+            "before": "i.key === \"estimate\" || i.key === \"demand\" ? \"text\" : \"multiline\",",
+            "after": "i.key === \"estimate\" || i.key !== \"demand\" ? \"text\" : \"multiline\",",
+            "line_text": "      i.key === \"estimate\" || i.key === \"demand\" ? \"text\" : \"multiline\",",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 308,
+            "col": 34,
+            "operator": "true-to-false",
+            "before": "f(\"signedDate\", \"Date\", \"date\", true, \"The date you sign and send the notice.\"),",
+            "after": "f(\"signedDate\", \"Date\", \"date\", false, \"The date you sign and send the notice.\"),",
+            "line_text": "  f(\"signedDate\", \"Date\", \"date\", true, \"The date you sign and send the notice.\"),",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 377,
+            "col": 11,
+            "operator": "eq-flip",
+            "before": "if (code === \"CA\") return [caPreliminaryNotice()];",
+            "after": "if (code !== \"CA\") return [caPreliminaryNotice()];",
+            "line_text": "  if (code === \"CA\") return [caPreliminaryNotice()];",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 396,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < form.body.length; i++) {",
+            "after": "for (let i = 0; i <= form.body.length; i++) {",
+            "line_text": "  for (let i = 0; i < form.body.length; i++) {",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Equivalent: the extra iteration reads form.body[length], which is undefined; `if (b)` skips it and the heading/paragraph check needs b defined, so the output is identical."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 416,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "if (cross.length > 0) return { ok: false, errors: cross };",
+            "after": "if (cross.length > 1) return { ok: false, errors: cross };",
+            "line_text": "  if (cross.length > 0) return { ok: false, errors: cross };",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/lien-waivers/src/tx-dates.ts",
+        "test": "node --test test/**/*.test.ts  (in ventures/payapps/packages/lien-waivers)",
+        "seed": 792135504,
+        "commit": "ecddc19c4",
+        "sites": 122,
+        "baseline_seconds": 1.8,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-dates.ts",
+            "line": 58,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const m = x ? Number(x[2]) : 0;",
+            "after": "const m = x ? Number(x[3]) : 0;",
+            "line_text": "  const m = x ? Number(x[2]) : 0;",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-dates.ts",
+            "line": 59,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "if (!x || m < 1 || m > 12) throw new RangeError(`Not a month (YYYY-MM): ${month}`);",
+            "after": "if (!x || m < 2 || m > 12) throw new RangeError(`Not a month (YYYY-MM): ${month}`);",
+            "line_text": "  if (!x || m < 1 || m > 12) throw new RangeError(`Not a month (YYYY-MM): ${month}`);",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-dates.ts",
+            "line": 67,
+            "col": 39,
+            "operator": "minus-to-plus",
+            "before": "const first = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();",
+            "after": "const first = new Date(Date.UTC(y, m + 1, 1)).getUTCDay();",
+            "line_text": "  const first = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-dates.ts",
+            "line": 68,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "return 1 + ((weekday - first + 7) % 7) + (nth - 1) * 7;",
+            "after": "return 1 + ((weekday - first + 8) % 7) + (nth - 1) * 7;",
+            "line_text": "  return 1 + ((weekday - first + 7) % 7) + (nth - 1) * 7;",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-dates.ts",
+            "line": 101,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "[1, nthWeekday(y, 1, 1, 3), \"Martin Luther King, Jr., Day\"],",
+            "after": "[1, nthWeekday(y, 1, 1, 4), \"Martin Luther King, Jr., Day\"],",
+            "line_text": "    [1, nthWeekday(y, 1, 1, 3), \"Martin Luther King, Jr., Day\"],",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-dates.ts",
+            "line": 110,
+            "col": 52,
+            "operator": "eq-flip",
+            "before": "...floating.filter(([fm, fd]) => fm === m && fd === n).map((f) => f[2]),",
+            "after": "...floating.filter(([fm, fd]) => fm === m && fd !== n).map((f) => f[2]),",
+            "line_text": "    ...floating.filter(([fm, fd]) => fm === m && fd === n).map((f) => f[2]),",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-dates.ts",
+            "line": 110,
+            "col": 72,
+            "operator": "const-plus-one",
+            "before": "...floating.filter(([fm, fd]) => fm === m && fd === n).map((f) => f[2]),",
+            "after": "...floating.filter(([fm, fd]) => fm === m && fd === n).map((f) => f[3]),",
+            "line_text": "    ...floating.filter(([fm, fd]) => fm === m && fd === n).map((f) => f[2]),",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/tx-dates.ts",
+            "line": 202,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const count = (b.y - a.y) * 12 + (b.m - a.m) + 1;",
+            "after": "const count = (b.y - a.y) * 13 + (b.m - a.m) + 1;",
+            "line_text": "  const count = (b.y - a.y) * 12 + (b.m - a.m) + 1;",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/cmmc/packages/billing/src/subscription-events.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/cmmc/packages/billing)",
+        "seed": 83325773,
+        "commit": "ecddc19c4",
+        "sites": 33,
+        "baseline_seconds": 0.7,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/cmmc/packages/billing/src/subscription-events.ts",
+            "line": 37,
+            "col": 13,
+            "operator": "true-to-false",
+            "before": "apply: true;",
+            "after": "apply: false;",
+            "line_text": "      apply: true;",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Type-only: flips `apply: true` in the SubscriptionDecision type annotation; no runtime effect (types stripped), caught by tsc."
+          },
+          {
+            "file": "ventures/cmmc/packages/billing/src/subscription-events.ts",
+            "line": 53,
+            "col": 49,
+            "operator": "eq-flip",
+            "before": "const sameSub = current.providerSubscriptionId === s.providerSubscriptionId;",
+            "after": "const sameSub = current.providerSubscriptionId !== s.providerSubscriptionId;",
+            "line_text": "  const sameSub = current.providerSubscriptionId === s.providerSubscriptionId;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/packages/billing/src/subscription-events.ts",
+            "line": 61,
+            "col": 60,
+            "operator": "or-to-and",
+            "before": "if (s.status === \"canceled\" && (current.status === \"comp\" || otherSub)) {",
+            "after": "if (s.status === \"canceled\" && (current.status === \"comp\" && otherSub)) {",
+            "line_text": "  if (s.status === \"canceled\" && (current.status === \"comp\" || otherSub)) {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/packages/billing/src/subscription-events.ts",
+            "line": 77,
+            "col": 26,
+            "operator": "false-to-true",
+            "before": "if (!s) return { apply: false, reason: \"no subscription data\" };",
+            "after": "if (!s) return { apply: true, reason: \"no subscription data\" };",
+            "line_text": "  if (!s) return { apply: false, reason: \"no subscription data\" };",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/packages/billing/src/subscription-events.ts",
+            "line": 82,
+            "col": 64,
+            "operator": "neq-flip",
+            "before": "if (current?.providerCustomerId && current.providerCustomerId !== s.providerCustomerId) {",
+            "after": "if (current?.providerCustomerId && current.providerCustomerId === s.providerCustomerId) {",
+            "line_text": "  if (current?.providerCustomerId && current.providerCustomerId !== s.providerCustomerId) {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/packages/billing/src/subscription-events.ts",
+            "line": 86,
+            "col": 29,
+            "operator": "false-to-true",
+            "before": "if (stale) return { apply: false, reason: stale };",
+            "after": "if (stale) return { apply: true, reason: stale };",
+            "line_text": "  if (stale) return { apply: false, reason: stale };",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/packages/billing/src/subscription-events.ts",
+            "line": 87,
+            "col": 50,
+            "operator": "eq-flip",
+            "before": "const sameSub = current?.providerSubscriptionId === s.providerSubscriptionId;",
+            "after": "const sameSub = current?.providerSubscriptionId !== s.providerSubscriptionId;",
+            "line_text": "  const sameSub = current?.providerSubscriptionId === s.providerSubscriptionId;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/cmmc/packages/billing/src/subscription-events.ts",
+            "line": 151,
+            "col": 37,
+            "operator": "neq-flip",
+            "before": "if (current.providerSubscriptionId !== next.providerSubscriptionId) return true;",
+            "after": "if (current.providerSubscriptionId === next.providerSubscriptionId) return true;",
+            "line_text": "  if (current.providerSubscriptionId !== next.providerSubscriptionId) return true;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/ci/check_billing_copies.py",
+        "issue": "The billing-copies guard held shared source byte-identical but let the shared test files drift (a note only). 19 test cases guarded one or two of the five copies: e.g. cmmc, jobshop-quote, seller-books and einvoice-pro lacked payapps' 'applies an event stamped at the watermark itself' case, so a `<` -> `<=` mutant in their subscription-events.ts staleReason (dropping Paddle's sibling events sent at one instant) passed their suites (checked by hand: old cmmc test 9 pass 0 fail, new 10 pass 1 fail). Others missing: forged-webhook h1 length checks, Object.prototype plan keys, the anchor-instant quota period, the cancel deep link, host-name parsing.",
+        "patched": true,
+        "patched_in": "PR #19979 (parallel red-team run, merged first with the same port and guard); this PR's copy was dropped in the merge"
+      },
+      {
+        "file": "platform/ci/slug_dupe.py",
+        "issue": "Counted a PR only when its title held the hyphenated slug, so `slug_dupe.py billing-copies` reported no duplicate while PR #19979 'redteam: billing copies 2026-11-28' was open; this run rebuilt the same fix. Now prints spaced-slug titles as a possible-match notice (exit code unchanged), with a test.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19987"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f0f6e740-6838-5b87-956a-a3e42df027ac",
+    "transcripts": 1,
+    "first": "2026-11-28T04:09:14Z",
+    "last": "2026-11-28T04:14:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 84,
+        "output": 17328,
+        "thinking": 4619,
+        "cache_read": 3695722,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89813,
+        "api_equivalent_usd": 1.8045,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 84,
+      "output": 17328,
+      "thinking": 4619,
+      "cache_read": 3695722,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89813,
+      "api_equivalent_usd": 1.8045,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 39,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.92,
+      "active_minutes": 4.92,
+      "model_minutes": 3.38,
+      "tool_minutes": 1.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "porting 19 cases across 5 copies, guard change, 24-mutant campaign triage",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 166.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

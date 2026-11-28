@@ -30,7 +30,9 @@ import { shopCurrency } from "@shared/currency";
 import { type MemberRole, ROLE_RANK } from "@shared/enums";
 import {
   currencyMismatch,
+  dueDaysFromTerms,
   type InvoiceChoice,
+  invoiceImportCsv,
   invoiceMemo,
   planQuoteInvoice,
   qboDocNumber,
@@ -289,10 +291,11 @@ export async function quoteQuickBooks(
   quoteId: string,
 ): Promise<QuoteQuickBooksDto> {
   const q = await getQuote(ctx, orgId, quoteId);
-  const [conn, sent, accepted] = await Promise.all([
+  const [conn, sent, accepted, settings] = await Promise.all([
     connectionRow(ctx, orgId),
     sentRow(ctx, orgId, quoteId),
     acceptedChoices(ctx, orgId, quoteId),
+    getSettings(ctx, orgId),
   ]);
   return {
     available: ctx.qbo !== null,
@@ -310,7 +313,46 @@ export async function quoteQuickBooks(
     accepted,
     docNumber: qboDocNumber(q.quoteNumber, q.revNumber),
     memo: invoiceMemo(q),
+    defaultDueDays: dueDaysFromTerms(settings.quoteTerms),
   };
+}
+
+/**
+ * A won quote as a QuickBooks Online invoice-import CSV (docs/QUICKBOOKS.md, "Without the
+ * connection"): the same plan, number, memo and item name as the send, for a shop whose QuickBooks
+ * is not connected (or whose server has no Intuit keys). Records nothing: importing is the
+ * bookkeeper's step, and QuickBooks itself says whether the number is already used.
+ */
+export async function quoteInvoiceCsv(
+  ctx: AppContext,
+  orgId: string,
+  quoteId: string,
+  choices: InvoiceChoice[],
+  dueDays: number,
+): Promise<{ csv: string; docNumber: string }> {
+  const q = await getQuote(ctx, orgId, quoteId);
+  if (q.status !== "won") {
+    throw conflict("Only a won quote becomes an invoice: record the win first.");
+  }
+  const [accepted, settings, conn] = await Promise.all([
+    acceptedChoices(ctx, orgId, quoteId),
+    getSettings(ctx, orgId),
+    connectionRow(ctx, orgId),
+  ]);
+  const plan = planQuoteInvoice(q.lines, choices, accepted);
+  if (!plan.ok) throw badRequest(plan.error, plan.missing ? { lines: plan.missing } : undefined);
+  const docNumber = qboDocNumber(q.quoteNumber, q.revNumber);
+  const csv = invoiceImportCsv({
+    docNumber,
+    customer: q.customerCompany,
+    invoiceDay: shopDay(ctx.now(), settings.timeZone),
+    dueDays,
+    memo: invoiceMemo(q),
+    itemName: conn ? (chosenItem(conn)?.name ?? QBO_NAMES.partsItem) : QBO_NAMES.partsItem,
+    lines: plan.lines,
+  });
+  ctx.logger.info("quickbooks.quote_invoice_csv", { orgId, quoteId, lines: plan.lines.length });
+  return { csv, docNumber };
 }
 
 /** The connected company's books, or a 409 when there is no connection. */

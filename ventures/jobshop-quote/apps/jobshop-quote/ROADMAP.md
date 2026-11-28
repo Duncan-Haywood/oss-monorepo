@@ -724,6 +724,17 @@ checks the pair. No customers yet.
   refuses the send, nothing written). Tied to the company it was chosen in (migration 0034), so a
   reconnect to another company falls back to the default. `GET /quickbooks/items`,
   `PUT /quickbooks/item` (admin).
+- QuickBooks Online import file (2026-11-28; docs/QUICKBOOKS.md, "Without the connection"; bets.md
+  growth path "QuickBooks invoicing"): the one-click send waits on the owner's Intuit keys, so a won
+  quote's QuickBooks card now also downloads the same invoice as a CSV for QuickBooks Online's own
+  invoice import (Settings, Import data, Invoices), with or without a connection. Same plan as the
+  send (`planQuoteInvoice`: picked, accepted online or only break; never between breaks), number
+  `Q1001`/`Q1001-R2`, customer, memo and item name ("Machined parts", or the shop's chosen item when
+  connected); one row per line, money as plain decimals, MM/DD/YYYY dates, a due date from "Net N"
+  in the quote terms (else 30 days, 0 to 365, changeable), formula-looking cells made inert.
+  `POST /quotes/:id/quickbooks.csv` (any member: it holds only what the quote page shows), records
+  nothing. `invoiceImportCsv`, `dueDaysFromTerms` in `src/shared/qbo-invoice.ts`; unit and worker
+  tests. The site's `/quickbooks-invoices-from-quotes` module page describes it.
 
 - Material priced by the foot (2026-11-27; migration 0037, bets.md growth path "material price lists"): bar,
   tube and extrusion are bought and price-listed by the foot, often in 12 ft bars, and turned parts
@@ -916,7 +927,8 @@ checks the pair. No customers yet.
     returns OCR text or nothing decides whether the scan note shows in production).
 
 13. QuickBooks Online, part 2 (part 1 done 2026-11-26, docs/QUICKBOOKS.md; the shop's own item
-    and income account done 2026-11-26): an item per part family if shops ask, class and location for
+    and income account done 2026-11-26; the import file for shops without the connection done
+    2026-11-28, next if shops ask: several won quotes in one file, up to QuickBooks' 100 invoices): an item per part family if shops ask, class and location for
     Plus and Advanced companies, and an estimate at "Mark sent" for shops that keep quotes in
     QuickBooks too; then, if shops ask, payments read back to mark the job paid.
 14. Quote follow-up, part 2 (part 1 done 2026-11-26): a follow-up email to the customer drafted from

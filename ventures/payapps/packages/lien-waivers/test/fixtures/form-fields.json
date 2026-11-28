@@ -7,6 +7,7 @@
   "waiver AK/unconditional-progress/generic": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate throughDate exceptions? amountPaidCents",
   "waiver AK/conditional-final/generic": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate disputedClaimsCents? checkMaker checkAmountCents checkPayee",
   "waiver AK/unconditional-final/generic": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate disputedClaimsCents? amountPaidCents",
+  "notice AZ/preliminary-twenty-day-notice/statutory": "ownerNameAddress directContractor lender? contractedWith claimantName claimantAddress workDescription propertyAddress county legalDescription? estimate signedDate",
   "waiver AZ/conditional-progress/statutory": "projectName? jobNumber? ownerName jobDescription customerName claimantName signerTitle signedDate checkMaker checkAmountCents checkPayee throughDate",
   "waiver AZ/unconditional-progress/statutory": "projectName? jobNumber? ownerName jobDescription customerName claimantName signerTitle signedDate amountPaidCents throughDate",
   "waiver AZ/conditional-final/statutory": "projectName? jobNumber? ownerName jobDescription customerName claimantName signerTitle signedDate checkMaker checkAmountCents checkPayee disputedClaimsCents?",

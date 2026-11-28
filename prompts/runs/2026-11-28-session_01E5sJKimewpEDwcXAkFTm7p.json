@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKimewpEDwcXAkFTm7p",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T04:18:13Z",
+  "ended": "2026-11-28T04:28:21Z",
+  "wall_minutes": 10.55,
+  "tokens_in": 8194670,
+  "tokens_out": 41090,
+  "cost_usd": 3.5532,
+  "tool_calls": 74,
+  "task": "quality reaudit of ventures/cmmc (bet #4) after PR #19893",
+  "projects": [
+    "ventures/cmmc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19992",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 2,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First worker-suite run of one mutant reported 140 of 143 failing; a re-run of the same mutant and of the baseline both gave 166 passed, so it was a flake of the workerd pool, not a kill. Recorded the mutant as surviving.",
+    "First push failed CI twice: cmmc-ci's sparse checkout lacked ventures/machine-shop-guides, which the new parity test imports (added to the sparse list and the trigger paths); and test_monetization requires flagships.yaml and models.yaml to agree on the app path, so models.yaml's cmmc row moved to ventures/cmmc/apps/cmmc too."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "'Seed one bug' points at quality_mutate.py, but its private copy has no node_modules, so a pnpm/vitest venture (cmmc) cannot use it; PR #19893 hit the same wall. Ran the mutants in place and restored with git checkout."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "reaudit lists 302 venture subjects, nearly all demoted free calculators; it has no way to rank the for-profit products (transition.py rows) first, so a run that follows the north star must cross-reference by hand."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "eCFR, Federal Register, NIST nvlpubs, DoD CIO, law.cornell.edu and cmmc.marisstella.app were all refused by the proxy (403) this session, so a compliance re-audit cannot re-read its primary sources or load the served app; worth listing these hosts under 'Outbound hosts'."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Changing a flagship's `app:` path silently requires the same change in portfolio/monetization/models.yaml (test_monetization.py); neither file says so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "The reaudit draw's first rows were demoted free calculators; the track prompt's north star says prefer a for-profit product where the track leaves the target open.",
+      "did": "Took ventures/cmmc (bet #4), the first for-profit product in the reaudit list with no open PR naming it.",
+      "result": "Re-audit landed with four fixes in a ranked bet."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "Re-audit posts are named docs/posts/<date>-quality-reaudit-<slug>.md, but CLAUDE.md (owner, 2026-11-24) asks to extend a project's existing post rather than add a thin one.",
+      "did": "Extended docs/posts/2026-11-27-quality-fix-one-objective-not-met-means-not-met.md with a 're-check, 2026-11-28' section.",
+      "result": "One consolidated customer-tagged CMMC quality post instead of two."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-quality-fix-one-objective-not-met-means-not-met.md (extended)",
+    "portfolio/quality/audits/2026-11-28-cmmc-reaudit.json"
+  ],
+  "goal": null,
+  "notes": "Mode reaudit (quality_audit.py mode); seed 2026-11-28-e332; subject ventures/cmmc, prior audit 2026-11-26-cmmc.json. Share meeting the bar: 1 of 1 (re-audit, not a sample). Prior defects: 0, 1, 3, 4 closed by PR #19893; 2 open; 5, 6, 7 open on arrival and closed by this PR. New: conflictOf guard untested (fixed here); Level 1 objective ids differ for 3.10.4 and 3.14.4 between app and free page (pinned by test). Verification run here: pnpm test:unit 516 passed, pnpm test:worker 167 passed, pnpm typecheck clean, biome ci clean, pnpm build ok, quality_audit.py validate 0 problems, check_posts ok, check_post_links 0 broken, risk_review nothing blocked. Fix PRs: https://github.com/Duncan-Haywood/oss-monorepo/pull/19992. After CI: cmmc-ci.yml sparse checkout + paths now include machine-shop-guides; models.yaml cmmc app path updated; test_monetization 19 passed, monetization tests and allocate 161 passed; run_workflow_locally --for-changes: only that test had failed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "db1e7513-7047-5728-a7a0-3638ee29e61d",
+    "transcripts": 1,
+    "first": "2026-11-28T04:18:13Z",
+    "last": "2026-11-28T04:28:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 133,
+        "output": 41090,
+        "thinking": 8540,
+        "cache_read": 8054536,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140001,
+        "api_equivalent_usd": 3.5532,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 133,
+      "output": 41090,
+      "thinking": 8540,
+      "cache_read": 8054536,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140001,
+      "api_equivalent_usd": 3.5532,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 70,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.55,
+      "active_minutes": 10.55,
+      "model_minutes": 7.21,
+      "tool_minutes": 3.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "a CMMC practitioner re-checking scoring by hand plus a developer fixing three small defects with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 140.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
