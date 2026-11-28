@@ -73,7 +73,8 @@ export function renderDocument(
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#226955">
+    <meta name="theme-color" content="#226955" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#161412" media="(prefers-color-scheme: dark)">
     ${headTags(ctx, route, jsonLd)}
   </head>
   <body>

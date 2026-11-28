@@ -29,7 +29,55 @@
   --danger-700: #8c2a27;
   --radius: 12px;
   --shadow: 0 1px 2px rgb(31 28 25 / 6%), 0 4px 16px rgb(31 28 25 / 6%);
-  color-scheme: light;
+  /* Roles that do not follow the scales when the scheme flips. */
+  --on-brand: #ffffff;
+  --btn-bg: var(--brand-600);
+  --btn-bg-hover: var(--brand-700);
+  --cta-bg: var(--brand-800);
+  --cta-fg: var(--brand-100);
+  --cta-btn-bg: #ffffff;
+  --cta-btn-fg: var(--brand-800);
+  --cta-btn-hover: var(--brand-50);
+  color-scheme: light dark;
+}
+/* Dark scheme: the same roles on warm near-black neutrals. Every text pair keeps WCAG AA
+   (body 12.4:1, fineprint 6.3:1 or more, links 9.2:1 or more, white on the button 5.2:1);
+   test/unit/dark-mode.test.ts recomputes them. App stills stay light, framed as screenshots. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand-50: #132620;
+    --brand-100: #1e3b31;
+    --brand-200: #2d5b4b;
+    --brand-600: #2a7a62;
+    --brand-700: #8fd3b9;
+    --brand-800: #bde4d3;
+    --accent-50: #2a1d14;
+    --accent-200: #5e3d25;
+    --accent-700: #e5a274;
+    --n-0: #161412;
+    --n-50: #1d1a17;
+    --n-100: #26221e;
+    --n-200: #35302a;
+    --n-300: #4a443c;
+    --n-500: #a39b90;
+    --n-600: #bfb7ac;
+    --n-700: #d9d3ca;
+    --n-900: #f6f3ee;
+    --warn-50: #2a2112;
+    --warn-200: #5c4719;
+    --warn-800: #f1d48a;
+    --danger-50: #2c1615;
+    --danger-600: #e0675f;
+    --danger-700: #f29a93;
+    --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 30%);
+    --btn-bg: #2a7a62;
+    --btn-bg-hover: #21624f;
+    --cta-bg: #0f2e26;
+    --cta-fg: #b5daca;
+    --cta-btn-bg: #f6f3ee;
+    --cta-btn-fg: #17463a;
+    --cta-btn-hover: #daede4;
+  }
 }
 
 *,
@@ -223,11 +271,11 @@ summary:focus-visible {
   font-size: 0.92rem;
 }
 .btn-primary {
-  background: var(--brand-600);
-  color: var(--n-0);
+  background: var(--btn-bg);
+  color: var(--on-brand);
 }
 .btn-primary:hover {
-  background: var(--brand-700);
+  background: var(--btn-bg-hover);
 }
 .btn-secondary {
   background: var(--n-0);
@@ -318,22 +366,22 @@ summary:focus-visible {
   border-bottom: 1px solid var(--n-100);
 }
 .band-cta {
-  background: var(--brand-800);
-  color: var(--brand-100);
+  background: var(--cta-bg);
+  color: var(--cta-fg);
   text-align: center;
 }
 .band-cta h2 {
-  color: var(--n-0);
+  color: var(--on-brand);
 }
 .band-cta .actions {
   justify-content: center;
 }
 .band-cta .btn-primary {
-  background: var(--n-0);
-  color: var(--brand-800);
+  background: var(--cta-btn-bg);
+  color: var(--cta-btn-fg);
 }
 .band-cta .btn-primary:hover {
-  background: var(--brand-50);
+  background: var(--cta-btn-hover);
 }
 .page-head {
   background: linear-gradient(to bottom, var(--brand-50), var(--n-0));
@@ -402,8 +450,8 @@ summary:focus-visible {
   height: 2rem;
   flex: none;
   border-radius: 50%;
-  background: var(--brand-600);
-  color: var(--n-0);
+  background: var(--btn-bg);
+  color: var(--on-brand);
   font-size: 1rem;
 }
 .prose h2 {
