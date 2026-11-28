@@ -2696,7 +2696,11 @@ export function stockExampleFigures(ex = STOCK_EXAMPLE) {
 }
 
 const cents = (c) => `${c < 0 ? "−" : ""}$${(Math.abs(c) / 100).toFixed(2)}`;
-const PLATFORM_NAME = { ebay: "eBay", poshmark: "Poshmark", mercari: "Mercari" };
+const PLATFORM_NAME = new Map([
+  ["ebay", "eBay"],
+  ["poshmark", "Poshmark"],
+  ["mercari", "Mercari"],
+]);
 /** "2026-07-12" → "Jul 12" (the example's year), "2025-11-15" → "Nov 15, 2025". */
 const shortDate = (d) => {
   const t = new Date(`${d}T00:00:00Z`);
@@ -2718,7 +2722,7 @@ function sellThrough() {
     .map((i) => {
       const s = saleOf(i.id);
       const sold = s
-        ? `${esc(shortDate(i.disposedDate))}, ${esc(PLATFORM_NAME[s.platform])}`
+        ? `${esc(shortDate(i.disposedDate))}, ${esc(PLATFORM_NAME.get(s.platform) ?? s.platform)}`
         : `<span class="muted">unsold</span>`;
       return `      <tr><th scope="row">${esc(i.title)}</th><td>${esc(lotName(i))}</td><td class="nowrap">${esc(shortDate(i.acquiredDate))}</td><td>${cents(i.costCents)}</td><td>${sold}</td><td>${s ? cents(f.proceeds[i.id]) : ""}</td><td>${s ? f.daysToSell[i.id] : ""}</td></tr>`;
     })
