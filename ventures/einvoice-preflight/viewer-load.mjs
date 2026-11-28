@@ -10,12 +10,12 @@ import { describeSpecification } from "./viewer.mjs";
 export const MAX_BYTES = 20 * 1024 * 1024;
 
 function decodeText(bytes) {
-  if (typeof bytes === "string") return bytes.replace(/^﻿/, "");
+  if (typeof bytes === "string") return bytes.replace(/^\uFEFF/, "");
   // UTF-16 with a byte-order mark; everything else is read as UTF-8, the
   // encoding EN 16931's syntaxes use in practice.
   if (bytes[0] === 0xff && bytes[1] === 0xfe) return new TextDecoder("utf-16le").decode(bytes);
   if (bytes[0] === 0xfe && bytes[1] === 0xff) return new TextDecoder("utf-16be").decode(bytes);
-  return new TextDecoder("utf-8").decode(bytes).replace(/^﻿/, "");
+  return new TextDecoder("utf-8").decode(bytes).replace(/^\uFEFF/, "");
 }
 
 export async function loadInvoiceForView(name, bytes) {

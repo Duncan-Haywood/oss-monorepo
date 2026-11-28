@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "viewer-load.mjs went in with two literal U+FEFF characters in regexes (the Write tool turned the \\uFEFF escapes into the character); run_workflow_locally's hidden-unicode check caught it and a follow-up commit restored the escapes"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -54,7 +56,7 @@
     "ventures/einvoice-preflight/README.md (viewer section)"
   ],
   "goal": null,
-  "notes": "Security queue: 0 workable. IDEAS: none. Routed ventures/1. Bets #1 and #2 have no free, ungated Next items (most wait on demand); bet #3 had the fewest front-door PRs. Built the German XRechnung viewer. run_venture_tests einvoice-preflight: ok (2880 tests) plus site page checks. Chromium at 390 px: renders, no overflow, no console errors.",
+  "notes": "Security queue: 0 workable. IDEAS: none. Routed ventures/1. Bets #1 and #2 have no free, ungated Next items (most wait on demand); bet #3 had the fewest front-door PRs. Built the German XRechnung viewer. run_venture_tests einvoice-preflight: ok (2880 tests) plus site page checks. Chromium at 390 px: renders, no overflow, no console errors. run_workflow_locally --for-changes: 12/13 workflows passed; ventures-tests failed only on test_check_hidden_unicode (the BOM above), fixed and re-run OK. priv-codeql and priv-security-gate gave no verdict locally (skipped uses: steps).",
   "corrections": [],
   "redteam": null,
   "usage": {
