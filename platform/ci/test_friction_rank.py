@@ -56,6 +56,19 @@ def test_main_json(tmp_path, capsys, monkeypatch):
     assert fr.main(["--runs", str(tmp_path), "--days", "0", "--json"]) == 0
     row = json.loads(capsys.readouterr().out)[0]
     assert row["sessions"] == 2 and row["prs"] == []  # read (not None), "x" too short to claim
+    # Each report's own words, newest first (dated by record date here).
+    assert sorted(t["issue"] for t in row["texts"]) == ["flag is easy to skip", "the flag is easy to skip again"]
+    assert set(row["texts"][0]) == {"at", "issue"} and "dated" not in row
+
+
+def test_json_texts_are_newest_first(tmp_path, capsys):
+    write(tmp_path, "r1.json", "2026-11-01", [{"file": "x.md", "issue": "the flag is easy to skip"}])
+    write(tmp_path, "r2.json", "2026-11-03", [{"file": "x.md", "issue": "the flag is easy to skip, later"}])
+    assert fr.main(["--runs", str(tmp_path), "--days", "0", "--no-git", "--no-prs", "--json"]) == 0
+    texts = json.loads(capsys.readouterr().out)[0]["texts"]
+    assert [t["at"] for t in texts] == ["2026-11-03", "2026-11-01"]
+    assert fr.main(["--runs", str(tmp_path), "--days", "0", "--no-git", "--no-prs"]) == 0
+    assert "texts" not in capsys.readouterr().out
 
 
 def test_named_keeps_code_only():

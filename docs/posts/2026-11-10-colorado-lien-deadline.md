@@ -1,12 +1,36 @@
 ---
-title: "Mechanics lien deadlines in sixteen states, now with Michigan, Minnesota, Nevada, Oregon, Utah and Virginia"
-seo_title: "Mechanics lien deadlines by state: MI, MN, NV, OR, UT, VA and 10 more"
+title: "Mechanics lien deadlines in twenty-five states, now with Kansas, Maryland, South Carolina and six more"
+seo_title: "Mechanics lien deadlines by state: 25 states, statute for each"
 date: 2026-11-10
 tags: [construction, subcontractors, mechanics-lien, lien-waivers, pay-app-guides, payapps, for-customers]
-description: "Lien filing deadlines for subcontractors in sixteen states, with the statute for each, in a free calculator and on every job in PayApps."
+description: "Lien filing deadlines for subcontractors in twenty-five states, with the statute for each, in a free calculator and on every job in PayApps."
 ---
 
-The free [mechanics lien deadline calculator](https://marisstella.app/mechanics-lien-deadline-calculator/) takes your first and last day on a job and shows the two dates that keep a lien alive: the early notice and the lien filing. It covers sixteen states.
+The free [mechanics lien deadline calculator](https://marisstella.app/mechanics-lien-deadline-calculator/) takes your first and last day on a job and shows the two dates that keep a lien alive: the early notice and the lien filing. It covers twenty-five states.
+
+## Nine more states: Delaware, Idaho, Kansas, Maryland, Montana, Nebraska, North Dakota, South Carolina and South Dakota (added 2026-11-28)
+
+These nine went into PayApps and the free calculator on the same day, with the same rules, and the test that runs both copies on a grid of dates now fails if PayApps carries a state the calculator does not. Each section was read on the state's own code site that day (delcode.delaware.gov, legislature.idaho.gov, ksrevisor.gov, mgaleg.maryland.gov, legmt.gov, nebraskalegislature.gov, ndlegis.gov, scstatehouse.gov, sdlegislature.gov). The sentences each rule rests on are quoted in the calculator's [sources file](https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/mechanics-lien-deadline-calculator/sources/2026-11-28-nine-states.md).
+
+| State | Lien filing deadline, for a sub or supplier | Statute |
+|---|---|---|
+| Delaware | File a statement of claim within 120 days after your last labor or delivery of materials. A general contractor with the owner has 180 days after completion of the structure | 25 Del. C. § 2711 |
+| Idaho | File a claim of lien with the county recorder within 90 days after your labor, services or materials end | Idaho Code § 45-507(2) |
+| Kansas | File a lien statement with the clerk of the district court within 3 months after your last furnishing. A contractor with the owner has 4 months. On non-residential property, a notice of extension filed in the 3 months gives 5 | K.S.A. 60-1103(a), 60-1102(a) |
+| Maryland | Give the owner written notice of intention to claim a lien within 120 days after the work or materials, then file a petition in circuit court within 180 days | Real Prop. §§ 9-104, 9-105(a) |
+| Montana | File the lien with the county clerk and recorder within 90 days after your final furnishing, or after the owner files a notice of completion | MCA 71-3-535(1) |
+| Nebraska | Record the lien within 120 days after your final furnishing | Neb. Rev. Stat. § 52-137(1) |
+| North Dakota | Record the lien with the county recorder within 90 days after all your work is done | N.D.C.C. 35-27-13 |
+| South Carolina | Within 90 days after you stop work, serve the owner **and** file a sworn statement of account. Suit is due within six months | S.C. Code §§ 29-5-90, 29-5-120 |
+| South Dakota | File a statement of the claim with the register of deeds within 120 days after your last work or materials | SDCL 44-9-15 |
+
+All nine count from your own last day, so PayApps asks only for that date (or estimates it from your billing, always on the early side). Two of them have a second date that comes first:
+
+- **Maryland:** a subcontractor loses the lien without the 120-day notice of intention to the owner, which is due 60 days before the petition. The calculator dates the notice and PayApps names it next to the deadline.
+- **Montana:** if the owner filed a notice of completion before your last day (punch work after completion, say), the 90 days run from the notice and the deadline is earlier. The result says so.
+
+Iowa was read and left out. Its § 572.9 allows two years and ninety days to post a lien, but how much a late sub's lien still reaches depends on other sections of the chapter that were not read, so a single date would mislead. Illinois, Pennsylvania, Wisconsin and Massachusetts were tried as well, but their statute sites did not answer from the session. They stay out until they can be read at the source.
+
 
 ## Michigan, Minnesota, Nevada, Oregon, Utah and Virginia in the free calculator (added 2026-11-28)
 
@@ -94,6 +118,6 @@ California, Texas, Florida, Arizona, Washington and Georgia are in the calculato
 
 ## Where this fits
 
-Lien deadlines are one piece of the monthly billing paperwork a subcontractor does: the pay application, retainage, and a lien waiver with every payment. The [pay application guides](https://marisstella.app/pay-app-guides/) cover the rest, and the [lien waiver checker](https://marisstella.app/lien-waiver-checker/) reads a waiver before you sign it. [PayApps](https://payapps.marisstella.app/?signup&from=posts/mechanics-lien-deadlines) keeps the same sixteen states' lien dates on every job and warns you 45 days ahead on any job that still owes you money; it is open now, free on one job.
+Lien deadlines are one piece of the monthly billing paperwork a subcontractor does: the pay application, retainage, and a lien waiver with every payment. The [pay application guides](https://marisstella.app/pay-app-guides/) cover the rest, and the [lien waiver checker](https://marisstella.app/lien-waiver-checker/) reads a waiver before you sign it. [PayApps](https://payapps.marisstella.app/?signup&from=posts/mechanics-lien-deadlines) keeps the same twenty-five states' lien dates on every job and warns you 45 days ahead on any job that still owes you money; it is open now, free on one job.
 
 Not legal advice. Check the linked statute or ask a construction attorney before relying on any date.
