@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "Migration number collided with 0020_incidents merged on main mid-run; renumbered to 0021 after merging main and regenerating with drizzle-kit."
+    "Migration number collided with 0020_incidents merged on main mid-run; renumbered to 0021 after merging main and regenerating with drizzle-kit.",
+    "venture-preflight caught the CSV formula guard defusing plain negative numbers in calibration.ts; fixed to let -12.50 through."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -49,12 +50,6 @@
       "why": "No new blog post: the deliverable is a paid-tier feature, and the marketing page copy (cmmc-site pages.mjs, PRICING.md) was updated instead of writing a thin post.",
       "did": "Updated product marketing copy and README/llms-facing docs.",
       "result": "Feature shipped with marketing mention."
-    },
-    {
-      "file": "prompts/ventures/prompt-1.md",
-      "why": "Skipped venture-preflight.mjs (5+ min site-wide check) since the change is to the app and the cmmc-site copy only; ran cmmc-site tests and platform/pages/cmmc-site.test.mjs instead.",
-      "did": "Targeted tests.",
-      "result": "All pass."
     }
   ],
   "writeups": [],
