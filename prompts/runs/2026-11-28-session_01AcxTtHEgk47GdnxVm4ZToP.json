@@ -67,7 +67,7 @@
     "ventures/einvoice-preflight/e-rechnung-kleinunternehmer.html (three measured rows added)"
   ],
   "goal": null,
-  "notes": "Security queue: 0 workable (exit 3). Ideas inbox empty. run_venture_tests einvoice-preflight einvoice-pro: 0 failed (2878 + 2792 tests); official Schematron test run locally with slimdom/fontoxpath no-save. Finding: a § 19 invoice with only a Steuernummer fails BR-CO-26 under the official rules; the creator wrote it and the built-in checks passed it. The creator now refuses it; the built-in check is parked in NEXT.md. Superseded in part by PR #20032 (same page and fix, merged first); this PR became the follow-up adding three measured variants to its bench, page and test.",
+  "notes": "Security queue: 0 workable (exit 3). Ideas inbox empty. run_venture_tests einvoice-preflight einvoice-pro: 0 failed (2878 + 2792 tests); official Schematron test run locally with slimdom/fontoxpath no-save. Finding: a § 19 invoice with only a Steuernummer fails BR-CO-26 under the official rules; the creator wrote it and the built-in checks passed it. The creator now refuses it; the built-in check is parked in NEXT.md. Superseded in part by PR #20032 (same page and fix, merged first); this PR became the follow-up adding three measured variants to its bench, page and test. Also fixed main's red title-length test from PR #20036: jobshop machining-tolerances title cut to 68 characters, in routes.ts and the committed catalogue export (exporter needs tsx, absent here, so the export was edited to match).",
   "corrections": [],
   "redteam": null,
   "usage": {
