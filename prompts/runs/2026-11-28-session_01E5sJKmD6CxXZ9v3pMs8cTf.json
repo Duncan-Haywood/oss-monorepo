@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKmD6CxXZ9v3pMs8cTf",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T09:09:47Z",
+  "ended": "2026-11-28T09:39:14Z",
+  "wall_minutes": 29.64,
+  "tokens_in": 13339496,
+  "tokens_out": 50729,
+  "cost_usd": 5.1194,
+  "tool_calls": 103,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20064",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A literal U+FEFF ended up in test/worker/fai-form3.test.ts; check_hidden_unicode caught it in run_workflow_locally, fixed by writing it as String.fromCharCode(0xfeff)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/smb/cbp_counts.py",
+      "issue": "www2.census.gov was refused by the proxy this session (403 'no rule allows this host'), though bets.md says it was read 2026-11-27; the machine-shop counts could only be reused from bets.md."
+    },
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Vendor pricing pages (1factory.com, amtivo.com) do not resolve from the session, so a new-bet screen can only cite aggregator figures surfaced by WebSearch; the prompt could say so up front."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Every bet's free Next items were demand-gated or owner steps, as earlier runs reported; finding work meant reading front-doors.json, funnel.json and the growth-path lines by hand (~20 min)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "The prompt suggests a new paid-bet row; the first-article evidence pointed at the same customers as bets #2 and #4, so it was filed as bet #2 growth-path evidence and built as a module instead of a new row.",
+      "did": "Shipped part 1 in Job Shop Quote plus the sourced evidence in bets.md.",
+      "result": "Feature merged with tests; no new bet row."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-first-article-inspection-checker.md (extended: 'Before the checker: the list itself')"
+  ],
+  "goal": null,
+  "notes": "Explore idea: AS9102 first article (Form 3) characteristic list drafted from the RFQ drawing's text inside Job Shop Quote (bet #2). Verification: jobshop-quote unit 768/768, worker 304/304 (+2 new), tsc clean, biome clean; run_workflow_locally --for-changes: all run: steps passed except check_hidden_unicode (fixed in the follow-up commit, rerun OK); uses: steps not run locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "55b429fb-acf6-5eab-bca0-3542bd2e18a2",
+    "transcripts": 1,
+    "first": "2026-11-28T09:09:47Z",
+    "last": "2026-11-28T09:39:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 95,
+        "input": 186,
+        "output": 50729,
+        "thinking": 13336,
+        "cache_read": 13155178,
+        "cache_write_5m": 0,
+        "cache_write_1h": 184132,
+        "api_equivalent_usd": 5.1194,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 95,
+      "input": 186,
+      "output": 50729,
+      "thinking": 13336,
+      "cache_read": 13155178,
+      "cache_write_5m": 0,
+      "cache_write_1h": 184132,
+      "api_equivalent_usd": 5.1194,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 103,
+    "tools": {
+      "Bash": 92,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "Write": 2,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.64,
+      "active_minutes": 29.64,
+      "model_minutes": 9.67,
+      "tool_minutes": 19.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "parser + endpoint + tests + guide/post edits for a senior TS engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 195.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
