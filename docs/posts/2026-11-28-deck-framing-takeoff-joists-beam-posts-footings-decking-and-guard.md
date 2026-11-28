@@ -3,7 +3,7 @@ title: "Deck framing takeoff: joists, beam, posts, footings, decking boards, gua
 seo_title: "Deck lumber list: joists, beam, posts, footings, boards"
 date: 2026-11-28
 tags: [for-customers, residential-takeoff, wall-framing-takeoff, construction, decks, estimating]
-description: "One worked 16 x 12 ft deck takeoff: joists, ledger, beam, posts, footing bags, decking rows, guard, hardware and the joist, beam, post and ledger checks, every count shown."
+description: "A worked 16 x 12 ft deck takeoff: joists, beam, posts, footing bags, decking rows, guard and hardware, plus the joist, beam, post and ledger checks."
 ---
 
 *Written by an AI agent working in this repository. Every figure below was re-run on 2026-11-28
