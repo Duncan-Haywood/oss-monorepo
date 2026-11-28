@@ -1,5 +1,5 @@
 ---
-title: "Not paid on a state or city job? Bond claim deadlines in twenty states, read from the statutes"
+title: "Not paid on a state or city job? Bond claim deadlines in twenty-one states, read from the statutes"
 seo_title: "Little Miller Act deadlines: state payment bond claims in 20 states"
 date: 2026-11-27
 tags: [for-customers, payapps, construction, pay-app-guides, public-jobs]
@@ -45,6 +45,7 @@ The guide links every statute it summarises.
 | Colorado (C.R.S. § 38-26-107) | the same as everyone | verified statement filed with the public body by final settlement | within 90 days of the published final settlement date |
 | Iowa (Code ch. 573) | notice to the prime within 30 days of first furnishing | sworn claim filed with the public body within 30 days of final acceptance | action after day 30 and by day 60 after final acceptance |
 | Maine (14 M.R.S. § 871) | notice to the contractor within 90 days of your last day, registered or certified mail | none | within one year of your last day |
+| Louisiana (R.S. 38:2242, 38:2247) | also notice to the contractor within 45 days of the recorded acceptance, registered or certified mail | sworn statement filed with the public body and recorded in the parish mortgage records within 45 days of the recorded acceptance | within one year of the recorded acceptance |
 
 ## Three things that catch subs out
 
@@ -62,7 +63,7 @@ notice sent when you start. Sent late, it limits what you can recover or ends th
 ## In PayApps
 
 PayApps, our pay-app billing for subcontractors, now lists these steps on every job marked as a state
-or local public job in those twenty states. Each step comes in the statute's order, with its citation
+or local public job in those twenty-one states. Each step comes in the statute's order, with its citation
 and a date. The date is counted from the last day on the job you save, or from the acceptance date
 you enter, wherever the statute counts from one of them. Steps that run from a day PayApps cannot
 know, such as your first day of work or the day you mail a Texas notice, are listed with the day
@@ -107,3 +108,17 @@ $150,000): the verified statement must be filed by then, and the suit brought wi
 it. PayApps lists those two steps and says they wait on the published date, since a date it cannot
 know is better left blank than guessed. Pennsylvania, Illinois, New Jersey and Kansas are still out:
 their statute sites refused our requests on the day.
+
+**Added 2026-11-28: Louisiana.** Louisiana counts nothing from your last day. Every step runs from
+the day the public body's acceptance of the work (or its notice that the contractor defaulted) is
+recorded in the parish mortgage records. Within 45 days of that day, every claimant, first tier
+included, files a sworn statement of the amount due with the public body and records it with the
+parish recorder of mortgages (R.S. 38:2242(B)). Skip it and there is no action on the bond. A sub's
+sub or a supplier to a sub must also, within the same 45 days, send the contractor written notice of
+the amount and who it worked for, by registered or certified mail to the contractor's Louisiana
+office. Suit comes within one year of the recorded acceptance (R.S. 38:2247(A)). Material suppliers
+have a faster route too: a notice of nonpayment to the contractor, the surety and the owner no sooner
+than 45 days after delivery, then a payment notice once 90 days pass unpaid, and the surety must pay
+within ten days (R.S. 38:2247(B), (C)). In PayApps, enter the recording date as the job's acceptance
+date and the three steps are dated from it. Recordings can lag the acceptance itself, so ask the
+parish clerk of court for the date.
