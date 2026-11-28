@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKincVHxzqo3xD4dLYZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T09:17:58Z",
+  "ended": "2026-11-28T09:25:18Z",
+  "wall_minutes": 7.5,
+  "tokens_in": 7492178,
+  "tokens_out": 29538,
+  "cost_usd": 3.2034,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20066",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "Bet #1's only free item (#25, public jobs part 2) is a list of state statutes. Two other sessions held live claims on state-bond slugs, and the California part needs leginfo.legislature.ca.gov, which the proxy refused (403). So the 'start here' pick for bet #1 couldn't be built this session."
+    },
+    {
+      "file": "ventures/cmmc/apps/cmmc/src/shared/documents-import.ts",
+      "issue": "The location header regex matches any header ending in 'file', so a new export column named '... file' would be imported as the location. Not documented anywhere. Found by reading the regex."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "roadmap_claim.py pointed at bet #1 payapps #25. Its free parts were already claimed by parallel sessions or needed a blocked statute host.",
+      "did": "Took bet #4 (CMMC), free Next item #2, under slug document-controlled-copy-evidence.",
+      "result": "Shipped a working slice with tests."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "'Write about the work': this PR has no new post. The slice is a small feature on an existing module, so one line on the cmmc-site features list and the README/ROADMAP entries cover it.",
+      "did": "Updated the marketing page line instead of writing a post.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/cmmc/apps/cmmc/ROADMAP.md (Document control, part 3c)",
+    "ventures/cmmc/apps/cmmc-site/src/pages.mjs (features line)"
+  ],
+  "goal": null,
+  "notes": "Local checks: cmmc typecheck clean, biome lint clean, pnpm test (unit 544 plus the worker suite) exit 0, run_venture_tests.py cmmc 0 failed. The risk review blocked nothing.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a06c07e8-f3ce-5ed5-91b3-e9b23330560d",
+    "transcripts": 1,
+    "first": "2026-11-28T09:17:58Z",
+    "last": "2026-11-28T09:25:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 118,
+        "output": 29538,
+        "thinking": 4911,
+        "cache_read": 7349274,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142786,
+        "api_equivalent_usd": 3.2034,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 118,
+      "output": 29538,
+      "thinking": 4911,
+      "cache_read": 7349274,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142786,
+      "api_equivalent_usd": 3.2034,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.5,
+      "active_minutes": 7.5,
+      "model_minutes": 5.47,
+      "tool_minutes": 2.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "schema+migration, service, route, UI picker, tests for a senior full-stack dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 187.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
