@@ -377,7 +377,7 @@ function form1099k() {
   </div>
   <h2>Who gets one</h2>
   <p>For federal reporting, a payment platform files a 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions. Some states set lower thresholds, so a form can arrive below the federal line. Either way it is a report of payments, not a tax bill. See <a href="${IRS_1099K}">the IRS page on Form 1099-K</a>.</p>
-  <p>Sold some of your own things in the same account? Personal items sold at a loss are in box 1a too, and are not income: see <a href="${href("/personal-items-or-business")}">personal items, a hobby or a business</a>.</p>
+  <p>Sold some of your own things in the same account? Personal items sold at a loss are in box 1a too, and are not income: see <a href="${href("/personal-items-or-business")}">personal items, a hobby or a business</a>. Selling locally on Facebook Marketplace? Who reports those sales depends on how the buyer paid: see <a href="${href("/facebook-marketplace-taxes")}">Facebook Marketplace taxes</a>.</p>
   <h2>When the months don't match</h2>
   <p>The form also has a box for each month (5a for January through 5l for December). Laid beside your books month by month, the gap usually has one of a few causes:</p>
   <div class="table-scroll"><table>
@@ -608,6 +608,184 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "Personal items or a business", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// /facebook-marketplace-taxes: the search a reseller's local sales bring on ("do I pay tax on Facebook
+// Marketplace sales?"). Facebook's own pages were read through search-engine excerpts on 2026-11-28
+// (facebook.com is not reachable from the build environment): the Marketplace seller protection policy
+// (a 10% selling fee per transaction on shipped checkout orders, $0.80 minimum, figured on the whole
+// amount including shipping and applicable taxes; local pickup has no fee) and the Commerce Manager page
+// on marketplace facilitator states (Facebook collects and remits the tax on checkout sales there). Older
+// Commerce Manager pages still show 5% and $0.40; the policy page is the current one. The 1099-K threshold
+// is the IRS general FAQ the other pages cite. The example's figures are invented and labelled so;
+// test/site.test.mjs holds the arithmetic.
+export const FACEBOOK_CHECKED_ON = "2026-11-28";
+export const FACEBOOK_FEE = { rate: 0.1, minimumCents: 80 };
+export const FACEBOOK_EXAMPLE = [
+  { what: "Denim jacket, shipped, $40 plus $8 shipping", orderCents: 4800 },
+  { what: "Paperback, shipped, $5 plus $1 shipping", orderCents: 600 },
+];
+/** Facebook's selling fee on a shipped checkout order of `orderCents` (the whole amount, before rounding rules we cannot see). */
+export function facebookFeeCents(orderCents, fee = FACEBOOK_FEE) {
+  return Math.max(Math.round(orderCents * fee.rate), fee.minimumCents);
+}
+const META_SELLER_POLICY = "https://www.facebook.com/legal/merchant_policies";
+const META_MPF_STATES = "https://www.facebook.com/business/help/225860631518504";
+const META_SELLER_POLICY_QUOTE =
+  "The Selling Fee will be calculated based on the entire amount of the transaction (including the sale price(s) of good(s), any shipping fees and Applicable Taxes).";
+
+function facebookMarketplace() {
+  const path = "/facebook-marketplace-taxes";
+  const title = "Facebook Marketplace taxes for resellers";
+  const description =
+    "Do you pay tax on Facebook Marketplace sales? Local pickup or shipped, who sends a 1099-K, the 10% fee on shipped orders, and keeping the books for both.";
+  const cents = (c) => `$${(c / 100).toFixed(2)}`;
+  const rows = FACEBOOK_EXAMPLE.map((r) => ({ ...r, feeCents: facebookFeeCents(r.orderCents) }));
+  const ways = [
+    [
+      "Local pickup, paid in cash",
+      "Facebook takes no fee and never touches the money. No platform reports the sale.",
+      "Type the sale in: date, item, what the buyer paid.",
+    ],
+    [
+      "Local pickup, paid by Venmo, PayPal or Cash App",
+      "No Facebook fee. The payment app moved the money, so any Form 1099-K for it comes from that app, not from Facebook.",
+      "Import the app's statement; do not also type the sale in.",
+    ],
+    [
+      "Local pickup, paid by Zelle or a bank transfer",
+      "No Facebook fee. The deposit is on your bank statement and nowhere else.",
+      "Type the sale in; the bank statement check totals the deposits that name no platform, so a missed one shows.",
+    ],
+    [
+      "Shipped, paid through Facebook checkout",
+      "Facebook keeps a 10% selling fee (at least $0.80) and pays you the rest, so for these sales Facebook is the payment platform.",
+      "Type the sale in with the selling fee and the postage you paid.",
+    ],
+  ];
+  const faqs = [
+    {
+      q: "Do I have to pay taxes on Facebook Marketplace sales?",
+      a: "It depends on what you sold, not on the site. Your own things sold for less than you paid are not income. Things you bought to resell are business (or hobby) income, whether the buyer paid in cash, by an app or through Facebook checkout, and whether or not any form arrives.",
+    },
+    {
+      q: "Does Facebook Marketplace report my sales to the IRS?",
+      a: "Facebook can only report money it handled, which means shipped orders paid through its checkout. A Form 1099-K is filed when a platform's payments to you for the year are over $20,000 and more than 200 transactions; some states are lower, and a platform may send one below the line. Local pickups paid in cash or by a payment app are not Facebook's to report; a payment app reports its own payments under the same rules.",
+    },
+    {
+      q: "What does Facebook charge to sell?",
+      a: `Local pickup is free. On shipped orders paid through checkout, Facebook's seller policy sets a selling fee of 10% per transaction with a $0.80 minimum, figured on the whole amount: “${META_SELLER_POLICY_QUOTE}” The fee is a business expense; on the Schedule C worksheet it sits with the other platform fees.`,
+    },
+    {
+      q: "Do I charge sales tax on Facebook Marketplace?",
+      a: "On shipped checkout orders to a marketplace facilitator state, Facebook says it collects and remits the tax for you. A local sale is a sale you made yourself, so whether tax is due on it is your state's rule, the same as at a flea market.",
+    },
+    {
+      q: "The buyer paid by Venmo and I typed the sale in too. Is it counted twice?",
+      a: `It would be. In ${SITE_NAME}, a sale paid by Venmo, PayPal or Cash App comes in from that app's statement, so leave it out of the typed-in sales; type in only what no statement covers: cash, Zelle, and Facebook checkout orders.`,
+    },
+  ];
+  const wayRows = ways
+    .map(
+      ([a, b, c]) =>
+        `      <tr><th scope="row">${esc(a)}</th><td>${esc(b)}</td><td>${esc(c)}</td></tr>`,
+    )
+    .join("\n");
+  const exRows = rows
+    .map(
+      (r) =>
+        `        <tr><th scope="row">${esc(r.what)}</th><td>${cents(r.orderCents)}</td><td>${cents(r.feeCents)}</td><td>${cents(r.orderCents - r.feeCents)}</td></tr>`,
+    )
+    .join("\n");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">Facebook Marketplace is where many resellers sell the bulky, the local and the cheap. The tax rules are the same as anywhere else; what changes is who handled the money, and so what paper you get.</p>
+  <h2>Four ways a Marketplace sale gets paid</h2>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">How it sold</th><th scope="col">Fees and forms</th><th scope="col">In ${esc(SITE_NAME)}</th></tr></thead>
+    <tbody>
+${wayRows}
+    </tbody>
+  </table></div>
+  <h2>Is it taxable?</h2>
+  <p>The site does not decide it; what you sold does. Clearing out your own things at a loss is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). Buying furniture, tools or clothes to flip is business or hobby income, and a cash sale counts the same as a sale paid by app. A business reports gross sales on Schedule C and deducts what made them: the selling fee, postage, <a href="${href("/mileage-deduction")}">the miles</a> to pick up stock and to meet buyers, and the <a href="${href("/cost-of-goods-sold")}">cost of the items</a> that sold.</p>
+  <h2>Who sends a 1099-K</h2>
+  <p>Only a platform that paid you can report the payment. For a pickup paid in cash, nobody does. For a pickup paid through a payment app, the app does, under the same <a href="${IRS_1099K_FAQ_GENERAL}">federal rule</a> as any platform: payments over $20,000 and more than 200 transactions in the year (some states are lower, and a form can come below the line). For shipped orders paid through checkout, Facebook paid you, so any form for those comes from Facebook. Selling on several apps can mean several forms, each counting only its own payments, or none at all; the books have to hold every sale either way. When a form does come, <a href="${href("/1099-k")}">box 1a counts gross payments</a>, before fees and refunds.</p>
+  <h2>The fee on shipped orders</h2>
+  <p>Facebook's <a href="${META_SELLER_POLICY}">Marketplace seller policy</a> sets a selling fee of 10% per transaction, at least $0.80, on shipped checkout orders, figured on the whole amount: &ldquo;${esc(META_SELLER_POLICY_QUOTE)}&rdquo; Local pickup has no fee. Some older Facebook help pages still show 5% and $0.40; the policy is the current figure.</p>
+  <div class="worked">
+    <p class="muted">Two invented orders, with no sales tax on them, to show the minimum at work:</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Order</th><th scope="col">Buyer paid</th><th scope="col">Selling fee</th><th scope="col">Before postage</th></tr></thead>
+      <tbody>
+${exRows}
+      </tbody>
+    </table></div>
+    <p class="muted">10% of ${cents(rows[1].orderCents)} is ${cents(Math.round(rows[1].orderCents * FACEBOOK_FEE.rate))}, under the minimum, so the fee is ${cents(FACEBOOK_FEE.minimumCents)}. On a taxed order the fee is figured on the tax as well. Your payout statement shows the fee actually charged; use that.</p>
+  </div>
+  <h2>Sales tax</h2>
+  <p>Facebook's <a href="${META_MPF_STATES}">page on marketplace facilitator states</a> says that in those states it collects and remits the tax on checkout sales, so that tax is not yours to report. A local pickup is a sale you made yourself; whether tax is due on it is your state's rule. More in <a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>.</p>
+  <h2>Keeping the books in ${esc(SITE_NAME)}</h2>
+  <p>Facebook has no sales report to import, so its sales are typed in on the Imports page as sales made off the marketplaces: the date, what sold, what the buyer paid (and any shipping they paid), the fee kept and the postage. Pick the item from your stock and its cost moves to cost of goods sold. Sales paid by <a href="${href("/platforms/venmo")}">Venmo</a>, <a href="${href("/platforms/paypal")}">PayPal</a> or <a href="${href("/platforms/cash-app")}">Cash App</a> come in from those apps' statements instead, so type in only what no statement covers. Then &ldquo;Did I import everything?&rdquo; sets your bank statement's deposits against the payouts the books expect and totals the money that names no platform; if some of that is sales (Zelle, cash paid in), those are the sales still to type in. Typed-in sales count toward the free plan's monthly orders but not toward its one platform.</p>
+  <p class="muted">Facebook's figures are from its seller policy and Commerce Manager help, read through search excerpts ${esc(FACEBOOK_CHECKED_ON)}; Facebook changes its fees, so check the policy before relying on them. The 1099-K threshold is from the <a href="${IRS_1099K_FAQ_GENERAL}">IRS general FAQs</a>.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "fbm" })}</div>`;
+  const text = `# ${title}
+
+The tax rules for Facebook Marketplace are the same as anywhere else; what changes is who handled the money.
+
+## Four ways a Marketplace sale gets paid
+
+${mdList(ways.map(([a, b, c]) => `${a}: ${b} ${SITE_NAME}: ${c}`))}
+
+## Is it taxable?
+
+Personal items sold at a loss are not income. Items bought to resell are business or hobby income, cash or app alike. A business reports gross sales on Schedule C and deducts the selling fee, postage, mileage and cost of goods.
+
+## Who sends a 1099-K
+
+Only the platform that paid you: nobody for cash, the payment app for app payments, Facebook for shipped checkout orders. Federal threshold: over $20,000 and more than 200 transactions (${IRS_1099K_FAQ_GENERAL}); some states are lower.
+
+## The fee on shipped orders
+
+10% per transaction, $0.80 minimum, on the whole amount including shipping and taxes (${META_SELLER_POLICY}). Local pickup: no fee. Invented examples: ${rows.map((r) => `${r.what}: fee ${cents(r.feeCents)}, ${cents(r.orderCents - r.feeCents)} before postage`).join("; ")}.
+
+## Sales tax
+
+Facebook collects and remits on checkout sales in marketplace facilitator states (${META_MPF_STATES}). Local sales follow your state's rule.
+
+## In ${SITE_NAME}
+
+Facebook sales are typed in as sales made off the marketplaces, with the fee and postage; Venmo, PayPal and Cash App payments import from their statements, so type in only what no statement covers. The bank statement check totals deposits that name no platform. Read through search excerpts ${FACEBOOK_CHECKED_ON}.
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Facebook Marketplace taxes", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -2080,6 +2258,11 @@ export const SELLER_COLLECTED_SALES = [
   },
   { channel: "venmo", name: "Venmo", what: "a local or Facebook Marketplace sale paid by Venmo" },
   {
+    channel: "cashapp",
+    name: "Cash App",
+    what: "a local or Facebook Marketplace sale paid by Cash App",
+  },
+  {
     channel: "shopify",
     name: "Your own Shopify store",
     what: "orders on your own store (Shop channel orders aside, which Shopify collects on as a marketplace)",
@@ -2555,6 +2738,7 @@ export function allPages() {
     scheduleC(),
     form1099k(),
     personalItems(),
+    facebookMarketplace(),
     costOfGoodsSold(),
     inventorySpreadsheet(),
     mileageDeduction(),

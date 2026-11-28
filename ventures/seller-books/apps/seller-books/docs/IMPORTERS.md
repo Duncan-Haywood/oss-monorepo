@@ -6,7 +6,7 @@ each field accepts several known spellings. Position never matters. The header r
 missing field and the spellings accepted for it. A changed export therefore fails loudly instead of importing
 wrong numbers.
 
-**Verification status (2026-11-24; Mercari, Whatnot and Etsy's file menus re-checked on official pages 2026-11-26; Shopify added 2026-11-26 from its own column lists; Amazon added 2026-11-26 from no live page, see its section; TikTok Shop added 2026-11-26 from a column dictionary and TikTok's field definitions, see its section; Square added 2026-11-26 from a seller-quoted header row and Square's glossary, see its section; PayPal added 2026-11-27 from PayPal's own field reference, see its section; Venmo added 2026-11-27 from a published personal statement, see its section).** This environment could not open the marketplaces' help pages. The column
+**Verification status (2026-11-24; Mercari, Whatnot and Etsy's file menus re-checked on official pages 2026-11-26; Shopify added 2026-11-26 from its own column lists; Amazon added 2026-11-26 from no live page, see its section; TikTok Shop added 2026-11-26 from a column dictionary and TikTok's field definitions, see its section; Square added 2026-11-26 from a seller-quoted header row and Square's glossary, see its section; PayPal added 2026-11-27 from PayPal's own field reference, see its section; Venmo added 2026-11-27 from a published personal statement, see its section; Cash App added 2026-11-28 from three published exports' header rows, see its section).** This environment could not open the marketplaces' help pages. The column
 names below come from search-engine excerpts of those pages, from seller and community posts that quote the
 headers, and, where noted, only from the help page's own field descriptions. **No platform's full, ordered
 header row was confirmed.** The fixtures in `test/fixtures/` were written to match these names; they are not
@@ -444,6 +444,49 @@ real export. **Before launch, run one real business-profile statement through it
   again adds nothing.
 - **Bank statements:** with `venmo` a platform, a deposit named "VENMO" on a bank statement ("Did I import
   everything?") is set against the Venmo sales, and the check notes it may be friends-and-family money cashed out.
+
+## Cash App: activity export (sales paid by Cash App off the marketplaces)
+
+cash.app on the web > Statements > the Transactions CSV, a file named `cash_app_report_<number>.csv` (the menu
+names are from the strings on Cash App's own web pages, read 2026-11-28; its help articles render in the browser
+and their text could not be read). Added 2026-11-28 for the sales a reseller is paid for in Cash App: a local
+pickup, a flea-market or Facebook Marketplace sale, on a personal or a business account. Until then these had to
+be typed in one at a time as direct sales. One row is one balance entry, newest first.
+
+**How sure we are: high on the header and the personal-account rows, low on a business account's payment fee.**
+The header row was read from three exports users published on GitHub (found with a code search for the column
+names, 2026-11-28; only the header and the column values' shapes were read, no names or notes copied):
+`Date`, `Transaction ID`, `Transaction Type`, `Currency`, `Amount`, `Fee`, `Net Amount`, `Asset Type`, `Asset
+Price`, `Asset Amount`, `Status`, `Notes`, `Name of sender/receiver`, `Account` (one synthetic fixture elsewhere
+puts `Transaction ID` first; matching is by name, so order does not matter). Amounts read `$10.00` and `-$5.00`;
+dates `2024-09-26 16:18:23 EDT`; statuses seen were `COMPLETE` and `FAILED`; types seen were `P2P` (both
+directions, the sign says which), `Deposits`, `Withdrawal`, `Savings Internal Transfer`, `Bitcoin Buy`, `Bitcoin
+Sell`, `Stock Buy`, `Stock Dividends`, `Account Notifications` and an empty type. On the Bitcoin rows the fee is
+negative and `Net Amount = Amount + Fee` (`$20.00`, `-$0.40`, `$19.60`). BittyTax's open-source parser
+(`src/bittytax/conv/parsers/cashapp.py`, read 2026-11-28) also handles an older export's `Received P2P`, `Sent
+P2P`, `Cash in`, `Cash out`, `Cash Card Debit` and `Boost Payment`. **No business-account export was seen**, so
+the fee on a payment received is read from the `Fee` column the same way as on the Bitcoin rows, unconfirmed. The
+fixture `test/fixtures/cashapp-report.csv` copies the layout with invented people and amounts; it is not a real
+export. **Before launch, run one real business-account export through it.**
+
+- **Required:** `Date`, `Transaction Type`, `Amount`, `Net Amount`, `Status`.
+- **Also read:** `Transaction ID` (the id), `Currency` (US dollars only), `Fee`, `Asset Type` (any asset means an
+  investment row), `Notes` (the title). `Name of sender/receiver` is used only in the id hash of a row without a
+  `Transaction ID`, never stored.
+- **Payments received** (`P2P` with a positive amount, `Received P2P`, or another payment type): a sale of
+  `Amount`, what the buyer sent; `Fee` → payment processing; `Net Amount` kept as the net per report. There is no
+  tax column, so no tax is read. A warning says every payment received counts as a sale, so money from friends,
+  rent or a loan repaid must be deleted afterwards: the file cannot tell them apart.
+- **Refunds** (a type naming a refund or reversal with a negative amount): a refund on its own date, a fee in
+  `Fee` read as given back. A refund with a positive amount is skipped with its reason.
+- **Skipped, each with its reason:** payments sent (`P2P` negative, `Sent P2P`; a warning totals them);
+  Cash Card activity; deposits, withdrawals, cash-outs and transfers; Bitcoin, stock, dividends, Boosts and any row
+  with an asset; account notifications; any status other than `COMPLETE`; any currency other than USD; anything
+  else, with its type named.
+- **Ids:** Cash App's `Transaction ID`, or a hash of the date, type, amount, counterparty and note without one.
+- **Bank statements:** with `cashapp` a platform, a deposit reading "CASH APP" (two words, or "SQUARE INC * CASH
+  APP") on a bank statement is set against the Cash App sales, and the check notes it may be friends-and-family
+  money cashed out.
 
 ## Column-mapped CSV: Grailed, StockX, Vinted and any other marketplace (added 2026-11-27)
 

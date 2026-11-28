@@ -104,14 +104,18 @@ const usd = (cents: number) => {
  * two platforms on one line match neither.
  */
 export function matchPlatform(description: string, platforms: readonly string[]): string | null {
-  const words = description
+  const single = description
     .toLowerCase()
     .split(/[^a-z]+/)
     .filter(Boolean);
+  // Two-word names ("CASH APP", "PAY PAL") also match as one word.
+  const words = [...single, ...single.slice(1).map((w, i) => `${single[i]}${w}`)];
   // "other" (another marketplace, typed by the seller) names no payer a bank line would carry.
-  const hits = platforms.filter(
+  let hits = platforms.filter(
     (p) => p !== "other" && words.some((w) => w.startsWith(p.toLowerCase())),
   );
+  // Cash App is run by Square's parent, and its bank lines can read "SQUARE INC * CASH APP": Cash App wins.
+  if (hits.includes("cashapp")) hits = hits.filter((p) => p !== "square");
   return hits.length === 1 ? (hits[0] as string) : null;
 }
 
@@ -144,6 +148,7 @@ const MIXED_USE: Record<string, string> = {
   amazon: "a refund of something you bought on Amazon",
   paypal: "a personal PayPal transfer or a refund",
   venmo: "money from friends or family cashed out from Venmo",
+  cashapp: "money from friends or family cashed out from Cash App",
   square: "a refund from a shop that takes Square",
   shopify: "a refund of a Shopify subscription or app charge",
 };
@@ -259,7 +264,7 @@ export function reconcilePayouts(input: ReconcilePayoutsInput): ReconcilePayouts
     );
   if (otherDepositsCents > 0)
     findings.push(
-      `${usd(otherDepositsCents)} of other money in names no platform. If some of it is sales (Venmo, Cash App, Zelle, cash deposited), make sure those sales are entered as sales made off the marketplaces.`,
+      `${usd(otherDepositsCents)} of other money in names no platform. If some of it is sales (Zelle, cash deposited), make sure those sales are entered as sales made off the marketplaces.`,
     );
 
   return {

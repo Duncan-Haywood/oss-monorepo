@@ -16,6 +16,12 @@ checks the pair. No customers yet.
 
 ## Done (v0.1, this core)
 
+- Module landing pages (2026-11-28, `jobshop-site-module-pages`): https://marisstella.app/jobshop/ has a page
+  per built module (CNC quoting, sheet metal from the DXF, STEP files, repeat parts and routings, material
+  prices, online acceptance, follow-up, win/loss, job travelers, shop load and lead time), each saying what
+  it does today and what it does not do yet, linked from how-it-works, in the sitemap and llms.txt
+  (`apps/jobshop-site/src/site/module-data.ts`). When AI reading, inbound email or QuickBooks is switched
+  on, give it a page there too. Next: a still per module from `pnpm stills` where none fits yet.
 - Marketing site served (2026-11-27, `jobshop-site-served`): `apps/jobshop-site` opened (launch switch
   `LAUNCH` in its `src/site/config.ts`: Start free / Sign in to `https://jobshop-quote.marisstella.app`,
   early-access list retired, AI reading and inbound email labelled "not switched on yet", paid plans

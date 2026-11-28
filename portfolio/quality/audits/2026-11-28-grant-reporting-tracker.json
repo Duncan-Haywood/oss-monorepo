@@ -1,0 +1,275 @@
+{
+ "date": "2026-11-28",
+ "subject": "ventures/grant-reporting-tracker",
+ "stratum": "venture",
+ "seed": "2026-11-28-21de",
+ "drawn_by": "reaudit",
+ "auditor": "agent session (Claude), quality track reaudit mode, see run record",
+ "status": "audited",
+ "professional": "a post-award grants administrator at a small nonprofit keeping the reporting calendar for federal pass-through and foundation awards; first checks: due dates follow the award's fixed periods plus the reporting lag (2 CFR 200.329(c)(1): 30 days quarterly/semiannual, 90 annual), the final report sits 120 days after the period of performance (200.344(b)), and a late filing does not move later dates",
+ "prior_audit": "portfolio/quality/audits/2026-11-13-grant-reporting-tracker.json",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Scored on arrival (origin/main 054b0f3b9). Recomputed 8 cases with node one-liners against calc.mjs. The high drift defect is gone: semiannual award 2026-01-15 filed late 2026-08-01, reviewed 2027-01-20 -> 2027-01-15 -5 Overdue (fixed schedule, hand count). Month-end clamp 2026-01-31+1 -> 2026-02-28 and 2024-01-31+1 -> 2024-02-29; 2026-02-30 -> Check inputs. But the dates checked against eCFR 2 CFR 200.329/200.344 were still wrong on arrival: federal quarterly from 2026-01-01 on 2026-04-15 -> 2026-04-01 -14 Overdue (due 2026-04-30); annual from 2025-10-01 on 2026-11-13 -> 2026-10-01 -43 Overdue (due 2026-12-29); award ended 2026-06-30 -> 2027-07-01 230 On track (final due 2026-10-28). The README listed these as known gaps, the page did not. Not 3: the federal cases a user would act on were wrong on the served page.",
+  "completeness": "Claimed features exercised in node and in Chromium (Playwright, files served with page.route): add award, review queue, Filed today, Remove, CSV export, sample grants, damaged-storage recovery. All worked; no stubs or TODOs. README Known gaps matched what was missing.",
+  "verification": "node --test '*.test.mjs' on arrival: 37 pass, 0 fail. Six seeded mutations with platform/ci/quality_mutate.py: 3 caught (Due-soon boundary <=30 -> <30; Overdue boundary <0 -> <=0; next = covered+1 -> covered), 3 survived (overspend clamped to 0; tie-break reversed; monthly early-filing window cap removed). Both status boundaries that survived last time are now pinned. Not 3: half the mutants in core logic survive.",
+  "craft": "Read calc.mjs (209 lines on arrival), calc.test.mjs, index.html. parseDate now refuses non-round-tripping dates; scheduling computes every date from the award date, no accumulated clamp drift. Still: the page's script is one-line minified handlers (index.html:83-97) a reviewer cannot diff; localToday duplicated as todayLocal in the page.",
+  "claims": "Disclaimer on every page; no network calls; README event list now includes report_filed (fixed). The explainer's false 'smallest award' sentence is fixed (when-is-my-grant-report-due.html:46 now says 'neither the largest nor the smallest'). But its FAQ (visible and JSON-LD) still answered 'How do I calculate when a grant report is due?' with 'Add the reporting interval in months to the award date' and no mention of the federal lag or final report, while the README admitted the gap. Not 3.",
+  "fitness": "Walked the same three-award job as the prior audit. The foundation semiannual award now keeps its schedule through a late filing. The federal quarterly award still read Overdue two weeks before it was due and an ended award showed no final report, so a post-award administrator could not use it as their reporting calendar for federal pass-through money on arrival.",
+  "domain": "Against 2 CFR 200.329(c)(1) and 200.344(b) (text as quoted in the prior audit's eCFR fetch). The schedule now stays fixed to the award's periods, which is the practice (up from 1). Departures on arrival: no lag after the period, no period-of-performance end or final report, one report stream per award."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "late filing does not drift the schedule",
+   "method": "fixed reporting periods from the award (2 CFR 200.329(c)(1)); hand calendar",
+   "command": "node -e \"import('./ventures/grant-reporting-tracker/calc.mjs').then(m=>console.log(m.reviewGrant({...},'<date>')))\" (one-liner per case; outputs quoted)",
+   "expected": "2027-01-15 -5 Overdue",
+   "observed": "2027-01-15 -5 Overdue",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "federal quarterly from 2026-01-01, reviewed 2026-04-15",
+   "method": "2 CFR 200.329(c)(1): due 30 days after the quarter ends (31 Mar) -> 2026-04-30",
+   "command": "node -e \"import('./ventures/grant-reporting-tracker/calc.mjs').then(m=>console.log(m.reviewGrant({...},'<date>')))\" (one-liner per case; outputs quoted)",
+   "expected": "2026-04-30 15 Due soon",
+   "observed": "2026-04-01 -14 Overdue",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "federal annual from 2025-10-01, reviewed 2026-11-13",
+   "method": "2 CFR 200.329(c)(1): 90 days after 2026-09-30",
+   "command": "node -e \"import('./ventures/grant-reporting-tracker/calc.mjs').then(m=>console.log(m.reviewGrant({...},'<date>')))\" (one-liner per case; outputs quoted)",
+   "expected": "2026-12-29 On track",
+   "observed": "2026-10-01 -43 Overdue",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "award ended 2026-06-30, last annual report filed 2026-07-01, reviewed 2026-11-13",
+   "method": "2 CFR 200.344(b): 120 days after period of performance -> 2026-10-28",
+   "command": "node -e \"import('./ventures/grant-reporting-tracker/calc.mjs').then(m=>console.log(m.reviewGrant({...},'<date>')))\" (one-liner per case; outputs quoted)",
+   "expected": "final 2026-10-28 Overdue",
+   "observed": "2027-07-01 230 On track",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "month-end clamp and leap year",
+   "method": "hand Gregorian calendar",
+   "command": "node -e \"import('./ventures/grant-reporting-tracker/calc.mjs').then(m=>console.log(m.reviewGrant({...},'<date>')))\" (one-liner per case; outputs quoted)",
+   "expected": "2026-02-28, 2024-02-29",
+   "observed": "2026-02-28, 2024-02-29",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "impossible stored date 2026-02-30",
+   "method": "calendar",
+   "command": "node -e \"import('./ventures/grant-reporting-tracker/calc.mjs').then(m=>console.log(m.reviewGrant({...},'<date>')))\" (one-liner per case; outputs quoted)",
+   "expected": "Check inputs",
+   "observed": "Check inputs",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "overspend 10,000 award, 12,000 spent",
+   "method": "hand subtraction; a board needs it flagged",
+   "command": "node -e \"import('./ventures/grant-reporting-tracker/calc.mjs').then(m=>console.log(m.reviewGrant({...},'<date>')))\" (one-liner per case; outputs quoted)",
+   "expected": "-2000 flagged",
+   "observed": "-2000, no flag",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/grant-reporting-tracker && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "37 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "explainer 'smallest award' sentence",
+   "method": "compare with the page's own table",
+   "command": "grep -n smallest ventures/grant-reporting-tracker/when-is-my-grant-report-due.html",
+   "expected": "consistent with the table",
+   "observed": "'neither the largest nor the smallest award' (consistent)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "explainer FAQ how to calculate a due date",
+   "method": "2 CFR 200.329(c)(1)",
+   "command": "grep -c 'Add the reporting interval in months to the award date' ventures/grant-reporting-tracker/when-is-my-grant-report-due.html",
+   "expected": "0, or caveated with the federal lag",
+   "observed": "2 (visible FAQ and JSON-LD), uncaveated",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README usage events include report_filed",
+   "method": "grep track( in index.html vs README",
+   "command": "grep -n report_filed ventures/grant-reporting-tracker/README.md",
+   "expected": "listed",
+   "observed": "listed",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "page runs in a browser with no console errors; federal award row after the fix",
+   "method": "Playwright, files served by page.route",
+   "command": "node scratchpad/pw.cjs ventures/grant-reporting-tracker shot.png",
+   "expected": "row 2026-04-30 Overdue -200.00 (overspent) on today's date, no errors",
+   "observed": "Fed quarterly — 2026-04-30 Overdue -200.00 (overspent); errors []",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:128",
+   "change": "days <= 30 ? 'Due soon' -> days < 30 ? 'Due soon'",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:128",
+   "change": "days < 0 ? 'Overdue' -> days <= 0 ? 'Overdue'",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:122",
+   "change": "award - spent -> Math.max(0, award - spent)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:135",
+   "change": "tie-break a.sourceIndex - b.sourceIndex -> b.sourceIndex - a.sourceIndex",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:116",
+   "change": "scheduledDate(grant, covered + 1) -> scheduledDate(grant, covered)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:112",
+   "change": "Math.min(EARLY_FILING_DAYS, interval * 15) -> EARLY_FILING_DAYS",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Federal awards still dated on the period end with no 30/90-day lag, and no period-of-performance end or 120-day final report (carried from the prior audit, open on arrival); federal quarterly reads Overdue 14 days before it is due.",
+   "where": "ventures/grant-reporting-tracker/calc.mjs:106",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19951"
+  },
+  {
+   "severity": "medium",
+   "what": "Explainer FAQ (visible and JSON-LD) teaches 'add the interval to the award date' as the general rule with no federal lag or final report.",
+   "where": "ventures/grant-reporting-tracker/when-is-my-grant-report-due.html:52",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19951"
+  },
+  {
+   "severity": "low",
+   "what": "Three of six seeded mutants survive: overspend clamp, queue tie-break, monthly early-filing window cap.",
+   "where": "ventures/grant-reporting-tracker/calc.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19951"
+  },
+  {
+   "severity": "low",
+   "what": "Overspend shown as a bare negative balance with no flag in the queue or CSV.",
+   "where": "ventures/grant-reporting-tracker/calc.mjs:122",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19951"
+  },
+  {
+   "severity": "low",
+   "what": "Page script is minified one-line handlers; localToday duplicated in the page as todayLocal.",
+   "where": "ventures/grant-reporting-tracker/index.html:83",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "high",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "next report re-anchors on the filing date",
+   "evidence": "calc.mjs nextScheduledReport computes from award date; probe 2027-01-15 -5 Overdue; covered+1 -> covered mutant caught"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "open",
+   "what": "no reporting lag, no period-of-performance end, no final report",
+   "evidence": "probes C2-C4 still wrong on arrival; README listed it under Known gaps",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19951"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "partial",
+   "what": "explainer how-to rule and false 'smallest award' sentence",
+   "evidence": "sentence fixed; FAQ rule unchanged in visible text and JSON-LD",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19951"
+  },
+  {
+   "index": 3,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "partial",
+   "what": "status thresholds untested; overspend clamp survives; tests pin drift",
+   "evidence": "both boundary mutants now caught; drift no longer pinned; overspend clamp still survives",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19951"
+  },
+  {
+   "index": 4,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "partial",
+   "what": "impossible dates, unflagged overspend, minified page script, duplicated localToday, copied addMonths",
+   "evidence": "parseDate round-trip check closes impossible dates; overspend flag added in this PR; minified script and duplicate remain"
+  },
+  {
+   "index": 5,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "README event list omits report_filed",
+   "evidence": "README.md lists report_filed"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/19951"
+ ],
+ "verdict": "PR #15312 closed the high defect: the schedule now stays fixed to the award, so a late filing no longer moves later deadlines (checked: 2027-01-15, -5 days, Overdue). It also fixed the impossible-date roll-over, the false 'smallest award' sentence and the README event list, and pinned both status boundaries in tests. It left the medium spec gap open, writing it down as a known gap instead: on arrival a federal quarterly award still read Overdue 14 days before its 30-day deadline, and an award past its period of performance showed a periodic report a year out instead of an overdue final report (2 CFR 200.329, 200.344). The explainer still taught 'award date plus interval' as the rule. Three of six seeded mutants survived. It does not meet the bar on arrival: correctness, claims and verification are 2. This PR adds optional reporting-lag, award-end and final-report fields with tests pinned to the eCFR dates, rewrites the explainer FAQ, and flags overspending. A later round should re-score it."
+}

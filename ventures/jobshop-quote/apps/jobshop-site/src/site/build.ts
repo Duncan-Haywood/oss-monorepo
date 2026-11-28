@@ -14,6 +14,8 @@ import {
   TAGLINE,
 } from "./config";
 import { canonical, type DocumentContext, renderDocument } from "./layout";
+import { moduleByPath } from "./module-data";
+import { moduleFaqs, modulePage } from "./modules";
 import { faqs, PAGE_BODIES } from "./pages";
 import { CSV_FILE, templateCsv } from "./quote-template";
 import { type PublicRoute, publicRoutes } from "./routes";
@@ -161,6 +163,18 @@ export function jsonLdFor(ctx: DocumentContext, route: PublicRoute): unknown {
       ],
     });
   }
+  const mod = kinds.includes("module-faq") ? moduleByPath(route.path) : undefined;
+  if (mod) {
+    graph.push({
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      mainEntity: moduleFaqs(ctx.launch, mod).map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    });
+  }
   if (kinds.includes("faq")) {
     graph.push({
       "@type": "FAQPage",
@@ -180,7 +194,9 @@ export const fileFor = (path: string): string =>
   path === "/" ? "index.html" : `${path.replace(/^\/+|\/+$/g, "")}.html`;
 
 export function renderPage(ctx: DocumentContext, route: PublicRoute): string {
-  const body = PAGE_BODIES[route.path];
+  const mod = moduleByPath(route.path);
+  const body =
+    PAGE_BODIES[route.path] ?? (mod ? (c: DocumentContext) => modulePage(c, mod) : undefined);
   if (!body) throw new Error(`No page body for ${route.path}`);
   return renderDocument(ctx, route, body(ctx), jsonLdFor(ctx, route));
 }

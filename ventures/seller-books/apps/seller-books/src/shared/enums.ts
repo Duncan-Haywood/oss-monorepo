@@ -19,6 +19,7 @@ export const PLATFORMS = [
   "square",
   "paypal",
   "venmo",
+  "cashapp",
   // Imported only through the column-mapped CSV (importers/mapped.ts): none of these publishes its
   // export's column names, so the seller says which column is which (docs/IMPORTERS.md).
   "grailed",
@@ -30,7 +31,7 @@ export type Platform = (typeof PLATFORMS)[number];
 
 /**
  * Sales made off the marketplaces (cash at a market or flea market, Facebook Marketplace, a local
- * pickup paid by Cash App or Zelle): typed in one at a time, never imported (Venmo and PayPal statements import), so the channel is not a
+ * pickup paid by Zelle): typed in one at a time, never imported (Venmo, PayPal and Cash App statements import), so the channel is not a
  * platform the plan counts (billing counts platforms by import). Stored in `sale.platform`.
  */
 export const DIRECT = "direct" as const;
@@ -52,6 +53,7 @@ export const PLATFORM_LABELS: Record<SaleChannel, string> = {
   square: "Square",
   paypal: "PayPal",
   venmo: "Venmo",
+  cashapp: "Cash App",
   grailed: "Grailed",
   stockx: "StockX",
   vinted: "Vinted",

@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKjmPMJT1vzjoBxsVHS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T01:09:11Z",
+  "ended": "2026-11-28T01:15:15Z",
+  "wall_minutes": 12.81,
+  "tokens_in": 5711306,
+  "tokens_out": 35414,
+  "cost_usd": 2.8571,
+  "tool_calls": 58,
+  "task": "bet #4 (CMMC + ISO 9001 workspace) front door: corrective action report template and checker in machine-shop-guides",
+  "projects": [
+    "machine-shop-guides",
+    "cmmc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19941",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [
+    "venture-preflight caught unguarded object-label lookups and an overlong description; fixed before merge"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "roadmap_claim.py --bets says jobshop #3 and einvoice #1 are 'free and not gated', but both are owner steps (sender domain, R2 token, Impressum address). I lost a few minutes reading them before moving to front-door work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Every free ROADMAP item on bets #1-#4 is gated on demand, a source or the owner (roadmap_claim.py --bets), so I did the bet's public side instead: a front-door page for CMMC Workspace's paid ISO 9001 corrective-action log, which had no page targeting the 'corrective action report' searches.",
+      "did": "Built a new guide page plus checker in machine-shop-guides. car.test.mjs pins its CSV columns and stage labels to the workspace's internal-audits.ts.",
+      "result": "Merged. Whether it brings search traffic is not measured yet."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer post was written. The page itself is the marketing and SEO page for the product's users, and llms.txt and the FAQ JSON-LD were updated with it.",
+      "did": "Kept to one page",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/machine-shop-guides/corrective-action-report.html (guide: correction vs corrective action, root cause, 8D mapping, effectiveness)"
+  ],
+  "goal": null,
+  "notes": "node --test *.test.mjs in machine-shop-guides: 319 pass, 0 fail. Playwright 390px: example renders, 0 console errors, scrollWidth 390. risk_review.py: nothing blocked. venture-preflight machine-shop-guides: the first two runs failed (5 unguarded SOURCES/STAGE_LABEL lookups flagged by inherited_keys.py; a 161-character meta description). Both fixed in the second commit; the third run was clean (EXIT 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "27fafa3e-b090-5efc-bdf6-bf59c1f250a8",
+    "transcripts": 1,
+    "first": "2026-11-28T01:09:11Z",
+    "last": "2026-11-28T01:21:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 99,
+        "output": 35414,
+        "thinking": 3890,
+        "cache_read": 5582210,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128997,
+        "api_equivalent_usd": 2.8571,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 99,
+      "output": 35414,
+      "thinking": 3890,
+      "cache_read": 5582210,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128997,
+      "api_equivalent_usd": 2.8571,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 53,
+      "Write": 2,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.81,
+      "active_minutes": 12.81,
+      "model_minutes": 5.74,
+      "tool_minutes": 7.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a quality engineer drafting a CAR guide, form, checks and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 210.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

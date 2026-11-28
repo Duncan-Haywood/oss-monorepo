@@ -154,4 +154,11 @@ export const FEE_SOURCES: PlatformFeeSource[] = [
     rules: [],
     note: "The statement CSV has an Amount (fee) column per payment (seen empty on a personal statement; not confirmed on a business profile's). Venmo's help centre gives business-profile payments a standard rate of 1.9% + $0.10 of the payment total, deducted from it (read through a search excerpt, 2026-11-27); rates differ for tap-to-pay and personal goods-and-services payments, so none is recorded.",
   },
+  {
+    platform: "cashapp",
+    officialPages: ["https://cash.app/help/us/en-us"],
+    feesFromReport: ["payment_processing"],
+    rules: [],
+    note: "The activity CSV has a Fee column per row, written as a negative amount with Net Amount = Amount + Fee (seen on published exports' Bitcoin rows, read 2026-11-28; no business-account payment with a fee was seen). Cash App's help articles render in the browser and could not be read from this environment, so no rate is recorded: the fee is read from the file.",
+  },
 ];

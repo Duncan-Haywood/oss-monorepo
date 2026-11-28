@@ -54,7 +54,7 @@ async function main() {
   const limit = args.includes('--limit') ? +args[args.indexOf('--limit') + 1] : 0;
   const only = args.includes('--only') ? args[args.indexOf('--only') + 1] : '';
   const dirs = args.flatMap((a, i) => (a === '--root' ? [args[i + 1]] : []));
-  const scan = (dirs.length ? dirs : ['ventures']).map((d) => `'${d.replace(/'/g, '')}'`).join(' ');
+  const scan = dirs.length ? dirs : ['ventures'];
   const { chromium } = require('playwright');
   const root = process.cwd();
   const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
@@ -72,7 +72,7 @@ async function main() {
   await new Promise((r) => server.on('listening', r));
   const port = server.address().port;
 
-  let files = cp.execSync(`find ${scan} -name '*.html' -not -path '*/node_modules/*' -not -path '*/test*' -not -path '*/fixtures/*'`)
+  let files = cp.execFileSync('find', [...scan, '-name', '*.html', '-not', '-path', '*/node_modules/*', '-not', '-path', '*/test*', '-not', '-path', '*/fixtures/*'])
     .toString().trim().split('\n').filter((f) => f && f.includes(only)).sort()
     .filter((f) => /<form\b/i.test(fs.readFileSync(f, 'utf8')));
   if (limit) files = files.slice(0, limit);

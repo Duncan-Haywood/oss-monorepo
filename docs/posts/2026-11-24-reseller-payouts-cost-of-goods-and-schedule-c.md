@@ -2,7 +2,7 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, ebay, amazon, paypal, venmo, grailed, stockx, vinted, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+tags: [resellers, facebook-marketplace, ebay, amazon, paypal, venmo, cash-app, grailed, stockx, vinted, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
 description: "Resellers: bridge a payout back to sales, cost a mixed lot by resale value, map the year onto Schedule C. Seller Books, the hosted books, is open free."
 ---
 
@@ -765,6 +765,37 @@ sent, before Venmo's fee, which is how Venmo describes its business fees.
 The import says so whenever a fee is present: open one of those sales in
 the Venmo app and check the figure matches.
 
+## Sales paid by Cash App, from the activity export (added 2026-11-28)
+
+Cash App is the other app local buyers reach for: a sneaker pickup, a
+garage-sale bundle, a Marketplace meetup. On cash.app in a browser, the
+Statements page lets you download your activity as a CSV, a file named
+`cash_app_report` and a number. Seller Books now imports that file as its own
+platform, so those sales stop being typed in one at a time.
+
+The export mixes everything the account does: payments in and out, Cash
+Card purchases, deposits and cash-outs, Bitcoin and stock buys, Boosts. Seller
+Books keeps the complete payments you received and a refund you sent back,
+and leaves everything else out with its reason. Newer exports call every
+payment "P2P" and give the direction by the sign; older ones say "Received
+P2P" and "Sent P2P". Both are read. Payments you sent are totalled in a note,
+because a payment for stock belongs in Inventory and one for supplies in
+Expenses.
+
+A worked row from the test file: a buyer sent $100.00 for a lot of vintage
+Pyrex to a business account, and the export shows a fee of -$2.75 and a net
+of $97.25. Seller Books books $100.00 as the sale and $2.75 as a payment
+processing fee, so profit and line 10 of the worksheet both see the fee.
+
+What to check. Like Venmo, Cash App's file cannot tell a sale from a friend
+paying you back, so every payment received comes in as a sale and you delete
+the ones that were not. We read the column names from three exports people
+published, which agree with each other, but none was from a business
+account, so the fee on a business payment is read from the same Fee column
+as on the other rows and has not been checked against a real business
+export yet. The buyer's name in the file is never stored: the sale is titled
+from your note, or "Cash App payment".
+
 ## Grailed, StockX, Vinted, or a marketplace nobody supports (added 2026-11-27)
 
 Most bookkeeping tools for resellers read a fixed list of marketplaces. Sell
@@ -987,6 +1018,29 @@ check shows the gap between box 1a and the business books.
 irs.gov does not answer from the environment these pages are built in, so
 the rules were read through search-engine excerpts of the IRS pages on
 2026-11-27, and the page says so.
+
+## Facebook Marketplace sales, by how the buyer paid (added 2026-11-28)
+
+Facebook Marketplace has no sales report to download, and how a sale shows
+up anywhere depends on how the buyer paid:
+
+| How it sold | Fee and form | In Seller Books |
+| --- | --- | --- |
+| Local pickup, cash | No Facebook fee; nobody reports it | Type it in |
+| Local pickup, Venmo, PayPal or Cash App | No Facebook fee; any 1099-K comes from the app | Import the app's statement, do not type it in too |
+| Local pickup, Zelle or bank transfer | No Facebook fee; only your bank statement has it | Type it in |
+| Shipped through Facebook checkout | 10% selling fee, $0.80 minimum; Facebook paid you | Type it in with the fee and postage |
+
+The fee is from Facebook's Marketplace seller policy, figured on the whole
+order including shipping and tax, so a $5 paperback with $1 shipping pays
+$0.80, not $0.60. The new page,
+[Facebook Marketplace taxes](https://marisstella.app/seller-books/facebook-marketplace-taxes),
+walks through each case, who sends a 1099-K (only a platform that paid you,
+over $20,000 and 200 transactions federally, lower in some states), the
+sales tax Facebook collects on checkout orders in marketplace facilitator
+states, and how to keep from counting a Venmo-paid pickup twice. Facebook's
+pages were read through search excerpts on 2026-11-28; Facebook changes its
+fees, so check the policy before you rely on the figure.
 
 ## A free inventory spreadsheet, if you are not ready for books yet (added 2026-11-27)
 

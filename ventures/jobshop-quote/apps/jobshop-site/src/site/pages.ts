@@ -14,7 +14,9 @@ import {
 } from "@shared/early-access";
 import { ANNUAL_DISCOUNT, EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/plans";
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAME } from "./config";
+import { EXAMPLE as CYCLE_EXAMPLE, cycleTimeExample, DEEP_HOLE_RATIO } from "./cycle-time-example";
 import { type Html, html } from "./html";
+import { MODULES } from "./module-data";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
 import { CSV_COLUMNS, CSV_FILE, exampleQuote, TERMS_CHECKLIST } from "./quote-template";
 import { flatBlank, priceSheetExample, EXAMPLE as SHEET_EXAMPLE } from "./sheet-metal-example";
@@ -64,7 +66,7 @@ function freePlanLine(ctx: RenderContext): string {
   return `Free Early access plan: up to ${EARLY_ACCESS_PLAN.rfqsPerMonth} RFQs a month, no card. Paid plans from ${from} a month${ctx.launch.paidPlans ? "" : ", not on sale yet"}.`;
 }
 
-function ctaBand(ctx: RenderContext, heading: string, body: string): Html {
+export function ctaBand(ctx: RenderContext, heading: string, body: string): Html {
   return html`<section class="band band-cta" aria-labelledby="cta-heading">
   <div class="container narrow">
     <h2 id="cta-heading">${heading}</h2>
@@ -126,7 +128,7 @@ function shotImg(ctx: RenderContext, s: Shot): Html {
 }
 
 /** A full-width still that opens at full size, with a caption. */
-function shotFigure(ctx: RenderContext, s: Shot, caption: string): Html {
+export function shotFigure(ctx: RenderContext, s: Shot, caption: string): Html {
   return html`<figure class="shot">
   <a class="shot-link" href="${href(ctx, `/shots/${s.file}`)}">${shotImg(ctx, s)}</a>
   <figcaption>${caption}</figcaption>
@@ -442,6 +444,12 @@ export function howItWorksPage(ctx: RenderContext): Html {
     <ol class="walkthrough">
       ${steps.map((s, i) => html`<li><h2><span class="num">${i + 1}</span>${s.title}</h2>${s.body}</li>`)}
     </ol>
+  </div>
+</section>
+<section class="band" aria-labelledby="parts-heading">
+  <div class="container narrow">
+    <h2 id="parts-heading">Each part of the app</h2>
+    <ul>${MODULES.map((m) => html`<li><a class="link" href="${href(ctx, m.path)}">${m.label}</a>: ${m.description}</li>`)}</ul>
   </div>
 </section>
 <section class="band band-muted" aria-labelledby="wont-heading">
@@ -1245,7 +1253,9 @@ export function quoteGuidePage(ctx: RenderContext): Html {
       <li><strong>List the operations and time each one.</strong> For each setup, the minutes to load the
       program, set work offsets, touch off tools and run a first article; for each part, the cycle time
       plus loading and deburring. Programming is real time too: count it once per job as a setup-only
-      operation.</li>
+      operation. To build the cycle time up from feeds, removal rate and holes, see
+      <a class="link" href="${href(ctx, "/how-to-estimate-cnc-machining-time")}">how to estimate CNC
+      machining time</a>.</li>
       <li><strong>Price time at that machine's rate.</strong> Setup minutes ÷ 60 × rate once per lot, cycle
       minutes ÷ 60 × rate for every part started. A rate built from your own costs is the foundation
       (<a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how to work one out</a>).</li>
@@ -1702,6 +1712,176 @@ ${ctaBand(ctx, "Quote your next weldment this way", ctx.launch.open ? "The Early
 }
 
 /**
+ * A guide aimed at the searches estimators make for machining time ("how to estimate CNC machining
+ * time", "CNC cycle time calculation", "machining time formula", "material removal rate"). Method plus
+ * one made-up manifold block: spindle speed and feed from surface speed and chip load, removal rate
+ * from width and depth of cut, then the roughing, drilling and tapping minutes the app suggests from a
+ * STEP model, computed in ./cycle-time-example and checked against the app's own suggestions
+ * (apps/jobshop-quote/test/unit/site-cycle-time-example.test.ts). No feeds, speeds or industry figures
+ * are recommended.
+ */
+export function cycleTimeGuidePage(ctx: RenderContext): Html {
+  const e = CYCLE_EXAMPLE;
+  const r = cycleTimeExample(e);
+  const ro = e.roughing;
+  const d = e.drilling;
+  const rate = usdCents(e.hourlyRateCents);
+  const f2 = (n: number) => n.toFixed(2);
+  const runCents = (min: number) => Math.round((min / 60) * e.hourlyRateCents);
+  const setupCents = runCents(e.setupMinutes);
+  const [few, many] = e.quantities;
+  if (few === undefined || many === undefined)
+    throw new Error("the cycle time guide example quotes two quantities");
+  const tenPctMissCents = Math.round(
+    ((r.cycleMinutesPerPart * 0.1) / 60) * e.hourlyRateCents * many,
+  );
+  const roughShare = Math.round((r.roughing.cycleMinutesPerPart / r.cycleMinutesPerPart) * 100);
+  const nonCutMinutes = e.typed
+    .filter((t) => !t.label.startsWith("Finish"))
+    .reduce((s, t) => s + t.cycleMinutesPerPart, 0);
+  const rows: [string, string, number][] = [
+    [
+      r.roughing.label,
+      `${f2(r.removedIn3)} in³ ÷ ${f2(r.removalRateIn3PerMin)} in³/min, to the tenth (suggested by the app)`,
+      r.roughing.cycleMinutesPerPart,
+    ],
+    [
+      r.drill.label,
+      `${r.holeLocations} × ${d.secondsPerHole} s + ${f2(r.totalDepthIn)} in ÷ ${f2(r.drillFeedInPerMin)} in/min + ${r.extraPecks} pecks × ${d.secondsPerPeck} s, up to the hundredth (suggested)`,
+      r.drill.cycleMinutesPerPart,
+    ],
+    [
+      r.tap.label,
+      `${r.tappedHoles} × ${e.secondsPerTappedHole} s (suggested once the size is marked threaded)`,
+      r.tap.cycleMinutesPerPart,
+    ],
+    ...e.typed.map((t): [string, string, number] => [
+      t.label,
+      `${t.basis} (typed)`,
+      t.cycleMinutesPerPart,
+    ]),
+  ];
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to estimate CNC machining time for a quote</h1>
+    <p class="lead">Cycle time is the number a machining quote rests on: every minute of it is billed on
+    every part. Here is how to build it up from the cut, the holes and the time the spindle isn't cutting,
+    a worked example, and the mistakes that make a won job lose money.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>The method in five steps</h2>
+    <ol>
+      <li><strong>Work out the feed from the tool.</strong> Spindle speed (rpm) = surface speed (SFM) ×
+      12 ÷ (π × tool diameter), the familiar SFM × 3.82 ÷ D. Feed (in/min) = rpm × flutes × chip load.
+      Take surface speed and chip load from your tooling supplier's data for the material, and cap rpm at
+      your spindle's limit.</li>
+      <li><strong>Turn the feed into a removal rate.</strong> Material removal rate (in³/min) = width of
+      cut × depth of cut × feed. That is the rate while the tool is in the cut. A real roughing path also
+      ramps, steps over, lifts and moves between pockets, so keep the share of it you see on your own
+      jobs: time a few and divide the volume removed by the minutes.</li>
+      <li><strong>Rough time = volume removed ÷ removal rate.</strong> The blank's volume less the finished
+      part's (your CAD system measures the part), at the rate for that machine and material.</li>
+      <li><strong>Time the holes one by one.</strong> Each hole costs a fixed time (position, spot, rapid
+      in and out) plus its depth at the drill's feed (rpm × feed per revolution). Holes deeper than about
+      ${DEEP_HOLE_RATIO} diameters are usually pecked: count the extra retracts and time each. Taps add a
+      fixed time per tapped hole.</li>
+      <li><strong>Add what isn't roughing or drilling.</strong> Finishing passes (toolpath length ÷ finish
+      feed), tool changes (count × chip-to-chip time), and loading, unloading and cleaning the part. On
+      small parts these can be as large as the cutting.</li>
+    </ol>
+
+    <h2>A worked example</h2>
+    <p>A ${e.partName} in ${e.materialName}, roughed from a ${e.blank.lengthIn} × ${e.blank.widthIn} ×
+    ${e.blank.thicknessIn} in blank on a ${e.machineName} at ${rate} an hour (the rate the
+    <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">hourly rate guide</a> works out).
+    <strong>Every number here is made up to show the arithmetic</strong>; they are not recommended feeds,
+    speeds, chip loads or times for any tool, material or machine. Use your tooling data and your own
+    timings.</p>
+    <ul>
+      <li><strong>Feed:</strong> a ${ro.toolLabel} at ${ro.surfaceFeetPerMin} SFM is
+      ${ro.surfaceFeetPerMin} × 12 ÷ (π × ${ro.toolDiameterIn}) = ${Math.round(r.rpm).toLocaleString("en-US")}
+      rpm; at ${ro.chipLoadIn} in a tooth on ${ro.flutes} flutes that is ${r.feedInPerMin.toFixed(1)} in/min.</li>
+      <li><strong>Removal rate:</strong> ${ro.widthOfCutIn} in wide × ${ro.depthOfCutIn} in deep ×
+      ${r.feedInPerMin.toFixed(1)} in/min = ${f2(r.theoreticalRemovalIn3PerMin)} in³/min in the cut. The
+      shop's timed jobs keep ${ro.pathEfficiencyBps / 100}% of that over a whole roughing path, so
+      ${f2(r.removalRateIn3PerMin)} in³/min goes on the rate card for this mill and material.</li>
+      <li><strong>Roughing:</strong> the blank is ${f2(r.blankVolumeIn3)} in³ and the model
+      ${e.partVolumeIn3} in³, so ${f2(r.removedIn3)} in³ comes out: ${f2(r.removedIn3)} ÷
+      ${f2(r.removalRateIn3PerMin)} = ${r.roughing.cycleMinutesPerPart.toFixed(1)} min.</li>
+      <li><strong>Holes:</strong> ${e.holes.map((h) => `${h.count} × ${h.label}`).join("; ")}. The drill
+      runs at ${d.drillRpm.toLocaleString("en-US")} rpm × ${d.feedPerRevIn} in/rev = ${f2(r.drillFeedInPerMin)}
+      in/min. All ${r.deepHoles} holes are deeper than ${DEEP_HOLE_RATIO} diameters, so they are pecked every
+      ${d.peckDepthDiameters} × D: ${r.extraPecks} extra retracts at ${d.secondsPerPeck} s. Drilling comes
+      to ${r.drill.cycleMinutesPerPart} min and tapping to ${r.tap.cycleMinutesPerPart} min.</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up manifold block, per part. Run cost is minutes ÷ 60 × ${rate}, rounded to the cent.</caption>
+        <thead><tr><th scope="col">Operation</th><th scope="col">How</th><th scope="col">Minutes</th><th scope="col">Run cost</th></tr></thead>
+        <tbody>
+          ${rows.map(
+            ([label, how, min]) =>
+              html`<tr><th scope="row">${label}</th><td>${how}</td><td>${f2(min)}</td><td>${usdCents(runCents(min))}</td></tr>`,
+          )}
+          <tr><th scope="row">Cycle per part</th><td></td><td>${f2(r.cycleMinutesPerPart)}</td><td>${usdCents(r.runCentsPerPart)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>Roughing is the largest single line, not the whole cycle.</strong> It is
+      ${roughShare}% of the ${f2(r.cycleMinutesPerPart)} minutes; tool changes and loading alone add
+      ${f2(nonCutMinutes)} min a part that no feeds-and-speeds formula shows.</li>
+      <li><strong>A small miss is a big one at volume.</strong> Underestimate this cycle by 10% and the
+      ${many}-part order gives away ${usdCents(tenPctMissCents)} of mill time.</li>
+      <li><strong>Setup is a separate line.</strong> The ${e.setupMinutes} min setup
+      (${usdCents(setupCents)}) is ${usdCents(Math.round(setupCents / few))} a part at ${few} and
+      ${usdCents(Math.round(setupCents / many))} at ${many}; keep it out of the cycle time so it spreads
+      over the lot.</li>
+    </ul>
+
+    <h2>Mistakes that make a won job lose money</h2>
+    <ul>
+      <li><strong>Using the theoretical removal rate.</strong> The rate in the cut is not the rate over
+      the path. Measure the share your own toolpaths keep, per machine and material.</li>
+      <li><strong>One rate for every material.</strong> Stainless and titanium rough at a fraction of
+      aluminum's rate; a rate measured in 6061 badly underprices 304.</li>
+      <li><strong>Timing holes by depth alone.</strong> Positioning and peck retracts can be most of a
+      drilled hole's time: in the example they are ${Math.round(((r.holeLocations * d.secondsPerHole + r.extraPecks * d.secondsPerPeck) / (r.holeLocations * d.secondsPerHole + r.extraPecks * d.secondsPerPeck + (r.totalDepthIn / r.drillFeedInPerMin) * 60)) * 100)}% of it.</li>
+      <li><strong>Leaving out what isn't cutting.</strong> Tool changes, probing, loading, blowing off
+      chips and in-process checks are billed time too.</li>
+      <li><strong>Trusting CAM's cycle time as the whole answer.</strong> A CAM estimate is good for the
+      cut itself, but it leaves out loading and often your machine's real rapid and tool-change times;
+      compare it with a timed run.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>Put each machine's removal rate per material, its seconds per hole, drill feed per material, peck
+    depth and seconds per peck, and its seconds per tapped hole on the rate card once. When an RFQ comes
+    with a STEP model, ${SITE_NAME} measures the part's volume and its holes and suggests the roughing,
+    drilling and tapping operations above, each labelled with the figures it came from; you mark which
+    hole sizes are threaded, since a model rarely says. It does not work out speeds and feeds, finishing
+    passes, tool changes or loading: you type those, and a line missing a time is blocked rather than
+    priced as if it were free. The suggested minutes in the example are the ones the app gives for the
+    same inputs, checked by a test in its code. You can
+    <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a>.</p>
+    <p>For the rest of the price (material, setups, outside processes and quantity breaks), see
+    <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to quote a CNC machining job</a>;
+    for the rate the minutes are billed at,
+    <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how to work out a machine shop hourly
+    rate</a>.</p>
+    <p class="fineprint">This page explains a common estimating method. It is not engineering, accounting
+    or financial advice, it does not recommend feeds, speeds or tooling, and the figures in it are made up.
+    Check every quote before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Quote your next machined part this way", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
+/**
  * A guide aimed at the searches estimators make for a quote form ("machine shop quote template",
  * "CNC quote template", "machining quote form"): what goes on a quote and why, what stays off it,
  * the terms to decide once, a filled-in example (the CNC guide's bracket at its engine-checked
@@ -1852,6 +2032,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/how-to-quote-cnc-machining": quoteGuidePage,
   "/how-to-quote-sheet-metal": sheetMetalGuidePage,
   "/how-to-quote-welding": weldingGuidePage,
+  "/how-to-estimate-cnc-machining-time": cycleTimeGuidePage,
   "/machine-shop-quote-template": quoteTemplatePage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
