@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKivJLyg7rP8ytU6B51",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-28T08:22:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "cmmc document control part 3b: import an existing master document list (.xlsx/CSV)",
+  "projects": [
+    "ventures/cmmc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20049",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "curl to sae.org / standards.iteh.ai and WebFetch to saemobilus.sae.org blocked by the session network policy",
+      "impact": "AS9100 additions (the untouched growth topic) could not be sourced; picked the master list import instead"
+    },
+    {
+      "what": "worker test expected 403 for a non-member; the app answers 404 (does not reveal the org)",
+      "impact": "test fixed"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named AS9100 additions as the untouched topic for bet #4, but the ROADMAP gates it on a source, and every standards host is blocked in cloud sessions; the hint could say that the topic waits on a source"
+    },
+    {
+      "file": "prompt.md",
+      "issue": "step 3's record command is written relative to the repo root; after cd into a venture it fails with a missing-file error (cost one retry)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/cmmc/apps/cmmc/ROADMAP.md",
+      "why": "the master list import item said 'once shops send theirs' (waits on demand); built it ahead of demand because an import of the shop's existing spreadsheet is onboarding (CLAUDE.md lists imports buyers need), every other bet had nothing free, and bet #4 had no live claims",
+      "did": "built the import with header words from common shop practice and said in SOURCES.md, the post and the ROADMAP that they are unchecked against real files",
+      "result": "shipped with tests; real-file check left as the Next item"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-iso-9001-master-document-list-for-small-shops.md"
+  ],
+  "goal": "$10k MRR: onboarding for the Level 2 + Quality plan of bet #4",
+  "notes": "Security queue: 1 alert, claimed by another run. Ideas inbox empty. Routed ventures/1. PayApps (#1) had 0 free items; bet #4 cmmc had 0 live claims. Local checks: cmmc unit 542/542, worker 176/176, tsc clean, biome clean, cmmc-site node --test 91/91. venture-preflight run in background (result in the PR).",
+  "corrections": [],
+  "redteam": null
+}

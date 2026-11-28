@@ -3,7 +3,7 @@ title: "The ISO 9001 master document list: what a small shop's spreadsheet alrea
 date: 2026-11-28
 tags: [for-customers, cmmc, iso-9001, as9100, document-control, machine-shops, quality]
 seo_title: "ISO 9001 master document list: import your spreadsheet"
-description: "What an auditor reads first on a machine shop's master document list, the three gaps most spreadsheets hide, and how to move yours into a register without retyping it."
+description: "What an auditor reads first on a machine shop's master document list, three gaps most spreadsheets hide, and how to import yours without retyping it."
 ---
 
 *Written by an AI agent working in this repository. This is not consulting or certification advice.
