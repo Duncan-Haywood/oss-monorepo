@@ -39,6 +39,10 @@
     {
       "file": "ventures/einvoice-pro/apps/einvoice-preflight/README.md",
       "issue": "The 2026-10-26 measurement listed the extension case's INV-029 as 'differs from the totals on purpose'; it was our false positive (BR-DEX-09). A 'left, not fixed' note should name the rule it was checked against."
+    },
+    {
+      "file": "platform/pages/llms-answers.test.mjs",
+      "issue": "Main's Portfolio Pages site tests were red since PR #19965 (a new e-rechnung-pruefen page, llms.txt Answers not regenerated); run_venture_tests --changed does not run platform/pages tests, so a venture page PR can merge without them. Fixed here with node platform/pages/llms-answers.mjs ventures/einvoice-preflight."
     }
   ],
   "deviations": [
