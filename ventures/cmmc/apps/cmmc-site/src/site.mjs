@@ -156,6 +156,30 @@ export const SOURCES = [
     checked: STATUS_CHECKED,
   },
   {
+    id: "cfr-2002-4",
+    title: "32 CFR 2002.4, Definitions (Controlled Unclassified Information)",
+    url: "https://www.ecfr.gov/current/title-32/subtitle-B/chapter-XX/part-2002/subpart-A/section-2002.4",
+    publisher: "eCFR",
+    checked: "2026-11-28",
+    note: "CUI, CUI Basic and CUI Specified; read on the eCFR versioner API, 28 Nov 2026; text kept in fixtures/cui/.",
+  },
+  {
+    id: "cfr-2002-20",
+    title: "32 CFR 2002.20, Marking (Controlled Unclassified Information)",
+    url: "https://www.ecfr.gov/current/title-32/subtitle-B/chapter-XX/part-2002/subpart-B/section-2002.20",
+    publisher: "eCFR",
+    checked: "2026-11-28",
+    note: "Banner, designation indicator, unmarked CUI, packages and transmittal documents; read 28 Nov 2026; text kept in fixtures/cui/.",
+  },
+  {
+    id: "cui-registry",
+    title: "CUI Registry: category list",
+    url: "https://www.archives.gov/cui/registry/category-list",
+    publisher: "National Archives (NARA), CUI Executive Agent",
+    checked: "2026-11-28",
+    note: "The categories and their markings, Basic or Specified.",
+  },
+  {
     id: "dfars-7008",
     title:
       "DFARS 252.204-7008, Compliance With Safeguarding Covered Defense Information Controls (OCT 2016)",
