@@ -17,6 +17,7 @@ import {
   GA_CONTRACTOR_COPY,
   GA_CONTRACTOR_COPY_METHODS,
   GA_COPY_METHODS,
+  INTEREST_SETTLEMENTS,
   MEMBER_ROLES,
   PAY_TERMS_BASES,
   SHORT_CLOSE_REASONS,
@@ -789,6 +790,19 @@ export const closeShortSchema = z.object({
   closedOn: isoDate,
   note: z.string().trim().max(500).nullish(),
 });
+
+/**
+ * The interest an application paid late earned, marked billed to the GC or waived on a day, or
+ * cleared back to the to-do list with `settlement: null`.
+ */
+export const interestSettlementSchema = z.discriminatedUnion("settlement", [
+  z.object({
+    settlement: z.enum(INTEREST_SETTLEMENTS),
+    on: isoDate,
+    note: z.string().trim().max(500).nullish(),
+  }),
+  z.object({ settlement: z.null() }),
+]);
 
 /** Pay-when-paid: the day the owner paid the GC for an application, or null to clear it. */
 export const ownerPaidSchema = z.object({ ownerPaidOn: isoDate.nullable() });

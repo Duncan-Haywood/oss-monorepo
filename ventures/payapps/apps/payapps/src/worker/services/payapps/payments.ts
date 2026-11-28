@@ -152,10 +152,23 @@ export async function deletePayment(
     forgetCredit(ctx, orgId, app.id),
     ctx.db
       .update(payApps)
-      .set({ status: app.certifiedAt ? "certified" : "submitted", paidAt: null, ...NO_SHORT })
+      .set({
+        status: app.certifiedAt ? "certified" : "submitted",
+        paidAt: null,
+        ...NO_SHORT,
+        ...NO_INTEREST_SETTLED,
+      })
       .where(and(eq(payApps.id, app.id), eq(payApps.orgId, orgId))),
   ]);
 }
+
+/** A reopened application owes again, so a billed or waived mark on its late interest goes too. */
+const NO_INTEREST_SETTLED = {
+  interestSettlement: null,
+  interestSettledOn: null,
+  interestSettledCents: null,
+  interestSettledNote: null,
+} as const;
 
 const NO_SHORT = {
   shortClosedCents: null,
@@ -284,7 +297,12 @@ export async function reopenShort(
   await ctx.db.batch([
     ctx.db
       .update(payApps)
-      .set({ status: app.certifiedAt ? "certified" : "submitted", paidAt: null, ...NO_SHORT })
+      .set({
+        status: app.certifiedAt ? "certified" : "submitted",
+        paidAt: null,
+        ...NO_SHORT,
+        ...NO_INTEREST_SETTLED,
+      })
       .where(and(eq(payApps.id, app.id), eq(payApps.orgId, orgId))),
     forgetCredit(ctx, orgId, app.id),
   ]);

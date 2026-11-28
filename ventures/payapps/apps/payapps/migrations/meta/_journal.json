@@ -645,6 +645,13 @@
       "when": 1795827607013,
       "tag": "0091_punch_item_files",
       "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "6",
+      "when": 1795845487000,
+      "tag": "0092_interest_settlement",
+      "breakpoints": true
     }
   ]
 }
