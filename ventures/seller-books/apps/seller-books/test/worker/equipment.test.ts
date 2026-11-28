@@ -76,8 +76,7 @@ describe("equipment expenses (de minimis safe harbor vs Form 4562)", () => {
       (await patch(small, { method: "bonus", recoveryYears: 5, businessUsePct: 100 })).status,
     ).toBe(400);
     expect(
-      (await patch(shelving, { method: "straight", recoveryYears: 5, businessUsePct: 100 }))
-        .status,
+      (await patch(shelving, { method: "straight", recoveryYears: 5, businessUsePct: 100 })).status,
     ).toBe(400);
     expect(
       (await patch(shelving, { method: "bonus", recoveryYears: 5, businessUsePct: 0 })).status,
