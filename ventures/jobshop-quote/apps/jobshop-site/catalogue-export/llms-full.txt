@@ -569,6 +569,143 @@ The Early access plan is free and needs no card. Enter each machine's rate once 
 
 Start free
 
+## Machine shop markup and margin
+
+Source: https://marisstella.app/jobshop/machine-shop-markup
+
+Guide
+
+## Machine shop markup and margin
+
+How much to mark up material, shop labor and outside processing on a machining
+quote, the difference between markup and margin, and what four common markup policies do to the price
+of one job at 1, 10 and 100 parts.
+
+### Markup and margin are not the same number
+
+Markup is added to the cost: a part that costs $100 with a 25% markup sells for $125. Margin is the
+share of the price you keep: $25 of $125 is a 20% margin. So a 25% markup and a 20% margin are the
+same price, and a shop that says "we work on 20%" has to know which it means, because a 20% markup
+keeps only 16.7% of the price.
+
+- Margin from markup: markup ÷ (1 + markup).
+
+- Markup for a margin: margin ÷ (1 − margin).
+
+Exact conversions, rounded to one decimal.
+Markup on costMargin it givesMargin you wantMarkup it needs
+
+10%9.1%10%11.1%15%13%15%17.6%20%16.7%20%25%25%20%25%33.3%30%23.1%30%42.9%50%33.3%40%66.7%100%50%50%100%
+
+### Three markups, not one
+
+A quote line has costs of different kinds, and each carries a different risk and a different amount
+of your money for a different time. Most quoting systems, Job Shop Quote included, keep a separate markup
+for each:
+
+- Shop labor (setup and run). If your hourly rate was worked out as cost divided by one
+minus a margin (how to work out a
+machine shop hourly rate), the profit is already in the rate and the labor markup is 0%. If your rate
+is the bare cost of a billable hour, the labor markup is where the profit goes. Doing both charges the
+margin twice; doing neither works for nothing.
+
+- Material. You buy it before the job, carry the cash until the customer pays, pay for
+the saw cut and the drop, and eat the bar that turns out bad. A markup on material pays for that.
+Some shops pass material through at cost on large customer-specified buys to stay competitive; that
+is a decision to make per customer, not by default.
+
+- Outside services (anodize, plating, heat treat, passivation). The vendor's lot
+minimum, the freight both ways, the chasing, and the parts that come back wrong are yours. The
+markup pays for handling them. Hardware, certificates and crating you buy for the job are purchased
+items like material.
+
+Then two floors under the whole line: the vendor's lot minimum on each outside service
+(a $150 anodize lot costs $150 for one part or forty) and your own line minimum, the
+smallest price you will open a job for.
+
+### A worked example
+
+The anodized 6061 bracket from how to
+quote a CNC machining job: two milling setups, a deburr, an outside clear anodize at
+$3.50 a part with a $150.00 lot minimum, 3%
+fallout, on a mill at $123.85 an hour, which is the hourly-rate guide's
+$99.08 cost of a billable hour at a 20% margin. Every number
+is made up to show the arithmetic; none is a typical figure. Here is where its markup comes from:
+
+Labor 0% (the rate holds the margin), material 15%, outside service 15%, $250 line minimum. Each markup rounded to the cent; the price each rounded up to the cent, as the app does.
+Quantity110100
+
+Material (cost)$25.00$81.48$770.32Material markup, 15%$3.75$12.22$115.55Setup and run (at the mill's rate)$386.01$869.02$5,860.18Labor markup, 0%$0.00$0.00$0.00Anodize (vendor's charge)$150.00$150.00$364.00Outside-service markup, 15%$22.50$22.50$54.60Line total$587.26$1,135.30$7,165.00Markup over the quote's costs4.7%3.2%2.4%Margin over your full cost17.6%18.4%18.7%
+
+Two things to read from it. First, the markup line looks thin: 4.7% over the quote's
+costs at one part, 2.4% at a hundred. That is because the profit is in the mill's rate,
+not in the markup line, and your margin over your full cost (labor at $99.08 an hour) is
+17.6% to 18.7%. Judge a quote by that, not by its markup line.
+Second, it never reaches the rate's 20%: material and the anodize are marked up
+15%, which is a 13% margin, so the more of the
+price they make up, the lower the blend. At one part the anodize lot alone is
+26% of the price.
+
+### Four markup policies on the same job
+
+The same bracket, priced by Job Shop Quote's costing engine under four settings:
+
+Line totals; margin over the shop's full cost (labor at $99.08 an hour) underneath.
+Policy1 part10 parts100 parts
+
+Split markups (the CNC guide's card)Labor 0% (the rate holds the margin), material 15%, outside service 15%, $250 line minimum.$587.2617.6% margin$1,135.3018.4% margin$7,165.0018.7% marginRate at cost, 25% labor markupThe mill at its cost per billable hour and labor marked up 25%: the same 20% margin written as a markup.$587.2517.6% margin$1,135.3018.4% margin$7,165.0018.7% marginMaterial and anodize at costMaterial and the outside anodize passed through with no markup; the $250 minimum stays.$561.0113.8% margin$1,100.5015.8% margin$6,995.0016.8% marginOne 15% markup on everything15% on labor too, on top of a rate that already holds a 20% margin; the $250 minimum stays.$645.1625% margin$1,265.6026.8% margin$8,044.0027.6% margin
+
+- Rate at cost with a 25% labor markup lands on the same prices as the first card, to
+the cent or within one: a 20% margin in the rate and a 25% markup on a cost rate are the same
+thing. Pick one way of writing it and use it everywhere.
+
+- Passing material and the anodize through at cost takes $26.25
+off the one-off and $170.00 off the hundred, and the margin falls to
+13.8% at one part, where the vendor's lot charge is a large share of the price.
+
+- One 15% markup on everything charges the margin twice on labor: $57.90
+more on the one-off and $879.00 more on the hundred. That can be a fair
+price for a hot job; on a competitive RFQ it is the quote that loses without anyone telling you why.
+
+### Mistakes that cost margin
+
+- Calling a markup a margin. The table above: a 20% markup is a 16.7% margin.
+
+- Adding a labor markup to a rate that already has the profit in it, or neither.
+
+- Outside work at cost. The lot minimum, the freight and the rework when a batch comes back
+wrong are real costs; a markup on outside services is how they get paid.
+
+- Forgetting the lot minimum. A plating vendor's minimum spread over two parts is most of
+their price; quote it as a lot charge, not as a per-part figure from a big run.
+
+- No line minimum. Opening a job, programming, paperwork and shipping cost the same for
+a one-off as for a run. A minimum per line keeps the smallest jobs from being done at a loss; in the example it
+does not bind, because the bracket's setup and anodize lot already put it well above
+$250.00.
+
+- Judging by the markup line. Look at what is left after your full cost, at each
+quantity, because the share each cost takes changes with quantity.
+
+### Doing it in Job Shop Quote
+
+Job Shop Quote's rate card holds a labor markup, a material markup, an outside-service markup and a line
+minimum, and each finishing operation is marked as in-house (marked up as labor) or outside (marked up
+at the outside-service rate) with its own lot charge. Hardware, certificates and other purchased extras
+take the material markup. Every quote line shows the markup it used next to the cost, at every quantity,
+and the customer's PDF never prints any of it. You can
+see how a quote is built.
+
+This page explains common costing arithmetic. It is not accounting, tax or financial
+advice, and the example's numbers are made up. What markup the market will bear depends on your
+customers, your work and your competitors.
+
+### Set your markups once, quote every RFQ from them
+
+The Early access plan is free and needs no card.
+
+Start free
+
 ## How to quote a CNC machining job
 
 Source: https://marisstella.app/jobshop/how-to-quote-cnc-machining
@@ -1802,6 +1939,7 @@ Reading RFQ emails and PDF drawings with AI is built but not switched on in the 
 - How to quote a CNC machining job
 - How to quote CNC turning and lathe parts
 - How to work out a machine shop hourly rate
+- Machine shop markup and margin
 - Machine shop quote template (free CSV)
 - Machine shop quoting software compared
 
@@ -2076,6 +2214,7 @@ Start free
 - How to quote a CNC machining job
 - How to quote CNC turning and lathe parts
 - How to quote sheet metal and laser cut parts
+- Machine shop markup and margin
 
 ### Common questions
 

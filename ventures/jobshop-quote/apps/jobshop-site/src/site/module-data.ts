@@ -77,6 +77,7 @@ export const MODULES: readonly ModuleData[] = [
       { label: "How to quote a CNC machining job", path: "/how-to-quote-cnc-machining" },
       { label: "How to quote CNC turning and lathe parts", path: "/how-to-quote-cnc-turning" },
       { label: "How to work out a machine shop hourly rate", path: "/machine-shop-hourly-rate" },
+      { label: "Machine shop markup and margin", path: "/machine-shop-markup" },
       { label: "Machine shop quote template (free CSV)", path: "/machine-shop-quote-template" },
       { label: "Machine shop quoting software compared", path: "/compare" },
     ],
@@ -208,6 +209,7 @@ export const MODULES: readonly ModuleData[] = [
       { label: "How to quote a CNC machining job", path: "/how-to-quote-cnc-machining" },
       { label: "How to quote CNC turning and lathe parts", path: "/how-to-quote-cnc-turning" },
       { label: "How to quote sheet metal and laser cut parts", path: "/how-to-quote-sheet-metal" },
+      { label: "Machine shop markup and margin", path: "/machine-shop-markup" },
     ],
     faq: {
       q: "Can I load my supplier's price list?",
