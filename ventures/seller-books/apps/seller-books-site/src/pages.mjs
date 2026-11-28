@@ -254,6 +254,15 @@ ${cards}
   };
 }
 
+// The "<platform> taxes" page each platform page links to, as the sentence it shows.
+const TAX_PAGE_LINKS = {
+  poshmark: `Taxes on Poshmark sales, the 1099-K and the sales tax Poshmark collects, with one month worked through: <a href="${href("/poshmark-taxes")}">Poshmark taxes</a>.`,
+  mercari: `Taxes on Mercari sales, why the 1099-K won't match your proceeds and which year a sale counts in, with three sales worked through: <a href="${href("/mercari-taxes")}">Mercari taxes</a>.`,
+  ebay: `Taxes on eBay sales, the 1099-K and the sales tax eBay collects, with one Transaction report worked through: <a href="${href("/ebay-taxes")}">eBay taxes</a>.`,
+  whatnot: `Taxes on Whatnot sales, the 1099-K, tips, giveaways and the sales tax Whatnot collects, with one week worked through: <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>.`,
+  amazon: `Taxes on Amazon sales, why deposits aren't income, FBA fees, reimbursements and the sales tax Amazon collects, with one month's report worked through: <a href="${href("/amazon-taxes")}">Amazon taxes</a>.`,
+};
+
 function platformPage(p) {
   const path = `/platforms/${p.slug}`;
   const title = `${p.name} seller profit, fees and bookkeeping`;
@@ -272,19 +281,10 @@ function platformPage(p) {
   ${list(p.quirks)}
   <h2>Where it lands on the worksheet</h2>
   <p>${esc(p.name)} sales go to gross receipts, refunds to returns and allowances, ${esc(p.name)}'s fees to commissions and fees, and each item's cost to cost of goods sold. See <a href="${href("/schedule-c-worksheet")}">the Schedule C worksheet</a> for the full grouping.</p>${
-    p.slug === "poshmark"
+    TAX_PAGE_LINKS[p.slug]
       ? `
-  <p>Taxes on Poshmark sales, the 1099-K and the sales tax Poshmark collects, with one month worked through: <a href="${href("/poshmark-taxes")}">Poshmark taxes</a>.</p>`
-      : p.slug === "mercari"
-        ? `
-  <p>Taxes on Mercari sales, why the 1099-K won't match your proceeds and which year a sale counts in, with three sales worked through: <a href="${href("/mercari-taxes")}">Mercari taxes</a>.</p>`
-        : p.slug === "ebay"
-          ? `
-  <p>Taxes on eBay sales, the 1099-K and the sales tax eBay collects, with one Transaction report worked through: <a href="${href("/ebay-taxes")}">eBay taxes</a>.</p>`
-          : p.slug === "whatnot"
-            ? `
-  <p>Taxes on Whatnot sales, the 1099-K, tips, giveaways and the sales tax Whatnot collects, with one week worked through: <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>.</p>`
-            : ""
+  <p>${TAX_PAGE_LINKS[p.slug]}</p>`
+      : ""
   }
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
@@ -1624,6 +1624,264 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "Mercari taxes", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// /amazon-taxes: the search Amazon sellers make ("do I pay taxes on Amazon sales", "Amazon FBA taxes",
+// "Amazon seller 1099-K"). The worked example is the app's own Amazon fixture
+// (apps/seller-books/test/fixtures/amazon-date-range-report.csv, an invented Date Range Report in the widely
+// quoted US layout; the importer reads its columns by name) taken through the importer's rules
+// (importers/amazon.ts) and the worksheet's (services/books/schedule-c.ts): an Order's product sales and
+// promotional rebates are the item, its shipping and gift wrap credits are shipping charged (both line 1); a
+// Refund's item and shipping are line 2 and the fees it credits back lower line 10; a Service Fee is the
+// selling plan (line 27a, software and platform subscriptions) or advertising (line 8) by its description;
+// FBA Inventory Fees and Adjustments are line 10 (a reimbursement is a credit there, with a warning); a
+// Shipping Services label is line 27a postage; a Transfer, another marketplace and an unknown type are
+// skipped and named. test/site.test.mjs re-reads the fixture and those rules. Amazon's sales tax rule is
+// quoted from its Marketplace Tax Collection help page (amazon.com, nodeId 202211260), read 2026-11-28 in a
+// browser. No Amazon fee rate is stated: the report's charged amounts are what count.
+export const AMAZON_CHECKED_ON = "2026-11-28";
+export const AMAZON_TAX_URL =
+  "https://www.amazon.com/gp/help/customer/display.html?nodeId=202211260";
+export const AMAZON_TAX_QUOTE =
+  "As the marketplace facilitator, Amazon calculates, collects, remits, and refunds sales tax on third party sellers transactions destined to states where this legislation is enacted.";
+/**
+ * The amazon.com rows of the app's Amazon fixture that the importer books, in file order, with where each
+ * lands on the worksheet (cents; a fee credited back is a negative line 10).
+ */
+export const AMAZON_EXAMPLE = [
+  {
+    date: "2026-03-03",
+    type: "Order",
+    what: "LEGO Technic set, sealed (sent in to FBA)",
+    totalCents: 1705,
+    line1: 2500,
+    line10: 795,
+  },
+  {
+    date: "2026-03-05",
+    type: "Order",
+    what: "First edition hardcover (shipped yourself, $1.00 promotion)",
+    totalCents: 3811,
+    line1: 4499,
+    line10: 688,
+  },
+  {
+    date: "2026-03-09",
+    type: "Refund",
+    what: "LEGO Technic set, sealed",
+    totalCents: -2200,
+    line2: 2500,
+    line10: -300,
+  },
+  {
+    date: "2026-03-01",
+    type: "Service Fee",
+    what: "Subscription",
+    totalCents: -3999,
+    software: 3999,
+  },
+  {
+    date: "2026-03-08",
+    type: "Service Fee",
+    what: "Cost of Advertising",
+    totalCents: -1234,
+    line8: 1234,
+  },
+  {
+    date: "2026-03-07",
+    type: "FBA Inventory Fee",
+    what: "FBA storage fee",
+    totalCents: -321,
+    line10: 321,
+  },
+  {
+    date: "2026-03-07",
+    type: "FBA Inventory Fee",
+    what: "FBA storage fee",
+    totalCents: -321,
+    line10: 321,
+  },
+  {
+    date: "2026-03-10",
+    type: "Adjustment",
+    what: "FBA Inventory Reimbursement - Lost:Warehouse",
+    totalCents: 850,
+    line10: -850,
+  },
+  {
+    date: "2026-03-06",
+    type: "Shipping Services",
+    what: "Shipping label purchase",
+    totalCents: -610,
+    postage: 610,
+  },
+];
+/** The rows the importer skips, and why, as the page names them. */
+export const AMAZON_SKIPPED = [
+  {
+    type: "Transfer",
+    what: "To account ending in: 123",
+    totalCents: -20000,
+    why: "a payout to the bank: money moving, not income",
+  },
+  {
+    type: "Order",
+    what: "First edition hardcover, on amazon.ca",
+    totalCents: 3750,
+    why: "another Amazon marketplace (only amazon.com, in USD)",
+  },
+];
+/** Buyers' sales tax on the two orders, taken back out on the same rows as "marketplace withheld tax". */
+export const AMAZON_WITHHELD_TAX_CENTS = 175 + 315;
+/** The example's Schedule C lines as the worksheet adds them. */
+export function amazonLines(rows = AMAZON_EXAMPLE) {
+  const sum = (f) => rows.reduce((a, r) => a + (r[f] ?? 0), 0);
+  return {
+    line1: sum("line1"),
+    line2: sum("line2"),
+    line8: sum("line8"),
+    line10: sum("line10"),
+    postage: sum("postage"),
+    software: sum("software"),
+    net: sum("totalCents"),
+  };
+}
+
+function amazonTaxes() {
+  const path = "/amazon-taxes";
+  const title = "Amazon seller taxes for resellers";
+  const description =
+    "Do you pay taxes on Amazon sales? Why deposits aren't income, where FBA fees, the selling plan and reimbursements go on Schedule C, and Amazon's sales tax.";
+  const cents = (c) => `${c < 0 ? "−" : ""}$${(Math.abs(c) / 100).toFixed(2)}`;
+  const L = amazonLines();
+  const transfer = AMAZON_SKIPPED[0];
+  const reimbursement = AMAZON_EXAMPLE.find((r) => r.type === "Adjustment");
+  const where = (r) =>
+    [
+      r.line1 && `line 1 ${cents(r.line1)}`,
+      r.line2 && `line 2 ${cents(r.line2)}`,
+      r.line8 && `line 8 ${cents(r.line8)}`,
+      r.line10 && `line 10 ${cents(r.line10)}`,
+      r.postage && `line 27a postage ${cents(r.postage)}`,
+      r.software && `line 27a subscriptions ${cents(r.software)}`,
+    ]
+      .filter(Boolean)
+      .join(", ");
+  const faqs = [
+    {
+      q: "Do I have to pay taxes on Amazon sales?",
+      a: "On profit from things you bought to resell, yes: retail and online arbitrage, wholesale and book flips are business (or hobby) income, whether or not Amazon sends you a form. Your own things sold for less than you paid for them are not income.",
+    },
+    {
+      q: "Does Amazon send a 1099-K?",
+      a: "For federal reporting, a platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions. Some states require one at lower amounts. Business income is reportable either way.",
+    },
+    {
+      q: "Why doesn't my Amazon 1099-K match my deposits?",
+      a: `The IRS instructions say box 1a is figured “${BOX_1A_QUOTE}”: refunds, fees and the shipping buyers paid stay in. Your deposits are after Amazon's fees, refunds, the selling plan, advertising and labels. Neither is your income: your books start from the orders, take out returns and expenses, and the deposits are only money moving to your bank. Whether Amazon's box 1a includes the sales tax it collected is not stated on a page we could check, so ${SITE_NAME} doesn't assume it.`,
+    },
+    {
+      q: "Do I collect sales tax on Amazon?",
+      a: `Not on the sales Amazon handles. Amazon's Marketplace Tax Collection page says: “${AMAZON_TAX_QUOTE}” So the tax on each order is not your income and not yours to send in. Sales you make off Amazon, on your own store or at a market, follow your state's rule.`,
+    },
+    {
+      q: "Is an FBA reimbursement income?",
+      a: `It is money Amazon paid you for stock it lost or damaged. ${SITE_NAME} books it as a credit against fees, so your profit is right, and tells you how many there were, because your preparer may want it on line 6 (other income) instead, with the lost items marked written off so their cost isn't counted twice. Ask them which.`,
+    },
+    {
+      q: "Where do the selling plan and advertising go?",
+      a: `${SITE_NAME} puts the monthly selling plan on line 27a with other software and platform subscriptions, Sponsored Products advertising on line 8, and FBA fulfillment and storage fees with the referral fees on line 10. It is a worksheet to check with your preparer, not a return.`,
+    },
+  ];
+  const exRows = AMAZON_EXAMPLE.map(
+    (r) =>
+      `        <tr><td>${esc(r.date)}</td><th scope="row">${esc(r.type)}: ${esc(r.what)}</th><td>${cents(r.totalCents)}</td><td>${esc(where(r))}</td></tr>`,
+  ).join("\n");
+  const skipRows = AMAZON_SKIPPED.map(
+    (r) => `<li>${esc(r.type)}, ${esc(r.what)} (${cents(r.totalCents)}): ${esc(r.why)}.</li>`,
+  ).join("");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">Amazon's deposits are not your income, and neither is its 1099-K. Here is what is taxable, where Amazon's many fees go, and how one month of a Date Range Report becomes Schedule C lines that add back up to the money that moved.</p>
+  <h2>Is it taxable?</h2>
+  <p>Buying to resell, whether retail arbitrage, online arbitrage, wholesale lots or used books, is business or hobby income, whatever the forms say. Selling your own things for less than you paid is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). A business reports its gross sales on Schedule C and deducts what made them: Amazon's fees, the selling plan, advertising, labels, <a href="${href("/cost-of-goods-sold")}">the cost of the items</a> that sold, and <a href="${href("/mileage-deduction")}">the miles</a> driven to source them.</p>
+  <h2>The 1099-K, and why deposits don't match it</h2>
+  <p>Under the <a href="${IRS_1099K_FAQ_GENERAL}">IRS general FAQs</a>, a platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions; some states are lower. No form does not mean no income.</p>
+  <p>The <a href="${IRS_1099K_INSTRUCTIONS}">IRS instructions</a> say box 1a is figured &ldquo;${esc(BOX_1A_QUOTE)}.&rdquo; So a sale that was later refunded is still in it, and so is the shipping the buyer paid. Your deposits go the other way: they are what is left after every fee, refund and charge Amazon takes from your balance. The Date Range Report sits between the two, one row per order, refund, fee and payout, and that is what your books are built from. More on reading the form in <a href="${href("/1099-k")}">Form 1099-K for resellers</a>.</p>
+  <h2>One month, worked to the worksheet</h2>
+  <p>Each row of the report says what it added to or took from your balance (its total), with the item, shipping, tax and each kind of fee in its own column. ${esc(SITE_NAME)} reads every fee from its own column, never from a rate, and books each type of row in its place.</p>
+  <div class="worked">
+    <p class="muted">Invented sales: the sample Date Range Report ${esc(SITE_NAME)}'s Amazon importer is tested on, every row it books, in the report's order:</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Date</th><th scope="col">Row</th><th scope="col">Total</th><th scope="col">On the worksheet</th></tr></thead>
+      <tbody>
+${exRows}
+      </tbody>
+    </table></div>
+    <p>Two more rows are left out, and the import names each:</p>
+    <ul>${skipRows}</ul>
+    <p class="muted">(The sample also has one row of a made-up type, there to test that a type the importer doesn't read yet is named on import rather than guessed at.)</p>
+    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong> (items after the seller's own promotion, and the $5.99 of shipping the buyer paid); line 2, returns, <strong>${cents(L.line2)}</strong>; line 8, advertising, <strong>${cents(L.line8)}</strong>; line 10, commissions and fees, <strong>${cents(L.line10)}</strong> (referral and FBA fees, storage and the report's regulatory fee, less the ${cents(-AMAZON_EXAMPLE[2].line10)} of referral fee the refund credited back and the ${cents(reimbursement.totalCents)} reimbursement); line 27a, <strong>${cents(L.postage)}</strong> of postage and <strong>${cents(L.software)}</strong> for the selling plan.</p>
+    <p>Line 1 less all of those is ${cents(L.line1 - L.line2 - L.line8 - L.line10 - L.postage - L.software)}, exactly the nine totals added up: the month cost this seller money before the items' cost even comes off. The ${cents(transfer.totalCents)} transfer is not in any line. Counting deposits as income would have put ${cents(-transfer.totalCents)} on line 1 for a month that lost money.</p>
+    <p>The refund gave back ${cents(-AMAZON_EXAMPLE[2].line10)} of the ${cents(375)} referral fee charged on the sale; the report nets the two, and ${esc(SITE_NAME)} books what was actually credited. The ${cents(AMAZON_WITHHELD_TAX_CENTS)} of buyers' sales tax on the two orders is taken back out on the same rows as &ldquo;marketplace withheld tax&rdquo;, so it is in none of these lines.</p>
+    <p class="muted">We state no Amazon fee rate: referral and FBA fees vary by category, size and date, and the charged amounts on your report are what count. Amazon's help page was read ${esc(AMAZON_CHECKED_ON)}. The sample uses the widely quoted US column layout; the importer matches columns by name and checks that each order's columns add up to its total.</p>
+  </div>
+  <h2>FBA reimbursements</h2>
+  <p>When Amazon loses or damages stock you sent in, it pays you for it as an Adjustment. ${esc(SITE_NAME)} books that as a credit against fees, which keeps profit right, and the import warns you how many there were and what they came to. Your preparer may prefer it on line 6, other income; either way, mark the lost items written off in your stock so their cost leaves inventory once, not twice.</p>
+  <h2>Sales tax</h2>
+  <p>Amazon's <a href="${AMAZON_TAX_URL}">Marketplace Tax Collection</a> page says: &ldquo;${esc(AMAZON_TAX_QUOTE)}&rdquo; The tax on each order line is the buyer's, collected and taken back out by Amazon on the same row, and ${esc(SITE_NAME)} keeps it out of your income and out of the sales tax you collected. Your own sales off Amazon are different: see <a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>.</p>
+  <h2>Keeping the books in ${esc(SITE_NAME)}</h2>
+  <p>In Seller Central, download the Date Range Report, transaction kind (Payments, then Reports Repository), import the CSV, and each order, refund, fee and reimbursement lands in its place, with the payouts and other marketplaces named and left out. Link items to your stock and their cost moves to cost of goods sold. Sell on eBay, Mercari or Poshmark too? They go in the same books (see the <a href="${href("/platforms/amazon")}">Amazon page</a> and the others), and the worksheet adds them up.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "amazon-tax" })}</div>`;
+  const text = `# ${title}
+
+Amazon's deposits are not your income, and neither is its 1099-K.
+
+## Is it taxable?
+
+Items bought to resell (retail or online arbitrage, wholesale, books) are business or hobby income. Personal items sold at a loss are not income. A business reports gross sales on Schedule C and deducts Amazon's fees, the selling plan, advertising, labels, cost of goods and mileage.
+
+## The 1099-K
+
+Federal threshold: over $20,000 and more than 200 transactions (${IRS_1099K_FAQ_GENERAL}); some states are lower. Box 1a is figured "${BOX_1A_QUOTE}" (${IRS_1099K_INSTRUCTIONS}). Deposits are after fees, refunds and charges. Neither is income; the books are built from the Date Range Report.
+
+## One month, worked
+
+Invented example (the importer's sample Date Range Report, the rows it books): ${AMAZON_EXAMPLE.map((r) => `${r.date} ${r.type}: ${r.what}, total ${cents(r.totalCents)} -> ${where(r)}`).join("; ")}. Skipped and named: ${AMAZON_SKIPPED.map((r) => `${r.type} (${r.what}, ${cents(r.totalCents)}): ${r.why}`).join("; ")}. Schedule C: line 1 ${cents(L.line1)}, line 2 ${cents(L.line2)}, line 8 ${cents(L.line8)}, line 10 ${cents(L.line10)}, line 27a postage ${cents(L.postage)} and selling plan ${cents(L.software)}; together ${cents(L.net)}, the sum of the booked rows' totals. The transfer is not income. Buyers' sales tax (${cents(AMAZON_WITHHELD_TAX_CENTS)}) is withheld by Amazon on the same rows. FBA reimbursements are booked against fees with a warning; a preparer may put them on line 6. No Amazon fee rate is stated; help page read ${AMAZON_CHECKED_ON}.
+
+## Sales tax
+
+Amazon (${AMAZON_TAX_URL}): "${AMAZON_TAX_QUOTE}"
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Amazon taxes", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -3997,6 +4255,7 @@ export function allPages() {
     ebayTaxes(),
     whatnotTaxes(),
     mercariTaxes(),
+    amazonTaxes(),
     costOfGoodsSold(),
     inventorySpreadsheet(),
     sellThrough(),

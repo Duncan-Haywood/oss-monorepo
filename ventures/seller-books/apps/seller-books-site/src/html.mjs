@@ -121,6 +121,7 @@ ${page.body}
       <a href="${href("/ebay-taxes")}">eBay taxes</a>
       <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>
       <a href="${href("/mercari-taxes")}">Mercari taxes</a>
+      <a href="${href("/amazon-taxes")}">Amazon taxes</a>
       <a href="${href("/cost-of-goods-sold")}">Cost of goods sold</a>
       <a href="${href("/reseller-inventory-spreadsheet")}">Inventory spreadsheet</a>
       <a href="${href("/mileage-deduction")}">Mileage deduction</a>
