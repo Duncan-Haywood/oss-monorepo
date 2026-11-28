@@ -24,8 +24,14 @@
 //  - Due dates: April 15, June 15, September 15 and January 15, moved past a weekend or a Washington,
 //    DC legal holiday (IRC 7503).
 // Not modelled (each result says so): credits (child, earned income), itemized deductions, the
-// Schedule 1-A deductions, other businesses, state tax, and the underpayment penalty itself.
+// Schedule 1-A deductions, other businesses and state tax. The underpayment penalty so far (Form 2210,
+// Part III) is figured by `penalty-2210.ts` from the payments typed in, each taken as sent by its date.
 // Dollar amounts are integer cents.
+
+import { estimatedDueDates } from "./due-dates.ts";
+import { addDays, form2210Penalty } from "./penalty-2210.ts";
+
+export { estimatedDueDates };
 
 export type Filing = "single" | "mfj" | "hoh";
 export const FILING_LABELS: Record<Filing, string> = {
@@ -171,38 +177,6 @@ export const PERIODS = [
 
 export const ESTIMATED_TAX_DISCLAIMER =
   "Estimate only, from your own records: not tax advice and not a filing. It leaves out credits, itemized deductions and income these books do not hold. Check the figures with your tax preparer or Form 1040-ES before you pay.";
-
-// Washington, DC legal holidays that can land on a due date: Martin Luther King Jr. Day (third Monday of
-// January) and Emancipation Day (April 16, observed Friday or Monday when on a weekend).
-function dcHoliday(dt: Date): boolean {
-  const y = dt.getUTCFullYear();
-  const m = dt.getUTCMonth() + 1;
-  const d = dt.getUTCDate();
-  const dow = dt.getUTCDay();
-  if (m === 1) return dow === 1 && d >= 15 && d <= 21;
-  if (m === 4) {
-    const ed = new Date(Date.UTC(y, 3, 16)).getUTCDay();
-    return d === (ed === 6 ? 15 : ed === 0 ? 17 : 16);
-  }
-  return false;
-}
-
-/** The four 1040-ES due dates for a tax year (the last one in January of the next year). */
-export function estimatedDueDates(year: number): string[] {
-  return (
-    [
-      [year, 4, 15],
-      [year, 6, 15],
-      [year, 9, 15],
-      [year + 1, 1, 15],
-    ] as const
-  ).map(([y, m, d]) => {
-    const dt = new Date(Date.UTC(y, m - 1, d));
-    while (dt.getUTCDay() === 0 || dt.getUTCDay() === 6 || dcHoliday(dt))
-      dt.setUTCDate(dt.getUTCDate() + 1);
-    return dt.toISOString().slice(0, 10);
-  });
-}
 
 export function bracketTax(taxable: number, brackets: [number, number][]): number {
   let tax = 0;
@@ -378,6 +352,22 @@ export interface Estimate {
   rows: EstimateRow[];
   /** The next due date on or after asOf, with what is still to pay by it. */
   next: { due: string; stillToPay: number | null } | null;
+  /** The underpayment penalty to asOf (Form 2210, Part III); null before the first due date. */
+  penalty: PenaltySoFar | null;
+  warnings: string[];
+}
+
+export interface PenaltySoFar {
+  /** The day the count stops: asOf, or April 15 of the next year once that has passed. */
+  through: string;
+  /** Which required installments give the lower penalty (the taxpayer may use either on Form 2210). */
+  method: "regular" | "annualized";
+  /** The penalty to `through` if every shortfall is paid on that day. */
+  cents: number;
+  /** What 30 more days unpaid add (0 once the count has stopped at April 15). */
+  next30Days: number;
+  /** Each due date that has passed: its underpayment (Section A line 17) and its penalty so far. */
+  byDate: { due: string; underpayment: number; cents: number }[];
   warnings: string[];
 }
 
@@ -522,6 +512,18 @@ export function estimate(input: EstimateInput): Estimate {
       "Taxable income is above the QBI threshold, so the 20% deduction is phased out as for a business with no W-2 payroll. A business with staff, or a service business, follows other rules.",
     );
 
+  const penalty = penaltySoFar({
+    year,
+    asOf,
+    dates,
+    rows,
+    regularQuarter,
+    exempt,
+    paid,
+    withholding,
+  });
+  if (penalty) warnings.push(...penalty.warnings);
+
   const nextIdx = dates.findIndex((d) => d >= asOf);
   const nextDue = nextIdx < 0 ? undefined : dates[nextIdx];
   const next =
@@ -538,6 +540,91 @@ export function estimate(input: EstimateInput): Estimate {
     exempt,
     rows,
     next,
+    penalty,
+    warnings,
+  };
+}
+
+/**
+ * The Form 2210 penalty to asOf from the required installments (regular and, when every one is figured,
+ * annualized: the lower) and the payments typed in, each dated its due date (or asOf, if typed in before
+ * that date came). Null until a due date has passed or when no required payment is known.
+ */
+function penaltySoFar(a: {
+  year: number;
+  asOf: string;
+  dates: string[];
+  rows: EstimateRow[];
+  regularQuarter: number | null;
+  exempt: boolean;
+  paid: number[];
+  withholding: number;
+}): PenaltySoFar | null {
+  const { year, asOf, dates } = a;
+  const first = dates[0];
+  if (first === undefined || asOf <= first) return null;
+  const lastDay = `${year + 1}-04-15`;
+  const through = asOf < lastDay ? asOf : lastDay;
+  const passed = dates.filter((d) => d < through).length;
+  if (a.exempt)
+    return {
+      through,
+      method: "regular",
+      cents: 0,
+      next30Days: 0,
+      byDate: dates.slice(0, passed).map((due) => ({ due, underpayment: 0, cents: 0 })),
+      warnings: [],
+    };
+  if (a.regularQuarter == null) return null;
+  const rq = a.regularQuarter;
+  const payments = a.paid.map((cents, i) => {
+    const due = dates[i] as string;
+    return { date: due < asOf ? due : asOf, cents };
+  });
+  const methods: { method: PenaltySoFar["method"]; required: number[] }[] = [
+    { method: "regular", required: [rq, rq, rq, rq] },
+  ];
+  // Schedule AI must be used for all four dates; a date not yet due adds nothing before it comes, so
+  // the regular installment stands in for one the books cannot figure yet.
+  const ai = a.rows.map((r) => r.annualizedInstallment);
+  if (ai.slice(0, passed).every((v) => v != null))
+    methods.push({ method: "annualized", required: ai.map((v) => v ?? rq) });
+  const later = addDays(through, 30) < lastDay ? addDays(through, 30) : lastDay;
+  const figured = methods.map((m) => {
+    const now = form2210Penalty(year, m.required, {
+      payments,
+      withholding: a.withholding,
+      through,
+    });
+    const then = form2210Penalty(year, m.required, {
+      payments,
+      withholding: a.withholding,
+      through: later,
+    });
+    return { ...m, now, next30Days: Math.max(0, then.penalty - now.penalty) };
+  });
+  const best = figured.reduce((x, y) => (y.now.penalty < x.now.penalty ? y : x));
+  const warnings: string[] = [];
+  if (best.now.penalty > 0 || best.next30Days > 0) {
+    warnings.push(
+      "The underpayment penalty is figured as if each payment typed in was sent by its due date; one sent late adds penalty for the days it was late. The IRS figures the real penalty from the return as filed (Form 2210), and can waive it.",
+      ...best.now.warnings,
+    );
+    if (through === lastDay)
+      warnings.push(
+        "The penalty count stops on April 15. Tax still unpaid after that is a balance due on the return, which draws interest and the failure-to-pay penalty instead.",
+      );
+  }
+  return {
+    through,
+    method: best.method,
+    cents: best.now.penalty,
+    next30Days: best.next30Days,
+    byDate: best.now.worksheet.slice(0, passed).map((c, i) => ({
+      due: dates[i] as string,
+      underpayment: c.underpayment,
+      cents: c.penalty,
+    })),
     warnings,
   };
 }
