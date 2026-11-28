@@ -1,3 +1,7 @@
+---
+kind: analysis
+subjects: [payapps]
+---
 # State bond claim rules: audit against the excerpts (2026-11-28)
 
 PayApps (bet #1) gained bond claim steps for 36 states and D.C. in two days
