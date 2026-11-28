@@ -186,7 +186,9 @@ describe("retainage caps on public work", () => {
     expect(retainageCapCheck("ND", [1000, 1000])).toMatchObject({ verdict: "lower" });
     expect(retainageCapCheck("ND", [1200, 1000])).toMatchObject({ verdict: "over" });
     const nd = retainageCapCheck("nd", [500, 500]);
-    expect(nd?.kind === "checked" && nd.text).toContain("drops to 0% on estimates after the project is 50% complete");
+    expect(nd?.kind === "checked" && nd.text).toContain(
+      "drops to 0% on estimates after the project is 50% complete",
+    );
   });
 
   it("reads the states added 2026-11-28: Iowa's 3%, Ohio's labor and materials split, Kansas and Missouri's 10% cases", () => {
