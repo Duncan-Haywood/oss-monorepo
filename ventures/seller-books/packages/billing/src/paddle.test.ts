@@ -116,6 +116,31 @@ describe("PaddleBillingProvider.parseWebhook", () => {
     }
   });
 
+  it("rejects a fresh header whose h1 is shorter, longer or a prefix of the real MAC", async () => {
+    // Each wrong-length h1 must fail on its length; one empty, truncated or padded value
+    // accepted here would let anyone forge a subscription.activated event.
+    const body = '{"event_type":"subscription.activated"}';
+    const ts = Math.floor(NOW / 1000);
+    const real = (await signPaddleWebhook(body, SECRET, ts)).split("h1=")[1] as string;
+    for (const h1 of ["0", real.slice(0, 1), real.slice(0, 63), `${real}0`, `${real}${real}`]) {
+      const err = await verifyPaddleSignature(`ts=${ts};h1=${h1}`, body, SECRET, {
+        nowMs: NOW,
+      }).catch((e: unknown) => e);
+      assert.ok(err instanceof WebhookSignatureError, `h1 of length ${h1.length} was accepted`);
+    }
+  });
+
+  it("signs with the current unix time in seconds by default", async () => {
+    // Local replays call signPaddleWebhook without a ts; it must verify against the real clock
+    // (red team 2026-11-28: a ms timestamp, or Date.now()/1001, escaped every earlier test).
+    const body = "{}";
+    const before = Math.floor(Date.now() / 1000);
+    const header = await signPaddleWebhook(body, SECRET);
+    const ts = Number(/ts=(\d+)/.exec(header)?.[1]);
+    assert.ok(ts >= before && ts <= Math.floor(Date.now() / 1000), header);
+    await verifyPaddleSignature(header, body, SECRET, { toleranceSeconds: 5 });
+  });
+
   it("refuses to verify with a blank secret, whose HMAC anyone can compute", async () => {
     // A secret set to "" or whitespace (a blank paste into the secret store) would make every
     // forged webhook valid: the attacker signs with the same well-known key.
@@ -248,6 +273,8 @@ describe("paddleSubscriptionPrice (MRR source)", () => {
       { ...item, price: { ...item.price, billing_cycle: { interval: "fortnight", frequency: 1 } } },
       { ...item, price: { ...item.price, billing_cycle: { interval: "month" } } },
       { ...item, quantity: -1 },
+      { ...item, price: { ...item.price, unit_price: { amount: "2900", currency_code: "usdd" } } },
+      { ...item, price: { ...item.price, unit_price: { amount: "2900", currency_code: "u$d" } } },
       { price: { id: "pri_std_m" } },
       null,
     ];
@@ -265,7 +292,71 @@ describe("paddleSubscriptionPrice (MRR source)", () => {
   });
 });
 
+describe("own-key lookups (no Object.prototype names)", () => {
+  it("refuses a plan key or status that only exists on Object.prototype", async () => {
+    let calls = 0;
+    const fetchFn = (async () => {
+      calls++;
+      return Response.json({ data: { product_id: "pro_1", checkout: { url: "https://x" } } });
+    }) as typeof fetch;
+    const p = provider(fetchFn);
+    for (const planKey of ["toString", "constructor", "__proto__", "hasOwnProperty"]) {
+      await assert.rejects(
+        p.createCheckout({
+          planKey,
+          customerEmail: "a@example.com",
+          checkoutToken: "t",
+          providerCustomerId: "ctm_1",
+        } as Parameters<typeof p.createCheckout>[0]),
+        /no price id configured/,
+      );
+      await assert.rejects(
+        p.chargeUsage({
+          planKey,
+          providerSubscriptionId: "sub_1",
+          amountMinor: 100,
+          currency: "USD",
+          name: "n",
+          description: "d",
+        } as Parameters<typeof p.chargeUsage>[0]),
+        /no price id configured/,
+      );
+    }
+    assert.equal(calls, 0);
+    for (const status of ["constructor", "toString", "__proto__"]) {
+      const ev = p.normalize({ ...subscriptionEvent, data: { ...subscriptionEvent.data, status } });
+      assert.equal(ev.subscription, undefined);
+    }
+  });
+});
+
 describe("PaddleBillingProvider.createCheckout", () => {
+  it("sends the app's pay page as the transaction's checkout.url when given", async () => {
+    let body: Record<string, unknown> | null = null;
+    const fetchFn: typeof fetch = async (input, init) => {
+      const url = String(input);
+      if (url.endsWith("/transactions")) {
+        body = JSON.parse(String(init?.body));
+        return Response.json({
+          data: { id: "txn_2", checkout: { url: "https://app.example/pay/org_1?_ptxn=txn_2" } },
+        });
+      }
+      return new Response("{}", { status: 404 });
+    };
+    const res = await provider(fetchFn).createCheckout({
+      checkoutToken: "pco_tok.sig",
+      planKey: "starter",
+      customerEmail: "a@example.org",
+      successUrl: "https://app/s",
+      cancelUrl: "https://app/c",
+      providerCustomerId: "ctm_1",
+      checkoutPageUrl: "https://app.example/pay/org_1",
+    });
+    assert.equal(res.url, "https://app.example/pay/org_1?_ptxn=txn_2");
+    assert.deepEqual((body as Record<string, unknown> | null)?.checkout, {
+      url: "https://app.example/pay/org_1",
+    });
+  });
   it("creates a transaction with customer, discount and only the signed token in custom_data", async () => {
     const calls: { method: string; url: string; body: unknown }[] = [];
     const fetchFn: typeof fetch = async (input, init) => {
@@ -295,7 +386,7 @@ describe("PaddleBillingProvider.createCheckout", () => {
     });
     assert.equal(res.url, "https://pay.example/?_ptxn=txn_1");
     const txn = calls.find((c) => c.url.endsWith("/transactions"));
-    assert.equal(new URL(txn?.url ?? "").host, "sandbox-api.paddle.com");
+    assert.equal(txn ? new URL(txn.url).origin : null, "https://sandbox-api.paddle.com");
     assert.deepEqual(txn?.body, {
       items: [{ price_id: "pri_st_y", quantity: 1 }],
       customer_id: "ctm_new",
