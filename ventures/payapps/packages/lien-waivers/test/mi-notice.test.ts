@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { MI_ATTACHED, MI_CAPTIONS, MI_WARNING, miNoticeOfFurnishing } from "../src/mi-notice.ts";
 import {
   MI_NOTICE_ID,
   noticeById,
@@ -10,6 +9,7 @@ import {
   renderNotice,
   toPlainText,
 } from "../src/index.ts";
+import { MI_ATTACHED, MI_CAPTIONS, MI_WARNING, miNoticeOfFurnishing } from "../src/mi-notice.ts";
 
 // Mich. Comp. Laws §§ 570.1108, 570.1108a and 570.1109 from legislature.mi.gov, 2026-11-28.
 const RAW = readFileSync(new URL("../sources/mi-570-1108-1109.txt", import.meta.url), "utf8")

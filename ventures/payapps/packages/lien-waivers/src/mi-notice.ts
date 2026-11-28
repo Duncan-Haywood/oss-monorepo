@@ -101,7 +101,13 @@ const MI_NOTICE_FIELDS: readonly FieldSpec[] = [
     false,
     "E.g. Oakland. A residential job's notice of commencement is not recorded (§ 570.1108a): attach a copy of it instead.",
   ),
-  f("claimantName", "Lien claimant (your company's name)", "text", true, "Your company's legal name."),
+  f(
+    "claimantName",
+    "Lien claimant (your company's name)",
+    "text",
+    true,
+    "Your company's legal name.",
+  ),
   f(
     "claimantAddress",
     "Lien claimant's address",
@@ -182,7 +188,7 @@ export function miNoticeOfFurnishing(): NoticeForm {
       '"If service of the notice of furnishing is made by certified mail, service is complete on mailing" (§ 570.1109(1)). Keep the certified mail receipts. PayApps does not count the 20 days for you yet: write down the day you first furnished.',
       'A late notice does not lose the lien for work after it is served, and keeps it for earlier work "except to the extent that payments were made by or on behalf of the owner or lessee to the contractor pursuant to either a contractor\'s sworn statement or a waiver of lien" for your work (§ 570.1109(5), (6)). Serving on time is what protects the work before the notice.',
       'The 20 days wait for the notice of commencement: if the owner fails to record one, the time runs "until 20 days after the notice of commencement has been recorded" (§ 570.1108(10)); if the owner, lessee or designee fails to provide one on your written request by certified mail, "until 20 days after the notice of commencement actually has been furnished" to you (§ 570.1108(11); § 570.1108a(9) for a residential structure, whose notice of commencement is provided on request, not recorded). Anyone up the chain who has it must send you a copy "within 10 days after the date of mailing of a written request by certified mail" (§ 570.1108(5) to (7)).',
-      '"A contractor is not required to provide a notice of furnishing to preserve lien rights arising from his or her contract directly with an owner or lessee" (§ 570.1109(1)). A laborer\'s notice is timed from unpaid wages or fringe benefits (§ 570.1109(2), (3)) and is not this form\'s use.',
+      "\"A contractor is not required to provide a notice of furnishing to preserve lien rights arising from his or her contract directly with an owner or lessee\" (§ 570.1109(1)). A laborer's notice is timed from unpaid wages or fringe benefits (§ 570.1109(2), (3)) and is not this form's use.",
       "The notice is one step: the claim of lien is recorded separately, within the time the rest of the Construction Lien Act (Mich. Comp. Laws § 570.1101 and following) sets, which this form does not check.",
     ],
   };

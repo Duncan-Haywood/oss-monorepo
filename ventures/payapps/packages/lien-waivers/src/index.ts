@@ -12,12 +12,6 @@ export {
   AZ_NOTICE_SOURCE_URL,
 } from "./az-notice.ts";
 export {
-  MI_NOTICE_CHECKED_ON,
-  MI_NOTICE_DAYS,
-  MI_NOTICE_ID,
-  MI_NOTICE_SOURCE_URL,
-} from "./mi-notice.ts";
-export {
   CA_NOTICE_DAYS,
   CA_NOTICE_METHOD_LABELS,
   CA_NOTICE_METHODS,
@@ -68,6 +62,12 @@ export {
 } from "./ga-affidavit.ts";
 export { GENERIC_NOTICE, genericForm } from "./generic.ts";
 export { MA_PARTIAL_FORM_ID } from "./ma.ts";
+export {
+  MI_NOTICE_CHECKED_ON,
+  MI_NOTICE_DAYS,
+  MI_NOTICE_ID,
+  MI_NOTICE_SOURCE_URL,
+} from "./mi-notice.ts";
 export { MO_RESIDENTIAL_FORM_ID } from "./mo.ts";
 export {
   MS_AFFIDAVIT_COPY_DAYS,
