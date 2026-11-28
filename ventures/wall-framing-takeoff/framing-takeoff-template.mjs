@@ -155,7 +155,9 @@ function wallRows(walls) {
 }
 
 // The order: [label, pieces-or-feet formula, board length cell or "", boards formula (before allowance)].
+/** @param {string} c */
 const T = (c) => `${c}${TOTAL}`;
+/** @type {[string, string, string, (q: string) => string][]} */
 export const ORDER_LINES = [
   ["Precut studs: layout, kings and backing", `${T("J")}+${T("K")}+${T("O")}`, "precut", (q) => q],
   ["Precut studs cut down for jacks", T("L"), "precut", (q) => q],
