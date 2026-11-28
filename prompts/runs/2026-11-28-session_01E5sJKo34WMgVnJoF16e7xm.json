@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKo34WMgVnJoF16e7xm",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T13:18:12Z",
+  "ended": "2026-11-28T13:25:54Z",
+  "wall_minutes": 7.91,
+  "tokens_in": 6738525,
+  "tokens_out": 34530,
+  "cost_usd": 3.0543,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20127",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "quality_mutate.py baseline went red with `-- npx vitest run ...` (npx in the private copy); `-- sh -c 'cd apps/jobshop-quote && pnpm exec vitest run ...'` worked"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "`reaudit --paid` put cmmc, retail-pilot-intel and ai-bookkeeper first: each was re-audited today and its only listed fix PR is that same re-audit's own PR, so a second re-audit the same day would re-check the auditor's own fix. It should skip a subject whose latest audit is a same-day reaudit whose fix_prs are its own PR."
+    },
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "For a pnpm workspace venture, the hint after a red baseline does not say the test command must reach the app directory (apps/<name>) and use pnpm exec; 4 failed tries cost a few minutes."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Four bets moved into ventures/ on 2026-11-27 kept `app: private-monorepo/apps/<slug>`, so allocate.py told ventures runs to clone private-monorepo. Fixed here, and validate.py now fails on it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/quality_audit.py reaudit order",
+      "why": "The top three for-profit rows were same-day re-audits of fixes the auditor made itself; re-auditing them adds nothing",
+      "did": "Took the first row whose defects were all counted fixed with none marked (jobshop-quote, bet #2, 7 of 7 assumed)",
+      "result": "6 of 7 confirmed closed, 1 partial, and a medium routing defect found and fixed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-quality-reaudit-jobshop-quote.md",
+    "portfolio/quality/audits/2026-11-28-jobshop-quote-reaudit.json"
+  ],
+  "goal": null,
+  "notes": "Quality mode reaudit (quality_audit.py mode; seed 2026-11-28-6e04 from `reaudit --paid`). Subject: ventures/jobshop-quote (flagship, bet #2), prior audit 2026-11-26. Meets the bar: all 7 dimensions 3; prior defects 6 closed, 1 partial (all 7 basis 'assumed'). Checks: 3 hand-worked quotes match computeCost to the cent; 5/5 mutants caught; pnpm test:unit 783/783, test:worker 314/314. Fix PR: #20127 (flagships.yaml app: for jobshop-quote, einvoice-preflight, seller-books, wall-framing-takeoff, plus validate.py rule and test; pytest portfolio/router test_validate+test_flagship_field 136 passed, test_allocate 161 passed). New low defects to ROADMAP item 18.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5cce7560-adb1-5484-84a1-8da9f33fd07b",
+    "transcripts": 1,
+    "first": "2026-11-28T13:18:12Z",
+    "last": "2026-11-28T13:26:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 114,
+        "output": 34530,
+        "thinking": 8433,
+        "cache_read": 6608208,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130203,
+        "api_equivalent_usd": 3.0543,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 114,
+      "output": 34530,
+      "thinking": 8433,
+      "cache_read": 6608208,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130203,
+      "api_equivalent_usd": 3.0543,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 61,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.91,
+      "active_minutes": 7.91,
+      "model_minutes": 6.5,
+      "tool_minutes": 1.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an estimator-auditor working three quotes by hand, running suites and mutants, fixing the flagship rows and writing the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 163.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

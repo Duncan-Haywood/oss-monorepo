@@ -1,9 +1,9 @@
 ---
-title: "Re-audit: Job Shop Quote prices fallout and whole bars to the cent; the worst gap was a stale pointer outside the app"
+title: "Re-audit: Job Shop Quote prices fallout and whole bars to the cent; its worst gap was outside the app"
 seo_title: "Quoting machined parts with fallout and bar yield: a worked check"
 date: 2026-11-28
 tags: [quality-audit, evaluation, manufacturing, jobshop-quote]
-description: "A re-check of Job Shop Quote against its 2026-11-26 audit: six of seven defects closed, one partial. Three hand-worked quotes match to the cent, and 5 of 5 seeded bugs are caught."
+description: "Job Shop Quote re-checked against its 2026-11-26 audit: six of seven defects closed, one partial, three quotes matched to the cent, 5 of 5 seeded bugs caught."
 ---
 
 [Job Shop Quote](https://marisstella.app/jobshop/) prices machined and
