@@ -1,6 +1,6 @@
 // Clicks index.html in a real browser: the "outline" roof shape takes an outline with angled sides (a 45-degree bay)
 // and draws its all-hip roof plan from skeleton.mjs, gives its squares and roof lines, frames its rafters on each plane
-// (hipframe.mjs) into the cut list, and says why its sheathing courses are not laid out. `node eval-angled-roof-click.mjs`; skips with exit 0 when Playwright or a Chromium is missing.
+// (hipframe.mjs) into the cut list, and lays its sheathing courses on every plane, the angled ones included. `node eval-angled-roof-click.mjs`; skips with exit 0 when Playwright or a Chromium is missing.
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { existsSync, statSync } from "node:fs";
@@ -60,9 +60,11 @@ check(dims === 8, `eight eave sides dimensioned (${dims})`);
 const roofOut = await page.textContent("#roofOut");
 check(/8 corners, \d+\.\d\d squares/.test(roofOut), "squares on the roof card");
 check(/framed from the outline \(all-hip, 6:12, 16 in o\.c\.\)/.test(roofOut), "the card lists the framing");
-check(/Roof sheathing not laid out: .*angled sides/.test(roofOut), "the card says why courses are not laid out");
+check(!/Roof sheathing not laid out/.test(roofOut), "the card lays out the sheathing");
+check(/Roof sheathing \(all-hip, from outline\): \d+ sheets/.test(roofOut), "the card gives the sheet count");
+check(/angled sides: each plane is the face/.test(roofOut), "the card says how the angled planes are coursed");
 const card = await page.textContent("#roofCard");
-check(/so its sheathing courses are not laid out/.test(card), "the note under the plan says so too");
+check(/each plane's rafters and sheathing courses run square to its own eave side/.test(card), "the note under the plan says so too");
 check(errors.length === 0, `no page errors (${errors.join("; ")})`);
 await browser.close();
 server.close();

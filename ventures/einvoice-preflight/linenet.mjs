@@ -3,20 +3,12 @@
 // + line charges - line allowances, rounded to cents; VAT is worked out per
 // rate on the summed taxable amount, not per line. Mirrors
 // src/einvoice_preflight/linenet.py.
-import { parseDecimal } from "./numbers.mjs";
+import { parseDecimal, roundHalfUpToCents } from "./numbers.mjs";
 
 // numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
 const parseNumber = parseDecimal;
 
-export function roundCents(value) {
-  if (!Number.isFinite(value)) return null;
-  const sign = value < 0 ? -1 : 1;
-  // toPrecision(15) settles float noise on half-cent ties; from 10^15 cents (10^13
-  // units) the double has no sub-cent digits to settle, and 15 digits would cut a
-  // real cent (quality reaudit 2026-11-28: a correct 10^13 IDR gross was rewritten).
-  const scaled = Math.abs(value) * 100;
-  return (sign * Math.round(scaled < 1e15 ? Number(scaled.toPrecision(15)) : scaled)) / 100;
-}
+export const roundCents = roundHalfUpToCents;
 
 // A negative invoice (EN 16931 allows one; the Peppol BIS 3.0 example
 // "base-negative-inv-correction" is one) states a negative net and gross, and

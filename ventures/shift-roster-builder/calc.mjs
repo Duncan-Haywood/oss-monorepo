@@ -832,7 +832,11 @@ function hoursOf(ctx, list) {
 
 // Real payroll for one person (what the roster costs), and the extra "soft" penalties the search also weighs.
 // Hours split into straight time, overtime and double time. Weekly overtime counts only hours not already
-// paid at a daily premium (the California method). A shift counts on the day it starts.
+// paid at a daily premium (the California method). Daily hours are calendar days, midnight to midnight: an overnight
+// shift's hours after midnight count on the next day (Sat 8pm-6am is 4 h Saturday + 6 h Sunday), as the timesheet's
+// pay rules do (payrules.mjs, byDay), and an unpaid meal comes off the two parts in proportion to their length. A Sunday
+// night shift's tail stays on Sunday, since the week's last workday is the last day this roster prices (also as the
+// timesheet does). Before 2026-11-27 every hour counted on the day the shift started (quality audit round 84).
 // dailyOtAfter / dailyDtAfter of 0 turn the daily rules off, which gives the plain weekly rule.
 // Minutes of a shift that are paid: an unpaid meal break comes off shifts longer than mealAfter hours.
 // The shift still occupies the person for its full length (availability, rest, hour caps), only pay changes.
@@ -844,15 +848,27 @@ function paidMinutes(o, s) {
 // numbers in the same order and give the same result bit for bit). The pricing oracle prices millions of lists on a 40-person
 // week, and the Map per call was a fifth of its time (2026-11-11 profile). Days outside 0-30 take the Map.
 const PAY_DAY = new Float64Array(31), PAY_ORDER = new Int32Array(31);
+// Paid hours of slot `s` by calendar day: calls add(day, hours) once, or twice for a shift past midnight (see above).
+function slotDays(o, s, add) {
+  const paid = paidMinutes(o, s) / 60, cut = (s.day + 1) * 1440;
+  if (s.end <= cut || s.day % 7 === 6) { add(s.day, paid); return; }
+  const head = paid * (cut - s.start) / (s.end - s.start);
+  add(s.day, head);
+  add(s.day + 1, paid - head);
+}
 const addTripDay = (d, m) => { PAY_DAY[d] += m / 60; };
+const addPayDay = (d, h) => { PAY_DAY[d] += h; };
 function payParts(ctx, list, noTravel = false) {
   const { o, slots } = ctx;
   let mask = 0, nd = 0;
   for (const i of list) {
-    const d = slots[i].day;
-    if (!(d >= 0 && d <= 30 && Number.isInteger(d))) return payPartsMap(ctx, list, noTravel);
+    const s = slots[i], d = s.day;
+    if (!(d >= 0 && d <= 29 && Number.isInteger(d))) return payPartsMap(ctx, list, noTravel);
     if (!(mask & (1 << d))) { mask |= 1 << d; PAY_ORDER[nd++] = d; PAY_DAY[d] = 0; }
-    PAY_DAY[d] += paidMinutes(o, slots[i]) / 60;
+    if (s.end <= (d + 1) * 1440 || d % 7 === 6) { PAY_DAY[d] += paidMinutes(o, s) / 60; continue; }
+    const t = d + 1;
+    if (!(mask & (1 << t))) { mask |= 1 << t; PAY_ORDER[nd++] = t; PAY_DAY[t] = 0; }
+    slotDays(o, s, addPayDay);
   }
   if (ctx.tripPay && o.travelPay && !noTravel) siteTrips(ctx, list, addTripDay);
   let straight = 0, ot = 0, dt = 0;
@@ -868,7 +884,7 @@ function payParts(ctx, list, noTravel = false) {
 function payPartsMap(ctx, list, noTravel = false) {
   const { o, slots } = ctx;
   const byDay = new Map();
-  for (const i of list) byDay.set(slots[i].day, (byDay.get(slots[i].day) || 0) + paidMinutes(o, slots[i]) / 60);
+  for (const i of list) slotDays(o, slots[i], (d, h) => byDay.set(d, (byDay.get(d) || 0) + h));
   if (ctx.tripPay && o.travelPay && !noTravel) siteTrips(ctx, list, (d, m) => byDay.set(d, byDay.get(d) + m / 60));
   let straight = 0, ot = 0, dt = 0;
   for (const h of byDay.values()) {

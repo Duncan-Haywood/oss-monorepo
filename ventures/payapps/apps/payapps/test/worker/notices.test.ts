@@ -47,7 +47,7 @@ describe("preliminary notices", () => {
   it("on Free: the overview loads, printing needs Crew (402)", async () => {
     const o = await call<NoticeOverviewDto>(`${base}/notices?state=WY`, { as });
     expect(o.enabled).toBe(false);
-    expect(o.states).toEqual(["AZ", "CA", "FL", "MI", "TX", "WY"]);
+    expect(o.states).toEqual(["AZ", "CA", "FL", "MI", "OH", "TX", "WY"]);
     const res = await print({
       state: "WY",
       formId: "WY/preliminary-notice/statutory",
@@ -354,6 +354,61 @@ describe("preliminary notices", () => {
     );
     expect(res.status).toBe(200);
     expect(res.headers.get("Content-Disposition")).toContain("preliminary-notice-MI.pdf");
+    expect((await res.text()).startsWith("%PDF-")).toBe(true);
+  });
+
+  it("Ohio: the § 1311.05 notice of furnishing, the GC and the job prefilled", async () => {
+    await grantPlan(orgId, "crew", "active");
+    const p = await call<ProjectDto>(`/api/orgs/${orgId}/projects`, {
+      method: "POST",
+      as,
+      expect: 201,
+      json: {
+        name: "Short North Clinic TI",
+        location: "1400 N High St, Columbus OH 43201",
+        gcName: "Scioto Builders Inc.",
+        gcAddress: "250 S High St, Columbus OH 43215",
+        ownerName: "Buckeye Clinic Holdings LLC",
+        originalContractSumCents: 7_400_000,
+      },
+    });
+    const ohBase = `/api/orgs/${orgId}/projects/${p.id}`;
+    const o = await call<NoticeOverviewDto>(`${ohBase}/notices?state=OH`, { as });
+    expect(o.notices.map((n) => n.id)).toEqual(["OH/notice-of-furnishing/statutory"]);
+    const n = o.notices[0];
+    expect(n?.citation).toBe("Ohio Rev. Code § 1311.05");
+    expect(n?.sendTo).toMatch(/designee named in the notice of commencement/);
+    expect(o.prefill).toMatchObject({
+      originalContractor: "Scioto Builders Inc.",
+      originalContractorAddress: "250 S High St, Columbus OH 43215",
+      contractedWith: "Scioto Builders Inc.\n250 S High St, Columbus OH 43215",
+      propertyLocation: "1400 N High St, Columbus OH 43201",
+    });
+    // The designee and the first day come from the notice of commencement and the user.
+    expect(o.prefill.designee).toBeUndefined();
+    expect(o.prefill.firstFurnishedDate).toBeUndefined();
+    const fields: Record<string, string> = {};
+    for (const f of n?.fields ?? []) if (o.prefill[f.key]) fields[f.key] = o.prefill[f.key] ?? "";
+    const missing = await print({ state: "OH", formId: n?.id, fields }, as, ohBase);
+    expect(missing.status).toBe(400);
+    const res = await print(
+      {
+        state: "OH",
+        formId: n?.id,
+        fields: {
+          ...fields,
+          designee: "Buckeye Clinic Holdings LLC",
+          designeeAddress: "88 E Broad St, Columbus OH 43215",
+          firstFurnishedDate: "2026-11-16",
+          claimantAddress: "600 W Spring St, Columbus OH 43215",
+          signer: "Dana Ruiz, President",
+        },
+      },
+      as,
+      ohBase,
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Disposition")).toContain("preliminary-notice-OH.pdf");
     expect((await res.text()).startsWith("%PDF-")).toBe(true);
   });
 

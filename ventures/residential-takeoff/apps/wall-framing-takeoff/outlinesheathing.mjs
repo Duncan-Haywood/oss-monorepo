@@ -71,8 +71,19 @@
 // placed on rafters.
 // The exact sloped area is the eave line's plan area times k (roofoutline.mjs); the
 // courses' covered area is checked against it.
+//
+// Outlines with angled sides (a bay, a 45-degree corner: skeleton.mjs) have no L-infinity
+// rule, so each plane is the face planeFaces (hipframe.mjs) traces on the inside of its
+// eave side, the polygon the rafters there are framed on, and its section at plan depth d
+// is where the line at depth d crosses that polygon (`faceSection`). Everything else is the
+// same: courses up from the eave, each piece the longest length its course needs, joints on
+// the rafters. A hip or valley off a square corner moves a course's end one plan inch per
+// inch of depth, as above, so its offcut is reused the same way; one off an angled corner
+// moves it by some other amount, and its offcut is not reused (the count stays an upper
+// bound). The planes' areas are checked against the eave line's, as for every outline.
 import { EPS, THICK, optimizeStock, formatInches } from "./engine.mjs";
 import { SHEET, slopeFactor } from "./roof.mjs";
+import { planeFaces } from "./hipframe.mjs";
 
 /** @typedef {{ x: number, y: number }} Pt */
 /** @typedef {{ x: number, length: number, offcut?: "left" | "right", hip?: boolean, cutFrom?: number }} Piece offcut: a hip offcut filling the corner at that end of its run (not cut from a sheet); hip: that end is a hip (the triangle is widest at the bottom), else a valley; cutFrom: the triangle was cut down from a wider course's (its length along that course) */
@@ -89,7 +100,7 @@ const TOL = 1e-7;
  */
 function frame(p, i) {
   const a = p[i], b = p[(i + 1) % p.length];
-  const len = Math.abs(b.x - a.x) + Math.abs(b.y - a.y);
+  const len = Math.hypot(b.x - a.x, b.y - a.y); // a square side's length either way
   const ux = (b.x - a.x) / len, uy = (b.y - a.y) / len;
   return { a, len, ux, uy, nx: -uy, ny: ux };
 }
@@ -137,6 +148,72 @@ export function planeSection(p, i, d) {
   return keep.filter(([s, e]) => e - s > 1e-6 && inside(p, ox + f.ux * (s + e) / 2, oy + f.uy * (s + e) / 2));
 }
 
+/**
+ * The stretches (t0, t1) of a plane given as a polygon (a face of planeFaces) at plan depth d
+ * inside side i: where the line at depth d crosses the polygon, paired in order along t (even-odd,
+ * a corner exactly at depth d counted on the deeper side once). Exact for any outline.
+ * @param {Pt[]} p counter-clockwise eave line @param {number} i @param {Pt[]} face @param {number} d inches, > 0
+ * @returns {[number, number][]}
+ */
+export function faceSection(p, i, face, d) {
+  const f = frame(p, i);
+  const D = (/** @type {Pt} */ q) => (q.x - f.a.x) * f.nx + (q.y - f.a.y) * f.ny;
+  const T = (/** @type {Pt} */ q) => (q.x - f.a.x) * f.ux + (q.y - f.a.y) * f.uy;
+  /** @type {number[]} */
+  const ts = [];
+  for (let j = 0; j < face.length; j++) {
+    const a = face[j], b = face[(j + 1) % face.length];
+    const da = D(a), db = D(b);
+    if ((da > d) === (db > d)) continue;
+    const u = (d - da) / (db - da);
+    ts.push(T(a) + u * (T(b) - T(a)));
+  }
+  ts.sort((m, n) => m - n);
+  /** @type {[number, number][]} */
+  const out = [];
+  for (let j = 0; j + 1 < ts.length; j += 2) if (ts[j + 1] - ts[j] > 1e-6) out.push([ts[j], ts[j + 1]]);
+  return out;
+}
+
+/**
+ * The pieces one course needs on a plane given as a polygon, between plan depths d0 and d1: the
+ * stretches along side i that the face's part inside the band covers, merged where they overlap. A
+ * region's shadow on a line is its boundary's shadow, and the boundary of face-and-band is the face's
+ * sides cut to the band plus the two sections at d0 and d1, so this is exact. (Sampling sections at a
+ * few depths is not when a plane leans, as a bay's sides do: both of its ends then move the same way.)
+ * @param {Pt[]} p counter-clockwise eave line @param {number} i @param {Pt[]} face @param {number} d0 @param {number} d1
+ * @returns {[number, number][]}
+ */
+export function facePieces(p, i, face, d0, d1) {
+  const f = frame(p, i);
+  const D = (/** @type {Pt} */ q) => (q.x - f.a.x) * f.nx + (q.y - f.a.y) * f.ny;
+  const T = (/** @type {Pt} */ q) => (q.x - f.a.x) * f.ux + (q.y - f.a.y) * f.uy;
+  // the band's ends taken OFF inside, as coursePieces samples them (a level ridge at a band's end carries float error)
+  const lo = d0 + OFF, hi = d1 - OFF;
+  /** @type {[number, number][]} */
+  const all = [...faceSection(p, i, face, lo), ...faceSection(p, i, face, hi)];
+  for (let j = 0; j < face.length; j++) {
+    const a = face[j], b = face[(j + 1) % face.length];
+    const da = D(a), db = D(b), ta = T(a), tb = T(b);
+    let u0 = 0, u1 = 1;
+    if (Math.abs(db - da) < 1e-12) { if (da < lo || da > hi) continue; }
+    else {
+      const v0 = (lo - da) / (db - da), v1 = (hi - da) / (db - da);
+      u0 = Math.max(0, Math.min(v0, v1)); u1 = Math.min(1, Math.max(v0, v1));
+      if (!(u1 - u0 > 1e-12)) continue;
+    }
+    const s = ta + u0 * (tb - ta), e = ta + u1 * (tb - ta);
+    if (Math.abs(e - s) > 1e-6) all.push([Math.min(s, e), Math.max(s, e)]);
+  }
+  all.sort((m, n) => m[0] - n[0]);
+  /** @type {[number, number][]} */
+  const merged = [];
+  // stretches less than 1/16 in apart are one run: a piece is cut to the 1/16 in, so a gap that narrow (where two
+  // of the face's sides cross the band's end a hair apart) would only leave a sliver piece of no length
+  for (const [s, e] of all) { const last = merged[merged.length - 1]; if (last && s <= last[1] + 1 / 16) last[1] = Math.max(last[1], e); else merged.push([s, e]); }
+  return merged.filter(([s, e]) => e - s > 1e-6);
+}
+
 /** The stretches less (lo, hi). @param {[number, number][]} keep @param {number} lo @param {number} hi */
 function cut(keep, lo, hi) {
   /** @type {[number, number][]} */
@@ -174,8 +251,8 @@ export function planeDepth(p, i) {
 const OFF = 1e-4;
 
 /** Plan area (sq in) of side i's plane between depths d0 and d1: Simpson's rule on each straight run, split at the depths where the section changes. */
-function bandArea(/** @type {Pt[]} */ p, /** @type {number} */ i, /** @type {number} */ d0, /** @type {number} */ d1, /** @type {number[]} */ breaks) {
-  const w = (/** @type {number} */ d) => planeSection(p, i, d).reduce((t, [s, e]) => t + e - s, 0);
+function bandArea(/** @type {Pt[]} */ p, /** @type {number} */ i, /** @type {number} */ d0, /** @type {number} */ d1, /** @type {number[]} */ breaks, sec = (/** @type {number} */ j, /** @type {number} */ d) => planeSection(p, j, d)) {
+  const w = (/** @type {number} */ d) => sec(i, d).reduce((t, [s, e]) => t + e - s, 0);
   const cuts = [d0, ...breaks.filter((b) => b > d0 + 2 * OFF && b < d1 - 2 * OFF), d1];
   let a = 0;
   for (let k = 0; k + 1 < cuts.length; k++) { const u = cuts[k], v = cuts[k + 1]; a += (v - u) * (w(u + OFF) + 4 * w((u + v) / 2) + w(v - OFF)) / 6; }
@@ -189,13 +266,14 @@ function bandArea(/** @type {Pt[]} */ p, /** @type {number} */ i, /** @type {num
  * depths in `breaks` (where the roof's lines meet), so the band's ends and those depths
  * hold every extreme.
  * @param {Pt[]} p @param {number} i @param {number} d0 @param {number} d1 @param {number[]} breaks
+ * @param {(i: number, d: number) => [number, number][]} [sec] the plane's section (planeSection unless given)
  */
-function coursePieces(p, i, d0, d1, breaks) {
+function coursePieces(p, i, d0, d1, breaks, sec = (j, d) => planeSection(p, j, d)) {
   const ds = [d0 + OFF, d1 - OFF, ...breaks.filter((b) => b > d0 + OFF && b < d1 - OFF).flatMap((b) => [b - OFF, b + OFF])];
   // a sample between each pair, in case a stretch lives only inside the band
   const sorted = [...new Set(ds)].sort((m, n) => m - n);
   for (let k = 0; k + 1 < sorted.length; k++) ds.push((sorted[k] + sorted[k + 1]) / 2);
-  const all = ds.flatMap((d) => planeSection(p, i, d)).sort((m, n) => m[0] - n[0]);
+  const all = ds.flatMap((d) => sec(i, d)).sort((m, n) => m[0] - n[0]);
   /** @type {[number, number][]} */
   const merged = [];
   for (const [s, e] of all) { const last = merged[merged.length - 1]; if (last && s <= last[1] + 1e-6) last[1] = Math.max(last[1], e); else merged.push([s, e]); }
@@ -207,14 +285,15 @@ function coursePieces(p, i, d0, d1, breaks) {
  * overlaps the run, and its start (end) moves one plan inch per inch of depth, in at a hip,
  * out at a valley, through the whole band (the samples hold every depth where it could turn).
  * @param {Pt[]} p @param {number} i @param {number} d0 @param {number} d1 @param {number[]} breaks @param {number} s @param {number} e
+ * @param {(i: number, d: number) => [number, number][]} [sec] the plane's section (planeSection unless given)
  * @returns {{ left: "hip" | "valley" | null, right: "hip" | "valley" | null }}
  */
-export function runEnds(p, i, d0, d1, breaks, s, e) {
+export function runEnds(p, i, d0, d1, breaks, s, e, sec = (j, d) => planeSection(p, j, d)) {
   const ds = [d0 + OFF, (d0 + d1) / 2, d1 - OFF, ...breaks.filter((b) => b > d0 + OFF && b < d1 - OFF).flatMap((b) => [b - OFF, b + OFF])];
   /** @type {[number, number, number][]} */
   const at = [];
   for (const d of ds) {
-    const hit = planeSection(p, i, d).filter(([a, b]) => b > s + 1e-6 && a < e - 1e-6);
+    const hit = sec(i, d).filter(([a, b]) => b > s + 1e-6 && a < e - 1e-6);
     if (hit.length !== 1) return { left: null, right: null };
     at.push([d - d0, hit[0][0], hit[0][1]]);
   }
@@ -228,16 +307,20 @@ export function runEnds(p, i, d0, d1, breaks, s, e) {
   };
 }
 
-/** Pieces of a run laid in sheet lengths from one end. @param {number} s @param {number} e @param {number} len @param {boolean} fromRight */
+/**
+ * Pieces of a run laid in sheet lengths from one end. A remainder that rounds to no length (a run a hair over a
+ * multiple of the sheet length) is left off: it is under the 1/16 in the pieces are cut to.
+ * @param {number} s @param {number} e @param {number} len @param {boolean} fromRight
+ */
 function layRun(s, e, len, fromRight) {
   /** @type {Piece[]} */
   const out = [];
   if (fromRight) {
     let at = e;
-    while (at - s > 1e-6) { const l = Math.min(at - s, len); out.unshift({ x: Math.round((at - l) * 16) / 16, length: Math.round(l * 16) / 16 }); at -= l; }
+    while (at - s >= 1 / 32) { const l = Math.min(at - s, len); out.unshift({ x: Math.round((at - l) * 16) / 16, length: Math.round(l * 16) / 16 }); at -= l; }
   } else {
     let at = s;
-    while (e - at > 1e-6) { const l = Math.min(e - at, len); out.push({ x: Math.round(at * 16) / 16, length: Math.round(l * 16) / 16 }); at += l; }
+    while (e - at >= 1 / 32) { const l = Math.min(e - at, len); out.push({ x: Math.round(at * 16) / 16, length: Math.round(l * 16) / 16 }); at += l; }
   }
   return out;
 }
@@ -377,7 +460,7 @@ export function weighStartsOneByOne(whole, plain, tried, relay) {
  */
 export function sheatheOutlineRoof(ro, o = {}) {
   if (!ro || !ro.ok) return { ok: false, errors: ["No roof outline to sheathe."] };
-  if (ro.eaveLine.some((a, i) => { const b = ro.eaveLine[(i + 1) % ro.eaveLine.length]; return a.x !== b.x && a.y !== b.y; })) return { ok: false, errors: ["The outline has angled sides; sheathing courses are laid out on square-cornered outlines only (the squares are still given)."] };
+  const angled = ro.eaveLine.some((a, i) => { const b = ro.eaveLine[(i + 1) % ro.eaveLine.length]; return a.x !== b.x && a.y !== b.y; });
   const sheet = { ...SHEET, ...(o.sheet || {}) };
   const kerf = o.kerf ?? 0.125;
   if (!(sheet.width > 0 && sheet.length > 0 && sheet.width <= 96 && sheet.length <= 192)) return { ok: false, errors: ["Sheet width and length must be positive inches (at most 96 by 192)."] };
@@ -386,11 +469,31 @@ export function sheatheOutlineRoof(ro, o = {}) {
     if (v != null && !(typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 10000)) return { ok: false, errors: [`The roof sheet's ${kk === "price" ? "price" : "blocked-joint price"} (sheet.${kk}) must be a number from 0 to 10000.`] };
   }
   const p = ro.eaveLine, k = slopeFactor(ro.pitch), rise = ro.pitch / 12;
+  // an outline with angled sides: each plane is its face of the roof lines (faceSection); a face shared by two
+  // sides on one line (a notch between them) belongs to the first, as planeSection gives it on a square outline
+  /** @type {(Pt[] | null)[] | null} */
+  let faces = null;
+  if (angled) {
+    const pf = planeFaces(p, /** @type {any} */ (ro.lines));
+    if (!pf) return { ok: false, errors: ["The roof lines do not split this outline into one plane per eave side, so its sheathing courses are not laid out; please report the outline."] };
+    faces = pf.map((fc, i) => (fc.sides.some((j) => j < i) ? null : fc.poly));
+  }
+  const sec = faces
+    ? (/** @type {number} */ i, /** @type {number} */ d) => { const fc = /** @type {(Pt[] | null)[]} */ (faces)[i]; return fc ? faceSection(p, i, fc, d) : []; }
+    : (/** @type {number} */ i, /** @type {number} */ d) => planeSection(p, i, d);
+  /** The deepest plan depth of side i's plane: its face's deepest corner, or by bisection on a square outline. @param {number} i */
+  const deepest = (i) => {
+    if (!faces) return planeDepth(p, i);
+    const fc = faces[i];
+    if (!fc) return 0;
+    const f = frame(p, i);
+    return Math.max(0, ...fc.map((q) => (q.x - f.a.x) * f.nx + (q.y - f.a.y) * f.ny));
+  };
   // depths (plan inches) where the roof's lines meet: the section's ends change direction only there
   // and where any plane runs out: two sides on one line facing the same way are one plane split between
   // them by a 45-degree line no roof line marks (planeSection), and where that line meets a hip the earlier
   // side's share ends and the other side's section turns, a kink between the roof lines' depths
-  const depths = p.map((_, i) => planeDepth(p, i));
+  const depths = p.map((_, i) => deepest(i));
   const breaks = [...new Set([...ro.lines.flatMap((l) => [l.z0 / rise, l.z1 / rise]), ...depths].map((d) => Math.round(d * 1e6) / 1e6))].filter((d) => d > OFF).sort((m, n) => m - n);
   const bandW = sheet.width / k; // plan depth one course covers
   // pass 1: every course's runs and how each end meets the roof
@@ -405,9 +508,10 @@ export function sheatheOutlineRoof(ro, o = {}) {
     for (let c = 0; c * bandW < depth - 1e-6; c++) {
       const d0 = c * bandW, d1 = Math.min(depth, (c + 1) * bandW);
       const width = Math.round((d1 - d0) * k * 16) / 16;
-      const runs = coursePieces(p, i, d0, d1, breaks).map(([s0, e0]) => ({ s: s0, e: e0, ...runEnds(p, i, d0, d1, breaks, s0, e0), fillL: false, fillR: false }));
+      const fc = faces ? faces[i] : null;
+      const runs = (fc ? facePieces(p, i, fc, d0, d1) : coursePieces(p, i, d0, d1, breaks, sec)).map(([s0, e0]) => ({ s: s0, e: e0, ...runEnds(p, i, d0, d1, breaks, s0, e0, sec), fillL: false, fillR: false }));
       courses.push({ y: Math.round(d0 * k * 16) / 16, width, band: d1 - d0, d0, d1, runs });
-      exact += bandArea(p, i, d0, d1, breaks) * k;
+      exact += bandArea(p, i, d0, d1, breaks, sec) * k;
     }
     draft.push({ side: i + 1, eaveIn: f.len, depthIn: depth, slopeIn: depth * k, courses });
   }
@@ -674,7 +778,8 @@ export function sheatheOutlineRoof(ro, o = {}) {
   const sheetSqFt = sheet.width * sheet.length / 144;
   const notes = [
     `Roof sheathing on the all-hip roof from the outline: ${planes.length} planes in ${byCourse.length} courses of ${formatInches(sheet.width)} up the slope from the eave edge, ${pieceCount} pieces cut from ${count} sheets of ${sheet.width} x ${sheet.length} in for ${area.toFixed(0)} sq ft (${count ? (100 * (1 - area / (count * sheetSqFt))).toFixed(1) : "0.0"}% offcut).`,
-    `Each piece is the full length its course needs anywhere up that course (a hip shortens a course towards its top), cut at 45 degrees in plan on site.${fr ? "" : " End joints are not placed on rafters and courses are not staggered."}`,
+    `Each piece is the full length its course needs anywhere up that course (a hip shortens a course towards its top), cut ${angled ? "along the hip or valley line in plan on site (45 degrees at a square corner, shallower at an angled one)" : "at 45 degrees in plan on site"}.${fr ? "" : " End joints are not placed on rafters and courses are not staggered."}`,
+    ...(angled ? ["The outline has angled sides: each plane is the face the roof lines close on the inside of its eave side (the same planes the rafters are framed on), and the courses run square to that side. Offcuts from hips and valleys at angled corners are not reused, so the count there is an upper bound."] : []),
   ];
   /** @type {number | null} */
   let looseCount = null;

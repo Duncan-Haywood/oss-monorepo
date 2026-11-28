@@ -1247,8 +1247,12 @@ CLI (`--format json`), and the rule ids are compared
   with "UBL document root must be Invoice, CreditNote, or DebitNote"; it now
   names the file's root and says the page and the Node API check that format.
 - **Known, not measured here:** the CLI has no warning or note severity, so it
-  is silent on INV-061/063/064 and PDF-001..006; Norway and Switzerland VAT and
-  the profile options are JS only; some fix texts differ. The comparison is on
+  is silent on INV-061/063/064 and PDF-001..006; the profile options are JS
+  only; some fix texts differ. Norway (organisasjonsnummer, MVA) and Switzerland
+  (UID, MWST/TVA/IVA) VAT check digits were JS only until the 2026-11-28 quality
+  re-audit, which found the CLI called every NO or CH `vat_id` an unrecognized
+  prefix (INV-022); they now run in `vat.py` and agree with `vat.mjs` and
+  python-stdnum 2.2 on 3,000 of 3,000 random numbers (`tests/test_vat.py`). The comparison is on
   rule ids, not messages, and on shipped files, not generated ones.
 
 The page now says exactly this under "Prefer a pipeline?".

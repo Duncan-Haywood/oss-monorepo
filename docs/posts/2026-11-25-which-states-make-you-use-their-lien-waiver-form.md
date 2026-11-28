@@ -516,3 +516,37 @@ Saturday 60th day it no longer says the period has ended; it says you have until
 The owner's copy date follows the two-business-day count. Georgia, whose own counting rule (O.C.G.A.
 § 1-3-1) we have not read, still counts calendar days. The safest course is unchanged: file before
 the 60th day, and mail the copy the day you file.
+
+## Update, 2026-11-28: Ohio's notice of furnishing, 21 days and only if there is a notice of commencement
+
+Ohio has no statutory waiver form, so it never appeared in this post. It does have a statutory
+notice, and it works like Michigan's with three differences that matter on a job. We read Ohio Rev.
+Code §§ 1311.04, 1311.05, 1311.06, 1311.07, 1311.19 and 1311.261 on codes.ohio.gov on 2026-11-28.
+
+- **No recorded notice of commencement, no notice of furnishing.** A sub or supplier doesn't need
+  one "if the owner, part owner, or lessee who contracted for the labor, work, or materials fails to
+  record a notice of commencement" (§ 1311.05(H)). If one is recorded after you start, you have
+  "until twenty-one days after the notice of commencement has been recorded" (§ 1311.04(I)). So
+  your first question on an Ohio job is whether a notice of commencement is recorded, and your
+  second is to ask for a copy in writing. The GC has 10 days to serve it on you (§ 1311.04(E)).
+- **A late notice keeps a 21-day window, not a dollar figure.** Michigan's late notice loses what
+  the owner already paid on a sworn statement or waiver. Ohio's keeps your lien "for amounts owing
+  for labor and work performed and materials furnished within the twenty-one-day period immediately
+  preceding service of the notice of furnishing and thereafter" (§ 1311.05(D)(1)). Serve it on day
+  40 and the first 19 days of work are outside the lien.
+- **Certified mail counts the day you mail it.** "If service of a notice of furnishing is made by
+  certified mail, service is complete on the date of the mailing" (§ 1311.19(B)). Most other
+  notices under the chapter count only when received.
+
+A sub hired directly by the original contractor doesn't have to serve the original contractor
+(§ 1311.05(A)). It still serves the owner's designee. Home construction contracts and public jobs are
+outside § 1311.05; public jobs have their own notice to the principal contractor (§ 1311.261).
+
+The free guide,
+[Ohio notice of furnishing](https://marisstella.app/pay-app-guides/ohio-notice-of-furnishing.html),
+works out your last day, including both extensions. It says what a late notice still covers, dates
+the lien affidavit (60 or 75 days after your last work, § 1311.06(B)), and prints the § 1311.05(B)
+form word for word. A test checks every quoted phrase and the form against the text we fetched.
+PayApps now prints the notice from the job page on the Crew plan and up. The original contractor,
+its address and the property come from the job; you fill in the designee and your first day. It
+does not count the 21 days on the job yet.
