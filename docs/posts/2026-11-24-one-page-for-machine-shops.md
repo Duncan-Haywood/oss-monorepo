@@ -1240,6 +1240,35 @@ all. The new page, [QuickBooks invoices from
 quotes](https://marisstella.app/jobshop/quickbooks-invoices-from-quotes),
 lists what it does and does not do.
 
+## Update, 28 November 2026: setting quantity breaks from your own costs
+
+A new guide, [how to set quantity price breaks on machined
+parts](https://marisstella.app/jobshop/quantity-price-breaks), takes the same
+made-up anodized bracket the CNC quoting guide uses and prices it at eight
+quantities, from 1 to 500. Eight is the most one quote line in Job Shop Quote
+can carry. The table splits each price into what a part pays for setup, run
+time, material and the anodizer's charge. The guide then reads off what a
+shop needs in order to set its breaks:
+
+- **Fallout rounds up to whole parts.** With 3% expected scrap, one bracket
+  means starting two, so the one-off pays run time on both.
+- **Each minimum ends at its own quantity.** The $150 anodize lot charge
+  covers every order under 41 parts, so a break at 40 still pays all of it,
+  and a break at 50 spreads it.
+- **The price stops falling.** At 100 parts the price each is within 5% of
+  the long-run floor ($68.26), and at 500 within 0.9%. A lower price at volume
+  has to come from the process, not from the break.
+- **Orders between breaks need a written rule.** A PO for 40 against breaks
+  at 25 and 50 is $3,309.20 at the lower break's price and $3,063.20 priced on
+  its own. At the upper break's price, which is what a buyer will ask for, it
+  is $2,977.60.
+- **Releases are lots.** 500 parts in five releases of 100 cost $1,380 more
+  than one run of 500.
+
+A test prices every break and the in-between order with the app's own costing
+engine and fails if any cent differs. All the figures are made up, and the
+guide says so.
+
 ## Update, 28 November 2026: what a rush job should cost
 
 When a customer needs parts in days rather than weeks, many shops add a flat

@@ -26,6 +26,10 @@
   no library); the workbook itself is never uploaded or stored. Only the chosen sheet goes to
   `POST /controls/import` as CSV text, where the existing caps apply (1 MB, 3,000 rows, 8,000
   characters per text cell) and nothing but the parsed fields is written.
+- The same holds for the asset list, POA&M, people and supplier list imports (`POST /assets/import`,
+  `/poam/import`, `/suppliers/import` and the like): the browser sends one sheet as CSV text, the caps
+  above apply, and only the parsed fields are written. The supplier import writes no field the form
+  cannot, through the form's own validation and plan gate.
 - The reader is bounded: rows past 100,000 and columns past 200 are ignored, ZIP64, encrypted and old
   OLE .xls files are refused with a message, and entries are inflated only on demand.
 

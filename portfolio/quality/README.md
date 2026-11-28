@@ -82,6 +82,8 @@ python3 platform/ci/quality_audit.py summary --md      # the same as Markdown, f
 `sample`, `census`, `queue`, `reaudit` and `mode` leave `research/` subjects out unless `--research`: on
 2026-11-25, 20 of the queue's 21 open highs and 225 of 512 re-audits waiting were research, which the owner paused
 that day (`prompts/goals.md`, pivot point 11). Metrics and coverage still count them.
+`queue --paid` and `reaudit --paid` keep only the for-profit products (`transition.json`'s proprietary rows),
+which the quality prompt says to prefer.
 
 A venture, research or platform subject audited in the last 90 days is skipped,
 so rounds spread over the population and re-running the same seed after

@@ -36,6 +36,7 @@ import {
 } from "./material-cost-example";
 import { MODULES } from "./module-data";
 import { EXAMPLE as OUTSIDE_EXAMPLE, priceOutsideExample } from "./outside-processing-example";
+import { BREAK_QUANTITIES, EXAMPLE as BREAKS_EXAMPLE, quantityBreaks } from "./quantity-breaks";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
 import { CSV_COLUMNS, CSV_FILE, exampleQuote, TERMS_CHECKLIST } from "./quote-template";
 import { RFQ_CHECKS, RFQ_CSV_COLUMNS, RFQ_CSV_FILE, RFQ_SECTIONS } from "./rfq-checklist";
@@ -2903,6 +2904,196 @@ ${ctaBand(ctx, "Price your material the way you buy it", ctx.launch.open ? "The 
 }
 
 /**
+ * A guide aimed at the searches shops make when they set price breaks ("quantity price breaks",
+ * "machining price breaks", "how to set quantity breaks on a quote", "volume pricing machined parts").
+ * The CNC guide's made-up bracket at eight quantities, the most one line in the app carries, priced in
+ * ./quantity-breaks to the cent the app's costing engine gives
+ * (apps/jobshop-quote/test/unit/site-quantity-breaks.test.ts). No industry figures are quoted.
+ */
+export function quantityBreaksGuidePage(ctx: RenderContext): Html {
+  const e = BREAKS_EXAMPLE;
+  const r = quantityBreaks();
+  const byQ = (q: number) => {
+    const b = r.breaks.find((x) => x.quantity === q);
+    const s = r.shares.find((x) => x.quantity === q);
+    if (!b || !s) throw new Error(`the quantity breaks guide quotes ${q}`);
+    return { b, s };
+  };
+  const one = byQ(1);
+  const hundred = byQ(100);
+  const last = byQ(BREAK_QUANTITIES[BREAK_QUANTITIES.length - 1] ?? 1);
+  const ib = r.inBetween;
+  const releases = last.b.quantity / hundred.b.quantity;
+  const releasesTotal = hundred.b.totalCents * releases;
+  const pctOf = (x: number, digits = 0) => `${(x * 100).toFixed(digits)}%`;
+  const each = (c: number) => usdCents(Math.round(c));
+  const qty = (q: number) => q.toLocaleString("en-US");
+  const rows: [string, (q: number) => string][] = [
+    ["Parts started", (q) => qty(byQ(q).b.starts)],
+    ["Setup each", (q) => each(byQ(q).s.setupEach)],
+    ["Run time each", (q) => each(byQ(q).s.runEach)],
+    ["Material each", (q) => each(byQ(q).s.materialEach)],
+    ["Anodize each", (q) => each(byQ(q).s.finishingEach)],
+    ["Markup each", (q) => each(byQ(q).s.markupEach)],
+    ["Price each", (q) => usdCents(byQ(q).b.unitPriceCents)],
+    ["Line total", (q) => usdCents(byQ(q).b.totalCents)],
+    ["Setup share of the price", (q) => pctOf(byQ(q).s.setupShare, 1)],
+    ["Above the long-run floor", (q) => pctOf(byQ(q).s.overFloor, 1)],
+  ];
+  const lineMinimumNote =
+    r.lineMinimumBreaks.length === 0
+      ? html`The ${usdCents(e.minimumLineCents)} line minimum never applies here: even one bracket costs more
+      than that. On a cheaper part it lifts the smallest breaks to the same total, so a buyer pays the
+      same for one part as for several; quote those breaks anyway, so the buyer sees why.`
+      : html`The ${usdCents(e.minimumLineCents)} line minimum lifts the ${r.lineMinimumBreaks.join(", ")}
+      break${r.lineMinimumBreaks.length === 1 ? "" : "s"} to the same total.`;
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to set quantity price breaks on machined parts</h1>
+    <p class="lead">The price each falls with quantity because some costs are paid once per lot and the rest
+    once per part. Work out which is which and you can tell where a break earns its place, where the price
+    has stopped falling, and what to charge for an order between two breaks. Here is the method and one part
+    worked at ${BREAK_QUANTITIES.length} quantities.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>Why the price each falls</h2>
+    <p>Every cost on a machined part belongs to one of two kinds:</p>
+    <ul>
+      <li><strong>Once per lot:</strong> programming, setups, the first-article check, and the minimum
+      charges (the anodizer's lot charge, the supplier's material minimum, your own minimum per line). They
+      cost the same for one part or five hundred.</li>
+      <li><strong>Once per part:</strong> cycle time, loading and deburring, the blank, the vendor's per-part
+      charge. They grow with every part started, scrap included.</li>
+    </ul>
+    <p>So the price each is roughly <em>per-part cost + once-per-lot cost ÷ quantity</em>. The first term is
+    a floor the price never goes below; the second falls fast and then hardly at all. A quantity break is
+    worth quoting where the second term still matters.</p>
+
+    <h2>A worked example at ${BREAK_QUANTITIES.length} quantities</h2>
+    <p>The same ${e.partName} as in <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to
+    quote a CNC machining job</a>: ${e.materialName}, two milling setups and a deburr on a
+    ${e.machineName} at ${usdCents(e.hourlyRateCents)} an hour, clear anodize by a vendor at
+    ${usdCents(e.finishingPerPartCents)} a part with a ${usdCents(e.finishingLotChargeCents)} lot charge,
+    a ${usdCents(e.materialMinChargeCents)} material minimum, ${e.falloutBps / 100}% expected fallout, and a
+    ${usdCents(e.minimumLineCents)} minimum per line. <strong>Every number is made up to show the
+    arithmetic</strong>; none is a typical price, time or rate. Use your own.</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up bracket at each break, per part shipped. Each component is priced for the whole lot, rounded to the cent, then divided by the quantity; the price each is rounded up to the cent. The floor is the price each as the quantity grows without end (${each(r.floorEachCents)}).</caption>
+        <thead><tr><th scope="col">Per part</th>${BREAK_QUANTITIES.map((q) => html`<th scope="col">${qty(q)}</th>`)}</tr></thead>
+        <tbody>
+          ${rows.map(
+            ([label, cell]) =>
+              html`<tr><th scope="row">${label}</th>${BREAK_QUANTITIES.map((q) => html`<td>${cell(q)}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>Fallout rounds up to whole parts.</strong> ${e.falloutBps / 100}% expected scrap means
+      starting ${one.b.starts} brackets to ship one, so the one-off pays run time on
+      ${one.b.starts} parts (${each(one.s.runEach)}, against ${each(hundred.s.runEach)} each at
+      ${qty(hundred.b.quantity)}). On small lots the extra part is the honest price of the risk; leave it out
+      and a one-off that scraps is made twice and paid for once.</li>
+      <li><strong>Setup decides the small breaks.</strong> At one part, setup is
+      ${pctOf(one.s.setupShare, 1)} of the price; it falls under a tenth of the price each from
+      ${qty(r.setupTenthAt)} parts. Most of the fall from ${usdCents(one.b.unitPriceCents)} to
+      ${usdCents(hundred.b.unitPriceCents)} each happens before then.</li>
+      <li><strong>Each minimum stops applying at its own quantity.</strong> The material minimum covers
+      orders under ${qty(r.materialMinimumEndsAt)}; the anodizer's lot charge covers every order under
+      ${qty(r.lotChargeEndsAt)}, so up to ${qty(r.lotChargeEndsAt - 1)} parts the anodize costs the same
+      ${usdCents(e.finishingLotChargeCents)} in all. ${lineMinimumNote}</li>
+      <li><strong>Past a point the breaks stop meaning much.</strong> The floor is ${each(r.floorEachCents)}
+      a part: run time, the blank and the per-part anodize, marked up, over the
+      ${100 - e.falloutBps / 100}% that ship good. At ${qty(hundred.b.quantity)} the price is
+      ${pctOf(hundred.s.overFloor, 1)} above it, at ${qty(last.b.quantity)} ${pctOf(last.s.overFloor, 1)}.
+      A lower price at volume has to come from a shorter cycle, a better blank or a cheaper vendor, not
+      from the break.</li>
+    </ul>
+
+    <h2>Choosing which breaks to quote</h2>
+    <ol>
+      <li><strong>Quote what the RFQ asks for first.</strong> The buyer's quantities, and the yearly or
+      release quantity if the RFQ gives one. A break nobody will order is noise on the quote.</li>
+      <li><strong>Add the small lot you would rather not run.</strong> One or a few parts, priced honestly,
+      shows the buyer what a short run costs and stops a one-off being ordered at the volume price.</li>
+      <li><strong>Put breaks just past where a minimum ends.</strong> Here the lot charge stops applying at
+      ${qty(r.lotChargeEndsAt)}: a break at ${qty(r.lotChargeEndsAt - 1)} still pays the whole lot charge,
+      one at ${qty(ib.upper.quantity)} spreads it as far as it goes.</li>
+      <li><strong>Stop where the price stops falling.</strong> Once a break is within a few percent of the
+      floor, a larger one tells the buyer little; a separate quote for a blanket order is clearer.</li>
+    </ol>
+
+    <h2>Orders that fall between two breaks</h2>
+    <p>The buyer saw ${qty(ib.lower.quantity)} at ${usdCents(ib.lower.unitPriceCents)} and
+    ${qty(ib.upper.quantity)} at ${usdCents(ib.upper.unitPriceCents)}, and sends a PO for
+    ${qty(ib.quantity)}. Three ways to price it:</p>
+    <ul>
+      <li><strong>At the lower break's price each:</strong> ${qty(ib.quantity)} × ${usdCents(ib.lower.unitPriceCents)}
+      = ${usdCents(ib.atLowerTotalCents)}. Safe for the shop, and the usual written rule.</li>
+      <li><strong>Priced on its own:</strong> ${usdCents(ib.own.unitPriceCents)} each,
+      ${usdCents(ib.own.totalCents)}, by the same arithmetic as the breaks
+      (${qty(ib.own.starts)} parts started).</li>
+      <li><strong>At the upper break's price each,</strong> which is what a buyer will ask for:
+      ${usdCents(ib.atUpperTotalCents)}, ${usdCents(ib.own.totalCents - ib.atUpperTotalCents)} under the
+      order's own price. The setup and the lot charge are spread over fewer parts than that price
+      assumed.</li>
+    </ul>
+    <p>Whichever you choose, write it in the quote's terms ("quantities between breaks are priced at the
+    next lower break") so the PO accepts it before work starts. The
+    <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote template</a>
+    lists the other terms worth deciding once, overruns and underruns among them; add this one beside
+    them.</p>
+
+    <h2>Releases are lots too</h2>
+    <p>A buyer who orders ${qty(last.b.quantity)} but takes them in ${releases} releases of
+    ${qty(hundred.b.quantity)} pays you for ${releases} setups. Priced as ${releases} runs of
+    ${qty(hundred.b.quantity)}, the order is ${usdCents(releasesTotal)}; as one run of
+    ${qty(last.b.quantity)}, ${usdCents(last.b.totalCents)}. The ${usdCents(releasesTotal - last.b.totalCents)}
+    difference is the setups and smaller spreads you would give away by quoting the yearly quantity's
+    price for release-sized runs. Price the run you will actually make, or quote the yearly price on the
+    condition that the shop runs the whole quantity at once and holds the stock.</p>
+
+    <h2>Mistakes that lose money</h2>
+    <ul>
+      <li><strong>Discounting by a percentage table.</strong> "10% off at 50, 20% off at 100" ignores where
+      your costs actually sit; on this part the price each at ${qty(hundred.b.quantity)} is
+      ${pctOf(1 - hundred.b.unitPriceCents / one.b.unitPriceCents)} below the one-off, and on a part with a
+      short setup it would be far less.</li>
+      <li><strong>Pricing every break from the one-off's starts.</strong> Fallout and scrap are per part
+      started; each break needs its own count.</li>
+      <li><strong>Forgetting the vendor's minimum below its break-even.</strong> Under the lot charge's
+      quantity, the outside service is a fixed cost, not a per-part one.</li>
+      <li><strong>Letting a PO quantity pick its own price.</strong> Without a written rule the buyer reads
+      the nearest break in their favour.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>Each quote line in ${SITE_NAME} carries up to eight quantity breaks, each priced on its own parts
+    started, with the material, setup, run time, finishing, markup and line minimum worked out per break and
+    the rate behind every figure listed under the table; the same quantity twice is refused. The quote PDF
+    prints the price each at every break and none of the costs. A customer accepting the quote online can
+    pick only the breaks it carries; any other quantity needs a new quote, so a PO never picks its own
+    price. The example above is priced to the cent the app gives for the same inputs, checked by a test in
+    its code. You can <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a>.</p>
+    <p>For the rate behind the setup and run time, see
+    <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how to work out a machine shop hourly
+    rate</a>; for the cycle time itself,
+    <a class="link" href="${href(ctx, "/how-to-estimate-cnc-machining-time")}">how to estimate CNC machining
+    time</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax, legal or
+    financial advice, and the prices, times and rates in it are made up. Check every quote before you send
+    it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Quote every break from your own rates", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
+/**
  * A guide aimed at the searches shops make when a customer needs parts sooner than the normal lead
  * time ("how to price a rush job", "expedite fee machine shop", "rush charge CNC", "how much to charge
  * for rush orders"). The CNC guide's made-up bracket quoted twice, normal and rush, with the rush costs
@@ -3079,6 +3270,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/how-to-quote-cnc-machining": quoteGuidePage,
   "/how-to-quote-sheet-metal": sheetMetalGuidePage,
   "/how-to-quote-welding": weldingGuidePage,
+  "/quantity-price-breaks": quantityBreaksGuidePage,
   "/how-to-quote-cnc-turning": turningGuidePage,
   "/how-to-quote-outside-processing": outsideProcessingGuidePage,
   "/how-to-estimate-cnc-machining-time": cycleTimeGuidePage,
