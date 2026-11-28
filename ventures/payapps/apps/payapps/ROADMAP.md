@@ -2870,6 +2870,21 @@ nothing to copy. No customers yet. Paid plans are dark
   Not yet: counting the 20 days on the job (with §§ 570.1108(10), (11)'s delays), a log of notices
   served with the certified mail receipts, the proof of service the claim of lien attaches, and the
   laborer's notices (§ 570.1109(2), (3)).
+- Notice of furnishing: Ohio (2026-11-28, oh-notice-of-furnishing, Crew and up, with lien waivers). The
+  job page's preliminary notice panel now prints Ohio's notice of furnishing (Ohio Rev. Code § 1311.05),
+  which a sub or material supplier serves on the owner's designee and the original contractor named in
+  a recorded notice of commencement within 21 days after first furnishing; a late one keeps only the 21
+  days before service and after (§ 1311.05(D)). Division (B) prescribes the form, so it prints whole:
+  the "(For use in connection with improvements to property other than public improvements)" line,
+  each blank's caption, and the WARNING TO OWNER in bold; a line is added for the original contractor's
+  address and the date, which the statute prints without one. Prefilled: the original contractor, its
+  address, the GC as the other contracting party, the job's location and the company's name; the
+  designee and the date first furnished are left for the user. `packages/lien-waivers/src/oh-notice.ts`,
+  snapshot `sources/oh-1311.txt` (codes.ohio.gov, read 2026-11-28), checked word for word by
+  `test/oh-notice.test.ts`; API test in `test/worker/notices.test.ts`. Front door:
+  `ventures/pay-app-guides/ohio-notice-of-furnishing.html` (with a 21-day calculator and the § 1311.04(I),
+  (J) extensions). Not yet: counting the 21 days on the job, a log of notices served, and the public
+  improvement notice to the principal contractor (§ 1311.261).
 - Deadlines skip federal holidays (2026-11-28, lien-deadline-holidays): the lien deadline, the Miller
   Act notice and suit dates and every state bond claim step now step their act-by date back past an
   observed federal holiday (5 U.S.C. § 6103(a), OPM's weekend rule) as well as a weekend, since the

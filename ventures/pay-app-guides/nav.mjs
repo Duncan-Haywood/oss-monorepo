@@ -50,6 +50,7 @@ export const GROUPS = [
     ["arizona-preliminary-notice.html", "Arizona 20-day preliminary notice"],
     ["florida-notice-to-owner.html", "Florida Notice to Owner (45 days)"],
     ["michigan-notice-of-furnishing.html", "Michigan notice of furnishing (20 days)"],
+    ["ohio-notice-of-furnishing.html", "Ohio notice of furnishing (21 days)"],
     ["utah-preliminary-notice.html", "Utah preliminary notice (20 days, registry)"],
     ["texas-lien-notice.html", "Texas monthly lien notice deadlines"],
     ["notice-of-intent-to-lien.html", "Notice of intent to lien (CO, MO, ND, WY)"],
