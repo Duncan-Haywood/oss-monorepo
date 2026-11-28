@@ -839,6 +839,23 @@ checks the pair. No customers yet.
   invented prices"). `src/shared/tolerance.ts`; unit tests, `test/e2e/18-tolerance-check.spec.ts`,
   and `test/unit/site-tolerance-example.test.ts` holding the site's /machining-tolerances guide to
   the reader.
+- First article list, part 1 (2026-11-28, every plan, fai-form3-draft): each drawing PDF with text
+  on the RFQ page has a "First article list (CSV)" link (`GET /rfqs/:id/files/:fileId/form3.csv`):
+  a draft of the characteristic list AS9102 Form 3 holds, numbered in reading order so the numbers
+  can be the balloon numbers. It lists toleranced dimensions (±, +a/-b, limits like 1.0005/1.0000,
+  angles) with lower and upper limits, geometric tolerances (word or symbol, 0 to the tolerance),
+  threads (UN, NPT, metric; accept/reject), surface finish (Ra, RMS, as a maximum), each numbered
+  drawing note, and the MATERIAL and FINISH lines; "4X" or "2 PL" repeats a row as 4.1 ... 4.4. The
+  general tolerance block is shown in the header, never applied to a bare number, and bare numbers
+  (dates, scale, drawing numbers) are not listed. The columns are Form 3's characteristic columns
+  (Char. No., Reference Location, Characteristic Designator, Requirement, Results, Designed /
+  Qualified Tooling, Nonconformance Number, as on customers' published Form 3 templates) plus the
+  limits, unit, how to record it and the text line; location, designator and results stay blank for
+  the inspector, and the header says it is a draft to check against the drawing. Formula cells are
+  defused. Why: the shops bets #2 and #4 sell to owe AS9102 reports on aerospace and defense orders,
+  and listing and numbering characteristics is the slow step; rivals charge $25 to $500 a month for
+  it (portfolio/monetization/bets.md, bet #2 "First article"). `src/shared/fai-characteristics.ts`,
+  unit tests beside it, `test/worker/fai-form3.test.ts` (route, no-text refusal, tenancy).
 
 ## Next
 
@@ -1001,6 +1018,13 @@ checks the pair. No customers yet.
     tolerance line), limit dimensions written as two sizes (.4995/.5000), the feature's size taken
     from the callout when it is there (Ø20 H7) instead of the 18-30 mm assumption, and band limits an
     admin can set per shop, if shops ask.
+
+17. First article list, part 2 (part 1 done 2026-11-28): the list as a screen on the won quote, where
+    the inspector ticks, edits and adds rows, enters results and gets an accept/reject per row
+    (`ventures/machine-shop-guides/fai.mjs` already judges results against limits), Forms 1 and 2
+    filled from the quote (part number, revision, material and finish certificates), the drawing
+    zone from the PDF's text positions, and balloons drawn on a copy of the drawing PDF, if shops
+    use the CSV.
 
 ## Open questions for the owner
 
