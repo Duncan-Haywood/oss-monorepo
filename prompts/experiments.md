@@ -1958,3 +1958,7 @@ subscription, should a scheduled venture run default to launch work
   runs" (from 5 of 5 today). Compare over 2026-11-28 to 2026-11-30.
 - Result: (next review)
 
+
+## E128: Review 2026-11-28 (reduced pass)
+
+- In progress.
