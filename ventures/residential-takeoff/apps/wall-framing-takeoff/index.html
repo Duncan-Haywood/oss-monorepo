@@ -163,6 +163,8 @@
       <button type="button" class="secondary" id="addStock">Add a board</button>
       <button type="button" class="secondary" id="resetStock">Reset to defaults</button>
     </details>
+    <p><label for="priceListFile">Or load your lumberyard's price list: a CSV with a description and a price column (an optional unit column takes EA, LF or MBF). Boards like <code>2x4-8'</code> or <code>2X6X16</code> reprice the table, sheets that say wall, roof or subfloor and roofing by name fill the budget's prices, and every row not read is listed. The file stays in your browser.</label> <input type="file" id="priceListFile" accept=".csv,text/csv,text/plain"></p>
+    <div id="priceListOut" role="status"></div>
   </section>
 
   <section class="card" aria-labelledby="h-run">
@@ -627,6 +629,7 @@
     import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { budget, budgetCsv, priceSheet } from "./budget.mjs";
+    import { readPriceList, applyPriceList } from "./pricelist.mjs";
     import { proposal, proposalText, proposalHtml } from "./bidletter.mjs";
     import { bidPackageHtml } from "./bidpackage.mjs";
     import { checkLicence } from "./licence.mjs";
@@ -1696,6 +1699,22 @@
     $("#addWall").addEventListener("click", () => { ui.walls.push({ id: `Wall ${ui.walls.length + 1}`, length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0", steps: "" }); renderAll(); later(run, 0); });
     $("#addOpening").addEventListener("click", () => { ui.openings.push({ wall: ui.walls[0]?.id || "", kind: "window", label: "", offset: "24", width: "36", height: "48", headerHeight: "", header: "2x10", plies: "", jacks: 1 }); renderOpenings(); later(run, 0); });
     $("#addStock").addEventListener("click", () => { ui.stock.push({ size: "2x4", length: "8'", price: 8, label: "" }); renderStock(); });
+    $("#priceListFile").addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      const out = $("#priceListOut");
+      if (!file) return;
+      if (file.size > 2_000_000) { out.innerHTML = `<div class="err">The price list is over 2 MB; keep only the products this job uses.</div>`; return; }
+      const list = readPriceList(await file.text());
+      if (!list.ok) { out.innerHTML = `<div class="err"><ul>${list.errors.concat(list.skipped.slice(0, 10).map((x) => `line ${x.line} "${x.text.slice(0, 60)}": ${x.why}`)).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>`; return; }
+      const current = { stock: ui.stock.map((x) => ({ size: x.size, length: parseLength(String(x.length)), price: Number(x.price), ...(x.label ? { label: x.label } : {}) })).filter((x) => x.length > 0) };
+      const ap = applyPriceList(current, list);
+      ui.stock = ap.plan.stock.map((x) => ({ size: x.size, length: formatLength(x.length), price: x.price, label: x.label || "" }));
+      renderStock();
+      for (const [k, v] of Object.entries(ap.prices)) setPriceLine(k, String(v));
+      out.innerHTML = `<ul class="note">${ap.notes.map((n) => `<li>${esc(n.replace(/^Price list: /, ""))}</li>`).join("")}</ul>`;
+      record("price_list_loaded");
+      later(run, 0);
+    });
     $("#resetStock").addEventListener("click", () => { ui.stock = defaultStock(parseLength($("#studLength").value) || PRECUT["8ft"]).map((s) => ({ size: s.size, length: formatLength(s.length), price: s.price, label: s.label || "" })); renderStock(); later(run, 0); });
     $("#sheath").addEventListener("change", () => run());
     $("#sheathH").addEventListener("change", () => run());
