@@ -275,7 +275,10 @@ function platformPage(p) {
     p.slug === "poshmark"
       ? `
   <p>Taxes on Poshmark sales, the 1099-K and the sales tax Poshmark collects, with one month worked through: <a href="${href("/poshmark-taxes")}">Poshmark taxes</a>.</p>`
-      : ""
+      : p.slug === "ebay"
+        ? `
+  <p>Taxes on eBay sales, the 1099-K and the sales tax eBay collects, with one Transaction report worked through: <a href="${href("/ebay-taxes")}">eBay taxes</a>.</p>`
+        : ""
   }
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
@@ -1033,6 +1036,196 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "Poshmark taxes", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// /ebay-taxes: the search eBay sellers make ("do I pay taxes on eBay sales", "eBay seller taxes"). The
+// worked example is the app's own eBay fixture (apps/seller-books/test/fixtures/ebay-transaction-report.csv,
+// an invented Transaction report) taken through the importer's arithmetic (importers/ebay.ts): an Order row's
+// item subtotal and shipping are the sale, its fee columns are the fees, eBay-collected tax is kept out; a
+// Refund row's gross less the tax refunded is the refund, with the fee credited back; a Shipping label row is
+// postage and a Promoted Listings "Other fee" is advertising; Payout rows and non-USD rows are skipped. Lines
+// from services/books/schedule-c.ts. test/site.test.mjs re-reads the fixture and checks every figure. The
+// fixture's fees are invented and do not follow eBay's rates, so the page says so and works eBay's own
+// published rate (fee page, quoted, read 2026-11-28) on one sale beside it.
+export const EBAY_CHECKED_ON = "2026-11-28";
+export const EBAY_FEES_URL =
+  "https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822";
+export const EBAY_FEES_QUOTE =
+  "This fee is calculated as a percentage of the total amount of the sale, plus a per order fee. For orders $10.00 or less the per order fee is $0.30, for orders over $10.00 the per order fee is $0.40.";
+export const EBAY_TOTAL_QUOTE =
+  "includes the item price, any handling charges, any shipping costs collected from the buyer (some exceptions apply), sales tax, and any other applicable fees";
+export const EBAY_MOST_CATEGORIES_RATE =
+  "13.6% on total amount of the sale up to $7,500 calculated per item";
+export const EBAY_TAX_URL =
+  "https://www.ebay.com/help/selling/selling/taxes-import-charges?id=4121";
+export const EBAY_TAX_QUOTE =
+  "eBay calculates, collects, and remits sales tax on behalf of sellers for items shipped to customers in the states and territories listed below.";
+export const EBAY_FEE_TAX_STATES =
+  "Hawaii, New Mexico, South Dakota, Texas, Washington, and West Virginia";
+/** The USD rows of the app's eBay fixture that reach the books (the payout and the GBP order are skipped). */
+export const EBAY_EXAMPLE = {
+  orders: [
+    {
+      title: "Vintage Levi's 501 jeans",
+      itemCents: 4000,
+      shippingCents: 500,
+      taxCents: 330,
+      feeCents: { fixed: 40, variable: 594, international: 0 },
+      netCents: 3866,
+    },
+    {
+      title: "Pyrex Butterprint bowl set (2)",
+      itemCents: 125000,
+      shippingCents: 0,
+      taxCents: 7813,
+      feeCents: { fixed: 40, variable: 16813, international: 1875 },
+      netCents: 106272,
+    },
+  ],
+  // The jeans came back: the buyer got $48.30, $3.30 of it eBay's tax; the variable fee was credited.
+  refund: { grossCents: 4830, taxCents: 330, feeCreditCents: 594, netCents: -3906 },
+  labelCents: 875,
+  promotedCents: 1240,
+};
+const ebayOrderFees = (o) => o.feeCents.fixed + o.feeCents.variable + o.feeCents.international;
+/** The example's Schedule C lines: 1 gross receipts, 2 returns, 8 advertising, 10 fees, 27a postage. */
+export function ebayLines(ex = EBAY_EXAMPLE) {
+  const line1 = ex.orders.reduce((a, o) => a + o.itemCents + o.shippingCents, 0);
+  const line2 = ex.refund.grossCents - ex.refund.taxCents;
+  const line10 = ex.orders.reduce((a, o) => a + ebayOrderFees(o), 0) - ex.refund.feeCreditCents;
+  const tax = ex.orders.reduce((a, o) => a + o.taxCents, 0);
+  const net =
+    ex.orders.reduce((a, o) => a + o.netCents, 0) +
+    ex.refund.netCents -
+    ex.labelCents -
+    ex.promotedCents;
+  return { line1, line2, line8: ex.promotedCents, line10, line27a: ex.labelCents, tax, net };
+}
+/** eBay's published most-categories final value fee on one order's total: 13.6% plus the per order fee. */
+export function ebayPublishedFeeCents(totalCents) {
+  return Math.round(totalCents * 0.136) + (totalCents > 1000 ? 40 : 30);
+}
+
+function ebayTaxes() {
+  const path = "/ebay-taxes";
+  const title = "eBay taxes for resellers";
+  const description =
+    "Do you pay taxes on eBay sales? What is taxable, when eBay sends a 1099-K, the sales tax eBay collects, and how a Transaction report becomes Schedule C lines.";
+  const cents = (c) => `$${(c / 100).toFixed(2)}`;
+  const money = (c) =>
+    `$${(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const L = ebayLines();
+  const jeans = EBAY_EXAMPLE.orders[0];
+  const jeansTotal = jeans.itemCents + jeans.shippingCents + jeans.taxCents;
+  const faqs = [
+    {
+      q: "Do I have to pay taxes on eBay sales?",
+      a: "It depends on what you sold. Your own things sold for less than you paid for them are not income. Things you bought to resell are business (or hobby) income, whether or not eBay sends you a form.",
+    },
+    {
+      q: "Does eBay send a 1099-K?",
+      a: "For federal reporting, a platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions. Some states require one at lower amounts, and a platform may send one below the line. Business income is reportable either way.",
+    },
+    {
+      q: "Do I report my payouts or my sales?",
+      a: `Your sales. A payout is money moving from eBay to your bank, after fees, refunds and labels have come out. Gross receipts are the item price and the shipping the buyer paid; the fees, labels and promoted listing charges are expenses. In the example on this page, ${money(L.net)} was left for the seller from ${money(L.line1)} of sales.`,
+    },
+    {
+      q: "Do I report the sales tax eBay collected?",
+      a: `No. In eBay's words, “${EBAY_TAX_QUOTE}” That tax is in the buyer's total and in eBay's fee base, but it is not your income, and ${SITE_NAME} keeps it out of gross receipts.`,
+    },
+    {
+      q: "Where do promoted listing fees go?",
+      a: 'On Schedule C line 8, advertising, not with eBay\'s selling fees on line 10. eBay lists them in the Transaction report as an "Other fee" row; Seller Books reads the description and files them as advertising.',
+    },
+  ];
+  const orderRows = EBAY_EXAMPLE.orders
+    .map(
+      (o) =>
+        `        <tr><th scope="row">${esc(o.title)}</th><td>${money(o.itemCents)}</td><td>${cents(o.shippingCents)}</td><td>${cents(o.taxCents)}</td><td>${money(ebayOrderFees(o))}</td><td>${money(o.netCents)}</td></tr>`,
+    )
+    .join("\n");
+  const R = EBAY_EXAMPLE.refund;
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">eBay's payouts are what is left after fees, refunds and labels, and the buyer's total includes sales tax that was never yours. Here is what is taxable, who sends a form, and how a month of eBay's Transaction report becomes Schedule C lines.</p>
+  <h2>Is it taxable?</h2>
+  <p>Clearing out your own closet or garage for less than you paid is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). Buying to resell is business or hobby income, whatever the forms say. A business reports its gross sales on Schedule C and deducts what made them: eBay's fees, shipping labels, promoted listings, <a href="${href("/cost-of-goods-sold")}">the cost of the items</a> that sold, <a href="${href("/mileage-deduction")}">the miles</a> to source them and to the post office.</p>
+  <h2>When eBay sends a 1099-K</h2>
+  <p>Under the <a href="${IRS_1099K_FAQ_GENERAL}">IRS general FAQs</a>, a platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions; some states are lower, and a form can come below the line. When one comes, <a href="${href("/1099-k")}">box 1a counts gross payments</a>, before fees and refunds, so it will not match your payouts. No form does not mean no income.</p>
+  <h2>Sales tax eBay collects</h2>
+  <p>eBay's <a href="${EBAY_TAX_URL}">sales tax page</a> says &ldquo;${esc(EBAY_TAX_QUOTE)}&rdquo; The eBay collected tax column on your report is the buyer's tax, already handled: ${esc(SITE_NAME)} keeps it out of income and out of the sales tax you collected (<a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>). The same page says eBay may also charge tax on its selling fees to sellers in ${esc(EBAY_FEE_TAX_STATES)}, shown on your tax invoice: that is part of the cost of selling.</p>
+  <h2>A Transaction report, line by line</h2>
+  <p>eBay's Transaction report (Seller Hub, Payments, Reports) has one row per ledger entry: an Order row carries the sale with its fees in their own columns, and refunds, shipping labels, other fees and payouts arrive as separate rows, often on other days. Payout rows are money moving to your bank and are left out, or the same sale would count twice.</p>
+  <div class="worked">
+    <p class="muted">One invented month: the rows of the sample report ${esc(SITE_NAME)}'s eBay importer is tested on that reach the books (a payout row and a sale in pounds are skipped). Its fees are made up, not eBay's rates:</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Order</th><th scope="col">Item subtotal</th><th scope="col">Shipping</th><th scope="col">eBay collected tax</th><th scope="col">eBay fees</th><th scope="col">Net amount</th></tr></thead>
+      <tbody>
+${orderRows}
+      </tbody>
+    </table></div>
+    <p>Then the jeans came back: a Refund row of ${cents(R.grossCents)} to the buyer, ${cents(R.taxCents)} of it eBay's tax, with ${cents(R.feeCreditCents)} of the fee credited back (net &minus;${cents(-R.netCents)}). A Shipping label row charged ${cents(EBAY_EXAMPLE.labelCents)}, and an Other fee row, &ldquo;Promoted Listings - General fee&rdquo;, ${cents(EBAY_EXAMPLE.promotedCents)}.</p>
+    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${money(L.line1)}</strong> (item subtotals plus shipping, without the ${cents(L.tax)} of tax); line 2, returns and allowances, <strong>${cents(L.line2)}</strong> (the refund less the tax that went back through eBay); line 8, advertising, <strong>${cents(L.line8)}</strong>; line 10, commissions and fees, <strong>${cents(L.line10)}</strong> (the order fees less the credit); line 27a, postage, <strong>${cents(L.line27a)}</strong>. Line 1 less those four is ${money(L.line1 - L.line2 - L.line8 - L.line10 - L.line27a)}, exactly the net of every row; the items' cost comes off after that.</p>
+  </div>
+  <h2>What eBay's own rate gives</h2>
+  <p>eBay's <a href="${EBAY_FEES_URL}">selling fees page</a> (read ${esc(EBAY_CHECKED_ON)}): &ldquo;${esc(EBAY_FEES_QUOTE)}&rdquo; The total amount of the sale &ldquo;${esc(EBAY_TOTAL_QUOTE)}&rdquo;, and for most categories the rate is &ldquo;${esc(EBAY_MOST_CATEGORIES_RATE)}&rdquo;. On the jeans' total of ${cents(jeansTotal)}, that is ${cents(ebayPublishedFeeCents(jeansTotal) - 40)} plus $0.40, or ${cents(ebayPublishedFeeCents(jeansTotal))}. The fee is worked on the sales tax too, so it is a larger share of your price than the rate suggests. Rates differ by category and change; ${esc(SITE_NAME)} applies none of them and reads what your report says was charged.</p>
+  <h2>Keeping the books in ${esc(SITE_NAME)}</h2>
+  <p>Download the Transaction report from Seller Hub and import the CSV. Each order becomes a sale with its fees beside it, refunds and labels keep their order number, promoted listings go to advertising and payouts are skipped. Link items to your stock and their cost moves to cost of goods sold. Sell on Poshmark, Mercari or Whatnot too? They go in the same books (see the <a href="${href("/platforms/ebay")}">eBay page</a> and the others), and the worksheet adds them up.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "ebay" })}</div>`;
+  const text = `# ${title}
+
+eBay's payouts are what is left after fees, refunds and labels; the buyer's total includes sales tax that was never yours.
+
+## Is it taxable?
+
+Personal items sold at a loss are not income. Items bought to resell are business or hobby income. A business reports gross sales on Schedule C and deducts eBay's fees, labels, promoted listings, cost of goods and mileage.
+
+## When eBay sends a 1099-K
+
+Federal threshold: over $20,000 and more than 200 transactions (${IRS_1099K_FAQ_GENERAL}); some states are lower. Box 1a is gross, before fees and refunds.
+
+## Sales tax eBay collects
+
+"${EBAY_TAX_QUOTE}" (${EBAY_TAX_URL}). Not your income. eBay may charge tax on its fees to sellers in ${EBAY_FEE_TAX_STATES}.
+
+## A Transaction report, line by line
+
+Invented example (the importer's sample report; fees made up): ${EBAY_EXAMPLE.orders.map((o) => `${o.title}: ${money(o.itemCents)} + ${cents(o.shippingCents)} shipping, fees ${money(ebayOrderFees(o))}`).join("; ")}; a refund of ${cents(R.grossCents)} with ${cents(R.taxCents)} tax and ${cents(R.feeCreditCents)} fee credit; label ${cents(EBAY_EXAMPLE.labelCents)}; promoted listings ${cents(EBAY_EXAMPLE.promotedCents)}. Schedule C: line 1 ${money(L.line1)}, line 2 ${cents(L.line2)}, line 8 ${cents(L.line8)}, line 10 ${cents(L.line10)}, line 27a ${cents(L.line27a)}; net ${money(L.net)}. Payout rows are skipped.
+
+## What eBay's own rate gives
+
+"${EBAY_FEES_QUOTE}" (${EBAY_FEES_URL}, read ${EBAY_CHECKED_ON}). Most categories: ${EBAY_MOST_CATEGORIES_RATE}. On a ${cents(jeansTotal)} total: ${cents(ebayPublishedFeeCents(jeansTotal))}.
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "eBay taxes", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -3379,6 +3572,7 @@ export function allPages() {
     personalItems(),
     facebookMarketplace(),
     poshmarkTaxes(),
+    ebayTaxes(),
     costOfGoodsSold(),
     inventorySpreadsheet(),
     sellThrough(),
