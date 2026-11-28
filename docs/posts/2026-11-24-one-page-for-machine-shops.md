@@ -1293,3 +1293,23 @@ as a second machine and add the bumped job as a setup-only operation. The
 expedite goes in as its own finishing operation and the delivery as an extra.
 A test in the app prices both versions through its costing engine and fails
 if any figure differs by a cent.
+
+## Update, 28 November 2026: pricing the first article report
+
+The RFQ checklist warns that a first-article report is often unpriced. The
+new guide, [how to quote first article inspection
+(AS9102)](https://marisstella.app/jobshop/how-to-quote-first-article-inspection),
+puts a number on it. It explains what the three AS9102 forms record. It
+separates the report from the first-piece check a setup already includes. It
+lists the changes that make a new or partial first article due, and says how
+to word the quote so nobody argues about it later.
+
+The worked example takes the anodized bracket from the CNC guide and adds 195
+minutes of ballooning, measuring and paperwork at a made-up $95 inspection
+rate, plus a $25 vendor certificate. On one part, the full first article adds
+$337.50 to a $587.26 price, 36% of the total. At 10 parts it adds $33.75 a
+part, and at 100 it adds $3.38. A partial first article after a revision adds
+$118.75. A test in Job Shop Quote prices all three versions through the app's
+costing engine, with inspection as setup-only operations on a second machine,
+and fails if any figure differs by a cent. The times and rates are made up,
+and the page says so.

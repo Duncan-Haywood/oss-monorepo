@@ -236,6 +236,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: "2026-11-28",
     },
     {
+      path: "/how-to-quote-first-article-inspection",
+      label: "How to quote first article inspection",
+      title: `How to quote first article inspection (AS9102) · ${SITE_NAME}`,
+      description:
+        "Price an AS9102 first article: ballooning, measuring, the three forms and certs, a partial FAI after a revision, and what it adds per part at 1, 10 and 100.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: "2026-11-28",
+    },
+    {
       path: "/faq",
       label: "FAQ",
       title: `Frequently asked questions · ${SITE_NAME}`,
