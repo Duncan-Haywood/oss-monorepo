@@ -1008,3 +1008,21 @@ text saved from the eCFR on 27 November 2026, and a test fails if one stops
 matching. The plain readings are ours, and the page says so. It ends on the
 free Level 1 plan of the CMMC workspace, which keeps the 15 FAR 52.204-21
 requirements, their evidence and the next affirmation date in one place.
+
+## Update, 28 November 2026: a quote template, and what stays off the quote
+
+[Machine shop quote template](https://marisstella.app/jobshop/machine-shop-quote-template)
+lists what a CNC or fabrication quote needs and why each field is there: the
+quote number and revision a purchase order can name, a valid-until date, the
+customer's own RFQ number, the drawing revision on every line, a price at
+every quantity asked for, and a lead time counted from the order. It also
+says what to leave off: your rates, times and markup, which invite a buyer to
+negotiate each one.
+
+The terms are listed as nine decisions (validity, payment, drawing revision,
+overruns, inspection paperwork, shipping, customer-supplied material,
+cancellation and export-controlled drawings), not as wording to copy. The
+filled-in example quotes the bracket from the machining guide at its prices,
+which a test checks against the app's costing engine. The CSV download holds
+plain values and no formulas, and a test fails if any cell would start like
+one.

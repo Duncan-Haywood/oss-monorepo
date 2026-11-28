@@ -39,6 +39,7 @@ Flip a field when the app changes, then `pnpm export:catalogue` and commit `cata
 | `/compare` | Machine shop quoting software compared: spreadsheet, Paperless Parts, QuotedPart, JobBOSS², ProShop, with each price's source and read date (`ALTERNATIVES` in `src/site/pages.ts`; re-check a price before changing it), and what this app does not do |
 | `/machine-shop-hourly-rate` | Guide: work out a machine shop hourly rate from your own costs, worked example computed in `src/site/shop-rate.ts` (numbers made up, labelled so) |
 | `/how-to-quote-sheet-metal` | Guide: quote a laser-cut, bent part from its DXF flat pattern (cut length and pierces at the shop's speed, bends, sheets from the nest, outside finish, quantity breaks). The made-up bracket in `src/site/sheet-metal-example.ts` is checked to the cent against the app's DXF suggestions, nester and costing engine by `apps/jobshop-quote/test/unit/site-sheet-metal-example.test.ts` |
+| `/machine-shop-quote-template` | Guide: what goes on a quote and why, what stays off it (cost basis), nine terms as decisions (not wording), a filled-in example at the CNC guide's engine-checked prices and `machine-shop-quote-template.csv` to download (plain values, no formula cells), all from `src/site/quote-template.ts` |
 | `/faq` | FAQ (FAQPage JSON-LD built from the same list) |
 | `/early-access` | Closed site only: the form (posts to `/api/early-access`, stored in D1) |
 | `/early-access/thanks` | Closed site only: after a successful post (noindex, not in the sitemap) |
