@@ -161,7 +161,9 @@ test("a reseller goes from sign-up to a Schedule C worksheet", async ({ page }) 
   const etsy = pricing.getByRole("row", { name: /Etsy/ });
   await expect(etsy).toContainText("few orders: rough");
   await expect(pricing.getByRole("columnheader", { name: "Nets at $40.00" })).toBeVisible();
-  await expect(pricing.getByRole("columnheader", { name: "Price for $15.00 profit" })).toBeVisible();
+  await expect(
+    pricing.getByRole("columnheader", { name: "Price for $15.00 profit" }),
+  ).toBeVisible();
   if (process.env.E2E_SHOT_DIR)
     await pricing.screenshot({ path: `${process.env.E2E_SHOT_DIR}/price-an-item.png` });
 });
