@@ -234,3 +234,112 @@ describe("cash report: a Mississippi waiver near its 60 days", () => {
     expect(cashReport([project], "2026-03-20").projects[0]?.gaWaiverDeadlines).toEqual([]);
   });
 });
+
+describe("Mississippi's time computation, § 1-3-67 by § 85-7-425 (2026-11-28)", () => {
+  // Marked sent Tue 6 Oct 2026: the 60th day is Saturday 5 December, so the period runs to Monday 7.
+  const onSat = () => sent({ sentOn: "2026-10-06" });
+
+  it("names the day the period runs to when the 60th day is a Saturday, and still counts to the 60th", () => {
+    const c = one(app, 0, [onSat()], "2026-11-20");
+    expect(c.endsOn).toBe("2026-12-05");
+    expect(c.daysLeft).toBe(15);
+    expect(c.lastDay).toEqual({ on: "2026-12-07", daysLeft: 17, because: "a Saturday" });
+    expect(c.lastDay?.on).toBe(msSixtyDays("2026-10-06", "2026-11-20").lastDay);
+    const text = gaClockText(c);
+    expect(text).toMatch(/the 60 days end on 2026-12-05, in 15 days/);
+    expect(text).toMatch(
+      /The 60th day is a Saturday, so Miss\. Code Ann\. § 1-3-67 \(by § 85-7-425\) runs the period to the end of 2026-12-07/,
+    );
+  });
+
+  it("on the Sunday after, says the period is still open and asks for the filing by Monday", () => {
+    const c = one(app, 0, [onSat()], "2026-12-06");
+    expect(c.daysLeft).toBe(-1);
+    expect(c.lastDay?.daysLeft).toBe(1);
+    expect(gaClockNeedsAction(c)).toBe(true);
+    const text = gaClockText(c);
+    expect(text).toMatch(/was 2026-12-05, a Saturday/);
+    expect(text).toMatch(/runs the period to the end of 2026-12-07, in 1 day/);
+    expect(text).not.toMatch(/ask counsel what is left/);
+    expect(gaClockText(one(app, 0, [onSat()], "2026-12-07"))).toMatch(
+      /the end of today, 2026-12-07/,
+    );
+  });
+
+  it("once the moved day has passed, says the period ended on it", () => {
+    const text = gaClockText(one(app, 0, [onSat()], "2026-12-08"));
+    expect(text).toMatch(/ended on 2026-12-07/);
+    expect(text).toMatch(/ask counsel what is left/);
+  });
+
+  it("names a legal holiday: Christmas Day 2026 is a Friday, so the period runs to Monday 28 December", () => {
+    const c = one(app, 0, [sent({ sentOn: "2026-10-26" })], "2026-12-01");
+    expect(c.lastDay).toEqual({
+      on: "2026-12-28",
+      daysLeft: 27,
+      because: "a Friday, Christmas Day, a legal holiday",
+    });
+  });
+
+  it("an affidavit filed on the moved day is not late; one filed after it is", () => {
+    const ok = one(
+      app,
+      0,
+      [onSat()].map((w) => ({ ...w, gaAffidavit: { filedOn: "2026-12-07", county: "Hinds" } })),
+      "2026-12-07",
+    );
+    expect(ok.filing?.late).toBe(false);
+    const late = one(
+      app,
+      0,
+      [onSat()].map((w) => ({ ...w, gaAffidavit: { filedOn: "2026-12-08", county: "Hinds" } })),
+      "2026-12-08",
+    );
+    expect(late.filing?.late).toBe(true);
+  });
+
+  it("the owner's copy: two days without the weekend and holidays in between", () => {
+    // Filed Friday 4 December: Monday and Tuesday are the two days.
+    const fri = one(
+      app,
+      0,
+      [sent({ gaAffidavit: { filedOn: "2026-12-04", county: "Hinds" } })],
+      "2026-12-04",
+    );
+    expect(fri.filing?.copyDueOn).toBe("2026-12-08");
+    expect(fri.filing?.copyDueOn).toBe(msAffidavitCopyDueOn("2026-12-04"));
+    // Filed Wednesday 25 November, before Thanksgiving: Friday, then Monday.
+    const wed = one(
+      app,
+      0,
+      [sent({ gaAffidavit: { filedOn: "2026-11-25", county: "Hinds" } })],
+      "2026-11-25",
+    );
+    expect(wed.filing?.copyDueOn).toBe("2026-11-30");
+    expect(gaClockText(wed)).toMatch(/by 2026-11-30, in 5 days/);
+  });
+
+  it("leaves Georgia on calendar days: no lastDay, seven calendar days to the copy", () => {
+    const ga = one(app, 0, [sent({ state: "GA", sentOn: "2026-09-06" })], "2026-11-20");
+    expect(ga.endsOn).toBe("2026-12-05");
+    expect(ga.lastDay).toBeUndefined();
+    const filed = one(
+      app,
+      0,
+      [sent({ state: "GA", gaAffidavit: { filedOn: "2026-12-04", county: "Fulton" } })],
+      "2026-12-04",
+    );
+    expect(filed.filing?.copyDueOn).toBe("2026-12-11");
+  });
+});
+
+describe("the cash report's window with a moved 60th day", () => {
+  it("still starts 30 days before the 60th day, not at once", () => {
+    const early = one(app, 0, [sent({ sentOn: "2026-10-06" })], "2026-10-20");
+    expect(early.lastDay?.on).toBe("2026-12-07");
+    expect(gaClockNeedsAction(early)).toBe(false);
+    expect(gaClockNeedsAction(one(app, 0, [sent({ sentOn: "2026-10-06" })], "2026-11-05"))).toBe(
+      true,
+    );
+  });
+});

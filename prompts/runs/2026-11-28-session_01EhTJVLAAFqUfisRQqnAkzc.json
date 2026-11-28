@@ -50,14 +50,14 @@
     },
     {
       "file": "alerts/1525.md",
-      "why": "Batch rule says same file/rule; #1526 is a sibling file in the same venture and the only other alert queued.",
-      "did": "Fixed #1526 in this PR too without a separate claim branch.",
-      "result": "Both fixed; tests pass."
+      "why": "Fixed #1526 too without claiming its branch.",
+      "did": "A concurrent run claimed and merged #1526 (PR #20104) first; took main's fix in the merge.",
+      "result": "Duplicate effort on #1526; this PR lands #1525 only. Claim every alert you batch."
     }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "node --test cui.test.mjs page.test.mjs: 92 pass, 0 fail. Security queue had 2 workable alerts; both fixed.",
+  "notes": "node --test cui.test.mjs page.test.mjs: 92 pass, 0 fail. Security queue had 2 workable alerts; both fixed. #1526 landed separately in PR #20104; merge conflict resolved to main's version.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -62,6 +62,22 @@ nothing to copy. No customers yet. Paid plans are dark
   CSV instead; nothing is guessed. The opening-balance fill takes the same PDFs. Tested on PDFs
   printed by Chromium and LibreOffice (`test/fixtures/README.md`). The reader moved from
   `services/export/pdf-merge/` to `src/shared/pdf/` so the browser can use it.
+- Pay application as an Excel workbook (2026-11-28, pay-app-xlsx, every plan). "Excel" on the pay
+  application page downloads `<job>-payapp-<n>.xlsx` (`GET .../pay-apps/:id/application.xlsx`): an
+  "Application summary" sheet (the job's header, lines 1 to 9, the retainage rates, the change order
+  summary, the not-an-AIA-document notice) and a "Continuation sheet" (columns A to I lettered as on the
+  standard form, the release column, quantities on a unit-price job, totals), for GCs who ask for the
+  pay app "in Excel" and subs who keep their own copy in a spreadsheet. Amounts are numbers; G = D + E +
+  F, % = G / C, H = C - G, every total, and summary lines 3, 4 (pointing at the continuation sheet's G
+  total), 5, 6, 8 and 9 are live formulas saved with PayApps' own figure, and a formula is written only
+  where PayApps' figure equals it to the cent (else the figure alone), so the workbook never disagrees
+  with the PDF. Checked: LibreOffice opens it and recalculates to the same figures; the app's own
+  "Fill from your last continuation sheet" import reads it back (application number, period, work to
+  date per line), so a job billed here can move to another account. Writer: `writeXlsxBook` in
+  `src/shared/gc-export/xlsx-write.ts` (several sheets, formula cells, bold and percent styles, no
+  library); export `src/worker/services/export/xlsx.ts`, tests beside it. Not done: the GC's own
+  Excel template filled cell by cell (Trimble Pay's is, under GC portal exports); a signature or
+  notary block (the PDF has them).
 - Mid-job start (2026-11-25): a job already billed elsewhere (a spreadsheet, other software)
   records its last application as the opening balance: its number (the first one here is the next
   number), its period end, its line 6 (carried into line 7), optional line 5a, and work completed
@@ -1055,6 +1071,24 @@ nothing to copy. No customers yet. Paid plans are dark
   Free front door caught up 2026-11-28 (lien-calculator-sixteen-states): the six are in
   `ventures/mechanics-lien-deadline-calculator/calc.mjs` with the same rules, so the parity test now
   holds all sixteen states equal on its grid (it asserts at least sixteen shared).
+
+  Nine more states 2026-11-28 (lien-deadline-nine-states), in this app and the free calculator
+  together: Delaware (25 Del. C. § 2711(b), subs 120 days after last labor or delivery), Idaho
+  (§ 45-507(2), 90 days), Kansas (K.S.A. 60-1103(a)(1), subs 3 months; 4 for a contractor with the
+  owner, 60-1102(a)), Maryland (Real Prop. § 9-105(a), petition in circuit court 180 days, with the
+  sub's 120-day notice of intention, § 9-104(a), in the notes), Montana (MCA 71-3-535(1), 90 days,
+  or after a notice of completion, noted), Nebraska (§ 52-137(1), 120 days), North Dakota
+  (35-27-13, 90 days), South Carolina (§ 29-5-90, serve and file in 90 days) and South Dakota
+  (44-9-15, 120 days). Each section read on the state's own code site that day; excerpts and URLs
+  in `ventures/mechanics-lien-deadline-calculator/sources/2026-11-28-nine-states.md`. All are
+  "days/months after last furnishing", so the panel asks no completion date for them. Iowa read and
+  left out (§ 572.9's two years and ninety days; what a late lien reaches is in sections not read).
+  Not reachable from the session: Illinois, Pennsylvania, Wisconsin, Connecticut, New Hampshire,
+  West Virginia, Massachusetts; Tennessee's code has no official free host. The parity test now
+  asserts every carried state is shared with the free calculator. Next, if contractors in them ask:
+  Illinois, Pennsylvania, New Jersey, Massachusetts, Tennessee, Indiana and Wisconsin, each from
+  statute text (`python3 portfolio/smb/cbp_counts.py 238 --by-state` ranks the states by specialty
+  contractors).
 - Notices of claim: Texas, part 3, retainage (2026-11-27, Crew and up;
   texas-notices-of-claim-part-3-retainage). Under the Texas log, "Retainage (§ 53.057)" saves the day
   this company's contract was completed, terminated or abandoned and the day the original contract
@@ -2805,6 +2839,20 @@ nothing to copy. No customers yet. Paid plans are dark
   viewer, replace, clear, half-typed, refusals, viewer 403, another company 404) and
   `test/e2e/05-sworn-draft.spec.ts` (typed, browser storage wiped, still there; cleared).
 
+- Lien waivers: Mississippi part 3, the time computation (2026-11-28, ms-time-computation). § 85-7-425
+  counts time under the lien article by Miss. Code Ann. § 1-3-67, now read (FindLaw's copy; the official
+  LexisNexis Code still out of reach), with § 3-3-7(1)'s ten legal holidays (a Sunday holiday makes the
+  Monday one; Confederate Memorial Day included, the Friday after Thanksgiving not), in
+  `packages/lien-waivers/src/ms-dates.ts` (no imports, aliased `@lien-waivers/ms-dates` for the browser)
+  and `sources/ms-1-3-67-and-3-3-7.txt`. A waiver whose 60th day is a Saturday, Sunday or legal holiday
+  shows the day the period runs to (`lastDay` on the clock; the countdown still runs to the 60th day), on
+  the pay app, in the cash report and the weekly email; on the closed days in between it says the
+  period is still open rather than ended; an affidavit filed on the moved day is not late. The two days
+  to the owner's copy leave out the weekends and holidays in between (filed Friday, due Tuesday).
+  A county's own holiday and a clerk's office closed for other reasons are not known, and can only make
+  the true day later. Georgia (O.C.G.A. § 1-3-1 not read) still counts calendar days. Tests:
+  `test/ms-dates.test.ts` in the package, `src/shared/ms-waiver-clock.test.ts` here.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2857,9 +2905,10 @@ nothing to copy. No customers yet. Paid plans are dark
 ## Next (suite, by promise)
 
 - Late-payment interest, part 3b (part 3a, the billed or waived mark per application, done
-  2026-11-28): "Mark billed" sending a separate invoice for the interest to QuickBooks, or adding it
-  as a line on the next pay application, and the paid-late total in the weekly email, if contractors
-  ask.
+  2026-11-28; the weekly email's totals of interest accrued on past-due applications and earned on
+  those paid late and not billed or waived yet, done 2026-11-28, late-interest-weekly-email):
+  "Mark billed" sending a separate invoice for the interest to QuickBooks, or adding it as a line on
+  the next pay application, if contractors ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if
@@ -2881,9 +2930,8 @@ nothing to copy. No customers yet. Paid plans are dark
   cost type as bid are done, 2026-11-26): a sub quote on the estimate carried to the job as a
   subcontract commitment once the estimate keeps the sub's name, if people ask; "last emailed" on an
   estimate (as change orders keep it), if people ask
-- Lien waivers: Mississippi part 3, if asked: move the sixty days off a weekend or holiday once
-  Miss. Code Ann. § 1-3-67 (which § 85-7-425 sends the computation of time to) is read; PayApps counts
-  calendar days and says so. California
+- Lien waivers: Mississippi part 4, if asked: a county's own holiday (§ 3-3-7(2), Mardi Gras on the
+  coast) chosen per job, so the moved 60th day can count it (part 3, § 1-3-67, done 2026-11-28). California
   preliminary notice part 4: Code Civ. Proc. § 2015.5's perjury sentence on the § 8118 declaration
   once the official text is reachable; the attached receipts listed on the proof PDF (part 3, the
   job history and the receipts kept with each record, done 2026-11-26)

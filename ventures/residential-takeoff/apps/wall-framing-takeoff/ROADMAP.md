@@ -126,9 +126,15 @@ in order:
    - outlines with angled sides (bays, 45-degree corners): **done 2026-11-27** for the squares, eave
      length and roof lines (angled-outline-roof-lines: `skeleton.mjs`, the straight skeleton of the mitred
      eave line; the same lines as `hiproof.mjs` on 300 random square-cornered outlines, turned and mirrored;
-     a 45-degree bay by hand; invariants on 800 random angled outlines; `eval-angled-roof-click.mjs`). Next:
-     rafters and sheathing courses on the angled planes (`hipframe.mjs` and `outlinesheathing.mjs` still
-     take square-cornered outlines only and say so), and a DXF exterior loop with angled walls;
+     a 45-degree bay by hand; invariants on 800 random angled outlines; `eval-angled-roof-click.mjs`). Rafters on
+     the angled planes: **done 2026-11-28** (rafters-on-angled-planes: `planeFaces` in `hipframe.mjs` traces the eave
+     sides and roof lines as a planar graph, each eave side's face is its plane; rafters square to their side, cut back
+     by THICK / 2 over the sine of the angle at a hip or valley; 60 turned houses frame as they do square, 150 clipped and
+     bay outlines checked end by end against the roof lines' heights; the faces also frame square-cornered outlines,
+     identical to the L-infinity rule except where two collinear eave sides share the plane above a bump-out, which the
+     old rule framed twice, rafters 4 in apart; `hipframe-angled.test.mjs`, `eval-angled-roof-click.mjs`). Next: sheathing
+     courses on the angled planes (`outlinesheathing.mjs` still takes square-cornered outlines only and says so), and a
+     DXF exterior loop with angled walls;
    - read the roof outline from a roof-plan layer in a DXF, not only from the exterior
      wall loop: **done 2026-11-27** (roof-outline-from-dxf-roof-layer: `roofdxf.mjs`, the outer
      boundary of the roof layer's lines, ridges and hips inside ignored; the overhang measured

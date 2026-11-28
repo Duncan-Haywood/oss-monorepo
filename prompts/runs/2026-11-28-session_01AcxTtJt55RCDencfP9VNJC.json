@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtJt55RCDencfP9VNJC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T10:07:12Z",
+  "ended": "2026-11-28T10:11:41Z",
+  "wall_minutes": 4.65,
+  "tokens_in": 4491759,
+  "tokens_out": 13753,
+  "cost_usd": 1.8859,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20075",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "main's title/description length tests failed on ventures/machine-shop-guides/how-to-submit-sprs-score.html; fixed here, then main landed its own fix and this PR took main's version in the merge"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets listed cmmc launch-list items (master list import, controlled copy) as free work although both merged today (#20049, #20066); the launch list text still carries them, so the 'Start here' pointer sends runs to finished work."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "Every one of 25 Next items is gated 'if contractors ask' with no customers; the gate makes the whole bet #1 queue read as blocked, so each run has to judge which small completions are still worth doing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "why": "Next item #1 is gated 'if contractors ask'; built the weekly-email part anyway because the figures already existed and an email listing what to chase that omits money earned is a gap in a shipped feature, not a new speculative one.",
+      "did": "Two summary lines in the weekly digest, tests, ROADMAP and post updated.",
+      "result": "Landed in a small PR; tests, typecheck and lint pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-prompt-payment-laws-for-subcontractors.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (2 claimed). No ideas or requests. Verified: vitest unit cash-digest+cash-report 90 passed; worker tests touching the digest 7 files/59 passed; tsc --noEmit 0; biome 0. CI 'test' job red on main's SPRS page (title 79 chars, description 172); shortened both, platform/pages node --test then 0 failures on the two length tests, machine-shop-guides venture tests ok. payapps CI jobs waited 40+ min for runners, then passed; also verified locally: full payapps vitest unit 164 files/1601 passed, worker 98 files/627 passed, tsc 0, biome 0. No UI change, so e2e not run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9e8e6204-59e5-533c-82d1-d2be0f528843",
+    "transcripts": 1,
+    "first": "2026-11-28T10:07:12Z",
+    "last": "2026-11-28T10:11:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 94,
+        "output": 13753,
+        "thinking": 2585,
+        "cache_read": 4400364,
+        "cache_write_5m": 0,
+        "cache_write_1h": 91301,
+        "api_equivalent_usd": 1.8859,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 94,
+      "output": 13753,
+      "thinking": 2585,
+      "cache_read": 4400364,
+      "cache_write_5m": 0,
+      "cache_write_1h": 91301,
+      "api_equivalent_usd": 1.8859,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 47,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.65,
+      "active_minutes": 4.65,
+      "model_minutes": 2.79,
+      "tool_minutes": 1.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "small digest change with tests and a post paragraph",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 79.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

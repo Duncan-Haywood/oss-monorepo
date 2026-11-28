@@ -4,6 +4,7 @@ seo_title: "KSeF penalties 2028: bill status, November 2026"
 date: 2026-11-07
 tags: [einvoice-preflight, poland, ksef]
 description: "Advisers report Poland's cabinet adopted a bill on 20 October 2026 moving KSeF error penalties from 1 January 2027 to 2028. It is not yet law."
+folded_into: einvoice-preflight/poland-ksef-e-invoice-mandate
 ---
 
 Polish businesses already issue invoices through KSeF; what is still open is when fines for errors begin. The law in force says 1 January 2027. Advisers report that the Council of Ministers adopted, on 20 October 2026, a VAT-act amendment moving the penalties (art. 106ni) to 1 January 2028. The Sejm, the Senate and the President still have to act, and the President has 21 days to sign. Until the bill is published in the Dziennik Ustaw, the 2027 date stands.

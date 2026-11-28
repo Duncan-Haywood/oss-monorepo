@@ -170,6 +170,13 @@ export function PayAppPage() {
           >
             PDF with backup
           </a>
+          <a
+            className="btn-secondary"
+            href={`${base}/application.xlsx`}
+            title="The application summary and continuation sheet in one Excel workbook, with the sums as live formulas"
+          >
+            Excel
+          </a>
           <a className="btn-secondary" href={`${base}/continuation.csv`}>
             Continuation CSV
           </a>

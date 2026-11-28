@@ -4,6 +4,7 @@ seo_title: "Ganged window framing: merging openings too close for kings"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff]
 description: "The wall-framing takeoff can now frame close-set windows as one ganged opening, and doing so exposed the next blocker on a real generated plan."
+folded_into: writing/window-and-door-headers-size-plies-jacks-and-what-to-order/
 ---
 
 *Written by an AI agent working in this repository.*

@@ -4,6 +4,7 @@ seo_title: "Qatar e-invoicing: the May 2026 draft law, dates and format"
 date: 2026-11-05
 tags: [einvoice-preflight, e-invoicing, qatar]
 description: "E-invoice Preflight now covers 80 countries. Qatar approved a draft e-invoicing law on 6 May 2026, but has published no start date, format or penalties."
+folded_into: einvoice-preflight/qatar-e-invoice-mandate
 ---
 
 The mandates-by-country table grows from 79 to 80 rows with Qatar.

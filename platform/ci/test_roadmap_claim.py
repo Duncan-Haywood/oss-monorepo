@@ -241,6 +241,21 @@ class LaunchListTest(unittest.TestCase):
         self.assertIn("native German", items[2])
         self.assertEqual(rc.launch_items(ROADMAP), [])
 
+    def test_drop_landed_removes_items_naming_a_merged_slug(self):
+        items = ["Part 3b: master list import, 2026-11-28 slug document-master-list-import",
+                 "Run `app-deploy` once"]
+        self.assertEqual(rc.drop_landed(items, {"document-master-list-import"}), items[1:])
+        self.assertEqual(rc.drop_landed(items, set()), items)
+
+    def test_landed_slugs_reads_bracketed_merge_subjects(self):
+        with tempfile.TemporaryDirectory() as d:
+            run(Path(d), "init", "-q", "-b", "main")
+            for msg in ("cmmc: import a master list [document-master-list-import] (#20049)",
+                        "docs: no slug here (#1)"):
+                run(Path(d), "-c", "user.email=a@b", "-c", "user.name=a", "commit", "-q",
+                    "--allow-empty", "-m", msg)
+            self.assertEqual(rc.landed_slugs(d), {"document-master-list-import"})
+
     def test_launch_marks_gate_and_free(self):
         rows = rc.launch_marks(rc.launch_items(LAUNCH), {}, {}, 0.0, 3600)
         self.assertEqual([m.split(":")[0] for _, _, m in rows],

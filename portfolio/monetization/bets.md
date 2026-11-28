@@ -122,7 +122,25 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
 - **Wedge:** email or drawing in, priced quote out, learning each shop's rates,
   at about $199/mo. Ship narrow and soon: funded rivals are arriving.
 - **Growth path:** quote follow-up and win rates, won quote to job traveler,
-  QuickBooks invoicing, material price lists.
+  QuickBooks invoicing, material price lists, first article inspection.
+- **First article (added 2026-11-28, explore run):** aerospace and defense
+  buyers require an AS9102 first article inspection report, and listing and
+  numbering (ballooning) each drawing characteristic for its Form 3 is the slow
+  step. Separate tools charge for it: 1factory from $30 per user per month,
+  with PDF auto-ballooning and AS9102 reports in a $75 per user tier
+  ([Capterra](https://www.capterra.com/p/151002/1factory/pricing/), a 5-user
+  minimum per [1factory's pricing page](https://www.1factory.com/pricing.html));
+  InspectionXpert from $125/mo
+  ([Slashdot](https://slashdot.org/software/p/InspectionXpert/)); High QA from
+  $25/mo ([Software Advice](https://www.softwareadvice.com/product/502087-High-QA-Inspection-Manager));
+  Net-Inspect up to $500/mo ([G2](https://www.g2.com/products/net-inspect/discuss)).
+  All aggregator figures, read through search on 2026-11-28; the vendors'
+  own pages could not be fetched from the session, so re-check before
+  pricing. Nearly 30,000 AS9100-family certified sites are under ANAB-overseen
+  certification ([ANAB](https://blog.ansi.org/anab/as9100-certification-aerospace-qms/));
+  no US count was found. The same shops buy bets #2 and #4, so this is a
+  module of Job Shop Quote rather than a new bet: part 1 (a Form 3 draft
+  from the drawing's text, CSV) shipped 2026-11-28 in the app's ROADMAP.
 - **Launch:** the launch review OPERATOR.md asks for is done (2026-11-27,
   private-monorepo#482, `apps/jobshop-quote/docs/LAUNCH-REVIEW.md`): paid
   plans keep 42–53% at their full AI ceiling, the legal pages match the code,
