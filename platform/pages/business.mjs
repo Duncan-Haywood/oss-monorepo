@@ -345,7 +345,7 @@ export const PRODUCT_LINES = Object.freeze([
     appName: 'Seller Books',
     // Deployed from ventures/seller-books (ventures/seller-books/DEPLOY.md, "First deploy";
     // /api/health answered on the custom domain 2026-11-27).
-    appUrl: 'https://seller-books.marisstella.app/signup',
+    appUrl: 'https://seller-books.marisstella.app/signup?from=products',
     industry: 'online-sellers',
     kind: 'software',
     tools: ['reseller-books', 'ebay-fee-calculator', 'poshmark-fee-calculator', 'ebay-payout-to-journal'],

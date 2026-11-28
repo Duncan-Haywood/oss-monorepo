@@ -34,7 +34,12 @@ export const FUNNELS = [
     app: 'seller-books',
     base: 'https://seller-books.marisstella.app',
     signupPath: '/signup',
-    frontDoors: [],
+    // Fifteen free marketplace tools link here (ventures/reseller-books/seller-books-cta.mjs); the
+    // eBay fee calculator and the online sellers page stand for them.
+    frontDoors: [
+      'https://marisstella.app/ebay-fee-calculator/',
+      'https://marisstella.app/industries/online-sellers/',
+    ],
   },
   {
     // Live since jobshop-quote-deploy run 46013246899 (2026-11-27), free Early access plan.
