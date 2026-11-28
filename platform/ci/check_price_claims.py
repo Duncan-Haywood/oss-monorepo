@@ -21,6 +21,13 @@ A plan is read from each `PLAN_LIST` entry (free ones too, except plans named "F
 packages/billing does: 12 months at 10% off, rounded to whole dollars). A plan charges
 its monthly price, its annual price and the annual price over 12 (e.g. $179.08/mo).
 
+A venture with no `plans.ts` but a `billing/paddle-catalog.json` (the file the deploy syncs to
+Paddle, e.g. E-invoice Fix & Explain, which sells in euros from `content/pricing.mjs`) is read
+from that file instead: each plan's `name`, `monthlyCents`, `annualCents` and the catalog's
+`currency` (a plan named "metered" is skipped: its copy quotes per-unit rates). Euro figures
+are read as `€19`, `EUR 19` or `19 €`; a figure in the wrong currency for its plan
+("Firm S $19" when Firm S is €19) is flagged too.
+
 In the product's own files (everything under `ventures/<v>/`, tests, fixtures and
 `plans.ts` itself left out) and in posts in `docs/posts/` that name the product, a
 dollar figure is a claim about a plan when it sits right next to the plan's name:
@@ -69,8 +76,14 @@ WAIVER = "price-claims: ok"
 FILE_WAIVER = "price-claims: historical"  # in a file's first 10 lines: skip the file
 GENERIC_FREE_NAMES = {"Free", "Complimentary"}
 TAG = re.compile(r"<[^>]+>")
+SYMBOL = {"USD": "$", "EUR": "€"}
 
-MONEY = r"\$(\d{1,3}(?:,\d{3})+|\d+)(\.\d\d)?(?!\d)"
+# A money figure: "$1,069", "$179.08", "€19", "EUR 19" (groups 1-3: currency, whole, cents), or
+# the European "19 €", "19,00 €", "19 EUR" (groups 4-5: whole, cents).
+MONEY = (
+    r"(?:(\$|€|EUR\s?)(\d{1,3}(?:,\d{3})+|\d+)(\.\d\d)?(?!\d)"
+    r"|(?<![\d.,])(\d{1,3}(?:\.\d{3})+|\d+)(,\d\d)?\s?(?:€|EUR\b))"
+)
 HISTORY = re.compile(r"(?:\bwas|\bfrom|\bpreviously|\bold|\bformerly)\s*$", re.I)
 PERIOD = r"(?:\s*/\s*(?:mo|month|yr|year)\b|\s+(?:a|per)\s+(?:month|year)\b)?"
 
@@ -82,6 +95,7 @@ class Plan:
     monthly_cents: int
     annual_cents: int | None
     source: str
+    currency: str = "USD"
 
     def charges(self) -> set[int]:
         """Every figure, in cents, this plan honestly appears at."""
@@ -148,9 +162,45 @@ def load_products(root: Path) -> list[Product]:
             if p.name not in seen:
                 seen.add(p.name)
                 uniq.append(p)
+        if not uniq:
+            uniq = catalog_plans(vdir, root)
         if uniq:
             products.append(Product(vdir.name, uniq))
     return products
+
+
+def catalog_plans(vdir: Path, root: Path) -> list[Plan]:
+    """Plans from a venture's billing/paddle-catalog.json, for a venture with no plans.ts."""
+    plans, seen = [], set()
+    for f in sorted(vdir.glob("apps/*/billing/paddle-catalog.json")):
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        currency = data.get("currency", "USD")
+        if currency not in SYMBOL:
+            continue
+        for p in data.get("plans", []):
+            name, monthly = p.get("name"), p.get("monthlyCents")
+            if not name or monthly is None or name in seen or name in GENERIC_FREE_NAMES:
+                continue
+            # A metered plan's monthlyCents is only its minimum; its copy quotes per-unit rates.
+            if "metered" in name.lower():
+                continue
+            seen.add(name)
+            plans.append(Plan(vdir.name, name, monthly, p.get("annualCents"),
+                              str(f.relative_to(root)), currency))
+    return plans
+
+
+def _figure(m: re.Match) -> tuple[str, int, str, int]:
+    """(currency, cents, text, start) of a MONEY match inside a larger match `m`."""
+    if m.group(2) is not None:
+        cur = "EUR" if m.group(1).startswith(("€", "EUR")) else "USD"
+        cents = int(m.group(2).replace(",", "")) * 100 + (int(m.group(3)[1:]) if m.group(3) else 0)
+        return cur, cents, m.group(1) + m.group(2) + (m.group(3) or ""), m.start(1)
+    cents = int(m.group(4).replace(".", "")) * 100 + (int(m.group(5)[1:]) if m.group(5) else 0)
+    return "EUR", cents, m.group(4) + (m.group(5) or "") + " €", m.start(4)
 
 
 def _name_re(name: str) -> str:
@@ -158,7 +208,10 @@ def _name_re(name: str) -> str:
 
 
 def claims(line: str, plans: list[Plan]):
-    """(plan, cents, figure text) for each dollar figure stated as a plan's price on a line."""
+    """(plan, cents, figure text) for each money figure stated as a plan's price on a line.
+
+    A figure in another currency than the plan's comes back as -1 cents, which no plan charges.
+    """
     taken: list[tuple[int, int]] = []
     for plan in sorted(plans, key=lambda p: -len(p.name)):
         n = _name_re(plan.name)
@@ -173,14 +226,11 @@ def claims(line: str, plans: list[Plan]):
                 ns = (m.start() + nm.start(), m.start() + nm.end())
                 if any(a <= ns[0] < b or ns[0] <= a < ns[1] for a, b in taken):
                     continue  # a longer plan name already owns this spot
-                money_at = m.start(1) - 1
+                cur, cents, figure, money_at = _figure(m)
                 if HISTORY.search(line[max(0, money_at - 14):money_at]):
                     continue
-                cents = int(m.group(1).replace(",", "")) * 100
-                if m.group(2):
-                    cents += int(m.group(2)[1:])
                 taken.append(ns)
-                yield plan, cents, "$" + m.group(1) + (m.group(2) or "")
+                yield plan, (cents if cur == plan.currency else -1), figure
         # Mark every occurrence of this name as owned, so "Shop" never re-reads "Shop Plus".
         for m in re.finditer(n, line):
             taken.append((m.start(), m.end()))
@@ -227,7 +277,7 @@ def scan(root: Path):
             if any(FILE_WAIVER in ln for ln in lines[:10]):
                 continue
             for i, line in enumerate(lines, 1):
-                if "$" not in line or WAIVER in line:
+                if not any(ch in line for ch in ("$", "€", "EUR")) or WAIVER in line:
                     continue
                 # Tags out, so "<h2>Crew</h2><p class="price">$179" reads as "Crew $179".
                 for plan, cents, figure in claims(TAG.sub(" ", line), prod.plans):
@@ -239,14 +289,15 @@ def scan(root: Path):
                             "plan": plan.name,
                             "found": figure,
                             "catalog": sorted(plan.charges()),
+                            "currency": plan.currency,
                             "source": plan.source,
                             "text": line.strip()[:200],
                         })
     return products, findings
 
 
-def _usd(cents: int) -> str:
-    return f"${cents // 100:,}" + (f".{cents % 100:02d}" if cents % 100 else "")
+def _usd(cents: int, currency: str = "USD") -> str:
+    return f"{SYMBOL.get(currency, '$')}{cents // 100:,}" + (f".{cents % 100:02d}" if cents % 100 else "")
 
 
 def main(argv=None) -> int:
@@ -260,11 +311,12 @@ def main(argv=None) -> int:
     else:
         for p in products:
             print(f"{p.slug}: " + ", ".join(
-                f"{pl.name} {_usd(pl.monthly_cents)}" + (f"/{_usd(pl.annual_cents)} yr" if pl.annual_cents else "")
+                f"{pl.name} {_usd(pl.monthly_cents, pl.currency)}"
+                + (f"/{_usd(pl.annual_cents, pl.currency)} yr" if pl.annual_cents else "")
                 for pl in p.plans))
         for f in findings:
             print(f"{f['file']}:{f['line']}: {f['product']} {f['plan']} stated as {f['found']}, "
-                  f"catalog charges {', '.join(_usd(c) for c in f['catalog'])} ({f['source']})")
+                  f"catalog charges {', '.join(_usd(c, f['currency']) for c in f['catalog'])} ({f['source']})")
         print(f"{len(findings)} price claim(s) disagree with their catalog.")
     return 1 if findings else 0
 
