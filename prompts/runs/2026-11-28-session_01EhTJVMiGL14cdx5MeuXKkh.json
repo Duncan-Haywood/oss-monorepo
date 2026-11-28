@@ -7,14 +7,16 @@
   "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T06:55:50Z",
   "ended": "2026-11-28T07:07:41Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 81.38,
+  "tokens_in": 17614236,
+  "tokens_out": 68353,
+  "cost_usd": 6.5245,
+  "tool_calls": 106,
   "task": "bet #3 front door: German XRechnung viewer for received e-invoices; became a follow-up to PR #20028",
   "projects": [
     "einvoice-preflight",
@@ -25,11 +27,11 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 1,
-  "outcome": "partial",
+  "tests_added": 3,
+  "outcome": "success",
   "errors": [
     "A first push of this branch carried a full viewer (einvoice-view.mjs, page, tests) before slug_dupe showed PR #20028 (same slug, same feature, opened minutes earlier by a parallel session). Force-push to drop it was refused; merged the remote branch with -s ours so the diff carries only the follow-up."
   ],
@@ -48,15 +50,93 @@
     {
       "file": "CLAUDE.md",
       "why": "Duplicate PRs: rather than open a second viewer, dropped this session's own (independently built, tested) viewer and kept only what PR #20028 lacks",
-      "did": "follow-up PR: UNTDID 1001 876 in the paid view, customer post, 875/876 fix for the free viewer once #20028 lands",
-      "result": "pending #20028"
+      "did": "follow-up PR: 875/876 swap and a prototype-key crash fixed in #20028's viewer, 876 named in the paid view, customer post, Germany page link",
+      "result": "landed one viewer instead of two, plus two real fixes to the survivor"
     }
   ],
   "writeups": [
     "docs/posts/2026-11-28-how-to-open-an-xrechnung-you-received.md"
   ],
   "goal": null,
-  "notes": "Verified: node --test pro/view.test.mjs 10 pass; check_posts ok. PR #20029 CI: all green except pages build, whose only problem is the post's link to xrechnung-anzeigen.html, which PR #20028 adds. KoSIT BR-DE-17 text (plain/xrechnung-ubl.json) confirms 875 Partial construction invoice, 876 Partial final construction invoice; #20028's viewer.mjs has them swapped.",
+  "notes": "Verified: node --test pro/view.test.mjs 10 pass; check_posts ok. PR #20029 CI: all green except pages build, whose only problem is the post's link to xrechnung-anzeigen.html, which PR #20028 adds. KoSIT BR-DE-17 text (plain/xrechnung-ubl.json) confirms 875 Partial construction invoice, 876 Partial final construction invoice; #20028's viewer.mjs has them swapped. After #20028 merged: main's viewer.mjs threw on document_code 'constructor' (confirmed: 'DOCUMENT_TYPES[code].replace is not a function'), fixed with own-key lookups. run_venture_tests.py einvoice-preflight: ok, 2901 tests, site page checks ok.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6703778a-8c87-5cfa-8dab-4d45cf8193bb",
+    "transcripts": 1,
+    "first": "2026-11-28T06:55:50Z",
+    "last": "2026-11-28T08:17:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 106,
+        "input": 211,
+        "output": 68353,
+        "thinking": 12075,
+        "cache_read": 17404560,
+        "cache_write_5m": 0,
+        "cache_write_1h": 209465,
+        "api_equivalent_usd": 6.5245,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 106,
+      "input": 211,
+      "output": 68353,
+      "thinking": 12075,
+      "cache_read": 17404560,
+      "cache_write_5m": 0,
+      "cache_write_1h": 209465,
+      "api_equivalent_usd": 6.5245,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 106,
+    "tools": {
+      "Bash": 91,
+      "mcp__github__pull_request_read": 6,
+      "Write": 4,
+      "ToolSearch": 2,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__get_job_logs": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 81.38,
+      "active_minutes": 34.17,
+      "model_minutes": 11.42,
+      "tool_minutes": 22.75,
+      "waiting_on_human_minutes": 47.21,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "viewer module, page, tests, post and two fixes for a mid-level web developer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 92.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
