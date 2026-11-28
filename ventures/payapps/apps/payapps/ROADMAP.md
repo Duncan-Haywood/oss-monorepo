@@ -1052,6 +1052,9 @@ nothing to copy. No customers yet. Paid plans are dark
   (Illinois and Pennsylvania's statute hosts did not answer from the session), and the free
   calculator, which still has ten.
 
+  Free front door caught up 2026-11-28 (lien-calculator-sixteen-states): the six are in
+  `ventures/mechanics-lien-deadline-calculator/calc.mjs` with the same rules, so the parity test now
+  holds all sixteen states equal on its grid (it asserts at least sixteen shared).
 - Notices of claim: Texas, part 3, retainage (2026-11-27, Crew and up;
   texas-notices-of-claim-part-3-retainage). Under the Texas log, "Retainage (§ 53.057)" saves the day
   this company's contract was completed, terminated or abandoned and the day the original contract

@@ -246,7 +246,7 @@ test("every modeled rule resolves to a real date for ordinary inputs", () => {
         const r = run({ state, projectType, tier });
         assert.ok(r.lien && r.lien.date instanceof Date, `${state} ${projectType} ${tier} lien`);
         assert.equal(r.lien.weekend, [0, 6].includes(r.lien.date.getUTCDay()));
-        if (!r.prelimNotRequired) assert.ok(r.prelim && r.prelim.date instanceof Date, `${state} ${projectType} ${tier} prelim`);
+        if (!r.prelimNotRequired && !r.prelimNotModeled) assert.ok(r.prelim && r.prelim.date instanceof Date, `${state} ${projectType} ${tier} prelim`);
       }
     }
   }
@@ -328,10 +328,59 @@ test("California cites ยง 8414 (claimants other than a direct contractor), not ย
 });
 
 test("every state links its statute on an official or code-copy host", () => {
-  const hosts = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|capitol\.texas\.gov|www\.flsenate\.gov|www\.azleg\.gov|app\.leg\.wa\.gov|law\.justia\.com|www\.ncleg\.gov|www\.nysenate\.gov|codes\.ohio\.gov)\//;
-  for (const state of ["CA", "TX", "FL", "AZ", "WA", "GA", "CO", "NC", "NY", "OH"]) {
+  const hosts = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|capitol\.texas\.gov|www\.flsenate\.gov|www\.azleg\.gov|app\.leg\.wa\.gov|law\.justia\.com|www\.ncleg\.gov|www\.nysenate\.gov|codes\.ohio\.gov|www\.legislature\.mi\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|le\.utah\.gov|law\.lis\.virginia\.gov)\//;
+  for (const state of Object.keys(STATE_RULES)) {
     const r = run({ state });
     assert.ok(r.sources.length >= 1, state);
     for (const s of r.sources) assert.match(s.url, hosts, state);
   }
+});
+
+// Added 2026-11-28: six states copied from PayApps' statute-read rules (calc.mjs
+// header). Dates counted by hand from first 2026-03-10 and last 2026-06-20.
+test("Michigan: notice of furnishing 20 days after first, claim of lien 90 days after last", () => {
+  const r = run({ state: "MI" });
+  assert.equal(iso(r.prelim.date), "2026-03-30"); // Mar 10 + 20
+  assert.equal(iso(r.lien.date), "2026-09-18"); // Jun 30 = 10, Jul 31 = 41, Aug 31 = 72, Sep 18 = 90
+  assert.ok(r.findings.some((f) => /notice of commencement/.test(f.detail) && /570\.1108/.test(f.detail)));
+  const late = run({ state: "MI", today: "2026-06-01" });
+  assert.ok(late.findings.some((f) => /already passed/.test(f.title) && /570\.1109\(5\), \(6\)/.test(f.detail)));
+  assert.equal(late.lateNoticeReach, null);
+});
+
+test("Minnesota: 120 days after last; the earlier notices are not dated, never called not required", () => {
+  const r = run({ state: "MN" });
+  assert.equal(iso(r.lien.date), "2026-10-18");
+  assert.equal(r.prelim, null);
+  assert.equal(r.prelimNotRequired, null);
+  assert.match(r.prelimNotModeled, /not checked against the statute/);
+  assert.ok(r.findings.some((f) => /is not dated here/.test(f.title)));
+  assert.ok(r.findings.some((f) => /serve/.test(f.detail) && /514\.08/.test(f.detail)));
+});
+
+test("Nevada: 90 days after the later of completion and own last furnishing, or 40 after a notice of completion", () => {
+  assert.equal(iso(run({ state: "NV" }).lien.date), "2026-09-18");
+  // completion before the last day is not used (the statute takes the later one)
+  const early = run({ state: "NV", completionDate: "2026-06-01" });
+  assert.equal(iso(early.lien.date), "2026-09-18");
+  assert.match(early.lien.description, /later of the two/);
+  // completion after: counts from completion; Jul 15 + 90 = Oct 13
+  assert.equal(iso(run({ state: "NV", completionDate: "2026-07-15" }).lien.date), "2026-10-13");
+  // notice of completion Jul 1 + 40 = Aug 10, earlier
+  assert.equal(iso(run({ state: "NV", completionDate: "2026-07-15", noticeOfCompletionDate: "2026-07-01" }).lien.date), "2026-08-10");
+});
+
+test("Oregon and Virginia: whichever comes first, own last furnishing or completion", () => {
+  assert.equal(iso(run({ state: "OR" }).lien.date), "2026-09-03"); // Jun 20 + 75
+  assert.equal(iso(run({ state: "OR", completionDate: "2026-06-01" }).lien.date), "2026-08-15"); // Jun 1 + 75, earlier
+  // Virginia: 90 from Jun 30 = Sep 28; without completion, 90 from the last day (Sep 18) is the earliest it can be
+  const va = run({ state: "VA" });
+  assert.equal(iso(va.lien.date), "2026-09-18");
+  assert.ok(va.findings.some((f) => /moves? .*earlier|is earlier/.test(f.detail) && /completion/.test(f.title + f.detail)));
+  assert.equal(iso(run({ state: "VA", completionDate: "2026-12-01" }).lien.date), "2026-09-28");
+});
+
+test("Utah: 180 days after final completion, or 90 after a notice of completion", () => {
+  assert.equal(iso(run({ state: "UT" }).lien.date), "2026-12-17"); // Jun 20 + 180
+  assert.equal(iso(run({ state: "UT", noticeOfCompletionDate: "2026-07-01" }).lien.date), "2026-09-29"); // Jul 1 + 90
 });

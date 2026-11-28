@@ -5,6 +5,7 @@
 ## Parked from flagships.yaml `next:`
 
 - (2026-11-28) the creator's France profile (BT-30 SIREN, BT-23 billing mode, coded PMD/PMT/AAB notes, BT-121 VATEX codes; generate.mjs, generate-france.test.mjs, micro-entrepreneur-bench.mjs) landed in the free edition only: port it to ventures/einvoice-pro/apps/einvoice-preflight/generate.mjs (its creator has diverged: line allowances, more units), and check a real platform's answer to a franchise-en-base invoice without a VAT number (BR-E-02)
+- (2026-11-28) built-in BR-CO-26 and BR-Z-10: both are reported only by the official Schematron (`kleinunternehmer-bench.mjs`). For BR-CO-26 the readers keep only schemed party ids (`party_ids`), so read the plain `ram:ID` / `cac:PartyIdentification` too, then report a seller with none of BT-29, BT-30 or BT-31 (the creator refuses one since 2026-11-28); BR-Z-10 is a Z row that carries an exemption reason
 - (2026-11-16) a real Ginfes, Betha or DSF reply
 - (2026-11-16) refresh the Bulgaria page when its draft passes
 - (2026-11-17) ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba,...) landed (README): open: a DSF 1.00/Abaco file
