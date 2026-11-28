@@ -739,6 +739,36 @@ Some limits, said plainly:
 Keeping a receipt is a record, not a ruling: whether a cost is deductible is
 still a question for you or your preparer.
 
+## The receipt for what you paid for stock (added 2026-11-28)
+
+Expenses are the smaller half. For most resellers the largest deduction is
+cost of goods sold, and every dollar of it starts as a purchase: a $30
+estate-sale haul, a $4.99 shirt from the thrift store, a pallet invoice.
+Publication 583's section on inventory is short: "Your supporting documents
+should show the amount paid and that the amount was for inventory." It names
+canceled checks, cash register tape receipts, credit card sales slips and
+invoices.
+
+So Seller Books now keeps receipts on purchases too, with the same file rules
+as expense receipts. A receipt on a lot covers every item in it, so the
+estate-sale receipt is attached once, not to each of the twelve things in the
+box. An item bought on its own carries its own. On the Inventory page, each
+lot and item row says how many receipts it has (an item in a lot with one
+says "Lot's receipt"), and a new box, "Receipts for what you paid", counts
+the year's purchases: for example "9 of 12 items bought in 2026 with a cost
+have a receipt", then the cost with none and the costliest items missing
+one, so the receipts worth finding come first.
+
+The year-end ZIP gets a second folder, `purchase-receipts/`, for the lots and
+items bought that year, each named by the purchase date, the vendor (or the
+lot's name) and what was paid. Expense and purchase receipts share the same
+50 MB a shop for now. Deleting a lot or an item deletes its receipts, and
+the shop's data export lists every purchase receipt by name, size and
+SHA-256.
+
+As before, the app reads nothing off the receipt: the cost is what you typed
+or the item's share of its lot.
+
 ## Two of the same thing in one order (added 2026-11-26)
 
 A buyer takes two of the bowls you listed under one SKU. eBay reports that as

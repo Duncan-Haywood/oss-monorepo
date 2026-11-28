@@ -18,6 +18,7 @@ import { affirmationCalendarFeed, organization, user } from "../../db/schema";
 import { sha256Hex } from "../../lib/hash";
 import { audit } from "../audit";
 import { documentReviewDatesFor } from "../documents";
+import { incidentHoldDatesFor } from "../incidents";
 import { qualityDueDatesFor } from "../internal-audits";
 import { trainingDueDatesFor } from "../personnel";
 import { policyReviewDates } from "../security-policies";
@@ -123,15 +124,23 @@ export async function calendarForToken(ctx: AppContext, token: string): Promise<
       .set({ lastFetchedAt: now })
       .where(eq(affirmationCalendarFeed.orgId, row.orgId));
   }
-  const [data, policyReviews, trainingDue, supplierDue, documentReviews, qualityDue] =
-    await Promise.all([
-      listAffirmations(ctx, row.orgId),
-      policyReviewDates(ctx, row.orgId),
-      trainingDueDatesFor(ctx, row.orgId),
-      supplierDueDatesFor(ctx, row.orgId),
-      documentReviewDatesFor(ctx, row.orgId),
-      qualityDueDatesFor(ctx, row.orgId),
-    ]);
+  const [
+    data,
+    policyReviews,
+    trainingDue,
+    supplierDue,
+    documentReviews,
+    qualityDue,
+    incidentHolds,
+  ] = await Promise.all([
+    listAffirmations(ctx, row.orgId),
+    policyReviewDates(ctx, row.orgId),
+    trainingDueDatesFor(ctx, row.orgId),
+    supplierDueDatesFor(ctx, row.orgId),
+    documentReviewDatesFor(ctx, row.orgId),
+    qualityDueDatesFor(ctx, row.orgId),
+    incidentHoldDatesFor(ctx, row.orgId),
+  ]);
   return renderAffirmationCalendar({
     orgId: row.orgId,
     orgName: row.orgName,
@@ -141,6 +150,7 @@ export async function calendarForToken(ctx: AppContext, token: string): Promise<
     supplierDue,
     documentReviews,
     qualityDue,
+    incidentHolds,
     now,
   });
 }

@@ -35,6 +35,10 @@ import {
   journalCsvRows,
 } from "../../services/books/journal";
 import { ledgerCsvRows } from "../../services/books/ledger";
+import {
+  purchaseReceiptZipName,
+  yearPurchaseReceipts,
+} from "../../services/books/purchase-receipts";
 import { receiptBytes, receiptZipName, yearReceipts } from "../../services/books/receipts";
 import type { ScWorksheet } from "../../services/books/schedule-c";
 import {
@@ -574,19 +578,27 @@ routes.get("/year-end.zip", validate("query", scQuery), async (c) => {
   const from = `${q.year}-01-01`;
   const to = `${q.year}-12-31`;
   const platformLabel = (p: string) => PLATFORM_LABELS[p as Platform] ?? p;
-  const [ws, items, trips, expenseRows, ledger, name, receiptRows] = await Promise.all([
-    scheduleCWorksheet(ctx, orgId, q.year, rate),
-    yearEndInventory(ctx, orgId, q.year),
-    yearEndTrips(ctx, orgId, q.year),
-    yearEndExpenses(ctx, orgId, q.year),
-    salesLedger(ctx, orgId, from, to),
-    shopName(c),
-    yearReceipts(ctx, orgId, q.year),
-  ]);
+  const [ws, items, trips, expenseRows, ledger, name, receiptRows, purchaseRows] =
+    await Promise.all([
+      scheduleCWorksheet(ctx, orgId, q.year, rate),
+      yearEndInventory(ctx, orgId, q.year),
+      yearEndTrips(ctx, orgId, q.year),
+      yearEndExpenses(ctx, orgId, q.year),
+      salesLedger(ctx, orgId, from, to),
+      shopName(c),
+      yearReceipts(ctx, orgId, q.year),
+      yearPurchaseReceipts(ctx, orgId, q.year),
+    ]);
   // Read one at a time: a shop's receipts are capped (SHOP_RECEIPT_LIMIT_BYTES), so they fit in memory.
   const receiptFiles: { name: string; data: Uint8Array }[] = [];
   for (const r of receiptRows) {
     receiptFiles.push({ name: receiptZipName(r), data: await receiptBytes(ctx, r.id, r.size) });
+  }
+  for (const r of purchaseRows) {
+    receiptFiles.push({
+      name: purchaseReceiptZipName(r),
+      data: await receiptBytes(ctx, r.id, r.size, "purchase_receipt_chunk"),
+    });
   }
   const inventory = closingInventoryList(q.year, items);
   const log = mileageLog(q.year, trips, rate);
@@ -628,6 +640,11 @@ routes.get("/year-end.zip", validate("query", scQuery), async (c) => {
     receipts: {
       files: receiptRows.length,
       expenses: new Set(receiptRows.map((r) => r.expenseId)).size,
+    },
+    purchaseReceipts: {
+      files: purchaseRows.length,
+      lots: new Set(purchaseRows.flatMap((r) => (r.lotId ? [r.lotId] : []))).size,
+      items: new Set(purchaseRows.flatMap((r) => (r.itemId ? [r.itemId] : []))).size,
     },
   });
   const body = zip([

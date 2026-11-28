@@ -1,4 +1,5 @@
 import { type AffirmationsResponse, addDays } from "@shared/affirmation";
+import { fmtDuration, type IncidentAttention } from "@shared/incidents";
 import {
   AUDIT_WARNING_DAYS,
   CA_WARNING_DAYS,
@@ -23,6 +24,7 @@ export function Dashboard({
   onOpenPolicies,
   onOpenPeople,
   onOpenSuppliers,
+  onOpenIncidents,
   onOpenDocuments,
   onOpenAudits,
 }: {
@@ -34,6 +36,7 @@ export function Dashboard({
   onOpenPolicies: () => void;
   onOpenPeople: () => void;
   onOpenSuppliers: () => void;
+  onOpenIncidents: () => void;
   onOpenDocuments: () => void;
   onOpenAudits: () => void;
 }) {
@@ -63,6 +66,12 @@ export function Dashboard({
     queryKey: ["people", orgId],
     queryFn: () => api<TrainingSummary>(`/api/orgs/${orgId}/people`),
     enabled: level === 2,
+  });
+  // Incidents are recorded on every plan: the 72-hour clock is not a paid feature.
+  const incidents = useQuery({
+    queryKey: ["incidents", orgId],
+    queryFn: () => api<IncidentSummary>(`/api/orgs/${orgId}/incidents`),
+    refetchInterval: 60_000,
   });
   // Suppliers are recorded on every plan (FCI-only Level 1 flow-down included).
   const suppliers = useQuery({
@@ -203,6 +212,7 @@ export function Dashboard({
       {level === 2 && (
         <TrainingCard data={people.data} error={people.error} onOpen={onOpenPeople} />
       )}
+      <IncidentsCard data={incidents.data} error={incidents.error} onOpen={onOpenIncidents} />
       <SuppliersCard data={suppliers.data} error={suppliers.error} onOpen={onOpenSuppliers} />
       <IsoCard info={info} data={quality.data} error={quality.error} onOpen={onOpenQuality} />
       {info.plan.quality && (
@@ -299,6 +309,67 @@ export function PoliciesCard({
             )
           )}
         </>
+      )}
+    </Card>
+  );
+}
+
+/** The slice of GET /incidents the dashboard reads (services/incidents, incidentList). */
+interface IncidentSummary {
+  now: string;
+  items: { id: string; closedOn: string | null }[];
+  attention: IncidentAttention[];
+}
+
+const incidentText = (a: IncidentAttention, now: string) => {
+  if (a.stage !== "report") return `${a.title}: give the report number to your higher tier`;
+  if (!a.due) return a.title;
+  const left = Date.parse(a.due) - Date.parse(now);
+  return a.overdue
+    ? `${a.title}: 72 hours ran out ${fmtDuration(-left)} ago, report now`
+    : `${a.title}: report to DIBNet within ${fmtDuration(left)}`;
+};
+
+/** Incidents that need someone now: a 72-hour report not yet filed, or a sub's higher tier untold. */
+export function IncidentsCard({
+  data,
+  error,
+  onOpen,
+}: {
+  data: IncidentSummary | undefined;
+  error: unknown;
+  onOpen: () => void;
+}) {
+  const open = data?.items.filter((i) => !i.closedOn).length ?? 0;
+  return (
+    <Card
+      title="Cyber incidents (DFARS 252.204-7012)"
+      actions={
+        <button type="button" className={btnGhostCls} onClick={onOpen}>
+          {data && data.items.length > 0 ? "Incidents" : "Record an incident"}
+        </button>
+      }
+    >
+      <ErrorText error={error} />
+      {!data && !error && <p className="text-sm text-stone-600">Loading…</p>}
+      {data && data.attention.length > 0 && (
+        <ul className="space-y-1 text-sm">
+          {data.attention.map((a) => (
+            <li
+              key={a.incidentId}
+              className={a.overdue ? "font-semibold text-red-800" : "text-amber-900"}
+            >
+              {incidentText(a, data.now)}
+            </li>
+          ))}
+        </ul>
+      )}
+      {data && data.attention.length === 0 && (
+        <p className="text-sm text-stone-600">
+          {data.items.length === 0
+            ? "No incidents recorded. Found one? Record it at once: a covered incident is reported at dibnet.dod.mil within 72 hours of discovery."
+            : `${open} open, none with a report or a higher-tier notice outstanding.`}
+        </p>
       )}
     </Card>
   );
