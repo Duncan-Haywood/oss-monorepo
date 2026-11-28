@@ -38,18 +38,16 @@ import { keyCheckDigit } from "./nfe.mjs";
 import { checkClassTrib } from "./cclasstrib.mjs";
 import { issRateProblem, issBurdenProblem, lcSubitem } from "./iss-rate.mjs";
 import { cityRateProblem } from "./iss-city-rates.mjs";
-import { declaresNamespace, stripXmlNoise } from "./xml-text.mjs";
+import { stripXmlNoise } from "./xml-text.mjs";
 
-export const NFSE_NS = "http://www.sped.fazenda.gov.br/nfse";
+// The namespace and the sniffer live in national-sniff.mjs so report.mjs can call it without loading this module.
+import { NFSE_NS } from "./national-sniff.mjs";
+export { NFSE_NS };
+export { looksLikeNfse } from "./national-sniff.mjs";
 export { PACKAGE };
 
 function finding(rule, message, fix, path) {
   return { rule, message, fix, path };
-}
-
-export function looksLikeNfse(text) {
-  const head = String(text).slice(0, 4096);
-  return /<(?:[A-Za-z0-9_]+:)?(?:DPS|NFSe)[\s>]/.test(head) && declaresNamespace(head, NFSE_NS);
 }
 
 // ---------- schema layer ----------

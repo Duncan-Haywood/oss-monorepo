@@ -31,7 +31,6 @@ import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { checkBrazilId } from "./brazil.mjs";
 import { lookupCredPres, TABLE } from "./ccredpres.mjs";
 import { keyCheckDigit, NFE_NS, UF_CODE } from "./nfe.mjs";
-import { declaresNamespace } from "./xml-text.mjs";
 import { checkCancelAgainst, checkRtcDetEvento, RTC_ELIMINATED, RTC_EVENTS, RTC_NO_SCHEMA, sequence } from "./nfe-rtc-events.mjs";
 
 export const EVENT_TYPE = "211110";
@@ -66,10 +65,8 @@ const raw = (n, name) => kid(n, name)?.text ?? "";
 const TSTRING = /^[!-\u00ff](?:[ -\u00ff]*[!-\u00ff])?$/u;
 const named = (n) => (n?.children || []).filter((c) => c.name);
 
-export function looksLikeNfeEvent(text) {
-  const head = String(text).slice(0, 4096);
-  return /<(?:[A-Za-z0-9_]+:)?(?:envEvento|evento|procEventoNFe)[\s>]/.test(head) && declaresNamespace(head, NFE_NS);
-}
+// The sniffer lives in national-sniff.mjs so report.mjs can call it without loading this module.
+export { looksLikeNfeEvent } from "./national-sniff.mjs";
 
 const OLD = new Set(["gCredPres", "vBC", "gIBS", "gCBS"]);
 function oldLayout(det) {

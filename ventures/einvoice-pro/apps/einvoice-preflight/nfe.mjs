@@ -40,17 +40,14 @@ import { checkBrazilId } from "./brazil.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { checkClassTrib } from "./cclasstrib.mjs";
 import { checkCredPres } from "./ccredpres.mjs";
-import { declaresNamespace } from "./xml-text.mjs";
 
-export const NFE_NS = "http://www.portalfiscal.inf.br/nfe";
+// The namespace and the sniffer live in national-sniff.mjs so report.mjs can call it without loading this module.
+import { NFE_NS } from "./national-sniff.mjs";
+export { NFE_NS };
+export { looksLikeNfe } from "./national-sniff.mjs";
 
 function finding(rule, message, fix, path) {
   return { rule, message, fix, path };
-}
-
-export function looksLikeNfe(text) {
-  const head = String(text).slice(0, 4096);
-  return /<(?:[A-Za-z0-9_]+:)?(?:NFe|nfeProc)[\s>]/.test(head) && declaresNamespace(head, NFE_NS);
 }
 
 // ---------- schema layer ----------
