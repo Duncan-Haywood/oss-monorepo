@@ -1303,7 +1303,10 @@ describe("the Amazon seller taxes page", () => {
   test("quotes no Amazon page and says so, with the IRS threshold sourced", () => {
     const html = htmlOf(page());
     assert.match(AMAZON_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
-    assert.ok(html.includes("https://www.irs.gov/newsroom/form-1099-k-faqs-general-information"));
+    assert.match(
+      html,
+      /href="https:\/\/www\.irs\.gov\/newsroom\/form-1099-k-faqs-general-information"/,
+    );
     assert.ok(html.includes('"@type":"FAQPage"'));
     assert.ok(html.includes("did not load for us"));
     assert.ok(!/sellercentral\.amazon\.com|sell\.amazon\.com/.test(html));
