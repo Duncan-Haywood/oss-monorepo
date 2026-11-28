@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKivJLyg7rP8ytU6B51",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T08:09:33Z",
+  "ended": "2026-11-28T08:22:11Z",
+  "wall_minutes": 13.68,
+  "tokens_in": 13414706,
+  "tokens_out": 59237,
+  "cost_usd": 5.538,
+  "tool_calls": 92,
+  "task": "cmmc document control part 3b: import an existing master document list (.xlsx/CSV)",
+  "projects": [
+    "ventures/cmmc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20049",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "curl to sae.org / standards.iteh.ai and WebFetch to saemobilus.sae.org blocked by the session network policy",
+      "impact": "AS9100 additions (the untouched growth topic) could not be sourced; picked the master list import instead"
+    },
+    {
+      "what": "worker test expected 403 for a non-member; the app answers 404 (does not reveal the org)",
+      "impact": "test fixed"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named AS9100 additions as the untouched topic for bet #4, but the ROADMAP gates it on a source, and every standards host is blocked in cloud sessions; the hint could say that the topic waits on a source"
+    },
+    {
+      "file": "prompt.md",
+      "issue": "step 3's record command is written relative to the repo root; after cd into a venture it fails with a missing-file error (cost one retry)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/cmmc/apps/cmmc/ROADMAP.md",
+      "why": "the master list import item said 'once shops send theirs' (waits on demand); built it ahead of demand because an import of the shop's existing spreadsheet is onboarding (CLAUDE.md lists imports buyers need), every other bet had nothing free, and bet #4 had no live claims",
+      "did": "built the import with header words from common shop practice and said in SOURCES.md, the post and the ROADMAP that they are unchecked against real files",
+      "result": "shipped with tests; real-file check left as the Next item"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-iso-9001-master-document-list-for-small-shops.md"
+  ],
+  "goal": "$10k MRR: onboarding for the Level 2 + Quality plan of bet #4",
+  "notes": "Security queue: 1 alert, claimed by another run. Ideas inbox empty. Routed ventures/1. PayApps (#1) had 0 free items; bet #4 cmmc had 0 live claims. Local checks: cmmc unit 542/542, worker 176/176, tsc clean, biome clean, cmmc-site node --test 91/91. venture-preflight run in background (result in the PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2d6461eb-1d92-5620-ad5a-af520dbf9737",
+    "transcripts": 1,
+    "first": "2026-11-28T08:09:33Z",
+    "last": "2026-11-28T08:23:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 163,
+        "output": 59237,
+        "thinking": 10407,
+        "cache_read": 13200476,
+        "cache_write_5m": 0,
+        "cache_write_1h": 214067,
+        "api_equivalent_usd": 5.538,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 163,
+      "output": 59237,
+      "thinking": 10407,
+      "cache_read": 13200476,
+      "cache_write_5m": 0,
+      "cache_write_1h": 214067,
+      "api_equivalent_usd": 5.538,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 92,
+    "tools": {
+      "Bash": 80,
+      "Write": 7,
+      "ToolSearch": 2,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.68,
+      "active_minutes": 13.68,
+      "model_minutes": 9.91,
+      "tool_minutes": 3.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "parser, worker service, UI, 17 tests and a post for a spreadsheet import, as a mid-level engineer would estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 180.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

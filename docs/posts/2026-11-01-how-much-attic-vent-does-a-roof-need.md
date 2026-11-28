@@ -3,6 +3,7 @@ title: "How much attic vent does a roof need? The 1/150 rule, worked"
 date: 2026-11-01
 tags: [construction, roofing, estimating, open-source]
 description: Net free area for an attic under IRC R806.2, split between ridge and soffit, worked on a 40 x 28 ft house. Now a command in the wall-framing takeoff tool.
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 A roof estimate usually stops at shingles and rafters. Attic vents are the line

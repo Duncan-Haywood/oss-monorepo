@@ -209,6 +209,9 @@ ${reqs
 <p>If your contracts only involve Federal Contract Information, such as purchase orders and delivery schedules, you are
 looking at Level 1: <a href="/cmmc-level-1-requirements">15 requirements</a>, all drawn from this list. See
 <a href="/cmmc-level-1-vs-level-2">CMMC Level 1 vs Level 2</a>.</p>
+<h2>What about Revision 3?</h2>
+<p>CMMC Level 2 is assessed against Revision 2, the list above. For what NIST changed in Revision 3, requirement by
+requirement, see <a href="/nist-800-171-rev-2-vs-rev-3">NIST 800-171 Rev. 2 vs Rev. 3</a>.</p>
 <h2>Common questions</h2>
 ${faq.map((f) => `<details><summary>${f.q}</summary><p>${f.a}</p></details>`).join("\n")}
 <section class="sibling">

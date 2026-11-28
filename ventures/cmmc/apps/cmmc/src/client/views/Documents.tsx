@@ -14,6 +14,7 @@ import { useState } from "react";
 import { api } from "../lib/api";
 import type { Member, OrgInfo } from "../lib/types";
 import { btnCls, btnGhostCls, Card, ErrorText, Field, inputCls } from "../ui";
+import { DocumentImport } from "./DocumentImport";
 
 export interface DocumentItem {
   id: string;
@@ -121,6 +122,8 @@ export function DocumentsView({
   const [editing, setEditing] = useState<DocumentItem | null>(null);
   const [action, setAction] = useState<Action | null>(null);
   const [showObsolete, setShowObsolete] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const canImport = info.role !== "viewer";
   const reset = () => {
     setForm(EMPTY);
     setEditing(null);
@@ -184,14 +187,30 @@ export function DocumentsView({
           </p>
         </Card>
       )}
+      {importing && data && (
+        <DocumentImport
+          orgId={orgId}
+          today={data.today}
+          canAdd={info.plan.quality}
+          onUpgrade={isAdmin ? onUpgrade : undefined}
+          onClose={() => setImporting(false)}
+        />
+      )}
       <Card
         title="Controlled documents (ISO 9001 7.5)"
         actions={
-          data && data.items.length > 0 ? (
-            <a className={btnGhostCls} href={`/api/orgs/${orgId}/documents/export.csv`}>
-              Download master list (CSV)
-            </a>
-          ) : null
+          <div className="flex flex-wrap gap-2">
+            {canImport && !importing && (
+              <button type="button" className={btnGhostCls} onClick={() => setImporting(true)}>
+                Import a master list
+              </button>
+            )}
+            {data && data.items.length > 0 && (
+              <a className={btnGhostCls} href={`/api/orgs/${orgId}/documents/export.csv`}>
+                Download master list (CSV)
+              </a>
+            )}
+          </div>
         }
       >
         <ErrorText error={list.error} />

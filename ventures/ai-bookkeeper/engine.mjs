@@ -341,7 +341,7 @@ export function resolveSplit(t, parts, codes) {
   if (open.length > 1) throw new Error(`Line ${t.id}: only one part of a split can leave its amount to the remainder.`);
   for (const p of parts) {
     if (!codes.has(p.account)) throw new Error(`No account ${p.account} in the chart of accounts.`);
-    if (p.cents !== undefined && p.cents !== null && (!Number.isInteger(p.cents) || p.cents === 0)) throw new Error(`Line ${t.id}: split amounts are whole, non-zero cents.`);
+    if (p.cents !== undefined && p.cents !== null && (!Number.isSafeInteger(p.cents) || p.cents === 0)) throw new Error(`Line ${t.id}: split amounts are whole, non-zero cents.`);
   }
   const given = parts.reduce((a, p) => a + (p.cents ?? 0), 0);
   const out = parts.map((p) => ({ account: p.account, cents: p.cents ?? t.cents - given }));

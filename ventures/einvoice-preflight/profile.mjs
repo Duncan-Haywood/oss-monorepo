@@ -85,6 +85,38 @@ export const XRECHNUNG_RULES = {
   "XR-007": "Invoice type code is not one XRechnung allows (BR-DE-17).",
   "XR-008": "Specification identifier is not an XRechnung one (BR-DE-21).",
   "XR-009": "Seller has no VAT identifier or tax number (BR-DE-16).",
+  "XR-012": "Buyer reference is a Leitweg-ID written in a non-standard form (warning).",
+};
+
+/** A buyer reference that is a valid Leitweg-ID once a label is dropped or its separators
+ *  are made hyphens, or a run of digits whose MOD 97-10 check passes (a Leitweg-ID with
+ *  its hyphens dropped, or a number that happens to pass: 1 in 97). Neither the EN 16931
+ *  nor the KoSIT XRechnung rules look at the id's form (leitweg-id-bench.mjs), so this is
+ *  the only check that sees it; a warning, since a free-text reference is allowed. */
+export function leitwegFormIssue(value) {
+  const unlabelled = value.replace(/^leitweg[\s-]*(?:id|nr\.?|nummer)?\s*[:.#]?\s*/i, "");
+  const hyphenated = unlabelled.replace(/[\s._/]+/g, "-");
+  if (hyphenated !== value && looksLikeLeitwegId(hyphenated)) {
+    if (!leitwegCheckDigitsValid(hyphenated)) return "XR-002";
+    return unlabelled !== value ? "label" : "separators";
+  }
+  if (/^\d{5,46}$/.test(value) && leitwegCheckDigitsValid(value)) return "no-hyphens";
+  return "";
+}
+
+const LEITWEG_FORM = {
+  label: [
+    "Buyer reference holds a Leitweg-ID with a label in front of it; the field should hold the id alone.",
+    "Remove the words before the id (such as \"Leitweg-ID:\") so BT-10 is exactly the id the public body gave you.",
+  ],
+  separators: [
+    "Buyer reference is a Leitweg-ID with spaces, dots or slashes where the hyphens belong.",
+    "Write the id with hyphens between its parts, exactly as the public body gave it to you.",
+  ],
+  "no-hyphens": [
+    "Buyer reference is a run of digits that passes the Leitweg-ID check digits: possibly a Leitweg-ID with its hyphens left out.",
+    "If it is a Leitweg-ID, copy it again with its hyphens; if it is your customer's own reference, ignore this note.",
+  ],
 };
 
 export function inspectXrechnungProfile(invoice) {
@@ -108,6 +140,18 @@ export function inspectXrechnungProfile(invoice) {
       "Copy the Leitweg-ID again from the buyer's request; a single mistyped character fails the check digits.",
       "/buyer_reference",
     ));
+  } else if (!looksLikeLeitwegId(buyerRef)) {
+    const issue = leitwegFormIssue(buyerRef);
+    if (issue === "XR-002") {
+      findings.push(finding(
+        "XR-002",
+        "Buyer reference holds what looks like a Leitweg-ID, but its two check digits do not match.",
+        "Copy the Leitweg-ID again from the buyer's request, with hyphens and nothing in front of it.",
+        "/buyer_reference",
+      ));
+    } else if (issue) {
+      findings.push({ ...finding("XR-012", ...LEITWEG_FORM[issue], "/buyer_reference"), severity: "warning" });
+    }
   }
 
   const payment = isObject(invoice.payment) ? invoice.payment : null;
@@ -399,11 +443,14 @@ export function inspectFrenchProfile(invoice) {
         "/notes",
       ));
     }
-    if (!/livraisons? de biens|prestations? de services?|op[eé]ration mixte|\bgoods\b|\bservices\b|\bmixed\b/i.test(text)) {
+    // The billing mode (BT-23, BR-FR-08) states the category by its letter: B goods, S services,
+    // M both. An invoice that carries one says it in a structured field, so no note is needed.
+    const billingMode = /^[BSM][1-9]$/.test(str(invoice.profile_id).trim());
+    if (!billingMode && !/livraisons? de biens|prestations? de services?|op[eé]ration mixte|\bgoods\b|\bservices\b|\bmixed\b/i.test(text)) {
       findings.push(finding(
         "FR-008",
         "No category of operation (goods, services or mixed) is stated in the notes.",
-        "Add a note such as: Catégorie d'opération : prestation de services (or livraison de biens, or opération mixte). The reform lists it among the invoice data; confirm with your platform whether it wants it as a structured field.",
+        "Set the billing mode (BT-23: B1 goods, S1 services, M1 both, on an ordinary invoice), whose letter states the category, or add a note such as: Catégorie d'opération : prestation de services. The reform lists it among the invoice data.",
         "/notes",
       ));
     }

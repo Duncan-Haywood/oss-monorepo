@@ -457,3 +457,24 @@ test("the billing secrets stay out of the public site: the edge Worker does not 
   }
   assert.equal(fs.existsSync(new URL("./wrangler.toml", import.meta.url)), false, "only the example template lives here");
 });
+
+test("red-team 2026-11-28 (server.mjs): every h1 character is compared, the transaction id is Paddle's shape, both secrets are needed", async () => {
+  const raw = JSON.stringify({ event_type: "transaction.completed", data: { id: "txn_x" } });
+  const good = sign(raw);
+  const [ts, h1] = [good.split(";")[0], good.split("h1=")[1]];
+  // A signature wrong only in its first (or last) character is still a forgery.
+  for (const forged of [(h1[0] === "0" ? "1" : "0") + h1.slice(1), h1.slice(0, -1) + (h1.at(-1) === "0" ? "1" : "0")]) {
+    assert.deepEqual(await verifyPaddleSignature(`${ts};h1=${forged}`, raw, SECRET, NOW), { ok: false, reason: "signature mismatch" });
+  }
+  // A string id that is not txn_<lowercase alnum> never becomes the key's transaction.
+  for (const bad of ["", "txn_", "txn_UPPERCASE00000", "evil", "txn_01abc'; DROP TABLE"]) {
+    assert.equal(licenceForTransaction(oneOffTx(newClaim(), { id: bad }), CAT, NOW).skip, "no transaction id", JSON.stringify(bad));
+  }
+  // Half-configured is unconfigured: 503, nothing signed, nothing stored.
+  const store = memStore();
+  const body = JSON.stringify({ event_type: "transaction.completed", data: oneOffTx(newClaim()) });
+  for (const env of [{ PADDLE_WEBHOOK_SECRET: SECRET }, { LICENCE_SIGNING_KEY: PRIV }]) {
+    assert.equal((await handleBilling(hook(body), env, { store, catalogue: CAT, nowSec: NOW })).status, 503, Object.keys(env)[0]);
+  }
+  assert.equal(store.claims.size + store.subs.size, 0);
+});

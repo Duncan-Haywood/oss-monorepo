@@ -55,7 +55,9 @@ export function parsePlacement(json: string | null | undefined): ProcoreSsovPlac
       position: p.position,
       description: typeof p.description === "string" ? p.description : "",
       amountCents:
-        typeof p.amountCents === "number" && Number.isInteger(p.amountCents) ? p.amountCents : null,
+        typeof p.amountCents === "number" && Number.isSafeInteger(p.amountCents)
+          ? p.amountCents
+          : null,
     });
   }
   const placed: Record<string, string> = {};
