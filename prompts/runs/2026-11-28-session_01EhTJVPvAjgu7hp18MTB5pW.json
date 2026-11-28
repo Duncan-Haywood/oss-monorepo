@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVPvAjgu7hp18MTB5pW",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T03:56:09Z",
+  "ended": "2026-11-28T04:04:56Z",
+  "wall_minutes": 9.01,
+  "tokens_in": 7082854,
+  "tokens_out": 33380,
+  "cost_usd": 3.1076,
+  "tool_calls": 70,
+  "task": "Real app screenshots on Seller Books' marketing site (bet #5)",
+  "projects": [
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19984",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-28-jobshop-dark-mode.md",
+      "issue": "Item 2 (how-it-works AI copy) was already stale: PR #19897's rule reader is described on the page, so polish_next's next items were all product work or minor crops."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "The newest note's open items were product work (CAD gap), already done (AI copy) or small crops on a site with seven polish passes in two days; Seller Books' site had none and no product picture.",
+      "did": "Measured the CMMC and Seller Books home pages (built straight from their builders) and gave Seller Books the Job Shop stills treatment.",
+      "result": "5 asserted stills on the home page, phone-aware, with a site test."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No docs/posts post: a screenshot band is not worth a reader's time on its own; the report carries the before/after.",
+      "did": "docs/reports note only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-28-seller-books-shots.md"
+  ],
+  "goal": null,
+  "notes": "Verification: seller-books-site node --test 102 pass (99+3); platform/pages/seller-books-site.test.mjs 5 pass; pnpm stills passes (all figure assertions); tsc --noEmit (app) and biome check on changed files pass; catalogue copy in Chromium at 390/1280 light/dark: scrollWidth 390/1280, 0 errors, 0 failed requests; phone fetches 2 stills (76 KB), desktop 4. Found: '1 orders' plural bug in the app P&L warning; stock lot table scrolls sideways on phones.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "be49f51b-e4d5-53ec-8191-f38c2ad9de8e",
+    "transcripts": 1,
+    "first": "2026-11-28T03:56:09Z",
+    "last": "2026-11-28T04:05:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 124,
+        "output": 33380,
+        "thinking": 4763,
+        "cache_read": 6951585,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131145,
+        "api_equivalent_usd": 3.1076,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 124,
+      "output": 33380,
+      "thinking": 4763,
+      "cache_read": 6951585,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131145,
+      "api_equivalent_usd": 3.1076,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 54,
+      "Read": 12,
+      "Write": 1,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.01,
+      "active_minutes": 9.0,
+      "model_minutes": 6.01,
+      "tool_minutes": 2.99,
+      "waiting_on_human_minutes": 0.01,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "stills script, site band with picture sources, test, report: about a day's half for a front-end dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 160.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
