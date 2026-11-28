@@ -227,8 +227,17 @@ describe("createTokenManager", () => {
 
 describe("createTokenManager boundaries (red-team 2026-11-28)", () => {
   it("a missing connection is a 401 IntuitOAuthError, so the app shows the reconnect flow", async () => {
-    const tm = createTokenManager({ config: cfg, store: memoryStore(null), realmId: "9130", fetch: scriptedFetch([]).fetch, now: () => NOW });
-    await assert.rejects(tm.getAccessToken(), (e: unknown) => e instanceof IntuitOAuthError && e.status === 401);
+    const tm = createTokenManager({
+      config: cfg,
+      store: memoryStore(null),
+      realmId: "9130",
+      fetch: scriptedFetch([]).fetch,
+      now: () => NOW,
+    });
+    await assert.rejects(
+      tm.getAccessToken(),
+      (e: unknown) => e instanceof IntuitOAuthError && e.status === 401,
+    );
   });
 
   it("refreshes when the token expires exactly at the skew edge, not one millisecond later", async () => {
