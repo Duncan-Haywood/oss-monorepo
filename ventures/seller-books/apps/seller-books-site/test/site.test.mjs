@@ -65,13 +65,17 @@ import {
   WHATNOT_1099K_URL,
   WHATNOT_CHECKED_ON,
   WHATNOT_EXAMPLE,
+  WHATNOT_FEE,
+  WHATNOT_FEE_CHECK,
   WHATNOT_FEE_TAX_URL,
+  WHATNOT_FEES_URL,
   WHATNOT_GIVEAWAY_QUOTE,
   WHATNOT_GIVEAWAY_URL,
   WHATNOT_PAYPAL_QUOTE,
   WHATNOT_SALES_TAX_QUOTE,
   WHATNOT_SALES_TAX_URL,
   whatnotLines,
+  whatnotPublishedFeesCents,
 } from "../src/pages.mjs";
 
 let out;
@@ -1173,6 +1177,49 @@ describe("the Whatnot taxes page", () => {
       WHATNOT_GIVEAWAY_URL,
     ])
       assert.match(u, /^https:\/\/help\.whatnot\.com\/hc\/en-us\/articles\/\d+-/);
+  });
+
+  test("the two sales' fees match Whatnot's published US rates and the fixture's fee columns", () => {
+    const [head, ...lines] = appFile("test/fixtures/whatnot-orders-report.csv").trim().split("\n");
+    const cols = head.split(",");
+    const at = (row, name) => row.split(",")[cols.indexOf(name)];
+    const money = (v) => Math.round(Number(v || "0") * 100);
+    assert.deepEqual(WHATNOT_FEE, {
+      commissionRate: 0.08,
+      processingRate: 0.029,
+      processingFixedCents: 30,
+    });
+    for (const r of WHATNOT_FEE_CHECK) {
+      const row = lines.find((l) => at(l, "Listing Title").startsWith(r.title));
+      assert.ok(row, r.title);
+      assert.equal(r.priceCents, money(at(row, "Post Coupon Price")), r.title);
+      assert.equal(r.buyerPaidCents, money(at(row, "Buyer Paid")), r.title);
+      assert.equal(r.commissionCents, money(at(row, "Commission Fee")), r.title);
+      assert.equal(r.processingCents, money(at(row, "Payment Processing Fee")), r.title);
+      assert.deepEqual(
+        whatnotPublishedFeesCents(r),
+        [r.commissionCents, r.processingCents],
+        r.title,
+      );
+      const ex = WHATNOT_EXAMPLE.find((e) => e.title.startsWith(r.title));
+      const feeTax =
+        money(at(row, "Tax on Commission")) + money(at(row, "Tax on Payment Processing Fee"));
+      assert.equal(ex.feesCents, r.commissionCents + r.processingCents + feeTax, r.title);
+    }
+    const html = htmlOf(page());
+    assert.ok(html.includes(`href="${WHATNOT_FEES_URL}"`));
+    assert.match(
+      WHATNOT_FEES_URL,
+      /^https:\/\/help\.whatnot\.com\/hc\/en-us\/articles\/4847069165965-/,
+    );
+    for (const x of [
+      "$2.00 commission on $25.00",
+      "$1.23 processing on the buyer's $32.05",
+      "$6.00 commission on $75.00",
+      "$2.94 processing on the buyer's $91.18",
+      "21 September 2026",
+    ])
+      assert.ok(html.includes(x), x);
   });
 
   test("linked from the Whatnot platform page, every footer, llms.txt and the sitemap", () => {
