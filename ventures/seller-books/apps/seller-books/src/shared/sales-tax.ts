@@ -3,7 +3,7 @@
 // The marketplaces this app imports (eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Amazon, TikTok Shop)
 // collect and send the sales tax on the sales made through them, so their tax is never the seller's to
 // file (the platform pages in seller-books-site say so for each one). The tax on a sale the seller rang
-// up themselves is different: Square at a booth, a PayPal or Venmo payment, a sale typed in as a direct sale, and
+// up themselves is different: Square at a booth, a PayPal, Venmo or Cash App payment, a sale typed in as a direct sale, and
 // an order on the seller's own Shopify store. That money was collected by the seller for the state; it is
 // not income, and it is what goes on the seller's own sales tax return.
 //
@@ -24,6 +24,7 @@ const SELLER_COLLECTED: ReadonlySet<string> = new Set<SaleChannel>([
   "square",
   "paypal",
   "venmo",
+  "cashapp",
   "shopify",
   "other",
   "direct",
@@ -39,6 +40,7 @@ export const SELLER_TAX_CHANNELS = [
   "square",
   "paypal",
   "venmo",
+  "cashapp",
   "shopify",
   "other",
   "direct",

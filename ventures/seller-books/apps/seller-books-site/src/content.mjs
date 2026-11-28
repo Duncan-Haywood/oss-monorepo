@@ -34,7 +34,7 @@ import { launch } from "./launch.mjs";
 export const TAGLINE = "True profit and Schedule C books for resellers";
 
 const SUMMARY_BASE =
-  "Seller Books is bookkeeping for people who resell on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal and Venmo, and Grailed, StockX, Vinted or any other marketplace whose sales file you can download as CSV. It brings your sales from every platform into one ledger, takes out the fees each platform actually charged, matches what you paid for each item, logs your sourcing miles, and builds a Schedule C worksheet you or your tax preparer can work from.";
+  "Seller Books is bookkeeping for people who resell on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo and Cash App, and Grailed, StockX, Vinted or any other marketplace whose sales file you can download as CSV. It brings your sales from every platform into one ledger, takes out the fees each platform actually charged, matches what you paid for each item, logs your sourcing miles, and builds a Schedule C worksheet you or your tax preparer can work from.";
 
 /**
  * The Free plan, as apps/seller-books/src/shared/plans.ts sets it (test/site.test.mjs reads that file
@@ -265,6 +265,25 @@ export const PLATFORMS = [
     ],
     report: "the monthly statement CSV, from Statements > Download CSV",
   },
+  {
+    slug: "cash-app",
+    name: "Cash App",
+    what: "sales paid by Cash App with no marketplace payout behind them: a local pickup, a flea market or a Facebook Marketplace sale, on a personal or a business account",
+    // Cash App is a payment app, not a marketplace: the page's opening sentence says so.
+    intro:
+      "Cash App is how a lot of local sales get paid: a sneaker pickup, a garage-sale bundle, a Facebook Marketplace meetup. Its activity export lists every payment, and Seller Books sorts the sales from the rest.",
+    fees: [
+      "Cash App's fee on a payment, from the export's Fee column (a business account pays one on payments received; a personal account usually does not)",
+      "On a refund, any part of the fee Cash App gives back, read from the same column",
+    ],
+    quirks: [
+      "Cash App's export cannot tell a sale from a friend paying you back. Seller Books counts each payment received as a sale and says so, so you delete the ones that are not business income.",
+      "Cash Card purchases, bank deposits and cash-outs, Bitcoin and stock trades, Boosts and failed payments are left out with a reason, and so are payments you sent: a purchase of stock goes in Inventory and supplies in Expenses.",
+      "Older exports say Received P2P and Sent P2P, newer ones say P2P with a plus or minus: both are read. The buyer's name in the file is never stored; the sale is titled from your note.",
+    ],
+    report:
+      "the activity CSV (cash_app_report), from cash.app on the web, Statements, then the Transactions CSV",
+  },
   // Grailed, StockX and Vinted import through the column-mapped CSV (apps/seller-books/docs/IMPORTERS.md,
   // "Column-mapped CSV"): none documents its export's columns, so the seller matches them once.
   {
@@ -318,7 +337,7 @@ export const FEATURES = [
   {
     key: "profit",
     title: "True profit per sale, across every platform",
-    body: "One ledger for eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal and Venmo. Grailed, StockX, Vinted and any other marketplace come in from their own CSV: you say once which column is which, and Seller Books keeps the choice. Each sale shows what the buyer paid, every fee the platform took, shipping you paid, and what the item cost you, so the number at the bottom is profit, not payout. Sales with no marketplace report (cash at a market, a local pickup paid by Cash App or Zelle) are typed in and counted the same way.",
+    body: "One ledger for eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo and Cash App. Grailed, StockX, Vinted and any other marketplace come in from their own CSV: you say once which column is which, and Seller Books keeps the choice. Each sale shows what the buyer paid, every fee the platform took, shipping you paid, and what the item cost you, so the number at the bottom is profit, not payout. Sales with no marketplace report (cash at a market, a local pickup paid by Zelle) are typed in and counted the same way.",
   },
   {
     key: "fees",
@@ -440,7 +459,7 @@ export const TIERS = [
     platforms: "Every platform",
     for: "Reselling is your main work and you crosslist",
     includes: [
-      "Every platform: eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo, and Grailed, StockX, Vinted or any other marketplace by matching its columns",
+      "Every platform: eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo, Cash App, and Grailed, StockX, Vinted or any other marketplace by matching its columns",
       "About 600 orders a month (going over never locks anything)",
       "Monthly profit by platform",
       "Year-end inventory at cost",

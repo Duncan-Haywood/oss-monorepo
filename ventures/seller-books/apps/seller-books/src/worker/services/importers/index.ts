@@ -1,6 +1,7 @@
 // Importer registry: one entry per supported report. `detect` lets the upload form auto-pick a report.
 import type { Platform } from "@shared/enums";
 import { parseAmazonDateRangeReport } from "./amazon";
+import { parseCashAppReport } from "./cashapp";
 import { parseDepopSales } from "./depop";
 import { parseEbayTransactionReport } from "./ebay";
 import { parseEtsySoldOrders, parseEtsyStatement } from "./etsy";
@@ -90,6 +91,12 @@ export const REPORTS = {
     label:
       "Venmo: statement, CSV (Statements > Download CSV), sales paid by Venmo off the marketplaces",
     parse: parseVenmoStatement,
+  },
+  cashapp_activity: {
+    platform: "cashapp",
+    label:
+      "Cash App: activity, CSV (cash.app > Statements > Transactions CSV), sales paid by Cash App off the marketplaces",
+    parse: parseCashAppReport,
   },
 } as const satisfies Record<
   string,

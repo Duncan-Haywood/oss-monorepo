@@ -5,6 +5,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { ApiError, api } from "../lib/api";
 import { appPath, safeNextPath } from "../lib/base-path";
+import { usePostSignupSource } from "../lib/use-signup-source";
 import { ResendVerification, rememberNext } from "./account";
 import { LegalFooter, LegalGate, LegalLinks } from "./legal";
 
@@ -233,6 +234,7 @@ export function SignupPage() {
 
 export function OrgsPage() {
   const me = useMe();
+  usePostSignupSource(me.data?.user.id);
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [name, setName] = useState("");

@@ -16,6 +16,7 @@ import { GettingStartedCard } from "../components/getting-started";
 import { QuickBooksExport } from "../components/quickbooks-export";
 import { api, orgPath, usd } from "../lib/api";
 import { apiUrl, appPath } from "../lib/base-path";
+import { usePostSignupSource } from "../lib/use-signup-source";
 import { LegalFooter, LegalGate } from "./legal";
 import { ErrorText, useMe } from "./public";
 
@@ -40,6 +41,7 @@ const NAV = [
 export function OrgLayout() {
   const orgId = useOrgId();
   const me = useMe();
+  usePostSignupSource(me.data?.user.id);
   const navigate = useNavigate();
   if (me.isLoading) return null;
   if (!me.data) {

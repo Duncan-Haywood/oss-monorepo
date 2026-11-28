@@ -18,6 +18,7 @@ import { catalog } from "@shared/plans";
 import { and, count, desc, eq, gte, inArray, isNotNull, like, or, sql } from "drizzle-orm";
 import type { AppContext } from "../../context";
 import { billingEvents, member, organization, session, subscriptions, user } from "../../db/schema";
+import { signupSourceCounts } from "./sources";
 
 export const PRODUCT = { key: "seller-books", name: "Seller Books" } as const;
 
@@ -48,6 +49,7 @@ export async function productMetrics(
     canceledInWindow,
     failed,
     anyTransactionEvent,
+    sources,
   ] = await Promise.all([
     db.select({ n: count() }).from(user).get(),
     db.select({ n: count() }).from(user).where(eq(user.emailVerified, true)).get(),
@@ -116,6 +118,8 @@ export async function productMetrics(
       .where(like(billingEvents.type, "transaction.%"))
       .limit(1)
       .get(),
+    // Sign-ups by the page that sent them (services/admin/sources.ts).
+    signupSourceCounts(ctx, since),
   ]);
 
   const byPlan = new Map<string, { planKey: string; status: string; count: number }>();
@@ -176,6 +180,7 @@ export async function productMetrics(
     },
     // Seller Books makes no LLM calls.
     llmSpend: null,
+    sources,
   };
 }
 

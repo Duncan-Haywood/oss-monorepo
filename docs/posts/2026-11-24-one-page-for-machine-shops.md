@@ -1026,3 +1026,28 @@ filled-in example quotes the bracket from the machining guide at its prices,
 which a test checks against the app's costing engine. The CSV download holds
 plain values and no formulas, and a test fails if any cell would start like
 one.
+
+## Update, 28 November 2026: how to quote a welded fabrication
+
+Fabrication shops quote weldments, not only machined or laser-cut parts, so
+the Job Shop Quote site now has a third pricing guide: [how to quote welding
+and fabrication jobs](https://marisstella.app/jobshop/how-to-quote-welding).
+It works from the drawing's cut list and weld symbols: arc minutes from the
+weld length and travel speed, welder minutes from the operator factor (the
+share of the welder's time with the arc lit), fit-up and the fixture, and the
+filler wire from the fillet's cross-section. The worked example is a made-up
+square-tube cart frame at 1, 10 and 50 pieces. Two things it shows:
+
+- **The operator factor matters more than anything else on the sheet.** The
+  frame's 64 in of fillet is 6.4 arc minutes. At the example's 35% factor the
+  welder spends 18.29 minutes, so the weld costs $28.96 a frame at the
+  example's rate instead of the $10.13 the arc time alone suggests.
+- **Wire and gas are small.** They come to $1.69 a frame. A price built from
+  pounds of wire misses most of the cost.
+
+Job Shop Quote does not read weld symbols; the estimator types the times in,
+and the app prices the tube by the foot, each station at its own rate, the
+consumables as an extra and the powder coat with its lot minimum. A test in
+the app prices the same frame with its costing engine and fails if any
+quantity break differs by a cent. All the figures are made up, and the guide
+says so.

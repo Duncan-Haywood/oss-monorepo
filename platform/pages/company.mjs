@@ -46,7 +46,7 @@ export const OPEN_FREE = Object.freeze([
   }),
   Object.freeze({
     name: 'Seller Books',
-    url: 'https://seller-books.marisstella.app/signup',
+    url: 'https://seller-books.marisstella.app/signup?from=about',
     audience: 'resellers selling on several marketplaces',
     // ventures/seller-books/apps/seller-books/src/shared/plans.ts: Free is one platform, 25 orders a month.
     summary:

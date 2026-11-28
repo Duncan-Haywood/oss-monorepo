@@ -54,7 +54,7 @@ export const ONLINE_SELLERS_SOURCES = Object.freeze({
 export const ONLINE_SELLERS_PRODUCT = Object.freeze({
   name: 'Seller Books',
   status: 'Open · free plan',
-  appUrl: 'https://seller-books.marisstella.app/signup',
+  appUrl: 'https://seller-books.marisstella.app/signup?from=industries/online-sellers',
   freePlan: 'one platform and up to 25 orders a month, one user, no card',
   pitch: 'One set of books for everywhere you sell. Bring in the sales and payout reports from each marketplace; get fees split out, cost of goods and mileage tracked, and a profit and loss grouped the way Schedule C asks for it. Your books are saved in your account, so next month starts where this one ended.',
   does: [

@@ -2082,6 +2082,11 @@ export const SELLER_COLLECTED_SALES = [
   },
   { channel: "venmo", name: "Venmo", what: "a local or Facebook Marketplace sale paid by Venmo" },
   {
+    channel: "cashapp",
+    name: "Cash App",
+    what: "a local or Facebook Marketplace sale paid by Cash App",
+  },
+  {
     channel: "shopify",
     name: "Your own Shopify store",
     what: "orders on your own store (Shop channel orders aside, which Shopify collects on as a marketplace)",

@@ -159,10 +159,18 @@ export async function importInventorySheet(
       .returning({ id: sale.id });
     if (done.length === 0) continue;
     linked++;
-    await db
-      .update(inventoryItem)
-      .set({ status: "sold", disposedDate: l.date, soldBySaleId: l.saleId })
-      .where(and(eq(inventoryItem.orgId, orgId), inArray(inventoryItem.id, l.itemIds)));
+    // In slices: an order for more units than D1's 100 bound parameters (one row of 120 pins) failed
+    // here with the sale already linked (test/worker/d1-bind-limit.test.ts).
+    for (let i = 0; i < l.itemIds.length; i += CHUNK)
+      await db
+        .update(inventoryItem)
+        .set({ status: "sold", disposedDate: l.date, soldBySaleId: l.saleId })
+        .where(
+          and(
+            eq(inventoryItem.orgId, orgId),
+            inArray(inventoryItem.id, l.itemIds.slice(i, i + CHUNK)),
+          ),
+        );
   }
   summary.salesLinked = linked;
   ctx.logger.info("inventory_import.done", {

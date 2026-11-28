@@ -38,10 +38,8 @@ function finding(rule, message, fix, path) {
   return { rule, message, fix, path };
 }
 
-export function looksLikeCfdi(text) {
-  const head = String(text).slice(0, 4096);
-  return /<(?:[A-Za-z0-9_]+:)?Comprobante[\s>]/.test(head) && /http:\/\/www\.sat\.gob\.mx\/cfd\/[34]/.test(head);
-}
+// The sniffer lives in national-sniff.mjs so report.mjs can call it without loading this module.
+export { looksLikeCfdi } from "./national-sniff.mjs";
 
 // ---------- schema layer ----------
 

@@ -245,6 +245,11 @@ Public / account
 - `ALL /api/auth/*`: Better Auth (`/sign-up/email`, `/sign-in/email`, `/sign-out`, `/get-session`,
   `/verify-email`, `/send-verification-email`, `/request-password-reset`, `/reset-password`)
 - `GET /api/me` → `{ user, memberships: [{ orgId, orgName, role }] }`
+- `POST /api/me/signup-source` `{ source }` → `{ recorded, source? | reason? }`: the page a new account came
+  from (the free tools' and marketing site's `?from=`), kept in local storage until sign-in, posted once by the shop
+  picker or shop layout, stored once within 14 days of sign-up (`signup_source`, migration 0017); 400 when it is
+  not one of our page names in shape; nothing is kept under Do Not Track or GPC. Counted by source in
+  `GET /api/admin/metrics` → `sources` (outcome: the shop imported a report). Same code as PayApps.
 - `POST /api/orgs` `{ name }` → 201 `{ orgId }`; `GET /api/orgs` → `{ items: [{ id, name, role }] }`
 - `POST /api/invitations/accept` `{ token }` → `{ orgId }`
 - `GET /api/reference/reports` → `{ items: [{ key, platform, platformLabel, label }] }`
@@ -417,6 +422,10 @@ apps/jobshop-quote, apps/payapps and apps/cmmc):
   it ticks itself for every member and device and nothing about it is stored; editors and above see it,
   it goes once all four are done, and "Hide" is a per-browser convenience. Next, once real shops are
   counted: which step most of them stall on (an admin-metrics count per step) and change that step.
+- Sign-ups by source (2026-11-28, `signup-source`): the 15 free marketplace tools, the marketing site and the
+  online sellers, products and about pages send `from=`; the owner metrics' `sources` rows say which page brought
+  accounts, how many have a shop, imported a report and pay. Next, once rows exist: put effort behind the pages
+  that bring shops that import, not the ones that bring sign-ups only.
 - Year-end records (2026-11-26, `services/books/year-end.ts`): `GET /reports/closing-inventory.csv?year=`,
   `/reports/mileage-log.csv?year=&mileageRate=` and `/reports/expenses.csv?year=`, linked from the Schedule C
   page. The inventory list and line 41 share one rule (`onHandAt` in `schedule-c.ts`), so its total is line
@@ -449,7 +458,7 @@ apps/jobshop-quote, apps/payapps and apps/cmmc):
   asks for the price before tax. Expenses can be tagged "Direct sales" (booth fees, market rent) so they sit in
   that P&L row. Tests: `test/worker/direct-sales.test.ts`. Square's card reader sales import
   since 2026-11-26 (platform `square`, `services/importers/square.ts`, IMPORTERS.md "Square"), and PayPal's Activity download since 2026-11-27 (platform `paypal`,
-  `services/importers/paypal.ts`, IMPORTERS.md "PayPal"); and Venmo's monthly statement since 2026-11-27 (platform `venmo`, `services/importers/venmo.ts`, IMPORTERS.md "Venmo"; whether `Amount (total)` is before Venmo's fee is unconfirmed until a real business-profile statement is seen); next, if sellers ask: PayPal Zettle's, Cash App's.
+  `services/importers/paypal.ts`, IMPORTERS.md "PayPal"); and Venmo's monthly statement since 2026-11-27 (platform `venmo`, `services/importers/venmo.ts`, IMPORTERS.md "Venmo"; whether `Amount (total)` is before Venmo's fee is unconfirmed until a real business-profile statement is seen); and Cash App's activity CSV since 2026-11-28 (platform `cashapp`, `services/importers/cashapp.ts`, IMPORTERS.md "Cash App"; the fee on a business account's payment is unconfirmed until a real business export is seen); next, if sellers ask: PayPal Zettle's.
 - Still open from the 2026-11-26 quality audit (`oss-monorepo` `portfolio/quality/audits/2026-11-26-seller-books.json`):
   nothing. Fixed since 2026-11-26 (mileage-rate-by-trip-date): line 9 prices each trip at the IRS rate on its date
   (above, "Line 9"), and the mileage log's rows carry that rate and amount, totalling to line 9 to the cent

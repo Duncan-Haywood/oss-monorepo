@@ -21,10 +21,14 @@ export const PAYAPPS_EXPORT = path.join(ROOT, 'ventures', 'payapps', 'apps', 'pa
 const PRODUCTION = 'https://marisstella.app/';
 const TEXT = new Set(['.html', '.xml', '.txt', '.css', '.svg']);
 
-/** Rewrites `https://marisstella.app/payapps...` to `<baseUrl>payapps...`; other hosts untouched. */
+/**
+ * Rewrites every `https://marisstella.app/...` link to `<baseUrl>...`: the site's own pages and the
+ * catalogue pages it links (the module pages link the free pay-app guides, 2026-11-28), since both
+ * are served by this build. Other hosts (the app's own origin) are untouched.
+ */
 export function rebase(text, baseUrl) {
   if (!baseUrl || baseUrl === PRODUCTION) return text;
-  return text.split(`${PRODUCTION}${PAYAPPS_SITE_DIR}`).join(`${baseUrl}${PAYAPPS_SITE_DIR}`);
+  return text.split(PRODUCTION).join(baseUrl);
 }
 
 /**

@@ -28,6 +28,7 @@ describe("fee sources", () => {
       square: /^https:\/\/squareup\.com\/help\//,
       paypal: /^https:\/\/www\.paypal\.com\//,
       venmo: /^https:\/\/help\.venmo\.com\//,
+      cashapp: /^https:\/\/cash\.app\/help\//,
     };
     for (const f of FEE_SOURCES) {
       expect(f.officialPages.length).toBeGreaterThan(0);
