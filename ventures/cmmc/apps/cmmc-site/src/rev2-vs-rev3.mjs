@@ -91,8 +91,10 @@ export function rev3Counts() {
   };
 }
 
+/** One CSV cell: quoted when needed, and a leading =, +, -, @, tab or CR defused (formula injection). */
 const csvCell = (v) => {
-  const s = String(v ?? "");
+  let s = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
   return /[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s;
 };
 
