@@ -12,6 +12,17 @@ from unittest import mock
 
 import run_venture_tests as rvt
 
+# A named local run starts the real unwired tree checks, which scan the real
+# tree (about 40 s). Every test runs without them; TreeChecks and the one
+# Selection test that drives them use REAL_START with a fake run_everything.
+REAL_START = rvt.start_tree_checks
+
+
+def setUpModule():
+    patcher = mock.patch.object(rvt, "start_tree_checks", lambda: None)
+    patcher.start()
+    unittest.addModuleCleanup(patcher.stop)
+
 
 class FakeVentures(unittest.TestCase):
     def setUp(self):
@@ -312,6 +323,45 @@ class FakeVentures(unittest.TestCase):
             self.assertTrue((rvt.ROOT / "platform" / "pages" / name).is_file(), name)
 
 
+class TreeChecks(unittest.TestCase):
+    """A named local run runs the unwired check_*.py scripts CI runs
+    (2026-11-28: check_cli_entry.py and check_smooth_scroll.py failed only in CI)."""
+
+    def _run(self, results=None, error=None):
+        import unwired_checks
+        seen = {}
+
+        def fake(**kw):
+            seen.update(kw)
+            if error:
+                raise error
+            kw["not_run"].append("check_x.py")
+            return results
+
+        with mock.patch.object(unwired_checks, "run_everything", fake), \
+                mock.patch("sys.stdout") as out:
+            red = rvt.finish_tree_checks(REAL_START())
+        return red, "".join(c.args[0] for c in out.write.call_args_list if c.args), seen
+
+    def test_checks_only_cut_to_changed_paths(self):
+        red, printed, seen = self._run([("check_a.py", 0, "")])
+        self.assertFalse(red)
+        self.assertTrue(seen["checks_only"])
+        self.assertIn("ok   unwired tree checks: 1/1 pass, 1 read no changed path", printed)
+
+    def test_a_red_check_fails_and_names_how_to_reproduce(self):
+        red, printed, _ = self._run([("check_a.py", 0, ""), ("check_b.py", 1, "bad line")])
+        self.assertTrue(red)
+        self.assertIn("FAIL unwired tree checks: 1/2 pass", printed)
+        self.assertIn("check_b.py", printed)
+        self.assertIn("bad line", printed)
+
+    def test_a_crash_fails_rather_than_reading_as_a_pass(self):
+        red, printed, _ = self._run(error=RuntimeError("boom"))
+        self.assertTrue(red)
+        self.assertIn("did not run (RuntimeError: boom)", printed)
+
+
 class Report(unittest.TestCase):
     UNITTEST_RED = ("F\n" + "=" * 70 + "\nFAIL: test_host (tests.test_host.T.test_host)\n" + "-" * 70
                     + "\nTraceback (most recent call last):\nAssertionError: 3 != 4\n\n" + "-" * 70
@@ -472,9 +522,17 @@ class Selection(unittest.TestCase):
                 mock.patch.object(unwired_checks, "run_everything") as ran, \
                 mock.patch("sys.stdout"):
             self.assertEqual(rvt.main(["--since", "abc123", "--no-unwired"]), 0)
-            # Unknown named slug: exit 1 (a typo must not read as a pass), and
-            # without --since the unwired checks still do not run.
+        ran.assert_not_called()
+        # Unknown named slug: exit 1 (a typo must not read as a pass). A named
+        # local run runs the tree checks alone, not the unwired unit tests.
+        with mock.patch.object(rvt, "ON_ACTIONS", False), \
+                mock.patch.object(rvt, "start_tree_checks", REAL_START), \
+                mock.patch.object(unwired_checks, "run_everything", return_value=[]) as ran, \
+                mock.patch("sys.stdout"):
             self.assertEqual(rvt.main(["someventure-that-is-not-here"]), 1)
+            self.assertTrue(ran.call_args.kwargs["checks_only"])
+            ran.reset_mock()
+            rvt.main(["--no-unwired", "someventure-that-is-not-here"])
         ran.assert_not_called()
 
     def test_the_biggest_suite_starts_first(self):

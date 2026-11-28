@@ -55,6 +55,9 @@ workflow names (unwired_checks.py; `--no-unwired` skips them): 30 of 60 ran in
 no PR before 2026-11-12, and one let a stray `</head>` reach main (#15195);
 since 2026-11-13 also the unwired platform/ci unit tests and `doc_index.py check`
 (71 of 121 test files ran in no workflow; test_doc_index.py had been red for days).
+A named local run (slugs or `--changed`) runs the unwired check_*.py scripts
+too, cut to the paths changed since origin/main, in a thread beside the suites
+(2026-11-28: three sessions passed here and failed CI on one of them).
 
 A named local run also says which package-manager test steps (`pnpm test:unit`, vitest,
 playwright) a venture's own workflow runs, and prints PART rather than ok: this runner never runs
@@ -442,6 +445,52 @@ def since_paths(base):
     except (subprocess.CalledProcessError, OSError):
         return None
     return sorted(set(paths))
+
+
+def start_tree_checks(base_ref="origin/main"):
+    """Start the unwired check_*.py scripts in a thread; finish_tree_checks
+    reports them. Cut to the paths changed since the merge base with base_ref
+    (unwired_reads.py; every check when git cannot answer)."""
+    import unwired_checks
+    found = subprocess.run(["git", "merge-base", base_ref, "HEAD"], cwd=ROOT,
+                           capture_output=True, text=True)
+    changed = since_paths(found.stdout.strip()) if found.returncode == 0 and found.stdout.strip() else None
+    box = {"not_run": []}
+
+    def work():
+        try:
+            box["results"] = unwired_checks.run_everything(
+                checks_only=True, jobs=os.cpu_count() or 2,
+                changed=changed or None, not_run=box["not_run"])
+        except Exception as exc:  # report, never hide the suites' result
+            box["error"] = f"{type(exc).__name__}: {exc}"
+
+    box["thread"] = threading.Thread(target=work, daemon=True)
+    box["thread"].start()
+    return box
+
+
+def finish_tree_checks(box):
+    """Wait for start_tree_checks, print its summary; True when one is red."""
+    import unwired_checks
+    box["thread"].join()
+    if "error" in box:
+        print(f"FAIL unwired tree checks did not run ({box['error']}): "
+              "python3 platform/ci/unwired_checks.py", flush=True)
+        return True
+    results = box["results"]
+    bad = unwired_checks.report(results)
+    if bad:
+        print(bad)
+    skips = unwired_checks.skipped(results)
+    print(f"{'FAIL' if bad else 'ok  '} unwired tree checks: "
+          f"{sum(rc == 0 for _, rc, _ in results) - len(skips)}/{len(results)} pass"
+          + (f", {len(skips)} skipped" if skips else "")
+          + (f", {len(box['not_run'])} read no changed path" if box["not_run"] else "")
+          + "; the unwired unit tests CI also runs were not (the full set, about 90 s: "
+          "python3 platform/ci/unwired_checks.py; --no-unwired skips these while iterating)",
+          flush=True)
+    return bool(bad)
 
 
 def changed_slugs(base_ref="origin/main"):
@@ -873,8 +922,8 @@ def main(argv):
                     help="skip the platform/pages checks that scan venture HTML (PAGE_CHECKS), "
                     "which a named local run otherwise adds")
     ap.add_argument("--no-unwired", action="store_true",
-                    help="with --since, skip the check_*.py scripts, unit tests and doc_index check "
-                    "no workflow runs (unwired_checks.py)")
+                    help="skip the check_*.py scripts (and, with --since, the unit tests and "
+                    "doc_index check) no workflow runs (unwired_checks.py)")
     args = ap.parse_args(argv)
     if args.times:
         data = load_times()
@@ -936,6 +985,16 @@ def main(argv):
 
     global PROGRESS
     PROGRESS = bool(args.slugs or args.changed) and not ON_ACTIONS
+    # A named local run also runs the unwired tree checks (check_*.py) CI's
+    # changed-ventures job runs, beside the suites: three sessions on
+    # 2026-11-28 passed here and failed CI on check_cli_entry.py or
+    # check_smooth_scroll.py, because this printed a note instead (doc
+    # friction). Checks only, cut to the changed paths: on 4 cores a 7 s
+    # suite (xer-schedule-check) became a 34 s run; `--no-unwired` skips them
+    # while iterating.
+    tree = None
+    if named and args.since is None and not args.no_unwired and not ON_ACTIONS:
+        tree = start_tree_checks()
     failed, partial, times = [], [], {}
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         # Printed as each finishes, so one slow suite does not hide the rest.
@@ -1022,12 +1081,8 @@ def main(argv):
               + (f"; {len(not_run)} not run, since they read none of the {len(changed or [])} changed "
                  f"path(s) (platform/ci/{unwired_reads.READS_FILE.name}, traced "
                  f"{(unwired_reads.load() or {}).get('taken')})" if not_run else ""))
-    elif named and not args.no_unwired:
-        # A local named pass is not CI's pass: the changed-ventures job also runs
-        # these (friction 2026-11-18: a new platform/ file passed here, failed CI).
-        # About 90 s, so they are named rather than run.
-        print("note: the unwired tree checks CI also runs were not run (about 90 s): "
-              "python3 platform/ci/unwired_checks.py", flush=True)
+    elif tree is not None:
+        unwired_red = finish_tree_checks(tree)
     return 1 if failed or lint or unwired_red or unknown or page_red else 0
 
 
