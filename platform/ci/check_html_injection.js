@@ -35,7 +35,7 @@
 // docs/reports/2026-11-19-html-injection-sweep.md.
 const {chromium}=require('playwright');const {serve}=require('./sweep_server.js');const fs=require('fs');
 const root=process.cwd();
-let files=require('child_process').execSync(`find ${process.env.SWEEP_ROOT||'ventures'} -maxdepth 3 -name index.html -not -path '*/node_modules/*'`).toString().trim().split('\n').filter(Boolean).sort();
+let files=require('child_process').execFileSync('find', [process.env.SWEEP_ROOT||'ventures', '-maxdepth', '3', '-name', 'index.html', '-not', '-path', '*/node_modules/*']).toString().trim().split('\n').filter(Boolean).sort();
 if(process.argv[3])files=files.slice(0,+process.argv[3]);
 const PROBE=`"'><b data-xss-probe="1">probe</b>`;
 const RUN=/^(analy[sz]e|check|calculate|run|compute|generate|plan|build|compare|score|read|parse|go|show|update|preview|reconcile|convert|validate|estimate|summari[sz]e|import|load|test|find|detect|fit|solve|price|sort|split|match|review|audit|process|create|make|add|save|draft|format|write|copy)\b/i;
