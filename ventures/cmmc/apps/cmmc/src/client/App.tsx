@@ -40,6 +40,7 @@ const SettingsView = lazy(() =>
 );
 const SspView = lazy(() => import("./views/Ssp").then((m) => ({ default: m.SspView })));
 const GaugesView = lazy(() => import("./views/Gauges").then((m) => ({ default: m.GaugesView })));
+const ReviewsView = lazy(() => import("./views/Reviews").then((m) => ({ default: m.ReviewsView })));
 const SuppliersView = lazy(() =>
   import("./views/Suppliers").then((m) => ({ default: m.SuppliersView })),
 );
@@ -60,6 +61,7 @@ type Tab =
   | "documents"
   | "audits"
   | "gauges"
+  | "reviews"
   | "settings"
   | "billing";
 const TABS: { key: Tab; label: string }[] = [
@@ -78,6 +80,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "documents", label: "Documents" },
   { key: "audits", label: "Audits" },
   { key: "gauges", label: "Gauges" },
+  { key: "reviews", label: "Mgmt review" },
   { key: "settings", label: "Settings" },
   { key: "billing", label: "Billing" },
 ];
@@ -405,6 +408,9 @@ function Workspace({ me }: { me: Me }) {
             )}
             {tab === "gauges" && (
               <GaugesView orgId={orgId} info={org.data} onUpgrade={() => setTab("billing")} />
+            )}
+            {tab === "reviews" && (
+              <ReviewsView orgId={orgId} info={org.data} onUpgrade={() => setTab("billing")} />
             )}
             {tab === "poam" && <PoamView orgId={orgId} info={org.data} />}
             {tab === "people" && (

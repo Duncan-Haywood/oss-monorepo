@@ -1,0 +1,60 @@
+{
+ "date": "2026-11-28",
+ "subject": "ventures/einvoice-preflight",
+ "stratum": "venture",
+ "seed": "2026-11-28-a440",
+ "drawn_by": "reaudit",
+ "prior_audit": "portfolio/quality/audits/2026-11-28-einvoice-preflight-reaudit.json",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an e-invoicing integration consultant who signs off ERP output for Peppol/XRechnung/EN 16931; first checks: are the fix figures right to the cent, does the repair leave a correct invoice alone, and does the Python CLI a pipeline runs give the same verdict as the page on the same file",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed by hand through checkInvoice/repairInvoice (scratchpad probe.mjs): 100.00@19% + 50.00@7% = 22.50 tax; with 23.50 stated both the page engine and the CLI say 'Set tax to 22.50' (INV-018) plus INV-037 (no per-rate breakdown, EN 16931 BG-23). The 10^13 IDR invoice (9,876,543,210,987.65 x 11% = 1,086,419,753,208.6415 -> .64, gross .29) draws no finding and repairInvoice changes nothing. Half-up tie 1.50 x 19% = 0.285 -> 0.29 accepted. NEW: python-stdnum 2.2 (no.mva, ch.vat) against the CLI on 3,000 random NO/CH numbers (263 valid): before this PR the CLI answered INV-022 'unrecognized country prefix' for every one of them as vat_id, correct numbers included, and checked none given as id; after the port 3,000/3,000 agree with stdnum and with vat.mjs.",
+  "completeness": "Page, Node API and CLI paths exercised above on JSON; the parity harness's documented gaps (PDF envelope checks, profile options, fix texts) remain as NEXT.md says; NO/CH VAT removed from that list by this PR.",
+  "verification": "node --test '*.test.mjs': 2,493 tests, 2,342 pass, 0 fail, 151 skipped (corpora not fetched), 9.7 s. PYTHONPATH=src python3 -m unittest discover -s tests: 451 pass. Mutants: NO weight 2->3 in vat.py caught by the new NorwaySwitzerlandTest; the 1e15 large-amount threshold widened to 1e17 caught by large-amount-rounding.test.mjs; Math.round -> Math.floor in the shared cent rounding caught by the full suite. Before this PR no Python test touched NO or CH at all.",
+  "craft": "Read numbers.mjs, checks.mjs:28-40, breakdown.mjs:20-45, adjustment.mjs, linenet.mjs:1-20 and vat.py. On arrival the half-up-to-cent helper was four identical copies (checks, breakdown, adjustment, linenet) plus variants at other precisions (cfdi.mjs:170, creditlink.mjs:39, repair-ubl.mjs:41/56); this PR folds the four into numbers.mjs. README.md is now 403,315 bytes of dated run log (398 KB at the prior audit), so craft stays 2.",
+  "claims": "checks.mjs:1-7 and README:1250 said NO/CH VAT is 'JS only': true, but the consequence was understated (the CLI rejected correct NO/CH numbers, not merely skipped them); both lines and NEXT.md:35 updated by this PR. index.html 'Prefer a pipeline?' says the CLI matches the page on the 42 shipped files, which none of them exercise NO/CH, so it held as written. INV-038 fix text now formatted (breakdown.mjs:135 formatCents).",
+  "fitness": "A pipeline team checking a Norwegian or Swiss supplier's invoices through the CLI saw a blocking INV-022 on a correct vat_id; after this PR the CLI verdict matches the page. The page user's job was unaffected.",
+  "domain": "Norway organisasjonsnummer (Brønnøysund mod 11, weights 3,2,7,6,5,4,3,2, remainder 10 never issued, optional MVA suffix) and Swiss UID (CHE + 8 digits + mod-11 check, weights 5,4,3,2,7,6,5,4, MWST/TVA/IVA suffix) as python-stdnum implements them; EN 16931 BR-CO-14/BR-CO-17 rounding as before. INV-005 on a name-only buyer remains stricter than EN 16931 (BT-46/47/48 optional), deliberate and documented."
+ },
+ "checks": [
+  {"dimension": "correctness", "what": "NO/CH VAT verdicts, 3,000 random numbers", "method": "python-stdnum 2.2 no.mva / ch.vat is_valid", "command": "python3 -I scratchpad/scripts/cmp_nochs.py <stdnum lib> ventures/einvoice-preflight", "expected": "CLI clean exactly when stdnum valid", "observed": "before: INV-022 on all 3,000 (vat_id); after: 3,000/3,000 agree with stdnum and vat.mjs", "result": "fail"},
+  {"dimension": "correctness", "what": "mixed 19%/7% tax total", "method": "hand: 100.00 x 0.19 + 50.00 x 0.07 = 22.50", "command": "node scratchpad/scripts/probe.mjs; python3 -m einvoice_preflight mixed.json", "expected": "INV-018 'Set tax to 22.50' when 23.50 stated", "observed": "page engine and CLI both 'Set tax to 22.50'", "result": "pass"},
+  {"dimension": "correctness", "what": "10^13 IDR correct invoice left alone", "method": "hand: 9,876,543,210,987.65 x 0.11 = 1,086,419,753,208.6415", "command": "node scratchpad/scripts/probe.mjs", "expected": "no finding, repair unchanged, gross 10,962,962,964,196.29", "observed": "no finding, 0 changes", "result": "pass"},
+  {"dimension": "correctness", "what": "half-cent tie 0.285", "method": "half up away from zero (EN 16931 rounding to 2 dp)", "command": "node scratchpad/scripts/probe.mjs", "expected": "0.29 accepted", "observed": "no finding", "result": "pass"},
+  {"dimension": "verification", "what": "JS suite", "method": "run", "command": "node --test '*.test.mjs'", "expected": "0 fail", "observed": "2,342 pass, 0 fail, 151 skipped", "result": "pass"},
+  {"dimension": "verification", "what": "Python suite", "method": "run", "command": "PYTHONPATH=src python3 -m unittest discover -s tests", "expected": "all pass", "observed": "451 pass", "result": "pass"},
+  {"dimension": "claims", "what": "'NO/CH VAT JS only' (checks.mjs:4, README:1250)", "method": "CLI run on NO/CH numbers", "command": "python3 -c inspect_party_vat({'vat_id': 'NO 923 609 016 MVA'}, 'supplier')", "expected": "skipped", "observed": "INV-022 unrecognized prefix on a correct number: claim understated the effect", "result": "partial"},
+  {"dimension": "claims", "what": "INV-038 fix text formatted", "method": "read breakdown.mjs:135", "command": "grep -n 'Set tax to' breakdown.mjs", "expected": "formatCents", "observed": "formatCents(expectedTax)", "result": "pass"},
+  {"dimension": "craft", "what": "rounding helper copies", "method": "grep", "command": "grep -c 'toPrecision(15)' *.mjs", "expected": "one copy", "observed": "four identical copies on arrival (folded into numbers.mjs by this PR); cfdi, creditlink, repair-ubl variants remain", "result": "partial"},
+  {"dimension": "craft", "what": "README size", "method": "wc -c", "command": "wc -c README.md", "expected": "a readable README", "observed": "403,315 bytes", "result": "fail"}
+ ],
+ "mutations": [
+  {"where": "src/einvoice_preflight/vat.py:215", "change": "NO weights [...,3,2] -> [...,3,3]", "caught": true, "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"},
+  {"where": "numbers.mjs:33", "change": "scaled < 1e15 ? -> scaled < 1e17 ?", "caught": true, "test_cmd": "node --test large-amount-rounding.test.mjs checks.test.mjs breakdown.test.mjs"},
+  {"where": "numbers.mjs:33", "change": "Math.round(scaled -> Math.floor(scaled", "caught": true, "test_cmd": "node --test *.test.mjs"}
+ ],
+ "prior_defects": [
+  {"index": 0, "severity": "low", "basis": "marked", "status": "closed", "what": "15-digit rounding cut a cent from 10^13 units", "evidence": "10^13 IDR probe: no finding, repair unchanged; widening the 1e15 threshold fails large-amount-rounding.test.mjs"},
+  {"index": 1, "severity": "low", "basis": "marked", "status": "closed", "what": "INV-038 fix text unformatted", "evidence": "breakdown.mjs:135 uses formatCents"},
+  {"index": 2, "severity": "low", "basis": "open", "status": "open", "what": "rounding helper copied; README a run log", "evidence": "four identical copies on arrival, folded into numbers.mjs by this PR; variants at other precisions and the 403 KB README remain, so still open"},
+  {"index": 3, "severity": "low", "basis": "open", "status": "open", "what": "NO/CH VAT JS only in the Python CLI", "evidence": "worse than recorded: every NO/CH vat_id drew INV-022; ported by this PR", "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20163"},
+  {"index": 4, "severity": "low", "basis": "open", "status": "open", "what": "INV-005 blocks a name-only buyer", "evidence": "unchanged at checks.mjs (deliberate, README:1165)"}
+ ],
+ "defects": [
+  {"severity": "medium", "what": "The Python CLI answered a blocking INV-022 'unrecognized country prefix' for every Norwegian or Swiss vat_id, correct ones included, and never checked one given as id; the prior audit recorded this as 'passes a mistyped NO/CH number'. Fixed in this PR (vat.py ports vat.mjs's mod-11 rules; 3,000/3,000 agree with python-stdnum).", "where": "ventures/einvoice-preflight/src/einvoice_preflight/vat.py:127", "category": "scope-gap", "origin": "spec", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20163"},
+  {"severity": "low", "what": "README.md is 403,315 bytes of dated run log; rounding variants at other precisions remain in cfdi.mjs, creditlink.mjs and repair-ubl.mjs.", "where": "ventures/einvoice-preflight/README.md", "category": "code-craft", "origin": "implementation"},
+  {"severity": "low", "what": "Prior defect 4 persists: a buyer known by name alone draws a blocking INV-005 though BT-46/47/48 are optional in EN 16931 (deliberate, documented).", "where": "ventures/einvoice-preflight/checks.mjs", "category": "domain-rule", "origin": "spec"}
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/20163"],
+ "verdict": "Sixth audit; meets the bar again. Both defects PR #19982 marked fixed are closed: the 10^13 IDR invoice draws nothing and repairs to itself, and the INV-038 figure is formatted. Hand recomputations of a mixed-rate total, a half-cent tie and the large IDR invoice all agree, in the page engine and the CLI. The open NO/CH defect was worse than recorded: the CLI rejected every correct Norwegian or Swiss VAT id as an unknown prefix. This PR ports the check digits (3,000 of 3,000 random numbers agree with python-stdnum and vat.mjs) and folds the four identical cent-rounding copies into numbers.mjs; scores are before those fixes. Craft stays 2 for the 403 KB run-log README; the name-only buyer INV-005 stays deliberate."
+}

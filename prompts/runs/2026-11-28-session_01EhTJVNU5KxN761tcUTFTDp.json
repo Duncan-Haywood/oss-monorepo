@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVNU5KxN761tcUTFTDp",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T15:56:06Z",
+  "ended": "2026-11-28T16:26:17Z",
+  "wall_minutes": 30.68,
+  "tokens_in": 8050189,
+  "tokens_out": 29928,
+  "cost_usd": 3.2159,
+  "tool_calls": 73,
+  "task": "quality reaudit: ventures/shift-roster-builder (2026-11-19 r4 audit, fix PRs #17758, #19113)",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20165",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "quality_mutate warned the working tree changed mid-run because I stash-popped 5 s after starting two full-suite mutants; the baseline passed and the results are consistent with targeted re-runs"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "reaudit --paid lists at its top subjects whose 'latest audit' is itself a same-day re-audit whose only fix PR was the auditor's own (ids-model-check, retail-pilot-intel, ai-bookkeeper, cmmc ... all 2026-11-28); re-checking those the same day is near-zero value, so the list should skip a reaudit file whose fix_prs are all closed_by entries of that same file"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "a stalled PR red on an unrelated test (PR #19894, a pages test outside its diff) is neither 'green' nor obviously re-landable from the guide's wording; re-landing on my branch worked"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/quality_audit.py reaudit order",
+      "why": "the top paid rows were same-day reaudits whose fixes were their own; took the first row with an unchecked fix from another day (shift-roster-builder, 2026-11-19)",
+      "did": "re-audited shift-roster-builder",
+      "result": "found the r4 overnight defect still open on main and one new untested-core defect; both closed in this PR"
+    },
+    {
+      "file": "portfolio/quality/README.md (fix forward separately)",
+      "why": "PR #19894 already fixed prior defect 0 but sat red on an unrelated pages test for 18 h",
+      "did": "re-landed its product, test, README and post changes in this PR, crediting it, and removed its quality-audit tag from a for-customers post",
+      "result": "789/789 venture tests pass; overnight case now $200"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-quality-reaudit-shift-roster-builder.md",
+    "docs/posts/2026-11-15-the-40-hour-line-is-not-california-overtime.md (2026-11-27 update section, from PR #19894)"
+  ],
+  "goal": null,
+  "notes": "Mode: reaudit (quality_audit.py mode for 2026-11-28). Seed 2026-11-28-25da (reaudit --paid order). Subject: ventures/shift-roster-builder. Bar: meets (correctness 3, claims 3, verification 3, median 3; craft 2). Prior defects: 3 of 6 closed on arrival (1,2,3 marked by #19113/#17758), 0 open then closed by this PR, 4 and 5 open. Recomputed 6 weekly costs by hand: 5 pass, overnight fail on main ($220 vs $200), pass after. Mutations: 4 seeded, youth weekend cap and comma-less header caught by calc.test.mjs, otAfter 40->41 caught only by the full suite, meal boundary survived 787 tests; new test catches it. Full suite on main 787/787 (277 s); with this PR 789/789. Fix PRs: this PR (re-land of #19894 plus defaults test). risk_review.py: no checks triggered. Pages tests run locally, see PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a7166271-5fd5-58c2-91bc-a3bf7d098a99",
+    "transcripts": 1,
+    "first": "2026-11-28T15:56:06Z",
+    "last": "2026-11-28T16:26:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 132,
+        "output": 29928,
+        "thinking": 5829,
+        "cache_read": 7920986,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129071,
+        "api_equivalent_usd": 3.2159,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 132,
+      "output": 29928,
+      "thinking": 5829,
+      "cache_read": 7920986,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129071,
+      "api_equivalent_usd": 3.2159,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__get_job_logs": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.68,
+      "active_minutes": 30.68,
+      "model_minutes": 5.92,
+      "tool_minutes": 24.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "a payroll-savvy QA engineer re-checking six defects, six hand computations, four mutants and writing the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 155.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

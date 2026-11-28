@@ -2,17 +2,33 @@
 // copies of the 15 FAR 52.204-21(b)(1) requirements and their 59 SP 800-171A objectives. Both were
 // checked against the official text; this test keeps the two copies equal so a correction to one
 // cannot leave the other behind (quality audit 2026-11-26-cmmc.json, defect 6).
+//
+// The free page lives in another venture, so this is the one test here that reads outside
+// ventures/cmmc. cmmc CI checks that venture out and runs it on every change to either copy; the
+// production deploy (priv-cmmc-deploy.yml) checks out ventures/cmmc alone, and a static import
+// failed every deploy from 2026-11-28 06:28 to the fix (ERR_MODULE_NOT_FOUND). So the file is
+// loaded only when present, and its absence inside cmmc CI is itself a failure: the check never
+// goes quiet where it is meant to run.
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-// @ts-expect-error: plain .mjs data module without type declarations
-import { L1_OBJECTIVES, L1_REQUIREMENTS } from "../../../../../../machine-shop-guides/l1-data.mjs";
 import { LEVEL1_REQUIREMENTS } from "./level1";
 
 type PageReq = { id: string; far: string; nist: string[]; text: string };
 type PageObj = { id: string; text: string };
 
-describe("Level 1 library matches the free page's l1-data.mjs", () => {
-  const page = L1_REQUIREMENTS as PageReq[];
-  const objs = L1_OBJECTIVES as Record<string, PageObj[]>;
+const pageData = new URL("../../../../../../machine-shop-guides/l1-data.mjs", import.meta.url);
+const present = existsSync(fileURLToPath(pageData));
+const data: { L1_REQUIREMENTS: PageReq[]; L1_OBJECTIVES: Record<string, PageObj[]> } | null =
+  present ? await import(/* @vite-ignore */ pageData.href) : null;
+
+it("the free page's l1-data.mjs is checked out wherever cmmc CI runs", () => {
+  if (process.env.GITHUB_WORKFLOW === "cmmc CI") expect(present).toBe(true);
+});
+
+describe.skipIf(!data)("Level 1 library matches the free page's l1-data.mjs", () => {
+  const page = data?.L1_REQUIREMENTS ?? [];
+  const objs = data?.L1_OBJECTIVES ?? {};
 
   it("same 15 requirements, ids, NIST mapping and FAR text", () => {
     expect(LEVEL1_REQUIREMENTS.map((r) => r.id)).toEqual(page.map((r) => r.id));

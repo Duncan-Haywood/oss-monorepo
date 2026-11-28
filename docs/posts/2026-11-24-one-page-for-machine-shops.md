@@ -1346,6 +1346,35 @@ an owner per clause, audits planned and done, and a flag for any clause not
 audited in 12 months. It is part of the Level 2 + Quality plan, which is not
 on sale yet.
 
+## Update, 28 November 2026: each audit in the workspace downloads as its report
+
+The free checklist above gives one audit as a Markdown report. The
+workspace's Audits tab now does the same for every audit it holds, with the
+follow-up the free page cannot see: open an audit and press "Download audit
+report".
+
+The report is built from what the tab already records. It gives the status
+and dates, the auditor (a member or someone from outside), the ISO 9001
+clauses in scope by number and heading, and the audit's summary. Every finding
+follows, majors first, with what the auditor saw. Under each one is the
+corrective action it opened, with its reference, its stage (find the cause,
+take the action, check it worked, closed), its due or closed date and its
+owner. A nonconformity with no action yet says so in bold. An "Independence"
+line names any clause in scope that the auditor owns on the ISO 9001
+checklist, because that means they audited their own work. A "Still open"
+list repeats the tab's own checks for that one audit: an overdue action, a
+missed effectiveness check, a nonconformity with no corrective action. It
+ends with blank sign-off lines for the auditor and for management.
+
+Clause 9.2 asks a shop to keep a record of each audit's results, and this is
+that record, written from the data, not retyped. As with the checklist, no
+ISO text is quoted. Text you typed is quoted line by line, so a summary that
+starts with "#" or "---" stays as text and does not turn into a heading or
+end the section. The report is a record-keeping aid. It is not a
+certification body's audit result. Every member can download it, viewers
+included. Recording audits needs the Level 2 + Quality plan, which is not on
+sale yet.
+
 ## Update, 28 November 2026: a register for cyber incidents, with the 72-hour clock
 
 If a defense PO carries DFARS 252.204-7012 and an incident touches a system

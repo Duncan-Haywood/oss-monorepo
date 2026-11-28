@@ -375,7 +375,7 @@ export const MODULE_PAGES: readonly ModulePage[] = [
     {
       h1: "Estimates and proposals that become the job",
       intro:
-        "Price a bid from labor, material, equipment and subcontract lines rolled into bid items, with markup per category and alternates, and send a proposal PDF. When the bid is won, its items become the job's schedule of values.",
+        "Price a bid from labor, material, equipment and subcontract lines rolled into bid items, with markup per category and alternates, and send a proposal PDF. When the bid is won, its items become the job's schedule of values; with job costing (Crew and up), each line's cost budget comes from the bid and each sub's quote becomes a subcontract on the job.",
       plan: EVERY_PLAN,
       guides: [
         {
