@@ -100,6 +100,16 @@ export const FAQ = {
     ["When is the next CMMC assessment due?",
       "A year after the CMMC Status Date for Level 1 (Self), and three years after it for Level 2, by yourself or by a C3PAO. A POA&M closeout does not restart the three years: they count from the original status date."],
   ],
+  "how-to-submit-sprs-score.html": [
+    ["How do I submit my SPRS score?",
+      "Log in to PIEE with the SPRS Cyber Vendor User role, open SPRS, then Cyber Reports, pick your CAGE hierarchy and run it. For a NIST SP 800-171 Basic Assessment, choose Add New Assessment on the NIST SP 800-171 Assessments tab and enter the date, score, scope, plan of action completion date, CAGE codes and the SSP's name, version and date. SPRS stores the result; it does not perform the assessment."],
+    ["What PIEE role do I need to enter an SPRS score?",
+      "SPRS Cyber Vendor User. It lets you enter, edit or delete NIST SP 800-171 and CMMC information for every CAGE in your company hierarchy. The Contractor/Vendor (Support Role) is view only. Your company's Contractor Account Administrator (CAM) approves the request; until then the SPRS tile can show but not work."],
+    ["What CMMC Level 2 self-assessment score can be affirmed in SPRS?",
+      "Only 110, which gives a Final Level 2 Self-Assessment valid three years with annual affirmations, and 88 to 109, which gives a Conditional status valid 180 days. If an open requirement is one that may not go on a POA&M, SPRS gives No CMMC Status whatever the score."],
+    ["Who affirms a CMMC self-assessment in SPRS?",
+      "The Affirming Official: the senior person responsible for the company's CMMC compliance, with their own PIEE account and the Cyber Vendor User role. Whoever entered the assessment can send it to them with Transfer to AO; the AO reviews it, ticks the affirmation statement and chooses Affirm."],
+  ],
   "cmmc-cost.html": [
     ["How much does CMMC certification cost a small business?",
       "DoD's own estimate in the CMMC final rule (89 FR 83092) is $104,670 over three years for a small business at Level 2 (C3PAO): $101,752 for the assessment and its affirmation, of which $31,234 is the C3PAO, plus two annual affirmations of $1,459. Level 2 (Self) is $37,196 over three years and Level 1 (Self) $5,977 a year. This page recomputes those lines with your own rates."],
@@ -195,6 +205,16 @@ export const FAQ = {
       "Normally on a new part, and again after a change that could affect it: the design, the process or source, the inspection method, the tooling or the location. A partial FAI covers only what the change touched. Lapses in production differ by customer, so the PO clauses and quality manual decide."],
     ["What gets an FAI report rejected?",
       "A characteristic with no balloon or no result, \"accept\" written where a value can be measured, a result out of limits with no nonconformance number, fewer results than places on a multi-place feature, and missing certificates or a revision mismatch on Forms 1 and 2."],
+  ],
+  "iso-9001-internal-audit-checklist.html": [
+    ["What does an ISO 9001 internal audit cover?",
+      "Over the programme, every clause of the quality system that applies to the shop, 4 to 10, at intervals the shop plans by how important each process is and how it has gone. One audit can take a few clauses or a process; the programme as a whole has to reach them all."],
+    ["How often should internal audits be done?",
+      "ISO 9001 sets no interval; the shop plans it. One workable plan for a small shop is four audits a year that together touch every applicable clause, with production and inspection more often. CMMC Workspace flags any applicable clause not audited in 12 months and not planned."],
+    ["Can someone in the shop audit their own department?",
+      "No. Clause 9.2 asks for auditors chosen so the audit is objective and impartial, which in practice means nobody audits their own work. In a small shop people audit each other's areas, or an outside auditor covers what the quality lead owns."],
+    ["What is the difference between a major and a minor nonconformity?",
+      "The standard does not grade findings; registrars do. A major is a requirement not met at all, or a lapse that could let bad product reach the customer. A minor is a single lapse in a system that otherwise works. Both need a corrective action; an observation or improvement need not."],
   ],
   "corrective-action-report.html": [
     ["What is the difference between a correction and a corrective action?",

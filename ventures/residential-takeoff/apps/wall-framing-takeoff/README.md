@@ -422,6 +422,50 @@ ganging now runs before the skip.
 $149/month plan). While no checkout link is set, both are free; see
 [`docs/PRICING.md`](docs/PRICING.md).
 
+## Supplier price lists (2026-11-28)
+
+**Price list** (`pricelist.mjs`; CLI `--price-list=yard.csv`; page "Lumber you can buy", "load
+your lumberyard's price list"). The order is a cutting-stock problem solved over the board prices
+on the lumber list, so with the placeholder prices (1 per foot) it minimises length, not money. A
+yard's CSV (a header row with a description and a price column; optional unit, size, length and
+key columns) now goes straight in:
+
+- Boards are read from descriptions as yards write them (`2x4-8' SPF #2`, `2X6X16`, `2 x 4 x
+  92-5/8 PET`, `2x4x10 PT ground contact`), priced each, per foot (LF) or per 1,000 board feet
+  (MBF, nominal size). A precut length or the word "precut" makes the precut stud entry; PT,
+  treated, ACQ, MCA or ground contact the `PT` size.
+- A listed board replaces the stock entry of the same size and length, or is added (a 20 ft
+  2x10 on the list may be used). Lengths of a priced size that the list does not carry are taken
+  off the lumber list, because a placeholder price beside real ones would be chosen for being
+  cheap; sizes the list does not price keep the placeholder and are named.
+- Sheets that say wall, roof, subfloor or drywall, and roofing by name (shingles, ridge cap,
+  starter, underlayment, drip edge, ice and water, valley flashing, joist hangers) fill the
+  budget's `prices`; a `key` column names any other price outright. A 7/16 OSB sheet with no use
+  named is not guessed.
+- Every row is used or listed with its reason ("Delivery": no price name it is plainly for).
+
+**What it is worth, measured** (`node pricelist-bench.mjs`, invented price lists, not a yard's):
+the same board lengths, optimised once on length and priced afterwards, once on the prices.
+
+| house | invented price list | on length, then priced | on the prices | saving |
+|---|---|---|---|---|
+| example house (invented) | flat per foot (control) | 1398.31 | 1398.61 | 0.0% |
+| example house (invented) | precut 15% cheaper per foot | 1285.03 | 1268.66 | 1.3% |
+| example house (invented) | long boards +2% a foot per foot over 8 ft | 1469.08 | 1442.59 | 1.8% |
+| example house (invented) | both | 1355.80 | 1303.17 | 3.9% |
+| Open House Plans 1 (CC0, generated) | flat per foot (control) | 1600.12 | 1602.17 | -0.1% |
+| Open House Plans 1 (CC0, generated) | precut 15% cheaper per foot | 1478.52 | 1458.65 | 1.3% |
+| Open House Plans 1 (CC0, generated) | long boards +2% a foot per foot over 8 ft | 1703.90 | 1658.65 | 2.7% |
+| Open House Plans 1 (CC0, generated) | both | 1582.30 | 1498.38 | 5.3% |
+
+The saving exists only where the yard's price per foot differs by length; on a flat list the two
+orders cost the same within the optimiser's gap (the -0.1% is that gap). Open House Plans 2 is
+refused by the plan checks as generated and was skipped. Tests: `pricelist.test.mjs` (readers,
+apply, a takeoff on the repriced plan, the CLI, the bench's direction) and
+`eval-pricelist-click.mjs` (the page in Chromium). No real yard's price list has been run through
+it yet; the description reader was written from common formats, so expect rows it names as not
+read, and send a key column for those.
+
 ## Verification
 
 `node --test '*.test.mjs'` (1,245 tests across 149 files on 2026-11-24, about 20 s; one, the footer link to `../cut-list-optimizer/`, fails here because that venture was not imported; bare `node --test` is refused by Node 22). What they check:

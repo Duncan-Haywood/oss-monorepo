@@ -1,6 +1,8 @@
 // Quote follow-up (services/quotes/follow-ups.ts): the quote log's "Follow up" card and the quote
 // page's follow-up card, sharing one "log a follow-up" form.
 import type {
+  FollowUpEmailFormDto,
+  FollowUpEmailResultDto,
   FollowUpItemDto,
   FollowUpQueueDto,
   QuoteFollowUpEmailsDto,
@@ -15,6 +17,7 @@ import {
   NEXT_FOLLOW_UP_PRESETS,
   nextFollowUpError,
 } from "@shared/follow-up";
+import { MAX_QUOTE_EMAIL_MESSAGE, parseRecipients } from "@shared/quote-email";
 import { quoteLabel } from "@shared/quote-label";
 import { addDays } from "@shared/time-zone";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -36,7 +39,11 @@ function invalidateFollowUps(orgId: string, quoteId: string) {
   void queryClient.invalidateQueries({ queryKey: followUpQueueKey(orgId) });
   void queryClient.invalidateQueries({ queryKey: quoteFollowUpsKey(orgId, quoteId) });
   void queryClient.invalidateQueries({ queryKey: ["quote", orgId, quoteId] });
+  void queryClient.invalidateQueries({ queryKey: ["quote-emails", orgId, quoteId] });
+  void queryClient.invalidateQueries({ queryKey: followUpEmailKey(orgId, quoteId) });
 }
+
+const followUpEmailKey = (orgId: string, quoteId: string) => ["follow-up-email", orgId, quoteId];
 
 const weekday = (day: string) =>
   new Date(`${day}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "short", timeZone: "UTC" });
@@ -56,12 +63,7 @@ export function LogFollowUpForm({
   onDone?: () => void;
 }) {
   const [note, setNote] = useState("");
-  // "3" (days from today), "date" (pick one), or "none".
-  const [choice, setChoice] = useState("3");
-  const [date, setDate] = useState(addDays(today, 7));
-  const nextOn =
-    choice === "none" ? null : choice === "date" ? date : addDays(today, Number(choice));
-  const localError = nextFollowUpError(nextOn, today);
+  const { nextOn, picker, error: localError, isDate } = useNextFollowUp(today);
   const unchanged = !note.trim() && nextOn === currentOn;
   const save = useMutation({
     mutationFn: () =>
@@ -88,28 +90,7 @@ export function LogFollowUpForm({
         />
       </Field>
       <div className="flex flex-wrap items-end gap-2">
-        <Field label="Next follow-up">
-          <Select value={choice} onChange={(e) => setChoice(e.target.value)}>
-            {NEXT_FOLLOW_UP_PRESETS.map((d) => (
-              <option key={d} value={String(d)}>
-                In {d} day{d === 1 ? "" : "s"} ({weekday(addDays(today, d))} {addDays(today, d)})
-              </option>
-            ))}
-            <option value="date">On a date…</option>
-            <option value="none">No more follow-ups</option>
-          </Select>
-        </Field>
-        {choice === "date" && (
-          <Field label="Date">
-            <Input
-              type="date"
-              value={date}
-              min={addDays(today, 1)}
-              max={addDays(today, MAX_NEXT_FOLLOW_UP_DAYS)}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </Field>
-        )}
+        {picker}
         <Button
           onClick={() => save.mutate()}
           disabled={save.isPending || Boolean(localError) || unchanged}
@@ -122,8 +103,155 @@ export function LogFollowUpForm({
           </Button>
         )}
       </div>
-      {localError && choice === "date" && <p className="text-sm text-amber-800">{localError}</p>}
+      {localError && isDate && <p className="text-sm text-amber-800">{localError}</p>}
       <ErrorText error={save.error} />
+    </div>
+  );
+}
+
+/** The "next follow-up" choice both forms share: days from today, a date, or none. */
+function useNextFollowUp(today: string) {
+  const [choice, setChoice] = useState("3");
+  const [date, setDate] = useState(addDays(today, 7));
+  const nextOn =
+    choice === "none" ? null : choice === "date" ? date : addDays(today, Number(choice));
+  const picker = (
+    <>
+      <Field label="Next follow-up">
+        <Select value={choice} onChange={(e) => setChoice(e.target.value)}>
+          {NEXT_FOLLOW_UP_PRESETS.map((d) => (
+            <option key={d} value={String(d)}>
+              In {d} day{d === 1 ? "" : "s"} ({weekday(addDays(today, d))} {addDays(today, d)})
+            </option>
+          ))}
+          <option value="date">On a date…</option>
+          <option value="none">No more follow-ups</option>
+        </Select>
+      </Field>
+      {choice === "date" && (
+        <Field label="Date">
+          <Input
+            type="date"
+            value={date}
+            min={addDays(today, 1)}
+            max={addDays(today, MAX_NEXT_FOLLOW_UP_DAYS)}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </Field>
+      )}
+    </>
+  );
+  return { nextOn, picker, error: nextFollowUpError(nextOn, today), isDate: choice === "date" };
+}
+
+/**
+ * A follow-up email to the customer, drafted from the quote and edited here; sent in the thread of
+ * the quote email, and logged on the quote with the next day once it goes.
+ */
+export function FollowUpEmailForm({
+  orgId,
+  quoteId,
+  today,
+  onDone,
+}: {
+  orgId: string;
+  quoteId: string;
+  today: string;
+  onDone: () => void;
+}) {
+  const form = useQuery({
+    queryKey: followUpEmailKey(orgId, quoteId),
+    queryFn: () => api<FollowUpEmailFormDto>(orgApi(orgId, `/quotes/${quoteId}/follow-up-email`)),
+  });
+  const [to, setTo] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [note, setNote] = useState("");
+  const [attachPdf, setAttachPdf] = useState(true);
+  const [copyMe, setCopyMe] = useState(false);
+  const next = useNextFollowUp(today);
+  const d = form.data;
+  const toValue = to ?? d?.defaultTo ?? "";
+  const messageValue = message ?? d?.defaultMessage ?? "";
+  const parsed = parseRecipients(toValue);
+  const send = useMutation({
+    mutationFn: () =>
+      api<FollowUpEmailResultDto>(orgApi(orgId, `/quotes/${quoteId}/follow-up-email`), {
+        method: "POST",
+        body: { to: toValue, message: messageValue, attachPdf, copyMe, note, nextOn: next.nextOn },
+      }),
+    onSuccess: (dto) => {
+      queryClient.setQueryData(quoteFollowUpsKey(orgId, quoteId), dto.followUps);
+      invalidateFollowUps(orgId, quoteId);
+      onDone();
+    },
+    onError: () => invalidateFollowUps(orgId, quoteId),
+  });
+  if (form.error) return <ErrorText error={form.error} />;
+  if (!d) return <p className="text-sm text-stone-500">Loading…</p>;
+  return (
+    <div className="flex flex-col gap-2">
+      <Field label="To" hint="Commas between addresses.">
+        <Input value={toValue} onChange={(e) => setTo(e.target.value)} />
+      </Field>
+      <p className="text-xs text-stone-500">
+        Subject: {d.subject}
+        {d.threaded ? " (a reply in the thread of the quote email)" : ""}
+      </p>
+      <Field label="Message to the customer">
+        <Textarea
+          rows={7}
+          maxLength={MAX_QUOTE_EMAIL_MESSAGE}
+          value={messageValue}
+          onChange={(e) => setMessage(e.target.value)}
+        />
+      </Field>
+      {d.signature && (
+        <p className="text-xs text-stone-500">The shop signature goes under the message.</p>
+      )}
+      <label className="flex items-center gap-2 text-sm text-stone-700">
+        <input
+          type="checkbox"
+          checked={attachPdf}
+          onChange={(e) => setAttachPdf(e.target.checked)}
+        />
+        Attach the quote PDF again (as sent)
+      </label>
+      <label className="flex items-center gap-2 text-sm text-stone-700">
+        <input type="checkbox" checked={copyMe} onChange={(e) => setCopyMe(e.target.checked)} />
+        Send me a copy ({d.replyTo})
+      </label>
+      <Field label="Note for the shop (optional)" hint="Added to the follow-up log, never emailed.">
+        <Input
+          maxLength={MAX_FOLLOW_UP_NOTE}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+        />
+      </Field>
+      {!d.canDeliver && (
+        <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          Email is not set up on this server: the follow-up is recorded here but does not leave it.
+        </p>
+      )}
+      <div className="flex flex-wrap items-end gap-2">
+        {next.picker}
+        <Button
+          onClick={() => send.mutate()}
+          disabled={send.isPending || !parsed.ok || !messageValue.trim() || Boolean(next.error)}
+        >
+          {send.isPending ? "Sending…" : "Send follow-up"}
+        </Button>
+        <Button variant="ghost" onClick={onDone}>
+          Cancel
+        </Button>
+      </div>
+      {!parsed.ok && toValue.trim() !== "" && (
+        <p className="text-sm text-red-700">{parsed.error}</p>
+      )}
+      {next.error && next.isDate && <p className="text-sm text-amber-800">{next.error}</p>}
+      <p className="text-xs text-stone-500">
+        Replies go to {d.replyTo}. Once it is sent, the follow-up is logged with the next day.
+      </p>
+      <ErrorText error={send.error} />
     </div>
   );
 }
@@ -142,6 +270,7 @@ export function QuoteFollowUpCard({
     queryKey: quoteFollowUpsKey(orgId, quoteId),
     queryFn: () => api<QuoteFollowUpsDto>(orgApi(orgId, `/quotes/${quoteId}/follow-ups`)),
   });
+  const [emailing, setEmailing] = useState(false);
   const d = q.data;
   if (!d) return null;
   const sent = d.status === "sent";
@@ -162,8 +291,30 @@ export function QuoteFollowUpCard({
           )}
         </p>
       )}
-      {sent && canEdit && (
-        <LogFollowUpForm orgId={orgId} quoteId={quoteId} today={d.today} currentOn={d.followUpOn} />
+      {sent && canEdit && !emailing && (
+        <>
+          <LogFollowUpForm
+            orgId={orgId}
+            quoteId={quoteId}
+            today={d.today}
+            currentOn={d.followUpOn}
+          />
+          <div className="mt-2">
+            <Button variant="secondary" onClick={() => setEmailing(true)}>
+              Email a follow-up…
+            </Button>
+          </div>
+        </>
+      )}
+      {sent && canEdit && emailing && (
+        <div className="rounded-md border border-stone-200 bg-stone-50 p-3">
+          <FollowUpEmailForm
+            orgId={orgId}
+            quoteId={quoteId}
+            today={d.today}
+            onDone={() => setEmailing(false)}
+          />
+        </div>
       )}
       {d.entries.length > 0 && (
         <ol className="mt-3 flex flex-col gap-2 border-t border-stone-100 pt-3 text-sm">

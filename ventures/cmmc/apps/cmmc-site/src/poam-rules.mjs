@@ -171,7 +171,8 @@ ${faq.map((f) => `<details><summary>${f.q}</summary><p>${f.a}</p></details>`).jo
   <h2>Keep the POA&amp;M with the rules applied</h2>
   <p>The workspace flags an open requirement that may not sit on a POA&amp;M as you mark it, checks the ${CONDITIONAL_MIN_SCORE}-point
   floor, and reminds each item's owner before the 180-day close-out. It does not decide your status: your senior official
-  makes the self-assessment and affirmation in SPRS. See <a href="/what-it-does">what it does</a>.</p>
+  makes the self-assessment and affirmation in SPRS. See <a href="/what-it-does">what it does</a>, or start with the free
+  <a href="/cmmc-poam-template">POA&amp;M template</a>, which checks these rules as you type and imports into the workspace.</p>
 </section>
 ${sourcesList(["cfr-170-21", "cfr-170", "dod-methodology", "nist-800-171r2"])}
 ${cta}`,

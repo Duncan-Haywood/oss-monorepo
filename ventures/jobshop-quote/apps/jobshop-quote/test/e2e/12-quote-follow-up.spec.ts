@@ -72,3 +72,62 @@ test("a sent quote is scheduled for follow-up, and a logged follow-up is kept", 
   await expect(page.getByRole("button", { name: /coming up/ })).toHaveCount(0);
   expect(due >= addDays(new Date().toISOString().slice(0, 10), 1)).toBe(true);
 });
+
+test("a follow-up email is drafted from the quote, sent, and logged with the next day", async ({
+  page,
+  baseURL,
+}) => {
+  const { orgId, orgPath } = await signUpWithShop(page, {
+    tag: "follow-up-email",
+    shop: "E2E Follow-up Email",
+  });
+  await addBasicRateCard(page);
+  const base = baseURL ?? "";
+  const call = <T>(method: string, path: string, data?: unknown) =>
+    api<T>(page.request, base, method, `/api/orgs/${orgId}${path}`, data);
+
+  const rc = await call<RateCardDto>("GET", "/rate-card");
+  const q = await call<QuoteDetailDto>("POST", "/quotes", { customerCompany: "Mail Co" });
+  await call("PATCH", `/quotes/${q.id}`, {
+    customerContact: "Pat Buyer",
+    customerEmail: "pat@mailco.example",
+  });
+  await call("POST", `/quotes/${q.id}/lines`, {
+    partNumber: "FU-2",
+    revision: "A",
+    inputs: {
+      quantities: [10],
+      material: {
+        materialId: rc.materials[0]?.id as string,
+        blank: { shape: "weight", weightLb: 2 },
+        partsPerStock: null,
+      },
+      operations: [
+        {
+          machineId: rc.machines[0]?.id as string,
+          label: "OP10",
+          setupMinutes: 60,
+          cycleMinutesPerPart: 12,
+        },
+      ],
+    },
+  });
+  await call("POST", `/quotes/${q.id}/send`);
+
+  await page.goto(`${orgPath}/quotes/${q.id}`);
+  await page.getByRole("button", { name: "Email a follow-up…" }).click();
+  await expect(page.getByLabel(/^To\b/)).toHaveValue("pat@mailco.example");
+  const message = page.getByLabel("Message to the customer");
+  await expect(message).toHaveValue(/^Hello Pat Buyer,\n\nI'm following up on our quote Q-/);
+  await message.fill("Hi Pat, any questions on FU-2?");
+  await page.getByLabel(/^Note for the shop/).fill("Buyer back Monday");
+  await page.getByLabel("Next follow-up").selectOption("7");
+  await page.getByRole("button", { name: "Send follow-up" }).click();
+
+  const next = addDays(new Date().toISOString().slice(0, 10), 7);
+  await expect(page.getByText(`Next follow-up ${next}.`)).toBeVisible();
+  await expect(page.getByText("Emailed a follow-up to pat@mailco.example.")).toBeVisible();
+  await expect(page.getByText("Buyer back Monday")).toBeVisible();
+  // The quote's email history lists it as a follow-up.
+  await expect(page.getByText("Follow-up ·")).toBeVisible();
+});
