@@ -15,6 +15,11 @@ import {
   DE_MINIMIS_ELECTION_TITLE,
   DE_MINIMIS_LIMIT_CENTS,
   DEDUCTION_LINES,
+  DEPOP_CHECKED_ON,
+  DEPOP_EXAMPLE,
+  DEPOP_FEE_NEWS_QUOTE,
+  DEPOP_FEE_NEWS_URL,
+  depopLines,
   EBAY_CHECKED_ON,
   EBAY_EXAMPLE,
   EBAY_FEES_QUOTE,
@@ -1177,6 +1182,100 @@ describe("the Whatnot taxes page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/whatnot-taxes)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/whatnot-taxes`));
+  });
+});
+
+describe("the Depop taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/depop-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("the example is the importer's own fixture, row for row", () => {
+    const [head, ...lines] = appFile("test/fixtures/depop-sales.csv").trim().split("\n");
+    const cols = head.split(",");
+    const at = (row, name) => row.split(",")[cols.indexOf(name)];
+    const money = (v) => (v ? Math.round(Number(v.replace("$", "")) * 100) : 0);
+    assert.equal(lines.length, DEPOP_EXAMPLE.length);
+    lines.forEach((l, i) => {
+      const r = DEPOP_EXAMPLE[i];
+      assert.equal(r.title, at(l, "Description"));
+      assert.equal(r.itemCents, money(at(l, "Item price")));
+      assert.equal(r.shippingCents, money(at(l, "Buyer shipping cost")));
+      assert.equal(r.labelCents, money(at(l, "USPS Cost")));
+      assert.equal(r.taxCents, money(at(l, "Sales tax")));
+      assert.equal(r.paymentFeeCents, money(at(l, "Depop Payments fee")));
+      assert.equal(r.depopFeeCents, money(at(l, "Depop fee")));
+      assert.equal(r.boostCents, money(at(l, "Boosting fee")));
+      assert.equal(r.refundCents, money(at(l, "Refunded")));
+      assert.equal(r.netCents, money(at(l, "Total")));
+      // The total paid is the sale less the label and the fees; the sales tax is not in it.
+      assert.equal(
+        r.netCents,
+        r.itemCents +
+          r.shippingCents -
+          r.labelCents -
+          r.paymentFeeCents -
+          r.depopFeeCents -
+          r.boostCents,
+      );
+    });
+    // The importer files the columns where the page says, and the worksheet groups them so.
+    const imp = appFile("src/worker/services/importers/depop.ts");
+    assert.match(imp, /pushFee\(fees, "payment_processing", row\.get\("paymentFee"\)/);
+    assert.match(imp, /pushFee\(fees, "commission", row\.get\("sellingFee"\)/);
+    assert.match(imp, /pushFee\(fees, "advertising", row\.get\("boostingFee"\)/);
+    assert.match(imp, /shippingLabelCents: abs\(parseMoney\(row\.get\("labelCost"\)\)\)/);
+    assert.match(imp, /kind: "refund"/);
+    assert.match(imp, /refund recorded on the sale date/);
+    const sc = appFile("src/worker/services/books/schedule-c.ts");
+    assert.match(sc, /gross \+= s\.itemCents \+ s\.shippingChargedCents/);
+    assert.match(sc, /else returns \+= s\.refundCents/);
+    assert.match(sc, /add\(f\.kind === "advertising" \? "8" : "10", f\.amountCents\)/);
+    // Depop is a marketplace in the app's sales tax report.
+    const st = appFile("src/shared/sales-tax.ts");
+    assert.ok(!/"depop"/.test(st.slice(st.indexOf("SELLER_COLLECTED"), st.indexOf("]);"))));
+  });
+
+  test("the Schedule C lines, by hand", () => {
+    assert.deepEqual(depopLines(), {
+      line1: 12200,
+      line2: 9500,
+      line8: 176,
+      line10: 524,
+      line27a: 1740,
+      tax: 936,
+      net: 9760,
+    });
+    const L = depopLines();
+    assert.equal(L.line1 - L.line8 - L.line10 - L.line27a, L.net);
+    const html = htmlOf(page());
+    for (const s of ["$122.00", "$95.00", "$1.76", "$5.24", "$17.40", "$9.36", "$97.60", "$78.65"])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("no Depop rate stated as fact; sources and the dated check", () => {
+    const html = htmlOf(page());
+    assert.match(DEPOP_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(html.includes(`did not load when we checked (${DEPOP_CHECKED_ON})`));
+    assert.ok(html.includes("we state no processing or boosting rate as Depop's"));
+    assert.ok(!/3\.3%|\$0\.45|8%|12%/.test(html), "no third-party rate");
+    for (const s of [
+      DEPOP_FEE_NEWS_URL,
+      DEPOP_FEE_NEWS_QUOTE,
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      "over $20,000 and more than 200 transactions",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("linked from the Depop platform page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/depop-taxes"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/platforms/depop")).includes(link));
+    assert.ok(!htmlOf(pages.find((p) => p.path === "/platforms/ebay")).includes("Taxes on Depop"));
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/depop-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/depop-taxes`));
   });
 });
 

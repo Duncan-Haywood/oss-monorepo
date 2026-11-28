@@ -281,7 +281,10 @@ function platformPage(p) {
         : p.slug === "whatnot"
           ? `
   <p>Taxes on Whatnot sales, the 1099-K, tips, giveaways and the sales tax Whatnot collects, with one week worked through: <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>.</p>`
-          : ""
+          : p.slug === "depop"
+            ? `
+  <p>Taxes on Depop sales, the 1099-K, boosting and refunds, with a sample download worked through: <a href="${href("/depop-taxes")}">Depop taxes</a>.</p>`
+            : ""
   }
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
@@ -1438,6 +1441,173 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "Whatnot taxes", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// /depop-taxes: the search Depop sellers make ("do I pay taxes on Depop"). The worked example is the app's
+// own Depop fixture (apps/seller-books/test/fixtures/depop-sales.csv, an invented sales download) taken
+// through the importer's arithmetic (importers/depop.ts: item price plus buyer shipping is gross, the USPS
+// label is postage, the Depop Payments and Depop fees are line 10, boosting is advertising on line 8, a
+// refund is its own row on line 2; services/books/schedule-c.ts). test/site.test.mjs re-reads the fixture
+// and checks every figure. Depop's zero US selling fee is quoted from its own newsroom post (15 July 2024,
+// read 2026-11-28). Depop's help centre fee article and its sales tax blog post returned 403 when we
+// checked, so the page states no processing or boosting rate as Depop's and quotes nothing from them. The
+// download's exact header strings are not verified either (docs/IMPORTERS.md, "Depop"), and the page says so.
+export const DEPOP_CHECKED_ON = "2026-11-28";
+export const DEPOP_FEE_NEWS_URL =
+  "https://news.depop.com/depop-removes-selling-fees-in-the-united-states-evolves-fee-structure/";
+export const DEPOP_FEE_NEWS_QUOTE =
+  "Zero selling fees are available to sellers located in the U.S. and to USD sales only";
+const DEPOP_FEE_ARTICLE = "https://depophelp.zendesk.com/hc/en-gb/articles/360001791127";
+/** The two rows of the app's Depop fixture, in cents. */
+export const DEPOP_EXAMPLE = [
+  {
+    title: "Y2K baby tee",
+    itemCents: 2200,
+    shippingCents: 500,
+    labelCents: 500,
+    taxCents: 176,
+    paymentFeeCents: 129,
+    depopFeeCents: 0,
+    boostCents: 176,
+    refundCents: 0,
+    netCents: 1895,
+  },
+  {
+    title: "Carhartt chore coat",
+    itemCents: 9500,
+    shippingCents: 0,
+    labelCents: 1240,
+    taxCents: 760,
+    paymentFeeCents: 395,
+    depopFeeCents: 0,
+    boostCents: 0,
+    refundCents: 9500,
+    netCents: 7865,
+  },
+];
+/** The example's Schedule C lines: 1 gross receipts, 2 returns, 8 advertising (boosting), 10 fees, 27a postage. */
+export function depopLines(rows = DEPOP_EXAMPLE) {
+  const sum = (f) => rows.reduce((a, r) => a + f(r), 0);
+  return {
+    line1: sum((r) => r.itemCents + r.shippingCents),
+    line2: sum((r) => r.refundCents),
+    line8: sum((r) => r.boostCents),
+    line10: sum((r) => r.paymentFeeCents + r.depopFeeCents),
+    line27a: sum((r) => r.labelCents),
+    tax: sum((r) => r.taxCents),
+    net: sum((r) => r.netCents),
+  };
+}
+
+function depopTaxes() {
+  const path = "/depop-taxes";
+  const title = "Depop taxes for resellers";
+  const description =
+    "Do you pay taxes on Depop sales? What is taxable, when a 1099-K comes, why your payout is not income, and where fees, boosting and refunds go on Schedule C.";
+  const cents = (c) => `$${(c / 100).toFixed(2)}`;
+  const L = depopLines();
+  const faqs = [
+    {
+      q: "Do I have to pay taxes on Depop sales?",
+      a: "It depends on what you sold. Your own clothes sold for less than you paid for them are not income. Things you bought to resell, vintage you sourced or pieces you made are business (or hobby) income, whether or not you get a form.",
+    },
+    {
+      q: "Will I get a 1099-K from Depop?",
+      a: "For federal reporting, a payment platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions. Some states require one at lower amounts, and one can come below the line. Business income is reportable either way.",
+    },
+    {
+      q: "Do I report the item price or what Depop paid me?",
+      a: `The sale: the item price plus the shipping the buyer paid. What reaches you is that less the label, the payment processing fee and any boosting fee, and those are expenses. In the example on this page, ${cents(L.net)} was paid out from ${cents(L.line1)} of sales.`,
+    },
+    {
+      q: "Is the Depop boosting fee deductible?",
+      a: "A business can deduct the costs of selling. Boosting is paid promotion, so the worksheet puts it on line 8, advertising, apart from the processing fee on line 10. Your preparer may group it differently; the total deducted is the same.",
+    },
+    {
+      q: "Are there still Depop selling fees in the US?",
+      a: `Depop's own post of 15 July 2024 says “${DEPOP_FEE_NEWS_QUOTE}”, and that the payment processing fee still applies. A sale from before then, or in another currency, can carry a selling fee; ${SITE_NAME} reads whatever your download shows on each row.`,
+    },
+  ];
+  const exRows = DEPOP_EXAMPLE.map(
+    (r) =>
+      `        <tr><th scope="row">${esc(r.title)}</th><td>${cents(r.itemCents)}</td><td>${cents(r.shippingCents)}</td><td>${cents(r.labelCents)}</td><td>${cents(r.paymentFeeCents)}</td><td>${cents(r.boostCents)}</td><td>${cents(r.taxCents)}</td><td>${cents(r.netCents)}</td><td>${r.refundCents ? cents(r.refundCents) : "none"}</td></tr>`,
+  ).join("\n");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">Depop pays you what is left after the label and its fees, so your payout is not the number you report. Here is what is taxable, who sends a form, and how a Depop sales download becomes Schedule C lines, refund included.</p>
+  <h2>Is it taxable?</h2>
+  <p>Clearing out your own wardrobe for less than you paid is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). Sourcing vintage to flip, or making and selling pieces, is business or hobby income, whatever the forms say. A business reports its gross sales on Schedule C and deducts what made them: Depop's fees, boosting, the labels, <a href="${href("/cost-of-goods-sold")}">the cost of the items</a> that sold and <a href="${href("/mileage-deduction")}">the miles</a> to thrift stores and the post office.</p>
+  <h2>When you get a 1099-K</h2>
+  <p>Under the <a href="${IRS_1099K_FAQ_GENERAL}">IRS general FAQs</a>, a platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions; some states are lower, and a form can come below the line. When one comes, <a href="${href("/1099-k")}">box 1a counts gross payments</a>, before fees and refunds, so it will not match your payouts. No form does not mean no income.</p>
+  <h2>Your payout is not your income</h2>
+  <p>Depop's sales download (Selling Hub, then Stats, then Download sales) gives each sale's item price, the buyer's shipping, the label, the sales tax and each fee, and the total paid to you. ${esc(SITE_NAME)} counts the item price and the buyer's shipping as gross receipts, the label as postage, the payment processing and any selling fee as fees, and boosting as advertising. The buyer's sales tax is in its own column and is not in the total paid to you, so it is not income.</p>
+  <div class="worked">
+    <p class="muted">One invented month: the two rows of the sample download ${esc(SITE_NAME)}'s Depop importer is tested on. The coat was refunded in full.</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Item</th><th scope="col">Item price</th><th scope="col">Buyer shipping</th><th scope="col">USPS label</th><th scope="col">Payments fee</th><th scope="col">Boosting fee</th><th scope="col">Sales tax</th><th scope="col">Total paid</th><th scope="col">Refunded</th></tr></thead>
+      <tbody>
+${exRows}
+      </tbody>
+    </table></div>
+    <p>The Depop fee column reads $0.00 on both rows. On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong>; line 2, returns and allowances, <strong>${cents(L.line2)}</strong> (the coat); line 8, advertising, <strong>${cents(L.line8)}</strong> (boosting); line 10, commissions and fees, <strong>${cents(L.line10)}</strong>; line 27a, postage, <strong>${cents(L.line27a)}</strong>. Line 1 less lines 8, 10 and 27a is ${cents(L.line1 - L.line8 - L.line10 - L.line27a)}, exactly the two totals paid; the ${cents(L.tax)} of sales tax is in neither. The refund then comes off on line 2, and the items' cost after that.</p>
+    <p class="muted">The download has no separate refund date, so ${esc(SITE_NAME)} records a refund on the sale date and says so on import; move it if it fell in another year. Whether Depop returned any of its fee on a refund shows in your account, not in this file. Depop's <a href="${DEPOP_FEE_ARTICLE}">fee article</a> did not load when we checked (${esc(DEPOP_CHECKED_ON)}), so we state no processing or boosting rate as Depop's: your download's figures are what was charged. Depop documents what the file contains but not its exact column names, so the importer accepts several spellings; if yours is refused, the column-mapped import reads it.</p>
+  </div>
+  <h2>Selling fees</h2>
+  <p>Depop's <a href="${DEPOP_FEE_NEWS_URL}">post of 15 July 2024</a> says &ldquo;${esc(DEPOP_FEE_NEWS_QUOTE)}&rdquo; and that the usual payment processing fee still applies. Older sales and non-US sales can carry a selling fee; it lands on line 10 with the rest.</p>
+  <h2>Sales tax</h2>
+  <p>The buyer's sales tax is a separate column on the download. ${esc(SITE_NAME)} counts tax on marketplace sales, Depop's included, as collected by the marketplace, keeping it out of income and out of the tax you collected yourself. A sale you make off Depop, at a market or by a payment app, is your own and follows your state's rule. More in <a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>.</p>
+  <h2>Keeping the books in ${esc(SITE_NAME)}</h2>
+  <p>Download your sales from Depop (up to three months per file), import the CSV, and each row becomes a sale with its label and fees beside it and any refund as its own entry. Link items to your stock and their cost moves to cost of goods sold. Sell on Poshmark, eBay or Mercari too? They go in the same books (see the <a href="${href("/platforms/depop")}">Depop page</a> and the others), and the worksheet adds them up.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "depop" })}</div>`;
+  const text = `# ${title}
+
+Depop pays you what is left after the label and its fees, so your payout is not the number you report.
+
+## Is it taxable?
+
+Personal items sold at a loss are not income. Items bought or made to sell are business or hobby income. A business reports gross sales on Schedule C and deducts Depop's fees, boosting, labels, cost of goods and mileage.
+
+## When you get a 1099-K
+
+Federal threshold: over $20,000 and more than 200 transactions (${IRS_1099K_FAQ_GENERAL}); some states are lower. Box 1a is gross, before fees and refunds.
+
+## Your payout is not your income
+
+Gross receipts are item price plus buyer shipping; the label is postage (27a), payment processing and selling fees line 10, boosting line 8 (advertising), refunds line 2. Sales tax is its own column and not income. Invented example (the importer's sample download): ${DEPOP_EXAMPLE.map((r) => `${r.title}: ${cents(r.itemCents)} + ${cents(r.shippingCents)} shipping, paid ${cents(r.netCents)}${r.refundCents ? `, refunded ${cents(r.refundCents)}` : ""}`).join("; ")}. Schedule C: line 1 ${cents(L.line1)}, line 2 ${cents(L.line2)}, line 8 ${cents(L.line8)}, line 10 ${cents(L.line10)}, line 27a ${cents(L.line27a)}; totals paid ${cents(L.net)}. Depop's fee article did not load on ${DEPOP_CHECKED_ON}; no processing or boosting rate is stated as Depop's.
+
+## Selling fees
+
+Depop, 15 July 2024: "${DEPOP_FEE_NEWS_QUOTE}" (${DEPOP_FEE_NEWS_URL}); the payment processing fee still applies.
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Depop taxes", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -3810,6 +3980,7 @@ export function allPages() {
     poshmarkTaxes(),
     ebayTaxes(),
     whatnotTaxes(),
+    depopTaxes(),
     costOfGoodsSold(),
     inventorySpreadsheet(),
     sellThrough(),

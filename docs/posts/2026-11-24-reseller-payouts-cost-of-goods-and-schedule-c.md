@@ -2,7 +2,7 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, facebook-marketplace, poshmark, ebay, amazon, paypal, venmo, cash-app, grailed, stockx, vinted, reverb, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+tags: [resellers, facebook-marketplace, poshmark, depop, ebay, amazon, paypal, venmo, cash-app, grailed, stockx, vinted, reverb, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
 description: "Resellers: bridge a payout back to sales, cost a mixed lot by resale value, map the year onto Schedule C. Seller Books, the hosted books, is open free."
 ---
 
@@ -1245,6 +1245,36 @@ eBay's own fee page (read 2026-11-28: 13.6% of the total for most
 categories, which includes sales tax, plus $0.40 an order over $10) and
 its sales tax page, and works that rate on the jeans: $6.97 on a $48.30
 total.
+
+## Depop: the payout leaves out the label, the boost and the refund (added 2026-11-28)
+
+Depop's sales download (Selling Hub, Stats, Download sales) lists each
+sale's item price, the buyer's shipping, the USPS label, the sales tax, the
+Depop Payments, Depop and boosting fees, any refund, and the total paid to
+you. Seller Books reads it as two kinds of entry: the sale, with the label
+on line 27a, the processing and selling fees on line 10 and boosting on
+line 8 (it is paid promotion), and the refund as its own row on line 2.
+The two invented rows the importer is tested on:
+
+| Item | Price | Buyer shipping | Label | Payments fee | Boost | Paid out | Refunded |
+|---|---|---|---|---|---|---|---|
+| Baby tee | $22.00 | $5.00 | $5.00 | $1.29 | $1.76 | $18.95 | none |
+| Chore coat | $95.00 | $0.00 | $12.40 | $3.95 | $0.00 | $78.65 | $95.00 |
+
+$97.60 was paid out, but line 1 is $122.00 (price plus the buyer's
+shipping). Line 8 takes $1.76, line 10 $5.24 and line 27a $17.40, which
+brings it back to $97.60 exactly; the $9.36 of sales tax is in neither
+figure. The coat's $95.00 refund then comes off on line 2. The download has
+no refund date, so the refund is booked on the sale date and the import
+says so; move it if the refund fell in January. The Depop fee column reads
+$0.00 on both rows: Depop's own post of 15 July 2024 says "Zero selling
+fees are available to sellers located in the U.S. and to USD sales only",
+while the payment processing fee still applies. The new page,
+[Depop taxes](https://marisstella.app/seller-books/depop-taxes), has the
+1099-K threshold and the rest. Depop's fee article did not load when we
+checked on 2026-11-28, so neither the page nor this post states a
+processing or boosting rate as Depop's; your download's figures are what
+was charged.
 
 ## A free inventory spreadsheet, if you are not ready for books yet (added 2026-11-27)
 
