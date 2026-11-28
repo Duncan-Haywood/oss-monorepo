@@ -112,6 +112,12 @@ are choices the app offers, not periods the standard sets (it sets none). The re
 common shop practice (letters A to Z then AA, or zero-padded numbers); I and O are not skipped because
 shops differ. AS9100D additions are not covered and need a source before they are.
 
+The master list import (`src/shared/documents-import.ts`, 2026-11-28) quotes nothing either. Its header
+words ("Doc No", "Rev Date", "Review Frequency") and status words ("Active", "Superseded") are this app's
+reading of how small shops label their lists, not taken from any standard or checked against real files
+yet. Its one rule, that a revision is recorded as released only where the row gives its approval date,
+is the register's own rule (a release needs an approval date), applied to imported rows.
+
 ## Internal audits and corrective actions (`src/shared/internal-audits.ts`)
 
 No source text is quoted. ISO 9001:2015 is copyrighted, so the module names clauses 9.2 ("Internal
