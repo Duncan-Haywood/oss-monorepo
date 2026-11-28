@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "gaClockNeedsAction first written to return true for any moved Mississippi clock (would have listed it 60 days early); caught on review before commit, test added",
-    "worker test ms-affidavit hard-coded a calendar +2 copy date; failed on a Saturday run; fixed to use msPeriodEnd"
+    "worker test ms-affidavit hard-coded a calendar +2 copy date; failed on a Saturday run; fixed to use msPeriodEnd",
+    "edited the generated mississippi-lien-waiver-forms.html directly; changed-ventures caught the drift (state-forms.test.mjs); moved the edit to the hub lien-waiver-forms-by-state.html and regenerated with node state-forms.mjs"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -57,7 +58,7 @@
     "ventures/pay-app-guides/mississippi-lien-waiver-forms.html (counting lines)"
   ],
   "goal": null,
-  "notes": "Local checks: lien-waivers node --test 296 pass; payapps tsc ok; vitest unit 1607 pass/4 skipped; vitest worker 627 pass; pay-app-guides page.test 36 pass; biome clean. Live funnel check (platform/ci/live_funnel_check.mjs) all 4 products ok.",
+  "notes": "Local checks: lien-waivers node --test 296 pass; payapps tsc ok; vitest unit 1607 pass/4 skipped; vitest worker 627 pass; pay-app-guides page.test 36 pass; biome clean. Live funnel check (platform/ci/live_funnel_check.mjs) all 4 products ok. pay-app-guides full node --test 397 pass after the regenerate.",
   "corrections": [],
   "redteam": null,
   "usage": {
