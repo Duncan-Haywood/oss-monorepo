@@ -25,7 +25,9 @@ export function addMonthsUtc(d: Date, k: number): Date {
 
 /** Start of the monthly quota period containing `now`, anchored on `anchor` (or calendar month). */
 export function quotaPeriodStart(anchor: Date | null | undefined, now: Date): Date {
-  if (!anchor || anchor.getTime() > now.getTime()) {
+  // Written as "not at or before now" so an Invalid Date anchor (NaN) falls back to the calendar
+  // month instead of a "NaN-NaN" period that never resets.
+  if (!anchor || !(anchor.getTime() <= now.getTime())) {
     return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   }
   let k =

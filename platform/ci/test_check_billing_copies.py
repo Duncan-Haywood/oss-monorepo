@@ -46,6 +46,29 @@ class DriftTest(unittest.TestCase):
         (self.dirs[0] / "only-here.ts").write_text("x\n")
         self.assertEqual(cbc.drift(self.dirs), ([], []))
 
+    def test_missing_test_for_shared_source_fails(self):
+        (self.dirs[1] / "crypto.test.ts").unlink()
+        errors, _ = cbc.drift(self.dirs)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("crypto.test.ts: missing from b", errors[0])
+
+    def test_test_for_a_source_a_copy_lacks_is_not_owed(self):
+        (self.dirs[0] / "webhook.ts").write_text("x\n")
+        (self.dirs[0] / "webhook.test.ts").write_text("// t\n")
+        self.assertEqual(cbc.drift(self.dirs), ([], []))
+
+    def test_unnamed_test_in_two_copies_is_owed_by_a_third(self):
+        root = self.dirs[0].parents[3]
+        c = root / "c" / "packages" / "billing" / "src"
+        c.mkdir(parents=True)
+        (c / "crypto.ts").write_text("export const x = 1;\n")
+        (c / "crypto.test.ts").write_text("// test\n")
+        for d in self.dirs:
+            (d / "boundaries.test.ts").write_text("// edges\n")
+        errors, _ = cbc.drift(self.dirs + [c])
+        self.assertEqual(len(errors), 1)
+        self.assertIn("boundaries.test.ts: missing from c", errors[0])
+
     def test_main_tree_is_green(self):
         cbc.REPO = self._repo
         errors, _ = cbc.drift(cbc.copies(self._repo))
