@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XRechnung anzeigen: kostenlos öffnen und lesen, ohne Upload</title>
+<meta name="description" content="XRechnung oder ZUGFeRD erhalten? Datei ablegen: Positionen, Summen, USt und Bankverbindung als lesbare Rechnung, im Browser, ohne Upload und ohne Konto.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/xrechnung-anzeigen.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="XRechnung anzeigen: kostenlos öffnen und lesen, ohne Upload">
+<meta property="og:description" content="XRechnung oder ZUGFeRD erhalten? Datei ablegen: Positionen, Summen, USt und Bankverbindung als lesbare Rechnung, im Browser, ohne Upload und ohne Konto.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/xrechnung-anzeigen.html">
+<meta property="og:locale" content="de_DE">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Wie öffne ich eine XRechnung?", "acceptedAnswer": {"@type": "Answer", "text": "Eine XRechnung ist eine reine XML-Datei ohne Druckbild; ein Doppelklick zeigt nur Programmcode. Ziehen Sie die Datei auf dieser Seite in das Feld: Rechnungssteller, Empfänger, Positionen, Umsatzsteuer, Zahlbetrag und Bankverbindung erscheinen als lesbare Rechnung. Die Datei wird im Browser gelesen und nicht hochgeladen."}}, {"@type": "Question", "name": "Muss ich E-Rechnungen schon empfangen können?", "acceptedAnswer": {"@type": "Answer", "text": "Ja. Laut BMF müssen alle inländischen Unternehmer seit dem 1. Januar 2025 E-Rechnungen empfangen können; dafür genügt ein E-Mail-Postfach. Eine Software zum Lesen ist nicht vorgeschrieben, aber ohne einen Viewer lässt sich eine XRechnung kaum prüfen und buchen."}}, {"@type": "Question", "name": "Kann ich auch eine ZUGFeRD-PDF anzeigen?", "acceptedAnswer": {"@type": "Answer", "text": "Ja. Diese Seite liest die in der PDF eingebettete XML und zeigt deren Inhalt. Das ist nützlich, weil laut BMF bei hybriden Rechnungen die XML maßgebend ist, wenn sie vom Druckbild abweicht: Vergleichen Sie die Summen hier mit der PDF-Seite."}}, {"@type": "Question", "name": "Reicht es, die Ansicht auszudrucken und abzulegen?", "acceptedAnswer": {"@type": "Answer", "text": "Nein. Aufzubewahren ist die E-Rechnung selbst, also die XML-Datei (bei ZUGFeRD die PDF mit der eingebetteten XML); ein Ausdruck dieser Ansicht ersetzt sie nicht. Wie Sie das in Ihrer Buchhaltung umsetzen, klären Sie mit Ihrer Steuerberatung."}}, {"@type": "Question", "name": "Gibt es einen offiziellen Viewer?", "acceptedAnswer": {"@type": "Answer", "text": "Ja. Laut BMF stellt die Finanzverwaltung im ELSTER-Portal (e-rechnung.elster.de) einen kostenlosen E-Rechnungsviewer bereit. Diese Seite ist eine Alternative, die zusätzlich ZUGFeRD-PDFs entpackt und die Rechnung auf Wunsch gleich gegen die EN-16931- und XRechnung-Regeln prüft."}}, {"@type": "Question", "name": "Stimmt die Rechnung, wenn sie hier angezeigt wird?", "acceptedAnswer": {"@type": "Answer", "text": "Nicht unbedingt. Die Ansicht zeigt, was in der Datei steht, und rechnet nichts nach. Ob Summen, Umsatzsteuer, Leitweg-ID und Pflichtangaben stimmen, zeigt der Prüfer, den der Link unter der Ansicht mit derselben Datei öffnet."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.cta{display:inline-block;background:#0b5f8a;color:#fff;padding:.6rem 1rem;border-radius:10px;text-decoration:none;font-weight:600;margin:.2rem .4rem .2rem 0;border:0;font:inherit;cursor:pointer}.cta.alt{background:#fff;color:#0b5f8a;border:1px solid #0b5f8a}#drop{border:2px dashed #0b5f8a;border-radius:12px;padding:1.4rem;text-align:center;background:#f6fafc}#drop.over{background:#e1f0f8}#drop label{font-weight:600;cursor:pointer}#error{color:#9b1c1c;font-weight:600}.num{text-align:right;white-space:nowrap}.code{font-family:ui-monospace,monospace;font-size:.85em;color:#3d4f5f;overflow-wrap:anywhere}dd{overflow-wrap:anywhere}.inv-head{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;margin:0 0 1rem}.inv-head h2{margin:.1rem 0}.inv-kind{margin:0;font-weight:700;color:#0b5f8a;text-transform:uppercase;letter-spacing:.04em;font-size:.85rem}dl{display:grid;grid-template-columns:auto 1fr;gap:.2rem .8rem;margin:.4rem 0;font-size:.92rem}dt{color:#3d4f5f}dd{margin:0}.parties{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}.party h3,.pay h3,.notes h3{font-size:.95rem;margin:.6rem 0 .2rem}.lines caption{text-align:left;font-weight:700;padding:.3rem 0}table.sums{max-width:460px;margin-left:auto}table.sums th{text-transform:none;letter-spacing:0;font-size:.92rem;font-weight:400;color:#15202b}tr.payable th,tr.payable td{font-weight:700;border-top:2px solid #15202b}@media print{body{background:#fff;padding:0}main>section:not(#view),main>header,footer,.eyebrow,.noprint{display:none}#view{border:0;box-shadow:none}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./" hreflang="en">E-invoice Preflight</a> · <a href="e-rechnung-pruefen.html">E-Rechnung prüfen</a></p>
+<header>
+<h1>XRechnung anzeigen: die Datei als lesbare Rechnung</h1>
+<p class="lede">Ein Lieferant hat Ihnen eine XRechnung geschickt, und beim Öffnen erscheint nur XML-Code? Legen Sie die Datei hier ab. Die Seite zeigt Rechnungssteller, Positionen, Umsatzsteuer, Zahlbetrag und Bankverbindung so, wie man eine Rechnung liest: kostenlos, ohne Konto, und die Datei verlässt Ihren Rechner nicht.</p>
+</header>
+<section id="open">
+<h2>Rechnung öffnen</h2>
+<div id="drop">
+<p><label for="file">XRechnung (XML) oder ZUGFeRD-/Factur-X-PDF auswählen</label><br><input id="file" type="file" accept=".xml,.pdf,application/xml,text/xml,application/pdf"></p>
+<p class="fine">oder die Datei hierher ziehen · <button type="button" id="sample" class="cta alt">Beispiel-XRechnung ansehen</button></p>
+</div>
+<p id="error" role="alert" hidden></p>
+<p class="fine"><label><input id="usageOptOut" type="checkbox"> Nicht mitzählen</label>: Die Seite zählt nur, wie oft an welchem Tag eine Rechnung angezeigt wurde, lokal in Ihrem Browser, ohne Inhalte, Dateinamen oder Beträge.</p>
+</section>
+<section id="view" hidden aria-live="polite">
+<div id="invoice"></div>
+<p class="noprint"><a class="cta" id="check" href="./?profil=xrechnung#drop">Diese Rechnung prüfen</a> <button type="button" class="cta alt" id="print">Ansicht drucken</button></p>
+<p class="fine noprint">Die Ansicht zeigt, was in der Datei steht, und rechnet nichts nach. Ob Summen, Umsatzsteuer, Leitweg-ID und Pflichtangaben stimmen, sagt der Prüfer: Legen Sie dieselbe Datei dort noch einmal ab (die Regeln für XRechnung sind schon ausgewählt).</p>
+</section>
+<section>
+<h2>Was angezeigt wird</h2>
+<ul>
+<li><strong>Kopf:</strong> Rechnungsart (Rechnung, Gutschrift, Korrektur, Teil- und Schlussrechnung), Nummer, Datum, Fälligkeit, Leistungszeitraum, Käuferreferenz bzw. Leitweg-ID, Bestellnummer.</li>
+<li><strong>Parteien:</strong> Rechnungssteller und -empfänger mit Anschrift, USt-IdNr., Steuernummer, elektronischer Adresse und Kontakt.</li>
+<li><strong>Positionen:</strong> Bezeichnung, Menge, Einzelpreis, Steuersatz, Nettobetrag, Nachlässe und Zuschläge.</li>
+<li><strong>Summen:</strong> netto, Umsatzsteuer je Satz oder Kategorie (auch Reverse Charge und steuerbefreit, mit Grund), brutto, bereits gezahlt, Zahlbetrag.</li>
+<li><strong>Zahlung:</strong> Zahlungsart, IBAN, BIC, Verwendungszweck, Bemerkungen.</li>
+</ul>
+<p>Gelesen werden XRechnung als UBL oder CII (Version 2 und 3), ZUGFeRD 2.x und Factur-X als PDF (die eingebettete XML) und Peppol-BIS-Rechnungen. ZUGFeRD 1.0 und nationale Formate anderer Länder (etwa FatturaPA) zeigt diese Seite nicht an.</p>
+<p class="fine">Nicht angezeigt werden Felder, die der Leser nicht übernimmt, etwa Mengeneinheiten, Artikelnummern und Anhänge in der XML. Maßgeblich bleibt die Datei selbst.</p>
+</section>
+<section>
+<h2>E-Rechnungen empfangen: was seit 2025 gilt</h2>
+<p>Seit dem 1. Januar 2025 müssen alle inländischen Unternehmer E-Rechnungen empfangen können; laut BMF genügt dafür ein E-Mail-Postfach. Ausstellen müssen Unternehmen mit mehr als 800.000 Euro Vorjahresumsatz sie ab dem 1. Januar 2027, alle anderen ab dem 1. Januar 2028 (bis dahin gelten Übergangsfristen). Es kommen also immer mehr XML-Rechnungen an, auch bei Betrieben, die selbst noch Papier- oder PDF-Rechnungen schreiben.</p>
+<p>Aufzubewahren ist die E-Rechnung im Original, also die XML-Datei (bei ZUGFeRD die PDF mit eingebetteter XML). Ein Ausdruck dieser Ansicht ist eine Lesehilfe, kein Ersatz.</p>
+<p class="fine">Quellen: <a href="https://www.bundesfinanzministerium.de/Content/DE/FAQ/e-rechnung.html" rel="noopener">BMF, Fragen und Antworten zur E-Rechnung</a>. Die Fristen im Einzelnen: <a href="e-rechnung-pruefen.html">E-Rechnung prüfen</a>. Dies ist eine Zusammenfassung, keine Steuerberatung.</p>
+</section>
+<section>
+<h2>Die Rechnung kommt zurück oder sieht falsch aus?</h2>
+<p>Wer selbst E-Rechnungen schreibt, kann sie vor dem Versand <a href="e-rechnung-pruefen.html">kostenlos prüfen</a>. Die häufigsten Fehlermeldungen (BR-DE-15, BR-CO-10 und weitere) sind <a href="rules/de/index.html">auf Deutsch erklärt</a>. Ob XRechnung oder ZUGFeRD das richtige Format ist: <a href="xrechnung-oder-zugferd.html">XRechnung oder ZUGFeRD, der Unterschied</a>.</p>
+</section>
+<section>
+<h2>Für Steuerberater und Rechnungsteams</h2>
+<p>Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch erklärt, eine korrigierte Datei vorschlägt und die Rechnungen vieler Mandanten auf einmal prüft, ist in Entwicklung. Noch ist nichts zu kaufen: <a href="https://marisstella.app/industries/eu-e-invoicing/">Frühzugang und Fristen</a>.</p>
+</section>
+<section id="faq">
+<h2>Häufige Fragen</h2>
+<h3>Wie öffne ich eine XRechnung?</h3>
+<p>Eine XRechnung ist eine reine XML-Datei ohne Druckbild; ein Doppelklick zeigt nur Programmcode. Ziehen Sie die Datei auf dieser Seite in das Feld: Rechnungssteller, Empfänger, Positionen, Umsatzsteuer, Zahlbetrag und Bankverbindung erscheinen als lesbare Rechnung. Die Datei wird im Browser gelesen und nicht hochgeladen.</p>
+<h3>Muss ich E-Rechnungen schon empfangen können?</h3>
+<p>Ja. Laut BMF müssen alle inländischen Unternehmer seit dem 1. Januar 2025 E-Rechnungen empfangen können; dafür genügt ein E-Mail-Postfach. Eine Software zum Lesen ist nicht vorgeschrieben, aber ohne einen Viewer lässt sich eine XRechnung kaum prüfen und buchen.</p>
+<h3>Kann ich auch eine ZUGFeRD-PDF anzeigen?</h3>
+<p>Ja. Diese Seite liest die in der PDF eingebettete XML und zeigt deren Inhalt. Das ist nützlich, weil laut BMF bei hybriden Rechnungen die XML maßgebend ist, wenn sie vom Druckbild abweicht: Vergleichen Sie die Summen hier mit der PDF-Seite.</p>
+<h3>Reicht es, die Ansicht auszudrucken und abzulegen?</h3>
+<p>Nein. Aufzubewahren ist die E-Rechnung selbst, also die XML-Datei (bei ZUGFeRD die PDF mit der eingebetteten XML); ein Ausdruck dieser Ansicht ersetzt sie nicht. Wie Sie das in Ihrer Buchhaltung umsetzen, klären Sie mit Ihrer Steuerberatung.</p>
+<h3>Gibt es einen offiziellen Viewer?</h3>
+<p>Ja. Laut BMF stellt die Finanzverwaltung im ELSTER-Portal (e-rechnung.elster.de) einen kostenlosen E-Rechnungsviewer bereit. Diese Seite ist eine Alternative, die zusätzlich ZUGFeRD-PDFs entpackt und die Rechnung auf Wunsch gleich gegen die EN-16931- und XRechnung-Regeln prüft.</p>
+<h3>Stimmt die Rechnung, wenn sie hier angezeigt wird?</h3>
+<p>Nicht unbedingt. Die Ansicht zeigt, was in der Datei steht, und rechnet nichts nach. Ob Summen, Umsatzsteuer, Leitweg-ID und Pflichtangaben stimmen, zeigt der Prüfer, den der Link unter der Ansicht mit derselben Datei öffnet.</p>
+</section>
+<footer>
+<p><strong>Ohne Gewähr (no warranty).</strong> Dieses Werkzeug ist kostenlos und wird ohne jede ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Es ist keine Rechts-, Steuer-, Finanz- oder Buchhaltungsberatung und ersetzt keine fachkundige Person (not legal, tax, financial, or accounting advice). <strong>Prüfen Sie das Ergebnis selbst, bevor Sie sich darauf verlassen.</strong> Soweit gesetzlich zulässig, haften die Autoren nicht für Schäden aus der Nutzung.</p>
+<p><strong>Nichts verlässt Ihren Browser.</strong> Die Datei wird lokal gelesen und angezeigt. Fristen und Schwellenwerte können sich ändern; maßgeblich sind die aktuellen Texte des Bundesministeriums der Finanzen.</p>
+<p class="support">Free to use and source available. Kostenlos und quelloffen: der <a href="LICENSE" rel="noopener">Code steht unter der FSL-1.1-MIT-Lizenz</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> ist freiwillig und ändert nichts an dem, was das Werkzeug tut.</p>
+</footer>
+</main>
+<script type="module">
+import { loadInvoiceForView } from "./viewer-load.mjs";
+import { renderInvoiceHtml } from "./viewer.mjs";
+import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
+
+const fileInput = document.getElementById("file");
+const drop = document.getElementById("drop");
+const errorBox = document.getElementById("error");
+const view = document.getElementById("view");
+const target = document.getElementById("invoice");
+const optOut = document.getElementById("usageOptOut");
+optOut.checked = readOptOut(usageStorage());
+optOut.addEventListener("change", () => writeOptOut(usageStorage(), optOut.checked));
+
+async function show(name, bytes) {
+  errorBox.hidden = true;
+  try {
+    const { invoice, source } = await loadInvoiceForView(name, bytes);
+    target.innerHTML = renderInvoiceHtml(invoice, { source });
+    view.hidden = false;
+    view.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    recordUsage(usageStorage(), optOut.checked, "xrechnung_viewed");
+  } catch (error) {
+    view.hidden = true;
+    errorBox.textContent = error && error.message ? error.message : String(error);
+    errorBox.hidden = false;
+  }
+}
+
+async function readFile(file) {
+  if (!file) return;
+  await show(file.name, new Uint8Array(await file.arrayBuffer()));
+}
+
+fileInput.addEventListener("change", () => readFile(fileInput.files[0]));
+drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); readFile(e.dataTransfer.files[0]); });
+document.getElementById("sample").addEventListener("click", async () => {
+  const response = await fetch("examples/xrechnung-cii-invoice.xml");
+  await show("xrechnung-cii-invoice.xml", new Uint8Array(await response.arrayBuffer()));
+});
+document.getElementById("print").addEventListener("click", () => window.print());
+</script>
+</body></html>

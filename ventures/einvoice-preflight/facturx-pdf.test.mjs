@@ -44,7 +44,7 @@ test("XRechnung goes in as xrechnung.xml with level XRECHNUNG", () => {
 test("Peppol is refused with the reason", () => {
   const r = generateFacturX(draft, { profile: "peppol", fonts });
   assert.equal(r.ok, false);
-  assert.match(r.errors[0].message, /en16931 or xrechnung/);
+  assert.match(r.errors[0].message, /en16931, france or xrechnung/);
 });
 
 test("draft errors come back without a PDF", () => {
