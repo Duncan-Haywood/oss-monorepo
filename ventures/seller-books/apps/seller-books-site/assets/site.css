@@ -243,6 +243,9 @@ td {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+.worked td.words {
+  text-align: left;
+}
 .worked .total th,
 .worked .total td {
   font-weight: 700;
@@ -412,4 +415,20 @@ td {
 }
 .nowrap {
   white-space: nowrap;
+}
+/* Worked examples on a phone: tighter cells so a four-column example fits its card without scrolling. */
+.worked th .muted {
+  font-weight: 400;
+}
+@media (max-width: 720px) {
+  .worked {
+    padding: 12px;
+  }
+  .worked table {
+    font-size: 0.9rem;
+  }
+  .worked th,
+  .worked td {
+    padding: 8px 4px;
+  }
 }

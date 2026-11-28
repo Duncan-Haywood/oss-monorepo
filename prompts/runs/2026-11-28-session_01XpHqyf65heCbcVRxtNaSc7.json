@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqyf65heCbcVRxtNaSc7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T15:38:54Z",
+  "ended": "2026-11-28T15:49:08Z",
+  "wall_minutes": 10.47,
+  "tokens_in": 12243866,
+  "tokens_out": 35480,
+  "cost_usd": 4.5175,
+  "tool_calls": 83,
+  "task": "seller-books (bet #5) front door: PayPal taxes page [paypal-taxes]",
+  "projects": [
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20160",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "Local run_workflow_locally failures (pages.yml, conflict-markers, seller-books-site stills) were sparse-checkout artifacts, cleared by `git sparse-checkout disable`; seller-books-site re-ran 125/125 and biome ci clean."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named bet #5 as having the fewest front-door PRs, counting merged ones only; six seller-books platform-tax pages were already open as PRs (Mercari, Depop, Etsy, TikTok Shop, StockX, Amazon), so its suggestion pointed at the most crowded bet. PR #20157 (open) addresses this."
+    },
+    {
+      "file": "portfolio/ledger/supersede_check.py",
+      "issue": "Timed out at 60 s on PR #19718 (stalled, content already on main via another PR), so a stale open PR could not be checked cheaply; left open."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes left the clone in a narrowed non-cone sparse checkout with !*.webp/!*.png patterns, so platform/pages/ and the site's committed stills vanished mid-run; seller-books-site tests then failed 4 (stills) and pages.yml failed 'no publishable product'. `git sparse-checkout disable` restored them and the same tests passed 125/125. PR #20150 (open) names a sparse-checkout fix."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No separate blog post: the deliverable is itself a customer-facing SEO page, and the owner asked to consolidate posts rather than add one per PR.",
+      "did": "The page is the write-up.",
+      "result": "One page, linked from footer, platform page, llms.txt and sitemap."
+    }
+  ],
+  "writeups": [
+    "ventures/seller-books/apps/seller-books-site/src/pages.mjs (/seller-books/paypal-taxes, a for-customers SEO page; no separate blog post)"
+  ],
+  "goal": null,
+  "notes": "Security queue: none workable (exit 3). IDEAS empty. Router: ventures/1. All bets' Next items gated (demand/owner/source), so took demand work on bet #5. Mercari/Depop/etc. were claimed by open PRs; PayPal was unclaimed and has an importer fixture. Claimed claim/seller-books/paypal-taxes. PayPal's help article served no readable text (403s, then a JS shell), so the page quotes only the IRS 'Understanding your Form 1099-K' page (reviewed 17-Nov-2026, read 2026-11-28 via curl). Example = the importer's 14-row fixture: 5 rows kept (line 1 $125.00, line 2 $20.00, line 10 $25.23, $3.50 sales tax apart; line1-line2-line10 = Net $83.27 - tax), 9 left out with reasons; test re-reads fixture, importer and schedule-c.ts. Verification: seller-books-site node --test 125/125 pass; venture-preflight seller-books 'preflight clean' (EXIT 0, on the first commit); risk_review nothing blocked; Playwright at 360 px: PayPal tables 0 px overflow, Whatnot 151->87, eBay 229->155 after the shared .worked CSS change, no page errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b68e32fb-5316-5eaa-9bb5-44751a6e98fd",
+    "transcripts": 1,
+    "first": "2026-11-28T15:38:54Z",
+    "last": "2026-11-28T15:49:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 160,
+        "output": 35480,
+        "thinking": 6947,
+        "cache_read": 12069534,
+        "cache_write_5m": 0,
+        "cache_write_1h": 174172,
+        "api_equivalent_usd": 4.5175,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 160,
+      "output": 35480,
+      "thinking": 6947,
+      "cache_read": 12069534,
+      "cache_write_5m": 0,
+      "cache_write_1h": 174172,
+      "api_equivalent_usd": 4.5175,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 74,
+      "Read": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.47,
+      "active_minutes": 10.46,
+      "model_minutes": 6.61,
+      "tool_minutes": 3.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a developer researching IRS wording, working the fixture through the importer and writing a tested page",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 88.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

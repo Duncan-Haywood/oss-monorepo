@@ -282,6 +282,11 @@ function platformPage(p) {
           ? `
   <p>Taxes on Whatnot sales, the 1099-K, tips, giveaways and the sales tax Whatnot collects, with one week worked through: <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>.</p>`
           : ""
+  }${
+    p.slug === "paypal"
+      ? `
+  <p>Taxes on sales paid by PayPal, goods and services or friends and family, the 1099-K, and one month of activity worked through: <a href="${href("/paypal-taxes")}">PayPal taxes</a>.</p>`
+      : ""
   }
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
@@ -1438,6 +1443,258 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "Whatnot taxes", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// /paypal-taxes: the search sellers paid through PayPal make ("do I pay taxes on PayPal sales", "PayPal
+// 1099-K", "PayPal goods and services taxes"). The worked example is the app's own PayPal fixture
+// (apps/seller-books/test/fixtures/paypal-activity-download.csv, an invented Activity download) taken
+// through the importer's rules (importers/paypal.ts): a completed payment received is a sale, its Gross
+// less shipping, insurance and sales tax is the item, shipping is in gross receipts and the tax is kept
+// apart; the Fee column is a fee (line 10), given back in part on a refund; a chargeback fee row is a fee;
+// holds, transfers, currency conversions, payments sent, credits back, marketplace payouts, pending rows
+// and other currencies are left out with a reason (services/books/schedule-c.ts sums the lines).
+// test/site.test.mjs re-reads the fixture and the importer and checks every figure. The IRS wording is
+// from "Understanding your Form 1099-K" (page last reviewed 17-Nov-2026), read 2026-11-28. PayPal's own
+// help article served no readable text to an automated reader that day, so nothing here quotes PayPal.
+export const PAYPAL_CHECKED_ON = "2026-11-28";
+export const IRS_1099K_THRESHOLD_QUOTE =
+  "Third party settlement organizations (TPSOs) (payment apps and online marketplaces) are required to report payments on Form 1099-K when the total amount of payments you receive for goods or services through the platform exceeds $20,000 in more than 200 transactions.";
+export const IRS_PERSONAL_PAYMENTS_QUOTE =
+  "Money you received from friends and family as a gift or repayment for a personal expense should not be reported on a Form 1099-K. These payments aren't taxable income.";
+export const IRS_MARK_NON_BUSINESS_QUOTE =
+  "Be sure to note these types of payments as non-business in the payment apps when possible.";
+/**
+ * The rows of the app's PayPal fixture the importer keeps, in file order (PayPal lists newest first).
+ * kind: sale (a completed payment received), refund (money sent back to a buyer), fee (a fee row of its
+ * own). grossCents is PayPal's Gross; feeCents is the fee charged (negative when given back, as on a
+ * refund); netCents is PayPal's Net.
+ */
+export const PAYPAL_EXAMPLE = [
+  {
+    title: "Refund on the denim jacket",
+    kind: "refund",
+    grossCents: -2000,
+    shipCents: 0,
+    taxCents: 0,
+    feeCents: -40,
+    netCents: -1960,
+  },
+  {
+    title: "Vintage lamp, local pickup",
+    kind: "sale",
+    grossCents: 2500,
+    shipCents: 0,
+    taxCents: 0,
+    feeCents: 117,
+    netCents: 2383,
+  },
+  {
+    title: "Wool coat, shipped",
+    kind: "sale",
+    grossCents: 6350,
+    shipCents: 800,
+    taxCents: 350,
+    feeCents: 271,
+    netCents: 6079,
+  },
+  {
+    title: "Chargeback fee",
+    kind: "fee",
+    grossCents: -2000,
+    shipCents: 0,
+    taxCents: 0,
+    feeCents: 2000,
+    netCents: -2000,
+  },
+  {
+    title: "Denim jacket",
+    kind: "sale",
+    grossCents: 4000,
+    shipCents: 0,
+    taxCents: 0,
+    feeCents: 175,
+    netCents: 3825,
+  },
+];
+/** The fixture's rows the importer leaves out, in file order, with what to do about each. */
+export const PAYPAL_LEFT_OUT = [
+  ["Transfer to the bank, $100.00", "Your own money moving, not income or a cost."],
+  [
+    "Payment from eBay, $50.00",
+    "eBay's own report carries the sales behind it; counting both would count them twice.",
+  ],
+  [
+    "Hold for a dispute on the wool coat, $15.00",
+    "Money set aside, not earned or spent. If the dispute is lost, the reversal is a later row.",
+  ],
+  [
+    "Listing app subscription you paid, $9.99",
+    "A payment you sent: enter it as an expense (it is a business cost).",
+  ],
+  [
+    "Payment still pending, $15.00",
+    "Only completed payments are imported; it comes in with a later download.",
+  ],
+  [
+    "Payment in euros, €30.00",
+    "The books are in US dollars: download in USD, or type the sale in.",
+  ],
+  [
+    "Refund from a supply store, $12.00",
+    "Money back on something you bought: lower that cost instead.",
+  ],
+  ["Currency conversion, $5.00", "Your own money changing currency."],
+  ["Poly mailers you bought, $30.00", "A payment you sent: enter it as a supplies expense."],
+];
+/** The example's Schedule C lines: 1 gross receipts (items and the shipping buyers paid), 2 returns, 10 fees; tax kept apart. */
+export function paypalLines(rows = PAYPAL_EXAMPLE) {
+  const sum = (f) => rows.reduce((a, r) => a + f(r), 0);
+  return {
+    line1: sum((r) => (r.kind === "sale" ? r.grossCents - r.taxCents : 0)),
+    line2: sum((r) => (r.kind === "refund" ? -r.grossCents - r.taxCents : 0)),
+    line10: sum((r) => r.feeCents),
+    salesTax: sum((r) => (r.kind === "sale" ? r.taxCents : 0)),
+    net: sum((r) => r.netCents),
+  };
+}
+
+function paypalTaxes() {
+  const path = "/paypal-taxes";
+  const title = "PayPal taxes for resellers";
+  const description =
+    "Do you pay taxes on PayPal sales? Goods and services or friends and family, when a 1099-K comes, and one month of an Activity download worked to Schedule C.";
+  const cents = (c) => `${c < 0 ? "−" : ""}$${(Math.abs(c) / 100).toFixed(2)}`;
+  const L = paypalLines();
+  const faqs = [
+    {
+      q: "Do I have to pay taxes on PayPal sales?",
+      a: "On the profit from things you bought to resell, yes, whether or not a form arrives. PayPal is only how the money reached you: what makes it income is what was sold. Your own things sold for less than you paid are not income, and neither is a friend paying you back.",
+    },
+    {
+      q: "Does PayPal send a 1099-K?",
+      a: `PayPal is a payment app, which the IRS calls a third party settlement organization. In the IRS's words, “${IRS_1099K_THRESHOLD_QUOTE}” Some states are lower, and a form can arrive below the line. The income is reportable either way.`,
+    },
+    {
+      q: "Is friends and family money taxable?",
+      a: `Not when it really is a gift or a repayment. The IRS: “${IRS_PERSONAL_PAYMENTS_QUOTE}” A buyer who pays for an item as friends and family is still paying for an item, though: the sale is income however the payment was labelled.`,
+    },
+    {
+      q: "Are PayPal fees deductible?",
+      a: `Yes, for a business: the fee on each payment received, and chargeback or dispute fees, are costs of selling and sit with the other fees on line 10. When you refund a buyer, PayPal may give part of the original fee back; that part lowers the fee. In the example on this page, the refund handed back ${cents(40)} of fee.`,
+    },
+    {
+      q: "My eBay or Poshmark payouts go to PayPal. Do I count them?",
+      a: `Not again. A payout is the net of sales the marketplace already reports, so count the sales from the marketplace's own report and leave the payout out. ${SITE_NAME}'s PayPal importer skips payments from the marketplaces it imports for that reason.`,
+    },
+  ];
+  const amt = (c) => `<span class="nowrap">${cents(c)}</span>`;
+  const inGross = (r) =>
+    [
+      r.shipCents && `${cents(r.shipCents)} shipping`,
+      r.taxCents && `${cents(r.taxCents)} sales tax`,
+    ]
+      .filter(Boolean)
+      .join(" and ");
+  const exRows = PAYPAL_EXAMPLE.map(
+    (r) =>
+      `        <tr><th scope="row">${esc(r.title)}${inGross(r) ? `<br><span class="muted">${esc(inGross(r))} in the gross</span>` : ""}</th><td>${amt(r.grossCents)}</td><td>${amt(r.feeCents)}</td><td>${amt(r.netCents)}</td></tr>`,
+  ).join("\n");
+  const outRows = PAYPAL_LEFT_OUT.map(
+    ([a, b]) => `        <tr><th scope="row">${esc(a)}</th><td class="words">${esc(b)}</td></tr>`,
+  ).join("\n");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">PayPal is where the sales no marketplace pays out land: a local pickup, an Instagram or Facebook sale paid by PayPal, your own site's checkout. It is also where friends pay you back, marketplaces send payouts and you pay for supplies. So the PayPal balance is not the number you report. Here is what is taxable, when a 1099-K comes, and one month of PayPal activity worked into Schedule C lines.</p>
+  <h2>Is it taxable?</h2>
+  <p>What you sold decides it, not how you were paid. Selling your own things for less than you paid is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). Things bought to resell are business or hobby income, paid by PayPal, cash or anything else. And money that is not a sale at all is not income: the <a href="${IRS_1099K}">IRS page on Form 1099-K</a> says &ldquo;${esc(IRS_PERSONAL_PAYMENTS_QUOTE)}&rdquo;</p>
+  <h2>Goods and services, or friends and family</h2>
+  <p>A PayPal payment is sent either for goods and services or to friends and family. That label is what the 1099-K follows: the form reports payments for goods or services, and the IRS asks you to mark personal ones that way: &ldquo;${esc(IRS_MARK_NON_BUSINESS_QUOTE)}&rdquo; The label does not change the tax. A buyer who pays for a jacket as friends and family has still bought a jacket, and that sale is income; it just reaches no form, and the buyer gives up PayPal's purchase protection.</p>
+  <h2>When PayPal sends a 1099-K</h2>
+  <p>&ldquo;${esc(IRS_1099K_THRESHOLD_QUOTE)}&rdquo; (<a href="${IRS_1099K}">IRS</a>). Some states set lower thresholds, and the IRS adds that you may get one below the line anyway. When one comes, <a href="${href("/1099-k")}">box 1a counts gross payments</a>, before refunds and fees, so it will not match your profit. No form does not mean no income.</p>
+  <h2>What one month looks like</h2>
+  <p>PayPal's Activity download (Activity, Statements, Activity download, as a CSV) has one row per balance entry: a payment received or sent, a refund, a fee, a hold, a transfer to your bank, a currency conversion. For a payment received, Gross is what the buyer paid, shipping and any sales tax included; Fee is PayPal's fee; Net is what reached your balance.</p>
+  <div class="worked">
+    <p class="muted">One invented month: the sample download ${esc(SITE_NAME)}'s PayPal importer is tested on. Of its 14 rows, these 5 are income, refunds or fees:</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Row</th><th scope="col">Gross</th><th scope="col">Fee</th><th scope="col">Net</th></tr></thead>
+      <tbody>
+${exRows}
+      </tbody>
+    </table></div>
+    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong> (three sales, with the ${cents(800)} the coat's buyer paid for shipping; the ${cents(350)} of sales tax is not yours and is kept apart); line 2, returns and allowances, <strong>${cents(L.line2)}</strong> (the jacket's refund); line 10, commissions and fees, <strong>${cents(L.line10)}</strong> (the three payments' fees, less the ${cents(40)} given back on the refund, plus the ${cents(2000)} chargeback fee). Line 1 less those two is ${cents(L.line1 - L.line2 - L.line10)}: the month's Net added up (${cents(L.net)}) less the sales tax. The postage you paid and the items' cost come off after that.</p>
+    <p class="muted">The other 9 rows are left out, each for a reason:</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Row</th><th scope="col">Why it is not income or a fee</th></tr></thead>
+      <tbody>
+${outRows}
+      </tbody>
+    </table></div>
+  </div>
+  <h2>Payouts from marketplaces</h2>
+  <p>eBay, Poshmark, Etsy and the others can pay out to PayPal. Each payout is the net of sales the marketplace already counted, so the sales come from the marketplace's own report, with its fees beside them, and the payout is left out. Count both and the same sale is income twice. See the <a href="${href("/ebay-taxes")}">eBay</a> and <a href="${href("/poshmark-taxes")}">Poshmark</a> pages for their reports.</p>
+  <h2>Sales tax</h2>
+  <p>On a sale through a marketplace, the marketplace usually collects the sales tax. On a sale paid straight into your PayPal account, nobody collected it but you: whatever tax the buyer paid at your checkout is the state's money, to file and pay on your state return. ${esc(SITE_NAME)} keeps it out of gross receipts and lists it as sales tax you collected. Whether your state taxes the item, and whether you need a permit, is your state's rule: <a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>.</p>
+  <h2>Keeping the books in ${esc(SITE_NAME)}</h2>
+  <p>Download the Activity CSV in US dollars and import it; each row is kept once by its transaction ID, so overlapping months are not counted twice. Payments received come in as sales with their fees, shipping and tax split out, refunds lower the month they were given, and every row left out is listed with its reason. Every payment received is imported as a sale, because the file cannot tell a buyer from a friend paying you back: delete the ones that were not sales. Supplies you paid for by PayPal go in as expenses, stock as inventory. More on the <a href="${href("/platforms/paypal")}">PayPal page</a>; paid by Venmo too? It goes in the same books (see <a href="${href("/platforms/venmo")}">Venmo</a>).</p>
+  <p class="muted">The IRS page was read on ${esc(PAYPAL_CHECKED_ON)}; rules and thresholds change, so check it before you file.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "pp" })}</div>`;
+  const text = `# ${title}
+
+PayPal holds sales no marketplace pays out, plus payouts, repayments from friends and purchases, so the balance is not the number you report.
+
+## Is it taxable?
+
+What was sold decides it, not how it was paid. Personal items sold at a loss are not income; items bought to resell are business or hobby income. IRS (${IRS_1099K}): "${IRS_PERSONAL_PAYMENTS_QUOTE}"
+
+## Goods and services, or friends and family
+
+The 1099-K reports payments for goods or services. "${IRS_MARK_NON_BUSINESS_QUOTE}" A sale paid as friends and family is still a sale.
+
+## When PayPal sends a 1099-K
+
+"${IRS_1099K_THRESHOLD_QUOTE}" Some states are lower. Box 1a is gross payments, before refunds and fees.
+
+## One month worked through
+
+Invented example (the importer's sample Activity download; 5 of 14 rows count): ${PAYPAL_EXAMPLE.map((r) => `${r.title}: gross ${cents(r.grossCents)}, fee ${cents(r.feeCents)}, net ${cents(r.netCents)}`).join("; ")}. Schedule C: line 1 ${cents(L.line1)} (shipping in, ${cents(L.salesTax)} sales tax kept apart), line 2 ${cents(L.line2)}, line 10 ${cents(L.line10)} (fees less ${cents(40)} given back on the refund, plus a ${cents(2000)} chargeback fee). Left out: ${PAYPAL_LEFT_OUT.map(([a]) => a).join("; ")}.
+
+## Marketplace payouts
+
+Count the marketplace's own report, not the payout to PayPal, or each sale is counted twice.
+
+## Sales tax
+
+Tax a buyer paid at your own checkout is the state's money, kept out of gross receipts. IRS page read ${PAYPAL_CHECKED_ON}.
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "PayPal taxes", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -3810,6 +4067,7 @@ export function allPages() {
     poshmarkTaxes(),
     ebayTaxes(),
     whatnotTaxes(),
+    paypalTaxes(),
     costOfGoodsSold(),
     inventorySpreadsheet(),
     sellThrough(),
