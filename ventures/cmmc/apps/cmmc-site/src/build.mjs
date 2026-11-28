@@ -15,6 +15,7 @@ import { buildWorkbook, SHEET_FILE } from "./assessment-sheet.mjs";
 import { launchFromEnv, launchState, signinUrl, signupUrl } from "./launch.mjs";
 import { buildPages, humanDate, SHOTS, statusBox } from "./pages.mjs";
 import { publicPlans } from "./plans.mjs";
+import { CROSSWALK_FILE, crosswalkCsv } from "./rev2-vs-rev3.mjs";
 import {
   DEFAULT_BASE_PATH,
   DEFAULT_SITE_URL,
@@ -371,6 +372,7 @@ export function build({
   // one directory. Only the open build shows them.
   if (launch.open)
     for (const s of Object.values(SHOTS)) files[s.file] = readFileSync(join(APP, "assets", s.file));
+  files[CROSSWALK_FILE] = crosswalkCsv();
   for (const [name, content] of Object.entries(files)) {
     const target = join(outDir, name);
     mkdirSync(dirname(target), { recursive: true });

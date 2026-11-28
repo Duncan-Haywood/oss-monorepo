@@ -4,6 +4,7 @@ seo_title: "Soffit and fascia calculator: panels, fascia boards, J-channel"
 date: 2026-11-07
 tags: [wall-framing-takeoff, construction, calculators]
 description: "Type a house size and overhangs; get soffit panels, fascia boards and J-channel packed into stock lengths with waste. Runs in your browser."
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 The framing takeoff already counted soffit, fascia and J-channel from the roof it had laid out. It had no page of its own, so anyone searching for "how much soffit do I need" never reached it. It does now: `soffit-fascia-calculator.html`.

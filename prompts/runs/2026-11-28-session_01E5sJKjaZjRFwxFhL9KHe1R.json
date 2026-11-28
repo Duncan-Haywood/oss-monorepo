@@ -1,0 +1,159 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKjaZjRFwxFhL9KHe1R",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T07:18:37Z",
+  "ended": "2026-11-28T07:32:22Z",
+  "wall_minutes": 14.07,
+  "tokens_in": 16691435,
+  "tokens_out": 72948,
+  "cost_usd": 6.626,
+  "tool_calls": 98,
+  "task": "Bet #3 front door (fewest front-door PRs per roadmap_claim --bets): French micro-entrepreneur e-invoice page; found and fixed the creator writing no French invoice that passes BR-FR",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20037",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 21,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "patch script replacement for the CII CategoryCode line used the wrong indentation",
+      "fix": "corrected the pattern; the script writes only on full success, so nothing half-applied"
+    },
+    {
+      "what": "impots.gouv.fr and entreprendre.service-public.gouv.fr refused by the proxy (403) and by WebFetch (DNS)",
+      "fix": "the page states only facts already in the checked deadline file (DGFiP, re-read 2026-11-27) and the bundled rule files; dropped two unsourced sentences (B2C e-reporting scope, SIE issuing VAT numbers)"
+    },
+    {
+      "what": "merge conflict with PR #20032 (Kleinunternehmer) in create.html; git's auto-merge also put two <loc> lines in one sitemap <url>, failing peppol-factuur-controleren.test.mjs; main's new BR-CO-26 creator check ignored legal_id (BT-30)",
+      "fix": "kept both seller id fields, split the sitemap entry, let legal_id satisfy BR-CO-26 (it is BT-30), added a test; full suite 2908 ok"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets 'Start here' pointed at bet #2 jobshop-quote while the same output said bet #3 had the fewest front-door PRs; two different recommendations in one printout, cost a few minutes deciding"
+    },
+    {
+      "file": "ventures/einvoice-preflight vs ventures/einvoice-pro/apps/einvoice-preflight",
+      "issue": "two diverged copies of generate.mjs (free and paid edition); no doc says which one a creator fix should land in first or whether a port is expected in the same PR"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "default is a working slice of the top bet's product; every payapps/jobshop/einvoice ROADMAP item waits on demand, so took the demand side (bets.md front door for the least-served bet) as roadmap_claim suggests",
+      "did": "front-door page for bet #3 plus a real creator fix it uncovered",
+      "result": "page and France profile landed with 20 tests; creator now passes the official BR-FR rules"
+    },
+    {
+      "file": "ventures/einvoice-pro/apps/einvoice-preflight/generate.mjs",
+      "why": "paid edition's creator has diverged (line allowances, units); a port would roughly double the diff and collide with open PRs #20032/#20033",
+      "did": "fixed the free edition only, recorded the port in NEXT.md",
+      "result": "pending a later run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-french-einvoice-checker-adds-operation-category.md (extended into the consolidated French customer post, tagged for-customers)",
+    "ventures/einvoice-preflight/facture-electronique-micro-entrepreneur.html",
+    "ventures/einvoice-preflight/README.md (creator France profile bullet)"
+  ],
+  "goal": "$10k MRR via bet #3 (e-invoice fix-and-explain): a French SME/micro front door that funnels to the accountant service",
+  "notes": "Measured with npm i --no-save slimdom fontoxpath (official EN 16931 Schematron + FNFE-MPE BR-FR in the plain-JS route). Before: creator's French invoice under profile en16931 failed BR-FR-05 x3, -08, -10. After: profile france passes in CII and UBL; Factur-X passes built-in French checks. run_venture_tests.py einvoice-preflight: ok, 2888 tests. Chromium smoke of create.html?profile=france at 390px: no console errors, no horizontal scroll.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cf9667a3-9bff-51ef-af55-a2f95ed0494d",
+    "transcripts": 1,
+    "first": "2026-11-28T07:18:37Z",
+    "last": "2026-11-28T07:32:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 95,
+        "input": 183,
+        "output": 72948,
+        "thinking": 19165,
+        "cache_read": 16456884,
+        "cache_write_5m": 0,
+        "cache_write_1h": 234368,
+        "api_equivalent_usd": 6.626,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 95,
+      "input": 183,
+      "output": 72948,
+      "thinking": 19165,
+      "cache_read": 16456884,
+      "cache_write_5m": 0,
+      "cache_write_1h": 234368,
+      "api_equivalent_usd": 6.626,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 98,
+    "tools": {
+      "Bash": 88,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.07,
+      "active_minutes": 14.07,
+      "model_minutes": 12.3,
+      "tool_minutes": 1.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior dev: BR-FR rule research, creator profile in two syntaxes, bench, French page and tests, about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 150.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

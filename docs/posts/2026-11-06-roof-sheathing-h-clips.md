@@ -4,6 +4,7 @@ seo_title: "How many H-clips does a roof need? Roof sheathing clip count"
 date: 2026-11-06
 tags: [wall-framing-takeoff, roofing, construction]
 description: "The open-source wall framing takeoff can now count roof sheathing H-clips from rafter spacing and sheet count, with an optional price."
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 Roof sheathing panels meet between rafters, and the unsupported long edge is where H-clips (panel edge clips) go. They are cheap, but a roof takes hundreds, and they are easy to leave off an order.

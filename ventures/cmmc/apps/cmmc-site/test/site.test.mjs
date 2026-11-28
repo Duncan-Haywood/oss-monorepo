@@ -11,6 +11,7 @@ import { SHEET_FILE } from "../src/assessment-sheet.mjs";
 import { build, fileFor, htmlToText, normalizeBasePath, withBase } from "../src/build.mjs";
 import { APP_URL, launchState } from "../src/launch.mjs";
 import { buildPages, SHOTS } from "../src/pages.mjs";
+import { CROSSWALK_FILE } from "../src/rev2-vs-rev3.mjs";
 import { JOBSHOP, SOURCES, STATUS_CHECKED } from "../src/site.mjs";
 
 const SITE = "https://marisstella.app/cmmc";
@@ -140,6 +141,7 @@ for (const [mode, launch] of MODES) {
       "/api/early-access",
       `/${SHEET_FILE}`,
       ...(launch.open ? Object.values(SHOTS).map((s) => `/${s.file}`) : []),
+      `/${CROSSWALK_FILE}`,
     ]);
     if (launch.open)
       assert.ok(

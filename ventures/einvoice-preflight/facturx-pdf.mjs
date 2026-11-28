@@ -32,6 +32,8 @@ const MARGIN = 50;
 export const FACTURX_PROFILES = {
   en16931: { filename: "factur-x.xml", level: "EN 16931" },
   xrechnung: { filename: "xrechnung.xml", level: "XRECHNUNG" },
+  // France's 2026 reform: the EN 16931 level, with the BR-FR fields (SIREN, billing mode, coded notes).
+  france: { filename: "factur-x.xml", level: "EN 16931" },
 };
 
 // ------------------------------------------------------------------ TrueType
@@ -376,6 +378,7 @@ function partyLines(p) {
   if (p.vat_id) out.push(`VAT ID ${p.vat_id}`);
   if (p.tax_number) out.push(`Tax number ${p.tax_number}`);
   if (p.company_id) out.push(`Company ID ${p.company_id}`);
+  if (p.legal_id) out.push(`${p.legal_scheme === "0002" ? (p.legal_id.length === 14 ? "SIRET" : "SIREN") : "Registration"} ${p.legal_id}`);
   const c = p.contact || {};
   for (const v of [c.name, c.phone, c.email]) if (v) out.push(v);
   return out;
@@ -521,6 +524,7 @@ function drawInvoice(doc, regular, bold, level, filename) {
   if (p.terms) tail.push(["Terms", p.terms]);
   if (reasons.length) tail.push(["VAT exemption", reasons.join("; ")]);
   if (doc.note) tail.push(["Note", doc.note]);
+  for (const n of doc.notes || []) tail.push(["Note", n.text]);
   for (const [k, v] of tail) {
     const lines = wrap(regular, v, 9, W - 110);
     pg.ensure(lines.length * 11.5 + 4);
@@ -693,7 +697,7 @@ class PdfWriter {
 export function writeFacturXPdf(doc, ciiXml, { fonts, date = new Date() } = {}) {
   if (!fonts || !fonts.regular || !fonts.bold) throw new Error("writeFacturXPdf needs fonts.regular and fonts.bold (TrueType bytes).");
   const prof = Object.hasOwn(FACTURX_PROFILES, doc.profile) ? FACTURX_PROFILES[doc.profile] : null;
-  if (!prof) throw new Error(`Factur-X has no profile for "${doc.profile}"; use en16931 or xrechnung.`);
+  if (!prof) throw new Error(`Factur-X has no profile for "${doc.profile}"; use en16931, france or xrechnung.`);
   const regular = new FontUse(fonts.regular, "F1");
   const bold = new FontUse(fonts.bold, "F2");
   const pageStreams = drawInvoice(doc, regular, bold, prof.level, prof.filename);
@@ -742,7 +746,7 @@ export function writeFacturXPdf(doc, ciiXml, { fonts, date = new Date() } = {}) 
 export function generateFacturX(draft, { profile = "en16931", fonts, date } = {}) {
   const result = { ok: false, errors: [], warnings: [], format: "facturx" };
   if (!Object.hasOwn(FACTURX_PROFILES, profile)) {
-    result.errors.push({ path: "profile", message: `Factur-X takes the en16931 or xrechnung profile, not "${profile}". Peppol BIS is sent as UBL or CII XML over the network, not as a PDF.` });
+    result.errors.push({ path: "profile", message: `Factur-X takes the en16931, france or xrechnung profile, not "${profile}". Peppol BIS is sent as UBL or CII XML over the network, not as a PDF.` });
     return result;
   }
   const built = buildInvoice(draft, { profile });

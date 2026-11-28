@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { amountToCents, applyRateBps, centsToAmount } from "../src/money.ts";
-import { AccountingValidationError } from "../src/port.ts";
+import {
+  AccountingValidationError,
+  validateCreditApplicationInput,
+  validateCreditMemoInput,
+  validateInvoiceInput,
+  validatePaymentInput,
+} from "../src/port.ts";
 import { planPayAppInvoice, retainageBalanceFromLines } from "../src/retainage.ts";
 
 const RET = "ret-item";
@@ -263,6 +269,33 @@ describe("planPayAppInvoice", () => {
         }),
       isValidation(/integer cents/),
     );
+    // 1e20 is an integer but not an exact one: past 2**53 a double cannot hold every cent, so the
+    // invoice total would be off by dollars with no error (red team, 2026-11-28).
+    assert.throws(
+      () =>
+        planPayAppInvoice({
+          ...base,
+          workLines: [{ itemId: "a", description: "x", amountCents: 1e20 }],
+        }),
+      isValidation(/integer cents/),
+    );
+    // Two safe lines whose sum is not safe.
+    const big = Number.MAX_SAFE_INTEGER;
+    assert.throws(
+      () =>
+        planPayAppInvoice({
+          ...base,
+          workLines: [
+            { itemId: "a", description: "x", amountCents: big },
+            { itemId: "b", description: "y", amountCents: big },
+          ],
+        }),
+      isValidation(/too large/),
+    );
+    assert.throws(
+      () => planPayAppInvoice({ ...base, retainageHeldToDateCents: 2 ** 60 }),
+      isValidation(/integer cents/),
+    );
   });
 
   it("a whole job bills the contract sum and ends with a zero retainage balance", () => {
@@ -304,6 +337,55 @@ describe("retainageBalanceFromLines", () => {
         RET,
       ),
       120,
+    );
+  });
+});
+
+describe("cents past 2**53 (red team, 2026-11-28)", () => {
+  // Number.isInteger(1e20) is true, but a double that large cannot hold every cent, so a total
+  // built from it is off with no error. Every money entry point takes safe integers only.
+  const huge = 1e20;
+  const max = Number.MAX_SAFE_INTEGER;
+  it("money.centsToAmount refuses an unsafe integer", () => {
+    assert.throws(() => centsToAmount(huge), /integer/);
+  });
+  it("port validators refuse unsafe amounts and unsafe totals", () => {
+    const inv = (amounts: number[]) => ({
+      customerId: "c",
+      lines: amounts.map((amountCents) => ({ itemId: "i", description: "d", amountCents })),
+    });
+    assert.throws(() => validateInvoiceInput(inv([huge]) as never), isValidation(/integer/));
+    assert.throws(() => validateInvoiceInput(inv([max, max]) as never), isValidation(/too large/));
+    validateInvoiceInput(inv([100, 200]) as never);
+    assert.throws(
+      () => validatePaymentInput({ customerId: "c", totalCents: huge, applyTo: [] } as never),
+      isValidation(/integer/),
+    );
+    assert.throws(
+      () =>
+        validatePaymentInput({
+          customerId: "c",
+          totalCents: max,
+          applyTo: [
+            { invoiceId: "a", amountCents: max },
+            { invoiceId: "b", amountCents: max },
+          ],
+        } as never),
+      isValidation(/too large/),
+    );
+    assert.throws(
+      () => validateCreditMemoInput(inv([huge]) as never),
+      isValidation(/positive integer/),
+    );
+    assert.throws(
+      () =>
+        validateCreditApplicationInput({
+          customerId: "c",
+          invoiceId: "i",
+          creditMemoId: "m",
+          amountCents: huge,
+        } as never),
+      isValidation(/positive integer/),
     );
   });
 });

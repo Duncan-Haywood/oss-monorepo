@@ -4,6 +4,7 @@ seo_title: "Gutter sealant tube count from splices, end caps, corners and outlet
 date: 2026-11-06
 tags: [wall-framing-takeoff, gutters, takeoff]
 description: "The wall framing takeoff now counts gutter sealant tubes from the joints in a gutter run, instead of leaving them off the list."
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 Gutter sealant is the item that never makes the order and then stops the job on the second afternoon. Every splice between sections, every end cap, both sides of a corner and every downspout outlet gets a bead.

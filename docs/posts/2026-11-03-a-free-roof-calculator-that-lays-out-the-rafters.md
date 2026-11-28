@@ -3,6 +3,7 @@ title: A free roof calculator that lays out every rafter
 date: 2026-11-03
 description: A new browser page counts rafters, sheathing sheets and shingle bundles for a gable or hip roof from the same engine as the framing CLI.
 tags: [wall-framing, roof, calculators, construction]
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 Most roof calculators divide area by a number. The new [roof calculator](../../ventures/wall-framing-takeoff/roof-calculator.html) places rafters at your spacing, cuts the 4 x 8 sheathing in staggered courses up each slope, and counts roofing squares, bundles, felt and drip edge from the real edge lengths.
 

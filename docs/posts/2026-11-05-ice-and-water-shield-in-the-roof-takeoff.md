@@ -4,6 +4,7 @@ seo_title: "Ice and water shield rolls for roof eaves: how many to order"
 date: 2026-11-05
 tags: [wall-framing-takeoff, roofing, construction]
 description: "The roof takeoff can now count rolls of ice and water shield along the eaves, from the overhang plus the inches inside the wall, and prices them in the budget."
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 In cold climates the first few feet of roof above the eave get a self-sealing membrane under the shingles, to stop ice dams pushing water under the courses. A roof order that leaves it out is another trip to the supplier. The roof takeoff in wall-framing-takeoff can now count it.
