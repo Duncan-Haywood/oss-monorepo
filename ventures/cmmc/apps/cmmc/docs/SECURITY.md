@@ -49,7 +49,9 @@
   `src/shared/document-control.ts`), and planned internal audits and each open corrective action's
   due or effectiveness-check date per kind (`qualityDueDates` in `src/shared/internal-audits.ts`;
   never a document's or audit's title or a nonconformity's text, which can name a customer, part
-  or person). No names, contacts or scores.
+  or person), and the day each cyber incident's 90-day image hold ends as one event per day with a
+  count (`incidentHoldDates` in `src/shared/incidents.ts`; never an incident's title, summary or
+  report number). No names, contacts or scores.
 - Admins make, reset (the old token stops at once) and delete it; each is audited. Malformed, unknown
   and revoked tokens all answer the same 404. `last_fetched_at` is written at most hourly.
 - The token sits in the URL path, so Cloudflare's request logs for this Worker can hold it; anyone
@@ -96,3 +98,11 @@ PBKDF2 password hashing, the `x-test-user-id` header honoured only when `APP_ENV
 - Org deletion / data export.
 - Proofreading the control library (docs/SOURCES.md).
 - Deploy workflow, production `APP_URL`, `AUTH_SECRET` and `ANTHROPIC_API_KEY` secrets.
+
+## Incident register
+
+- Incident rows can describe a live compromise, so they hold the same tenant scoping, audit log and
+  `no-store` downloads as every other record; only admins delete one (`DELETE /incidents/:id`), and
+  the form and Privacy Policy ask for a description of systems, never CUI, passwords or other secrets.
+- The CSV is formula-safe (`incidentsCsv`), the Markdown record escapes Markdown in every typed field,
+  and times are validated as UTC instants (no future discovery, no report before discovery).

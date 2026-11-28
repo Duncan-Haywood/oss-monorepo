@@ -66,7 +66,7 @@ export const PLANS: readonly Plan[] = [
     summary: "Try it on one real job, start to finish.",
     features: [
       "Schedule of values, change orders and retainage",
-      "Pay application summary and continuation sheet as PDF and CSV",
+      "Pay application summary and continuation sheet as PDF, Excel and CSV",
       "250 MB of attached backup and photos",
     ],
   },

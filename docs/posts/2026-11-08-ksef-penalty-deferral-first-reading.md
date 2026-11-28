@@ -3,6 +3,7 @@ title: "Poland's KSeF penalty deferral: where the bill stands on 8 November"
 date: 2026-11-08
 description: "The bill that would move KSeF penalties from 1 January 2027 to 2028 had its first Sejm reading on 21 October; it is not law yet."
 tags: [ventures, einvoice-preflight, poland, ksef]
+folded_into: einvoice-preflight/poland-ksef-e-invoice-mandate
 ---
 
 Poland's KSeF e-invoicing duty is already in force (1 February 2026 for the largest taxpayers, 1 April for most others). What is still open is the penalty start date. The Council of Ministers adopted a bill on 20 October 2026 (print 3245) that would move it from 1 January 2027 to 1 January 2028. Search excerpts say the Sejm held a first reading on 21 October and sent it on to further work.

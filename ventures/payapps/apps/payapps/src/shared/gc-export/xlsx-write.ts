@@ -1,4 +1,4 @@
-// Writes a one-sheet Excel workbook (.xlsx) with no library: the ZIP is built by hand with stored (not
+// Writes an Excel workbook (.xlsx) with no library: the ZIP is built by hand with stored (not
 // deflated) entries, which every reader accepts. Text cells are inline strings, so values such as item
 // number "01" or "1.10" stay as written; number cells carry a "#,##0.00" format. The reader in
 // ../sov-import/xlsx.ts reads these files back (the tests round-trip through it).
@@ -90,11 +90,76 @@ const esc = (s: string) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
-function colName(i: number): string {
+const ns = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"';
+const rel = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+
+export function colName(i: number): string {
   let s = "";
   for (let n = i + 1; n > 0; n = Math.floor((n - 1) / 26))
     s = String.fromCharCode(65 + ((n - 1) % 26)) + s;
   return s;
+}
+
+/**
+ * A cell: text, a number (money format unless `format` says otherwise), or a formula saved with its
+ * result (`value`), so a reader that does not calculate (this app's own, a GC portal's) still sees
+ * the figure. `bold` sets the text or number in bold.
+ */
+export type XlsxRichCell =
+  | XlsxCell
+  | { text: string; bold?: boolean }
+  | { number: number; format?: "money" | "percent" | "plain"; bold?: boolean }
+  | { formula: string; value: number; format?: "money" | "percent" | "plain"; bold?: boolean };
+
+export interface XlsxSheet {
+  name: string;
+  rows: XlsxRichCell[][];
+  widths?: number[];
+}
+
+// cellXfs indexes in styles.xml below.
+const STYLE = {
+  money: 1,
+  text: 0,
+  bold: 2,
+  boldMoney: 3,
+  percent: 4,
+  boldPercent: 5,
+  plain: 0,
+  boldPlain: 2,
+} as const;
+
+function numberStyle(format: "money" | "percent" | "plain" | undefined, bold: boolean): number {
+  const f = format ?? "money";
+  if (f === "percent") return bold ? STYLE.boldPercent : STYLE.percent;
+  if (f === "plain") return bold ? STYLE.boldPlain : STYLE.plain;
+  return bold ? STYLE.boldMoney : STYLE.money;
+}
+
+function cellXml(ref: string, v: XlsxRichCell): string {
+  if (v === null || v === "") return "";
+  const str = (text: string, s: number) =>
+    `<c r="${ref}"${s ? ` s="${s}"` : ""} t="inlineStr"><is><t xml:space="preserve">${esc(text)}</t></is></c>`;
+  if (typeof v === "string") return str(v, STYLE.text);
+  if ("text" in v) return v.text === "" ? "" : str(v.text, v.bold ? STYLE.bold : STYLE.text);
+  const s = numberStyle("format" in v ? v.format : undefined, "bold" in v && !!v.bold);
+  const sAttr = s ? ` s="${s}"` : "";
+  if ("formula" in v) {
+    if (!Number.isFinite(v.value)) return "";
+    return `<c r="${ref}"${sAttr}><f>${esc(v.formula)}</f><v>${v.value}</v></c>`;
+  }
+  if (!Number.isFinite(v.number)) return "";
+  return `<c r="${ref}"${sAttr}><v>${v.number}</v></c>`;
+}
+
+/** A sheet name Excel accepts: no \ / ? * [ ] :, at most 31 characters, not blank. */
+export function xlsxSheetName(name: string): string {
+  return (
+    name
+      .replace(/[\\/?*[\]:]/g, " ")
+      .slice(0, 31)
+      .trim() || "Sheet1"
+  );
 }
 
 /** One worksheet named `sheetName` holding `rows` from A1. Columns get the widths given, if any. */
@@ -103,31 +168,50 @@ export function writeXlsx(
   rows: XlsxCell[][],
   widths: number[] = [],
 ): Uint8Array {
-  const body = rows
-    .map((row, r) => {
-      const cells = row
-        .map((v, c) => {
-          const ref = `${colName(c)}${r + 1}`;
-          if (v === null || v === "") return "";
-          if (typeof v === "string")
-            return `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${esc(v)}</t></is></c>`;
-          if (!Number.isFinite(v.number)) return "";
-          return `<c r="${ref}" s="1"><v>${v.number}</v></c>`;
-        })
-        .join("");
-      return `<row r="${r + 1}">${cells}</row>`;
-    })
+  return writeXlsxBook([{ name: sheetName, rows, widths }]);
+}
+
+/** A workbook with the sheets given, in tab order. Sheet names must differ once cleaned. */
+export function writeXlsxBook(sheets: XlsxSheet[]): Uint8Array {
+  if (!sheets.length) throw new Error("A workbook needs at least one sheet");
+  const names = sheets.map((sh) => xlsxSheetName(sh.name));
+  if (new Set(names.map((n) => n.toLowerCase())).size !== names.length)
+    throw new Error("Sheet names must differ");
+  const sheetXml = sheets.map((sh) => {
+    const body = sh.rows
+      .map((row, r) => {
+        const cells = row.map((v, c) => cellXml(`${colName(c)}${r + 1}`, v)).join("");
+        return `<row r="${r + 1}">${cells}</row>`;
+      })
+      .join("");
+    const widths = sh.widths ?? [];
+    const cols = widths.length
+      ? `<cols>${widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("")}</cols>`
+      : "";
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet ${ns}>${cols}<sheetData>${body}</sheetData></worksheet>`;
+  });
+  const sheetOverrides = sheets
+    .map(
+      (_, i) =>
+        `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`,
+    )
     .join("");
-  const cols = widths.length
-    ? `<cols>${widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("")}</cols>`
-    : "";
-  const ns = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"';
-  const rel = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-  const name = esc(sheetName.replace(/[\\/?*[\]:]/g, " ").slice(0, 31) || "Sheet1");
+  const sheetEntries = names
+    .map((n, i) => `<sheet name="${esc(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`)
+    .join("");
+  const sheetRels = sheets
+    .map(
+      (_, i) =>
+        `<Relationship Id="rId${i + 1}" Type="${rel}/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`,
+    )
+    .join("");
+  const stylesId = `rId${sheets.length + 1}`;
+  // fullCalcOnLoad: Excel and LibreOffice recalculate the formulas on open; the saved results are
+  // what this app computed, so the figures agree either way.
   const files: [string, string][] = [
     [
       "[Content_Types].xml",
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>',
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${sheetOverrides}<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
     ],
     [
       "_rels/.rels",
@@ -135,20 +219,17 @@ export function writeXlsx(
     ],
     [
       "xl/workbook.xml",
-      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook ${ns} xmlns:r="${rel}"><sheets><sheet name="${name}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook ${ns} xmlns:r="${rel}"><sheets>${sheetEntries}</sheets><calcPr calcId="0" fullCalcOnLoad="1"/></workbook>`,
     ],
     [
       "xl/_rels/workbook.xml.rels",
-      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${rel}/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="${rel}/styles" Target="styles.xml"/></Relationships>`,
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheetRels}<Relationship Id="${stylesId}" Type="${rel}/styles" Target="styles.xml"/></Relationships>`,
     ],
     [
       "xl/styles.xml",
-      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet ${ns}><fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`,
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet ${ns}><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="6"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="4" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="10" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="10" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`,
     ],
-    [
-      "xl/worksheets/sheet1.xml",
-      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet ${ns}>${cols}<sheetData>${body}</sheetData></worksheet>`,
-    ],
+    ...sheetXml.map((x, i): [string, string] => [`xl/worksheets/sheet${i + 1}.xml`, x]),
   ];
   return zipStored(files.map(([n, x]) => ({ name: n, data: enc.encode(x) })));
 }

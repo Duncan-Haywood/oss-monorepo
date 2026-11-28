@@ -1,0 +1,224 @@
+{
+ "date": "2026-11-28",
+ "subject": "ventures/ids-model-check",
+ "stratum": "flagship",
+ "seed": "2026-11-28-c198",
+ "drawn_by": "reaudit",
+ "prior_audit": "portfolio/quality/audits/2026-11-19-ids-model-check.json",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior BIM information manager (ISO 19650) who writes and enforces IDS files, with a buildingSMART IDS implementer's eye; first checks: buildingSMART's IDS 1.0 test pairs, agreement with IfcTester on real models, SI conversion from project units (including US-customary offset units such as Fahrenheit, which US MEP models carry), BCF 2.1 schema validity, and whether CI gates the conformance claim",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Ran ci-fetch.sh (buildingSMART IDS suite at 870f9c4, BCF 2.1 XSDs) and scored the 334 pairs with my own shell runner (/tmp/claude-0/runner.sh: expected verdict from buildingSMART's file-name prefix, observed from cli.mjs exit code, not eval/run-testcases.mjs): pass->pass 187, fail->fail 120, invalid->fail 27; no valid case wrong, no invalid case passed. IfcTester 0.9.0.post1 vs cli.mjs --json, per spec status, applicable count and failing GlobalIds (my /tmp/claude-0/cmp.py): 18/18 on each of Building-Hvac, Infra-Rail, Infra-Road x infrastructure-and-mep.ids.xml; 7/7 and 6/7 on the tiny house (the 7th is the documented multiple-xs:pattern case). BCF export of the sample validates against markup.xsd, visinfo.xsd and version.xsd with xmllint (4+4+1 files). NEW WRONG NUMBER: a model written by IfcOpenShell's unit.add_conversion_based_unit('fahrenheit') carries IFC4's own example encoding, IFCCONVERSIONBASEDUNITWITHOFFSET(..., IFCMEASUREWITHUNIT(IFCREAL(1.8), KELVIN), -459.67), from the spec text 'f = k * 1.8 - 459.67'. A space with SpaceTemperatureMax 77 F should read (77+459.67)/1.8 = 298.15 K; the checker read -688.806 K (ids.mjs:296 added offset*factor with the wrong sign and took 1.8 as K per degree) and failed an IDS requiring 298.15. IfcTester is also wrong there (138.6). Fixed in this PR; score is before the fix.",
+  "completeness": "STEP, ifcXML and ifczip; --json, --bcf, CI wiring all exercised above. The 2026-11-19 audit's feature list still works; the IDS editor was again not driven in a browser. NEXT.md still says no real coordinator's project IDS has been run.",
+  "verification": "node --test '*.test.mjs' with corpora fetched: 627 tests, 627 pass, 0 skipped, 14.2 s (was 278 with 2 headline tests skipped). platform/ci/run_venture_tests.py:614-640 now runs ventures/ids-model-check/ci-fetch.sh before the suites and fails the venture if the fetch fails, so CI gates the 334 pairs and BCF XSD test. Mutants: the three unit mutants that survived on 2026-11-19 (SQUARE_ not squared, Celsius offset 0, conversion unit ignoring base prefix) are now caught by engine.test.mjs:603. Two new core mutants survived the full suite before this PR: CUBIC_ prefix cubed -> squared, GRAM factor 1e-3 dropped; and IfcConversionBasedUnitWithOffset had no test at all (the sign error above). The new test in this PR catches all four (offset sign, 1.8 inversion, cubic, gram).",
+  "craft": "Read ids.mjs unitScale (277-305) and the unitOf/values path (776-835); engine code remains dependency-free with stated rules; errors surface. README.md has grown from 73 KB to 160 KB (2,384 lines) of dated changelog prose; llms.txt was cut to 68 lines but 7 lines still exceed 1,500 characters.",
+  "claims": "Checked: 334/334 (pass, recomputed); IfcTester agreement except multiple patterns (pass, 54/54 + 13/14); BCF 2.1 (pass); llms.txt 'Not covered' no longer lists ids.xsd validation (pass, now only geometry/clash); README:2032 'unit conversion' tested (pass: engine.test.mjs:603); README:2213 claimed SI conversion including conversion-based units, which was false for offset units (fail, fixed and README line extended in this PR); disclaimer index.html:156 (pass); served-copy.mjs: no placeholder origin (pass).",
+  "fitness": "The BIM manager's job (drop model + client IDS, read failures with reasons, export BCF, gate in CI) completes as on 2026-11-19. For a US MEP consultant whose model uses Fahrenheit, every temperature requirement returned a wrong verdict before this PR.",
+  "domain": "Against IDS 1.0 (values in SI) and IFC4 IfcConversionBasedUnitWithOffset (its definition and Fahrenheit example, read from the IFC4 documentation shipped in IfcOpenShell's express/DocEntity.csv and DocAttribute.csv): facets, tolerance, pattern semantics, type inheritance follow the standard; offset units departed from it. IFC's own example runs its factor SI->unit, opposite to plain conversion units (1 inch = 0.0254 m); the fix reads SI = (value - offset) x factor and inverts a 1.8 temperature factor, which agrees with both the spec example and a 5/9-factor encoding."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "buildingSMART IDS 1.0 test pairs at 870f9c4",
+   "method": "buildingSMART's expected verdicts from file names, my own runner over cli.mjs exit codes",
+   "command": "bash /tmp/claude-0/runner.sh eval/IDS/Documentation/ImplementersDocumentation/TestCases",
+   "expected": "307 valid right, 27 invalid not passed",
+   "observed": "pass->pass 187, fail->fail 120, invalid->fail 27",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "3 IFC 4.3 models x infrastructure-and-mep.ids.xml",
+   "method": "IfcTester 0.9.0.post1: status, applicable count, failing GlobalIds",
+   "command": "ifcv/bin/python /tmp/claude-0/cmp.py samples/bsi-ifc43/<m>.ifc samples/infrastructure-and-mep.ids.xml",
+   "expected": "identical",
+   "observed": "18/18, 18/18, 18/18",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tiny house x two starter IDS",
+   "method": "IfcTester 0.9.0.post1",
+   "command": "cmp.py samples/tiny-house.ifc samples/{coordination-basics,quantities-and-naming}.ids.xml",
+   "expected": "identical except documented multiple-pattern case",
+   "observed": "7/7, 6/7 (the pattern case)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "77 F in IFC4's own Fahrenheit encoding (1.8 K, -459.67)",
+   "method": "IFC4 IfcConversionBasedUnitWithOffset example f = k*1.8 - 459.67 -> k = (77+459.67)/1.8 = 298.15 K; model written by IfcOpenShell api",
+   "command": "node cli.mjs /tmp/claude-0/fahr/f.ifc /tmp/claude-0/fahr/f.ids",
+   "expected": "298.15 K, PASS",
+   "observed": "-688.806 K, FAIL (IfcTester: 138.6, FAIL); after fix: PASS",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "BCF 2.1 export of the sample",
+   "method": "buildingSMART BCF-XML release_2_1 XSDs, xmllint",
+   "command": "node cli.mjs samples/tiny-house.ifc samples/coordination-basics.ids.xml --bcf o.bcfzip; xmllint --schema ...",
+   "expected": "validates",
+   "observed": "4 markup, 4 viewpoint, bcf.version validate",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "full suite with corpora",
+   "method": "run",
+   "command": "sh ci-fetch.sh && node --test '*.test.mjs'",
+   "expected": "all pass, none skipped",
+   "observed": "627/627, 0 skipped",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "CI fetches the corpora",
+   "method": "read run_venture_tests.py",
+   "command": "grep -n FETCH_SCRIPT platform/ci/run_venture_tests.py",
+   "expected": "ci-fetch.sh run before suites",
+   "observed": "lines 614-640: fetch runs first, failure fails the venture",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt Not covered list",
+   "method": "read",
+   "command": "sed -n 64,68p llms.txt",
+   "expected": "no stale ids.xsd line",
+   "observed": "only geometry/clash",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:2213 SI conversion incl. conversion-based units",
+   "method": "the Fahrenheit check above",
+   "command": "node cli.mjs /tmp/claude-0/fahr/f.ifc /tmp/claude-0/fahr/f.ids",
+   "expected": "conversion right",
+   "observed": "wrong for offset units",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "served llms.txt/sitemap/canonicals",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs ids-model-check",
+   "expected": "no placeholder origin",
+   "observed": "none left",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "ids.mjs:283",
+   "change": "if (name.startsWith(\"SQUARE_\")) f = f * f; -> f = f;",
+   "caught": true,
+   "test_cmd": "node --test engine.test.mjs"
+  },
+  {
+   "where": "ids.mjs:285",
+   "change": "return { scale: 1, offset: 273.15 } -> offset: 0",
+   "caught": true,
+   "test_cmd": "node --test engine.test.mjs"
+  },
+  {
+   "where": "ids.mjs:296",
+   "change": "scale: Number(val) * base.scale -> scale: Number(val)",
+   "caught": true,
+   "test_cmd": "node --test engine.test.mjs"
+  },
+  {
+   "where": "ids.mjs:284",
+   "change": "CUBIC_ f = f * f * f -> f = f * f",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs (before this PR; caught after)"
+  },
+  {
+   "where": "ids.mjs:287",
+   "change": "GRAM f = f * 1e-3 -> f = f",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs (before this PR; caught after)"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "unit conversion untested beyond mm lengths",
+   "evidence": "the three 2026-11-19 survivors now fail engine.test.mjs:603"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "open",
+   "status": "closed",
+   "what": "conformance suite and BCF XSD test skipped in CI",
+   "evidence": "ci-fetch.sh run by run_venture_tests.py:614-640; 627/627 with 0 skipped"
+  },
+  {
+   "index": 2,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "llms.txt says ids.xsd validation not covered",
+   "evidence": "Not covered list now only geometry/clash"
+  },
+  {
+   "index": 3,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "README overstates unit-conversion tests",
+   "evidence": "engine.test.mjs:603 covers areas, Celsius, conversion-unit base prefix"
+  },
+  {
+   "index": 4,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "README and llms.txt are dated changelogs burying usage",
+   "evidence": "README grew 73 KB -> 160 KB; llms.txt cut to 68 lines, 7 over 1,500 chars"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "IfcConversionBasedUnitWithOffset converted with the offset's sign reversed and IFC4's example factor (1.8 K for Fahrenheit, SI->unit) taken as K per degree: 77 F read as -688.806 K instead of 298.15 K, so every temperature requirement on a Fahrenheit model (IfcOpenShell's and the spec's own encoding) got a wrong verdict.",
+   "where": "ventures/ids-model-check/ids.mjs:296",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20105"
+  },
+  {
+   "severity": "medium",
+   "what": "Offset units, CUBIC_ prefixes and the GRAM -> kg factor had no test: seeded mutants on cubic and gram survived all 627 tests, and the offset path was never exercised.",
+   "where": "ventures/ids-model-check/ids.mjs:284",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20105"
+  },
+  {
+   "severity": "low",
+   "what": "README (160 KB, up from 73 KB) is a dated changelog; the usage a BIM manager needs is buried.",
+   "where": "ventures/ids-model-check/README.md:1",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/20105"
+ ],
+ "verdict": "Every prior defect but the README-length one is closed: the 2026-11-19 unit mutants are now caught, and CI fetches buildingSMART's suite so the 334-pair claim is gated (627/627 tests, none skipped). Independent checks agree again: my own runner scores the 334 pairs right, IfcTester matches on 54/54 IFC 4.3 specs and 13/14 starter specs (the documented pattern case), BCF validates against the 2.1 XSDs. New high defect: Fahrenheit-style offset units were converted wrongly (77 F read as -688.8 K, not 298.15 K, in the IFC4 example's own encoding), untested along with cubic prefixes and grams; fixed with a test in PR #20105, after scoring. Meets the bar on the computed gates, with the offset defect counted against correctness."
+}

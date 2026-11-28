@@ -821,6 +821,32 @@ def launch_items(roadmap: str) -> list[str]:
     return out
 
 
+_BRACKET_SLUG = re.compile(r"\[([a-z0-9]+(?:-[a-z0-9]+)+)\]")
+
+
+def landed_slugs(repo: str, days: int = 14) -> set[str]:
+    """Slugs that merge subjects on origin/main name in brackets ("... [cui-markings] (#20041)").
+
+    A backstop for launch bullets that record shipped work in a shape `_SHIPPED` does not
+    read: the bullet names its slug, and the PR that merged it carries the same slug. On
+    2026-11-28 --bets offered cmmc's "Document control, part 3b: master list import
+    (2026-11-28, document-master-list-import)" and part 3c as free "Start here" work after
+    PRs #20049 and #20066 had merged them; PR #20080 widens `_SHIPPED` for that shape, and
+    this catches the next shape nobody has written a pattern for (explore run, 2026-11-28).
+    Best effort: with no readable main, nothing counts as landed.
+    """
+    for ref in ("origin/main", "main"):
+        log = git(repo, "log", ref, f"--since={days} days ago", "--format=%s")
+        if log.returncode == 0:
+            return set(_BRACKET_SLUG.findall(log.stdout))
+    return set()
+
+
+def drop_landed(items: list[str], landed: set[str]) -> list[str]:
+    """Launch items minus those whose own text names a slug a merged PR carries."""
+    return [t for t in items if not landed.intersection(_SLUG_IN_TEXT.findall(t.lower()))]
+
+
 def launch_marks(items: list[str], info: dict[str, tuple[int, str]], merged: dict[str, str],
                  now: float, stale_s: float, reach: dict[str, str] | None = None
                  ) -> list[tuple[str, str, str]]:
@@ -1084,6 +1110,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
     now = time.time()
     start = None
     launch_start = None
+    landed: set[str] | None = None
     present: list[tuple[int, int, str]] = []  # (live claims, rank, app) for apps in this clone
     gates: Counter = Counter()  # why the Next items of bets with nothing free wait
     print(f"Bets in bets.md order (claims older than {stale_s / 3600:g} h are stale):")
@@ -1118,7 +1145,10 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
         free = ", ".join(f"#{n}" for n in open_now) or "none" + why
         print(f"{rank:>3}. {app}: {len(items)} Next, free and not gated: {free}; "
               f"{live} live claim(s) ({name}{where})")
-        launch = launch_marks(launch_items(roadmap_text), info, merged, now, stale_s, reach)
+        if landed is None:
+            landed = landed_slugs(home)
+        launch = launch_marks(drop_landed(launch_items(roadmap_text), landed),
+                              info, merged, now, stale_s, reach)
         for slug, ltext, mark in launch:
             print(f"       launch list [{mark}] {ltext[:110]}{'...' if len(ltext) > 110 else ''}")
         free_launch = [(slug, t) for slug, t, mark in launch if mark == "free"]

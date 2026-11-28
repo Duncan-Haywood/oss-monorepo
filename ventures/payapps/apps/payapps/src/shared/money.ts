@@ -1,13 +1,17 @@
 // Money and percentage formatting/parsing. Money is integer cents; percentages are basis points.
 
-const usd = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-});
+// Made on first use, not at module load: building it was the largest single statement in the
+// Worker's cold start (docs/history/payapps-worker-cold-start-perf-2026-11-28.md), and most API
+// requests format no money.
+let usd: Intl.NumberFormat | undefined;
 
 /** 123456 -> "$1,234.56"; negatives as "-$1,234.56". */
 export function formatCents(cents: number): string {
+  usd ??= new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+  });
   return usd.format(cents / 100);
 }
 

@@ -4,6 +4,7 @@ date: 2026-10-29
 updated: 2026-11-26
 tags: [wall-framing-takeoff, for-customers, construction]
 description: "Gable-end siding area by hand at 4 to 12 in 12, plus the band between the top plate and the rake that square-foot estimates miss."
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 A gable end has more siding on it than the wall below. A quick estimate takes wall length times wall height and stops there. Real siding runs up to the rake, though, and that adds two pieces. One is the **triangle** above the eave line. The other is the **band** between the top plate and the underside of the rake. On a raised-heel truss that band can be a foot tall.

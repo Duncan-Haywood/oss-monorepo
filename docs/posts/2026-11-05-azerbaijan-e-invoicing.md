@@ -4,6 +4,7 @@ seo_title: "Azerbaijan e-qaimə: e-invoicing since 2017 or 2018, sources differ"
 date: 2026-11-05
 tags: [einvoice-preflight, e-invoicing, azerbaijan]
 description: "E-invoice Preflight now covers 83 countries: Azerbaijan's State Tax Service e-qaimə portal, with guides dating mandatory use to 2017 or 2018."
+folded_into: einvoice-preflight/azerbaijan-e-qaime-e-invoice-mandate
 ---
 
 The mandates-by-country table grows from 82 to 83 rows.

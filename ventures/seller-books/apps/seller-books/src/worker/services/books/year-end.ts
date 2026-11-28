@@ -300,6 +300,8 @@ export interface YearEndReadmeInput {
   };
   /** The receipts in the package's receipts/ folder; left out, the README does not mention them. */
   receipts?: { files: number; expenses: number };
+  /** The receipts in purchase-receipts/ (on the year's lots and items); left out, not mentioned. */
+  purchaseReceipts?: { files: number; lots: number; items: number };
 }
 
 const usd = (cents: number | null | undefined) => {
@@ -365,6 +367,19 @@ export function yearEndReadme(r: YearEndReadmeInput): string {
             "  receipts/",
             `    The receipt files attached in the app: ${r.receipts.files} file(s) on ${r.receipts.expenses} of the ${c.expenses} expense(s),`,
             "    each named by the expense's date, vendor and amount, so it lines up with the expense list.",
+          ]),
+    ...(r.purchaseReceipts == null
+      ? []
+      : r.purchaseReceipts.files === 0
+        ? [
+            "  purchase-receipts/",
+            "    Not included: no receipt files are attached to the lots or items bought this year.",
+          ]
+        : [
+            "  purchase-receipts/",
+            `    The receipts for stock bought this year: ${r.purchaseReceipts.files} file(s) on ${r.purchaseReceipts.lots} lot(s) and ${r.purchaseReceipts.items} item(s),`,
+            "    each named by the purchase date, the vendor (or the lot's name) and what was paid. A lot's receipt",
+            "    covers every item in it.",
           ]),
     `  ${f.journal}`,
     "    The same sales as QuickBooks Online journal entries, one per platform per month, with the default",

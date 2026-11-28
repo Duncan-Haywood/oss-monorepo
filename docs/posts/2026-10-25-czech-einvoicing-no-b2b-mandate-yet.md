@@ -4,6 +4,7 @@ seo_title: "Czech e-invoicing: public bodies required, no B2B mandate yet"
 date: 2026-10-25
 description: "einvoice-preflight now has a Czech Republic page. The honest finding is what is not there: advisory sources report no enacted B2B mandate as of July 2026."
 tags: [einvoice-preflight, e-invoicing, czech-republic]
+folded_into: einvoice-preflight/czech-republic-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) has a new page for the

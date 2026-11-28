@@ -4,6 +4,7 @@ seo_title: "Estimating caulk tubes for siding from openings and corners"
 date: 2026-11-05
 tags: [wall-framing-takeoff, siding, construction]
 description: "The open-source wall framing takeoff now counts siding caulk from opening perimeters and corner board edges, with the bead size you type."
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 Caulk is the line estimators guess. The wall framing takeoff now works it out, as an opt-in `siding.caulk` setting.

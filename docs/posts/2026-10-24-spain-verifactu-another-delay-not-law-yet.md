@@ -4,6 +4,7 @@ seo_title: "Spain's Verifactu: another delay reported, but the law still says 20
 date: 2026-10-24
 description: "Real Decreto-ley 15/2025 sets 1 January and 1 July 2027 for Verifactu. A further move to 2028 is reported but not in the BOE."
 tags: [einvoice-preflight, spain, verifactu, compliance]
+folded_into: einvoice-preflight/spain-verifactu-e-invoice-mandate
 ---
 
 We keep a page on Spain's Verifactu deadline in E-invoice Preflight and

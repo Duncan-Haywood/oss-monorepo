@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVNqL15BSHRoosk9n3P",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T10:56:04Z",
+  "ended": "2026-11-28T11:12:59Z",
+  "wall_minutes": 17.17,
+  "tokens_in": 21146821,
+  "tokens_out": 76398,
+  "cost_usd": 7.6785,
+  "tool_calls": 129,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20090",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Every bet's Next list is 'waits on demand', 'owner step' or claimed (payapps 25 items, none free); the --bets 'Start here' pointed at two cmmc launch items that had already merged hours earlier (#20049, #20066), so finding unclaimed work took ~25 tool calls of grepping ROADMAPs for gaps."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Statute hosts (law.justia.com, leg.state.nv.us, oregonlegislature.gov, ndlegis.gov, docs.legis.wisconsin.gov, cornell LII) were all refused by curl and WebFetch this session, which rules out any new state-law feature; raw.githubusercontent.com (GSA's DFARS DITA) answered."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says open the PR as a draft while working; the harness says create it ready. I opened it ready because verification was already done locally."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bet #1 (payapps) has no free roadmap item and two open PRs editing lien-deadline.ts; a notice-of-intent-to-lien feature needed statute text this session could not fetch.",
+      "did": "Took bet #4 (cmmc, no live claims) and filled a real gap from its growth path: an incident register (3.6.1/3.6.2 and DFARS 7012), built on clause text that could be re-read and pinned.",
+      "result": "Shipped with tests; no conflicts with the crowded payapps work."
+    },
+    {
+      "file": "ventures/cmmc/apps/cmmc (plan gates)",
+      "why": "Most Level 2 records need the paid plan, but a 72-hour emergency clock behind a paywall would be bad for users, and a free-plan shop can carry a flowed-down 7012 clause.",
+      "did": "Put the incident register on every plan and said so in the service header, ROADMAP and post.",
+      "result": "The free plan gets a stronger reason to sign up; Level 2 still holds the score and POA&M."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (new update section: the incident register)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (2 claimed). Ideas inbox and requests empty. Main's red 'Prompts' run 46136440645 did not reproduce on current main (validate ok, 172 unittests OK). Local verification: cmmc unit 567/567, worker 185/185, tsc, biome, vite build; machine-shop-guides 370 tests plus site page checks. The UI was not opened in a browser (it needs a signed-in session); component tests cover rendering, the PATCH on checkbox ticks, the UTC conversion and the role-based controls. The DFARS 7012 DITA source was re-read 2026-11-28, sha256 99af021d6f34a1a2b8def660f9b7bd6d219c910c3dfd84a9db9591e5a73b18c1.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4285c365-3759-5a76-99e2-00cbe3cf6c9d",
+    "transcripts": 1,
+    "first": "2026-11-28T10:56:04Z",
+    "last": "2026-11-28T11:13:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 124,
+        "input": 238,
+        "output": 76398,
+        "thinking": 11550,
+        "cache_read": 20900394,
+        "cache_write_5m": 0,
+        "cache_write_1h": 246189,
+        "api_equivalent_usd": 7.6785,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 124,
+      "input": 238,
+      "output": 76398,
+      "thinking": 11550,
+      "cache_read": 20900394,
+      "cache_write_5m": 0,
+      "cache_write_1h": 246189,
+      "api_equivalent_usd": 7.6785,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 129,
+    "tools": {
+      "Bash": 119,
+      "Write": 5,
+      "ToolSearch": 2,
+      "WebFetch": 1,
+      "mcp__github__actions_list": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.17,
+      "active_minutes": 17.17,
+      "model_minutes": 12.97,
+      "tool_minutes": 4.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "senior full-stack dev: shared logic + migration + routes + React view + tests + legal/doc updates for one compliance module",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 156.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
