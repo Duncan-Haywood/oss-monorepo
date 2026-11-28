@@ -54,7 +54,29 @@ The checker starts from a list someone already typed. On a new part, typing it i
 
 The title block's general tolerance is printed at the top and never applied to a bare number. Bare numbers aren't listed at all, because the date, the scale and the drawing number are bare numbers too. On an invented test drawing, the 16 rows came out in the expected order, with the expected limits, and nothing came from the title block. The test is in the app's code.
 
-It is a draft, and the file says so. A PDF's text layer holds only what was written as text. A dimension drawn as geometry, a boxed basic dimension or a feature control frame drawn as lines is not in it, and neither is anything on a scanned drawing. The text also has no positions, so the drawing zone column is left for the inspector, along with the designator and the results. Paste the finished rows into the checker above to judge them.
+It is a draft, and the file says so. A PDF's text layer holds only what was written as text. A dimension drawn as geometry, a boxed basic dimension or a feature control frame drawn as lines is not in it, and neither is anything on a scanned drawing. The drawing zone column is still left for the inspector, along with the designator and the results. Paste the finished rows into the checker above to judge them.
+
+## The ballooned drawing (added 28 November 2026)
+
+The list's numbers only help if the same numbers are on the drawing. Next to the CSV, the RFQ page now has a **Ballooned drawing (PDF)** link. It downloads the customer's drawing with a numbered balloon beside each characteristic on the list, using the CSV's row numbers. A `4X` hole callout gets one balloon, `4`, for rows 4.1 to 4.4. Vertical dimensions get their balloon along the text, and a page that is shown rotated still gets upright numbers.
+
+The positions come from the PDF's own text layer: where each callout's text is drawn on the sheet. The drawing itself is not rewritten. The balloons are added on top as a standard PDF update, so the original file is still all there, byte for byte, underneath. A callout whose text can't be found gets no balloon. It isn't put at a guessed spot, so a missing balloon on the sheet means that row needs placing by hand. On the invented bracket drawing in the app's tests, every listed characteristic got its balloon beside its callout. We checked that by rendering the file with a separate PDF reader (poppler), not only by reading our own output back.
+
+It shares the list's limits. Anything not written as text, and every scanned drawing, has nothing to balloon. Check the sheet against the list before it goes in the report.
+
+## Then the results, in the same list (added 28 November 2026)
+
+Beside the CSV link there is now **Inspect first article**, which opens the same list as a screen in the app. For each row, the inspector types the drawing zone, the result, the gauge and, on a reject, the nonconformance number. A row turns accept, reject or open as it's typed, using the same rules as the checker above:
+
+- a measured row accepts when every reading is inside its limits, limits included. `3.250 3.251 3.256` against `3.250 ±.005` rejects, and the row says `3.256 is over the upper limit 3.255 in`;
+- a surface finish has only a maximum, so only the maximum is checked;
+- a thread gauge, a note or a material certificate needs "accept" or "reject" written in words. A number on one of those rows stays open;
+- anything it can't read stays open. It is never accepted;
+- a reject with no nonconformance number keeps the sheet from showing as complete.
+
+A false read from the drawing's text can be marked "not a characteristic". It stays on the sheet and is left out of the counts. A characteristic the text missed, such as a boxed basic dimension or a frame drawn as lines, can be added with its own limits. It's numbered after the drafted rows. The results are saved with the drawing. From then on the Form 3 CSV carries them, with a count line at the top (accepted, rejected, open) and a verdict and reason on every row.
+
+It is still arithmetic on the limits listed, not a sign-off. The inspector checks the list against the drawing and signs the report. Forms 1 and 2 are not filled in yet; the balloons are the separate download above.
 
 ## Where it fits
 

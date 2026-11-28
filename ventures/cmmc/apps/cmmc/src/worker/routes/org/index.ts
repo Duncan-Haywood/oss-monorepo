@@ -54,7 +54,7 @@ import {
   DOC_STATUSES,
   masterListCsv,
 } from "@shared/document-control";
-import { MEMBER_ROLES, OBJECTIVE_RESULTS, POAM_STATUSES } from "@shared/enums";
+import { MEMBER_ROLES, OBJECTIVE_RESULTS, POAM_STATUSES, SCOPE_DISCLAIMER } from "@shared/enums";
 import {
   AFFECTS,
   AFFECTS_LABEL,
@@ -87,6 +87,15 @@ import {
   FINDING_KIND_LABEL,
   FINDING_KINDS,
 } from "@shared/internal-audits";
+import {
+  MAX_REVIEW_ACTIONS,
+  REVIEW_INPUT_KEYS,
+  REVIEW_INPUTS,
+  REVIEW_OUTPUT_KEYS,
+  REVIEW_OUTPUTS,
+  REVIEW_SHORT_MAX,
+  REVIEW_TEXT_MAX,
+} from "@shared/management-review";
 import {
   DEPARTURE_KINDS,
   DEPARTURE_LABEL,
@@ -162,6 +171,7 @@ import {
   orgPlan,
 } from "../../services/billing";
 import {
+  calibrationDueDatesFor,
   createGauge,
   deleteGauge,
   gaugeCsv,
@@ -222,6 +232,7 @@ import {
 import {
   addFinding,
   auditProgramme,
+  auditReport,
   cancelAudit,
   clauseNumber,
   completeAudit,
@@ -237,6 +248,15 @@ import {
   updateCorrectiveAction,
   verifyCorrectiveAction,
 } from "../../services/internal-audits";
+import {
+  createReview,
+  deleteReview,
+  finaliseReview,
+  reviewList,
+  reviewMinutes,
+  setActionDone,
+  updateReview,
+} from "../../services/management-review";
 import {
   addMember,
   getOrg,
@@ -1222,7 +1242,7 @@ routes.get("/ssp/download", validate("query", levelQuery), async (c) => {
 routes.get("/affirmations", async (c) =>
   c.json(await listAffirmations(c.var.ctx, c.var.tenant.orgId)),
 );
-// The due dates (and approved policies' review dates, training refresher dates, suppliers' current-through dates, controlled documents' review dates, planned audits and corrective-action dates) as an iCalendar file with alarms 60 and 7 days ahead: reminders without the app
+// The due dates (and approved policies' review dates, training refresher dates, suppliers' current-through dates, controlled documents' review dates, planned audits and corrective-action dates, gauges' calibration due dates) as an iCalendar file with alarms 60 and 7 days ahead: reminders without the app
 // sending email. Every member may download it, like the list it is built from.
 routes.get("/affirmations/calendar.ics", async (c) => {
   const t = c.var.tenant;
@@ -1235,6 +1255,7 @@ routes.get("/affirmations/calendar.ics", async (c) => {
     documentReviews,
     qualityDue,
     incidentHolds,
+    calibrationDue,
   ] = await Promise.all([
     getOrg(c.var.ctx, t.orgId),
     listAffirmations(c.var.ctx, t.orgId),
@@ -1244,6 +1265,7 @@ routes.get("/affirmations/calendar.ics", async (c) => {
     documentReviewDatesFor(c.var.ctx, t.orgId),
     qualityDueDatesFor(c.var.ctx, t.orgId),
     incidentHoldDatesFor(c.var.ctx, t.orgId),
+    calibrationDueDatesFor(c.var.ctx, t.orgId),
   ]);
   const ics = renderAffirmationCalendar({
     orgId: t.orgId,
@@ -1255,6 +1277,7 @@ routes.get("/affirmations/calendar.ics", async (c) => {
     documentReviews,
     qualityDue,
     incidentHolds,
+    calibrationDue,
     now: c.var.ctx.now(),
   });
   return new Response(ics, {
@@ -1695,6 +1718,35 @@ routes.post(
     );
   },
 );
+routes.get("/audits/:id/report.md", async (c) => {
+  const { ctx, tenant } = c.var;
+  const [{ org }, members] = await Promise.all([
+    getOrg(ctx, tenant.orgId),
+    listMembers(ctx, tenant.orgId),
+  ]);
+  const names = new Map(members.map((m) => [m.userId, m.name]));
+  const report = await auditReport(
+    ctx,
+    tenant.orgId,
+    org.name,
+    c.req.param("id"),
+    (id) => (id ? (names.get(id) ?? "") : ""),
+    SCOPE_DISCLAIMER,
+  );
+  const slug =
+    report.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "audit";
+  return new Response(report.markdown, {
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      "Content-Disposition": `attachment; filename="internal-audit-${slug}.md"`,
+      "Cache-Control": "private, no-store",
+    },
+  });
+});
 routes.get("/corrective-actions/export.csv", async (c) => {
   const { ctx, tenant } = c.var;
   const [actions, members] = await Promise.all([
@@ -1887,6 +1939,95 @@ routes.put(
     });
   },
 );
+
+// ---- management review (ISO 9001 9.3) ----
+// A draft is edited freely; finalising checks the minutes are complete and freezes them, after which
+// only an action's done date changes. Only drafts can be deleted.
+const reviewText = (keys: readonly string[]) =>
+  z
+    .record(z.string(), text(REVIEW_TEXT_MAX))
+    .refine((o) => Object.keys(o).every((k) => keys.includes(k)), "Unknown heading");
+const reviewAction = z.object({
+  id: z.string().max(64).optional(),
+  text: z
+    .string()
+    .trim()
+    .min(1)
+    .max(REVIEW_SHORT_MAX * 2),
+  owner: text(REVIEW_SHORT_MAX),
+  dueOn: date.nullable(),
+  doneOn: date.nullable(),
+});
+const reviewBody = z.object({
+  heldOn: date,
+  periodFrom: date.optional(),
+  periodTo: date.optional(),
+  attendees: text(REVIEW_TEXT_MAX).optional(),
+  inputs: reviewText(REVIEW_INPUT_KEYS).optional(),
+  outputs: reviewText(REVIEW_OUTPUT_KEYS).optional(),
+  actions: z.array(reviewAction).max(MAX_REVIEW_ACTIONS).optional(),
+  nextReviewOn: date.nullable().optional(),
+});
+
+routes.get("/reviews", async (c) =>
+  c.json({
+    ...(await reviewList(c.var.ctx, c.var.tenant.orgId)),
+    inputs: REVIEW_INPUTS,
+    outputs: REVIEW_OUTPUTS,
+  }),
+);
+routes.get("/reviews/:id/minutes.md", async (c) => {
+  const md = await reviewMinutes(c.var.ctx, c.var.tenant.orgId, c.req.param("id"));
+  return new Response(md, {
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      "Content-Disposition": 'attachment; filename="management-review-minutes.md"',
+      "Cache-Control": "private, no-store",
+    },
+  });
+});
+routes.post("/reviews", requireRole("editor"), validate("json", reviewBody), async (c) => {
+  const t = c.var.tenant;
+  return c.json(await createReview(c.var.ctx, t.orgId, t.userId, c.req.valid("json")), 201);
+});
+routes.patch(
+  "/reviews/:id",
+  requireRole("editor"),
+  validate("json", reviewBody.partial()),
+  async (c) => {
+    const t = c.var.tenant;
+    return c.json(
+      await updateReview(c.var.ctx, t.orgId, t.userId, c.req.param("id"), c.req.valid("json")),
+    );
+  },
+);
+routes.post("/reviews/:id/finalise", requireRole("editor"), async (c) => {
+  const t = c.var.tenant;
+  return c.json(await finaliseReview(c.var.ctx, t.orgId, t.userId, c.req.param("id")));
+});
+routes.put(
+  "/reviews/:id/actions/:actionId/done",
+  requireRole("editor"),
+  validate("json", z.object({ doneOn: date.nullable() })),
+  async (c) => {
+    const t = c.var.tenant;
+    return c.json(
+      await setActionDone(
+        c.var.ctx,
+        t.orgId,
+        t.userId,
+        c.req.param("id"),
+        c.req.param("actionId"),
+        c.req.valid("json").doneOn,
+      ),
+    );
+  },
+);
+routes.delete("/reviews/:id", requireRole("editor"), async (c) => {
+  const t = c.var.tenant;
+  await deleteReview(c.var.ctx, t.orgId, t.userId, c.req.param("id"));
+  return c.json({ ok: true });
+});
 
 // ---- audit log ----
 routes.get("/audit-log", requireRole("admin"), async (c) => {

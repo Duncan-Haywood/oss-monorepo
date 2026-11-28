@@ -22,7 +22,7 @@ const dueOf = (r: ReturnType<typeof checked>, citation: string) =>
   r.steps.find((s) => s.citation === citation)?.dueOn;
 
 describe("state bond claims", () => {
-  it("covers the thirty-four states and the District read, each with a statute link on its legislature's site", () => {
+  it("covers the thirty-six states and the District read, each with a statute link on its legislature's site", () => {
     expect(STATE_BOND_STATES).toEqual([
       "AK",
       "AL",
@@ -46,11 +46,13 @@ describe("state bond claims", () => {
       "NC",
       "ND",
       "NE",
+      "NJ",
       "NV",
       "NY",
       "OH",
       "OK",
       "OR",
+      "PA",
       "RI",
       "SC",
       "SD",
@@ -65,6 +67,38 @@ describe("state bond claims", () => {
       expect(rule?.url).toMatch(/^https:\/\//);
       expect(["2026-11-27", "2026-11-28"]).toContain(rule?.checkedOn);
     }
+  });
+
+  it("Pennsylvania: a 90-day notice for a sub's sub under both statutes; the one-year suit is not dated", () => {
+    const r = checked("PA", "second", ACCEPTED);
+    // 10 July + 90 days = Thursday 8 October 2026.
+    expect(dueOf(r, "Act 385 \u00a7 4(b); 62 Pa.C.S. \u00a7 903(d)(2)")).toBe("2026-10-08");
+    const suit = r.steps.find((s) => s.citation === "42 Pa.C.S. \u00a7 5523(3)");
+    // Even with acceptance entered, the statute names no day to count from.
+    expect(suit?.dueOn).toBeNull();
+    expect(suit?.waitsFor).toMatch(/accrued/);
+    expect(r.dated.map((s) => s.citation)).toEqual([
+      "Act 385 \u00a7 4(b); 62 Pa.C.S. \u00a7 903(d)(2)",
+    ]);
+    expect(checked("PA", "first").steps.map((s) => s.citation)).toEqual([
+      "42 Pa.C.S. \u00a7 5523(3)",
+    ]);
+    expect(STATE_BOND_RULES.PA?.url).toMatch(/^https:\/\/www\.palegis\.us\//);
+  });
+
+  it("New Jersey: a sub's sub notifies before work; the statement and the suit both by one year from the last day", () => {
+    const r = checked("NJ", "second");
+    const before = r.steps.find((s) => s.citation === "N.J.S.A. 2A:44-145 (notice before work)");
+    expect(before?.who).toBe("not-prime");
+    expect(before?.dueOn).toBeNull();
+    expect(before?.waitsFor).toMatch(/start work/);
+    // One year from Friday 10 July 2026 is Saturday 10 July 2027: the Friday before.
+    const statement = r.steps.find((s) => s.citation === "N.J.S.A. 2A:44-145");
+    expect(statement?.statutoryOn).toBe("2027-07-10");
+    expect(statement?.dueOn).toBe("2027-07-09");
+    expect(dueOf(r, "N.J.S.A. 2A:44-146")).toBe("2027-07-09");
+    expect(checked("NJ", "first").steps.every((s) => s.who === "all")).toBe(true);
+    expect(STATE_BOND_RULES.NJ?.notes.join(" ")).toMatch(/90 days after both/);
   });
 
   it("Virginia: 90-day notice for a sub's sub, one-year suit for everyone", () => {
@@ -480,9 +514,9 @@ describe("state bond claims", () => {
   });
 
   it("names an unsupported state and returns nothing without a state", () => {
-    expect(stateBondClaim("PA", { tier: null, lastFurnishedOn: LAST, acceptedOn: null })).toEqual({
+    expect(stateBondClaim("GA", { tier: null, lastFurnishedOn: LAST, acceptedOn: null })).toEqual({
       kind: "unsupported",
-      state: "PA",
+      state: "GA",
     });
     expect(stateBondClaim("", { tier: null, lastFurnishedOn: LAST, acceptedOn: null })).toBeNull();
   });
@@ -509,7 +543,7 @@ describe("state bond claim reminder on the cash page", () => {
     expect(
       stateBondText(va(), { outstandingCents: 0, retainageHeldCents: 0 }, "2026-09-20", "second"),
     ).toBeNull();
-    const pa = stateBondClaim("PA", { tier: null, lastFurnishedOn: LAST, acceptedOn: null });
+    const pa = stateBondClaim("GA", { tier: null, lastFurnishedOn: LAST, acceptedOn: null });
     expect(pa?.kind).toBe("unsupported");
     expect(stateBondText(pa, owed, "2026-09-20")).toBeNull();
     expect(stateBondText(null, owed, "2026-09-20")).toBeNull();

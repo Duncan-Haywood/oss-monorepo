@@ -65,11 +65,11 @@ button for PDFs" item was already done: the page runs these on any dropped PDF.
 
 **XRechnung profile (Germany).** Tick "Also apply the German XRechnung rules"
 on the page, or call the API with `POST /v1/validate?profile=xrechnung`, to add
-ten rules, `XR-001`..`XR-009` and `XR-012`, that mirror the BR-DE business rules a German
+eleven rules, `XR-001`..`XR-009`, `XR-012` and `XR-013`, that mirror the BR-DE business rules a German
 public buyer's portal enforces: buyer reference (BT-10), Leitweg-ID check
 digits (ISO 7064 MOD 97-10, verified against published samples), payment
 instructions, seller contact, seller and buyer city and postcode, invoice type
-code, the XRechnung 3.x specification identifier, and a seller tax identifier. `XR-012` (2026-11-28, a warning) flags a buyer reference that is a valid Leitweg-ID once a "Leitweg-ID:" label is dropped or its spaces, dots or slashes are made hyphens, or a run of digits that passes MOD 97-10 (a Leitweg-ID with its hyphens left out, or a number that passes by chance, 104 of 100000..109999). The official EN 16931 and KoSIT rules do not look at the id at all: `leitweg-id-bench.mjs` measures eleven mistakes, quoted on `leitweg-id-pruefen.html` (the id is `XR-012` because the paid copy already uses 010 and 011 for third-party payments).
+code, the XRechnung 3.x specification identifier, and a seller tax identifier. `XR-012` (2026-11-28, a warning) flags a buyer reference that is a valid Leitweg-ID once a "Leitweg-ID:" label is dropped or its spaces, dots or slashes are made hyphens, or a run of digits that passes MOD 97-10 (a Leitweg-ID with its hyphens left out, or a number that passes by chance, 104 of 100000..109999). The official EN 16931 and KoSIT rules do not look at the id at all: `leitweg-id-bench.mjs` measures eleven mistakes, quoted on `leitweg-id-pruefen.html` (the id is `XR-012` because the paid copy already uses 010 and 011 for third-party payments). `XR-013` (2026-11-28, a warning) flags Skonto in the payment terms (BT-20) that KoSIT's BR-DE-18 lets through: Skonto written only in words, or a `SKONTO#TAGE=…` line without its leading `#` (BR-DE-18 tests only lines that begin with `#`), and names the `#SKONTO#TAGE=10#PROZENT=2.00#` line to add when the words hold one percentage and one number of days. The same day the creator stopped trimming the line break after a Skonto line: before, a correctly typed `#SKONTO#…#` came out failing BR-DE-18. `skonto-bench.mjs` measures sixteen ways to write it in UBL and CII: five correct forms pass, nine slips fail BR-DE-18, two pass the official rules and get only `XR-013`.
 Off by default. JS (page and API) only; the Python CLI does not apply it yet.
 It is an offline observation, not the KoSIT validator.
 
@@ -1247,8 +1247,12 @@ CLI (`--format json`), and the rule ids are compared
   with "UBL document root must be Invoice, CreditNote, or DebitNote"; it now
   names the file's root and says the page and the Node API check that format.
 - **Known, not measured here:** the CLI has no warning or note severity, so it
-  is silent on INV-061/063/064 and PDF-001..006; Norway and Switzerland VAT and
-  the profile options are JS only; some fix texts differ. The comparison is on
+  is silent on INV-061/063/064 and PDF-001..006; the profile options are JS
+  only; some fix texts differ. Norway (organisasjonsnummer, MVA) and Switzerland
+  (UID, MWST/TVA/IVA) VAT check digits were JS only until the 2026-11-28 quality
+  re-audit, which found the CLI called every NO or CH `vat_id` an unrecognized
+  prefix (INV-022); they now run in `vat.py` and agree with `vat.mjs` and
+  python-stdnum 2.2 on 3,000 of 3,000 random numbers (`tests/test_vat.py`). The comparison is on
   rule ids, not messages, and on shipped files, not generated ones.
 
 The page now says exactly this under "Prefer a pipeline?".

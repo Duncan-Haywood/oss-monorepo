@@ -258,8 +258,9 @@ test("outlineRoof's angled note and the CLI: a bay house's rafters reach the lum
   const members = j.rows.filter((x) => x.section === "Members cut from those boards").map((x) => x.item);
   for (const m of ["2x8 rafter", "2x8 jack rafter", "2x8 valley jack rafter", "2x10 hip rafter", "2x10 valley rafter", "2x10 ridge board"]) assert.ok(members.includes(m), m);
   assert.ok(j.notes.some((x) => /Framed instead as the all-hip roof/.test(x)));
-  // the sheathing courses are still square-cornered only, and say so
-  assert.ok(j.notes.some((x) => /Roof sheathing not laid out: .*angled sides/.test(x)), j.notes.join("\n"));
+  // and since 2026-11-28 its sheathing courses too (outlinesheathing-angled.test.mjs)
+  assert.ok(!j.notes.some((x) => /Roof sheathing not laid out/.test(x)), j.notes.join("\n"));
+  assert.ok(j.notes.some((x) => /angled sides: each plane is the face/.test(x)), j.notes.join("\n"));
 });
 
 test("on 300 seeded square-cornered outlines the traced faces frame exactly as the L-infinity rule, except where two eave sides share a plane", () => {

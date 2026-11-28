@@ -5,6 +5,7 @@
 // pure, in @shared/internal-audits.
 import {
   type AuditFields,
+  auditReportMarkdown,
   auditTiming,
   type CaSource,
   caIssues,
@@ -163,6 +164,54 @@ export async function auditProgramme(ctx: AppContext, orgId: string) {
     coverage: clauseCoverage(CLAUSE_IDS, audits, excluded, on),
     check,
     attention: qualityAttention(audits, actions, on),
+  };
+}
+
+/**
+ * One audit's report as Markdown: scope, auditor, independence, summary, findings with the
+ * corrective actions they opened, and what is still open. Readable on every plan, like the tab.
+ */
+export async function auditReport(
+  ctx: AppContext,
+  orgId: string,
+  orgName: string,
+  auditId: string,
+  nameOf: (userId: string | null) => string,
+  disclaimer: string,
+) {
+  const a = await getAudit(ctx, orgId, auditId);
+  const [findings, actions, clauses] = await Promise.all([
+    ctx.db
+      .select()
+      .from(auditFinding)
+      .where(and(eq(auditFinding.orgId, orgId), eq(auditFinding.auditId, auditId)))
+      .orderBy(asc(auditFinding.createdAt))
+      .all(),
+    listCorrectiveActions(ctx, orgId),
+    ctx.db
+      .select({
+        clauseId: qualityClauseRecord.clauseId,
+        ownerUserId: qualityClauseRecord.ownerUserId,
+      })
+      .from(qualityClauseRecord)
+      .where(eq(qualityClauseRecord.orgId, orgId))
+      .all(),
+  ]);
+  const owners = new Map(clauses.map((c) => [c.clauseId, c.ownerUserId]));
+  return {
+    title: a.title,
+    markdown: auditReportMarkdown({
+      orgName,
+      audit: a,
+      findings,
+      actions,
+      clauseNumber,
+      clauseTitle: (id) => qualityClauseById(id)?.title ?? "",
+      clauseOwner: (id) => owners.get(id) ?? null,
+      nameOf,
+      today: today(ctx),
+      disclaimer,
+    }),
   };
 }
 

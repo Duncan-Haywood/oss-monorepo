@@ -21,8 +21,9 @@ const MAX_FORM_DEPTH = 8;
 const MAX_TREE_DEPTH = 32;
 const MAX_OUTPUT_CHARS = 200_000;
 const MAX_OBJECT_STREAMS = 400;
+const MAX_RUNS = 50_000;
 
-interface PdfObject {
+export interface PdfObject {
   /** The object's text with any stream data cut out. */
   body: string;
   /** The stream's raw bytes, when the object is a stream. */
@@ -32,7 +33,7 @@ interface PdfObject {
 type Value = { ref: number } | { inline: string } | null;
 
 /** The value after `/Key` in a dictionary: an indirect reference, or the inline dict/array/token. */
-function dictValue(body: string, key: string): Value {
+export function dictValue(body: string, key: string): Value {
   const re = new RegExp(`/${key}(?![A-Za-z0-9#])\\s*`, "g");
   // The first match at dictionary depth 1 (a key of this dictionary, not of a nested one).
   for (let m = re.exec(body); m; m = re.exec(body)) {
@@ -63,7 +64,7 @@ function depthAt(body: string, at: number) {
   return d;
 }
 
-function balanced(s: string, at: number, open: string, close: string) {
+export function balanced(s: string, at: number, open: string, close: string) {
   let d = 0;
   for (let i = at; i < s.length; i++) {
     if (s.startsWith(open, i)) {
@@ -78,7 +79,7 @@ function balanced(s: string, at: number, open: string, close: string) {
   return s.slice(at);
 }
 
-const refsIn = (s: string) =>
+export const refsIn = (s: string) =>
   [...s.matchAll(/(\d+)\s+\d+\s+R(?![A-Za-z])/g)].map((m) => Number(m[1]));
 
 /** `/Name n 0 R` pairs of a resource dictionary (fonts, XObjects). */
@@ -91,7 +92,7 @@ function namedRefs(dict: string): Map<string, number> {
 }
 
 /** Every object in the file; a later definition (an incremental update) replaces an earlier one. */
-function readObjects(bytes: Uint8Array, text: string): Map<number, PdfObject> {
+export function readObjects(bytes: Uint8Array, text: string): Map<number, PdfObject> {
   const objects = new Map<number, PdfObject>();
   const re = /(?:^|[\s>\]])(\d+)\s+\d+\s+obj\b/g;
   for (let m = re.exec(text); m && objects.size < MAX_OBJECTS; m = re.exec(text)) {
@@ -121,7 +122,7 @@ function readObjects(bytes: Uint8Array, text: string): Map<number, PdfObject> {
 }
 
 /** The decoded bytes of a stream object, or null for a filter this reader does not handle. */
-async function decode(obj: PdfObject | undefined): Promise<Uint8Array | null> {
+export async function decode(obj: PdfObject | undefined): Promise<Uint8Array | null> {
   if (!obj?.stream) return null;
   const filter = dictValue(obj.body, "Filter");
   if (!filter) return obj.stream;
@@ -136,7 +137,7 @@ async function decode(obj: PdfObject | undefined): Promise<Uint8Array | null> {
 }
 
 /** Objects packed in compressed object streams (PDF 1.5+), added where the file has no plain copy. */
-async function readObjectStreams(objects: Map<number, PdfObject>) {
+export async function readObjectStreams(objects: Map<number, PdfObject>) {
   let seen = 0;
   for (const obj of [...objects.values()]) {
     if (seen >= MAX_OBJECT_STREAMS || objects.size >= MAX_OBJECTS) break;
@@ -162,6 +163,47 @@ interface Font {
   map: Map<number, string> | null;
   /** Bytes per character code. */
   width: 1 | 2;
+  /** Glyph advance in 1/1000 em by code (from /Widths or /W), read only for layout. */
+  advance?: (code: number) => number;
+}
+
+/** Numbers in a PDF array's text, nested arrays flattened with their brackets kept as tokens. */
+const arrayTokens = (s: string) => s.match(/\[|\]|[+-]?(?:\d+\.?\d*|\.\d+)/g) ?? [];
+
+/** A simple font's /FirstChar and /Widths, or a CID font's /W and /DW, as an advance lookup. */
+function advances(objects: Map<number, PdfObject>, body: string): (code: number) => number {
+  const fallback = (code: number) => (code === 32 || code === 46 ? 278 : 556);
+  const desc = resolve(objects, dictValue(body, "DescendantFonts"));
+  if (desc) {
+    const cid = objects.get(refsIn(desc)[0] ?? -1)?.body ?? (desc.includes("<<") ? desc : "");
+    const dw = Number(resolve(objects, dictValue(cid, "DW")) ?? 1000) || 1000;
+    const w = resolve(objects, dictValue(cid, "W"));
+    const map = new Map<number, number>();
+    if (w) {
+      const t = arrayTokens(w.replace(/^\[|\]$/g, ""));
+      for (let i = 0; i < t.length && map.size < 65_536; ) {
+        const first = Number(t[i]);
+        if (t[i + 1] === "[") {
+          let j = i + 2;
+          let c = first;
+          while (j < t.length && t[j] !== "]") map.set(c++, Number(t[j++]));
+          i = j + 1;
+        } else if (t[i + 1] !== undefined && t[i + 2] !== undefined && t[i + 2] !== "[") {
+          const last = Math.min(Number(t[i + 1]), first + 65_535);
+          for (let c = first; c <= last; c++) map.set(c, Number(t[i + 2]));
+          i += 3;
+        } else break;
+      }
+    }
+    return (code) => map.get(code) ?? dw;
+  }
+  const first = Number(resolve(objects, dictValue(body, "FirstChar")) ?? 0) || 0;
+  const widths = resolve(objects, dictValue(body, "Widths"));
+  if (!widths) return fallback;
+  const list = arrayTokens(widths)
+    .filter((t) => t !== "[" && t !== "]")
+    .map(Number);
+  return (code) => list[code - first] ?? fallback(code);
 }
 
 const utf16be = (hex: string) => {
@@ -209,18 +251,66 @@ function parseCmap(s: string): Font {
 }
 
 /** Resolves an indirect reference or keeps an inline value as an object body. */
-function resolve(objects: Map<number, PdfObject>, v: Value): string | null {
+export function resolve(objects: Map<number, PdfObject>, v: Value): string | null {
   if (!v) return null;
   if ("ref" in v) return objects.get(v.ref)?.body ?? null;
   return v.inline;
+}
+
+/** A PDF matrix [a b c d e f]. */
+type Matrix = [number, number, number, number, number, number];
+const IDENTITY: Matrix = [1, 0, 0, 1, 0, 0];
+/** m1 then m2 (PDF's row-vector convention: a point times m1 times m2). */
+function mul(m1: Matrix, m2: Matrix): Matrix {
+  const [a, b, c, d, e, f] = m1;
+  const [A, B, C, D, E, F] = m2;
+  return [
+    a * A + b * C,
+    a * B + b * D,
+    c * A + d * C,
+    c * B + d * D,
+    e * A + f * C + E,
+    e * B + f * D + F,
+  ];
+}
+
+/**
+ * One shown string with where it was drawn, in the page's default user space (points, origin bottom
+ * left of the MediaBox's coordinate system). Glyph advances come from the font's widths, so `x1, y1`
+ * (where the next glyph would start) is close, not exact (no kerning tables, no Type 3 matrices).
+ */
+export interface TextRun {
+  /** 0-based index into the page list. */
+  page: number;
+  /** Runs with the same `line` were read as one text line (the same baseline, in order). */
+  line: number;
+  text: string;
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+  /** The glyphs' height (font size times the vertical scale), in points. */
+  size: number;
+  /** Unit vector of the text's upward direction (0, 1 for normal horizontal text). */
+  upX: number;
+  upY: number;
 }
 
 class Reader {
   private fonts = new Map<number, Font>();
   private out: string[] = [];
   private chars = 0;
+  /** Set when positions are wanted (readPdfLayout); extractPdfText leaves it off. */
+  runs: TextRun[] | null = null;
+  private pageIndex = 0;
+  private lineNo = 0;
 
-  constructor(private objects: Map<number, PdfObject>) {}
+  constructor(
+    private objects: Map<number, PdfObject>,
+    private layout = false,
+  ) {
+    if (layout) this.runs = [];
+  }
 
   private async font(num: number): Promise<Font> {
     const cached = this.fonts.get(num);
@@ -236,6 +326,7 @@ class Reader {
         font = { map: cmap.map, width: type0 ? 2 : cmap.width };
       }
     }
+    if (this.layout) font.advance = advances(this.objects, body);
     this.fonts.set(num, font);
     return font;
   }
@@ -297,9 +388,23 @@ class Reader {
       const data = await decode(this.objects.get(n));
       if (data) parts.push(latin1(data));
     }
-    await this.run(parts.join("\n"), this.resources(num), 0);
+    await this.run(parts.join("\n"), this.resources(num), 0, IDENTITY);
     this.newline();
     this.newline();
+    this.pageIndex++;
+  }
+
+  /** A page dictionary key, inherited from the page's ancestors (MediaBox, Rotate). */
+  inherited(num: number, key: string): string | null {
+    let body = this.objects.get(num)?.body ?? "";
+    for (let i = 0; i < MAX_TREE_DEPTH; i++) {
+      const v = resolve(this.objects, dictValue(body, key));
+      if (v) return v;
+      const parent = dictValue(body, "Parent");
+      if (!parent || !("ref" in parent)) break;
+      body = this.objects.get(parent.ref)?.body ?? "";
+    }
+    return null;
   }
 
   private emit(s: string) {
@@ -309,10 +414,13 @@ class Reader {
   }
 
   private newline() {
-    if (this.out.length > 0 && !this.out.at(-1)?.endsWith("\n\n")) this.emit("\n");
+    if (this.out.length > 0 && !this.out.at(-1)?.endsWith("\n\n")) {
+      this.emit("\n");
+      this.lineNo++;
+    }
   }
 
-  private async run(content: string, resources: string, depth: number) {
+  private async run(content: string, resources: string, depth: number, base: Matrix) {
     const fontDict = resolve(this.objects, dictValue(resources, "Font"));
     const fonts = fontDict ? namedRefs(fontDict) : new Map<string, number>();
     const xDict = resolve(this.objects, dictValue(resources, "XObject"));
@@ -325,13 +433,65 @@ class Reader {
     let y = 0;
     let leading = 0;
     let shownY: number | null = null;
+    // Layout state, used only when `this.runs` is set: the CTM and its q/Q stack, the text and
+    // text-line matrices, and the text state the advances need.
+    let ctm: Matrix = base;
+    const saved: Matrix[] = [];
+    let tm: Matrix = IDENTITY;
+    let tlm: Matrix = IDENTITY;
+    let fontSize = 0;
+    let charSpace = 0;
+    let wordSpace = 0;
+    let hScale = 1;
+    let rise = 0;
+    const layout = this.runs !== null;
+    const td = (tx: number, ty: number) => {
+      tlm = mul([1, 0, 0, 1, tx, ty], tlm);
+      tm = tlm;
+    };
     const ops: (string | number | { str: Uint8Array; hex: boolean } | unknown[])[] = [];
 
     const show = (s: unknown) => {
       if (!s || typeof s !== "object" || !("str" in s)) return;
       if (shownY !== null && Math.abs(y - shownY) > 0.01) this.newline();
       shownY = y;
-      this.emit(this.decodeString((s as { str: Uint8Array }).str, font));
+      const bytes = (s as { str: Uint8Array }).str;
+      const text = this.decodeString(bytes, font);
+      this.emit(text);
+      if (!layout || !this.runs) return;
+      const trm = mul([fontSize * hScale, 0, 0, fontSize, 0, rise], mul(tm, ctm));
+      let tx = 0;
+      const step = font.width;
+      for (let i = 0; i + step <= bytes.length; i += step) {
+        const code =
+          step === 2
+            ? ((bytes[i] as number) << 8) | (bytes[i + 1] as number)
+            : (bytes[i] as number);
+        const w = font.advance ? font.advance(code) : 500;
+        tx +=
+          ((w / 1000) * fontSize + charSpace + (step === 1 && code === 32 ? wordSpace : 0)) *
+          hScale;
+      }
+      tm = mul([1, 0, 0, 1, tx, 0], tm);
+      const end = mul([fontSize * hScale, 0, 0, fontSize, 0, rise], mul(tm, ctm));
+      const size = Math.hypot(trm[2], trm[3]);
+      if (this.runs.length < MAX_RUNS && text.trim() && size > 0) {
+        this.runs.push({
+          page: this.pageIndex,
+          line: this.lineNo,
+          text,
+          x0: trm[4],
+          y0: trm[5],
+          x1: end[4],
+          y1: end[5],
+          size,
+          upX: trm[2] / size,
+          upY: trm[3] / size,
+        });
+      }
+    };
+    const kern = (n: number) => {
+      if (layout) tm = mul([1, 0, 0, 1, (-n / 1000) * fontSize * hScale, 0], tm);
     };
     // T* (and ' and ") start the next line even when no leading is set.
     const nextLine = () => {
@@ -357,9 +517,15 @@ class Reader {
           | undefined;
         const n = name ? fonts.get(name.slice(1)) : undefined;
         font = n !== undefined ? await this.font(n) : { map: null, width: 1 };
+        fontSize = num(args.length - 1);
       } else if (op === "Tj") {
         show(args.at(-1));
       } else if (op === "'" || op === '"') {
+        if (op === '"') {
+          wordSpace = num(0);
+          charSpace = num(1);
+        }
+        td(0, -leading);
         nextLine();
         show(args.at(-1));
       } else if (op === "TJ") {
@@ -368,21 +534,46 @@ class Reader {
           for (const el of arr) {
             if (typeof el === "number") {
               // A gap wider than about a quarter of an em reads as a word space.
-              if (el < -250 && !this.out.at(-1)?.endsWith(" ")) this.emit(" ");
+              if (el < -250 && !this.out.at(-1)?.endsWith(" ")) {
+                this.emit(" ");
+                const last = this.runs?.at(-1);
+                if (last && last.line === this.lineNo) last.text += " ";
+              }
+              kern(el);
             } else show(el);
           }
         }
       } else if (op === "Td" || op === "TD") {
         y += num(1);
         if (op === "TD") leading = -num(1);
+        td(num(0), num(1));
       } else if (op === "TL") {
         leading = num(0);
       } else if (op === "T*") {
+        td(0, -leading);
         nextLine();
       } else if (op === "Tm") {
         y = num(5);
+        tlm = [num(0), num(1), num(2), num(3), num(4), num(5)];
+        tm = tlm;
       } else if (op === "BT") {
         y = 0;
+        tm = IDENTITY;
+        tlm = IDENTITY;
+      } else if (op === "Tc") {
+        charSpace = num(0);
+      } else if (op === "Tw") {
+        wordSpace = num(0);
+      } else if (op === "Tz") {
+        hScale = num(0) / 100;
+      } else if (op === "Ts") {
+        rise = num(0);
+      } else if (op === "q") {
+        if (saved.length < 64) saved.push(ctm);
+      } else if (op === "Q") {
+        ctm = saved.pop() ?? ctm;
+      } else if (op === "cm") {
+        ctm = mul([num(0), num(1), num(2), num(3), num(4), num(5)], ctm);
       } else if (op === "Do" && depth < MAX_FORM_DEPTH) {
         const name = args.at(-1);
         const n = typeof name === "string" ? xobjects.get(name.slice(1)) : undefined;
@@ -392,7 +583,10 @@ class Reader {
           if (data) {
             const own = resolve(this.objects, dictValue(form.body, "Resources"));
             this.newline();
-            await this.run(latin1(data), own ?? resources, depth + 1);
+            const fm = resolve(this.objects, dictValue(form.body, "Matrix"));
+            const nums = fm ? (fm.match(/[+-]?(?:\d+\.?\d*|\.\d+)/g) ?? []).map(Number) : [];
+            const formMatrix: Matrix = nums.length === 6 ? (nums as Matrix) : IDENTITY;
+            await this.run(latin1(data), own ?? resources, depth + 1, mul(formMatrix, ctm));
             this.newline();
           }
         }
@@ -550,4 +744,47 @@ export async function extractPdfText(bytes: Uint8Array): Promise<string | null> 
   const reader = new Reader(objects);
   for (const p of reader.pages()) await reader.page(p);
   return reader.text();
+}
+
+export interface PdfPage {
+  /** The page object's number. */
+  num: number;
+  /** [x0, y0, x1, y1] of the MediaBox (US Letter landscape when none is found). */
+  mediaBox: [number, number, number, number];
+  /** /Rotate in degrees (0, 90, 180, 270). */
+  rotate: number;
+}
+
+export interface PdfLayout {
+  objects: Map<number, PdfObject>;
+  pages: PdfPage[];
+  runs: TextRun[];
+}
+
+/**
+ * The PDF's objects, pages and every shown string with its position, for drawing on the pages
+ * (fai-balloons.ts). Null when the bytes are not a PDF or the file is encrypted.
+ */
+export async function readPdfLayout(bytes: Uint8Array): Promise<PdfLayout | null> {
+  const text = latin1(bytes);
+  const head = text.indexOf("%PDF-");
+  if (head < 0 || head > 1024) return null;
+  if (/\/Encrypt\s+\d+\s+\d+\s+R/.test(text)) return null;
+  const objects = readObjects(bytes, text);
+  await readObjectStreams(objects);
+  const reader = new Reader(objects, true);
+  const pages: PdfPage[] = [];
+  for (const p of reader.pages()) {
+    const box = (reader.inherited(p, "MediaBox")?.match(/[+-]?(?:\d+\.?\d*|\.\d+)/g) ?? []).map(
+      Number,
+    );
+    const rot = Number(reader.inherited(p, "Rotate") ?? 0) || 0;
+    pages.push({
+      num: p,
+      mediaBox: box.length === 4 ? (box as [number, number, number, number]) : [0, 0, 792, 612],
+      rotate: (((Math.round(rot / 90) * 90) % 360) + 360) % 360,
+    });
+    await reader.page(p);
+  }
+  return { objects, pages, runs: reader.runs ?? [] };
 }

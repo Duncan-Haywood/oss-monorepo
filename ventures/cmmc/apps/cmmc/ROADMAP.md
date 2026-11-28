@@ -490,6 +490,17 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   page (ticks kept, result, noindex), the same functions the Worker runs (tested equal); the submit
   button sends `calc=1`, so "nothing ticked" scores 110 instead of showing no result. The app's sign-in
   screen opens on "Create account" at `/signup` or `?mode=signup` (`src/client/lib/auth-mode.ts`).
+- Internal audits, part 3, the audit report (2026-11-28, audit-report): "Download audit report" on
+  each audit in the Audits tab, `GET /audits/:id/report.md` (every member, tenant-scoped, no-store).
+  Status and dates, auditor (member or outside) and the independence line (names the clauses in scope
+  the auditor owns on the checklist), scope by clause number and heading, the summary, every finding
+  ordered major, minor, observation, improvement, with what was seen and the corrective action it
+  opened (reference, stage, due or closed date, owner) or "none opened yet" for a nonconformity, what is
+  still open for that audit (the Audits tab's own checks), and blank sign-off lines. The record clause
+  9.2 asks a shop to keep for each audit's results, built from what the workspace holds; no ISO text.
+  Typed text is quoted line by line with Markdown characters escaped, so a summary starting "#" or "---"
+  stays text. `auditReportMarkdown` in `src/shared/internal-audits.ts`, `auditReport` in
+  `services/internal-audits`; unit, worker (viewer reads, other tenant 404) and view tests.
 
 ## Must do before a public launch
 
@@ -588,19 +599,53 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   worker tests. Privacy policy lists the new fields (POLICY_VERSION 2026-11-28.3); docs/SOURCES.md,
   "Calibration".
 
+- Management review, part 1 (2026-11-28, management-review): the ISO 9001 9.3 record every certified shop
+  produces once a year, and the one the workspace's other quality records feed. A "Mgmt review" tab: start a
+  review on a meeting date (the period runs from the day after the last final review's period, else twelve
+  months back); each of the twelve inputs (9.3.2 a to f, our own wording, no ISO text) shows the figures the
+  workspace works out for the period: the last review's actions done, open and past due; complaints and
+  returns logged as corrective actions; corrective actions raised by source, closed, open, past due, found not
+  effective; internal audits done, findings by grade, planned audits missed; gauges in use, calibrations,
+  out-of-tolerance results without an impact record, gauges overdue; supplier problems and gaps on the CMMC
+  flow-down register; cyber incidents. Each line says it counts logged records only. A note per input, the
+  three outputs (9.3.3), actions with owner and due date. Finalising refuses minutes with an input neither
+  figured nor noted, an output left blank, an action without owner or date, a future meeting or no one named;
+  then the figures are kept as they stood and only an action's done date changes. Next due (twelve months or a
+  set date), open and overdue actions, minutes as Markdown. Migration 0022; `src/shared/management-review.ts`,
+  `services/management-review`, `/reviews` routes, `Reviews.tsx`; unit and worker tests. Privacy lists the
+  new fields (POLICY_VERSION 2026-11-28.5); docs/SOURCES.md, "Management review".
+
+- Gauges and calibration, part 2 (2026-11-28, gauges-and-calibration-part-2-part-1-the): calibration due
+  dates in the calendar. The downloaded `.ics` and the subscribable link carry one event per date for gauges
+  in use falling due ("Calibration due: 3 gauges", UID per org and date, the same 60- and 7-day alarms),
+  never a gauge's id, description or location; reference-only, out-of-service and retired gauges and gauges
+  never calibrated add no event (the last show on the recall list). A "Gauge calibration" dashboard card on
+  Level 2 + Quality: in use / overdue / due within 30 days / never calibrated counts, the recall list's first
+  8 lines in its order (overdue oldest first, due soon, never), and the out-of-tolerance results with no
+  impact record. The Affirmations tab, the Privacy Policy (POLICY_VERSION 2026-11-28.4) and docs/SECURITY.md
+  say what the file and link now carry. `calibrationDueDates` in `src/shared/calibration.ts`,
+  `calibrationDueDatesFor` in `services/calibration`, `renderAffirmationCalendar({ calibrationDue })`,
+  `CalibrationCard`; unit, component and worker tests (grouping, skipped states, no gauge ids in the file
+  or link, cross-tenant).
+
 ## Next
 
-- Gauges and calibration, part 2 (part 1, the list, calibrations, out-of-tolerance impact and the CSV, done
-  2026-11-28): due dates in the calendar file and subscribable link and a dashboard card (as documents and
-  audits have); an existing gauge list from CSV/.xlsx (the master list import's pattern); a "Raise a
-  corrective action" button that opens CA-nnnn from an out-of-tolerance result; then AS9100 and customer
-  flow-down asks (gauge R&R records) if shops ask
+- Management review, part 2 (part 1 done 2026-11-28): the next review's due date and overdue review
+  actions in the calendar file, the subscribable link and a dashboard card; quality objectives kept as their
+  own records (target, measure, results by month) so input 9.3.2 c 2 fills itself; a "Raise a corrective
+  action" from a review action, if shops ask
+- Gauges and calibration, part 3 (part 1, the list, calibrations, out-of-tolerance impact and the CSV, done
+  2026-11-28; part 2, due dates in the calendar file and link and the dashboard card, done 2026-11-28): an
+  existing gauge list from CSV/.xlsx (the master list import's pattern); a "Raise a corrective action" button
+  that opens CA-nnnn from an out-of-tolerance result; then AS9100 and customer flow-down asks (gauge R&R
+  records) if shops ask
 - Incidents, part 2 (part 1 done 2026-11-28): an incident-response plan and test record for 3.6.1 and 3.6.3
   (who files on DIBNet, who holds the medium assurance certificate, a tabletop exercise logged with its date),
   evidence files linked to an incident, and the SSP's 3.6.x statements naming the register, if shops ask
 
-- Internal audits, part 3 (calendar dates and the dashboard card done 2026-11-27): an audit report
-  (Markdown) per audit, and evidence files linked to a finding or an effectiveness check, if shops ask
+- Internal audits, part 4 (calendar dates and the dashboard card done 2026-11-27; the audit report
+  done 2026-11-28): evidence files linked to a finding or an effectiveness check, and the report as a
+  PDF, if shops ask
 - Document control, part 3 (review dates in the calendar and the dashboard done 2026-11-27; the
   master list import done 2026-11-28; the controlled copy file per revision done 2026-11-28): check the
   import's header words against real master lists once shops send theirs; a "file changed since

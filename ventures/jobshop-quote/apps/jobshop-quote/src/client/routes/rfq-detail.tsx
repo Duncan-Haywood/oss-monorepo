@@ -20,10 +20,10 @@ import type {
 } from "@shared/api";
 import { quoteLabel } from "@shared/quote-label";
 import { revisionMatchesForPrefill } from "@shared/repeat-parts";
-import { toleranceNote } from "@shared/tolerance";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useState } from "react";
+import { ToleranceCheck } from "../components/tolerance-check";
 import {
   Badge,
   Button,
@@ -203,6 +203,25 @@ export function RfqDetailPage() {
                     title="A draft AS9102 Form 3 characteristic list read from this drawing's text: check it against the drawing"
                   >
                     First article list (CSV)
+                  </a>
+                )}{" "}
+                {f.hasText && f.mimeType === "application/pdf" && (
+                  <Link
+                    className="text-sky-800 underline"
+                    to="/app/$orgId/rfqs/$rfqId/files/$fileId/first-article"
+                    params={{ orgId, rfqId, fileId: f.id }}
+                    title="Enter the first article results against this drawing's characteristics and see each row's accept or reject"
+                  >
+                    Inspect first article
+                  </Link>
+                )}{" "}
+                {f.hasText && f.mimeType === "application/pdf" && (
+                  <a
+                    className="text-sky-800 underline"
+                    href={orgApi(orgId, `/rfqs/${rfqId}/files/${f.id}/ballooned.pdf`)}
+                    title="The drawing with a numbered balloon beside each characteristic found in its text, numbered as in the CSV: check every balloon against the drawing"
+                  >
+                    Ballooned drawing (PDF)
                   </a>
                 )}{" "}
                 {/* A PDF that read without error but gave no text is usually a scan: the extractor
@@ -748,26 +767,5 @@ function AllowanceNote({ a }: { a: RfqDetailDto["allowance"] }) {
   }
   return (
     <p className="mt-2 text-xs text-stone-500">{text} An RFQ counts once per 10 drawing pages.</p>
-  );
-}
-
-const TOLERANCE_TONE = {
-  standard: "stone",
-  close: "sky",
-  tight: "amber",
-  precision: "red",
-} as const;
-
-/**
- * The tightest tolerance read from the part's tolerance text, and what to check before pricing it
- * (shared/tolerance.ts). It reads only: no price changes.
- */
-function ToleranceCheck({ text }: { text: string }) {
-  const note = toleranceNote(text);
-  if (!note || note.band === "standard") return null;
-  return (
-    <p className="text-xs text-stone-600" data-testid="tolerance-check">
-      <Badge tone={TOLERANCE_TONE[note.band]}>{note.label}</Badge> {note.detail} {note.advice}
-    </p>
   );
 }

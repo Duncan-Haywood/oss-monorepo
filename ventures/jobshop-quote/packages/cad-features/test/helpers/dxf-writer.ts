@@ -96,7 +96,18 @@ export const insert = (
   block: string,
   x: number,
   y: number,
-  o: { sx?: number; sy?: number; rot?: number; layer?: string; extrusionZ?: number } = {},
+  o: {
+    sx?: number;
+    sy?: number;
+    rot?: number;
+    layer?: string;
+    extrusionZ?: number;
+    /** MINSERT-style array: column/row counts (70/71) and spacing (44/45). */
+    cols?: number;
+    rows?: number;
+    colSpacing?: number;
+    rowSpacing?: number;
+  } = {},
 ): string =>
   pairs(
     0,
@@ -119,6 +130,14 @@ export const insert = (
     o.rot ?? 0,
     230,
     o.extrusionZ ?? 1,
+    70,
+    o.cols ?? 1,
+    71,
+    o.rows ?? 1,
+    44,
+    o.colSpacing ?? 0,
+    45,
+    o.rowSpacing ?? 0,
   );
 
 /** Spline from explicit degree, knots, control points and optional weights. */

@@ -1,0 +1,59 @@
+Sources for final-payment-affidavit.html, read 2026-11-28.
+
+These are short excerpts quoted for commentary, not copies of the forms. The forms are
+copyrighted by The American Institute of Architects; buy a licensed copy from AIA Contract
+Documents to use one. page.test.mjs-style checks in finalpay.test.mjs require every phrase the
+page quotes to appear below.
+
+1. AIA Contract Documents preview of G706-1994
+   https://contractdocs.aia.org/PreviewFiles/Preview_G706-1994.pdf
+   Title: "Contractor's Affidavit of Payment of Debts and Claims"
+   Certification (excerpt): "except as listed below, payment has been made in full and all
+   obligations have otherwise been satisfied" ... "for all known indebtedness and claims against
+   the Contractor"
+   Box: "EXCEPTIONS:"
+   Supporting documents: "Whenever Surety is involved, Consent of Surety is required."
+   "if required by the Owner" ... "Contractor's Release or Waiver of Liens, conditional upon
+   receipt of final payment" ... "Separate Releases or Waivers of Liens from Subcontractors and
+   material and equipment suppliers, to the extent required by the Owner, accompanied by a list
+   thereof" ... "Contractor's Affidavit of Release of Liens (AIA Document G706A)"
+   Execution: "Subscribed and sworn to before me on this date:" "Notary Public:"
+
+2. AIA Contract Documents preview of G706A-1994
+   https://contractdocs.aia.org/PreviewFiles/Preview_G706A-1994.pdf
+   Title: "Contractor's Affidavit of Release of Liens"
+   Certification (excerpt): "to the best of the undersigned's knowledge, information and belief,
+   except as listed below, the Releases or Waivers of Lien attached hereto include the
+   Contractor, all Subcontractors, all suppliers of materials and equipment, and all performers
+   of Work, labor or services who have or may have liens"
+
+3. AIA Contract Documents preview of G707-1994
+   https://contractdocs.aia.org/PreviewFiles/Preview_G707-1994.pdf
+   Title: "Consent of Surety to Final Payment"
+   Excerpt: "hereby approves of the final payment to the Contractor, and agrees that final
+   payment to the Contractor shall not relieve the Surety of any of its obligations"
+
+4. AIA help centre, "Summary: G706-1994"
+   https://help.aiacontracts.com/hc/en-us/articles/1500009446741
+   "typically executed as a condition of final payment"
+   "The contractor may also be required to furnish a lien bond or indemnity bond to protect the
+   owner with respect to each exception."
+   (This summary also calls G707 "Consent of Surety to Reduction in or Release of Retainage";
+   the G707 preview's own title, item 3, is "Consent of Surety to Final Payment", and the page
+   uses that.)
+
+5. AIA help centre, "Instructions: G706-1994"
+   https://help.aiacontracts.com/hc/en-us/articles/1500009309042
+   "The contractor submits this affidavit with the final request for payment"
+   "If there are any EXCEPTIONS to the statement, these should be listed in the space provided;
+   otherwise enter as "None.""
+   "The affidavit requires notarization and must be signed by the contractor or authorized
+   representative."
+   "Indicate the state and county where the Affidavit is made. This is not necessarily the same
+   location as the Project"
+
+6. AIA help centre, "Summary: G706A-1994"
+   https://help.aiacontracts.com/hc/en-us/articles/1500009446521
+   "it is normal for the contractor to submit AIA Documents G706-1994 and G706A-1994 along with
+   attached releases or waivers of liens for the contractor, all subcontractors, and others who
+   may have lien rights against the owner's property"

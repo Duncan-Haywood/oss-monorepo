@@ -57,6 +57,11 @@ export interface EstimateLineInput {
   unit: string | null;
   /** Millionths of a dollar a unit ($0.875 is 875000). */
   unitCostMicros: number;
+  /**
+   * The subcontractor whose quote a subcontract line carries ("Acme Insulation"). Kept only on
+   * subcontract lines; when the bid is won each sub's quote becomes a subcontract on the job.
+   */
+  vendor?: string | null;
 }
 
 export type MarkupBps = Record<CostCategory, number>;
@@ -244,6 +249,73 @@ export function jobFromEstimate(result: EstimateResult, accepted: string[] = [])
       budgetByCategory: budgetByCategory(b),
     }));
   return { contractSumCents: lines.reduce((s, l) => s + l.originalCents, 0), lines };
+}
+
+/** Longest subcontractor name kept on a line (the job-cost commitment takes the same). */
+export const MAX_VENDOR_LENGTH = 200;
+
+/** The sub named on a line, trimmed and single-spaced; null for a blank name or a non-subcontract line. */
+export function lineVendor(l: Pick<EstimateLineInput, "category" | "vendor">): string | null {
+  if (l.category !== "subcontract") return null;
+  const v = (l.vendor ?? "").trim().replace(/\s+/g, " ").slice(0, MAX_VENDOR_LENGTH);
+  return v === "" ? null : v;
+}
+
+/** A sub's quote carried to the won job as a lower-tier subcontract (a job-cost commitment). */
+export interface SubcontractFromEstimate {
+  /** Index into JobFromEstimate.lines: the schedule-of-values line the subcontract is on. */
+  jobLine: number;
+  vendor: string;
+  /** The sum of that sub's subcontract lines in the bid item, as bid: cost, no markup. */
+  amountCents: number;
+  /** The quoted lines' descriptions, joined, at most 300 characters. */
+  description: string | null;
+}
+
+/**
+ * The subcontracts a won estimate starts the job with: one per bid item in the job and sub named on
+ * its subcontract lines (the sub's name matched case-blind, the first spelling kept), for the sum of
+ * those lines' cost. Lines with no sub, other categories, items left out of the job and quotes that
+ * total $0 make none. In the order the lines are written.
+ */
+export function subcontractsFromEstimate(
+  lines: EstimateLineInput[],
+  result: EstimateResult,
+  accepted: string[] = [],
+): SubcontractFromEstimate[] {
+  const on = new Set(accepted.map(bidItemKey));
+  const jobLine = new Map<string, number>();
+  result.bidItems
+    .filter((b) => inJob(b, on))
+    .forEach((b, i) => {
+      jobLine.set(bidItemKey(b.description), i);
+    });
+  const out = new Map<string, SubcontractFromEstimate & { parts: string[] }>();
+  lines.forEach((l, i) => {
+    const vendor = lineVendor(l);
+    if (!vendor) return;
+    const line = jobLine.get(bidItemKey(l.bidItem));
+    if (line === undefined) return;
+    const key = `${line}\u0000${vendor.toLowerCase()}`;
+    let s = out.get(key);
+    if (!s) {
+      s = { jobLine: line, vendor, amountCents: 0, description: null, parts: [] };
+      out.set(key, s);
+    }
+    s.amountCents += result.lineCostCents[i] ?? 0;
+    const d = l.description.trim();
+    if (d && !s.parts.includes(d)) s.parts.push(d);
+  });
+  return [...out.values()]
+    .filter((s) => s.amountCents > 0)
+    .map(({ parts, ...s }) => {
+      const joined = parts.join("; ");
+      return {
+        ...s,
+        description:
+          joined === "" ? null : joined.length > 300 ? `${joined.slice(0, 299)}…` : joined,
+      };
+    });
 }
 
 /**

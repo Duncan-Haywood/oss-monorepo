@@ -83,6 +83,18 @@ checks the pair. No customers yet.
   and dropped them). Only a rising, stand-alone run counts: m/d/yyyy dates, m/d/yy with a 2020-2040
   year ("1/15/26", and so "10/20/30" too: left blank for the estimator), a run right after "due", "by",
   "on" or "ship", inch fractions ("1/2", "3/16") and part numbers ("12345/500-A") add nothing.
+- Rule reader, list lines (2026-11-28, `rule-reader-list-lines`): six RFQ layouts a buyer commonly
+  sends were run through the rule reader, and four came out wrong. Fixed: a numbered or bulleted list
+  with one part per line ("1) 4410-0021 Rev C - Mounting bracket, Qty 50 / 100 / 250") read no part
+  at all and now reads number, revision, quantities and the description as written, with a
+  "Finish:" or "Need by" line back at the margin applied to every item (an indented line stays with
+  its item); "- PN 30311 rev B, qty 12" (no colon after the label) read nothing; a purchasing export's
+  bare "Item" column and its "Req Date" header were not recognised ("Item" counts as the part only
+  when no column names it); and "50 pcs of A-1001 and 100 pcs of A-1002" lost the second part and
+  priced the first at both counts, now one part each with its own count. A count ("- 1000 pcs per
+  year"), a date or a note ("1) M6x1.0 tapped holes, qty 4") in a list is not taken for a part;
+  unlabelled material in a list line is left for the estimator, as before. `RULES_NOTE` names the
+  list lines. Tests: `src/shared/rule-reader.test.ts` (+6).
 - Offline demo (`pnpm demo`), unit + worker tests incl. cross-tenant isolation.
 - AI cost guards (2026-11-25): per-shop monthly LLM spend cap and global daily kill switch
   (`BudgetedLlm` + `services/guards/llm-budget`, copied from grants), 30/min per-user limit on AI
@@ -845,6 +857,17 @@ checks the pair. No customers yet.
   invented prices"). `src/shared/tolerance.ts`; unit tests, `test/e2e/18-tolerance-check.spec.ts`,
   and `test/unit/site-tolerance-example.test.ts` holding the site's /machining-tolerances guide to
   the reader.
+- Tolerance check, part 2 (2026-11-28): the same note on the quote line, under "Operations" where
+  the cycle times are set ("Part tolerance: ..."), from the RFQ part the line was made from (the RFQ
+  page's own query and cache; `src/client/components/tolerance-check.tsx`). An ISO 286 fit with its
+  nominal size written before it (Ø40 H7, 20H7, DIA 8 g6) is read at that size from ISO 286-1 table 1
+  (IT5 to IT11, up to 500 mm; `IT_GRADES_UM`), in millimetres unless marked in inches or written
+  inch-style (two or more decimals) in an inch text; over 500 mm is not read, and "ISO 286 H7" is not a
+  286 mm size. The note then names the range ("IT7 for 30-50 mm") instead of the 18-30 mm
+  assumption. Limit dimensions written as two sizes (.4995/.5000, 12.000-12.010 mm, 1.250 TO 1.255;
+  same decimals, at least two, close together) are read as the zone between them. The
+  /machining-tolerances guide prints the IT table, held to the reader's by
+  `test/unit/site-tolerance-example.test.ts`; `test/e2e/18-tolerance-check.spec.ts` covers the quote line.
 - First article list, part 1 (2026-11-28, every plan, fai-form3-draft): each drawing PDF with text
   on the RFQ page has a "First article list (CSV)" link (`GET /rfqs/:id/files/:fileId/form3.csv`):
   a draft of the characteristic list AS9102 Form 3 holds, numbered in reading order so the numbers
@@ -862,6 +885,43 @@ checks the pair. No customers yet.
   and listing and numbering characteristics is the slow step; rivals charge $25 to $500 a month for
   it (portfolio/monetization/bets.md, bet #2 "First article"). `src/shared/fai-characteristics.ts`,
   unit tests beside it, `test/worker/fai-form3.test.ts` (route, no-text refusal, tenancy).
+- First article balloons (2026-11-28, every plan, fai-balloons): beside the CSV, the RFQ page has a
+  "Ballooned drawing (PDF)" link (`GET /rfqs/:id/files/:fileId/ballooned.pdf`): the drawing with a
+  numbered balloon beside each characteristic of the Form 3 draft, drafted from the same stored text
+  as the CSV so a balloon's number is the CSV row's number (a "4X" feature, rows 4.1 ... 4.4, gets one
+  balloon "4" at its callout). Positions come from the PDF's own text layer: `readPdfLayout` in
+  `src/shared/pdf-text.ts` now tracks the CTM, text matrices, glyph widths (/Widths, a CID font's /W)
+  and form XObject matrices, and each characteristic's requirement is found there in reading order
+  (the k-th one with the same text takes the k-th place). A balloon sits just before the text along
+  the text's own direction (vertical dimensions too), steps back along the line when it would overlap
+  another, sits before a note's number, and reads upright on a page with /Rotate. The original file
+  is not rewritten: the balloons are an incremental update (new page revisions whose /Contents wrap
+  the original streams in q ... Q, then one stroked-digit stream, so no font or resource is added),
+  written as an xref table or, for a PDF 1.5 file, a cross-reference stream. A characteristic whose
+  text is not found gets no balloon (`X-Balloons-Unplaced` names them) rather than a guessed place; a
+  file with none found, a scan or an encrypted file is refused with a reason. Checked by rendering
+  with poppler (`pdftoppm`) on a Chromium-printed drawing (`test/fixtures/pdf/bracket-drawing-chrome.pdf`),
+  an object-stream/xref-stream file and a rotated page. `src/shared/fai-balloons.ts`, unit tests
+  beside it, `test/worker/fai-balloons.test.ts` (route, original bytes kept, balloon count equals the
+  CSV's rows, scan refusal, tenancy). Why: auto-ballooning is what the first-article tools charge
+  their higher tiers for (bets.md, bet #2 "First article": 1factory's $75 tier).
+
+- First article results, part 2a (2026-11-28, every plan, fai-results-screen): "Inspect first
+  article" beside the CSV link opens the drafted list as a screen
+  (`/app/:orgId/rfqs/:rfqId/files/:fileId/first-article`, `GET`/`PUT
+  /rfqs/:id/files/:fileId/first-article`, estimator to save, viewer to read). Per row the inspector
+  enters the zone, the key characteristic designator, the result (one or several readings), tooling
+  and a nonconformance number, marks a false read "not a characteristic" (kept, not counted), and adds
+  rows the text missed (requirement, limits, unit, measured or accept/reject), numbered after the
+  draft. Each row is judged as they type, by the same code the server and CSV use
+  (`src/shared/fai-results.ts`): every reading within the limits (inclusive) accepts, any one outside
+  rejects and says which limit; a checked row needs accept or reject in words; an unreadable result
+  stays open, never accepted; a reject without an NCR keeps the sheet incomplete. Saved per drawing
+  file (`fai_inspections`, migration 0045), keyed by characteristic number (the draft is re-read from
+  the file's text, which does not change). Once saved, the Form 3 CSV carries the results, a summary
+  line, and a Verdict and Why column. Why: listing was the first slow step; judging 100+ rows by eye is
+  the second, and a reject without an NCR is what gets a report sent back. Unit tests in
+  `src/shared/fai-results.test.ts`, routes in `test/worker/fai-form3.test.ts`.
 
 ## Next
 
@@ -1019,18 +1079,19 @@ checks the pair. No customers yet.
     with the cheapest whole-bar mix, if shops ask; a supplier's PDF price list read into the import
     preview, if shops send them.
 
-16. Tolerance check, part 2 (part 1 done 2026-11-28): the same note on the quote line beside the
-    cycle time, the tolerances read from a drawing PDF's dimension text (not only the labelled
-    tolerance line), limit dimensions written as two sizes (.4995/.5000), the feature's size taken
-    from the callout when it is there (Ø20 H7) instead of the 18-30 mm assumption, and band limits an
-    admin can set per shop, if shops ask.
+16. Tolerance check, part 3 (part 2 done 2026-11-28: the note on the quote line, fits at the
+    callout's size, limit dimensions): the tolerances read from a drawing PDF's dimension text (not
+    only the labelled tolerance line; `fai-characteristics.ts` already finds them), ISO 2768 at the
+    dimension's size when a tolerance line pairs a size with the class, and band limits an admin can
+    set per shop, if shops ask.
 
-17. First article list, part 2 (part 1 done 2026-11-28): the list as a screen on the won quote, where
-    the inspector ticks, edits and adds rows, enters results and gets an accept/reject per row
-    (`ventures/machine-shop-guides/fai.mjs` already judges results against limits), Forms 1 and 2
-    filled from the quote (part number, revision, material and finish certificates), the drawing
-    zone from the PDF's text positions, and balloons drawn on a copy of the drawing PDF, if shops
-    use the CSV.
+17. First article list, part 2b (part 1, the results screen, part 2a, and balloons on a copy of the
+    drawing PDF, done 2026-11-28): Forms 1 and 2 filled from the quote (part number, revision,
+    material and finish certificates), the drawing zone from the PDF's text positions (the positions
+    are now read, `readPdfLayout`; the zone needs the border's zone letters and numbers located on the
+    sheet), and results for more than one part per sheet, if shops use the screen. Balloons, next: a
+    leader line to the feature when the callout is far from it, balloons for rows the inspector adds
+    on the screen, and balloons from OCR text on a scanned drawing.
 
 ## Open questions for the owner
 

@@ -99,6 +99,11 @@ const rfq = createRoute({
   path: "/rfqs/$rfqId",
   component: lazyRouteComponent(() => import("./routes/rfq-detail"), "RfqDetailPage"),
 });
+const firstArticle = createRoute({
+  getParentRoute: () => org,
+  path: "/rfqs/$rfqId/files/$fileId/first-article",
+  component: lazyRouteComponent(() => import("./routes/first-article"), "FirstArticlePage"),
+});
 const quote = createRoute({
   getParentRoute: () => org,
   path: "/quotes/$quoteId",
@@ -144,6 +149,7 @@ const routeTree = root.addChildren([
     routingsPage,
     rfqs,
     rfq,
+    firstArticle,
     quote,
     team,
     billing,
