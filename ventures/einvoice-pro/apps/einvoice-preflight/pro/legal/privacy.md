@@ -71,3 +71,5 @@ We will post updates with a new version date and tell you in the workspace about
 ## Contact
 
 Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app
+
+Our postal address, who represents us and our representative in the EU under GDPR Article 27, whom people in the EU may contact instead of us on any question about their personal data, are listed in our provider identification at /app/impressum.

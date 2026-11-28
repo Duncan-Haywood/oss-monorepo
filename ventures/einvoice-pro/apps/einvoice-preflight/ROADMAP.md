@@ -299,7 +299,11 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
    database in the EU jurisdiction, writes the deploy config, syncs the Paddle catalog and secrets,
    generates `CHECKOUT_SECRET` once and smoke-tests the pages; Cloudflare named as the hosting
    sub-processor in the Privacy Policy and the DPA's Annex I.B, II and III in all three languages,
-   invocation logs off; docs/HOSTING.md "Deploying"): the owner runs the workflow once (Cloudflare
+   invocation logs off; docs/HOSTING.md "Deploying"; the Impressum page `/app/impressum` in EN, DE
+   and FR with a production sign-up guard until its details are filled, done 2026-11-27,
+   `pro/provider.mjs`, LAUNCH-REVIEW.md section 4): the owner supplies the Impressum address, the
+   LLC's representative and a GDPR Art. 27 EU representative (ask `einvoice-provider-identification`),
+   a run writes them into `pro/provider.mjs`, and the workflow runs once (Cloudflare
    secrets are already shared with the other apps); then add `einvoice-pro` to `set-admins.yml`'s
    `apps`, re-read CPU per check from Workers Metrics, and point einvoice-site's CTA at the
    Worker's `/app`. A D1-backed sign-up cap if trial abuse shows up (the in-memory one is per

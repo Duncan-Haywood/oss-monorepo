@@ -73,3 +73,5 @@ Wir veröffentlichen Aktualisierungen mit einem neuen Versionsdatum und informie
 ## Kontakt
 
 Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app
+
+Unsere Postanschrift, unsere Vertretungsberechtigten und unseren Vertreter in der EU nach Art. 27 DSGVO, an den sich Personen in der EU anstelle von uns mit allen Fragen zu ihren personenbezogenen Daten wenden können, nennt unser Impressum unter /app/de/impressum.
