@@ -86,7 +86,10 @@ export const GROUPS = [
 
 // Pages that carry no block: the sales page has its own layout and the sample
 // proposal is a document, not a tool page.
-export const NO_BLOCK = new Set(["branded-bid-package-for-framers.html", "sample-bid-package.html"]);
+// The sale's legal pages (Terms of Sale, Refund Policy, Privacy notice) are documents, not tools:
+// no more-tools block, no calculator disclaimer; linked from index.html's footer.
+export const LEGAL_PAGES = new Set(["terms.html", "refunds.html", "privacy.html"]);
+export const NO_BLOCK = new Set(["branded-bid-package-for-framers.html", "sample-bid-package.html", ...LEGAL_PAGES]);
 
 export const BLOCK_RE = /<nav class="more-tools"[\s\S]*?<\/nav>/;
 

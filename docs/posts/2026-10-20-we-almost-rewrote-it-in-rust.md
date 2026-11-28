@@ -369,6 +369,20 @@ median of 7, old and new interleaved). Every page still renders the same;
 it just arrives when it is opened. Notes:
 [`docs/history/payapps-app-first-load-perf-2026-11-27.md`](/docs/history/payapps-app-first-load-perf-2026-11-27.md).
 
+## 2026-11-28: a cold server built an encryption table nobody asked for
+
+PayApps' server is a Cloudflare Worker: each new copy of it loads the whole
+2.7 MB program before it answers its first request, and a small app with few
+users meets many fresh copies. Cloudflare's own startup check put that load at
+68 ms of CPU. A finer profile in Node said two statements were a third of the
+time spent running the program's top level: one built a dollar formatter, and
+one worked out the AES decryption tables (for reading password-restricted
+PDFs) by trial and error, about 33,000 multiplications. Most requests do neither. Building both
+on first use took the startup check to 52 ms (median of 7 runs each), and the
+same 1,599 unit tests pass, including the ones that check decryption against
+Node's own AES. Notes:
+[`docs/history/payapps-worker-cold-start-perf-2026-11-28.md`](/docs/history/payapps-worker-cold-start-perf-2026-11-28.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running

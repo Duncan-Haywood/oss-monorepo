@@ -1769,13 +1769,16 @@ test('categories route each slug shape somewhere sensible', () => {
   assert.equal(categoryFor('einvoice-preflight').id, 'evidence');
   assert.equal(categoryFor('something-brand-new').id, 'more');
   assert.equal(categoryFor('changepoint-detector').id, 'research-algorithms');
+  for (const slug of ['machine-shop-guides', 'cnc-machining-quote-calculator', 'dxf-nesting']) {
+    assert.equal(categoryFor(slug).id, 'job-shops');
+  }
   for (const slug of ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots']) {
     assert.equal(categoryFor(slug).id, 'open-hardware');
   }
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 21, 'the twenty named sections (personal-tax and household joined 2026-11-17, bookkeeping, sales and imports 2026-11-21) plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 22, 'the twenty-one named sections (personal-tax and household joined 2026-11-17, bookkeeping, sales and imports 2026-11-21, job-shops 2026-11-28) plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -3938,7 +3941,7 @@ test("a category's offline bundle stays small enough to fetch on mobile data", a
   }
 });
 
-test('the offline bundle leaves out Node-only eval/ and build-*.mjs scripts, keeps browser modules', async () => {
+test('the offline bundle leaves out Node-only eval/, build-*.mjs, *.test.mjs and server.mjs scripts, keeps browser modules', async () => {
   assert.equal(isNodeOnlyScript('eval/nav-xsd-diff.mjs'), true);
   assert.equal(isNodeOnlyScript('eval/sub/x.js'), true);
   assert.equal(isNodeOnlyScript('build-nav-schema.mjs'), true);
@@ -3946,9 +3949,15 @@ test('the offline bundle leaves out Node-only eval/ and build-*.mjs scripts, kee
   assert.equal(isNodeOnlyScript('src/build-x.mjs'), false);
   assert.equal(isNodeOnlyScript('builder.mjs'), false);
   assert.equal(isNodeOnlyScript('eval/data.json'), false);
+  assert.equal(isNodeOnlyScript('audit.test.mjs'), true);
+  assert.equal(isNodeOnlyScript('test/sub.test.js'), true);
+  assert.equal(isNodeOnlyScript('latest.mjs'), false);
+  assert.equal(isNodeOnlyScript('server.mjs'), true);
+  assert.equal(isNodeOnlyScript('src/server.mjs'), false);
+  assert.equal(isNodeOnlyScript('observer.mjs'), false);
   const { offline } = await site();
   const all = offline.categories.flatMap((c) => c.assets);
-  assert.ok(!all.some((a) => /^[^/]+\/(eval\/.*|build-[^/]+)\.m?js$/.test(a)), 'a Node-only script is in an offline bundle');
+  assert.ok(!all.some((a) => /^[^/]+\/(eval\/.*|build-[^/]+)\.m?js$/.test(a) || /\.test\.m?js$/.test(a) || /^[^/]+\/server\.mjs$/.test(a)), 'a Node-only script is in an offline bundle');
   assert.ok(all.includes('einvoice-preflight/hu-xsd.mjs'), 'a browser module went missing from the offline bundle');
 });
 

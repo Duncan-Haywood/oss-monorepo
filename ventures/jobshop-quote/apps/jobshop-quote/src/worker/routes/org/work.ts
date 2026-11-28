@@ -70,6 +70,7 @@ import { loadRateCard } from "../../services/ratecard";
 import {
   addFiles,
   addPart,
+  characteristicsCsv,
   createRfq,
   deletePart,
   extractRfq,
@@ -182,6 +183,24 @@ export const rfqRoutes = new Hono<AppEnv>()
         "Content-Type": file.mimeType,
         "Content-Disposition": contentDisposition(file.fileName),
         "Content-Security-Policy": "default-src 'none'; sandbox",
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "private, no-store",
+      },
+    });
+  })
+  // First article: a draft AS9102 Form 3 characteristic list from this drawing's text.
+  .get("/:rfqId/files/:fileId/form3.csv", async (c) => {
+    const { csv, fileName } = await characteristicsCsv(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("rfqId"),
+      c.req.param("fileId"),
+    );
+    // A BOM so Excel opens the ± and ⌀ signs as UTF-8.
+    return new Response(`\uFEFF${csv}`, {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": contentDisposition(fileName),
         "X-Content-Type-Options": "nosniff",
         "Cache-Control": "private, no-store",
       },

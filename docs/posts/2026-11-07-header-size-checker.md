@@ -4,6 +4,7 @@ seo_title: "Window and door header size checker from your own span table"
 date: 2026-11-07
 tags: [wall-framing-takeoff, tools, construction]
 description: "Paste the header span table from your code or engineer, list your openings, and see which header each needs and which hand-picked ones fall short."
+folded_into: writing/window-and-door-headers-size-plies-jacks-and-what-to-order/
 ---
 
 The framing takeoff has picked headers from a user's span table since October (`headers.mjs`), but only the command line could use it. It now has a page: `header-calculator.html`.
