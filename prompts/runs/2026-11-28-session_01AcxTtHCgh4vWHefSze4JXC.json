@@ -35,6 +35,10 @@
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "redteam.py targets lists no file under ventures/payapps/apps/payapps/src even though that app changes most (money.ts, lien-deadline.ts, plans.ts); only packages/* are seen as guarded, so the app's own code is never drawn"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "nothing tells a red-team run that ventures/*/packages/billing is one package copied into five ventures; a fix in one copy fails check_billing_copies. redteam.py could print the sibling copies when the target is in a shared package."
     }
   ],
   "deviations": [
@@ -47,7 +51,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Targets: payapps billing paddle-catalog.ts and paddle-key.ts (bet #1 checkout path). Guard added: one shared chargesAsWanted predicate, so the price-id map and the sync planner cannot disagree again. Verification: billing npm test 156/0, tsc --noEmit clean.",
+  "notes": "Targets: payapps billing paddle-catalog.ts and paddle-key.ts (bet #1 checkout path). Guard added: one shared chargesAsWanted predicate, so the price-id map and the sync planner cannot disagree again. Verification: billing npm test 156/0, tsc --noEmit clean. The billing package is copied into five ventures (cmmc, einvoice-pro, jobshop-quote, seller-books, payapps); check_billing_copies/check_shared_package_drift flagged the first push, so the fix was ported to all five copies (so it also reaches bets #2, #4, #5 and einvoice-pro). CI also needed a biome format pass. opening-balance.test.tsx timed out (5 s) on the first push in payapps app tests this PR does not touch.",
   "corrections": [],
   "redteam": {
     "campaigns": [
