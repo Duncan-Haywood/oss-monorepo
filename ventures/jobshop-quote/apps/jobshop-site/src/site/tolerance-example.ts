@@ -119,7 +119,8 @@ export const CALLOUTS: CalloutRow[] = [
   },
   {
     callout: "H7",
-    means: "An ISO 286 hole fit, grade IT7: a 21 µm zone, read at 18 to 30 mm since no size is given",
+    means:
+      "An ISO 286 hole fit, grade IT7: a 21 µm zone, read at 18 to 30 mm since no size is given",
     zoneIn: 0.0008268,
     band: "precision",
     sizeAssumed: true,

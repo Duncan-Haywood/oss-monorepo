@@ -1,12 +1,7 @@
 // The marketing site's /machining-tolerances guide prints how this app's tolerance reader reads a list
 // of callouts (apps/jobshop-site/src/site/tolerance-example.ts). This test runs every callout through
 // the real reader, so the page cannot drift from what the RFQ review shows an estimator.
-import {
-  BAND_LIMITS_IN,
-  IT_GRADES_UM,
-  IT_SIZE_LIMITS_MM,
-  readTolerances,
-} from "@shared/tolerance";
+import { BAND_LIMITS_IN, IT_GRADES_UM, IT_SIZE_LIMITS_MM, readTolerances } from "@shared/tolerance";
 import { describe, expect, it } from "vitest";
 import {
   BANDS,
