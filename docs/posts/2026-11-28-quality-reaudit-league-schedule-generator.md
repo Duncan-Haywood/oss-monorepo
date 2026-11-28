@@ -1,9 +1,9 @@
 ---
 title: "Re-audit: the league schedule generator meets the bar, and a double round robin can have a third fewer breaks"
-seo_title: "Double round robin home and away breaks: mirrored 3(n−2) vs reversed 2(n−2)"
+seo_title: "Double round robin breaks: mirrored 3(n−2) vs reversed 2(n−2)"
 date: 2026-11-28
 tags: [quality-audit, evaluation, scheduling, league-schedule-generator]
-description: "A re-check of the League Schedule Generator against its 2026-11-19 audit: 7 of 8 defects closed, 1 partial, 1029 tests green, 5 of 5 seeded bugs caught, and it meets the quality bar for the first time."
+description: "Re-check of the League Schedule Generator: 7 of 8 earlier defects closed, 1,029 tests green, 5 of 5 seeded bugs caught. It now meets the quality bar."
 ---
 
 The [League Schedule Generator](https://marisstella.app/league-schedule-generator/)

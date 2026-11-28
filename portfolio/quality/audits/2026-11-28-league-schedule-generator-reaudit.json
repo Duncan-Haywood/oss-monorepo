@@ -233,7 +233,7 @@
    "where": "ventures/league-schedule-generator/how-to-balance-home-and-away-games-in-a-round-robin.html:52",
    "category": "stale-docs",
    "origin": "maintenance",
-   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PRNUM"
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20088"
   },
   {
    "severity": "low",
@@ -241,7 +241,7 @@
    "where": "ventures/league-schedule-generator/rounds.mjs:18",
    "category": "stale-docs",
    "origin": "maintenance",
-   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PRNUM"
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20088"
   },
   {
    "severity": "low",
@@ -252,7 +252,7 @@
   }
  ],
  "fix_prs": [
-  "https://github.com/Duncan-Haywood/oss-monorepo/pull/PRNUM"
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/20088"
  ],
  "verdict": "Re-audit of round 87. Of its 8 defects, 7 are closed on arrival and 1 partial: the minimum-breaks headline is qualified and a reversed return leg ships (2(n-2) breaks, measured), the head-to-head table now uses volleyball set points (recomputed: B 5 v A 4), the sit-out credit rounds once, the tie-break order and the reverse leg are each caught by a seeded mutation, and calc.mjs is a 53-line re-export over 15 modules; the README has grown to 6,639 lines. 1029 of 1029 tests pass; 5 of 5 seeded bugs are caught. Four outputs recomputed independently all match. Two small doc gaps (the guide missed the reverse-leg option; a code comment had the odd count wrong) are fixed in this PR with a test. Claims and craft rise to 3, so it meets the bar for the first time; it remains finished."
 }
