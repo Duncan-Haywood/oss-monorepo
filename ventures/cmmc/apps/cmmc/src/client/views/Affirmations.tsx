@@ -103,10 +103,12 @@ export function AffirmationsView({
             training refresher dates (how many people are due on each date, no names), suppliers'
             current-through dates (how many suppliers on each date, no names) and the ISO 9001 dates
             (controlled documents' reviews, planned internal audits and corrective actions, as a
-            count per day, no titles) and gauges' calibration due dates (how many gauges on each
-            date, no gauge ids) are in the same file. Download it again after recording a new
+            count per day, no titles), gauges' calibration due dates (how many gauges on each date,
+            no gauge ids) and the next management review with its open actions' due dates (a count
+            per day, no action text) are in the same file. Download it again after recording a new
             affirmation, a policy review, a training, a supplier's new status, a document review, an
-            audit or a calibration: most calendars move the dates, some add a copy.
+            audit, a calibration or a management review: most calendars move the dates, some add a
+            copy.
           </span>
         </div>
       )}
@@ -510,8 +512,9 @@ function CalendarFeedSetting({ orgId }: { orgId: string }) {
         training or supplier status moves the dates without downloading the file again. Anyone with
         the link can see these due dates, which policy families are due for review, how many people
         are due for each training, how many suppliers' records run out on each date and how many
-        documents, audits, corrective actions or gauge calibrations fall due on each date (no names,
-        titles, gauge ids, policy text or scores), so share it only with people who should. Calendar
+        documents, audits, corrective actions, gauge calibrations or management review actions fall
+        due on each date, and when the next management review is due (no names, titles, gauge ids,
+        action text, policy text or scores), so share it only with people who should. Calendar
         apps refresh it on their own schedule, often every few hours to a day.
       </p>
       {shown && (

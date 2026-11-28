@@ -28,12 +28,16 @@
 //
 // Gauge calibration due dates (ISO 9001 7.1.5) go in the same way: one event per date with the number
 // of gauges in use falling due, never a gauge's id, description or location.
+//
+// The next ISO 9001 management review (9.3) and the due dates of open actions from final reviews go
+// in the same way: one event per kind and date with a count, never an action's text or owner.
 
 import { type AffirmationSchedule, addDays, DUE_SOON_DAYS } from "./affirmation";
 import type { CalibrationDueDate } from "./calibration";
 import type { DocumentReviewDate } from "./document-control";
 import type { IncidentDueDate } from "./incidents";
 import type { QualityDueDate, QualityDueKind } from "./internal-audits";
+import type { ReviewDueDate, ReviewDueKind } from "./management-review";
 import { TRAINING_INFO, type TrainingDueDate } from "./personnel";
 import type { SupplierDueDate } from "./suppliers";
 
@@ -130,6 +134,18 @@ const INCIDENT_HOLD_NOTE =
 const CALIBRATION_NOTE =
   "The calibration due date of gauges in use, from the last calibration and each gauge's interval on the Gauges tab (ISO 9001 clause 7.1.5). The Gauges tab's recall list says which gauges. Record each calibration there, which sets the next date; a gauge past its date should not be used to accept parts until it is calibrated. The interval is your organization's choice.";
 
+const REVIEW_NOTE: Record<ReviewDueKind, string> = {
+  review:
+    "The next management review (ISO 9001 clause 9.3), from the date the last review's minutes set or 12 months after it. Start the review on the Mgmt review tab: the figures for the period are filled in from the workspace's records. The standard asks for reviews at planned intervals; the interval is your organization's choice.",
+  action:
+    "The due date of actions set by a management review (ISO 9001 clause 9.3.3) and not yet marked done. The Mgmt review tab lists which actions and who owns them; mark each one done there.",
+};
+
+const reviewSummary = (kind: ReviewDueKind, n: number) =>
+  kind === "review"
+    ? "Management review due"
+    : `Management review action due: ${n} ${n === 1 ? "action" : "actions"}`;
+
 const qualitySummary = (kind: QualityDueKind, n: number) => {
   if (kind === "audit") return `Internal audit planned: ${n} ${n === 1 ? "audit" : "audits"}`;
   const what = `${n} corrective ${n === 1 ? "action" : "actions"}`;
@@ -154,6 +170,8 @@ export interface CalendarInput {
   incidentHolds?: readonly IncidentDueDate[];
   /** Gauges in use falling due for calibration, grouped (calibration.calibrationDueDates). */
   calibrationDue?: readonly CalibrationDueDate[];
+  /** The next management review and its open actions' due dates (management-review.reviewDueDates). */
+  reviewDue?: readonly ReviewDueDate[];
   now: Date;
 }
 
@@ -169,6 +187,7 @@ export function renderAffirmationCalendar({
   qualityDue = [],
   incidentHolds = [],
   calibrationDue = [],
+  reviewDue = [],
   now,
 }: CalendarInput): string {
   const stamp = icsStamp(now);
@@ -275,6 +294,18 @@ export function renderAffirmationCalendar({
       d.due,
       `Calibration due: ${d.gauges} ${d.gauges === 1 ? "gauge" : "gauges"}`,
       CALIBRATION_NOTE,
+    );
+  }
+  for (const d of reviewDue) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d.due) || d.count < 1) continue;
+    // One "next review" event per org (its UID has no date, so a new review moves it); actions per date.
+    event(
+      d.kind === "review"
+        ? `cmmc-${uidPart(orgId)}-mgmt-review`
+        : `cmmc-${uidPart(orgId)}-mgmt-review-action-${icsDate(d.due)}`,
+      d.due,
+      reviewSummary(d.kind, d.count),
+      REVIEW_NOTE[d.kind],
     );
   }
   lines.push("END:VCALENDAR");

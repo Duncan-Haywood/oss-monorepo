@@ -234,7 +234,7 @@ ${open ? shotsSection() : ""}
     <li><h3>SPRS score</h3><p>Your score under the ${cite("dod-methodology", "DoD Assessment Methodology")}, recalculated as you
     close items, with the point value of each open requirement so you fix the expensive ones first.</p></li>
     <li><h3>ISO 9001 / AS9100 records</h3><p>Document control, internal audits, corrective actions, the gauge calibration list and the
-    management review, its figures filled in from those records, next to the security work, because the same people do both in a small shop.</p></li>
+    management review, its figures filled in from those records and its next date and open actions in your own calendar, next to the security work, because the same people do both in a small shop.</p></li>
   </ul>
 </section>
 <section>

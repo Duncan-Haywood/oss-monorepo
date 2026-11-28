@@ -614,6 +614,17 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   set date), open and overdue actions, minutes as Markdown. Migration 0022; `src/shared/management-review.ts`,
   `services/management-review`, `/reviews` routes, `Reviews.tsx`; unit and worker tests. Privacy lists the
   new fields (POLICY_VERSION 2026-11-28.5); docs/SOURCES.md, "Management review".
+- Management review, part 2 (2026-11-28, management-review-due-dates): the next review's due date (from the
+  latest final review's own next date, else 12 months on) goes into the downloaded `.ics` and the subscribable
+  link as one "Management review due" event per org (its UID carries no date, so a new review moves it), and
+  open actions from final reviews as one event per due date with a count ("Management review action due: 2
+  actions"), same 60- and 7-day alarms, never an action's text or owner (`reviewDueDates`). A "Management
+  review" dashboard card on Level 2 + Quality: next due date (amber within 30 days, red past it, or "none
+  finalised yet"), drafts waiting, open and past-due actions, and the actions past due or due within 30 days
+  with their owners (`reviewActionsDue`, `GET /reviews/summary`, which reads only the review rows, not the
+  records a draft's figures need). A draft's actions count nowhere until the minutes are final. Privacy and
+  the calendar pages say the link carries these counts (POLICY_VERSION 2026-11-28.6); unit, component and
+  worker tests.
 
 - Gauges and calibration, part 2 (2026-11-28, gauges-and-calibration-part-2-part-1-the): calibration due
   dates in the calendar. The downloaded `.ics` and the subscribable link carry one event per date for gauges
@@ -630,10 +641,10 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
 
 ## Next
 
-- Management review, part 2 (part 1 done 2026-11-28): the next review's due date and overdue review
-  actions in the calendar file, the subscribable link and a dashboard card; quality objectives kept as their
-  own records (target, measure, results by month) so input 9.3.2 c 2 fills itself; a "Raise a corrective
-  action" from a review action, if shops ask
+- Management review, part 3 (part 1 done 2026-11-28; part 2, the next review's due date and open review
+  actions in the calendar file, the subscribable link and a dashboard card, done 2026-11-28,
+  management-review-due-dates): quality objectives kept as their own records (target, measure, results by
+  month) so input 9.3.2 c 2 fills itself; a "Raise a corrective action" from a review action, if shops ask
 - Gauges and calibration, part 3 (part 1, the list, calibrations, out-of-tolerance impact and the CSV, done
   2026-11-28; part 2, due dates in the calendar file and link and the dashboard card, done 2026-11-28): an
   existing gauge list from CSV/.xlsx (the master list import's pattern); a "Raise a corrective action" button

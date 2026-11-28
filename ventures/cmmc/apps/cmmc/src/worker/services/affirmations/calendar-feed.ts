@@ -21,6 +21,7 @@ import { calibrationDueDatesFor } from "../calibration";
 import { documentReviewDatesFor } from "../documents";
 import { incidentHoldDatesFor } from "../incidents";
 import { qualityDueDatesFor } from "../internal-audits";
+import { reviewDueDatesFor } from "../management-review";
 import { trainingDueDatesFor } from "../personnel";
 import { policyReviewDates } from "../security-policies";
 import { supplierDueDatesFor } from "../suppliers";
@@ -134,6 +135,7 @@ export async function calendarForToken(ctx: AppContext, token: string): Promise<
     qualityDue,
     incidentHolds,
     calibrationDue,
+    reviewDue,
   ] = await Promise.all([
     listAffirmations(ctx, row.orgId),
     policyReviewDates(ctx, row.orgId),
@@ -143,6 +145,7 @@ export async function calendarForToken(ctx: AppContext, token: string): Promise<
     qualityDueDatesFor(ctx, row.orgId),
     incidentHoldDatesFor(ctx, row.orgId),
     calibrationDueDatesFor(ctx, row.orgId),
+    reviewDueDatesFor(ctx, row.orgId),
   ]);
   return renderAffirmationCalendar({
     orgId: row.orgId,
@@ -155,6 +158,7 @@ export async function calendarForToken(ctx: AppContext, token: string): Promise<
     qualityDue,
     incidentHolds,
     calibrationDue,
+    reviewDue,
     now,
   });
 }

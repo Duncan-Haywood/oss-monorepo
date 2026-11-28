@@ -9,12 +9,15 @@ import {
   type FactsInput,
   finaliseProblems,
   MAX_REVIEWS_PER_ORG,
+  REVIEW_DUE_SOON_DAYS,
   type ReviewAction,
   type ReviewFacts,
   type ReviewFields,
   type ReviewInputKey,
   type ReviewOutputKey,
+  reviewActionsDue,
   reviewAttention,
+  reviewDueDates,
   reviewFacts,
   reviewMinutesMarkdown,
   validateReview,
@@ -197,6 +200,26 @@ export async function reviewList(ctx: AppContext, orgId: string) {
     ),
     attention: reviewAttention(rows, on),
   };
+}
+
+/**
+ * The dashboard card's slice: when the next review is due and the open actions from final reviews
+ * that are past due or due soon. Reads the review rows only, never the records a draft's figures need.
+ */
+export async function reviewSummary(ctx: AppContext, orgId: string) {
+  const rows = await listRows(ctx, orgId);
+  const on = today(ctx);
+  return {
+    today: on,
+    attention: reviewAttention(rows, on),
+    actionsDue: reviewActionsDue(rows, on),
+    dueSoonDays: REVIEW_DUE_SOON_DAYS,
+  };
+}
+
+/** The next review and open actions' due dates, as counts: for the calendar file and link. */
+export async function reviewDueDatesFor(ctx: AppContext, orgId: string) {
+  return reviewDueDates(await listRows(ctx, orgId));
 }
 
 async function describeOne(ctx: AppContext, orgId: string, id: string) {
