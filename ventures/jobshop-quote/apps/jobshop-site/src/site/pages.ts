@@ -3439,7 +3439,10 @@ export function faiGuidePage(ctx: RenderContext): Html {
     drawing's text (toleranced dimensions with their limits, geometric tolerances, threads, finishes,
     numbered notes, material and finish), numbered so the numbers can be the balloon numbers. It is a
     draft to check against the drawing: a dimension with no text on the PDF, or a scanned drawing,
-    is not in it. ${SITE_NAME} does not fill in Forms 1 and 2, draw the balloons or record results. The
+    is not in it. Beside it, "Ballooned drawing" downloads the same PDF with a numbered balloon beside
+    each listed characteristic it found in the drawing's text, with the CSV's row numbers; the drawing
+    itself is left as it was, and a characteristic whose text was not found gets no balloon rather
+    than a guessed one. ${SITE_NAME} does not fill in Forms 1 and 2 or record results. The
     <a class="link" href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a> has the question
     to ask before you price: is a first article required, and to which standard?</p>
     <p class="fineprint">This page explains a common estimating approach and summarises a published

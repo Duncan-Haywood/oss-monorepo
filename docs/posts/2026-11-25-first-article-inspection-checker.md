@@ -54,7 +54,15 @@ The checker starts from a list someone already typed. On a new part, typing it i
 
 The title block's general tolerance is printed at the top and never applied to a bare number. Bare numbers aren't listed at all, because the date, the scale and the drawing number are bare numbers too. On an invented test drawing, the 16 rows came out in the expected order, with the expected limits, and nothing came from the title block. The test is in the app's code.
 
-It is a draft, and the file says so. A PDF's text layer holds only what was written as text. A dimension drawn as geometry, a boxed basic dimension or a feature control frame drawn as lines is not in it, and neither is anything on a scanned drawing. The text also has no positions, so the drawing zone column is left for the inspector, along with the designator and the results. Paste the finished rows into the checker above to judge them.
+It is a draft, and the file says so. A PDF's text layer holds only what was written as text. A dimension drawn as geometry, a boxed basic dimension or a feature control frame drawn as lines is not in it, and neither is anything on a scanned drawing. The drawing zone column is still left for the inspector, along with the designator and the results. Paste the finished rows into the checker above to judge them.
+
+## The ballooned drawing (added 28 November 2026)
+
+The list's numbers only help if the same numbers are on the drawing. Next to the CSV, the RFQ page now has a **Ballooned drawing (PDF)** link. It downloads the customer's drawing with a numbered balloon beside each characteristic on the list, using the CSV's row numbers. A `4X` hole callout gets one balloon, `4`, for rows 4.1 to 4.4. Vertical dimensions get their balloon along the text, and a page that is shown rotated still gets upright numbers.
+
+The positions come from the PDF's own text layer: where each callout's text is drawn on the sheet. The drawing itself is not rewritten. The balloons are added on top as a standard PDF update, so the original file is still all there, byte for byte, underneath. A callout whose text can't be found gets no balloon. It isn't put at a guessed spot, so a missing balloon on the sheet means that row needs placing by hand. On the invented bracket drawing in the app's tests, every listed characteristic got its balloon beside its callout. We checked that by rendering the file with a separate PDF reader (poppler), not only by reading our own output back.
+
+It shares the list's limits. Anything not written as text, and every scanned drawing, has nothing to balloon. Check the sheet against the list before it goes in the report.
 
 ## Where it fits
 

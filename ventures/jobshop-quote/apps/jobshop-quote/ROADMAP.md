@@ -862,6 +862,26 @@ checks the pair. No customers yet.
   and listing and numbering characteristics is the slow step; rivals charge $25 to $500 a month for
   it (portfolio/monetization/bets.md, bet #2 "First article"). `src/shared/fai-characteristics.ts`,
   unit tests beside it, `test/worker/fai-form3.test.ts` (route, no-text refusal, tenancy).
+- First article balloons (2026-11-28, every plan, fai-balloons): beside the CSV, the RFQ page has a
+  "Ballooned drawing (PDF)" link (`GET /rfqs/:id/files/:fileId/ballooned.pdf`): the drawing with a
+  numbered balloon beside each characteristic of the Form 3 draft, drafted from the same stored text
+  as the CSV so a balloon's number is the CSV row's number (a "4X" feature, rows 4.1 ... 4.4, gets one
+  balloon "4" at its callout). Positions come from the PDF's own text layer: `readPdfLayout` in
+  `src/shared/pdf-text.ts` now tracks the CTM, text matrices, glyph widths (/Widths, a CID font's /W)
+  and form XObject matrices, and each characteristic's requirement is found there in reading order
+  (the k-th one with the same text takes the k-th place). A balloon sits just before the text along
+  the text's own direction (vertical dimensions too), steps back along the line when it would overlap
+  another, sits before a note's number, and reads upright on a page with /Rotate. The original file
+  is not rewritten: the balloons are an incremental update (new page revisions whose /Contents wrap
+  the original streams in q ... Q, then one stroked-digit stream, so no font or resource is added),
+  written as an xref table or, for a PDF 1.5 file, a cross-reference stream. A characteristic whose
+  text is not found gets no balloon (`X-Balloons-Unplaced` names them) rather than a guessed place; a
+  file with none found, a scan or an encrypted file is refused with a reason. Checked by rendering
+  with poppler (`pdftoppm`) on a Chromium-printed drawing (`test/fixtures/pdf/bracket-drawing-chrome.pdf`),
+  an object-stream/xref-stream file and a rotated page. `src/shared/fai-balloons.ts`, unit tests
+  beside it, `test/worker/fai-balloons.test.ts` (route, original bytes kept, balloon count equals the
+  CSV's rows, scan refusal, tenancy). Why: auto-ballooning is what the first-article tools charge
+  their higher tiers for (bets.md, bet #2 "First article": 1factory's $75 tier).
 
 ## Next
 
@@ -1025,12 +1045,16 @@ checks the pair. No customers yet.
     from the callout when it is there (Ø20 H7) instead of the 18-30 mm assumption, and band limits an
     admin can set per shop, if shops ask.
 
-17. First article list, part 2 (part 1 done 2026-11-28): the list as a screen on the won quote, where
+17. First article list, part 2 (part 1 done 2026-11-28; balloons on a copy of the drawing PDF done
+    2026-11-28, see Done): the list as a screen on the won quote, where
     the inspector ticks, edits and adds rows, enters results and gets an accept/reject per row
     (`ventures/machine-shop-guides/fai.mjs` already judges results against limits), Forms 1 and 2
-    filled from the quote (part number, revision, material and finish certificates), the drawing
-    zone from the PDF's text positions, and balloons drawn on a copy of the drawing PDF, if shops
-    use the CSV.
+    filled from the quote (part number, revision, material and finish certificates), and the drawing
+    zone from the PDF's text positions (the positions are now read, `readPdfLayout`; the zone needs
+    the border's zone letters and numbers located on the sheet), if shops use the CSV. Balloons,
+    next: a leader line to the feature when the callout is far from it, balloons for rows the
+    inspector adds by hand (placed by a click on the screen), and the same balloons from OCR text on
+    a scanned drawing.
 
 ## Open questions for the owner
 
