@@ -117,6 +117,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/how-to-quote-welding",
+      label: "How to quote welding and fabrication jobs",
+      title: `How to quote welding and fabrication jobs · ${SITE_NAME}`,
+      description:
+        "Quote a weldment: cut list, weld length and travel speed, operator factor, fit-up and fixture, wire and gas, outside finish and quantity breaks, worked through.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
       path: "/machine-shop-quote-template",
       label: "Machine shop quote template",
       title: `Machine shop quote template (free CSV) · ${SITE_NAME}`,
