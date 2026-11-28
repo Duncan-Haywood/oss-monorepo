@@ -2037,6 +2037,17 @@ nothing to copy. No customers yet. Paid plans are dark
   preview line counts them; docs/EMAIL.md; privacy policy 2026-11-28.3. Why: the punch list gates the
   retainage release (often 5 to 10% of the contract), and the overdue item was visible only on each
   job's own page, so a PM running several jobs found it when the GC held the release.
+- **Punch list, part 2c: photos in the punch list PDF** (2026-11-28, every plan, punch-list-pdf-photos):
+  "PDF + photos" and "What is left + photos" next to the list's PDF links (shown once an item has a
+  photo) download one PDF: the punch list, an index, then each printed item's photos in item order,
+  before, after, the marked-up sheet, then other, oldest first within each, each named on the index
+  as "P-004 (Room 104): Before". The "what is left" packet keeps only the items still to fix or awaiting
+  back-check and their photos. Same packet rules as the daily report and T&M packets (JPEG/PNG one to
+  a page, PDFs as uploaded, a file over the size budget or unreadable listed as left out). Route
+  `GET .../punch-list/punch-list-with-photos.pdf[?only=open]`, `buildPunchListPacket` and
+  `punchPacketFiles` in `services/payapps/packet.ts`. Why: the GC walks the back-check from one
+  document, and a "not ours" or "already fixed" item is settled by the photo beside its number, not a
+  separate download per item.
 - **Close-out, part 1** (2026-11-26, every plan, closeout-checklist): per job, the close-out documents
   the subcontract asks for, each with its kind (warranty, O&M manuals, as-builts, attic stock, final
   lien waiver, consent of surety, owner training, test and start-up reports, final inspection
@@ -2867,9 +2878,9 @@ nothing to copy. No customers yet. Paid plans are dark
 - Close-out, part 4: (part 3, retainage waiting on close-out on the cash report and in the weekly
   email, done 2026-11-27) close-out events beyond files in the job history (sent, accepted, not
   required) and documents overdue across jobs in the weekly email, if contractors use the checklist.
-- Punch list, part 2 (2a, photos per item and their history rows, and 2b, items overdue across jobs
-  in the weekly email, done 2026-11-28): punch events beyond photos in the job history, photos in the
-  punch list PDF itself, and a line on the
+- Punch list, part 2 (2a, photos per item and their history rows, 2b, items overdue across jobs
+  in the weekly email, and 2c, the photos in one PDF with the list, done 2026-11-28): punch events
+  beyond photos in the job history, and a line on the
   retainage-release pay application naming the punch list's state, if people ask; a GC's punch list
   PDF read into items (text layer) once customers share real ones
 - Submittals, part 4: spec sections from a scan, and OCR of a scanned stamp with no text layer (the

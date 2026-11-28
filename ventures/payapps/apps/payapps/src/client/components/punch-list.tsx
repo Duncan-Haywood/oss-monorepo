@@ -160,6 +160,24 @@ export function PunchList(props: {
             <a className="link" href={`${url}/punch-list.pdf?only=open`}>
               PDF of what is left
             </a>
+            {list.items.some((i) => i.fileCount > 0) && (
+              <>
+                <a
+                  className="link"
+                  href={`${url}/punch-list-with-photos.pdf`}
+                  title="The punch list, an index, then each item's photos in one PDF"
+                >
+                  PDF + photos
+                </a>
+                <a
+                  className="link"
+                  href={`${url}/punch-list-with-photos.pdf?only=open`}
+                  title="What is left, with those items' photos, in one PDF"
+                >
+                  What is left + photos
+                </a>
+              </>
+            )}
             <a className="link" href={`${url}/punch-list.csv`}>
               CSV
             </a>
