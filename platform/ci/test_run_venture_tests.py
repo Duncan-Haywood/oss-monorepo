@@ -344,6 +344,22 @@ class Report(unittest.TestCase):
         table = rvt.slowest_table({"a": 1.0, "b": 9.5, "c": 3.25}, 2)
         self.assertEqual(table.splitlines()[2:], ["| b | 9.5 |", "| c | 3.2 |"])
 
+    def test_a_perf_write_up_after_the_timing_marks_the_row_stale(self):
+        hist = {"a": [("2026-11-20", "ci-perf-2026-11-20-a.md")], "b": [("2026-11-10", "x.md")], "c": []}
+        table = rvt.slowest_table({"a": 9.0, "b": 5.0, "c": 1.0}, 3, passes=hist.get,
+                                  taken="2026-11-17T06:13Z")
+        self.assertEqual(table.splitlines()[2:], [
+            "| a | 9.0 | 1 | 2026-11-20 (after timing: re-time) |",
+            "| b | 5.0 | 1 | 2026-11-10 |",
+            "| c | 1.0 | 0 |  |"])
+
+    def test_staleness_counts_days_since_taken(self):
+        import datetime
+        now = datetime.datetime(2026, 11, 28, tzinfo=datetime.timezone.utc)
+        self.assertEqual(rvt.staleness("2026-11-17T06:13Z", now), 10)
+        self.assertIsNone(rvt.staleness(None, now))
+        self.assertIsNone(rvt.staleness("soon", now))
+
     def test_times_file_full_run_replaces_and_named_run_updates(self):
         with tempfile.TemporaryDirectory() as d:
             path = Path(d) / "times.json"
