@@ -6,8 +6,15 @@
 
 import { EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/plans";
 import { CONTENT_DATE, LAUNCH, type Launch, SITE_NAME } from "./config";
+import { MODULES, MODULES_DATE } from "./module-data";
 
-export type StructuredData = "organization" | "website" | "software" | "product" | "faq";
+export type StructuredData =
+  | "organization"
+  | "website"
+  | "software"
+  | "product"
+  | "faq"
+  | "module-faq";
 
 export interface PublicRoute {
   path: `/${string}`;
@@ -26,6 +33,18 @@ export interface PublicRoute {
   /** Early-access pages: built only while the site is closed (LAUNCH.open false). */
   closedOnly?: boolean;
 }
+
+/** The module landing pages (./module-data.ts): one per built part of the app. */
+export const MODULE_ROUTES: readonly PublicRoute[] = MODULES.map((m) => ({
+  path: m.path,
+  label: m.label,
+  title: `${m.title} · ${SITE_NAME}`,
+  description: m.description,
+  changefreq: "monthly",
+  priority: 0.8,
+  lastmod: MODULES_DATE,
+  structuredData: ["module-faq"],
+}));
 
 const fromPrice = formatUsd(Math.min(...PLANS.map((p) => p.monthlyPrice)));
 
@@ -127,6 +146,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/how-to-estimate-cnc-machining-time",
+      label: "How to estimate CNC machining time",
+      title: `How to estimate CNC machining time for a quote · ${SITE_NAME}`,
+      description:
+        "Estimate CNC cycle time: rpm and feed from surface speed and chip load, removal rate, roughing from volume removed, drilling with pecks, tapping, tool changes.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
       path: "/machine-shop-quote-template",
       label: "Machine shop quote template",
       title: `Machine shop quote template (free CSV) · ${SITE_NAME}`,
@@ -146,6 +175,7 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
       structuredData: ["faq"],
     },
+    ...MODULE_ROUTES,
     {
       path: "/early-access",
       label: "Early access",
@@ -174,7 +204,7 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
         ? `Site privacy notice · ${SITE_NAME}`
         : `Early-access privacy notice · ${SITE_NAME}`,
       description: open
-        ? `This site stores nothing about you: no forms, no cookies, no analytics scripts. The ${SITE_NAME} app has its own privacy policy, linked here.`
+        ? `This site stores nothing that identifies you: no forms, no cookies, only cookieless visit counts. The ${SITE_NAME} app has its own privacy policy.`
         : `What ${SITE_NAME} stores when you request early access, why, where it is kept, and how to have it deleted.`,
       changefreq: "yearly",
       priority: 0.3,

@@ -213,6 +213,7 @@ export const PROBLEMS = [
       ['pay-app-guides/change-order-log.html', 'Change order log', 'Approved, pending and rejected totals, the revised contract sum, billing on unsigned changes flagged, approved changes written as SOV lines.'],
       ['pay-app-guides/tm-tickets.html', 'T&M ticket log', 'Price time-and-material tickets at your own markups, flag unsigned ones and signed ones with no change order, and draft the change order request.'],
       ['pay-app-guides/punch-list.html', 'Punch list tracker', 'Paste the punch list from the walk-through: open, overdue, done and accepted items, the retainage still waiting on it, and one back-check email to the GC.'],
+      ['pay-app-guides/submittal-log-template.html', 'Submittal log template', 'Paste your submittal log: the last day to send each one worked back from lead time and review days, what is overdue back from the GC or due for resubmittal, and which needed-on-site dates are at risk.'],
       ['pay-app-guides/daily-report-template.html', 'Daily report template', 'Fill in the day on site: weather and hours lost, crew and man-hours, work, delays, deliveries and inspections. Print it, email it to the GC, and find the weekdays with no report.'],
       ['pay-app-guides/change-orders-schedule-of-values.html', 'Change orders and the schedule of values', 'How approved and deductive changes enter the SOV and the summary page.'],
       ['change-order-margin-calculator', 'Change order margin calculator', 'Price added work and see what a markup cap actually leaves you.'],

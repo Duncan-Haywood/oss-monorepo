@@ -17,7 +17,8 @@ export function pastDueGraceUntil(
   pastDueSince: Date | null,
   graceDays = PAST_DUE_GRACE_DAYS,
 ): Date | null {
-  if (status !== "past_due" || !pastDueSince) return null;
+  // An Invalid Date start (NaN) counts as unknown: no grace, and no Invalid Date for a banner.
+  if (status !== "past_due" || !pastDueSince || Number.isNaN(pastDueSince.getTime())) return null;
   return new Date(pastDueSince.getTime() + graceDays * DAY_MS);
 }
 

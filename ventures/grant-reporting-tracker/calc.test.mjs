@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addMonths, reviewAll, reviewGrant, toCsv, loadGrants, sampleGrants, removeGrant, markReportFiled } from './calc.mjs';
+import { addMonths, reportSchedule, reviewAll, reviewGrant, toCsv, loadGrants, sampleGrants, removeGrant, markReportFiled } from './calc.mjs';
 import { readFileSync } from 'node:fs';
 
 test('adds months without overflowing short months', () => {
@@ -103,7 +103,7 @@ test('CSV export carries every field the queue reads, not just what the table sh
   const [header, dataLine] = csv.split('\n');
   assert.equal(
     header,
-    'name,funder,awardDate,intervalMonths,lastReportFiled,nextReport,daysUntilReport,status,awardAmount,spentAmount,restrictedBalance',
+    'name,funder,awardDate,intervalMonths,dueDaysAfter,periodEnd,finalDueDays,lastReportFiled,nextReport,reportType,daysUntilReport,status,awardAmount,spentAmount,restrictedBalance,overspent',
   );
   for (const value of ['2026-01-01', '6', '2026-07-01', '750']) {
     assert.ok(dataLine.includes(value), `CSV row is missing ${value}: ${dataLine}`);
@@ -323,4 +323,104 @@ test('status boundaries: due today is Due soon, 30 days is Due soon, 31 is On tr
   assert.equal(at('2026-06-14').daysUntilReport, 31);
   assert.equal(at('2026-06-14').status, 'On track');
   assert.equal(at('2026-05-12').status, 'Overdue');
+});
+
+// Reporting lag, period of performance and final report: dates checked by
+// hand against eCFR 2 CFR 200.329(c)(1) (quarterly/semiannual reports due no
+// later than 30 days after the reporting period, annual 90) and 200.344(b)
+// (all reports due 120 days after the period of performance ends). Quality
+// re-audit 2026-11-28, portfolio/quality/audits/2026-11-28-grant-reporting-tracker.json.
+const fed = (extra) => ({ name: 'Federal', awardAmount: 1, spentAmount: 0, ...extra });
+
+test('a quarterly federal award is due 30 days after the quarter ends, not on the next quarter start', () => {
+  const row = reviewGrant(fed({ awardDate: '2026-01-01', intervalMonths: 3, dueDaysAfter: 30 }), '2026-04-15');
+  assert.equal(row.nextReport, '2026-04-30'); // Q1 ends 31 March, + 30 days
+  assert.equal(row.daysUntilReport, 15);
+  assert.equal(row.status, 'Due soon');
+});
+
+test('an annual federal award is due 90 days after the year ends', () => {
+  const row = reviewGrant(fed({ awardDate: '2025-10-01', intervalMonths: 12, dueDaysAfter: 90 }), '2026-11-13');
+  assert.equal(row.nextReport, '2026-12-29'); // year ends 30 Sept 2026, + 90 days
+  assert.equal(row.status, 'On track');
+});
+
+test('after the period of performance ends, the final report is due 120 days later and shows overdue', () => {
+  const row = reviewGrant(
+    fed({ awardDate: '2025-07-01', intervalMonths: 12, periodEnd: '2026-06-30', lastReportFiled: '2026-07-01' }),
+    '2026-11-13',
+  );
+  assert.equal(row.nextReport, '2026-10-28');
+  assert.equal(row.reportType, 'Final');
+  assert.equal(row.status, 'Overdue');
+});
+
+test('the period that reaches the end date is replaced by the final report', () => {
+  const schedule = reportSchedule(
+    fed({ awardDate: '2026-01-01', intervalMonths: 3, dueDaysAfter: 30, periodEnd: '2026-12-31' }),
+  );
+  assert.deepEqual(schedule, [
+    { date: '2026-04-30', type: 'Periodic' },
+    { date: '2026-07-30', type: 'Periodic' },
+    { date: '2026-10-30', type: 'Periodic' },
+    { date: '2027-04-30', type: 'Final' }, // 31 Dec + 120 days; no separate Q4 report
+  ]);
+});
+
+test('a foundation final report can use its own deadline instead of 120 days', () => {
+  const schedule = reportSchedule(fed({ awardDate: '2026-01-01', intervalMonths: 12, periodEnd: '2026-12-31', finalDueDays: 60 }));
+  assert.deepEqual(schedule, [{ date: '2027-03-01', type: 'Final' }]);
+});
+
+test('filing the final report closes the award instead of inventing another periodic report', () => {
+  const row = reviewGrant(
+    fed({ awardDate: '2026-01-01', intervalMonths: 12, periodEnd: '2026-12-31', lastReportFiled: '2027-04-20' }),
+    '2027-05-01',
+  );
+  assert.equal(row.status, 'All reports filed');
+  assert.equal(row.nextReport, null);
+  assert.equal(row.daysUntilReport, null);
+});
+
+test('a late filing with a lag still covers its own period and keeps later dates fixed', () => {
+  // Semiannual with 30-day lag from 15 Jan: due 14 Aug 2026, 13 Feb 2027.
+  const row = reviewGrant(fed({ awardDate: '2026-01-15', intervalMonths: 6, dueDaysAfter: 30, lastReportFiled: '2026-09-20' }), '2027-02-01');
+  assert.equal(row.nextReport, '2027-02-13');
+});
+
+test('blank lag and end fields keep the original due dates for saved awards', () => {
+  const plain = reviewGrant(fed({ awardDate: '2026-01-01', intervalMonths: 6 }), '2026-03-01');
+  const blank = reviewGrant(fed({ awardDate: '2026-01-01', intervalMonths: 6, dueDaysAfter: '', periodEnd: '', finalDueDays: '' }), '2026-03-01');
+  assert.equal(plain.nextReport, '2026-07-01');
+  assert.equal(blank.nextReport, '2026-07-01');
+});
+
+test('unusable lag or end values are refused, not ignored', () => {
+  for (const extra of [{ dueDaysAfter: -5 }, { dueDaysAfter: 2.5 }, { periodEnd: '2026-02-30' }, { periodEnd: '2025-01-01' }, { finalDueDays: 'soon' }]) {
+    const row = reviewGrant(fed({ awardDate: '2026-01-01', intervalMonths: 3, ...extra }), '2026-03-01');
+    assert.equal(row.status, 'Check inputs', JSON.stringify(extra));
+  }
+});
+
+test('spending past the award is flagged, not clamped to zero', () => {
+  const row = reviewGrant(fed({ awardDate: '2026-01-01', intervalMonths: 6, awardAmount: 10000, spentAmount: 12000 }), '2026-03-01');
+  assert.equal(row.restrictedBalance, -2000);
+  assert.equal(row.overspent, true);
+  assert.equal(reviewGrant(fed({ awardDate: '2026-01-01', intervalMonths: 6, awardAmount: 100, spentAmount: 100 }), '2026-03-01').overspent, false);
+});
+
+test('rows due the same day keep the order they were entered in', () => {
+  const rows = reviewAll([
+    fed({ name: 'First', awardDate: '2026-01-01', intervalMonths: 6 }),
+    fed({ name: 'Second', awardDate: '2026-01-01', intervalMonths: 6 }),
+  ], '2026-03-01');
+  assert.deepEqual(rows.map((r) => r.name), ['First', 'Second']);
+});
+
+test('a monthly report filed 20 days before the next due date does not count for it', () => {
+  // Monthly from 1 Jan: due 1 Feb, 1 Mar, 1 Apr. Filed 9 Feb (the late January
+  // report): the early-filing window is capped at half a month (15 days), so
+  // 1 Mar is still owed. A flat 30-day window would mark March done too.
+  const row = reviewGrant(fed({ awardDate: '2026-01-01', intervalMonths: 1, lastReportFiled: '2026-02-09' }), '2026-02-10');
+  assert.equal(row.nextReport, '2026-03-01');
 });

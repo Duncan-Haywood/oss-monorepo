@@ -20,7 +20,7 @@ const { chromium } = createRequire(import.meta.url)("playwright");
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
@@ -44,7 +44,12 @@ await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const base = `http://127.0.0.1:${server.address().port}/`;
 
 const scope = opt("--dir", ONLY ? `ventures/${ONLY}` : "ventures");
-const files = execSync(`grep -rlE 'inputmode="(decimal|numeric)"' ${scope} --include=*.html || true`)
+// grep exits non-zero when nothing matches (or a file is unreadable); keep what it listed, as `|| true` did.
+const grepFiles = () => {
+  try { return execFileSync("grep", ["-rlE", 'inputmode="(decimal|numeric)"', "--include=*.html", "--", scope]); }
+  catch (e) { return e.stdout || ""; }
+};
+const files = grepFiles()
   .toString().trim().split("\n").filter((f) => f && !f.includes("node_modules"));
 
 // Runs inside the page: list candidate inputs (visible, enabled text inputs with a numeric inputmode).

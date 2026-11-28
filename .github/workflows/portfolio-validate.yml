@@ -71,6 +71,7 @@ on:
       - "platform/email/**"
       - "platform/counter/**"
       - "platform/analytics/**"
+      - "platform/theme/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
@@ -118,6 +119,7 @@ on:
       - "platform/email/**"
       - "platform/counter/**"
       - "platform/analytics/**"
+      - "platform/theme/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
@@ -217,6 +219,10 @@ jobs:
       # and page-view counts; it shares platform/counter's rules (core.mjs).
       - name: Site feedback Worker and visit counter
         run: node --test "platform/edge/*.test.mjs" "platform/counter/*.test.mjs" "platform/analytics/*.test.mjs"
+
+      # platform/theme: the light/dark switch every built page gets.
+      - name: Light/dark switch
+        run: node --test "platform/theme/*.test.mjs"
 
       # platform/email is the agent-managed inboxes' Worker. inboxes.yaml
       # generates inboxes.json and the Email Routing file; --check fails on drift.

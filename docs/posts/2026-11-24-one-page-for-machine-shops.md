@@ -1051,3 +1051,28 @@ consumables as an extra and the powder coat with its lot minimum. A test in
 the app prices the same frame with its costing engine and fails if any
 quantity break differs by a cent. All the figures are made up, and the guide
 says so.
+
+## Update, 28 November 2026: estimating the cycle time itself
+
+The pricing guides all start from operation times the estimator already has.
+A new guide covers where those minutes come from: [how to estimate CNC
+machining time](https://marisstella.app/jobshop/how-to-estimate-cnc-machining-time).
+It goes from surface speed and chip load to rpm and feed, from width and
+depth of cut to a removal rate, and from the volume removed to the roughing
+minutes. Then it times the holes: a fixed time per hole, the depth at the
+drill feed, and the peck retracts on holes deeper than three diameters. The
+worked example is a made-up 6061 manifold block with six tapped holes and two
+through holes. Two things it shows:
+
+- **Roughing is the largest line but not the whole cycle.** It is 3.0 of the
+  block's 9.36 minutes. Tool changes and loading add another 2.25 minutes a
+  part, and no feeds-and-speeds formula shows them.
+- **Most of the drilling time is not drilling.** Positioning and the 18 peck
+  retracts are 61% of the 1.61 drilling minutes.
+
+When an RFQ comes with a STEP model, Job Shop Quote measures the part's volume
+and holes and suggests the roughing, drilling and tapping operations from the
+shop's own rate card. A test runs the example through those suggestions and
+fails if any minute differs. The app does not work out speeds and feeds,
+finishing passes, tool changes or loading time; the estimator types those
+in. All the figures are made up, and the guide says so.

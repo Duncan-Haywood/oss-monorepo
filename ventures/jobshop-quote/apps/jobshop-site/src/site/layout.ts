@@ -73,7 +73,8 @@ export function renderDocument(
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#226955">
+    <meta name="theme-color" content="#226955" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#161412" media="(prefers-color-scheme: dark)">
     ${headTags(ctx, route, jsonLd)}
   </head>
   <body>
@@ -120,6 +121,7 @@ ${body}
             <li><a href="${href(ctx, "/how-to-quote-cnc-machining")}">How to quote a machining job</a></li>
             <li><a href="${href(ctx, "/how-to-quote-sheet-metal")}">How to quote sheet metal</a></li>
             <li><a href="${href(ctx, "/how-to-quote-welding")}">How to quote welding</a></li>
+            <li><a href="${href(ctx, "/how-to-estimate-cnc-machining-time")}">Estimating machining time</a></li>
             <li><a href="${href(ctx, "/machine-shop-quote-template")}">Quote template</a></li>
             <li><a href="${href(ctx, "/privacy")}">Privacy</a></li>
             <li><a href="${CMMC_SITE_URL}">CMMC Workspace</a></li>
