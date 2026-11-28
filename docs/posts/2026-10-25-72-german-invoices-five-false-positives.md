@@ -3,7 +3,7 @@ title: "We ran our e-invoice checker on 72 official German invoices and found si
 seo_title: "72 official German invoices, six false positives in our checker"
 date: 2026-10-25
 updated: 2026-11-28
-description: "The XRechnung test suite exposed six rules in our e-invoice checker that rejected valid invoices, from direct debits and credit balances to third-party payments in the XRechnung extension."
+description: "The XRechnung test suite exposed six rules in our e-invoice checker that rejected valid invoices, from direct debits to extension third-party payments."
 tags: [einvoice-preflight, evaluation, e-invoicing]
 ---
 
