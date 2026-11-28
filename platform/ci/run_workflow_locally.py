@@ -2190,11 +2190,11 @@ def run_for_changes(args) -> int:
             print(POST_PRECHECK_STOP, flush=True)
             return 1
 
+    blank = []
     if not args.list and not getattr(args, "no_record_check", False):
         blank = blank_records(changed)
         if blank:
-            print(RECORD_PRECHECK_STOP.format(paths=", ".join(blank)), flush=True)
-            return 1
+            print(RECORD_PRECHECK_NOTE.format(paths=", ".join(blank)), flush=True)
 
     if not args.list and not getattr(args, "no_browser_sweeps", False):
         code, output = browser_sweep_precheck(changed)
@@ -2237,6 +2237,8 @@ def run_for_changes(args) -> int:
     note = quality_touched_note(changed)
     if note:
         print(note, flush=True)
+    if blank and rc:
+        print(RECORD_PRECHECK_END.format(paths=", ".join(blank)), flush=True)
     return rc
 
 
@@ -2344,14 +2346,22 @@ def post_precheck(changed, repo: str = REPO) -> tuple[bool, str]:
 # `promptctl record` writes a record with outcome null, and prompts-ci's
 # validate step fails on it ("fill it in before merging"). A sweep started
 # after writing the record but before filling it in ran 10 to 15 minutes to
-# report that one expected failure (doc friction on this file, 2026-11-23 and
-# 2026-11-24, three run records). The record is in the diff, so the sweep
-# checks it first and stops in under a second.
-RECORD_PRECHECK_STOP = (
-    "Stopped before the sweep: run record(s) {paths} still have outcome null, "
-    "so prompts-ci's validate step would fail on them. To verify the work "
-    "first and fill the record in after, rerun with --no-record-check; "
-    "otherwise fill in outcome (and pr) and rerun.")
+# report that one expected failure (doc friction, 2026-11-23 and 11-24, three
+# run records). From 2026-11-24 the sweep stopped instead, but prompt.md has
+# the record filled in *after* verification, so that stop wasted the first
+# sweep and every run had to rerun with --no-record-check (doc friction on
+# this file, 2026-11-27 and 11-28, four run records). So the sweep now runs,
+# says up front which failure to expect, and says it again at the end if the
+# sweep is red. --no-record-check silences both notes.
+RECORD_PRECHECK_NOTE = (
+    "Note: run record(s) {paths} still have outcome null, so prompts-ci's "
+    "validate step will fail on them. That failure is expected: the sweep "
+    "goes on to verify everything else. Fill the record in after, then "
+    "`python3 prompts/promptctl.py validate` alone confirms it.")
+RECORD_PRECHECK_END = (
+    "  If the only failure above is prompts-ci validate naming {paths} "
+    "(outcome null), the sweep is otherwise green: fill the record in and "
+    "rerun `python3 prompts/promptctl.py validate`, not the whole sweep.")
 
 
 def blank_records(changed, repo: str = REPO) -> list[str]:
@@ -3133,8 +3143,8 @@ def _main(argv=None) -> int:
                          "fails check_post_frontmatter (by default the sweep "
                          "stops first; see POST_PRECHECK_STOP)")
     ap.add_argument("--no-record-check", action="store_true",
-                    help="with --for-changes: sweep even when a changed run "
-                         "record still has outcome null (see RECORD_PRECHECK_STOP)")
+                    help="with --for-changes: leave out the note that a changed "
+                         "run record's outcome is still null (see RECORD_PRECHECK_NOTE)")
     ap.add_argument("--full", action="store_true",
                     help="with --for-changes on a content-only diff (no "
                          "platform/, portfolio/, .github/ or prompts/ code): "
