@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Framing lumber waste factor: how much to add, measured</title>
+  <meta name="description" content="Cutting waste on a framing order measured on three houses: 0.2 to 0.4% with a cut plan, 1.4 to 5.8% from fewer board lengths, 19 to 30% with no plan. Culls are separate.">
+  <meta property="og:title" content="Framing lumber waste factor, measured">
+  <meta property="og:description" content="How much of a framing order is cutting waste: 0.2 to 0.4% planned, 19 to 30% with no cut plan, on three houses.">
+  <link rel="canonical" href="./lumber-waste-factor.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What waste factor should I add to a framing lumber order?", "acceptedAnswer": {"@type": "Answer", "text": "Split it in two. Cutting waste depends on how the order is planned: on three test houses it was 0.2 to 0.4% of the lumber used when every piece was laid out and cut from boards of 8 to 16 ft, 1.4 to 2.6% when the yard sent only 8 and 16 ft boards, 4.0 to 5.8% from 16 ft boards alone, and 18.9 to 29.8% when each piece was bought on its own board. Culls, mistakes and theft are a second allowance that depends on your yard and crew, and these houses cannot measure it."}}, {"@type": "Question", "name": "Why is a planned order's waste so low?", "acceptedAnswer": {"@type": "Answer", "text": "Short pieces (cripples, jacks, sills, blocking, plate ends) come out of the offcuts of long boards, and precut studs need no cutting at all. A cutting-stock order packs pieces into boards so little is left over; most of what remains is saw kerf and the ends too short to use."}}, {"@type": "Question", "name": "Is a flat 10% waste factor too much?", "acceptedAnswer": {"@type": "Answer", "text": "For cutting alone on a planned order, yes: on these houses a flat 10% on top of a planned order left about 9.5 to 9.8% of the order for culls and mistakes. With no planning, 10% did not even cover the cutting waste, which was 19 to 30%. Whether the rest is right for culls depends on your lumber grade and crew."}}, {"@type": "Question", "name": "Can I trust these percentages for my own house?", "acceptedAnswer": {"@type": "Answer", "text": "Not as a figure to order by. They come from two generated plans and one invented house, with flat board prices and a 1/8 in kerf, not a builder's real order. They show how the way you buy changes the waste; your own walls in the takeoff give your own figure."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    h3 { font-size: 1rem; margin: 18px 0 2px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+    .scroll-note { font-size: .86rem; color: #555044; margin-top: 4px; }
+    table { display: block; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Framing lumber waste factor: how much to add, measured on three houses</h1>
+  <p>A waste factor on a framing order covers two different things: the offcuts left when pieces are cut from boards, and the boards you lose to culls (crooked, split or wany), mistakes and theft. Only the first can be worked out from the plan, and it depends almost entirely on how the order is planned. This page measures it on three houses for four ways of buying the same walls, in lineal feet of 2x4 and 2x6 (headers left out), from <code>waste-bench.mjs</code> in the tool's repository (measured 2026-11-28).</p>
+  <p><a class="cta" href="index.html">Get the waste figure for your own walls</a></p>
+
+  <h2>Cutting waste at 16 inches on center</h2>
+  <table>
+    <thead><tr><th>House</th><th class="n">Used, ft</th><th class="n">Planned, 8 to 16 ft</th><th class="n">Planned, 8 and 16 ft only</th><th class="n">Planned, 16 ft only</th><th class="n">One piece per board</th></tr></thead>
+    <tbody>
+      <tr><td>Example house (invented, 212 ft of wall)</td><td class="n">2312</td><td class="n">2316 (0.2%)</td><td class="n">2345 (1.4%)</td><td class="n">2416 (4.5%)</td><td class="n">2787 (20.5%)</td></tr>
+      <tr><td>Open House Plans 1 (CC0, generated, 220 ft)</td><td class="n">2538</td><td class="n">2545 (0.3%)</td><td class="n">2578 (1.6%)</td><td class="n">2640 (4.0%)</td><td class="n">3294 (29.8%)</td></tr>
+      <tr><td>Open House Plans 2 (CC0, generated, 399 ft, windows ganged)</td><td class="n">4260</td><td class="n">4269 (0.2%)</td><td class="n">4333 (1.7%)</td><td class="n">4480 (5.2%)</td><td class="n">5421 (27.3%)</td></tr>
+    </tbody>
+  </table>
+  <div class="scroll-note">Lineal feet of 2x4 and 2x6 bought, with the cutting waste in brackets (bought ÷ used − 1).</div>
+
+  <p>"Used" is the length of every stud, plate, king, jack, cripple, sill and backing piece the layout cuts, plus a 1/8 in saw kerf per cut. The three planned columns are the same cutting-stock solver with a different list of boards to buy from; precut 92-5/8 in studs are on every list except "16 ft only". "One piece per board" buys each piece on the shortest board it fits and throws the offcut away: the no-planning baseline.</p>
+
+  <h2>At 24 inches on center</h2>
+  <table>
+    <thead><tr><th>House</th><th class="n">Used, ft</th><th class="n">Planned, 8 to 16 ft</th><th class="n">Planned, 8 and 16 ft only</th><th class="n">Planned, 16 ft only</th><th class="n">One piece per board</th></tr></thead>
+    <tbody>
+      <tr><td>Example house</td><td class="n">1966</td><td class="n">1972 (0.3%)</td><td class="n">2011 (2.3%)</td><td class="n">2064 (5.0%)</td><td class="n">2337 (18.9%)</td></tr>
+      <tr><td>Open House Plans 1</td><td class="n">2213</td><td class="n">2222 (0.4%)</td><td class="n">2271 (2.6%)</td><td class="n">2336 (5.6%)</td><td class="n">2807 (26.9%)</td></tr>
+      <tr><td>Open House Plans 2</td><td class="n">3705</td><td class="n">3718 (0.3%)</td><td class="n">3800 (2.6%)</td><td class="n">3920 (5.8%)</td><td class="n">4583 (23.7%)</td></tr>
+    </tbody>
+  </table>
+  <div class="scroll-note">Lineal feet of 2x4 and 2x6 bought, with the cutting waste in brackets (bought ÷ used − 1).</div>
+
+  <p>Wider spacing buys less lumber, and a slightly larger share of it is waste on all three houses.</p>
+
+  <h2>What this means for the factor you add</h2>
+  <ul>
+    <li><strong>Planned and cut from a full length list:</strong> cutting waste is under half a percent, so almost all of any flat factor you add is a cull and mistake allowance. A flat 10% on these orders left 9.5 to 9.8% for that.</li>
+    <li><strong>The yard sends only 8 and 16 ft:</strong> 1.4 to 2.6% goes to cutting. Plan for it, then add your cull allowance on top.</li>
+    <li><strong>Everything from 16 ft boards:</strong> 4.0 to 5.8% goes to cutting, but you handle 36 to 39% fewer boards than the planned full-length order, because two stud-length pieces come out of each 16.</li>
+    <li><strong>No cut plan:</strong> 18.9 to 29.8% goes to cutting, so a flat 10% runs short before a single board is culled.</li>
+  </ul>
+  <p>The takeoff tool keeps the two apart: it orders the cutting-stock solution (its cut list says which piece comes from which board) and adds the cull allowance you type, per lumber size, as spare boards on their own line.</p>
+
+  <h2>What this does not show</h2>
+  <p>Two generated plans and one invented house, with flat board prices per foot and a 1/8 in kerf, not a builder's real order or a permit set. The cull, mistake and theft share is not measured here: it depends on the lumber grade, the yard and the crew. Header sizes are your inputs and are not checked against a span table or code, and headers are left out of the figures.</p>
+
+  <h2>Common questions</h2>
+  <h3>What waste factor should I add to a framing lumber order?</h3>
+  <p>Split it in two. Cutting waste depends on how the order is planned: on three test houses it was 0.2 to 0.4% of the lumber used when every piece was laid out and cut from boards of 8 to 16 ft, 1.4 to 2.6% when the yard sent only 8 and 16 ft boards, 4.0 to 5.8% from 16 ft boards alone, and 18.9 to 29.8% when each piece was bought on its own board. Culls, mistakes and theft are a second allowance that depends on your yard and crew, and these houses cannot measure it.</p>
+  <h3>Why is a planned order's waste so low?</h3>
+  <p>Short pieces (cripples, jacks, sills, blocking, plate ends) come out of the offcuts of long boards, and precut studs need no cutting at all. A cutting-stock order packs pieces into boards so little is left over; most of what remains is saw kerf and the ends too short to use.</p>
+  <h3>Is a flat 10% waste factor too much?</h3>
+  <p>For cutting alone on a planned order, yes: on these houses a flat 10% on top of a planned order left about 9.5 to 9.8% of the order for culls and mistakes. With no planning, 10% did not even cover the cutting waste, which was 19 to 30%. Whether the rest is right for culls depends on your lumber grade and crew.</p>
+  <h3>Can I trust these percentages for my own house?</h3>
+  <p>Not as a figure to order by. They come from two generated plans and one invented house, with flat board prices and a 1/8 in kerf, not a builder's real order. They show how the way you buy changes the waste; your own walls in the takeoff give your own figure.</p>
+
+  <p><a class="cta" href="index.html">Run the takeoff on your own walls</a></p>
+  <p>Related: <a href="vs-stud-per-foot-rule.html">takeoff vs. the stud-per-foot rule</a>, <a href="vs-ordering-lumber-by-hand.html">takeoff vs. ordering lumber by hand</a>, <a href="how-many-studs-for-a-wall.html">how to count the studs for a wall by hand</a>.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:0 28px"><div><h3 style="font-size:1rem;margin:16px 0 4px">Walls and framing</h3><ul style="margin:0;padding-left:1.1em"><li><a href="index.html">Wall framing takeoff</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="header-calculator.html">Header size checker</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule</a></li><li><a href="sheathing-calculator.html">Wall sheathing calculator</a></li><li><a href="brace-calculator.html">Wall brace calculator</a></li><li><a href="panel-calculator.html">Wall panel calculator</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator</a></li><li><a href="nail-calculator.html">Framing nail calculator</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud?</a></li><li><a href="board-foot-calculator.html">Board foot calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Floors, stairs and roofs</h3><ul style="margin:0;padding-left:1.1em"><li><a href="floor-calculator.html">Floor joist and subfloor calculator</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="roof-calculator.html">Roof calculator</a></li><li><a href="dormer-calculator.html">Dormer framing calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Foundation and concrete</h3><ul style="margin:0;padding-left:1.1em"><li><a href="foundation-calculator.html">Foundation calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Exterior and envelope</h3><ul style="margin:0;padding-left:1.1em"><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="stucco-calculator.html">Stucco calculator</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator</a></li><li><a href="gutter-calculator.html">Gutter calculator</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Interior finishes</h3><ul style="margin:0;padding-left:1.1em"><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="paint-calculator.html">Paint calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="flooring-calculator.html">Flooring calculator</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Plumbing, electrical and HVAC</h3><ul style="margin:0;padding-left:1.1em"><li><a href="plumbing-calculator.html">Plumbing rough-in calculator</a></li><li><a href="water-supply-sizing-calculator.html">Water supply pipe sizing</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Site and landscape</h3><ul style="margin:0;padding-left:1.1em"><li><a href="fence-calculator.html">Fence calculator</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator</a></li><li><a href="paver-calculator.html">Paver patio calculator</a></li><li><a href="mulch-topsoil-gravel-calculator.html">Mulch, topsoil and gravel calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Schedule, bids and costs</h3><ul style="margin:0;padding-left:1.1em"><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator</a></li><li><a href="bid-leveling-calculator.html">Bid leveling calculator</a></li><li><a href="change-order-calculator.html">Change order calculator</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity</a></li><li><a href="branded-bid-package-for-framers.html">Branded bid package for framers</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Measured against the alternatives</h3><ul style="margin:0;padding-left:1.1em"><li><a href="vs-stud-per-foot-rule.html">Takeoff vs. the stud-per-foot rule</a></li><li><a href="vs-ordering-lumber-by-hand.html">Takeoff vs. ordering lumber by hand</a></li></ul></div></div></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. The example house is invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
