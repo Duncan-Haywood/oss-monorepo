@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtLBx8MGYWwTsB3FsHr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T12:06:28Z",
+  "ended": "2026-11-28T12:13:34Z",
+  "wall_minutes": 7.24,
+  "tokens_in": 6199273,
+  "tokens_out": 23882,
+  "cost_usd": 2.6546,
+  "tool_calls": 57,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20106",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "header-guide-example.mjs first read members by m.role; layoutWall members carry kind. Fixed before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says every bet has no free, ungated item, and payapps has 8 live claims. The real choice came from its last lines (fewest front-door PRs: bet #6), and those sat below a long listing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is the top bet's wedge. Payapps (#1) had nothing free and 8 live claims, and einvoice (#3) items wait on the owner or on demand. Following the tool's 'demand side' hint, I took bet #6's least-worked front door.",
+      "did": "Wrote a consolidated customer guide on window and door headers and folded 12 thin posts into it",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-window-and-door-headers-size-plies-jacks-and-what-to-order.md (new consolidated customer guide; 12 posts folded in)"
+  ],
+  "goal": null,
+  "notes": "Verification: run_venture_tests.py wall-framing-takeoff ok (1319 tests), writing-fold/style/writing tests 73 pass, page.test.mjs 141 pass. Every guide figure is pinned by header-guide-example.test.mjs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b867f4c3-7da0-501e-a1b2-ec1d7b5d79c9",
+    "transcripts": 1,
+    "first": "2026-11-28T12:06:28Z",
+    "last": "2026-11-28T12:13:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 108,
+        "output": 23882,
+        "thinking": 4674,
+        "cache_read": 6079082,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120083,
+        "api_equivalent_usd": 2.6546,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 108,
+      "output": 23882,
+      "thinking": 4674,
+      "cache_read": 6079082,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120083,
+      "api_equivalent_usd": 2.6546,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 54,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.24,
+      "active_minutes": 7.24,
+      "model_minutes": 5.08,
+      "tool_minutes": 2.16,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "re-running engine examples and writing a ~1,800-word guide with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 150.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
