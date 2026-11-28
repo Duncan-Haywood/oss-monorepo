@@ -52,3 +52,24 @@ The tables are on
 `ventures/wall-framing-takeoff/lumber-waste-factor.html`; a test pins every
 figure on that page to the benchmark's output.
 
+
+## One house taken off step by step (2026-11-28)
+
+The counts above are totals. A new guide, "How to do a framing takeoff from plans"
+(`ventures/wall-framing-takeoff/how-to-do-a-framing-takeoff.html`), shows where they come from on Open House Plans 1 (CC0, generated: four
+exterior and ten interior walls, 220 ft, 8 doors and 10 windows), in the six
+steps a framer works a plan set: wall schedule, plates, layout studs, openings,
+corners and tees, then the board order.
+
+At 16 inches on center the walls come to 436 pieces: 130 layout and end studs,
+35 kings, 36 jacks, 36 header plies, 87 cripples, 10 sills, 32 corner and tee
+backing studs and 70 plate pieces. The stud-per-foot rule says 220; the layout
+has 197 full-height members plus the jacks and cripples. Packed into board
+lengths, that is 276 boards (190 of them precut studs) with 0.35% cutting
+waste. At 24 inches the bought length falls 12%.
+
+Every figure on the page is computed by `takeoff-example.mjs` and pinned by its
+test, so a change to the engine that moves a count fails until the page is
+rerun. Header sizes (2x10 here) and jack counts are inputs, and three doors on
+this plan are wider than 4 ft with one jack a side, which a real plan would
+usually not allow.

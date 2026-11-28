@@ -21,6 +21,7 @@ export const GROUPS = [
   ["Walls and framing", [
     ["index.html", "Wall framing takeoff"],
     ["how-many-studs-for-a-wall.html", "How many studs for a wall"],
+    ["how-to-do-a-framing-takeoff.html", "How to do a framing takeoff"],
     ["header-calculator.html", "Header size checker"],
     ["opening-schedule-calculator.html", "Door and window schedule"],
     ["sheathing-calculator.html", "Wall sheathing calculator"],
