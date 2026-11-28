@@ -398,6 +398,8 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *Where the letter came from* *(Drafting, 2026-11-28.)* (proposed 2026-11-28): the look-elsewhere effect. A Dales builder's office agent gets a letter from four of the nine households on one street of the firm's 300 houses: damp callbacks in 2058-60, 4 of 9 against 24 of 300, and a £38,000 land-drainage quote. The agent's first report gives the street's own p (about 0.003, hypergeometric). The turn is a retired bricklayer asking how the agent chose the street: the letter chose it. Worked: the chance that some one of 27 streets looks that extreme by chance is about 4%; any run of three or more neighbouring houses on a street, about 29%. The overcorrection ('so it's chance') is refused too; the fix is a blinded inspection with a sample drawn by lot and a prediction written down first, which finds no ground water and a fault (mortar droppings bridging the cavity) spread across the firm's houses, not the street. Keep clear of *Toss It Again* (pre-set tests and corrections) and *The Forty Cuts* (the agent's own search): here the data drew the circle and someone else did the looking.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
