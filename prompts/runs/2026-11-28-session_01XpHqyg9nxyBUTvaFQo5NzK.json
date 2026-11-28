@@ -39,6 +39,14 @@
     {
       "file": "CLAUDE.md",
       "issue": "PR #19718 (seller-books sign-ups open) is stalled about 16 h and mostly superseded on main by other PRs. supersede_check still finds unmatched lines (two post edits, DEPLOY.md notes), so it is neither cleanly closable nor worth adopting. The guides have no step for a PR that is mostly superseded."
+    },
+    {
+      "file": "ventures/residential-takeoff/apps/wall-framing-takeoff (the paid folder)",
+      "issue": "It carries copies of the free edition's ~60 guide and calculator pages, but platform/pages/residential-takeoff-app.mjs publishes only its index.html. I built the new page there first; only venture-preflight's 'no catalogue entry' line led me to find the page would never be served. The paid folder's README or ROADMAP should say that guide pages go in ventures/wall-framing-takeoff."
+    },
+    {
+      "file": "platform/pages/llms-answers.test.mjs",
+      "issue": "Red on main after #19974: the einvoice-preflight llms.txt Answers section lacked the e-rechnung-pruefen FAQ. Resynced in this PR with node platform/pages/llms-answers.mjs ventures/einvoice-preflight."
     }
   ],
   "deviations": [
@@ -53,7 +61,7 @@
     "docs/posts/2026-11-04-how-wrong-is-one-stud-per-foot.md (extended with a waste-factor section, for-customers tag)"
   ],
   "goal": null,
-  "notes": "Security queue empty (exit 3); ideas inbox empty. run_venture_tests residential-takeoff: 1355 tests, 0 failed; waste-bench.test.mjs 5 pass; risk_review: no check triggered.",
+  "notes": "Security queue empty (exit 3); ideas inbox empty. run_venture_tests residential-takeoff: 1355 tests, 0 failed; waste-bench.test.mjs 5 pass; risk_review: no check triggered. Page moved to the free edition after preflight; on the merged tree: run_venture_tests wall-framing-takeoff + residential-takeoff 2 suites 0 failed; llms-answers + description-length 12 pass; venture-preflight residential-takeoff clean (before the move).",
   "corrections": [],
   "redteam": null,
   "usage": {
