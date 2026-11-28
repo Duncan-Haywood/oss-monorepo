@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gutschrift als E-Rechnung: 381, 384 oder 389?</title>
+<meta name="description" content="Gutschrift, Rechnungskorrektur oder Storno als XRechnung: welcher Rechnungsart-Code passt, und gemessen, welche Fehler die offiziellen Regeln übersehen.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/gutschrift-e-rechnung.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gutschrift als E-Rechnung: 381, 384 oder 389?">
+<meta property="og:description" content="Gutschrift, Rechnungskorrektur oder Storno als XRechnung: welcher Rechnungsart-Code passt, und gemessen, welche Fehler die offiziellen Regeln übersehen.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/gutschrift-e-rechnung.html">
+<meta property="og:locale" content="de_DE">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Ist eine Gutschrift dasselbe wie eine Rechnungskorrektur?", "acceptedAnswer": {"@type": "Answer", "text": "Nicht im Umsatzsteuerrecht. Dort ist eine Gutschrift eine Rechnung, die der Leistungsempfänger für die Leistung des Unternehmers ausstellt, wenn das vorher vereinbart wurde (§ 14 Abs. 2 Satz 5 UStG), und sie muss die Angabe „Gutschrift“ tragen (§ 14 Abs. 4 Satz 1 Nr. 10 UStG). Was im Alltag oft Gutschrift heißt, etwa eine Erstattung für eine Rücksendung, ist eine Rechnungskorrektur oder Stornorechnung des Verkäufers."}}, {"@type": "Question", "name": "Welcher Code gehört in BT-3 für eine Rechnungskorrektur?", "acceptedAnswer": {"@type": "Answer", "text": "Für eine Rechnungskorrektur oder Stornorechnung des Verkäufers in der Regel 381, in UBL als eigene CreditNote-Datei mit positiven Beträgen und dem Bezug auf die ursprüngliche Rechnung in BT-25. 384 steht für eine korrigierte Rechnung, die die alte ersetzt, und 389 für die Gutschrift im Gutschriftsverfahren, die der Kunde ausstellt. Welche Variante Ihr Kunde erwartet, klären Sie mit ihm."}}, {"@type": "Question", "name": "Prüft der KoSIT-Validator, ob eine Gutschrift die Rechnung nennt, die sie korrigiert?", "acceptedAnswer": {"@type": "Answer", "text": "In unserer Messung nur bei 384, und nur als Warnung (BR-DE-26). Eine Rechnungskorrektur mit 381 ganz ohne Bezug auf die ursprüngliche Rechnung bestand alle offiziellen Regeln; gemeldet hat das nur die zusätzliche Prüfung INV-033 dieses Werkzeugs."}}, {"@type": "Question", "name": "Darf eine Gutschrift negative Beträge haben?", "acceptedAnswer": {"@type": "Answer", "text": "Die Regeln verbieten es nicht: Eine 381 mit negativen Beträgen bestand in unserer Messung alle offiziellen Regeln und auch die Prüfungen dieses Werkzeugs. Peppol BIS Billing 3.0 lässt einen negativen Gesamtbetrag in der Gutschriftsanzeige zu, damit sie eine ganze negative Rechnung ausgleichen kann. Korrigiert die 381 aber eine gewöhnliche Rechnung, kehren negative Beträge die Richtung um, und der Kunde liest eine weitere Forderung statt einer Erstattung."}}, {"@type": "Question", "name": "Kann ich ein Storno als negative Rechnung schicken?", "acceptedAnswer": {"@type": "Answer", "text": "Die Norm EN 16931 erlaubt eine Rechnung (380) mit negativen Beträgen, und sie bestand in unserer Messung alle Regeln, auch ohne Bezug auf die ursprüngliche Rechnung. Damit der Kunde die Korrektur der richtigen Rechnung zuordnen kann, gehört deren Nummer trotzdem in BT-25; nach § 31 Abs. 5 UStDV muss ein berichtigendes Dokument spezifisch und eindeutig auf die Rechnung bezogen sein."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.cta{display:inline-block;background:#0b5f8a;color:#fff;padding:.6rem 1rem;border-radius:10px;text-decoration:none;font-weight:600;margin:.2rem .4rem .2rem 0}.cta.alt{background:#fff;color:#0b5f8a;border:1px solid #0b5f8a}code{overflow-wrap:anywhere}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./" hreflang="en">E-invoice Preflight</a> · <a href="e-rechnung-pruefen.html">E-Rechnung prüfen</a> · <a href="xrechnung-oder-zugferd.html">XRechnung oder ZUGFeRD?</a> · <a href="leitweg-id-pruefen.html">Leitweg-ID prüfen</a></p>
+<header>
+<h1>Gutschrift, Rechnungskorrektur, Storno: welcher Code in die E-Rechnung gehört</h1>
+<p class="lede">Ab 2027 müssen viele Unternehmen in Deutschland nicht nur Rechnungen, sondern auch ihre Korrekturen als E-Rechnung schicken. Dabei geht es um drei Dinge: den Rechnungsart-Code (BT-3), den Bezug auf die korrigierte Rechnung (BT-25) und das Vorzeichen der Beträge. In unserer Messung ließen die offiziellen XRechnung-Regeln die meisten Fehler daran durch, auch eine Gutschrift mit doppelt negativen Beträgen.</p>
+<p><a class="cta" href="./?profil=xrechnung#drop">Gutschrift oder Rechnung prüfen</a> <a class="cta alt" href="create.html" hreflang="en">XRechnung erstellen</a></p>
+</header>
+<section>
+<h2>Zwei Bedeutungen von „Gutschrift“</h2>
+<p><strong>Im Umsatzsteuergesetz</strong> ist eine Gutschrift eine Rechnung, die nicht der Verkäufer, sondern der Leistungsempfänger ausstellt, „sofern dies vorher vereinbart wurde“ (§ 14 Abs. 2 Satz 5 UStG). Sie muss die Angabe „Gutschrift“ enthalten (§ 14 Abs. 4 Satz 1 Nr. 10 UStG) und verliert die Wirkung einer Rechnung, sobald der Verkäufer ihr widerspricht. Typisch ist das etwa bei Provisionen oder Lizenzabrechnungen, die der Kunde erstellt.</p>
+<p><strong>Im Alltag</strong> heißt oft auch die Erstattung des Verkäufers „Gutschrift“: für eine Rücksendung, einen Preisnachlass oder eine falsch berechnete Position. Umsatzsteuerlich ist das eine Rechnungskorrektur oder Stornorechnung. Für eine Berichtigung genügt ein Dokument mit den fehlenden oder unzutreffenden Angaben, das „spezifisch und eindeutig auf die Rechnung bezogen ist“, in derselben Form wie die Rechnung (§ 31 Abs. 5 UStDV); als E-Rechnung also wieder eine E-Rechnung.</p>
+<p class="fine">Quellen: <a href="https://www.gesetze-im-internet.de/ustg_1980/__14.html" rel="noopener">§ 14 UStG</a> und <a href="https://www.gesetze-im-internet.de/ustdv_1980/__31.html" rel="noopener">§ 31 UStDV</a> bei gesetze-im-internet.de, am 28. November 2026 gelesen. Ob ein Dokument eine Gutschrift im Sinne des UStG oder eine Rechnungskorrektur ist, hängt an Ihrer Vereinbarung mit dem Kunden; im Zweifel fragen Sie Ihre Steuerberatung.</p>
+</section>
+<section>
+<h2>Die Codes, die XRechnung erwartet</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Code (BT-3)</th><th scope="col">Bedeutung</th><th scope="col">wofür</th></tr></thead>
+<tbody>
+<tr><td>380</td><td>Handelsrechnung</td><td>die gewöhnliche Rechnung; mit negativen Beträgen auch ein Storno als negative Rechnung</td></tr>
+<tr><td>381</td><td>Gutschriftsanzeige (Rechnungskorrektur)</td><td>die Korrektur oder Erstattung des Verkäufers; in UBL eine eigene CreditNote-Datei</td></tr>
+<tr><td>384</td><td>korrigierte Rechnung</td><td>eine Rechnung, die eine frühere ersetzt</td></tr>
+<tr><td>389</td><td>Gutschrift im Gutschriftsverfahren</td><td>die Gutschrift im Sinne des UStG, die der Kunde ausstellt</td></tr>
+<tr><td>326, 875, 876, 877</td><td>Teilrechnung; Abschlags-, Teilschluss- und Schlussrechnung im Bau</td><td>hier nicht gemessen</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Die Liste ist die der XRechnung-Regel <a href="rules/de/br-de-17.html">BR-DE-17</a>. Ein anderer Code ist eine Warnung, kein Fehler; eine Eingangsplattform kann ihn trotzdem ablehnen.</p>
+</section>
+<section>
+<h2>Gemessen: welche Fehler die Prüfung findet</h2>
+<p>Ausgangspunkt ist die Beispielrechnung des Erstellers (ein Berliner Verkäufer, ein Hamburger Käufer, 398,50 Euro brutto), erzeugt als XRechnung in UBL: einmal als Rechnung, einmal als Gutschriftsanzeige mit denselben Positionen und dem Bezug auf die Rechnung <code>RE-2026-001</code> in BT-25. In jede Datei kam genau ein Fehler beim Code, beim Bezug oder beim Vorzeichen; dann wurde sie zweimal geprüft: mit den offiziellen Regeln (EN-16931-Schematron und die XRechnung-Regeln der KoSIT, ausgewählt über BT-24) und mit den zusätzlichen Prüfungen dieses Werkzeugs.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Datei</th><th scope="col">offizielle Regeln</th><th scope="col">dieses Werkzeug</th></tr></thead>
+<tbody>
+<tr><td>Rechnung (380), richtig</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>Rechnungskorrektur als Gutschriftsanzeige (381) mit Bezug auf die Rechnung, richtig</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>381 ohne Bezug auf die ursprüngliche Rechnung (BT-25 fehlt)</td><td>keine Meldung</td><td>Fehler INV-033 (Bezug fehlt)</td></tr>
+<tr><td>381 mit negativen Beträgen (doppelt negativ)</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>Storno als Rechnung (380) mit negativen Beträgen und Bezug</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>Storno als Rechnung (380) mit negativen Beträgen, ohne Bezug</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>korrigierte Rechnung (384) ohne Bezug</td><td>Warnung <a href="rules/de/br-de-26.html">BR-DE-26</a></td><td>keine Meldung</td></tr>
+<tr><td>korrigierte Rechnung (384) mit Bezug</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>Gutschrift im Sinne des UStG (389, Abrechnung durch den Kunden)</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>Belastungsanzeige (383)</td><td>Warnung <a href="rules/de/br-de-17.html">BR-DE-17</a></td><td>Fehler XR-007 (Code), INV-033 (Bezug fehlt)</td></tr>
+<tr><td>Gutschriftsanzeige-Datei (CreditNote) mit Typcode 380</td><td>abgewiesen: BR-CL-01</td><td>Fehler INV-034 (Dateiart und Code passen nicht)</td></tr>
+<tr><td>Rechnungs-Datei (Invoice) mit Typcode 381</td><td>abgewiesen: BR-CL-01</td><td>Fehler INV-034 (Dateiart und Code passen nicht), INV-033 (Bezug fehlt)</td></tr>
+</tbody>
+</table>
+</div>
+<p class="note">Gemessen am 28. November 2026 mit <code>gutschrift-bench.mjs</code> im Quellcode dieses Werkzeugs; die Tabelle ist an das Ergebnis des Skripts gebunden. „Keine Meldung“ heißt: Die Datei besteht die Prüfung, nicht, dass sie umsatzsteuerlich richtig ist.</p>
+<p><strong>Was durchrutscht:</strong> Eine 381 ganz ohne Bezug auf die ursprüngliche Rechnung besteht alle offiziellen Regeln; nur bei 384 gibt es eine Warnung. Und eine Gutschriftsanzeige mit negativen Mengen und Beträgen besteht jede Prüfung, auch die dieses Werkzeugs. Peppol BIS Billing 3.0 lässt einen negativen Gesamtbetrag in der Gutschriftsanzeige zu, damit sie eine ganze negative Rechnung ausgleichen kann; korrigiert sie eine gewöhnliche Rechnung, sagt sie aber das Gegenteil des Gemeinten: Der Kunde bucht eine weitere Forderung von 398,50 Euro statt einer Erstattung.</p>
+<p><strong>Was auffällt:</strong> Passen Dateiart und Code nicht zusammen (eine CreditNote mit 380 oder eine Invoice mit 381), weisen die offiziellen Regeln die Datei ab (BR-CL-01). Ein Code außerhalb der XRechnung-Liste, hier die Belastungsanzeige 383, ergibt eine Warnung.</p>
+<p><strong>Was keine Regel sieht:</strong> Bei 389 prüfen die Regeln weder, ob die Gutschrift vorher vereinbart war, noch, ob irgendwo das Wort „Gutschrift“ steht. Beides bleibt Ihre Sache und die Ihres Kunden.</p>
+<p class="fine">Quelle zu negativen Gutschriftsanzeigen: <a href="https://docs.peppol.eu/poacc/billing/3.0/bis/" rel="noopener">Peppol BIS Billing 3.0</a>, Abschnitt zu Gutschriftsanzeige und negativer Rechnung, am 28. November 2026 gelesen.</p>
+</section>
+<section>
+<h2>Woran Sie vor dem Versand denken sollten</h2>
+<ul>
+<li><strong>Den Code bewusst wählen:</strong> 381 für Ihre eigene Korrektur oder Erstattung, 389 nur für die vereinbarte Gutschrift des Kunden, 384, wenn eine Rechnung die alte ersetzen soll und der Kunde das so annimmt.</li>
+<li><strong>Immer die ursprüngliche Rechnung nennen:</strong> Nummer und am besten Datum in BT-25 (in UBL <code>cac:BillingReference</code>, in CII <code>ram:InvoiceReferencedDocument</code>), auch wenn keine Regel es erzwingt.</li>
+<li><strong>Ein Vorzeichen, nicht zwei:</strong> Entweder eine Gutschriftsanzeige (381) mit positiven Beträgen oder eine Rechnung (380) mit negativen. Eine 381 mit negativen Beträgen nur, wenn sie eine negative Rechnung ausgleicht.</li>
+<li><strong>Mit dem Kunden klären:</strong> Manche Empfänger wollen für eine Korrektur eine 381 und eine neue Rechnung, andere eine 384. Fragen Sie, bevor die erste Korrektur rausgeht.</li>
+<li><strong>Die ganze Datei prüfen:</strong> Für die übrigen XRechnung-Pflichtangaben siehe <a href="xrechnung-oder-zugferd.html">XRechnung oder ZUGFeRD?</a> und <a href="leitweg-id-pruefen.html">Leitweg-ID prüfen</a>.</li>
+</ul>
+</section>
+<section>
+<h2>Für Steuerberater und Rechnungsteams</h2>
+<p>Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch erklärt, eine korrigierte Datei vorschlägt und die Rechnungen und Gutschriften vieler Mandanten auf einmal prüft, ist in Entwicklung. Noch ist nichts zu kaufen: <a href="https://marisstella.app/industries/eu-e-invoicing/">Frühzugang und Fristen</a>.</p>
+</section>
+<section id="faq">
+<h2>Häufige Fragen</h2>
+<h3>Ist eine Gutschrift dasselbe wie eine Rechnungskorrektur?</h3>
+<p>Nicht im Umsatzsteuerrecht. Dort ist eine Gutschrift eine Rechnung, die der Leistungsempfänger für die Leistung des Unternehmers ausstellt, wenn das vorher vereinbart wurde (§ 14 Abs. 2 Satz 5 UStG), und sie muss die Angabe „Gutschrift“ tragen (§ 14 Abs. 4 Satz 1 Nr. 10 UStG). Was im Alltag oft Gutschrift heißt, etwa eine Erstattung für eine Rücksendung, ist eine Rechnungskorrektur oder Stornorechnung des Verkäufers.</p>
+<h3>Welcher Code gehört in BT-3 für eine Rechnungskorrektur?</h3>
+<p>Für eine Rechnungskorrektur oder Stornorechnung des Verkäufers in der Regel 381, in UBL als eigene CreditNote-Datei mit positiven Beträgen und dem Bezug auf die ursprüngliche Rechnung in BT-25. 384 steht für eine korrigierte Rechnung, die die alte ersetzt, und 389 für die Gutschrift im Gutschriftsverfahren, die der Kunde ausstellt. Welche Variante Ihr Kunde erwartet, klären Sie mit ihm.</p>
+<h3>Prüft der KoSIT-Validator, ob eine Gutschrift die Rechnung nennt, die sie korrigiert?</h3>
+<p>In unserer Messung nur bei 384, und nur als Warnung (BR-DE-26). Eine Rechnungskorrektur mit 381 ganz ohne Bezug auf die ursprüngliche Rechnung bestand alle offiziellen Regeln; gemeldet hat das nur die zusätzliche Prüfung INV-033 dieses Werkzeugs.</p>
+<h3>Darf eine Gutschrift negative Beträge haben?</h3>
+<p>Die Regeln verbieten es nicht: Eine 381 mit negativen Beträgen bestand in unserer Messung alle offiziellen Regeln und auch die Prüfungen dieses Werkzeugs. Peppol BIS Billing 3.0 lässt einen negativen Gesamtbetrag in der Gutschriftsanzeige zu, damit sie eine ganze negative Rechnung ausgleichen kann. Korrigiert die 381 aber eine gewöhnliche Rechnung, kehren negative Beträge die Richtung um, und der Kunde liest eine weitere Forderung statt einer Erstattung.</p>
+<h3>Kann ich ein Storno als negative Rechnung schicken?</h3>
+<p>Die Norm EN 16931 erlaubt eine Rechnung (380) mit negativen Beträgen, und sie bestand in unserer Messung alle Regeln, auch ohne Bezug auf die ursprüngliche Rechnung. Damit der Kunde die Korrektur der richtigen Rechnung zuordnen kann, gehört deren Nummer trotzdem in BT-25; nach § 31 Abs. 5 UStDV muss ein berichtigendes Dokument spezifisch und eindeutig auf die Rechnung bezogen sein.</p>
+</section>
+<footer>
+<p><strong>Ohne Gewähr (no warranty).</strong> Dieses Werkzeug ist kostenlos und wird ohne jede ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Es ist keine Rechts-, Steuer-, Finanz- oder Buchhaltungsberatung und ersetzt keine fachkundige Person (not legal, tax, financial, or accounting advice). <strong>Prüfen Sie das Ergebnis selbst, bevor Sie sich darauf verlassen.</strong> Soweit gesetzlich zulässig, haften die Autoren nicht für Schäden aus der Nutzung.</p>
+<p><strong>Nichts verlässt Ihren Browser.</strong> Alle Prüfungen laufen lokal. Diese Seite selbst lädt kein Skript und zählt nichts; der Prüfer zählt nur anonym und nur auf Ihrem Gerät, dass geprüft wurde, nie den Inhalt einer Rechnung. Maßgeblich sind das Umsatzsteuergesetz, die UStDV und die aktuellen Regeln der KoSIT.</p>
+<p class="support">Free to use and source available. Kostenlos und quelloffen: der <a href="LICENSE" rel="noopener">Code steht unter der FSL-1.1-MIT-Lizenz</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> ist freiwillig und ändert nichts an dem, was das Werkzeug tut.</p>
+</footer>
+</main>
+</body></html>

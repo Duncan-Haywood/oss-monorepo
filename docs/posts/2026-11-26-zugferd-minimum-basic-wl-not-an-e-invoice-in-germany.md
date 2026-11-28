@@ -2,7 +2,7 @@
 title: "ZUGFeRD MINIMUM and BASIC WL are not e-invoices in Germany, and our checker now says so"
 seo_title: "Is ZUGFeRD MINIMUM an e-invoice in Germany? No: BASIC WL neither"
 date: 2026-11-26
-tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, leitweg-id, germany, france, accountants]
+tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, leitweg-id, gutschrift, credit-note, germany, france, accountants]
 description: "The BMF counts XRechnung and ZUGFeRD from 2.0.1 as e-invoices except MINIMUM and BASIC WL. How to spot the profile, and what our checker reports."
 ---
 
@@ -204,6 +204,36 @@ The German page has a check-digit field that runs in the browser:
 [Leitweg-ID prüfen](https://marisstella.app/einvoice-preflight/leitweg-id-pruefen.html).
 `leitweg-id-bench.mjs` reproduces the table, and the page's test fails if a
 result changes.
+
+**Update, 2026-11-28: credit notes, corrections and the German "Gutschrift".**
+Corrections go out as e-invoices too: § 31 Abs. 5 UStDV asks for a document
+"spezifisch und eindeutig auf die Rechnung bezogen", in the same form as the
+invoice. The word trips people up. In the VAT act a *Gutschrift* is a
+self-billed invoice the customer issues by prior agreement (§ 14 Abs. 2
+Satz 5 UStG, type code 389), and it must say "Gutschrift" (§ 14 Abs. 4
+Satz 1 Nr. 10 UStG); the seller's own refund or correction is a credit note,
+type code 381 ([§ 14 UStG](https://www.gesetze-im-internet.de/ustg_1980/__14.html)
+and [§ 31 UStDV](https://www.gesetze-im-internet.de/ustdv_1980/__31.html),
+read 2026-11-28).
+
+We took our example invoice and its credit note and changed one thing at a
+time: the type code, the reference to the corrected invoice (BT-25), the
+sign of the amounts. Twelve files, each checked with the official EN 16931
+and KoSIT XRechnung rules and with our own checks. The official rules passed
+a 381 with no reference to the invoice it corrects (our `INV-033` flags it)
+and only warned on a 384 without one (BR-DE-26). A 381 with every amount
+negated, which tells the buyer they owe another 398.50 euro instead of being
+refunded, passed every rule, ours included. Peppol BIS Billing 3.0 allows a
+negative credit-note total so a credit note can balance a whole negative
+invoice ([Peppol BIS 3.0](https://docs.peppol.eu/poacc/billing/3.0/bis/),
+read 2026-11-28), so no rule can call it wrong; it has to be checked against
+the invoice it corrects. A file whose root and type code disagree (a
+CreditNote with 380, an Invoice with 381) is rejected (BR-CL-01).
+
+The table, the code list and a checklist are on the German page
+[Gutschrift als E-Rechnung](https://marisstella.app/einvoice-preflight/gutschrift-e-rechnung.html);
+`gutschrift-bench.mjs` reproduces it, and the page's test fails if a result
+changes.
 
 This is not tax advice. Whether a particular invoice must be an e-invoice
 depends on the transaction and the dates above; your tax adviser decides.
