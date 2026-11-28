@@ -176,3 +176,8 @@ test('applyDir themes every page once and writes the control', async () => {
   assert.deepEqual(await applyDir(dir), { pages: 0, native: 0, fallback: 0, cssChanged: 0 });
   await fs.rm(dir, { recursive: true });
 });
+
+test('the boot script stores under THEME_KEY', async () => {
+  const { THEME_KEY } = await import('./theme.mjs');
+  assert.ok(THEME_BOOT_JS.includes(`K='${THEME_KEY}'`));
+});

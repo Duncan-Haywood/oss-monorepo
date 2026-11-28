@@ -267,7 +267,7 @@ export const THEME_HEAD_CSS =
  * (get/set/subscribe) for pf-theme.js and answers colour-scheme media
  * queries with the choice.
  */
-export const THEME_BOOT_JS = `(function(){var d=document.documentElement,K=${JSON.stringify(THEME_KEY)},w=window,subs=[],t='auto';
+export const THEME_BOOT_JS = `(function(){var d=document.documentElement,K='pfs-theme',w=window,subs=[],t='auto';
 function rd(){var v;try{v=localStorage.getItem(K)}catch(e){}return v==='light'||v==='dark'?v:'auto'}
 var omm=w.matchMedia&&w.matchMedia.bind(w),os=omm?omm('(prefers-color-scheme: dark)'):null;
 function eff(){return t==='auto'?(os&&os.matches?'dark':'light'):t}
