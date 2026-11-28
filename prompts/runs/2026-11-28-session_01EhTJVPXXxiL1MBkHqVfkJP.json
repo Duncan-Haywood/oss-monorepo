@@ -30,7 +30,9 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "first recompute scripts called standings/roundRobin with the wrong argument shapes (names instead of indices, court 0 instead of 1); fixed after reading the signatures"
+    "first recompute scripts called standings/roundRobin with the wrong argument shapes (names instead of indices, court 0 instead of 1); fixed after reading the signatures",
+    "codeql gate (javascript-typescript) failed on my test's `<script[\\s\\S]*?<\\/script>` strip regex (js/incomplete-multi-character-sanitization, bad-tag-filter) although it only reads a page in a test; replaced with a literal match on the raw HTML",
+    "pages `test` job red on the first push from main's machine-shop-guides title (fixed on main by #20076); merged main in"
   ],
   "integrity_issues": [],
   "doc_friction": [

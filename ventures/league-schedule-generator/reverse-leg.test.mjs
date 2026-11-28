@@ -70,8 +70,8 @@ test("several games a night keeps the reversed return leg", () => {
 test("the home/away guide states the reversed return leg's break counts, and they match roundRobin (quality reaudit 2026-11-28)", async () => {
   const { readFileSync } = await import("node:fs");
   const html = readFileSync(new URL("./how-to-balance-home-and-away-games-in-a-round-robin.html", import.meta.url), "utf8");
-  const plain = html.replace(/<script[\s\S]*?<\/script>/g, "");
-  assert.match(plain, /2 × \(n − 2\) breaks for an even league \(8 for 6 teams\) and none for an odd one/);
+  // the FAQ markup spells × and − as \u escapes, so a literal match is the visible paragraph
+  assert.match(html, /2 × \(n − 2\) breaks for an even league \(8 for 6 teams\) and none for an odd one/);
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
   const answer = ld.mainEntity.find((q) => /double round robin/.test(q.name)).acceptedAnswer.text;
   assert.match(answer, /2 × \(n − 2\) breaks for an even league \(8 for 6 teams\)/);
