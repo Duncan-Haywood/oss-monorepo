@@ -254,3 +254,62 @@ test("a notched L200/100/10 (Mini Project's KOKER #10087) has the exact volume, 
   const v = solidVolume(g.item(15));
   assert.ok(Math.abs(v - (section * 2630 - notch)) < 40, `${v} vs ${section * 2630 - notch}`);
 });
+
+// Quality re-audit 2026-11-28 (prior audit 2026-11-22, defect 5): a revolved
+// solid or CSG primitive had no faces, so no box: its Uniformat basis read
+// "geometry not read" and room and member rules skipped it.
+test("re-audit 2026-11-28: revolved solids and CSG primitives carry a box", async () => {
+  const { parseStep } = await import("./step.mjs");
+  const { takeoff } = await import("./qto.mjs");
+  const file = (body) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#30=IFCCARTESIANPOINT((10.,0.,0.));
+#31=IFCAXIS2PLACEMENT3D(#30,$,$);
+#12=IFCLOCALPLACEMENT($,#31);
+#13=IFCAXIS2PLACEMENT2D(#10,$);
+#17=IFCDIRECTION((0.,1.,0.));
+${body}
+#22=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#21));
+#23=IFCPRODUCTDEFINITIONSHAPE($,$,(#22));
+#24=IFCCOLUMN('1YvctVUKr0kugbFTf53O9A',$,'c',$,$,#12,#23,'C1');
+ENDSEC;END-ISO-10303-21;`;
+  const row = (body) => takeoff(parseStep(file(body))).rows[0];
+  const near = (a, b, tol, what) => a.forEach((v, i) => assert.ok(Math.abs(v - b[i]) <= tol, `${what}: ${a} vs ${b}`));
+  // a 1 x 2 rectangle centred at x = 3, a full turn about the y axis: a ring
+  // from radius 2.5 to 3.5, y -1 to 1; placed at x = 10. Volume 2 pi x 3 x 2.
+  const ring = row(`#18=IFCCARTESIANPOINT((3.,0.));
+#19=IFCAXIS2PLACEMENT2D(#18,$);
+#20=IFCRECTANGLEPROFILEDEF(.AREA.,'r',#19,1.,2.);
+#26=IFCAXIS1PLACEMENT(#10,#17);
+#21=IFCREVOLVEDAREASOLID(#20,#11,#26,6.283185307179586);`);
+  assert.ok(Math.abs(ring.computed.gross - 12 * Math.PI) < 1e-9);
+  near(ring.box, [6.5, -1, -3.5, 13.5, 1, 3.5], 3.5 * 0.0013, "full turn");
+  assert.ok(ring.box[0] <= 6.5 && ring.box[3] >= 13.5, "the box encloses the ring");
+  // a quarter turn: x from 0 to 3.5 (the start at angle 0 is x 2.5..3.5), z from -3.5 to 0
+  const quarter = row(`#18=IFCCARTESIANPOINT((3.,0.));
+#19=IFCAXIS2PLACEMENT2D(#18,$);
+#20=IFCRECTANGLEPROFILEDEF(.AREA.,'r',#19,1.,2.);
+#26=IFCAXIS1PLACEMENT(#10,#17);
+#21=IFCREVOLVEDAREASOLID(#20,#11,#26,1.5707963267948966);`);
+  near(quarter.box, [10, -1, -3.5, 13.5, 1, 0], 3.5 * 0.0013, "quarter turn");
+  assert.match(quarter.uniformat.why, /no slab or roof found over it/);
+  // a cylinder of radius 0.5 and height 3 placed at (10, 0, 0)
+  const cyl = row(`#21=IFCRIGHTCIRCULARCYLINDER(#11,3.,0.5);`);
+  near(cyl.box, [9.5, -0.5, 0, 10.5, 0.5, 3], 1e-9, "cylinder");
+  const sph = row(`#21=IFCSPHERE(#11,2.);`);
+  near(sph.box, [8, -2, -2, 12, 2, 2], 1e-9, "sphere");
+});
+
+test("revolvedHull: the points enclose the arc between turns, not only at them", async () => {
+  const { revolvedHull } = await import("./geom.mjs");
+  // the point (1, 0) half a turn about y in 3 steps: turns at 0, 60, 120 and
+  // 180 degrees miss the arc's lowest z (-1, at 90); scaled by 1 / cos 30 they reach it
+  const [arc] = revolvedHull([{ pts: [[1, 0]] }], [0, 0, 0], [0, 1, 0], Math.PI, 3);
+  const zs = arc.map((p) => p[2]);
+  assert.ok(Math.min(...zs) <= -1 + 1e-12, `lowest z ${Math.min(...zs)}`);
+  assert.ok(Math.min(...zs) >= -1 / Math.cos(Math.PI / 6) - 1e-12);
+});

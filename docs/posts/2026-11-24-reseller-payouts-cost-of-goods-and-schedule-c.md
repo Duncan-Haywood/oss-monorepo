@@ -1218,6 +1218,34 @@ Poshmark's own fee article did not load when we checked on 2026-11-28, so
 the page states no rate as Poshmark's; the fees above match what
 third-party fee pages report, and your own report is what counts.
 
+## eBay: your payout is not your sales (added 2026-11-28)
+
+eBay's Transaction report has one row per ledger entry: the sale with its
+fees in their own columns, then refunds, labels, promoted listing charges
+and payouts as rows of their own, often days apart. Take the rows of the
+sample report Seller Books' eBay importer is tested on (invented, fees
+included; a payout row and a sale in pounds are skipped):
+
+| Row | Item subtotal | Shipping | eBay's tax | Fees | Net |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Order: jeans | $40.00 | $5.00 | $3.30 | $6.34 | $38.66 |
+| Order: Pyrex set | $1,250.00 | $0.00 | $78.13 | $187.28 | $1,062.72 |
+| Refund: jeans | | | ($3.30) | ($5.94) | ($39.06) |
+| Shipping label | | | | | ($8.75) |
+| Promoted Listings fee | | | | | ($12.40) |
+
+Line 1 is $1,295.00, item subtotals plus shipping, with the $81.43 of
+sales tax eBay collected left out. Line 2 takes the $45.00 refund (the
+$48.30 the buyer got back, less the tax that went back through eBay), line
+8 the $12.40 of promoted listings (advertising, not a selling fee), line 10
+$187.68 of fees after the credit, line 27a the $8.75 label. What is left,
+$1,041.17, is exactly the net of the rows. The new page,
+[eBay taxes](https://marisstella.app/seller-books/ebay-taxes), quotes
+eBay's own fee page (read 2026-11-28: 13.6% of the total for most
+categories, which includes sales tax, plus $0.40 an order over $10) and
+its sales tax page, and works that rate on the jeans: $6.97 on a $48.30
+total.
+
 ## A free inventory spreadsheet, if you are not ready for books yet (added 2026-11-27)
 
 Most resellers start with a spreadsheet, and many sheets miss the two facts
