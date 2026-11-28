@@ -1982,4 +1982,27 @@ subscription, should a scheduled venture run default to launch work
 - Not done (reduced pass): audit, drift report, a new candidate.
 - Metric: share of reviews whose record says derive was skipped or stopped
   (E127 and E128 before this change: 2 of 2). Compare at the next two reviews.
+- Result (E129): helped, 1 of 1 so far. `fetch --limit 300` finished in
+  about 4 minutes and `build` (now with 21 days of main for rework) wrote
+  11,416 rows; nothing was skipped or stopped. Recheck at the next review.
+
+## E129: Review 2026-11-28, second session (reduced pass)
+
+- Routed by `review_when_due` (129 merged runs since E128, about 9 hours
+  after it: E127's `review_every = 120` keeps holding at about three a day).
+- Change (step 5, friction on `platform/ci/slug_dupe.py`, 6 live reports in
+  3 days): a title keyword with a space or colon ("prompts: review",
+  "reaudit: ifc-quantity-takeoff") was refused as "not a venture slug",
+  although `CLAUDE.md` says to run it with `<slug-or-keyword>`; this review's
+  own claim check hit it. Such a keyword is now searched in commit subjects
+  (case-insensitive) and PR titles, skipping the `ventures/` and branch
+  checks no keyword can match. Tested
+  (`test_title_keyword_is_searched_not_refused`).
+- Decisions (step 3): process 2 (152 runs, 82%) vs process 1 (873, 86%) and
+  review 2 (25, 100%) vs review 1 (104, 93%): "keep collecting: the intervals
+  overlap". No ventures candidate since E127; writing one is left for a full
+  review.
+- Not done (reduced pass): audit, drift report, a new candidate.
+- Metric: `slug_dupe.py` friction reports that say a keyword was refused
+  (2 of the 6 live ones); compare at the next review.
 - Result: (next review)

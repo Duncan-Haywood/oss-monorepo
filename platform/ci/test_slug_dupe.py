@@ -161,12 +161,31 @@ class T(unittest.TestCase):
 
     def test_bad_slugs_are_rejected(self):
         import contextlib, io
-        for bad in ["", "*", "a/b", "a b"]:
+        for bad in ["", " ", "*", "a/b", "a\\b"]:
             with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
                 self.assertEqual(slug_dupe.main([bad]), 2, bad)
 
     def test_unknown(self):
         self.assertEqual(slug_dupe.check("nope-zzz"), (False, [], []))
+
+    def test_title_keyword_is_searched_not_refused(self):
+        # "prompts: review" and "reaudit: <slug>" were refused as "not a venture slug"
+        # (friction 2026-11-28); a keyword is searched in commit subjects and PR titles.
+        import contextlib, io
+        (self.clone / "r.txt").write_text("y")
+        run(self.clone, "add", "-A")
+        run(self.clone, "commit", "-m", "Prompts: review 2026-11-28 (#7)")
+        run(self.clone, "push", "origin", "HEAD:main")
+        run(self.clone, "fetch", "origin")
+        on_main, commits, branches = slug_dupe.check("prompts: review")
+        self.assertEqual((on_main, len(commits), branches), (False, 1, []))
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            self.assertEqual(slug_dupe.main(["prompts:  review", "--no-fetch", "--no-search"]), 1)
+            self.assertEqual(slug_dupe.main(["reaudit: nope-zzz", "--no-fetch", "--no-search"]), 0)
+        self.assertIn("landed recently", out.getvalue())
+        self.assertIn("reaudit: nope-zzz: no duplicate found", out.getvalue())
+        self.assertIn("title keyword", err.getvalue())
 
     def test_refreshes_stale_origin_main_first(self):
         # A sibling merges after this clone last fetched: the local origin/main
