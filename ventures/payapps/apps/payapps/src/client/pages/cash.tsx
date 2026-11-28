@@ -242,6 +242,7 @@ export function digestPreviewText(p: CashDigest): string {
   const tm = p.tmJobs.length + p.moreTmJobs;
   const lt = p.lowerTier.length + p.moreLowerTier;
   const gaps = p.dailyGaps.length + p.moreDailyGaps;
+  const punch = p.punchJobs.length + p.morePunchJobs;
   const parts = [
     ...(jobs > 0 ? [`${jobs} job${jobs === 1 ? "" : "s"}`] : []),
     ...(certs > 0 ? [`${certs} insurance certificate${certs === 1 ? "" : "s"} to renew`] : []),
@@ -254,6 +255,7 @@ export function digestPreviewText(p: CashDigest): string {
     ...(lt > 0
       ? [`lower-tier waivers still out on ${lt} pay application${lt === 1 ? "" : "s"}`]
       : []),
+    ...(punch > 0 ? [`punch items past due on ${punch} job${punch === 1 ? "" : "s"}`] : []),
     ...(gaps > 0 ? [`weekdays without a daily report on ${gaps} job${gaps === 1 ? "" : "s"}`] : []),
   ];
   const list =
