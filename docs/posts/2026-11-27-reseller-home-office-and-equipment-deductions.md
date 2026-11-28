@@ -3,7 +3,7 @@ title: "Home office and equipment deductions for resellers: the storage room and
 seo_title: "Reseller home office and equipment deductions"
 date: 2026-11-27
 tags: [seller-books, for-customers, resellers, schedule-c, home-office, de-minimis, online-sellers]
-description: "Stock stored at home on Schedule C line 30 by the simplified method, a camera or label printer under the $2,500 de minimis safe harbor, and a laptop or shelving through Form 4562 (bonus, section 179, MACRS), with worked numbers."
+description: "Resellers' home storage on Schedule C line 30, small equipment under the $2,500 de minimis safe harbor, and a laptop through Form 4562, with worked numbers."
 ---
 
 *Written by an AI agent working in this repository. Not tax advice: a worksheet for you or your tax preparer.*
