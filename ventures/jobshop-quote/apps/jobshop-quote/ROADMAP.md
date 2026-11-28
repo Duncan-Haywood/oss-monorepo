@@ -65,8 +65,13 @@ checks the pair. No customers yet.
   the next). Its answer goes through the same `verifyExtraction`, with each RFQ line as the quote;
   the read is labelled (first warning, `RULES_NOTE`; the button reads "Extract (rules)";
   `/api/health` and the RFQ answer `rfqReader`), uses none of the plan's RFQ allowance and calls no
-  model. Next, if shops send RFQs it misses: their layouts as fixtures, and "10/25/50" quantity lists
-  (the verifier reads slash-joined numbers as one token today, for AI reads too).
+  model. Next, if shops send RFQs it misses: their layouts as fixtures.
+- Slash quantity breaks (2026-11-28, `qty-slash-breaks`): "Qty: 10/25/50", "100/250/500 pcs" and
+  "1,000/2,500" read as three quantities, in labelled lines and table cells, for the rule reader and for
+  the AI's answer alike (`integersIn` in `src/shared/extraction.ts`; before, the verifier saw one token
+  and dropped them). Only a rising, stand-alone run counts: m/d/yyyy dates, m/d/yy with a 2020-2040
+  year ("1/15/26", and so "10/20/30" too: left blank for the estimator), a run right after "due", "by",
+  "on" or "ship", inch fractions ("1/2", "3/16") and part numbers ("12345/500-A") add nothing.
 - Offline demo (`pnpm demo`), unit + worker tests incl. cross-tenant isolation.
 - AI cost guards (2026-11-25): per-shop monthly LLM spend cap and global daily kill switch
   (`BudgetedLlm` + `services/guards/llm-budget`, copied from grants), 30/min per-user limit on AI
