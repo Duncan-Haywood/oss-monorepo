@@ -16,6 +16,13 @@ import { ANNUAL_DISCOUNT, EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/pl
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAME } from "./config";
 import { EXAMPLE as CYCLE_EXAMPLE, cycleTimeExample, DEEP_HOLE_RATIO } from "./cycle-time-example";
 import { type Html, html } from "./html";
+import {
+  LB_PER_IN3_PER_G_PER_CM3,
+  EXAMPLE as MATERIAL_EXAMPLE,
+  METHODS,
+  materialCostExample,
+  markupCents as materialMarkupCents,
+} from "./material-cost-example";
 import { MODULES } from "./module-data";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
 import { CSV_COLUMNS, CSV_FILE, exampleQuote, TERMS_CHECKLIST } from "./quote-template";
@@ -1271,7 +1278,9 @@ export function quoteGuidePage(ctx: RenderContext): Html {
       <li><strong>Price the material from the blank, not the part.</strong> Size the stock you will
       actually cut: the part's envelope plus facing and clamping allowance, rounded to a size you can buy.
       Weight times price per pound, plus a share for saw kerf and drop, or the price of a whole bar or
-      plate when that is how you buy it. Keep the supplier's minimum charge.</li>
+      plate when that is how you buy it. Keep the supplier's minimum charge. (The
+      <a class="link" href="${href(ctx, "/machining-material-cost")}">material cost guide</a> works one
+      part through all four ways of buying stock.)</li>
       <li><strong>List the operations and time each one.</strong> For each setup, the minutes to load the
       program, set work offsets, touch off tools and run a first article; for each part, the cycle time
       plus loading and deburring. Programming is real time too: count it once per job as a setup-only
@@ -2331,6 +2340,165 @@ export function rfqChecklistPage(ctx: RenderContext): Html {
 ${ctaBand(ctx, "Review and quote your next RFQ in one place", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
+/**
+ * A guide aimed at the searches estimators make for material pricing ("CNC material cost",
+ * "how to calculate material cost for machining", "price per pound aluminum plate quote"): sizing the
+ * blank, weight from density, the four ways a shop buys stock (plate by the pound, bar by the foot,
+ * whole bars, a precut piece), minimums, fallout and markup, with a worked example whose charges the
+ * app's engine checks to the cent (./material-cost-example and its test in apps/jobshop-quote).
+ */
+export function materialCostGuidePage(ctx: RenderContext): Html {
+  const e = MATERIAL_EXAMPLE;
+  const r = materialCostExample(e);
+  const [one, ten, hundred] = r.breaks;
+  if (!one || !ten || !hundred)
+    throw new Error("the material cost example quotes three quantities");
+  const pctBps = (bps: number) => `${bps / 100}%`;
+  const f3 = (n: number) => n.toFixed(3);
+  const lbPrice = usdCents(r.pricePerLbCents);
+  const barCents = (e.bar.barLengthIn / 12) * e.bar.pricePerFootCents;
+  const labels: Record<(typeof METHODS)[number], string> = {
+    plate: `Plate by the pound (${lbPrice}/lb, ${pctBps(e.plate.scrapBps)} scrap, ${usdCents(e.plate.minChargeCents)} minimum)`,
+    barByFoot: `Flat bar by the foot used (${usdCents(e.bar.pricePerFootCents)}/ft, ${pctBps(e.bar.scrapBps)} scrap)`,
+    wholeBars: `Flat bar in whole ${e.bar.barLengthIn / 12} ft bars (${r.partsPerBar} parts a bar)`,
+    blankPiece: `Precut blank (${usdCents(e.blankPiece.priceCents)} each)`,
+  };
+  const perPart = (cents: number, q: number) => usdCents(Math.ceil(cents / q));
+  const withMarkup = (cents: number) => cents + materialMarkupCents(e, cents);
+  const unusedBarIn = hundred.bars * r.partsPerBar * r.cutLengthIn - hundred.starts * r.cutLengthIn;
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to calculate material cost for a machining quote</h1>
+    <p class="lead">Material is the line on a machining quote that is easiest to get roughly right and
+    easiest to get quietly wrong: a blank sized from the part instead of the stock, a price from last
+    quarter, a supplier minimum left off a one-piece order. Here is the method, the four ways shops buy
+    stock, one bracket priced all four ways at 1, ${ten.quantity} and ${hundred.quantity}, and what the
+    numbers show.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>The method in five steps</h2>
+    <ol>
+      <li><strong>Size the blank, not the part.</strong> Take the part's envelope (its bounding box) and add
+      stock on every side for facing, clamping and cleanup, then round up to a size you can buy or saw.
+      Turned parts add a cut-off and facing allowance to the length and take the next bar diameter up.</li>
+      <li><strong>Weigh it.</strong> Weight = length × width × thickness (or π × r² × length for round bar) ×
+      density in lb/in³. Take the density from the alloy's datasheet or your supplier; a figure in g/cm³
+      converts by × ${LB_PER_IN3_PER_G_PER_CM3.toFixed(7)} (16.387064 cm³ per in³ ÷ 453.59237 g per lb).</li>
+      <li><strong>Price it the way you buy it.</strong> Plate cut to size is often priced by weight (per
+      pound or per hundredweight, 100 lb). Bar, tube and extrusion are priced by length, and either you bill
+      the length each part uses or, when the rest of the bar has no other job to go to, the whole bars the
+      order needs. Precut blanks and sheets are priced per piece. Add a share for saw kerf and drop where you
+      price by weight or by length used.</li>
+      <li><strong>Price the parts you start, not the parts you ship.</strong> If you expect some parts to
+      scrap, the order needs more blanks: parts started = parts shipped ÷ (1 − fallout), rounded up.</li>
+      <li><strong>Keep the minimum and add your markup.</strong> Suppliers have minimum charges and cut
+      charges; a one-off part still pays them. Then the markup on material: handling, ordering, storage and
+      the cash tied up until the customer pays.</li>
+    </ol>
+
+    <h2>A worked example</h2>
+    <p>A 6061 aluminum ${e.partName} whose model measures ${e.bbox.xIn} × ${e.bbox.yIn} × ${e.bbox.zIn} in,
+    quoted at ${one.quantity}, ${ten.quantity} and ${hundred.quantity} with ${pctBps(e.falloutBps)} expected
+    fallout and a ${pctBps(e.materialMarkupBps)} material markup. <strong>Every price, allowance and scrap
+    share here is made up to show the arithmetic</strong>; they are not market prices for any metal,
+    supplier or region. Use your supplier's current prices.</p>
+    <ul>
+      <li><strong>Blank:</strong> ${e.allowancePerSideIn} in a side on ${e.bbox.xIn} × ${e.bbox.yIn} ×
+      ${e.bbox.zIn} in, rounded up to the next 1/8 in, is ${r.blank.lengthIn} × ${r.blank.widthIn} ×
+      ${r.blank.thicknessIn} in: ${f3(r.blankVolumeIn3)} in³, and at ${e.plate.densityLbPerIn3} lb/in³,
+      ${f3(r.blankWeightLb)} lb.</li>
+      <li><strong>Plate:</strong> ${e.plate.name}, quoted by the supplier at
+      ${usdCents(e.plate.pricePerCwtCents)} per hundredweight, which is ${lbPrice} a pound, plus
+      ${pctBps(e.plate.scrapBps)} for kerf and drop and a ${usdCents(e.plate.minChargeCents)} minimum
+      charge.</li>
+      <li><strong>Flat bar:</strong> ${e.bar.sizeLabel} ${e.bar.name} at ${usdCents(e.bar.pricePerFootCents)}
+      a foot, sold in ${e.bar.barLengthIn / 12} ft bars (${usdCents(barCents)} a bar). Each part takes
+      ${r.blank.lengthIn} in plus ${e.bar.cutAllowanceIn} in for the saw and facing, ${r.cutLengthIn} in; after
+      a ${e.bar.barRemnantIn} in end that cannot become a part, one bar gives ${r.partsPerBar} blanks.</li>
+      <li><strong>Precut blank:</strong> ${e.blankPiece.name}, ${usdCents(e.blankPiece.priceCents)} a piece,
+      one part each.</li>
+      <li><strong>Starts:</strong> at ${pctBps(e.falloutBps)} fallout, ${one.quantity} part needs
+      ${one.starts} starts, ${ten.quantity} need ${ten.starts} and ${hundred.quantity} need
+      ${hundred.starts}.</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">Material for the made-up bracket, before markup, for the whole line, and per part shipped (rounded up to the cent). Checked to the cent against ${SITE_NAME}'s costing engine.</caption>
+        <thead><tr><th scope="col">Bought as</th>${r.breaks.map((b) => html`<th scope="col">${b.quantity} (${b.starts} started)</th>`)}</tr></thead>
+        <tbody>
+          ${METHODS.map(
+            (m) =>
+              html`<tr><th scope="row">${labels[m]}</th>${r.breaks.map(
+                (b) =>
+                  html`<td>${usdCents(b.materialCents[m])}<br><span class="fineprint">${perPart(b.materialCents[m], b.quantity)} a part</span></td>`,
+              )}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>At one part, the minimum is the price.</strong> Two plate blanks come to
+      ${usdCents(one.rawCents.plate)} by weight, but the ${usdCents(e.plate.minChargeCents)} minimum is what the
+      supplier bills, so it is what the quote must carry. Leave it off and a one-piece order loses it.</li>
+      <li><strong>Whole bars cost the most on small orders.</strong> Buying a ${e.bar.barLengthIn / 12} ft bar
+      for ${one.starts} blanks puts ${usdCents(one.materialCents.wholeBars)} on the quote against
+      ${usdCents(one.materialCents.barByFoot)} for the length used. Which one is right depends on whether the
+      rest of that bar has another job to go to; if it will sit on the rack, bill the bar.</li>
+      <li><strong>At volume, the drop is in the bar count.</strong> ${hundred.starts} blanks at
+      ${r.partsPerBar} a bar need ${hundred.bars} bars, and the last one is only partly used: it has room
+      for ${hundred.bars * r.partsPerBar - hundred.starts} more blanks, about ${Math.round(unusedBarIn)} in, billed with
+      the order.</li>
+      <li><strong>Precut blanks cost more per part and save saw time.</strong> At ${hundred.quantity} they
+      are ${usdCents(hundred.materialCents.blankPiece)} against ${usdCents(hundred.materialCents.plate)} from
+      plate, a gap that has to be weighed against the sawing, squaring and handling time the plate needs,
+      which belongs on the routing, not in the material line.</li>
+      <li><strong>Markup comes last.</strong> At ${pctBps(e.materialMarkupBps)}, the ${hundred.quantity}-part
+      plate line goes from ${usdCents(hundred.materialCents.plate)} to
+      ${usdCents(withMarkup(hundred.materialCents.plate))}.</li>
+    </ul>
+
+    <h2>Mistakes that lose money on material</h2>
+    <ul>
+      <li><strong>Pricing from the finished part.</strong> The model's volume is what is left after
+      machining; you buy the blank. On a pocketed part the blank can weigh several times the part.</li>
+      <li><strong>An old price.</strong> Metal prices move from month to month. A rate card typed in once
+      quotes last season's metal; date every price and check the old ones before you send.</li>
+      <li><strong>Pricing the parts shipped.</strong> At 3% fallout, a hundred parts shipped means
+      a hundred and four blanks bought.</li>
+      <li><strong>Dropping the minimum and cut charges.</strong> They are small on a big order and most of
+      the cost on a small one.</li>
+      <li><strong>Mixing up the two kinds of scrap.</strong> Kerf and drop are material lost from each
+      blank; fallout is whole parts lost. Count each once.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>Put each material on the rate card once, the way you buy it: by weight (a price per pound or per
+    hundredweight, kept exactly as the supplier quotes it, with the density and a scrap share), by length (a
+    price per foot or per metre, the cut allowance and, if you buy fixed bars, the bar length and remnant,
+    so a line is charged the whole bars it needs), or by the stock piece with how many parts it yields; each
+    with its minimum charge. When an RFQ comes with a STEP model, ${SITE_NAME} suggests the blank from the
+    part's bounding box as above, and you can change it. Each line is priced on the parts started at the
+    line's fallout, with the material markup from your rate card, and a material with no price or no blank
+    size blocks the line instead of pricing it as free. Every price keeps the date it was set, and a draft
+    quote warns when it prices from one older than your limit; see
+    <a class="link" href="${href(ctx, "/material-price-tracking")}">material price tracking</a>. The
+    charges in the table are the ones the app gives for the same inputs, checked by a test in its code.</p>
+    <p>For the rest of the price (setups, cycle time, outside processes and quantity breaks), see
+    <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to quote a CNC machining job</a>
+    and <a class="link" href="${href(ctx, "/how-to-estimate-cnc-machining-time")}">how to estimate CNC
+    machining time</a>.</p>
+    <p class="fineprint">This page explains a common estimating method. It is not engineering, accounting
+    or financial advice, it does not quote metal prices, and the figures in it are made up. Check every
+    quote before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Price your material the way you buy it", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
 /** Path → body renderer. The Worker uses earlyAccessPage directly for error re-renders. */
 export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/": homePage,
@@ -2345,6 +2513,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/how-to-quote-cnc-turning": turningGuidePage,
   "/how-to-estimate-cnc-machining-time": cycleTimeGuidePage,
   "/machine-shop-quote-template": quoteTemplatePage,
+  "/machining-material-cost": materialCostGuidePage,
   "/rfq-review-checklist": rfqChecklistPage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
