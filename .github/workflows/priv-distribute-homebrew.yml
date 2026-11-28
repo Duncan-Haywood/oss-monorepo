@@ -36,6 +36,8 @@ jobs:
           private-key: ${{ secrets.HOMEBREW_TAP_APP_PRIVATE_KEY }}
           owner: ${{ steps.tap.outputs.owner }}
           repositories: ${{ steps.tap.outputs.name }}
+          # Only what the push below needs (zizmor github-app).
+          permission-contents: write
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: ${{ vars.HOMEBREW_TAP_REPO }}

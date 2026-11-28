@@ -107,7 +107,9 @@ shows median survival per row. `derive.py report` prints coverage (typed
 against measured) and rework by version and model.
 
 It never edits a record. Run `fetch` and `build` before `measure` in a
-review. It needs the full history (`git fetch --unshallow origin main`). The
+review. `build` deepens a shallow clone 21 days itself (`--history-days N`, 0 skips),
+which reaches the PRs whose window closed in the last week; a closed result is kept
+in `runs.json`, so coverage grows review by review without a full `--unshallow`. The
 research mirror it once pinned was cut over on 2026-10-16.
 
 ## Red team / blue team
