@@ -118,6 +118,7 @@ ${body}
                 : html`<li><a href="${href(ctx, "/early-access")}">Early access</a></li>`
             }
             <li><a href="${href(ctx, "/machine-shop-hourly-rate")}">Machine shop hourly rate</a></li>
+            <li><a href="${href(ctx, "/machine-shop-markup")}">Markup and margin</a></li>
             <li><a href="${href(ctx, "/how-to-quote-cnc-machining")}">How to quote a machining job</a></li>
             <li><a href="${href(ctx, "/how-to-quote-sheet-metal")}">How to quote sheet metal</a></li>
             <li><a href="${href(ctx, "/how-to-quote-welding")}">How to quote welding</a></li>

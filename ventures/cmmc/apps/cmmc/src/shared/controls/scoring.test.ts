@@ -129,6 +129,25 @@ describe("objective results decide MET (32 CFR 170.24(b)(2))", () => {
     ]);
   });
 
+  it("a requirement already scored not met is not listed as a conflict", () => {
+    // The conflict list is for a status that says met while an objective says not; a
+    // not-implemented requirement with a not-met objective is consistent and only loses its points.
+    const s = scoreLevel2(
+      states({
+        "3.1.1": {
+          status: "not_implemented",
+          objectiveResults: { [objIds[0] as string]: "not_met" },
+        },
+        "3.1.2": {
+          status: "partially_implemented",
+          objectiveResults: { "3.1.2[a]": "not_met" },
+        },
+      }),
+    );
+    expect(s.score).toBe(100);
+    expect(s.objectiveConflicts).toEqual([]);
+  });
+
   it("objectives all met or not applicable leave the requirement met", () => {
     const s = scoreLevel2(
       states({

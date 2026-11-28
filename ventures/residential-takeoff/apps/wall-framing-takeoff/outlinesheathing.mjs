@@ -121,12 +121,13 @@ export function planeSection(p, i, d) {
     }
     // side j's rectangle grown by d (open): the points nearer than d to side j in L-infinity
     const x0 = Math.min(a.x, b.x) - d, x1 = Math.max(a.x, b.x) + d, y0 = Math.min(a.y, b.y) - d, y1 = Math.max(a.y, b.y) + d;
+    // the two axes written out (no tuple array per side: this loop is most of a roof's sheathing time,
+    // docs/history/residential-takeoff-tests-perf-2026-11-28.md); same arithmetic in the same order
     let lo = -Infinity, hi = Infinity;
-    for (const [o, u, m0, m1] of /** @type {[number, number, number, number][]} */ ([[ox, f.ux, x0, x1], [oy, f.uy, y0, y1]])) {
-      if (Math.abs(u) < TOL) { if (!(o > m0 + TOL && o < m1 - TOL)) { lo = Infinity; hi = -Infinity; } continue; }
-      const s0 = (m0 - o) / u, s1 = (m1 - o) / u;
-      lo = Math.max(lo, Math.min(s0, s1)); hi = Math.min(hi, Math.max(s0, s1));
-    }
+    if (Math.abs(f.ux) < TOL) { if (!(ox > x0 + TOL && ox < x1 - TOL)) continue; }
+    else { const s0 = (x0 - ox) / f.ux, s1 = (x1 - ox) / f.ux; lo = Math.min(s0, s1); hi = Math.max(s0, s1); }
+    if (Math.abs(f.uy) < TOL) { if (!(oy > y0 + TOL && oy < y1 - TOL)) continue; }
+    else { const s0 = (y0 - oy) / f.uy, s1 = (y1 - oy) / f.uy; lo = Math.max(lo, Math.min(s0, s1)); hi = Math.min(hi, Math.max(s0, s1)); }
     if (!(hi - lo > TOL)) continue;
     keep = cut(keep, lo, hi);
     if (!keep.length) break;

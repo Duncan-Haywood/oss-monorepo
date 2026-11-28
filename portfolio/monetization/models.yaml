@@ -811,7 +811,7 @@ products:
       einvoice-preflight, audit pack) is the free edition's old one-off offer.
     next_owner: false
 
-  - app: private-monorepo/apps/cmmc
+  - app: ventures/cmmc/apps/cmmc
     bet: 4
     buyer: small US defense and aerospace suppliers (often machine shops) that must self-assess against CMMC Level 1 or 2
     liability: high

@@ -939,22 +939,51 @@ def print_unblockers(tasks_yaml: Path, tag: str | None) -> None:
 
 FRONT_DOOR = re.compile(r"front.doors?", re.I)
 BET_NUM = re.compile(r"\bbets?\s*#(\d+)", re.I)
+# A scope naming a marketing site or a guides front door: "jobshop-site (bet #2): ...".
+SITE_SCOPE = re.compile(r"[\w.]-(?:site|guides)\b", re.I)
+# The work named is a page: "sales tax for resellers page [slug]", "... guide, priced by ...".
+# The noun must end its phrase, so "a new job page leads with ..." (an app screen) does not count.
+PAGE_NOUN = re.compile(r"\b(?:guide|page|template|checklist)s?\s*(?:\[|\+|,|\(|$)", re.I)
+# A new public page: an .html file, or any file added under a marketing site or a guides venture.
+SITE_PATH = re.compile(r"^ventures/(?:[^/]+/apps/[^/]+-site|[^/]+-guides)/")
+MOVE_FILES = 40  # a commit adding more than this many site files is a move, not a page
 
 
-def front_door_subjects(subjects: list[str]) -> dict[int, list[str]]:
-    """{bet rank: [slug, ...]} from merged PR titles that say "(bet #N front door)".
+def is_front_door(subject: str, added: list[str] | None = None) -> bool:
+    """Does a merged PR titled `subject` (adding files `added`) work a bet's demand side?
 
-    Front-door PRs title themselves "pay-app-guides (bet #1 front door): ... [slug]" or
-    "seller-books (bet #5) front door: ...". When every Next item waits on demand, runs took
-    about 15 slug_dupe and ls probes to see which bets' demand side was already crowded
-    (2026-11-28 records); this counts it from main's log in one pass.
+    The first counter (2026-11-28) read only titles saying "front door", so bet #2's marketing
+    site PRs ("jobshop-site (bet #2): RFQ review checklist ...", "jobshop-quote (bet #2): how to
+    quote CNC turning guide ...") were invisible: about 20 in a week read as 1, and every run
+    asking --bets was told bet #2's front door was the least worked. Now a title also counts when
+    its scope names a site or guides venture, when what it names is a page or guide, or when the
+    commit adds a public page.
+    """
+    head, _, rest = subject.partition(":")
+    if not BET_NUM.search(head):
+        return False
+    if FRONT_DOOR.search(head) or SITE_SCOPE.search(head) or PAGE_NOUN.search(rest):
+        return True
+    pages = [f for f in (added or []) if SITE_PATH.match(f) or
+             (f.startswith("ventures/") and f.endswith(".html"))]
+    return 0 < len(pages) <= MOVE_FILES
+
+
+def front_door_subjects(subjects: list[str],
+                        added: list[list[str]] | None = None) -> dict[int, list[str]]:
+    """{bet rank: [slug, ...]} from merged PR titles (and the files each added) on a bet's demand side.
+
+    Front-door PRs title themselves "pay-app-guides (bet #1 front door): ... [slug]",
+    "seller-books (bet #5) front door: ..." or "jobshop-site (bet #2): ... page [slug]"
+    (`is_front_door`). When every Next item waits on demand, runs took about 15 slug_dupe and
+    ls probes to see which bets' demand side was already crowded (2026-11-28 records); this
+    counts it from main's log in one pass.
     """
     out: dict[int, list[str]] = {}
-    for subj in subjects:
-        head = subj.split(":", 1)[0]  # the scope before the colon names the bet and the door
-        m = BET_NUM.search(head)
-        if not m or not FRONT_DOOR.search(head):
+    for i, subj in enumerate(subjects):
+        if not is_front_door(subj, added[i] if added else None):
             continue
+        m = BET_NUM.search(subj.split(":", 1)[0])
         slug = re.findall(r"\[([^\]]+)\]", subj)
         out.setdefault(int(m.group(1)), []).append(
             slug[-1] if slug else slugify(subj.split(":", 1)[-1], 5))
@@ -964,13 +993,22 @@ def front_door_subjects(subjects: list[str]) -> dict[int, list[str]]:
 def front_door_log(repo: Path, days: int = 7) -> tuple[dict[int, list[str]], str | None]:
     """front_door_subjects over main's last `days` days, and the oldest date the clone holds."""
     for ref in ("origin/main", "main"):
-        log = git(str(repo), "log", ref, f"--since={days} days ago", "--format=%cs%x09%s")
+        log = git(str(repo), "log", ref, f"--since={days} days ago", "--name-status",
+                  "--no-renames", "--format=%x00%cs%x09%s")
         if log.returncode == 0:
             break
     else:
         return {}, None
-    rows = [line.split("\t", 1) for line in log.stdout.splitlines() if "\t" in line]
-    return front_door_subjects([s for _, s in rows]), (rows[-1][0] if rows else None)
+    subjects, added, dates = [], [], []
+    for block in log.stdout.split("\0")[1:]:
+        first, _, files = block.partition("\n")
+        if "\t" not in first:
+            continue
+        date, subj = first.split("\t", 1)
+        dates.append(date)
+        subjects.append(subj)
+        added.append([f[2:] for f in files.splitlines() if f.startswith("A\t")])
+    return front_door_subjects(subjects, added), (dates[-1] if dates else None)
 
 
 def print_front_doors(ranks: list[int], repo: Path, days: int = 7) -> None:
