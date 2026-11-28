@@ -21,7 +21,9 @@ and auto-merge when **two** of them approve and CI is green.
 
 For each App (Settings → Developer settings → GitHub Apps → New GitHub App):
 
-- **Repository permissions:** Pull requests → Read & write; Contents → Read; Metadata → Read
+- **Repository permissions:** Pull requests → Read & write; Checks → Read; Contents → Read; Metadata → Read
+  (the workflow mints each token with exactly these and this repository only, so an App missing
+  one fails at the token step instead of posting a review that skipped the check-run read)
 - **Install** on `monorepo-projects` (only this repository)
 - Note the **App ID** and generate a **private key** (.pem)
 
