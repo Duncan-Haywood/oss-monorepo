@@ -463,6 +463,14 @@
    "by": "roadmap-claim-slug-arg",
    "at": "2026-11-27T23:42:10Z",
    "note": "--claim <slug> now claims it as --slug"
+  },
+  {
+   "file": "platform/ci/quality_audit.py",
+   "match": "for-profit filter",
+   "verdict": "fixed",
+   "by": "PR #19999",
+   "at": "2026-11-28T05:10:13Z",
+   "note": "queue/reaudit --paid filter to transition.json's proprietary rows"
   }
  ]
 }
