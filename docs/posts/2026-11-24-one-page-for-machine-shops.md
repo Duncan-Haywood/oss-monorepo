@@ -1313,3 +1313,35 @@ $118.75. A test in Job Shop Quote prices all three versions through the app's
 costing engine, with inspection as setup-only operations on a second machine,
 and fails if any figure differs by a cent. The times and rates are made up,
 and the page says so.
+
+## Update, 28 November 2026: an internal audit checklist for all 47 ISO 9001 clauses
+
+A shop working toward ISO 9001, or keeping it, has to run internal audits
+(clause 9.2), and the registrar reads those records first. The new free
+[ISO 9001 internal audit checklist](https://marisstella.app/machine-shop-guides/iso-9001-internal-audit-checklist.html)
+lists the 47 requirement clauses, 4.1 to 10.3, by number and heading only
+(the standard's text is ISO's copyright, so audit against your own copy), each
+with a line on the records a small shop usually keeps for it. Pick a section,
+single clauses, or press "Plan" to split every clause evenly across one to
+twelve audits for the year, leaving out 8.3 design if you build to print.
+
+For each clause you record a result (conforms; a major or minor
+nonconformity, an observation or an opportunity for improvement; not
+applicable), the evidence you saw and the finding. The page then lists what
+would make the record incomplete: a clause in scope with no result, a
+nonconformity with no objective evidence, "not applicable" with no reason,
+and an auditor whose name also appears among the owners or the people
+interviewed, so they would be auditing their own work. Each nonconformity has
+a link that opens the
+[corrective action report](https://marisstella.app/machine-shop-guides/corrective-action-report.html)
+with the clause, the date and the finding already filled in. The finding
+travels in the part of the link after `#`, which browsers never send to a
+server. You get the audit as a Markdown report, a CSV, or a blank checklist to
+print and take round the shop. Nothing is uploaded or saved.
+
+The clauses and the "look for" lines come straight from CMMC Workspace's own
+clause library, and a test fails if the two drift apart. The grades are the
+four the workspace's Audits tab records. That tab keeps the whole programme:
+an owner per clause, audits planned and done, and a flag for any clause not
+audited in 12 months. It is part of the Level 2 + Quality plan, which is not
+on sale yet.
