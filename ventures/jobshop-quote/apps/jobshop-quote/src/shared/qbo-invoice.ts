@@ -215,7 +215,12 @@ export function dueDaysFromTerms(terms: string | null | undefined): number {
 /** "2026-11-28" -> "11/28/2026". */
 export function usDate(day: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
-  if (!m) throw new Error(`not a calendar day: ${day}`);
+  // The pattern alone takes "2026-02-30", which Date.parse quietly rolls to 03/02: refuse it, so
+  // the invoice date and the due date computed from it are always the same real day.
+  const t = m ? Date.parse(`${day}T00:00:00Z`) : Number.NaN;
+  if (!m || Number.isNaN(t) || new Date(t).toISOString().slice(0, 10) !== day) {
+    throw new Error(`not a calendar day: ${day}`);
+  }
   return `${m[2]}/${m[3]}/${m[1]}`;
 }
 

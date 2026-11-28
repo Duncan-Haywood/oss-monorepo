@@ -190,6 +190,38 @@ describe("invoiceImportCsv (QuickBooks Online's invoice import)", () => {
     expect(() => invoiceImportCsv({ ...base, customer: "   " })).toThrow(/customer/);
     expect(() => invoiceImportCsv({ ...base, dueDays: 400 })).toThrow(/0 to 365/);
     expect(() => invoiceImportCsv({ ...base, invoiceDay: "11/28/2026" })).toThrow(/calendar day/);
+    expect(() => invoiceImportCsv({ ...base, dueDays: -1 })).toThrow(/0 to 365/);
+    expect(() => invoiceImportCsv({ ...base, dueDays: 1.5 })).toThrow(/0 to 365/);
+  });
+
+  it("bills a no-charge line at 0.00 (a free first article), not refused", () => {
+    const csv = invoiceImportCsv({
+      docNumber: "Q9",
+      customer: "Acme",
+      invoiceDay: "2026-11-28",
+      dueDays: 30,
+      memo: "m",
+      itemName: "Machined parts",
+      lines: [{ description: "FAI", quantity: 1, unitPriceCents: 0, totalCents: 0 }],
+    });
+    expect(csv.split("\r\n")[1]).toBe(
+      "Q9,Acme,11/28/2026,12/28/2026,Machined parts,FAI,1,0.00,0.00,m",
+    );
+  });
+
+  it("refuses a day the calendar does not have (never a 02/30 invoice date)", () => {
+    expect(usDate("2026-02-28")).toBe("02/28/2026");
+    expect(usDate("2028-02-29")).toBe("02/29/2028");
+    for (const bad of [
+      "2026-02-29",
+      "2026-02-30",
+      "2026-04-31",
+      "2026-13-01",
+      "2026-00-10",
+      "2026-01-00",
+    ]) {
+      expect(() => usDate(bad)).toThrow(/calendar day/);
+    }
   });
 });
 
