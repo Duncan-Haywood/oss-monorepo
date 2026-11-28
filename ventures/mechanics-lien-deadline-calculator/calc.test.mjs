@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { lienDeadlines, formatDate, parseDate, STATE_RULES, federalHolidayOn } from "./calc.mjs";
+import { lienDeadlines, formatDate, parseDate, STATE_RULES, federalHolidayOn, monthlyNoticeSchedule, MAX_SCHEDULE_MONTHS } from "./calc.mjs";
 
 const iso = (d) => d.toISOString().slice(0, 10);
 const run = (o) => lienDeadlines({ firstFurnishing: "2026-03-10", lastFurnishing: "2026-06-20", ...o });
@@ -425,4 +425,45 @@ test("the nine states added 2026-11-28 count from the last day furnished", () =>
   assert.equal(md.lien.safeDate.toISOString().slice(0, 10), "2027-02-26");
   // The notice of intention: 60 days before the petition's safe date, so never after 120 days.
   assert.ok(md.prelim.date <= new Date(Date.UTC(2026, 11, 30)), "Maryland notice within 120 days");
+});
+
+test("Memorial Day when May ends on a Monday is that last day (2027-05-31)", () => {
+  assert.equal(federalHolidayOn(new Date(Date.UTC(2027, 4, 31))), "Memorial Day");
+  assert.equal(federalHolidayOn(new Date(Date.UTC(2027, 4, 24))), null);
+});
+
+test("the Texas schedule is truncated only past MAX_SCHEDULE_MONTHS months", () => {
+  const first = new Date(Date.UTC(2020, 0, 1));
+  const exact = monthlyNoticeSchedule(first, new Date(Date.UTC(2020, MAX_SCHEDULE_MONTHS - 1, 1)), 3, null);
+  assert.equal(exact.rows.length, MAX_SCHEDULE_MONTHS);
+  assert.equal(exact.truncated, false);
+  const oneMore = monthlyNoticeSchedule(first, new Date(Date.UTC(2020, MAX_SCHEDULE_MONTHS, 1)), 3, null);
+  assert.equal(oneMore.rows.length, MAX_SCHEDULE_MONTHS);
+  assert.equal(oneMore.truncated, true);
+});
+
+test("a completion or notice-of-completion date before the first furnishing is flagged as a likely typo", () => {
+  // A wrong year (2025 for 2026) used to give a "passed" deadline a year before work began, with no hint.
+  for (const state of ["VA", "OR", "CA", "NV"]) {
+    const r = lienDeadlines({ state, firstFurnishing: "2026-01-05", lastFurnishing: "2026-03-02", completionDate: "2025-01-02", today: "2026-03-10" });
+    assert.ok(r.findings.some((f) => f.severity === "high" && /Completion date is before your first furnishing/.test(f.title)), state);
+  }
+  const noc = lienDeadlines({ state: "CA", firstFurnishing: "2026-01-05", lastFurnishing: "2026-03-02", noticeOfCompletionDate: "2025-01-03", today: "2026-03-10" });
+  assert.ok(noc.findings.some((f) => f.severity === "high" && /Notice of completion is before your first furnishing/.test(f.title)));
+  const ok = lienDeadlines({ state: "CA", firstFurnishing: "2026-01-05", lastFurnishing: "2026-03-02", completionDate: "2026-02-20", noticeOfCompletionDate: "2026-02-25" });
+  assert.ok(!ok.findings.some((f) => /before your first furnishing/.test(f.title)));
+});
+
+test("the holiday list matches PayApps' federal-holidays.ts day for day, 2020-2060", async () => {
+  // Two copies of the same list (this page is PayApps' free front door); a fix to one must reach
+  // the other, or the free page and the paid app show different safe dates. Node 22 strips the types.
+  const app = await import("../payapps/apps/payapps/src/shared/federal-holidays.ts");
+  const diffs = [];
+  for (let t = Date.UTC(2020, 0, 1); t < Date.UTC(2061, 0, 1); t += 86_400_000) {
+    const d = new Date(t);
+    const a = federalHolidayOn(d);
+    const b = app.federalHolidayOn(iso(d));
+    if (a !== b) diffs.push(`${iso(d)}: calc ${a}, payapps ${b}`);
+  }
+  assert.deepEqual(diffs, []);
 });

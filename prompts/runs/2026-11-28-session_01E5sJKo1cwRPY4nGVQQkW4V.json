@@ -1,0 +1,436 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKo1cwRPY4nGVQQkW4V",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T15:18:05Z",
+  "ended": "2026-11-28T15:19:06Z",
+  "wall_minutes": 4.46,
+  "tokens_in": 2930307,
+  "tokens_out": 16256,
+  "cost_usd": 1.5091,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20156",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "tally printed only the latest campaign's seeded/caught after the second campaign (10 seeded), while the record held 20; the end-of-run tally shows the total, so it only confused mid-run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new post: a typo warning plus test guards on a free front door tells a reader nothing new; the calculator's consolidated post already covers the holiday stepping.",
+      "did": "Recorded the outcome in the PR and this record only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target picked as the newest change on PayApps' front door (PR #20068). Guard added: a parity test between calc.mjs and payapps federal-holidays.ts (imports the .ts under Node 22 type stripping); verified it fails when Columbus Day is moved. Local checks: run_venture_tests.py mechanics-lien-deadline-calculator ok (72 tests) + site page checks.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+        "test": "node --test ventures/mechanics-lien-deadline-calculator/**/*.test.mjs  (in .)",
+        "seed": 466256881,
+        "commit": "71029e446",
+        "sites": 270,
+        "baseline_seconds": 0.2,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 154,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "completionDays: 120,",
+            "after": "completionDays: 121,",
+            "line_text": "      completionDays: 120,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 461,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "lien: { type: \"days_after_last\", days: 90 },",
+            "after": "lien: { type: \"days_after_last\", days: 91 },",
+            "line_text": "  lien: { type: \"days_after_last\", days: 90 },",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 599,
+            "col": 52,
+            "operator": "div-to-times",
+            "before": "return Math.round((to.getTime() - from.getTime()) / 86_400_000);",
+            "after": "return Math.round((to.getTime() - from.getTime()) * 86_400_000);",
+            "line_text": "  return Math.round((to.getTime() - from.getTime()) / 86_400_000);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 618,
+            "col": 80,
+            "operator": "plus-to-minus",
+            "before": "return Date.UTC(year, month - 1, last.getUTCDate() - ((last.getUTCDay() - dow + 7) % 7));",
+            "after": "return Date.UTC(year, month - 1, last.getUTCDate() - ((last.getUTCDay() - dow - 7) % 7));",
+            "line_text": "  return Date.UTC(year, month - 1, last.getUTCDate() - ((last.getUTCDay() - dow + 7) % 7));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 622,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "const d = new Date(Date.UTC(year, month - 1, day));",
+            "after": "const d = new Date(Date.UTC(year, month - 2, day));",
+            "line_text": "  const d = new Date(Date.UTC(year, month - 1, day));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 635,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "[nthWeekday(y, 1, 1, 3), \"Birthday of Martin Luther King, Jr.\"],",
+            "after": "[nthWeekday(y, 1, 1, 4), \"Birthday of Martin Luther King, Jr.\"],",
+            "line_text": "      [nthWeekday(y, 1, 1, 3), \"Birthday of Martin Luther King, Jr.\"],",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 819,
+            "col": 39,
+            "operator": "times-to-div",
+            "before": "const endKey = last.getUTCFullYear() * 12 + last.getUTCMonth();",
+            "after": "const endKey = last.getUTCFullYear() / 12 + last.getUTCMonth();",
+            "line_text": "  const endKey = last.getUTCFullYear() * 12 + last.getUTCMonth();",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 830,
+            "col": 39,
+            "operator": "le-to-lt",
+            "before": "return { rows, truncated: y * 12 + m <= endKey };",
+            "after": "return { rows, truncated: y * 12 + m < endKey };",
+            "line_text": "  return { rows, truncated: y * 12 + m <= endKey };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test hit the schedule cap at exactly MAX+1 months; added one with 36 and 37 months."
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 919,
+            "col": 25,
+            "operator": "eq-flip",
+            "before": "const isPrelim = d === prelim;",
+            "after": "const isPrelim = d !== prelim;",
+            "line_text": "      const isPrelim = d === prelim;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 920,
+            "col": 19,
+            "operator": "and-to-or",
+            "before": "if (isPrelim && prelimRule && prelimRule.lookback && now) {",
+            "after": "if (isPrelim || prelimRule && prelimRule.lookback && now) {",
+            "line_text": "      if (isPrelim && prelimRule && prelimRule.lookback && now) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+        "test": "node --test ventures/mechanics-lien-deadline-calculator/**/*.test.mjs  (in .)",
+        "seed": 7,
+        "commit": "71029e446",
+        "sites": 270,
+        "baseline_seconds": 0.2,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 221,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "prelim: { type: \"days_before_lien\", days: 10 },",
+            "after": "prelim: { type: \"days_before_lien\", days: 11 },",
+            "line_text": "  prelim: { type: \"days_before_lien\", days: 10 },",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 274,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "residential: { type: \"months_after_last\", months: 4 },",
+            "after": "residential: { type: \"months_after_last\", months: 5 },",
+            "line_text": "    residential: { type: \"months_after_last\", months: 4 },",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 363,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "completionDays: 90,",
+            "after": "completionDays: 91,",
+            "line_text": "    completionDays: 90,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 448,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "lien: { type: \"days_after_last\", days: 120 },",
+            "after": "lien: { type: \"days_after_last\", days: 121 },",
+            "line_text": "  lien: { type: \"days_after_last\", days: 120 },",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 599,
+            "col": 34,
+            "operator": "minus-to-plus",
+            "before": "return Math.round((to.getTime() - from.getTime()) / 86_400_000);",
+            "after": "return Math.round((to.getTime() + from.getTime()) / 86_400_000);",
+            "line_text": "  return Math.round((to.getTime() - from.getTime()) / 86_400_000);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 618,
+            "col": 87,
+            "operator": "const-plus-one",
+            "before": "return Date.UTC(year, month - 1, last.getUTCDate() - ((last.getUTCDay() - dow + 7) % 7));",
+            "after": "return Date.UTC(year, month - 1, last.getUTCDate() - ((last.getUTCDay() - dow + 7) % 8));",
+            "line_text": "  return Date.UTC(year, month - 1, last.getUTCDate() - ((last.getUTCDay() - dow + 7) % 7));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Memorial Day was only tested in a year where %7 and %8 agree; added 2027 (May ends on a Monday)."
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 731,
+            "col": 102,
+            "operator": "plus-to-minus",
+            "before": "const own = rule.monthEnd ? new Date(Date.UTC(ctx.last.getUTCFullYear(), ctx.last.getUTCMonth() + 1, 0)) : ctx.last;",
+            "after": "const own = rule.monthEnd ? new Date(Date.UTC(ctx.last.getUTCFullYear(), ctx.last.getUTCMonth() - 1, 0)) : ctx.last;",
+            "line_text": "      const own = rule.monthEnd ? new Date(Date.UTC(ctx.last.getUTCFullYear(), ctx.last.getUTCMonth() + 1, 0)) : ctx.last;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 800,
+            "col": 89,
+            "operator": "const-plus-one",
+            "before": "if (date) for (let d = addDays(safe, 1); d.getTime() <= date.getTime(); d = addDays(d, 1)) {",
+            "after": "if (date) for (let d = addDays(safe, 1); d.getTime() <= date.getTime(); d = addDays(d, 2)) {",
+            "line_text": "  if (date) for (let d = addDays(safe, 1); d.getTime() <= date.getTime(); d = addDays(d, 1)) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Stepping by 2 from safe+1 only skips safe+2, safe+4: a holiday there needs safe+1 (and safe+3) non-business, i.e. two observed federal holidays on consecutive weekdays or a Friday and the next Monday. No pair in the 5 USC 6103 list is ever that close (checked 2020-2040 calc: 231 holidays, the closest two are 7 days apart), so the list never differs."
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 828,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "if (m === 12) { m = 0; y += 1; }",
+            "after": "if (m === 12) { m = 0; y += 2; }",
+            "line_text": "    if (m === 12) { m = 0; y += 1; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+            "line": 961,
+            "col": 81,
+            "operator": "or-to-and",
+            "before": "if (info.residentialNote && pt === \"residential\" && (!info.residentialNoteTier || info.residentialNoteTier === tr)) add(\"medium\", `${info.name}: confirm the residential category`, info.residentialNote);",
+            "after": "if (info.residentialNote && pt === \"residential\" && (!info.residentialNoteTier && info.residentialNoteTier === tr)) add(\"medium\", `${info.name}: confirm the residential category`, info.residentialNote);",
+            "line_text": "  if (info.residentialNote && pt === \"residential\" && (!info.residentialNoteTier || info.residentialNoteTier === tr)) add(\"medium\", `${info.name}: confirm the residential category`, info.residentialNote);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/mechanics-lien-deadline-calculator/calc.mjs",
+        "issue": "A completion or notice-of-completion date before the first furnishing (a wrong-year typo) silently gave a lien deadline a year before work began, shown as already passed, with no hint the input looked wrong. Now a high finding names the date and asks the user to check the year.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20156"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ef035737-03c8-54e7-943f-b47df89fbd81",
+    "transcripts": 1,
+    "first": "2026-11-28T15:18:05Z",
+    "last": "2026-11-28T15:22:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 69,
+        "output": 16256,
+        "thinking": 5427,
+        "cache_read": 2853614,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76624,
+        "api_equivalent_usd": 1.5091,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 69,
+      "output": 16256,
+      "thinking": 5427,
+      "cache_read": 2853614,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76624,
+      "api_equivalent_usd": 1.5091,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 34,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.46,
+      "active_minutes": 4.46,
+      "model_minutes": 3.61,
+      "tool_minutes": 0.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

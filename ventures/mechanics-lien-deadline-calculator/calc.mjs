@@ -872,6 +872,15 @@ export function lienDeadlines({
     inputsOk = false;
     add("high", "Last furnishing is before first furnishing", "Check the two dates -- a last-furnished date cannot come before the first-furnished date, so no deadline is computed.");
   }
+  // A completion date before the claimant's first day is almost always a
+  // typo (often the year). The deadline is still computed from it, since that
+  // is the earlier, cautious date, but say why it may read as already passed.
+  if (first && completion && completion < first) {
+    add("high", "Completion date is before your first furnishing", `You entered completion as ${formatDate(completion)}, before your first day on the job (${formatDate(first)}). Check the date, especially the year: the lien deadline below counts from it and may show as passed only because of a typo.`);
+  }
+  if (first && noc && noc < first) {
+    add("high", "Notice of completion is before your first furnishing", `You entered the notice of completion as recorded ${formatDate(noc)}, before your first day on the job (${formatDate(first)}). Check the date, especially the year: the lien deadline below counts from it and may show as passed only because of a typo.`);
+  }
 
   let prelim = null;
   let lien = null;
