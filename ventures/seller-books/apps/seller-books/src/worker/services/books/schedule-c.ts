@@ -27,8 +27,10 @@
 // financial statement may deduct at once under the de minimis safe harbor (Treas. Reg. 1.263(a)-1(f);
 // $2,500 per invoice or item since 2016, IRS Notice 2015-82), which needs an election statement with each
 // year's return. A purchase over it is depreciated, or expensed by election (section 179, bonus
-// depreciation), on Form 4562, whose result is line 13. The worksheet does not work out Form 4562: line 13
-// stays blank and names those purchases, and lines 28 to 31 leave them out, with a warning saying so. Each
+// depreciation), on Form 4562, whose result is line 13. Given the purchases with the seller's choices
+// (`equipmentAssets`, depreciation.ts), the worksheet works out line 13 for every year's equipment still
+// being depreciated and counts it in lines 28 to 31; without them, line 13 stays blank and names the
+// purchases, lines 28 to 31 leave them out, and a warning says so. Each
 // expense row is taken as one item; a row that adds up several items on one invoice may be split by the
 // preparer.
 import type { ExpenseCategory } from "@shared/enums";
@@ -37,6 +39,7 @@ import {
   type PricedMileage,
   priceMileage,
 } from "@shared/reference/mileage-rates";
+import { type DepAsset, type DepResult, depreciationForYear } from "./depreciation";
 
 export interface ScInput {
   year: number;
@@ -92,6 +95,12 @@ export interface ScInput {
    * entered, and line 35 comes from the books alone.
    */
   filedOpeningCents?: number | null;
+  /**
+   * Every equipment purchase over the de minimis limit, of any year, with the seller's depreciation choice
+   * (depreciation.ts). Given = line 13 is worked out and counted in lines 28 to 31; omitted = line 13 is left
+   * blank and those purchases are named, as before the Form 4562 helper.
+   */
+  equipmentAssets?: DepAsset[];
 }
 
 export interface HomeOfficeInput {
@@ -178,6 +187,8 @@ export interface ScWorksheet {
   mileagePricing: PricedMileage | null;
   /** Equipment on line 27a and left for Form 4562; null when there is none and nothing looks like it. */
   equipment: EquipmentSummary | null;
+  /** Form 4562 worked out for line 13; null when the caller gave no `equipmentAssets` or there is nothing. */
+  depreciation: DepResult | null;
 }
 
 export interface UnlinkedSales {
@@ -332,7 +343,7 @@ export function buildScheduleC(input: ScInput): ScWorksheet {
       `${n(eq.deMinimisCount, "equipment purchase", "equipment purchases")} of ${limit} or less (${usd(eq.deMinimisCents)} in all) ${eq.deMinimisCount === 1 ? "is" : "are"} on line 27a under the de minimis safe harbor. That needs an election each year: a statement titled "${DE_MINIMIS_ELECTION_TITLE}" with your name, address and taxpayer identification number, attached to your timely filed original return. Without it, equipment is depreciated on Form 4562 instead. The ${limit} limit is per invoice or per item on an invoice; ask your preparer.`,
     );
   }
-  if (eq.form4562Count > 0) {
+  if (eq.form4562Count > 0 && !input.equipmentAssets) {
     warnings.push(
       `${n(eq.form4562Count, "equipment purchase", "equipment purchases")} over ${limit} (${usd(eq.form4562Cents)} in all) ${eq.form4562Count === 1 ? "is" : "are"} not on this worksheet: equipment over the de minimis limit is depreciated, or expensed by election (section 179 or bonus depreciation), on Form 4562, and the result goes on line 13. Lines 28, 29 and 31 here leave ${eq.form4562Count === 1 ? "it" : "them"} out, so they read higher than your return will. Work out Form 4562 with your preparer; the expense list names each purchase.`,
     );
@@ -479,7 +490,21 @@ export function buildScheduleC(input: ScInput): ScWorksheet {
   const line3 = gross - returns;
   const line5 = line3 - cogs;
   const line7 = line5; // line 6 other income is not tracked here
-  const expenses = expenseLines.reduce((s, [l]) => s + get(l), 0) + line27a;
+  const expensesBefore13 = expenseLines.reduce((s, [l]) => s + get(l), 0) + line27a;
+  // Line 13 (Form 4562): bonus and MACRS first, then section 179 limited to the profit left after them.
+  let dep: DepResult | null = null;
+  if (input.equipmentAssets) {
+    const opts = { through: end };
+    const pre = depreciationForYear(input.equipmentAssets, input.year, opts);
+    dep = depreciationForYear(input.equipmentAssets, input.year, {
+      ...opts,
+      profitBefore179Cents: line7 - expensesBefore13 - pre.otherCents,
+    });
+    if (dep.rows.length === 0) dep = null;
+    else warnings.push(...dep.warnings);
+  }
+  const line13 = dep?.line13Cents ?? 0;
+  const expenses = expensesBefore13 + line13;
   const line29 = line7 - expenses;
   const ho = input.homeOffice ?? null;
   const home = ho ? homeOfficeLine30(ho, line29) : null;
@@ -511,16 +536,31 @@ export function buildScheduleC(input: ScInput): ScWorksheet {
           : {}),
         ...(line === "9" ? { note: carNote } : {}),
       },
-      ...(line === "10" && eq.form4562Count > 0
+      ...(line === "10" && dep
         ? [
             {
               line: "13",
               label: "Depreciation and section 179 expense (from Form 4562)",
-              amountCents: null,
-              note: `Not worked out here: ${n(eq.form4562Count, "equipment purchase", "equipment purchases")} over ${limit}, ${usd(eq.form4562Cents)} of cost, go on Form 4562. Left out of lines 28 to 31.`,
+              amountCents: line13,
+              note: [
+                `${n(dep.rows.filter((r) => r.totalCents !== null).length, "equipment purchase", "equipment purchases")} worked out below`,
+                dep.section179AllowedCents ? `section 179 ${usd(dep.section179AllowedCents)}` : "",
+                dep.otherCents ? `bonus and MACRS ${usd(dep.otherCents)}` : "",
+              ]
+                .filter(Boolean)
+                .join("; "),
             },
           ]
-        : []),
+        : line === "10" && eq.form4562Count > 0
+          ? [
+              {
+                line: "13",
+                label: "Depreciation and section 179 expense (from Form 4562)",
+                amountCents: null,
+                note: `Not worked out here: ${n(eq.form4562Count, "equipment purchase", "equipment purchases")} over ${limit}, ${usd(eq.form4562Cents)} of cost, go on Form 4562. Left out of lines 28 to 31.`,
+              },
+            ]
+          : []),
     ]),
     { line: "27a", label: "Other expenses (see Part V list)", amountCents: line27a },
     { line: "28", label: "Total expenses", amountCents: expenses },
@@ -596,5 +636,6 @@ export function buildScheduleC(input: ScInput): ScWorksheet {
     unlinkedSales,
     mileagePricing,
     equipment: eq.deMinimisCount + eq.form4562Count + eq.largeOtherCount > 0 ? eq : null,
+    depreciation: dep,
   };
 }

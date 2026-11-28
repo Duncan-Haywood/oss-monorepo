@@ -1410,7 +1410,7 @@ function homeOfficeAndEquipment() {
     },
     {
       q: `Does ${SITE_NAME} do the regular method or Form 4562?`,
-      a: `No. ${SITE_NAME} works out line 30 by the simplified method only, and names equipment over ${limit} for Form 4562 (line 13) without working out the depreciation; those purchases stay out of the totals, with a warning, so nothing is deducted twice. Your tax preparer handles Form 8829 or Form 4562 if you need them.`,
+      a: `Form 4562, yes; the regular home office method, no. For each piece of equipment over ${limit}, ${SITE_NAME} works out line 13: bonus depreciation by default (100% for equipment bought after January 19, 2025), or section 179 or no bonus if you choose, over 5 or 7 years by the IRS MACRS tables, at the business-use share you enter, carried into the later years. Section 179 is held to the shop's profit. Line 30 is the simplified method only; your tax preparer handles Form 8829, and checks the Form 4562 figures, which are a worksheet, not a filing.`,
     },
   ];
   const equipmentRows = EQUIPMENT_EXAMPLE.map(
@@ -1488,7 +1488,7 @@ ${mdList(mistakes.map(([a, b]) => `${a}: ${b}`))}
 
 ## Home office and equipment in ${SITE_NAME}
 
-Line 30 by the simplified method from the space saved for the year, held to line 29; quarterly estimates take it by months. Equipment at or under ${limit} on line 27a with the election reminder; over it named for Form 4562 and left out of the totals. The regular method and depreciation are not built.
+Line 30 by the simplified method from the space saved for the year, held to line 29; quarterly estimates take it by months. Equipment at or under ${limit} on line 27a with the election reminder; over it, line 13 worked out for Form 4562 (bonus by default, section 179 or no bonus by choice, 5- or 7-year MACRS, business-use share), carried into later years. The regular home office method (Form 8829) is not built.
 
 ## Questions
 

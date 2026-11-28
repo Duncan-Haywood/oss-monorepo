@@ -216,6 +216,14 @@ export const expense = sqliteTable(
     vendor: text("vendor"),
     memo: text("memo"),
     platform: text("platform"),
+    /**
+     * Equipment over the de minimis limit only (services/books/depreciation.ts): "bonus" (null, the law's
+     * default), "section_179" or "no_bonus"; the MACRS class in years (5 or 7, null = not chosen); and the
+     * business-use percent (null = 100).
+     */
+    depreciationMethod: text("depreciation_method"),
+    recoveryYears: integer("recovery_years"),
+    businessUsePct: integer("business_use_pct"),
     createdAt: createdAt(),
   },
   (t) => [index("expense_org_date_idx").on(t.orgId, t.date)],
