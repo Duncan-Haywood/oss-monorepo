@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtLtNjfN5pBfGJ4qp9G",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T07:06:45Z",
+  "ended": "2026-11-28T07:13:42Z",
+  "wall_minutes": 7.11,
+  "tokens_in": 5973893,
+  "tokens_out": 31627,
+  "cost_usd": 2.7389,
+  "tool_calls": 62,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20030",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/cmmc/apps/cmmc/ROADMAP.md",
+      "issue": "Said the old proposed prices ($39/$149/$249) 'no longer appear anywhere'; they survived in the site's pre-launch pricing branch and docs/PRICING.md. Corrected in this PR."
+    },
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The 'skip audits already found clean' list doesn't mention live funnels or price copy; a run spends time checking whether a sweep exists (live_funnel_check.mjs already did). Not edited here (control-plane tier); the agent doc records the new sweep."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer post: a CI guard and a CMMC copy fix have no customer-facing story worth a post, and the 2026-11-24 direction is fewer, consolidated posts.",
+      "did": "Wrote an agent doc in docs/reports/ instead.",
+      "result": "The write-up is in the PR."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-28-price-claims-check.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: honest-marketing price-claims gate (check_price_claims.py). Security queue empty (2 claimed), no ideas pending. live_funnel_check.mjs: all 4 live funnels ok. The new checker's first run found CMMC's pre-launch pricing copy and PRICING.md on stale proposed prices plus a false 'cheaper than FutureFeed' line; fixed. Tests: 10 unittest OK, cmmc-site 91/91 node tests, checker reports 0 across 50 recognised claims.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "da2a5d18-32b2-5a25-8b09-eeb37f71e7cf",
+    "transcripts": 1,
+    "first": "2026-11-28T07:06:45Z",
+    "last": "2026-11-28T07:13:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 109,
+        "output": 31627,
+        "thinking": 7130,
+        "cache_read": 5856971,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116813,
+        "api_equivalent_usd": 2.7389,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 109,
+      "output": 31627,
+      "thinking": 7130,
+      "cache_read": 5856971,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116813,
+      "api_equivalent_usd": 2.7389,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 55,
+      "Write": 4,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.11,
+      "active_minutes": 7.11,
+      "model_minutes": 5.37,
+      "tool_minutes": 1.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an engineer writing a tested regex checker plus CI job and fixing one site page",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 146.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

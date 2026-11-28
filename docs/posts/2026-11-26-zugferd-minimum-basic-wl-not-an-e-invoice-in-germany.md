@@ -132,5 +132,35 @@ explanation, is
 `xrechnung-zugferd-bench.mjs` in the tool's source reproduces the table, and
 the page's test fails if the creator or the checker changes a result.
 
+**Update, 2026-11-28: small businesses under § 19 UStG.** A Kleinunternehmer
+never has to issue an e-invoice: § 34a UStDV lets their invoices always go
+out as an "other" invoice (paper or plain PDF), and the BMF's FAQ lists them
+among the exceptions. They have had to be able to *receive* e-invoices since
+1 January 2025, where an email inbox is enough, and keep the XML unaltered for
+eight years. Some send one anyway because a customer asks, so we built a
+Kleinunternehmer invoice (no VAT ID, a Steuernummer, a seller identifier, one
+line in category E with "Kleinunternehmer gemäß § 19 UStG" as the exemption
+reason) and changed one thing at a time.
+
+| Changed | As XRechnung | As ZUGFeRD EN 16931 |
+|---|---|---|
+| nothing | passes | passes |
+| only the Steuernummer, no seller identifier (BT-29/BT-30) | fails BR-CO-26 | fails BR-CO-26 |
+| no exemption reason (BT-120) | fails BR-E-10 | fails BR-E-10 |
+| no Steuernummer (BT-32) | fails BR-E-02, BR-DE-16 | fails BR-E-02 |
+| category O instead of E | fails BR-DE-14 | passes |
+| category Z instead of E, no § 19 note | passes | passes |
+
+Two rows matter most. First, the Steuernummer is enough for VAT law but not
+for EN 16931, whose BR-CO-26 wants a seller identifier, a register number or
+a VAT ID. Our own free creator wrote invoices like that until this
+measurement, and its test called them clean because our built-in checks
+missed it; only the official Schematron caught it. The creator now asks for a
+seller identifier when there is no VAT ID. Second, a category Z line without
+the § 19 note passes every rule, yet it lacks the note § 34a UStDV requires.
+No validator can see that. The German page is
+[E-Rechnung für Kleinunternehmer](https://marisstella.app/einvoice-preflight/e-rechnung-kleinunternehmer.html),
+and `kleinunternehmer-bench.mjs` reproduces the table.
+
 This is not tax advice. Whether a particular invoice must be an e-invoice
 depends on the transaction and the dates above; your tax adviser decides.

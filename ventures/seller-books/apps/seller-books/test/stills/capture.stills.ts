@@ -101,11 +101,11 @@ test("stills of a made-up reseller's books", async ({ page }) => {
     "$10.00",
   );
   await importReport(page, "Etsy: Orders file (EtsySoldOrders)", "etsy-sold-orders.csv");
-  await expect(page.getByText(/sales matched to inventory by SKU/)).toContainText(
-    "1 sales matched",
+  await expect(page.getByText(/sales? matched to inventory by SKU/)).toContainText(
+    "1 sale matched",
   );
   await importReport(page, "Etsy: payment account monthly statement", "etsy-statement.csv");
-  await expect(page.getByText(/other charges imported/)).toBeVisible();
+  await expect(page.getByText(/other charges? imported/)).toBeVisible();
 
   await nav(page, "Expenses");
   const expense = page.locator("form").filter({ has: page.getByPlaceholder("Vendor") });
@@ -124,7 +124,7 @@ test("stills of a made-up reseller's books", async ({ page }) => {
   await trip.getByRole("checkbox").check();
   await trip.getByRole("button", { name: "Add trip" }).click();
   await expect(
-    page.getByRole("heading", { name: /2026: 1 trips, 25\.0 business miles/ }),
+    page.getByRole("heading", { name: /2026: 1 trip, 25\.0 business miles/ }),
   ).toBeVisible();
 
   // Profit & loss for 2026, the 01 spec's figures.
@@ -176,8 +176,7 @@ test("stills of a made-up reseller's books", async ({ page }) => {
   await expect(tile(page, "Net profit")).toContainText("$55.99");
   await shot(page, "profit-phone");
 
-  // A phone crop of the worksheet's Parts I and II (the lot table scrolls sideways on a phone, so the
-  // site leaves the stock still out at that width), same figures as above.
+  // A phone crop of the worksheet's Parts I and II, same figures as above.
   await page.goto(`${orgPath}/schedule-c`);
   await labelled(page, "Tax year").fill("2026");
   const phoneParts = card(page, /Parts I and II/);
@@ -189,4 +188,16 @@ test("stills of a made-up reseller's books", async ({ page }) => {
   await expect(line(phoneParts, "28")).toContainText("$44.84");
   await expect(line(phoneParts, "31")).toContainText("$37.86");
   await cardShot(page, "schedule-c-phone", phoneParts);
+
+  // A phone crop of the stock report's lot table, stacked one block per row (.table-stack), same
+  // dates and figures as the desktop still.
+  await page.goto(`${orgPath}/stock`);
+  await labelled(page, "Sales from").fill("2026-01-01");
+  await labelled(page, "Stock as of").fill("2026-06-30");
+  const phoneLots = card(page, /have they paid for themselves/);
+  await expect(phoneLots.locator('td[data-label="Sold / items"]')).toContainText("1 / 3");
+  await expect(phoneLots.locator('td[data-label="Proceeds"]')).toContainText("$39.23");
+  await expect(phoneLots.locator('td[data-label="Recovered"]')).toContainText("131%");
+  await expect(phoneLots.locator('td[data-label="Cost"]')).toContainText("$30.00");
+  await cardShot(page, "stock-phone", phoneLots);
 });

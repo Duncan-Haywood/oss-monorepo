@@ -1,0 +1,67 @@
+name: Price claims
+
+# Every paid product sells from one catalog, ventures/<v>/apps/<app>/src/shared/plans.ts, and its
+# prices are retyped by hand into the marketing site, llms.txt, READMEs, VENTURE.yaml and customer
+# posts (PayApps' Crew price sat in 19 shipped files on 2026-11-28). This gate fails when a line
+# pairs a plan's name with a dollar figure the catalog does not charge, so a price change cannot
+# leave pages promising a price checkout does not charge (prompts/goals.md, "Honest marketing").
+# Its first run found the CMMC site's pre-launch pricing page and pricing doc still on the
+# 2026-11-24 proposal ($39/$149/$249) after the app's catalog moved to free/$249/$399.
+# Pure Python standard library, no network, no secrets, a second or two.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/**"
+      - "docs/posts/**"
+      - "platform/ci/check_price_claims.py"
+      - "platform/ci/test_check_price_claims.py"
+      - ".github/workflows/price-claims-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/**/src/shared/plans.ts"
+      - "platform/ci/check_price_claims.py"
+      - ".github/workflows/price-claims-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: price-claims-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  price-claims:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          # Reads only text under ventures/, docs/posts/ and platform/ci/.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/research/
+            !/prompts/
+            !*.mp3
+            !*.mp4
+            !*.gz
+            !*.zip
+            !*.png
+            !*.jpg
+            !*.webp
+            !*.gif
+            !*.ico
+            !*.woff2
+            !*.ttf
+            !*.wasm
+            !*.pdf
+      - name: Checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_price_claims
+      - name: Every stated plan price matches its plans.ts
+        run: python3 platform/ci/check_price_claims.py
