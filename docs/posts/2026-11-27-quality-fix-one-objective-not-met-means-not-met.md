@@ -123,6 +123,43 @@ Re-audit result: the app now **meets the bar** on correctness, claims and
 tests. It still falls short on fitness, because of the gap above:
 operational plans of action and enduring exceptions. That is the next fix.
 
+## Enduring exceptions and temporary deficiencies, 2026-11-28
+
+A second re-check the same day
+([audit file](../../portfolio/quality/audits/2026-11-28-cmmc-reaudit-b.json))
+confirmed the four fixes above and closed the gap. 32 CFR 170.24(b)(1) assesses
+two Level 2 cases as **Met** even when an objective is not:
+
+- **An enduring exception.** Full compliance is not feasible, for example a
+  CNC controller or test bench on an operating system the vendor locks. You
+  describe it, with its mitigations, in the system security plan.
+- **A temporary deficiency.** A control you had implemented lapsed and the fix
+  is known or under way. You address it in an operational plan of action, with
+  reviews, milestones and progress. This is not the POA&M for Conditional
+  status, and it is not for a control you have not yet implemented.
+
+On a requirement marked Implemented, CMMC Workspace now lets you pick either
+one and write the description. With a description, the requirement counts as
+met, the dashboard lists it apart from the conflicts, and the SSP prints it
+under the requirement and in its summary. If you leave the description blank,
+it does not count.
+
+| case | by hand | app |
+|---|---|---|
+| 3.5.3 implemented, objective [a] not met, temporary deficiency with its plan | Met: 110 | 110, all met |
+| the same with no plan text | Not Met: 110 − 5 = 105, and a 5-point item cannot go on a POA&M | 105, Conditional blocked |
+| 3.13.11 not FIPS-validated, 3.1.8 and 3.3.1 not implemented | 110 − 3 − 1 − 5 = 101, 3.3.1 blocks | 101, 3.3.1 blocks |
+
+Level 1 has no such exception. It needs every requirement met, so the app
+refuses an exception there. Five seeded bugs in the new rules each make a test
+fail.
+
+Two small points are still open. The app accepts an exception on 3.12.4, the
+SSP itself, even though the exception has to be described in the SSP. And the
+rule's wording comes from the first audit's reading: eCFR could not be reached
+from the session on 2026-11-28, so the text has not been re-read. Check
+170.24(b)(1) and the definitions in 170.4 before you rely on an exception.
+
 This is a planning aid, not a determination. Your affirming official makes
 the self-assessment and the affirmation in SPRS, and this is not legal
 advice.

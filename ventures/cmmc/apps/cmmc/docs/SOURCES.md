@@ -9,6 +9,7 @@ All requirement, objective and scoring text comes from US government works, whic
 | Level 2 requirements (110) | NIST SP 800-171 Rev. 2, adopted by 32 CFR 170.14(c)(3) | Rev. 2, Feb 2020 (updated Jan 28, 2021) |
 | Assessment objectives (320) | NIST SP 800-171A | June 2018 |
 | Point values 5/3/1, partial credit for 3.5.3 and 3.13.11, no score without an SSP | NIST SP 800-171 DoD Assessment Methodology, Annex A; 32 CFR 170.24 | v1.2.1, June 24, 2020 |
+| Enduring exceptions and temporary deficiencies assessed MET (Level 2) | 32 CFR 170.24(b)(1)(i)-(ii); definitions in 32 CFR 170.4 | Final rule 89 FR 83092. **Not re-read on 2026-11-28**: eCFR, govinfo and federalregister.gov were all unreachable from the session; the rule is applied as the 2026-11-26 audit quoted it. Re-check the wording when a session can reach eCFR. |
 | POA&M rules (≥ 88, 1-point items, excluded six, 180 days) | 32 CFR 170.21 | Final rule 89 FR 83092, Oct 15, 2024, effective Dec 16, 2024 |
 
 ## Level 2 baseline: Rev. 2, not Rev. 3

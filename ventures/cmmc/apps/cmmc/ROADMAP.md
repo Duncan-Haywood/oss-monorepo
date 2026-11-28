@@ -474,6 +474,17 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   button sends `calc=1`, so "nothing ticked" scores 110 instead of showing no result. The app's sign-in
   screen opens on "Create account" at `/signup` or `?mode=signup` (`src/client/lib/auth-mode.ts`).
 
+- Enduring exceptions and temporary deficiencies (2026-11-28, cmmc-enduring-exceptions; the medium
+  defect the 2026-11-26 and 2026-11-28 audits left open): an implemented Level 2 requirement can carry
+  an enduring exception (described with its mitigations) or a temporary deficiency (its operational plan
+  of action), 32 CFR 170.24(b)(1)(i)-(ii). With a non-blank description it scores MET even with an
+  objective not met, is listed in `exceptions` rather than `objectiveConflicts`, and the SSP prints the
+  description under the requirement and the list in section 5. Level 1 ignores it and the API refuses
+  it there; any status but Implemented clears the kind and keeps the text. Migration 0020. Control
+  import now counts its bound values per row from the table (the new column took a row from 7 to 8
+  and broke the 110-row import), `test/worker/control-import.test.ts`. Audit:
+  `portfolio/quality/audits/2026-11-28-cmmc-reaudit-b.json`.
+
 ## Must do before a public launch
 
 - Done 2026-11-27: `cmmc-deploy` ran by hand twice (46022366507, 46040310064; [docs/DEPLOY.md](docs/DEPLOY.md)),
@@ -560,6 +571,10 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
 
 ## Next
 
+- Enduring exceptions, part 2: re-read 32 CFR 170.24(b)(1) and 170.4 on eCFR (unreachable on
+  2026-11-28) and pin the quoted text in `official-text.json`; decide whether an exception on 3.12.4
+  (the SSP itself) should be refused, since the exception has to be described in the SSP; carry
+  temporary deficiencies into a dated operational-plan-of-action list with review dates if shops ask
 - Internal audits, part 3 (calendar dates and the dashboard card done 2026-11-27): an audit report
   (Markdown) per audit, and evidence files linked to a finding or an effectiveness check, if shops ask
 - Document control, part 3 (review dates in the calendar and the dashboard done 2026-11-27; the
