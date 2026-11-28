@@ -516,6 +516,37 @@ export interface StateBondRule {
 interface BondDays {
   lastOn: string | null;
   acceptedOn: string | null;
+  /** California: the day a notice of completion, acceptance or cessation was recorded. */
+  nocOn: string | null;
+}
+
+/**
+ * California's stop payment notice period (§ 9356) and the § 9560(b) bond notice, from the
+ * acceptance entered and the day a notice of completion was recorded, if one was entered.
+ * Without a recording, both count from acceptance as if one were recorded that day (§ 9204(a)
+ * allows it), the earliest they can fall. A recording more than 15 days after acceptance may not
+ * be effective (§ 9204(a), (c)), so the earlier of its date and the no-recording date (90 and 75
+ * days after completion, § 9356(b), § 9560(b)) is used.
+ */
+export function caPeriods(
+  acceptedOn: string | null,
+  nocOn: string | null,
+): { spnEnds: string | null; bondNoticeEnds: string | null; late: boolean } {
+  if (nocOn) {
+    const late = !!acceptedOn && nocOn > addDays(acceptedOn, 15);
+    const min = (a: string, b: string) => (a < b ? a : b);
+    return {
+      spnEnds: late
+        ? min(addDays(nocOn, 30), addDays(acceptedOn as string, 90))
+        : addDays(nocOn, 30),
+      bondNoticeEnds: late
+        ? min(addDays(nocOn, 15), addDays(acceptedOn as string, 75))
+        : addDays(nocOn, 15),
+      late,
+    };
+  }
+  if (!acceptedOn) return { spnEnds: null, bondNoticeEnds: null, late: false };
+  return { spnEnds: addDays(acceptedOn, 30), bondNoticeEnds: addDays(acceptedOn, 15), late: false };
 }
 
 /** The 15th day of the nth month after the month of `iso` (Texas Gov't Code ch. 2253). */
@@ -589,10 +620,10 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
     url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=9558",
     checkedOn: "2026-11-28",
     notes: [
-      "Every date here counts from acceptance as if the public body recorded its notice of completion that same day, the earliest the deadlines can fall. If a notice of completion, acceptance or cessation is recorded later (it may be up to 15 days after completion, § 9204), the stop payment notice is due 30 days after that recording; if none is recorded, 90 days after completion (§ 9356(b)), and the two suits move with it. Ask the public body whether and when it recorded one.",
+      "Until you enter the day a notice of completion was recorded, every date here counts from acceptance as if the public body recorded its notice of completion that same day, the earliest the deadlines can fall. If a notice of completion, acceptance or cessation is recorded later (it may be up to 15 days after completion, § 9204), the stop payment notice is due 30 days after that recording; if none is recorded, 90 days after completion (§ 9356(b)), and the two suits move with it. Ask the public body whether and when it recorded one (the county recorder's office can confirm it), and enter the recording date.",
       "Completion is the earlier of acceptance and 60 days in a row with no labor on the whole project (§ 9200; the 60 days do not apply to State Contract Act contracts). If work stopped for 60 days before acceptance, the dates run from then.",
       "The stop payment notice is signed and verified, states the amount due for work through its date (§ 9352), and goes to the public body's disbursing officer, or for a state contract to the director of the department that awarded it (§ 9354). Pay the public body $10 with it and it must tell you the deadline to sue (§ 9362).",
-      "A claimant who missed the preliminary notice can still claim on the bond with written notice to the surety and the bond principal within 15 days after a notice of completion is recorded, or 75 days after completion if none is (§ 9560(b), (c)).",
+      "The § 9560 notice is for a claimant who missed the preliminary notice; if you gave it, skip that step. It does not save a stop payment notice, which still needs the preliminary notice (§ 9300(c)), and § 9560(c) does not apply where the sub you worked for was paid all its progress payments, or was terminated and paid to that day (§ 9560(d)).",
       "A payment bond is required on a public works contract over $25,000 (§ 9550(a)); § 9550 does not cover a state entity's contract, which Public Contract Code § 7103 bonds. A direct contractor (the prime) has no stop payment notice or bond claim (§ 9100(b)). The prevailing party in a bond suit gets a reasonable attorney's fee (§ 9564(c)).",
       "Read from california.public.law, which republishes the official text; leginfo.legislature.ca.gov refused this session's connection.",
     ],
@@ -1147,11 +1178,15 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
         ),
       ];
     case "CA": {
-      // § 9356(a): 30 days after a recorded notice of completion, which may be recorded the day of
-      // completion: the earliest the stop payment notice period can end, counted from acceptance.
-      const spnEnds = A ? addDays(A, 30) : null;
-      const PERIOD =
-        "the end of the stop payment notice period (30 days after acceptance at the earliest)";
+      const c = caPeriods(A, d.nocOn);
+      const PERIOD = d.nocOn
+        ? "the end of the stop payment notice period"
+        : "the end of the stop payment notice period (30 days after acceptance at the earliest)";
+      const FROM = d.nocOn
+        ? c.late
+          ? "dated from the earlier of 30 days after the recording entered and 90 days after acceptance, since the recording came more than 15 days after acceptance (§ 9204(a))"
+          : "dated from the recording entered"
+        : `dated from ${ACCEPTED}, the earliest`;
       return [
         step(
           {
@@ -1166,13 +1201,24 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
         ),
         step(
           {
+            who: "not-prime",
+            act: "If you did not give the preliminary notice, give the surety and the bond principal written notice of your claim",
+            citation: "Cal. Civ. Code § 9560(b), (c)",
+            rule: `within 15 days after a notice of completion is recorded, or 75 days after completion if none is; ${FROM}`,
+          },
+          c.bondNoticeEnds,
+          days(0),
+          ACCEPTED,
+        ),
+        step(
+          {
             who: "all",
             act: "Give the public body a stop payment notice",
             citation: "Cal. Civ. Code § 9356",
-            rule: `within 30 days after a notice of completion is recorded, or 90 days after completion if none is; dated from ${ACCEPTED}, the earliest`,
+            rule: `within 30 days after a notice of completion is recorded, or 90 days after completion if none is; ${FROM}`,
           },
-          A,
-          days(30),
+          c.spnEnds,
+          days(0),
           ACCEPTED,
         ),
         step(
@@ -1182,7 +1228,7 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
             citation: "Cal. Civ. Code § 9502(a), (b)",
             rule: "at least 10 days after giving the notice, and not later than 90 days after the stop payment notice period ends",
           },
-          spnEnds,
+          c.spnEnds,
           days(90),
           PERIOD,
         ),
@@ -1193,7 +1239,7 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
             citation: "Cal. Civ. Code § 9558",
             rule: "any time after you stop providing work, and not later than six months after the stop payment notice period ends",
           },
-          spnEnds,
+          c.spnEnds,
           (iso) => addMonths(iso, 6),
           PERIOD,
         ),
@@ -1858,13 +1904,24 @@ export type StateBondCheck =
  */
 export function stateBondClaim(
   state: string | null | undefined,
-  input: { tier: MillerTier | null; lastFurnishedOn: string | null; acceptedOn: string | null },
+  input: {
+    tier: MillerTier | null;
+    lastFurnishedOn: string | null;
+    acceptedOn: string | null;
+    /** California only: the day a notice of completion, acceptance or cessation was recorded. */
+    noticeOfCompletionOn?: string | null;
+  },
 ): StateBondCheck | null {
   const s = state?.trim().toUpperCase();
   if (!s) return null;
   const rule = STATE_BOND_RULES[s];
   if (!rule) return { kind: "unsupported", state: s };
-  const all = stateBondSteps(s, { lastOn: input.lastFurnishedOn, acceptedOn: input.acceptedOn });
+  const nocOn = s === "CA" ? (input.noticeOfCompletionOn ?? null) : null;
+  const all = stateBondSteps(s, {
+    lastOn: input.lastFurnishedOn,
+    acceptedOn: input.acceptedOn,
+    nocOn,
+  });
   const steps = input.tier === "first" ? all.filter((x) => x.who === "all") : all;
   const dated = steps
     .filter((x) => x.dueOn !== null)
@@ -1878,6 +1935,11 @@ export function stateBondClaim(
   if (input.tier === "remote") {
     notes.unshift(
       `${rule.name}'s statute names claimants who contracted with the prime or with a subcontractor. Whether one further down the chain is covered turns on how the state reads "subcontractor": PayApps shows the subcontractor's steps, and a construction attorney can say if the bond reaches you.`,
+    );
+  }
+  if (nocOn && caPeriods(input.acceptedOn, nocOn).late) {
+    notes.unshift(
+      `The notice of completion entered was recorded on ${nocOn}, more than 15 days after the acceptance entered (${input.acceptedOn}). § 9204(a) lets a public entity record one on or within 15 days after completion, so a later one may not count, and with none recorded the stop payment notice is due 90 days after completion (§ 9356(b)). PayApps uses whichever date is earlier; check both dates with the public body.`,
     );
   }
   return { kind: "checked", state: s, rule, steps, dated, notes };
