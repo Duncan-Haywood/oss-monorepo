@@ -19,6 +19,7 @@ import {
   IMPORT_MAX_BYTES,
   LEVEL2_BASELINE,
   LIBRARY_VERIFICATION,
+  MET_EXCEPTION_KINDS,
   PARTIAL_CREDIT_KEYS,
   scoreLevel1,
   scoreLevel2,
@@ -394,6 +395,8 @@ routes.patch(
       .object({
         status: z.enum(IMPLEMENTATION_STATUSES),
         partialCredit: z.enum(PARTIAL_CREDIT_KEYS).nullable(),
+        metException: z.enum(MET_EXCEPTION_KINDS).nullable(),
+        metExceptionDetail: text(4000),
         ownerUserId: z.string().max(64).nullable(),
         notes: text(8000),
         statement: text(8000),

@@ -1,6 +1,6 @@
 import { LEVEL2_REQUIREMENTS } from "@shared/controls";
 import { describe, expect, it } from "vitest";
-import { INSERT_ROWS } from "../../src/worker/services/controls/import";
+import { BOUND_PER_ROW, INSERT_ROWS } from "../../src/worker/services/controls/import";
 import { addToOrg, api, createTestUser, setupTenant } from "./helpers";
 
 const json = async <T>(res: Response) => (await res.json()) as T;
@@ -120,10 +120,12 @@ describe("control import from a spreadsheet", () => {
     );
     expect(rec.record).toBeNull();
   });
-  // A whole Level 2 workbook on a new org creates 110 records at once. Each insert row binds seven
+  // A whole Level 2 workbook on a new org creates 110 records at once. Each insert row binds eight
   // values and D1 allows 100 a statement; chunks of 30 rows returned a 500 here (found 2026-11-28).
   it("imports all 110 Level 2 requirements into an empty workspace", async () => {
-    expect(INSERT_ROWS * 7).toBeLessThanOrEqual(100);
+    // id, org_id, control_id + status, notes, statement, met_exception_detail, updated_at defaults.
+    expect(BOUND_PER_ROW).toBe(8);
+    expect(INSERT_ROWS * BOUND_PER_ROW).toBeLessThanOrEqual(100);
     const t = await setupTenant();
     const rows = LEVEL2_REQUIREMENTS.map(
       (r) => `${r.nistId},${r.nistId === "3.1.10" ? "Not implemented" : "Implemented"}`,

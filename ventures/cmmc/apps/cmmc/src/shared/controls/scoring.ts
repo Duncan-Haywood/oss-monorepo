@@ -21,6 +21,13 @@
 // POA&M: 3.1.20, 3.1.22, 3.12.4, 3.10.3, 3.10.4, 3.10.5 ((a)(2)(iii)). POA&M closeout within 180 days of the conditional status date (170.21(b)).
 // Level 1 allows no POA&M: every requirement must be met.
 //
+// Enduring exceptions and temporary deficiencies, 32 CFR 170.24(b)(1)(i)-(ii): a Level 2 requirement
+// is assessed MET when an enduring exception is described, with its mitigations, in the SSP, or when a
+// temporary deficiency is addressed in an operational plan of action (deficiency reviews, milestones,
+// progress). A requirement recorded Implemented with one of these and its description counts as MET
+// even with an objective recorded "not_met"; it is listed in `exceptions`, not `objectiveConflicts`,
+// and the SSP prints the description. Without a description the objective rule above still applies.
+//
 // See ./sources.ts for citations and the verification caveat.
 import type { ObjectiveResult } from "../enums";
 import { LEVEL1_REQUIREMENTS } from "./level1";
@@ -78,9 +85,22 @@ export const POAM_EXCLUDED_NIST_IDS = [
 ] as const;
 export const SSP_NIST_ID = "3.12.4";
 
+/** 32 CFR 170.24(b)(1)(i) and (ii); definitions in 32 CFR 170.4. */
+export const MET_EXCEPTION_KINDS = ["enduring_exception", "temporary_deficiency"] as const;
+export type MetExceptionKind = (typeof MET_EXCEPTION_KINDS)[number];
+
+export const MET_EXCEPTION_LABEL: Record<MetExceptionKind, string> = {
+  enduring_exception: "Enduring exception (described, with mitigations, in the SSP)",
+  temporary_deficiency: "Temporary deficiency (addressed in an operational plan of action)",
+};
+
 export interface ControlState {
   status: ImplementationStatus;
   partialCredit?: PartialCreditKey | null;
+  /** Level 2 only, with status "implemented": the basis on which an unmet objective is still MET. */
+  metException?: MetExceptionKind | null;
+  /** The SSP description and mitigations, or the operational plan of action; required for it to count. */
+  metExceptionDetail?: string | null;
   /** SP 800-171A objective id -> result, as recorded on the requirement. */
   objectiveResults?: Readonly<Record<string, ObjectiveResult>> | null;
 }
@@ -99,11 +119,23 @@ export function objectivesNotMet(state: ControlState | undefined): string[] {
 }
 
 /**
+ * The recorded enduring exception or temporary deficiency, when it can count: status "implemented",
+ * a kind, and a non-blank description.
+ */
+export function recordedException(state: ControlState | undefined): MetExceptionKind | null {
+  if (state?.status !== "implemented" || !state.metException) return null;
+  if (!(MET_EXCEPTION_KINDS as readonly string[]).includes(state.metException)) return null;
+  return state.metExceptionDetail?.trim() ? state.metException : null;
+}
+
+/**
  * Whether the requirement is MET: its status says implemented or not applicable AND no assessment
- * objective is recorded "not_met" (32 CFR 170.24(b)(2)).
+ * objective is recorded "not_met" (32 CFR 170.24(b)(2)), or the unmet objectives are covered by a
+ * described enduring exception or temporary deficiency (170.24(b)(1)(i)-(ii)).
  */
 export function isMet(state: ControlState | undefined): boolean {
-  return !!state && isSatisfied(state.status) && objectivesNotMet(state).length === 0;
+  if (!state || !isSatisfied(state.status)) return false;
+  return objectivesNotMet(state).length === 0 || recordedException(state) !== null;
 }
 
 /** Points subtracted for one Level 2 requirement in the given state (0 when met). */
@@ -144,6 +176,15 @@ export interface Level2Score {
    * re-assessed before the score is entered in SPRS.
    */
   objectiveConflicts: ObjectiveConflict[];
+  /** Requirements counted MET under 32 CFR 170.24(b)(1)(i)-(ii), with any objectives not met. */
+  exceptions: RecordedException[];
+}
+
+export interface RecordedException {
+  id: string;
+  nistId: string;
+  kind: MetExceptionKind;
+  objectives: string[];
 }
 
 export interface ObjectiveConflict {
@@ -159,7 +200,7 @@ function conflictOf(
   nistId: string,
   state: ControlState | undefined,
 ): ObjectiveConflict | null {
-  if (!state || !isSatisfied(state.status)) return null;
+  if (!state || !isSatisfied(state.status) || recordedException(state)) return null;
   const objectives = objectivesNotMet(state);
   return objectives.length ? { id, nistId, status: state.status, objectives } : null;
 }
@@ -179,6 +220,7 @@ export function scoreLevel2(states: ReadonlyMap<string, ControlState>): Level2Sc
   const counts = emptyCounts();
   const deductions: Deduction[] = [];
   const objectiveConflicts: ObjectiveConflict[] = [];
+  const exceptions: RecordedException[] = [];
   let total = 0;
   for (const req of LEVEL2_REQUIREMENTS) {
     const state = states.get(req.id);
@@ -187,6 +229,14 @@ export function scoreLevel2(states: ReadonlyMap<string, ControlState>): Level2Sc
     const points = deductionFor(req, state);
     const conflict = conflictOf(req.id, req.nistId, state);
     if (conflict) objectiveConflicts.push(conflict);
+    const kind = recordedException(state);
+    if (kind)
+      exceptions.push({
+        id: req.id,
+        nistId: req.nistId,
+        kind,
+        objectives: objectivesNotMet(state),
+      });
     if (!isMet(state)) {
       deductions.push({
         id: req.id,
@@ -211,6 +261,7 @@ export function scoreLevel2(states: ReadonlyMap<string, ControlState>): Level2Sc
     counts,
     unassessed: counts.not_assessed,
     objectiveConflicts,
+    exceptions,
   };
 }
 
@@ -294,9 +345,15 @@ export interface Level1Result {
 
 /** Level 1: pass/fail per requirement, no points, no POA&M (32 CFR 170.15, 170.21). */
 export function scoreLevel1(states: ReadonlyMap<string, ControlState>): Level1Result {
-  const notMet = LEVEL1_REQUIREMENTS.filter((r) => !isMet(states.get(r.id))).map((r) => r.id);
+  // 170.24(b)(1)(i)-(ii) is Level 2 scoring; Level 1 needs every requirement met, so a stray
+  // exception on a Level 1 record is ignored.
+  const get = (id: string): ControlState | undefined => {
+    const s = states.get(id);
+    return s && { ...s, metException: null };
+  };
+  const notMet = LEVEL1_REQUIREMENTS.filter((r) => !isMet(get(r.id))).map((r) => r.id);
   const objectiveConflicts = LEVEL1_REQUIREMENTS.map((r) =>
-    conflictOf(r.id, r.id, states.get(r.id)),
+    conflictOf(r.id, r.id, get(r.id)),
   ).filter((c): c is ObjectiveConflict => c !== null);
   return {
     total: LEVEL1_REQUIREMENTS.length,

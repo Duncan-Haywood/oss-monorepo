@@ -9,7 +9,7 @@ import {
   type ImportPlan,
   planImport,
 } from "@shared/controls";
-import { and, eq } from "drizzle-orm";
+import { and, eq, getTableColumns } from "drizzle-orm";
 import type { AppContext } from "../../context";
 import { controlRecord } from "../../db/schema";
 import { newId } from "../../lib/ids";
@@ -17,8 +17,20 @@ import { audit } from "../audit";
 import { listMembers } from "../orgs";
 import { recordsFor } from "./index";
 
-/** Rows per insert of new control records (7 bound values each; D1 allows 100 a statement). */
-export const INSERT_ROWS = 14;
+/** D1's limit on bound values in one statement. */
+export const D1_MAX_BOUND = 100;
+const GIVEN = new Set(["id", "orgId", "controlId"]);
+/**
+ * Bound values per inserted row: the three given, plus every column with a default, which Drizzle
+ * binds too. Counted from the table so a new defaulted column cannot push a batch past D1's limit
+ * (adding met_exception_detail took the row from 7 to 8 and 14 rows to 112 values, a 500).
+ */
+export const BOUND_PER_ROW =
+  GIVEN.size +
+  Object.entries(getTableColumns(controlRecord)).filter(([k, c]) => !GIVEN.has(k) && c.hasDefault)
+    .length;
+/** Rows per insert of new control records. */
+export const INSERT_ROWS = Math.floor(D1_MAX_BOUND / BOUND_PER_ROW);
 
 export interface ImportChange {
   line: number;
@@ -100,9 +112,9 @@ export async function applyImport(
   const missing = preview.changes.filter((c) => !existing.has(c.controlId));
   const now = ctx.now();
   const statements = [];
-  // Seven bound values a row: the three given, plus the status, notes and statement defaults and
-  // updated_at, which Drizzle binds too. D1 allows 100 per statement, so 14 rows; 30 (the old figure,
-  // which counted three) failed every import of more than 14 new requirements with a 500.
+  // BOUND_PER_ROW values a row (the given three plus every defaulted column). A fixed 30 (counting
+  // three) and later a fixed 14 (counting seven) each failed full imports with a 500 once the table
+  // grew; the count is now taken from the table.
   for (let i = 0; i < missing.length; i += INSERT_ROWS) {
     statements.push(
       ctx.db
