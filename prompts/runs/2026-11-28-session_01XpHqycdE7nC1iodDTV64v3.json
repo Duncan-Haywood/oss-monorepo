@@ -1,0 +1,502 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqycdE7nC1iodDTV64v3",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T05:38:13Z",
+  "ended": "2026-11-28T05:38:56Z",
+  "wall_minutes": 5.19,
+  "tokens_in": 4022546,
+  "tokens_out": 21191,
+  "cost_usd": 1.8581,
+  "tool_calls": 52,
+  "task": "redteam: jobshop-quote qbo-sync retainage/costs/money + billing grace",
+  "projects": [
+    "jobshop-quote",
+    "payapps",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20008",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "jobshop-site catalogue-export was stale on main (pre-existing); fixed in this PR"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Nothing tells a red-team run that paid products carry duplicated packages (qbo-sync, billing, admin-metrics); this morning's money.ts fix reached one of two copies. The new drift check now covers it."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'python3 -m unittest platform/ci/test_x.py' fails (module 'platform' shadows the stdlib); run the file directly. Cost one retry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new post: a red-team run's findings (a cent-rounding fix and a retainage guard) are internal; the record and the check's docstring carry them.",
+      "did": "wrote no blog post",
+      "result": "none needed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Campaigns: retainage.ts 8/8 caught, billing grace.ts 6/6, qbo-sync costs.ts 6/8 (two FakeCostBook escapes, both now caught). Guard added (step 4b): platform/ci/check_shared_package_drift.py + test, run by unwired_checks.py on every PR. It requires every src file shared by two or more ventures' copies of a package to be byte-identical unless KNOWN_DIVERGENT names it with a reason (billing/src/index.ts, admin-metrics/src/contract.ts). First run: with the old jobshop-quote money.ts restored it reports qbo-sync/src/money.ts as 2 versions; green after the port. Checks run: qbo-sync node suites in both ventures (95/95 each), run_venture_tests.py jobshop-quote payapps (0 failed), test_check_shared_package_drift.py OK. Local run_workflow_locally --for-changes: jobshop-quote-ci site step was red on main (catalogue-export stale: two guide links added without `pnpm export:catalogue`); re-exported, site unit 164/164. pay-app-guides xlsx tests fail locally only because soffice is not installed in the container. prompts-ci validate was red only because the local run started before `pr` was filled.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/jobshop-quote/packages/qbo-sync/src/retainage.ts",
+        "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/**/*.test.ts  (in ventures/jobshop-quote/packages/qbo-sync)",
+        "seed": 683761160,
+        "commit": "2fff376dd",
+        "sites": 40,
+        "baseline_seconds": 0.7,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/retainage.ts",
+            "line": 83,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "const released = input.retainageReleasedCents ?? 0;",
+            "after": "const released = input.retainageReleasedCents ?? 1;",
+            "line_text": "  const released = input.retainageReleasedCents ?? 0;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/retainage.ts",
+            "line": 85,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (released < 0)",
+            "after": "if (released < 1)",
+            "line_text": "  if (released < 0)",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/retainage.ts",
+            "line": 105,
+            "col": 50,
+            "operator": "const-plus-one",
+            "before": "heldByRate.set(rate, (heldByRate.get(rate) ?? 0) + applyRateBps(w.amountCents, rate));",
+            "after": "heldByRate.set(rate, (heldByRate.get(rate) ?? 1) + applyRateBps(w.amountCents, rate));",
+            "line_text": "    heldByRate.set(rate, (heldByRate.get(rate) ?? 0) + applyRateBps(w.amountCents, rate));",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/retainage.ts",
+            "line": 109,
+            "col": 81,
+            "operator": "const-plus-one",
+            "before": "for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[0] - a[0])) {",
+            "after": "for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[0] - a[1])) {",
+            "line_text": "  for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[0] - a[0])) {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/retainage.ts",
+            "line": 110,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "if (amount === 0) continue;",
+            "after": "if (amount === 1) continue;",
+            "line_text": "    if (amount === 0) continue;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/retainage.ts",
+            "line": 125,
+            "col": 17,
+            "operator": "gt-to-ge",
+            "before": "if (released > heldBefore + held) {",
+            "after": "if (released >= heldBefore + held) {",
+            "line_text": "    if (released > heldBefore + held) {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/retainage.ts",
+            "line": 137,
+            "col": 20,
+            "operator": "minus-to-plus",
+            "before": "const net = gross - held + released;",
+            "after": "const net = gross + held + released;",
+            "line_text": "  const net = gross - held + released;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/retainage.ts",
+            "line": 151,
+            "col": 86,
+            "operator": "minus-to-plus",
+            "before": "retainageBalanceAfterCents: heldBefore === undefined ? null : heldBefore + held - released,",
+            "after": "retainageBalanceAfterCents: heldBefore === undefined ? null : heldBefore + held + released,",
+            "line_text": "      retainageBalanceAfterCents: heldBefore === undefined ? null : heldBefore + held - released,",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/jobshop-quote/packages/billing/src/grace.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/jobshop-quote/packages/billing)",
+        "seed": 155641706,
+        "commit": "2fff376dd",
+        "sites": 21,
+        "baseline_seconds": 0.7,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/grace.ts",
+            "line": 7,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "export const PAST_DUE_GRACE_DAYS = 7;",
+            "after": "export const PAST_DUE_GRACE_DAYS = 8;",
+            "line_text": "export const PAST_DUE_GRACE_DAYS = 7;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 18,
+            "operator": "times-to-div",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 / 60 * 60 * 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/grace.ts",
+            "line": 9,
+            "col": 53,
+            "operator": "times-to-div",
+            "before": "export const PAST_DUE_GRACE_MS = PAST_DUE_GRACE_DAYS * DAY_MS;",
+            "after": "export const PAST_DUE_GRACE_MS = PAST_DUE_GRACE_DAYS / DAY_MS;",
+            "line_text": "export const PAST_DUE_GRACE_MS = PAST_DUE_GRACE_DAYS * DAY_MS;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/grace.ts",
+            "line": 21,
+            "col": 13,
+            "operator": "neq-flip",
+            "before": "if (status !== \"past_due\" || !pastDueSince || Number.isNaN(pastDueSince.getTime())) return null;",
+            "after": "if (status === \"past_due\" || !pastDueSince || Number.isNaN(pastDueSince.getTime())) return null;",
+            "line_text": "  if (status !== \"past_due\" || !pastDueSince || Number.isNaN(pastDueSince.getTime())) return null;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/grace.ts",
+            "line": 21,
+            "col": 45,
+            "operator": "or-to-and",
+            "before": "if (status !== \"past_due\" || !pastDueSince || Number.isNaN(pastDueSince.getTime())) return null;",
+            "after": "if (status !== \"past_due\" || !pastDueSince && Number.isNaN(pastDueSince.getTime())) return null;",
+            "line_text": "  if (status !== \"past_due\" || !pastDueSince || Number.isNaN(pastDueSince.getTime())) return null;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/grace.ts",
+            "line": 32,
+            "col": 41,
+            "operator": "lt-to-le",
+            "before": "return until !== null && now.getTime() < until.getTime();",
+            "after": "return until !== null && now.getTime() <= until.getTime();",
+            "line_text": "  return until !== null && now.getTime() < until.getTime();",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/jobshop-quote/packages/qbo-sync/src/costs.ts",
+        "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/**/*.test.ts  (in ventures/jobshop-quote/packages/qbo-sync)",
+        "seed": 1063612813,
+        "commit": "2fff376dd",
+        "sites": 114,
+        "baseline_seconds": 0.8,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/costs.ts",
+            "line": 218,
+            "col": 19,
+            "operator": "eq-flip",
+            "before": ": l.DetailType === \"ItemBasedExpenseLineDetail\"",
+            "after": ": l.DetailType !== \"ItemBasedExpenseLineDetail\"",
+            "line_text": "    : l.DetailType === \"ItemBasedExpenseLineDetail\"",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/costs.ts",
+            "line": 237,
+            "col": 55,
+            "operator": "eq-flip",
+            "before": "const emptyMatch = (m: JobMatch) => m.customerIds.size === 0 && m.classIds.size === 0;",
+            "after": "const emptyMatch = (m: JobMatch) => m.customerIds.size !== 0 && m.classIds.size === 0;",
+            "line_text": "const emptyMatch = (m: JobMatch) => m.customerIds.size === 0 && m.classIds.size === 0;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/costs.ts",
+            "line": 244,
+            "col": 77,
+            "operator": "and-to-or",
+            "before": "const link = (l.LinkedTxn ?? []).find((t) => t.TxnType === \"PurchaseOrder\" && t.TxnId);",
+            "after": "const link = (l.LinkedTxn ?? []).find((t) => t.TxnType === \"PurchaseOrder\" || t.TxnId);",
+            "line_text": "  const link = (l.LinkedTxn ?? []).find((t) => t.TxnType === \"PurchaseOrder\" && t.TxnId);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/costs.ts",
+            "line": 256,
+            "col": 73,
+            "operator": "and-to-or",
+            "before": "const negative = txnType === \"VendorCredit\" || (txnType === \"Purchase\" && txn.Credit === true);",
+            "after": "const negative = txnType === \"VendorCredit\" || (txnType === \"Purchase\" || txn.Credit === true);",
+            "line_text": "  const negative = txnType === \"VendorCredit\" || (txnType === \"Purchase\" && txn.Credit === true);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/costs.ts",
+            "line": 354,
+            "col": 16,
+            "operator": "or-to-and",
+            "before": "if (!detail || !matches(match, customerId, classId)) return;",
+            "after": "if (!detail && !matches(match, customerId, classId)) return;",
+            "line_text": "    if (!detail || !matches(match, customerId, classId)) return;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/costs.ts",
+            "line": 370,
+            "col": 45,
+            "operator": "true-to-false",
+            "before": "manuallyClosed: txn.ManuallyClosed === true,",
+            "after": "manuallyClosed: txn.ManuallyClosed === false,",
+            "line_text": "      manuallyClosed: txn.ManuallyClosed === true,",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/costs.ts",
+            "line": 699,
+            "col": 51,
+            "operator": "false-to-true",
+            "before": "return { lines: lines.sort(byDate), truncated: false };",
+            "after": "return { lines: lines.sort(byDate), truncated: true };",
+            "line_text": "    return { lines: lines.sort(byDate), truncated: false };",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "FakeCostBook (the QuickBooks stand-in other suites test against) had no test of its own date window on purchase orders or of its truncated flag; costs.test.ts now adds one."
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/qbo-sync/src/costs.ts",
+            "line": 706,
+            "col": 53,
+            "operator": "and-to-or",
+            "before": ".filter((t) => (t.TxnDate ?? \"\") >= q.fromDate && (t.TxnDate ?? \"\") <= q.toDate)",
+            "after": ".filter((t) => (t.TxnDate ?? \"\") >= q.fromDate || (t.TxnDate ?? \"\") <= q.toDate)",
+            "line_text": "      .filter((t) => (t.TxnDate ?? \"\") >= q.fromDate && (t.TxnDate ?? \"\") <= q.toDate)",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "FakeCostBook (the QuickBooks stand-in other suites test against) had no test of its own date window on purchase orders or of its truncated flag; costs.test.ts now adds one."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/jobshop-quote/packages/qbo-sync/src/money.ts",
+        "issue": "amountToCents still used Math.round(n*100): 1.005 -> 100 cents, -0.125 -> -12 while 0.125 -> 13. The same file in ventures/payapps was fixed earlier today; the Job Shop Quote copy kept the bug. Ported the fix and its test.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20008"
+      },
+      {
+        "file": "ventures/jobshop-quote/packages/qbo-sync/src/retainage.ts",
+        "issue": "planPayAppInvoice accepted a negative retainageHeldToDateCents and a deductive change order at a rate with no retainage behind it, posting a positive 'Retainage held' line (releasing retainage never held, bypassing the release check) and reporting a negative Retainage Receivable balance. Now refused when the prior balance is known.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20008"
+      },
+      {
+        "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+        "issue": "Same retainage defect in the PayApps copy. Patched here; PayApps is still a snapshot of private-monorepo (README 'Where the work happens'), so the private source needs the same change or the next sync-from-private.sh brings the bug back (check_shared_package_drift.py then goes red).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20008"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1a2feb86-9331-5a4a-8753-e516120053b3",
+    "transcripts": 1,
+    "first": "2026-11-28T05:38:13Z",
+    "last": "2026-11-28T05:43:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 92,
+        "output": 21191,
+        "thinking": 4378,
+        "cache_read": 3941764,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80690,
+        "api_equivalent_usd": 1.8581,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 92,
+      "output": 21191,
+      "thinking": 4378,
+      "cache_read": 3941764,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80690,
+      "api_equivalent_usd": 1.8581,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 48,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.19,
+      "active_minutes": 5.19,
+      "model_minutes": 3.93,
+      "tool_minutes": 1.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: 3 mutation campaigns triage, two money fixes with tests, a CI lint",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 161.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

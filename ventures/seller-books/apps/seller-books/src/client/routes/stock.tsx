@@ -1,9 +1,11 @@
-// Stock report: aging of unsold inventory, sell-through, days to sell by platform, lot payback and profit by source.
+// Stock report: aging of unsold inventory, sell-through, days to sell by platform, pricing from the seller's own
+// fees (components/price-an-item.tsx), lot payback and profit by source.
 // The numbers come from GET /reports/stock (services/books/stock.ts, where every term is defined).
 import { PLATFORM_LABELS, type Platform } from "@shared/enums";
 import { useQuery } from "@tanstack/react-query";
 import type { StockReport } from "@worker/services/books/stock";
 import { useState } from "react";
+import { PriceAnItem } from "../components/price-an-item";
 import { api, orgPath, today, usd } from "../lib/api";
 import { useOrgId } from "./org";
 import { ErrorText } from "./public";
@@ -270,6 +272,12 @@ export function StockPage() {
               </table>
             )}
           </section>
+
+          <PriceAnItem
+            orgId={orgId}
+            asOf={asOf}
+            medianDays={new Map(r.speed.map((s) => [s.platform, s.medianDays]))}
+          />
         </>
       )}
     </div>

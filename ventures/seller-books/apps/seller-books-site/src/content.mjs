@@ -371,7 +371,7 @@ export const FEATURES = [
   {
     key: "stock",
     title: "Know what's sitting unsold, and whether a lot paid off",
-    body: "A stock report shows how long your unsold items have been on the shelf and what they cost you, your sell-through and median days to sell on each platform, for every bin, pallet or estate-sale haul how much of its cost its sales have earned back, and profit and return on cost by where you bought (which thrift store, estate sale or supplier pays). Computed from your own imports and purchase records, nothing estimated.",
+    body: "A stock report shows how long your unsold items have been on the shelf and what they cost you, your sell-through and median days to sell on each platform, for every bin, pallet or estate-sale haul how much of its cost its sales have earned back, and profit and return on cost by where you bought (which thrift store, estate sale or supplier pays). Computed from your own imports and purchase records, nothing estimated. Beside it, “price an item” takes the fees each platform actually charged on your last year of orders, ads and postage included, and shows what an item would net on each one and the price that leaves the profit you want.",
   },
   {
     key: "mileage",
@@ -386,7 +386,7 @@ export const FEATURES = [
   {
     key: "quarterly",
     title: "Quarterly estimated tax from your own books",
-    body: "For each of the four federal due dates (April, June, September and January), what to have paid so far, figured two ways: a quarter of the year's required payment (the smaller of 90% of this year's tax or 100% of last year's, 110% above $150,000 of AGI), and the annualized method on Form 2210 Schedule AI, which asks less early in the year when your sales come in the fourth quarter. It uses the profit in your books to each period's end. An estimate to check with your tax preparer, not tax advice.",
+    body: "For each of the four federal due dates (April, June, September and January), what to have paid so far, figured two ways: a quarter of the year's required payment (the smaller of 90% of this year's tax or 100% of last year's, 110% above $150,000 of AGI), and the annualized method on Form 2210 Schedule AI, which asks less early in the year when your sales come in the fourth quarter. It uses the profit in your books to each period's end. Once a date has passed short, it shows the underpayment penalty so far and what another month unpaid would add. An estimate to check with your tax preparer, not tax advice.",
   },
   {
     key: "1099k-check",

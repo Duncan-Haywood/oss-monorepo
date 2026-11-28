@@ -101,6 +101,30 @@ describe("cost of goods: which items an order sold", () => {
       { as: userId },
     );
     expect(stock.status).toBe(200);
+    // Proceeds are net of the order's itemised fees: $1,250.00 − ($0.40 + $168.13 + $18.75) = $1,062.72,
+    // the report's own net amount. (Before 2026-11-28 the fee subquery summed nothing and this read $1,250.)
+    const report = await json<{
+      speed: { platform: string; sold: number; proceedsCents: number }[];
+    }>(stock);
+    expect(report.speed.find((r) => r.platform === "ebay")).toMatchObject({
+      sold: 2,
+      proceedsCents: 106272,
+    });
+  });
+
+  it("deleting one item of a two-unit order moves the order to the other item, not to none", async () => {
+    const { userId, orgId, pyrex1, pyrex2 } = await setup();
+    const order = (await sales(userId, orgId)).find((s) => s.sku === "SKU-PYREX-2");
+    expect([pyrex1.id, pyrex2.id]).toContain(order?.inventoryItemId);
+    const linked = order?.inventoryItemId === pyrex1.id ? pyrex1 : pyrex2;
+    const other = linked === pyrex1 ? pyrex2 : pyrex1;
+    const del = await api(`/api/orgs/${orgId}/inventory/items/${linked.id}`, {
+      method: "DELETE",
+      as: userId,
+    });
+    expect(del.status).toBe(200);
+    const after = (await sales(userId, orgId)).find((s) => s.sku === "SKU-PYREX-2");
+    expect(after?.inventoryItemId).toBe(other.id);
   });
 
   it("refuses a manual link to an item bought after the sale, and links a second unit by hand", async () => {

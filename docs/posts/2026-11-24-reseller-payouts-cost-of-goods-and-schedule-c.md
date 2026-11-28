@@ -2,7 +2,7 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, facebook-marketplace, ebay, amazon, paypal, venmo, cash-app, grailed, stockx, vinted, reverb, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+tags: [resellers, facebook-marketplace, poshmark, ebay, amazon, paypal, venmo, cash-app, grailed, stockx, vinted, reverb, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
 description: "Resellers: bridge a payout back to sales, cost a mixed lot by resale value, map the year onto Schedule C. Seller Books, the hosted books, is open free."
 ---
 
@@ -321,6 +321,31 @@ nothing. With no figures saved, the email names the date and asks for them
 instead of guessing an amount. Each email has a one-click link that turns
 the reminders off, no sign-in needed. State estimated payments are not in
 it.
+
+**What a missed payment costs so far** (added 2026-11-28). The penalty for
+paying late or short is not a flat fine. Form 2210 charges each shortfall at
+the IRS underpayment rate for the days it stays unpaid: 7% a year for 2025,
+and for 2026 7% from January to March, 6% from April to June and 7% after
+that ([IRS quarterly interest rates](https://www.irs.gov/payments/quarterly-interest-rates),
+read 2026-11-28). The count runs until the shortfall is paid or until
+April 15 of the next year, and a later payment pays the earliest missed date
+first. Take a seller whose last year's tax was $8,000, so $2,000 is due on
+each date, who has paid nothing by November 28, 2026. April's $2,000 has been
+short for 227 days, June's for 166 and September's for 74. That comes to
+$82.91, $62.85 and $28.38: $174.14 in all. Every further 30 days unpaid adds
+about $34.53. The app's tests check these figures.
+
+Once a due date has passed short, the Quarterly estimates page now shows the
+same count from your books and the payments you typed in. It shows the
+penalty so far, what each missed date contributes and what another 30 days
+would add. It figures the penalty with the regular and with the annualized
+installments and shows the lower, since Form 2210 lets you use either. It
+assumes each payment you typed in went in by its due date, so a payment
+sent late adds a little it cannot see. The IRS works out the real figure
+from your return and can waive it, for example after a disaster. Paying now
+stops the count on what you pay. The engine is a port of the one in our free
+ai-bookkeeper tool. There it is tested against the worked examples in the
+IRS's own Form 2210 instructions.
 
 ## Sharing the books with your bookkeeper (added 2026-11-26)
 
@@ -1054,6 +1079,34 @@ sales tax Facebook collects on checkout orders in marketplace facilitator
 states, and how to keep from counting a Venmo-paid pickup twice. Facebook's
 pages were read through search excerpts on 2026-11-28; Facebook changes its
 fees, so check the policy before you rely on the figure.
+
+## Poshmark: your earnings are not your income (added 2026-11-28)
+
+Poshmark pays you what is left after its fee, and its My Sales Report gives
+the order price and your net earnings but not the fee on its own. Seller
+Books works the fee out from the report: order price, less the shipping
+discount you offered, the upgraded label fee and the Texas seller fee tax,
+less net earnings. Take the four sold rows of the sample report the importer
+is tested on (invented, a fifth row cancelled and skipped):
+
+| Item | Order price | Discount | Texas tax | Net earnings | Fee worked out |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Tote | $48.00 | $0.00 | $0.00 | $38.40 | $9.60 |
+| Sweater (bundle) | $30.00 | $1.99 | $0.00 | $22.01 | $6.00 |
+| Tee (same bundle) | $10.00 | $0.00 | $0.00 | $7.05 | $2.95 |
+| Rain boots | $12.00 | $0.00 | $0.06 | $8.99 | $2.95 |
+
+$76.45 reached the balance, but line 1 is $100.00. Line 10 takes $21.56
+(the fee plus the Texas tax on it) and line 27a the $1.99 discount. Report
+the earnings as income and the profit comes out the same, but gross
+receipts sit $23.55 low and a 1099-K, which counts gross payments, will not
+reconcile to them. The new page,
+[Poshmark taxes](https://marisstella.app/seller-books/poshmark-taxes), has
+the 1099-K threshold (over $20,000 and 200 transactions federally, lower in
+some states) and the sales tax Poshmark's Posh Remit collects for you.
+Poshmark's own fee article did not load when we checked on 2026-11-28, so
+the page states no rate as Poshmark's; the fees above match what
+third-party fee pages report, and your own report is what counts.
 
 ## A free inventory spreadsheet, if you are not ready for books yet (added 2026-11-27)
 

@@ -177,6 +177,41 @@ describe("planPayAppInvoice", () => {
     assert.equal(plan.summary.retainageBalanceAfterCents, 250_000);
   });
 
+  it("refuses a negative held-to-date and a plan that drives the receivable below zero", () => {
+    // Red team 2026-11-28: a deductive change order at a rate with no retainage behind it
+    // posted a positive "held" line, releasing retainage never held, and the plan reported a
+    // negative Retainage Receivable balance instead of refusing.
+    const base = {
+      applicationNumber: 2,
+      retainageItemId: RET,
+      retainageRateBps: 1000,
+      workLines: [
+        { itemId: "a", description: "Work", amountCents: 100_000, retainageRateBps: 0 },
+        { itemId: "co", description: "Deductive change order", amountCents: -50_000 },
+      ],
+    };
+    assert.throws(
+      () => planPayAppInvoice({ ...base, retainageHeldToDateCents: 0 }),
+      isValidation(/Retainage Receivable below zero/),
+    );
+    assert.equal(
+      planPayAppInvoice({ ...base, retainageHeldToDateCents: 5_000 }).summary
+        .retainageBalanceAfterCents,
+      0,
+    );
+    assert.throws(
+      () =>
+        planPayAppInvoice({
+          applicationNumber: 1,
+          retainageItemId: RET,
+          retainageRateBps: 1000,
+          workLines: [{ itemId: "a", description: "Work", amountCents: 100_000 }],
+          retainageHeldToDateCents: -1,
+        }),
+      isValidation(/retainageHeldToDateCents cannot be negative/),
+    );
+  });
+
   it("refuses releases it cannot check, over-releases, and negative nets", () => {
     const base = {
       applicationNumber: 1,

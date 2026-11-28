@@ -91,6 +91,7 @@
   "waiver MA/conditional-final/generic": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate disputedClaimsCents? checkMaker checkAmountCents checkPayee",
   "waiver MA/unconditional-final/generic": "claimantName customerName ownerName? jobLocation signerName signerTitle signedDate disputedClaimsCents? amountPaidCents",
   "waiver MA/conditional-progress/statutory-partial-subordination": "signedDate county applicationNumber ownerName contractorName lenderName? originalContractCents approvedChangeOrders adjustedContractCents completedToDateCents retainageCents totalPayableCents previousPaymentsCents currentAmountDueCents pendingChangeOrders? disputedClaimsCents? customerName propertyDescription cityOrTown paymentAmountWords paymentAmountCents invoiceDate throughDate signerName signerTitle",
+  "notice MI/notice-of-furnishing/statutory": "designee designeeAddress contractedWith workDescription liber? page? county? claimantName claimantAddress signer signerAddress? signedDate",
   "waiver MI/conditional-progress/statutory": "customerName workProvided jobLocation paymentAmountCents throughDate claimantName signedDate claimantAddress? claimantPhone?",
   "waiver MI/unconditional-progress/statutory": "customerName workProvided jobLocation paymentAmountCents throughDate claimantName signedDate claimantAddress? claimantPhone?",
   "waiver MI/conditional-final/statutory": "customerName workProvided jobLocation paymentAmountCents claimantName signedDate claimantAddress? claimantPhone?",

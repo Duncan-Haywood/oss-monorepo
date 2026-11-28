@@ -451,3 +451,35 @@ with the statute as a whole, sentence by sentence. A second test checks that eve
 every form appears on its state's page, so the page cannot drift from the statute's text as we
 read it (2026-11-25 for most states, 2026-11-26 for Georgia, Mississippi and Massachusetts).
 Statutes change, so each form links the official section to check before relying on it.
+
+## Update, 2026-11-28: Michigan's notice of furnishing, the notice before the waiver
+
+Michigan's waivers (§ 570.1115) were among the first we encoded. The notice that comes before
+them was not, and in Michigan the two are tied together. A sub or supplier "shall provide a notice
+of furnishing to the designee and the general contractor, if any, as named in the notice of
+commencement ... within 20 days after furnishing the first labor or material" (MCL 570.1109(1)).
+We read §§ 570.1108, 570.1108a, 570.1109 and 570.1111 on the Michigan Legislature's site on
+2026-11-28. Four things stood out:
+
+- **A late notice costs you exactly what the owner already paid on paper.** Work after the notice
+  stays lienable. Work before it stays lienable "except to the extent that payments were made by or
+  on behalf of the owner or lessee to the contractor pursuant to either a contractor's sworn
+  statement or a waiver of lien" (§ 570.1109(6)). So the owner pays the GC against a sworn statement
+  that lists you, and if the GC doesn't pay you, your lien for that earlier work is gone.
+- **The 20 days wait for the notice of commencement.** If the owner never records one, or doesn't
+  hand it over when you ask in writing by certified mail, the time runs until 20 days after it is
+  recorded or given to you (§ 570.1108(10), (11)). Send the request early and keep the receipt.
+- **The claim of lien needs the proof of service.** Within 90 days after your last furnishing, the
+  claim "shall have attached to it a proof of service of a notice of furnishing" (§ 570.1111(4)).
+  So the certified mail receipt from day 20 is part of the lien you might record months later.
+- **The statute prints the form,** and a notice not on the copy attached to the notice of
+  commencement "must be in substantially the following form" (§ 570.1109(4)), WARNING TO OWNER
+  included.
+
+The free guide,
+[Michigan notice of furnishing](https://marisstella.app/pay-app-guides/michigan-notice-of-furnishing.html),
+covers who gets it, the timeline, and the form word for word. A test checks every quoted phrase
+against the text we fetched. PayApps now prints the notice from the job page on the Crew plan and
+up. The GC is filled in as the other contracting party. The designee is left for you to copy from
+the notice of commencement, because PayApps doesn't hold that document. It does not count the 20
+days or keep a log of the notices you served yet (California and Florida have both).

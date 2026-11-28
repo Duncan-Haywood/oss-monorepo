@@ -2682,6 +2682,23 @@ nothing to copy. No customers yet. Paid plans are dark
   `test/az-notice.test.ts`; API test in `test/worker/notices.test.ts`. Not yet: counting Arizona's 20
   days on the job and a log of notices mailed (as California's), and the § 33-992.02(2) affidavit of
   mailing.
+- Notice of furnishing: Michigan (2026-11-28, mi-notice-of-furnishing, Crew and up, with lien
+  waivers). The job page's "Preliminary notice of right to lien" panel now prints Michigan's notice of
+  furnishing (Mich. Comp. Laws § 570.1109), which every sub and supplier serves on the designee and
+  the general contractor named in the notice of commencement within 20 days after first furnishing;
+  a claim of lien must carry its proof of service (§ 570.1111(4)), and a late one loses the earlier
+  work to the extent the owner paid on a sworn statement or waiver (§ 570.1109(6)). Subsection 4
+  prescribes the form, so it prints whole: each blank's parenthesised caption, the liber/page/county
+  sentence "or (a copy of which is attached to this notice)", and the WARNING TO OWNER in bold.
+  Prefilled: the GC as the other contracting party and the company's name; the designee is left for
+  the user (it comes from the notice of commencement, which PayApps does not hold). Liber, page and
+  county are optional (blank prints lines, for a home's unrecorded notice of commencement attached
+  instead). `packages/lien-waivers/src/mi-notice.ts`, snapshot `sources/mi-570-1108-1109.txt`
+  (legislature.mi.gov, read 2026-11-28), checked word for word by `test/mi-notice.test.ts`; API test in
+  `test/worker/notices.test.ts`. Front door: `ventures/pay-app-guides/michigan-notice-of-furnishing.html`.
+  Not yet: counting the 20 days on the job (with §§ 570.1108(10), (11)'s delays), a log of notices
+  served with the certified mail receipts, the proof of service the claim of lien attaches, and the
+  laborer's notices (§ 570.1109(2), (3)).
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers

@@ -347,7 +347,9 @@ routes.delete("/items/:id", requireRole("editor"), async (c) => {
     db
       .update(sale)
       .set({
-        inventoryItemId: sql`(select ${inventoryItem.id} from ${inventoryItem} where ${inventoryItem.orgId} = ${orgId} and ${inventoryItem.soldBySaleId} = ${sale.id} and ${inventoryItem.id} <> ${item.id} order by ${inventoryItem.acquiredDate}, ${inventoryItem.id} limit 1)`,
+        // Columns written with their tables: drizzle renders ${sale.id} as a bare "id", which here bound to
+        // inventory_item.id, so the order was always unlinked instead of moved to another item (2026-11-28).
+        inventoryItemId: sql`(select ii.id from inventory_item ii where ii.org_id = ${orgId} and ii.sold_by_sale_id = "sale"."id" and ii.id <> ${item.id} order by ii.acquired_date, ii.id limit 1)`,
       })
       .where(and(eq(sale.orgId, orgId), eq(sale.inventoryItemId, item.id))),
     db

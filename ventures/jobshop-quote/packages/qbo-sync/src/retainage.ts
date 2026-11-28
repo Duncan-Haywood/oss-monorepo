@@ -85,7 +85,11 @@ export function planPayAppInvoice(input: PayAppInvoicePlanInput): PayAppInvoiceP
   if (released < 0)
     throw new AccountingValidationError("retainageReleasedCents cannot be negative");
   const heldBefore = input.retainageHeldToDateCents;
-  if (heldBefore !== undefined) checkCents(heldBefore, "retainageHeldToDateCents");
+  if (heldBefore !== undefined) {
+    checkCents(heldBefore, "retainageHeldToDateCents");
+    if (heldBefore < 0)
+      throw new AccountingValidationError("retainageHeldToDateCents cannot be negative");
+  }
 
   if (input.workLines.length === 0 && released === 0) {
     throw new AccountingValidationError("nothing to bill: no work lines and no retainage release");
@@ -141,6 +145,14 @@ export function planPayAppInvoice(input: PayAppInvoicePlanInput): PayAppInvoiceP
     );
   }
 
+  // A deductive change order lowers the held amount; it cannot release retainage never held.
+  const balanceAfter = heldBefore === undefined ? null : heldBefore + held - released;
+  if (balanceAfter !== null && balanceAfter < 0) {
+    throw new AccountingValidationError(
+      `pay app #${app} would take Retainage Receivable below zero (${balanceAfter} cents)`,
+    );
+  }
+
   return {
     lines,
     summary: {
@@ -148,7 +160,7 @@ export function planPayAppInvoice(input: PayAppInvoicePlanInput): PayAppInvoiceP
       retainageHeldCents: held,
       retainageReleasedCents: released,
       netCents: net,
-      retainageBalanceAfterCents: heldBefore === undefined ? null : heldBefore + held - released,
+      retainageBalanceAfterCents: balanceAfter,
     },
   };
 }
