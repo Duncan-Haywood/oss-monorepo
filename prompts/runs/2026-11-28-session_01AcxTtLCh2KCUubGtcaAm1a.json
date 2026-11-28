@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push failed payapps CI twice: biome format of the new test lines, then two tests elsewhere (test/unit/lien-deadline-panel.test.tsx, test/worker/lien-deadline.test.ts) used Colorado as the example unsupported bond state. Fixed by formatting and switching them to PA."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "ventures/payapps/apps/payapps/ROADMAP.md",
       "issue": "The 'Not done' list named Colorado and New Jersey without saying which statute sites answer through the proxy; probing ~30 legislature hosts took a quarter of the run (PA, IL, KS, WI, CT, NE, WV refuse or bot-check; IA, ME, CO PDFs, LA, DE, RI, SD, ND answer). Recorded the result in the ROADMAP entry."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/src/shared/state-bond.test.ts",
+      "issue": "Adding a state broke tests outside src/shared that picked a then-unsupported state as the example; running only src/shared missed them. Run the whole unit and worker suites (plus `biome ci .`) before pushing."
     }
   ],
   "deviations": [
@@ -54,7 +60,7 @@
     "ventures/payapps/apps/payapps/ROADMAP.md entry"
   ],
   "goal": null,
-  "notes": "Local checks: payapps unit vitest src/shared 1232 passed; tsc exit 0; pay-app-guides page.test.mjs 34 pass; llms-answers.test.mjs 7 pass.",
+  "notes": "Local checks: payapps unit vitest 164 files / 1574 passed; worker vitest 96 files / 606 passed; tsc exit 0; biome ci clean of errors; pay-app-guides page.test.mjs 34 pass; llms-answers.test.mjs 7 pass; faq-visible.test.mjs 4 pass; venture-preflight pay-app-guides clean.",
   "corrections": [],
   "redteam": null,
   "usage": {

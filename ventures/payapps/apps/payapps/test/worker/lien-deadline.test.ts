@@ -252,7 +252,7 @@ describe("lien deadline", () => {
     await call<ProjectDetailDto>(job.base, {
       method: "PATCH",
       as,
-      json: { lienState: "CO", millerTier: "second" },
+      json: { lienState: "PA", millerTier: "second" },
     });
     r = await call<CashReport>(`/api/orgs/${orgId}/reports/cash`, { as });
     row = r.projects.find((x) => x.id === job.id);
