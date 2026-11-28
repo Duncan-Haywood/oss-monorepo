@@ -48,7 +48,7 @@
     "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended the sworn statement section)"
   ],
   "goal": null,
-  "notes": "Security queue empty (security_next exit 3); IDEAS and requests empty. Routed ventures/1, bet #1 payapps: sworn statement copies per pay application (ROADMAP Next item). pnpm test: unit 1677 passed/4 skipped, worker 642 passed; tsc and biome clean; risk_review nothing blocked.",
+  "notes": "Security queue empty (security_next exit 3); IDEAS and requests empty. Routed ventures/1, bet #1 payapps: sworn statement copies per pay application (ROADMAP Next item). pnpm test: unit 1677 passed/4 skipped, worker 642 passed; tsc and biome clean; risk_review nothing blocked. CI changed-ventures failed on pay-app-guides page.test.mjs (final-payment-affidavit.html: run node nav.mjs), red on main since PR #20155 (ohio-notice-of-furnishing.html too); fixed in this PR by running nav.mjs, 453/453 pass locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
