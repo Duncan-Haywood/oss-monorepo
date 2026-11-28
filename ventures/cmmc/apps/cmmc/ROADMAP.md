@@ -486,6 +486,15 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   (hashes pinned, `test/dfars-clauses.test.mjs`). The Level 1 vs Level 2 explainer links to it. A front
   door for "DFARS 7019 vs 7020" style searches, ending on the free Level 1 sign-up.
 
+- Self-assessment spreadsheet (2026-11-28, cmmc-site): `/cmmc-self-assessment-spreadsheet` gives away
+  `cmmc-level-2-self-assessment.xlsx`, built with the site (`src/assessment-sheet.mjs`, nothing committed):
+  all 110 requirements with points and POA&M rule, a Status list, partial credit on 3.5.3 and 3.13.11,
+  points lost and "must close first" per row, and a Score sheet (SPRS score, counts, Final/Conditional/neither,
+  points lost by family). `test/assessment-sheet.test.mjs` recalculates seven cases in LibreOffice against
+  `sprs.mjs` `score()`; `test/unit/assessment-sheet-import.test.ts` here reads it with `readWorkbookForImport`
+  and `planImport` (110 rows, each column on its field). Linked from the SPRS calculator and the Level 2 page.
+  Next: read whether its `from=` sign-ups lead to Level 2 once checkout is on; a Level 1 version if asked.
+
 ## Next
 
 - Internal audits, part 3 (calendar dates and the dashboard card done 2026-11-27): an audit report

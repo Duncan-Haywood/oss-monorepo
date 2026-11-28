@@ -1052,6 +1052,39 @@ the app prices the same frame with its costing engine and fails if any
 quantity break differs by a cent. All the figures are made up, and the guide
 says so.
 
+## Update, 28 November 2026: a CMMC self-assessment spreadsheet that keeps the score
+
+Many small shops start a NIST SP 800-171 self-assessment in Excel, so the
+CMMC site now gives one away: a [free CMMC Level 2 self-assessment
+spreadsheet](https://marisstella.app/cmmc/cmmc-self-assessment-spreadsheet).
+It has all 110 requirements word for word, each with its points and its
+POA&M rule. Mark a status on each row and the Score sheet gives the SPRS
+score, how many open items must be closed first, and whether the result
+supports a Final or a Conditional Level 2 (Self) status. A blank row counts
+as not met, so the score only goes up as you check requirements. Counting
+the rule across the 110 rows shows three things:
+
+- **Most of the points can't wait for a POA&M.** 57 requirements, all worth
+  5 or 3 points, must be met before a conditional status. Only 46 of the 51
+  one-point requirements, plus 3.13.11 when the encryption is in place but
+  not FIPS-validated, may sit on a POA&M. The other five one-pointers
+  (3.1.20, 3.1.22 and 3.10.3 to 3.10.5) never may.
+- **The 88 floor caps the POA&M at about 22 items.** Every open one-point
+  item costs a point, so a shop with nothing else open can leave at most 22
+  of them for the 180-day close-out.
+- **One requirement decides whether you get a score at all.** 3.12.4, the
+  system security plan, has no points, but without it there is no score.
+  The sheet says so instead of showing a number.
+
+The sheet uses the same rules as the free SPRS calculator. A test
+recalculates it in LibreOffice for seven filled-in cases and fails if a
+score, a status or a family's points lost differs from the calculator. The
+columns are the ones the workspace's Import from a spreadsheet reads (CMMC
+ID, Status, Owner, Implementation statement and Notes), and a second test
+reads the workbook with the app's own importer. Recording Level 2 in the
+workspace needs the Level 2 plan, which is not on sale yet. The page says
+so, and says that the free Level 1 plan can read all 110 in the meantime.
+
 ## Update, 28 November 2026: estimating the cycle time itself
 
 The pricing guides all start from operation times the estimator already has.
