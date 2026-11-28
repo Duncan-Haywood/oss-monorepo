@@ -6,6 +6,7 @@ import {
   emailQuoteSchema,
   fileUnitsSchema,
   followUpSettingsSchema,
+  invoiceCsvSchema,
   logFollowUpSchema,
   outcomeSchema,
   quoteLinePatchSchema,
@@ -24,7 +25,7 @@ import { z } from "zod";
 import { AppError, badRequest } from "../../lib/errors";
 import { validate } from "../../lib/validate";
 import { requireRole } from "../../middleware/tenant";
-import { quoteQuickBooks, sendQuoteInvoice } from "../../services/quickbooks";
+import { quoteInvoiceCsv, quoteQuickBooks, sendQuoteInvoice } from "../../services/quickbooks";
 import {
   addLine,
   createQuote,
@@ -396,6 +397,25 @@ export const quoteRoutes = new Hono<AppEnv>()
         c.req.valid("json").choices,
       ),
     );
+  })
+  // The same invoice as a QuickBooks Online import file, for a shop without the connection.
+  .post("/:quoteId/quickbooks.csv", validate("json", invoiceCsvSchema), async (c) => {
+    const body = c.req.valid("json");
+    const { csv, docNumber } = await quoteInvoiceCsv(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("quoteId"),
+      body.choices,
+      body.dueDays,
+    );
+    return new Response(`\uFEFF${csv}`, {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": contentDisposition(`invoice-${docNumber}-quickbooks.csv`),
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "private, no-store",
+      },
+    });
   })
   // Customer links: the customer accepts (PO, quantities) or declines online (customer-link.ts).
   .get("/:quoteId/customer-links", async (c) =>

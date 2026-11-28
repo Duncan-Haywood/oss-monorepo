@@ -85,6 +85,39 @@ to the default. Choosing the default again forgets it.
 - API: `GET /quickbooks/items` → `QuickBooksItemsDto`, `PUT /quickbooks/item` `{ itemId | null }`
   (admins; a viewer or estimator gets 403). The status (`GET /quickbooks`) names the item in use.
 
+## Without the connection: the import file
+
+Until the owner sets the Intuit keys (below), and for any shop that does not want to connect, a won
+quote's QuickBooks card offers **Download invoice CSV**: the same invoice as a file for QuickBooks
+Online's own invoice import (Settings, Import data, Invoices). `POST /quotes/:id/quickbooks.csv`
+takes the same `choices` as the send plus `dueDays`; any member may download it, since it carries
+only what the quote page shows. Nothing is recorded, so it can be downloaded again, and the quote
+can still be sent through the connection later.
+
+What the file says (`invoiceImportCsv`, `src/shared/qbo-invoice.ts`):
+
+- **Columns:** Invoice No, Customer, Invoice Date, Due Date, Product/Service, Description, Qty,
+  Rate, Amount, Message on invoice. QuickBooks asks on upload which column is which, so the names
+  only need to be clear. Intuit's help says the import needs invoice number, customer, invoice
+  date, due date and item amount, with every line repeating its invoice's number, customer and
+  dates ([Intuit, "Import multiple invoices"](https://quickbooks.intuit.com/learn-support/en-us/help-article/import-export-data-files/import-multiple-invoices/L7E9Xrd8l_US_en_US),
+  read 2026-11-28). We could not read the sample CSV QuickBooks offers in-product; if its column
+  names differ, the mapping step still takes these.
+- **Lines:** the plan the send uses (picked, accepted online, or the only break), each at its
+  stored unit price and amount, as plain decimals (`1234.50`). A line whose amount is not quantity
+  × unit price is refused, as on the send.
+- **Number, customer, memo:** `Q1001`/`Q1001-R2`, the quote's customer company, and "Your PO ...
+  Per our quote ...". QuickBooks keeps the number only with custom transaction numbers turned on,
+  and adds a new customer only with "Add new customers" ticked ([Intuit, import guide PDF](https://digitalasset.intuit.com/DOCUMENT/A5EA0szyV/import-invoices-quickbooks-online-guide.pdf)).
+- **Product/Service:** "Machined parts", or the shop's chosen item when QuickBooks is connected.
+  QuickBooks bills a name it does not have as its generic "Sales" item (Intuit's help).
+- **Dates:** the shop's day as MM/DD/YYYY (choose that format on upload); due `dueDays` later
+  (0 to 365), defaulting to "Net N" from the quote terms, else 30.
+- **Cells** starting `=`, `+`, `-` or `@` (not a number) get a leading apostrophe, as the other CSVs.
+
+QuickBooks' own limits (Intuit's help): 1,000 rows and 100 invoices a file, no negative amounts,
+and no invoice import at all in a company that has set up sales tax; the card says so.
+
 ## Turning it on (owner)
 
 1. Create an app at developer.intuit.com with the `com.intuit.quickbooks.accounting` scope and the

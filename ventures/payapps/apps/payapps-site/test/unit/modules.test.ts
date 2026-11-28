@@ -50,7 +50,7 @@ describe("module pages", () => {
   });
 
   it("say Crew and up exactly where the app gates the feature", () => {
-    const crew = new Set(["lien-waivers", "quickbooks", "job-cost"]);
+    const crew = new Set(["lien-waivers", "quickbooks", "job-cost", "lower-tier-waivers"]);
     for (const m of MODULE_PAGES) {
       expect(m.plan.startsWith("Crew plan and up"), m.featureId).toBe(crew.has(m.featureId));
     }

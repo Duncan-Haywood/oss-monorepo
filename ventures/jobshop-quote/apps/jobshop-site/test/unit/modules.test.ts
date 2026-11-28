@@ -71,9 +71,13 @@ describe("module pages", () => {
   });
 
   it("give no page to parts that are built but switched off in the hosted app", () => {
-    const text = JSON.stringify(MODULES);
-    // Inbound RFQ email and QuickBooks are dark (LAUNCH, docs/QUICKBOOKS.md): no module claims them.
+    const text = JSON.stringify(MODULES.filter((m) => m.id !== "quickbooks-import"));
+    // Inbound RFQ email and the QuickBooks connection are dark (LAUNCH, docs/QUICKBOOKS.md): no
+    // module claims them. The import file needs no connection and has its own page, which says the
+    // one-click send is not on.
     expect(text).not.toMatch(/QuickBooks|forward(ed)? the RFQ|rfq\+/i);
+    const qb = MODULES.find((m) => m.id === "quickbooks-import");
+    expect(qb?.limits.join(" ")).toContain("not switched on in the hosted app");
   });
 
   it("link only pages this site builds", () => {
@@ -110,6 +114,7 @@ describe("module pages", () => {
       "win-loss": ["Win/loss analytics, part 3", "Win/loss analytics, part 2"],
       traveler: ["Job traveler"],
       "shop-load": ["Shop load and lead time"],
+      "quickbooks-import": ["QuickBooks Online import file"],
     };
     expect(Object.keys(evidence).sort()).toEqual(MODULES.map((m) => m.id).sort());
     for (const [id, needles] of Object.entries(evidence))

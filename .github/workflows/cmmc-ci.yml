@@ -11,11 +11,15 @@ on:
     branches: [main]
     paths:
       - "ventures/cmmc/**"
+      # The free Level 1 page's data, which level1-parity.test.ts keeps equal to the app's copy.
+      - "ventures/machine-shop-guides/l1-data.mjs"
       - ".github/workflows/cmmc-ci.yml"
   push:
     branches: [main]
     paths:
       - "ventures/cmmc/**"
+      # The free Level 1 page's data, which level1-parity.test.ts keeps equal to the app's copy.
+      - "ventures/machine-shop-guides/l1-data.mjs"
       - ".github/workflows/cmmc-ci.yml"
   workflow_dispatch:
 
@@ -44,6 +48,7 @@ jobs:
           sparse-checkout: |
             .github
             ventures/cmmc
+            ventures/machine-shop-guides
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           package_json_file: ventures/cmmc/package.json

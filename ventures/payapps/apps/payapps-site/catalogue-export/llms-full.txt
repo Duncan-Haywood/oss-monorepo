@@ -344,6 +344,8 @@ Retainage waits on close-out: the punch list accepted and the warranty, O&M manu
 - One close-out binder PDF: a transmittal listing every document with its dates, an index, then each required document's files in checklist order
 - Every plan
 
+[More on close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+
 Built · in testing
 
 ## Daily reports from the job site
@@ -375,6 +377,8 @@ Your foreman knows who worked where; job cost usually finds out after payroll, w
 - On a prevailing-wage job, one button on the certified payroll page fills the WH-347 week from these hours: straight time, overtime and each worker's trade, with any hours on other jobs named for the gross
 - Hours on every plan; posting them to job costs comes with job costing (Crew and up). Federal overtime only: state daily overtime, double time and prevailing wages are for your payroll service
 
+[More on crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+
 Built · in testing
 
 ## Your schedule on each job, and the lookahead for the GC's meeting
@@ -389,6 +393,8 @@ List the activities you plan on a job (rough-in level 2, set fixtures, pull wire
 - The lookahead as a PDF (three or six weeks) and the whole schedule as CSV
 - Delays by activity: a daily report names the activity its lost hours held up, and the delay log (days, hours, the delay as written) prints as a PDF and attaches to a time-extension change order as backup
 - Every plan. Your schedule here does not change the contract or the GC's schedule, and the delay log is not a notice of delay
+
+[More on job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
 
 Built · in testing
 
@@ -438,6 +444,8 @@ Many GCs hold a payment until your own suppliers and sub-subcontractors have sig
 - Attach the signed copy on its row: marked received, and named for the supplier in the backup packet
 - Every waiver still out, across all your open jobs, on the projects page and in the weekly email, longest wait first
 - Crew plan and up, with lien waivers. Which waivers a contract or state requires is yours to check; nothing is sent for you
+
+[More on lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 Built · in testing
 
@@ -841,6 +849,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -910,6 +922,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -974,6 +990,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1035,6 +1055,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1105,6 +1129,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1174,6 +1202,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1238,6 +1270,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1304,6 +1340,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1374,6 +1414,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1439,6 +1483,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1506,6 +1554,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1572,6 +1624,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1639,6 +1695,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1705,6 +1765,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [T&M tickets](https://marisstella.app/payapps/tm-ticket-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1767,6 +1831,10 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [T&M tickets](https://marisstella.app/payapps/tm-ticket-app)
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
@@ -1833,9 +1901,295 @@ Yes. It opened in November 2026 and has no customers, reviews or published resul
 - [T&M tickets](https://marisstella.app/payapps/tm-ticket-app)
 - [Punch list](https://marisstella.app/payapps/punch-list-app)
 - [RFI log](https://marisstella.app/payapps/rfi-log-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
 
 [Every feature, built and next](https://marisstella.app/payapps/features)
 
 PayApps is not affiliated with the American Institute of Architects (AIA) and does not produce AIA Contract Documents. Nothing on this site is legal advice.
 
 [Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site%2Fmodule%2Festimates)
+
+---
+
+<!-- https://marisstella.app/payapps/subcontractor-scheduling-software -->
+Built · in testing
+
+# Your schedule on each job, and the three-week lookahead
+
+List the activities you plan on each job with the crew, the start and finish and the activity each waits for. Move them together when the GC's schedule slips, and print the three-week lookahead for the coordination meeting.
+
+[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site%2Fmodule%2Fjob-schedule)
+
+## What it does
+
+List the activities you plan on a job (rough-in level 2, set fixtures, pull wire to the panel) with the crew doing each, its start and finish, how far along it is and the activity it waits for. Bring the three-week lookahead to the GC's coordination meeting as a PDF, and see every crew across every job for the Monday crew meeting.
+
+- Each activity's status for today: not started, in progress, done, late start or past its finish, from the dates you typed
+- An activity that starts before the one it waits for finishes is flagged, with the earliest day it can start
+- When the GC's schedule slips, move an activity and everything waiting on it by workdays in one step; finished work stays where it happened
+- Your company's holidays left out of every workday count, move and lookahead: type the days you take off, or start from the federal list and delete the ones your crews work
+- A crew lookahead across every active job, grouped by the crew typed on each activity, listing the days a crew has work on two jobs
+- The lookahead as a PDF (three or six weeks) and the whole schedule as CSV
+- Delays by activity: a daily report names the activity its lost hours held up, and the delay log (days, hours, the delay as written) prints as a PDF and attaches to a time-extension change order as backup
+- Every plan. Your schedule here does not change the contract or the GC's schedule, and the delay log is not a notice of delay
+
+## Plans
+
+Every plan, including Free on one job. See [pricing](https://marisstella.app/payapps/pricing); every module works on the same jobs, so nothing is entered twice.
+
+## Free guides on this
+
+- [Free construction daily report template](https://marisstella.app/pay-app-guides/daily-report-template.html)
+
+## Common questions
+
+### Which PayApps plans include it?
+
+Every plan, including Free on one job. Free on one job with no card. Paid plans for more jobs are not on sale yet.
+
+### Is PayApps new?
+
+Yes. It opened in November 2026 and has no customers, reviews or published results yet. Everything on this page works in the app today; check every figure before you send it.
+
+## The rest of PayApps
+
+- [Pay application software](https://marisstella.app/payapps/pay-application-software)
+- [Schedule of values](https://marisstella.app/payapps/schedule-of-values-software)
+- [Retainage tracking](https://marisstella.app/payapps/retainage-tracking)
+- [Change orders](https://marisstella.app/payapps/change-order-tracking)
+- [Lien waiver software](https://marisstella.app/payapps/lien-waiver-software)
+- [Receivables and cash](https://marisstella.app/payapps/construction-receivables)
+- [QuickBooks Online](https://marisstella.app/payapps/quickbooks-retainage-invoicing)
+- [Job cost and WIP](https://marisstella.app/payapps/job-costing-wip-schedule)
+- [Certified payroll](https://marisstella.app/payapps/certified-payroll-software)
+- [GC portal billing](https://marisstella.app/payapps/gc-portal-billing)
+- [Submittal log](https://marisstella.app/payapps/submittal-log-software)
+- [Daily reports](https://marisstella.app/payapps/daily-report-app)
+- [T&M tickets](https://marisstella.app/payapps/tm-ticket-app)
+- [Punch list](https://marisstella.app/payapps/punch-list-app)
+- [RFI log](https://marisstella.app/payapps/rfi-log-software)
+- [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
+
+[Every feature, built and next](https://marisstella.app/payapps/features)
+
+PayApps is not affiliated with the American Institute of Architects (AIA) and does not produce AIA Contract Documents. Nothing on this site is legal advice.
+
+[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site%2Fmodule%2Fjob-schedule)
+
+---
+
+<!-- https://marisstella.app/payapps/crew-timesheet-app -->
+Built · in testing
+
+# Crew timesheets that land on job cost
+
+Enter each worker's hours by day against a job and a schedule-of-values line, export the week for your payroll service, and post it to the jobs' labor costs so an over-running line shows while it can still be fixed.
+
+[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site%2Fmodule%2Ftimesheets)
+
+## What it does
+
+Your foreman knows who worked where; job cost usually finds out after payroll, weeks later. Enter each worker's hours by day on a job and a schedule-of-values line, and post the week: the labor goes on each job's costs, so an over-running line shows while it can still be fixed.
+
+- Your crew list with each worker's trade and hourly rate; a worker with past hours is made inactive, not deleted
+- One week per screen, a row per job and line, hours by day; your company's workweek (Monday or any other day) is kept fixed once hours are entered
+- Overtime past 40 hours in the workweek at time and a half, on the hours worked after the 40th, so the job worked on Saturday carries it
+- Post to job costs: one labor cost per job and line, wages plus the burden percent you type (none is assumed); a week posted twice adds nothing
+- A payroll CSV (straight time, overtime, rate and gross per worker) for your payroll service
+- On a prevailing-wage job, one button on the certified payroll page fills the WH-347 week from these hours: straight time, overtime and each worker's trade, with any hours on other jobs named for the gross
+- Hours on every plan; posting them to job costs comes with job costing (Crew and up). Federal overtime only: state daily overtime, double time and prevailing wages are for your payroll service
+
+## Plans
+
+Hours on every plan, including Free on one job. Posting them to job costs is Crew plan and up. See [pricing](https://marisstella.app/payapps/pricing); every module works on the same jobs, so nothing is entered twice.
+
+## Free guides on this
+
+- [WH-347 certified payroll report](https://marisstella.app/certified-payroll-calculator/wh347-report.html)
+- [Overbilling and underbilling](https://marisstella.app/pay-app-guides/overbilling-underbilling.html)
+
+## Common questions
+
+### Which PayApps plans include it?
+
+Hours on every plan, including Free on one job. Posting them to job costs is Crew plan and up. Free on one job with no card. Paid plans for more jobs are not on sale yet.
+
+### Is PayApps new?
+
+Yes. It opened in November 2026 and has no customers, reviews or published results yet. Everything on this page works in the app today; check every figure before you send it.
+
+## The rest of PayApps
+
+- [Pay application software](https://marisstella.app/payapps/pay-application-software)
+- [Schedule of values](https://marisstella.app/payapps/schedule-of-values-software)
+- [Retainage tracking](https://marisstella.app/payapps/retainage-tracking)
+- [Change orders](https://marisstella.app/payapps/change-order-tracking)
+- [Lien waiver software](https://marisstella.app/payapps/lien-waiver-software)
+- [Receivables and cash](https://marisstella.app/payapps/construction-receivables)
+- [QuickBooks Online](https://marisstella.app/payapps/quickbooks-retainage-invoicing)
+- [Job cost and WIP](https://marisstella.app/payapps/job-costing-wip-schedule)
+- [Certified payroll](https://marisstella.app/payapps/certified-payroll-software)
+- [GC portal billing](https://marisstella.app/payapps/gc-portal-billing)
+- [Submittal log](https://marisstella.app/payapps/submittal-log-software)
+- [Daily reports](https://marisstella.app/payapps/daily-report-app)
+- [T&M tickets](https://marisstella.app/payapps/tm-ticket-app)
+- [Punch list](https://marisstella.app/payapps/punch-list-app)
+- [RFI log](https://marisstella.app/payapps/rfi-log-software)
+- [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
+
+[Every feature, built and next](https://marisstella.app/payapps/features)
+
+PayApps is not affiliated with the American Institute of Architects (AIA) and does not produce AIA Contract Documents. Nothing on this site is legal advice.
+
+[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site%2Fmodule%2Ftimesheets)
+
+---
+
+<!-- https://marisstella.app/payapps/construction-closeout-documents -->
+Built · in testing
+
+# Close-out documents, and what still holds your retainage
+
+Track each close-out document your subcontract asks for from sent to accepted, see in words what still stands between the job and its retainage, and send the GC one binder PDF and a release-request email.
+
+[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site%2Fmodule%2Fcloseout)
+
+## What it does
+
+Retainage waits on close-out: the punch list accepted and the warranty, O&M manuals, as-builts and the rest delivered. Start from the standard list (consent of surety added on a bonded job), edit it to what your subcontract asks for, and mark each document sent and then accepted. The job page reads the checklist with the punch list and the retainage on your latest pay application and lists what still stands in the way; once nothing does, it drafts the email asking the GC to release it.
+
+- Warranty, O&M manuals, as-builts, attic stock, final inspection and final waiver in one click, with no duplicates; any other document typed in, with where the requirement comes from
+- To send, overdue, sent and awaiting the GC, accepted; or not required, with the reason, kept out of the count
+- The retainage held on the latest pay application sent, and whether that application bills the whole contract
+- What still stands between the job and its retainage, in words: work left to bill, punch items not accepted, documents not sent
+- A release-request email to the GC's project manager listing each document with the dates you entered; it states what was delivered, not that the subcontract's terms are met
+- The documents themselves kept with each item (the warranty letter, the O&M manuals, the as-built set, photos of attic stock delivered), and the GC's receipt when it comes back
+- One close-out binder PDF: a transmittal listing every document with its dates, an index, then each required document's files in checklist order
+- Every plan
+
+## Plans
+
+Every plan, including Free on one job. See [pricing](https://marisstella.app/payapps/pricing); every module works on the same jobs, so nothing is entered twice.
+
+## Free guides on this
+
+- [How to get retainage released](https://marisstella.app/pay-app-guides/retainage-release.html)
+- [Punch list](https://marisstella.app/pay-app-guides/punch-list.html)
+
+## Common questions
+
+### Which PayApps plans include it?
+
+Every plan, including Free on one job. Free on one job with no card. Paid plans for more jobs are not on sale yet.
+
+### Is PayApps new?
+
+Yes. It opened in November 2026 and has no customers, reviews or published results yet. Everything on this page works in the app today; check every figure before you send it.
+
+## The rest of PayApps
+
+- [Pay application software](https://marisstella.app/payapps/pay-application-software)
+- [Schedule of values](https://marisstella.app/payapps/schedule-of-values-software)
+- [Retainage tracking](https://marisstella.app/payapps/retainage-tracking)
+- [Change orders](https://marisstella.app/payapps/change-order-tracking)
+- [Lien waiver software](https://marisstella.app/payapps/lien-waiver-software)
+- [Receivables and cash](https://marisstella.app/payapps/construction-receivables)
+- [QuickBooks Online](https://marisstella.app/payapps/quickbooks-retainage-invoicing)
+- [Job cost and WIP](https://marisstella.app/payapps/job-costing-wip-schedule)
+- [Certified payroll](https://marisstella.app/payapps/certified-payroll-software)
+- [GC portal billing](https://marisstella.app/payapps/gc-portal-billing)
+- [Submittal log](https://marisstella.app/payapps/submittal-log-software)
+- [Daily reports](https://marisstella.app/payapps/daily-report-app)
+- [T&M tickets](https://marisstella.app/payapps/tm-ticket-app)
+- [Punch list](https://marisstella.app/payapps/punch-list-app)
+- [RFI log](https://marisstella.app/payapps/rfi-log-software)
+- [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking)
+
+[Every feature, built and next](https://marisstella.app/payapps/features)
+
+PayApps is not affiliated with the American Institute of Architects (AIA) and does not produce AIA Contract Documents. Nothing on this site is legal advice.
+
+[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site%2Fmodule%2Fcloseout)
+
+---
+
+<!-- https://marisstella.app/payapps/lower-tier-lien-waiver-tracking -->
+Built · in testing
+
+# Lower-tier waivers from your suppliers and sub-subs
+
+Each pay application keeps the list of suppliers and sub-subcontractors who owe you a waiver, what for and through when, and whether you have asked and when it came in, so the application goes out with every waiver the GC asked for.
+
+[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site%2Fmodule%2Flower-tier-waivers)
+
+## What it does
+
+Many GCs hold a payment until your own suppliers and sub-subcontractors have signed lien waivers for the work in your application. Each pay app keeps the list of who owes you one, what for and through when, and whether you have asked and when it came in, so the application goes out with every waiver the GC asked for.
+
+- Who to ask comes from the job's purchase orders and subcontracts (ticked when they have invoiced something) and from last month's list
+- Each waiver is owed, asked (with the days waiting) or received, with the amount and a note
+- A short request to copy or open as an email: the job, the GC, the waiver kind, the through date and the amount
+- The pay app says how many are in and names who is still out
+- Attach the signed copy on its row: marked received, and named for the supplier in the backup packet
+- Every waiver still out, across all your open jobs, on the projects page and in the weekly email, longest wait first
+- Crew plan and up, with lien waivers. Which waivers a contract or state requires is yours to check; nothing is sent for you
+
+## Plans
+
+Crew plan and up, with lien waivers. See [pricing](https://marisstella.app/payapps/pricing); every module works on the same jobs, so nothing is entered twice.
+
+## Free guides on this
+
+- [Lien waiver log](https://marisstella.app/pay-app-guides/lien-waiver-log.html)
+- [Conditional vs unconditional lien waivers](https://marisstella.app/pay-app-guides/conditional-vs-unconditional-lien-waivers.html)
+- [Joint checks](https://marisstella.app/pay-app-guides/joint-checks.html)
+
+## Common questions
+
+### Which PayApps plans include it?
+
+Crew plan and up, with lien waivers. Free on one job with no card. Paid plans for more jobs are not on sale yet.
+
+### Is PayApps new?
+
+Yes. It opened in November 2026 and has no customers, reviews or published results yet. Everything on this page works in the app today; check every figure before you send it.
+
+## The rest of PayApps
+
+- [Pay application software](https://marisstella.app/payapps/pay-application-software)
+- [Schedule of values](https://marisstella.app/payapps/schedule-of-values-software)
+- [Retainage tracking](https://marisstella.app/payapps/retainage-tracking)
+- [Change orders](https://marisstella.app/payapps/change-order-tracking)
+- [Lien waiver software](https://marisstella.app/payapps/lien-waiver-software)
+- [Receivables and cash](https://marisstella.app/payapps/construction-receivables)
+- [QuickBooks Online](https://marisstella.app/payapps/quickbooks-retainage-invoicing)
+- [Job cost and WIP](https://marisstella.app/payapps/job-costing-wip-schedule)
+- [Certified payroll](https://marisstella.app/payapps/certified-payroll-software)
+- [GC portal billing](https://marisstella.app/payapps/gc-portal-billing)
+- [Submittal log](https://marisstella.app/payapps/submittal-log-software)
+- [Daily reports](https://marisstella.app/payapps/daily-report-app)
+- [T&M tickets](https://marisstella.app/payapps/tm-ticket-app)
+- [Punch list](https://marisstella.app/payapps/punch-list-app)
+- [RFI log](https://marisstella.app/payapps/rfi-log-software)
+- [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software)
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software)
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app)
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents)
+
+[Every feature, built and next](https://marisstella.app/payapps/features)
+
+PayApps is not affiliated with the American Institute of Architects (AIA) and does not produce AIA Contract Documents. Nothing on this site is legal advice.
+
+[Start free on one job](https://payapps.marisstella.app/?signup&from=payapps-site%2Fmodule%2Flower-tier-waivers)

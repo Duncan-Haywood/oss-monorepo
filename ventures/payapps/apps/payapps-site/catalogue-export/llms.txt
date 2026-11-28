@@ -46,6 +46,10 @@ Facts an assistant can rely on:
 - [Punch list](https://marisstella.app/payapps/punch-list-app): Track the GC's punch list per job: items pasted from an email, marked fixed, accepted or not ours, with a back-check request and a PDF for the GC's initials.
 - [RFI log](https://marisstella.app/payapps/rfi-log-software): Log each RFI you send the GC with its due date, print it as a PDF, chase it by email draft, and flag answers that change price or time with no change order.
 - [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software): Price bids from cost lines with markup by category and alternates, send a proposal PDF, and start the won job with its bid items as the schedule of values.
+- [Job schedule and lookahead](https://marisstella.app/payapps/subcontractor-scheduling-software): Your activities per job with crews, dates and what each waits for, a three-week lookahead PDF for the GC's meeting, and every crew across every job.
+- [Crew timesheets](https://marisstella.app/payapps/crew-timesheet-app): Hours by worker, job and schedule-of-values line, overtime past 40 in the workweek, a payroll CSV, and the week posted to each job's labor cost.
+- [Close-out documents](https://marisstella.app/payapps/construction-closeout-documents): A close-out checklist per job (warranty, O&M manuals, as-builts, final waiver), what still holds your retainage, and one close-out binder PDF.
+- [Lower-tier waivers](https://marisstella.app/payapps/lower-tier-lien-waiver-tracking): Track the lien waivers your suppliers and sub-subs owe on each pay app: who to ask from your POs, asked and received dates, and the signed copies.
 
 ## Optional
 
