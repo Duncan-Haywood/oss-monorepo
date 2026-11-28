@@ -5,6 +5,7 @@ import { and, desc, eq, gte, inArray, isNotNull, isNull, lte, type SQL } from "d
 import type { BatchItem } from "drizzle-orm/batch";
 import { Hono } from "hono";
 import { z } from "zod";
+import { allInChunks } from "../../db/in-chunks";
 import { inventoryItem, platformCharge, sale, saleFee } from "../../db/schema";
 import { badRequest, conflict, notFound } from "../../lib/errors";
 import { newId } from "../../lib/ids";
@@ -39,13 +40,16 @@ routes.get("/", validate("query", listQuery), async (c) => {
     .orderBy(desc(sale.date), sale.id)
     .limit(q.limit + 1)
     .offset(q.cursor);
-  const ids = rows.map((r) => r.id);
-  const fees = ids.length
-    ? await c.var.ctx.db
+  // In slices of 90: the Sales page asks for limit=500, and one `IN (...)` binding every sale id
+  // passed D1's 100-parameter cap, so the page answered 500 for any seller with 99 or more sales.
+  const fees = await allInChunks(
+    rows.map((r) => r.id),
+    (ids) =>
+      c.var.ctx.db
         .select()
         .from(saleFee)
-        .where(and(eq(saleFee.orgId, orgId), inArray(saleFee.saleId, ids)))
-    : [];
+        .where(and(eq(saleFee.orgId, orgId), inArray(saleFee.saleId, ids))),
+  );
   const items = rows.map((r) => ({ ...r, fees: fees.filter((f) => f.saleId === r.id) }));
   return c.json(page(items, q.limit, q.cursor));
 });
@@ -379,16 +383,18 @@ routes.get("/:id/returned-items", async (c) => {
     if (orders.length) {
       const ids = orders.map((o) => o.id);
       const legacy = orders.map((o) => o.inventoryItemId).filter((x): x is string => !!x);
-      const rows = await db
-        .select(itemColumns)
-        .from(inventoryItem)
-        .where(and(eq(inventoryItem.orgId, orgId), inArray(inventoryItem.soldBySaleId, ids)));
-      const legacyRows = legacy.length
-        ? await db
-            .select(itemColumns)
-            .from(inventoryItem)
-            .where(and(eq(inventoryItem.orgId, orgId), inArray(inventoryItem.id, legacy)))
-        : [];
+      const rows = await allInChunks(ids, (slice) =>
+        db
+          .select(itemColumns)
+          .from(inventoryItem)
+          .where(and(eq(inventoryItem.orgId, orgId), inArray(inventoryItem.soldBySaleId, slice))),
+      );
+      const legacyRows = await allInChunks(legacy, (slice) =>
+        db
+          .select(itemColumns)
+          .from(inventoryItem)
+          .where(and(eq(inventoryItem.orgId, orgId), inArray(inventoryItem.id, slice))),
+      );
       const byId = new Map([...rows, ...legacyRows].map((i) => [i.id, i]));
       candidates = [...byId.values()].filter((i) => i.status === "sold");
       fromOrder = candidates.length > 0;

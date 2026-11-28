@@ -1,4 +1,5 @@
-// Runs before every worker test file: applies the current schema DDL to a fresh local D1.
+// Runs before every worker test file. With isolate: false (vitest.worker.config.ts) the local D1 is
+// shared by every file in a Vitest worker, so the schema is applied once and later files skip it.
 import { env } from "cloudflare:workers";
 import { beforeAll } from "vitest";
 

@@ -10,6 +10,7 @@
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import type { AppContext } from "../../context";
 import { rowsPerInsert } from "../../db/client";
+import { chunks } from "../../db/in-chunks";
 import { inventoryItem, sale } from "../../db/schema";
 import { badRequest } from "../../lib/errors";
 import { newId } from "../../lib/ids";
@@ -159,10 +160,12 @@ export async function importInventorySheet(
       .returning({ id: sale.id });
     if (done.length === 0) continue;
     linked++;
-    await db
-      .update(inventoryItem)
-      .set({ status: "sold", disposedDate: l.date, soldBySaleId: l.saleId })
-      .where(and(eq(inventoryItem.orgId, orgId), inArray(inventoryItem.id, l.itemIds)));
+    // One order line can sell more than 90 units of a SKU; D1 binds at most 100 parameters.
+    for (const ids of chunks(l.itemIds))
+      await db
+        .update(inventoryItem)
+        .set({ status: "sold", disposedDate: l.date, soldBySaleId: l.saleId })
+        .where(and(eq(inventoryItem.orgId, orgId), inArray(inventoryItem.id, ids)));
   }
   summary.salesLinked = linked;
   ctx.logger.info("inventory_import.done", {
