@@ -182,7 +182,8 @@ for (const [mode, launch] of MODES) {
   });
 
   test("external links are registered sources (or the sibling product)", () => {
-    const allowed = new Set([...SOURCES.map((s) => s.url), JOBSHOP.url]);
+    // The host site's privacy policy, which /privacy points to for its Web Analytics.
+    const allowed = new Set([...SOURCES.map((s) => s.url), JOBSHOP.url, "https://marisstella.app/privacy/"]);
     // Once open, the app's sign-in, sign-up (tagged with the page) and legal pages.
     const app = launch.appUrl;
     const appLink = (href) =>

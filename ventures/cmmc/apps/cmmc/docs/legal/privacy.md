@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Version 2026-11-27** · Maris Stella Labs LLC
+**Version 2026-11-28** · Maris Stella Labs LLC
 
 This policy explains what information CMMC Workspace (operated by Maris Stella Labs LLC, "we") collects, why, who processes it, and the choices you have.
 
@@ -14,6 +14,7 @@ This policy explains what information CMMC Workspace (operated by Maris Stella L
 - **Audit log:** who changed what in your organization and when (for example a status change, a draft, an upload or a member change).
 - **Billing:** your plan, subscription status, and payment events from the merchant of record. We do not receive or store card numbers.
 - **Technical data:** the IP address and browser user-agent of each sign-in session (used to secure your account), short-lived in-memory counters of sign-in and sign-up attempts, and security logs.
+- **Visit statistics:** Cloudflare Web Analytics counts page views and page load times on the Service's pages. It sets no cookies, does not fingerprint your browser and does not see your records; we use the counts only to see how many people visit and which pages are slow.
 - **Acceptance records:** which version of these policies each user accepted, and when.
 
 ## Why we use it
@@ -32,7 +33,7 @@ We share data only with service providers that process it on our behalf to run t
 
 | Subprocessor | Purpose |
 | --- | --- |
-| Cloudflare, Inc. | Hosting, database, file storage and sending account email |
+| Cloudflare, Inc. | Hosting, database, file storage, sending account email and cookieless visit statistics (Web Analytics) |
 | Anthropic, PBC | AI model that drafts an implementation statement or a policy procedure when someone in your organization asks for one |
 | Paddle (merchant of record) | Checkout, payments, invoicing and sales tax |
 

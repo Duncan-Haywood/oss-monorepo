@@ -116,6 +116,7 @@ This policy explains what information Seller Books (operated by Maris Stella Lab
 - **Quarterly estimated tax figures, if the shop's owner or an admin types them:** for each tax year, the filing status, W-2 wages, federal tax withheld, other taxable income, last year's total tax, whether last year's income was over $150,000, the mileage rate chosen for the page, and the estimated payments sent toward each due date. They are saved to the shop so the page shows the same figures on every device, and only the shop's owner and admins can read or change them. When an editor or viewer types figures on that page, they stay in that person's browser and are not sent to be stored. If an owner or admin turns on the estimated-tax reminder email, we keep that choice and the last due date they were reminded of, until they turn it off.
 - **Billing:** your plan, subscription status, and payment events from the merchant of record. We do not receive or store card numbers. When an owner or admin starts a checkout, we keep that they agreed to the automatic-renewal terms shown beside it, which version, and when, as consumer law asks us to; and for each renewal reminder we send, the renewal date it was for and how many people it went to.
 - **Technical data:** the IP address and browser user-agent of each sign-in session (used to secure your account), counters that limit repeated sign-in, sign-up and password-reset attempts (keyed by IP address, and for failed sign-ins by a one-way hash of the email address, kept for the length of the limit), and security logs.
+- **Visit statistics:** Cloudflare Web Analytics counts page views and page load times on the Service's pages. It sets no cookies, does not fingerprint your browser and does not see your records; we use the counts only to see how many people visit and which pages are slow.
 - **Form 1099-K figures you type to compare with your books** are used for that comparison and **not stored**.
 - **Acceptance records:** which version of these policies each user accepted, and when.
 
@@ -135,7 +136,7 @@ We share data only with service providers that process it on our behalf to run t
 
 | Subprocessor | Purpose |
 | --- | --- |
-| Cloudflare, Inc. | Hosting, database, logs and sending account emails, estimated-tax reminders and renewal notices |
+| Cloudflare, Inc. | Hosting, database, logs and sending account emails, estimated-tax reminders and renewal notices and cookieless visit statistics (Web Analytics) |
 | Paddle (merchant of record) | Checkout, payments, invoicing and sales tax |
 
 **No AI model reads your books.** The Service does not send your reports or records to an AI provider. We do not use your data to train AI models.

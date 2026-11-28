@@ -1029,7 +1029,9 @@ function privacy() {
     <li>A salted hash of your IP address as a record of consent. We don't store the address itself.</li>
   </ul>
   <h2>What we use it for</h2>
-  <p>To email you about early access to ${esc(SITE_NAME)}, and to count (not profile) which platforms and order volumes people want, so we can decide what to build and how to price it. We don't sell or share the list. No analytics or advertising scripts run on this site.</p>
+  <p>To email you about early access to ${esc(SITE_NAME)}, and to count (not profile) which platforms and order volumes people want, so we can decide what to build and how to price it. We don't sell or share the list. No advertising scripts run on this site.</p>
+  <h2>Visit counts</h2>
+  <p>Like the rest of marisstella.app, these pages load Cloudflare Web Analytics, which counts page views, the page you came from and how fast pages load. It sets no cookies and keeps no identifier for you, so the counts are aggregate. Blocking scripts from <code>static.cloudflareinsights.com</code> stops it and the pages still work. The site's <a href="https://marisstella.app/privacy/">privacy policy</a> has the details.</p>
   <h2>Who can see it</h2>
   <p>Only the people who run ${esc(SITE_NAME)} can see the list: your email address, the page you signed up on, whether you confirmed, and the date. Each time they view it, that view is logged.</p>
   <h2>How long</h2>
@@ -1037,7 +1039,7 @@ function privacy() {
   <h2>Leaving</h2>
   <p>Every email has an unsubscribe link. To have your address deleted entirely, email <a href="mailto:hello@marisstella.app">hello@marisstella.app</a>.</p>
 </section>`;
-  const text = `# Privacy (early-access list)\n\nStores: email, optional platforms and order range, signup page, consent wording version, timestamps, salted hash of IP. Used only for early-access emails and aggregate counts. Only the people who run the site can see the list (email, signup page, confirmed or not, date); each view is logged. Unconfirmed signups deleted after 30 days, or when the last 7-day confirmation link expires if later. Unsubscribe link in every email; deletion on request at hello@marisstella.app.`;
+  const text = `# Privacy (early-access list)\n\nStores: email, optional platforms and order range, signup page, consent wording version, timestamps, salted hash of IP. Used only for early-access emails and aggregate counts. Visits are counted by cookieless Cloudflare Web Analytics, as on all of marisstella.app. Only the people who run the site can see the list (email, signup page, confirmed or not, date); each view is logged. Unconfirmed signups deleted after 30 days, or when the last 7-day confirmation link expires if later. Unsubscribe link in every email; deletion on request at hello@marisstella.app.`;
   return {
     path,
     title,

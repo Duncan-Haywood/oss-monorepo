@@ -319,8 +319,9 @@ copy there too and use the workspace for drafting with the CUI details left out.
 <h2>What this site stores today</h2>
 ${
   open
-    ? `<p>This marketing site stores nothing about you: no forms, no cookies, no tracking scripts. The free SPRS calculator runs in
-your browser and sends nothing. See the <a href="/privacy">privacy notice</a>.</p>`
+    ? `<p>This marketing site stores nothing that identifies you: no forms and no cookies. Like the rest of marisstella.app it loads
+Cloudflare Web Analytics, which counts visits without cookies or an identifier. The free SPRS calculator runs in your browser and
+sends nothing. See the <a href="/privacy">privacy notice</a>.</p>`
     : `<p>This marketing site stores only the early-access list: your email address, the level and shop size you chose, the wording you
 agreed to, and a salted hash of your IP address for abuse limits. Unconfirmed sign-ups are deleted after 30 days, or once the last
 confirmation link has expired if that is later (a link works for 7 days). See the
@@ -470,7 +471,7 @@ works for 7 days). Confirmed addresses stay until you leave the list or the earl
 program ends.</p>
 <h2>Leaving</h2>
 <p>Every email has a link that deletes your entry. You can also reply to any email and ask.</p>
-<p>No cookies and no tracking scripts are used on this site.</p>`,
+<p>No cookies are used on this site. Cloudflare Web Analytics counts visits without cookies or an identifier for you.</p>`,
         },
     // Utility pages: noindex, left out of the sitemap and llms.txt.
     {
@@ -601,15 +602,20 @@ export function privacyPage(launch) {
     kind: "page",
     title: `Privacy notice for this site · ${SITE_NAME}`,
     description:
-      "This marketing site stores nothing about you: no forms, no cookies, no tracking scripts. The workspace's own privacy policy covers your account.",
+      "This marketing site stores nothing that identifies you: no forms, no cookies, and cookieless Cloudflare Web Analytics visit counts. The workspace's own privacy policy covers your account.",
     changefreq: "yearly",
     priority: 0.3,
     body: `<h1>Privacy notice for this site</h1>
-<p>Last updated 27 Nov 2026.</p>
+<p>Last updated 28 Nov 2026.</p>
 <h2>This site</h2>
-<p>These pages have no forms, cookies or tracking scripts, and keep nothing about you. The free SPRS calculator works out
+<p>These pages have no forms or cookies, and keep nothing that identifies you. The free SPRS calculator works out
 your score in your browser: the requirements you tick go into the page address only, and nothing is sent to us. The host,
 Cloudflare, keeps its usual request logs.</p>
+<h2>Visit counts</h2>
+<p>Like the rest of marisstella.app, these pages load Cloudflare Web Analytics, which counts page views, the page you came
+from and how fast pages load. It sets no cookies and keeps no identifier for you, so the counts are aggregate. Blocking scripts
+from <code>static.cloudflareinsights.com</code> stops it and the pages still work. The site's
+<a href="https://marisstella.app/privacy/">privacy policy</a> has the details.</p>
 <h2>The workspace</h2>
 <p>Signing up happens in the workspace at <a href="${app}">${new URL(app).host}</a>, under its own
 <a href="${appLegalUrl(launch, "privacy")}">privacy policy</a> (what it stores, the services it uses, how long, and how to

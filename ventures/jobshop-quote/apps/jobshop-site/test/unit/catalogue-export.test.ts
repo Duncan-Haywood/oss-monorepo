@@ -56,7 +56,9 @@ describe("catalogue export", () => {
 
   it("says the site stores nothing and points at the app's privacy policy", () => {
     const privacy = (expected.get("privacy.html") as string) ?? "";
-    expect(privacy).toContain("no forms, set no cookies");
+    expect(privacy).toContain("no forms and set no cookies");
+    expect(privacy).toContain("Cloudflare Web Analytics");
+    expect(privacy).not.toMatch(/no analytics/);
     expect(privacy).toContain(`href="${appLink(LAUNCH, "/legal/privacy")}"`);
   });
 });

@@ -1016,8 +1016,8 @@ Privacy
 
 ## Site privacy notice
 
-These pages have no forms, set no cookies and load no analytics or third-party
-scripts, so they store nothing about you.
+These pages have no forms and set no cookies, so they store nothing that identifies
+you. Visits are counted by cookieless Cloudflare Web Analytics.
 
 ### The app has its own policy
 
@@ -1030,6 +1030,14 @@ terms of service.
 
 The site is served by Cloudflare, which, like any web host, sees the requests your browser
 makes to it.
+
+### Visit counts
+
+Like the rest of marisstella.app, these pages load Cloudflare Web Analytics, which counts page
+views, the page you came from and how fast pages load. It sets no cookies and keeps no identifier for
+you, so the counts are aggregate. Blocking scripts from static.cloudflareinsights.com
+stops it and the pages still work. The site's
+privacy policy has the details.
 
 ### Earlier early-access requests
 
