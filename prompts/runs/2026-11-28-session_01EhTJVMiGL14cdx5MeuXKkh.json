@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVMiGL14cdx5MeuXKkh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-28T07:07:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "bet #3 front door: German XRechnung viewer for received e-invoices; became a follow-up to PR #20028",
+  "projects": [
+    "einvoice-preflight",
+    "einvoice-pro"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20029",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [
+    "A first push of this branch carried a full viewer (einvoice-view.mjs, page, tests) before slug_dupe showed PR #20028 (same slug, same feature, opened minutes earlier by a parallel session). Force-push to drop it was refused; merged the remote branch with -s ours so the diff carries only the follow-up."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "slug_dupe.py at task pick found nothing; a parallel session took the same top-of-list suggestion (roadmap_claim --bets: 'fewest front-door PRs: bet #3') within the same ~40 minutes. Claiming the slug with roadmap_claim.py --slug before building would have shown it; the --bets hint does not say to claim first."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets 'Untouched topic: win rates' for jobshop-quote: win rates already exist (src/shared/win-loss.ts); the topic check matches claim slugs only, not code or ROADMAP text."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate PRs: rather than open a second viewer, dropped this session's own (independently built, tested) viewer and kept only what PR #20028 lacks",
+      "did": "follow-up PR: UNTDID 1001 876 in the paid view, customer post, 875/876 fix for the free viewer once #20028 lands",
+      "result": "pending #20028"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-how-to-open-an-xrechnung-you-received.md"
+  ],
+  "goal": null,
+  "notes": "Verified: node --test pro/view.test.mjs 10 pass; check_posts ok. PR #20029 CI: all green except pages build, whose only problem is the post's link to xrechnung-anzeigen.html, which PR #20028 adds. KoSIT BR-DE-17 text (plain/xrechnung-ubl.json) confirms 875 Partial construction invoice, 876 Partial final construction invoice; #20028's viewer.mjs has them swapped.",
+  "corrections": [],
+  "redteam": null
+}
