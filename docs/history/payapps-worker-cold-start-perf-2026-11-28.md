@@ -52,7 +52,7 @@ tables. After the change the top-level function has 59 self samples.
   same code, now run later. `src/shared/pdf/crypt.test.ts` checks `aesCbcDecrypt` against
   Node's `createCipheriv` for AES-128 and AES-256, and the encrypted-PDF fixtures import as before.
 - `pnpm test:unit`: 164 files, 1,599 passed, 4 skipped. `pnpm typecheck` exits 0, and
-  `biome check` is clean on both files. `pnpm test:worker`: see the run record's notes.
+  `biome check` is clean on both files. `pnpm test:worker`: 98 files, 627 passed.
 
 ## What this says
 
