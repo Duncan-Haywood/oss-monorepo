@@ -261,7 +261,12 @@ function platformPage(p) {
   <h2>What's particular about ${esc(p.name)}</h2>
   ${list(p.quirks)}
   <h2>Where it lands on the worksheet</h2>
-  <p>${esc(p.name)} sales go to gross receipts, refunds to returns and allowances, ${esc(p.name)}'s fees to commissions and fees, and each item's cost to cost of goods sold. See <a href="${href("/schedule-c-worksheet")}">the Schedule C worksheet</a> for the full grouping.</p>
+  <p>${esc(p.name)} sales go to gross receipts, refunds to returns and allowances, ${esc(p.name)}'s fees to commissions and fees, and each item's cost to cost of goods sold. See <a href="${href("/schedule-c-worksheet")}">the Schedule C worksheet</a> for the full grouping.</p>${
+    p.slug === "poshmark"
+      ? `
+  <p>Taxes on Poshmark sales, the 1099-K and the sales tax Poshmark collects, with one month worked through: <a href="${href("/poshmark-taxes")}">Poshmark taxes</a>.</p>`
+      : ""
+  }
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
 </section>
@@ -854,6 +859,170 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "Facebook Marketplace taxes", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// /poshmark-taxes: the search Poshmark sellers make ("do I have to pay taxes on Poshmark"). The worked
+// example is the app's own Poshmark fixture (apps/seller-books/test/fixtures/poshmark-my-sales-report.csv,
+// an invented My Sales Report) taken through the importer's arithmetic: Poshmark's fee is not a column, so
+// it is Order Price - Seller Shipping Discount - Upgraded Shipping Label Fee - Texas Seller Fee Tax - Net
+// Earnings (importers/poshmark.ts), the discount and label are postage (line 27a) and the fees line 10
+// (services/books/schedule-c.ts). test/site.test.mjs re-reads the fixture and checks every figure.
+// Poshmark's own fee article did not load on 2026-11-28 (503), so the page states no Poshmark rate as
+// fact: it says what third-party pages report and that the seller's report is what counts. Sales tax:
+// Poshmark's own Posh Remit release (28 Mar 2019), quoted. The 1099-K threshold: IRS general FAQs.
+export const POSHMARK_CHECKED_ON = "2026-11-28";
+export const POSH_REMIT_URL =
+  "https://www.prnewswire.com/news-releases/poshmark-announces-posh-remit-simplifying-sales-tax-for-sellers-across-the-country-300820038.html";
+export const POSH_REMIT_QUOTE =
+  "calculates, collects and submits state and local sales tax on all eligible orders";
+const POSHMARK_FEE_ARTICLE = "https://support.poshmark.com/s/article/297755057?language=en_US";
+/** The four sold rows of the app's Poshmark fixture (the fifth, cancelled, is skipped as the importer skips it). */
+export const POSHMARK_EXAMPLE = [
+  {
+    title: "Madewell Perry Street Tote",
+    priceCents: 4800,
+    discountCents: 0,
+    texasCents: 0,
+    netCents: 3840,
+  },
+  {
+    title: "J.Crew sweater (bundle)",
+    priceCents: 3000,
+    discountCents: 199,
+    texasCents: 0,
+    netCents: 2201,
+  },
+  {
+    title: "Gap tee (same bundle)",
+    priceCents: 1000,
+    discountCents: 0,
+    texasCents: 0,
+    netCents: 705,
+  },
+  { title: "Kids rain boots", priceCents: 1200, discountCents: 0, texasCents: 6, netCents: 899 },
+];
+/** Poshmark's fee on one row, as the importer derives it. */
+export function poshmarkFeeCents(r) {
+  return r.priceCents - r.discountCents - r.texasCents - r.netCents;
+}
+/** The example's Schedule C lines: 1 gross receipts, 10 fees (Poshmark's plus the Texas tax on it), 27a postage. */
+export function poshmarkLines(rows = POSHMARK_EXAMPLE) {
+  const sum = (f) => rows.reduce((a, r) => a + f(r), 0);
+  const line1 = sum((r) => r.priceCents);
+  const poshFee = sum(poshmarkFeeCents);
+  const texas = sum((r) => r.texasCents);
+  const line27a = sum((r) => r.discountCents);
+  const net = sum((r) => r.netCents);
+  return { line1, poshFee, texas, line10: poshFee + texas, line27a, net };
+}
+
+function poshmarkTaxes() {
+  const path = "/poshmark-taxes";
+  const title = "Poshmark taxes for resellers";
+  const description =
+    "Do you pay taxes on Poshmark sales? What is taxable, when Poshmark sends a 1099-K, why your earnings are not your income, and the sales tax Poshmark collects.";
+  const cents = (c) => `$${(c / 100).toFixed(2)}`;
+  const L = poshmarkLines();
+  const faqs = [
+    {
+      q: "Do I have to pay taxes on Poshmark sales?",
+      a: "It depends on what you sold. Your own clothes sold for less than you paid for them are not income. Things you bought to resell are business (or hobby) income, whether or not Poshmark sends you a form.",
+    },
+    {
+      q: "Does Poshmark send a 1099-K?",
+      a: "For federal reporting, a platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions. Some states require one at lower amounts, and a platform may send one below the line. Business income is reportable either way.",
+    },
+    {
+      q: "Do I report the order price or my earnings?",
+      a: `The order price. Poshmark pays you your earnings, the order price less its fee and any shipping discount you offered. Gross receipts start from the sale; the fee and the discount are expenses. In the example on this page, ${cents(L.net)} reached the seller's balance from ${cents(L.line1)} of sales.`,
+    },
+    {
+      q: "Do I collect sales tax on Poshmark?",
+      a: `No. Poshmark's Posh Remit, in Poshmark's words, “${POSH_REMIT_QUOTE}”, so the tax the buyer paid is not yours to report. A sale you make off Poshmark (cash at a market, a payment app) is your own, and follows your state's rule.`,
+    },
+    {
+      q: "What is the Texas Seller Fee Tax on my report?",
+      a: `A column on Poshmark's My Sales Report for some Texas sellers, a tax charged on Poshmark's fee, taken out of your earnings. ${SITE_NAME} reads it from the column and files it with Poshmark's fee as a cost of selling, so the earnings still add up.`,
+    },
+  ];
+  const exRows = POSHMARK_EXAMPLE.map(
+    (r) =>
+      `        <tr><th scope="row">${esc(r.title)}</th><td>${cents(r.priceCents)}</td><td>${cents(r.discountCents)}</td><td>${cents(r.texasCents)}</td><td>${cents(r.netCents)}</td><td>${cents(poshmarkFeeCents(r))}</td></tr>`,
+  ).join("\n");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">Poshmark pays you what is left after its fee, so the number you see is not the number you report. Here is what is taxable, who sends a form, and how one month of a Poshmark report becomes Schedule C lines.</p>
+  <h2>Is it taxable?</h2>
+  <p>Selling your own closet for less than you paid is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). Buying to resell is business or hobby income, whatever the forms say. A business reports its gross sales on Schedule C and deducts what made them: Poshmark's fee, shipping discounts it offered, <a href="${href("/cost-of-goods-sold")}">the cost of the items</a> that sold, <a href="${href("/mileage-deduction")}">the miles</a> to source them and to the post office.</p>
+  <h2>When Poshmark sends a 1099-K</h2>
+  <p>Under the <a href="${IRS_1099K_FAQ_GENERAL}">IRS general FAQs</a>, a platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions; some states are lower, and a form can come below the line. When one comes, <a href="${href("/1099-k")}">box 1a counts gross payments</a>, before fees and refunds, so it will not match your earnings. No form does not mean no income.</p>
+  <h2>Your earnings are not your income</h2>
+  <p>Poshmark's My Sales Report gives each item's order price and your net earnings, but not the fee as its own figure. ${esc(SITE_NAME)} works the fee out from the report itself: order price, less the seller shipping discount, the upgraded label fee and the Texas seller fee tax, less net earnings. The buyer's shipping pays for Poshmark's label and never reaches you, so it is neither income nor your expense.</p>
+  <div class="worked">
+    <p class="muted">One invented month: the four sold rows of the sample report ${esc(SITE_NAME)}'s Poshmark importer is tested on (a fifth, cancelled, is skipped):</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Item</th><th scope="col">Order price</th><th scope="col">Shipping discount</th><th scope="col">Texas seller fee tax</th><th scope="col">Net earnings</th><th scope="col">Poshmark's fee (worked out)</th></tr></thead>
+      <tbody>
+${exRows}
+      </tbody>
+    </table></div>
+    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong>; line 10, commissions and fees, <strong>${cents(L.line10)}</strong> (${cents(L.poshFee)} of Poshmark's fee and ${cents(L.texas)} of Texas tax on it); line 27a, postage, <strong>${cents(L.line27a)}</strong> (the shipping discount). Line 1 less those two is ${cents(L.line1 - L.line10 - L.line27a)}, exactly the earnings Poshmark paid out; the items' cost comes off after that.</p>
+    <p class="muted">The fees worked out here, 20% on the two items of $15 or more and $2.95 on the two under it, match the rates third-party fee pages report for Poshmark. Poshmark's own <a href="${POSHMARK_FEE_ARTICLE}">fee article</a> did not load when we checked (${esc(POSHMARK_CHECKED_ON)}), so we state no rate as Poshmark's: your report's figures are what was charged.</p>
+  </div>
+  <h2>Sales tax</h2>
+  <p>Poshmark's <a href="${POSH_REMIT_URL}">Posh Remit announcement</a> (28 March 2019) says the service &ldquo;${esc(POSH_REMIT_QUOTE)}&rdquo;. The Sales Tax column on your report is the buyer's tax, already handled: ${esc(SITE_NAME)} keeps it out of income and out of the sales tax you collected. More in <a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>.</p>
+  <h2>Keeping the books in ${esc(SITE_NAME)}</h2>
+  <p>Request My Sales Report from your Poshmark account, import the CSV, and each row becomes a sale with its fee, discount and Texas tax beside it; a bundle stays one order, with each item's own cost. Link items to your stock and their cost moves to cost of goods sold. Sell on eBay, Mercari or Depop too? They go in the same books (see the <a href="${href("/platforms/poshmark")}">Poshmark page</a> and the others), and the worksheet adds them up.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "posh" })}</div>`;
+  const text = `# ${title}
+
+Poshmark pays you what is left after its fee, so the number you see is not the number you report.
+
+## Is it taxable?
+
+Personal items sold at a loss are not income. Items bought to resell are business or hobby income. A business reports gross sales on Schedule C and deducts Poshmark's fee, shipping discounts, cost of goods and mileage.
+
+## When Poshmark sends a 1099-K
+
+Federal threshold: over $20,000 and more than 200 transactions (${IRS_1099K_FAQ_GENERAL}); some states are lower. Box 1a is gross, before fees and refunds.
+
+## Your earnings are not your income
+
+Poshmark's fee is worked out from My Sales Report: order price − seller shipping discount − upgraded label fee − Texas seller fee tax − net earnings. Invented example (the importer's sample report): ${POSHMARK_EXAMPLE.map((r) => `${r.title}: ${cents(r.priceCents)}, fee ${cents(poshmarkFeeCents(r))}`).join("; ")}. Schedule C: line 1 ${cents(L.line1)}, line 10 ${cents(L.line10)}, line 27a ${cents(L.line27a)}; earnings ${cents(L.net)}. Poshmark's fee article did not load on ${POSHMARK_CHECKED_ON}; no rate is stated as Poshmark's.
+
+## Sales tax
+
+Posh Remit "${POSH_REMIT_QUOTE}" (${POSH_REMIT_URL}, 28 March 2019).
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Poshmark taxes", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -1826,7 +1995,7 @@ function estimatedTax() {
     },
     {
       q: "Is the underpayment penalty worth worrying about?",
-      a: "It is interest-like, figured on Form 2210 for each date you were short and for how long, not a flat fine. Paying the safe-harbour amounts by each date generally avoids it. Your tax preparer can say how it applies to you.",
+      a: "It is interest-like, figured on Form 2210 for each date you were short and for how long, not a flat fine: the IRS underpayment rate (7% a year for most of 2026, 6% from April to June) on each shortfall, day by day, until it is paid or until April 15 of the next year. Three missed $2,000 payments in 2026 come to about $174 by late November, and about $35 more each month after. Paying the safe-harbour amounts by each date generally avoids it, and Seller Books shows the penalty so far once a date has passed short. Your tax preparer can say how it applies to you.",
     },
   ];
   const body = `<section class="wrap">
@@ -2809,6 +2978,7 @@ export function allPages() {
     form1099k(),
     personalItems(),
     facebookMarketplace(),
+    poshmarkTaxes(),
     costOfGoodsSold(),
     inventorySpreadsheet(),
     mileageDeduction(),
