@@ -1478,14 +1478,14 @@ export const AMAZON_CHECKED_ON = "2026-11-28";
  */
 export const AMAZON_EXAMPLE = [
   {
-    title: "LEGO set, sealed (Amazon shipped it, FBA)",
+    title: "LEGO set, sealed (FBA)",
     type: "Order",
     grossCents: 2500,
     feeCents: 795,
     totalCents: 1705,
   },
   {
-    title: "First edition hardcover (you shipped it, $1 promotion)",
+    title: "Hardcover, shipped by you, $1 promo",
     type: "Order",
     grossCents: 4499,
     feeCents: 688,
@@ -1507,7 +1507,7 @@ export const AMAZON_EXAMPLE = [
   { title: "Sponsored ads", type: "Service Fee", adCents: 1234, totalCents: -1234 },
   { title: "FBA storage fee", type: "FBA Inventory Fee", feeCents: 321, totalCents: -321 },
   {
-    title: "FBA storage fee (second line)",
+    title: "FBA storage fee, second line",
     type: "FBA Inventory Fee",
     feeCents: 321,
     totalCents: -321,
@@ -1519,7 +1519,7 @@ export const AMAZON_EXAMPLE = [
     totalCents: 850,
   },
   {
-    title: "Shipping label for the hardcover",
+    title: "Label for the hardcover",
     type: "Shipping Services",
     postageCents: 610,
     totalCents: -610,
@@ -1568,10 +1568,23 @@ function amazonSellerTaxes() {
       a: `When Amazon pays you for a unit it lost or damaged, the money is real income or a recovery of the unit's cost. ${SITE_NAME} books it as a credit against fees and warns you; your preparer may want it on line 6 (other income) instead, with the lost unit taken out of your stock.`,
     },
   ];
-  const cell = (c) => (c ? cents(c) : "—");
+  // A word joiner keeps a minus sign on the same line as its amount in the narrow columns.
+  const nb = (t) => t.replace("−", "−\u2060");
+  // Where each row lands, as "line 1 $25.00, line 10 $7.95": three columns read on a phone without scrolling.
+  const lands = (r) =>
+    [
+      ["1", r.grossCents],
+      ["2", r.returnCents],
+      ["8", r.adCents],
+      ["10", r.feeCents],
+      ["27a", (r.postageCents ?? 0) + (r.softwareCents ?? 0)],
+    ]
+      .filter(([, c]) => c)
+      .map(([l, c]) => `line ${l} ${nb(cents(c))}`)
+      .join(", ");
   const exRows = AMAZON_EXAMPLE.map(
     (r) =>
-      `        <tr><th scope="row">${esc(r.title)}</th><td>${esc(r.type)}</td><td>${cell(r.grossCents)}</td><td>${cell(r.returnCents)}</td><td>${cell(r.feeCents)}</td><td>${cell((r.adCents ?? 0) + (r.postageCents ?? 0) + (r.softwareCents ?? 0))}</td><td>${cents(r.totalCents)}</td></tr>`,
+      `        <tr><th scope="row">${esc(r.title)}</th><td>${lands(r)}</td><td>${nb(cents(r.totalCents))}</td></tr>`,
   ).join("\n");
   const body = `<section class="wrap">
   <h1>${esc(title)}</h1>
@@ -1585,7 +1598,7 @@ function amazonSellerTaxes() {
   <div class="worked">
     <p class="muted">One invented month: the rows of the sample report ${esc(SITE_NAME)}'s Amazon importer is tested on. Three more rows are skipped as the importer skips them: the transfer to the bank (money moving, not income), an order on amazon.ca (another currency), and a type the importer does not know (named, never guessed at).</p>
     <div class="table-scroll"><table>
-      <thead><tr><th scope="col">Row</th><th scope="col">Type</th><th scope="col">Sales and shipping</th><th scope="col">Refunded</th><th scope="col">Amazon's fees</th><th scope="col">Ads, plan, labels</th><th scope="col">Total</th></tr></thead>
+      <thead><tr><th scope="col">Row</th><th scope="col">Schedule C</th><th scope="col">Total</th></tr></thead>
       <tbody>
 ${exRows}
       </tbody>
