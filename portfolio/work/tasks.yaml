@@ -427,7 +427,13 @@ tasks:
       (workflow_dispatch, needs a person or a session that can dispatch) to
       read checkov, trivy, zizmor and osv on a runner. baseline.yaml
       changes go in a PR of their own (the adversarial gate reads it from
-      main).
+      main). (3) done 2026-11-28 in a cloud session instead (checkov needs
+      python3.12): 276 blocking, the venture npm lockfiles patched (PR
+      20020) to 142; what is left (research/CAD requirements pins, 4
+      dangerous-triggers and 5 github-app zizmor findings, one Azure
+      template) has a recommendation each in
+      docs/reports/2026-11-28-full-repo-scan-osv-trivy-zizmor.md; checkov 0
+      blocking.
 
   - id: aws-org-baseline
     direction: security-first

@@ -18,6 +18,24 @@ describe("money", () => {
     assert.throws(() => centsToAmount(1.5), /integer/);
   });
 
+  it("rounds an amount with more than two places half away from zero, as written", () => {
+    // Binary 1.005 is 1.00499..., so n * 100 rounded down to 100 (red team, 2026-11-28).
+    assert.equal(amountToCents(1.005), 101);
+    assert.equal(amountToCents(-1.005), -101);
+    // Math.round rounds -12.5 to -12: a credit and its debit disagreed by a cent.
+    assert.equal(amountToCents(0.125), 13);
+    assert.equal(amountToCents(-0.125), -13);
+    assert.equal(amountToCents("12.345"), 1235);
+    assert.equal(amountToCents("-12.344"), -1234);
+    assert.equal(amountToCents(-0.004), 0);
+    assert.ok(Object.is(amountToCents(-0.004), 0));
+    assert.equal(amountToCents(7), 700);
+    assert.equal(amountToCents("0.5"), 50);
+    assert.equal(amountToCents(1e-7), 0);
+    assert.equal(amountToCents(-2e21), -2e23);
+    assert.throws(() => amountToCents("1,234.56"), RangeError);
+  });
+
   it("rounds a rate half away from zero, symmetric for negatives", () => {
     assert.equal(applyRateBps(105, 1000), 11); // 10.5 -> 11
     assert.equal(applyRateBps(-105, 1000), -11);
@@ -136,6 +154,41 @@ describe("planPayAppInvoice", () => {
     assert.equal(plan.lines.length, 1);
     assert.equal(plan.summary.netCents, 250_000);
     assert.equal(plan.summary.retainageBalanceAfterCents, 250_000);
+  });
+
+  it("refuses a negative held-to-date and a plan that drives the receivable below zero", () => {
+    // Red team 2026-11-28: a deductive change order at a rate with no retainage behind it
+    // posted a positive "held" line, releasing retainage never held, and the plan reported a
+    // negative Retainage Receivable balance instead of refusing.
+    const base = {
+      applicationNumber: 2,
+      retainageItemId: RET,
+      retainageRateBps: 1000,
+      workLines: [
+        { itemId: "a", description: "Work", amountCents: 100_000, retainageRateBps: 0 },
+        { itemId: "co", description: "Deductive change order", amountCents: -50_000 },
+      ],
+    };
+    assert.throws(
+      () => planPayAppInvoice({ ...base, retainageHeldToDateCents: 0 }),
+      isValidation(/Retainage Receivable below zero/),
+    );
+    assert.equal(
+      planPayAppInvoice({ ...base, retainageHeldToDateCents: 5_000 }).summary
+        .retainageBalanceAfterCents,
+      0,
+    );
+    assert.throws(
+      () =>
+        planPayAppInvoice({
+          applicationNumber: 1,
+          retainageItemId: RET,
+          retainageRateBps: 1000,
+          workLines: [{ itemId: "a", description: "Work", amountCents: 100_000 }],
+          retainageHeldToDateCents: -1,
+        }),
+      isValidation(/retainageHeldToDateCents cannot be negative/),
+    );
   });
 
   it("refuses releases it cannot check, over-releases, and negative nets", () => {

@@ -33,12 +33,12 @@ Read the tables (full output is 50KB+: `--section candidates`, `--section fricti
 print one part). Then make the numbers true before you trust them:
 
 - **Measure what runs could not know.** Run first:
-  `python3 prompts/derive.py fetch && python3 prompts/derive.py build`. It
+  `python3 prompts/derive.py fetch --limit 300 && python3 prompts/derive.py build`. It
   measures `merged`, PR size, red-CI commits and 14-day rework for every
   record that names a PR, upstream ones included, into `prompts/derived/`.
   `measure` reads that, so these facts need no hand edits to records. Commit
-  the regenerated `prompts/derived/` with the review. `fetch` is incremental and
-  stops at ~100s (30 PRs per call), ~5 min in all: run it with
+  the regenerated `prompts/derived/` with the review. `fetch` is incremental;
+  `--limit 300` takes the newest PRs first (5,000+ backlog), ~5 min: run it with
   `run_in_background` once, not in a loop, then poll `prompts/derived/runs.json`
   mtime (sleep chains and bare Monitor loops are blocked). On a 403 (no GitHub API), skip both and say so in the log.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that

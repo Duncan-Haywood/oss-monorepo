@@ -5,7 +5,7 @@
 //    dates PayApps counts here: the 90-day notice a second-tier claimant gives the prime, and the
 //    one-year limit on the suit. They take the lien deadline's place on the job page, the cash page
 //    and the weekly email. State and local jobs have each state's own bond law ("little Miller
-//    Act"): there it shows no lien date, and lists the bond claim steps in the twenty-four states of
+//    Act"): there it shows no lien date, and lists the bond claim steps in the twenty-five states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
 //    checked against the cap in the 23 states the public guide lists.
@@ -570,6 +570,18 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "A supplier furnishing only materials to a subcontractor who furnishes only materials has no claim (§ 573.7(2)). The start-of-work notice does not apply to highway, bridge or culvert projects (§ 573.15(2)).",
     ],
   },
+  LA: {
+    name: "Louisiana",
+    law: "La. R.S. 38:2241 to 38:2247",
+    url: "https://legis.la.gov/legis/Law.aspx?d=94967",
+    checkedOn: "2026-11-28",
+    notes: [
+      "Louisiana counts from the recordation of the public body's acceptance of the work (or of its notice of the contractor's default) in the parish mortgage records, not from your last day. Enter the day the acceptance was recorded as the acceptance date; the parish clerk of court can confirm it.",
+      "The sworn statement is both filed with the public body and recorded with the recorder of mortgages of the parish where the work is (§ 38:2242(B)); a claimant who skipped it has no action on the bond (§ 38:2247(A)). The notice to the contractor goes by registered or certified mail to any office it keeps in Louisiana.",
+      "A material supplier has a second route: a notice of nonpayment to the general contractor, the surety and the owner no sooner than 45 days after delivery, then a payment notice once unpaid 90 days after delivery; the surety pays within ten days (§ 38:2247(B), (C)). A supplier to a sub on a recorded contract also sends notice of nonpayment within 75 days from the last day of the month of delivery to keep its privilege (§ 38:2242(F)).",
+      "A claimant who recovers the full sworn claim after amicable demand and 30 days unpaid is allowed 10% attorney's fees (§ 38:2246). The payment bond is required on contracts over $25,000 per project, for at least half the contract price (§ 38:2241(A)(2)).",
+    ],
+  },
   MA: {
     name: "Massachusetts",
     law: "Mass. Gen. Laws ch. 149, § 29",
@@ -861,6 +873,42 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
           L,
           addOneYear,
           LAST,
+        ),
+      ];
+    case "LA":
+      return [
+        step(
+          {
+            who: "all",
+            act: "File a sworn statement of the amount due with the public body and record it with the parish recorder of mortgages",
+            citation: "La. R.S. 38:2242(B)",
+            rule: "after your claim is due and within 45 days after the recordation of the acceptance of the work (or of the notice of default)",
+          },
+          A,
+          days(45),
+          ACCEPTED,
+        ),
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of the amount claimed and who you worked for",
+            citation: "La. R.S. 38:2247(A)",
+            rule: "within 45 days from the recordation of the notice of acceptance (or of default)",
+          },
+          A,
+          days(45),
+          ACCEPTED,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond against the surety, the contractor or both",
+            citation: "La. R.S. 38:2247(A)",
+            rule: "within one year from the registry of acceptance of the work (or of the notice of default)",
+          },
+          A,
+          addOneYear,
+          ACCEPTED,
         ),
       ];
     case "MA":

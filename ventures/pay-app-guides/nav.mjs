@@ -48,6 +48,7 @@ export const GROUPS = [
     ["california-preliminary-notice.html", "California 20-day preliminary notice"],
     ["arizona-preliminary-notice.html", "Arizona 20-day preliminary notice"],
     ["florida-notice-to-owner.html", "Florida Notice to Owner (45 days)"],
+    ["michigan-notice-of-furnishing.html", "Michigan notice of furnishing (20 days)"],
     ["texas-lien-notice.html", "Texas monthly lien notice deadlines"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],

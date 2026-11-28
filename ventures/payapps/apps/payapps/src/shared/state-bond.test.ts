@@ -22,7 +22,7 @@ const dueOf = (r: ReturnType<typeof checked>, citation: string) =>
   r.steps.find((s) => s.citation === citation)?.dueOn;
 
 describe("state bond claims", () => {
-  it("covers the twenty-four states read, each with a statute link on its legislature's site", () => {
+  it("covers the twenty-five states read, each with a statute link on its legislature's site", () => {
     expect(STATE_BOND_STATES).toEqual([
       "AZ",
       "CO",
@@ -31,6 +31,7 @@ describe("state bond claims", () => {
       "IA",
       "ID",
       "KS",
+      "LA",
       "MA",
       "MD",
       "ME",
@@ -161,6 +162,23 @@ describe("state bond claims", () => {
     ]);
     expect(noAcceptance[0]?.dueOn).toBeNull();
     expect(noAcceptance[0]?.waitsFor).toMatch(/accepted/);
+  });
+
+  it("Louisiana: the sworn statement and a sub's sub's notice within 45 days of the recorded acceptance, suit within a year", () => {
+    const la = checked("LA", "second", ACCEPTED);
+    expect(la.steps.map((s) => [s.who, s.citation, s.dueOn])).toEqual([
+      // Acceptance recorded Monday 14 December 2026 + 45 days = Thursday 28 January 2027.
+      ["all", "La. R.S. 38:2242(B)", "2027-01-28"],
+      ["not-prime", "La. R.S. 38:2247(A)", "2027-01-28"],
+      // One year from the registry of acceptance: Tuesday 14 December 2027.
+      ["all", "La. R.S. 38:2247(A)", "2027-12-14"],
+    ]);
+    expect(checked("LA", "first", ACCEPTED).steps.map((s) => s.who)).toEqual(["all", "all"]);
+    // Nothing counts from the last day: without the recorded acceptance nothing is dated.
+    const noAcceptance = checked("LA", "second");
+    expect(noAcceptance.dated).toEqual([]);
+    for (const s of noAcceptance.steps) expect(s.waitsFor).toMatch(/accepted/);
+    expect(la.notes.join(" ")).toMatch(/recorder of mortgages/);
   });
 
   it("Maine: a 90-day notice for a sub's sub, one year to sue for everyone", () => {

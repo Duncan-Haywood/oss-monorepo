@@ -2637,11 +2637,21 @@ nothing to copy. No customers yet. Paid plans are dark
   no notice; suit within six months of completion of the improvement, undated) and Delaware
   (29 Del. C. § 6962(d)(9)d: no notice; suit within three years of the last work on the contract, or
   one year after the contractor ceased work if the bond so provides, undated, with a note that a suit
-  within a year of your own last day is inside either). Twenty-four states in `STATE_BOND_RULES`.
+  within a year of your own last day is inside either). Twenty-five states in `STATE_BOND_RULES` (Louisiana landed the same day).
   Not done: Pennsylvania, Illinois, New Jersey, Connecticut, West Virginia (refused or timed out
   through the proxy), South Dakota (ch. 5-21 ties the claimant's suit to the public body's own suit
-  window; needs a careful read), Louisiana (claimed by another run the same day). A
+  window; needs a careful read). A
   completion-date field on a Kansas job would date its one step.
+
+- State bond claims, Louisiana (2026-11-28, state-bond-claims-louisiana): La. R.S. 38:2242(B) and
+  38:2247(A), read on legis.la.gov: the sworn statement filed with the public body and recorded with
+  the parish recorder of mortgages, and a sub's sub's notice to the contractor, each within 45 days
+  of the recordation of acceptance (or of default), and suit within one year of it; all three dated
+  from the job's acceptance date, nothing from the last day. Notes: the supplier's 45/90-day surety
+  payment route (§ 38:2247(B), (C)), the 75-day notice of nonpayment (§ 38:2242(F)), 10% attorney's
+  fees (§ 38:2246) and the $25,000 bond threshold (§ 38:2241(A)(2)). Twenty-one states. Probed the
+  same day and still out: Oklahoma (oscn.net shows a Turnstile bot check), Alabama (no official text
+  reachable), Hawaii and New Mexico (403).
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
@@ -2697,6 +2707,23 @@ nothing to copy. No customers yet. Paid plans are dark
   `test/az-notice.test.ts`; API test in `test/worker/notices.test.ts`. Not yet: counting Arizona's 20
   days on the job and a log of notices mailed (as California's), and the § 33-992.02(2) affidavit of
   mailing.
+- Notice of furnishing: Michigan (2026-11-28, mi-notice-of-furnishing, Crew and up, with lien
+  waivers). The job page's "Preliminary notice of right to lien" panel now prints Michigan's notice of
+  furnishing (Mich. Comp. Laws § 570.1109), which every sub and supplier serves on the designee and
+  the general contractor named in the notice of commencement within 20 days after first furnishing;
+  a claim of lien must carry its proof of service (§ 570.1111(4)), and a late one loses the earlier
+  work to the extent the owner paid on a sworn statement or waiver (§ 570.1109(6)). Subsection 4
+  prescribes the form, so it prints whole: each blank's parenthesised caption, the liber/page/county
+  sentence "or (a copy of which is attached to this notice)", and the WARNING TO OWNER in bold.
+  Prefilled: the GC as the other contracting party and the company's name; the designee is left for
+  the user (it comes from the notice of commencement, which PayApps does not hold). Liber, page and
+  county are optional (blank prints lines, for a home's unrecorded notice of commencement attached
+  instead). `packages/lien-waivers/src/mi-notice.ts`, snapshot `sources/mi-570-1108-1109.txt`
+  (legislature.mi.gov, read 2026-11-28), checked word for word by `test/mi-notice.test.ts`; API test in
+  `test/worker/notices.test.ts`. Front door: `ventures/pay-app-guides/michigan-notice-of-furnishing.html`.
+  Not yet: counting the 20 days on the job (with §§ 570.1108(10), (11)'s delays), a log of notices
+  served with the certified mail receipts, the proof of service the claim of lien attaches, and the
+  laborer's notices (§ 570.1109(2), (3)).
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2859,5 +2886,5 @@ nothing to copy. No customers yet. Paid plans are dark
   part 2 (part 1, eight states on the job page, and the next bond date on the cash page and weekly
   email 45 days ahead, done 2026-11-27; MA, MI, MN, NV and OR added 2026-11-27, part 2d);
   California's stop payment notice and bond claim (leginfo.legislature.ca.gov answered 2026-11-27);
-  more states, each read from the statute page, if contractors mark public jobs (ilga.gov and
+  more states, each read from the statute page (Louisiana added 2026-11-28), if contractors mark public jobs (ilga.gov and
   docs.legis.wisconsin.gov timed out and legis.state.pa.us returned 403 on 2026-11-27)

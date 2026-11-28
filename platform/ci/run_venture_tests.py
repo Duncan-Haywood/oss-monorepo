@@ -96,8 +96,12 @@ ON_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true"
 # FAQPage JSON-LD twin passed `run_venture_tests.py <slug>` and went red in CI
 # (four run records 2026-11-17/18 name faq-visible.test.mjs as a CI-only
 # failure). Together they take about 3 s, so a named local run includes them.
+# llms-answers.test.mjs (0.2 s) fails when a page's FAQ changed and the
+# product's llms.txt Answers were not regenerated: PR #19965 merged that way and
+# left main red for later venture runs (five run records, 2026-11-28).
 PAGES = ROOT / "platform" / "pages"
-PAGE_CHECKS = ("faq-visible.test.mjs", "secondary-schema.test.mjs", "css-lint.test.mjs")
+PAGE_CHECKS = ("faq-visible.test.mjs", "secondary-schema.test.mjs", "css-lint.test.mjs",
+               "llms-answers.test.mjs")
 
 
 def git(*args):

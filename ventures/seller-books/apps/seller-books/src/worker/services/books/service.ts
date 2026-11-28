@@ -2,6 +2,7 @@
 // allocated. Every query filters by orgId.
 import type { ExpenseCategory } from "@shared/enums";
 import { PERIODS } from "@shared/estimated-tax";
+import { buildPricingModels } from "@shared/pricing";
 import { and, eq, gte, inArray, isNotNull, lte, sql } from "drizzle-orm";
 import type { AppContext } from "../../context";
 import {
@@ -28,6 +29,15 @@ import {
 } from "./schedule-c";
 import { buildStockReport, type StockSaleInput } from "./stock";
 import { splitCents } from "./units";
+
+/**
+ * The sum of a sale row's itemised fees, as a correlated subquery for a select from `sale`. The columns are
+ * written out with their tables: drizzle renders `${sale.id}` inside `sql` as a bare "id", which inside the
+ * subquery binds to sale_fee.id, so the sum was always 0 (fixed 2026-11-28; test/worker/pricing.test.ts and
+ * the stock report's fee test).
+ */
+const feesOfSale = (orgId: string) =>
+  sql<number>`coalesce((select sum(sf.amount_cents) from sale_fee sf where sf.sale_id = "sale"."id" and sf.org_id = ${orgId}), 0)`;
 
 /** Sales dated in [from, to] with their fees and linked inventory items (one pass, shared by P&L and ledger). */
 async function loadSaleRows(ctx: AppContext, orgId: string, from: string, to: string) {
@@ -808,7 +818,7 @@ export async function stockReport(
         shippingChargedCents: sale.shippingChargedCents,
         refundCents: sale.refundCents,
         shippingLabelCents: sale.shippingLabelCents,
-        feesCents: sql<number>`coalesce((select sum(${saleFee.amountCents}) from ${saleFee} where ${saleFee.saleId} = ${sale.id} and ${saleFee.orgId} = ${orgId}), 0)`,
+        feesCents: feesOfSale(orgId),
       })
       .from(sale)
       .where(and(eq(sale.orgId, orgId), isNotNull(sale.inventoryItemId), lte(sale.date, asOf))),
@@ -845,6 +855,40 @@ export async function stockReport(
     );
   });
   return buildStockReport({ asOf, from, to, items, sales, lots });
+}
+
+/**
+ * Fee models by platform from the seller's own orders and charges dated in [from, to] (shared/pricing.ts):
+ * what each platform took, as a fixed part and a percent, plus ads and net postage, for the stock page's
+ * "Price an item".
+ */
+export async function pricingReport(ctx: AppContext, orgId: string, from: string, to: string) {
+  const [orders, charges] = await Promise.all([
+    ctx.db
+      .select({
+        platform: sale.platform,
+        itemCents: sale.itemCents,
+        shippingChargedCents: sale.shippingChargedCents,
+        shippingLabelCents: sale.shippingLabelCents,
+        feesCents: feesOfSale(orgId),
+      })
+      .from(sale)
+      .where(
+        and(
+          eq(sale.orgId, orgId),
+          eq(sale.kind, "order"),
+          gte(sale.date, from),
+          lte(sale.date, to),
+        ),
+      ),
+    loadCharges(ctx, orgId, from, to),
+  ]);
+  return buildPricingModels({
+    from,
+    to,
+    orders: orders.map((o) => ({ ...o, feesCents: Number(o.feesCents) })),
+    charges,
+  });
 }
 
 /**

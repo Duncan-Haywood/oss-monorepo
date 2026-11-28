@@ -299,6 +299,12 @@ class FakeVentures(unittest.TestCase):
                 self.assertEqual(rvt.main(["--no-elsewhere", "--no-page-checks", "web"]), 0)
 
 
+    def test_page_checks_include_the_llms_answers_sync(self):
+        # A FAQ edit without re-running llms-answers.mjs merged red (PR #19965).
+        self.assertIn("llms-answers.test.mjs", rvt.PAGE_CHECKS)
+        self.assertTrue((rvt.ROOT / "platform" / "pages" / "llms-answers.test.mjs").is_file())
+
+
 class Report(unittest.TestCase):
     UNITTEST_RED = ("F\n" + "=" * 70 + "\nFAIL: test_host (tests.test_host.T.test_host)\n" + "-" * 70
                     + "\nTraceback (most recent call last):\nAssertionError: 3 != 4\n\n" + "-" * 70

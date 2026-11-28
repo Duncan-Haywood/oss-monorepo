@@ -1,0 +1,25 @@
+{
+  "id": "P105",
+  "title": "derive.py measures no 14-day rework: the cloud clone is shallow",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "`derive.py report` shows 'rework measured 0' for every track and version on 11,280 records, so reviews compare versions on success and merge rate alone; the rework, revert and 14-day survival columns that measure whether work lasted are always empty.",
+  "evidence": [
+    "review 2026-11-28 (E128): `derive.py report` after `fetch --limit 300 && build`: rework measured 0 on every row; coverage table 'rework | 0 | 0 (window closed)'",
+    "prompts/derived/runs.json 2026-11-28: rework window 'unavailable' with why \"landing commit not on this clone's branch\" on 5,367 rows, 'no local branch for .../oss-research-monorepo' on 165, 'open' (under 14 days) on 300; `git rev-parse --is-shallow-repository` is true"
+  ],
+  "change": "Have `build` deepen only as far as the oldest merge in the 14-day window (`git fetch --shallow-since=<date> origin main`) before computing rework, or compute rework from the GitHub API commit list instead of local git; say in the report when history was missing rather than printing 0.",
+  "touches": [
+    "prompts/derive.py",
+    "prompts/test_derive.py"
+  ],
+  "metric": "rows with rework measured > 0 in `derive.py report` at the next review",
+  "baseline": "0 rows (2026-11-28)",
+  "opened": "2026-11-28",
+  "source": "review run (E128)",
+  "pr": null,
+  "result": null,
+  "history": []
+}

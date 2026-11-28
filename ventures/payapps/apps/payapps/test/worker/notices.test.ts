@@ -47,7 +47,7 @@ describe("preliminary notices", () => {
   it("on Free: the overview loads, printing needs Crew (402)", async () => {
     const o = await call<NoticeOverviewDto>(`${base}/notices?state=WY`, { as });
     expect(o.enabled).toBe(false);
-    expect(o.states).toEqual(["AZ", "CA", "FL", "TX", "WY"]);
+    expect(o.states).toEqual(["AZ", "CA", "FL", "MI", "TX", "WY"]);
     const res = await print({
       state: "WY",
       formId: "WY/preliminary-notice/statutory",
@@ -303,6 +303,58 @@ describe("preliminary notices", () => {
       fields: { ...fields, claimAmount: "$9,250.00" },
     });
     expect(wrong.status).toBe(400);
+  });
+
+  it("Michigan: the § 570.1109 notice of furnishing, the GC prefilled as the other contracting party", async () => {
+    await grantPlan(orgId, "crew", "active");
+    const p = await call<ProjectDto>(`/api/orgs/${orgId}/projects`, {
+      method: "POST",
+      as,
+      expect: 201,
+      json: {
+        name: "Huron Clinic TI",
+        location: "2200 Woodward Ave, Detroit MI 48201",
+        gcName: "Great Lakes Builders Inc.",
+        gcAddress: "500 Griswold St, Detroit MI 48226",
+        ownerName: "Huron Clinic Holdings LLC",
+        originalContractSumCents: 9_800_000,
+      },
+    });
+    const miBase = `/api/orgs/${orgId}/projects/${p.id}`;
+    const o = await call<NoticeOverviewDto>(`${miBase}/notices?state=MI`, { as });
+    expect(o.notices.map((n) => n.id)).toEqual(["MI/notice-of-furnishing/statutory"]);
+    const n = o.notices[0];
+    expect(n?.citation).toBe("Mich. Comp. Laws § 570.1109");
+    expect(n?.sendTo).toMatch(/designee and the general contractor/);
+    expect(o.prefill).toMatchObject({
+      contractedWith: "Great Lakes Builders Inc.\n500 Griswold St, Detroit MI 48226",
+    });
+    expect(o.prefill.claimantName).toBeTruthy();
+    // The designee comes from the notice of commencement, which PayApps does not hold: not prefilled.
+    expect(o.prefill.designee).toBeUndefined();
+    const fields: Record<string, string> = {};
+    for (const f of n?.fields ?? []) if (o.prefill[f.key]) fields[f.key] = o.prefill[f.key] ?? "";
+    const missing = await print({ state: "MI", formId: n?.id, fields }, as, miBase);
+    expect(missing.status).toBe(400);
+    const res = await print(
+      {
+        state: "MI",
+        formId: n?.id,
+        fields: {
+          ...fields,
+          designee: "Huron Clinic Holdings LLC",
+          designeeAddress: "2200 Woodward Ave, Detroit MI 48201",
+          workDescription: "Electrical rough-in and finish, labor and materials",
+          claimantAddress: "900 W Lafayette Blvd, Detroit MI 48226",
+          signer: "Dana Ruiz, President",
+        },
+      },
+      as,
+      miBase,
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Disposition")).toContain("preliminary-notice-MI.pdf");
+    expect((await res.text()).startsWith("%PDF-")).toBe(true);
   });
 
   it("Arizona: the § 33-992.01 twenty day notice, the GC prefilled as the party contracted with", async () => {

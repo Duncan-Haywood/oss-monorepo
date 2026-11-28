@@ -464,9 +464,10 @@ describe("stock report", () => {
     expect(r.speed[0]).toMatchObject({ platform: "etsy", sold: 1, medianDays: 133 });
     // The order's proceeds from the report's own columns; the lot's payback is them less its cost.
     const proceeds = r.speed[0]?.proceedsCents ?? 0;
-    // 38.00 − 3.80 coupon + 6.50 shipping. The sold-orders file carries no fees of its own (Etsy's fees
-    // come in with the payment statement as account charges), so none are taken off this order.
-    expect(proceeds).toBe(4070);
+    // 38.00 − 3.80 coupon + 6.50 shipping − 1.47 Card Processing Fees = 39.23, the file's own Order Net.
+    // Etsy's other fees come in with the payment statement as account charges. (Until 2026-11-28 this read
+    // 40.70: the fee subquery summed nothing, and the comment here explained that away.)
+    expect(proceeds).toBe(3923);
     expect(r.lots).toEqual([
       expect.objectContaining({
         name: "Estate sale haul",
@@ -513,6 +514,7 @@ describe("tenant isolation", () => {
       "/reports/pnl?from=2026-01-01&to=2026-12-31",
       "/reports/schedule-c?year=2026",
       "/reports/stock?asOf=2026-12-31&from=2026-01-01&to=2026-12-31",
+      "/reports/pricing?from=2026-01-01&to=2026-12-31",
       "/reports/sales-ledger.csv?from=2026-01-01&to=2026-12-31",
       "/reports/quickbooks-journal.csv?from=2026-01-01&to=2026-12-31",
     ]) {

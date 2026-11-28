@@ -742,9 +742,12 @@ def topic_words(text: str) -> set[str]:
     """Content words of a growth topic or a claim slug, -ing and a final -e folded.
 
     costing -> cost; "estimating" and "estimates" both -> estimat (2026-11-27: the topic
-    'estimating' read as untouched beside payapps' merged estimates-part-1 claim).
+    'estimating' read as untouched beside payapps' merged estimates-part-1 claim);
+    policies -> policy (2026-11-28: cmmc's 'policy templates' missed "Security policies").
     """
-    words = slug_words("-".join(re.findall(r"[a-z0-9]+", text.lower())))
+    raw = [w[:-3] + "y" if len(w) > 4 and w.endswith("ies") else w
+           for w in re.findall(r"[a-z0-9]+", text.lower())]
+    words = slug_words("-".join(raw))
     words = {w[:-3] if len(w) > 5 and w.endswith("ing") else w for w in words}
     return {w[:-1] if len(w) > 4 and w.endswith("e") else w for w in words}
 
@@ -831,12 +834,32 @@ def launch_marks(items: list[str], info: dict[str, tuple[int, str]], merged: dic
     return rows
 
 
+# Words too general to say, on their own, that a Done bullet built a growth topic.
+GENERIC_TOPIC_WORDS = {"list", "log", "control", "addition", "more", "per", "document",
+                       "template", "page", "tool", "report", "data", "file", "app", "up", "off"}
+
+
 def topic_done(topic: str, done: list[str]) -> int:
-    """How many Done bullets (from roadmap_done) name the topic, by topic_claims' word rule."""
+    """How many Done bullets (from roadmap_done) name the topic.
+
+    topic_claims' rule (every word, at most two needed) is right for slugs, which name the
+    topic's words, but Done leads name the feature in the product's words: "Win/loss
+    analytics" (five bullets) for 'win rates', "QuickBooks Online" for 'QuickBooks invoicing',
+    "Suppliers, part 3" for 'supplier flow-down', "Security policies" for 'policy templates'.
+    Each was named untouched on 2026-11-28, which sends a run to rebuild shipped work. So a
+    bullet also counts when it holds the topic's key word: of its non-generic words
+    (GENERIC_TOPIC_WORDS), the one fewest bullets hold, ignoring words none hold. The rarest
+    word is the specific one ("win", not "rate"; "cost", not "job"). A false hit only turns
+    "untouched" into "least-worked, read them first"; a miss costs a duplicate.
+    """
     want = topic_words(topic)
     if not want:
         return 0
-    return sum(1 for d in done if len(want & topic_words(d)) >= min(len(want), 2))
+    have = [want & topic_words(d) for d in done]
+    df = {w: sum(w in h for h in have) for w in want - GENERIC_TOPIC_WORDS}
+    seen = [w for w, n in df.items() if n]
+    key = min(seen, key=lambda w: (df[w], w)) if seen else None
+    return sum(1 for h in have if len(h) >= min(len(want), 2) or key in h)
 
 
 def topic_claims(topic: str, info: dict[str, tuple[int, str]], merged: dict[str, str], now: float,

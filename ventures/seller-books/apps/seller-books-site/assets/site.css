@@ -187,6 +187,26 @@ h2 {
 .card h3 {
   margin-top: 0.3em;
 }
+.feature {
+  display: flex;
+  flex-direction: column;
+}
+.feature details {
+  margin: 0.4em 0;
+}
+.feature summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--brand);
+}
+.feature-guide {
+  margin-top: auto;
+  margin-bottom: 0;
+  padding-top: 0.4em;
+}
+.feature-guide a::after {
+  content: "\00a0\2192";
+}
 .link-card {
   color: var(--text);
   text-decoration: none;
@@ -389,4 +409,7 @@ td {
     max-width: 300px;
     margin: 0 auto;
   }
+}
+.nowrap {
+  white-space: nowrap;
 }

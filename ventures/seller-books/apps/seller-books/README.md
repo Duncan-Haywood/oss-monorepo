@@ -10,7 +10,7 @@ Marketplace, a local pickup paid by Zelle), which are typed in one at a time. Yo
 marketplaces' own reports, track cost of goods per item and per lot, and log mileage (typed in, or read from
 a mileage tracker app's CSV export). The app then shows
 profit by platform and month, a stock report (how long unsold items have sat, sell-through, days to sell by
-platform, whether each lot has paid for itself, and profit and return on cost by where items were bought) and builds a Schedule C **worksheet** (not a filing, not tax advice),
+platform, whether each lot has paid for itself, and profit and return on cost by where items were bought, and a "price an item" table that turns what each platform actually took from the seller's own orders into what an item nets there and the price that clears a target profit) and builds a Schedule C **worksheet** (not a filing, not tax advice),
 line 30 included when the seller saves the space they use at home (the simplified method: inventory stored at
 home is the usual reseller case). The quarterly estimates page turns the
 profit to each Form 2210 period's end into what to have paid by each 1040-ES due date, by the regular and

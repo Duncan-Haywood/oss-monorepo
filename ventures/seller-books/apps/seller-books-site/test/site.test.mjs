@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, describe, test } from "node:test";
 import { build, fileFor } from "../build.mjs";
-import { BASE_PATH, PLATFORMS, SITE_URL, TIERS } from "../src/content.mjs";
+import { BASE_PATH, FEATURES, PLATFORMS, SITE_URL, TIERS } from "../src/content.mjs";
 import {
   ALTERNATIVES,
   COGS_EXAMPLE,
@@ -42,6 +42,8 @@ import {
   SALES_TAX_CHECKED_ON,
   SELLER_COLLECTED_SALES,
   SHOTS,
+  STOCK_EXAMPLE,
+  stockExampleFigures,
 } from "../src/pages.mjs";
 
 let out;
@@ -1049,5 +1051,116 @@ describe("app stills on the home page", () => {
       assert.ok(existsSync(join(base(), "assets", s.file)), `${s.file} is not in the build`);
     }
     assert.match(home, /The shop and its numbers are invented/);
+  });
+});
+
+describe("the sell-through page", () => {
+  const page = () => pages.find((p) => p.path === "/reseller-sell-through-rate");
+  // The app's own stock report (TypeScript, loaded by Node's type stripping).
+  const report = async () => {
+    const { buildStockReport } = await import(
+      "../../seller-books/src/worker/services/books/stock.ts"
+    );
+    const ex = STOCK_EXAMPLE;
+    return buildStockReport({
+      asOf: ex.asOf,
+      from: ex.from,
+      to: ex.to,
+      items: ex.items.map((i) => ({ ...i, sku: null })),
+      sales: ex.sales,
+      lots: ex.lots,
+    });
+  };
+
+  test("the worked example's figures are what the app's stock report gives", async () => {
+    const r = await report();
+    const f = stockExampleFigures();
+    assert.deepEqual(r.warnings, []);
+    assert.equal(r.sellThrough.startItems, f.startItems);
+    assert.equal(r.sellThrough.acquiredItems, f.acquiredItems);
+    assert.equal(r.sellThrough.soldItems, f.soldItems);
+    assert.equal(r.sellThrough.percent, f.sellThroughPercent);
+    assert.equal(r.speedTotal.medianDays, f.medianDays);
+    assert.equal(r.speedTotal.sold, f.soldItems);
+    assert.equal(
+      r.speedTotal.proceedsCents,
+      Object.values(f.proceeds).reduce((a, b) => a + b, 0),
+    );
+    assert.deepEqual(r.inStock, f.inStock);
+    const held = Object.fromEntries(r.oldest.map((o) => [o.id, o.daysHeld]));
+    assert.deepEqual(held, f.daysHeld);
+    const [lot] = r.lots;
+    const [mine] = f.lots;
+    assert.equal(r.lots.length, 1);
+    assert.equal(lot.proceedsCents, mine.proceedsCents);
+    assert.equal(lot.paybackCents, mine.paybackCents);
+    assert.equal(lot.recoveredPercent, mine.recoveredPercent);
+    assert.equal(lot.inStockCostCents, mine.inStockCostCents);
+    assert.equal(lot.sold, mine.sold);
+  });
+
+  test("the prose matches the example: four on the shelf, two items over six months old", () => {
+    const f = stockExampleFigures();
+    const over = Object.entries(f.daysHeld).filter(([, d]) => d > 182);
+    assert.deepEqual(over.map(([id]) => id).sort(), ["bowl", "tee"]);
+    assert.ok(f.lots[0].paybackCents >= 0, "the page says the lot has covered its cost");
+    assert.equal(f.lots[0].sold * 2, f.lots[0].items, "the page says half the lot is unsold");
+  });
+
+  test("it leads with the formula, shows the figures, and has FAQ JSON-LD", () => {
+    const html = htmlOf(page());
+    assert.match(html, /<p class="lead"><strong>Sell-through rate = items sold/);
+    for (const s of ["44%", "39.5 days", "$49.50", "124% of its cost", "$40.00", "319 days"])
+      assert.ok(html.includes(s), `${s} is not on the page`);
+    assert.ok(html.includes('"@type":"FAQPage"') || html.includes('"@type": "FAQPage"'));
+    assert.match(html, /invented/);
+  });
+
+  test("it is linked from the cost of goods page, and is in llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/reseller-sell-through-rate"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/cost-of-goods-sold")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/reseller-sell-through-rate)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/reseller-sell-through-rate<`));
+  });
+
+  test("the home page's stock report card links to it", () => {
+    assert.equal(FEATURES.find((f) => f.key === "stock").guide, "/reseller-sell-through-rate");
+  });
+});
+
+describe("feature cards on the home page", () => {
+  // The stills carry "what it does"; each card is a short summary, the full text behind a
+  // disclosure (still in the HTML and llms-full.txt), and a link to its guide page.
+  test("each card's summary is short and its guide is a built page", () => {
+    for (const f of FEATURES) {
+      assert.ok(f.short && f.short.length <= 130, `${f.key}: summary is ${f.short?.length} chars`);
+      assert.ok(f.body.length > f.short.length, f.key);
+      if (f.guide)
+        assert.ok(
+          pages.some((p) => p.path === f.guide),
+          `${f.key}: no page ${f.guide}`,
+        );
+    }
+  });
+
+  test("the home page shows each summary, keeps the full text in a details block, and links the guide", () => {
+    const home = read("index.html");
+    const esc = (t) =>
+      t.replaceAll("&", "&amp;").replaceAll("'", "&#39;").replaceAll('"', "&quot;");
+    for (const f of FEATURES) {
+      const card = home.match(
+        new RegExp(
+          `<div class="card feature"><h3>${esc(f.title).replace(/[?()]/g, "\\$&")}</h3>.*?</div>`,
+          "s",
+        ),
+      );
+      assert.ok(card, `${f.key}: no card`);
+      assert.ok(
+        card[0].includes(`<details><summary>How it works</summary>`),
+        `${f.key}: no details`,
+      );
+      if (f.guide) assert.ok(linksTo(card[0], `${BASE_PATH}${f.guide}`), `${f.key}: no guide link`);
+    }
+    assert.ok(read("llms-full.txt").includes(FEATURES[0].body.slice(0, 80)));
   });
 });

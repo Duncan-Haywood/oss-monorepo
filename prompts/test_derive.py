@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import derive
 import promptctl
@@ -160,6 +161,29 @@ class FetchForbiddenTest(unittest.TestCase):
             logs: list[str] = []
             derive.fetch(root, get=forbidden, log=logs.append)
             self.assertTrue(any("stopping" in m for m in logs))
+
+    def test_limit_fetches_the_newest_first(self) -> None:
+        asked: list[int] = []
+        def closed(path: str) -> Any:
+            if path.rsplit("/", 2)[-2] == "pulls":  # /repos/o/r/pulls/N
+                asked.append(int(path.rsplit("/", 1)[1]))
+                return {"state": "closed", "merged": True}
+            return []  # no commits, so no check runs
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "prompts"
+            (root / "runs").mkdir(parents=True)
+            for n in (5, 120, 9, 1000, 31):  # 1000 sorts first as a string; it is also the newest
+                rec = {**promptctl.RECORD_FIELDS, "date": "2026-10-01", "session": f"s{n}",
+                       "track": "ventures", "prompt_version": 1, "outcome": "success", "pr": n}
+                (root / "runs" / f"2026-10-01-s{n}.json").write_text(json.dumps(rec))
+            logs: list[str] = []
+            cache = derive.fetch(root, get=closed, log=logs.append, limit=3)
+            self.assertEqual(sorted(asked), [31, 120, 1000])
+            self.assertEqual(len(cache), 3)
+            self.assertIn("fetching 3 of 5, newest first", logs[0])
+            asked.clear()
+            derive.fetch(root, get=closed, log=logs.append, limit=3)  # the backlog drains
+            self.assertEqual(sorted(asked), [5, 9])
 
 
 class MeasureFallbackTest(unittest.TestCase):
