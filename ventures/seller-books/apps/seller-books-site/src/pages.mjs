@@ -278,7 +278,10 @@ function platformPage(p) {
       : p.slug === "ebay"
         ? `
   <p>Taxes on eBay sales, the 1099-K and the sales tax eBay collects, with one Transaction report worked through: <a href="${href("/ebay-taxes")}">eBay taxes</a>.</p>`
-        : ""
+        : p.slug === "etsy"
+          ? `
+  <p>Taxes on Etsy sales, the 1099-K and the sales tax Etsy remits, with one month of the Orders file and statement worked through: <a href="${href("/etsy-taxes")}">Etsy taxes</a>.</p>`
+          : ""
   }
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
@@ -1226,6 +1229,212 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "eBay taxes", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// /etsy-taxes: the search Etsy sellers make ("do I pay taxes on Etsy sales", "Etsy taxes", "Etsy 1099-K").
+// The worked example is the app's own two Etsy fixtures (apps/seller-books/test/fixtures/etsy-sold-orders.csv
+// and etsy-statement.csv, both invented) taken through the importer's arithmetic (importers/etsy.ts): an
+// Orders row's Order Value less its Discount Amount is the item price, Shipping less Shipping Discount is the
+// shipping charged, Sales Tax is kept out and Card Processing Fees is the processing fee; the statement's Fee
+// rows are Etsy's other fees, Marketing rows advertising, Shipping rows postage and Refund rows refunds, while
+// its Sale, Tax, Deposit and processing-fee rows are skipped. Lines from services/books/schedule-c.ts.
+// test/site.test.mjs re-reads both fixtures and checks every figure. Etsy's words are quoted from its Help
+// Center (fees: article 115014483627; US sales tax: article 360000343968), read 2026-11-28. Etsy's legal fee
+// policy page answers automated readers with 403, so the page quotes the help article only.
+export const ETSY_CHECKED_ON = "2026-11-28";
+export const ETSY_FEES_URL = "https://help.etsy.com/hc/en-us/articles/115014483627";
+export const ETSY_LISTING_QUOTE = "$0.20 per listing.";
+export const ETSY_TRANSACTION_QUOTE =
+  "6.5% of the total order amount in your designated listing currency.";
+export const ETSY_TRANSACTION_SHIPPING_QUOTE =
+  "This fee applies to shipping and gift wrapping (if you charge your customers for those).";
+export const ETSY_PROCESSING_QUOTE = "This rate and percent vary by country.";
+export const ETSY_TAX_URL = "https://help.etsy.com/hc/en-us/articles/360000343968";
+export const ETSY_TAX_QUOTE =
+  "Etsy automatically calculates, collects, and remits US sales tax on behalf of sellers located anywhere in the world when:";
+export const ETSY_OPT_OUT_QUOTE =
+  "Sellers can't opt out of Etsy automatically collecting sales tax.";
+/** The rows of the app's two Etsy fixtures that reach the books. */
+export const ETSY_EXAMPLE = {
+  orders: [
+    {
+      id: "3011111111",
+      what: "Blue glass vase, 10% coupon",
+      valueCents: 3800,
+      discountCents: 380,
+      shippingCents: 650,
+      taxCents: 0,
+      totalCents: 4070,
+      processingCents: 147,
+    },
+    {
+      id: "3022222222",
+      what: "Two items",
+      valueCents: 6400,
+      discountCents: 0,
+      shippingCents: 800,
+      taxCents: 662,
+      totalCents: 7862,
+      processingCents: 261,
+    },
+  ],
+  // Statement rows: the vase's transaction fees, one listing fee, a label, Etsy Ads, a $20 partial refund on
+  // the second order with its transaction fee credited back. Sale, Tax, Deposit and processing rows skipped.
+  transactionCents: 222,
+  transactionShippingCents: 42,
+  listingCents: 20,
+  labelCents: 510,
+  adsCents: 300,
+  refundCents: 2000,
+  feeCreditCents: 130,
+};
+const etsyItem = (o) => o.valueCents - o.discountCents;
+/** The example's Schedule C lines: 1 gross receipts, 2 returns, 8 advertising, 10 fees, 27a postage. */
+export function etsyLines(ex = ETSY_EXAMPLE) {
+  const line1 = ex.orders.reduce((a, o) => a + etsyItem(o) + o.shippingCents, 0);
+  const line10 =
+    ex.orders.reduce((a, o) => a + o.processingCents, 0) +
+    ex.transactionCents +
+    ex.transactionShippingCents +
+    ex.listingCents -
+    ex.feeCreditCents;
+  const tax = ex.orders.reduce((a, o) => a + o.taxCents, 0);
+  const net = line1 - ex.refundCents - ex.adsCents - line10 - ex.labelCents;
+  return {
+    line1,
+    line2: ex.refundCents,
+    line8: ex.adsCents,
+    line10,
+    line27a: ex.labelCents,
+    tax,
+    net,
+  };
+}
+/** Etsy's published 6.5% transaction fee on an amount, to the cent. */
+export function etsyTransactionFeeCents(cents) {
+  return Math.round(cents * 0.065);
+}
+
+function etsyTaxes() {
+  const path = "/etsy-taxes";
+  const title = "Etsy taxes for sellers";
+  const description =
+    "Do you pay taxes on Etsy sales? What is taxable, when Etsy sends a 1099-K, the sales tax Etsy remits, and how Etsy's two downloads become Schedule C lines.";
+  const cents = (c) => `$${(c / 100).toFixed(2)}`;
+  const money = (c) =>
+    `$${(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const L = etsyLines();
+  const E = ETSY_EXAMPLE;
+  const [vase, two] = E.orders;
+  const twoFee = etsyTransactionFeeCents(etsyItem(two) + two.shippingCents);
+  const faqs = [
+    {
+      q: "Do I have to pay taxes on Etsy sales?",
+      a: "On the profit from things you make or buy to sell, yes, whether or not Etsy sends you a form. Selling your own used things for less than you paid is not income. A handmade shop deducts its materials as cost of goods sold, a vintage shop what it paid for the pieces.",
+    },
+    {
+      q: "Does Etsy send a 1099-K?",
+      a: "For federal reporting, a platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions. Some states require one at lower amounts, and a platform may send one below the line. Business income is reportable either way.",
+    },
+    {
+      q: "Do I report my deposits or my sales?",
+      a: `Your sales. A deposit is money moving from your Etsy payment account to your bank, after fees, labels, ads and refunds have come out. Gross receipts are the item price after any coupon, plus the shipping the buyer paid; the fees, labels and ads are expenses. In the example on this page, ${money(L.net)} was left for the seller from ${money(L.line1)} of sales.`,
+    },
+    {
+      q: "Do I report the sales tax Etsy collected?",
+      a: `No. In Etsy's words, “${ETSY_TAX_QUOTE}” (followed by the states' conditions), and “${ETSY_OPT_OUT_QUOTE}” That tax is in the buyer's order total, but it is not your income, and ${SITE_NAME} keeps it out of gross receipts.`,
+    },
+    {
+      q: "Why do I need two Etsy files?",
+      a: "The Orders file (Shop Manager, Settings, Options, Download Data) has each order's price, shipping, tax and processing fee, but not Etsy's other fees. The monthly payment account statement has the transaction, listing and ads fees, labels and refunds, but its sale rows are payments, not prices. Seller Books reads the sales from the first and the costs from the second, and skips what both carry so nothing counts twice.",
+    },
+  ];
+  const orderRows = E.orders
+    .map(
+      (o) =>
+        `        <tr><th scope="row">${esc(o.id)}</th><td>${esc(o.what)}</td><td>${cents(etsyItem(o))}</td><td>${cents(o.shippingCents)}</td><td>${cents(o.taxCents)}</td><td>${cents(o.totalCents)}</td><td>${cents(o.processingCents)}</td></tr>`,
+    )
+    .join("\n");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">Etsy's deposits are what is left after fees, labels, ads and refunds, and the buyer's total can include sales tax Etsy pays to the state for you. Here is what is taxable, who sends a form, and how a month of Etsy's two downloads becomes Schedule C lines.</p>
+  <h2>Is it taxable?</h2>
+  <p>A shop that makes or buys things to sell has business (or hobby) income, whatever the forms say. Clearing out your own things for less than you paid is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). A business reports its gross sales on Schedule C and deducts what made them: Etsy's fees, shipping labels, Etsy Ads, <a href="${href("/cost-of-goods-sold")}">the cost of the goods</a> that sold (materials for handmade, the purchase price for vintage), <a href="${href("/mileage-deduction")}">the miles</a> to the craft store and the post office.</p>
+  <h2>When Etsy sends a 1099-K</h2>
+  <p>Under the <a href="${IRS_1099K_FAQ_GENERAL}">IRS general FAQs</a>, a platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions; some states are lower, and a form can come below the line. When one comes, <a href="${href("/1099-k")}">box 1a counts gross payments</a>, before fees and refunds, so it will not match your deposits. No form does not mean no income.</p>
+  <h2>Sales tax Etsy collects</h2>
+  <p>Etsy's <a href="${ETSY_TAX_URL}">US sales tax article</a> says &ldquo;${esc(ETSY_TAX_QUOTE)}&rdquo; followed by each state's conditions, and &ldquo;${esc(ETSY_OPT_OUT_QUOTE)}&rdquo; The Sales Tax column of your Orders file is that tax, and your statement shows it going back out as &ldquo;Sales tax paid by buyer&rdquo;. It is not your income: ${esc(SITE_NAME)} keeps it out of gross receipts and out of the sales tax you collected yourself, at a craft fair for instance (<a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>).</p>
+  <h2>Two files, line by line</h2>
+  <p>The Orders file has one row per order: the order value, any coupon, shipping, sales tax, the total and the card processing fee. The payment account statement has one row per ledger entry: Sale, Fee, Marketing, Shipping, Refund, Tax and Deposit. Sales come from the first file; Etsy's other fees, labels, ads and refunds from the second. The statement's Sale, Tax and Deposit rows, and its processing fee rows, are skipped, because the Orders file already holds them.</p>
+  <div class="worked">
+    <p class="muted">One invented month: the two sample files ${esc(SITE_NAME)}'s Etsy importer is tested on. The orders:</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Order</th><th scope="col">What</th><th scope="col">Item after coupon</th><th scope="col">Shipping</th><th scope="col">Sales tax</th><th scope="col">Order total</th><th scope="col">Processing fee</th></tr></thead>
+      <tbody>
+${orderRows}
+      </tbody>
+    </table></div>
+    <p>From the statement: transaction fees on the vase of ${cents(E.transactionCents)} (its price) and ${cents(E.transactionShippingCents)} (its shipping), a ${cents(E.listingCents)} listing fee, a ${cents(E.labelCents)} USPS label, ${cents(E.adsCents)} of Etsy Ads, and a ${cents(E.refundCents)} partial refund on order ${esc(two.id)} with ${cents(E.feeCreditCents)} of its transaction fee credited back.</p>
+    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${money(L.line1)}</strong> (items after the coupon plus shipping, without the ${cents(L.tax)} of tax); line 2, returns and allowances, <strong>${cents(L.line2)}</strong>; line 8, advertising, <strong>${cents(L.line8)}</strong> (Etsy Ads); line 10, commissions and fees, <strong>${cents(L.line10)}</strong> (processing, transaction and listing fees, less the credit); line 27a, postage, <strong>${cents(L.line27a)}</strong>. What is left is <strong>${money(L.net)}</strong>; the goods' cost comes off after that.</p>
+  </div>
+  <h2>What Etsy's own rates give</h2>
+  <p>Etsy's <a href="${ETSY_FEES_URL}">fees article</a> (read ${esc(ETSY_CHECKED_ON)}) gives the listing fee as &ldquo;${esc(ETSY_LISTING_QUOTE)}&rdquo; and the transaction fee as &ldquo;${esc(ETSY_TRANSACTION_QUOTE)}&rdquo; &ldquo;${esc(ETSY_TRANSACTION_SHIPPING_QUOTE)}&rdquo; The sample's vase follows it: 6.5% of ${cents(etsyItem(vase))} is ${cents(etsyTransactionFeeCents(etsyItem(vase)))}, and of ${cents(vase.shippingCents)} shipping ${cents(etsyTransactionFeeCents(vase.shippingCents))}; the ${cents(E.feeCreditCents)} credit is 6.5% of the ${cents(E.refundCents)} refund. The sample statement is short, though: it has no transaction fee rows for order ${esc(two.id)}, which at 6.5% of ${cents(etsyItem(two) + two.shippingCents)} would be ${cents(twoFee)}, so a real month's line 10 would be that much higher. On payment processing the article says only that it is a set rate plus a percent, and &ldquo;${esc(ETSY_PROCESSING_QUOTE)}&rdquo; The sample's processing fees are invented. ${esc(SITE_NAME)} applies none of these rates and books what your files say was charged.</p>
+  <h2>Keeping the books in ${esc(SITE_NAME)}</h2>
+  <p>Download the Orders file and the same month's payment account statement and import both. Each order becomes a sale with its processing fee, the statement's fees, labels and ads are booked by month, refunds keep their order number and deposits are skipped. Link sales to your stock by SKU and their cost moves to cost of goods sold. Sell on eBay, Poshmark or at craft fairs too? They go in the same books (see the <a href="${href("/platforms/etsy")}">Etsy page</a> and the others), and the worksheet adds them up.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "etsy" })}</div>`;
+  const text = `# ${title}
+
+Etsy's deposits are what is left after fees, labels, ads and refunds; the buyer's total can include sales tax Etsy remits for you.
+
+## Is it taxable?
+
+Things you make or buy to sell are business or hobby income; personal items sold at a loss are not. A business reports gross sales on Schedule C and deducts Etsy's fees, labels, Etsy Ads, cost of goods (materials or purchase price) and mileage.
+
+## When Etsy sends a 1099-K
+
+Federal threshold: over $20,000 and more than 200 transactions (${IRS_1099K_FAQ_GENERAL}); some states are lower. Box 1a is gross, before fees and refunds.
+
+## Sales tax Etsy collects
+
+"${ETSY_TAX_QUOTE}" ... "${ETSY_OPT_OUT_QUOTE}" (${ETSY_TAX_URL}). Not your income.
+
+## Two files, line by line
+
+Sales from the Orders file; Etsy's other fees, labels, ads and refunds from the monthly payment account statement (its Sale, Tax, Deposit and processing rows skipped). Invented example (the importer's sample files): ${E.orders.map((o) => `order ${o.id}: ${cents(etsyItem(o))} after coupon + ${cents(o.shippingCents)} shipping, ${cents(o.taxCents)} tax, processing ${cents(o.processingCents)}`).join("; ")}; transaction fees ${cents(E.transactionCents)} + ${cents(E.transactionShippingCents)}; listing ${cents(E.listingCents)}; label ${cents(E.labelCents)}; Etsy Ads ${cents(E.adsCents)}; refund ${cents(E.refundCents)} with ${cents(E.feeCreditCents)} fee credit. Schedule C: line 1 ${money(L.line1)}, line 2 ${cents(L.line2)}, line 8 ${cents(L.line8)}, line 10 ${cents(L.line10)}, line 27a ${cents(L.line27a)}; net ${money(L.net)}.
+
+## What Etsy's own rates give
+
+Listing: "${ETSY_LISTING_QUOTE}" Transaction: "${ETSY_TRANSACTION_QUOTE}" "${ETSY_TRANSACTION_SHIPPING_QUOTE}" (${ETSY_FEES_URL}, read ${ETSY_CHECKED_ON}). The sample statement omits order ${two.id}'s transaction fee, ${cents(twoFee)} at 6.5%. Processing: "${ETSY_PROCESSING_QUOTE}"
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Etsy taxes", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -3594,6 +3803,7 @@ export function allPages() {
     facebookMarketplace(),
     poshmarkTaxes(),
     ebayTaxes(),
+    etsyTaxes(),
     costOfGoodsSold(),
     inventorySpreadsheet(),
     sellThrough(),

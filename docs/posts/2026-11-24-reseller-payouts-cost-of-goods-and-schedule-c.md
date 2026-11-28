@@ -1246,6 +1246,33 @@ categories, which includes sales tax, plus $0.40 an order over $10) and
 its sales tax page, and works that rate on the jeans: $6.97 on a $48.30
 total.
 
+## Etsy: two downloads, one month (added 2026-11-28)
+
+Etsy splits a month across two files. The Orders file has each order's
+price, coupon, shipping, sales tax and card processing fee; the monthly
+payment account statement has the transaction, listing and Etsy Ads fees,
+labels and refunds, and repeats the sales and processing fees, so those
+rows are skipped. Take the two sample files Seller Books' Etsy importer is
+tested on (invented):
+
+| Order | Item after coupon | Shipping | Sales tax | Processing fee |
+| --- | ---: | ---: | ---: | ---: |
+| 3011111111 (vase, 10% coupon) | $34.20 | $6.50 | $0.00 | $1.47 |
+| 3022222222 (two items) | $64.00 | $8.00 | $6.62 | $2.61 |
+
+From the statement: $2.22 and $0.42 of transaction fees on the vase, a
+$0.20 listing fee, a $5.10 label, $3.00 of Etsy Ads and a $20.00 partial
+refund with $1.30 of transaction fee credited back. Line 1 is $112.70
+(the $6.62 of tax Etsy remits is left out), line 2 $20.00, line 8 $3.00,
+line 10 $5.62, line 27a $5.10, leaving $78.98, the same figure the app's
+own books test reaches. The new page,
+[Etsy taxes](https://marisstella.app/seller-books/etsy-taxes), quotes
+Etsy's fees article (read 2026-11-28: "$0.20 per listing" and "6.5% of
+the total order amount", shipping and gift wrap included) and its US sales
+tax article, and says plainly where the sample is short: it has no
+transaction fee rows for the second order, which at 6.5% of $72.00 would
+add $4.68 to line 10.
+
 ## A free inventory spreadsheet, if you are not ready for books yet (added 2026-11-27)
 
 Most resellers start with a spreadsheet, and many sheets miss the two facts

@@ -24,9 +24,18 @@ import {
   ESTIMATE_DUE_DATES_2026,
   ESTIMATE_EXAMPLE,
   ESTIMATE_RESULT,
+  ETSY_CHECKED_ON,
+  ETSY_EXAMPLE,
+  ETSY_FEES_URL,
+  ETSY_LISTING_QUOTE,
+  ETSY_TAX_URL,
+  ETSY_TRANSACTION_QUOTE,
+  ETSY_TRANSACTION_SHIPPING_QUOTE,
   ebayLines,
   ebayPublishedFeeCents,
   equipmentLine,
+  etsyLines,
+  etsyTransactionFeeCents,
   FACEBOOK_CHECKED_ON,
   FACEBOOK_EXAMPLE,
   FACEBOOK_FEE,
@@ -1056,6 +1065,165 @@ describe("the eBay taxes page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/ebay-taxes)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/ebay-taxes`));
+  });
+});
+
+describe("the Etsy taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/etsy-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+  const cells = (line) => {
+    const out = [];
+    let cur = "";
+    let q = false;
+    for (const c of line) {
+      if (c === '"') q = !q;
+      else if (c === "," && !q) {
+        out.push(cur);
+        cur = "";
+      } else cur += c;
+    }
+    out.push(cur);
+    return out;
+  };
+  const table = (rel) => {
+    const [head, ...rest] = appFile(rel).trim().split("\n");
+    const cols = cells(head);
+    return rest.map(cells).map((r) => (name) => r[cols.indexOf(name)]);
+  };
+  const money = (v) => (!v || v === "--" ? 0 : Math.round(Number(v.replace(/[$,]/g, "")) * 100));
+
+  test("the example is the importer's own two fixtures, row for row", () => {
+    const orders = table("test/fixtures/etsy-sold-orders.csv");
+    assert.equal(orders.length, ETSY_EXAMPLE.orders.length);
+    orders.forEach((at, i) => {
+      const o = ETSY_EXAMPLE.orders[i];
+      assert.equal(o.id, at("Order ID"));
+      assert.equal(o.valueCents, money(at("Order Value")));
+      assert.equal(o.discountCents, money(at("Discount Amount")));
+      assert.equal(o.shippingCents, money(at("Shipping")) - money(at("Shipping Discount")));
+      assert.equal(o.taxCents, money(at("Sales Tax")));
+      assert.equal(o.totalCents, money(at("Order Total")));
+      assert.equal(o.processingCents, money(at("Card Processing Fees")));
+      assert.equal(at("Currency"), "USD");
+      assert.equal(at("Status"), "Completed");
+    });
+    const st = table("test/fixtures/etsy-statement.csv");
+    const net = (pred) => st.filter(pred).map((at) => money(at("Net")));
+    const E = ETSY_EXAMPLE;
+    assert.deepEqual(
+      net((at) => at("Title").startsWith("Transaction fee:")),
+      [-E.transactionCents],
+    );
+    assert.deepEqual(
+      net((at) => at("Title").startsWith("Transaction fee (shipping)")),
+      [-E.transactionShippingCents],
+    );
+    assert.deepEqual(
+      net((at) => at("Title") === "Listing fee"),
+      [-E.listingCents],
+    );
+    assert.deepEqual(
+      net((at) => at("Type") === "Shipping"),
+      [-E.labelCents],
+    );
+    assert.deepEqual(
+      net((at) => at("Type") === "Marketing"),
+      [-E.adsCents],
+    );
+    assert.deepEqual(
+      net((at) => at("Type") === "Refund"),
+      [-E.refundCents],
+    );
+    assert.deepEqual(
+      net((at) => at("Title") === "Credit for transaction fee"),
+      [E.feeCreditCents],
+    );
+    // Everything else is skipped: the sale, the processing fee (on the Orders file), the tax and the deposit.
+    const used = (at) =>
+      /^Transaction fee|^Listing fee$|^Credit for transaction fee$/.test(at("Title")) ||
+      ["Shipping", "Marketing", "Refund"].includes(at("Type"));
+    assert.deepEqual(
+      st.filter((at) => !used(at)).map((at) => at("Type")),
+      ["Sale", "Fee", "Tax", "Deposit"],
+    );
+    assert.equal(st.filter((at) => !used(at))[1]("Title"), "Processing fee");
+    // The importer and Schedule C code do what the page says.
+    const imp = appFile("src/worker/services/importers/etsy.ts");
+    assert.match(imp, /itemCents: Math\.max\(0, value - discount\)/);
+    assert.match(imp, /shippingChargedCents: Math\.max\(0, shipping - shipDiscount\)/);
+    assert.match(imp, /pushFee\(fees, "payment_processing", row\.get\("cardFees"\)/);
+    assert.match(imp, /if \(\/processing fee\/\.test\(t\)\) return "skip"/);
+    assert.match(
+      imp,
+      /type === "sale" \|\| type === "deposit" \|\| type === "payment" \|\| type === "tax"/,
+    );
+    assert.match(imp, /type === "marketing"\s*\? "advertising"/);
+    const sc = appFile("src/worker/services/books/schedule-c.ts");
+    assert.match(sc, /gross \+= s\.itemCents \+ s\.shippingChargedCents/);
+    assert.match(sc, /if \(c\.kind === "shipping_label"\) add\("27a:postage", c\.amountCents\)/);
+    assert.match(sc, /add\(c\.kind === "advertising" \? "8" : "10", c\.amountCents\)/);
+  });
+
+  test("the Schedule C lines and Etsy's 6.5%, by hand", () => {
+    assert.deepEqual(etsyLines(), {
+      line1: 11270,
+      line2: 2000,
+      line8: 300,
+      line10: 562,
+      line27a: 510,
+      tax: 662,
+      net: 7898,
+    });
+    // The app's own books test nets Etsy's May at $92.70 - $8.62 - $5.10: the same $78.98.
+    assert.equal(9270 - 862 - 510, etsyLines().net);
+    // 6.5% of $34.20 is $2.223, of $6.50 $0.4225, of $20.00 $1.30, of $72.00 $4.68.
+    assert.equal(etsyTransactionFeeCents(3420), ETSY_EXAMPLE.transactionCents);
+    assert.equal(etsyTransactionFeeCents(650), ETSY_EXAMPLE.transactionShippingCents);
+    assert.equal(etsyTransactionFeeCents(2000), ETSY_EXAMPLE.feeCreditCents);
+    assert.equal(etsyTransactionFeeCents(7200), 468);
+    const html = htmlOf(page());
+    for (const s of [
+      "$112.70",
+      "$20.00",
+      "$3.00",
+      "$5.62",
+      "$5.10",
+      "$6.62",
+      "$78.98",
+      "$4.68",
+      "$34.20",
+    ])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("Etsy's words quoted with their sources; the sample's gaps said", () => {
+    const html = htmlOf(page());
+    assert.match(ETSY_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    for (const s of [
+      ETSY_FEES_URL,
+      ETSY_TAX_URL,
+      ETSY_TRANSACTION_QUOTE,
+      ETSY_TRANSACTION_SHIPPING_QUOTE,
+      ETSY_LISTING_QUOTE,
+      "One invented month",
+      "it has no transaction fee rows for order 3022222222",
+      "The sample's processing fees are invented",
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      "over $20,000 and more than 200 transactions",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s.replaceAll("'", "&#39;")) || html.includes(s), s);
+  });
+
+  test("linked from the Etsy platform page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/etsy-taxes"`;
+    const plat = htmlOf(pages.find((p) => p.path === "/platforms/etsy"));
+    assert.ok(plat.includes(link));
+    assert.ok(plat.includes("one month of the Orders file and statement worked through"));
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/etsy-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/etsy-taxes`));
   });
 });
 
