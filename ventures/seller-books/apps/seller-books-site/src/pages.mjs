@@ -1581,12 +1581,17 @@ function paypalTaxes() {
       a: `Not again. A payout is the net of sales the marketplace already reports, so count the sales from the marketplace's own report and leave the payout out. ${SITE_NAME}'s PayPal importer skips payments from the marketplaces it imports for that reason.`,
     },
   ];
+  const amt = (c) => `<span class="nowrap">${cents(c)}</span>`;
+  const inGross = (r) =>
+    [r.shipCents && `${cents(r.shipCents)} shipping`, r.taxCents && `${cents(r.taxCents)} sales tax`]
+      .filter(Boolean)
+      .join(" and ");
   const exRows = PAYPAL_EXAMPLE.map(
     (r) =>
-      `        <tr><th scope="row">${esc(r.title)}</th><td>${cents(r.grossCents)}</td><td>${r.shipCents ? cents(r.shipCents) : "—"}</td><td>${r.taxCents ? cents(r.taxCents) : "—"}</td><td>${cents(r.feeCents)}</td><td>${cents(r.netCents)}</td></tr>`,
+      `        <tr><th scope="row">${esc(r.title)}${inGross(r) ? `<br><span class="muted">${esc(inGross(r))} in the gross</span>` : ""}</th><td>${amt(r.grossCents)}</td><td>${amt(r.feeCents)}</td><td>${amt(r.netCents)}</td></tr>`,
   ).join("\n");
   const outRows = PAYPAL_LEFT_OUT.map(
-    ([a, b]) => `        <tr><th scope="row">${esc(a)}</th><td>${esc(b)}</td></tr>`,
+    ([a, b]) => `        <tr><th scope="row">${esc(a)}</th><td class="words">${esc(b)}</td></tr>`,
   ).join("\n");
   const body = `<section class="wrap">
   <h1>${esc(title)}</h1>
@@ -1602,7 +1607,7 @@ function paypalTaxes() {
   <div class="worked">
     <p class="muted">One invented month: the sample download ${esc(SITE_NAME)}'s PayPal importer is tested on. Of its 14 rows, these 5 are income, refunds or fees:</p>
     <div class="table-scroll"><table>
-      <thead><tr><th scope="col">Row</th><th scope="col">Gross</th><th scope="col">Shipping in it</th><th scope="col">Sales tax in it</th><th scope="col">PayPal's fee</th><th scope="col">Net</th></tr></thead>
+      <thead><tr><th scope="col">Row</th><th scope="col">Gross</th><th scope="col">Fee</th><th scope="col">Net</th></tr></thead>
       <tbody>
 ${exRows}
       </tbody>
