@@ -53,7 +53,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue: 2 alerts, both claimed (exit 3). Ideas inbox empty. Routed process/1. P106 taken by open PR #20099. Critique: friction_rank --live clusters 8/14 (venture page passes --for-changes, fails CI site-builder). Added deferred_page_checks to run_workflow_locally. Verified: test_run_workflow_locally 280 OK; seeded a 174-char description in pay-app-guides, caught rc 1; restored, PAGE_CHECKS 37/37 in 7 s. No backlog ids touched.",
+  "notes": "Security queue: 2 alerts, both claimed (exit 3). Ideas inbox empty. Routed process/1. P106 taken by open PR #20099. Critique: friction_rank --live clusters 8/14 (venture page passes --for-changes, fails CI site-builder). Added deferred_page_checks to run_workflow_locally. Verified: test_run_workflow_locally 280 OK; seeded a 174-char description in pay-app-guides, caught rc 1; restored, PAGE_CHECKS 37/37 in 7 s. No backlog ids touched. PR CI starved (ci_starvation.py --run 46148580230: no runner). Local run_workflow_locally --for-changes: ci-policy 2/2, control-plane-guard 2/2, prompts-ci 2/2, checklist-coverage 1/1, duplicate-symbols 2/2, conflict-markers 2/2, ventures-tests 6/6, portfolio-validate 110/110, security-gate 1/1; codeql and the gate's artifact step no verdict (exit 5). unittest discover -s prompts 174 OK; promptctl validate ok.",
   "corrections": [],
   "redteam": null,
   "usage": {
