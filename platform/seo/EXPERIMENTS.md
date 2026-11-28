@@ -60,7 +60,7 @@ that did nothing is worth knowing. Readings are in
   documentation lists 429 as "Too Many Requests (potential Spam)". The deploy
   now keeps the live `indexnow-manifest.json` (a 16-hex hash per URL), writes
   the new build's one, and submits only added, changed and removed URLs
-  (`platform/marketing/indexnow-changes.mjs`, `indexnow.mjs --previous`).
+  (`platform/marketing/indexnow.mjs`, "Changed URLs only", and its `--previous`).
   With no previous manifest it still submits everything.
 - **Should move:** `name` and `intent` queries on Bing-backed engines, once
   Bing stops seeing the site as a firehose. Unmeasurable without Bing

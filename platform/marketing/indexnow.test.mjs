@@ -643,7 +643,7 @@ test('the CLI prints one line, not a stack trace, for a bad --base-url or an unr
   }));
 
 // --previous / --manifest-out: announce only what changed since the last
-// deploy (indexnow-changes.mjs, 2026-11-28). The fixture gets a file for each
+// deploy (indexnow.mjs, "Changed URLs only", 2026-11-28). The fixture gets a file for each
 // page its sitemaps list, so every URL has something to hash.
 async function writePages(dir) {
   const all = new Set(Object.values(CHILD_SITEMAPS).flat());

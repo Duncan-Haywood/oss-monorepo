@@ -1,3 +1,9 @@
+---
+kind: note
+date: 2026-11-28
+subjects: [seo, marketing]
+topics: [seo]
+---
 # Search presence, 2026-11-28: still nothing, and IndexNow now sends changes only
 
 An explore run, 2026-11-28. Every paid bet's ROADMAP was waiting on demand
@@ -46,7 +52,7 @@ the request was accepted, not that the URLs were crawled, and nothing here
 proves the resending is why Bing shows nothing. It is the one cause on the
 agents' side of the line, so it is now fixed:
 
-- `platform/marketing/indexnow-changes.mjs`: a manifest of a 16-hex SHA-256
+- `platform/marketing/indexnow.mjs`, section "Changed URLs only" (in that file because `.github/ci-policy.yaml` accepts it in the secret-holding deploy job, and a new module would need an owner): a manifest of a 16-hex SHA-256
   per URL (the file that serves it), and the diff of two manifests (added,
   changed, removed).
 - `indexnow.mjs --manifest-out <file>` writes the manifest; `--previous

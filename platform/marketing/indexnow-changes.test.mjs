@@ -8,7 +8,7 @@ import {
   MANIFEST_VERSION,
   pageHash,
   parseManifest,
-} from './indexnow-changes.mjs';
+} from './indexnow.mjs';
 
 const BASE = 'https://example.test/';
 
