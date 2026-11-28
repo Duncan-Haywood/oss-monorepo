@@ -41,3 +41,46 @@ body {
 .num {
   @apply text-right tabular-nums;
 }
+
+/* A wide table of figures as one stacked block per row on a phone, so it never scrolls sideways:
+   the first cell is the row's name, then each figure on its own line beside its column name (each
+   <td> but the first carries data-label="<that column's header>"). The header row stays for screen
+   readers. Above 480 px it is an ordinary .table. */
+@media (max-width: 479.98px) {
+  .table-stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .table-stack,
+  .table-stack tbody,
+  .table-stack tr,
+  .table-stack td {
+    display: block;
+  }
+  .table-stack tr {
+    border-bottom: 1px solid var(--color-stone-200);
+    padding: 0.5rem 0;
+  }
+  .table-stack td {
+    border: 0;
+    padding: 0.125rem 0.25rem;
+  }
+  .table-stack td:first-child {
+    font-weight: 500;
+  }
+  .table-stack td[data-label] {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .table-stack td[data-label]::before {
+    content: attr(data-label);
+    color: var(--color-stone-500);
+    text-align: left;
+    font-weight: 400;
+  }
+}

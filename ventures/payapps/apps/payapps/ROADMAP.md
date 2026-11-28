@@ -2627,6 +2627,31 @@ nothing to copy. No customers yet. Paid plans are dark
   § 573.12(1), caps public retainage at 3% and lets the prime hold no more from a sub (2025 Acts,
   ch. 29); Iowa is not in `RETAINAGE_CAPS` or the retainage guide yet. A settlement-date field on a
   Colorado job would date its two steps.
+- State bond claims, Kansas, Delaware, Nebraska and Rhode Island (2026-11-28,
+  state-bond-claims-ks-de-ri-ne, every plan), each read on the legislature's own site that day
+  (excerpts appended to `ventures/pay-app-guides/sources/state-bond-claims.txt`): Rhode Island
+  (§ 37-12-2: a sub's sub's 90-day notice by certified mail; § 37-12-5: suit within two years of the
+  last day, or the bond's longer limit), Nebraska (§ 52-118.01: a sub's sub's notice within four
+  calendar months, counted by a new `addMonths` that clamps to the month's last day; § 52-118.02: suit
+  within a year of final settlement of the prime contract, listed undated), Kansas (K.S.A. 60-1111(b):
+  no notice; suit within six months of completion of the improvement, undated) and Delaware
+  (29 Del. C. § 6962(d)(9)d: no notice; suit within three years of the last work on the contract, or
+  one year after the contractor ceased work if the bond so provides, undated, with a note that a suit
+  within a year of your own last day is inside either). Twenty-five states in `STATE_BOND_RULES` (Louisiana landed the same day).
+  Not done: Pennsylvania, Illinois, New Jersey, Connecticut, West Virginia (refused or timed out
+  through the proxy), South Dakota (ch. 5-21 ties the claimant's suit to the public body's own suit
+  window; needs a careful read). A
+  completion-date field on a Kansas job would date its one step.
+
+- State bond claims, Louisiana (2026-11-28, state-bond-claims-louisiana): La. R.S. 38:2242(B) and
+  38:2247(A), read on legis.la.gov: the sworn statement filed with the public body and recorded with
+  the parish recorder of mortgages, and a sub's sub's notice to the contractor, each within 45 days
+  of the recordation of acceptance (or of default), and suit within one year of it; all three dated
+  from the job's acceptance date, nothing from the last day. Notes: the supplier's 45/90-day surety
+  payment route (§ 38:2247(B), (C)), the 75-day notice of nonpayment (§ 38:2242(F)), 10% attorney's
+  fees (§ 38:2246) and the $25,000 bond threshold (§ 38:2241(A)(2)). Twenty-one states. Probed the
+  same day and still out: Oklahoma (oscn.net shows a Turnstile bot check), Alabama (no official text
+  reachable), Hawaii and New Mexico (403).
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
@@ -2861,5 +2886,5 @@ nothing to copy. No customers yet. Paid plans are dark
   part 2 (part 1, eight states on the job page, and the next bond date on the cash page and weekly
   email 45 days ahead, done 2026-11-27; MA, MI, MN, NV and OR added 2026-11-27, part 2d);
   California's stop payment notice and bond claim (leginfo.legislature.ca.gov answered 2026-11-27);
-  more states, each read from the statute page, if contractors mark public jobs (ilga.gov and
+  more states, each read from the statute page (Louisiana added 2026-11-28), if contractors mark public jobs (ilga.gov and
   docs.legis.wisconsin.gov timed out and legis.state.pa.us returned 403 on 2026-11-27)

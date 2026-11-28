@@ -20,6 +20,7 @@ import type {
 } from "@shared/api";
 import { quoteLabel } from "@shared/quote-label";
 import { revisionMatchesForPrefill } from "@shared/repeat-parts";
+import { toleranceNote } from "@shared/tolerance";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useState } from "react";
@@ -474,9 +475,12 @@ function PartForm({
             ))}
           </Select>
         </Field>
-        <Field label="Tolerances" hint={<Source part={part} field="tolerances" />}>
-          <Input value={f.tolerances} onChange={set("tolerances")} />
-        </Field>
+        <div className="flex flex-col gap-1">
+          <Field label="Tolerances" hint={<Source part={part} field="tolerances" />}>
+            <Input value={f.tolerances} onChange={set("tolerances")} />
+          </Field>
+          <ToleranceCheck text={f.tolerances} />
+        </div>
         <Field label="Due date" hint={<Source part={part} field="dueDate" />}>
           <Input type="date" value={f.dueDate} onChange={set("dueDate")} />
         </Field>
@@ -734,5 +738,26 @@ function AllowanceNote({ a }: { a: RfqDetailDto["allowance"] }) {
   }
   return (
     <p className="mt-2 text-xs text-stone-500">{text} An RFQ counts once per 10 drawing pages.</p>
+  );
+}
+
+const TOLERANCE_TONE = {
+  standard: "stone",
+  close: "sky",
+  tight: "amber",
+  precision: "red",
+} as const;
+
+/**
+ * The tightest tolerance read from the part's tolerance text, and what to check before pricing it
+ * (shared/tolerance.ts). It reads only: no price changes.
+ */
+function ToleranceCheck({ text }: { text: string }) {
+  const note = toleranceNote(text);
+  if (!note || note.band === "standard") return null;
+  return (
+    <p className="text-xs text-stone-600" data-testid="tolerance-check">
+      <Badge tone={TOLERANCE_TONE[note.band]}>{note.label}</Badge> {note.detail} {note.advice}
+    </p>
   );
 }

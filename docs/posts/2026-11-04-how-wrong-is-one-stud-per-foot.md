@@ -96,6 +96,29 @@ out (hip roofs among them) are on the
 the [roof calculator](https://marisstella.app/wall-framing-takeoff/roof-calculator.html)
 counts your own roof the same way. Generated roofs, not a builder's order.
 
+## Wall sheathing: count the perimeter, keep the windows in (2026-11-28)
+
+And for the exterior walls. The usual order is the wall area (perimeter times
+height) over 32 square feet plus 10%, and some estimators take the windows and
+doors off first. We counted the sheets panel by panel with the wall sheathing
+calculator's engine on four generated houses (40 x 24 to 70 x 36 ft, one
+3 x 4 ft window per 12 ft of wall and two doors) at 8, 9 and 10 ft walls.
+
+- Standing up, one sheet tall, the houses took 32, 39, 47 and 55 sheets at
+  every wall height: the perimeter over 4 ft, plus 0 to 2. A taller wall
+  changes the sheet length, not the count.
+- Taking the openings off ran short on all 32 cases, by 2 to 19 sheets. A
+  window cut out of a sheet is offcut, not a saving.
+- An 8 ft wall on precut studs is 97-1/8 in tall, so 4x8s do not reach the top
+  plate. Laid flat, covering that last 1-1/8 in takes a third course and 5 to 7
+  sheets more than the area rule; on 10 ft walls a 25-1/8 in top course cost
+  7 to 10 more.
+
+The tables are on the
+[wall sheathing page](https://marisstella.app/wall-framing-takeoff/wall-sheathing-sheets.html);
+the [wall sheathing calculator](https://marisstella.app/wall-framing-takeoff/sheathing-calculator.html)
+counts your own house.
+
 ## Hip roofs: what the hip offcuts cost (2026-11-28)
 
 The count above leaves hip roofs out. For a hip, a flat 15% is the common

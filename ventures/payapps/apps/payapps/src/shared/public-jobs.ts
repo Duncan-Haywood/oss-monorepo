@@ -5,7 +5,7 @@
 //    dates PayApps counts here: the 90-day notice a second-tier claimant gives the prime, and the
 //    one-year limit on the suit. They take the lien deadline's place on the job page, the cash page
 //    and the weekly email. State and local jobs have each state's own bond law ("little Miller
-//    Act"): there it shows no lien date, and lists the bond claim steps in the twenty states of
+//    Act"): there it shows no lien date, and lists the bond claim steps in the twenty-five states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
 //    checked against the cap in the 23 states the public guide lists.
@@ -488,6 +488,13 @@ function day15MonthsAfter(iso: string, months: number): string {
   return new Date(Date.UTC(y, m - 1 + months, 15)).toISOString().slice(0, 10);
 }
 
+/** The same day `n` calendar months later; a day the month lacks becomes its last day (the earlier date). */
+function addMonths(iso: string, n: number): string {
+  const [y, m, d] = iso.split("-").map(Number) as [number, number, number];
+  const last = new Date(Date.UTC(y, m + n, 0)).getUTCDate();
+  return new Date(Date.UTC(y, m - 1 + n, Math.min(d, last))).toISOString().slice(0, 10);
+}
+
 const LAST = "your last day of labor or material";
 const ACCEPTED = "the day the public body accepted the work";
 
@@ -561,6 +568,18 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "The action is brought in equity in the county of the improvement, not before 30 days after completion and final acceptance (§ 573.16(1)). If the contractor serves you a written demand to sue, sue within 30 days or the funds are released (§ 573.16(2)).",
       "Where the public body releases retained funds at 95% completion, the same 30 and 60 days count from the day 95% of the contract was completed instead (§ 573.15A). Ask the public body which it used.",
       "A supplier furnishing only materials to a subcontractor who furnishes only materials has no claim (§ 573.7(2)). The start-of-work notice does not apply to highway, bridge or culvert projects (§ 573.15(2)).",
+    ],
+  },
+  LA: {
+    name: "Louisiana",
+    law: "La. R.S. 38:2241 to 38:2247",
+    url: "https://legis.la.gov/legis/Law.aspx?d=94967",
+    checkedOn: "2026-11-28",
+    notes: [
+      "Louisiana counts from the recordation of the public body's acceptance of the work (or of its notice of the contractor's default) in the parish mortgage records, not from your last day. Enter the day the acceptance was recorded as the acceptance date; the parish clerk of court can confirm it.",
+      "The sworn statement is both filed with the public body and recorded with the recorder of mortgages of the parish where the work is (§ 38:2242(B)); a claimant who skipped it has no action on the bond (§ 38:2247(A)). The notice to the contractor goes by registered or certified mail to any office it keeps in Louisiana.",
+      "A material supplier has a second route: a notice of nonpayment to the general contractor, the surety and the owner no sooner than 45 days after delivery, then a payment notice once unpaid 90 days after delivery; the surety pays within ten days (§ 38:2247(B), (C)). A supplier to a sub on a recorded contract also sends notice of nonpayment within 75 days from the last day of the month of delivery to keep its privilege (§ 38:2242(F)).",
+      "A claimant who recovers the full sworn claim after amicable demand and 30 days unpaid is allowed 10% attorney's fees (§ 38:2246). The payment bond is required on contracts over $25,000 per project, for at least half the contract price (§ 38:2241(A)(2)).",
     ],
   },
   MA: {
@@ -709,6 +728,51 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "Since 6 May 2026 the Division of Facilities Construction and Management need not take a payment bond on contracts it administers (§ 63G-6a-1103(5)): ask whether there is one.",
     ],
   },
+  DE: {
+    name: "Delaware",
+    law: "29 Del. C. § 6962(d)(9)",
+    url: "https://delcode.delaware.gov/title29/c069/sc04/index.html",
+    checkedOn: "2026-11-28",
+    notes: [
+      "Delaware's statute asks for no notice: every firm furnishing material or labor under the contract may sue on the bond in the agency's name (§ 6962(d)(9)d).",
+      "Both limits count from the prime contractor's day, not yours: three years after the last work was done on the contract, or one year after the contractor ceased work if the bond says so. Read the bond. A suit within a year of your own last day is inside either limit.",
+      "This section covers large public works contracts let by a Delaware agency; a limit the section does not provide for, written into the bond, cannot be raised as a defense (§ 6962(d)(9)e).",
+    ],
+  },
+  KS: {
+    name: "Kansas",
+    law: "K.S.A. 60-1111",
+    url: "https://www.ksrevisor.gov/statutes/chapters/ch60/060_011_0011.html",
+    checkedOn: "2026-11-28",
+    notes: [
+      "The statute asks for no notice before suit; the one limit is six months from completion of the public improvement, a day PayApps does not know. Ask the public body when the project was complete, and do not wait for acceptance.",
+      "The bond is required on contracts over $100,000 and is filed with the clerk of the district court of the county where the work is (K.S.A. 60-1111(a), (b)): ask the clerk for a copy.",
+      "A state contract secured by a certificate of deposit instead of a bond takes a claim with the director of purchases under K.S.A. 60-1112 (K.S.A. 60-1111(c)).",
+    ],
+  },
+  NE: {
+    name: "Nebraska",
+    law: "Neb. Rev. Stat. §§ 52-118 to 52-118.02",
+    url: "https://nebraskalegislature.gov/laws/statutes.php?statute=52-118.01",
+    checkedOn: "2026-11-28",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day (§ 52-118.01).",
+      "The notice goes by registered or certified mail to the contractor's office, place of business or residence, and states the amount claimed and who you worked for (§ 52-118.01).",
+      "The suit limit runs from the final settlement of the prime contract (§ 52-118.02), which the Nebraska Supreme Court reads as the public body's recorded finding that the contract is complete and final payment is due: ask the public body for that date.",
+      "Bonds are required on state projects over $15,000 and local ones over $10,000 (§ 52-118(2)).",
+    ],
+  },
+  RI: {
+    name: "Rhode Island",
+    law: "R.I. Gen. Laws §§ 37-12-2, 37-12-5",
+    url: "https://webserver.rilegislature.gov/Statutes/TITLE37/37-12/37-12-2.htm",
+    checkedOn: "2026-11-28",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day (§ 37-12-2).",
+      "The notice goes by certified mail to the contractor's office, place of business or residence, and states the amount claimed and who you worked for (§ 37-12-2).",
+      "The suit limit is two years, or the bond's own limit if that is longer (§ 37-12-5); PayApps shows the two years.",
+    ],
+  },
   VA: {
     name: "Virginia",
     law: "Va. Code § 2.2-4341",
@@ -809,6 +873,42 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
           L,
           addOneYear,
           LAST,
+        ),
+      ];
+    case "LA":
+      return [
+        step(
+          {
+            who: "all",
+            act: "File a sworn statement of the amount due with the public body and record it with the parish recorder of mortgages",
+            citation: "La. R.S. 38:2242(B)",
+            rule: "after your claim is due and within 45 days after the recordation of the acceptance of the work (or of the notice of default)",
+          },
+          A,
+          days(45),
+          ACCEPTED,
+        ),
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of the amount claimed and who you worked for",
+            citation: "La. R.S. 38:2247(A)",
+            rule: "within 45 days from the recordation of the notice of acceptance (or of default)",
+          },
+          A,
+          days(45),
+          ACCEPTED,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond against the surety, the contractor or both",
+            citation: "La. R.S. 38:2247(A)",
+            rule: "within one year from the registry of acceptance of the work (or of the notice of default)",
+          },
+          A,
+          addOneYear,
+          ACCEPTED,
         ),
       ];
     case "MA":
@@ -1276,6 +1376,84 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
           },
           L,
           addOneYear,
+          LAST,
+        ),
+      ];
+    case "DE":
+      return [
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond in the agency's name",
+            citation: "29 Del. C. § 6962(d)(9)d",
+            rule: "within 3 years after the last work was done on the contract (1 year after the contractor ceased work, if the bond provides it)",
+          },
+          null,
+          null,
+          "the last day of work on the prime contract",
+        ),
+      ];
+    case "KS":
+      return [
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the bond",
+            citation: "K.S.A. 60-1111(b)",
+            rule: "no later than six months from the completion of the public improvement",
+          },
+          null,
+          null,
+          "the day the public improvement was completed",
+        ),
+      ];
+    case "NE":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of your claim",
+            citation: "Neb. Rev. Stat. § 52-118.01",
+            rule: `within four months from ${LAST}`,
+          },
+          L,
+          (from) => addMonths(from, 4),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "Neb. Rev. Stat. § 52-118.02",
+            rule: "within one year after the date of final settlement of the principal contract",
+          },
+          null,
+          null,
+          "the final settlement of the prime contract",
+        ),
+      ];
+    case "RI":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of your claim",
+            citation: "R.I. Gen. Laws § 37-12-2",
+            rule: `within 90 days from ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "R.I. Gen. Laws § 37-12-5",
+            rule: `within two years after ${LAST} (or the bond's limit, if longer)`,
+          },
+          L,
+          (from) => addOneYear(addOneYear(from)),
           LAST,
         ),
       ];

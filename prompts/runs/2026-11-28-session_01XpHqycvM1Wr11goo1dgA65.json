@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqycvM1Wr11goo1dgA65",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T06:39:00Z",
+  "ended": "2026-11-28T06:47:19Z",
+  "wall_minutes": 8.47,
+  "tokens_in": 8845424,
+  "tokens_out": 27223,
+  "cost_usd": 3.5606,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20025",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "pay-app-guides invoice-template.test.mjs fails in this container: soffice (LibreOffice) csv conversion errors; untouched by this PR"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says payapps #25 is 'free and not gated', but its sub-items need statute hosts that mostly refuse the proxy (oscn.net Turnstile, leginfo/justia/findlaw 403); only probing found Louisiana reachable"
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "bet #3 line says '#3 has none yet' (launch review) but PR #19794 landed it; the real blocker is the owner's Impressum/EU-representative items in LAUNCH-REVIEW.md section 4"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md (extended with a Louisiana section and table row; consolidated, not a new post)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (2 claimed). Ideas inbox empty. Bet #3 owner-blocked; bets #2,#4,#6 have no free items. Took payapps #25. Louisiana read on legis.la.gov LawPrint d=94957/94960(166842)/94966/94967. Local checks: payapps biome+tsc+unit 164 files/1583 tests pass; pay-app-guides page.test.mjs 36/36; run_venture_tests pay-app-guides 1 env failure (soffice).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7b1b6456-7123-5928-9adb-9ea7799de929",
+    "transcripts": 1,
+    "first": "2026-11-28T06:39:00Z",
+    "last": "2026-11-28T06:47:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 131,
+        "output": 27223,
+        "thinking": 6863,
+        "cache_read": 8685475,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159818,
+        "api_equivalent_usd": 3.5606,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 131,
+      "output": 27223,
+      "thinking": 6863,
+      "cache_read": 8685475,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159818,
+      "api_equivalent_usd": 3.5606,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 61,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.47,
+      "active_minutes": 8.47,
+      "model_minutes": 5.28,
+      "tool_minutes": 3.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

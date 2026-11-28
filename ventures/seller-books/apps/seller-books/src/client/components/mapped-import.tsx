@@ -18,6 +18,7 @@ import { FEE_KIND_LABELS, PLATFORM_LABELS, type Platform } from "@shared/enums";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, orgPath } from "../lib/api";
+import { count } from "../lib/count";
 import { ErrorText } from "../routes/public";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -343,8 +344,9 @@ export function MappedImport({
       {s && (
         <div className="rounded-md bg-brand-50 p-3 text-sm">
           <p>
-            {s.salesCreated} sales imported; {s.duplicatesSkipped} already imported; {s.rowsSkipped}{" "}
-            rows skipped; {s.itemsLinked} sales matched to inventory by SKU.
+            {count(s.salesCreated, "sale")} imported; {s.duplicatesSkipped} already imported;{" "}
+            {count(s.rowsSkipped, "row")} skipped; {count(s.itemsLinked, "sale")} matched to
+            inventory by SKU.
           </p>
           {s.warnings.map((w) => (
             <p key={w} className="text-accent-700">

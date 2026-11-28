@@ -340,6 +340,13 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
     for (const p of [seller, buyer]) if (p.vat_id) err(`${p.role}.vat_id`, `An invoice whose lines are not subject to VAT (O) must not carry the ${p.role}'s VAT ID (BR-O-02).${p.role === "seller" ? " Give a company registration number (company_id) instead." : ""}`);
     if (!seller.company_id) err("seller.company_id", "With no VAT ID (category O), identify the seller by a company registration or other seller identifier (company_id, BR-CO-26).");
   }
+  // BR-CO-26 holds on every invoice, not only category O: a seller with a national tax number
+  // (BT-32) and no VAT ID, e.g. a German Kleinunternehmer (§ 34a UStDV allows the Steuernummer),
+  // still needs a seller identifier (BT-29) or legal registration (BT-30). The official EN 16931
+  // Schematron rejects the file without one; the tax number does not count.
+  else if (seller.name && !seller.vat_id && !seller.company_id) {
+    err("seller.company_id", "With no VAT ID, EN 16931 still needs a seller identifier (BR-CO-26: BT-29, BT-30 or BT-31); a tax number (BT-32) does not count. Give company_id: a register number (e.g. HRB 12345), or the supplier number your customer gave you.");
+  }
   // Intra-community supply (K) needs the date of supply and the country the goods go to (BR-IC-11, -12).
   const hasK = lines.some((l) => l.category === "K");
   const deliveryCountry = text(d.delivery_country).toUpperCase() || (hasK ? buyer.country : "");

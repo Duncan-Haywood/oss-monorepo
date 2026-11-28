@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtK1PMbtdSPo68PSvJY",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T07:07:15Z",
+  "ended": "2026-11-28T07:14:03Z",
+  "wall_minutes": 6.98,
+  "tokens_in": 5012407,
+  "tokens_out": 22632,
+  "cost_usd": 2.206,
+  "tool_calls": 56,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20031",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First e2e run failed: 01 spec's /sales matched to inventory by SKU/ regex no longer matched '1 sale matched'; widened to sales? and reran green."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-28-seller-books-shots.md",
+      "issue": "Called the plural a 'one-line fix'; the same bare-plural pattern was in eight strings and six e2e regexes matched the plural text, so it was a helper plus spec updates."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Serving a site folder with python -m http.server misses the /seller-books base path; a tiny node server mapping dist/ was needed for the Playwright shot."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the full survey and took the polish note's named next item, as the prompt allows.",
+      "did": "Measured only the Seller Books app (e2e at iPhone width) and site home at 390 px.",
+      "result": "success"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new docs/posts post: an app copy and phone-layout fix is not worth a reader's time on its own; the agent note in docs/reports carries the before/after.",
+      "did": "docs/reports note only.",
+      "result": "success"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-28-seller-books-plurals-stock-phone.md"
+  ],
+  "goal": null,
+  "notes": "Security queue: 2 alerts, both claimed. Ideas inbox empty. Local verification: seller-books unit 433 + worker 182 pass; typecheck clean; e2e 11 tests pass; seller-books-site node --test 108 pass; run_venture_tests seller-books 0 failed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "72b16aa5-4b65-55f9-9e88-24b82c77a468",
+    "transcripts": 1,
+    "first": "2026-11-28T07:07:15Z",
+    "last": "2026-11-28T07:14:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 111,
+        "output": 22632,
+        "thinking": 3705,
+        "cache_read": 4916086,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96210,
+        "api_equivalent_usd": 2.206,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 111,
+      "output": 22632,
+      "thinking": 3705,
+      "cache_read": 4916086,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96210,
+      "api_equivalent_usd": 2.206,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 52,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.98,
+      "active_minutes": 6.98,
+      "model_minutes": 4.25,
+      "tool_minutes": 2.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "helper + 8 strings, responsive table CSS, e2e check, stills rerun, site wiring",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 136.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -794,6 +794,16 @@ checks the pair. No customers yet.
   shops ask: work done per operation (from the traveler's sign-offs or a barcode scan) so a job
   under way counts only what is left, a shop holiday calendar, outside-service days per finishing
   op, and the lead time copied into the quote's lead-time field with one click.
+- Tolerance check, part 1 (2026-11-28, the wedge "drawing in, priced quote out"): the RFQ review
+  reads each part's tolerance text and, when the tightest tolerance is tighter than ±.005 in, shows
+  its band (close, tight, precision), the full zone in inches and millimetres and what to check
+  before pricing (finish passes and gauging; grinding, honing or a CMM). It reads ±, +/-, +-, one-sided
+  limits (+.002/-.000), inches, mm and µm (comma decimals too), ISO 2768 classes (at the 6-30 mm
+  value) and ISO 286 fits (at the 18-30 mm IT zone), skips angles, threads (M6x1) and roughness grades
+  (N7), and follows the estimator's edits. It reads only: no price changes (docs/ARCHITECTURE.md, "No
+  invented prices"). `src/shared/tolerance.ts`; unit tests, `test/e2e/18-tolerance-check.spec.ts`,
+  and `test/unit/site-tolerance-example.test.ts` holding the site's /machining-tolerances guide to
+  the reader.
 
 ## Next
 
@@ -949,6 +959,12 @@ checks the pair. No customers yet.
     draft line says so), if shops ask; several bar lengths per material (12 ft and 20 ft random lengths)
     with the cheapest whole-bar mix, if shops ask; a supplier's PDF price list read into the import
     preview, if shops send them.
+
+16. Tolerance check, part 2 (part 1 done 2026-11-28): the same note on the quote line beside the
+    cycle time, the tolerances read from a drawing PDF's dimension text (not only the labelled
+    tolerance line), limit dimensions written as two sizes (.4995/.5000), the feature's size taken
+    from the callout when it is there (Ø20 H7) instead of the 18-30 mm assumption, and band limits an
+    admin can set per shop, if shops ask.
 
 ## Open questions for the owner
 

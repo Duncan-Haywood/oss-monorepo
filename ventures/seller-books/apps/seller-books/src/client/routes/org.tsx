@@ -16,6 +16,7 @@ import { GettingStartedCard } from "../components/getting-started";
 import { QuickBooksExport } from "../components/quickbooks-export";
 import { api, orgPath, usd } from "../lib/api";
 import { apiUrl, appPath } from "../lib/base-path";
+import { count } from "../lib/count";
 import { usePostSignupSource } from "../lib/use-signup-source";
 import { LegalFooter, LegalGate } from "./legal";
 import { ErrorText, useMe } from "./public";
@@ -318,9 +319,9 @@ export function PnlPage() {
           </div>
           {t.ordersWithoutCost > 0 && (
             <p className="rounded-md bg-accent-100 p-3 text-sm text-accent-700">
-              {t.ordersWithoutCost} orders have no inventory item linked for some or all of the
-              units sold, so their cost of goods is missing and profit is overstated. Link them on
-              the Sales page.
+              {count(t.ordersWithoutCost, "order")} {t.ordersWithoutCost === 1 ? "has" : "have"} no
+              inventory item linked for some or all of the units sold, so their cost of goods is
+              missing and profit is overstated. Link them on the Sales page.
             </p>
           )}
           <p className="text-xs text-stone-500">
