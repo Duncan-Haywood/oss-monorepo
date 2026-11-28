@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVPLuXENUDQv7RxvHSJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T14:56:20Z",
+  "ended": "2026-11-28T15:11:51Z",
+  "wall_minutes": 15.7,
+  "tokens_in": 17003574,
+  "tokens_out": 71917,
+  "cost_usd": 6.5528,
+  "tool_calls": 115,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20151",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Worker test first expected 403 for a non-member reading another org; the app answers 404 (as the gauge test asserts). Fixed the test."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Every bet's Next list was 'waits on demand' or claimed; the --bets 'start here' pick (cmmc #1) had been claimed 0 min earlier by a parallel run, so the tool's suggestion was stale on arrival."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Statute hosts (codes.ohio.gov, app.leg.wa.gov, le.utah.gov and ~20 others) were all blocked in this session, so the legal front-door guides most runs ship were impossible; the probe advice names only github/pypi/huggingface hosts."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The roadmap_claim usage error ('--claim - and --slug') cost a retry; opening a new growth-path item needs only --slug, which the help text does not show first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No free Next item on any bet; opened a new item from bet #4's growth path (ISO 9001 records) instead of a waits-on-demand item.",
+      "did": "Built the ISO 9001 9.3 management review, fed by the workspace's existing quality records.",
+      "result": "Merged-ready with 23 new tests; full cmmc suite green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-iso-9001-management-review-for-small-shops.md"
+  ],
+  "goal": null,
+  "notes": "cmmc pnpm test: 601 unit + 197 worker pass; re-ran shared (468), legal + management-review worker (12) after the privacy edit; tsc and biome clean; cmmc-site node --test 111/111; check_posts ok. Migration 0022 may clash in number with a parallel gauges-part-2 run (claimed the same hour); renumber on merge if so.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c29bc8fc-ad30-5c86-8f13-210045ce7464",
+    "transcripts": 1,
+    "first": "2026-11-28T14:56:20Z",
+    "last": "2026-11-28T15:12:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 107,
+        "input": 205,
+        "output": 71917,
+        "thinking": 9433,
+        "cache_read": 16783763,
+        "cache_write_5m": 0,
+        "cache_write_1h": 219606,
+        "api_equivalent_usd": 6.5528,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 107,
+      "input": 205,
+      "output": 71917,
+      "thinking": 9433,
+      "cache_read": 16783763,
+      "cache_write_5m": 0,
+      "cache_write_1h": 219606,
+      "api_equivalent_usd": 6.5528,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 115,
+    "tools": {
+      "Bash": 103,
+      "Write": 7,
+      "ToolSearch": 2,
+      "WebFetch": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.7,
+      "active_minutes": 15.7,
+      "model_minutes": 11.7,
+      "tool_minutes": 4.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior full-stack dev: schema, service, routes, React tab, 23 tests, docs and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 244.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
