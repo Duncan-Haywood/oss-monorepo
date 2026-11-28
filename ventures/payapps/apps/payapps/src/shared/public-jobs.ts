@@ -516,6 +516,43 @@ export interface StateBondRule {
 interface BondDays {
   lastOn: string | null;
   acceptedOn: string | null;
+  /** California: the day the public body recorded its notice of completion, acceptance or cessation. */
+  recordedOn: string | null;
+}
+
+/** A real YYYY-MM-DD calendar day (a stored value that is not one is read as not entered). */
+function calendarDay(iso: string | null | undefined): string | null {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
+  const d = new Date(`${iso}T00:00:00Z`);
+  return Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== iso ? null : iso;
+}
+
+/**
+ * California (Cal. Civ. Code § 9356): the last day a stop payment notice can be given, which also
+ * starts the two suit periods (§§ 9502(b), 9558). 30 days after a recorded notice of completion,
+ * acceptance or cessation; with none entered, 30 days after acceptance, as if one were recorded that
+ * day (the earliest). A notice recorded more than 15 days after completion is outside § 9204(a)'s
+ * window and may not count, so the earlier of its 30 days and § 9356(b)'s 90 days after completion
+ * is used.
+ */
+export function caStopPaymentPeriod(
+  acceptedOn: string | null,
+  recordedOn: string | null,
+): { endsOn: string; basis: "recorded" | "recorded-late" | "acceptance" } | null {
+  const A = calendarDay(acceptedOn);
+  const R = calendarDay(recordedOn);
+  if (R) {
+    const fromRecording = addDays(R, 30);
+    if (A && R > addDays(A, 15)) {
+      const fromCompletion = addDays(A, 90);
+      return {
+        endsOn: earlier(fromCompletion, fromRecording),
+        basis: "recorded-late",
+      };
+    }
+    return { endsOn: fromRecording, basis: "recorded" };
+  }
+  return A ? { endsOn: addDays(A, 30), basis: "acceptance" } : null;
 }
 
 /** The 15th day of the nth month after the month of `iso` (Texas Gov't Code ch. 2253). */
@@ -1147,11 +1184,16 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
         ),
       ];
     case "CA": {
-      // § 9356(a): 30 days after a recorded notice of completion, which may be recorded the day of
-      // completion: the earliest the stop payment notice period can end, counted from acceptance.
-      const spnEnds = A ? addDays(A, 30) : null;
+      const period = caStopPaymentPeriod(A, d.recordedOn);
+      const spnEnds = period?.endsOn ?? null;
       const PERIOD =
-        "the end of the stop payment notice period (30 days after acceptance at the earliest)";
+        "the end of the stop payment notice period (30 days after the recorded notice of completion, or after acceptance at the earliest)";
+      const spnRule =
+        period?.basis === "recorded"
+          ? "within 30 days after the notice of completion was recorded"
+          : period?.basis === "recorded-late"
+            ? "within 30 days after the notice of completion was recorded, or 90 days after completion if that recording was too late to count, whichever comes first"
+            : `within 30 days after a notice of completion is recorded, or 90 days after completion if none is; dated from ${ACCEPTED}, the earliest`;
       return [
         step(
           {
@@ -1169,10 +1211,10 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
             who: "all",
             act: "Give the public body a stop payment notice",
             citation: "Cal. Civ. Code § 9356",
-            rule: `within 30 days after a notice of completion is recorded, or 90 days after completion if none is; dated from ${ACCEPTED}, the earliest`,
+            rule: spnRule,
           },
-          A,
-          days(30),
+          spnEnds,
+          (iso) => iso,
           ACCEPTED,
         ),
         step(
@@ -1858,18 +1900,29 @@ export type StateBondCheck =
  */
 export function stateBondClaim(
   state: string | null | undefined,
-  input: { tier: MillerTier | null; lastFurnishedOn: string | null; acceptedOn: string | null },
+  input: {
+    tier: MillerTier | null;
+    lastFurnishedOn: string | null;
+    acceptedOn: string | null;
+    /** California only: the day the public body recorded its notice of completion (else not known). */
+    completionRecordedOn?: string | null;
+  },
 ): StateBondCheck | null {
   const s = state?.trim().toUpperCase();
   if (!s) return null;
   const rule = STATE_BOND_RULES[s];
   if (!rule) return { kind: "unsupported", state: s };
-  const all = stateBondSteps(s, { lastOn: input.lastFurnishedOn, acceptedOn: input.acceptedOn });
+  const all = stateBondSteps(s, {
+    lastOn: input.lastFurnishedOn,
+    acceptedOn: input.acceptedOn,
+    recordedOn: calendarDay(input.completionRecordedOn),
+  });
   const steps = input.tier === "first" ? all.filter((x) => x.who === "all") : all;
   const dated = steps
     .filter((x) => x.dueOn !== null)
     .sort((a, b) => (a.dueOn as string).localeCompare(b.dueOn as string));
   const notes = [...rule.notes];
+  if (s === "CA") caNotes(notes, input.acceptedOn, input.completionRecordedOn ?? null);
   if (input.tier === null) {
     notes.unshift(
       "Who did you contract with? The notices marked for those not in contract with the prime apply only if you contracted with a subcontractor; PayApps shows them until you say, since sending them never hurts.",
@@ -1882,3 +1935,29 @@ export function stateBondClaim(
   }
   return { kind: "checked", state: s, rule, steps, dated, notes };
 }
+
+/**
+ * California's notes once a notice of completion's recording day is entered: the first note (which
+ * explains the acceptance-day assumption) gives way to what the entered day means, and § 9560(b)'s
+ * late bond notice gets its date.
+ */
+function caNotes(notes: string[], acceptedOn: string | null, recordedOn: string | null): void {
+  const R = calendarDay(recordedOn);
+  if (!R) return;
+  const A = calendarDay(acceptedOn);
+  const period = caStopPaymentPeriod(A, R);
+  const first =
+    period?.basis === "recorded-late" && A
+      ? `The notice of completion was recorded on ${R}, more than 15 days after the acceptance entered (${A}). A public body may record it on or within 15 days after completion (§ 9204(a)), so a later one may not count: PayApps dates the stop payment notice period from whichever ends first, 30 days after the recording (${addDays(R, 30)}) or 90 days after completion (${addDays(A, 90)}, § 9356(b)). If work stopped for 60 days before acceptance, completion was earlier and so are the dates; a construction attorney can say which applies.`
+      : `The dates count from the notice of completion recorded on ${R}: the stop payment notice period ends 30 days after it (§ 9356(a)), and the two suits count from that end. Check the recording date on the recorded copy (the county recorder has it); the notice must also state the date of completion (§ 9204(c)).${A ? "" : " Enter the acceptance date too, so PayApps can check the recording was within 15 days of completion (§ 9204(a))."}`;
+  const i = notes.findIndex((n) => n.startsWith("Every date here counts from acceptance"));
+  if (i >= 0) notes[i] = first;
+  const j = notes.findIndex((n) => n.startsWith("A claimant who missed the preliminary notice"));
+  const late =
+    period?.basis === "recorded-late" && A
+      ? `A claimant who missed the preliminary notice can still claim on the bond with written notice to the surety and the bond principal within 15 days after a notice of completion is recorded, or 75 days after completion if none is (§ 9560(b)): give it by ${earlier(addDays(R, 15), addDays(A, 75))}, the earlier of the two on this job.`
+      : `A claimant who missed the preliminary notice can still claim on the bond with written notice to the surety and the bond principal within 15 days after the notice of completion was recorded: by ${addDays(R, 15)} on this job (§ 9560(b)).`;
+  if (j >= 0) notes[j] = late;
+}
+
+const earlier = (a: string, b: string) => (a < b ? a : b);
