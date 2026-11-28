@@ -28,13 +28,17 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
     {
+      "file": "CLAUDE.md",
+      "issue": "'Duplicate PRs' says run slug_dupe.py <slug>; it said 'no duplicate' for billing-copies while #19979 'billing copies' was open, and this run's main fix was superseded. Fixed slug_dupe to notice spaced titles."
+    },
+    {
       "file": "prompts/redteam/prompt-0.md",
-      "issue": "`redteam.py tally` after a second campaign printed only that campaign's line in the combined stdout tail, so the per-campaign and run-wide figures were easy to confuse; reading the record directly was clearer."
+      "issue": "Two red-team runs on the same day both landed on billing copies; the prompt has no step to check open redteam PRs' targets before seeding."
     }
   ],
   "deviations": [
@@ -49,7 +53,7 @@
     "docs/reports/redteam-2026-11-28-billing-test-copies.md"
   ],
   "goal": null,
-  "notes": "Guard tightened: platform/ci/check_billing_copies.py now fails on shared test-file drift (ran via unwired_checks). On its first run against main it would have flagged 8 test files. Hand-mutant check: cmmc staleReason `<`->`<=` escaped old suite, caught by ported suite. Verification: 5 billing suites green (149/128/128/128/128), tsc clean in each, unittest 9 OK.",
+  "notes": "24 mutants: notices.ts 6/8 (2 equivalent), tx-dates.ts 8/8, cmmc subscription-events.ts 7/8 (1 equivalent). This run's billing test port + check_billing_copies tightening duplicated #19979 (merged first) and was dropped in the merge to main. Shipped instead: slug_dupe.py loose-title notice (unit tests OK; live run lists #19979). Verification before the merge: 5 billing suites green, tsc clean; after: check_billing_copies exit 0, test_check_billing_copies OK, test_slug_dupe OK.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -427,7 +431,14 @@
       {
         "file": "platform/ci/check_billing_copies.py",
         "issue": "The billing-copies guard held shared source byte-identical but let the shared test files drift (a note only). 19 test cases guarded one or two of the five copies: e.g. cmmc, jobshop-quote, seller-books and einvoice-pro lacked payapps' 'applies an event stamped at the watermark itself' case, so a `<` -> `<=` mutant in their subscription-events.ts staleReason (dropping Paddle's sibling events sent at one instant) passed their suites (checked by hand: old cmmc test 9 pass 0 fail, new 10 pass 1 fail). Others missing: forged-webhook h1 length checks, Object.prototype plan keys, the anchor-instant quota period, the cancel deep link, host-name parsing.",
-        "patched": true
+        "patched": true,
+        "patched_in": "PR #19979 (parallel red-team run, merged first with the same port and guard); this PR's copy was dropped in the merge"
+      },
+      {
+        "file": "platform/ci/slug_dupe.py",
+        "issue": "Counted a PR only when its title held the hyphenated slug, so `slug_dupe.py billing-copies` reported no duplicate while PR #19979 'redteam: billing copies 2026-11-28' was open; this run rebuilt the same fix. Now prints spaced-slug titles as a possible-match notice (exit code unchanged), with a test.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19987"
       }
     ]
   },
