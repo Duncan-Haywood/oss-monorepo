@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { titleLength, scan, compare, readBaseline, MAX } from './title-length.mjs';
 
@@ -14,6 +15,21 @@ test('length counts decoded characters, collapses whitespace', () => {
   assert.equal(titleLength('<title>&#x110000;</title>'), 10);
   assert.equal(titleLength('<title>  </title>'), null);
   assert.equal(titleLength('<p>no title</p>'), null);
+});
+
+// A local `node src/build.mjs` leaves a git-ignored dist/ that CI never has; it
+// failed venture-preflight on six pages (run record 2026-11-28T08:46).
+test('scan skips git-ignored pages a local build left behind', () => {
+  const root = mkdtempSync(join(tmpdir(), 'tl-git-'));
+  execFileSync('git', ['init', '-q'], { cwd: root });
+  writeFileSync(join(root, '.gitignore'), 'dist/\n');
+  mkdirSync(join(root, 'dist'));
+  const page = `<html><title>${'x'.repeat(MAX + 1)}</title></html>`;
+  writeFileSync(join(root, 'dist', 'built.html'), page);
+  writeFileSync(join(root, 'kept.html'), page);
+  const found = Object.keys(scan(root));
+  assert.equal(found.length, 1);
+  assert.match(found[0], /kept\.html$/);
 });
 
 test('scan finds long titles and skips node_modules and fragments', () => {

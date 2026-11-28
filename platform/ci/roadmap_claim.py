@@ -783,9 +783,11 @@ LAUNCH_HEAD = "must do before a public launch"
 # A launch-list bullet that records a shipped feature: "Dutch explanations, part 1 (2026-11-27,
 # slug): ..." or "ISO 9001 dates in the calendar (2026-11-27)." Runs park changelog entries there.
 # Also "~~Re-check each source~~ done 2026-11-27 (slug)" and "Launch review done 2026-11-27 (...)":
-# both were offered as free "Start here" work on 2026-11-27 after they had shipped.
+# both were offered as free "Start here" work on 2026-11-27 after they had shipped. The lead may
+# hold a colon ("Document control, part 3b: master list import (2026-11-28, slug)"): --bets sent
+# runs to cmmc's parts 3b and 3c as free on 2026-11-28 after both had merged (PR #20066).
 _SHIPPED = re.compile(
-    r"^\W*(?:~~|done\b|[^:()]{3,100}(?:\(|\bdone\s+)\d{4}-\d\d-\d\d\b)", re.I)
+    r"^\W*(?:~~|done\b|[^()]{3,100}(?:\(|\bdone\s+)\d{4}-\d\d-\d\d\b)", re.I)
 
 
 def launch_items(roadmap: str) -> list[str]:

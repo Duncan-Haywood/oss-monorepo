@@ -1,0 +1,24 @@
+{
+  "id": "P106",
+  "title": "derive.py fetch --limit takes newest first, so PRs whose rework window just closed are never fetched",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Reviews run `fetch --limit 300`, newest first. About 200 PRs merge a day, so the 300 fetched are all under 14 days old, and PRs merged 14 to 21 days ago (the only ones `build --history-days 21` can measure) stay unfetched. Rework coverage only grows from PRs fetched long ago.",
+  "evidence": [
+    "prompts/derived/github.json 2026-11-28: merged PRs cached for 11-01..11-09 and 11-27..11-28; 1 for 11-10..11-26"
+  ],
+  "change": "Have fetch with --limit first take unfetched PRs that merged 14 to history-days ago (or split the limit between those and the newest).",
+  "touches": [
+    "prompts/derive.py",
+    "prompts/test_derive.py"
+  ],
+  "metric": "rework measured rows added per review",
+  "baseline": "448 total after P105 (2026-11-28)",
+  "opened": "2026-11-28",
+  "source": "process run (P105)",
+  "pr": null,
+  "result": null,
+  "history": []
+}
