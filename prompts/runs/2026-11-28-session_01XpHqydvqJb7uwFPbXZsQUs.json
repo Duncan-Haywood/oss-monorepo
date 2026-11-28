@@ -31,13 +31,18 @@
   "outcome": "success",
   "errors": [
     "first metrics.ts edit assumed `ctx.db` (file uses `db`); fixed",
-    "admin test used newId('usr'), not an IdPrefix; typecheck caught it"
+    "admin test used newId('usr'), not an IdPrefix; typecheck caught it",
+    "merge conflict with #19926 (same task, concurrent); resolved toward main"
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/perf/prompt-0.md",
       "issue": "Item 2 (the runner pool reading) again landed on priv-* workflows or jobs a sparse checkout already covers (sibling-links, link-contrast). The 'not changed' lists in docs/history led faster to real work."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate PRs: two perf runs drew the same suite within about an hour. slug_dupe at pick time showed only the earlier jobshop PR, because the other run's PR was not yet open. A claim branch at pick time would have caught it."
     }
   ],
   "deviations": [
@@ -52,7 +57,7 @@
     "docs/history/seller-books-worker-tests-perf-2026-11-28.md"
   ],
   "goal": null,
-  "notes": "Metric: cold `pnpm test:worker` (rm -rf node_modules/.vite) in ventures/seller-books/apps/seller-books on a 4-core cloud container. Before: 28.6 s Vitest duration (30.2 s wall), 165 tests. After isolate:false: 6.5 s / 8.75 s (8.1 / 10.6 s wall), 168 tests. Shuffle seeds 1-6 green. Also fixed 3 production 500s past D1's 100-parameter cap (the Sales page for sellers with 99+ sales, the admin accounts list, a wholesale-lot inventory link). Regression tests fail on the old code. typecheck and biome ci clean.",
+  "notes": "Overlap: PR #19926 (a concurrent perf run) merged isolate:false and the admin-list fix for seller-books while this PR's CI ran. slug_dupe showed nothing at pick time. On merge this PR kept #19926's config, metrics.ts and admin test, and contributes the two customer fixes #19926 left as its 'not changed' item 1: the Sales page (/sales?limit=500) 500 for sellers with 99+ sales, and the wholesale-lot inventory link. Regression tests in many-sales.test.ts fail on the old code. Perf metric, independently measured: cold `pnpm test:worker` 28.6 s before, 6.5-8.75 s after isolate:false (Vitest duration, 4-core container, rm -rf node_modules/.vite). Merged tree: 34 files, 174 passed, 8.66 s. Shuffle seeds 1-6 green on this branch's config.",
   "corrections": [],
   "redteam": null,
   "usage": {
