@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVLirGC4nsp6EHDkVrx",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T06:56:35Z",
+  "ended": "2026-11-28T07:04:22Z",
+  "wall_minutes": 7.97,
+  "tokens_in": 7788087,
+  "tokens_out": 41842,
+  "cost_usd": 3.6071,
+  "tool_calls": 62,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20028",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "viewer-load.mjs went in with two literal U+FEFF characters in regexes (the Write tool turned the \\uFEFF escapes into the character); run_workflow_locally's hidden-unicode check caught it and a follow-up commit restored the escapes",
+    "Meta description was 165 characters; platform/pages description-length.test.mjs (160 max) failed in CI's site-builder job. run_workflow_locally --for-changes did not run that suite for a venture-only diff. Shortened to 152.",
+    "Smooth scrollIntoView without the prefers-reduced-motion guard; check_smooth_scroll.py (an unwired check run by changed-ventures) failed in CI. Fixed with its --fix. unwired_checks.py then 315/318 pass, 3 skipped."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says bet #2's 'win rates' growth topic is untouched, but jobshop-quote's ROADMAP Done already has Win/loss analytics parts 1 and 2 (win rate, by month, markup won vs lost). The topic matcher missed the 'win-loss' wording."
+    },
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "issue": "It says the free edition is frozen with 'lead-magnet maintenance only', yet bets.md and roadmap_claim treat it as bet #3's front door and several front-door pages landed on it today. Unclear whether a new front-door page (or a viewer) counts as 'new depth'."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a diff that adds a venture page did not run platform/pages' description-length test (priv-portfolio-pages.yml 'Test the site builder'), so a 165-character meta description passed locally and failed in CI."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Its output says the unwired tree checks were not run (about 90 s); they include check_smooth_scroll.py, which caught a real a11y miss in CI. Worth running them by default for a diff that adds a venture page."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "why": "Added a new user-facing capability (the viewer) to the frozen free edition, because it is the cheapest front door to bet #3 for German SMEs, who have had to receive e-invoices since 2025. It reuses the existing parsers and adds no new checking depth.",
+      "did": "Two small modules plus a page over the existing parsers",
+      "result": "Merged with tests; usage event xrechnung_viewed will show whether it draws visitors"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Fixed another PR's breakage (#20036's 77-character title) inside this PR, because main's site-builder test was red and blocked every PR.",
+      "did": "Shortened the title in routes.ts and the catalogue export together",
+      "result": "platform/pages title-length passes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-zugferd-minimum-basic-wl-not-an-e-invoice-in-germany.md (extended, for-customers)",
+    "ventures/einvoice-preflight/README.md (viewer section)"
+  ],
+  "goal": null,
+  "notes": "Security queue: 0 workable. IDEAS: none. Routed ventures/1. Bets #1 and #2 have no free, ungated Next items (most wait on demand); bet #3 had the fewest front-door PRs. Built the German XRechnung viewer. run_venture_tests einvoice-preflight: ok (2880 tests) plus site page checks. Chromium at 390 px: renders, no overflow, no console errors. run_workflow_locally --for-changes: 12/13 workflows passed; ventures-tests failed only on test_check_hidden_unicode (the BOM above), fixed and re-run OK. priv-codeql and priv-security-gate gave no verdict locally (skipped uses: steps). Merged main twice: once for conflicts with parallel einvoice PRs #20032/#20034 (kept both sides, regenerated llms-answers), once to pick up main. Main was red: PR #20036's jobshop-site machining-tolerances title was 77 characters (platform/pages title-length test, 70 max). Fixed forward here in routes.ts and the catalogue export (68 characters).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5cb3ddd1-270b-59c3-b143-120b68a4d899",
+    "transcripts": 1,
+    "first": "2026-11-28T06:56:35Z",
+    "last": "2026-11-28T07:04:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 113,
+        "output": 41842,
+        "thinking": 6322,
+        "cache_read": 7632568,
+        "cache_write_5m": 0,
+        "cache_write_1h": 155406,
+        "api_equivalent_usd": 3.6071,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 113,
+      "output": 41842,
+      "thinking": 6322,
+      "cache_read": 7632568,
+      "cache_write_5m": 0,
+      "cache_write_1h": 155406,
+      "api_equivalent_usd": 3.6071,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 55,
+      "Write": 4,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.97,
+      "active_minutes": 7.97,
+      "model_minutes": 6.75,
+      "tool_minutes": 1.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a developer building a tested in-browser invoice viewer page over existing parsers, German copy and SEO wiring",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 166.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -162,6 +162,20 @@ No validator can see that. The German page is
 [E-Rechnung für Kleinunternehmer](https://marisstella.app/einvoice-preflight/e-rechnung-kleinunternehmer.html),
 and `kleinunternehmer-bench.mjs` reproduces the table.
 
+**Received one and can't read it? (added 2026-11-28).** Since 1 January
+2025 every German business must be able to receive e-invoices, and an
+XRechnung is plain XML: double-clicking it shows code. The free
+[XRechnung anzeigen](https://marisstella.app/einvoice-preflight/xrechnung-anzeigen.html)
+page (in German) shows an XRechnung (UBL or CII) or the XML inside a
+ZUGFeRD or Factur-X PDF as a readable invoice: parties, lines, VAT per rate,
+the amount payable and the IBAN. Its header names the profile from BT-24, so a
+file that says "ZUGFeRD / Factur-X MINIMUM" and lists no lines is the case the
+table above describes. It reads the file in the browser with the same parsers
+the checker uses, uploads nothing, recomputes nothing, and links on to the
+check. The finance administration's own viewer in the ELSTER portal is the
+other free option. Keep the XML (or the PDF with its XML) itself: a printout of
+any view is not the e-invoice.
+
 **Update, 2026-11-28: the Leitweg-ID, which the official rules never read.**
 An XRechnung to a German public body carries the body's Leitweg-ID as the
 buyer reference (BT-10). We took the same example XRechnung (UBL) and put one
