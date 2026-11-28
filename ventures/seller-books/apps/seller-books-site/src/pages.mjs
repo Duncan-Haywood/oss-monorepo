@@ -47,6 +47,73 @@ const mdList = (items) => items.map((i) => `- ${i}`).join("\n");
 const usd = (n) => `$${n.toLocaleString("en-US")}`;
 const num = (n) => n.toLocaleString("en-US");
 
+/**
+ * Stills of the real app (apps/seller-books/test/stills/capture.stills.ts, `pnpm stills` there), taken
+ * from one invented Etsy shop whose figures that script asserts before each shot. Width and height
+ * are the WebP's own; test/site.test.mjs checks them against the files.
+ */
+export const SHOTS = {
+  profitDesktop: {
+    file: "shot-profit-desktop.webp",
+    width: 1280,
+    height: 860,
+    alt: "Seller Books' Profit & loss page for 2026: revenue $92.70, fees and postage $13.72, cost of goods $10.00, net profit $55.99, a warning that one order has no inventory item linked, and a by-platform table where Etsy nets $68.98 and a general supplies expense is $12.99.",
+  },
+  profitPhone: {
+    file: "shot-profit-phone.webp",
+    width: 390,
+    height: 844,
+    alt: "The same Profit & loss page on a phone: the four totals in two rows, revenue $92.70, fees and postage $13.72, cost of goods $10.00 and net profit $55.99.",
+  },
+  scheduleC: {
+    file: "shot-schedule-c-desktop.webp",
+    width: 1280,
+    height: 860,
+    alt: "The Schedule C worksheet for 2026: line 1 gross receipts $112.70, line 2 returns $20.00, line 4 cost of goods sold $10.00, line 9 car expenses $18.13 for 25 business miles at the IRS rate on the trip's date, with download buttons for a PDF, a CSV and a ZIP for a tax preparer.",
+  },
+  scheduleCPhone: {
+    file: "shot-schedule-c-phone.webp",
+    width: 358,
+    height: 1246,
+    alt: "The Schedule C worksheet's Parts I and II on a phone, line by line: gross receipts $112.70, returns $20.00, cost of goods sold $10.00, car expenses $18.13, commissions and fees $5.62, supplies $12.99, total expenses $44.84 and net profit $37.86.",
+  },
+  stock: {
+    file: "shot-stock-desktop.webp",
+    width: 1280,
+    height: 860,
+    alt: "The Stock report: 2 items in stock costing $20.00, 33% sell-through, 133 median days to sell, and an estate-sale lot that cost $30.00, sold 1 of 3 items for $40.70 and so has recovered 136% of its cost.",
+  },
+};
+
+const shotImg = (s, cls = "") =>
+  `<img${cls ? ` class="${cls}"` : ""} src="${href(`/assets/${s.file}`)}" width="${s.width}" height="${s.height}" alt="${esc(s.alt)}" loading="lazy" decoding="async">`;
+const shotLink = (s, cls = "") => `<a href="${href(`/assets/${s.file}`)}">${shotImg(s, cls)}</a>`;
+/** A desktop still with a phone crop served instead on narrow screens (only one is fetched). */
+const shotPicture = (wide, phone) =>
+  `<a href="${href(`/assets/${wide.file}`)}"><picture><source media="(max-width: 720px)" srcset="${href(`/assets/${phone.file}`)}" width="${phone.width}" height="${phone.height}">${shotImg(wide)}</picture></a>`;
+
+function shotsSection() {
+  return `<section class="wrap shots" aria-labelledby="shots-h">
+  <h2 id="shots-h">What it looks like in the app</h2>
+  <p>Screenshots of the app with one made-up Etsy shop: its orders file and monthly statement, a $30 estate-sale lot of three items, one supplies receipt and one sourcing trip. The shop and its numbers are invented; the arithmetic is the app's.</p>
+  <figure class="shot-hero">
+    <div class="shot-frame shot-wide">${shotLink(SHOTS.profitDesktop)}</div>
+    <div class="shot-frame shot-phone">${shotLink(SHOTS.profitPhone)}</div>
+    <figcaption>Profit &amp; loss: sales, the fees and postage Etsy actually charged, and what each item cost you, per platform and per month. An order with no cost recorded is flagged, not guessed.</figcaption>
+  </figure>
+  <div class="shot-pair">
+    <figure>
+      <div class="shot-frame">${shotPicture(SHOTS.scheduleC, SHOTS.scheduleCPhone)}</div>
+      <figcaption>The Schedule C worksheet, line by line, with a PDF, a CSV and a ZIP of the records behind it for your tax preparer.</figcaption>
+    </figure>
+    <figure class="shot-wide">
+      <div class="shot-frame">${shotLink(SHOTS.stock)}</div>
+      <figcaption>The stock report: how long unsold items have sat, days to sell by platform, and whether each lot has paid for itself.</figcaption>
+    </figure>
+  </div>
+</section>`;
+}
+
 const notTaxAdvice = `<p class="note">${esc(NOT_TAX_ADVICE)}</p>`;
 
 function home() {
@@ -73,6 +140,7 @@ function home() {
       : `<a class="button" href="${href("/early-access")}">Join early access</a> <a class="button ghost" href="${href("/pricing")}">See proposed pricing</a>`
   }</p>
 </section>
+${open ? shotsSection() : ""}
 <section class="wrap" aria-labelledby="problem-h">
   <h2 id="problem-h">Payout is not profit</h2>
   <p>A platform payout is the sale minus that platform's fees. It doesn't know what you paid for the item at the thrift store, the shipping supplies you bought, the miles you drove to source, or the sale you made on a different app the same day. Profit needs all of it in one place.</p>
