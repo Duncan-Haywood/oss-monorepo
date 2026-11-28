@@ -1368,6 +1368,192 @@ The Early access plan is free and needs no card.
 
 Start free
 
+## How to quote outside processing
+
+Source: https://marisstella.app/jobshop/how-to-quote-outside-processing
+
+Guide
+
+## How to quote outside processing: heat treat, anodize and plating
+
+Work you send out is the one part of a quote whose price someone else sets, and the
+vendor's minimum charge is easy to miss. On a short run it can be most of the price. Here is the
+method, a worked example at 5, 50 and 250 parts, and what
+the quote looks like if you just multiply the vendor's per-part price by the quantity.
+
+### The method in six steps
+
+- Read the drawing for every process after machining. Heat treat and the
+hardness, anodize type, class and colour, plating and thickness, black oxide, passivation, paint or
+powder coat, and the spec each one calls out (for example MIL-A-8625 for anodize or AMS 2759 for
+steel heat treat). Note masked surfaces, threads to protect and any certificate the customer wants
+back. A finish with no spec is a question to the customer, not a guess.
+
+- Get each vendor's price in the unit they bill. Heat treaters often price by the
+pound of parts, platers and anodizers by the part, the rack or the area, and nearly all of them
+have a minimum charge per lot. Ask for masking, racking, stripping and certificate charges and the
+turnaround as well.
+
+- Turn it into a price per part and a lot minimum. A per-pound price times the
+finished part's weight (what goes in the furnace, not the blank) is the per-part charge. The
+vendor bills the larger of per-part × parts sent and the lot minimum.
+
+- Count the parts you send, not the parts you ship. With fallout, you machine
+and send more parts than the order, and the vendor charges for each one.
+
+- Add the cost of getting it there and back. Freight or the driver's time to each
+vendor and back, packaging, and the certificates. These are per lot, so they hit a small order
+hardest.
+
+- Mark it up and quote every quantity. A markup on outside work pays for
+chasing the vendor, the parts' time off your floor and the risk of a rejected lot. Repeat the sum
+at each break: the minimums spread differently at each.
+
+### A worked example
+
+A steel clamp block: 4140 steel plate, milled from a 4 × 2 ×
+1.25 in blank in two setups, deburred and inspected, then hardened and tempered
+by a heat treater who charges by the pound and black oxided by a second vendor.
+Every number here is made up to show the arithmetic; they are not prices, rates
+or minimums for any vendor, process or region. Use your own vendors' quotes.
+
+#### The outside services
+
+- Harden and temper (outside heat treater): $0.85 a pound. The machined
+block weighs 2.1 lb (from the model; the blank was 2.84
+lb), so 2.1 × $0.85 = $1.79
+a part, with a $175.00 minimum a lot. The minimum stops binding at
+$175.00 ÷ $1.79 = 98
+parts sent.
+
+- Black oxide (outside vendor): $1.20 a part, minimum
+$85.00 a lot, which stops binding at 71 parts.
+
+- Freight to and from both vendors: $90.00 a lot.
+- Heat-treat certificate: $25.00 a lot.
+
+#### The rest
+
+- Material: 2.84 lb a blank at
+$2.40 a pound plus 10% for kerf and facing, at least
+$25.00 a line.
+
+- Mill, two setups on the vertical machining center at
+$95.00 an hour: 90 min setup, 14 min a part.
+- Deburr and inspect on the bench at
+$55.00 an hour: 3 min a part.
+- First-article check on the bench at
+$55.00 an hour: 30 min setup.
+
+- Fallout: 3%, so 5 parts start
+6, 50 start 52 and 250 start 258,
+and both vendors are paid on the parts started.
+
+- Markup: 15% on the outside services,
+20% on material, freight and the certificate (bought-in costs), none on
+labor (the shop rates are taken to hold the margin already); a $300.00
+minimum per line.
+
+The made-up steel block at three quantities. "(minimum)" marks a vendor's lot minimum setting the charge. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.
+Line5 parts50 parts250 parts
+
+Parts started652258Material$44.99$389.88$1,934.38Setup and first article$170.00$170.00$170.00Run time$149.50$1,295.67$6,428.50Heat treat (outside)$175.00 (minimum)$175.00 (minimum)$461.82Black oxide (outside)$85.00 (minimum)$85.00 (minimum)$309.60Freight and certificate$115.00$115.00$115.00Cost$739.49$2,230.55$9,419.30Markup$71.00$139.98$525.59Price each$162.10$47.42$39.78Line total$810.50$2,371.00$9,945.00
+
+### The quote you get by multiplying
+
+The common shortcut is to take each vendor's per-part price, multiply it by the quantity and add
+it at cost: no minimums, no freight, no certificate, no markup. Priced that way, with everything
+else the same:
+
+The same block with the outside work priced as per-part × parts only. Shortfall = the full quote's line total less this one's.
+Line5 parts50 parts250 parts
+
+Outside work$17.94$155.48$771.42
+Price each$78.29$41.79$38.77
+Line total$391.45$2,089.50$9,692.50
+Shortfall$419.05$281.50$252.50
+
+What the two tables show:
+
+- On a short run the minimums are the outside price. At 5 parts
+the vendors would bill $10.74 and
+$7.20 by the part; they bill
+$175.00 and $85.00. With freight and the
+certificate, outside costs are $375.00, 51%
+of the cost. The multiplied quote comes to $391.45 against
+$810.50: 48% of what the job
+should be priced at.
+
+- The minimums still bind at 50. 52 parts sent is below
+both break-even counts (71 and 98), so the outside
+charge is the same $260.00 as at 5. The shortfall is
+$281.50, about $5.63
+a part, which is easy to miss in a $2,371.00 quote.
+
+- At volume the gap is the freight and the markup. At 250 parts
+both vendors bill by the part, so the multiplied outside cost is right; what is still missing is
+$115.00 of freight and certificate and the markup on outside work, a shortfall of
+$252.50.
+
+- The price each falls from $162.10 to
+$47.42 to $39.78, and the lot minimums and
+freight are a large part of why. When a customer orders small lots of a repeat part, it can pay to
+offer a larger run held in stock, or to send it out with other jobs going to the same vendor.
+
+### Mistakes that lose money on jobs you win
+
+- Pricing the vendor's per-part rate without the lot minimum. Above: the
+smaller the order, the bigger the miss.
+
+- Weighing the blank, or nothing. A per-pound price applies to what goes in the
+furnace. Use the finished weight, and include any fixture or basket weight the vendor charges
+for.
+
+- Sending the order quantity. Spares for fallout and first articles go through
+the vendor too, and are billed.
+
+- Forgetting the trip. Freight or a driver's half day each way, packaging, and the
+certificate are real costs on every lot.
+
+- Quoting a stale vendor price. Platers and heat treaters change prices and
+minimums; keep their current quotes on file and date them.
+
+- Leaving vendor days out of the lead time. The parts are off your floor for the
+vendor's turnaround plus the trips. Add it to the date you promise; see
+quoting lead times from shop
+load.
+
+### Doing it in Job Shop Quote
+
+In Job Shop Quote each finishing step is a rate-card entry with a per-part charge and a lot minimum,
+marked as an outside service or done in house. Outside services take their own markup, separate
+from labor and material, and freight, certificates and other bought-in items go on a line as extras,
+per part or per lot. A quote line prices each break the way the tables above do: the vendor's charge
+is the larger of per-part × parts started and the lot minimum, and the quote's basis prints each
+finish's per-part charge and minimum. Job Shop Quote does not price a finish by the pound or by area: type
+the per-part charge you work out from the vendor's quote. The example above is priced to the cent
+the app gives for the same inputs, both ways, checked by a test in its code. Finishing entries can
+be imported from a CSV with the rest of the rate card, and a
+won quote's job traveler lists the
+finishing and outside services after the operations.
+
+For the rest of the quote, see how
+to quote a CNC machining job, how
+to quote turned parts and sheet
+metal; for your shop rate, how to
+work out a machine shop hourly rate; for what goes on the quote you send, the
+machine shop quote template.
+
+This page explains a common costing method. It is not accounting, tax,
+engineering or financial advice, and the prices, minimums, times and rates in it are made up.
+Check every quote before you send it.
+
+### Quote your next outside-processed part this way
+
+The Early access plan is free and needs no card.
+
+Start free
+
 ## How to estimate CNC machining time
 
 Source: https://marisstella.app/jobshop/how-to-estimate-cnc-machining-time
@@ -2069,6 +2255,7 @@ Reading RFQ emails and PDF drawings with AI is built but not switched on in the 
 
 - How to quote a CNC machining job
 - How to quote CNC turning and lathe parts
+- How to quote outside processing (heat treat, plating)
 - How to work out a machine shop hourly rate
 - Machine shop markup and margin
 - Machine shop quote template (free CSV)
@@ -2750,6 +2937,7 @@ Start free
 
 - How to price a rush job
 - How to work out a machine shop hourly rate
+- How to quote outside processing (heat treat, plating)
 - Machine shop quote template (free CSV)
 
 ### Common questions
