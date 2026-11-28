@@ -4,7 +4,6 @@
 
 ## Parked from flagships.yaml `next:`
 
-- (2026-11-28) built-in BR-CO-26: the readers keep only schemed party ids (`party_ids`), so a seller with no VAT ID, no BT-30 and an unschemed BT-29 cannot be told from one with none; read the plain `ram:ID` / `cac:PartyIdentification` too, then report a seller with no BT-29, BT-30 or BT-31 (the creator refuses it since 2026-11-28, `kleinunternehmer-bench.mjs`); also BR-Z-10 (a Z row with an exemption reason) is official-only
 - (2026-11-16) a real Ginfes, Betha or DSF reply
 - (2026-11-16) refresh the Bulgaria page when its draft passes
 - (2026-11-17) ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba,...) landed (README): open: a DSF 1.00/Abaco file

@@ -14,7 +14,7 @@ test("a signed-in reseller cannot reach another reseller's shop", async ({ brows
       "eBay: Transaction report (Payments > Reports)",
       "ebay-transaction-report.csv",
     );
-    await expect(pageA.getByText(/other charges imported/)).toContainText("3 sales");
+    await expect(pageA.getByText(/other charges? imported/)).toContainText("3 sales");
 
     const pageB = await b.newPage();
     await signUpWithShop(pageB, { tag: "iso-b", shop: "Shop B" });

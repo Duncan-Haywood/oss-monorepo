@@ -63,7 +63,7 @@ test("exempt and reverse-charge categories need a reason", () => {
   assert.equal(out.totals.tax, 0);
 });
 
-test("Kleinunternehmer with only a national tax number is asked for a seller identifier (BR-CO-26)", () => {
+test("Kleinunternehmer with only a national tax number is refused: BR-CO-26 needs a seller identifier", () => {
   const d = draft();
   delete d.seller.vat_id;
   d.seller.tax_number = "21/815/08150";
@@ -77,7 +77,7 @@ test("Kleinunternehmer with a tax number and a seller identifier is clean", asyn
   const d = draft();
   delete d.seller.vat_id;
   d.seller.tax_number = "21/815/08150";
-  d.seller.company_id = "Lieferant 4711";
+  d.seller.company_id = "HRB 12345";
   d.lines = [{ description: "Webdesign", quantity: 1, unit_price: 800, tax_percent: 0, tax_category: "E", tax_reason: "Kleinunternehmer gemäß § 19 UStG" }];
   const out = generateInvoice(d);
   assert.equal(out.ok, true, JSON.stringify(out.errors));

@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtGz1CUyiucncpmBBrY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T07:06:53Z",
+  "ended": "2026-11-28T07:16:48Z",
+  "wall_minutes": 10.11,
+  "tokens_in": 7215951,
+  "tokens_out": 37796,
+  "cost_usd": 3.2922,
+  "tool_calls": 61,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20032",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First venture-preflight run stopped at 1c/3 on venture-sitemap-coverage.test.mjs ('looking at the catalogue and not at an empty directory'); the same test passes 3/3 standalone, so I reran the preflight: clean."
+  ],
+  "integrity_issues": [
+    "Found and fixed: the free creator wrote Steuernummer-only Kleinunternehmer invoices that the official EN 16931 Schematron rejects (BR-CO-26), and generate.test.mjs called them 'clean' because the built-in checks do not implement BR-CO-26. The built-in checker still misses BR-CO-26; only the official Schematron (which the browser checker also runs) catches it."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named 'win rates' as an untouched jobshop-quote growth topic, but its ROADMAP Done already has Win/loss analytics parts 1-4; the slug heuristic does not read Done text."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Every Next item of every bet waits on demand, an owner step or a source, so I did demand-side work (a front-door search page) for bet #3, the bet with the fewest front-door PRs, as roadmap_claim --bets suggests.",
+      "did": "A German Kleinunternehmer page measured with a bench, and a creator bug fix the measurement turned up (free and pro copies).",
+      "result": "Shipped; tests green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-zugferd-minimum-basic-wl-not-an-e-invoice-in-germany.md (extended with a 2026-11-28 Kleinunternehmer section; for-customers)"
+  ],
+  "goal": null,
+  "notes": "run_venture_tests.py --changed: 3 suites, 0 failed (einvoice-preflight 2878 tests, einvoice-pro 2792 tests, partly run: 2 einvoice-pro-ci steps not run here). Page tests 18 pass with the official Schematron installed. risk_review: nothing blocked. Sources read directly 2026-11-28: BMF e-rechnung FAQ, gesetze-im-internet.de \u00a719 UStG, \u00a733 and \u00a734a UStDV.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "98a63f6a-035c-5832-a39f-e52553798b88",
+    "transcripts": 1,
+    "first": "2026-11-28T07:06:53Z",
+    "last": "2026-11-28T07:17:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 114,
+        "output": 37796,
+        "thinking": 7410,
+        "cache_read": 7075753,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140084,
+        "api_equivalent_usd": 3.2922,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 114,
+      "output": 37796,
+      "thinking": 7410,
+      "cache_read": 7075753,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140084,
+      "api_equivalent_usd": 3.2922,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 58,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.11,
+      "active_minutes": 10.11,
+      "model_minutes": 6.09,
+      "tool_minutes": 4.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "legal source reading, bench, German page, creator fix and tests, by a mid-level engineer with German VAT knowledge",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 182.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -13,6 +13,7 @@ import { ExpenseReceipts } from "../components/expense-receipts";
 import { MileageImport } from "../components/mileage-import";
 import { StatementImport } from "../components/statement-import";
 import { api, dollarsToCents, orgPath, today, usd } from "../lib/api";
+import { count } from "../lib/count";
 import { useOrgId } from "./org";
 import { ErrorText, useMe } from "./public";
 
@@ -129,8 +130,8 @@ export function MileagePage() {
       </form>
       <section className="card overflow-x-auto">
         <h2 className="mb-2 font-medium">
-          {year}: {trips.data?.trips ?? 0} trips, {(trips.data?.totalMiles ?? 0).toFixed(1)}{" "}
-          business miles
+          {year}: {count(trips.data?.trips ?? 0, "trip")},{" "}
+          {(trips.data?.totalMiles ?? 0).toFixed(1)} business miles
         </h2>
         <table className="table">
           <thead>

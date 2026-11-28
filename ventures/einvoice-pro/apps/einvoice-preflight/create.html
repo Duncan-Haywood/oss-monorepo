@@ -87,7 +87,6 @@
       <label>Country (ISO) <input data-k="country" maxlength="2" value="DE"></label>
       <label>VAT ID <input data-k="vat_id" placeholder="DE123456789"></label>
       <label>Tax number (if no VAT ID) <input data-k="tax_number"></label>
-      <label>Seller ID (BT-29, needed if no VAT ID) <input data-k="company_id" placeholder="trade register no. or supplier no."></label>
       <label>E-address scheme <input data-k="endpoint_scheme" value="EM"></label>
       <label>E-address (email / GLN / ...) <input data-k="endpoint_id"></label>
       <label>Contact name <input data-k="contact_name"></label><label>Contact phone <input data-k="contact_phone"></label>
@@ -164,7 +163,7 @@
 
     function party(id) {
       const v = {}; document.querySelectorAll(`#${id} [data-k]`).forEach((el) => { v[el.dataset.k] = el.value.trim(); });
-      const p = { name: v.name, street: v.street, postal_code: v.postal_code, city: v.city, country: v.country, vat_id: v.vat_id, tax_number: v.tax_number, company_id: v.company_id };
+      const p = { name: v.name, street: v.street, postal_code: v.postal_code, city: v.city, country: v.country, vat_id: v.vat_id, tax_number: v.tax_number };
       if (v.endpoint_id) p.endpoint = { scheme: v.endpoint_scheme, id: v.endpoint_id };
       if (v.contact_name || v.contact_phone || v.contact_email) p.contact = { name: v.contact_name, phone: v.contact_phone, email: v.contact_email };
       return p;

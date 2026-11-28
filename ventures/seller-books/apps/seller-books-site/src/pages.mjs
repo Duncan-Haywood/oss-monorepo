@@ -83,6 +83,12 @@ export const SHOTS = {
     height: 860,
     alt: "The Stock report: 2 items in stock costing $20.00, 33% sell-through, 133 median days to sell, and an estate-sale lot that cost $30.00, sold 1 of 3 items for $39.23 after fees and so has recovered 131% of its cost.",
   },
+  stockPhone: {
+    file: "shot-stock-phone.webp",
+    width: 358,
+    height: 243,
+    alt: "The Stock report's lot table on a phone, one line per figure: the estate-sale haul cost $30.00, 1 of 3 items sold, $39.23 proceeds, 131% recovered, $20.00 still in stock.",
+  },
 };
 
 const shotImg = (s, cls = "") =>
@@ -106,8 +112,8 @@ function shotsSection() {
       <div class="shot-frame">${shotPicture(SHOTS.scheduleC, SHOTS.scheduleCPhone)}</div>
       <figcaption>The Schedule C worksheet, line by line, with a PDF, a CSV and a ZIP of the records behind it for your tax preparer.</figcaption>
     </figure>
-    <figure class="shot-wide">
-      <div class="shot-frame">${shotLink(SHOTS.stock)}</div>
+    <figure>
+      <div class="shot-frame">${shotPicture(SHOTS.stock, SHOTS.stockPhone)}</div>
       <figcaption>The stock report: how long unsold items have sat, days to sell by platform, and whether each lot has paid for itself.</figcaption>
     </figure>
   </div>
@@ -1200,7 +1206,7 @@ ${lineRows}
     <p class="muted">${usd(ex.purchases)} was spent on stock, but only ${usd(l.line42)} is cost of goods sold this year. The ${usd(l.line41)} still on the shelves is next year's line 35, and becomes cost of goods when it sells.</p>
   </div>
   <h2>Bulk lots, bins and mystery boxes</h2>
-  <p>Part III needs a cost for each item that sold and each item still unsold, but a lot is bought for one price. ${esc(SITE_NAME)} spreads a lot's cost evenly over the items in it unless you type a cost for an item yourself; leftover cents go to the first items, so the shares always add back up to exactly what you paid. Whether an even split suits a particular lot is your call: give the one valuable piece in a box its own cost and the rest is shared by the others. The stock report then shows whether each lot has paid for itself. Keeping purchases in a spreadsheet for now? The free <a href="${href("/reseller-inventory-spreadsheet")}">reseller inventory spreadsheet</a> has a row per purchase, the lot rule and a year summary of these lines, and imports into ${esc(SITE_NAME)} later.</p>
+  <p>Part III needs a cost for each item that sold and each item still unsold, but a lot is bought for one price. ${esc(SITE_NAME)} spreads a lot's cost evenly over the items in it unless you type a cost for an item yourself; leftover cents go to the first items, so the shares always add back up to exactly what you paid. Whether an even split suits a particular lot is your call: give the one valuable piece in a box its own cost and the rest is shared by the others. The stock report then shows <a href="${href("/reseller-sell-through-rate")}">whether each lot has paid for itself</a>, along with sell-through and days to sell. Keeping purchases in a spreadsheet for now? The free <a href="${href("/reseller-inventory-spreadsheet")}">reseller inventory spreadsheet</a> has a row per purchase, the lot rule and a year summary of these lines, and imports into ${esc(SITE_NAME)} later.</p>
   <h2>Keeping an inventory, or not</h2>
   <p>The <a href="${IRS_SC_INSTRUCTIONS}">Schedule C instructions</a> start Part III with the general rule, that a business selling merchandise must take inventories into account at the start and end of the year, then an exception: &ldquo;${esc(NO_INVENTORY_QUOTE)}&rdquo; You are a small business taxpayer if you &ldquo;${esc(SMALL_BUSINESS_QUOTE)}&rdquo; and are not a tax shelter.</p>
   <p>Without an inventory, the instructions name two methods the IRS accepts as clearly reflecting income: treating inventory as non-incidental materials and supplies, deducted &ldquo;${esc(SUPPLIES_QUOTE)},&rdquo; or following how your own books treat it. When goods bought to resell count as used or consumed is a point to settle with your preparer. Switching methods is a change of accounting method, made with <a href="${IRS_FORM_3115}">Form 3115</a>. Which method fits you is a question for your tax preparer.</p>
@@ -2641,6 +2647,381 @@ ${NOT_TAX_ADVICE}`;
   };
 }
 
+/**
+ * The sell-through page's worked example: one invented reseller's quarter, in the shape the app's stock
+ * report takes (apps/seller-books/src/worker/services/books/stock.ts, buildStockReport). Cents, dates
+ * YYYY-MM-DD. test/site.test.mjs runs the app's own report over it and checks every figure the page shows.
+ */
+export const STOCK_EXAMPLE = {
+  from: "2026-07-01",
+  to: "2026-09-30",
+  asOf: "2026-09-30",
+  lots: [
+    {
+      id: "elm",
+      name: "Estate sale lot",
+      acquiredDate: "2026-08-08",
+      totalCostCents: 4000,
+      vendor: "Estate sale",
+    },
+  ],
+  items: [
+    {
+      id: "jeans",
+      title: "Denim jeans",
+      lotId: null,
+      source: "Thrift store",
+      acquiredDate: "2026-05-10",
+      costCents: 400,
+      status: "sold",
+      disposedDate: "2026-07-12",
+    },
+    {
+      id: "bowl",
+      title: "Glass mixing bowl",
+      lotId: null,
+      source: "Thrift store",
+      acquiredDate: "2026-03-02",
+      costCents: 300,
+      status: "in_stock",
+      disposedDate: null,
+    },
+    {
+      id: "bag",
+      title: "Leather handbag",
+      lotId: null,
+      source: "Garage sale",
+      acquiredDate: "2026-06-20",
+      costCents: 1200,
+      status: "sold",
+      disposedDate: "2026-08-01",
+    },
+    {
+      id: "tee",
+      title: "Band T-shirt",
+      lotId: null,
+      source: "Thrift store",
+      acquiredDate: "2025-11-15",
+      costCents: 200,
+      status: "in_stock",
+      disposedDate: null,
+    },
+    {
+      id: "shoes",
+      title: "Running shoes",
+      lotId: null,
+      source: "Outlet store",
+      acquiredDate: "2026-07-05",
+      costCents: 1500,
+      status: "in_stock",
+      disposedDate: null,
+    },
+    {
+      id: "skillet",
+      title: "Cast iron skillet",
+      lotId: "elm",
+      source: null,
+      acquiredDate: "2026-08-08",
+      costCents: 1000,
+      status: "sold",
+      disposedDate: "2026-08-20",
+    },
+    {
+      id: "blanket",
+      title: "Wool blanket",
+      lotId: "elm",
+      source: null,
+      acquiredDate: "2026-08-08",
+      costCents: 1000,
+      status: "sold",
+      disposedDate: "2026-09-14",
+    },
+    {
+      id: "candles",
+      title: "Brass candlesticks",
+      lotId: "elm",
+      source: null,
+      acquiredDate: "2026-08-08",
+      costCents: 1000,
+      status: "in_stock",
+      disposedDate: null,
+    },
+    {
+      id: "dishes",
+      title: "Stoneware dishes",
+      lotId: "elm",
+      source: null,
+      acquiredDate: "2026-08-08",
+      costCents: 1000,
+      status: "in_stock",
+      disposedDate: null,
+    },
+  ],
+  // One order row per sold item, as its platform's report gave it: fees and postage as charged.
+  sales: [
+    {
+      itemId: "jeans",
+      platform: "ebay",
+      kind: "order",
+      date: "2026-07-12",
+      itemCents: 3800,
+      shippingChargedCents: 0,
+      refundCents: 0,
+      feesCents: 540,
+      shippingLabelCents: 510,
+    },
+    {
+      itemId: "bag",
+      platform: "poshmark",
+      kind: "order",
+      date: "2026-08-01",
+      itemCents: 6500,
+      shippingChargedCents: 0,
+      refundCents: 0,
+      feesCents: 1300,
+      shippingLabelCents: 0,
+    },
+    {
+      itemId: "skillet",
+      platform: "ebay",
+      kind: "order",
+      date: "2026-08-20",
+      itemCents: 4500,
+      shippingChargedCents: 0,
+      refundCents: 0,
+      feesCents: 630,
+      shippingLabelCents: 920,
+    },
+    {
+      itemId: "blanket",
+      platform: "mercari",
+      kind: "order",
+      date: "2026-09-14",
+      itemCents: 3000,
+      shippingChargedCents: 0,
+      refundCents: 0,
+      feesCents: 300,
+      shippingLabelCents: 700,
+    },
+  ],
+};
+
+const DAY_MS = 86_400_000;
+const daysBetween = (a, b) =>
+  Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / DAY_MS);
+const dayBefore = (d) => new Date(Date.parse(`${d}T00:00:00Z`) - DAY_MS).toISOString().slice(0, 10);
+const medianOf = (v) => {
+  const s = [...v].sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+};
+
+/** The example's figures, by the stock report's definitions (stock.ts's header comment). */
+export function stockExampleFigures(ex = STOCK_EXAMPLE) {
+  const inStockOn = (i, day) =>
+    i.acquiredDate <= day && (i.status === "in_stock" || i.disposedDate > day);
+  const proceeds = (id) =>
+    ex.sales
+      .filter((s) => s.itemId === id)
+      .reduce(
+        (t, s) =>
+          t +
+          s.itemCents +
+          s.shippingChargedCents -
+          s.refundCents -
+          s.feesCents -
+          s.shippingLabelCents,
+        0,
+      );
+  const startItems = ex.items.filter((i) => inStockOn(i, dayBefore(ex.from))).length;
+  const acquiredItems = ex.items.filter(
+    (i) => i.acquiredDate >= ex.from && i.acquiredDate <= ex.to,
+  ).length;
+  const sold = ex.items.filter(
+    (i) => i.status === "sold" && i.disposedDate >= ex.from && i.disposedDate <= ex.to,
+  );
+  const days = sold.map((i) => daysBetween(i.acquiredDate, i.disposedDate));
+  const held = ex.items.filter((i) => inStockOn(i, ex.asOf));
+  const lots = ex.lots.map((l) => {
+    const mine = ex.items.filter((i) => i.lotId === l.id);
+    const p = mine.reduce((t, i) => t + proceeds(i.id), 0);
+    const soldMine = mine.filter((i) => i.status === "sold");
+    return {
+      name: l.name,
+      costCents: l.totalCostCents,
+      items: mine.length,
+      sold: soldMine.length,
+      proceedsCents: p,
+      paybackCents: p - l.totalCostCents,
+      recoveredPercent: Math.round((p / l.totalCostCents) * 100),
+      soldCostCents: soldMine.reduce((t, i) => t + i.costCents, 0),
+      inStockCostCents: mine
+        .filter((i) => inStockOn(i, ex.asOf))
+        .reduce((t, i) => t + i.costCents, 0),
+    };
+  });
+  return {
+    startItems,
+    acquiredItems,
+    soldItems: sold.length,
+    sellThroughPercent: Math.round((sold.length / (startItems + acquiredItems)) * 100),
+    daysToSell: Object.fromEntries(sold.map((i, k) => [i.id, days[k]])),
+    medianDays: medianOf(days),
+    proceeds: Object.fromEntries(sold.map((i) => [i.id, proceeds(i.id)])),
+    inStock: { items: held.length, costCents: held.reduce((t, i) => t + i.costCents, 0) },
+    daysHeld: Object.fromEntries(held.map((i) => [i.id, daysBetween(i.acquiredDate, ex.asOf)])),
+    lots,
+  };
+}
+
+const cents = (c) => `${c < 0 ? "−" : ""}$${(Math.abs(c) / 100).toFixed(2)}`;
+const PLATFORM_NAME = new Map([
+  ["ebay", "eBay"],
+  ["poshmark", "Poshmark"],
+  ["mercari", "Mercari"],
+]);
+/** "2026-07-12" → "Jul 12" (the example's year), "2025-11-15" → "Nov 15, 2025". */
+const shortDate = (d) => {
+  const t = new Date(`${d}T00:00:00Z`);
+  const md = t.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+  return d.startsWith("2026") ? md : `${md}, ${d.slice(0, 4)}`;
+};
+
+function sellThrough() {
+  const path = "/reseller-sell-through-rate";
+  const title = "Sell-through rate for resellers: formula and example";
+  const description =
+    "How to work out a reseller's sell-through rate and days to sell, whether a bulk lot has paid for itself, and how old your unsold stock is: a worked example.";
+  const ex = STOCK_EXAMPLE;
+  const f = stockExampleFigures();
+  const lot = f.lots[0];
+  const lotName = (i) => (i.lotId ? ex.lots.find((l) => l.id === i.lotId).name : i.source);
+  const saleOf = (id) => ex.sales.find((s) => s.itemId === id);
+  const itemRows = ex.items
+    .map((i) => {
+      const s = saleOf(i.id);
+      const sold = s
+        ? `${esc(shortDate(i.disposedDate))}, ${esc(PLATFORM_NAME.get(s.platform) ?? s.platform)}`
+        : `<span class="muted">unsold</span>`;
+      return `      <tr><th scope="row">${esc(i.title)}</th><td>${esc(lotName(i))}</td><td class="nowrap">${esc(shortDate(i.acquiredDate))}</td><td>${cents(i.costCents)}</td><td>${sold}</td><td>${s ? cents(f.proceeds[i.id]) : ""}</td><td>${s ? f.daysToSell[i.id] : ""}</td></tr>`;
+    })
+    .join("\n");
+  const days = Object.values(f.daysToSell).sort((a, b) => a - b);
+  const faqs = [
+    {
+      q: "How do you calculate sell-through rate for a reseller?",
+      a: `Items sold in a period divided by the items you had to sell in it: those on the shelf the day before it began plus those you bought during it. In the example on this page that is ${f.soldItems} ÷ (${f.startItems} + ${f.acquiredItems}) = ${f.sellThroughPercent}%. Items you wrote off or kept for yourself left the shelf but were not sold, so they count in the bottom of the fraction and not the top.`,
+    },
+    {
+      q: "What is a good sell-through rate for a reseller?",
+      a: "There is no one standard: it moves with the length of the period, the category and how much you bought in it, and other tools divide by different things (some count only the items bought in the period, some only listed items). The useful comparison is your own rate, figured the same way, from one quarter to the next and from one source to another.",
+    },
+    {
+      q: "How do I know if a bulk lot was worth it?",
+      a: `Add up what its items have brought in after fees and postage and set that against what the lot cost. The example's ${lot.name.toLowerCase()} cost ${cents(lot.costCents)}; two of its ${lot.items} items have brought in ${cents(lot.proceedsCents)}, so it has paid back ${lot.recoveredPercent}% of its cost with ${cents(lot.inStockCostCents)} of it still on the shelf. Expenses not tied to a sale, such as supplies and subscriptions, are not in that figure.`,
+    },
+    {
+      q: "What happens to unsold inventory at the end of the year?",
+      a: `It stays in inventory at what you paid for it: the cost of what is on the shelf on December 31 is your closing inventory on Schedule C line 41, and next year's opening inventory. It becomes a cost only when it sells, or when you write it off. See cost of goods sold for resellers. Whether and when to write an item off is a question for your tax preparer.`,
+    },
+  ];
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead"><strong>Sell-through rate = items sold in a period ÷ (items in stock the day before it began + items bought during it).</strong> If you started the quarter with ${f.startItems} items, bought ${f.acquiredItems} more and sold ${f.soldItems}, your sell-through for the quarter is ${f.soldItems} ÷ ${f.startItems + f.acquiredItems} = ${f.sellThroughPercent}%. It tells you how much of what you could have sold, you did sell. Days to sell, how old your unsold stock is, and whether a bulk lot has paid for itself answer the rest of &ldquo;is my inventory working?&rdquo;.</p>
+  <h2>A worked example: one quarter</h2>
+  <p>An invented reseller's third quarter of 2026, July 1 to September 30. On June 30 they had ${f.startItems} items on the shelf; they bought running shoes in July and a ${cents(lot.costCents)} estate sale lot of ${lot.items} items in August, its cost split evenly. What each sale brought in is the item price less the fees and postage on that platform's own report, before the item's cost.</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">Item</th><th scope="col">Bought at</th><th scope="col">Bought</th><th scope="col">Cost</th><th scope="col">Sold</th><th scope="col">Brought in</th><th scope="col">Days to sell</th></tr></thead>
+    <tbody>
+${itemRows}
+    </tbody>
+  </table></div>
+  <p class="muted">Items, dates and amounts are invented to show the arithmetic; the fees are only this example's, not any platform's rates. The test behind this page runs ${esc(SITE_NAME)}' own stock report over these rows and checks every figure below against it.</p>
+  <h2>Sell-through rate</h2>
+  <div class="worked">
+    <table>
+      <tbody>
+        <tr><th scope="row">In stock on June 30</th><td>${f.startItems}</td></tr>
+        <tr><th scope="row">Bought July to September</th><td>+${f.acquiredItems}</td></tr>
+        <tr><th scope="row">Available to sell</th><td>${f.startItems + f.acquiredItems}</td></tr>
+        <tr><th scope="row">Sold July to September</th><td>${f.soldItems}</td></tr>
+        <tr class="total"><th scope="row">Sell-through</th><td>${f.sellThroughPercent}%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Count items that left as sales only. A write-off, a donation or something you kept for yourself also left the shelf, but counting it as sold would flatter the rate. A long window always shows a higher rate than a short one, so compare a quarter with a quarter.</p>
+  <h2>Days to sell</h2>
+  <p>For each item sold, the sale date less the date you bought it. The example's four sales took ${days.join(", ")} days, so the median is ${f.medianDays} days. The median is the better summary for a reseller: one item that sat for a year would drag an average a long way, and the middle of the list barely moves. Splitting it by platform shows where things move fastest; splitting it by where you bought shows which sources turn over.</p>
+  <h2>Has a bulk lot paid for itself?</h2>
+  <p>A bin, a pallet or an estate sale haul is bought for one price, so the question is whether its sales have earned that price back yet:</p>
+  <div class="worked">
+    <table>
+      <tbody>
+        <tr><th scope="row">${esc(lot.name)}, ${lot.items} items</th><td>${cents(lot.costCents)}</td></tr>
+        <tr><th scope="row">Brought in by the ${lot.sold} sold so far</th><td>${cents(lot.proceedsCents)}</td></tr>
+        <tr class="total"><th scope="row">Paid back</th><td>${lot.paybackCents >= 0 ? "+" : ""}${cents(lot.paybackCents)} (${lot.recoveredPercent}% of its cost)</td></tr>
+        <tr><th scope="row">Cost still on the shelf, ${lot.items - lot.sold} items</th><td>${cents(lot.inStockCostCents)}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Its sales have already covered what it cost, with half its items unsold. On the books it is a little different: the ${lot.sold} sold items carry ${cents(lot.soldCostCents)} of the lot's cost as <a href="${href("/cost-of-goods-sold")}">cost of goods sold</a>, so their profit so far is ${cents(lot.proceedsCents - lot.soldCostCents)}, and the other ${cents(lot.inStockCostCents)} waits in inventory until those items sell. Both are before expenses not tied to a sale: supplies, subscriptions, ads bought separately, mileage to the sale.</p>
+  <h2>How old is your unsold stock?</h2>
+  <p>On September 30 the example has ${f.inStock.items} items on the shelf at a cost of ${cents(f.inStock.costCents)}. Two have sat more than six months: the band T-shirt (${f.daysHeld.tee} days) and the glass bowl (${f.daysHeld.bowl} days). Bucketing stock by days held (0 to 30, 31 to 90, 91 to 180, 181 to 365, over a year) with the cost in each bucket shows how much money is sitting still, and the oldest items are the ones to reprice, cross-list or bundle. Which to do is your call.</p>
+  <p>Unsold stock is not an expense. Whatever is still on the shelf at the end of the year is your closing inventory at cost on Schedule C line 41, and next year's opening inventory; see <a href="${href("/cost-of-goods-sold")}">cost of goods sold for resellers</a>.</p>
+  <h2>The stock report in ${esc(SITE_NAME)}</h2>
+  <p>The stock report in ${esc(SITE_NAME)} works all of this out from your own records: the items and lots you entered or imported (from your <a href="${href("/reseller-inventory-spreadsheet")}">inventory spreadsheet</a>, for one) and the sales reports you imported from each <a href="${href("/platforms")}">platform</a>, linked to the items they sold. Pick the dates and it shows sell-through, days to sell by platform (median and mean), stock by age with the 25 items held longest, each lot's payback and the cost still in it, and profit and return on cost by where you bought. Sales tax is left out of what a sale brought in. Nothing is estimated: an item marked sold with no linked order, or with a sale date before its bought date, is named for you to fix rather than guessed at.</p>
+  <h2>Questions</h2>
+${faqs.map((q) => `  <h3>${esc(q.q)}</h3>\n  <p>${esc(q.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "stock" })}</div>`;
+  const text = `# ${title}
+
+Sell-through rate = items sold in a period ÷ (items in stock the day before it began + items bought during it). Only items that left as sales count as sold; write-offs and personal use do not.
+
+## Worked example (invented)
+
+${ex.from} to ${ex.to}: ${f.startItems} items in stock on June 30, ${f.acquiredItems} bought, ${f.soldItems} sold: sell-through ${f.sellThroughPercent}%. Days to sell ${days.join(", ")}; median ${f.medianDays}. ${lot.name} cost ${cents(lot.costCents)}; ${lot.sold} of ${lot.items} items sold brought in ${cents(lot.proceedsCents)} after fees and postage: paid back ${cents(lot.paybackCents)} (${lot.recoveredPercent}%), ${cents(lot.inStockCostCents)} of cost still on the shelf; profit on the sold items after their ${cents(lot.soldCostCents)} cost: ${cents(lot.proceedsCents - lot.soldCostCents)}. On ${ex.asOf}: ${f.inStock.items} items in stock costing ${cents(f.inStock.costCents)}.
+
+## Definitions the stock report in ${SITE_NAME} uses
+
+${mdList([
+  "In stock on a day: bought on or before it and not yet sold, written off or taken for personal use.",
+  "Days to sell: sale date minus bought date, median and mean, by platform and by source.",
+  "Brought in by a sale: item price + shipping charged − refunds − fees − postage, from the platform's own report; sales tax left out.",
+  "Lot payback: what the lot's sold items brought in minus the lot's cost; before expenses not tied to a sale.",
+  "Stock age buckets: 0–30, 31–90, 91–180, 181–365 days, over a year, with the cost in each.",
+])}
+
+Unsold stock at year end is closing inventory at cost (Schedule C line 41), not an expense.
+
+## Questions
+
+${faqs.map((q) => `### ${q.q}\n\n${q.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Sell-through rate for resellers", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((q) => ({
+          "@type": "Question",
+          name: q.q,
+          acceptedAnswer: { "@type": "Answer", text: q.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
 const money = (n) => `$${n.toFixed(2)}`;
 
 function inventorySpreadsheet() {
@@ -3000,6 +3381,7 @@ export function allPages() {
     poshmarkTaxes(),
     costOfGoodsSold(),
     inventorySpreadsheet(),
+    sellThrough(),
     mileageDeduction(),
     homeOfficeAndEquipment(),
     taxDeductions(),
