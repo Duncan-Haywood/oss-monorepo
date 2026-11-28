@@ -1,6 +1,6 @@
 // Clicks index.html in a real browser: the "outline" roof shape takes an outline with angled sides (a 45-degree bay)
-// and draws its all-hip roof plan from skeleton.mjs, gives its squares and roof lines, and says why its rafters and
-// sheathing courses are not laid out. `node eval-angled-roof-click.mjs`; skips with exit 0 when Playwright or a Chromium is missing.
+// and draws its all-hip roof plan from skeleton.mjs, gives its squares and roof lines, frames its rafters on each plane
+// (hipframe.mjs) into the cut list, and says why its sheathing courses are not laid out. `node eval-angled-roof-click.mjs`; skips with exit 0 when Playwright or a Chromium is missing.
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { existsSync, statSync } from "node:fs";
@@ -39,20 +39,30 @@ await page.selectOption("#rfShape", "outline");
 // 40 x 24 ft with a bay 8 ft wide at the wall, 4 ft across its front and 2 ft deep
 await page.fill("#rfOutline", "0, 2'\n16', 2'\n18', 0\n22', 0\n24', 2'\n40', 2'\n40', 26'\n0, 26'");
 await page.fill("#rfPitch", "6");
+// the example's 16 ft boards are shorter than this roof's 19 ft 6 in hips: add 20 ft 2x8s, as a buyer would
+await page.click("section[aria-labelledby=h-stock] details summary");
+await page.click("#addStock");
+const nb = await page.$$eval("#stock tr", (rs) => rs.length);
+await page.getByLabel(`Board ${nb} lumber size`, { exact: true }).selectOption("2x8");
+await page.getByLabel(`Board ${nb} length`, { exact: true }).fill("20'");
 await page.click("#run");
 await page.waitForSelector("#roofPlan svg", { timeout: 10000 });
 const kinds = await page.$$eval("#roofPlan svg line", (ls) => ls.map((l) => l.getAttribute("data-kind")));
 check(kinds.filter((k) => k === "valley").length === 2, `two valleys drawn (${kinds.filter((k) => k === "valley").length})`);
 check(kinds.filter((k) => k === "ridge").length === 1, `one ridge drawn (${kinds.filter((k) => k === "ridge").length})`);
 check(kinds.filter((k) => k === "hip").length === 7, `seven hips drawn (${kinds.filter((k) => k === "hip").length})`);
-check(!kinds.includes("rafter"), "no rafters drawn");
+check(kinds.filter((k) => k === "rafter").length > 10, `common rafters drawn (${kinds.filter((k) => k === "rafter").length})`);
+check(kinds.includes("jack rafter") && kinds.includes("valley jack rafter"), "jacks and valley jacks drawn");
+const cuts = await page.textContent("#cuts");
+check(/hip rafter/.test(cuts) && /valley rafter/.test(cuts), "hip and valley rafters in the cut list");
 const dims = await page.$$eval("#roofPlan svg text", (ts) => ts.length);
 check(dims === 8, `eight eave sides dimensioned (${dims})`);
 const roofOut = await page.textContent("#roofOut");
 check(/8 corners, \d+\.\d\d squares/.test(roofOut), "squares on the roof card");
-check(/angled sides/.test(roofOut), "the card says why rafters and courses are not laid out");
+check(/framed from the outline \(all-hip, 6:12, 16 in o\.c\.\)/.test(roofOut), "the card lists the framing");
+check(/Roof sheathing not laid out: .*angled sides/.test(roofOut), "the card says why courses are not laid out");
 const card = await page.textContent("#roofCard");
-check(/so its rafters and sheathing courses are not laid out/.test(card), "the note under the plan says so too");
+check(/so its sheathing courses are not laid out/.test(card), "the note under the plan says so too");
 check(errors.length === 0, `no page errors (${errors.join("; ")})`);
 await browser.close();
 server.close();
