@@ -217,6 +217,12 @@ Ticked items are on `main`.
       of buying (0.2 to 0.4% from every length with a cut plan, 18.9 to 29.8% with none), kept apart
       from the typed cull allowance; page figures pinned to the bench by `waste-bench.test.mjs`.
       Next, if people use it: the same split for sheathing sheets and siding.
+      Siding count fix, 2026-11-28 (siding-waste-factor): measuring siding waste showed boards below the net
+      wall area on some houses: a lap course a window only partly covered (its head or sill course) was split at
+      the opening instead of notched and run on, and a vertical column the same. Fixed here and in the free
+      edition (`siding.mjs`); 176 to 178 boards on the calculator's example house, 3 to 8 more boards on the three
+      test houses; `siding.test.mjs` checks run x exposure >= net area on 200 random walls. The waste page
+      itself waits until butt joints land on studs, so its figures would not understate waste.
 
 ### 2. Getting the house in without typing
 
