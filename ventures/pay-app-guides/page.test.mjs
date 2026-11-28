@@ -333,7 +333,7 @@ test("Miller Act page: inputs labelled, statute and FAR linked with a read date,
 // so in a form an answer engine can lift. Each question must also be an h3 in
 // the page's visible "Common questions" section.
 const FAQ_PAGES = [
-  "california-preliminary-notice.html", "arizona-preliminary-notice.html", "florida-notice-to-owner.html", "michigan-notice-of-furnishing.html", "utah-preliminary-notice.html", "texas-lien-notice.html", "certificate-of-insurance-for-subcontractors.html", "change-order-log.html", "change-orders-schedule-of-values.html",
+  "california-preliminary-notice.html", "arizona-preliminary-notice.html", "florida-notice-to-owner.html", "michigan-notice-of-furnishing.html", "notice-of-intent-to-lien.html", "utah-preliminary-notice.html", "texas-lien-notice.html", "certificate-of-insurance-for-subcontractors.html", "change-order-log.html", "change-orders-schedule-of-values.html",
   "conditional-vs-unconditional-lien-waivers.html", "gc-portal-billing.html",
   "electrical-contractor-billing.html", "mechanical-contractor-billing.html", "drywall-contractor-billing.html", "concrete-contractor-billing.html",
   "site-work-contractor-billing.html", "roofing-contractor-billing.html", "masonry-contractor-billing.html", "painting-contractor-billing.html",
@@ -347,7 +347,7 @@ const FAQ_PAGES = [
   "pay-if-paid-clauses.html", "prompt-payment-laws.html", "retainage-explained.html",
   "retainage-in-quickbooks.html", "retainage-release.html", "retainage-tracker.html",
   "schedule-of-values-template.html", "construction-invoice-template.html", "change-order-template.html", "wip-schedule-template.html", "stored-materials-billing.html",
-  "sworn-statement.html", "tm-tickets.html", "punch-list.html", "daily-report-template.html", "submittal-log-template.html",
+  "sworn-statement.html", "final-payment-affidavit.html", "tm-tickets.html", "punch-list.html", "daily-report-template.html", "submittal-log-template.html",
   "es-como-llenar-una-solicitud-de-pago.html",
   // state-forms.mjs: one page per state with statutory waiver forms
   ...["arizona", "california", "florida", "georgia", "massachusetts", "michigan", "mississippi", "missouri", "nevada", "texas", "utah", "wyoming"].map((s) => `${s}-lien-waiver-forms.html`),

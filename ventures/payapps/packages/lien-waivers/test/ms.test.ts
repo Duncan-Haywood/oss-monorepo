@@ -287,3 +287,16 @@ test("MS affidavit's notes give the 60 and 2 days and say the Code itself was no
   assert.match(notes, /§ 1-3-67/);
   assert.match(notes, /was not read/);
 });
+
+test("MS sixty days refuses a date that is not YYYY-MM-DD instead of saying the period has not ended", () => {
+  // A malformed date used to fall back to year 0 (read as 1900), month 1 or day 1, or to NaN, and
+  // came back as `ended: false` with a meaningless `daysLeft` (46,358 for "", null for "12/01/2026").
+  for (const bad of ["", "2026", "2026-12", "2026-02-30", "12/01/2026", "2026-1-5"]) {
+    assert.throws(() => msSixtyDays("2026-10-05", bad), RangeError, `today ${JSON.stringify(bad)}`);
+    assert.throws(
+      () => msSixtyDays(bad, "2026-11-26"),
+      RangeError,
+      `signedOn ${JSON.stringify(bad)}`,
+    );
+  }
+});

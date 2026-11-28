@@ -2906,6 +2906,21 @@ nothing to copy. No customers yet. Paid plans are dark
   the true day later. Georgia (O.C.G.A. § 1-3-1 not read) still counts calendar days. Tests:
   `test/ms-dates.test.ts` in the package, `src/shared/ms-waiver-clock.test.ts` here.
 
+- Pencil draft review (2026-11-28, pencil-draft): many GCs want each sub's month as an unsigned
+  "pencil" a few days before the official application, mark it up and expect the official copy on
+  their figures. A draft's PDF and PDF with backup print as the pencil copy with `?pencil=1` (every
+  page marked "PENCIL DRAFT - FOR GC REVIEW, NOT FOR PAYMENT", file named `-pencil`; ignored once
+  submitted). The draft's "Pencil draft for the GC" panel takes the GC's figures per line (work this
+  period and stored materials), typed or pasted as a column from the GC's sheet, shows each line's
+  change before retainage against the draft as it was when the markup was opened, puts the GC's
+  figures in the continuation sheet in one step (a unit-price line the GC changed is kept in
+  dollars; retainage released untouched; Save then recomputes line 8 with per-line rates), and drafts
+  the cover note listing the revised lines (`src/shared/pencil-review.ts`,
+  `src/client/components/pencil-review.tsx`). Next, if contractors ask: the GC's markup saved with
+  the draft (it lives in the page until saved into the lines), and reading it from the GC's returned
+  spreadsheet with the SOV import's reader instead of a pasted column. Front door: the pencil draft
+  section of pay-app-guides' how-to-fill-out-a-pay-application page.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers

@@ -66,12 +66,15 @@ export function parseEbayTransactionReport(text: string): ImportParseResult {
         });
         continue;
       }
-      const orderId = row.get("orderNumber") || row.get("legacyOrderId") || null;
+      const rawOrderId = row.get("orderNumber") || row.get("legacyOrderId") || null;
+      // eBay writes "--" in an empty cell (the promoted-listings fee row has Order number "--"): no order.
+      const orderId = rawOrderId && !/^-+$/.test(rawOrderId) ? rawOrderId : null;
       const net = parseMoney(row.get("net"));
       const description = row.get("description") || null;
+      // The raw cell stays in the key so files imported before this change de-duplicate the same way.
       const ext =
         row.get("transactionId") ||
-        rowKey(type, date, orderId, row.get("itemId"), row.get("referenceId"), net, description);
+        rowKey(type, date, rawOrderId, row.get("itemId"), row.get("referenceId"), net, description);
 
       if (type === "payout" || type === "transfer" || type === "hold") {
         out.skipped.push({
