@@ -572,7 +572,7 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
     url: "https://www.oscn.net/applications/oscn/DeliverDocument.asp?CiteID=85198",
     checkedOn: "2026-11-28",
     anyTier:
-      "Oklahoma's notice reaches anyone in contract with a subcontractor \"regardless of tier\" (61 O.S. § 2(B)(1)), so the bond covers you if you give it.",
+      'Oklahoma\'s notice reaches anyone in contract with a subcontractor "regardless of tier" (61 O.S. § 2(B)(1)), so the bond covers you if you give it.',
     notes: [
       "A claimant in contract with a subcontractor, at any tier, gives written notice to the contractor and the surety within 90 days after its last day, by registered or certified mail to the contractor at any place it keeps an office or does business, with a copy to the surety, stating with substantial accuracy the amount claimed and who you worked for (61 O.S. § 2(B)(1)).",
       "The suit limit is one year from your last day, or two years if you filed a claim within that first year (61 O.S. § 2(A)). PayApps dates both; the second applies only once a claim is filed.",

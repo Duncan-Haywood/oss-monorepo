@@ -292,7 +292,9 @@ describe("state bond claims", () => {
     // 10 July + 90 days = Thursday 8 October 2026; one year on, Saturday 10 July 2027 -> Friday 9 July.
     expect(dueOf(dc, "D.C. Code § 2-201.02(a)")).toBe("2026-10-08");
     expect(dueOf(dc, "D.C. Code § 2-201.02(b)")).toBe("2027-07-09");
-    expect(checked("DC", "first").steps.map((s) => s.citation)).toEqual(["D.C. Code § 2-201.02(b)"]);
+    expect(checked("DC", "first").steps.map((s) => s.citation)).toEqual([
+      "D.C. Code § 2-201.02(b)",
+    ]);
     expect(dc.notes.join(" ")).toMatch(/over \$25,000/);
     // The usual caution for a claimant further down the chain still applies here.
     expect(checked("DC", "remote").notes[0]).toMatch(/further down the chain/);
