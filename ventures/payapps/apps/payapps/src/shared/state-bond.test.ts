@@ -22,9 +22,10 @@ const dueOf = (r: ReturnType<typeof checked>, citation: string) =>
   r.steps.find((s) => s.citation === citation)?.dueOn;
 
 describe("state bond claims", () => {
-  it("covers the twenty-nine states read, each with a statute link on its legislature's site", () => {
+  it("covers the thirty states read, each with a statute link on its legislature's site", () => {
     expect(STATE_BOND_STATES).toEqual([
       "AZ",
+      "CA",
       "CO",
       "DE",
       "FL",
@@ -295,6 +296,45 @@ describe("state bond claims", () => {
     expect(de.notes.join(" ")).toMatch(/within a year of your own last day/);
   });
 
+  it("California: preliminary notice for a sub's sub; the stop payment notice and both suits count from acceptance at the earliest", () => {
+    const ca = checked("CA", "second", ACCEPTED);
+    expect(ca.rule.law).toBe("Cal. Civ. Code §§ 9100-9566");
+    expect(ca.steps.map((s) => s.citation)).toEqual([
+      "Cal. Civ. Code §§ 9300, 9304",
+      "Cal. Civ. Code § 9356",
+      "Cal. Civ. Code § 9502(a), (b)",
+      "Cal. Civ. Code § 9558",
+    ]);
+    expect(ca.steps[0]?.waitsFor).toMatch(/first furnished/);
+    // Monday 14 December 2026 + 30 days = Wednesday 13 January 2027 (§ 9356(a), a notice of completion
+    // recorded on the day of acceptance); + 90 more = Tuesday 13 April (§ 9502(b)); six months after the
+    // period = Tuesday 13 July (§ 9558).
+    expect(dueOf(ca, "Cal. Civ. Code § 9356")).toBe("2027-01-13");
+    expect(dueOf(ca, "Cal. Civ. Code § 9502(a), (b)")).toBe("2027-04-13");
+    expect(dueOf(ca, "Cal. Civ. Code § 9558")).toBe("2027-07-13");
+    expect(ca.dated.map((s) => s.citation)).toEqual([
+      "Cal. Civ. Code § 9356",
+      "Cal. Civ. Code § 9502(a), (b)",
+      "Cal. Civ. Code § 9558",
+    ]);
+    // A first-tier sub (in contract with the direct contractor) gives no preliminary notice (§ 9300(b)(2)).
+    expect(checked("CA", "first", ACCEPTED).steps.map((s) => s.citation)).not.toContain(
+      "Cal. Civ. Code §§ 9300, 9304",
+    );
+    // Accepted Friday 11 December: day 30 is Sunday 10 January, moved back to Friday the 8th; the suits
+    // count from the statute's own day, Saturday 10 April and Saturday 10 July, each moved to the Friday.
+    const fri = checked("CA", "second", "2026-12-11");
+    expect(dueOf(fri, "Cal. Civ. Code § 9356")).toBe("2027-01-08");
+    expect(fri.steps[1]?.statutoryOn).toBe("2027-01-10");
+    expect(dueOf(fri, "Cal. Civ. Code § 9502(a), (b)")).toBe("2027-04-09");
+    expect(dueOf(fri, "Cal. Civ. Code § 9558")).toBe("2027-07-09");
+    // With no acceptance entered, nothing is dated, and the notes say how the earliest date is chosen.
+    const open = checked("CA", null);
+    expect(open.dated).toEqual([]);
+    expect(open.steps[3]?.waitsFor).toMatch(/stop payment notice period/);
+    expect(open.notes.join(" ")).toMatch(/earliest the deadlines can fall/);
+  });
+
   it("Colorado: both steps wait on the published final settlement date, so none is dated", () => {
     const co = checked("CO", "first", ACCEPTED);
     expect(co.steps.map((s) => s.citation)).toEqual([
@@ -381,9 +421,9 @@ describe("state bond claim reminder on the cash page", () => {
     expect(
       stateBondText(va(), { outstandingCents: 0, retainageHeldCents: 0 }, "2026-09-20", "second"),
     ).toBeNull();
-    const ca = stateBondClaim("CA", { tier: null, lastFurnishedOn: LAST, acceptedOn: null });
-    expect(ca?.kind).toBe("unsupported");
-    expect(stateBondText(ca, owed, "2026-09-20")).toBeNull();
+    const pa = stateBondClaim("PA", { tier: null, lastFurnishedOn: LAST, acceptedOn: null });
+    expect(pa?.kind).toBe("unsupported");
+    expect(stateBondText(pa, owed, "2026-09-20")).toBeNull();
     expect(stateBondText(null, owed, "2026-09-20")).toBeNull();
     // No dates entered: nothing dated, nothing said.
     const undated = stateBondClaim("VA", {
