@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "main's platform/pages title-length and description-length tests failed on ventures/machine-shop-guides/how-to-submit-sprs-score.html (from PR #20062); fixed forward in this PR"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -53,7 +55,7 @@
     "docs/posts/2026-11-25-prompt-payment-laws-for-subcontractors.md (extended)"
   ],
   "goal": null,
-  "notes": "Security queue empty (2 claimed). No ideas or requests. Verified: vitest unit cash-digest+cash-report 90 passed; worker tests touching the digest 7 files/59 passed; tsc --noEmit 0; biome 0.",
+  "notes": "Security queue empty (2 claimed). No ideas or requests. Verified: vitest unit cash-digest+cash-report 90 passed; worker tests touching the digest 7 files/59 passed; tsc --noEmit 0; biome 0. CI 'test' job red on main's SPRS page (title 79 chars, description 172); shortened both, platform/pages node --test then 0 failures on the two length tests, machine-shop-guides venture tests ok.",
   "corrections": [],
   "redteam": null,
   "usage": {
