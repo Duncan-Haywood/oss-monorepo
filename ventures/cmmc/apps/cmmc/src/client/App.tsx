@@ -39,6 +39,7 @@ const SettingsView = lazy(() =>
   import("./views/Settings").then((m) => ({ default: m.SettingsView })),
 );
 const SspView = lazy(() => import("./views/Ssp").then((m) => ({ default: m.SspView })));
+const GaugesView = lazy(() => import("./views/Gauges").then((m) => ({ default: m.GaugesView })));
 const SuppliersView = lazy(() =>
   import("./views/Suppliers").then((m) => ({ default: m.SuppliersView })),
 );
@@ -58,6 +59,7 @@ type Tab =
   | "quality"
   | "documents"
   | "audits"
+  | "gauges"
   | "settings"
   | "billing";
 const TABS: { key: Tab; label: string }[] = [
@@ -75,6 +77,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "quality", label: "ISO 9001" },
   { key: "documents", label: "Documents" },
   { key: "audits", label: "Audits" },
+  { key: "gauges", label: "Gauges" },
   { key: "settings", label: "Settings" },
   { key: "billing", label: "Billing" },
 ];
@@ -382,6 +385,7 @@ function Workspace({ me }: { me: Me }) {
                 onOpenIncidents={() => setTab("incidents")}
                 onOpenDocuments={() => setTab("documents")}
                 onOpenAudits={() => setTab("audits")}
+                onOpenGauges={() => setTab("gauges")}
               />
             )}
             {tab === "controls" && (
@@ -398,6 +402,9 @@ function Workspace({ me }: { me: Me }) {
             )}
             {tab === "audits" && (
               <AuditsView orgId={orgId} info={org.data} onUpgrade={() => setTab("billing")} />
+            )}
+            {tab === "gauges" && (
+              <GaugesView orgId={orgId} info={org.data} onUpgrade={() => setTab("billing")} />
             )}
             {tab === "poam" && <PoamView orgId={orgId} info={org.data} />}
             {tab === "people" && (

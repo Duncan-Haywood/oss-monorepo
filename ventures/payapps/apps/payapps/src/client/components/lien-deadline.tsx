@@ -6,6 +6,7 @@
 // place, and a state or local one shows the state's payment bond claim steps (the states in
 // STATE_BOND_RULES) and its retainage cap on public work instead.
 import type { ProjectDetailDto } from "@shared/api/types";
+import { actByReason } from "@shared/federal-holidays";
 import {
   daysUntil,
   LIEN_DEADLINE_RULES,
@@ -219,7 +220,7 @@ export function LienDeadlinePanel(props: {
                     {x.statutoryOn &&
                       x.dueOn &&
                       x.statutoryOn !== x.dueOn &&
-                      `. The statute's date, ${x.statutoryOn}, is a weekend, so this is the Friday before it`}
+                      `. The statute's date, ${x.statutoryOn}, is ${actByReason(x.statutoryOn) ?? "not a business day"}, so this is the business day before it`}
                     {x.waitsFor && !x.dueOn && `. Not dated: PayApps needs ${x.waitsFor}`}.
                   </span>
                 </li>
@@ -284,7 +285,7 @@ export function LienDeadlinePanel(props: {
             <p className="text-slate-700">
               {d.rule} ({d.citation})
               {d.statutoryOn !== d.dueOn &&
-                `. The statute's date, ${d.statutoryOn}, is a weekend, so this is the Friday before it`}
+                `. The statute's date, ${d.statutoryOn}, is ${actByReason(d.statutoryOn) ?? "not a business day"}, so this is the business day before it`}
               .
             </p>
             {d.basis === "estimated" && (

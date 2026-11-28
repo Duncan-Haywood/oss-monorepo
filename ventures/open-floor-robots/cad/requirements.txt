@@ -1,1 +1,5 @@
 build123d==0.13.0
+# Security floors for transitive dependencies (GHSA-6q48-6c7w-9gw2; Pillow advisories to 13.0.0):
+# pip already picks fixed versions, these keep other resolvers off old ones.
+certifi>=2026.10.18
+pillow>=13.0.0

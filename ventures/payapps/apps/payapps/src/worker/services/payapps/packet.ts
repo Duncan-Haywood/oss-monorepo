@@ -29,7 +29,7 @@ import {
   punchItemFiles,
 } from "../../db/schema";
 import { badRequest } from "../../lib/errors";
-import { applicationPdf } from "../export/application-pdf";
+import { applicationPdf, PENCIL_DRAFT_MARK } from "../export/application-pdf";
 import { changeOrderPdf } from "../export/change-order-pdf";
 import {
   closeoutTransmittalFileName,
@@ -82,8 +82,10 @@ export async function buildPayAppPacket(
   projectId: string,
   payAppId: string,
   ids: string[] | null,
+  opts: { pencil?: boolean } = {},
 ): Promise<PacketResult & { fileName: string }> {
   const data = await loadApplicationDocument(ctx, orgId, projectId, payAppId);
+  const pencil = opts.pencil === true && data.payApp.status === "draft";
   const rows = await ctx.db
     .select()
     .from(payAppAttachments)
@@ -135,7 +137,7 @@ export async function buildPayAppPacket(
   const { project, payApp } = data;
   const label = `Application #${payApp.number}`;
   const result = await assemblePacket({
-    lead: applicationPdf(data),
+    lead: applicationPdf(data, { pencil }),
     files: packetFiles,
     label,
     title: `${project.name} - ${label} with backup`,
@@ -146,10 +148,13 @@ export async function buildPayAppPacket(
       `From: ${data.contractor.name}   To: ${project.gcName}`,
       `Period: ${usDate(payApp.periodFrom)} to ${usDate(payApp.periodTo)}   Application date: ${usDate(payApp.applicationDate)}`,
       ...(project.sample ? ["SAMPLE DATA - NOT A REAL APPLICATION"] : []),
-      ...(payApp.status === "draft" ? ["DRAFT - NOT SUBMITTED"] : []),
+      ...(payApp.status === "draft" ? [pencil ? PENCIL_DRAFT_MARK : "DRAFT - NOT SUBMITTED"] : []),
     ],
   });
-  return { ...result, fileName: exportFileName(data, "pdf", "-with-backup") };
+  return {
+    ...result,
+    fileName: exportFileName(data, "pdf", pencil ? "-pencil-with-backup" : "-with-backup"),
+  };
 }
 
 const CHANGE_ORDER_KIND: Record<AttachmentCategory, string> = {

@@ -1,9 +1,9 @@
 ---
-title: "Not paid on a state or city job? Bond claim deadlines in thirty-three states, read from the statutes"
-seo_title: "Little Miller Act deadlines: state payment bond claims in 33 states"
+title: "Not paid on a state or city job? Bond claim deadlines in thirty-four states and D.C., read from the statutes"
+seo_title: "Little Miller Act deadlines: bond claims in 34 states and D.C."
 date: 2026-11-27
 tags: [for-customers, payapps, construction, pay-app-guides, public-jobs]
-description: "No lien on public work, so subs claim on the payment bond. Notice and suit deadlines in 33 states, California included, read from each state's statute."
+description: "No lien on public work, so subs claim on the payment bond. Notice and suit deadlines in 34 states and D.C., California included, read from each state's statute."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: bond claim rights are lost
@@ -58,6 +58,8 @@ The guide links every statute it summarises.
 | Wyoming (W.S. 16-6-113, 16-6-115) | none | none before suit; notice of the suit to the public entity | within one year of the final completion date the public entity posts |
 | Alabama (§ 39-1-1) | the same as everyone | written notice to the surety of the amount and nature of the claim, registered or certified mail, at least 45 days before suit | within one year of final settlement of the contract |
 | California (Civ. Code §§ 9100-9566) | preliminary notice to the public body and the direct contractor; it reaches back only 20 days | stop payment notice within 30 days after a recorded notice of completion, or 90 days after completion if none is recorded | on the bond within six months after that period ends; on the stop payment notice within 90 days after it |
+| Oklahoma (61 O.S. § 2) | at any tier below a subcontractor: notice to the contractor and the surety within 90 days of your last day, registered or certified mail | none | within one year of your last day, or two years if you filed a claim on the bond within that year |
+| District of Columbia (D.C. Code § 2-201.02) | notice to the contractor within 90 days of your last day, registered mail | none | within one year of your last day, in the District's name in the Superior Court |
 
 ## Three things that catch subs out
 
@@ -75,7 +77,7 @@ notice sent when you start. Sent late, it limits what you can recover or ends th
 ## In PayApps
 
 PayApps, our pay-app billing for subcontractors, now lists these steps on every job marked as a state
-or local public job in those thirty-three states. Each step comes in the statute's order, with its citation
+or local public job in those thirty-four states and the District of Columbia. Each step comes in the statute's order, with its citation
 and a date. The date is counted from the last day on the job you save, or from the acceptance date
 you enter, wherever the statute counts from one of them. Steps that run from a day PayApps cannot
 know, such as your first day of work or the day you mail a Texas notice, are listed with the day
@@ -238,3 +240,21 @@ notice is due 90 days after completion (§ 9356(b)). PayApps then uses whichever
 and says why: recorded Friday 15 January 2027 on that same job, the stop payment notice is due
 Friday 12 February (day 30 from the recording, a Sunday, moved back), not 14 March. Ask the
 public body which day it treats as completion before relying on the later date.
+
+**Added 2026-11-28: Oklahoma and the District of Columbia.** Oklahoma's statute (61 O.S. § 2) is
+the one in this list that says outright how far down the chain it reaches: anyone in contract
+with a subcontractor, "regardless of tier", gets a right of action on the payment bond by giving
+written notice within 90 days of their last day. The notice goes to the contractor by registered
+or certified mail, with a copy to the surety, and states the amount and who you worked for. The
+suit limit is one year from your last day, but filing a claim on the bond within that year
+stretches it to two. PayApps dates both, and says the second applies only once a claim is filed.
+Bonds are required on Oklahoma public contracts over $100,000 (61 O.S. § 1), and on an at-risk
+construction management contract only those in contract with the bonded party may claim.
+
+The District of Columbia copies the federal Miller Act almost word for word (D.C. Code
+§ 2-201.02): a sub's sub notifies the contractor within 90 days of its last day by registered
+mail, anyone may sue once unpaid 90 days, and the suit is brought in the District's name in the
+Superior Court within one year of your last day. The bond is required on District contracts over
+$25,000 and, as under the federal act, covers only half of a contract up to $1,000,000, so on a
+big job it may not cover every claim. We tried Indiana as well; its code site serves only a
+JavaScript shell through our connection, so it waits for a later pass.

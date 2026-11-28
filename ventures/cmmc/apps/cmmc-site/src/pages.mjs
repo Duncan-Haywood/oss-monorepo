@@ -233,8 +233,8 @@ ${open ? shotsSection() : ""}
     (${cite("cfr-170-21", "32 CFR 170.21")} lists the ones that can't).</p></li>
     <li><h3>SPRS score</h3><p>Your score under the ${cite("dod-methodology", "DoD Assessment Methodology")}, recalculated as you
     close items, with the point value of each open requirement so you fix the expensive ones first.</p></li>
-    <li><h3>ISO 9001 / AS9100 records</h3><p>Document control, internal audits and corrective actions next to the security
-    work, because the same people do both in a small shop.</p></li>
+    <li><h3>ISO 9001 / AS9100 records</h3><p>Document control, internal audits, corrective actions and the gauge calibration list
+    next to the security work, because the same people do both in a small shop.</p></li>
   </ul>
 </section>
 <section>
@@ -335,7 +335,7 @@ ${open ? 'Everything on the left is in the workspace today; what each plan inclu
     <li>Builds the POA&amp;M, flags requirements that may not sit on one, and reminds owners before the 180-day close-out. Already keep one in Excel? Import it: dates written month first (12/31/2026) or day first (31/12/2026) are read in the order the sheet uses, and anything unclear is listed by line, not guessed.</li>
     <li>Keeps the subcontractor and supplier register DFARS 252.204-7021 asks for: what each order sends (CUI, FCI or neither), the level flowed down, the supplier's CMMC status, its date and latest affirmation, and whether the status was checked before award, with the date each stops being current. Imports the approved-supplier list you already keep in Excel; what an order sends is never guessed, and an approval column such as "Approved" is never read as a CMMC status.</li>
     <li>Reminds the senior official about the annual affirmation and keeps the record of what was affirmed and when.</li>
-    <li>Keeps ISO 9001 / AS9100 records (document control, internal audits, corrective actions) beside the CMMC work, and imports the master document list you already keep in Excel. A revision counts as released only where your list gives its approval date; the rest come in as drafts, listed by line, not guessed. Link the approved file of each revision as its controlled copy: the history keeps its name and SHA-256, so you can show an auditor which file was released.</li>
+    <li>Keeps ISO 9001 / AS9100 records (document control, internal audits, corrective actions) beside the CMMC work, and imports the master document list you already keep in Excel. A revision counts as released only where your list gives its approval date; the rest come in as drafts, listed by line, not guessed. Link the approved file of each revision as its controlled copy: the history keeps its name and SHA-256, so you can show an auditor which file was released. Keeps the gauge list too: every caliper, micrometer and pin gauge with its interval, certificate and due date, a recall list of what is overdue or due in 30 days (on the dashboard, and as alarms in your own calendar 60 and 7 days ahead), and, when a gauge is found out of tolerance, a record of what it measured since its last good calibration.</li>
     <li>Exports the SSP, POA&amp;M and score worksheet as documents you own and can hand to an assessor or prime.</li>
   </ul>
 </section>

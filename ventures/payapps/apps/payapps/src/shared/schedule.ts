@@ -491,56 +491,7 @@ export function crewLookahead(
     .map(([, g]) => g);
 }
 
-// ---------------------------------------------------------------------------------------------
 // The federal holidays, offered as a starting list the contractor edits (many subs work Columbus
-// Day and Veterans Day; a union agreement may add the day after Thanksgiving). The eleven legal
-// public holidays of 5 U.S.C. § 6103(a), each moved to the day OPM observes it when it falls on a
-// weekend: a Saturday holiday is kept the Friday before, a Sunday one the Monday after
-// (opm.gov, "Federal Holidays"). Nothing here says a company must close.
-
-/** The `n`th (1-based) `dow` (0 Sunday .. 6 Saturday) of a month; n = -1 is the last one. */
-function nthWeekday(year: number, month: number, dow: number, n: number): string {
-  const iso = (d: number) =>
-    `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-  if (n > 0) {
-    const first = weekday(iso(1));
-    return iso(1 + ((dow - first + 7) % 7) + (n - 1) * 7);
-  }
-  const last = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  return iso(last - ((weekday(iso(last)) - dow + 7) % 7));
-}
-
-/** A fixed-date holiday moved off a weekend the way OPM observes it. */
-function observed(iso: string): string {
-  const d = weekday(iso);
-  return d === 6 ? addDays(iso, -1) : d === 0 ? addDays(iso, 1) : iso;
-}
-
-function federalHolidaysOfYear(year: number): CompanyHoliday[] {
-  const fixed = (m: number, d: number) =>
-    observed(`${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`);
-  return [
-    { on: fixed(1, 1), name: "New Year's Day" },
-    { on: nthWeekday(year, 1, 1, 3), name: "Birthday of Martin Luther King, Jr." },
-    { on: nthWeekday(year, 2, 1, 3), name: "Washington's Birthday" },
-    { on: nthWeekday(year, 5, 1, -1), name: "Memorial Day" },
-    { on: fixed(6, 19), name: "Juneteenth National Independence Day" },
-    { on: fixed(7, 4), name: "Independence Day" },
-    { on: nthWeekday(year, 9, 1, 1), name: "Labor Day" },
-    { on: nthWeekday(year, 10, 1, 2), name: "Columbus Day" },
-    { on: fixed(11, 11), name: "Veterans Day" },
-    { on: nthWeekday(year, 11, 4, 4), name: "Thanksgiving Day" },
-    { on: fixed(12, 25), name: "Christmas Day" },
-  ];
-}
-
-/**
- * The federal holidays observed in `year`, in date order. New Year's Day on a Saturday is observed
- * the Friday before, so it belongs to the year before: 2028's is 2027-12-31, listed with 2027.
- */
-export function federalHolidays(year: number): CompanyHoliday[] {
-  const y = String(year);
-  return [...federalHolidaysOfYear(year), ...federalHolidaysOfYear(year + 1)]
-    .filter((h) => h.on.startsWith(y))
-    .sort((a, b) => a.on.localeCompare(b.on));
-}
+// Day and Veterans Day; a union agreement may add the day after Thanksgiving). The list itself lives
+// in federal-holidays.ts, which the lien and bond deadlines also read.
+export { federalHolidays } from "./federal-holidays";

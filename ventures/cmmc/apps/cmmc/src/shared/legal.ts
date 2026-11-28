@@ -20,7 +20,9 @@
 // "2026-11-27.1": the Privacy Policy now says the calendar link also carries ISO 9001 dates (document reviews, audits, corrective actions; a count per date, no titles).
 // "2026-11-28.1": the Privacy Policy now names Cloudflare Web Analytics (cookieless visit counts), which the CSP stopped blocking.
 // "2026-11-28.2": the cyber incident register: Privacy lists its records, exports and calendar dates (a count per date, no titles); Terms name it and its computed dates.
-export const POLICY_VERSION = "2026-11-28.2";
+// "2026-11-28.3": the Privacy Policy now lists the gauge and calibration records and the gauge list CSV.
+// "2026-11-28.4": the Privacy Policy now says the calendar link also carries gauges' calibration due dates (a count of gauges per date, no gauge ids).
+export const POLICY_VERSION = "2026-11-28.4";
 
 export const LEGAL_DOC_KEYS = ["terms", "privacy", "refunds", "acceptable-use"] as const;
 export type LegalDocKey = (typeof LEGAL_DOC_KEYS)[number];

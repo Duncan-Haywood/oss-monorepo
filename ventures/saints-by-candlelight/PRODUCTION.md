@@ -216,7 +216,6 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Joshua at Shechem and the stone under the oak, choose this day whom you will serve, the old man who looked up the hill at Rephidim saying goodbye (Joshua 24; left by episode 161).
 - The first sheaf and the counting of the fifty days, the barley firstfruits waved before the Lord and the feast of weeks, told as a quieter episode about harvest and thanksgiving (Leviticus 23:9-22, with Deuteronomy 26:1-11; left by episode 169).
 - Elisha and the hundred and ten pieces of silver, the story of Gehazi after Naaman, told carefully (Second Kings 5:19-27; left by episodes 36 and 169).
-- Elisha and the Shunammite's land given back, the seven years of famine and Gehazi telling the king the story at the very moment she walked in (Second Kings 8:1-6; left by episode 168).
 - The king of Arad and the vow at Hormah, the first battle after Mount Hor, and the long way round Edom by the Red Sea road (Numbers 21:1-4; left by episode 165).
 - Moses on the mountains of Abarim and a shepherd for the congregation, Joshua commissioned before Eleazar the priest, the man in whom is the spirit (Numbers 27:12-23, with Deuteronomy 3:23-28; left by episode 166).
 - The twelve leaders and the dedication of the altar, twelve days and the same gift each day, six covered wagons and twelve oxen for the Levites (Numbers 7; left by episode 167).
@@ -241,11 +240,12 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Zephaniah son of Cushi and the wail from the Second Quarter, the prophet in the days of Josiah, ending with 'the Lord your God is in your midst, he will rejoice over you with singing' (Zephaniah 1:1-12 and 3:14-20; left by episode 183).
 - Ahikam son of Shaphan and the hand that was with Jeremiah, the temple sermon and the elders who remembered Micah of Moresheth (Jeremiah 26; left by episode 183).
 - Deborah the nurse of Rebekah and the Oak of Weeping below Bethel, the woman who went with Rebekah to Isaac and looked after two generations, told as a quiet episode about the people who bring children up (Genesis 24:59 and 35:8; left by episode 182).
+- The four men with a skin disease at the gate of Samaria, the empty camp of the Arameans and 'this is a day of good news', told without the hunger inside the walls (Second Kings 7:3-16; left by episode 185).
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 184 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 184.
+Audio: 29 of 185 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 185.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.

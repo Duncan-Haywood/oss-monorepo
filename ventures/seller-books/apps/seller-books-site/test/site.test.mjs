@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { after, before, describe, test } from "node:test";
 import { build, fileFor } from "../build.mjs";
 import { BASE_PATH, FEATURES, PLATFORMS, SITE_URL, TIERS } from "../src/content.mjs";
+import { esc } from "../src/html.mjs";
 import {
   ALTERNATIVES,
   COGS_EXAMPLE,
@@ -37,8 +38,16 @@ import {
   HOME_OFFICE_RATE_CENTS,
   homeOfficeLines,
   MARKETPLACE_SELLER_STATES,
+  MERCARI_1099K_URL,
+  MERCARI_CHECKED_ON,
+  MERCARI_COMPLETED_QUOTE,
+  MERCARI_EXAMPLE,
+  MERCARI_GROSS_QUOTE,
+  MERCARI_SALES_TAX_QUOTE,
+  MERCARI_SALES_TAX_URL,
   MILEAGE_EXAMPLE,
   MILEAGE_RATES,
+  mercariLines,
   mileageLines,
   PERSONAL_ITEM_EXAMPLE,
   POSH_REMIT_QUOTE,
@@ -52,6 +61,17 @@ import {
   SHOTS,
   STOCK_EXAMPLE,
   stockExampleFigures,
+  WHATNOT_1099K_QUOTE,
+  WHATNOT_1099K_URL,
+  WHATNOT_CHECKED_ON,
+  WHATNOT_EXAMPLE,
+  WHATNOT_FEE_TAX_URL,
+  WHATNOT_GIVEAWAY_QUOTE,
+  WHATNOT_GIVEAWAY_URL,
+  WHATNOT_PAYPAL_QUOTE,
+  WHATNOT_SALES_TAX_QUOTE,
+  WHATNOT_SALES_TAX_URL,
+  whatnotLines,
 } from "../src/pages.mjs";
 
 let out;
@@ -1059,6 +1079,215 @@ describe("the eBay taxes page", () => {
   });
 });
 
+describe("the Whatnot taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/whatnot-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("the example is the importer's own fixture, row for row", () => {
+    const [head, ...lines] = appFile("test/fixtures/whatnot-orders-report.csv").trim().split("\n");
+    const cols = head.split(",");
+    const at = (row, name) => row.split(",")[cols.indexOf(name)];
+    const money = (v) => Math.round(Number(v || "0") * 100);
+    const usd = lines.filter((l) => at(l, "Transaction Currency") === "USD");
+    assert.equal(lines.length - usd.length, 1);
+    assert.equal(usd.length, WHATNOT_EXAMPLE.length);
+    const kindOf = (l) => {
+      const t = at(l, "Transaction Type");
+      if (t === "Tips") return "tip";
+      if (t === "Order Refund") return "refund";
+      if (t === "Shipping Charge") return "label";
+      return /Giveaway/.test(at(l, "Buy Format")) ? "giveaway" : "sale";
+    };
+    usd.forEach((l, i) => {
+      const r = WHATNOT_EXAMPLE[i];
+      assert.equal(r.kind, kindOf(l), r.title);
+      assert.equal(r.amountCents, money(at(l, "Transaction Amount")), r.title);
+      const fees = [
+        "Commission Fee",
+        "Payment Processing Fee",
+        "Tax on Commission",
+        "Tax on Payment Processing Fee",
+      ]
+        .map((c) => money(at(l, c)))
+        .reduce((a, b) => a + b, 0);
+      assert.equal(r.feesCents, fees, r.title);
+      if (r.kind === "label") assert.equal(r.shipCents, -r.amountCents);
+      else assert.equal(r.shipCents, money(at(l, "Shipping Fee")), r.title);
+      if (r.kind === "sale" || r.kind === "giveaway")
+        assert.equal(r.priceCents, money(at(l, "Post Coupon Price")), r.title);
+      // The importer's rule for a tip with no price columns: amount plus fees.
+      if (r.kind === "tip") assert.equal(r.priceCents, r.amountCents + r.feesCents);
+      if (r.kind !== "refund" && r.kind !== "label")
+        assert.equal(r.priceCents - r.feesCents - r.shipCents, r.amountCents, r.title);
+    });
+    const imp = appFile("src/worker/services/importers/whatnot.ts");
+    assert.match(imp, /price = amount \+ sumFees\(fees\) \+ sellerShip/);
+    assert.match(imp, /shippingLabelCents: sellerShip/);
+    assert.match(imp, /kind: "shipping_label"/);
+    assert.match(imp, /only USD is supported/);
+    const sc = appFile("src/worker/services/books/schedule-c.ts");
+    assert.match(sc, /else returns \+= s\.refundCents/);
+    assert.match(sc, /if \(c\.kind === "shipping_label"\) add\("27a:postage", c\.amountCents\)/);
+  });
+
+  test("the Schedule C lines, by hand", () => {
+    assert.deepEqual(whatnotLines(), {
+      line1: 10500,
+      line2: 4000,
+      line10: 1275,
+      line27a: 624,
+      net: 4601,
+    });
+    const L = whatnotLines();
+    assert.equal(L.line1 - L.line2 - L.line10 - L.line27a, L.net);
+    const html = htmlOf(page());
+    for (const s of ["$105.00", "$40.00", "$12.75", "$6.24", "$46.01", "$9.07", "$0.13", "$4.99"])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("Whatnot's own words, quoted with their sources and the dated check", () => {
+    const html = htmlOf(page());
+    assert.match(WHATNOT_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    const quoted = (q) => q.replaceAll("'", "&#39;").replaceAll('"', "&quot;");
+    for (const s of [
+      WHATNOT_1099K_URL,
+      WHATNOT_SALES_TAX_URL,
+      WHATNOT_FEE_TAX_URL,
+      WHATNOT_GIVEAWAY_URL,
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+    for (const q of [
+      WHATNOT_1099K_QUOTE,
+      WHATNOT_SALES_TAX_QUOTE,
+      WHATNOT_GIVEAWAY_QUOTE,
+      WHATNOT_PAYPAL_QUOTE,
+    ])
+      assert.ok(html.includes(q) || html.includes(quoted(q)), q);
+    for (const u of [
+      WHATNOT_1099K_URL,
+      WHATNOT_SALES_TAX_URL,
+      WHATNOT_FEE_TAX_URL,
+      WHATNOT_GIVEAWAY_URL,
+    ])
+      assert.match(u, /^https:\/\/help\.whatnot\.com\/hc\/en-us\/articles\/\d+-/);
+  });
+
+  test("linked from the Whatnot platform page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/whatnot-taxes"`;
+    assert.ok(
+      htmlOf(pages.find((p) => p.path === "/platforms/whatnot")).includes(
+        "one week worked through",
+      ),
+    );
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/whatnot-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/whatnot-taxes`));
+  });
+});
+
+describe("the Mercari taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/mercari-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("the example is the importer's own fixture: its completed rows, dated by Completed Date", () => {
+    const [head, ...lines] = appFile("test/fixtures/mercari-sales-report.csv").trim().split("\n");
+    const cells = (l) => l.slice(1, -1).split('","');
+    const cols = cells(head);
+    const at = (row, name) => cells(row)[cols.indexOf(name)];
+    const money = (v) => Math.round(Number(v) * 100);
+    const done = lines.filter(
+      (l) =>
+        at(l, "Order Status") === "Completed" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(at(l, "Completed Date")),
+    );
+    assert.equal(done.length, MERCARI_EXAMPLE.length);
+    done.forEach((l, i) => {
+      const r = MERCARI_EXAMPLE[i];
+      assert.equal(r.title, at(l, "Item Title"));
+      assert.equal(r.sold, at(l, "Sold Date"));
+      assert.equal(r.completed, at(l, "Completed Date"));
+      assert.equal(r.itemCents, money(at(l, "Item Price")));
+      assert.equal(r.buyerShipCents, money(at(l, "Buyer Shipping Fee")));
+      assert.equal(r.sellerShipCents, money(at(l, "Seller Shipping Fee")));
+      assert.equal(r.feeCents, money(at(l, "Mercari Selling Fee")));
+      assert.equal(money(at(l, "Payment Processing Fee")), 0);
+      assert.equal(r.adjustmentCents, money(at(l, "Shipping Adjustment Fee")));
+      assert.equal(r.salesTaxCents, money(at(l, "Sales Tax Charged to Buyer")));
+      assert.equal(r.netCents, money(at(l, "Net Seller Proceeds")));
+      // Each row reconciles as the importer checks it: item − fees − seller shipping = net.
+      assert.equal(r.itemCents - r.feeCents - r.adjustmentCents - r.sellerShipCents, r.netCents);
+    });
+    // The rules the page describes are the importer's and the worksheet's.
+    const imp = appFile("src/worker/services/importers/mercari.ts");
+    assert.match(imp, /completedText !== "" \? "completedDate" : "soldDate"/);
+    assert.match(imp, /shippingLabelCents: sellerShip \+ buyerShip/);
+    assert.match(imp, /shippingChargedCents: buyerShip/);
+    assert.match(imp, /Order not completed yet/);
+    const sc = appFile("src/worker/services/books/schedule-c.ts");
+    assert.match(sc, /add\("27a:postage", s\.shippingLabelCents\)/);
+    assert.match(sc, /gross \+= s\.itemCents \+ s\.shippingChargedCents/);
+  });
+
+  test("the Schedule C lines, by hand", () => {
+    assert.deepEqual(mercariLines(), {
+      items: 8000,
+      buyerShip: 599,
+      line1: 8599,
+      line10: 985,
+      line27a: 1849,
+      salesTax: 640,
+      net: 5765,
+    });
+    const L = mercariLines();
+    assert.equal(L.line1 - L.line10 - L.line27a, L.net);
+    const html = htmlOf(page());
+    for (const s of ["$85.99", "$9.85", "$18.49", "$57.65", "$6.40", "$92.39", "2026-01-03"])
+      assert.ok(html.includes(s), s);
+    assert.ok(html.includes("so it is a 2026 sale"));
+  });
+
+  test("Mercari's own words, sourced and dated; no fee rate stated", () => {
+    const html = htmlOf(page());
+    assert.match(MERCARI_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    for (const s of [
+      MERCARI_1099K_URL,
+      MERCARI_SALES_TAX_URL,
+      MERCARI_COMPLETED_QUOTE,
+      MERCARI_GROSS_QUOTE,
+      MERCARI_SALES_TAX_QUOTE,
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      "over $20,000 and more than 200 transactions",
+      "We state no Mercari fee rate",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+    assert.ok(!/\d+(\.\d+)?% (selling )?fee/i.test(html));
+    // Mercari's tax is the marketplace's in the app's sales tax report.
+    const st = appFile("src/shared/sales-tax.ts");
+    assert.match(st, /eBay, Poshmark, Mercari/);
+    assert.ok(!/"mercari"/.test(st.slice(st.indexOf("SELLER_COLLECTED"), st.indexOf("]);"))));
+  });
+
+  test("linked from the Mercari platform page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/mercari-taxes"`;
+    const platform = htmlOf(pages.find((p) => p.path === "/platforms/mercari"));
+    assert.ok(platform.includes(link));
+    assert.ok(platform.includes("three sales worked through"));
+    assert.ok(
+      !htmlOf(pages.find((p) => p.path === "/platforms/ebay")).includes(
+        `${link}>Mercari taxes</a>.</p>`,
+      ),
+    );
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/mercari-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/mercari-taxes`));
+  });
+});
+
 describe("the reseller inventory spreadsheet page", () => {
   const page = () => pages.find((p) => p.path === "/reseller-inventory-spreadsheet");
 
@@ -1285,6 +1514,16 @@ describe("feature cards on the home page", () => {
           pages.some((p) => p.path === f.guide),
           `${f.key}: no page ${f.guide}`,
         );
+    }
+    // Each guide link is labelled with its page's title (the sell-through card once read "undefined").
+    const home = htmlOf(pages.find((p) => p.path === "/"));
+    assert.ok(!home.includes(">undefined<"), "a feature guide link has no title");
+    for (const f of FEATURES.filter((x) => x.guide)) {
+      const t = pages.find((p) => p.path === f.guide).title;
+      assert.ok(
+        home.includes(`${BASE_PATH}${f.guide}">${esc(t)}</a>`),
+        `${f.key}: guide link label`,
+      );
     }
   });
 

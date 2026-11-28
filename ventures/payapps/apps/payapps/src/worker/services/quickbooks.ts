@@ -20,6 +20,8 @@ import {
 import type {
   PayAppQuickBooksDto,
   QuickBooksAutoSendDto,
+  QuickBooksInterestInvoiceDto,
+  QuickBooksInterestInvoicesDto,
   QuickBooksInvoiceLineDto,
   QuickBooksItemsDto,
   QuickBooksLineItemsDto,
@@ -29,10 +31,11 @@ import type {
   QuickBooksTrackingDto,
   UnsentQuickBooksPaymentsDto,
 } from "@shared/api/types";
-import { payDueOn } from "@shared/cash-report";
+import { payDueOn, projectCash } from "@shared/cash-report";
 import { type MemberRole, ROLE_RANK } from "@shared/enums";
 import { formatCents } from "@shared/money";
 import { planQboCredit, QboCreditPlanError, qboCreditDocNumber } from "@shared/qbo-credit";
+import { planQboInterest, QboInterestPlanError, qboInterestDocNumber } from "@shared/qbo-interest";
 import { planQboInvoice, QboInvoicePlanError, qboDocNumber } from "@shared/qbo-invoice";
 import { and, asc, count, eq, isNotNull, isNull, lt, sql } from "drizzle-orm";
 import type { AppContext } from "../context";
@@ -43,6 +46,7 @@ import {
   projects,
   qboConnections,
   qboCreditMemoSyncs,
+  qboInterestInvoiceSyncs,
   qboInvoiceSyncs,
   qboOauthStates,
   qboPaymentSyncs,
@@ -53,6 +57,8 @@ import { openJson, sealJson, sha256Hex } from "../lib/token-box";
 import type { QboGateway } from "../ports/accounting";
 import { assertQuickBooks, orgPlan } from "./billing";
 import { findPayApp, getProjectRow, loadBundle, paymentsOf } from "./payapps/bundle";
+import { isoDay, toCashInput } from "./payapps/cash";
+import { setInterestSettlement } from "./payapps/interest-settlement";
 
 const TOKEN_PURPOSE = "qbo-tokens-v1";
 const STATE_TTL_MS = 10 * 60_000;
@@ -1490,4 +1496,199 @@ export async function autoSendPayment(
           : "QuickBooks did not answer. The payment is recorded here; send it from the QuickBooks panel.",
     };
   }
+}
+
+/** The billed mark sending an interest invoice put on an application that had none, for the history. */
+export interface InterestBilledMark {
+  cents: number;
+  on: string;
+  note: string;
+}
+
+/** Names of the item and account interest invoices post to; existing ones are reused, never changed. */
+export const QBO_INTEREST_NAMES = {
+  incomeAccount: "Late Payment Interest",
+  item: "Late Payment Interest",
+} as const;
+
+async function interestRow(ctx: AppContext, orgId: string, payAppId: string) {
+  return ctx.db
+    .select()
+    .from(qboInterestInvoiceSyncs)
+    .where(
+      and(eq(qboInterestInvoiceSyncs.orgId, orgId), eq(qboInterestInvoiceSyncs.payAppId, payAppId)),
+    )
+    .get();
+}
+
+/** Every interest invoice the company sent or marked, for the cash page's paid-late list. */
+export async function interestInvoices(
+  ctx: AppContext,
+  orgId: string,
+): Promise<QuickBooksInterestInvoicesDto> {
+  const status = await quickbooksStatus(ctx, orgId);
+  if (!status.available) return { status, invoices: [] };
+  const rows = await ctx.db
+    .select()
+    .from(qboInterestInvoiceSyncs)
+    .where(eq(qboInterestInvoiceSyncs.orgId, orgId))
+    .all();
+  const realm = status.connection?.realmId ?? null;
+  return {
+    status,
+    invoices: rows.map(
+      (r): QuickBooksInterestInvoiceDto => ({
+        payAppId: r.payAppId,
+        invoiceId: r.invoiceId,
+        docNumber: r.docNumber,
+        byHand: r.invoiceId === null,
+        amountCents: r.amountCents,
+        sentAt: r.createdAt.toISOString(),
+        otherCompany: r.realmId !== realm,
+      }),
+    ),
+  };
+}
+
+/** The item interest lines post to: "Late Payment Interest", on an income account of that name. */
+async function interestItem(books: AccountingSync) {
+  const income = await books.ensureAccount({
+    name: QBO_INTEREST_NAMES.incomeAccount,
+    accountType: "Income",
+  });
+  return books.ensureItem({
+    name: QBO_INTEREST_NAMES.item,
+    type: "Service",
+    incomeAccountId: income.id,
+    description: "Interest on late payment of a pay application",
+  });
+}
+
+/**
+ * Sends the interest a late payment earned to QuickBooks as its own invoice to the GC: one line, the
+ * figure the cash report shows under "Interest earned on late payments" (or the figure kept when it
+ * was marked billed), dated the day it was marked billed, else today, numbered "LI" + the
+ * application's invoice tail. Refused for an application not on the paid-late list, or one whose
+ * interest was marked waived. If the interest was not marked yet, sending marks it billed that day
+ * with the invoice number as the note, so it leaves the to-do list. `alreadyInQuickBooks` records
+ * an invoice the bookkeeper entered by hand and sends nothing. A retry finds the invoice by its
+ * number and records it, never a second one.
+ */
+export async function sendInterestInvoice(
+  ctx: AppContext,
+  orgId: string,
+  projectId: string,
+  payAppId: string,
+  userId: string,
+  opts: SendPaymentOptions = {},
+): Promise<{ out: QuickBooksInterestInvoicesDto; marked: InterestBilledMark | null }> {
+  await assertNotSample(ctx, orgId, projectId);
+  const qbo = gatewayOrThrow(ctx);
+  await assertQuickBooks(ctx, orgId);
+  const conn = await connectionRow(ctx, orgId);
+  if (!conn)
+    throw conflict("Connect QuickBooks first (an admin can do it on the QuickBooks page).");
+  const existing = await interestRow(ctx, orgId, payAppId);
+  if (existing) {
+    throw conflict(
+      existing.docNumber
+        ? `This interest is already in QuickBooks as invoice ${existing.docNumber}.`
+        : "This interest is already marked as entered in QuickBooks.",
+    );
+  }
+  const b = await loadBundle(ctx, orgId, projectId);
+  const { app } = findPayApp(b, payAppId);
+  const today = isoDay(ctx.now());
+  const cash = projectCash(toCashInput(b), today);
+  const late = [...cash.paidLate, ...cash.paidLateSettled].find((a) => a.payAppId === app.id);
+  if (!late || !cash.lateInterest) {
+    throw conflict(
+      "Only an application paid in full after its due date, on a job with a late-payment rate, has interest to invoice.",
+    );
+  }
+  if (late.settled?.kind === "waived") {
+    throw conflict("This interest is marked waived. Undo that on the cash page first.");
+  }
+  const cents = late.settled?.cents ?? late.interestCents;
+  const txnDate = late.settled?.on ?? today;
+  const invoiceRow = await syncRow(ctx, orgId, app.id);
+  const docNumber = qboInterestDocNumber(qboDocNumber(b.project, app.number));
+  const row = { payAppId: app.id, orgId, realmId: conn.realmId, syncedBy: userId };
+  const markBilled = async (note: string): Promise<InterestBilledMark | null> => {
+    if (late.settled) return null;
+    const change = await setInterestSettlement(ctx, orgId, projectId, app.id, {
+      settlement: "billed",
+      on: today,
+      note,
+    });
+    return { cents: change.cents, on: today, note };
+  };
+  if (opts.alreadyInQuickBooks) {
+    await ctx.db
+      .insert(qboInterestInvoiceSyncs)
+      .values({ ...row, invoiceId: null, docNumber: null, amountCents: cents })
+      .onConflictDoNothing();
+    const marked = await markBilled("Entered in QuickBooks by hand");
+    ctx.logger.info("quickbooks.interest_marked", { orgId, payAppId });
+    return { out: await interestInvoices(ctx, orgId), marked };
+  }
+  try {
+    const plan = planQboInterest({
+      appNumber: app.number,
+      projectName: b.project.name,
+      invoiceDocNumber:
+        invoiceRow && invoiceRow.realmId === conn.realmId ? invoiceRow.docNumber : null,
+      dueOn: late.dueOn,
+      paidOn: late.paidOn,
+      daysLate: late.daysLate,
+      paidCents: late.paidCents,
+      interestCents: cents,
+      terms: cash.lateInterest,
+    });
+    const books: AccountingSync = qbo.books(tokenStore(ctx, qbo, orgId), conn.realmId);
+    let invoice = await books.findInvoiceByDocNumber(docNumber);
+    if (invoice && invoice.totalCents !== plan.totalCents) {
+      throw conflict(
+        `QuickBooks already has an invoice numbered ${docNumber} for ${formatCents(invoice.totalCents)}, not the ${formatCents(plan.totalCents)} of interest. Check it in QuickBooks, then mark the interest as already there or rename that invoice.`,
+      );
+    }
+    if (!invoice) {
+      const item = await interestItem(books);
+      const customer = await books.upsertCustomer({
+        displayName: b.project.gcName,
+        companyName: b.project.gcName,
+      });
+      const { billEmail } = invoiceBillEmail(b.project.gcBillingEmail);
+      const tracking = await sendTracking(books, conn.realmId, b.project);
+      const requestId = (await sha256Hex(`payapps-qbo-interest:${orgId}:${app.id}`)).slice(0, 32);
+      invoice = await books.createInvoice({
+        ...tracking.header,
+        customerId: customer.id,
+        docNumber,
+        txnDate,
+        ...(billEmail !== null ? { billEmail } : {}),
+        customerMemo: plan.customerMemo,
+        privateNote: `Late-payment interest on pay application #${app.number}, ${b.project.name}. Sent from PayApps.`,
+        requestId,
+        lines: [
+          {
+            itemId: item.id,
+            amountCents: plan.totalCents,
+            description: plan.description,
+            ...(tracking.lineClassId ? { classId: tracking.lineClassId } : {}),
+          },
+        ],
+      });
+    }
+    await ctx.db
+      .insert(qboInterestInvoiceSyncs)
+      .values({ ...row, invoiceId: invoice.id, docNumber, amountCents: invoice.totalCents })
+      .onConflictDoNothing();
+    ctx.logger.info("quickbooks.interest_sent", { orgId, payAppId, invoiceId: invoice.id });
+  } catch (e) {
+    if (e instanceof QboInterestPlanError) throw badRequest(e.message);
+    rethrowQbo(e, "the interest invoice");
+  }
+  const marked = await markBilled(`QuickBooks invoice ${docNumber}`);
+  return { out: await interestInvoices(ctx, orgId), marked };
 }

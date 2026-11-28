@@ -98,6 +98,7 @@ import {
 import {
   autoSendPayment,
   payAppQuickBooks,
+  sendInterestInvoice,
   sendPayApp,
   sendPayment,
   sendShortCredit,
@@ -294,6 +295,35 @@ routes.post("/:payAppId/quickbooks/short-credit", editor, async (c) => {
       reason: out.shortCredit?.reason,
     },
   );
+  return c.json(out);
+});
+
+// The interest a late payment earned, as its own QuickBooks invoice to the GC (marking it billed if it
+// was not); or marked as entered there by hand (`?already=1`), which sends nothing.
+routes.post("/:payAppId/quickbooks/interest-invoice", editor, async (c) => {
+  const { orgId, projectId, payAppId } = ids(c);
+  const already = c.req.query("already") === "1";
+  const { out, marked } = await sendInterestInvoice(
+    c.var.ctx,
+    orgId,
+    projectId,
+    payAppId,
+    c.var.tenant.userId,
+    { alreadyInQuickBooks: already },
+  );
+  const d = await detail(c, payAppId);
+  const sent = out.invoices.find((i) => i.payAppId === payAppId);
+  await log(c, already ? "quickbooks_interest_marked" : "quickbooks_interest_sent", d, {
+    amountCents: sent?.amountCents,
+    note: sent?.docNumber ?? null,
+  });
+  if (marked) {
+    await log(c, "interest_billed", d, {
+      amountCents: marked.cents,
+      date: marked.on,
+      note: marked.note,
+    });
+  }
   return c.json(out);
 });
 
@@ -532,8 +562,14 @@ routes.delete("/:payAppId", editor, async (c) => {
 routes.get("/:payAppId/application.pdf", async (c) => {
   const { orgId, projectId, payAppId } = ids(c);
   const data = await loadApplicationDocument(c.var.ctx, orgId, projectId, payAppId);
-  const bytes = applicationPdf(data);
-  return download(bytes.slice().buffer, "application/pdf", exportFileName(data, "pdf"));
+  // ?pencil=1: a draft printed as the pencil copy the GC reviews before the official application.
+  const pencil = c.req.query("pencil") === "1" && data.payApp.status === "draft";
+  const bytes = applicationPdf(data, { pencil });
+  return download(
+    bytes.slice().buffer,
+    "application/pdf",
+    exportFileName(data, "pdf", pencil ? "-pencil" : ""),
+  );
 });
 
 // The application plus its backup files in one PDF to send the GC (any member). `files` names the
@@ -550,7 +586,9 @@ routes.get("/:payAppId/packet.pdf", async (c) => {
           .map((s) => s.trim())
           .filter(Boolean);
   if (chosen && chosen.length > 40) throw badRequest("Choose at most 40 files");
-  const packet = await buildPayAppPacket(c.var.ctx, orgId, projectId, payAppId, chosen);
+  const packet = await buildPayAppPacket(c.var.ctx, orgId, projectId, payAppId, chosen, {
+    pencil: c.req.query("pencil") === "1",
+  });
   return packetResponse(packet);
 });
 

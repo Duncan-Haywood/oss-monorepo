@@ -87,7 +87,8 @@
 //
 // Not modeled: third-tier claimants (often no lien rights at all), residential homestead variations beyond the two
 // Texas/Washington splits, public-project bond-claim rules, retainage,
-// weekend and holiday extensions, contractual notice requirements, notice
+// weekend and holiday extensions (the safe date steps back past weekends and
+// federal holidays instead; state-only holidays are not modeled), contractual notice requirements, notice
 // content and delivery method, lien foreclosure / suit deadlines, and
 // anything enacted after the verification date above.
 
@@ -603,10 +604,61 @@ function isWeekend(date) {
   return d === 0 || d === 6;
 }
 
-// Last business day on or before `date` (holidays not modeled).
+// The eleven legal public holidays of 5 U.S.C. § 6103(a), on the day OPM
+// observes them (a Saturday holiday the Friday before, a Sunday one the Monday
+// after). A county recorder or court clerk is usually closed on them, so the
+// safe date steps back past them as it does past a weekend. State-only
+// holidays are not modeled. Same list as PayApps' src/shared/federal-holidays.ts.
+function nthWeekday(year, month, dow, n) {
+  if (n > 0) {
+    const first = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+    return Date.UTC(year, month - 1, 1 + ((dow - first + 7) % 7) + (n - 1) * 7);
+  }
+  const last = new Date(Date.UTC(year, month, 0));
+  return Date.UTC(year, month - 1, last.getUTCDate() - ((last.getUTCDay() - dow + 7) % 7));
+}
+
+function observedFixed(year, month, day) {
+  const d = new Date(Date.UTC(year, month - 1, day));
+  const w = d.getUTCDay();
+  return addDays(d, w === 6 ? -1 : w === 0 ? 1 : 0).getTime();
+}
+
+const holidayCache = new Map();
+function holidaysAround(year) {
+  let m = holidayCache.get(year);
+  if (m) return m;
+  m = new Map();
+  for (const y of [year, year + 1]) {
+    const list = [
+      [observedFixed(y, 1, 1), "New Year's Day"],
+      [nthWeekday(y, 1, 1, 3), "Birthday of Martin Luther King, Jr."],
+      [nthWeekday(y, 2, 1, 3), "Washington's Birthday"],
+      [nthWeekday(y, 5, 1, -1), "Memorial Day"],
+      [observedFixed(y, 6, 19), "Juneteenth National Independence Day"],
+      [observedFixed(y, 7, 4), "Independence Day"],
+      [nthWeekday(y, 9, 1, 1), "Labor Day"],
+      [nthWeekday(y, 10, 1, 2), "Columbus Day"],
+      [observedFixed(y, 11, 11), "Veterans Day"],
+      [nthWeekday(y, 11, 4, 4), "Thanksgiving Day"],
+      [observedFixed(y, 12, 25), "Christmas Day"],
+    ];
+    for (const [t, name] of list) m.set(t, name);
+  }
+  holidayCache.set(year, m);
+  return m;
+}
+
+/** The observed federal holiday on `date` (a UTC midnight Date), by name, or null. */
+export function federalHolidayOn(date) {
+  return holidaysAround(date.getUTCFullYear()).get(date.getTime()) ?? null;
+}
+
+// Last business day on or before `date`: not a weekend, not an observed
+// federal holiday.
 function previousBusinessDay(date) {
   let d = date;
-  while (isWeekend(d)) d = addDays(d, -1);
+  while (isWeekend(d) || federalHolidayOn(d)) d = addDays(d, -1);
   return d;
 }
 
@@ -741,10 +793,18 @@ function status(date, today) {
 function decorate(resolved, today) {
   const { date } = resolved;
   const weekend = date ? isWeekend(date) : false;
-  const safe = date ? (weekend ? previousBusinessDay(date) : date) : null;
+  const safe = date ? previousBusinessDay(date) : null;
+  // The federal holidays the safe date stepped back past (on the date itself,
+  // or on the weekdays just before a weekend date), oldest first.
+  const holidays = [];
+  if (date) for (let d = addDays(safe, 1); d.getTime() <= date.getTime(); d = addDays(d, 1)) {
+    const h = federalHolidayOn(d);
+    if (h) holidays.push(h);
+  }
   return {
     ...resolved,
     weekend,
+    holidays,
     safeDate: safe,
     ...status(safe, today),
   };
@@ -775,7 +835,7 @@ export function monthlyNoticeSchedule(first, last, monthsAfter, today) {
  * subcontractor or supplier from its first and last furnishing dates.
  * `today` (YYYY-MM-DD) is optional and only used to report days remaining.
  * Does NOT advise, does not model third-tier claimants, public projects, or
- * holidays -- see the module docstring.
+ * state-only holidays -- see the module docstring.
  */
 export function lienDeadlines({
   state = "CA",
@@ -870,8 +930,11 @@ export function lienDeadlines({
     } else if (d.status === "today" || d.status === "soon") {
       add("high", `The ${kind} date is ${d.status === "today" ? "today" : `${d.daysLeft} day${d.daysLeft === 1 ? "" : "s"} away`}`, `Do not leave delivery to the last hour: ${label} has to be properly served or filed, not just started.`);
     }
-    if (d.weekend) {
-      add("medium", `The ${kind} date falls on a weekend`, `Whether a weekend deadline rolls to the next business day depends on the state and the filing method, and this tool does not model it. The safe date shown is the last business day before it (${formatDate(d.safeDate)}); holidays are not modeled either.`);
+    if (d.weekend || d.holidays.length) {
+      const what = d.weekend
+        ? d.holidays.length ? `a weekend, with ${d.holidays.join(" and ")} just before it` : "a weekend"
+        : `${d.holidays.join(" and ")}, a federal holiday`;
+      add("medium", `The ${kind} date falls on ${d.weekend ? "a weekend" : "a federal holiday"}`, `The statutory date, ${formatDate(d.date)}, is ${what}. Whether such a deadline rolls to the next business day depends on the state and the filing method, and this tool does not model it. The safe date shown is the last business day before it (${formatDate(d.safeDate)}), skipping weekends and federal holidays; state-only holidays are not modeled.`);
     }
   }
 

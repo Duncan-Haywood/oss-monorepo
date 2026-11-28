@@ -43,7 +43,8 @@ nothing failed but a workflow ran out of budget or stopped after a skipped
 step: not a pass, and not a failure either. On a content-only diff (nothing
 under platform/, portfolio/, .github/ or prompts/ but run records) it leaves
 portfolio-pages and portfolio-validate (~13 min here, ~4 on CI) to the pull
-request's CI and exits 5; `--full` runs them (when CI is starved).
+request's CI and exits 5, still running platform/pages' per-page tests (~1 min,
+`page_checks`); `--full` runs them (when CI is starved).
 
 `--for-changes` and `--tree` ask different questions and the difference
 matters. The first is "is my diff sound?" and on a clean checkout it
@@ -191,7 +192,34 @@ MUTATING = [
     (re.compile(r"\brm\s+-rf\s+/(?!tmp)"), "rm -rf outside /tmp"),
 ]
 
+# Steps that only shape CI's throwaway checkout. Run against a session's own
+# clone they do harm, so they are skipped (not refused: the job still runs, and
+# the steps after them read the full tree, a superset of what CI reads).
+# price-claims-ci.yml narrows its checkout with `git sparse-checkout set`
+# (2026-11-28); run here, that hid 86% of the session's clone, `.github/`
+# included, until `git sparse-checkout disable`.
+CHECKOUT_ONLY = [
+    (re.compile(r"\bgit\s+sparse-checkout\s+(set|add|init|reapply)\b"),
+     "narrows CI's checkout with git sparse-checkout; here it would hide most of this clone"),
+]
+
+
+def checkout_only(step: Step) -> str | None:
+    for pattern, why in CHECKOUT_ONLY:
+        if pattern.search(step.run):
+            return why
+    return None
+
 EXPRESSION = re.compile(r"\$\{\{")
+
+# A CI job may narrow its own throwaway clone (`git sparse-checkout set` in a `run:` step). Run here,
+# the same step narrows the session's checkout, and every later step and tool call finds files
+# missing. On 2026-11-28 price-claims-ci's "Check out each venture with a plan catalog" step did
+# that to a session's whole tree (docs/history/cmmc-worker-cold-start-perf-2026-11-28.md). Such a
+# step is skipped, not refused: the job's later steps then read the full tree, a superset of what
+# the sparse clone holds, so their verdicts still count (`narrows` keeps them out of the
+# "failed after a skipped step" downgrade).
+NARROWS_CHECKOUT = re.compile(r"\bgit\s+sparse-checkout\s+(set|add|init|reapply)\b")
 
 # The progress line is written in two halves -- the step's label before it
 # runs, flushed, and the verdict after -- and that is a fix rather than a
@@ -718,6 +746,8 @@ class Step:
         self.workdir = workdir
         self.status = "pending"   # ok | failed | unrun | skipped | refused
         self.reason = ""
+        # True on a step skipped because it would narrow this checkout (NARROWS_CHECKOUT).
+        self.narrows = False
         # Set on an `unrun` step: the module, binary or credential that was not
         # found, so the report can name what to supply rather than only that it
         # failed. `missing_kind` decides whether the advice is "install" or
@@ -1021,6 +1051,11 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
                     or EXPRESSION.search(env_text)):
                 step.status = "skipped"
                 step.reason = "contains a ${{ }} expression this cannot evaluate"
+            elif NARROWS_CHECKOUT.search(command):
+                step.status = "skipped"
+                step.narrows = True
+                step.reason = ("would narrow this checkout (git sparse-checkout); "
+                               "later steps read the full tree instead")
             steps.append(step)
     return steps, skipped
 
@@ -1656,6 +1691,11 @@ def _decode(data) -> str:
 def execute(step: Step, timeout: int) -> None:
     if step.status == "skipped":
         return
+    why = checkout_only(step)
+    if why:
+        step.status = "skipped"
+        step.reason = why
+        return
     mutation = screen(step)
     if mutation:
         step.status = "refused"
@@ -1939,7 +1979,7 @@ def run_steps(steps, timeout, budget: int | None = None) -> None:
                 step.missing_kind = "after-skip"
                 step.reason = (f"failed after '{skipped_in_job[step.job]}' was skipped; "
                                f"it may only lack that step's output ({step.reason})")
-            if step.status == "skipped":
+            if step.status == "skipped" and not step.narrows:
                 skipped_in_job.setdefault(step.job, step.name)
             print(f"[{STATUS_MARK[step.status]:6}] ({step.seconds:.1f}s)",
                   flush=True)
@@ -2226,12 +2266,19 @@ def run_for_changes(args) -> int:
         rc = 0  # nothing cheap was selected; the deferral below is the verdict
     else:
         rc = _run_selected(args, selected, held, changed=changed)
+    if ("priv-portfolio-pages.yml" in deferred and not args.list
+            and not getattr(args, "no_page_checks", False)):
+        pc = page_checks()
+        if pc == 1 or (pc and rc == 0):
+            rc = pc
     if deferred and not args.list:
         print(f"  Not a clean sweep: {', '.join(deferred)} deferred to the pull "
               "request's CI (content-only diff). Its green check runs are their "
               "verdict; if CI is starved, re-run with --full.", flush=True)
         if rc == 0:
             rc = NO_VERDICT
+    if "priv-portfolio-pages.yml" in deferred and not args.list:
+        rc = deferred_page_checks(changed) or rc
     if not args.list and not getattr(args, "no_research_tests", False):
         rc = research_tests(changed) or rc
     note = quality_touched_note(changed)
@@ -2266,6 +2313,45 @@ def quality_touched_note(changed, repo: str = REPO) -> str:
 # homepage and checks programmes), so a research PR was green whatever its
 # suite did. A sweep runs the suites of the projects the diff touches, with an
 # interpreter pyenv.py finds (run_research_tests.py's docstring has the why).
+# Deferring priv-portfolio-pages.yml on a content-only diff also deferred
+# the few site checks a new venture page trips: the 160-character description
+# cap, the 70-character title cap and the stale llms-answers.txt. Five run
+# records from 2026-11-25 to 11-28 (friction_rank.py --live) report a page
+# that passed --for-changes and failed `Test the site builder` in CI. Those
+# checks are run_venture_tests.py's PAGE_CHECKS and take about 7 s here
+# (2026-11-28), so they run whenever the deferral leaves them out.
+PAGE_SUFFIXES = (".html", ".css")  # run_venture_tests.py gates PAGE_CHECKS the same way
+
+
+def deferred_page_checks(changed, repo: str = REPO) -> int:
+    """Run PAGE_CHECKS for a diff that ships pages; 0 when none apply, else node's exit code."""
+    if not any(p.endswith(PAGE_SUFFIXES) and not p.startswith("prompts/runs/")
+               for p in changed):
+        return 0
+    pages = os.path.join(repo, "platform", "pages")
+    sys.path.insert(0, os.path.join(repo, "platform", "ci"))
+    try:
+        from run_venture_tests import PAGE_CHECKS
+    except ImportError:
+        return 0
+    finally:
+        sys.path.pop(0)
+    present = [n for n in PAGE_CHECKS if os.path.isfile(os.path.join(pages, n))]
+    if not present:
+        return 0
+    print(f"site page checks ({len(present)} files, ~7 s; the cheap slice of the "
+          "deferred priv-portfolio-pages.yml):", flush=True)
+    done = subprocess.run(["node", "--test", *present], cwd=pages,
+                          capture_output=True, text=True)
+    if done.returncode:
+        print(done.stdout[-4000:] + done.stderr[-2000:], flush=True)
+        print("  FAILED: site page checks (CI's `Test the site builder` runs the same files)",
+              flush=True)
+    else:
+        print("  ok: site page checks", flush=True)
+    return done.returncode
+
+
 def research_tests(changed, repo: str = REPO) -> int:
     """Run run_research_tests.py on the diff's research projects; its exit code, 0 if none."""
     script = os.path.join(repo, "platform", "ci", "run_research_tests.py")
@@ -2509,6 +2595,49 @@ CONTENT_PREFIXES = ("prompts/runs/", "portfolio/flagships.yaml")
 DEFER_NOTE = ("  content-only diff (no platform/, portfolio/, .github/ or prompts/ "
               "code): deferring {names} to the pull request's CI "
               "(~4-5 min there, ~13 min here); --full runs them here.")
+
+
+# Deferring portfolio-pages whole left its per-page checks unrun as well:
+# five doc-friction reports (2026-11-25 to 28; friction_rank.py --live) had a
+# venture page PR pass --for-changes and then fail in CI, or merge and turn
+# main red, on a 160-character meta description or a stale llms.txt Answers
+# section (PR #19965). Those checks are cheap. Measured 2026-11-28 on the
+# 4-core cloud container: every platform/pages test file except the two that
+# build the whole site ran 1,869 tests in 49 s; the full suite is ~334 s. So a
+# deferred sweep still runs that subset, and only the whole-site builds wait
+# for CI. A new test file joins by default (the glob is the workflow's own).
+PAGE_CHECK_SKIP = ("build.test.mjs", "custom-domain.test.mjs")
+PAGE_CHECK_TIMEOUT_S = 300
+
+
+def page_checks(repo: str = REPO, timeout: int = PAGE_CHECK_TIMEOUT_S) -> int:
+    """Run platform/pages' fast tests (all but PAGE_CHECK_SKIP); node's exit code."""
+    pages = os.path.join(repo, "platform", "pages")
+    if not os.path.isdir(pages):
+        return 0
+    files = sorted(f for f in os.listdir(pages)
+                   if f.endswith(".test.mjs") and f not in PAGE_CHECK_SKIP)
+    if not files or not shutil.which("node"):
+        print("  page checks: node or platform/pages tests not found; not run.", flush=True)
+        return 0
+    print(f"page checks ({len(files)} platform/pages test files, ~1 min; the two "
+          f"whole-site builds, {', '.join(PAGE_CHECK_SKIP)}, stay with CI; "
+          "--no-page-checks skips):", flush=True)
+    try:
+        done = subprocess.run(["node", "--test", *files], cwd=pages, capture_output=True,
+                              text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        print(f"  page checks: ran past {timeout} s; no verdict.", flush=True)
+        return NO_VERDICT
+    lines = done.stdout.splitlines()
+    failing = [ln for ln in lines if ln.startswith("not ok ")]
+    for ln in failing[:20]:
+        print(f"  {ln}", flush=True)
+    summary = [ln for ln in lines if ln.startswith(("# pass", "# fail"))]
+    print(f"  page checks: {'ok' if done.returncode == 0 else 'FAIL'} "
+          f"({', '.join(s[2:] for s in summary) or 'no summary'}); re-run one with "
+          "`node --test <file>` in platform/pages.", flush=True)
+    return 0 if done.returncode == 0 else 1
 
 
 def is_content(path: str) -> bool:
@@ -3151,6 +3280,10 @@ def _main(argv=None) -> int:
                          "run the heavy workflows too (portfolio-pages, "
                          "portfolio-validate) instead of deferring them to "
                          "the PR's CI; use it when CI is starved")
+    ap.add_argument("--no-page-checks", action="store_true",
+                    help="with --for-changes on a content-only diff: skip the "
+                         "fast platform/pages tests run when portfolio-pages is "
+                         "deferred (see PAGE_CHECK_SKIP)")
     ap.add_argument("--no-browser-sweeps", action="store_true",
                     help="with --for-changes: skip the venture browser sweeps "
                          "(venture_sweeps.py) run on the ventures the diff touches")

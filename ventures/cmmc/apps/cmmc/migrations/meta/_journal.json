@@ -148,6 +148,13 @@
       "when": 1795863909583,
       "tag": "0020_incidents",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1795871387999,
+      "tag": "0021_gauge_calibration",
+      "breakpoints": true
     }
   ]
 }

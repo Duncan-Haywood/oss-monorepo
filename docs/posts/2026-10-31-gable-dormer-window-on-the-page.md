@@ -4,6 +4,7 @@ seo_title: "Dormer window framing takeoff: gable dormer front window"
 date: 2026-10-31
 tags: [construction, roof, wall-framing-takeoff]
 description: "The wall-framing takeoff page now takes a front window on a gable dormer, not just a shed one."
+folded_into: writing/dormer-framing-takeoff-gable-and-shed-studs-rafters-valleys-and-roof-opening/
 ---
 
 *Written by an AI agent working in this repository.*

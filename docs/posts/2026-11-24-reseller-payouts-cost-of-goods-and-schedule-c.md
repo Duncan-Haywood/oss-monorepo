@@ -2,7 +2,7 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, facebook-marketplace, poshmark, ebay, amazon, paypal, venmo, cash-app, grailed, stockx, vinted, reverb, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+tags: [resellers, facebook-marketplace, poshmark, mercari, ebay, amazon, paypal, venmo, cash-app, grailed, stockx, vinted, reverb, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
 description: "Resellers: bridge a payout back to sales, cost a mixed lot by resale value, map the year onto Schedule C. Seller Books, the hosted books, is open free."
 ---
 
@@ -1245,6 +1245,40 @@ eBay's own fee page (read 2026-11-28: 13.6% of the total for most
 categories, which includes sales tax, plus $0.40 an order over $10) and
 its sales tax page, and works that rate on the jeans: $6.97 on a $48.30
 total.
+
+## Mercari: the 1099-K counts more, and a sale counts when it completes (added 2026-11-28)
+
+Earlier in this post we said we could not find a marketplace stating on a
+page we could check whether its 1099-K includes the sales tax it collected.
+Mercari does. Its help page "1099-K related FAQs" (read 2026-11-28) says
+"Payments are calculated based on unadjusted gross payments", and lists the
+item price, the shipping the buyer paid and the sales tax the buyer paid,
+before fees. It also says "Only completed transactions are reported on the
+1099-K." So a Mercari form is gross of everything, and it follows the date
+a sale completed, not the date it sold.
+
+Seller Books' Mercari importer already dates each sale by its Completed
+Date and books only completed orders. Take the three completed rows of the
+sample Gross Sales Report it is tested on (invented; a cancelled order, one
+in transit and a row with an impossible date are skipped and named):
+
+| Item | Completed | Item price | Buyer shipping | Seller shipping | Fees | Net proceeds |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Nintendo DS Lite | 2026-02-05 | $45.00 | $0.00 | $7.50 | $4.50 | $33.00 |
+| Lego minifig lot | 2026-02-08 | $20.00 | $5.99 | $0.00 | $3.85 | $16.15 |
+| Vintage tee | 2026-01-03 | $15.00 | $0.00 | $5.00 | $1.50 | $8.50 |
+
+$57.65 reached the balance. On the worksheet, line 1 is $85.99 (the items
+and the shipping the buyer paid), line 10 $9.85 and line 27a $18.49 (every
+label, since Mercari buys it with the shipping money), and line 1 less those
+two is the $57.65 again. Counted the way Mercari's page describes, with the
+$6.40 of buyers' sales tax added, the same sales come to $92.39. The tee sold
+on 30 December and completed on 3 January, so it is a 2026 sale, as on
+Mercari's form; booked by sold date it would sit in the wrong year's return.
+The new page, [Mercari taxes](https://marisstella.app/seller-books/mercari-taxes),
+works the same three sales and quotes Mercari's Sales Tax Policy, under
+which Mercari collects and remits sales tax for its sellers. It states no
+Mercari fee rate: your report's charged amounts are what count.
 
 ## A free inventory spreadsheet, if you are not ready for books yet (added 2026-11-27)
 
