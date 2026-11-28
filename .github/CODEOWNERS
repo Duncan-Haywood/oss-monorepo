@@ -101,3 +101,6 @@
 # web-analytics job (ci_policy_check: privileged code needs an owner).
 /platform/analytics/provision.mjs     @Duncan-Haywood
 /platform/analytics/web-analytics.mjs @Duncan-Haywood
+# The light/dark pass (platform/theme/) runs in the deploy jobs too.
+/platform/theme/apply.mjs @Duncan-Haywood
+/platform/theme/theme.mjs @Duncan-Haywood

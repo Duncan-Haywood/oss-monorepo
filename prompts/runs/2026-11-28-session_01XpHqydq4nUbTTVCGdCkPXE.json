@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqydq4nUbTTVCGdCkPXE",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "we want universal dark/light mode.",
+  "input_sha256": "b81a90b826c1ee340de0ab3dc97bb064184a303d2f4d9c84091a48ca0e720591",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-28T01:31:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19946",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "slug_dupe.py failed with 'origin/main not found' before the first fetch in a fresh clone; it should fetch itself (it worked after git fetch)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/pages/site-nav.mjs",
+      "why": "Its comment says the venture chrome palette is the host page's call, not the OS's. The new switch keeps that: the chrome still measures the host, and the fallback inverts the whole page so chrome and page stay matched.",
+      "did": "The theme control went in the footer rather than the tightly budgeted header row.",
+      "result": "No header layout change; the control renders on every page family."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Full build + theme pass: 13,706 pages (10,165 native, 3,541 fallback), 18 s. check.mjs on themed dist: publishable, 13,802 pages, no dead links. platform/pages suite: 2230 pass, 0 fail. theme tests 14 pass. Playwright: 6 page types x 4 modes verified, no page errors. Private-monorepo product apps (strict CSP, own origins) not covered: follow-up.",
+  "corrections": [],
+  "redteam": null
+}

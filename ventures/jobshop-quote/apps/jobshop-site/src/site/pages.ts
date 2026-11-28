@@ -16,6 +16,7 @@ import { ANNUAL_DISCOUNT, EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/pl
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAME } from "./config";
 import { EXAMPLE as CYCLE_EXAMPLE, cycleTimeExample, DEEP_HOLE_RATIO } from "./cycle-time-example";
 import { type Html, html } from "./html";
+import { MODULES } from "./module-data";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
 import { CSV_COLUMNS, CSV_FILE, exampleQuote, TERMS_CHECKLIST } from "./quote-template";
 import { flatBlank, priceSheetExample, EXAMPLE as SHEET_EXAMPLE } from "./sheet-metal-example";
@@ -65,7 +66,7 @@ function freePlanLine(ctx: RenderContext): string {
   return `Free Early access plan: up to ${EARLY_ACCESS_PLAN.rfqsPerMonth} RFQs a month, no card. Paid plans from ${from} a month${ctx.launch.paidPlans ? "" : ", not on sale yet"}.`;
 }
 
-function ctaBand(ctx: RenderContext, heading: string, body: string): Html {
+export function ctaBand(ctx: RenderContext, heading: string, body: string): Html {
   return html`<section class="band band-cta" aria-labelledby="cta-heading">
   <div class="container narrow">
     <h2 id="cta-heading">${heading}</h2>
@@ -127,7 +128,7 @@ function shotImg(ctx: RenderContext, s: Shot): Html {
 }
 
 /** A full-width still that opens at full size, with a caption. */
-function shotFigure(ctx: RenderContext, s: Shot, caption: string): Html {
+export function shotFigure(ctx: RenderContext, s: Shot, caption: string): Html {
   return html`<figure class="shot">
   <a class="shot-link" href="${href(ctx, `/shots/${s.file}`)}">${shotImg(ctx, s)}</a>
   <figcaption>${caption}</figcaption>
@@ -443,6 +444,12 @@ export function howItWorksPage(ctx: RenderContext): Html {
     <ol class="walkthrough">
       ${steps.map((s, i) => html`<li><h2><span class="num">${i + 1}</span>${s.title}</h2>${s.body}</li>`)}
     </ol>
+  </div>
+</section>
+<section class="band" aria-labelledby="parts-heading">
+  <div class="container narrow">
+    <h2 id="parts-heading">Each part of the app</h2>
+    <ul>${MODULES.map((m) => html`<li><a class="link" href="${href(ctx, m.path)}">${m.label}</a>: ${m.description}</li>`)}</ul>
   </div>
 </section>
 <section class="band band-muted" aria-labelledby="wont-heading">
