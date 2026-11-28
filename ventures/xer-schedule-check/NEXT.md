@@ -2,6 +2,24 @@
 
 `portfolio/flagships.yaml` caps a flagship's `next:` at 2000 characters, so it holds the items most worth starting. Open items moved out to make room are kept here by `portfolio/router/flagship_field.py --park`. Take one back into `next:` when it becomes the most useful thing to do, and delete it here when it lands.
 
+## Open quality-audit defects (re-audit 2026-11-28)
+
+From `portfolio/quality/audits/2026-11-28-xer-schedule-check.json`; each changes
+a published score, so each needs its own change across the page, CLI, report,
+ribbon, trend and GAO views rather than a one-line fix:
+
+- Points with nothing to measure still score PASS and count in "N of 14 pass":
+  missed tasks 0/0 and BEI n/a on all four unprogressed public files, CPLI 1
+  when there is no must-finish-by date (`dcma.mjs`, points 11, 13, 14). Report
+  them n/a and out of the pass count.
+- Every start milestone is exempt from needing a predecessor and every finish
+  milestone from a successor (`dcma.mjs`, point 1); assessors exempt only the
+  project's start and finish (CCA exempts 3 open finish milestones).
+- Points 2-4 count links whose predecessor is a level-of-effort or WBS summary
+  activity (698 on CCA; FS share 84.0% with them, 85.0% without).
+- Seeded bugs in the SF backward lag and the start-float type branch of
+  `cpm.mjs` still pass every test; point 12's pass margin is untested.
+
 ## Parked from flagships.yaml `next:`
 
 - (2026-11-23) Risk run levelled in every run (eval/risk-levelled-2026-11-22.md): next a commercial tool's levelled risk run to compare
