@@ -235,9 +235,9 @@ export function draftNotice(code, f = {}) {
     "",
     `${claimant} holds a claim against the building or improvement on the property above for ${work}${span}.`,
     `The amount due is $${amount}, due from ${dueFrom.replace(/\.+$/, "")}.`,
-    `Unless it is paid, ${v("claimant") ? v("claimant").split(",")[0] : "the claimant"} intends to ${st.act} when ${st.days} days have passed after this notice is served.`,
+    `Unless it is paid, ${v("claimant") ? v("claimant").replace(/,.*$/, "") : "the claimant"} intends to ${st.act} when ${st.days} days have passed after this notice is served.`,
     "",
-    `${v("claimant") ? v("claimant").split(",")[0] : BLANK}`,
+    `${v("claimant") ? v("claimant").replace(/,.*$/, "") : BLANK}`,
     `By: ${need("signer", "who signs")}${v("title") ? `, ${v("title")}` : ""}`,
   ];
   return { text: lines.join("\n"), missing, statutory: false };
