@@ -702,7 +702,8 @@ plasma or press-brake work: see how to
 quote sheet metal and laser cut parts; welded frames and fabrications:
 how to quote welding jobs. What to put on the quote you send, with a template to
 download: machine shop quote
-template.
+template. A customer who needs the parts sooner:
+how to price a rush job.
 
 This page explains a common costing method. It is not accounting, tax or
 financial advice, and the prices, times and rates in it are made up. Check every quote before you send
@@ -1706,6 +1707,136 @@ The Early access plan is free and needs no card.
 
 Start free
 
+## How to price a rush job
+
+Source: https://marisstella.app/jobshop/how-to-price-a-rush-job
+
+Guide
+
+## How to price a rush job in a machine shop
+
+A rush costs the shop real money: overtime, the job it pushes aside, material and
+outside processing bought fast. A flat expedite fee guesses at that. Here is how to cost a rush the
+way you cost any job, a worked example at 1, 10 and 100
+parts, and why one percentage cannot be right at every quantity.
+
+### What a rush actually costs
+
+- Hours at a higher rate. Work done on overtime, a second shift or a weekend
+costs the operator's premium and the payroll costs on it. Price those hours at a second rate for
+the same machine, not by stretching the cycle time.
+
+- The job it bumps. If another customer's job is set up on the machine you
+need, pulling it off means tearing it down now and setting it up again later. That setup is paid
+twice, and the rush is what causes it.
+
+- Material bought fast. Same-day or next-day delivery, a cut-to-size charge
+from a distributor's counter, or a price above your usual supplier's for stock that is on a shelf
+today.
+
+- Outside processing expedited. Platers, anodizers, heat treaters and coaters
+often run an expedited service at a higher price or a higher lot minimum. Ask them; their quote
+is the number to use.
+
+- Inspection and paperwork on the same clock. A first article, certs or a
+customer's source inspection still have to happen, now inside the shorter window.
+
+- The promises you move. Other jobs ship later. That is not a line on this
+quote, but it is a reason to decide whether to take the rush at all, and what lead time you can
+actually promise without breaking the others.
+
+### A worked example
+
+The mounting bracket from the CNC
+quoting guide, quoted at its normal lead time there, and here again as a rush.
+Every number is made up to show the arithmetic; none is a typical overtime premium,
+expedite price or surcharge for any region or trade. Use your own.
+
+- Overtime: “Op 1: face, profile, pockets”, “Op 2: flip, face to thickness, drill and tap”, “Deburr and inspect” run on overtime, at the mill's
+$123.85 an hour plus a $24.00 premium =
+$147.85 an hour. Programming and the first-article check stay on the normal shift
+at $123.85.
+
+- The bumped job: 50 min to tear down the job that was on the
+mill and set it up again later, at the normal rate: $103.21, once per order.
+
+- Material: the same plate and price per pound, plus
+$85.00 for same-day delivery, once per order.
+
+- Clear anodize, 2-day expedite (outside vendor): $5.25 a part, minimum
+$300.00 a lot (the normal service in the CNC guide is cheaper).
+
+- Markups: as in the CNC guide; the delivery charge is a purchased item, so it
+takes the material markup.
+
+The made-up bracket, normal and rush, at three quantities. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.
+Line1 part10 parts100 parts
+
+Normal lead time: line total$587.26$1,135.30$7,165.00Rush: setups (incl. the bumped job)$411.88$411.88$411.88Rush: run time$128.14$704.75$6,663.11Rush: anodize, expedited$300.00$300.00$546.00Rush: same-day plate delivery$85.00$85.00$85.00Rush: line total$1,011.52$1,653.10$8,687.00What the rush adds$424.26 (72.2%)$517.80 (45.6%)$1,522.00 (21.2%)Normal + flat 25%$734.08$1,419.13$8,956.25Flat surcharge vs the costed rush$277.44 short$233.97 short$269.25 over
+
+What the table shows:
+
+- The rush adds a different share at every quantity. Costed line by line it
+adds 72.2% at 1 part, 45.6% at
+10 parts and 21.2% at 100 parts. The bumped
+setup, the delivery and the anodizer's higher minimum are fixed per order, so they weigh most on a
+small lot; the overtime premium grows with the hours, so it is most of the rush on a large one.
+
+- A flat 25% is wrong both ways. It comes up
+$277.44 short at 1 part and $233.97 short at 10 parts, and charges $269.25 more than the rush costs at 100 parts. Short means the shop pays for the customer's deadline; over means the shop is easier to beat
+on the next rush.
+
+- If you want a margin for the disruption, add it on purpose. Cost the rush,
+then add a premium you choose for the promises it moves. Then you know what the premium is and
+what is just cost.
+
+### Before you say yes
+
+- Check the machines, not your memory. Which jobs are on the machines this
+operation needs, and when do they finish? A rush that only fits by making two other jobs late is
+a decision, not a quote.
+
+- Call the outside vendors first. An anodizer or heat treater who cannot do it
+in time sets the lead time, whatever your own shop can do.
+
+- Quote the rush and the normal lead time side by side. Two lines, two dates,
+two prices. The customer picks, and the rush price reads as a choice, not a penalty.
+
+- Write the date as a condition. "Ships N working days after the order and the
+approved drawing" protects the date from a purchase order that arrives two days late.
+
+- Keep the rush in its own lines. Priced as separate lines, or as its own
+revision of the quote, the rush can be taken off again: when the same part comes back on a normal
+lead time, it is the normal price that gets reused, not last time's expedite.
+
+### Doing it in Job Shop Quote
+
+Job Shop Quote has no rush switch: a rush is priced like any other line, with the rush costs typed
+in. Add the overtime rate as a second machine on your rate card ("3-axis mill (overtime)"),
+put the operations that run on overtime on it, add the bumped job as an operation with setup only,
+the expedited service as its own finishing operation with its lot minimum, and the delivery as an
+extra per order. Every quantity break then follows, each figure showing the rate it came from. The
+example above is priced to the cent the app gives for the same inputs, checked by a test in its code.
+To see whether a date needs a rush at all, the app's
+shop load and lead time page
+places your open jobs on the machines and gives each quantity break a lead time behind them. Revise a
+sent quote to offer the rush as a second version.
+
+The rest of the price: how to
+quote a CNC machining job, how
+to work out a machine shop hourly rate, and what goes on the quote you send, the
+machine shop quote template.
+
+This page explains a common costing method. It is not accounting, tax, legal or
+financial advice, it does not say what overtime pay the law requires, and the rates, premiums,
+prices and times in it are made up. Check every quote before you send it.
+
+### Quote your next rush with every cost on it
+
+The Early access plan is free and needs no card.
+
+Start free
+
 ## FAQ
 
 Source: https://marisstella.app/jobshop/faq
@@ -2399,6 +2530,7 @@ Start free
 
 ### Free guides on this
 
+- How to price a rush job
 - How to work out a machine shop hourly rate
 - Machine shop quote template (free CSV)
 

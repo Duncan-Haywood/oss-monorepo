@@ -16,6 +16,11 @@ checks the pair. No customers yet.
 
 ## Done (v0.1, this core)
 
+- Rush job pricing guide (2026-11-28, `rush-job-expedite-pricing`): https://marisstella.app/jobshop/how-to-price-a-rush-job,
+  the CNC guide's bracket quoted normal and rush (overtime rate as a second machine, the bumped job as a
+  setup-only operation, an expedited finishing op, same-day delivery as an extra), checked to the cent by
+  `test/unit/site-rush-example.test.ts`. There is no rush switch in the app; if shops ask for one, it would
+  be a revision that applies these lines.
 - RFQ review checklist (2026-11-28, `rfq-review-checklist`): https://marisstella.app/jobshop/rfq-review-checklist,
   21 checks before pricing an RFQ with a free CSV (`apps/jobshop-site/src/site/rfq-checklist.ts`), each
   check's "in the app" line taken from this Done list. When a check gains app support (AI reading, inbound
