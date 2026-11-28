@@ -1,0 +1,389 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtLfcXVMygfxRzL8osr",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T00:06:36Z",
+  "ended": "2026-11-28T00:07:35Z",
+  "wall_minutes": 8.68,
+  "tokens_in": 2340007,
+  "tokens_out": 11804,
+  "cost_usd": 1.2016,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19925",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes refuses to run while the run record has outcome null, yet prompt.md says to commit the record last; needs --no-record-check, which the redteam prompt does not mention."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated guard; a repo-wide lint for Math.round(x*100) money conversion would hit hours and percent helpers (round2) as false positives, so it was not worth adding this run.",
+      "did": "Fixed the one money parser that takes unbounded decimals (qbo-sync); checked that the app's parseDollarsToCents already rejects 3+ decimals.",
+      "result": "No new lint; the defect class is fixed where it is reachable."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No post: a cent-rounding fix in the QBO sync gives a customer nothing to read.",
+      "did": "Wrote up the run in the PR body and this record.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "qbo-sync suite 94/94 (93/1 before the fix); lien-waivers ma.test.ts 5/5; tsc --noEmit clean. Catch rate 0.867 -> 1.0.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/payapps/packages/qbo-sync/src/money.ts",
+        "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/**/*.test.ts  (in ventures/payapps/packages/qbo-sync)",
+        "seed": 259692782,
+        "commit": "ea36c753b",
+        "sites": 21,
+        "baseline_seconds": 0.8,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/money.ts",
+            "line": 6,
+            "col": 15,
+            "operator": "div-to-times",
+            "before": "return cents / 100;",
+            "after": "return cents * 100;",
+            "line_text": "  return cents / 100;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/money.ts",
+            "line": 6,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "return cents / 100;",
+            "after": "return cents / 101;",
+            "line_text": "  return cents / 100;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/money.ts",
+            "line": 11,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "if (amount === undefined || amount === null || amount === \"\") return 0;",
+            "after": "if (amount !== undefined || amount === null || amount === \"\") return 0;",
+            "line_text": "  if (amount === undefined || amount === null || amount === \"\") return 0;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/money.ts",
+            "line": 11,
+            "col": 27,
+            "operator": "or-to-and",
+            "before": "if (amount === undefined || amount === null || amount === \"\") return 0;",
+            "after": "if (amount === undefined && amount === null || amount === \"\") return 0;",
+            "line_text": "  if (amount === undefined || amount === null || amount === \"\") return 0;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/money.ts",
+            "line": 11,
+            "col": 56,
+            "operator": "eq-flip",
+            "before": "if (amount === undefined || amount === null || amount === \"\") return 0;",
+            "after": "if (amount === undefined || amount === null || amount !== \"\") return 0;",
+            "line_text": "  if (amount === undefined || amount === null || amount === \"\") return 0;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/money.ts",
+            "line": 14,
+            "col": 22,
+            "operator": "times-to-div",
+            "before": "return Math.round(n * 100);",
+            "after": "return Math.round(n / 100);",
+            "line_text": "  return Math.round(n * 100);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/money.ts",
+            "line": 19,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const sign = amountCents < 0 ? -1 : 1;",
+            "after": "const sign = amountCents < 1 ? -1 : 1;",
+            "line_text": "  const sign = amountCents < 0 ? -1 : 1;",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "amountCents is integer Cents, so `< 1` differs from `< 0` only at 0, where r is 0 and the function returns 0 before sign is used."
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/money.ts",
+            "line": 19,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "const sign = amountCents < 0 ? -1 : 1;",
+            "after": "const sign = amountCents < 0 ? -2 : 1;",
+            "line_text": "  const sign = amountCents < 0 ? -1 : 1;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/lien-waivers/src/words.ts",
+        "test": "node --test test/**/*.test.ts  (in ventures/payapps/packages/lien-waivers)",
+        "seed": 748665894,
+        "commit": "ea36c753b",
+        "sites": 22,
+        "baseline_seconds": 2.4,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/words.ts",
+            "line": 32,
+            "col": 25,
+            "operator": "div-to-times",
+            "before": "const h = Math.floor(n / 100);",
+            "after": "const h = Math.floor(n * 100);",
+            "line_text": "  const h = Math.floor(n / 100);",
+            "caught": true,
+            "seconds": 2.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/words.ts",
+            "line": 35,
+            "col": 8,
+            "operator": "ge-to-gt",
+            "before": "if (r >= 20) parts.push(TENS[Math.floor(r / 10)] + (r % 10 ? `-${ONES[r % 10]}` : \"\"));",
+            "after": "if (r > 20) parts.push(TENS[Math.floor(r / 10)] + (r % 10 ? `-${ONES[r % 10]}` : \"\"));",
+            "line_text": "  if (r >= 20) parts.push(TENS[Math.floor(r / 10)] + (r % 10 ? `-${ONES[r % 10]}` : \"\"));",
+            "caught": false,
+            "seconds": 2.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test hit an exact multiple of ten from 20 up; $20 would print 'undefined'. Added 20, 21 and 90 dollar cases in ma.test.ts."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/words.ts",
+            "line": 35,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "if (r >= 20) parts.push(TENS[Math.floor(r / 10)] + (r % 10 ? `-${ONES[r % 10]}` : \"\"));",
+            "after": "if (r >= 20) parts.push(TENS[Math.floor(r / 10)] + (r % 11 ? `-${ONES[r % 10]}` : \"\"));",
+            "line_text": "  if (r >= 20) parts.push(TENS[Math.floor(r / 10)] + (r % 10 ? `-${ONES[r % 10]}` : \"\"));",
+            "caught": true,
+            "seconds": 2.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/words.ts",
+            "line": 46,
+            "col": 44,
+            "operator": "lt-to-le",
+            "before": "if (!Number.isSafeInteger(cents) || cents < 0 || cents >= 100_000_000_000_000) {",
+            "after": "if (!Number.isSafeInteger(cents) || cents <= 0 || cents >= 100_000_000_000_000) {",
+            "line_text": "  if (!Number.isSafeInteger(cents) || cents < 0 || cents >= 100_000_000_000_000) {",
+            "caught": true,
+            "seconds": 2.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/words.ts",
+            "line": 46,
+            "col": 57,
+            "operator": "ge-to-gt",
+            "before": "if (!Number.isSafeInteger(cents) || cents < 0 || cents >= 100_000_000_000_000) {",
+            "after": "if (!Number.isSafeInteger(cents) || cents < 0 || cents > 100_000_000_000_000) {",
+            "line_text": "  if (!Number.isSafeInteger(cents) || cents < 0 || cents >= 100_000_000_000_000) {",
+            "caught": false,
+            "seconds": 2.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test at the $1 trillion boundary; the mutant printed 'One and 00/100' for $1T (no Trillion scale). Added the boundary throw and the largest accepted amount in ma.test.ts."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/words.ts",
+            "line": 49,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "let dollars = Math.floor(cents / 100);",
+            "after": "let dollars = Math.floor(cents / 101);",
+            "line_text": "  let dollars = Math.floor(cents / 100);",
+            "caught": true,
+            "seconds": 2.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/words.ts",
+            "line": 51,
+            "col": 65,
+            "operator": "div-to-times",
+            "before": "for (let i = 0; dollars > 0; i++, dollars = Math.floor(dollars / 1000)) {",
+            "after": "for (let i = 0; dollars > 0; i++, dollars = Math.floor(dollars * 1000)) {",
+            "line_text": "  for (let i = 0; dollars > 0; i++, dollars = Math.floor(dollars / 1000)) {",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/words.ts",
+            "line": 52,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "const g = dollars % 1000;",
+            "after": "const g = dollars % 1001;",
+            "line_text": "    const g = dollars % 1000;",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/payapps/packages/qbo-sync/src/money.ts",
+        "issue": "amountToCents rounded n*100 with Math.round: 1.005 became 100 cents (binary 1.00499...) and negatives rounded toward +inf (-0.125 -> -12 while 0.125 -> 13), so QBO unit prices and amounts with 3+ decimals synced a cent off and a credit disagreed with its debit. Now rounds half away from zero on the decimal digits as written; test in qbo-sync/test/retainage.test.ts.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ffde637b-cfed-53cc-9058-bfb120103812",
+    "transcripts": 1,
+    "first": "2026-11-28T00:06:36Z",
+    "last": "2026-11-28T00:15:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 63,
+        "output": 11804,
+        "thinking": 3192,
+        "cache_read": 2276189,
+        "cache_write_5m": 0,
+        "cache_write_1h": 63755,
+        "api_equivalent_usd": 1.2016,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 63,
+      "output": 11804,
+      "thinking": 3192,
+      "cache_read": 2276189,
+      "cache_write_5m": 0,
+      "cache_write_1h": 63755,
+      "api_equivalent_usd": 1.2016,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.68,
+      "active_minutes": 8.68,
+      "model_minutes": 2.22,
+      "tool_minutes": 6.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "mutation triage, a rounding fix and tests for two small modules",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 166.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

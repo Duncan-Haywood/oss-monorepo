@@ -117,6 +117,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/machine-shop-quote-template",
+      label: "Machine shop quote template",
+      title: `Machine shop quote template (free CSV) · ${SITE_NAME}`,
+      description:
+        "What goes on a CNC or fabrication quote and why, what stays off it, the terms to decide once, a filled-in example and a free template to download.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
       path: "/faq",
       label: "FAQ",
       title: `Frequently asked questions · ${SITE_NAME}`,

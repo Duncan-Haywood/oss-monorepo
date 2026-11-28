@@ -2587,6 +2587,21 @@ nothing to copy. No customers yet. Paid plans are dark
   California (claimed separately), Georgia, Pennsylvania, Illinois and Connecticut (their sites
   refused or timed out through the proxy on 2026-11-27), New Jersey, Colorado and the rest.
 
+- State bond claims, Colorado, Iowa and Maine (2026-11-28, state-bond-claims-co-ia-me, every plan):
+  Maine (14 M.R.S. § 871(4): a sub's sub's 90-day notice; suit within a year of the last day),
+  Iowa (ch. 573: a sub's worker or supplier notifies the prime within 30 days of first furnishing,
+  listed undated; every claimant files a sworn claim with the letting body within 30 days of final
+  acceptance, § 573.10(1); the action after day 30 and by day 60, § 573.16(1); notes on the 95%
+  early-release variant, § 573.15A, and the contractor's demand to sue) and Colorado (§ 38-26-107:
+  the verified statement by final settlement and the suit within 90 days of the published settlement
+  date, both listed undated since PayApps has no settlement date; § 38-26-105(1)'s six-month limit on
+  local bonds as a note; read from the 2024 printout, the latest the General Assembly serves).
+  Twenty states in `STATE_BOND_RULES`. Not done: Pennsylvania, Illinois, New Jersey and Kansas (their
+  sites refused the proxy or showed a bot check on 2026-11-28). Found on the way: Iowa Code 2026,
+  § 573.12(1), caps public retainage at 3% and lets the prime hold no more from a sub (2025 Acts,
+  ch. 29); Iowa is not in `RETAINAGE_CAPS` or the retainage guide yet. A settlement-date field on a
+  Colorado job would date its two steps.
+
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
   due date to the last payment (`paidLateApps` in `src/shared/cash-report.ts`, on what was paid, net
