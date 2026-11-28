@@ -33,18 +33,18 @@ test("a reseller goes from sign-up to a Schedule C worksheet", async ({ page }) 
 
   // Orders first: the vase's SKU links one sale to the lot item.
   await importReport(page, "Etsy: Orders file (EtsySoldOrders)", "etsy-sold-orders.csv");
-  await expect(page.getByText(/sales matched to inventory by SKU/)).toContainText(
-    "1 sales matched",
+  await expect(page.getByText(/sales? matched to inventory by SKU/)).toContainText(
+    "1 sale matched",
   );
   await importReport(page, "Etsy: payment account monthly statement", "etsy-statement.csv");
-  await expect(page.getByText(/other charges imported/)).toBeVisible();
+  await expect(page.getByText(/other charges? imported/)).toBeVisible();
   const past = card(page, "Past imports");
   await expect(past.getByRole("row", { name: /etsy-sold-orders\.csv/ })).toBeVisible();
   await expect(past.getByRole("row", { name: /etsy-statement\.csv/ })).toBeVisible();
 
   // The same file again is skipped row by row, not doubled.
   await importReport(page, "Etsy: Orders file (EtsySoldOrders)", "etsy-sold-orders.csv");
-  await expect(page.getByText(/other charges imported/)).toContainText("0 sales and");
+  await expect(page.getByText(/other charges? imported/)).toContainText("0 sales and");
 
   await nav(page, "Expenses");
   const expense = page.locator("form").filter({ has: page.getByPlaceholder("Vendor") });
@@ -63,7 +63,7 @@ test("a reseller goes from sign-up to a Schedule C worksheet", async ({ page }) 
   await trip.getByRole("checkbox").check();
   await trip.getByRole("button", { name: "Add trip" }).click();
   await expect(
-    page.getByRole("heading", { name: /2026: 1 trips, 25\.0 business miles/ }),
+    page.getByRole("heading", { name: /2026: 1 trip, 25\.0 business miles/ }),
   ).toBeVisible();
 
   // P&L for 2026. Revenue (3420 + 650) + (6400 + 800) − 2000 refund = $92.70; fees $8.62; postage
@@ -79,7 +79,7 @@ test("a reseller goes from sign-up to a Schedule C worksheet", async ({ page }) 
   await expect(tile("Fees + postage")).toContainText("$13.72");
   await expect(tile("Cost of goods")).toContainText("$10.00");
   await expect(tile("Net profit")).toContainText("$55.99");
-  await expect(page.getByText(/orders have no inventory item linked/)).toContainText("1 orders");
+  await expect(page.getByText(/ha(s|ve) no inventory item linked/)).toContainText("1 order has");
   // The expense was logged for all platforms, so Etsy's own row nets $92.70 − 8.62 − 5.10 − 10.00.
   await expect(card(page, "By platform").getByRole("row", { name: /Etsy/ })).toContainText(
     "$68.98",

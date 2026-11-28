@@ -11,7 +11,7 @@ test("a sourcing sheet previews, imports, links an earlier order by SKU, and doe
   await signUpWithShop(page, { tag: "sheet", shop: "Spreadsheet Resale" });
   // The Etsy order for VASE-03 (sold 2026-05-02) is in the books before its item is.
   await importReport(page, "Etsy: Orders file (EtsySoldOrders)", "etsy-sold-orders.csv");
-  await expect(page.getByText(/other charges imported|sales? imported/).first()).toBeVisible();
+  await expect(page.getByText(/other charges? imported|sales? imported/).first()).toBeVisible();
 
   await nav(page, "Inventory");
   const sheet = card(page, "Import your sourcing sheet");
