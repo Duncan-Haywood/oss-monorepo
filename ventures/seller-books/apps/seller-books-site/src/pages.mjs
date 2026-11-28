@@ -1273,6 +1273,40 @@ export const WHATNOT_FEE_TAX_QUOTE =
 export const WHATNOT_GIVEAWAY_URL = `${WN_HELP}11329417780365-About-giveaways-on-Whatnot`;
 export const WHATNOT_GIVEAWAY_QUOTE =
   "Giveaway shipping costs are deducted directly from the Seller's Whatnot balance when the Giveaway is run.";
+// Whatnot's seller fees page (4847069165965, read 2026-11-28 through the same article API): in the US the
+// standard-tier commission is 8% of the sale price (shipping and buyer tax not included; tiered by four-week
+// sales and category since 21 September 2026) and payment processing is 2.9% + $0.30 of everything the buyer
+// paid. The fixture's two sales follow those rates to the cent; test/site.test.mjs checks it.
+export const WHATNOT_FEES_URL = `${WN_HELP}4847069165965-Whatnot-seller-fees`;
+export const WHATNOT_FEE = {
+  commissionRate: 0.08,
+  processingRate: 0.029,
+  processingFixedCents: 30,
+};
+/** The fixture's two sales with their fee columns split out, and what the buyer paid (Buyer Paid). */
+export const WHATNOT_FEE_CHECK = [
+  {
+    title: "Pokemon booster pack",
+    priceCents: 2500,
+    buyerPaidCents: 3205,
+    commissionCents: 200,
+    processingCents: 123,
+  },
+  {
+    title: "Vintage Starter jacket",
+    priceCents: 7500,
+    buyerPaidCents: 9118,
+    commissionCents: 600,
+    processingCents: 294,
+  },
+];
+/** Whatnot's published US fees on one sale: [commission, processing], rounded to the cent. */
+export function whatnotPublishedFeesCents(r, fee = WHATNOT_FEE) {
+  return [
+    Math.round(r.priceCents * fee.commissionRate),
+    Math.round(r.buyerPaidCents * fee.processingRate + fee.processingFixedCents),
+  ];
+}
 /**
  * The USD rows of the app's Whatnot fixture, in file order (the seventh, in CAD, is skipped as the importer
  * skips it). kind: sale (Order Earnings), tip, giveaway (Order Earnings with Buy Format Giveaway), refund,
@@ -1392,6 +1426,14 @@ ${exRows}
     </table></div>
     <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong> (two sales and the tip; the giveaway adds nothing); line 2, returns and allowances, <strong>${cents(L.line2)}</strong> (the partial refund); line 10, commissions and fees, <strong>${cents(L.line10)}</strong>; line 27a, postage, <strong>${cents(L.line27a)}</strong> (the giveaway's shipping and the label adjustment). Line 1 less those three is ${cents(L.line1 - L.line2 - L.line10 - L.line27a)}, exactly the week's Transaction Amounts added up; the items' cost comes off after that.</p>
     <p class="muted">The jacket's $5 coupon is not an expense: the sale is the price after it, which is also the price Whatnot charges commission on. The ${cents(13)} in the jacket's fees is tax on Whatnot's commission, which Whatnot charges sellers in some states (<a href="${WHATNOT_FEE_TAX_URL}">its article</a>: &ldquo;${esc(WHATNOT_FEE_TAX_QUOTE)}&rdquo;). It is a cost of selling, filed with the fee.</p>
+    <p class="muted">The two sales' fees follow <a href="${WHATNOT_FEES_URL}">Whatnot's seller fees page</a> (read ${esc(WHATNOT_CHECKED_ON)}): in the US the standard commission is 8% of the sale price, not counting shipping and the buyer's tax, and payment processing is 2.9% + $0.30 of everything the buyer paid. ${WHATNOT_FEE_CHECK.map(
+      (r) => {
+        const [c, pr] = whatnotPublishedFeesCents(r);
+        return `${esc(r.title)}: ${cents(c)} commission on ${cents(r.priceCents)}, ${cents(pr)} processing on the buyer's ${cents(r.buyerPaidCents)}`;
+      },
+    ).join(
+      "; ",
+    )}. Since 21 September 2026 the commission falls by tier as your four-week sales grow and differs by category, so your report's fee columns, not a published rate, are what you deduct.</p>
   </div>
   <h2>Giveaways</h2>
   <p>Whatnot's <a href="${WHATNOT_GIVEAWAY_URL}">giveaway article</a>: &ldquo;${esc(WHATNOT_GIVEAWAY_QUOTE)}&rdquo; A show with ten giveaways can cost more in shipping than one sale earns, and none of it shows as a fee. In ${esc(SITE_NAME)} each giveaway row is a zero sale with its shipping as postage, so the show's real profit includes it; link the item given away and its cost leaves your stock with it.</p>
