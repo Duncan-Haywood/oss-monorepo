@@ -15,6 +15,9 @@ import { badRequest, conflict, notFound } from "../../lib/errors";
 import { newId } from "../../lib/ids";
 import { audit } from "../audit";
 
+/** Evidence ids per lookup: under D1's 100 bound parameters, with room for the org id. */
+const LINKED_FILE_CHUNK = 90;
+
 export type ProviderRow = typeof serviceProvider.$inferSelect;
 
 export interface ProviderInput {
@@ -57,18 +60,25 @@ export async function linkedFiles(
   const ids = [
     ...new Set(rows.flatMap((r) => [r.serviceDescriptionEvidenceId, r.crmEvidenceId])),
   ].filter((id): id is string => Boolean(id));
-  if (ids.length === 0) return new Map();
-  const files = await ctx.db
-    .select({
-      id: evidence.id,
-      title: evidence.title,
-      fileName: evidence.fileName,
-      sha256: evidence.sha256,
-    })
-    .from(evidence)
-    .where(and(eq(evidence.orgId, orgId), inArray(evidence.id, ids)))
-    .all();
-  return new Map(files.map((f) => [f.id, f]));
+  const out = new Map<string, LinkedFile>();
+  // In slices: two files a provider and up to MAX_PROVIDERS_PER_ORG providers, while D1 binds at
+  // most 100 parameters a statement (the list failed past 49 fully linked providers).
+  for (let i = 0; i < ids.length; i += LINKED_FILE_CHUNK) {
+    const files = await ctx.db
+      .select({
+        id: evidence.id,
+        title: evidence.title,
+        fileName: evidence.fileName,
+        sha256: evidence.sha256,
+      })
+      .from(evidence)
+      .where(
+        and(eq(evidence.orgId, orgId), inArray(evidence.id, ids.slice(i, i + LINKED_FILE_CHUNK))),
+      )
+      .all();
+    for (const f of files) out.set(f.id, f);
+  }
+  return out;
 }
 
 export async function providerList(ctx: AppContext, orgId: string) {

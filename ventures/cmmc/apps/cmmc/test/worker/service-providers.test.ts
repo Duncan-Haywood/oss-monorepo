@@ -218,6 +218,33 @@ describe("external service providers", () => {
     );
   });
 
+  it("lists more linked files than D1's 100 bound parameters", async () => {
+    // 51 providers with both files linked is 102 evidence ids; one `IN (...)` over all of them
+    // failed past 99 (the list allows MAX_PROVIDERS_PER_ORG = 200 providers).
+    const t = await setupTenant();
+    const body = { ...gcc, serviceDescriptionRef: "", crmRef: "", isCsp: false };
+    for (let i = 0; i < 51; i++) {
+      const crm = await upload(t, `CRM ${i}`);
+      const desc = await upload(t, `Service description ${i}`);
+      await json(
+        add(t, {
+          ...body,
+          name: `Provider ${i}`,
+          crmEvidenceId: crm.id,
+          serviceDescriptionEvidenceId: desc.id,
+        }),
+        201,
+      );
+    }
+    const data = await list(t);
+    expect(data.items).toHaveLength(51);
+    for (const p of data.items) {
+      const n = p.name.replace("Provider ", "");
+      expect(p.crmFile?.title).toBe(`CRM ${n}`);
+      expect(p.serviceDescriptionFile?.title).toBe(`Service description ${n}`);
+    }
+  });
+
   it("shows the providers that carry each requirement on the Controls list and detail", async () => {
     const t = await setupTenant();
     await json(add(t, gcc), 201);

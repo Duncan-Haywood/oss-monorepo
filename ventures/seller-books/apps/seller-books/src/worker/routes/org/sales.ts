@@ -17,6 +17,9 @@ import { isoDate, page, pageQuery, positiveCents } from "./schemas";
 
 const routes = new Hono<AppEnv>();
 
+/** Sale ids per fee lookup: under D1's 100 bound parameters, with room for the org id. */
+const FEE_CHUNK = 90;
+
 const listQuery = pageQuery.extend({
   platform: z.enum(SALE_CHANNELS).optional(),
   from: isoDate.optional(),
@@ -39,14 +42,26 @@ routes.get("/", validate("query", listQuery), async (c) => {
     .orderBy(desc(sale.date), sale.id)
     .limit(q.limit + 1)
     .offset(q.cursor);
+  // Fees in slices of sale ids: a page is up to 501 rows (the import screen asks for limit=500, and
+  // even the default 100 fetches 101) and D1 binds at most 100 parameters a statement.
   const ids = rows.map((r) => r.id);
-  const fees = ids.length
-    ? await c.var.ctx.db
+  const fees: (typeof saleFee.$inferSelect)[] = [];
+  for (let i = 0; i < ids.length; i += FEE_CHUNK)
+    fees.push(
+      ...(await c.var.ctx.db
         .select()
         .from(saleFee)
-        .where(and(eq(saleFee.orgId, orgId), inArray(saleFee.saleId, ids)))
-    : [];
-  const items = rows.map((r) => ({ ...r, fees: fees.filter((f) => f.saleId === r.id) }));
+        .where(
+          and(eq(saleFee.orgId, orgId), inArray(saleFee.saleId, ids.slice(i, i + FEE_CHUNK))),
+        )),
+    );
+  const feesBySale = new Map<string, (typeof saleFee.$inferSelect)[]>();
+  for (const f of fees) {
+    const list = feesBySale.get(f.saleId);
+    if (list) list.push(f);
+    else feesBySale.set(f.saleId, [f]);
+  }
+  const items = rows.map((r) => ({ ...r, fees: feesBySale.get(r.id) ?? [] }));
   return c.json(page(items, q.limit, q.cursor));
 });
 
