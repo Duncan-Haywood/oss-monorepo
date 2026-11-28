@@ -1,11 +1,13 @@
 // Inventory: lots (bulk buys, cost spread over items) and single items.
+import { type MemberRole, ROLE_RANK } from "@shared/enums";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { Fragment, useState } from "react";
+import { PurchaseReceipts } from "../components/expense-receipts";
 import { SheetImport } from "../components/sheet-import";
 import { StockCount } from "../components/stock-count";
 import { api, dollarsToCents, orgPath, today, usd } from "../lib/api";
 import { useOrgId } from "./org";
-import { ErrorText } from "./public";
+import { ErrorText, useMe } from "./public";
 
 interface Lot {
   id: string;
@@ -18,6 +20,7 @@ interface Lot {
   itemCount: number;
   soldCount: number;
   unallocatedCents: number;
+  receiptCount: number;
 }
 
 interface Item {
@@ -32,11 +35,124 @@ interface Item {
   lotId: string | null;
   status: string;
   disposedDate: string | null;
+  receiptCount: number;
+  /** Receipts on the item's lot, which cover its cost too. */
+  lotReceiptCount: number;
+}
+
+interface Proof {
+  year: number;
+  items: number;
+  covered: number;
+  coveredCents: number;
+  zeroCost: number;
+  missing: number;
+  missingCents: number;
+  missingItems: {
+    id: string;
+    title: string;
+    sku: string | null;
+    acquiredDate: string;
+    costCents: number;
+  }[];
+}
+
+/**
+ * How much of the year's stock purchases has a receipt behind it (a lot's receipt covers its items), and
+ * the costliest items with none, so the seller knows which receipts to find or photograph.
+ */
+function PurchaseProof({ orgId }: { orgId: string }) {
+  const [year, setYear] = useState(() => new Date().getFullYear());
+  const proof = useQuery({
+    queryKey: ["items", orgId, "proof", year],
+    queryFn: () => api<Proof>(orgPath(orgId, `/inventory/receipts/proof?year=${year}`)),
+  });
+  const p = proof.data;
+  return (
+    <section className="card space-y-2" aria-labelledby="proof-h">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 id="proof-h" className="font-medium">
+          Receipts for what you paid
+        </h2>
+        <select
+          className="input w-auto py-0 text-sm"
+          aria-label="Year"
+          value={year}
+          onChange={(e) => setYear(Number(e.target.value))}
+        >
+          {[0, 1, 2].map((n) => {
+            const y = new Date().getFullYear() - n;
+            return (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+      <p className="text-sm text-stone-600">
+        Cost of goods is usually a reseller's largest deduction. IRS Publication 583 asks for
+        documents that show the amount paid and that it was for inventory: a receipt, an invoice, a
+        card slip or a canceled check. Attach one (a photo is fine) to the lot it paid for, which
+        covers every item in it, or to an item bought on its own.
+      </p>
+      {p && p.items === 0 && (
+        <p className="text-sm text-stone-600">No stock bought in {p.year} is in the books.</p>
+      )}
+      {p && p.items > 0 && (
+        <>
+          <p className="text-sm">
+            <strong>
+              {p.covered} of {p.items - p.zeroCost}
+            </strong>{" "}
+            item{p.items - p.zeroCost === 1 ? "" : "s"} bought in {p.year} with a cost have a
+            receipt ({usd(p.coveredCents)}).{" "}
+            {p.missing > 0 ? (
+              <span className="text-accent-700">
+                {p.missing} have none: {usd(p.missingCents)} of cost with no receipt attached.
+              </span>
+            ) : (
+              "Every one is covered."
+            )}
+          </p>
+          {p.missingItems.length > 0 && (
+            <details>
+              <summary className="cursor-pointer text-sm underline">
+                The costliest items with no receipt
+              </summary>
+              <ul className="mt-1 space-y-0.5 text-sm">
+                {p.missingItems.map((i) => (
+                  <li key={i.id}>
+                    {i.acquiredDate} · {i.title}
+                    {i.sku && <span className="text-xs text-stone-500"> {i.sku}</span>} ·{" "}
+                    {usd(i.costCents)}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </>
+      )}
+    </section>
+  );
 }
 
 export function InventoryPage() {
   const orgId = useOrgId();
   const qc = useQueryClient();
+  const role = useMe().data?.memberships.find((m) => m.orgId === orgId)?.role;
+  const canEdit = role != null && (ROLE_RANK[role as MemberRole] ?? 0) >= ROLE_RANK.editor;
+  const [openReceipts, setOpenReceipts] = useState<string | null>(null);
+  const receiptsButton = (id: string, n: number, covered = 0) => (
+    <button
+      type="button"
+      className="text-xs underline"
+      aria-expanded={openReceipts === id}
+      onClick={() => setOpenReceipts(openReceipts === id ? null : id)}
+    >
+      {n ? `${n} receipt${n > 1 ? "s" : ""}` : covered ? "Lot's receipt" : canEdit ? "Add" : "None"}
+    </button>
+  );
   const lots = useQuery({
     queryKey: ["lots", orgId],
     queryFn: () => api<{ items: Lot[] }>(orgPath(orgId, "/inventory/lots")),
@@ -172,6 +288,7 @@ export function InventoryPage() {
       <h1 className="text-2xl font-semibold">Inventory &amp; cost of goods</h1>
       <SheetImport orgId={orgId} />
       <StockCount orgId={orgId} />
+      <PurchaseProof orgId={orgId} />
       <div className="grid gap-4 lg:grid-cols-2">
         <form
           className="card space-y-2"
@@ -332,53 +449,68 @@ export function InventoryPage() {
               <th className="num">Items</th>
               <th className="num">Sold</th>
               <th className="num">Not assigned to items</th>
+              <th>Receipt</th>
             </tr>
           </thead>
           <tbody>
             {lots.data?.items.map((l) => (
-              <tr key={l.id}>
-                <td>
-                  {l.name}
-                  {l.vendor && <span className="ml-1 text-xs text-stone-500">{l.vendor}</span>}
-                </td>
-                <td data-label="Bought">{l.acquiredDate}</td>
-                <td data-label="Cost" className="num">
-                  {usd(l.totalCostCents)}
-                </td>
-                <td data-label="Split">
-                  <div>
-                    <select
-                      className="input w-auto py-0 text-xs"
-                      aria-label={`How ${l.name}'s cost is split`}
-                      value={l.splitBy}
-                      onChange={(e) =>
-                        updateLot.mutate({ id: l.id, body: { splitBy: e.target.value } })
-                      }
-                    >
-                      <option value="even">evenly</option>
-                      <option value="value">by expected price</option>
-                    </select>
-                    {l.splitBy === "value" && l.missingValueCount > 0 && (
-                      <span className="ml-1 text-xs text-accent-700">
-                        evenly until {l.missingValueCount} more{" "}
-                        {l.missingValueCount === 1 ? "item has" : "items have"} a price
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td data-label="Items" className="num">
-                  {l.itemCount}
-                </td>
-                <td data-label="Sold" className="num">
-                  {l.soldCount}
-                </td>
-                <td
-                  data-label="Not assigned to items"
-                  className={`num ${l.unallocatedCents ? "text-accent-700" : ""}`}
-                >
-                  {usd(l.unallocatedCents)}
-                </td>
-              </tr>
+              <Fragment key={l.id}>
+                <tr>
+                  <td>
+                    {l.name}
+                    {l.vendor && <span className="ml-1 text-xs text-stone-500">{l.vendor}</span>}
+                  </td>
+                  <td data-label="Bought">{l.acquiredDate}</td>
+                  <td data-label="Cost" className="num">
+                    {usd(l.totalCostCents)}
+                  </td>
+                  <td data-label="Split">
+                    <div>
+                      <select
+                        className="input w-auto py-0 text-xs"
+                        aria-label={`How ${l.name}'s cost is split`}
+                        value={l.splitBy}
+                        onChange={(e) =>
+                          updateLot.mutate({ id: l.id, body: { splitBy: e.target.value } })
+                        }
+                      >
+                        <option value="even">evenly</option>
+                        <option value="value">by expected price</option>
+                      </select>
+                      {l.splitBy === "value" && l.missingValueCount > 0 && (
+                        <span className="ml-1 text-xs text-accent-700">
+                          evenly until {l.missingValueCount} more{" "}
+                          {l.missingValueCount === 1 ? "item has" : "items have"} a price
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td data-label="Items" className="num">
+                    {l.itemCount}
+                  </td>
+                  <td data-label="Sold" className="num">
+                    {l.soldCount}
+                  </td>
+                  <td
+                    data-label="Not assigned to items"
+                    className={`num ${l.unallocatedCents ? "text-accent-700" : ""}`}
+                  >
+                    {usd(l.unallocatedCents)}
+                  </td>
+                  <td data-label="Receipt">{receiptsButton(l.id, l.receiptCount)}</td>
+                </tr>
+                {openReceipts === l.id && (
+                  <tr>
+                    <td colSpan={8}>
+                      <PurchaseReceipts
+                        orgId={orgId}
+                        target={{ kind: "lot", id: l.id }}
+                        canEdit={canEdit}
+                      />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             ))}
           </tbody>
         </table>
@@ -394,92 +526,117 @@ export function InventoryPage() {
               <th>Bought</th>
               <th className="num">Cost</th>
               <th>Status</th>
+              <th>Receipt</th>
               <th />
             </tr>
           </thead>
           <tbody>
             {items.data?.items.map((i) => (
-              <tr key={i.id}>
-                <td>
-                  {i.title}
-                  {i.sku && <span className="ml-1 text-xs text-stone-500">{i.sku}</span>}
-                  {i.source && (
-                    <span className="ml-1 text-xs text-stone-500">· from {i.source}</span>
-                  )}
-                  {i.lotId && (
-                    <span className="ml-1 text-xs text-stone-500">· {lotName(i.lotId)}</span>
-                  )}
-                </td>
-                <td data-label="Bought">{i.acquiredDate}</td>
-                <td data-label="Cost" className="num">
-                  {usd(i.costCents)}
-                  {i.lotId && !i.costIsManual && (
-                    <span className="ml-1 text-xs text-stone-500">(lot share)</span>
-                  )}
-                  {i.estimatedValueCents != null && (
-                    <span className="block text-xs text-stone-500">
-                      expected {usd(i.estimatedValueCents)}
-                    </span>
-                  )}
-                </td>
-                <td data-label="Status">
-                  {i.status.replace("_", " ")}
-                  {i.disposedDate && (
-                    <span className="ml-1 text-xs text-stone-500">{i.disposedDate}</span>
-                  )}
-                </td>
-                <td className="space-x-2 text-xs">
-                  {i.lotId && (
-                    <button type="button" className="underline" onClick={() => setExpected(i)}>
-                      Expected price
-                    </button>
-                  )}
-                  {i.status === "in_stock" && (
-                    <>
+              <Fragment key={i.id}>
+                <tr>
+                  <td>
+                    {i.title}
+                    {i.sku && <span className="ml-1 text-xs text-stone-500">{i.sku}</span>}
+                    {i.source && (
+                      <span className="ml-1 text-xs text-stone-500">· from {i.source}</span>
+                    )}
+                    {i.lotId && (
+                      <span className="ml-1 text-xs text-stone-500">· {lotName(i.lotId)}</span>
+                    )}
+                  </td>
+                  <td data-label="Bought">{i.acquiredDate}</td>
+                  <td data-label="Cost" className="num">
+                    <div>
+                      {usd(i.costCents)}
+                      {i.lotId && !i.costIsManual && (
+                        <span className="ml-1 text-xs text-stone-500">(lot share)</span>
+                      )}
+                      {i.estimatedValueCents != null && (
+                        <span className="block text-xs text-stone-500">
+                          expected {usd(i.estimatedValueCents)}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td data-label="Status">
+                    {i.status.replace("_", " ")}
+                    {i.disposedDate && (
+                      <span className="ml-1 text-xs text-stone-500">{i.disposedDate}</span>
+                    )}
+                  </td>
+                  <td data-label="Receipt">
+                    {receiptsButton(i.id, i.receiptCount, i.lotReceiptCount)}
+                  </td>
+                  <td className="space-x-2 text-xs">
+                    {i.lotId && (
+                      <button type="button" className="underline" onClick={() => setExpected(i)}>
+                        Expected price
+                      </button>
+                    )}
+                    {i.status === "in_stock" && (
+                      <>
+                        <button
+                          type="button"
+                          className="underline"
+                          onClick={() =>
+                            update.mutate({
+                              id: i.id,
+                              body: { status: "written_off", disposedDate: today() },
+                            })
+                          }
+                        >
+                          Write off
+                        </button>
+                        <button
+                          type="button"
+                          className="underline"
+                          onClick={() =>
+                            update.mutate({
+                              id: i.id,
+                              body: { status: "personal_use", disposedDate: today() },
+                            })
+                          }
+                        >
+                          Personal use
+                        </button>
+                      </>
+                    )}
+                    {(i.status === "written_off" || i.status === "personal_use") && (
                       <button
                         type="button"
                         className="underline"
-                        onClick={() =>
-                          update.mutate({
-                            id: i.id,
-                            body: { status: "written_off", disposedDate: today() },
-                          })
-                        }
+                        onClick={() => update.mutate({ id: i.id, body: { status: "in_stock" } })}
                       >
-                        Write off
+                        Back in stock
                       </button>
-                      <button
-                        type="button"
-                        className="underline"
-                        onClick={() =>
-                          update.mutate({
-                            id: i.id,
-                            body: { status: "personal_use", disposedDate: today() },
-                          })
-                        }
-                      >
-                        Personal use
-                      </button>
-                    </>
-                  )}
-                  {(i.status === "written_off" || i.status === "personal_use") && (
+                    )}
                     <button
                       type="button"
-                      className="underline"
-                      onClick={() => update.mutate({ id: i.id, body: { status: "in_stock" } })}
+                      className="text-red-700 underline"
+                      onClick={() => confirm("Delete this item?") && removeItem.mutate(i.id)}
                     >
-                      Back in stock
+                      Delete
                     </button>
-                  )}
-                  <button
-                    type="button"
-                    className="text-red-700 underline"
-                    onClick={() => confirm("Delete this item?") && removeItem.mutate(i.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
+                  </td>
+                </tr>
+                {openReceipts === i.id && (
+                  <tr>
+                    <td colSpan={6}>
+                      {i.lotReceiptCount > 0 && (
+                        <p className="mb-1 text-xs text-stone-600">
+                          The receipt on {lotName(i.lotId)} covers this item. Add one here only if
+                          it was bought separately.
+                        </p>
+                      )}
+                      <PurchaseReceipts
+                        orgId={orgId}
+                        target={{ kind: "item", id: i.id }}
+                        canEdit={canEdit}
+                      />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             ))}
           </tbody>
         </table>

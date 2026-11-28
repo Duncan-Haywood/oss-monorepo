@@ -1,5 +1,6 @@
 // Inventory: items (each with a cost basis) and lots (bulk buys whose cost is spread over their items).
 import { INVENTORY_STATUSES } from "@shared/enums";
+import { MAX_RECEIPT_BYTES } from "@shared/receipts";
 import { COUNT_OUTCOMES, type CountItem, MAX_COUNT_ITEMS } from "@shared/stock-count";
 import { and, desc, eq, inArray, lte, type SQL, sql } from "drizzle-orm";
 import type { BatchItem } from "drizzle-orm/batch";
@@ -12,6 +13,15 @@ import { newId } from "../../lib/ids";
 import { validate } from "../../lib/validate";
 import { requireRole } from "../../middleware/tenant";
 import { LOT_SPLITS } from "../../services/books/lots";
+import {
+  addPurchaseReceipt,
+  deletePurchaseReceipt,
+  listPurchaseReceipts,
+  type PurchaseTarget,
+  purchaseProofForYear,
+  purchaseReceiptCounts,
+  readPurchaseReceipt,
+} from "../../services/books/purchase-receipts";
 import { reallocateLot } from "../../services/books/service";
 import { importInventorySheet } from "../../services/importers/inventory-store";
 import type { AppEnv } from "../../types";
@@ -66,6 +76,7 @@ routes.get("/lots", async (c) => {
     })
     .from(inventoryItem)
     .where(eq(inventoryItem.orgId, orgId));
+  const receipts = await purchaseReceiptCounts(c.var.ctx, orgId);
   return c.json({
     items: lots.map((l) => {
       const mine = items.filter((i) => i.lotId === l.id);
@@ -78,6 +89,7 @@ routes.get("/lots", async (c) => {
         unallocatedCents: Math.max(0, l.totalCostCents - carried),
         /** Items sharing the cost with no expected price: a "value" lot is split evenly while any. */
         missingValueCount: shared.filter((i) => !i.estimatedValueCents).length,
+        receiptCount: receipts.lots.get(l.id) ?? 0,
       };
     }),
   });
@@ -222,7 +234,17 @@ routes.get(
       .orderBy(desc(inventoryItem.acquiredDate), inventoryItem.id)
       .limit(q.limit + 1)
       .offset(q.cursor);
-    return c.json(page(rows, q.limit, q.cursor));
+    const receipts = await purchaseReceiptCounts(c.var.ctx, orgId);
+    const out = page(rows, q.limit, q.cursor);
+    return c.json({
+      ...out,
+      items: out.items.map((i) => ({
+        ...i,
+        receiptCount: receipts.items.get(i.id) ?? 0,
+        /** The lot's receipts cover this item's cost too. */
+        lotReceiptCount: i.lotId ? (receipts.lots.get(i.lotId) ?? 0) : 0,
+      })),
+    });
   },
 );
 
@@ -531,5 +553,80 @@ routes.post(
     return c.json({ updated });
   },
 );
+
+// ---- purchase receipts (services/books/purchase-receipts.ts) ---------------------------------------
+// The receipt behind a lot's or an item's cost. Like expense receipts: the file's own bytes as the body,
+// its name in `?name=`, the size checked before the body is read, always downloaded as an attachment.
+
+routes.get(
+  "/receipts/proof",
+  validate("query", z.object({ year: z.coerce.number().int().min(2000).max(2100) })),
+  async (c) => {
+    return c.json(
+      await purchaseProofForYear(c.var.ctx, c.var.tenant.orgId, c.req.valid("query").year),
+    );
+  },
+);
+
+for (const kind of ["lot", "item"] as const) {
+  const base = `/${kind}s/:id/receipts`;
+  const target = (id: string): PurchaseTarget => ({ kind, id });
+  routes.get(base, async (c) => {
+    const rows = await listPurchaseReceipts(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      target(String(c.req.param("id"))),
+    );
+    return c.json({ items: rows });
+  });
+  routes.post(
+    base,
+    requireRole("editor"),
+    validate("query", z.object({ name: z.string().trim().min(1).max(255) })),
+    async (c) => {
+      const declared = Number(c.req.header("Content-Length") ?? "0");
+      if (declared > MAX_RECEIPT_BYTES) {
+        throw badRequest(`A receipt can be up to ${MAX_RECEIPT_BYTES / 1024 / 1024} MB.`);
+      }
+      const body = new Uint8Array(await c.req.arrayBuffer());
+      const row = await addPurchaseReceipt(
+        c.var.ctx,
+        c.var.tenant.orgId,
+        target(String(c.req.param("id"))),
+        {
+          fileName: c.req.valid("query").name,
+          bytes: body,
+          userId: c.var.tenant.userId,
+        },
+      );
+      return c.json(row, 201);
+    },
+  );
+  routes.get(`${base}/:receiptId`, async (c) => {
+    const r = await readPurchaseReceipt(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      target(String(c.req.param("id"))),
+      String(c.req.param("receiptId")),
+    );
+    const ascii = r.fileName.replace(/[^\x20-\x7e]/g, "_").replace(/["\\]/g, "_");
+    return new Response(r.bytes, {
+      headers: {
+        "Content-Type": r.contentType,
+        "Content-Disposition": `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(r.fileName)}`,
+        "Cache-Control": "private, no-store",
+      },
+    });
+  });
+  routes.delete(`${base}/:receiptId`, requireRole("editor"), async (c) => {
+    await deletePurchaseReceipt(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      target(String(c.req.param("id"))),
+      String(c.req.param("receiptId")),
+    );
+    return c.json({ ok: true });
+  });
+}
 
 export default routes;

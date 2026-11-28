@@ -113,12 +113,14 @@ const k2 = await page.$$eval("#roofPlan svg line", (ls) => ls.map((l) => l.getAt
 const out2 = await page.textContent("#roofOut");
 if (/Not framed/.test(out2)) check(k2.length === 8 && !k2.includes("rafter"), `unframed outline draws its 8 roof lines only (${k2.length})`);
 else check(k2.includes("rafter"), "steeper roof still framed");
-// a slanted side is taken since 2026-11-27 (skeleton.mjs): its roof lines are drawn, nothing is framed
+// a slanted side is taken since 2026-11-27 (skeleton.mjs) and framed since 2026-11-28 (hipframe.mjs's traced planes)
 await page.fill("#rfOutline", "0, 0\n40', 0\n30', 20'\n0, 20'");
 await page.click("#run");
 await page.waitForSelector("#roofPlan svg", { timeout: 10000 });
 const k3 = await page.$$eval("#roofPlan svg line", (ls) => ls.map((l) => l.getAttribute("data-kind")));
-check(k3.includes("ridge") && !k3.includes("rafter"), `a slanted side draws its roof lines, no rafters (${k3.length})`);
+// at the 12:12 typed above its hips outrun the 20 ft boards, so the framing says so (it is no longer refused for the slant)
+const out3 = await page.textContent("#roofOut");
+check(k3.includes("ridge") && (k3.includes("rafter") || /Not framed:\s+- A [^\n]* hip is longer than the longest/.test(out3)), `a slanted side draws its roof lines and is framed or says which board is short (${k3.length})`);
 // bad outline: it crosses itself, an error, no plan
 await page.fill("#rfOutline", "0, 0\n40', 20'\n40', 0\n0, 20'");
 await page.click("#run");

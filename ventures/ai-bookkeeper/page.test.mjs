@@ -58,7 +58,9 @@ test("every element id the script reads exists in the markup", () => {
 
 test("the measured claims on the page match the README", () => {
   const html = page("index.html"), readme = page("README.md");
-  for (const claim of ["1,300 of 2,164", "542 of 642", "2,892 lines"]) { assert.ok(html.includes(claim), claim); assert.ok(readme.includes(claim), `README: ${claim}`); }
+  // The page and README used to be checked only against each other, so both stayed stale together;
+  // benchmark-readme.test.mjs now checks both against the benchmark run itself.
+  for (const claim of ["1,296 of 2,161", "594 of 688", "2,887 lines"]) { assert.ok(html.includes(claim), claim); assert.ok(readme.includes(claim), `README: ${claim}`); }
 });
 
 test("the invoice and bill loader and rule suggestions are wired to controls that exist", () => {
