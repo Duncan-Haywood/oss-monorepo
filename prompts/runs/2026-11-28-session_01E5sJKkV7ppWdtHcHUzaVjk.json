@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "changed-ventures failed first: check_shared_package_drift (qbo-sync/src/money.ts is shared with jobshop-quote). Ported fix and test to jobshop-quote; drift check and its test pass."
+    "changed-ventures failed first: check_shared_package_drift (qbo-sync/src/money.ts is shared with jobshop-quote). Ported fix and test to jobshop-quote; drift check and its test pass.",
+    "Pages build `test` failed on a main-side defect: PR #20062's SPRS guide title was 79 chars (title-length.test.mjs). Shortened it here to 60 (fix forward)."
   ],
   "integrity_issues": [],
   "doc_friction": [
