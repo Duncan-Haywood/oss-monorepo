@@ -50,7 +50,33 @@ def drift(dirs: list[Path]) -> tuple[list[str], list[str]]:
             notes.append(f"note: {name} differs between copies ({groups})")
         elif name not in ALLOWED_TO_DIFFER:
             errors.append(f"{name}: billing copies differ ({groups}); port the change to every copy")
+    errors.extend(missing_tests(dirs))
     return errors, notes
+
+
+def missing_tests(dirs: list[Path]) -> list[str]:
+    """A copy that lacks a test file a sibling copy carries for code they share.
+
+    Added 2026-11-28 (red team): payapps alone carried crypto.test.ts, so a mutant in the other
+    four copies' crypto.ts met no test. A test file is owed by a copy when that copy has the
+    source it is named after (`crypto.test.ts` -> `crypto.ts`), or, for a test not named after
+    one source, when two or more copies already carry it.
+    """
+    errors: list[str] = []
+    tests = sorted({f.name for d in dirs for f in d.glob("*.test.ts")})
+    for name in tests:
+        holders = [d for d in dirs if (d / name).is_file()]
+        source = name[: -len(".test.ts")] + ".ts"
+        named_after_source = any((d / source).is_file() for d in dirs)
+        for d in dirs:
+            if d in holders:
+                continue
+            owed = (d / source).is_file() if named_after_source else len(holders) >= 2
+            if owed:
+                venture = str(d.relative_to(REPO)).split("/")[1]
+                have = ", ".join(str(h.relative_to(REPO)).split("/")[1] for h in holders)
+                errors.append(f"{name}: missing from {venture} (carried by {have}); copy the test over")
+    return errors
 
 
 def main() -> int:
@@ -60,7 +86,7 @@ def main() -> int:
         print(n)
     for e in errors:
         print(f"error: {e}", file=sys.stderr)
-    print(f"check_billing_copies: {len(dirs)} copies, {len(errors)} drifted source file(s)")
+    print(f"check_billing_copies: {len(dirs)} copies, {len(errors)} drifted source or missing test file(s)")
     return 1 if errors else 0
 
 
