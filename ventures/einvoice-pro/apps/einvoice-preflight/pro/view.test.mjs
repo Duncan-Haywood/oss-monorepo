@@ -135,3 +135,10 @@ test("POST /v1/view answers an HTML download, metered once per file like a check
   assert.equal((await fetch(`${base}/v1/view?explain=0&fix=1`, { method: "POST", headers: { authorization: `Bearer ${key}` }, body: DEFECTS })).status, 400);
   assert.equal((await fetch(`${base}/v1/view`, { method: "POST", headers: { authorization: `Bearer ${key}` }, body: "" })).status, 400);
 });
+
+test("UNTDID 1001 876 (partial final construction invoice, allowed by BR-DE-17) is named, not shown as a bare code", async () => {
+  const source = GOOD.replace("<cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>", "<cbc:InvoiceTypeCode>876</cbc:InvoiceTypeCode>");
+  assert.notEqual(source, GOOD);
+  const { html } = await viewOf("ok.xml", source, "de");
+  assert.match(html, /Teilschlussrechnung \(Bau\) \(876\)/);
+});
