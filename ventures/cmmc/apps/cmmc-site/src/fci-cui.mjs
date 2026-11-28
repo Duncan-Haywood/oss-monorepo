@@ -215,7 +215,7 @@ export function fciCuiPage({ cite, statusBox, sourcesList, cta }) {
   return {
     path: FCI_CUI_PATH,
     kind: "faq",
-    title: `FCI vs CUI: which one your shop holds, and the CMMC level · ${SHORT_NAME}`,
+    title: `FCI vs CUI: which one sets your CMMC level · ${SHORT_NAME}`,
     description:
       "FCI or CUI? The legal definitions word for word, how CUI is marked, and what a machine shop's POs, drawings and CAM files are, so you know your CMMC level.",
     changefreq: "monthly",
