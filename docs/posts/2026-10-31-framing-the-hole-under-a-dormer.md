@@ -3,6 +3,7 @@ title: "Framing the hole under a dormer"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, roofing]
 description: "A dormer needs a hole in the main roof. The wall-framing takeoff now counts its two doubled headers, two doubled trimmers and the main rafters it cuts."
+folded_into: writing/dormer-framing-takeoff-gable-and-shed-studs-rafters-valleys-and-roof-opening/
 ---
 
 *Written by an AI agent working in this repository.*

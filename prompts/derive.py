@@ -179,19 +179,38 @@ def log_flushed(msg: str) -> None:
 
 
 def fetch(root: Path = ROOT, refresh: bool = False, get: Callable[[str], Any] = http_get,
-          log: Callable[[str], None] = log_flushed, limit: int | None = None) -> dict[str, Any]:
+          log: Callable[[str], None] = log_flushed, limit: int | None = None,
+          history_days: float = 21, today: str | None = None) -> dict[str, Any]:
     cache = load_json(root / "derived" / "github.json", {})
-    wanted = sorted({key(*ref): ref for _, rec in promptctl.load_runs(root)
-                     if (ref := parse_pr(rec))}.items())
-    todo = [(k, ref) for k, ref in wanted if refresh or k not in cache or not is_final(cache[k])]
+    wanted: dict[str, tuple[str, int]] = {}
+    dated: dict[str, str] = {}  # newest record date naming the PR, a proxy for its merge date
+    for _, rec in promptctl.load_runs(root):
+        if ref := parse_pr(rec):
+            k = key(*ref)
+            wanted[k] = ref
+            dated[k] = max(dated.get(k, ""), str(rec.get("date") or "")[:10])
+    todo = [(k, ref) for k, ref in sorted(wanted.items())
+            if refresh or k not in cache or not is_final(cache[k])]
     # Newest first, so a capped fetch measures the runs a review grades (the last few hundred)
     # and older backlog drains over later reviews; uncapped, 5,000+ PRs took hours (E127, E128).
     todo.sort(key=lambda t: t[1][1], reverse=True)
     backlog = len(todo)
-    if limit is not None:
-        todo = todo[:limit]
-    log(f"{len(wanted)} pull request(s) named by run records; fetching {len(todo)}"
-        + (f" of {backlog}, newest first" if len(todo) < backlog else ""))
+    if limit is not None and len(todo) > limit:
+        # Newest-only starved rework (P106): `build` measures only PRs whose 14-day window has
+        # closed and that its `--history-days` deepen still reaches, and ~300 PRs merge a day.
+        # So half the cap goes to that band, the oldest first since it ages out of reach next.
+        now = datetime.fromisoformat(today) if today else datetime.now(timezone.utc)
+        lo = (now - timedelta(days=history_days)).strftime("%Y-%m-%d")
+        hi = (now - timedelta(days=WINDOW_DAYS)).strftime("%Y-%m-%d")
+        band = sorted((t for t in todo if lo <= dated[t[0]] <= hi), key=lambda t: (dated[t[0]], t[1][1]))
+        picked = band[:limit // 2]
+        taken = {t[0] for t in picked}
+        picked += [t for t in todo if t[0] not in taken][:limit - len(picked)]
+        log(f"{len(wanted)} pull request(s) named by run records; fetching {len(picked)} of {backlog}: "
+            f"{len(taken)} whose rework window closed ({lo}..{hi}), the rest newest first")
+        todo = picked
+    else:
+        log(f"{len(wanted)} pull request(s) named by run records; fetching {len(todo)}")
     def safe(item: Any) -> tuple[str, Any]:
         try:
             return item[0], fetch_pr(*item[1], get)
@@ -531,7 +550,8 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("fetch", help="PR facts from the GitHub API, cached in derived/github.json")
     p.add_argument("--refresh", action="store_true", help="refetch PRs already final in the cache")
     p.add_argument("--limit", type=int, default=None,
-                   help="fetch at most N PRs, newest first (a review uses 300; the rest drains later)")
+                   help="fetch at most N PRs: up to half from the band rework can measure now "
+                        "(14 to 21 days old), the rest newest first (a review uses 300)")
     p = sub.add_parser("build", help="join records, PR facts and git rework into derived/runs.json")
     p.add_argument("--history-days", type=float, default=21,
                    help="deepen a shallow clone's main this far first, so PRs merged 14+ days ago "

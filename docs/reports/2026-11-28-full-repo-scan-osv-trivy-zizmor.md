@@ -98,3 +98,43 @@ Once 1 to 4 are fixed or accepted, `priv-security-scan-repo.yml` can get its wee
 - **Item 1 not rerun:** osv-scanner could not reach its API from this session (the proxy refused
   the host), so the `requirements.txt` fixed versions were not read again. The next session with
   osv access takes it.
+
+## Part 4, item 1 done and the schedule back (2026-11-28, a third run)
+
+api.osv.dev and api.deps.dev were still refused by this session's proxy, but two other routes
+answered, and they are the way to take an osv reading from a cloud session:
+
+```
+# osv's own database, offline (the bucket osv-vulnerabilities.storage.googleapis.com answers):
+OSV_SCANNER_LOCAL_DB_CACHE_DIRECTORY=/tmp/db osv-scanner scan source -r --no-resolve \
+  --offline-vulnerabilities --download-offline-databases --format json .
+# transitive Python dependencies, which --no-resolve skips: pip's own resolution, then
+# each resolved version's advisories from https://pypi.org/pypi/<name>/<version>/json
+# ("vulnerabilities", the OSV records)
+pip install --dry-run --ignore-installed --python-version 3.11 --only-binary :all: --report r.json -r requirements.txt
+```
+
+What that showed for the 20 `requirements.txt` files of item 1 (`research/homebot`,
+`research/marriage-divorce-evidence` and its 16 `reproducibility/` folders, the two
+`ventures/open-*-robots/cad/`):
+
+- **pyarrow 20.0.0** (PYSEC-2026-113 / GHSA-rgxp-2hwp-jwgg, CVSS 7.0, fixed in 23.0.1) pinned
+  directly in `marriage-divorce-evidence/requirements.txt` and `reproducibility/requirements.txt`:
+  the only real finding. Pinned to 23.0.1 (supersedes Dependabot's PR #8509); a parquet round trip
+  with pandas 2.3.3 on Python 3.11 passes, no parquet file is committed, and the reproducibility
+  README says the published results were made on 20.0.0.
+- **Pillow 9.5.0 and certifi 2026.7.22 were never what pip installs.** pip resolves Pillow 13.0.0
+  and certifi 2026.11.20 (no advisories) for every file; the old versions were deps.dev's
+  resolution, which osv-scanner uses for unpinned transitive dependencies. Floors
+  (`pillow>=13.0.0`, `certifi>=2026.10.18`) now keep any resolver on fixed versions.
+- Every other resolved package (92 for homebot without torch's CPU index, which the proxy refuses,
+  58 for each CAD file, 4 to 18 for the rest) has no advisory.
+
+Repo-wide, the offline osv reading with `scan.py`'s parser, `block_at` and `baseline.yaml` is
+**0 blocking** (10 medium reported: esbuild 0.18.20 in four pnpm lockfiles, a devsec-toolkit test
+fixture, golang.org/x/sys in one go.mod, postcss-selector-parser, minimatch, pytest 8.0). That
+reading skips transitive resolution for unlocked `requirements.txt` files elsewhere in the tree,
+so the first scheduled run (which can reach deps.dev) may queue a few more; that is the queue
+working, not noise. With gitleaks, semgrep, zizmor, trivy-config and checkov already at 0,
+`priv-security-scan-repo.yml` has its `schedule: cron "29 7 * * 1"` back and `scan-repo-baseline`
+is done.

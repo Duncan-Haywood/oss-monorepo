@@ -1,5 +1,6 @@
 // Resellers keep books from a phone between sourcing runs. At an iPhone's width every page of the shop
-// must fit without the page itself scrolling sideways (wide tables scroll inside their own box).
+// must fit without the page itself scrolling sideways, and no table may scroll sideways inside its
+// own card either: wide tables of figures stack one block per row (.table-stack in styles.css).
 import { devices, expect, test } from "@playwright/test";
 import { card, importReport, nav, signUpWithShop } from "./helpers";
 
@@ -29,8 +30,18 @@ test("every shop page fits a phone's width", async ({ page }) => {
     "ebay-transaction-report.csv",
   );
   await expect(page.getByText(/other charges? imported/)).toBeVisible();
+  // A lot with items, so the Inventory page's Lots and Items tables have rows to measure.
+  await nav(page, "Inventory");
+  const lot = card(page, /Add a lot/);
+  await lot.getByPlaceholder("Lot name").fill("Estate sale haul");
+  await lot.locator('input[type="date"]').fill("2026-01-02");
+  await lot.getByPlaceholder("Total cost, e.g. 120.00").fill("30.00");
+  await lot.locator("textarea").fill("Blue glass vase\nCandle holders\nBrass bell");
+  await lot.getByRole("button", { name: "Add lot" }).click();
+  await expect(card(page, "Items").getByRole("row", { name: /Brass bell/ })).toBeVisible();
 
   const wide: string[] = [];
+  const inner: string[] = [];
   for (const [path, heading] of PAGES) {
     await page.goto(`${orgPath}${path}`);
     if (heading)
@@ -40,8 +51,28 @@ test("every shop page fits a phone's width", async ({ page }) => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
     if (overflow > 1) wide.push(`${path || "/"} scrolls sideways by ${overflow}px`);
+    // Tables load after the heading; wait for the page's queries to settle before measuring.
+    await page.waitForLoadState("networkidle");
+    const boxes = await page.locator("main *").evaluateAll((els) =>
+      els
+        .filter((el) => {
+          const x = getComputedStyle(el).overflowX;
+          return (x === "auto" || x === "scroll") && el.scrollWidth - el.clientWidth > 1;
+        })
+        .map((el) => {
+          const h = el.closest("section, form")?.querySelector("h2, h3")?.textContent?.trim();
+          return `${h ?? el.tagName.toLowerCase()} scrolls inside by ${el.scrollWidth - el.clientWidth}px`;
+        }),
+    );
+    for (const b of boxes) inner.push(`${path || "/"}: ${b}`);
   }
   expect(wide).toEqual([]);
+  expect(inner).toEqual([]);
+  // The P&L's figures sit beside their column's name.
+  await page.goto(orgPath);
+  await expect(card(page, "By platform").locator('td[data-label="Revenue"]').first()).toContainText(
+    "$1,250.00",
+  );
 });
 
 // The stock report's wide tables (lots, sources, days to sell) stack one block per row on a phone

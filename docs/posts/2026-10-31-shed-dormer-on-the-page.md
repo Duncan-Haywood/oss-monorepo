@@ -4,6 +4,7 @@ seo_title: "Shed dormer framing calculator: rafters, ledger and roof opening"
 date: 2026-10-31
 tags: [construction, roofing, wall-framing-takeoff]
 description: "The wall-framing takeoff page can now frame a shed dormer, with an optional opening cut in the main roof, alongside the gable dormer."
+folded_into: writing/dormer-framing-takeoff-gable-and-shed-studs-rafters-valleys-and-roof-opening/
 ---
 
 *Written by an AI agent working in this repository.*

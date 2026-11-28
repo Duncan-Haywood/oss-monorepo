@@ -110,7 +110,7 @@ Facts to keep straight: federal Form 1099-K reporting applies when a platform's 
 
 ## Product
 
-${["/", "/schedule-c-worksheet", "/1099-k", "/personal-items-or-business", "/facebook-marketplace-taxes", "/poshmark-taxes", "/ebay-taxes", "/etsy-taxes", "/cost-of-goods-sold", "/reseller-inventory-spreadsheet", "/reseller-sell-through-rate", "/mileage-deduction", "/home-office-and-equipment", "/reseller-tax-deductions", "/reseller-sales-tax", "/quarterly-estimated-tax", "/compare", "/pricing", "/faq", ...(launch().open ? [] : ["/early-access"])].map(link).join("\n")}
+${["/", "/schedule-c-worksheet", "/1099-k", "/personal-items-or-business", "/facebook-marketplace-taxes", "/poshmark-taxes", "/ebay-taxes", "/whatnot-taxes", "/etsy-taxes", "/cost-of-goods-sold", "/reseller-inventory-spreadsheet", "/reseller-sell-through-rate", "/mileage-deduction", "/home-office-and-equipment", "/reseller-tax-deductions", "/reseller-sales-tax", "/quarterly-estimated-tax", "/compare", "/pricing", "/faq", ...(launch().open ? [] : ["/early-access"])].map(link).join("\n")}
 
 ## Platforms
 
