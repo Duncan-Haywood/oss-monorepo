@@ -35,6 +35,8 @@ export interface RenderContext {
   basePath: string;
   /** What the hosted app does today (LAUNCH in ./config). */
   launch: Launch;
+  /** The route being rendered ("/pricing"), so its Start free links say which page sent the visit. */
+  page?: string;
 }
 
 export const href = (ctx: RenderContext, path: string): string =>
@@ -42,10 +44,22 @@ export const href = (ctx: RenderContext, path: string): string =>
 
 const check = html`<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
+/**
+ * The app's sign-up address, tagged `from=jobshop-site/<page>` so the app can count which page of
+ * this site sent each new account (apps/jobshop-quote/src/shared/signup-source.ts). The home page is
+ * `jobshop-site/home`; outside a page render the link carries no tag.
+ */
+export function signUpLink(ctx: RenderContext): string {
+  const url = appLink(ctx.launch, "/sign-up");
+  if (!ctx.page) return url;
+  const page = ctx.page === "/" ? "home" : ctx.page.replace(/^\/+|\/+$/g, "").toLowerCase();
+  return `${url}?from=${encodeURIComponent(`jobshop-site/${page}`)}`;
+}
+
 /** The one call to action: sign up in the app once the site is open, else the early-access list. */
 export function primaryCta(ctx: RenderContext, cls = "btn btn-primary"): Html {
   return ctx.launch.open
-    ? html`<a class="${cls}" href="${appLink(ctx.launch, "/sign-up")}">Start free</a>`
+    ? html`<a class="${cls}" href="${signUpLink(ctx)}">Start free</a>`
     : html`<a class="${cls}" href="${href(ctx, "/early-access")}">Request early access</a>`;
 }
 

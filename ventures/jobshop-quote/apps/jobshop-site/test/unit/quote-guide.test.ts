@@ -67,7 +67,7 @@ describe("/how-to-quote-cnc-machining", () => {
     expect(page).toContain("$7,165.00");
     expect(page).toContain("Every number here is made up");
     expect(page).toContain("not accounting, tax or");
-    expect(page).toContain('href="https://app.example.test/sign-up"');
+    expect(page).toContain('href="https://app.example.test/sign-up?from=jobshop-site%2F');
   });
 });
 

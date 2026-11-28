@@ -302,6 +302,13 @@
       "when": 1795796702059,
       "tag": "0042_shop_load",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "6",
+      "when": 1795834859225,
+      "tag": "0043_signup_source",
+      "breakpoints": true
     }
   ]
 }
