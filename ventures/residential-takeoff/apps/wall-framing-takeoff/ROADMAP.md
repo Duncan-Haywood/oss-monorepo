@@ -517,6 +517,11 @@ Ticked items are on `main`.
 
 - 2026-11-28: supplier price lists, part 1 (`pricelist.mjs`, CLI `--price-list=FILE`, page file input under "Lumber you can buy"): a yard's CSV reprices the lumber list and fills the budget's prices; unlisted lengths of a priced size dropped, unpriced sizes named, every unread row listed. `pricelist-bench.mjs`: 1.3-5.3% cheaper lumber than optimising on length then pricing, on invented lists; 0% on the flat control. Next, if people use it: a real yard's export run through it, and the suite's per-org price list (step 4 above).
 
+- Sale terms (2026-11-28, takeoff-sale-terms): Terms of Sale, Refund Policy and Privacy notice
+  pages (`terms.html`, `refunds.html`, `privacy.html`) served beside the app for Paddle's website
+  review; the footer's "no analytics vendors" line corrected to name the host's cookieless Cloudflare
+  Web Analytics, and the page added to the analytics-claims guard.
+
 ## Known gaps (quality audit 2026-11-19)
 
 From [`2026-11-19-wall-framing-takeoff-r5.json`](../../../../portfolio/quality/audits/2026-11-19-wall-framing-takeoff-r5.json). The zero-flow water-supply branch it found is fixed (design flow never falls below the largest fixture a run feeds).
