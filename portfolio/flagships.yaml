@@ -111,7 +111,7 @@ flagships:
   - venture: jobshop-quote
     bet: 2
     front_door: [machine-shop-guides, cnc-machining-quote-calculator]
-    app: private-monorepo/apps/jobshop-quote
+    app: ventures/jobshop-quote/apps/jobshop-quote
     why: >-
       Bet 2 (score 19, ranked up for willingness to pay): CNC and fabrication job
       shops turn RFQs (drawings, CAD, email) into priced quotes by hand, often hours
@@ -120,24 +120,27 @@ flagships:
       sources), so ship narrow and soon. Same buyers as bet 4 (CMMC). The public
       cnc-machining-quote-calculator is a lead magnet for it. New app.
     next: >-
-      Built in private-monorepo/apps/jobshop-quote (add_repo, push access). Landed: (1)
-      rate card and pure quote engine, RFQ intake, verified extraction, quote PDF, won/lost
-      log (private-monorepo PR #30, on Haiku); (2) STEP/DXF in through packages/cad-features
-      (PR #29, DXF expansion budget; PR #40): a solid's box sizes the blank, one measured
-      removal rate gives a "Rough from CAD" op, confidence and flags shown; DXF cut, bend
-      and sheet-blank suggestions, drawing PDF text into the part form, routings, win/loss
-      and billing dark landed 2026-11-25..26 (ROADMAP "Done"); blank cycle times block
-      pricing and per-line fallout prices the starts (private PR #336, from the 2026-11-26
-      quality audit). Open, in order: (3) deploy (owner runs jobshop-quote-deploy once,
-      sender domain, JOBSHOP_DOMAIN; ROADMAP item 3) and the jobshop-site link to the app;
-      (4) title blocks from page images of scanned drawings; (5) won/lost recalibration
-      of rates; (6) parse CAD in a queue consumer, not the upload request. A run that
-      lands a slice replaces its item here.
+      Built in ventures/jobshop-quote/apps/jobshop-quote (moved from
+      private-monorepo 2026-11-27; live on the free plan at
+      jobshop-quote.marisstella.app and deployed on every merge since). Landed: (1)
+      rate card and pure quote engine, RFQ intake, verified extraction, quote PDF,
+      won/lost log (private-monorepo PR #30, on Haiku); (2) STEP/DXF in through
+      packages/cad-features (PR #29, DXF expansion budget; PR #40): a solid's box
+      sizes the blank, one measured removal rate gives a "Rough from CAD" op,
+      confidence and flags shown; DXF cut, bend and sheet-blank suggestions, drawing
+      PDF text into the part form, routings, win/loss and billing dark landed
+      2026-11-25..26 (ROADMAP "Done"); blank cycle times block pricing and per-line
+      fallout prices the starts (private PR #336, from the 2026-11-26 quality
+      audit). Open, in order: (3) AI reading and inbound RFQ email switched on once
+      the owner sets JOBSHOP_ANTHROPIC_API_KEY (ROADMAP status); (4) title blocks
+      from page images of scanned drawings; (5) won/lost recalibration of rates; (6)
+      parse CAD in a queue consumer, not the upload request. A run that lands a
+      slice replaces its item here.
   # Bet 3 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: einvoice-preflight
     bet: 3
     front_door: [einvoice-preflight]
-    app: private-monorepo/apps/einvoice-preflight
+    app: ventures/einvoice-pro/apps/einvoice-preflight
     why: >-
       Bet 3 (score 21, hard legal deadlines): Germany requires issuing e-invoices
       above EUR 800k turnover from 1 Jan 2027 and for everyone from 2028; France's
@@ -147,18 +150,18 @@ flagships:
       import (LICENSING_TRANSITION.md, "How one product moves"). Its public history
       and open rule items: ventures/einvoice-preflight/README.md and NEXT.md.
     next: >-
-      Import with private-monorepo/scripts/import-venture.mjs einvoice-preflight if
-      not yet done (record it in transition.py MOVED), then build there: (1) each
-      failed rule explained in plain German, French and Dutch (what is wrong, where,
-      how to fix), written once per rule, not generated per call; (2) a safe
-      auto-fix for the mechanical failures (rounding, missing codes with one valid
-      value, date formats) that returns a corrected file plus a list of exactly what
-      changed, and refuses to guess amounts or tax; (3) accounts with a client list
-      for accountants (one workspace per client, history of runs); (4) a metered API
-      key for small invoicing vendors; (5) Paddle dark per
-      portfolio/monetization/models.yaml (row app: einvoice-preflight). Keep the
-      rule set current in the app (Peppol BIS 3.1.0 rebuild once OpenPeppol tags it:
-      NEXT.md). A run that lands a slice replaces its item here.
+      Build in ventures/einvoice-pro/apps/einvoice-preflight (moved from
+      private-monorepo 2026-11-27): (1) each failed rule explained in plain German,
+      French and Dutch (what is wrong, where, how to fix), written once per rule,
+      not generated per call; (2) a safe auto-fix for the mechanical failures
+      (rounding, missing codes with one valid value, date formats) that returns a
+      corrected file plus a list of exactly what changed, and refuses to guess
+      amounts or tax; (3) accounts with a client list for accountants (one workspace
+      per client, history of runs); (4) a metered API key for small invoicing
+      vendors; (5) Paddle dark per portfolio/monetization/models.yaml (row app:
+      einvoice-preflight). Keep the rule set current in the app (Peppol BIS 3.1.0
+      rebuild once OpenPeppol tags it: NEXT.md). A run that lands a slice replaces
+      its item here.
   # Bet 4 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: cmmc
     bet: 4
@@ -186,7 +189,7 @@ flagships:
   - venture: seller-books
     bet: 5
     front_door: [reseller-books]
-    app: private-monorepo/apps/seller-books
+    app: ventures/seller-books/apps/seller-books
     why: >-
       Bet 5 (score 21, but a $10 to $20 wedge price): multi-platform resellers
       (eBay, Poshmark, Mercari, Whatnot, Depop) need fees split out, cost of goods
@@ -195,25 +198,24 @@ flagships:
       with sources). No bank feed needed. The public reseller-books venture and the
       payout calculators are its lead magnets and its engine's starting point.
     next: >-
-      Build in private-monorepo (add_repo, push access), starting from
-      ventures/reseller-books' engines (import with import-venture.mjs, then rename
-      to seller-books), scaffolded from apps/grants with Paddle dark. Milestones:
-      (1) accounts and saved imports: payout and order CSVs from eBay, Poshmark,
-      Mercari, Whatnot and Depop parsed into one ledger with fees, shipping and
-      refunds split out, deduplicated across re-uploads (the public engines now read
-      Mercari's Gross Sales Report from its help-centre field list, deduped by Item
-      ID, 2026-11-24; Depop's CSV headers are unpublished, so it needs a real file);
-      (2) inventory with cost of goods matched to sales: the public engine landed it
-      2026-11-25 (reseller-books/inventory.mjs: a sourcing-sheet CSV, FIFO by SKU or
-      title, Schedule C Part III lines 35-42 for one tax year), and the app imports
-      the sourcing sheet since 2026-11-26 (private PR 238: preview, re-import adds
-      only new rows, earlier orders linked by SKU); last year's filed line 41
-      is line 35, checked against the books, since 2026-11-26 (private PR 369);
-      next, import the public engine's trip log; (3) mileage: the public engine landed it
-      2026-11-24 (reseller-books/trips.mjs, Schedule C line 9 priced by trip date,
-      PR #18743), so the app imports it and adds a saved trip log per account; (4) a
-      Schedule C line-mapped P&L export and a CSV for the accountant; a stock report
-      (aging, sell-through, days to sell by platform, lot payback) landed 2026-11-26
+      Built in ventures/seller-books/apps/seller-books (moved from private-monorepo
+      2026-11-27, PR #19618). Milestones: (1) accounts and saved imports: payout and
+      order CSVs from eBay, Poshmark, Mercari, Whatnot and Depop parsed into one
+      ledger with fees, shipping and refunds split out, deduplicated across
+      re-uploads (the public engines now read Mercari's Gross Sales Report from its
+      help-centre field list, deduped by Item ID, 2026-11-24; Depop's CSV headers
+      are unpublished, so it needs a real file); (2) inventory with cost of goods
+      matched to sales: the public engine landed it 2026-11-25
+      (reseller-books/inventory.mjs: a sourcing-sheet CSV, FIFO by SKU or title,
+      Schedule C Part III lines 35-42 for one tax year), and the app imports the
+      sourcing sheet since 2026-11-26 (private PR 238: preview, re-import adds only
+      new rows, earlier orders linked by SKU); last year's filed line 41 is line 35,
+      checked against the books, since 2026-11-26 (private PR 369); next, import the
+      public engine's trip log; (3) mileage: the public engine landed it 2026-11-24
+      (reseller-books/trips.mjs, Schedule C line 9 priced by trip date, PR #18743),
+      so the app imports it and adds a saved trip log per account; (4) a Schedule C
+      line-mapped P&L export and a CSV for the accountant; a stock report (aging,
+      sell-through, days to sell by platform, lot payback) landed 2026-11-26
       (private PR 291); (5) a marketing page that does not sell on 1099-K fear (the
       federal threshold is back at $20,000 and 200 transactions). A run that lands a
       slice replaces its item here.
@@ -221,7 +223,7 @@ flagships:
   - venture: wall-framing-takeoff
     bet: 6
     front_door: [wall-framing-takeoff, pdf-plan-takeoff]
-    app: private-monorepo/apps/wall-framing-takeoff
+    app: ventures/residential-takeoff/apps/wall-framing-takeoff
     why: >-
       Bet 6 (score 18): remodelers, roofers and framers buy takeoff (Togal.AI
       $249.99 to $299.99 a month, Handoff from $149, Buildxact about $199, roof
@@ -231,15 +233,16 @@ flagships:
       module of the bet 1 contractor suite. The free edition stays at
       ventures/wall-framing-takeoff (its real-input items: ROADMAP.md and NEXT.md).
     next: >-
-      Work in private-monorepo/apps/wall-framing-takeoff (add_repo, push access).
-      Milestones: (1) roofing and siding material lists from a PDF plan set: roof
-      planes, pitch, ridge, hip, valley and eave lengths to squares, underlayment,
-      drip edge and starter; wall areas less openings to siding squares and trim,
-      reusing the public pdf-plan-takeoff parser (MIT) for scale and measurement;
-      (2) accounts with saved jobs and a branded bid package across framing, roof
-      and siding; (3) Paddle dark per portfolio/monetization/models.yaml (row app:
-      wall-framing-takeoff); (4) an export the bet 1 app can read as a change order
-      or schedule of values line. A run that lands a slice replaces its item here.
+      Work in ventures/residential-takeoff/apps/wall-framing-takeoff (moved from
+      private-monorepo 2026-11-27). Milestones: (1) roofing and siding material
+      lists from a PDF plan set: roof planes, pitch, ridge, hip, valley and eave
+      lengths to squares, underlayment, drip edge and starter; wall areas less
+      openings to siding squares and trim, reusing the public pdf-plan-takeoff
+      parser (MIT) for scale and measurement; (2) accounts with saved jobs and a
+      branded bid package across framing, roof and siding; (3) Paddle dark per
+      portfolio/monetization/models.yaml (row app: wall-framing-takeoff); (4) an
+      export the bet 1 app can read as a change order or schedule of values line. A
+      run that lands a slice replaces its item here.
   # Bet 7 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: grants
     bet: 7

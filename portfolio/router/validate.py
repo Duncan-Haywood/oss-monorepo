@@ -137,7 +137,7 @@ APP_PREFIX = "private-monorepo/apps/"
 APP_PATH = re.compile(r"^(private-monorepo/apps|ventures/[a-z0-9][a-z0-9-]*/apps)/[a-z0-9][a-z0-9-]*$")
 
 
-def check_bet_order(errors, rows):
+def check_bet_order(errors, rows, root=None):
     """The 2026-11-24 ranking: bet rows (`bet: N`, `app:`) first, numbered 1..N in
     file order; every other row says why it is not a bet (`demoted:`). A file with
     no bet rows (a test fixture, an older layout) is not checked."""
@@ -159,6 +159,13 @@ def check_bet_order(errors, rows):
             if not APP_PATH.match(app):
                 errors.append(f"flagships.yaml: bet {name} needs `app: {APP_PREFIX}<slug>` "
                               "or `app: ventures/<venture>/apps/<slug>` (where its deepening work happens).")
+            elif root is not None and app.startswith(APP_PREFIX):
+                # The router tells a run to clone private-monorepo for a private `app:`; once the
+                # code has moved here that sends it to the stale copy (four bets, 2026-11-28 audit).
+                moved = sorted((root / "ventures").glob(f"*/apps/{app[len(APP_PREFIX):]}"))
+                if moved:
+                    errors.append(f"flagships.yaml: bet {name} has `app: {app}` but the app is in this "
+                                  f"repository at {moved[0].relative_to(root)}; point `app:` there.")
             if e.get("demoted"):
                 errors.append(f"flagships.yaml: {name} is a bet and `demoted:` at once.")
         else:
@@ -168,7 +175,7 @@ def check_bet_order(errors, rows):
                               "(why it has no bet in portfolio/monetization/bets.md).")
 
 
-def check_flagships(errors, path=FLAGSHIPS_PATH):
+def check_flagships(errors, path=FLAGSHIPS_PATH, root=None):
     """Fail fast on a `next:` over the cap; test_allocate only catches it after ~100 s."""
     if not path.is_file():
         return
@@ -185,7 +192,8 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
             "hyphen, which YAML reads as '- '; edit with portfolio/router/flagship_field.py, "
             "which rewraps without breaking at hyphens."
         )
-    check_bet_order(errors, [e for e in data.get("flagships") or [] if isinstance(e, dict)])
+    check_bet_order(errors, [e for e in data.get("flagships") or [] if isinstance(e, dict)],
+                    root if root is not None else path.resolve().parent.parent)
     for entry in data.get("flagships") or []:
         if not isinstance(entry, dict):
             continue
