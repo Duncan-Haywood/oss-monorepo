@@ -10,7 +10,7 @@ import { api, json, setupTenant } from "./helpers";
 async function rfqWith(
   t: Awaited<ReturnType<typeof setupTenant>>,
   name: string,
-  body: Uint8Array | string,
+  body: BlobPart,
   type: string,
 ) {
   const form = new FormData();
