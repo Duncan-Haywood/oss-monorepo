@@ -7,6 +7,9 @@ const STATUTE = readFileSync(new URL("./sources/az-33.txt", import.meta.url), "u
 const flat = (s) => s.replace(/\s+/g, " ").trim();
 const FLAT = flat(STATUTE);
 const PAGE = readFileSync(new URL("./arizona-preliminary-notice.html", import.meta.url), "utf8");
+// One pass over the three entities the page uses, so "&amp;#39;" stays "&#39;" (never decoded twice).
+const ENTITIES = { "&amp;": "&", "&#x27;": "'", "&#39;": "'" };
+const decode = (s) => s.replace(/&amp;|&#x27;|&#39;/g, (e) => ENTITIES[e]);
 
 // Dates counted by hand on a calendar.
 test("20 calendar days after first furnishing, not moved off a weekend", () => {
@@ -114,8 +117,9 @@ test("statement text and form labels are the statute's own words", () => {
 });
 
 test("every quoted phrase on the page is in the statute", () => {
-  const quotes = [...PAGE.matchAll(/“([^”]+)”/g)].map((m) => m[1].replace(/&amp;/g, "&").replace(/<[^>]+>/g, ""));
+  const quotes = [...PAGE.matchAll(/“([^”]+)”/g)].map((m) => decode(m[1]));
   assert.ok(quotes.length >= 8, `found ${quotes.length} quotes`);
+  for (const q of quotes) assert.ok(!q.includes("<"), `keep markup outside the quote marks: "${q}"`);
   for (const q of quotes) assert.ok(FLAT.includes(flat(q)), `not in the statute: "${q}"`);
 });
 
@@ -130,6 +134,6 @@ test("page cites azleg.gov with the read date, has the calculator fields, and is
 });
 
 test("the page prints the module's statements, so the page and the draft cannot drift", () => {
-  const text = PAGE.replace(/&amp;/g, "&").replace(/&#x27;|&#39;/g, "'");
+  const text = decode(PAGE);
   for (const p of [FORM_INTRO, ...OWNER_NOTICE, ...TEN_DAYS]) assert.ok(text.includes(p), p);
 });
