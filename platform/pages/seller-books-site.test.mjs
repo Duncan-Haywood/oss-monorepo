@@ -29,6 +29,8 @@ test('builds Seller Books\' site into seller-books/: pages, platform pages, site
       for (const link of htmlLinks(html).filter((l) => !/^[a-z]+:/.test(l))) {
         const target = path.posix.normalize(path.posix.join(path.posix.dirname(rel), link));
         const file = target.endsWith('/') ? `${target}index.html` : path.posix.extname(target) ? target : `${target}.html`;
+        // The site-wide privacy policy (Web Analytics) is the catalogue's own page; check.mjs checks it in the full build.
+        if (file === 'privacy/index.html') continue;
         assert.ok(written.includes(file), `${rel} links ${link} (${file})`);
       }
     }
