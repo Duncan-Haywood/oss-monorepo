@@ -1,0 +1,639 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKmEWH9fPeo3Z8nisZM",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T00:09:52Z",
+  "ended": "2026-11-28T00:10:38Z",
+  "wall_minutes": 7.51,
+  "tokens_in": 7674131,
+  "tokens_out": 28202,
+  "cost_usd": 3.0045,
+  "tool_calls": 75,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19927",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/jobshop-quote/README.md",
+      "issue": "'Where the work happens' still said private-monorepo is the build source and this dir a snapshot, contradicting bets.md and cloud-session.md (moved 2026-11-27); cost a detour checking whether edits here would be overwritten. Fixed in this PR."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "_ts_suite skipped vitest app suites, so 'targets' said no suite guards jobshop-quote's pdf-pages.ts despite a sibling test; the paid apps' core was out of campaign reach. Fixed: _vitest_suite once pnpm install has run."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "campaign refuses a dirty target, so a file you just fixed (upload-pages.ts) cannot be campaigned in the same run; seed it before fixing, or next run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: a red-team fix to allowance metering is not something a customer post would usefully cover.",
+      "did": "Documented the rule in the product's docs/BILLING.md and the run in the PR and record instead.",
+      "result": "The doc says how mislabelled PDFs are counted."
+    }
+  ],
+  "writeups": [
+    "ventures/jobshop-quote/apps/jobshop-quote/docs/BILLING.md (What a page is)"
+  ],
+  "goal": null,
+  "notes": "Guard added: redteam.py _vitest_suite reaches jobshop-quote, payapps and seller-books vitest unit suites when node_modules is installed. Its first campaign (pdf-pages.ts) found 5 escapes, all now covered. Catch rate 26/32 -> 32/32. Local verification: app unit 670/670, worker 296/296; billing package 108/108; prompts unittest green except this record before filling.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/jobshop-quote/packages/billing/src/entitlement.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/jobshop-quote/packages/billing)",
+        "seed": 187958429,
+        "commit": "968406811",
+        "sites": 13,
+        "baseline_seconds": 0.4,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/entitlement.ts",
+            "line": 74,
+            "col": 18,
+            "operator": "true-to-false",
+            "before": "active: true,",
+            "after": "active: false,",
+            "line_text": "          active: true,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/entitlement.ts",
+            "line": 82,
+            "col": 18,
+            "operator": "false-to-true",
+            "before": "active: false,",
+            "after": "active: true,",
+            "line_text": "          active: false,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/entitlement.ts",
+            "line": 90,
+            "col": 45,
+            "operator": "eq-flip",
+            "before": "opts.getPlan(sub.planKey) ?? (sub.status === \"comp\" ? (opts.compPlan ?? null) : null);",
+            "after": "opts.getPlan(sub.planKey) ?? (sub.status !== \"comp\" ? (opts.compPlan ?? null) : null);",
+            "line_text": "    opts.getPlan(sub.planKey) ?? (sub.status === \"comp\" ? (opts.compPlan ?? null) : null);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/entitlement.ts",
+            "line": 92,
+            "col": 53,
+            "operator": "or-to-and",
+            "before": "const statusOk = ENTITLED_STATUSES.has(sub.status) || inGrace;",
+            "after": "const statusOk = ENTITLED_STATUSES.has(sub.status) && inGrace;",
+            "line_text": "  const statusOk = ENTITLED_STATUSES.has(sub.status) || inGrace;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/entitlement.ts",
+            "line": 93,
+            "col": 22,
+            "operator": "neq-flip",
+            "before": "const active = plan !== null && statusOk;",
+            "after": "const active = plan === null && statusOk;",
+            "line_text": "  const active = plan !== null && statusOk;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/entitlement.ts",
+            "line": 93,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "const active = plan !== null && statusOk;",
+            "after": "const active = plan !== null || statusOk;",
+            "line_text": "  const active = plan !== null && statusOk;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/entitlement.ts",
+            "line": 103,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": ": sub.status === \"past_due\"",
+            "after": ": sub.status !== \"past_due\"",
+            "line_text": "        : sub.status === \"past_due\"",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/entitlement.ts",
+            "line": 120,
+            "col": 20,
+            "operator": "max-to-min",
+            "before": "const remaining = Math.max(0, limit - used);",
+            "after": "const remaining = Math.min(0, limit - used);",
+            "line_text": "  const remaining = Math.max(0, limit - used);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/jobshop-quote/packages/billing/src/subscription-events.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/jobshop-quote/packages/billing)",
+        "seed": 92006139,
+        "commit": "968406811",
+        "sites": 33,
+        "baseline_seconds": 0.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/subscription-events.ts",
+            "line": 61,
+            "col": 49,
+            "operator": "eq-flip",
+            "before": "if (s.status === \"canceled\" && (current.status === \"comp\" || otherSub)) {",
+            "after": "if (s.status === \"canceled\" && (current.status !== \"comp\" || otherSub)) {",
+            "line_text": "  if (s.status === \"canceled\" && (current.status === \"comp\" || otherSub)) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/subscription-events.ts",
+            "line": 82,
+            "col": 34,
+            "operator": "and-to-or",
+            "before": "if (current?.providerCustomerId && current.providerCustomerId !== s.providerCustomerId) {",
+            "after": "if (current?.providerCustomerId || current.providerCustomerId !== s.providerCustomerId) {",
+            "line_text": "  if (current?.providerCustomerId && current.providerCustomerId !== s.providerCustomerId) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/subscription-events.ts",
+            "line": 86,
+            "col": 29,
+            "operator": "false-to-true",
+            "before": "if (stale) return { apply: false, reason: stale };",
+            "after": "if (stale) return { apply: true, reason: stale };",
+            "line_text": "  if (stale) return { apply: false, reason: stale };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/subscription-events.ts",
+            "line": 108,
+            "col": 32,
+            "operator": "eq-flip",
+            "before": "status === \"active\" || status === \"past_due\";",
+            "after": "status === \"active\" || status !== \"past_due\";",
+            "line_text": "  status === \"active\" || status === \"past_due\";",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/subscription-events.ts",
+            "line": 134,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": ": status === \"active\" || status === \"trialing\"",
+            "after": ": status !== \"active\" || status === \"trialing\"",
+            "line_text": "      : status === \"active\" || status === \"trialing\"",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/subscription-events.ts",
+            "line": 134,
+            "col": 28,
+            "operator": "or-to-and",
+            "before": ": status === \"active\" || status === \"trialing\"",
+            "after": ": status === \"active\" && status === \"trialing\"",
+            "line_text": "      : status === \"active\" || status === \"trialing\"",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/subscription-events.ts",
+            "line": 149,
+            "col": 18,
+            "operator": "neq-flip",
+            "before": "if (next.status !== \"active\") return false;",
+            "after": "if (next.status === \"active\") return false;",
+            "line_text": "  if (next.status !== \"active\") return false;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/subscription-events.ts",
+            "line": 149,
+            "col": 39,
+            "operator": "false-to-true",
+            "before": "if (next.status !== \"active\") return false;",
+            "after": "if (next.status !== \"active\") return true;",
+            "line_text": "  if (next.status !== \"active\") return false;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/jobshop-quote/packages/billing/src/pricing.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/jobshop-quote/packages/billing)",
+        "seed": 722766626,
+        "commit": "968406811",
+        "sites": 28,
+        "baseline_seconds": 0.4,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/pricing.ts",
+            "line": 22,
+            "col": 53,
+            "operator": "div-to-times",
+            "before": "export const markupForMargin = (margin: number) => 1 / (1 - margin);",
+            "after": "export const markupForMargin = (margin: number) => 1 * (1 - margin);",
+            "line_text": "export const markupForMargin = (margin: number) => 1 / (1 - margin);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/pricing.ts",
+            "line": 22,
+            "col": 58,
+            "operator": "minus-to-plus",
+            "before": "export const markupForMargin = (margin: number) => 1 / (1 - margin);",
+            "after": "export const markupForMargin = (margin: number) => 1 / (1 + margin);",
+            "line_text": "export const markupForMargin = (margin: number) => 1 / (1 - margin);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/pricing.ts",
+            "line": 24,
+            "col": 52,
+            "operator": "div-to-times",
+            "before": "export const marginForMarkup = (m: number) => 1 - 1 / m;",
+            "after": "export const marginForMarkup = (m: number) => 1 - 1 * m;",
+            "line_text": "export const marginForMarkup = (m: number) => 1 - 1 / m;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "marginForMarkup had no test; it prints the margin in assertPricingBand's error. Added a round-trip test and an error-text test."
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/pricing.ts",
+            "line": 53,
+            "col": 30,
+            "operator": "times-to-div",
+            "before": "Math.round((priceCents * 12 * (1 - discount)) / 100) * 100;",
+            "after": "Math.round((priceCents * 12 / (1 - discount)) / 100) * 100;",
+            "line_text": "  Math.round((priceCents * 12 * (1 - discount)) / 100) * 100;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/pricing.ts",
+            "line": 53,
+            "col": 48,
+            "operator": "div-to-times",
+            "before": "Math.round((priceCents * 12 * (1 - discount)) / 100) * 100;",
+            "after": "Math.round((priceCents * 12 * (1 - discount)) * 100) * 100;",
+            "line_text": "  Math.round((priceCents * 12 * (1 - discount)) / 100) * 100;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/pricing.ts",
+            "line": 53,
+            "col": 50,
+            "operator": "const-plus-one",
+            "before": "Math.round((priceCents * 12 * (1 - discount)) / 100) * 100;",
+            "after": "Math.round((priceCents * 12 * (1 - discount)) / 101) * 100;",
+            "line_text": "  Math.round((priceCents * 12 * (1 - discount)) / 100) * 100;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/pricing.ts",
+            "line": 53,
+            "col": 55,
+            "operator": "times-to-div",
+            "before": "Math.round((priceCents * 12 * (1 - discount)) / 100) * 100;",
+            "after": "Math.round((priceCents * 12 * (1 - discount)) / 100) / 100;",
+            "line_text": "  Math.round((priceCents * 12 * (1 - discount)) / 100) * 100;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/packages/billing/src/pricing.ts",
+            "line": 136,
+            "col": 48,
+            "operator": "and-to-or",
+            "before": "ok: Number.isFinite(m) && m >= band.min && m <= band.max,",
+            "after": "ok: Number.isFinite(m) && m >= band.min || m <= band.max,",
+            "line_text": "        ok: Number.isFinite(m) && m >= band.min && m <= band.max,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/pdf-pages.ts",
+        "test": "/home/user/oss-monorepo/ventures/jobshop-quote/apps/jobshop-quote/node_modules/.bin/vitest run --config vitest.unit.config.ts src/shared/pdf-pages.test.ts  (in ventures/jobshop-quote/apps/jobshop-quote)",
+        "seed": 721557366,
+        "commit": "968406811",
+        "sites": 122,
+        "baseline_seconds": 0.4,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/pdf-pages.ts",
+            "line": 10,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const MAX_INFLATED_BYTES = 8 * 1024 * 1024;",
+            "after": "const MAX_INFLATED_BYTES = 8 * 1025 * 1024;",
+            "line_text": "const MAX_INFLATED_BYTES = 8 * 1024 * 1024;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "MAX_INFLATED_BYTES bound: added a test that an object stream inflating to exactly 8 MiB is read and one byte more is refused."
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/pdf-pages.ts",
+            "line": 48,
+            "col": 50,
+            "operator": "const-plus-one",
+            "before": "roots.push({ at: m.index, count: Number(count[1]) });",
+            "after": "roots.push({ at: m.index, count: Number(count[2]) });",
+            "line_text": "    roots.push({ at: m.index, count: Number(count[1]) });",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/pdf-pages.ts",
+            "line": 56,
+            "col": 31,
+            "operator": "minus-to-plus",
+            "before": "for (let i = at; i > 0 && at - i < 4096; i--) {",
+            "after": "for (let i = at; i > 0 && at + i < 4096; i--) {",
+            "line_text": "  for (let i = at; i > 0 && at - i < 4096; i--) {",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "back-scan window: added a root placed past the first 4 KB right after a /Page with /Parent."
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/pdf-pages.ts",
+            "line": 77,
+            "col": 16,
+            "operator": "eq-flip",
+            "before": "if (depth === 0) return i + 2;",
+            "after": "if (depth !== 0) return i + 2;",
+            "line_text": "      if (depth === 0) return i + 2;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/pdf-pages.ts",
+            "line": 92,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "let total = 0;",
+            "after": "let total = 1;",
+            "line_text": "    let total = 0;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "inflate byte total: the exact-8-MiB test catches an off-by-one start."
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/pdf-pages.ts",
+            "line": 143,
+            "col": 30,
+            "operator": "plus-to-minus",
+            "before": "if (len?.[1] && dataStart + Number(len[1]) <= dataEnd) dataEnd = dataStart + Number(len[1]);",
+            "after": "if (len?.[1] && dataStart - Number(len[1]) <= dataEnd) dataEnd = dataStart + Number(len[1]);",
+            "line_text": "    if (len?.[1] && dataStart + Number(len[1]) <= dataEnd) dataEnd = dataStart + Number(len[1]);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "direct /Length overshooting endstream: added a test where /Length 99999 must fall back to endstream."
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/pdf-pages.ts",
+            "line": 145,
+            "col": 50,
+            "operator": "minus-to-plus",
+            "before": "while (dataEnd > dataStart && (text[dataEnd - 1] === \"\\n\" || text[dataEnd - 1] === \"\\r\"))",
+            "after": "while (dataEnd > dataStart && (text[dataEnd + 1] === \"\\n\" || text[dataEnd - 1] === \"\\r\"))",
+            "line_text": "      while (dataEnd > dataStart && (text[dataEnd - 1] === \"\\n\" || text[dataEnd - 1] === \"\\r\"))",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/pdf-pages.ts",
+            "line": 155,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "const pages = roots.at(-1)?.count ?? (leaves > 0 ? leaves : null);",
+            "after": "const pages = roots.at(-1)?.count ?? (leaves > 1 ? leaves : null);",
+            "line_text": "  const pages = roots.at(-1)?.count ?? (leaves > 0 ? leaves : null);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "one-leaf fallback: added a one-page PDF with no /Count."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/upload-pages.ts",
+        "issue": "uploadMimeType kept the sender's Content-Type, so a PDF uploaded or emailed as application/x-pdf, application/acrobat or text/plain was stored under that type, got no page count, and counted as zero drawing pages: a 30-page package used 1 RFQ of the monthly allowance instead of 3 (reproduced in upload-pages.test.ts and test/worker/billing.test.ts). Now a .pdf name or a PDF alias type is always application/pdf.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "27543a87-79fb-51f4-9564-1c9c0c418974",
+    "transcripts": 1,
+    "first": "2026-11-28T00:09:52Z",
+    "last": "2026-11-28T00:17:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 145,
+        "output": 28202,
+        "thinking": 7819,
+        "cache_read": 7557945,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116041,
+        "api_equivalent_usd": 3.0045,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 145,
+      "output": 28202,
+      "thinking": 7819,
+      "cache_read": 7557945,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116041,
+      "api_equivalent_usd": 3.0045,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 73,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.51,
+      "active_minutes": 7.51,
+      "model_minutes": 5.61,
+      "tool_minutes": 1.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: mutation triage, 6 tests, a metering fix with worker test, tooling change",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 166.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
