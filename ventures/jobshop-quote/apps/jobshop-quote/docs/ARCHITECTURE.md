@@ -18,7 +18,7 @@ not import from grants.
 | UI              | React 19 SPA, TanStack Router (code-based routes) + TanStack Query, Tailwind 4           |
 | Data            | D1 via Drizzle. Shared DB, every tenant row keyed by `org_id`, `ON DELETE CASCADE`       |
 | Files           | R2 `FILES`: `orgs/{orgId}/rfqs/{rfqId}/{fileId}`, `orgs/{orgId}/quotes/{quoteId}/Q-n.pdf` |
-| PDF text        | Workers AI `toMarkdown` (port `DocumentConverter`); fake reads a PDF's text with `shared/pdf-text.ts` (content streams, ToUnicode, form XObjects), other bytes as text |
+| PDF text        | Workers AI `toMarkdown` (port `DocumentConverter`); fake reads a PDF's text with `shared/pdf-text.ts` (content streams, ToUnicode, form XObjects), other bytes as text; the same reader's `readPdfLayout` gives text positions for the first article balloons (`shared/fai-balloons.ts`) |
 | CAD geometry    | Port `GeometryExtractor` (`ports/geometry.ts`); `CadFeaturesGeometry` wraps `packages/cad-features` (alias `@cad-features`, consumed as source) for STEP, ASCII DXF, STL and ASCII IGES (box and holes, no volume; its hole locations feed "Drill from CAD" like STEP's) (a file with no units of its own is read in assumed mm at low confidence until an estimator picks mm or inches: `POST /rfqs/:id/files/:fileId/units`) |
 | LLM             | Claude `claude-haiku-5-5` (env `LLM_MODEL`) via `ctx.llm` (`ports/llm.ts`), wrapped in `BudgetedLlm` (spend caps), FakeLlm offline |
 | Quote PDF       | Own minimal PDF writer (`lib/pdf.ts`, no dependency)                                     |

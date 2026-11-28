@@ -3,7 +3,7 @@
 // schedule of values (and, on Crew and up, its cost budgets). Editors write, viewers read; another
 // company's estimates answer 404; the Free plan's one active job holds back a second win.
 import type { EstimateDetailDto, EstimateListDto, ProjectDetailDto } from "@shared/api/types";
-import { jobCostBudgets } from "@worker/db/schema";
+import { jobCostBudgets, jobCostCommitments } from "@worker/db/schema";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { addToOrg, api, call, createTestUser, grantPlan, setupTenant, testDb } from "./helpers";
@@ -210,6 +210,90 @@ describe("estimates", () => {
     const after = await call<EstimateDetailDto>(`${base}/${b.id}`, { as });
     expect(after.status).toBe("draft");
     expect(after.projectId).toBeNull();
+  });
+
+  it("carries each sub's quote to the job as a subcontract on its line (Crew)", async () => {
+    const { base, as, orgId } = await tenant("crew");
+    const e = await call<EstimateDetailDto>(base, { method: "POST", as, expect: 201, json: body });
+    const quoted = [
+      ...lines.slice(0, 2),
+      { ...lines[2], vendor: "  Summit   Rigging " },
+      {
+        ...lines[2],
+        description: "Second pick",
+        unitCostMicros: 800_000_000,
+        vendor: "summit rigging",
+      },
+      // A name sent on a labor line is not kept.
+      { ...lines[0], bidItem: "Equipment setting", quantityMilli: 1_000, vendor: "Nobody" },
+    ];
+    const saved = await call<EstimateDetailDto>(`${base}/${e.id}/lines`, {
+      method: "PUT",
+      as,
+      json: { lines: quoted },
+    });
+    expect(saved.lines.map((l) => l.vendor)).toEqual([
+      null,
+      null,
+      "Summit Rigging",
+      "summit rigging",
+      null,
+    ]);
+    const won = await call<{ project: { id: string }; subcontractsAdded: number }>(
+      `${base}/${e.id}/win`,
+      { method: "POST", as, expect: 201, json: { decidedOn: "2026-12-15" } },
+    );
+    expect(won.subcontractsAdded).toBe(1);
+    const rows = await testDb()
+      .select()
+      .from(jobCostCommitments)
+      .where(eq(jobCostCommitments.projectId, won.project.id));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      kind: "subcontract",
+      category: "subcontract",
+      vendor: "Summit Rigging",
+      reference: `Quote on ${e.label}`,
+      description: "Crane and rigging; Second pick",
+      committedOn: "2026-12-15",
+      amountCents: 400_000,
+      createdBy: as,
+    });
+    const job = await call<ProjectDetailDto>(`/api/orgs/${orgId}/projects/${won.project.id}`, {
+      as,
+    });
+    expect(rows[0]?.sovLineId).toBe(job.sovLines[1]?.id);
+  });
+
+  it("adds no subcontracts when asked not to, or on Free", async () => {
+    const crew = await tenant("crew");
+    const free = await tenant();
+    for (const [t, json] of [
+      [crew, { subcontracts: false }],
+      [free, {}],
+    ] as const) {
+      const e = await call<EstimateDetailDto>(t.base, {
+        method: "POST",
+        as: t.as,
+        expect: 201,
+        json: body,
+      });
+      await call(`${t.base}/${e.id}/lines`, {
+        method: "PUT",
+        as: t.as,
+        json: { lines: [{ ...lines[2], vendor: "Summit Rigging" }] },
+      });
+      const won = await call<{ project: { id: string }; subcontractsAdded: number }>(
+        `${t.base}/${e.id}/win`,
+        { method: "POST", as: t.as, expect: 201, json },
+      );
+      expect(won.subcontractsAdded).toBe(0);
+      const rows = await testDb()
+        .select()
+        .from(jobCostCommitments)
+        .where(eq(jobCostCommitments.projectId, won.project.id));
+      expect(rows).toHaveLength(0);
+    }
   });
 
   it("refuses to win an empty estimate", async () => {

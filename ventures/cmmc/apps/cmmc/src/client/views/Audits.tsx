@@ -782,7 +782,14 @@ function AuditDetail({
   });
   const label = (k: FindingKind) => kinds.find((x) => x.key === k)?.label ?? k;
   return (
-    <Card title={audit.title}>
+    <Card
+      title={audit.title}
+      actions={
+        <a className={btnGhostCls} href={`/api/orgs/${orgId}/audits/${audit.id}/report.md`}>
+          Download audit report
+        </a>
+      }
+    >
       {audit.summary && <p className="mb-2 text-sm text-stone-700">{audit.summary}</p>}
       {audit.findings.length === 0 ? (
         <p className="mb-2 text-sm text-stone-600">No findings recorded.</p>

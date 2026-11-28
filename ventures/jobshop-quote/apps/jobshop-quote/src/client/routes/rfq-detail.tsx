@@ -215,6 +215,15 @@ export function RfqDetailPage() {
                     Inspect first article
                   </Link>
                 )}{" "}
+                {f.hasText && f.mimeType === "application/pdf" && (
+                  <a
+                    className="text-sky-800 underline"
+                    href={orgApi(orgId, `/rfqs/${rfqId}/files/${f.id}/ballooned.pdf`)}
+                    title="The drawing with a numbered balloon beside each characteristic found in its text, numbered as in the CSV: check every balloon against the drawing"
+                  >
+                    Ballooned drawing (PDF)
+                  </a>
+                )}{" "}
                 {/* A PDF that read without error but gave no text is usually a scan: the extractor
                     saw nothing in it, so say so rather than let an empty part look complete. */}
                 {f.mimeType === "application/pdf" && !f.hasText && !f.conversionError && (

@@ -33,7 +33,9 @@ claimed (pick another). --bets also lists each bet's open "Must do before a publ
 bullets, gated like Next items, and starts a run on the first free one when its bet ranks at
 or above the first free Next item. When no bet has a free, ungated item, --bets lists each bet's
 `**Growth path:**` topics from bets.md with the live and merged claims on each, and names
-the least-crowded bet's first topic with no live claim. Both picks (the free item and the
+the least-crowded bet's first topic with no live claim. Its front-door tally counts
+merged PRs and open ones (GitHub search, as slug_dupe.py uses), so a bet whose pages are piling up
+in open PRs is not named the least worked. Both picks (the free item and the
 untouched topic) rotate per session among the first three, so parallel runs spread out.
 Hosts an item names (wyoleg.gov,
 ksef.podatki.gov.pl) are probed through this session's proxy (egress_probe.py, a few seconds,
@@ -1062,23 +1064,52 @@ def front_door_log(repo: Path, days: int = 7) -> tuple[dict[int, list[str]], str
     return front_door_subjects(subjects, added), (dates[-1] if dates else None)
 
 
+def open_pr_titles(repo: Path) -> list[str] | None:
+    """Titles of the open PRs on `repo`'s GitHub origin that name a bet, else None.
+
+    The merged-only tally sent parallel runs to the bet whose front door looked least worked,
+    and they all took it: at 2026-11-28 ~13:00 UTC eight bet #5 front-door PRs (#20122 to
+    #20154) were open while --bets still said "Fewest front-door PRs: bet #5", and three
+    records that day named the pile-up (seller-books Etsy/Whatnot/Mercari/Depop/StockX pages).
+    Uses the same unauthenticated-friendly search slug_dupe.py does.
+    """
+    url = git(str(repo), "remote", "get-url", "origin").stdout.strip()
+    m = re.search(r"(?:github\.com[:/]|/git/)([^/\s]+)/([^/\s]+?)(?:\.git)?/?$", url)
+    if not m:
+        return None
+    q = f"repo:{m.group(1)}/{m.group(2)} is:pr is:open in:title bet"
+    try:
+        r = subprocess.run(["gh", "api", "-X", "GET", "search/issues", "-f", f"q={q}",
+                            "-f", "per_page=100", "--jq", ".items[].title"],
+                           capture_output=True, text=True, timeout=20)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return r.stdout.splitlines() if r.returncode == 0 else None
+
+
 def print_front_doors(ranks: list[int], repo: Path, days: int = 7) -> None:
     doors, oldest = front_door_log(repo, days)
     if oldest is None:
         return
+    titles = open_pr_titles(repo)
+    opened = front_door_subjects(titles) if titles is not None else {}
     parts = []
     for rank in ranks:
         slugs = doors.get(rank, [])
         shown = ", ".join(slugs[:4]) + (", ..." if len(slugs) > 4 else "")
-        parts.append(f"#{rank} {len(slugs)}" + (f" ({shown})" if slugs else ""))
-    fewest = min(ranks, key=lambda r: (len(doors.get(r, [])), r))
+        now_open = opened.get(rank, [])
+        parts.append(f"#{rank} {len(slugs)}" + (f" ({shown})" if slugs else "")
+                     + (f" + {len(now_open)} open ({', '.join(now_open[:4])}"
+                        f"{', ...' if len(now_open) > 4 else ''})" if now_open else ""))
+    fewest = min(ranks, key=lambda r: (len(doors.get(r, [])) + len(opened.get(r, [])), r))
     since = time.strftime("%Y-%m-%d", time.gmtime(time.time() - days * 86400))
     short = (f" (the clone's history starts {oldest}: `git fetch --shallow-since={since} origin main` "
              f"for the full {days} days)") if oldest > since and git(
         str(repo), "rev-parse", "--is-shallow-repository").stdout.strip() == "true" else ""
     print(f"  Front-door PRs merged on main since {max(oldest, since)}{short}, by bet: "
-          + "; ".join(parts) + ".")
-    print(f"  Fewest front-door PRs: bet #{fewest}. Its front door is the least-worked demand side; a page for a "
+          + "; ".join(parts) + "."
+          + ("" if titles is not None else " Open PRs unchecked (GitHub search unavailable)."))
+    print(f"  Fewest front-door PRs{' (merged and open)' if titles is not None else ''}: bet #{fewest}. Its front door is the least-worked demand side; a page for a "
           f"search its buyers make (bets.md **Distribution:**) is a good pick there.")
 
 

@@ -9,7 +9,9 @@
 //   - tables with a header row (tab-separated rows pasted from Excel, Markdown pipe tables from a
 //     converted PDF, or columns lined up with two or more spaces): Part / P/N, Rev, Description, Qty,
 //     Material, Finish, Due;
-//   - a line like "Please quote 25 pcs of BRK-1001 Rev B".
+//   - a line like "Please quote 25 pcs of BRK-1001 Rev B" (one part per "N pcs of" in it);
+//   - a numbered or bulleted list line that starts with a part number and says its revision or
+//     quantity: "1) 4410-0021 Rev C - Mounting bracket, Qty 50 / 100", "- PN 30311 rev B, qty 12".
 // Attachments (the "--- Attachment: name ---" sections of `rfqSourceText`) fill the blanks of the part
 // whose number they carry. Anything else is left for the estimator: a blank field is a question, never
 // a guess.
@@ -50,7 +52,25 @@ const DWG_LABEL = String.raw`(?:dwg|drawing)\s*(?:number|no\.?|#)`;
 /** A part number: starts with a letter or digit, carries at least one digit, no spaces. */
 const PN_VALUE = String.raw`([A-Za-z0-9][\w\-./]*\d[\w\-./]*|[A-Za-z0-9][\w\-./]*)`;
 
-const PN_LINE = new RegExp(String.raw`^\s*(?:\d+[.)]\s*)?${PN_LABEL}\s*[:#=-]\s*${PN_VALUE}`, "i");
+/** "1)", "2.", "-", "*" or "•" before a list line. */
+const LIST_MARK = String.raw`(?:\d+[.)]|[-*•])`;
+const PN_LINE = new RegExp(
+  String.raw`^\s*(?:${LIST_MARK}\s*)?${PN_LABEL}\s*[:#=-]\s*${PN_VALUE}`,
+  "i",
+);
+/** "PN 30311" or "P/N 30311" with no colon: only labels that cannot be an ordinary word. */
+const PN_SPACE_LINE = new RegExp(
+  String.raw`^\s*(?:${LIST_MARK}\s*)?(?:p\/n|pn|part\s*(?:no\.?|#|number))\s+${PN_VALUE}`,
+  "i",
+);
+/**
+ * A list line that starts with the part number itself: "1) 4410-0021 Rev C - Bracket, Qty 50".
+ * Only taken as a part when the rest of the line names a revision or a quantity (`listPart`).
+ */
+const LIST_PN_LINE = new RegExp(
+  String.raw`^\s*${LIST_MARK}\s+([A-Za-z0-9][\w\-./]*\d[\w\-./]*)(.*)$`,
+  "i",
+);
 const DWG_LINE = new RegExp(String.raw`^\s*${DWG_LABEL}\s*[:#=-]?\s*${PN_VALUE}`, "i");
 const REV = /\brev(?:ision)?\b\.?\s*[:#]?\s*([A-Za-z0-9]{1,3})\b/i;
 
@@ -84,11 +104,14 @@ function dueFrom(line: string): string | null {
 
 type Column = PartField | "quantities" | "dueDate";
 
-const HEADER_WORDS: [RegExp, Column][] = [
+const HEADER_WORDS: [RegExp, Column | "item"][] = [
   [
     /^(?:part\s*(?:number|num\.?|no\.?|#)?|p\/?n|item\s*(?:number|no\.?|#)|dwg\s*(?:no\.?|#)?)$/i,
     "partNumber",
   ],
+  // A bare "Item" column is the part number in many purchasing exports, but in others it is the
+  // line number: it counts only when no other column names the part (`headerColumns`).
+  [/^item$/i, "item"],
   [/^(?:rev\.?|revision)$/i, "revision"],
   [/^(?:description|desc\.?|part\s*name|title)$/i, "description"],
   [/^(?:qty|qtys|quantity|quantities|qty\.?\s*req(?:uired)?|order\s*qty)\.?$/i, "quantities"],
@@ -96,7 +119,7 @@ const HEADER_WORDS: [RegExp, Column][] = [
   [/^(?:finish|coating|plating)$/i, "finish"],
   [/^(?:tolerances?)$/i, "tolerances"],
   [
-    /^(?:due(?:\s*date)?|need\s*by|required\s*(?:by|date)|date\s*required|delivery(?:\s*date)?|ship\s*by)$/i,
+    /^(?:due(?:\s*date)?|need\s*(?:by|date)|required\s*(?:by|date)?|req(?:'d|\.)?\s*(?:by|date)|date\s*required|delivery(?:\s*date)?|ship\s*by)$/i,
     "dueDate",
   ],
 ];
@@ -117,7 +140,11 @@ const isRule = (line: string) => /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\
 function headerColumns(line: string): { cols: (Column | null)[]; sep: string } | null {
   const row = cells(line);
   if (!row) return null;
-  const cols = row.cells.map((c) => HEADER_WORDS.find(([re]) => re.test(c))?.[1] ?? null);
+  const named = row.cells.map((c) => HEADER_WORDS.find(([re]) => re.test(c))?.[1] ?? null);
+  const hasPn = named.includes("partNumber");
+  const cols: (Column | null)[] = named.map((c) =>
+    c === "item" ? (hasPn ? null : "partNumber") : c,
+  );
   const known = cols.filter(Boolean);
   // A header names at least two columns, one of them the part or its description, and no twice.
   if (known.length < 2 || new Set(known).size !== known.length) return null;
@@ -175,12 +202,42 @@ function readTables(lines: string[], used: Set<number>): Part[] {
 // ---------------------------------------------------------------------------------------------
 // Labelled blocks
 
-function partStart(line: string): { pn: string } | null {
-  const m = PN_LINE.exec(line) ?? DWG_LINE.exec(line);
+function partStart(line: string): { pn: string; description?: string } | null {
+  const m = PN_LINE.exec(line) ?? DWG_LINE.exec(line) ?? PN_SPACE_LINE.exec(line);
+  if (m?.[1]) {
+    // "Part: the bracket below" is not a part number: one needs a digit or a dash.
+    if (!/\d|-/.test(m[1])) return null;
+    return { pn: m[1].replace(/[.,;]+$/, "") };
+  }
+  return listPart(line);
+}
+
+const REV_CLAUSE = /^\s*,?\s*rev(?:ision)?\b\.?\s*[:#]?\s*[A-Za-z0-9]{1,3}\b/i;
+const QTY_CLAUSE = /,?\s*\b(?:qty|qtys|quantity|quantities)\b/i;
+
+/**
+ * "1) 4410-0021 Rev C - Mounting bracket, 6061-T6, Qty 50 / 100": a numbered or bulleted line that
+ * starts with something shaped like a part number and goes on to name its revision or quantity.
+ * The description is the text after a dash or colon up to the quantity, read as written; nothing
+ * in it (material, finish) is taken as a labelled value.
+ */
+function listPart(line: string): { pn: string; description?: string } | null {
+  const m = LIST_PN_LINE.exec(line);
   if (!m?.[1]) return null;
-  // "Part: the bracket below" is not a part number: one needs a digit or a dash.
-  if (!/\d|-/.test(m[1])) return null;
-  return { pn: m[1].replace(/[.,;]+$/, "") };
+  const pn = m[1].replace(/[.,;:]+$/, "");
+  const rest = m[2] ?? "";
+  // A date ("1) 12/18/2026 at the latest") or a bare count ("2. 25 pcs") is not a part number.
+  if (pn.length < 4 || datesIn(pn).size > 0 || /^\d{1,3}(?:,\d{3})*$/.test(pn)) return null;
+  // "- 1000 pcs" is a count, not a part.
+  if (/^\s*(?:pcs?|pieces|ea|each|units)\b/i.test(rest)) return null;
+  // The number stands alone: a revision, a dash, a colon or a comma comes right after it, so
+  // "1) M6x1.0 tapped holes, qty 4" is a note about the part, not a part.
+  if (!REV_CLAUSE.test(rest) && !/^\s*[-–—:,]/.test(rest)) return null;
+  if (!/\brev(?:ision)?\b|\b(?:qty|quantity|quantities|pcs?|pieces|ea)\b/i.test(rest)) return null;
+  const afterRev = rest.replace(REV_CLAUSE, "");
+  const sep = /^\s*[-–—:]\s+(.*)$/.exec(afterRev);
+  const desc = sep?.[1]?.split(QTY_CLAUSE)[0]?.replace(/[\s,;]+$/, "");
+  return { pn, description: desc && /[A-Za-z]/.test(desc) ? desc : undefined };
 }
 
 interface Shared {
@@ -221,18 +278,29 @@ function readBlocks(
   // Lines outside every part block: "Material: 6061-T6 for all parts" above the list.
   const loose = emptyPart();
   let current: Part | null = null;
+  // A list item complete on one line ("1) 4410-0021 Rev C, Qty 50") owns only the lines indented
+  // under it; "Finish:" or "Need by" back at the margin is for the whole list.
+  let itemIndent: number | null = null;
+  const indent = (l: string) => /^\s*/.exec(l)?.[0].length ?? 0;
   for (let i = 0; i < lines.length; i++) {
     if (used.has(i)) continue;
     const line = lines[i] ?? "";
+    if (itemIndent !== null && indent(line) <= itemIndent) {
+      current = null;
+      itemIndent = null;
+    }
     const start = partStart(line);
     if (start) {
       current = emptyPart();
       current.partNumber = field(start.pn, line);
+      if (start.description) current.description = field(start.description, line);
       const rev = REV.exec(line.slice(line.toLowerCase().indexOf(start.pn.toLowerCase())));
       if (rev?.[1]) current.revision = field(rev[1], line);
       parts.push(current);
       // "Part number: BRK-1001 Rev B, qty 25" on one line.
       readLine(current, line.replace(/^.*?\b(?=qty|quantity)/i, ""));
+      const listed = new RegExp(String.raw`^\s*${LIST_MARK}\s`).test(line);
+      itemIndent = listed && current.quantities.values.length > 0 ? indent(line) : null;
       continue;
     }
     readLine(current ?? loose, line);
@@ -250,24 +318,32 @@ function readBlocks(
   };
 }
 
-/** "Please quote 25 pcs of BRK-1001 Rev B" (and one such line per part). */
+/**
+ * "Please quote 25 pcs of BRK-1001 Rev B". A line that names several parts, "50 pcs of A-1001 and
+ * 100 pcs of A-1002", gives one part per match, each with only its own count and revision.
+ */
 function inlineParts(lines: string[], used: Set<number>): Part[] {
   const out: Part[] = [];
+  const all = new RegExp(INLINE_QTY.source, "gi");
   lines.forEach((line, i) => {
     if (used.has(i)) return;
-    const m = INLINE_QTY.exec(line);
-    if (!m?.[1] || !m[2]) return;
-    const pn = m[2].replace(/[.,;]+$/, "");
-    const p = emptyPart();
-    p.partNumber = field(pn, line);
-    const values = quantitiesFrom(line);
-    if (values.length > 0 && line.trim().length <= MAX_QUOTE) {
-      p.quantities = { values, quote: line.trim() };
-    }
-    const rev = REV.exec(line.slice((m.index ?? 0) + m[0].length - m[2].length));
-    if (rev?.[1]) p.revision = field(rev[1], line);
-    if (DUE_WORDS.test(line)) p.dueDate = field(dueFrom(line), line);
-    out.push(p);
+    const matches = [...line.matchAll(all)].filter((m) => m[1] && m[2]);
+    matches.forEach((m, k) => {
+      const pn = (m[2] ?? "").replace(/[.,;]+$/, "");
+      const p = emptyPart();
+      p.partNumber = field(pn, line);
+      // One part on the line: every count on it ("10, 25 and 50 pcs of"); several: each its own.
+      const values = matches.length === 1 ? quantitiesFrom(line) : quantitiesFrom(m[1] ?? "");
+      if (values.length > 0 && line.trim().length <= MAX_QUOTE) {
+        p.quantities = { values, quote: line.trim() };
+      }
+      const from = (m.index ?? 0) + m[0].length - (m[2] ?? "").length;
+      const to = matches[k + 1]?.index ?? line.length;
+      const rev = REV.exec(line.slice(from, to));
+      if (rev?.[1]) p.revision = field(rev[1], line);
+      if (DUE_WORDS.test(line)) p.dueDate = field(dueFrom(line), line);
+      out.push(p);
+    });
   });
   return out;
 }
