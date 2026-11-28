@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First venture test run failed on the new page's meta description (>160) and og:description (>200); shortened both."
+    "First venture test run failed on the new page's meta description (>160) and og:description (>200); shortened both.",
+    "CI (changed-ventures, validate) caught three issues local venture tests did not: SHAPES[key] without Object.hasOwn (inherited_keys.py), an unanchored number exemption beside the CSV formula guard (check_csv_formula_guard.py), and a <table> with no static <th> (check_table_headers.py). Fixed in the same PR."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,14 @@
     {
       "file": "ventures/machine-shop-guides (footer)",
       "issue": "Page footers are hand-maintained lists that have already drifted (nist-800-171-policy-templates missing from them); adding a page meant a scripted edit across 26 files. A cta.mjs-style generated footer would remove this."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Running --for-changes narrowed the clone's sparse checkout to a few ventures, deleting the working copy of the venture I was editing (my work was already committed); it also made several local checks fail on 'sparse checkout' and missing sibling ventures. Had to `git sparse-checkout add` it back."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "A local pass of `run_venture_tests.py <slug>` does not run the unwired tree checks (csv formula guard, inherited keys, table headers) that CI's changed-ventures runs; CLAUDE.md says a local pass is the CI pass. The note points at unwired_checks.py; it is worth running for a new page."
     }
   ],
   "deviations": [
