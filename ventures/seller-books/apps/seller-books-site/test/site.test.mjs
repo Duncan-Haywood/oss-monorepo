@@ -62,7 +62,21 @@ import {
   SELLER_COLLECTED_SALES,
   SHOTS,
   STOCK_EXAMPLE,
+  STOCKX_CHECKED_ON,
+  STOCKX_EXAMPLE,
+  STOCKX_EXPORT_URL,
+  STOCKX_FEE_BASE_QUOTE,
+  STOCKX_FEES_QUOTE,
+  STOCKX_FEES_URL,
+  STOCKX_GROSS_QUOTE,
+  STOCKX_HYPERWALLET_QUOTE,
+  STOCKX_LEVEL1,
+  STOCKX_LISTINGS_QUOTE,
+  STOCKX_LIVE_QUOTE,
+  STOCKX_TAX_URL,
   stockExampleFigures,
+  stockxFees,
+  stockxLines,
   WHATNOT_1099K_QUOTE,
   WHATNOT_1099K_URL,
   WHATNOT_CHECKED_ON,
@@ -1334,6 +1348,94 @@ describe("the Mercari taxes page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/mercari-taxes)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/mercari-taxes`));
+  });
+});
+
+describe("the StockX taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/stockx-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("each sale's fees at the published Level 1 rates, by hand; the minimum never binds", () => {
+    assert.deepEqual(STOCKX_LEVEL1, {
+      transactionBp: 900,
+      processingBp: 300,
+      minimumFeeCents: 500,
+    });
+    assert.deepEqual(
+      STOCKX_EXAMPLE.map((r) => stockxFees(r.priceCents)),
+      [
+        { transaction: 1980, processing: 660, payout: 19360 },
+        { transaction: 1350, processing: 450, payout: 13200 },
+        { transaction: 855, processing: 285, payout: 8360 },
+      ],
+    );
+    for (const r of STOCKX_EXAMPLE) assert.ok(r.priceCents * 0.09 > STOCKX_LEVEL1.minimumFeeCents);
+    // Below $55.56 the $5.00 minimum takes over.
+    assert.equal(stockxFees(4000).transaction, 500);
+  });
+
+  test("the Schedule C lines, by hand", () => {
+    const L = stockxLines();
+    assert.deepEqual(L, { line1: 46500, line10: 5580, cogs: 33000, payouts: 40920, profit: 7920 });
+    assert.equal(L.line1 - L.line10, L.payouts);
+    assert.ok(L.profit < L.payouts / 5);
+    const html = htmlOf(page());
+    for (const s of [
+      "$465.00",
+      "$55.80",
+      "$330.00",
+      "$409.20",
+      "$79.20",
+      "$19.80",
+      "$2.85",
+      "$83.60",
+    ])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("the app reads StockX's fees from the seller's file, never from a rate", () => {
+    const mapping = appFile("src/shared/column-mapping.ts");
+    assert.match(mapping, /"stockx"/);
+    const mapped = appFile("src/worker/services/importers/mapped.ts");
+    assert.match(mapped, /Math\.abs\(v\)/);
+    assert.doesNotMatch(mapped, /0\.09|900|STOCKX/);
+    assert.match(appFile("src/shared/sales-tax.ts"), /StockX/);
+    assert.match(htmlOf(page()), /not from a rate/);
+  });
+
+  test("StockX's own words, quoted with their sources and the dated check", () => {
+    const html = htmlOf(page());
+    assert.match(STOCKX_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    const quoted = (q) => q.replaceAll("'", "&#39;").replaceAll('"', "&quot;");
+    for (const s of [
+      STOCKX_FEES_URL,
+      STOCKX_TAX_URL,
+      STOCKX_EXPORT_URL,
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+    for (const q of [
+      STOCKX_FEES_QUOTE,
+      STOCKX_FEE_BASE_QUOTE,
+      STOCKX_LIVE_QUOTE,
+      STOCKX_LISTINGS_QUOTE,
+      STOCKX_GROSS_QUOTE,
+      STOCKX_HYPERWALLET_QUOTE,
+    ])
+      assert.ok(html.includes(q) || html.includes(quoted(q)), q);
+    for (const u of [STOCKX_FEES_URL, STOCKX_TAX_URL, STOCKX_EXPORT_URL])
+      assert.match(u, /^https:\/\/stockx\.com\//);
+    assert.match(html, /secondary summary/);
+  });
+
+  test("linked from the StockX platform page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/stockx-taxes"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/platforms/stockx")).includes(link));
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/stockx-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/stockx-taxes`));
   });
 });
 
