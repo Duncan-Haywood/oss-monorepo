@@ -295,6 +295,123 @@ STATE_RULES.OH = {
   residentialNote: "60 days applies to a one- or two-family dwelling or a residential condominium unit; other residential work, such as apartment buildings, has 75 days.",
 };
 
+// Added 2026-11-28: six states whose lien-filing clock the paid product
+// (ventures/payapps/apps/payapps/src/shared/lien-deadline.ts) already carries,
+// each read whole on the legislature's own site on 2026-11-27 (payapps
+// ROADMAP, "Lien deadline, six more states"). The rules are copied from that
+// file, and payapps' lien-deadline-parity.test.ts now checks all sixteen
+// states on a grid of dates, so the two copies cannot drift apart.
+//   - Michigan, MCL 570.1111(1): claim of lien within 90 days after the
+//     claimant's last furnishing. Notice of furnishing, MCL 570.1109(1):
+//     "within 20 days after furnishing the first labor or material"; a late
+//     notice keeps the lien except to the extent the owner paid the
+//     contractor on a sworn statement or waiver before it (subsections 5, 6).
+//     Wording from the Michigan Legislature's text, snapshot in
+//     ventures/payapps/packages/lien-waivers/sources/mi-570-1108-1109.txt.
+//   - Minnesota, Minn. Stat. 514.08 subd. 1: 120 days after last furnishing,
+//     the statement filed and a copy served on the owner.
+//   - Nevada, NRS 108.226(1): 90 days after the LATER of completion of the
+//     work of improvement and the claimant's own last furnishing, or 40 days
+//     after a recorded and served notice of completion.
+//   - Oregon, ORS 87.035(1): 75 days after the claimant stopped providing
+//     labor, materials or equipment, or 75 days after completion of
+//     construction, whichever is earlier.
+//   - Utah, Utah Code 38-1a-502(1): 180 days after final completion of the
+//     original contract, or 90 days after a notice of completion is filed.
+//   - Virginia, Va. Code 43-4: 90 days from the last day of the month of last
+//     furnishing, and no later than 90 days after the building is completed
+//     or the work otherwise terminated.
+// Their notices before the lien (other than Michigan's) were not read for
+// this tool, so they are shown as "not dated here", never as not required.
+STATE_RULES.MI = {
+  name: "Michigan",
+  citation: "Mich. Comp. Laws §§ 570.1109, 570.1111",
+  sources: [
+    { label: "MCL 570.1109 (notice of furnishing)", url: "https://www.legislature.mi.gov/Laws/MCL?objectName=mcl-570-1109" },
+    { label: "MCL 570.1111 (claim of lien)", url: "https://www.legislature.mi.gov/Laws/MCL?objectName=mcl-570-1111" },
+  ],
+  prelim: { type: "days_after_first", days: 20, lateNote: "Michigan: a late notice of furnishing does not defeat the lien for work after it is served, nor for work before it, except to the extent the owner already paid the contractor for your work on a contractor's sworn statement or a lien waiver (MCL 570.1109(5), (6)). Serve it now." },
+  lien: { type: "days_after_last", days: 90 },
+  lienLabel: "record a claim of lien",
+  prelimLabel: "notice of furnishing",
+  prelimHow: "The notice of furnishing goes to the designee and the general contractor named in the notice of commencement, personally or by certified mail. If the owner has not recorded (or, on a residential structure, provided on request) a notice of commencement, the 20 days run from when it is recorded or furnished to you (MCL 570.1108(10), (11); 570.1108a(9)), so the true date can be later than this one. The claim of lien is recorded in each county where the property is.",
+};
+
+STATE_RULES.MN = {
+  name: "Minnesota",
+  citation: "Minn. Stat. § 514.08, subd. 1",
+  sources: [
+    { label: "Minn. Stat. 514.08 (statement of the claim)", url: "https://www.revisor.mn.gov/statutes/cite/514.08" },
+  ],
+  prelim: { type: "not_modeled", reason: "Minnesota's notices before the lien were not checked against the statute for this tool, so no date is shown for them. Only the lien statement below is dated." },
+  lien: { type: "days_after_last", days: 120 },
+  lienLabel: "file the lien statement and serve a copy on the owner",
+  prelimLabel: "preliminary notice",
+  lienExtra: "Both steps are due within the 120 days: the statement filed with the county recorder (or registrar of titles for registered land), and a copy served personally or by certified mail on the owner, the owner's agent or the person who contracted with the contractor (§ 514.08, subd. 1).",
+};
+
+STATE_RULES.NV = {
+  name: "Nevada",
+  citation: "Nev. Rev. Stat. § 108.226(1)",
+  sources: [
+    { label: "NRS chapter 108 (108.226, notice of lien)", url: "https://www.leg.state.nv.us/NRS/NRS-108.html" },
+  ],
+  prelim: { type: "not_modeled", reason: "Nevada's notice of right to lien was not checked against the statute for this tool, so no date is shown for it. Only the notice of lien below is dated." },
+  lien: {
+    type: "earlier_of_completion",
+    completionDays: 90,
+    noticeOfCompletionDays: 40,
+    latestOfOwn: true,
+    completionWhat: "completion of the work of improvement",
+  },
+  lienLabel: "record a notice of lien",
+  prelimLabel: "notice of right to lien",
+  lienExtra: "Nevada counts 90 days from the later of completion of the work of improvement and your own last furnishing, so a completion date before your last day is not used; a recorded and served notice of completion shortens it to 40 days after recording (§§ 108.226(1), 108.228).",
+};
+
+STATE_RULES.OR = {
+  name: "Oregon",
+  citation: "Or. Rev. Stat. § 87.035(1)",
+  sources: [
+    { label: "ORS chapter 87 (87.035, filing the claim)", url: "https://www.oregonlegislature.gov/bills_laws/ors/ors087.html" },
+  ],
+  prelim: { type: "not_modeled", reason: "Oregon's notice of right to a lien was not checked against the statute for this tool, so no date is shown for it. Only the claim of lien below is dated." },
+  lien: { type: "earlier_of_own_and_completion", days: 75, monthEnd: false, completionDays: 75, completionWhat: "completion of construction" },
+  lienLabel: "file a claim of lien with the county recording officer",
+  prelimLabel: "notice of right to a lien",
+};
+
+STATE_RULES.UT = {
+  name: "Utah",
+  citation: "Utah Code § 38-1a-502(1)",
+  sources: [
+    { label: "Utah Code 38-1a-502 (notice of construction lien)", url: "https://le.utah.gov/xcode/Title38/Chapter1A/38-1a-S502.html" },
+  ],
+  prelim: { type: "not_modeled", reason: "Utah's preliminary notice in the State Construction Registry was not checked against the statute for this tool, so no date is shown for it. Only the notice of construction lien below is dated." },
+  lien: {
+    type: "earlier_of_completion",
+    completionDays: 180,
+    noticeOfCompletionDays: 90,
+    completionWhat: "final completion of the original contract",
+  },
+  lienLabel: "submit a notice of construction lien for recording",
+  prelimLabel: "preliminary notice",
+  lienExtra: "With a notice of completion filed (§ 38-1a-507) the time is 90 days after it, and never later than 180 days after final completion. A subcontractor who does substantial work after the certificate of occupancy or final inspection has 180 days after its own final work (§ 38-1a-502(1)(b)).",
+};
+
+STATE_RULES.VA = {
+  name: "Virginia",
+  citation: "Va. Code § 43-4",
+  sources: [
+    { label: "Va. Code § 43-4 (memorandum of lien)", url: "https://law.lis.virginia.gov/vacode/title43/chapter1/section43-4/" },
+  ],
+  prelim: { type: "not_modeled", reason: "Virginia's notices before the lien were not checked against the statute for this tool, so no date is shown for them. Only the memorandum of lien below is dated." },
+  lien: { type: "earlier_of_own_and_completion", days: 90, monthEnd: true, completionDays: 90, completionWhat: "completion of the building, or the work on it otherwise terminated" },
+  lienLabel: "file a memorandum of lien in the clerk's office",
+  prelimLabel: "preliminary notice",
+  lienExtra: "Virginia gives subcontractors and suppliers the same deadline as the general contractor (§§ 43-4, 43-7): 90 days from the last day of the month you last furnished, and in no event later than 90 days after the building is completed or the work otherwise terminated.",
+};
+
 export const PROJECT_TYPES = ["commercial", "residential"];
 // "first": you contract with the general (original) contractor.
 // "second": you contract with a subcontractor or a supplier (sub-sub or
@@ -383,11 +500,16 @@ function resolveLien(rule, ctx) {
         description: `the 15th day of the ${ordinal(rule.monthsAfter)} month after the month the claimant last furnished labor or materials`,
       };
     case "earlier_of_completion": {
-      const basis = ctx.completion || ctx.last;
+      // latestOfOwn (Nevada): the statute counts from the later of completion
+      // and the claimant's own last furnishing, so an earlier completion is
+      // not used.
+      const completion = ctx.completion && (!rule.latestOfOwn || ctx.completion >= ctx.last) ? ctx.completion : null;
+      const basis = completion || ctx.last;
+      const what = rule.completionWhat || "completion of the project";
       const candidates = [
         {
           date: addDays(basis, rule.completionDays),
-          description: `${describeDays(rule.completionDays)} after completion of the project${ctx.completion ? "" : " (using your last furnishing date, which can only be the same or earlier than completion, so this is the safe side)"}`,
+          description: `${describeDays(rule.completionDays)} after ${what}${completion ? "" : ctx.completion ? " (your completion date is before your last furnishing, and the statute counts from the later of the two, so your last furnishing date is used)" : " (using your last furnishing date, which can only be the same or earlier than completion, so this is the safe side)"}`,
         },
       ];
       if (ctx.noticeOfCompletion) {
@@ -404,6 +526,34 @@ function resolveLien(rule, ctx) {
           candidates.length > 1
             ? `the earlier of: ${candidates.map((c) => c.description).join("; or ")}`
             : first.description,
+        usedLastFurnishingAsCompletion: !ctx.completion,
+      };
+    }
+    case "earlier_of_own_and_completion": {
+      // Oregon, Virginia: the earlier of a count from the claimant's own last
+      // furnishing (from the last day of that month when monthEnd) and a count
+      // from completion. Completion can come before a sub's last day (punch
+      // work after it), so an entered completion is used whatever its order;
+      // without one, completion's days count from the last furnishing, the
+      // earliest completion can be.
+      const own = rule.monthEnd ? new Date(Date.UTC(ctx.last.getUTCFullYear(), ctx.last.getUTCMonth() + 1, 0)) : ctx.last;
+      const byOwn = {
+        date: addDays(own, rule.days),
+        description: rule.monthEnd
+          ? `${describeDays(rule.days)} from the last day of the month the claimant last furnished labor or materials`
+          : `${describeDays(rule.days)} after the claimant's last furnishing of labor or materials`,
+      };
+      const byCompletion = {
+        date: addDays(ctx.completion || ctx.last, rule.completionDays),
+        description: ctx.completion
+          ? `${describeDays(rule.completionDays)} after ${rule.completionWhat}`
+          : `${describeDays(rule.completionDays)} after your last furnishing, the earliest ${rule.completionWhat} can be`,
+      };
+      const first = byCompletion.date < byOwn.date ? byCompletion : byOwn;
+      const other = first === byOwn ? byCompletion : byOwn;
+      return {
+        date: first.date,
+        description: first.date.getTime() === other.date.getTime() ? byOwn.description : `${first.description} (earlier than ${other.description})`,
         usedLastFurnishingAsCompletion: !ctx.completion,
       };
     }
@@ -527,6 +677,7 @@ export function lienDeadlines({
   let lien = null;
   let noticeSchedule = null;
   let prelimNotRequired = null;
+  let prelimNotModeled = null;
   let prelimRule = null;
   let lateNoticeReach = null;
 
@@ -546,6 +697,8 @@ export function lienDeadlines({
     }
     if (prelimRule.type === "not_required") {
       prelimNotRequired = prelimRule.reason;
+    } else if (prelimRule.type === "not_modeled") {
+      prelimNotModeled = prelimRule.reason;
     } else if (prelimRule.type === "days_before_lien") {
       // Count back from the safe (business-day) filing date the page tells the
       // user to file on, so serving the notice on its shown date and filing on
@@ -567,6 +720,8 @@ export function lienDeadlines({
       if (isPrelim && prelimRule && prelimRule.lookback && now) {
         lateNoticeReach = addDays(now, -prelimRule.days);
         add("high", `The ${kind} date has already passed`, `The date to cover all your work was ${formatDate(d.date)}. ${info.name} still lets you give the ${label} late, but it then protects only work furnished in the ${describeDays(prelimRule.days)} before it is given, and everything after (${info.citation}). A notice served today, ${formatDate(now)}, would cover work from ${formatDate(lateNoticeReach)} on; work before that loses lien protection. Each day of delay drops another day of work, so serve it now and ask a construction attorney about the rest.`);
+      } else if (isPrelim && prelimRule && prelimRule.lateNote) {
+        add("high", `The ${kind} date has already passed`, `The statutory date for this step was ${formatDate(d.date)}. ${prelimRule.lateNote}`);
       } else if (isPrelim && prelimRule && prelimRule.lateFatal) {
         add("high", `The ${kind} date has already passed`, `The statutory date for this step was ${formatDate(d.date)}. ${prelimRule.lateFatal} Speak to a construction attorney promptly; other remedies (a payment bond claim, suing on the contract) may still exist.`);
       } else {
@@ -596,10 +751,16 @@ export function lienDeadlines({
   }
   if (prelimNotRequired && info.prelimByTier) add("info", `${info.name}: no ${info.prelimLabel} for a first-tier claimant`, prelimNotRequired + " If you are actually hired by a subcontractor or supply one, choose the second-tier option.");
   else if (prelimNotRequired) add("info", `${info.name}: no ${info.prelimLabel} required`, prelimNotRequired);
+  if (prelimNotModeled) add("medium", `${info.name}: the ${info.prelimLabel} is not dated here`, prelimNotModeled + " A missed notice can cost the lien in some states, so check the statute or ask a construction attorney before relying on the lien date alone.");
+  if (info.lienExtra) add("medium", `${info.name}: how the lien deadline counts`, info.lienExtra);
   if (info.prelimExtra && (!info.prelimExtraTier || info.prelimExtraTier === tr)) add("medium", `${info.name}: an earlier cutoff also applies`, info.prelimExtra);
   if (prelimRule && prelimRule.note) add("medium", `${info.name}: who owes this notice`, prelimRule.note);
   if (info.residentialNote && pt === "residential" && (!info.residentialNoteTier || info.residentialNoteTier === tr)) add("medium", `${info.name}: confirm the residential category`, info.residentialNote);
-  if (lien && lien.usedLastFurnishingAsCompletion) {
+  if (info.prelimHow) add("medium", `${info.name}: how the ${info.prelimLabel} counts`, info.prelimHow);
+  const lienRuleType = (info.lienByProject ? info.lienByProject[pt] : info.lien).type;
+  if (lien && lien.usedLastFurnishingAsCompletion && lienRuleType === "earlier_of_own_and_completion") {
+    add("info", "Completion date not entered: counted from your last furnishing", `${info.name} also counts from completion, and whichever date comes first applies. Without a completion date the tool assumes completion was no earlier than your last day. If completion came before your last day of work (punch work after it), enter its date: the deadline then counts from it and is earlier.`);
+  } else if (lien && lien.usedLastFurnishingAsCompletion) {
     add("info", "Completion date not entered: used your last furnishing date", "This state measures the lien deadline from completion of the whole project. Your own last furnishing date can only be the same as or earlier than completion, so the date shown is the cautious one -- entering the real completion date can only move it later, and only rely on that after confirming the completion date with an attorney.");
   }
   if (state === "TX") {
@@ -621,6 +782,7 @@ export function lienDeadlines({
     inputsOk,
     noticeSchedule: noticeSchedule ? noticeSchedule.rows : null,
     prelimNotRequired,
+    prelimNotModeled,
     prelim,
     lien,
     prelimLabel: info.prelimLabel,

@@ -47,7 +47,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue empty (2 claimed). redteam open list: 0 open, 1 blocked. Campaigns: billing client 10/10, billing server 6/10, payapps qbo oauth 8/10. Gaps fixed with tests; rerun all caught. Guard added: platform/ci/check_constant_time_compare.py over 13 XOR compare loops, 0 problems on first run. Verified: node --test platform/billing/billing.test.mjs 25 pass; payapps qbo-sync npm test 97 pass; python3 -m unittest test_check_constant_time_compare 6 OK. Also fixed main red on title-length.test.mjs (jobshop machining-tolerances title 82 -> 65 chars, routes.ts and catalogue-export edited together).",
+  "notes": "Security queue empty (2 claimed). redteam open list: 0 open, 1 blocked. Campaigns: billing client 10/10, billing server 6/10, payapps qbo oauth 8/10. Gaps fixed with tests; rerun all caught. Guard added: platform/ci/check_constant_time_compare.py over 13 XOR compare loops, 0 problems on first run. Verified: node --test platform/billing/billing.test.mjs 25 pass; payapps qbo-sync npm test 97 pass; python3 -m unittest test_check_constant_time_compare 6 OK. Found main red on title-length.test.mjs (jobshop machining-tolerances title 82 -> 65 chars, routes.ts and catalogue-export edited together). A parallel run landed the same fix first; took main's version in the merge.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -510,7 +510,7 @@
         "file": "ventures/jobshop-quote/apps/jobshop-site/src/site/routes.ts",
         "issue": "main red: PR #20036 merged a /machining-tolerances title of 82 characters, failing platform/pages/title-length.test.mjs for every PR",
         "patched": true,
-        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20038"
+        "patched_in": "already fixed on main by a parallel run while this PR waited; merge took main's title"
       }
     ]
   },
