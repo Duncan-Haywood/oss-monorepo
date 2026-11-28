@@ -1,0 +1,26 @@
+{
+  "id": "P104",
+  "title": "run_venture_tests --times read a ten-day-old file and ranked suites perf runs had already fixed",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "venture_suite_times.json was taken 2026-11-17 and nothing said it was stale; perf runs steering by `--times` saw suites with 6-12 perf passes since at the top and spent time on dead ends.",
+  "evidence": [
+    "friction_rank.py --live --ungated --days 3 on 2026-11-28: cluster 6, platform/ci/run_venture_tests.py, 3 sessions 2026-11-25..28",
+    "full re-run 2026-11-28 (4 jobs, 4 cores, ~25 min): shed-designer 472 -> 249 s, chant-forge 39 -> 128 s, changepoint-detector 153 -> 757 s (tests added 2026-11-24), 1365 -> 1447 suites"
+  ],
+  "change": "`--times` prints a STALE line once the file is 7+ days old, with the refresh commands, and marks rows whose latest perf write-up postdates the timing '(after timing: re-time)'. The file was refreshed from a full run in the same PR.",
+  "touches": [
+    "platform/ci/run_venture_tests.py",
+    "platform/ci/test_run_venture_tests.py",
+    "platform/ci/venture_suite_times.json"
+  ],
+  "metric": "run-record doc_friction naming run_venture_tests.py --times as stale, in the 5 days after the merge",
+  "baseline": "3 sessions 2026-11-25..28 (friction_rank.py cluster 6)",
+  "opened": "2026-11-28",
+  "source": "process run (friction_rank.py --live --ungated --days 3)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19978",
+  "result": null,
+  "history": []
+}

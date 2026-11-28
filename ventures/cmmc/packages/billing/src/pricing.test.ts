@@ -24,6 +24,8 @@ import {
   deriveLargestQuota,
   MAX_MARKUP,
   MIN_MARKUP,
+  marginForMarkup,
+  markupForMargin,
 } from "./pricing.ts";
 
 // Parity fixture: apps/grants' cost model (src/shared/billing/cost-model.ts) rebuilt on this
@@ -234,5 +236,22 @@ describe("price keys", () => {
       "pro",
       "pro:annual",
     ]);
+  });
+});
+
+describe("margin and markup conversions", () => {
+  it("marginForMarkup inverts markupForMargin (2x is 50%, 2.5x is 60%)", () => {
+    assert.equal(marginForMarkup(2), 0.5);
+    assert.ok(Math.abs(marginForMarkup(2.5) - 0.6) < 1e-12);
+    for (const m of [0.4, 0.5, 0.6, 0.75]) {
+      assert.ok(Math.abs(marginForMarkup(markupForMargin(m)) - m) < 1e-12, `margin ${m}`);
+    }
+  });
+  it("the band error reports the plan's margin, not a nonsense figure", () => {
+    const plans: BillablePlan[] = [
+      { key: "cheap", priceCents: 1000, annualPriceCents: null, purchasable: true },
+    ];
+    // Cost $8/month for a $10 plan: 1.25x markup, a 20% margin, below the 40% floor.
+    assert.throws(() => assertPricingBand(plans, () => 8_000_000), /1\.25× \(20% margin\)/);
   });
 });

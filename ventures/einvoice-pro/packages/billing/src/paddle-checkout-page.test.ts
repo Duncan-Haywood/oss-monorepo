@@ -31,6 +31,17 @@ describe("payPageUrl", () => {
       "https://pay-0123456789.acme-9.workers.dev/pay",
     );
   });
+  it("accepts host names with any digit and hyphens, in any label", () => {
+    // A deploy on app2.example9.com or a punycode TLD (xn--80asehdb) must not be refused: 0-9, not 0-1.
+    for (const host of [
+      "app2.example9.com",
+      "pay-3.a4b5c6d7e8.co",
+      "x.y-z9.io",
+      "shop.xn--80asehdb",
+    ]) {
+      assert.equal(payPageUrl(`https://${host}`), `https://${host}/pay`);
+    }
+  });
   it("refuses http, IPs, paths, queries and credentials", () => {
     for (const bad of [
       "http://payapps.marisstella.app",
@@ -209,6 +220,26 @@ describe("syncCheckoutPage", () => {
     assert.deepEqual(await client.listClientTokens(), []);
     assert.equal(seen.length, 2);
     assert.ok(seen.every((u) => u.startsWith("https://api.paddle.com/")));
+  });
+
+  it("reads up to ten pages of tokens and stops there", async () => {
+    let call = 0;
+    const fetchFn: typeof fetch = async () => {
+      call++;
+      const token = { id: `ctkn_${call}`, token: "t", name: "x", status: "active" };
+      const next = `https://api.paddle.com/client-tokens?after=ctkn_${call}`;
+      return Response.json({ data: [token], meta: { pagination: { has_more: true, next } } });
+    };
+    const client = new PaddleCheckoutClient(KEY, {
+      fetch: fetchFn,
+      baseUrl: "https://api.paddle.com",
+    });
+    const ids = (await client.listClientTokens()).map((t) => t.id);
+    assert.equal(call, 10);
+    assert.deepEqual(
+      ids,
+      Array.from({ length: 10 }, (_, i) => `ctkn_${i + 1}`),
+    );
   });
 
   it("never logs the token in its description", async () => {

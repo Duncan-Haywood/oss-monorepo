@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVPNzkKi6XysRnzL9L7",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T02:56:17Z",
+  "ended": "2026-11-28T03:05:13Z",
+  "wall_minutes": 21.85,
+  "tokens_in": 8309006,
+  "tokens_out": 37724,
+  "cost_usd": 3.4626,
+  "tool_calls": 68,
+  "task": "quality reaudit: ventures/xer-schedule-check",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19969",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "first run_workflow_locally stopped on a post seo_title 12 characters over 70; shortened and reran",
+    "CI site-builder test red from main (#19965 einvoice-preflight llms.txt Answers stale); regenerated in this PR"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "reaudit lists 321 subjects in a shuffled order with no for-profit filter; the track prompt says to prefer a for-profit product, so I grepped the list against transition.py's 28 names by hand. A --paid flag would save that step."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "says to open the PR right away as a draft for a claim, but a PR needs a commit; for a re-audit the first commit is usually the fix or audit file, so the claim comes late. quality_audit.py claim exists only for fix mode."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "with the reaudit order left open, I chose the first for-profit construction subject without an open PR (xer-schedule-check, bet row 14) over the top row (ticket-resale-profit-calculator, a free tool), following the track's north-star line",
+      "did": "re-audited xer-schedule-check",
+      "result": "the prior high defect was confirmed closed and 4 surviving mutants were killed in a paid product"
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "left prior defect 2 (n/a points scored PASS) unfixed although it is a logic error: the fix changes the pass tally used by the CLI, page, report, ribbon, trend and GAO views, which is not small and safe",
+      "did": "listed it in NEXT.md with the other open defects",
+      "result": "open for a product run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-quality-reaudit-xer-schedule-check.md",
+    "portfolio/quality/audits/2026-11-28-xer-schedule-check.json"
+  ],
+  "goal": null,
+  "notes": "Mode reaudit (quality_audit.py mode). Reaudit seed 2026-11-28-e625. Subject ventures/xer-schedule-check (flagship), prior audit 2026-11-19. Scores c3 comp3 v2 craft3 claims3 fit3 dom3: does not meet the bar (verification 2); it missed before on claims, verification and domain. Prior defects: 5 of 9 closed on arrival (0 high baseline, 1, 4, 7 unmarked, 8), 4 open (2, 3, 5, 6). Recomputed: DCMA 1-8 40/40 counts on 4 public XERs with own Python counter; synthetic-baseline CCA 11/14 (11694/13228, BEI 0.116) matched; CPLI hand case 0.75. Mutants: 7/9 survived on arrival; dcma-thresholds.test.mjs (this PR) kills 4. Fix PR: #19969 (same PR). Local checks: node --test 632 pass; run_workflow_locally --for-changes ran 145 steps and all passed except prompts-ci on the then-blank run record (expected); the security gate, codeql gate and built-artifact steps did not run locally (they need the PR's artifacts). CI 'test' (priv-portfolio-pages) failed on llms-answers.test.mjs for ventures/einvoice-preflight: main was red since #19965 merged without regenerating llms.txt Answers. Fixed forward in this PR: merged main, ran llms-answers.mjs, test 7/7.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7c4047cd-110b-5e15-9d2c-5c17b0a20234",
+    "transcripts": 1,
+    "first": "2026-11-28T02:56:17Z",
+    "last": "2026-11-28T03:18:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 137,
+        "output": 37724,
+        "thinking": 6472,
+        "cache_read": 8174792,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134077,
+        "api_equivalent_usd": 3.4626,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 137,
+      "output": 37724,
+      "thinking": 6472,
+      "cache_read": 8174792,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134077,
+      "api_equivalent_usd": 3.4626,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 64,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.85,
+      "active_minutes": 20.73,
+      "model_minutes": 6.64,
+      "tool_minutes": 14.08,
+      "waiting_on_human_minutes": 1.13,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "PSP re-checking 9 defects, independent DCMA counter on 4 files, synthetic baseline, 4 tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 173.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
