@@ -376,6 +376,24 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   contract's level; the form shows the suggestion with the paragraph's words and a "Use" button, and the
   "choose the level" gap names the minimum. FCI-only orders flowed down above Level 1 get a note, not a gap.
   No migration: the prime contract's level is a form-only input.
+- Suppliers, part 5: the approved-supplier list imported (2026-11-28, supplier-list-import). "Import a
+  supplier list" on the Suppliers tab reads the shop's ASL (.xlsx, read in the browser with only the
+  chosen sheet sent, or CSV) and this register's own CSV export, which reads back with no change. Columns
+  by header (Supplier/Vendor/Subcontractor, what they supply, information flowed, COTS, level flowed
+  down, CMMC status and its date, latest affirmation, UIDs, clause, PO, checked and awarded dates, notes),
+  under a title block; a row with the same name updates that supplier's filled, differing fields only.
+  What the order sends is never guessed: read from a cell that says CUI, FCI or neither (a "CUI?" yes/no
+  column counts its yes only), else the row is left out until the person picks, for the whole file,
+  what such rows send. An ASL's "Status" (Approved, Conditional) is the shop's approval, so only a
+  header saying CMMC is read as the CMMC status, and a status or level that does not name its stage and
+  assessor ("Level 2") is left blank with a note. Unreadable or future dates, bad UIDs and yes/no cells
+  blank only that field; a CMMC Status Date with no status or an affirmation before the status date is
+  blanked, and each row is checked with the form's own `validateSupplier`. Numeric dates use the POA&M
+  import's day/month rule with a choice. Preview on any plan; applying needs the Level 2 plan when a row
+  records CUI or Level 2/3, as the form does; one D1 batch, one `supplier.import` audit entry, 500 cap.
+  No migration, no new stored field. `src/shared/suppliers-import.ts`, `services/suppliers/import.ts`,
+  `views/SupplierImport.tsx`; unit, component and worker tests (round trip, re-import changes nothing,
+  plan gate, roles, tenants).
 
 - Personnel, part 4: counts in the SSP (2026-11-26). On Level 2, each of AT.L2-3.2.1-3.2.3 and
   PS.L2-3.9.1-3.9.2 in the SSP's requirement section carries one line from the People tab, dated
@@ -531,4 +549,5 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
 - Suppliers, part 2 (the register checked against DFARS 252.204-7021 done 2026-11-26; calendar and dashboard
   done 2026-11-26; the level suggested from 32 CFR 170.23, quoted from eCFR, done 2026-11-26, part 4): save
   the prime contract's level per supplier (a form-only input now) if shops flow down under several primes;
-  a supplier list import (CSV/.xlsx) once shops send their approved-supplier lists
+  the supplier list import (part 5, done 2026-11-28): check its header words against real ASLs once shops
+  share them

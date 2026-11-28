@@ -229,6 +229,7 @@ import {
   supplierList,
   updateSupplier,
 } from "../../services/suppliers";
+import { applySupplierImport, previewSupplierImport } from "../../services/suppliers/import";
 import type { AppEnv } from "../../types";
 
 const text = (max: number) => z.string().max(max);
@@ -771,6 +772,30 @@ routes.get("/suppliers/export.csv", async (c) => {
     },
   });
 });
+// Import an approved-supplier list (CSV, or an .xlsx sheet sent as CSV by the browser): `apply: false`
+// previews (any editor, any plan), `apply: true` creates and updates suppliers under the same plan
+// gate as the form. `infoDefault` is what rows that do not say what the order sends are taken to send
+// (null leaves them out); `dateOrder` reads numeric dates like 03/04/2026.
+routes.post(
+  "/suppliers/import",
+  requireRole("editor"),
+  validate(
+    "json",
+    z.object({
+      csv: z.string().min(1).max(IMPORT_MAX_BYTES),
+      apply: z.boolean().default(false),
+      infoDefault: z.enum(INFO_FLOWED).nullable().default(null),
+      dateOrder: z.enum(["mdy", "dmy"]).optional(),
+    }),
+  ),
+  async (c) => {
+    const t = c.var.tenant;
+    const { csv, apply, infoDefault, dateOrder } = c.req.valid("json");
+    const opts = { infoDefault, dateOrder };
+    if (!apply) return c.json(await previewSupplierImport(c.var.ctx, t.orgId, csv, opts));
+    return c.json(await applySupplierImport(c.var.ctx, t.orgId, t.userId, csv, opts));
+  },
+);
 routes.post("/suppliers", requireRole("editor"), validate("json", supplierBody), async (c) => {
   const t = c.var.tenant;
   return c.json(await createSupplier(c.var.ctx, t.orgId, t.userId, c.req.valid("json")), 201);
