@@ -3,7 +3,7 @@ title: "Re-audit: the framing takeoff's pipe sizer no longer passes a starved sh
 seo_title: "Water supply pipe sizing for a rarely used fixture: checking the math"
 date: 2026-11-28
 tags: [quality-audit, evaluation, testing, construction, wall-framing-takeoff]
-description: "A re-check of the free framing takeoff's water-supply sizer and wall framing: the 0 gpm shower branch is fixed, six outputs recompute by hand, and one untested count now has a test."
+description: "The free framing takeoff's pipe sizer no longer passes a 0 gpm shower branch; six outputs recompute by hand and an untested count now has a test."
 ---
 
 The [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/) lays out studs, kings,
