@@ -130,8 +130,8 @@ describe("lienDeadline on a public job", () => {
 });
 
 describe("retainage caps on public work", () => {
-  it("covers the guide's 16 states, each with a citation and an official link", () => {
-    expect(Object.keys(RETAINAGE_CAPS)).toHaveLength(16);
+  it("covers the guide's 23 states, each with a citation and an official link", () => {
+    expect(Object.keys(RETAINAGE_CAPS)).toHaveLength(23);
     for (const r of Object.values(RETAINAGE_CAPS)) {
       expect(r.url).toMatch(/^https:\/\//);
       expect(r.citation.length).toBeGreaterThan(3);
@@ -172,6 +172,26 @@ describe("retainage caps on public work", () => {
     );
     expect(retainageCapCheck("TX", [1200, 1000])).toMatchObject({ verdict: "over", jobBps: 1200 });
     expect(retainageCapCheck("MI", [500, 500])).toMatchObject({ verdict: "lower" });
+  });
+
+  it("reads the states added 2026-11-28: Iowa's 3%, Ohio's labor and materials split, Kansas and Missouri's 10% cases", () => {
+    const ia = retainageCapCheck("IA", [500, 500]);
+    expect(ia).toMatchObject({ verdict: "over", jobBps: 500 });
+    expect(ia?.kind === "checked" && ia.text).toContain("above the 3% Iowa allows");
+    expect(retainageCapCheck("IA", [300, 300])).toMatchObject({ verdict: "within" });
+    // Ohio: 4% on labor; materials stored but not installed paid at 92%, so 8% there is the exception.
+    expect(retainageCapCheck("OH", [400, 0])).toMatchObject({ verdict: "within" });
+    const oh = retainageCapCheck("OH", [400, 800]);
+    expect(oh).toMatchObject({ verdict: "exception" });
+    expect(oh?.kind === "checked" && oh.text).toContain(
+      "materials delivered but not yet installed",
+    );
+    expect(retainageCapCheck("OH", [1000, 1000])).toMatchObject({ verdict: "over" });
+    expect(retainageCapCheck("KS", [1000, 1000])).toMatchObject({ verdict: "exception" });
+    expect(retainageCapCheck("MO", [1000, 1000])).toMatchObject({ verdict: "exception" });
+    expect(retainageCapCheck("MO", [1200, 1000])).toMatchObject({ verdict: "over" });
+    for (const s of ["DE", "ID", "ME"])
+      expect(retainageCapCheck(s, [1000, 1000])).toMatchObject({ verdict: "over" });
   });
 
   it("says which states it does not check, and nothing without a state", () => {

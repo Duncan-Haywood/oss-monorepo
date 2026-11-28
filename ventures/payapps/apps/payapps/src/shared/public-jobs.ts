@@ -8,13 +8,14 @@
 //    Act"): there it shows no lien date, and lists the bond claim steps in the twenty states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
-//    checked against the cap in the 16 states the public guide lists.
+//    checked against the cap in the 23 states the public guide lists.
 //
 // Sources. Miller Act rules ported from ventures/pay-app-guides/millerbond.mjs (40 U.S.C. 3131 and
 // 3133 read on govinfo.gov and law.cornell.edu on 2026-11-25; J.W. Bateson Co. v. United States,
 // 434 U.S. 586 (1978)). Retainage caps from the table in
-// ventures/pay-app-guides/retainage-explained.html ("Retainage caps on public construction, 16
-// states"), read on each legislature's own site on 2026-11-24 and 2026-11-25; that page says which
+// ventures/pay-app-guides/retainage-explained.html ("Retainage caps on public construction, 23
+// states"), read on each legislature's own site on 2026-11-24, 2026-11-25 and 2026-11-28 (the last
+// seven rows' text kept in ventures/pay-app-guides/sources/retainage-caps.txt); that page says which
 // rows were re-read from the statute page itself. Statutes change and have exceptions not modeled
 // here: every result carries its citation and link, and the panel says it is not legal advice.
 //
@@ -151,6 +152,16 @@ export const RETAINAGE_CAPS: Record<string, RetainageCap> = {
     notes:
       'A higher rate is allowed only if the project is first found "substantially complex" (at a public hearing for local agencies).',
   },
+  DE: {
+    name: "Delaware",
+    citation: "29 Del. C. \u00a7 6962(d)(5)",
+    url: "https://delcode.delaware.gov/title29/c069/sc04/index.html",
+    cap: "5% of the value of the work completed",
+    capBps: 500,
+    flowsDown: false,
+    notes:
+      "State agencies' large public works contracts. On completion the agency may release 60% of what it holds; the rest waits for the contract's reports, payment of the subs in trades listed on the bid form and final payment.",
+  },
   FL: {
     name: "Florida",
     citation: "Fla. Stat. § 255.078",
@@ -160,6 +171,26 @@ export const RETAINAGE_CAPS: Record<string, RetainageCap> = {
     flowsDown: false,
     notes:
       "Retainage paid for sub or supplier work must be passed down promptly. Federally funded work can differ.",
+  },
+  IA: {
+    name: "Iowa",
+    citation: "Iowa Code \u00a7 573.12",
+    url: "https://www.legis.iowa.gov/docs/code/573.12.pdf",
+    cap: "3% of each monthly payment",
+    capBps: 300,
+    flowsDown: true,
+    notes:
+      "The prime may hold from a sub no more than the lesser of 3% and the subcontract's rate. Subs are paid within 7 days after the prime is paid for their work.",
+  },
+  ID: {
+    name: "Idaho",
+    citation: "Idaho Code \u00a7 54-1926(3)",
+    url: "https://legislature.idaho.gov/statutesrules/idstat/Title54/T54CH19/SECT54-1926/",
+    cap: "5% of the total amount payable",
+    capBps: 500,
+    flowsDown: true,
+    notes:
+      "Applies where the public body requires a performance or payment bond over 50% of the contract. The prime pays a sub's retainage within 30 days after the subcontract is complete.",
   },
   IL: {
     name: "Illinois",
@@ -173,6 +204,19 @@ export const RETAINAGE_CAPS: Record<string, RetainageCap> = {
     notes:
       "IDOT is excluded. Private jobs: the Contractor Prompt Payment Act, 815 ILCS 603/20, sets the same 10%/5% pattern.",
   },
+  KS: {
+    name: "Kansas",
+    citation: "K.S.A. 16-1904",
+    url: "https://ksrevisor.org/statutes/chapters/ch16/016_019_0004.html",
+    cap: "5%, or up to 10% where a higher rate is needed to ensure performance",
+    capBps: 500,
+    exceptionBps: 1000,
+    exception:
+      "only where the owner or contractor determines a higher rate is needed to ensure performance, or the work is behind schedule or poor (K.S.A. 16-1904(a), (b))",
+    flowsDown: true,
+    notes:
+      "Roads, highways and bridges are outside the act (K.S.A. 16-1902), and its rights cannot be waived by contract (K.S.A. 16-1901). Remaining retainage on undisputed payments is released within 30 days after substantial completion.",
+  },
   MA: {
     name: "Massachusetts",
     citation: "M.G.L. c. 30 § 39G",
@@ -184,6 +228,16 @@ export const RETAINAGE_CAPS: Record<string, RetainageCap> = {
     flowsDown: false,
     notes:
       "Private jobs: Acts of 2014, chapter 276, caps retainage at 5% of each progress payment.",
+  },
+  ME: {
+    name: "Maine",
+    citation: "5 M.R.S. \u00a7 1746",
+    url: "https://legislature.maine.gov/statutes/5/title5sec1746.html",
+    cap: "5% of the money due, held until the State accepts the project",
+    capBps: 500,
+    flowsDown: false,
+    notes:
+      "State contracts for public improvements. The State may reduce the amount held once the contract is substantially complete, on request; securities deposited with the Treasurer of State can replace cash retainage.",
   },
   MI: {
     name: "Michigan",
@@ -206,6 +260,18 @@ export const RETAINAGE_CAPS: Record<string, RetainageCap> = {
     flowsDown: false,
     notes:
       "If the agency reduces retainage, the contractor must reduce subs' retainage at the same rate, and must pay subs their retainage within 10 days of receiving it unless their work is disputed. All of it is released within 60 days of substantial completion.",
+  },
+  MO: {
+    name: "Missouri",
+    citation: "RSMo \u00a7 8.960",
+    url: "https://revisor.mo.gov/main/OneSection.aspx?section=8.960",
+    cap: "5% of the value of the contract or subcontract",
+    capBps: 500,
+    exceptionBps: 1000,
+    exception:
+      "only where no bond is required because the contract is not estimated to exceed $50,000",
+    flowsDown: true,
+    notes: "Formerly RSMo 34.057 (transferred 2022).",
   },
   NC: {
     name: "North Carolina",
@@ -237,6 +303,19 @@ export const RETAINAGE_CAPS: Record<string, RetainageCap> = {
     exception: "only if the public owner does not require full performance and payment bonds",
     flowsDown: true,
     notes: "The same 5% rule applies from contractor to subcontractor.",
+  },
+  OH: {
+    name: "Ohio",
+    citation: "Ohio Rev. Code \u00a7 153.12",
+    url: "https://codes.ohio.gov/ohio-revised-code/section-153.12",
+    cap: "Labor paid at no less than 96% of the approved estimate (4% held); materials delivered but not yet installed paid at 92% of invoice (\u00a7 153.14)",
+    capBps: 400,
+    exceptionBps: 800,
+    exception:
+      "on materials delivered but not yet installed, which are paid at 92% of invoice (Ohio Rev. Code \u00a7 153.14)",
+    flowsDown: true,
+    notes:
+      "No subcontract may be paid at a lower rate than the contractor. Since 30 September 2025, \u00a7 153.13 no longer stops retainage at 50% complete; the substantially completed portion's retainage is paid within 30 days, the rest within 30 days of final completion.",
   },
   OR: {
     name: "Oregon",
