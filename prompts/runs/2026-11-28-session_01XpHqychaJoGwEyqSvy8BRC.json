@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "pay-app-guides node --test failed one test once and passed on two reruns with no change (looked flaky; not chased)"
+    "pay-app-guides node --test failed one test once and passed on two reruns with no change (looked flaky; not chased)",
+    "first CI: payapps biome format error on one line I wrote (fixed), and pay-app-guides llms-answers.txt stale after the FAQ edit (regenerated)"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,10 @@
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "Every top bet (payapps, jobshop-quote, einvoice, cmmc) had 'free and not gated: none' or only state-statute items several sessions were racing on (Alabama was claimed the same minute); the real launch blockers are owner steps already in the decision queue"
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "'a category's offline bundle stays small' fails on origin/main itself (services category 4.2 MB > 4 MiB, checked in a clean worktree of c36c785fb), so every PR touching pages shows a red site-builder test it did not cause; the test's own comment says split the category rather than raise the ceiling"
     }
   ],
   "deviations": [
@@ -55,7 +60,7 @@
     "docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md (extended with a California section)"
   ],
   "goal": null,
-  "notes": "Security queue had nothing to take; ideas inbox empty; routed ventures. Live funnel check: all 4 open products ok. Verification: payapps vitest unit 1597 passed, worker lien-deadline 5 passed, tsc clean, pay-app-guides 397 passed, platform/pages industry tests passed.",
+  "notes": "Security queue had nothing to take; ideas inbox empty; routed ventures. Live funnel check: all 4 open products ok. Verification: payapps vitest unit 1597 passed, worker lien-deadline 5 passed, tsc clean, pay-app-guides 397 passed, platform/pages industry tests passed. After the fix commit, the new push's CI did not start within 25 min (adversarial-gate queued); verified locally instead: biome ci on ventures/payapps clean, llms-answers.test 7/7, pages suite failing only on the pre-existing bundle-size test.",
   "corrections": [],
   "redteam": null,
   "usage": {
