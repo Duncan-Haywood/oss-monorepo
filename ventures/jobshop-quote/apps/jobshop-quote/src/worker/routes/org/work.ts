@@ -86,6 +86,7 @@ import {
   updatePart,
   updateRfq,
 } from "../../services/rfq";
+import { balloonedDrawing } from "../../services/rfq/balloons";
 import type { AppEnv } from "../../types";
 
 const est = requireRole("estimator");
@@ -206,6 +207,26 @@ export const rfqRoutes = new Hono<AppEnv>()
         "Content-Disposition": contentDisposition(fileName),
         "X-Content-Type-Options": "nosniff",
         "Cache-Control": "private, no-store",
+      },
+    });
+  })
+  // First article: the drawing with a numbered balloon beside each characteristic in the list.
+  .get("/:rfqId/files/:fileId/ballooned.pdf", async (c) => {
+    const { pdf, fileName, placed, unplaced } = await balloonedDrawing(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("rfqId"),
+      c.req.param("fileId"),
+    );
+    return new Response(pdf as Uint8Array<ArrayBuffer>, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": contentDisposition(fileName),
+        "Content-Security-Policy": "default-src 'none'; sandbox",
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "private, no-store",
+        "X-Balloons-Placed": String(placed),
+        "X-Balloons-Unplaced": unplaced.slice(0, 200).join(","),
       },
     });
   })

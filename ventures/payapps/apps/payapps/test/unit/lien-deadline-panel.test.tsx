@@ -177,6 +177,6 @@ it("leaves an acceptance-based step undated until the acceptance day is entered,
 });
 
 it("names the states it covers for a state it does not", () => {
-  show(project({ publicOwner: "state_local", lienState: "PA" }));
-  expect(screen.getByText(/does not list PA's bond claim steps yet/)).toBeTruthy();
+  show(project({ publicOwner: "state_local", lienState: "GA" }));
+  expect(screen.getByText(/does not list GA's bond claim steps yet/)).toBeTruthy();
 });

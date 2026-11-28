@@ -148,6 +148,8 @@ describe("AuditsView", () => {
   it("opens a corrective action from a finding and records a check", async () => {
     const { posts } = setup(true);
     fireEvent.click(await screen.findByText("Open"));
+    const report = await screen.findByText("Download audit report");
+    expect(report.getAttribute("href")).toMatch(/\/api\/orgs\/[^/]+\/audits\/[^/]+\/report\.md$/);
     fireEvent.click(await screen.findByText("Open a corrective action"));
     await waitFor(() => expect(posts).toHaveLength(1));
     expect(posts[0]?.url).toContain("/audits/iau_1/findings/afn_1/corrective-action");

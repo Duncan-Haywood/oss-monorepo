@@ -24,8 +24,11 @@ import {
   type EstimateLineInput,
   type EstimateRates,
   jobFromEstimate,
+  lineVendor,
   MAX_ESTIMATE_LINES,
   MAX_MARKUP_BPS,
+  MAX_VENDOR_LENGTH,
+  subcontractsFromEstimate,
 } from "@shared/estimate";
 import type { ImportedEstimateLine } from "@shared/estimate-import";
 import { COST_CATEGORIES, COST_CATEGORY_LABELS, type CostCategory } from "@shared/job-cost";
@@ -368,6 +371,8 @@ export interface LineForm {
   quantity: string;
   unit: string;
   unitCost: string;
+  /** The sub whose quote a subcontract line carries (kept only on subcontract lines). */
+  vendor: string;
 }
 
 let lineKey = 0;
@@ -379,6 +384,7 @@ const lineFormOf = (l: EstimateDetailDto["lines"][number]): LineForm => ({
   quantity: quantityDecimal(l.quantityMilli),
   unit: l.unit ?? "",
   unitCost: unitPriceDecimal(l.unitCostMicros),
+  vendor: l.vendor ?? "",
 });
 
 const isBlank = (r: LineForm) =>
@@ -398,6 +404,7 @@ export function withImported(rows: LineForm[], lines: ImportedEstimateLine[]): L
       quantity: quantityDecimal(l.quantityMilli),
       unit: l.unit ?? "",
       unitCost: unitPriceDecimal(l.unitCostMicros),
+      vendor: "",
     })),
   ].slice(0, MAX_ESTIMATE_LINES);
 }
@@ -412,6 +419,7 @@ export function rowFromPrice(item: PriceItemDto, bidItem: string): LineForm {
     quantity: "",
     unit: item.unit ?? "",
     unitCost: unitPriceDecimal(item.unitCostMicros),
+    vendor: "",
   };
 }
 
@@ -452,6 +460,7 @@ export function parseLines(rows: LineForm[]): { lines: EstimateLineInput[] } | {
       quantityMilli: q,
       unit: r.unit.trim() || null,
       unitCostMicros: u,
+      vendor: lineVendor(r),
     });
   }
   return { lines };
@@ -473,6 +482,8 @@ export function EstimatePage() {
     contractDate: string;
     retainage: string;
     accepted: string[];
+    /** Make each sub's quote a subcontract on the job. */
+    subcontracts: boolean;
   } | null>(null);
   const [alts, setAlts] = useState<Alternates | null>(null);
   const [pick, setPick] = useState<{ query: string; category: CostCategory | "" } | null>(null);
@@ -527,10 +538,12 @@ export function EstimatePage() {
   });
   const markWon = useMutation({
     mutationFn: (body: Record<string, unknown>) =>
-      api<{ estimate: EstimateDetailDto; project: ProjectDto; budgetsSet: boolean }>(
-        `${path}/win`,
-        { method: "POST", body },
-      ),
+      api<{
+        estimate: EstimateDetailDto;
+        project: ProjectDto;
+        budgetsSet: boolean;
+        subcontractsAdded: number;
+      }>(`${path}/win`, { method: "POST", body }),
     onSuccess: async (r) => {
       await refresh(r.estimate);
       await qc.invalidateQueries({ queryKey: ["projects", orgId] });
@@ -572,6 +585,13 @@ export function EstimatePage() {
   const job = win
     ? jobFromEstimate({ bidItems: e.bidItems, totals: e.totals, lineCostCents: [] }, win.accepted)
     : null;
+  const subs = win
+    ? subcontractsFromEstimate(
+        e.lines,
+        { bidItems: e.bidItems, totals: e.totals, lineCostCents: e.lines.map((l) => l.costCents) },
+        win.accepted,
+      )
+    : [];
   const dirtyLines =
     "lines" in parsed &&
     (!sameAlts(liveAlts, e.alternates) ||
@@ -584,6 +604,7 @@ export function EstimatePage() {
             quantityMilli: l.quantityMilli,
             unit: l.unit,
             unitCostMicros: l.unitCostMicros,
+            vendor: l.vendor,
           })),
         ));
   const setRow = (i: number, patch: Partial<LineForm>) =>
@@ -704,6 +725,17 @@ export function EstimatePage() {
                       value={r.description}
                       onChange={(ev) => setRow(i, { description: ev.target.value })}
                     />
+                    {r.category === "subcontract" && (
+                      <input
+                        className="input mt-1"
+                        aria-label="Subcontractor"
+                        placeholder="Sub (from the quote)"
+                        maxLength={MAX_VENDOR_LENGTH}
+                        disabled={locked}
+                        value={r.vendor}
+                        onChange={(ev) => setRow(i, { vendor: ev.target.value })}
+                      />
+                    )}
                   </td>
                   <td>
                     <input
@@ -766,6 +798,7 @@ export function EstimatePage() {
                     quantity: "",
                     unit: "",
                     unitCost: "",
+                    vendor: "",
                   },
                 ])
               }
@@ -1050,7 +1083,9 @@ export function EstimatePage() {
               type="button"
               className="btn"
               disabled={e.winProblems.length > 0 || dirtyLines}
-              onClick={() => setWin({ contractDate: "", retainage: "10", accepted: [] })}
+              onClick={() =>
+                setWin({ contractDate: "", retainage: "10", accepted: [], subcontracts: true })
+              }
             >
               Won: start the job
             </button>
@@ -1132,6 +1167,25 @@ export function EstimatePage() {
                   ? "Each line's cost budget is set to the bid item's cost with tax."
                   : "Cost budgets come with job costing on Crew and up; the schedule of values is set either way."}
               </p>
+              {e.budgetsOnWin && subs.length > 0 && (
+                <label className="flex items-start gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={win.subcontracts}
+                    onChange={(ev) => setWin({ ...win, subcontracts: ev.target.checked })}
+                  />
+                  <span>
+                    Add the subs' quotes as subcontracts on the job ({subs.length}:{" "}
+                    {subs
+                      .slice(0, 3)
+                      .map((s) => `${s.vendor} ${formatCents(s.amountCents)}`)
+                      .join(", ")}
+                    {subs.length > 3 ? `, and ${subs.length - 3} more` : ""}), so job costing counts
+                    them as cost to come. Change the amounts once the subcontracts are signed.
+                  </span>
+                </label>
+              )}
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field
                   label="Contract date"
@@ -1156,6 +1210,7 @@ export function EstimatePage() {
                     contractDate: win.contractDate || null,
                     retainagePctBps: bps,
                     acceptedAlternates: win.accepted,
+                    subcontracts: win.subcontracts,
                   });
                 }}
               >

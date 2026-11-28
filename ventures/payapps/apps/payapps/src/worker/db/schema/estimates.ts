@@ -71,6 +71,8 @@ export const estimateLines = sqliteTable(
     quantityMilli: integer("quantity_milli").notNull(),
     unit: text("unit"),
     unitCostMicros: integer("unit_cost_micros").notNull(),
+    /** The sub whose quote a subcontract line carries; null on other lines (migration 0095). */
+    vendor: text("vendor"),
   },
   (t) => [index("estimate_lines_estimate_idx").on(t.orgId, t.estimateId, t.sortOrder)],
 );

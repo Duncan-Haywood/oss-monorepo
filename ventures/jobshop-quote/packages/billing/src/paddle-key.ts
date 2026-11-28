@@ -67,6 +67,15 @@ export function classifyPaddleKey(raw: string | undefined | null): PaddleKeyShap
       null,
       "this is a notification destination's secret (BILLING_WEBHOOK_SECRET), not an API key; create an API key under Developer tools > Authentication",
     );
+  // A key that names the apikey_ segment is judged by the full shape only: PREFIXED would otherwise
+  // accept a truncated paste ("pdl_live_apikey_abc") as a usable key (red team 2026-11-28).
+  if (/^pdl_(live|sdbx)_apikey_/.test(key) && !NEW_KEY.test(key))
+    return shape(
+      "unrecognised",
+      "",
+      null,
+      "starts like a Paddle Billing API key but is too short: probably truncated in the paste; copy the whole key again",
+    );
   const m = key.match(NEW_KEY) ?? key.match(PREFIXED);
   if (m) {
     const env = m[1] === "live" ? "live" : "sandbox";

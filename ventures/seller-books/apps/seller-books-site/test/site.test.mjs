@@ -15,6 +15,8 @@ import {
   DE_MINIMIS_ELECTION_TITLE,
   DE_MINIMIS_LIMIT_CENTS,
   DEDUCTION_LINES,
+  DEPOSIT_EXAMPLE,
+  depositExampleFigures,
   EBAY_CHECKED_ON,
   EBAY_EXAMPLE,
   EBAY_FEES_QUOTE,
@@ -65,13 +67,17 @@ import {
   WHATNOT_1099K_URL,
   WHATNOT_CHECKED_ON,
   WHATNOT_EXAMPLE,
+  WHATNOT_FEE,
+  WHATNOT_FEE_CHECK,
   WHATNOT_FEE_TAX_URL,
+  WHATNOT_FEES_URL,
   WHATNOT_GIVEAWAY_QUOTE,
   WHATNOT_GIVEAWAY_URL,
   WHATNOT_PAYPAL_QUOTE,
   WHATNOT_SALES_TAX_QUOTE,
   WHATNOT_SALES_TAX_URL,
   whatnotLines,
+  whatnotPublishedFeesCents,
 } from "../src/pages.mjs";
 
 let out;
@@ -1175,6 +1181,49 @@ describe("the Whatnot taxes page", () => {
       assert.match(u, /^https:\/\/help\.whatnot\.com\/hc\/en-us\/articles\/\d+-/);
   });
 
+  test("the two sales' fees match Whatnot's published US rates and the fixture's fee columns", () => {
+    const [head, ...lines] = appFile("test/fixtures/whatnot-orders-report.csv").trim().split("\n");
+    const cols = head.split(",");
+    const at = (row, name) => row.split(",")[cols.indexOf(name)];
+    const money = (v) => Math.round(Number(v || "0") * 100);
+    assert.deepEqual(WHATNOT_FEE, {
+      commissionRate: 0.08,
+      processingRate: 0.029,
+      processingFixedCents: 30,
+    });
+    for (const r of WHATNOT_FEE_CHECK) {
+      const row = lines.find((l) => at(l, "Listing Title").startsWith(r.title));
+      assert.ok(row, r.title);
+      assert.equal(r.priceCents, money(at(row, "Post Coupon Price")), r.title);
+      assert.equal(r.buyerPaidCents, money(at(row, "Buyer Paid")), r.title);
+      assert.equal(r.commissionCents, money(at(row, "Commission Fee")), r.title);
+      assert.equal(r.processingCents, money(at(row, "Payment Processing Fee")), r.title);
+      assert.deepEqual(
+        whatnotPublishedFeesCents(r),
+        [r.commissionCents, r.processingCents],
+        r.title,
+      );
+      const ex = WHATNOT_EXAMPLE.find((e) => e.title.startsWith(r.title));
+      const feeTax =
+        money(at(row, "Tax on Commission")) + money(at(row, "Tax on Payment Processing Fee"));
+      assert.equal(ex.feesCents, r.commissionCents + r.processingCents + feeTax, r.title);
+    }
+    const html = htmlOf(page());
+    assert.ok(html.includes(`href="${WHATNOT_FEES_URL}"`));
+    assert.match(
+      WHATNOT_FEES_URL,
+      /^https:\/\/help\.whatnot\.com\/hc\/en-us\/articles\/4847069165965-/,
+    );
+    for (const x of [
+      "$2.00 commission on $25.00",
+      "$1.23 processing on the buyer's $32.05",
+      "$6.00 commission on $75.00",
+      "$2.94 processing on the buyer's $91.18",
+      "21 September 2026",
+    ])
+      assert.ok(html.includes(x), x);
+  });
+
   test("linked from the Whatnot platform page, every footer, llms.txt and the sitemap", () => {
     const link = `href="${BASE_PATH}/whatnot-taxes"`;
     assert.ok(
@@ -1499,6 +1548,97 @@ describe("the sell-through page", () => {
 
   test("the home page's stock report card links to it", () => {
     assert.equal(FEATURES.find((f) => f.key === "stock").guide, "/reseller-sell-through-rate");
+  });
+});
+
+describe("the reconcile payouts page", () => {
+  const page = () => pages.find((p) => p.path === "/reconcile-payouts");
+  // The app's own deposit check (TypeScript, loaded by Node's type stripping).
+  const check = async (exclude = DEPOSIT_EXAMPLE.exclude) => {
+    const { reconcilePayouts } = await import("../../seller-books/src/shared/reconcile-payouts.ts");
+    const { PLATFORMS, PLATFORM_LABELS } = await import("../../seller-books/src/shared/enums.ts");
+    const ex = DEPOSIT_EXAMPLE;
+    return reconcilePayouts({
+      from: ex.from,
+      to: ex.to,
+      deposits: ex.deposits,
+      books: ex.books,
+      exclude,
+      platforms: PLATFORMS,
+      labels: PLATFORM_LABELS,
+    });
+  };
+
+  test("the worked example's figures are what the app's deposit check gives", async () => {
+    const r = await check();
+    const f = depositExampleFigures();
+    assert.deepEqual(r.months, f.months);
+    assert.equal(r.otherDepositsCents, f.otherDepositsCents);
+    assert.deepEqual(
+      r.platforms.map((p) => p.platform),
+      f.platforms.map((p) => p.platform),
+    );
+    for (const mine of f.platforms) {
+      const app = r.platforms.find((p) => p.platform === mine.platform);
+      assert.equal(app.label, mine.label);
+      for (const k of ["expectedCents", "depositsCents", "depositCount", "gapCents", "status"])
+        assert.equal(app[k], mine[k], `${mine.platform} ${k}`);
+      assert.deepEqual(app.months, mine.months, `${mine.platform} months`);
+    }
+    // Every deposit the page names a platform for is matched to it by the app.
+    const matched = Object.fromEntries(r.deposits.map((d) => [d.line, d.platform]));
+    assert.equal(matched[25], null, "the Zelle line names no platform");
+    assert.equal(matched[17], "amazon");
+  });
+
+  test("the findings the page describes are the ones the app writes", async () => {
+    const r = await check();
+    const has = (re) =>
+      assert.ok(
+        r.findings.some((x) => re.test(x)),
+        `no finding ${re}`,
+      );
+    has(
+      /^Mercari, 2026-09: \$112\.00 deposited and no Mercari sales in the books that month or the month before/,
+    );
+    has(/^Mercari: \$201\.70 more deposited than the books expect/);
+    has(/^Poshmark: the books expect \$251\.20 in payouts over these months and no deposit/);
+    has(/^eBay: deposits of \$1,265\.50 are within \$201\.90 of the \$1,346\.00 the books expect/);
+    has(/^\$45\.00 of other money in names no platform/);
+    // August's Mercari deposits follow July's sales, so the app names no August finding (as the page says).
+    assert.ok(!r.findings.some((x) => x.startsWith("Mercari, 2026-08")));
+    // Left ticked, the Amazon refund reads as Amazon sales missing from the books.
+    const unticked = await check([]);
+    assert.equal(unticked.platforms.find((p) => p.platform === "amazon")?.status, "no_books");
+  });
+
+  test("it leads with the formula, shows the figures, and has FAQ JSON-LD", () => {
+    const html = htmlOf(page());
+    assert.match(
+      html,
+      /<p class="lead"><strong>What a platform should have paid you for a month = /,
+    );
+    for (const s of [
+      "$1,346.00",
+      "$1,265.50",
+      "$80.50 short",
+      "$201.70 over",
+      "$251.20",
+      "$112.00",
+      "$23.99",
+      "$45.00",
+    ])
+      assert.ok(html.includes(s), `${s} is not on the page`);
+    assert.ok(html.includes('"@type":"FAQPage"') || html.includes('"@type": "FAQPage"'));
+    assert.match(html, /invented/);
+  });
+
+  test("the deposit check card links to it, and it is in llms.txt and the sitemap", () => {
+    assert.equal(FEATURES.find((f) => f.key === "deposit-check").guide, "/reconcile-payouts");
+    const link = `href="${BASE_PATH}/reconcile-payouts"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/1099-k")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/reconcile-payouts)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/reconcile-payouts<`));
   });
 });
 

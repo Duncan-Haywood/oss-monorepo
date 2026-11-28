@@ -569,3 +569,191 @@ export function qualityAttention(
       a.label.localeCompare(b.label),
   );
 }
+
+// ---------- the audit report ----------
+
+/** A Markdown table cell or inline text: pipes and backslashes escaped, line breaks folded. */
+const mdCell = (s: string) =>
+  s
+    .replace(/\\/g, "\\\\")
+    .replace(/\|/g, "\\|")
+    .replace(/</g, "&lt;")
+    .replace(/\r?\n/g, " ")
+    .trim();
+
+/**
+ * Text kept as its own paragraph: each line quoted so a leading "#", "-", ">" or "1." the user typed
+ * is shown as text, not read as a heading, list or quote, and a "---" never ends the section.
+ */
+const mdBlock = (s: string) =>
+  s
+    .trim()
+    .split(/\r?\n/)
+    .map((raw) => {
+      const line = raw
+        .replace(/\\/g, "\\\\")
+        .replace(/</g, "&lt;")
+        .replace(/([`*_[\]>#|])/g, "\\$1")
+        // A line that would start a list or a rule inside the quote stays text.
+        .replace(/^(\s*)([-+=]|\d+[.)])/, "$1\\$2");
+      return `> ${line}`;
+    })
+    .join("\n");
+
+export interface AuditReportInput {
+  orgName: string;
+  audit: AuditLike & { summary: string };
+  findings: (Omit<FindingLike, "correctiveActionId"> & { description: string; evidence: string })[];
+  /** The organization's corrective actions; those opened from this audit's findings are reported. */
+  actions: (CorrectiveActionLike & { findingId: string | null })[];
+  clauseNumber: (clauseId: string) => string;
+  clauseTitle: (clauseId: string) => string;
+  /** The clause's owner on the ISO 9001 checklist, for the independence line. */
+  clauseOwner: (clauseId: string) => string | null;
+  /** Member names by user id; a member who left shows as empty. */
+  nameOf: (userId: string | null) => string;
+  today: string;
+  disclaimer: string;
+}
+
+const FINDING_ORDER: Record<FindingKind, number> = {
+  major: 0,
+  minor: 1,
+  observation: 2,
+  improvement: 3,
+};
+
+/**
+ * One internal audit as a Markdown report: scope, auditor and independence, the summary, every
+ * finding with the evidence seen and the corrective action it opened (with that action's stage),
+ * what is still open, and sign-off lines. The record an auditor of the programme asks to see for
+ * each audit; built only from what the workspace holds, with nothing quoted from the standard.
+ */
+export function auditReportMarkdown(input: AuditReportInput): string {
+  const { audit: a, clauseNumber, clauseTitle } = input;
+  const caByFinding = new Map(
+    input.actions.filter((ca) => ca.findingId).map((ca) => [ca.findingId as string, ca]),
+  );
+  const findings = input.findings
+    .filter((f) => f.auditId === a.id)
+    .map((f) => ({ ...f, correctiveActionId: caByFinding.get(f.id)?.id ?? null }))
+    .sort((x, y) => FINDING_ORDER[x.kind] - FINDING_ORDER[y.kind]);
+  const auditor = a.auditorName.trim() || input.nameOf(a.auditorUserId) || "not named";
+  const statusLine =
+    a.status === "done"
+      ? `Done on ${a.completedOn ?? "an unrecorded date"} (planned for ${a.plannedOn})`
+      : a.status === "cancelled"
+        ? `Cancelled (was planned for ${a.plannedOn})`
+        : `Planned for ${a.plannedOn}; not marked done`;
+  const lines: string[] = [
+    `# Internal audit report: ${mdCell(a.title)}`,
+    "",
+    `${mdCell(input.orgName)}. Report prepared ${input.today} from the workspace's audit programme.`,
+    "",
+    "| | |",
+    "| --- | --- |",
+    `| Status | ${statusLine} |`,
+    `| Auditor | ${mdCell(auditor)}${a.auditorUserId ? " (member)" : " (from outside)"} |`,
+  ];
+  if (a.process.trim()) lines.push(`| Process audited | ${mdCell(a.process)} |`);
+  lines.push(
+    `| ISO 9001 clauses in scope | ${a.clauseIds.length ? a.clauseIds.map(clauseNumber).join(", ") : "none listed (the process above)"} |`,
+  );
+  const counts = FINDING_KINDS.map(
+    (k) => [k, findings.filter((f) => f.kind === k).length] as const,
+  );
+  lines.push(
+    `| Findings | ${
+      findings.length === 0
+        ? "none recorded"
+        : counts
+            .filter(([, n]) => n > 0)
+            .map(([k, n]) => `${n} ${FINDING_KIND_LABEL[k].toLowerCase()}`)
+            .join(", ")
+    } |`,
+    "",
+  );
+
+  if (a.clauseIds.length) {
+    lines.push("## Scope", "", "| Clause | Heading |", "| --- | --- |");
+    for (const id of a.clauseIds)
+      lines.push(`| ${clauseNumber(id)} | ${mdCell(clauseTitle(id))} |`);
+    lines.push("");
+  }
+
+  lines.push("## Independence", "");
+  const own = a.auditorUserId
+    ? a.clauseIds.filter((id) => input.clauseOwner(id) === a.auditorUserId)
+    : [];
+  if (!a.auditorUserId)
+    lines.push("The auditor is from outside the organization and owns no clause on the checklist.");
+  else if (own.length)
+    lines.push(
+      `**Not independent for ${own.map(clauseNumber).join(", ")}:** the auditor owns ${own.length === 1 ? "that clause" : "those clauses"} on the ISO 9001 checklist, so audited their own work there. Have another person audit ${own.length === 1 ? "it" : "them"}, or record why this was acceptable.`,
+    );
+  else
+    lines.push(
+      "The auditor owns none of the clauses in scope on the ISO 9001 checklist (owners as recorded on the day this report was prepared).",
+    );
+  lines.push("");
+
+  lines.push("## Summary", "");
+  lines.push(a.summary.trim() ? mdBlock(a.summary) : "No summary recorded.", "");
+
+  lines.push("## Findings", "");
+  if (findings.length === 0) lines.push("No findings recorded.", "");
+  findings.forEach((f, i) => {
+    lines.push(
+      `### ${i + 1}. ${FINDING_KIND_LABEL[f.kind]}${f.clauseId ? `, clause ${clauseNumber(f.clauseId)}` : ""}`,
+      "",
+      mdBlock(f.description),
+      "",
+    );
+    if (f.evidence.trim()) lines.push("Seen:", "", mdBlock(f.evidence), "");
+    const ca = caByFinding.get(f.id);
+    if (ca) {
+      const stage = caStage(ca);
+      const when =
+        stage === "closed"
+          ? `closed ${ca.closedOn}`
+          : stage === "verify"
+            ? `action done ${ca.completedOn}${ca.verifyDueOn ? `, check due ${ca.verifyDueOn}` : ""}`
+            : ca.dueOn
+              ? `action due ${ca.dueOn}`
+              : "no due date";
+      lines.push(
+        `Corrective action: **${ca.ref}**, ${CA_STAGE_LABEL[stage].toLowerCase()} (${when}); owner ${mdCell(input.nameOf(ca.ownerUserId)) || "not set"}.`,
+        "",
+      );
+    } else if (isNonconformity(f.kind)) {
+      lines.push("Corrective action: **none opened yet**.", "");
+    }
+  });
+
+  const open = auditIssues(a, findings, input.clauseOwner, clauseNumber, input.today);
+  for (const f of findings) {
+    const ca = caByFinding.get(f.id);
+    if (ca) open.push(...caIssues(ca, input.today).filter((x) => x.kind !== "note"));
+  }
+  lines.push("## Still open", "");
+  if (open.length === 0)
+    lines.push("Nothing open for this audit on the day this report was prepared.");
+  for (const x of open) lines.push(`- ${mdCell(x.message)}`);
+  lines.push(
+    "",
+    "## Sign-off",
+    "",
+    "| | Name | Signature | Date |",
+    "| --- | --- | --- | --- |",
+    "| Auditor | | | |",
+    "| Reviewed by (management) | | | |",
+    "",
+    "---",
+    "",
+    "Built from the records in this workspace. A record-keeping aid: it does not make a quality system conform to ISO 9001 or AS9100, and it is not a certification body's audit result.",
+    "",
+    input.disclaimer,
+    "",
+  );
+  return lines.join("\n");
+}

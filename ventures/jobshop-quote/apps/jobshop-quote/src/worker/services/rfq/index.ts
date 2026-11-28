@@ -36,8 +36,9 @@ import { RFQ_EXTRACT_SYSTEM, rfqExtractPrompt } from "./prompts";
 /** The first warning on an RFQ the rule reader read, so nobody takes it for an AI read. */
 export const RULES_NOTE =
   "Read by rules, not AI (AI reading is not switched on): only labelled lines such as " +
-  '"Part number:", "Qty:" and "Material:", tables with a header row, and lines like ' +
-  '"25 pcs of BRK-1001" are read. Check every field against the RFQ and fill in the rest.';
+  '"Part number:", "Qty:" and "Material:", tables with a header row, numbered or bulleted lines ' +
+  'that start with a part number ("1) BRK-1001 Rev B, Qty 25"), and lines like "25 pcs of ' +
+  'BRK-1001" are read. Check every field against the RFQ and fill in the rest.';
 
 export const MAX_FILE_BYTES = 15 * 1024 * 1024;
 export const MAX_FILES = 10;
