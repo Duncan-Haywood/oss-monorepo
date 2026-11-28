@@ -43,6 +43,12 @@ describe("checkout tokens", () => {
     ]) {
       assert.equal(parseCheckoutToken(bad), null);
     }
+    // A valid-looking signature must not carry a malformed checkout id past the parser: the app
+    // looks the row up by that id (red team 2026-11-28: `!sig && !ID_RE.test(...)` escaped).
+    const badIds = ["pco_short", "pco_ABCDEFGHIJKLMNOPQRST", "org_a", `${ID}0`];
+    for (const badId of badIds) {
+      assert.equal(parseCheckoutToken(`${badId}.${"a".repeat(64)}`), null, badId);
+    }
     assert.equal(await verifyCheckoutToken(SECRET, `${ID}.${"0".repeat(64)}`, "org_a"), false);
     // verifyCheckoutToken is exported on its own: malformed input must fail it too, not only parse
     // (red team 2026-11-27: `if (!parsed) return true` passed every earlier test).

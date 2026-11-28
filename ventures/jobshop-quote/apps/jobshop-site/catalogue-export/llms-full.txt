@@ -727,7 +727,9 @@ delivery date. Anything missing is a question to the customer, not a guess.
 - Price the material from the blank, not the part. Size the stock you will
 actually cut: the part's envelope plus facing and clamping allowance, rounded to a size you can buy.
 Weight times price per pound, plus a share for saw kerf and drop, or the price of a whole bar or
-plate when that is how you buy it. Keep the supplier's minimum charge.
+plate when that is how you buy it. Keep the supplier's minimum charge. (The
+material cost guide works one
+part through all four ways of buying stock.)
 
 - List the operations and time each one. For each setup, the minutes to load the
 program, set work offsets, touch off tools and run a first article; for each part, the cycle time
@@ -1540,6 +1542,9 @@ Notes
 - Material certifications included. First-article inspection report included on the first lot.
 - Customer RFQ 2291.
 
+What to check on the RFQ before you price it, so the notes catch every assumption:
+the RFQ review checklist.
+
 ### Terms to decide once
 
 Each of these is a question your terms should answer. Decide them for your shop, put them in one
@@ -1584,6 +1589,255 @@ financial advice, and the example's names, dates and prices are made up. Check e
 send it.
 
 ### Send your next quote from your own rate card
+
+The Early access plan is free and needs no card.
+
+Start free
+
+## RFQ review checklist
+
+Source: https://marisstella.app/jobshop/rfq-review-checklist
+
+Guide
+
+## RFQ review checklist for machine shops
+
+21 things to check on a request for quote before you price it: the
+documents, the part, the quantities and dates, the paperwork and the terms. Most costly quoting
+mistakes are not arithmetic; they are a revision, a callout or a clause nobody read. A free checklist to
+download and fill in per RFQ is at the end.
+
+Download the checklist (CSV)
+
+### Why review an RFQ before quoting it
+
+A quote is an offer: once the buyer sends a purchase order against it, you have agreed to make that
+revision, in that material, to those callouts, by that date, at that price. Reviewing the request first
+is where you find what the price must cover and whether you can deliver it at all. ISO 9001:2015 and
+AS9100D both ask for this step under clause 8.2.3, “review of the requirements for products and
+services”, before a shop commits to supply. This list is a practical start for that review; it does not
+by itself meet either standard, and your own quality manual decides what your review records.
+
+In short: documents, the part,
+quantity and timing, quality and
+paperwork, commercial terms and restrictions.
+
+### The documents
+
+CheckAskWhy it matters
+
+Every part has a drawing or modelDoes each line on the RFQ have a drawing, a model or both, and do the part numbers on them match the RFQ?A line quoted from a description alone is a guess; a drawing that carries another part number means one part was never sent.Drawing revisionWhich revision is each drawing, does it match the revision the RFQ asks for, and is the model the same revision as the drawing?The price is for the revision quoted. A model at Rev C with a drawing at Rev B is two different parts until the buyer says which one governs.Drawing or model governsIf the drawing and the model disagree, which one does the customer say governs, and are there dimensions only on the drawing?Many shops program from the model and inspect to the drawing; a note saying which governs settles the argument before the first article, not after.Referenced specs on handDo you have every specification the drawing calls out (material, finish, heat treat, welding, inspection), at the revision it names?A callout you have not read can add a process, a test or a certification you did not price.
+
+### The part
+
+CheckAskWhy it matters
+
+MaterialIs the material fully specified (alloy, temper or condition, form), can you buy it at the size you need, and is a substitute allowed?“Aluminum” is not a material; 6061-T6 plate and 7075-T651 bar price and machine differently, and an unavailable size changes the blank.Tightest tolerancesWhich features carry the tightest tolerances or GD&T callouts, and can your machines hold and your gauges measure them?One tight bore can decide the machine, the setup count and the inspection time for the whole part.Surface finish and edgesWhat surface roughness is called out, where, and what edge break or deburr note applies?A fine finish on a sealing face may need a finishing pass or a grind; “break all edges” on a part with many edges is real minutes.Threads and holesWhich threads, thread classes and hole depths are called out, and do any need special tools or gauges?Deep holes, small taps and thread gauges you do not own add time and tooling cost.Finish, plating and heat treatWhich outside processes are called out (anodize, plating, passivation, paint, heat treat), to which specification, and who supplies them?Outside processes have lot minimums and lead times of their own, and a masking note can cost more than the coating.Marking and packagingDoes the part need part marking, serial numbers, bagging, special packaging or labels?Small per-part steps add up over a lot and are easy to forget at the quoting stage.
+
+### Quantity and timing
+
+CheckAskWhy it matters
+
+Quantities asked forWhich quantities does the buyer want prices for, is it a one-off, a blanket order or scheduled releases, and is there a prototype lot first?Setup and lot minimums spread differently at each quantity; a blanket order with releases is priced and stocked differently from one lot.Due date against your loadWhen does the buyer need the parts, when must the quote be in, and can you deliver with what is already on the floor?A price you cannot deliver on loses the customer more surely than a high price.Repeat partHave you quoted or made this part number before, at which revision and price, and did that quote win?Last time's price, time and problems are the best estimate you have, and a buyer notices when the same part is priced differently.
+
+### Quality and paperwork
+
+CheckAskWhy it matters
+
+CertificationsDoes the buyer want material certifications, a certificate of conformance or process certs from your finishers?Certs have to be ordered with the material and kept; a mill cert requested after the material arrives may not be available.First-article and inspection reportsIs a first-article inspection required (for aerospace work, often to AS9102), a CMM report, a sampling plan or 100% inspection?A full first-article report on a complex part can take longer than machining the first part, and it is often unpriced.Quality system requirementsDoes the purchase order or the buyer's supplier manual require a quality system registered to ISO 9001 or AS9100, or other quality clauses?Quality clauses on the PO bind you once you accept it; read them at the quote, not when the order arrives.
+
+### Commercial terms and restrictions
+
+CheckAskWhy it matters
+
+Export-controlled technical dataIs the drawing marked ITAR or EAR, or as Controlled Unclassified Information (CUI), and can your shop lawfully receive and store it?Export-controlled and CUI drawings have handling rules of their own; ask someone qualified before you open them, not after.Defense and government flowdownsIs it a defense or government job, and which clauses flow down to you (for example DFARS 252.204-7012 on safeguarding covered defense information, or 252.225-7009 on specialty metals)?Flowdowns can restrict where material comes from and how you store the drawings; a clause you cannot meet means no-quote.Customer-supplied materialDoes the customer supply the material or parts, and who pays when one scraps?Free-issue material changes the price and the risk; settle the scrap terms on the quote.Payment and shippingAre the buyer's payment terms and shipping terms (FOB point, who pays freight) ones you accept?Net 90 on a large material buy is a loan to the customer; know it before you price.Quote or no-quoteAfter all of the above: do you want this job at a price the buyer is likely to pay, and if not, have you told them so?A prompt no-quote keeps the buyer's goodwill and your estimator's time for the work you want.
+
+### When the answer is “I don't know”
+
+Ask the buyer before you quote, in one email listing every open question, rather than one question at
+a time. Where the buyer will not answer in time, quote with the assumption written in the quote's notes
+(“quoted to Rev B; drawing governs; material certs included, first-article report not included”), so
+the PO accepts your reading or the buyer corrects it before work starts. The
+machine shop quote template has a
+notes field for exactly this, and the terms worth deciding once.
+
+### The checklist
+
+rfq-review-checklist.csv opens in Excel,
+Google Sheets or LibreOffice: a line at the top for the RFQ, who reviewed it and when, then one row per
+check with the columns Section, Check, Question, Why it matters, Answer (yes / no / n/a), Notes. Save one copy per RFQ with the quote. It holds plain
+values, no formulas. Drop the rows that never apply to your work and add your own.
+
+### Doing it in Job Shop Quote
+
+Job Shop Quote does not replace the review; it puts the facts in front of the estimator and keeps the
+record. For 11 of the checks above, the hosted app does this today:
+
+- Every part has a drawing or model. The rule reader matches a drawing to the part whose number it carries and fills that part's blanks from it.
+- Drawing revision. Revision is a field on every part and prints on the quote line, so the quote says which revision was priced.
+- Material. The reader takes the material line and suggests the matching material from your rate card; a material stated above a parts list applies to every part.
+- Tightest tolerances. The reader picks up labelled tolerance lines so the estimator sees them on the review.
+- Threads and holes. From a STEP model the app finds the holes and their depths and pre-fills drilling; the estimator ticks which sizes are tapped.
+- Finish, plating and heat treat. Finishing and outside services are on the rate card with their per-part price and lot minimum.
+- Quantities asked for. The reader takes the quantity lines; every quantity break is priced from the same rate card, with setup and minimums spread at each.
+- Due date against your load. The reader takes due dates that carry a year; the Shop load page puts your open jobs on your machines and plans a draft quote's lead time behind them.
+- Repeat part. The RFQ review shows “Quoted before: N, M won” for each part before a quote exists, from your own quote history.
+- Export-controlled technical data. Job Shop Quote's early access is not set up for CUI or export-controlled drawings; use it only for commercial RFQs.
+- Quote or no-quote. Quotes you send are logged as won, lost or expired with the reason, so win rate by customer shows where quoting pays.
+
+Reading is by rules today (AI reading is not switched on yet), and shows each value it took next to the RFQ text it came from, unconfirmed until the estimator confirms the
+part. When something a price needs is missing, the quote shows a blocking issue instead of a guess. The
+pricing then follows your rate card:
+how a machining quote is built.
+
+This page describes common practice for reviewing job-shop RFQs. It is not legal,
+export-control, tax or quality-certification advice; the standards and regulations named are for you to
+read in their current text. Check every quote before you send it.
+
+### Review and quote your next RFQ in one place
+
+The Early access plan is free and needs no card.
+
+Start free
+
+## How to calculate material cost for machining
+
+Source: https://marisstella.app/jobshop/machining-material-cost
+
+Guide
+
+## How to calculate material cost for a machining quote
+
+Material is the line on a machining quote that is easiest to get roughly right and
+easiest to get quietly wrong: a blank sized from the part instead of the stock, a price from last
+quarter, a supplier minimum left off a one-piece order. Here is the method, the four ways shops buy
+stock, one bracket priced all four ways at 1, 10 and 100, and what the
+numbers show.
+
+### The method in five steps
+
+- Size the blank, not the part. Take the part's envelope (its bounding box) and add
+stock on every side for facing, clamping and cleanup, then round up to a size you can buy or saw.
+Turned parts add a cut-off and facing allowance to the length and take the next bar diameter up.
+
+- Weigh it. Weight = length × width × thickness (or π × r² × length for round bar) ×
+density in lb/in³. Take the density from the alloy's datasheet or your supplier; a figure in g/cm³
+converts by × 0.0361273 (16.387064 cm³ per in³ ÷ 453.59237 g per lb).
+
+- Price it the way you buy it. Plate cut to size is often priced by weight (per
+pound or per hundredweight, 100 lb). Bar, tube and extrusion are priced by length, and either you bill
+the length each part uses or, when the rest of the bar has no other job to go to, the whole bars the
+order needs. Precut blanks and sheets are priced per piece. Add a share for saw kerf and drop where you
+price by weight or by length used.
+
+- Price the parts you start, not the parts you ship. If you expect some parts to
+scrap, the order needs more blanks: parts started = parts shipped ÷ (1 − fallout), rounded up.
+
+- Keep the minimum and add your markup. Suppliers have minimum charges and cut
+charges; a one-off part still pays them. Then the markup on material: handling, ordering, storage and
+the cash tied up until the customer pays.
+
+### A worked example
+
+A 6061 aluminum bracket whose model measures 4 × 3 × 0.5 in,
+quoted at 1, 10 and 100 with 3% expected
+fallout and a 20% material markup. Every price, allowance and scrap
+share here is made up to show the arithmetic; they are not market prices for any metal,
+supplier or region. Use your supplier's current prices.
+
+- Blank: 0.0625 in a side on 4 × 3 ×
+0.5 in, rounded up to the next 1/8 in, is 4.125 × 3.125 ×
+0.625 in: 8.057 in³, and at 0.0975 lb/in³,
+0.786 lb.
+
+- Plate: 6061-T6 aluminum plate, 5/8 in, quoted by the supplier at
+$525.00 per hundredweight, which is $5.25 a pound, plus
+25% for kerf and drop and a $40.00 minimum
+charge.
+
+- Flat bar: 5/8 × 3-1/4 in 6061-T6 aluminum flat bar at $14.80
+a foot, sold in 12 ft bars ($177.60 a bar). Each part takes
+4.125 in plus 0.125 in for the saw and facing, 4.25 in; after
+a 2 in end that cannot become a part, one bar gives 33 blanks.
+
+- Precut blank: 6061-T6 precut blank, 5/8 × 3-1/8 × 4-1/8 in, $13.50 a piece,
+one part each.
+
+- Starts: at 3% fallout, 1 part needs
+2 starts, 10 need 11 and 100 need
+104.
+
+Material for the made-up bracket, before markup, for the whole line, and per part shipped (rounded up to the cent). Checked to the cent against Job Shop Quote's costing engine.
+Bought as1 (2 started)10 (11 started)100 (104 started)
+
+Plate by the pound ($5.25/lb, 25% scrap, $40.00 minimum)$40.00$40.00 a part$56.70$5.67 a part$536.12$5.37 a partFlat bar by the foot used ($14.80/ft, 10% scrap)$11.53$11.53 a part$63.42$6.35 a part$599.65$6.00 a partFlat bar in whole 12 ft bars (33 parts a bar)$177.60$177.60 a part$177.60$17.76 a part$710.40$7.11 a partPrecut blank ($13.50 each)$27.00$27.00 a part$148.50$14.85 a part$1,404.00$14.04 a part
+
+What the table shows:
+
+- At one part, the minimum is the price. Two plate blanks come to
+$10.31 by weight, but the $40.00 minimum is what the
+supplier bills, so it is what the quote must carry. Leave it off and a one-piece order loses it.
+
+- Whole bars cost the most on small orders. Buying a 12 ft bar
+for 2 blanks puts $177.60 on the quote against
+$11.53 for the length used. Which one is right depends on whether the
+rest of that bar has another job to go to; if it will sit on the rack, bill the bar.
+
+- At volume, the drop is in the bar count. 104 blanks at
+33 a bar need 4 bars, and the last one is only partly used: it has room
+for 28 more blanks, about 119 in, billed with
+the order.
+
+- Precut blanks cost more per part and save saw time. At 100 they
+are $1,404.00 against $536.12 from
+plate, a gap that has to be weighed against the sawing, squaring and handling time the plate needs,
+which belongs on the routing, not in the material line.
+
+- Markup comes last. At 20%, the 100-part
+plate line goes from $536.12 to
+$643.34.
+
+### Mistakes that lose money on material
+
+- Pricing from the finished part. The model's volume is what is left after
+machining; you buy the blank. On a pocketed part the blank can weigh several times the part.
+
+- An old price. Metal prices move from month to month. A rate card typed in once
+quotes last season's metal; date every price and check the old ones before you send.
+
+- Pricing the parts shipped. At 3% fallout, a hundred parts shipped means
+a hundred and four blanks bought.
+
+- Dropping the minimum and cut charges. They are small on a big order and most of
+the cost on a small one.
+
+- Mixing up the two kinds of scrap. Kerf and drop are material lost from each
+blank; fallout is whole parts lost. Count each once.
+
+### Doing it in Job Shop Quote
+
+Put each material on the rate card once, the way you buy it: by weight (a price per pound or per
+hundredweight, kept exactly as the supplier quotes it, with the density and a scrap share), by length (a
+price per foot or per metre, the cut allowance and, if you buy fixed bars, the bar length and remnant,
+so a line is charged the whole bars it needs), or by the stock piece with how many parts it yields; each
+with its minimum charge. When an RFQ comes with a STEP model, Job Shop Quote suggests the blank from the
+part's bounding box as above, and you can change it. Each line is priced on the parts started at the
+line's fallout, with the material markup from your rate card, and a material with no price or no blank
+size blocks the line instead of pricing it as free. Every price keeps the date it was set, and a draft
+quote warns when it prices from one older than your limit; see
+material price tracking. The
+charges in the table are the ones the app gives for the same inputs, checked by a test in its code.
+
+For the rest of the price (setups, cycle time, outside processes and quantity breaks), see
+how to quote a CNC machining job
+and how to estimate CNC
+machining time.
+
+This page explains a common estimating method. It is not engineering, accounting
+or financial advice, it does not quote metal prices, and the figures in it are made up. Check every
+quote before you send it.
+
+### Price your material the way you buy it
 
 The Early access plan is free and needs no card.
 

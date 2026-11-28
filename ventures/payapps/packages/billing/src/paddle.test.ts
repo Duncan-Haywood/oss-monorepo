@@ -130,6 +130,17 @@ describe("PaddleBillingProvider.parseWebhook", () => {
     }
   });
 
+  it("signs with the current unix time in seconds by default", async () => {
+    // Local replays call signPaddleWebhook without a ts; it must verify against the real clock
+    // (red team 2026-11-28: a ms timestamp, or Date.now()/1001, escaped every earlier test).
+    const body = "{}";
+    const before = Math.floor(Date.now() / 1000);
+    const header = await signPaddleWebhook(body, SECRET);
+    const ts = Number(/ts=(\d+)/.exec(header)?.[1]);
+    assert.ok(ts >= before && ts <= Math.floor(Date.now() / 1000), header);
+    await verifyPaddleSignature(header, body, SECRET, { toleranceSeconds: 5 });
+  });
+
   it("refuses to verify with a blank secret, whose HMAC anyone can compute", async () => {
     // A secret set to "" or whitespace (a blank paste into the secret store) would make every
     // forged webhook valid: the attacker signs with the same well-known key.
@@ -375,7 +386,7 @@ describe("PaddleBillingProvider.createCheckout", () => {
     });
     assert.equal(res.url, "https://pay.example/?_ptxn=txn_1");
     const txn = calls.find((c) => c.url.endsWith("/transactions"));
-    assert.equal(txn && new URL(txn.url).host, "sandbox-api.paddle.com");
+    assert.equal(txn ? new URL(txn.url).origin : null, "https://sandbox-api.paddle.com");
     assert.deepEqual(txn?.body, {
       items: [{ price_id: "pri_st_y", quantity: 1 }],
       customer_id: "ctm_new",
@@ -454,6 +465,37 @@ describe("PaddleBillingProvider.createCheckout", () => {
       url: "https://portal/x",
       cancelUrl: null,
     });
+  });
+
+  it("asks for the subscription's cancel link and returns only that subscription's", async () => {
+    let body: unknown = null;
+    const fetchFn: typeof fetch = async (_input, init) => {
+      body = JSON.parse(String(init?.body));
+      return Response.json({
+        data: {
+          urls: {
+            general: { overview: "https://portal/x" },
+            subscriptions: [
+              { id: "sub_other", cancel_subscription: "https://portal/other/cancel" },
+              { id: "sub_1", cancel_subscription: "https://portal/sub_1/cancel" },
+            ],
+          },
+        },
+      });
+    };
+    const res = await provider(fetchFn).createPortalSession("ctm_1", "https://app/r", {
+      subscriptionId: "sub_1",
+    });
+    assert.deepEqual(body, { subscription_ids: ["sub_1"] });
+    assert.deepEqual(res, { url: "https://portal/x", cancelUrl: "https://portal/sub_1/cancel" });
+    // A response without the deep link still opens the portal.
+    const bare: typeof fetch = async () =>
+      Response.json({ data: { urls: { general: { overview: "https://portal/x" } } } });
+    assert.equal(
+      (await provider(bare).createPortalSession("ctm_1", "r", { subscriptionId: "sub_1" }))
+        .cancelUrl,
+      null,
+    );
   });
 
   it("infers sandbox vs live from the key prefix", () => {

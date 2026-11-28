@@ -1134,3 +1134,49 @@ Job Shop Quote keeps a separate labor, material and outside-service markup
 and a line minimum on the rate card. A test runs all four policies through
 the app's costing engine and fails if any quantity break differs by a cent.
 All the figures are made up, and the guide says so.
+
+## Update, 28 November 2026: what the material line should cost
+
+Another guide covers the first line of every machining quote: [how to
+calculate material cost for a machining
+quote](https://marisstella.app/jobshop/machining-material-cost). It sizes the
+blank from the part's envelope, weighs it, and prices a made-up 6061 bracket
+the four ways a shop can buy the stock: plate by the hundredweight, flat bar
+by the foot used, flat bar in whole 12 ft bars, and a precut blank. At 1, 10
+and 100 parts with 3% expected fallout, three things stand out:
+
+- **At one part the supplier minimum is the price.** Two plate blanks come to
+  $10.31 by weight; the made-up $40.00 minimum is what gets billed.
+- **Whole bars are dear on small orders.** Two blanks from a whole bar cost
+  $177.60 against $11.53 for the length used. Which is right depends on
+  whether the rest of the bar has another job.
+- **At 100 parts, plate is cheapest at $536.12**, against $599.65 by the foot,
+  $710.40 in four whole bars and $1,404.00 in precut blanks (which save saw
+  time the material line does not show).
+
+Job Shop Quote prices a rate-card material any of those ways, and a test in
+the app prices the same bracket through its costing engine and fails if any
+charge differs by a cent. All the prices are made up, and the guide says so.
+
+## Update, 28 November 2026: what to check on an RFQ before you price it
+
+The arithmetic is rarely what makes a quote lose money. More often it is a
+drawing at the wrong revision, a finish callout nobody read, a first-article
+report the buyer expected for free, or a defense clause on the PO. The new
+[RFQ review checklist for machine
+shops](https://marisstella.app/jobshop/rfq-review-checklist) lists 21 checks
+in five groups: the documents, the part, quantity and timing, quality and
+paperwork, and the commercial terms and restrictions. Each check comes with
+the question to ask and what goes wrong when it is skipped. There is a free
+CSV to fill in for each RFQ, with plain values and no formulas.
+
+ISO 9001:2015 and AS9100D both call this step "review of the requirements for
+products and services" (clause 8.2.3). The page names the clause and says
+plainly that the list on its own does not meet either standard. The rows on
+export control and defense flowdowns tell you to ask someone qualified.
+
+For 11 of the checks, the page says what Job Shop Quote does today. Examples:
+"Quoted before: N, M won" on the RFQ review, the rule reader matching each
+drawing to its part number, and STEP holes pre-filling the drilling. A test
+fails if the page drops a check or the CSV gets a cell a spreadsheet would run
+as a formula.

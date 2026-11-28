@@ -20,6 +20,7 @@ import type { CompanyDocumentInput } from "./company-documents";
 import type { CompanyDailyReportJob } from "./daily-reports";
 import type { CertificateInput } from "./insurance";
 import type { CompanyLowerTierInput } from "./lower-tier-waivers";
+import type { CompanyPunchInput } from "./punch-list";
 import type { CompanyRfiInput } from "./rfi";
 import type { CompanySubmittalInput } from "./submittals";
 import type { CompanyTmTicketInput } from "./tm-tickets";
@@ -664,5 +665,46 @@ describe("cashDigest: weekdays without a daily report", () => {
     const d = cashDigest(report([due]), undefined, [], [], [], [], [], [], many);
     expect(d?.dailyGaps).toHaveLength(10);
     expect(d?.moreDailyGaps).toBe(2);
+  });
+});
+
+describe("cashDigest punch items", () => {
+  const punch = (projectId: string, dueOn: string, number = 1): CompanyPunchInput => ({
+    projectId,
+    projectName: `Job ${projectId}`,
+    projectNumber: null,
+    gcName: "Harbor Builders",
+    number,
+    description: "Missing cover plate",
+    location: null,
+    dueOn,
+    completedOn: null,
+    acceptedOn: null,
+    disputeNote: null,
+  });
+  const digest = (items: CompanyPunchInput[], projects: CashReportProject[] = []) =>
+    cashDigest(report(projects), undefined, [], [], [], [], [], [], [], new Map(), items);
+
+  it("sends on overdue punch items alone, with the job's retainage from the report", () => {
+    expect(digest([punch("p1", "2026-11-23")])).toBeNull();
+    const d = digest(
+      [punch("p1", "2026-11-20"), punch("p1", "2026-11-21", 2)],
+      [job({ id: "p1", retainageHeldCents: 500_000 })],
+    );
+    expect(d?.summary).toContain("Punch list items past due and not fixed: 2 on 1 job.");
+    expect(d?.punchJobs).toHaveLength(1);
+    expect(d?.punchJobs[0]).toMatchObject({
+      overdue: 2,
+      daysOverdue: 3,
+      retainageHeldCents: 500_000,
+    });
+    expect(d?.morePunchJobs).toBe(0);
+  });
+
+  it("caps the jobs listed and counts the rest", () => {
+    const many = Array.from({ length: 13 }, (_, i) => punch(`p${i}`, "2026-11-20"));
+    const d = digest(many);
+    expect(d?.punchJobs).toHaveLength(10);
+    expect(d?.morePunchJobs).toBe(3);
   });
 });

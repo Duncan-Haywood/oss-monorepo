@@ -1,6 +1,6 @@
 // Build output checks: SEO tags, links, sitemap/llms.txt coverage, and the honesty rules in the copy.
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, describe, test } from "node:test";
@@ -35,6 +35,7 @@ import {
   PERSONAL_ITEM_EXAMPLE,
   SALES_TAX_CHECKED_ON,
   SELLER_COLLECTED_SALES,
+  SHOTS,
 } from "../src/pages.mjs";
 
 let out;
@@ -55,7 +56,7 @@ after(() => rmSync(out, { recursive: true, force: true }));
 function fileForServed(path) {
   const rel = path.slice(BASE_PATH.length) || "/";
   if (rel.startsWith("/api/")) return null;
-  if (/\.(txt|xml|css|svg|xlsx)$/.test(rel)) return rel.slice(1);
+  if (/\.(txt|xml|css|svg|xlsx|webp)$/.test(rel)) return rel.slice(1);
   return fileFor(rel.replace(/\/$/, "") || "/");
 }
 
@@ -910,5 +911,54 @@ describe("the compare page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/compare)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/compare<`));
+  });
+});
+
+describe("app stills on the home page", () => {
+  const ASSETS = new URL("../assets/", import.meta.url);
+  /** A WebP's pixel size from its header (VP8, VP8L or VP8X chunk). */
+  function webpSize(buf) {
+    assert.equal(buf.toString("ascii", 0, 4), "RIFF");
+    assert.equal(buf.toString("ascii", 8, 12), "WEBP");
+    const chunk = buf.toString("ascii", 12, 16);
+    if (chunk === "VP8 ") return [buf.readUInt16LE(26) & 0x3fff, buf.readUInt16LE(28) & 0x3fff];
+    if (chunk === "VP8L") {
+      const b = buf.readUInt32LE(21);
+      return [(b & 0x3fff) + 1, ((b >> 14) & 0x3fff) + 1];
+    }
+    if (chunk === "VP8X") return [buf.readUIntLE(24, 3) + 1, buf.readUIntLE(27, 3) + 1];
+    throw new Error(`unknown WebP chunk ${chunk}`);
+  }
+
+  test("every committed still is listed in SHOTS, and every listed still exists", () => {
+    const files = readdirSync(ASSETS).filter((f) => f.startsWith("shot-"));
+    assert.deepEqual(
+      files.sort(),
+      Object.values(SHOTS)
+        .map((s) => s.file)
+        .sort(),
+    );
+  });
+
+  test("each still's width and height match its file, and it is under 120 KB", () => {
+    for (const s of Object.values(SHOTS)) {
+      const buf = readFileSync(new URL(s.file, ASSETS));
+      assert.deepEqual(webpSize(buf), [s.width, s.height], s.file);
+      assert.ok(buf.length < 120_000, `${s.file} is ${buf.length} bytes`);
+    }
+  });
+
+  test("the home page shows each still lazily, with alt text that reads out the figures", () => {
+    const home = read("index.html");
+    for (const s of Object.values(SHOTS)) {
+      const url = `${BASE_PATH}/assets/${s.file}`;
+      const tag = home.match(new RegExp(`<(img|source)[^>]*(src|srcset)="${url}"[^>]*>`));
+      assert.ok(tag, `${s.file} is not on the home page`);
+      if (tag[1] === "img") assert.match(tag[0], /loading="lazy"/);
+      assert.match(tag[0], new RegExp(`width="${s.width}" height="${s.height}"`));
+      assert.match(s.alt, /\$\d/, `${s.file}'s alt text names no figure`);
+      assert.ok(existsSync(join(base(), "assets", s.file)), `${s.file} is not in the build`);
+    }
+    assert.match(home, /The shop and its numbers are invented/);
   });
 });
