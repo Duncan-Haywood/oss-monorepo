@@ -346,6 +346,9 @@ async function loadRefund(c: { var: AppEnv["Variables"] }, id: string) {
   return s;
 }
 
+/** Ids per `inArray` slice in the returned-items lookups: under D1's 100 bound parameters, with the org id. */
+const ORDER_LINE_CHUNK = 90;
+
 const itemColumns = {
   id: inventoryItem.id,
   title: inventoryItem.title,
@@ -394,16 +397,28 @@ routes.get("/:id/returned-items", async (c) => {
     if (orders.length) {
       const ids = orders.map((o) => o.id);
       const legacy = orders.map((o) => o.inventoryItemId).filter((x): x is string => !!x);
-      const rows = await db
-        .select(itemColumns)
-        .from(inventoryItem)
-        .where(and(eq(inventoryItem.orgId, orgId), inArray(inventoryItem.soldBySaleId, ids)));
-      const legacyRows = legacy.length
-        ? await db
+      // D1 binds at most 100 parameters a statement, and one order can have more lines than that
+      // (a bulk or wholesale order), so both lookups run per slice of ORDER_LINE_CHUNK ids.
+      const rows: (typeof returned)[number][] = [];
+      for (let i = 0; i < ids.length; i += ORDER_LINE_CHUNK) {
+        const part = ids.slice(i, i + ORDER_LINE_CHUNK);
+        rows.push(
+          ...(await db
             .select(itemColumns)
             .from(inventoryItem)
-            .where(and(eq(inventoryItem.orgId, orgId), inArray(inventoryItem.id, legacy)))
-        : [];
+            .where(and(eq(inventoryItem.orgId, orgId), inArray(inventoryItem.soldBySaleId, part)))),
+        );
+      }
+      const legacyRows: (typeof returned)[number][] = [];
+      for (let i = 0; i < legacy.length; i += ORDER_LINE_CHUNK) {
+        const part = legacy.slice(i, i + ORDER_LINE_CHUNK);
+        legacyRows.push(
+          ...(await db
+            .select(itemColumns)
+            .from(inventoryItem)
+            .where(and(eq(inventoryItem.orgId, orgId), inArray(inventoryItem.id, part)))),
+        );
+      }
       const byId = new Map([...rows, ...legacyRows].map((i) => [i.id, i]));
       candidates = [...byId.values()].filter((i) => i.status === "sold");
       fromOrder = candidates.length > 0;
