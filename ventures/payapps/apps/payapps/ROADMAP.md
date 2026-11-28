@@ -2717,7 +2717,7 @@ nothing to copy. No customers yet. Paid plans are dark
   (§ 9362) and the late route to the bond (§ 9560). leginfo.legislature.ca.gov refused the proxy
   (403) again, so the text was read from california.public.law's republication, which names leginfo
   as its source, and the rule's notes and the guide say so (excerpts appended to
-  `ventures/pay-app-guides/sources/state-bond-claims.txt`). Thirty states in `STATE_BOND_RULES`.
+  `ventures/pay-app-guides/sources/state-bond-claims.txt`). Thirty-two states in `STATE_BOND_RULES` with Alaska and Wyoming.
   Worked dates in `src/shared/state-bond.test.ts` (a Monday acceptance; a Friday one whose day 30
   is a Sunday); the public guide and the customer post gain the row. Next, if contractors mark
   California public jobs: date from the recorded notice of completion when the job has one (the
