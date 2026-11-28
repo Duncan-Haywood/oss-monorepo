@@ -346,7 +346,7 @@ const FAQ_PAGES = [
   "pay-application-checker.html", "pay-application-software-compared.html", "coconstruct-alternatives.html",
   "pay-if-paid-clauses.html", "prompt-payment-laws.html", "retainage-explained.html",
   "retainage-in-quickbooks.html", "retainage-release.html", "retainage-tracker.html",
-  "schedule-of-values-template.html", "construction-invoice-template.html", "change-order-template.html", "stored-materials-billing.html",
+  "schedule-of-values-template.html", "construction-invoice-template.html", "change-order-template.html", "wip-schedule-template.html", "stored-materials-billing.html",
   "sworn-statement.html", "tm-tickets.html", "punch-list.html", "daily-report-template.html", "submittal-log-template.html",
   "es-como-llenar-una-solicitud-de-pago.html",
   // state-forms.mjs: one page per state with statutory waiver forms
