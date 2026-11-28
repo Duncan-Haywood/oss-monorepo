@@ -1025,6 +1025,12 @@ checks the pair. No customers yet.
     filled from the quote (part number, revision, material and finish certificates), the drawing
     zone from the PDF's text positions, and balloons drawn on a copy of the drawing PDF, if shops
     use the CSV.
+18. From the 2026-11-28 quality re-audit (`portfolio/quality/audits/2026-11-28-jobshop-quote-reaudit.json`
+    in the public repository): clearing an operation's "Setup min" box sends 0 (`num("")` in
+    `src/client/routes/quote-detail.tsx`), so it prices no setup with no issue. Make setup nullable like
+    the cycle time (blank blocks, a typed 0 is a second operation on a machine already set up). And,
+    if shops ask, a per-lot labor line for first-article and inspection at the labor markup (today a
+    setup-only operation, or an extra at the material markup).
 
 ## Open questions for the owner
 
