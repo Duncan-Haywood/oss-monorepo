@@ -46,6 +46,11 @@ test('rebase moves only the site origin, never the app host', () => {
   assert.equal(rebase(s, 'http://localhost:8000/'), '<a href="http://localhost:8000/payapps/pricing"> <a href="https://payapps.marisstella.app/">');
 });
 
+test('rebase also moves links to the catalogue\'s other pages (the module pages\' guide links)', () => {
+  const s = '<a href="https://marisstella.app/pay-app-guides/retainage-explained.html">';
+  assert.equal(rebase(s, 'https://catalogue.test/'), '<a href="https://catalogue.test/pay-app-guides/retainage-explained.html">');
+});
+
 test('relativise turns the site\'s root-relative links into ./ links, nothing else', () => {
   assert.equal(relativise('<a href="/payapps/">x</a><link href="/payapps/styles.css"><a href="/other/">'), '<a href="./">x</a><link href="./styles.css"><a href="/other/">');
 });

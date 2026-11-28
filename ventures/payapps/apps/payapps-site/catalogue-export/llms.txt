@@ -28,6 +28,25 @@ Facts an assistant can rely on:
 - [Features](https://marisstella.app/payapps/features): PayApps for subcontractors: SOV import, monthly pay apps, retainage release, change orders, lien waivers, a cash report and QuickBooks Online. Built and next.
 - [Pricing](https://marisstella.app/payapps/pricing): PayApps pricing: free on one job with no card, then $99, $179 or $249 a month (or yearly at 10% off), sized by active jobs.
 
+## Modules
+
+- [Pay application software](https://marisstella.app/payapps/pay-application-software): Hosted pay application software for subcontractors: the summary page and continuation sheet from your schedule of values, as PDF and CSV, every month.
+- [Schedule of values](https://marisstella.app/payapps/schedule-of-values-software): Import a subcontract's schedule of values from .xlsx, CSV or a PDF bid breakdown, checked against its own total and the contract sum, then bill from it monthly.
+- [Retainage tracking](https://marisstella.app/payapps/retainage-tracking): Track retainage held on every job and pay app, release it by share or dollar amount, and see finished jobs still holding retainage so you bill it.
+- [Change orders](https://marisstella.app/payapps/change-order-tracking): A change order log per job: approved change orders add to or deduct from schedule-of-values lines and flow into the next pay application in the right period.
+- [Lien waiver software](https://marisstella.app/payapps/lien-waiver-software): Lien waivers tracked per pay app, statutory forms in the states whose text we checked, the unconditional waiver you owe once paid, and lien deadlines per job.
+- [Receivables and cash](https://marisstella.app/payapps/construction-receivables): Every pay application sent, what is paid and owed, due dates from each subcontract's pay terms, aging and retainage held, across all jobs on one page.
+- [QuickBooks Online](https://marisstella.app/payapps/quickbooks-retainage-invoicing): Send each pay application to QuickBooks Online as an invoice with retainage on its own line, and apply the payments you record, so receivables match billing.
+- [Job cost and WIP](https://marisstella.app/payapps/job-costing-wip-schedule): Cost budgets per schedule-of-values line, costs from QuickBooks or typed in, commitments, and a WIP schedule of over and under billing across your jobs.
+- [Certified payroll](https://marisstella.app/payapps/certified-payroll-software): Weekly Davis-Bacon certified payroll in the WH-347 columns, checked first, plus California, New York and Washington upload files, built in your browser.
+- [GC portal billing](https://marisstella.app/payapps/gc-portal-billing): Fill your GC's Procore, Oracle Textura, GCPay or Trimble Pay templates from the pay app you already built, instead of typing the same numbers twice.
+- [Submittal log](https://marisstella.app/payapps/submittal-log-software): A submittal log per job that works back the last day to send each submittal from lead time and review days, with transmittals and the returned stamp read.
+- [Daily reports](https://marisstella.app/payapps/daily-report-app): Daily reports per job: weather, crew and man-hours, work done, delays and hours lost, deliveries, inspections and photos, as a PDF per day or date range.
+- [T&M tickets](https://marisstella.app/payapps/tm-ticket-app): Time and material tickets per job, signed by the GC's representative on the device, priced from the job's rate sheet and billed together as one change order.
+- [Punch list](https://marisstella.app/payapps/punch-list-app): Track the GC's punch list per job: items pasted from an email, marked fixed, accepted or not ours, with a back-check request and a PDF for the GC's initials.
+- [RFI log](https://marisstella.app/payapps/rfi-log-software): Log each RFI you send the GC with its due date, print it as a PDF, chase it by email draft, and flag answers that change price or time with no change order.
+- [Estimates](https://marisstella.app/payapps/subcontractor-estimating-software): Price bids from cost lines with markup by category and alternates, send a proposal PDF, and start the won job with its bid items as the schedule of values.
+
 ## Optional
 
 - [Privacy](https://marisstella.app/payapps/privacy): The PayApps website has no forms, cookies or analytics. What the host sees when you load a page, and where your PayApps account's own privacy policy is.
