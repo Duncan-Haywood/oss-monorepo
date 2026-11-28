@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "boundaries.test.ts failed biome format in CI (no local biome); fixed in a follow-up commit"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -47,7 +49,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Guard added: check_billing_copies.py now fails on a missing test file that a sibling billing copy carries for shared code; first run caught payapps-only crypto.test.ts (ported to 4 copies). Verification: five billing suites all green (115/114/146/111/116 pass), test_check_billing_copies 8 OK, redteam rerun all gaps caught_after_fix true.",
+  "notes": "Guard added: check_billing_copies.py now fails on a missing test file that a sibling billing copy carries for shared code; first run caught payapps-only crypto.test.ts (ported to 4 copies). Verification: five billing suites all green (115/114/146/111/116 pass), test_check_billing_copies 8 OK, redteam rerun all gaps caught_after_fix true. Second defect: stale catalogue-export snapshots on main (payapps-site, jobshop-site) regenerated. CI first run also caught a biome format diff in boundaries.test.ts, fixed.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -548,7 +550,14 @@
       {
         "file": "ventures/*/packages/billing/src/period.ts, grace.ts (all five copies)",
         "issue": "An Invalid Date anchor gave quota period key 'NaN-NaN' (a period that never resets), and an Invalid Date pastDueSince gave an Invalid Date graceUntil that toISOString() throws on (einvoice-pro's toIso). Reproduced: periodKeyFor(new Date('x'), now) -> 'NaN-NaN'. Low reachability: paddle.ts already parses provider dates to null, so it takes a corrupt stored row. Fixed: invalid dates count as unknown (calendar month; no grace).",
-        "patched": true
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19955"
+      },
+      {
+        "file": "ventures/payapps/apps/payapps-site/catalogue-export, ventures/jobshop-quote/apps/jobshop-site/catalogue-export",
+        "issue": "Red on main: catalogue-export snapshots were stale after PR #19948 (how-to-quote-welding) and site copy/theme-color changes, so payapps-site and jobshop-site CI failed on every PR. Regenerated with pnpm export:catalogue; both site suites green (55+11, 152+13).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19955"
       }
     ]
   },
