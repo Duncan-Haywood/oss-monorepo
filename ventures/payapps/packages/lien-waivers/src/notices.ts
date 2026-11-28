@@ -2,6 +2,7 @@ import { azPreliminaryNotice } from "./az-notice.ts";
 import { CA_CHECKED_ON, CA_SOURCE_URL } from "./ca.ts";
 import { flNoticeToOwner } from "./fl-notice.ts";
 import { miNoticeOfFurnishing } from "./mi-notice.ts";
+import { ohNoticeOfFurnishing } from "./oh-notice.ts";
 import { fillBlocks } from "./render.ts";
 import { normalizeState } from "./states.ts";
 import { txLaborNotice, txRetainageNotice } from "./tx-notice.ts";
@@ -25,7 +26,7 @@ import { WY_BODIES, WY_CHECKED_ON, WY_SOURCE_URL } from "./wy.ts";
  * Today: Arizona's preliminary twenty day notice, Ariz. Rev. Stat. § 33-992.01 (az-notice.ts);
  * California, Cal. Civ. Code §§ 8102 and 8202 (private works); Florida's Notice to Owner,
  * Fla. Stat. § 713.06(2)(c) (fl-notice.ts); Michigan's notice of furnishing, Mich. Comp. Laws
- * § 570.1109 (mi-notice.ts); Texas' notices of claim for unpaid labor or materials
+ * § 570.1109 (mi-notice.ts); Ohio's notice of furnishing, Ohio Rev. Code § 1311.05 (oh-notice.ts); Texas' notices of claim for unpaid labor or materials
  * and for unpaid retainage, Tex. Prop. Code §§ 53.056 and 53.057 (tx-notice.ts); and Wyoming, Wyo. Stat.
  * § 29-10-101(a), whose form "shall be sent to the record owner of the
  * property against which the lien may be filed and shall be completed in substantially the
@@ -382,6 +383,7 @@ export function noticeForms(state: string): NoticeForm[] {
   if (code === "CA") return [caPreliminaryNotice()];
   if (code === "FL") return [flNoticeToOwner()];
   if (code === "MI") return [miNoticeOfFurnishing()];
+  if (code === "OH") return [ohNoticeOfFurnishing()];
   if (code === "TX") return [txLaborNotice(), txRetainageNotice()];
   return code === "WY" ? [wyPreliminaryNotice()] : [];
 }
