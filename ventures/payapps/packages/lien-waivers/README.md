@@ -18,6 +18,13 @@ The pay-app billing app is meant to import it.
 
 ## Current status: Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah and Wyoming encoded and verified, Missouri's one residential form and Massachusetts' partial waiver as alternatives; no listed state pending
 
+**2026-11-28: Ohio's notice of furnishing.** `src/oh-notice.ts` holds `ohNoticeOfFurnishing()`, offered
+by `noticeForms("OH")`: Ohio Rev. Code § 1311.05(B)'s form, which the notice "shall be in substantially",
+printed whole (the private-improvements line, captions under each blank, the WARNING TO OWNER).
+`test/oh-notice.test.ts` reads the form out of `sources/oh-1311.txt` (codes.ohio.gov, read 2026-11-28)
+and compares the printed notice with it blank for blank. No deadline counting yet; the public
+improvement notice (§ 1311.261) is not encoded.
+
 **2026-11-28: Michigan's notice of furnishing.** `src/mi-notice.ts` holds `miNoticeOfFurnishing()`,
 offered by `noticeForms("MI")`: Mich. Comp. Laws § 570.1109(4)'s form, which a notice not on the form
 attached to the notice of commencement "must be in substantially", printed whole (captions under each

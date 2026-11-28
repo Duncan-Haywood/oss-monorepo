@@ -3,7 +3,7 @@ title: "How long are the hips and valleys on an L-shaped hip roof?"
 date: 2026-11-26
 updated: 2026-11-28
 tags: [wall-framing-takeoff, for-customers, construction]
-description: Hip, valley and ridge lengths for an L-shaped hip roof, and its sheathing by hand, with hip cut-offs reused at valleys and at the next course's hip.
+description: Hip, valley and ridge lengths for an L-shaped hip roof, its sheathing by hand with hip cut-offs reused, and what a bay window adds to the sheet count.
 ---
 
 If you order hip and ridge cap, valley flashing or hip rafters off a plan, you need three numbers: the ridge length, the hip length along the slope and the valley length along the slope. On a rectangle there are textbook formulas. On an L, a T or a stepped plan, most people sketch the roof by hand. This post works one L-shaped house through by hand, gives the multipliers so you can check your own, and says what the framing takeoff we are building now does with any square-cornered outline.
@@ -198,8 +198,24 @@ How it was checked: each plane is found from the roof's own lines. The eaves, ri
 - **Square-cornered plans.** On 300 random square-cornered plans, the new method matches the old one exactly, except where two eaves sit on one line.
 - **The trap from above.** Where two eaves sit on one line, the new method fixes a bug. The old method framed the shared plane behind the bump-out from both eaves, which put pairs of rafters 4 in apart: three such pairs on one 46 × 26 ft test plan. Now the area behind the bump-out is framed once, on one layout.
 
+## Sheathing the bay: 15 more square feet, 5 more sheets (added 2026-11-28)
+
+Each plane is sheathed in 4 ft courses up from its own eave, long edges along that eave, so on a bay's 45-degree sides the courses run at 45 degrees to the house. Two things change at a bay:
+
+- **The cut at a hip is not a 45-degree cut.** A hip off a 135-degree corner moves a course's end in by d ÷ tan 67.5°, about 0.41 in per inch of depth up the slope (in plan), not 1 in per inch. The offcut is a thinner triangle, so it does not fit the valley corner or the hip end that a square-corner offcut fills.
+- **The bay's sides lean.** Both ends of a course on a bay side move the same way as you go up: one end follows the bay's front hip, the other the valley where the bay meets the house. So the piece has to reach from the lowest point of one end to the highest point of the other, not just span the course's bottom edge.
+
+On the same 40 × 24 ft house at 6 in 12 with 12 in eaves, in 4 × 8 sheets with the hip cut-offs reused at hips and valleys where they fit:
+
+- **Without the bay:** 1,221 sq ft of roof, **43 sheets** (11.3% offcut).
+- **With the bay:** 1,236 sq ft, **48 sheets** (19.5% offcut). The bay's three small planes take 6 pieces cut from full sheets, and the house's front plane is split into two runs either side of the bay for its first course.
+
+So the bay adds about 1% to the roof area and 12% to the sheet count. If you order sheathing off roof area plus a flat 10% waste, a bay or two is where you come up short.
+
+How it was checked: each plane's course is worked out from the exact shape of that plane, and the plane areas must add up to the roof area to a thousandth or the takeoff refuses. A rectangle, an L and a Z turned 17, 30 and 45 degrees on the lot, at three pitches, give exactly the same pieces as the same house square to the axes, with the same joints on rafters when framed. On 120 random outlines with clipped corners and 60 random houses with bays, every one of over 15,000 sampled points on the roof is under a piece of its own plane's course. Cut-offs from the hips and valleys at angled corners are not reused, so the count there errs high.
+
 ## Where to use it
 
-Since 2026-11-27 you can run it on any square-cornered outline in [Residential Takeoff](https://marisstella.app/residential-takeoff/), the paid edition of the framing takeoff: pick "any outline" under Roof shape, type the corners, and the roof plan, hip and valley lengths, sheathing courses and blocking come out with the walls, then go into one supplier material list. Since 2026-11-28 an outline with a bay or a 45-degree corner gets its rafters too, in the same order (no sheathing courses yet). It is in early access and checkout is not open, so every feature works without a key for now; the material list and bid package are planned as a $29 report per house. It is not on the free framing page, and the multipliers above still get you there by hand for an L, T or U, and the bay table for a 45-degree bay. The free [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/) already counts studs, plates, headers and the board order for the walls under that roof.
+Since 2026-11-27 you can run it on any square-cornered outline in [Residential Takeoff](https://marisstella.app/residential-takeoff/), the paid edition of the framing takeoff: pick "any outline" under Roof shape, type the corners, and the roof plan, hip and valley lengths, sheathing courses and blocking come out with the walls, then go into one supplier material list. Since 2026-11-28 an outline with a bay or a 45-degree corner gets its rafters and its sheathing courses too, in the same order. It is in early access and checkout is not open, so every feature works without a key for now; the material list and bid package are planned as a $29 report per house. It is not on the free framing page, and the multipliers above still get you there by hand for an L, T or U, and the bay table for a 45-degree bay. The free [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/) already counts studs, plates, headers and the board order for the walls under that roof.
 
 Quantities only, not engineering: hip and valley rafter sizes, bearing and connections are for your engineer or the local building department.

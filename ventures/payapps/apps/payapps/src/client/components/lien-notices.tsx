@@ -1,7 +1,7 @@
 // The job's preliminary notice of right to lien, where the state's statute prescribes one
 // (Arizona's preliminary twenty day notice, § 33-992.01, with the § 33-992.02 acknowledgment of
 // receipt, California's §§ 8102 and 8202 for private works, Florida's Notice to Owner, § 713.06(2)(c), Michigan's
-// notice of furnishing, MCL 570.1109, Texas'
+// notice of furnishing, MCL 570.1109, Ohio's notice of furnishing, § 1311.05, Texas'
 // notices of claim for unpaid labor or materials and for unpaid retainage, §§ 53.056 and 53.057, and
 // Wyoming's § 29-10-101(a) today, from packages/lien-waivers). Where a state has more than one, the
 // user picks which to print; Texas also gets its monthly deadlines (tx-notice-dates.tsx). The values come from the job and the company; the user checks them, adds
@@ -26,6 +26,7 @@ const STATE_NAMES: Record<string, string> = {
   CA: "California",
   FL: "Florida",
   MI: "Michigan",
+  OH: "Ohio",
   TX: "Texas",
   WY: "Wyoming",
 };

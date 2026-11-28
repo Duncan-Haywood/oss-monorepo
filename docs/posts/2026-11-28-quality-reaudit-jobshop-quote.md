@@ -65,7 +65,7 @@ including the rounding change that got through last time. The suites pass:
 
 - **A cleared Setup box prices no setup.** The cycle box now treats blank as
   "not entered". The setup box still treats blank as 0, with no warning.
-  This is filed in the app's ROADMAP (item 18).
+  It is filed in the app's ROADMAP, under the 2026-11-26 costing fixes.
 - **No dedicated first-article or inspection line.** You can enter that work as
   a setup-only operation or as an extra. An extra is marked up at the
   material rate.

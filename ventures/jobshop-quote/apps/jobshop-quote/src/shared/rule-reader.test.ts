@@ -158,6 +158,94 @@ describe("readRfqByRules", () => {
     expect(v.parts[0]).toMatchObject({ quantities: [3], materialText: "1018 steel" });
   });
 
+  it("reads a numbered list with one part per line, and the lines below it for every part", () => {
+    const text = [
+      "Please quote the following parts:",
+      "",
+      "1) 4410-0021 Rev C - Mounting Bracket, 6061-T6 Aluminum, Qty 50 / 100 / 250",
+      "2) 4410-0022 Rev A - Spacer, 304 SS, Qty 200",
+      "3) 4410-0035 Rev B - Cover Plate, 5052-H32, Qty 25, 50",
+      "",
+      "Finish: Clear anodize per MIL-A-8625 Type II",
+      "Need by 01/15/2027",
+    ].join("\n");
+    const { raw, v } = read(text);
+    expect(v.warnings).toEqual([]);
+    expect(v.parts.map((p) => [p.partNumber, p.revision, p.quantities])).toEqual([
+      ["4410-0021", "C", [50, 100, 250]],
+      ["4410-0022", "A", [200]],
+      ["4410-0035", "B", [25, 50]],
+    ]);
+    expect(v.parts[0]?.description).toBe("Mounting Bracket, 6061-T6 Aluminum");
+    expect(v.parts.every((p) => p.finishText === "Clear anodize per MIL-A-8625 Type II")).toBe(
+      true,
+    );
+    expect(v.parts.every((p) => p.dueDate === "2027-01-15")).toBe(true);
+    // The material sits in free text, not a labelled line: it is asked for, not guessed.
+    expect(v.parts.every((p) => p.materialText === null)).toBe(true);
+    expect(raw.missingInfo).toContain("Material for 4410-0021");
+  });
+
+  it('reads bulleted "PN 30311 rev B, qty 12" lines with no colon after the label', () => {
+    const { v } = read(
+      "Quote request\n\n- PN 30311 rev B, qty 12\n- PN 30312 rev B, qty 12\nMaterial: 4140 HT",
+    );
+    expect(v.warnings).toEqual([]);
+    expect(v.parts.map((p) => [p.partNumber, p.revision, p.quantities, p.materialText])).toEqual([
+      ["30311", "B", [12], "4140 HT"],
+      ["30312", "B", [12], "4140 HT"],
+    ]);
+  });
+
+  it("keeps a line indented under a list item with that item", () => {
+    const text =
+      "1) A-100 Rev B, Qty 5\n   Material: 6061-T6\n2) B-200 Rev A, Qty 8\nMaterial: 1018";
+    const { v } = read(text);
+    expect(v.parts.map((p) => p.materialText)).toEqual(["6061-T6", "1018"]);
+  });
+
+  it("does not take a count, a date or a note in a list for a part", () => {
+    const text = [
+      "Part number: A-100",
+      "Qty: 5",
+      "Notes:",
+      "- 1000 pcs per year expected",
+      "1) M6x1.0 tapped holes, qty 4 per part",
+      "2) 2027-01-15 delivery, qty as above",
+      "3. Please confirm lead time",
+    ].join("\n");
+    const { v } = read(text);
+    expect(v.parts.map((p) => p.partNumber)).toEqual(["A-100"]);
+  });
+
+  it('gives each part its own count when one line names two: "50 pcs of A-1001 and 100 pcs of A-1002"', () => {
+    const { v } = read("Can you quote 50 pcs of A-1001 rev C and 100 pcs of A-1002 rev A?");
+    expect(v.warnings).toEqual([]);
+    expect(v.parts.map((p) => [p.partNumber, p.revision, p.quantities])).toEqual([
+      ["A-1001", "C", [50]],
+      ["A-1002", "A", [100]],
+    ]);
+  });
+
+  it('reads a purchasing export\'s "Item" column as the part, and "Req Date" as the due date', () => {
+    const tabs = read(
+      "Line\tItem\tRev\tDescription\tQty\tUOM\tReq Date\n1\tBRK-2201\tC\tBRACKET, MOTOR\t100\tEA\t12/18/2026",
+    );
+    expect(tabs.v.warnings).toEqual([]);
+    expect(tabs.v.parts[0]).toMatchObject({
+      partNumber: "BRK-2201",
+      revision: "C",
+      quantities: [100],
+      dueDate: "2026-12-18",
+    });
+    // With a part number column too, "Item" is the line number and is left alone.
+    const both = read("Item\tPart No\tQty\n1\tBRK-2201\t100\n2\tSHF-0090\t40");
+    expect(both.v.parts.map((p) => [p.partNumber, p.quantities])).toEqual([
+      ["BRK-2201", [100]],
+      ["SHF-0090", [40]],
+    ]);
+  });
+
   it("returns no parts for text with nothing to read", () => {
     const { raw } = read("Hello, can you call me about a job? Thanks");
     expect(raw.parts).toEqual([]);

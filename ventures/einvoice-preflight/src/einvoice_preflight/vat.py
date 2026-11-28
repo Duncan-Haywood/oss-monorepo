@@ -156,6 +156,12 @@ def _classify(country: str, body: str) -> str:
         return "checksum" if _ie_shape(body) else "bad-format"
     if country in {"GB", "UK"}:
         return "checksum" if body.isdigit() and len(body) in (9, 12) else "bad-format"
+    if country == "NO":
+        # Organisasjonsnummer, nine digits, optionally followed by MVA (as vat.mjs).
+        return "checksum" if re.fullmatch(r"\d{9}(MVA)?", body, re.ASCII) else "bad-format"
+    if country == "CH":
+        # UID: E plus nine digits, optionally followed by MWST, TVA or IVA (as vat.mjs).
+        return "checksum" if re.fullmatch(r"E\d{9}(MWST|TVA|IVA)?", body, re.ASCII) else "bad-format"
     lengths = _FORMAT_ONLY.get(country)
     if lengths is None:
         return "unknown"
@@ -205,6 +211,10 @@ def _checksum_ok(country: str, body: str) -> bool:
         return _gb(body)
     if country == "XI":
         return _gb(body)
+    if country == "NO":
+        return _mod11_check(body[:9], [3, 2, 7, 6, 5, 4, 3, 2])
+    if country == "CH":
+        return _mod11_check(body[1:10], [5, 4, 3, 2, 7, 6, 5, 4])
     if country in _EXTRA:
         return _EXTRA[country][1](body)
     return False
@@ -212,6 +222,12 @@ def _checksum_ok(country: str, body: str) -> bool:
 
 def _w(text: str, weights: list[int]) -> int:
     return sum(int(d) * w for d, w in zip(text, weights))
+
+
+def _mod11_check(nine: str, weights: list[int]) -> bool:
+    """Brønnøysund organisasjonsnummer / Swiss UID: 11 - (sum mod 11); 11 is 0, 10 never issued."""
+    check = 11 - _w(nine[:8], weights) % 11
+    return check != 10 and (0 if check == 11 else check) == int(nine[8])
 
 
 def _mod11_retry(body: str, retry: list[int]) -> bool:

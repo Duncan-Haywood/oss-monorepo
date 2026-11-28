@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVMpxtqYeUwEuQHv9B5",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T15:56:24Z",
+  "ended": "2026-11-28T16:02:49Z",
+  "wall_minutes": 6.61,
+  "tokens_in": 5167985,
+  "tokens_out": 22747,
+  "cost_usd": 2.2437,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20164",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first 120-line test seeded 10 rows per insert, which hit the 100-parameter limit itself; dropped to 4 rows per insert."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 4 sends runs to bet Workers, but five cold-start passes on near-identical templates landed the same day. A list of which bet/surface pairs are already measured would save the triage (I worked it out from docs/history filenames)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "The cold-start pass found no lever (50.5 ms, minify no gain), so the shipped change is the reliability item from the last seller-books perf doc's ranked list (inArray chunking), not a speed-up.",
+      "did": "Recorded the cold-start readings and the minify result as a negative result, and fixed the one unbounded inArray with a failing-then-passing test.",
+      "result": "A real 500 on bulk-order refunds is fixed. Other bet Workers need not re-try minify."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No new docs/posts post: a negative perf result plus a one-route fix would make a thin post, and the owner asked for consolidated posts.",
+      "did": "Wrote the history doc only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/seller-books-worker-cold-start-perf-2026-11-28.md"
+  ],
+  "goal": null,
+  "notes": "Metric: seller-books Worker startup. Before: workerd `wrangler check startup` Active CPU, 7 interleaved runs, median 50.5 ms; Node `await import()` of built index.js, median 92.7 ms. Minified build (not shipped): 52.8 ms / 91.1 ms. No significant change, so no speed change landed. Node --cpu-prof: 887 samples, 397 compile, 146 zod. Bundle index.js 1,593 KB \u2192 841 KB minified. Fix verified: the new 120-line returned-items test gets 500 on the old route and 200 with all candidates on the new one. seller-books pnpm test: unit 449/449 and worker 193/193 pass; typecheck passes; biome clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "48fd1401-fe30-58a9-8477-e655783d0164",
+    "transcripts": 1,
+    "first": "2026-11-28T15:56:24Z",
+    "last": "2026-11-28T16:03:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 111,
+        "output": 22747,
+        "thinking": 4243,
+        "cache_read": 5071117,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96757,
+        "api_equivalent_usd": 2.2437,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 111,
+      "output": 22747,
+      "thinking": 4243,
+      "cache_read": 5071117,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96757,
+      "api_equivalent_usd": 2.2437,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 55,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.61,
+      "active_minutes": 6.61,
+      "model_minutes": 4.33,
+      "tool_minutes": 2.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profiling a Worker build, a minify experiment, an audit of 75 query call sites and one tested fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 133.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -412,9 +412,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (90 stories)
+### For Other Minds (91 stories)
 
 - [The Fourteen Days](stories/the-fourteen-days.md) (2026-11-28; 16 min read, text only)
+- [Where the Letter Came From](stories/where-the-letter-came-from.md) (2026-11-28; 18 min read, text only)
 - [Yes or No by Five](stories/yes-or-no-by-five.md) (2026-11-28; 16 min read, text only)
 - [The Board by the Door](stories/the-board-by-the-door.md) (2026-11-27; 17 min read, text only)
 - [The Seven Who Wrote In](stories/the-seven-who-wrote-in.md) (2026-11-27; 16 min read, text only)

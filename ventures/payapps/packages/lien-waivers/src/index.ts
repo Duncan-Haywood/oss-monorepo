@@ -90,6 +90,12 @@ export {
   WY_NOTICE_ID,
 } from "./notices.ts";
 export {
+  OH_NOTICE_CHECKED_ON,
+  OH_NOTICE_DAYS,
+  OH_NOTICE_ID,
+  OH_NOTICE_SOURCE_URL,
+} from "./oh-notice.ts";
+export {
   fillBlocks,
   placeholdersOf,
   render,
