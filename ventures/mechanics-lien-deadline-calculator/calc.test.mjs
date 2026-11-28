@@ -115,7 +115,8 @@ test("missing or impossible dates compute nothing instead of guessing", () => {
 });
 
 test("unsupported states throw rather than fall back to a guessed rule", () => {
-  assert.throws(() => lienDeadlines({ state: "MT" }), /unsupported/);
+  assert.throws(() => lienDeadlines({ state: "IA" }), /unsupported/);
+  assert.throws(() => lienDeadlines({ state: "IL" }), /unsupported/);
 });
 
 test("every rule carries a citation and a not-legal-advice finding is always present", () => {
@@ -328,7 +329,7 @@ test("California cites ยง 8414 (claimants other than a direct contractor), not ย
 });
 
 test("every state links its statute on an official or code-copy host", () => {
-  const hosts = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|capitol\.texas\.gov|www\.flsenate\.gov|www\.azleg\.gov|app\.leg\.wa\.gov|law\.justia\.com|www\.ncleg\.gov|www\.nysenate\.gov|codes\.ohio\.gov|www\.legislature\.mi\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|le\.utah\.gov|law\.lis\.virginia\.gov)\//;
+  const hosts = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|capitol\.texas\.gov|www\.flsenate\.gov|www\.azleg\.gov|app\.leg\.wa\.gov|law\.justia\.com|www\.ncleg\.gov|www\.nysenate\.gov|codes\.ohio\.gov|www\.legislature\.mi\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|le\.utah\.gov|law\.lis\.virginia\.gov|delcode\.delaware\.gov|legislature\.idaho\.gov|www\.ksrevisor\.gov|mgaleg\.maryland\.gov|archive\.legmt\.gov|nebraskalegislature\.gov|ndlegis\.gov|www\.scstatehouse\.gov|sdlegislature\.gov)\//;
   for (const state of Object.keys(STATE_RULES)) {
     const r = run({ state });
     assert.ok(r.sources.length >= 1, state);
@@ -383,4 +384,18 @@ test("Oregon and Virginia: whichever comes first, own last furnishing or complet
 test("Utah: 180 days after final completion, or 90 after a notice of completion", () => {
   assert.equal(iso(run({ state: "UT" }).lien.date), "2026-12-17"); // Jun 20 + 180
   assert.equal(iso(run({ state: "UT", noticeOfCompletionDate: "2026-07-01" }).lien.date), "2026-09-29"); // Jul 1 + 90
+});
+
+test("the nine states added 2026-11-28 count from the last day furnished", () => {
+  // 2026-09-01 is a Tuesday; +90 is Mon 2026-11-30, +120 Wed 2026-12-30, +180 Sun 2027-02-28
+  // (safe date Fri 2027-02-26), +3 months Tue 2026-12-01.
+  const want = { DE: "2026-12-30", ID: "2026-11-30", KS: "2026-12-01", MD: "2027-02-28", MT: "2026-11-30", NE: "2026-12-30", ND: "2026-11-30", SC: "2026-11-30", SD: "2026-12-30" };
+  for (const [state, date] of Object.entries(want)) {
+    const r = lienDeadlines({ state, firstFurnishing: "2026-06-01", lastFurnishing: "2026-09-01", today: "2026-09-02" });
+    assert.equal(r.lien.date.toISOString().slice(0, 10), date, state);
+  }
+  const md = lienDeadlines({ state: "MD", firstFurnishing: "2026-06-01", lastFurnishing: "2026-09-01", today: "2026-09-02" });
+  assert.equal(md.lien.safeDate.toISOString().slice(0, 10), "2027-02-26");
+  // The notice of intention: 60 days before the petition's safe date, so never after 120 days.
+  assert.ok(md.prelim.date <= new Date(Date.UTC(2026, 11, 30)), "Maryland notice within 120 days");
 });

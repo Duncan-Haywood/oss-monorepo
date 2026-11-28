@@ -1055,6 +1055,24 @@ nothing to copy. No customers yet. Paid plans are dark
   Free front door caught up 2026-11-28 (lien-calculator-sixteen-states): the six are in
   `ventures/mechanics-lien-deadline-calculator/calc.mjs` with the same rules, so the parity test now
   holds all sixteen states equal on its grid (it asserts at least sixteen shared).
+
+  Nine more states 2026-11-28 (lien-deadline-nine-states), in this app and the free calculator
+  together: Delaware (25 Del. C. § 2711(b), subs 120 days after last labor or delivery), Idaho
+  (§ 45-507(2), 90 days), Kansas (K.S.A. 60-1103(a)(1), subs 3 months; 4 for a contractor with the
+  owner, 60-1102(a)), Maryland (Real Prop. § 9-105(a), petition in circuit court 180 days, with the
+  sub's 120-day notice of intention, § 9-104(a), in the notes), Montana (MCA 71-3-535(1), 90 days,
+  or after a notice of completion, noted), Nebraska (§ 52-137(1), 120 days), North Dakota
+  (35-27-13, 90 days), South Carolina (§ 29-5-90, serve and file in 90 days) and South Dakota
+  (44-9-15, 120 days). Each section read on the state's own code site that day; excerpts and URLs
+  in `ventures/mechanics-lien-deadline-calculator/sources/2026-11-28-nine-states.md`. All are
+  "days/months after last furnishing", so the panel asks no completion date for them. Iowa read and
+  left out (§ 572.9's two years and ninety days; what a late lien reaches is in sections not read).
+  Not reachable from the session: Illinois, Pennsylvania, Wisconsin, Connecticut, New Hampshire,
+  West Virginia, Massachusetts; Tennessee's code has no official free host. The parity test now
+  asserts every carried state is shared with the free calculator. Next, if contractors in them ask:
+  Illinois, Pennsylvania, New Jersey, Massachusetts, Tennessee, Indiana and Wisconsin, each from
+  statute text (`python3 portfolio/smb/cbp_counts.py 238 --by-state` ranks the states by specialty
+  contractors).
 - Notices of claim: Texas, part 3, retainage (2026-11-27, Crew and up;
   texas-notices-of-claim-part-3-retainage). Under the Texas log, "Retainage (§ 53.057)" saves the day
   this company's contract was completed, terminated or abandoned and the day the original contract
