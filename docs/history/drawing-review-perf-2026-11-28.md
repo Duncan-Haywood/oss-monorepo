@@ -37,7 +37,9 @@ million short-lived objects on a large drawing, plus the generator protocol.
 ## Change
 
 `pdf-text.mjs` (the same block in machine-shop-guides, pdf-plan-takeoff and
-drawing-set-index): the loop became `scanTokens(str, value, op)`, which calls
+drawing-set-index, and residential-takeoff's `apps/wall-framing-takeoff`, whose
+`pdfsync.test.mjs` pins it byte for byte to pdf-plan-takeoff's; the 11-26
+note missed that fourth copy, and CI caught it): the loop became `scanTokens(str, value, op)`, which calls
 the reader's callbacks directly. `runTokens` and `TokenList` use it.
 `tokens(str)` stays, now returning the array of `{ v }` / `{ op }` that the
 tests compare against the regex reference.
@@ -75,7 +77,7 @@ About a fifth off the drawing review's read. `pdf-plan-takeoff`'s
   is built on it; `read-once.test.mjs` pins `TokenList` and the string path
   of `runTokens` to `tokens()`.
 - Suites: machine-shop-guides 319/319, pdf-plan-takeoff 41/41,
-  drawing-set-index 19/19 (`run_venture_tests.py`).
+  drawing-set-index 19/19, residential-takeoff passing (`run_venture_tests.py`).
 
 ## Not changed (ranked, for the next run)
 

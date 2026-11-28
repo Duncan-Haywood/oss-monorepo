@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push missed the residential-takeoff copy of pdf-text.mjs; changed-ventures went red on its sync test, fixed in a follow-up commit."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "platform/ci/run_venture_tests.py",
       "issue": "--times data is from 2026-11-17 (11 days stale), so ranking suites by it is unreliable."
+    },
+    {
+      "file": "docs/history/drawing-review-perf-2026-11-26.md",
+      "issue": "Says pdf-text.mjs is vendored into three ventures. There is a fourth copy in residential-takeoff/apps/wall-framing-takeoff, pinned by its pdfsync.test.mjs, and only CI's changed-ventures job found it. Grep for TOK_DELIM before editing."
     }
   ],
   "deviations": [
@@ -53,7 +59,7 @@
     "docs/history/drawing-review-perf-2026-11-28.md"
   ],
   "goal": null,
-  "notes": "Metric: extractPdfLines wall time on the drawing-review benchmark (sample drawing + N random segments, one FlateDecode stream, Node 22, old and new modules interleaved in one process). 200k segments: median 210/202 ms before, 158/186 ms after (31 reads each, two runs). 50k: 52/55 before, 43/44 after (41 reads). pdf-plan-takeoff readSheets at 200k: 321/348 before, 334/336 after, no change outside noise. Profile before: tokens generator 810 ms, GC 474 ms over 9 reads. Dropped, measured slower: operands.length=0 (V8 trims the backing store) and short-word interning (dictionary-mode array, 199 to 236 ms). Identity: 68 checkout PDFs x 3 readers, 204/204 hashes equal. Suites: machine-shop-guides 319, pdf-plan-takeoff 41, drawing-set-index 19, all passing. Security queue was empty (exit 3), ideas inbox empty.",
+  "notes": "Metric: extractPdfLines wall time on the drawing-review benchmark (sample drawing + N random segments, one FlateDecode stream, Node 22, old and new modules interleaved in one process). 200k segments: median 210/202 ms before, 158/186 ms after (31 reads each, two runs). 50k: 52/55 before, 43/44 after (41 reads). pdf-plan-takeoff readSheets at 200k: 321/348 before, 334/336 after, no change outside noise. Profile before: tokens generator 810 ms, GC 474 ms over 9 reads. Dropped, measured slower: operands.length=0 (V8 trims the backing store) and short-word interning (dictionary-mode array, 199 to 236 ms). Identity: 68 checkout PDFs x 3 readers, 204/204 hashes equal. Suites: machine-shop-guides 319, pdf-plan-takeoff 41, drawing-set-index 19, all passing. Security queue was empty (exit 3), ideas inbox empty. A fourth copy (residential-takeoff/apps/wall-framing-takeoff) was updated after CI's sync test failed; that suite passes locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
