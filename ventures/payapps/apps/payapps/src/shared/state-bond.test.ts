@@ -380,6 +380,70 @@ describe("state bond claims", () => {
     expect(open.notes.join(" ")).toMatch(/earliest the deadlines can fall/);
   });
 
+  it("California: a recorded notice of completion moves the stop payment notice period and both suits (§§ 9356(a), 9204(a))", () => {
+    const rec = (recordedOn: string | null, acceptedOn: string | null = ACCEPTED) => {
+      const r = stateBondClaim("CA", {
+        tier: "second",
+        lastFurnishedOn: LAST,
+        acceptedOn,
+        completionRecordedOn: recordedOn,
+      });
+      if (r?.kind !== "checked") throw new Error("expected CA to be checked");
+      return r;
+    };
+    // Recorded Tuesday 22 December 2026, 8 days after acceptance (inside § 9204(a)'s 15): + 30 days =
+    // Thursday 21 January 2027 (§ 9356(a)); + 90 = Wednesday 21 April (§ 9502(b)); + six months =
+    // Wednesday 21 July (§ 9558). The late bond notice (§ 9560(b)) is 15 days after the recording,
+    // Wednesday 6 January.
+    const ca = rec("2026-12-22");
+    expect(dueOf(ca, "Cal. Civ. Code § 9356")).toBe("2027-01-21");
+    expect(dueOf(ca, "Cal. Civ. Code § 9502(a), (b)")).toBe("2027-04-21");
+    expect(dueOf(ca, "Cal. Civ. Code § 9558")).toBe("2027-07-21");
+    expect(ca.steps[1]?.rule).toBe("within 30 days after the notice of completion was recorded");
+    const notes = ca.notes.join(" ");
+    expect(notes).toMatch(/recorded on 2026-12-22/);
+    expect(notes).not.toMatch(/earliest the deadlines can fall/);
+    expect(notes).toMatch(/by 2027-01-06 on this job \(§ 9560\(b\)\)/);
+    // The static rule's notes are not changed for the next job.
+    expect(STATE_BOND_RULES.CA?.notes.join(" ")).toMatch(/earliest the deadlines can fall/);
+
+    // Recorded Tuesday 5 January 2027, 22 days after acceptance: outside § 9204(a)'s window, so the
+    // earlier of 30 days after it (Thursday 4 February) and 90 days after completion (Sunday 14 March,
+    // § 9356(b)) is used: 4 February.
+    const late = rec("2027-01-05");
+    expect(dueOf(late, "Cal. Civ. Code § 9356")).toBe("2027-02-04");
+    expect(late.notes.join(" ")).toMatch(/more than 15 days after the acceptance/);
+    // Recorded Monday 1 March 2027: 30 days after it is 31 March, later than 90 days after completion,
+    // Sunday 14 March, moved to Friday the 12th. The late bond notice: the earlier of 16 March (15 days
+    // after the recording) and Saturday 27 February (75 days after completion).
+    const veryLate = rec("2027-03-01");
+    expect(veryLate.steps[1]?.statutoryOn).toBe("2027-03-14");
+    expect(dueOf(veryLate, "Cal. Civ. Code § 9356")).toBe("2027-03-12");
+    expect(veryLate.notes.join(" ")).toMatch(/give it by 2027-02-27/);
+
+    // A recording with no acceptance entered still dates the steps, and asks for the acceptance.
+    const noAcceptance = rec("2026-12-22", null);
+    expect(dueOf(noAcceptance, "Cal. Civ. Code § 9356")).toBe("2027-01-21");
+    expect(noAcceptance.notes.join(" ")).toMatch(/Enter the acceptance date too/);
+    // A stored value that is not a calendar day is read as not entered: dated from acceptance again.
+    const bad = rec("2026-02-30");
+    expect(dueOf(bad, "Cal. Civ. Code § 9356")).toBe("2027-01-13");
+    expect(bad.notes.join(" ")).toMatch(/earliest the deadlines can fall/);
+    // Other states ignore the field.
+    const tx = stateBondClaim("TX", {
+      tier: "second",
+      lastFurnishedOn: LAST,
+      acceptedOn: ACCEPTED,
+      completionRecordedOn: "2026-12-22",
+    });
+    const txPlain = stateBondClaim("TX", {
+      tier: "second",
+      lastFurnishedOn: LAST,
+      acceptedOn: ACCEPTED,
+    });
+    expect(tx).toEqual(txPlain);
+  });
+
   it("Colorado: both steps wait on the published final settlement date, so none is dated", () => {
     const co = checked("CO", "first", ACCEPTED);
     expect(co.steps.map((s) => s.citation)).toEqual([
