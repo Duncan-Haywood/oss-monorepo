@@ -30,7 +30,7 @@ Facts an assistant can rely on:
 
 ## Modules
 
-- [Pay application software](https://marisstella.app/payapps/pay-application-software): Hosted pay application software for subcontractors: the summary page and continuation sheet from your schedule of values, as PDF and CSV, every month.
+- [Pay application software](https://marisstella.app/payapps/pay-application-software): Hosted pay application software for subcontractors: the summary page and continuation sheet from your schedule of values, as PDF, Excel and CSV, every month.
 - [Schedule of values](https://marisstella.app/payapps/schedule-of-values-software): Import a subcontract's schedule of values from .xlsx, CSV or a PDF bid breakdown, checked against its own total and the contract sum, then bill from it monthly.
 - [Retainage tracking](https://marisstella.app/payapps/retainage-tracking): Track retainage held on every job and pay app, release it by share or dollar amount, and see finished jobs still holding retainage so you bill it.
 - [Change orders](https://marisstella.app/payapps/change-order-tracking): A change order log per job: approved change orders add to or deduct from schedule-of-values lines and flow into the next pay application in the right period.
