@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "Worker test first failed: a long UID in the .ics is folded at 75 octets (RFC 5545), so the test now unfolds the file before matching.",
-    "biome flagged an array-index React key; the action's id is used instead."
+    "biome flagged an array-index React key; the action's id is used instead.",
+    "First CI run failed biome ci: Affirmations.tsx was edited after the last local biome pass; reformatted and pushed (fix: run biome after the last edit, not before the docs pass)."
   ],
   "integrity_issues": [],
   "doc_friction": [
