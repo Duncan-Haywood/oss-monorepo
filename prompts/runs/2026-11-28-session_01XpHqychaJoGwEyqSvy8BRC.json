@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqychaJoGwEyqSvy8BRC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T09:39:36Z",
+  "ended": "2026-11-28T09:47:48Z",
+  "wall_minutes": 8.38,
+  "tokens_in": 8242128,
+  "tokens_out": 27050,
+  "cost_usd": 3.3521,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20069",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "pay-app-guides node --test failed one test once and passed on two reruns with no change (looked flaky; not chased)",
+    "first CI: payapps biome format error on one line I wrote (fixed), and pay-app-guides llms-answers.txt stale after the FAQ edit (regenerated)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "Next item 25 said leginfo.legislature.ca.gov 'answered 2026-11-27', but it returned 403 again; a stale 12-hour California claim with no PR sat on the slug, so the roadmap's host notes cannot be trusted without a probe"
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Every top bet (payapps, jobshop-quote, einvoice, cmmc) had 'free and not gated: none' or only state-statute items several sessions were racing on (Alabama was claimed the same minute); the real launch blockers are owner steps already in the decision queue"
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "'a category's offline bundle stays small' fails on origin/main itself (services category 4.2 MB > 4 MiB, checked in a clean worktree of c36c785fb), so every PR touching pages shows a red site-builder test it did not cause; the test's own comment says split the category rather than raise the ceiling"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/payapps/apps/payapps/src/shared/public-jobs.ts",
+      "why": "StateBondRule says 'Read on the legislature's own site', but leginfo refused the proxy",
+      "did": "read the text from california.public.law (which republishes it and cites leginfo), and said so in the rule's notes, the guide, the sources file and the post",
+      "result": "California shipped with its source disclosed; a re-read on leginfo is a roadmap item"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md (extended with a California section)"
+  ],
+  "goal": null,
+  "notes": "Security queue had nothing to take; ideas inbox empty; routed ventures. Live funnel check: all 4 open products ok. Verification: payapps vitest unit 1597 passed, worker lien-deadline 5 passed, tsc clean, pay-app-guides 397 passed, platform/pages industry tests passed. After the fix commit, the new push's CI did not start within 25 min (adversarial-gate queued); verified locally instead: biome ci on ventures/payapps clean, llms-answers.test 7/7, pages suite failing only on the pre-existing bundle-size test.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "17a507b5-c866-5ef0-8ce3-ea9541075880",
+    "transcripts": 1,
+    "first": "2026-11-28T09:39:36Z",
+    "last": "2026-11-28T09:47:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 123,
+        "output": 27050,
+        "thinking": 6662,
+        "cache_read": 8093005,
+        "cache_write_5m": 0,
+        "cache_write_1h": 149000,
+        "api_equivalent_usd": 3.3521,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 123,
+      "output": 27050,
+      "thinking": 6662,
+      "cache_read": 8093005,
+      "cache_write_5m": 0,
+      "cache_write_1h": 149000,
+      "api_equivalent_usd": 3.3521,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 62,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.38,
+      "active_minutes": 8.38,
+      "model_minutes": 5.37,
+      "tool_minutes": 3.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "reading 15 CA Civil Code sections, coding and testing dates, guide and post edits",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 149.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
