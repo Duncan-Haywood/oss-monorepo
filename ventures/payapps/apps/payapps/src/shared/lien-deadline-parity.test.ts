@@ -3,6 +3,8 @@
 // share: a red-team run on 2026-11-27 found the port silently dropping a completion date entered
 // before the last day of work (California, Arizona, Utah), a date later than the free tool's, so
 // the paid product was the less safe of the two. This grid catches the next drift of either copy.
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { addDays, isLienDeadlineState, LIEN_DEADLINE_STATES, lienDeadline } from "./lien-deadline";
 
@@ -12,12 +14,24 @@ interface FreeCalc {
   lienDeadlines(input: Record<string, string>): { lien: { date: Date; safeDate: Date } | null };
 }
 const CALC = new URL("../../../../../mechanics-lien-deadline-calculator/calc.mjs", import.meta.url);
-const { lienDeadlines, STATE_RULES } = (await import(/* @vite-ignore */ CALC.href)) as FreeCalc;
+// The deploy workflow (payapps-deploy) checks out ventures/payapps alone, so calc.mjs is absent
+// there; the grid skips only in that workflow. `payapps CI` checks out both trees and runs it on
+// every change to either, and anywhere else a missing calc.mjs is an error, not a skip. Before
+// 2026-11-28 the import was unconditional and failed 58 deploys in a row (docs/reports/
+// 2026-11-28-deploys-red-on-cross-venture-parity-tests.md).
+const inDeploy = (process.env.GITHUB_WORKFLOW ?? "").endsWith("-deploy");
+const present = existsSync(fileURLToPath(CALC));
+if (!present && !inDeploy) throw new Error(`lien parity: ${fileURLToPath(CALC)} not found`);
+const calc = present ? ((await import(/* @vite-ignore */ CALC.href)) as FreeCalc) : null;
+const { lienDeadlines, STATE_RULES } = calc ?? {
+  lienDeadlines: () => ({ lien: null }),
+  STATE_RULES: {},
+};
 
 const LAST = ["2026-01-31", "2026-02-28", "2026-05-15", "2026-08-30", "2026-12-31"];
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 
-describe("lien deadline parity with the free calculator", () => {
+describe.skipIf(!calc)("lien deadline parity with the free calculator", () => {
   const shared = Object.keys(STATE_RULES).filter(isLienDeadlineState);
   it("shares every state PayApps carries (all twenty-five since 2026-11-28)", () => {
     expect(shared.length).toBe(LIEN_DEADLINE_STATES.length);
