@@ -138,3 +138,28 @@ export const qboCreditMemoSyncs = sqliteTable(
   },
   (t) => [index("qbo_credit_memo_syncs_org_idx").on(t.orgId)],
 );
+
+/**
+ * The interest a late payment earned (src/shared/cash-report.ts, paidLateApps) sent to QuickBooks
+ * as its own invoice to the GC, numbered "LI" + the application's invoice tail
+ * (src/shared/qbo-interest.ts). One row per pay app. `invoice_id` and `doc_number` are null when an
+ * editor said it was already entered in QuickBooks by hand. Sending marks the interest billed on the
+ * application if it was not marked yet; undoing that mark leaves this row and the invoice, since
+ * QuickBooks is the books of record.
+ */
+export const qboInterestInvoiceSyncs = sqliteTable(
+  "qbo_interest_invoice_syncs",
+  {
+    payAppId: text("pay_app_id")
+      .primaryKey()
+      .references(() => payApps.id, { onDelete: "cascade" }),
+    orgId: orgId(),
+    realmId: text("realm_id").notNull(),
+    invoiceId: text("invoice_id"),
+    docNumber: text("doc_number"),
+    amountCents: cents("amount_cents").notNull(),
+    syncedBy: text("synced_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("qbo_interest_invoice_syncs_org_idx").on(t.orgId)],
+);

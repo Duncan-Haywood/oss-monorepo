@@ -194,10 +194,31 @@ class FetchForbiddenTest(unittest.TestCase):
             cache = derive.fetch(root, get=closed, log=logs.append, limit=3)
             self.assertEqual(sorted(asked), [31, 120, 1000])
             self.assertEqual(len(cache), 3)
-            self.assertIn("fetching 3 of 5, newest first", logs[0])
+            self.assertIn("fetching 3 of 5: 0 whose rework window closed", logs[0])
             asked.clear()
             derive.fetch(root, get=closed, log=logs.append, limit=3)  # the backlog drains
             self.assertEqual(sorted(asked), [5, 9])
+
+    def test_limit_saves_half_for_prs_whose_rework_window_just_closed(self) -> None:
+        asked: list[int] = []
+        def closed(path: str) -> Any:
+            if path.rsplit("/", 2)[-2] == "pulls":
+                asked.append(int(path.rsplit("/", 1)[1]))
+                return {"state": "closed", "merged": True}
+            return []
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "prompts"
+            (root / "runs").mkdir(parents=True)
+            # today 2026-11-28: the band is 11-07..11-14; 10-01 is past the deepen, 11-2x still open
+            for n, date in ((1, "2026-10-01"), (10, "2026-11-08"), (11, "2026-11-12"), (12, "2026-11-13"),
+                            (20, "2026-11-25"), (21, "2026-11-26"), (22, "2026-11-27")):
+                rec = {**promptctl.RECORD_FIELDS, "date": date, "session": f"s{n}",
+                       "track": "ventures", "prompt_version": 1, "outcome": "success", "pr": n}
+                (root / "runs" / f"{date}-s{n}.json").write_text(json.dumps(rec))
+            logs: list[str] = []
+            derive.fetch(root, get=closed, log=logs.append, limit=4, today="2026-11-28")
+            self.assertEqual(sorted(asked), [10, 11, 21, 22])  # band oldest first, then newest
+            self.assertIn("2 whose rework window closed (2026-11-07..2026-11-14)", logs[0])
 
 
 class MeasureFallbackTest(unittest.TestCase):

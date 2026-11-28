@@ -752,7 +752,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     const gate = allowed("material-list-export", ent);
     if (!gate.allowed) return { code: 3, out: `${gate.reason} Pass it as --licence=KEY.` };
     const job = argv.find((a) => a.startsWith("--job="))?.slice(6);
-    const m = materialList(r, { priced: flags.has("--priced"), job });
+    const m = materialList(r, { priced: flags.has("--priced"), job, stock: plan.stock, kerf: plan.kerf });
     return { code: m.ok ? 0 : 1, out: flags.has("--json") ? JSON.stringify(m, null, 2) : flags.has("--csv") ? materialListCsv(m).trimEnd() : dxfNotes + materialListText(m).join("\n") };
   }
   if (flags.has("--budget") && flags.has("--csv")) return { code: 0, out: budgetCsv(budget(r, plan.prices || {}, plan.allowances || {})).trimEnd() };

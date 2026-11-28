@@ -3,7 +3,7 @@ title: "How wrong is one stud per foot, and how much waste to add? Measured on t
 seo_title: "Framing lumber waste factor and the stud-per-foot rule, measured"
 date: 2026-11-04
 updated: 2026-11-28
-description: "A counted framing order against the one-stud-per-foot rule, the cutting waste in a framing order, and hip vs. gable roof sheathing waste, measured."
+description: "A counted framing order against the one-stud-per-foot rule, the cutting waste in a framing order, and hip vs. gable sheathing and shingle waste, measured."
 tags: [wall-framing-takeoff, for-customers, construction, framing, estimating]
 ---
 
@@ -178,3 +178,25 @@ own gap). Where the yard's per-foot price varies by length, a few percent of
 the lumber bill comes back by ordering differently, more boards, less money. A
 real yard's list will have its own shape; run it through and the order shows
 the cost.
+
+## Shingles: squares x 3 bundles plus 10% or 15%, against a count (2026-11-28)
+
+The same 16 roofs, shingled: every field shingle laid course by course
+(`shingle-bench.mjs`; a laminated 39-3/8 x 13-1/4 in shingle at a 5-5/8 in
+exposure, 22 to a bundle, joints on a 6-1/2 in stair-step), counted two ways:
+every course end cut from a new shingle, or offcuts of 6 in or more kept for
+later ends.
+
+| Roof | Ends from new shingles | Offcuts reused |
+|---|---|---|
+| Gable | 5.4 to 11.4% (8.0% on average) | 0.7 to 3.7% (1.7%) |
+| Hip | 12.0 to 21.4% (16.5%) | 2.3 to 5.3% (3.6%) |
+
+The usual order, squares x 3 bundles plus 10% on a gable, was never short. The
+15% for a hip ran short on 5 of the 16 hips, by 1 or 2 bundles, all on the two
+smaller houses, when no hip offcut is reused; with them reused it bought 3 to
+13 bundles too many. Reusing offcuts saved 2 to 4 bundles on a gable and 5 to 9
+on a hip, more than the roof shape itself (0 to 2 bundles between a hip and a
+gable with offcuts reused). Invented houses, one shingle size, no valleys,
+starter strip or cap: the table is on the
+[shingle bundles page](https://marisstella.app/wall-framing-takeoff/how-many-bundles-of-shingles.html).

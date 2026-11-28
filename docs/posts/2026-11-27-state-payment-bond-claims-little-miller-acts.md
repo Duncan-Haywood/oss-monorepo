@@ -1,9 +1,9 @@
 ---
-title: "Not paid on a state or city job? Bond claim deadlines in thirty-two states, read from the statutes"
-seo_title: "Little Miller Act deadlines: state payment bond claims in 32 states"
+title: "Not paid on a state or city job? Bond claim deadlines in thirty-three states, read from the statutes"
+seo_title: "Little Miller Act deadlines: state payment bond claims in 33 states"
 date: 2026-11-27
 tags: [for-customers, payapps, construction, pay-app-guides, public-jobs]
-description: "No lien on public work, so subs claim on the payment bond. The notice and suit deadlines in 32 states, read from each state's statute."
+description: "No lien on public work, so subs claim on the payment bond. Notice and suit deadlines in 33 states, California included, read from each state's statute."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: bond claim rights are lost
@@ -57,6 +57,7 @@ The guide links every statute it summarises.
 | Alaska (AS 36.25.020) | notice to the contractor within 90 days of your last day, registered mail | none | within one year of final settlement of the contract |
 | Wyoming (W.S. 16-6-113, 16-6-115) | none | none before suit; notice of the suit to the public entity | within one year of the final completion date the public entity posts |
 | Alabama (§ 39-1-1) | the same as everyone | written notice to the surety of the amount and nature of the claim, registered or certified mail, at least 45 days before suit | within one year of final settlement of the contract |
+| California (Civ. Code §§ 9100-9566) | preliminary notice to the public body and the direct contractor; it reaches back only 20 days | stop payment notice within 30 days after a recorded notice of completion, or 90 days after completion if none is recorded | on the bond within six months after that period ends; on the stop payment notice within 90 days after it |
 
 ## Three things that catch subs out
 
@@ -74,7 +75,7 @@ notice sent when you start. Sent late, it limits what you can recover or ends th
 ## In PayApps
 
 PayApps, our pay-app billing for subcontractors, now lists these steps on every job marked as a state
-or local public job in those thirty-two states. Each step comes in the statute's order, with its citation
+or local public job in those thirty-three states. Each step comes in the statute's order, with its citation
 and a date. The date is counted from the last day on the job you save, or from the acceptance date
 you enter, wherever the statute counts from one of them. Steps that run from a day PayApps cannot
 know, such as your first day of work or the day you mail a Texas notice, are listed with the day
@@ -94,8 +95,8 @@ contracted with a subcontractor. When the statute's date lands on a weekend, it 
 shows the Friday before. The reminder only counts from dates you entered, never from billing, so a
 job you are still billing every month does not get nagged.
 
-California is still missing: its statute site refused our requests on the day. It is next on the
-PayApps roadmap.
+California was missing at first: its statute site refused our requests on the day. It was added
+on 2026-11-28 (below).
 
 **Added later on 2026-11-27.** Massachusetts, Michigan, Minnesota, Nevada and Oregon came next, then
 Idaho, Maryland, Missouri and Utah, each read the same way. Two of the last four differ from the
@@ -191,3 +192,35 @@ cannot come until 30 days after that notice ends. Watch for it. The bond is requ
 of $100,000 or more. Alabama also caps public retainage at 5% of the work done and stops it once
 the job is half complete (§ 39-2-12(c)); the PayApps panel checks a job's rate against both.
 
+**Added 2026-11-28: California.** California is the biggest market for subs (52,631 specialty
+trade contractor establishments in the Census count) and the one that works most differently. It
+gives a sub on public work two remedies, not one. The **stop payment notice** goes to the public
+body itself, which must then hold back enough of the prime's money to cover the claim (Civ. Code
+§ 9358). The **bond claim** goes against the prime's payment bond, required on public works
+contracts over $25,000 (§ 9550). Both count from the same clock, which is the public body's, not
+yours:
+
+- **Preliminary notice when you start.** Unless you contracted directly with the prime (or you are a
+  laborer), give the public body and the prime a preliminary notice. A stop payment notice or bond
+  claim then covers only work you provided within 20 days before the notice and after (§§ 9300,
+  9304). Missed it? You can still reach the bond with written notice to the surety and the bond
+  principal within 15 days after a notice of completion is recorded, or 75 days after completion if
+  none is (§ 9560).
+- **The stop payment notice**, signed and verified, to the public body's disbursing officer, within
+  30 days after a notice of completion, acceptance or cessation is recorded, or 90 days after
+  completion if none is recorded (§ 9356). Completion is the earlier of acceptance and 60 days with
+  no labor on the whole project (§ 9200). Pay the public body $10 with the notice, and it has to
+  tell you the deadline to sue (§ 9362).
+- **Suit to enforce the stop payment notice** at least 10 days after you give it, and no later than
+  90 days after the stop payment notice period ends (§ 9502).
+- **Suit on the bond** any time after you stop work, and no later than six months after that same
+  period ends (§ 9558). The winner gets a reasonable attorney's fee (§ 9564).
+
+The trap is the recorded notice. The public body may record its notice of completion as soon as
+the day of completion (§ 9204), and then the stop payment notice is due 30 days later, not 90. So
+PayApps dates all three California steps as if the notice were recorded on the acceptance date you
+enter, the earliest they can fall: for work accepted on Monday 14 December 2026, the stop payment
+notice by 13 January 2027, its suit by 13 April and the bond suit by 13 July. If the public body
+recorded later, or never, you have longer, and the panel says so. The statute site still refused
+our connection, so this one was read from california.public.law's copy of the official text, which
+the guide says.
