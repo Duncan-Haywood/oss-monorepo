@@ -201,7 +201,7 @@ test("readAngledOutline and offsetAngledOutline", () => {
   assert.equal(offsetAngledOutline(P([[0, 0], [100, 0], [100, 100], [60, 100], [50.5, 80], [49.5, 80], [40, 100], [0, 100]]), 12), null);
 });
 
-test("outlineRoof: an angled outline gets squares, eave, lines and rafters; courses and the framing model say why not", () => {
+test("outlineRoof: an angled outline gets squares, eave, lines, rafters and sheathing courses; the framing model says why not", () => {
   const outline = [[0, "2'"], ["16'", "2'"], ["18'", 0], ["22'", 0], ["24'", "2'"], ["40'", "2'"], ["40'", "26'"], [0, "26'"]];
   const ro = /** @type {any} */ (outlineRoof(outline, { pitch: 6, overhang: 12 }));
   assert.ok(ro.ok, ro.errors?.join(" "));
@@ -217,11 +217,13 @@ test("outlineRoof: an angled outline gets squares, eave, lines and rafters; cour
   near(ro.slopedSqFt, ro.planSqFt * Math.sqrt(1 + 0.25), 1e-9);
   near(ro.squares, ro.slopedSqFt / 100, 1e-12);
   assert.ok(ro.notes.some((x) => /angled sides/.test(x)));
-  // the rafters are laid out on the angled planes (hipframe-angled.test.mjs); the sheathing courses still refuse with a reason
+  // the rafters are laid out on the angled planes (hipframe-angled.test.mjs), and since 2026-11-28 the sheathing
+  // courses too (outlinesheathing-angled.test.mjs)
   const fr = frameOutlineRoof(ro.points, ro.eaveLine, ro.lines, { pitch: 6, stock: [{ size: "2x8", length: 240 }] });
   assert.ok(fr.ok, fr.errors?.join(" "));
   const sh = sheatheOutlineRoof(ro);
-  assert.ok(!sh.ok && sh.errors.some((x) => /angled sides/.test(x)));
+  assert.ok(sh.ok, sh.errors.join(" "));
+  assert.ok(sh.notes.some((x) => /angled sides/.test(x)));
   const built = roofFromOutline(outline, { pitch: 6, shape: "gable" });
   assert.ok(!built.ok && /angled sides/.test(built.errors[0]));
   // soffit and fascia take each eave side's true length
