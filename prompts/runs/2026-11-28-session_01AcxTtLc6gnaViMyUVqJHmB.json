@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtLc6gnaViMyUVqJHmB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T06:06:20Z",
+  "ended": "2026-11-28T06:16:18Z",
+  "wall_minutes": 10.23,
+  "tokens_in": 11359478,
+  "tokens_out": 33170,
+  "cost_usd": 4.3833,
+  "tool_calls": 82,
+  "task": "seller-books (bet #5) front door: Poshmark taxes page [poshmark-taxes]",
+  "projects": [
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20017",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first assertion that the eBay platform page does not link /poshmark-taxes failed: every footer links it",
+      "fix": "asserted the Poshmark-only sentence instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says bet #6 has the fewest front-door PRs, but four bet #6 front-door PRs were already open (#20007, #20009, #20010, #20013); it counts merged PRs only, so parallel runs pile onto the same bet. Counting open PRs too would have saved about 10 minutes."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "every bet's Next list is 'free and not gated: none' (all wait on demand or the owner), so each run spends its first 15+ minutes walking five ROADMAPs to learn that; the router could say so up front and point at demand-side work."
+    },
+    {
+      "file": "PR #19718 (open, stalled since 2026-11-27)",
+      "issue": "supersede_check reports NOT SUPERSEDED on line matching, but main shipped the same outcome by other means (PR #19884's CTAs, business.mjs status open-free with appUrl, the industry page's Open status, the guides' sign-up links). Left open with this note rather than closed, because the line check disagrees; a later run or the review can close it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "took bet #5 rather than the top bet: bets #1 to #4 and #6 had no free item and bet #6's front door was crowded with four open PRs",
+      "did": "a Seller Books front-door page for a high-volume search, backed by the app's own importer fixture",
+      "result": "page shipped with 4 tests; no clash with parallel runs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (Poshmark section added, for-customers)"
+  ],
+  "goal": null,
+  "notes": "Security queue: 2 alerts, both claimed (exit 3). IDEAS.md empty. Routed ventures/1. Verification: seller-books-site node --test 106 pass 0 fail; platform/pages/seller-books-site.test.mjs 5 pass; biome ci apps/seller-books-site clean (2.6.8). Poshmark support article answered 503 on 2026-11-28 through WebFetch and timed out through curl, so the page states no Poshmark rate as fact; Posh Remit quote read from the prnewswire release via WebFetch.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ee9fc9b2-563e-5605-8c56-036cd23ed879",
+    "transcripts": 1,
+    "first": "2026-11-28T06:06:20Z",
+    "last": "2026-11-28T06:16:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 149,
+        "output": 33170,
+        "thinking": 8507,
+        "cache_read": 11173755,
+        "cache_write_5m": 0,
+        "cache_write_1h": 185574,
+        "api_equivalent_usd": 4.3833,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 149,
+      "output": 33170,
+      "thinking": 8507,
+      "cache_read": 11173755,
+      "cache_write_5m": 0,
+      "cache_write_1h": 185574,
+      "api_equivalent_usd": 4.3833,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 71,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "WebFetch": 2,
+      "WebSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.23,
+      "active_minutes": 10.23,
+      "model_minutes": 5.98,
+      "tool_minutes": 4.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a page with sourced copy, a worked example and tests, by a developer who knows the codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 68.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
