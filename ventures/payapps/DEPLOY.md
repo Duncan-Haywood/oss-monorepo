@@ -12,10 +12,10 @@ repository changes (task `move-payapps-public`, `portfolio/work/tasks.yaml`).
 - The pre-publication audit's output for the copied commit:
   [docs/reports/2026-11-27-move-payapps-public.md](../../docs/reports/2026-11-27-move-payapps-public.md).
 
-## Not yet: the deploy workflow
+## The deploy workflow (ported 2026-11-27)
 
-`private-monorepo/.github/workflows/payapps-deploy.yml` (and `payapps-site-deploy.yml`) are not ported
-yet. A port is a `priv-payapps-deploy.yml` here, because it holds secrets and writes to Cloudflare, so
+[`priv-payapps-deploy.yml`](../../.github/workflows/priv-payapps-deploy.yml) replaced
+`private-monorepo`'s `payapps-deploy.yml` and deployed on 2026-11-27 (runs below). The port is a `priv-payapps-deploy.yml` here, because it holds secrets and writes to Cloudflare, so
 it goes through the control-plane tier of `adversarial-gate` in its own PR. It needs, in a
 `payapps-production` environment limited to `main`:
 
@@ -34,7 +34,7 @@ payments-account infrastructure stays in `private-monorepo`, as `LICENSING_TRANS
 
 ## Then
 
-1. Port the deploy workflow (its own PR), run it once by hand, and record the URL.
+1. Done 2026-11-27: the deploy workflow is ported and has run (below).
 2. Remove `apps/payapps`, `apps/payapps-site` and the four packages from `private-monorepo` in a PR
    there, leaving a pointer here (the other apps that import `packages/billing` or
    `packages/admin-metrics` keep private copies until they move too).

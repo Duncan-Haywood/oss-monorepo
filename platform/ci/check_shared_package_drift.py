@@ -14,8 +14,8 @@ unless KNOWN_DIVERGENT names it with a reason. Fix a shared bug in every copy;
 when a copy diverges on purpose (a product-only feature, the package name in a
 header), add the file here with why, in the same PR.
 
-A payapps refresh from private-monorepo (`sync-from-private.sh`) that brings back
-an older copy also turns this red, which is the point: port the fix upstream.
+A copy pasted back from an older source (the private-monorepo snapshots are
+retired) also turns this red, which is the point: fix every copy here.
 
     python3 platform/ci/check_shared_package_drift.py
 """

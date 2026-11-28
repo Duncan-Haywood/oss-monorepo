@@ -44,7 +44,7 @@ relative paths inside are the same as there.
 | `docs/legal/OPERATOR.md` | operator and launch authority |
 
 `packages/billing`, `qbo-sync` and `admin-metrics` are also in `ventures/payapps/packages/` while
-both products are synced from `private-monorepo`; each workspace builds on its own copy, so neither
+both products carry their own copies; each workspace builds on its own copy, so neither
 reaches outside its directory. Folding them into one shared package is a later step.
 
 ## Run it
@@ -63,9 +63,9 @@ CI: [`.github/workflows/jobshop-quote-ci.yml`](../../.github/workflows/jobshop-q
 
 ## Where the work happens
 
-Since 2026-11-27 (PR #19594) this directory is where runs build Job Shop Quote
-(`portfolio/monetization/bets.md`, bet #2; `.github/prompts/cloud-session.md`). It started as a
-snapshot of private-monorepo commit `28895f0c`, and features and fixes have landed here since.
-[`sync-from-private.sh`](sync-from-private.sh) replaces `apps/`, `packages/` and `scripts/`
-wholesale, so running it now would undo that work: use it only to bring over a change made in
-private-monorepo, and review the diff before committing.
+This directory is the only source. Every private-monorepo commit to `apps/jobshop-quote` since 2026-11-25 is in
+this copy (checked 2026-11-28 at private `1ee07fc`: each commit's added lines were found here,
+apart from doc sentences reworded since), so there is nothing left to bring over. The `sync-from-private.sh` refresh script was deleted on 2026-11-28:
+it replaced `apps/` wholesale and would have reverted every change made here since the move. The
+private copy is retired (task `retire-private-copies` in
+[`portfolio/work/tasks.yaml`](../../portfolio/work/tasks.yaml)); don't edit it.

@@ -71,21 +71,12 @@ committed, so the page and tests need no Rust toolchain.
 
 ## Where the work happens
 
-Moved from `private-monorepo/apps/wall-framing-takeoff` on 2026-11-27 (task
-`move-wall-framing-takeoff-public` in [`portfolio/work/tasks.yaml`](../../portfolio/work/tasks.yaml);
-audit in [`docs/reports/2026-11-27-move-wall-framing-takeoff-public.md`](../../docs/reports/2026-11-27-move-wall-framing-takeoff-public.md)).
-Build here from now on. Until the private copy is removed, refresh this one from a newer private
-commit with `./sync-from-private.sh /path/to/private-monorepo`, which audits first and stops on a block
-finding.
-
-**The sync script now loses work.** This copy carries fixes the private one lacks (CodeQL fixes such
-as `Object.hasOwn` lookups, `layerPattern` escaping in `cli.mjs`, the click checks' path guard, and
-the shortened calculator descriptions), so a wholesale replace reverts them. Port a newer private
-commit as a patch instead: `git -C <private> diff <base> <new> -- apps/wall-framing-takeoff >
-p.patch`, then `git apply -p3 --directory=ventures/residential-takeoff/apps/wall-framing-takeoff
---reject p.patch` and fix any `.rej` by hand. Private commits ported so far: up to `1ee07fc`
-(private-monorepo PR #489, gable ends from a DXF roof layer, ported 2026-11-27; the move itself
-was `71e2b6c`).
+This directory is the only source (moved 2026-11-27, audit in `docs/reports/2026-11-27-move-*-public.md`). Every private-monorepo commit to `apps/wall-framing-takeoff` since 2026-11-25 is in
+this copy (checked 2026-11-28 at private `1ee07fc`: each commit's added lines were found here,
+apart from doc sentences reworded since), so there is nothing left to bring over. The `sync-from-private.sh` refresh script was deleted on 2026-11-28:
+it replaced `apps/` wholesale and would have reverted every change made here since the move. The
+private copy is retired (task `retire-private-copies` in
+[`portfolio/work/tasks.yaml`](../../portfolio/work/tasks.yaml)); don't edit it.
 
 ## Disclaimer
 
