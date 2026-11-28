@@ -17,6 +17,7 @@ import { api } from "../lib/api";
 import { ErrorText } from "./error";
 import { ScheduleDelays } from "./schedule-delays";
 import { ScheduleImport } from "./schedule-import";
+import { StartButton, useStartOpen } from "./start-open";
 
 const STATUS_CLASS: Record<ScheduleActivityDto["status"], string> = {
   not_started: "text-slate-700",
@@ -336,6 +337,7 @@ export function JobSchedule(props: {
   const q = useQuery({ queryKey: ["schedule", url], queryFn: () => api<ScheduleDto>(url) });
   const refresh = () => qc.invalidateQueries({ queryKey: ["schedule", url] });
   const section = useRef<HTMLElement>(null);
+  const [started, start] = useStartOpen(SCHEDULE_ANCHOR, section);
   const loaded = q.data !== undefined;
   useEffect(() => {
     if (loaded && window.location.hash === `#${SCHEDULE_ANCHOR}`) section.current?.scrollIntoView();
@@ -483,94 +485,99 @@ export function JobSchedule(props: {
       )}
       <ErrorText error={patch.error ?? shift.error ?? remove.error} />
 
-      <form
-        className="mt-3 grid max-w-3xl gap-2 text-sm sm:grid-cols-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const pred = parseNumber(draft.predecessor);
-          if (pred === undefined) {
-            setFormErr(new Error("Waits for: an activity number such as A-002"));
-            return;
-          }
-          setFormErr(null);
-          add.mutate({
-            name: draft.name,
-            trade: draft.trade || null,
-            startOn: draft.startOn,
-            finishOn: draft.finishOn,
-            predecessorNumber: pred,
-            lagDays: Math.max(0, Math.round(Number(draft.lagDays) || 0)),
-          });
-        }}
-      >
-        <h3 className="font-semibold sm:col-span-4">
-          New activity{s ? ` (${activityLabel(s.nextNumber)})` : ""}
-        </h3>
-        <input
-          className="input sm:col-span-2"
-          placeholder="Activity, e.g. Rough-in level 2"
-          value={draft.name}
-          onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-          aria-label="Activity"
-          required
-        />
-        <input
-          className="input sm:col-span-2"
-          placeholder="Trade or crew, e.g. Crew A (Luis)"
-          value={draft.trade}
-          onChange={(e) => setDraft({ ...draft, trade: e.target.value })}
-          aria-label="Trade or crew"
-        />
-        <label className="grid gap-1">
-          <span className="text-slate-600">Start</span>
+      {s?.activities.length === 0 && !started ? (
+        <StartButton label="Add your first activity" onClick={start} />
+      ) : (
+        <form
+          className="mt-3 grid max-w-3xl gap-2 text-sm sm:grid-cols-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const pred = parseNumber(draft.predecessor);
+            if (pred === undefined) {
+              setFormErr(new Error("Waits for: an activity number such as A-002"));
+              return;
+            }
+            setFormErr(null);
+            add.mutate({
+              name: draft.name,
+              trade: draft.trade || null,
+              startOn: draft.startOn,
+              finishOn: draft.finishOn,
+              predecessorNumber: pred,
+              lagDays: Math.max(0, Math.round(Number(draft.lagDays) || 0)),
+            });
+          }}
+        >
+          <h3 className="font-semibold sm:col-span-4">
+            New activity{s ? ` (${activityLabel(s.nextNumber)})` : ""}
+          </h3>
           <input
-            className="input"
-            type="date"
+            className="input sm:col-span-2"
+            placeholder="Activity, e.g. Rough-in level 2"
+            value={draft.name}
+            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+            aria-label="Activity"
             required
-            value={draft.startOn}
-            onChange={(e) => setDraft({ ...draft, startOn: e.target.value })}
           />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-slate-600">
-            Finish{draftDays !== null ? ` (${draftDays} workday${draftDays === 1 ? "" : "s"})` : ""}
-          </span>
           <input
-            className="input"
-            type="date"
-            required
-            value={draft.finishOn}
-            onChange={(e) => setDraft({ ...draft, finishOn: e.target.value })}
+            className="input sm:col-span-2"
+            placeholder="Trade or crew, e.g. Crew A (Luis)"
+            value={draft.trade}
+            onChange={(e) => setDraft({ ...draft, trade: e.target.value })}
+            aria-label="Trade or crew"
           />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-slate-600">Waits for (optional)</span>
-          <input
-            className="input"
-            placeholder="A-001"
-            value={draft.predecessor}
-            onChange={(e) => setDraft({ ...draft, predecessor: e.target.value })}
-          />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-slate-600">Lag (workdays)</span>
-          <input
-            className="input"
-            type="number"
-            min={0}
-            value={draft.lagDays}
-            onChange={(e) => setDraft({ ...draft, lagDays: e.target.value })}
-          />
-        </label>
-        <div className="sm:col-span-4">
-          <button className="btn" type="submit" disabled={add.isPending}>
-            Add activity
-          </button>
-        </div>
-        <div className="sm:col-span-4">
-          <ErrorText error={formErr ?? add.error} />
-        </div>
-      </form>
+          <label className="grid gap-1">
+            <span className="text-slate-600">Start</span>
+            <input
+              className="input"
+              type="date"
+              required
+              value={draft.startOn}
+              onChange={(e) => setDraft({ ...draft, startOn: e.target.value })}
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-slate-600">
+              Finish
+              {draftDays !== null ? ` (${draftDays} workday${draftDays === 1 ? "" : "s"})` : ""}
+            </span>
+            <input
+              className="input"
+              type="date"
+              required
+              value={draft.finishOn}
+              onChange={(e) => setDraft({ ...draft, finishOn: e.target.value })}
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-slate-600">Waits for (optional)</span>
+            <input
+              className="input"
+              placeholder="A-001"
+              value={draft.predecessor}
+              onChange={(e) => setDraft({ ...draft, predecessor: e.target.value })}
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-slate-600">Lag (workdays)</span>
+            <input
+              className="input"
+              type="number"
+              min={0}
+              value={draft.lagDays}
+              onChange={(e) => setDraft({ ...draft, lagDays: e.target.value })}
+            />
+          </label>
+          <div className="sm:col-span-4">
+            <button className="btn" type="submit" disabled={add.isPending}>
+              Add activity
+            </button>
+          </div>
+          <div className="sm:col-span-4">
+            <ErrorText error={formErr ?? add.error} />
+          </div>
+        </form>
+      )}
       {s && s.activities.length > 0 && <ScheduleDelays url={url} />}
       {s && <ScheduleImport url={url} schedule={s} onDone={refresh} />}
     </section>

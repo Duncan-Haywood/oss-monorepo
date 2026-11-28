@@ -19,6 +19,26 @@ test("sign-up to a submitted, paid first pay application", async ({ page }) => {
     page.getByText("GC: Summit Builders · Contract $250,000.00 · Retainage 10%"),
   ).toBeVisible();
 
+  // A new job leads with the schedule of values: the empty modules below it show a start button,
+  // not their whole entry form, until they are opened by the button or a jump link.
+  for (const label of [
+    "Log an RFI",
+    "Add your first activity",
+    "Start the punch list",
+    "List the close-out documents",
+  ]) {
+    await expect(page.getByRole("button", { name: label })).toBeVisible();
+  }
+  await expect(page.getByRole("button", { name: "Add RFI" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Log an RFI" }).click();
+  await expect(page.getByRole("button", { name: "Add RFI" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Log an RFI" })).toHaveCount(0);
+  await page
+    .getByRole("navigation", { name: "On this page" })
+    .getByRole("link", { name: "Punch list" })
+    .click();
+  await expect(page.getByRole("button", { name: "Add item", exact: true })).toBeVisible();
+
   await addSovLines(page, [
     ["1", "Framing", "100,000"],
     ["2", "Drywall", "120,000"],
