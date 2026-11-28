@@ -22,6 +22,9 @@ const SITE_SOURCES = [
   'ventures/jobshop-quote/apps/jobshop-site/src',
   'ventures/jobshop-quote/apps/jobshop-site/catalogue-export',
 ];
+// Static served pages checked one by one (their folders hold tests, fixtures and calculator copies).
+const SITE_PAGES = ['index.html', 'terms.html', 'refunds.html', 'privacy.html']
+  .map((f) => `ventures/residential-takeoff/apps/wall-framing-takeoff/${f}`);
 const APP_PRIVACY = [
   'ventures/payapps/apps/payapps/docs/legal/privacy.md',
   'ventures/cmmc/apps/cmmc/docs/legal/privacy.md',
@@ -30,7 +33,7 @@ const APP_PRIVACY = [
 ];
 
 // "no analytics", "runs no analytics", "no tracking scripts", "load no analytics or third-party scripts".
-const DENIAL = /\bno (?:analytics|tracking scripts?)\b|\b(?:runs?|loads?) no (?:analytics|third-party scripts)\b|no forms, (?:no )?cookies(?:,)? (?:or|and|no) (?:analytics|tracking)/i;
+const DENIAL = /\bno (?:analytics|tracking scripts?)\b|\bcookies, or analytics vendors?\b|\b(?:runs?|loads?) no (?:analytics|third-party scripts)\b|no forms, (?:no )?cookies(?:,)? (?:or|and|no) (?:analytics|tracking)/i;
 
 function files(dir) {
   const abs = path.join(repo, dir);
@@ -46,11 +49,10 @@ function files(dir) {
 
 test('no served product site says it runs no analytics', () => {
   const hits = [];
-  for (const dir of SITE_SOURCES)
-    for (const f of files(dir))
-      readFileSync(path.join(repo, f), 'utf8').split('\n').forEach((line, i) => {
-        if (DENIAL.test(line)) hits.push(`${f}:${i + 1}: ${line.trim().slice(0, 120)}`);
-      });
+  for (const f of [...SITE_SOURCES.flatMap(files), ...SITE_PAGES])
+    readFileSync(path.join(repo, f), 'utf8').split('\n').forEach((line, i) => {
+      if (DENIAL.test(line)) hits.push(`${f}:${i + 1}: ${line.trim().slice(0, 120)}`);
+    });
   assert.deepEqual(hits, [], 'these lines deny analytics the pages load; say Cloudflare Web Analytics counts visits without cookies');
 });
 
@@ -69,6 +71,7 @@ test('the pattern catches the 2026-11-28 wording and passes the fix', () => {
     'These pages have no forms, set no cookies and load no analytics or third-party',
     'The PayApps website has no forms, cookies or analytics.',
     'No analytics or advertising scripts run on this site.',
+    'there are no accounts, cookies, or analytics vendors.',
   ]) assert.match(bad, DENIAL, bad);
   assert.doesNotMatch('These pages have no forms, set no cookies and run no advertising scripts.', DENIAL);
   assert.doesNotMatch('Visits are counted by cookieless Cloudflare Web Analytics.', DENIAL);

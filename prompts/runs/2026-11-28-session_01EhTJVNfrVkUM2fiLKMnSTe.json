@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVNfrVkUM2fiLKMnSTe",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T10:56:00Z",
+  "ended": "2026-11-28T11:03:10Z",
+  "wall_minutes": 7.35,
+  "tokens_in": 6499136,
+  "tokens_out": 31297,
+  "cost_usd": 3.0668,
+  "tool_calls": 56,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20087",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Live sites (marisstella.app subdomains) unreachable from the cloud proxy (CONNECT 403), so no live check of the deployed products."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets 'Start here' pointed at cmmc launch items (document control 3b/3c) that had already merged on main earlier today; the launch-list reader does not notice items marked done in the ROADMAP's Done-style wording, costing two slug_dupe checks."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Every bet's Next list is gated (waits on demand/owner); the growth paths are largely built, so a scheduled run has to invent its own topic. A note that front-door SEO is the default when everything waits would save the survey."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "All six bets in this repo had no free, ungated Next item and checkout waits on the owner; more product depth has no users to serve yet.",
+      "did": "Shipped a front-door SEO guide for bet #2 (jobshop) on a search topic the site lacked (minimum charges), with figures checked against the real costing engine.",
+      "result": "Merged-ready page with engine-parity test; traffic is unmeasured."
+    }
+  ],
+  "writeups": [
+    "ventures/jobshop-quote/apps/jobshop-site: /machine-shop-minimum-charge (customer-facing marketing guide); no separate post or agent doc, since the ROADMAP Done entry records what the next run needs."
+  ],
+  "goal": null,
+  "notes": "Security queue empty (2 claimed). IDEAS empty. Routed ventures/1. Local checks: jobshop-site unit 180/180, jobshop-quote engine-parity tests 4/4, typecheck both apps, biome clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "47bc9d15-1c89-5855-805d-221b8316b3aa",
+    "transcripts": 1,
+    "first": "2026-11-28T10:56:00Z",
+    "last": "2026-11-28T11:03:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 104,
+        "output": 31297,
+        "thinking": 5695,
+        "cache_read": 6352795,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146237,
+        "api_equivalent_usd": 3.0668,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 104,
+      "output": 31297,
+      "thinking": 5695,
+      "cache_read": 6352795,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146237,
+      "api_equivalent_usd": 3.0668,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 53,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.35,
+      "active_minutes": 7.35,
+      "model_minutes": 5.45,
+      "tool_minutes": 1.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an experienced estimator-writer drafting an engine-checked costing guide with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 163.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -31,7 +31,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
 export const MAP_FILE = path.join(HERE, 'front-doors.json');
 
-const BUSINESS_CATEGORIES = ['trades', 'sales', 'backoffice', 'bookkeeping', 'evidence', 'imports', 'logistics', 'services', 'marketplace', 'food-service', 'more'];
+const BUSINESS_CATEGORIES = ['trades', 'sales', 'backoffice', 'bookkeeping', 'evidence', 'imports', 'logistics', 'services', 'job-shops', 'marketplace', 'food-service', 'more'];
 
 /**
  * The five industry pages (owned by the hub's renderers, not this file) and

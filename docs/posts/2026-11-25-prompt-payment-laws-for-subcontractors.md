@@ -146,6 +146,12 @@ has decided about yet; the marked ones sit under "Billed or waived", with an und
 application's history and the cash report's CSV keep the decision. PayApps records it; it does
 not bill anything itself.
 
+The weekly email that lists what to chase (Monday by default) now carries both figures at the top (also
+2026-11-28): the interest still running on past-due applications, and the interest earned on
+applications paid late that nobody has billed or waived yet, with how many applications that is.
+A total you see every week is harder to forget than one on a report you have to open; once every
+late application is marked, the line drops out of the email.
+
 **Where this goes.** PayApps, our hosted pay-app billing for specialty subcontractors, keeps
 every pay application, payment and retainage balance per job and shows what is owed, when it was
 due under the job's pay terms and how late it is. It is open and free on one active job, with no

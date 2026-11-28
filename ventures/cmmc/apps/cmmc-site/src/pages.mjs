@@ -5,6 +5,7 @@
 import { assessmentSheetPage } from "./assessment-sheet.mjs";
 import { COMPARE_PATH, comparePage } from "./compare.mjs";
 import { dfarsClausesPage } from "./dfars-clauses.mjs";
+import { fciCuiPage } from "./fci-cui.mjs";
 import { appLegalUrl, launchState, signinUrl, signupUrl } from "./launch.mjs";
 import { level1RequirementsPage } from "./level1-requirements.mjs";
 import { level2RequirementsPage } from "./level2-requirements.mjs";
@@ -283,6 +284,7 @@ ${statusBox()}
 <h2>Which level does my shop need?</h2>
 <p>Look at what you receive. Purchase orders, delivery schedules and ordinary contract paperwork are FCI, which means Level 1.
 Drawings, specifications or data marked CUI (often with a distribution statement and a CUI banner) mean Level 2.
+How to tell the two apart, with the legal definitions and the usual paperwork sorted, is on <a href="/fci-vs-cui">FCI vs CUI</a>.
 All 15 Level 1 requirements, with the objectives an assessment checks, are on the <a href="/cmmc-level-1-requirements">Level 1 requirements</a> page.
 The solicitation names the level (DFARS 252.204-7025); what each cyber clause on the order asks is on
 <a href="/dfars-cybersecurity-clauses">DFARS cybersecurity clauses explained</a>. When in doubt, ask your prime or the contracting officer in writing.</p>
@@ -440,6 +442,7 @@ ${cta}`,
     level2RequirementsPage({ cite, statusBox, sourcesList, cta }),
     rev2VsRev3Page({ cite, statusBox, sourcesList, cta }),
     dfarsClausesPage({ cite, statusBox, sourcesList, cta }),
+    fciCuiPage({ cite, statusBox, sourcesList, cta }),
     sprsSubmitPage({ cite, statusBox, sourcesList, cta }),
     assessmentSheetPage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),
     poamTemplatePage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),

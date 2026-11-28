@@ -99,6 +99,7 @@ describe("cross-tenant access", () => {
       ["GET", `${base}/pay-apps/${payAppId}/application.pdf`],
       ["GET", `${base}/pay-apps/${payAppId}/continuation.csv`],
       ["GET", `${base}/pay-apps/${payAppId}/summary.csv`],
+      ["GET", `${base}/pay-apps/${payAppId}/application.xlsx`],
     ];
     for (const [method, path, json] of attempts) {
       const res = await api(path, { method, as: b.userId, ...(json ? { json } : {}) });

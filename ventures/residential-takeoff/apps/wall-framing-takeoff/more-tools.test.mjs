@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
-import { GROUPS, NO_BLOCK, drift, moreTools } from "./more-tools.mjs";
+import { GROUPS, LEGAL_PAGES, NO_BLOCK, drift, moreTools } from "./more-tools.mjs";
 
 const DIR = new URL("./", import.meta.url);
 const html = (f) => readFileSync(new URL(f, DIR), "utf8");
@@ -15,7 +15,7 @@ test("every page's more-tools block matches GROUPS (run more-tools.mjs --write)"
 test("GROUPS lists every page once, and only pages that exist", () => {
   assert.equal(new Set(LISTED).size, LISTED.length, "a page is listed twice");
   for (const href of LISTED) assert.ok(PAGES.includes(href), `${href} is listed but missing`);
-  const unlisted = PAGES.filter((p) => !LISTED.includes(p) && p !== "sample-bid-package.html");
+  const unlisted = PAGES.filter((p) => !LISTED.includes(p) && p !== "sample-bid-package.html" && !LEGAL_PAGES.has(p));
   assert.deepEqual(unlisted, [], "a page no block links to: add it to GROUPS");
 });
 

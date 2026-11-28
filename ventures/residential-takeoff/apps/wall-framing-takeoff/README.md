@@ -223,10 +223,23 @@ peak and volume as `hiproof.mjs`, also with the outline turned to another angle 
 regular octagon and a clipped rectangle match their closed forms; a 40 x 24 ft house with a 45-degree
 bay is worked by hand; and on 600 random polygons with sides at any angle and 200 outlines with
 clipped corners every line end lies inside the outline, no higher than its distance to the
-walls, on the planes of at least two sides, with one hip or valley from each corner. The
-rafters and the sheathing courses are still laid out for square-cornered outlines only: an
-angled outline says so in the notes, on the page and in the CLI, and its material list carries
-the squares, eave, ridge, hip and valley rows without a framing or sheet count.
+walls, on the planes of at least two sides, with one hip or valley from each corner.
+Since 2026-11-28 an angled outline is **framed** too (`hipframe.mjs`): the eave sides and the
+roof lines are traced as a planar graph, the face inside each eave side is that side's plane
+(`planeFaces`), and the rafters run square to their own side at the plate spacing, cut back from
+a hip or valley by half its thickness over the sine of the angle they meet it at in plan (45
+degrees only at square corners; a 45-degree bay's front rafters meet its hips at 22.5 degrees).
+Hips and valleys are their lines' slope lengths. Checks (`hipframe-angled.test.mjs`): the 40 x 24
+ft house with a 45-degree bay; 60 random square-cornered houses turned to an angle frame exactly
+as they do square to the axes; on 150 random outlines with clipped corners and bays every rafter
+is square to its side and both its ends sit at the height the roof lines give, and no two
+rafters stand within two thicknesses of each other. The same faces now frame square-cornered
+outlines: identical to the old L-infinity rule on every one of 300 random outlines without two
+eave sides on one line, and where there are two (a bump-out or bay on one wall) they fix a bug:
+the old rule framed the plane above the bump from both sides, rafters 4 in apart (3 such pairs
+on one 46 x 26 ft test outline). The sheathing courses are still laid out for square-cornered
+outlines only: an angled outline says so in the notes, on the page and in the CLI, and its
+material list carries the rafters but no sheet count.
 Since 2026-11-26 that all-hip roof's **sheathing is laid in courses** (`outlinesheathing.mjs`,
 CLI ROOF section, the page's roof card, a "roof sheathing (all-hip, from outline)" row on the
 material list and a "Roof sheathing sheets" budget line priced by `roofSheet`): each plane rises from one

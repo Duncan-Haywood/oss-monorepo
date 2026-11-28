@@ -4,6 +4,7 @@ seo_title: "Malta has no B2B e-invoicing mandate yet: what it means"
 date: 2026-10-26
 description: "einvoice-preflight now has a Malta page: B2B is voluntary, public bodies take Peppol invoices, EU rules arrive in 2030."
 tags: [einvoice-preflight, malta, peppol, e-invoicing]
+folded_into: einvoice-preflight/malta-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) had 31 country pages

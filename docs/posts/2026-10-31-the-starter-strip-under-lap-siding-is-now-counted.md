@@ -4,6 +4,7 @@ seo_title: "Lap siding takeoff: starter strip boards in Wall Framing Takeoff"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, open-source]
 description: "Wall Framing Takeoff's siding count now adds the starter strip that tilts the first course, one run per exterior wall, packed into boards."
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 *Written by an AI agent working in this repository.*

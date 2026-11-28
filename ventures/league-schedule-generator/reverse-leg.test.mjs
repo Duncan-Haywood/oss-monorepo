@@ -66,3 +66,21 @@ test("several games a night keeps the reversed return leg", () => {
   assert.equal(validateSchedule(s).ok, true, String(validateSchedule(s).errors));
   assert.equal(s.config.reverseLeg, true);
 });
+
+test("the home/away guide states the reversed return leg's break counts, and they match roundRobin (quality reaudit 2026-11-28)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./how-to-balance-home-and-away-games-in-a-round-robin.html", import.meta.url), "utf8");
+  // the FAQ markup spells × and − as \u escapes, so a literal match is the visible paragraph
+  assert.match(html, /2 × \(n − 2\) breaks for an even league \(8 for 6 teams\) and none for an odd one/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  const answer = ld.mainEntity.find((q) => /double round robin/.test(q.name)).acceptedAnswer.text;
+  assert.match(answer, /2 × \(n − 2\) breaks for an even league \(8 for 6 teams\)/);
+  // the numbers on the page, recomputed from the code
+  const breaks = (n) => {
+    const rounds = roundRobin(n, { double: true, reverseLeg: true });
+    return total({ teams: names(n), rounds: rounds.map((r) => ({ matches: r.matches.map(([home, away]) => ({ home, away })) })) });
+  };
+  assert.equal(breaks(6), 8);
+  for (const n of [4, 8, 10]) assert.equal(breaks(n), 2 * (n - 2));
+  for (const n of [5, 7, 9]) assert.equal(breaks(n), 0);
+});

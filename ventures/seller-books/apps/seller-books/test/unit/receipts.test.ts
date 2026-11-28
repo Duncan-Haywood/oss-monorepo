@@ -67,3 +67,28 @@ describe("receipt checks", () => {
     expect(cleaned.endsWith(".jpeg")).toBe(true);
   });
 });
+
+describe("purchaseProof", () => {
+  it("counts an item covered by its own receipt or its lot's, and leaves zero-cost items apart", async () => {
+    const { purchaseProof } = await import("@shared/receipts");
+    const p = purchaseProof(
+      [
+        { id: "a", lotId: "L1", costCents: 1000 },
+        { id: "b", lotId: "L1", costCents: 1000 },
+        { id: "c", lotId: null, costCents: 800 },
+        { id: "d", lotId: null, costCents: 1500 },
+        { id: "e", lotId: "L2", costCents: 0 },
+      ],
+      { lots: new Set(["L1"]), items: new Set(["c"]) },
+    );
+    expect(p).toEqual({
+      items: 5,
+      covered: 3,
+      coveredCents: 2800,
+      zeroCost: 1,
+      missing: 1,
+      missingCents: 1500,
+      missingIds: ["d"],
+    });
+  });
+});

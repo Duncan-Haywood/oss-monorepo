@@ -273,7 +273,7 @@ function layoutHip(r, plan) {
   notes.push("Hip sheathing counts each course by its bottom length (the longest piece, cut diagonally at both ends) and does not reuse the triangular offcuts, so the sheet count is an upper bound; end joints are not placed over rafters.");
   if (r.pitch < 4) notes.push("Under 4:12 most shingle makers need a low-slope underlayment and special installation; check the product's rules.");
   notes.push("Common, jack and hip sizes, spacing, the ridge, collar ties and ceiling joists are your inputs and are not checked against a span table or code; the hip's backing and side bevels, birdsmouth depth, hurricane ties and bracing are not in the takeoff. Jacks are measured to the hip's face (half its thickness off the run).");
-  notes.push("Shingle, felt, ridge and hip-cap quantities use the coverage in `roofing` (15% waste for a hip roof) and ignore vents, flashing and nails.");
+  notes.push("Shingle, felt, ridge and hip-cap quantities use the coverage in `roofing` (15% waste for a hip roof) and ignore vents and flashing; roofing nails use the typed rate in `roofing` (320 a square unless you set `nailsPerSquare`), not your shingle maker's nailing schedule.");
   return {
     ok: true, shape: "hip", id, width: W, length: L, pitch: r.pitch, overhang, gableOverhang: 0, spacing, rafterSize: size, hipSize,
     rafterLength: commonLen, hipLength: hipLen, slope, rise, centres, rafters, hips, jacks, ridges, ceilingJoists, collarTies, trusses: null, courses,
@@ -488,7 +488,7 @@ function layoutRoofCore(r, plan) {
   if (r.pitch < 4) notes.push("Under 4:12 most shingle makers need a low-slope underlayment and special installation; check the product's rules.");
   if (truss) notes.push(`${trusses.count} trusses of ${formatLength(r.width)} span at ${sp} o.c. are a purchased line from the truss maker's drawings; the rake overhang, the truss design and the bracing are theirs and the engineer's.`);
   else notes.push("Rafter size, spacing, the ridge, collar ties and ceiling joists are your inputs and are not checked against a span table or code; hurricane ties and bracing are not in the takeoff.");
-  notes.push("Shingle, felt, drip edge and ridge quantities use the coverage in `roofing` and ignore valleys, hips, vents, flashing and nails.");
+  notes.push("Shingle, felt, drip edge and ridge quantities use the coverage in `roofing` and ignore valleys, hips, vents and flashing; roofing nails use the typed rate in `roofing` (320 a square unless you set `nailsPerSquare`), not your shingle maker's nailing schedule.");
   const bm = truss ? null : birdsmouth(r.rafter ?? "2x8", r.pitch, r.plateWidth, r.maxNotchFraction);
   if (bm && !bm.ok) notes.push(`The birdsmouth on a ${bm.size} at ${r.pitch}:12 over a ${formatInches(bm.bearing)} plate is ${formatInches(bm.notch)} deep, ${(100 * bm.fraction).toFixed(0)}% of the rafter against your ${(100 * bm.maxFraction).toFixed(0)}% limit; the seat can bear at most ${formatInches(bm.maxBearing)}. Use a deeper rafter, a narrower seat with a raised heel, or trusses.`);
   const out = {
@@ -640,8 +640,9 @@ function addWing(base, r, plan, w) {
     valleyFlashingRolls: Math.ceil(valleyFeet * (g.valleyWaste ?? 1.1) / (g.valleyRollFeet ?? 50) - 1e-9),
     eaveFeet, rakeFeet, ridgeFeet, valleyFeet, assumptions: g,
   };
-  const notes = base.notes.filter((n) => !/ignore valleys, hips/.test(n) && !/^Wing sheathing counts/.test(n));
+  const notes = base.notes.filter((n) => !/ignore valleys, hips/.test(n) && !/^Shingle, felt, drip edge, ridge and valley/.test(n) && !/^Wing sheathing counts/.test(n));
   notes.push(...wingNotes);
+  notes.push("Shingle, felt, drip edge, ridge and valley flashing quantities use the coverage in `roofing` with the wing planes added, and ignore vents and other flashing; roofing nails use the typed rate in `roofing` (320 a square unless you set `nailsPerSquare`), not your shingle maker's nailing schedule.");
   notes.push(`${base.wing ? "Second cross wing" : "Cross wing"} ${formatLength(w.width)} wide, ${formatLength(P)} out from the main wall, centred ${formatLength(at)} along the ridge on the ${side} side: ${wingRafters.length} wing rafters, ${wingJacks.length + interrupted} valley jacks (${interrupted} of them main-roof rafters cut short at the valley), 2 ${valleySize} valleys of ${formatInches(valleyLen)}, a ${formatLength(P + e + rake)} wing ridge. The wing is ${wp}:12 against the main roof's ${r.pitch}:12, so its ridge meets the main roof ${formatLength(e)} inside the main wall.`);
   if (!w.valley) notes.push(`Valleys are ${valleySize}, as the rafters; a valley is normally one size deeper so the jacks bear on its face (set \`wing.valley\`).`);
   notes.push("Wing sheathing counts each course at its longer edge, and each main course is shortened by the width the wing covers at the course's top edge (the triangles beside the valleys stay whole), so the sheet count is a mild upper bound. Wing collar ties follow the main roof's rule (every other pair of wing commons); valley backing is framed only when `valleyBacking` is set (one board per valley, valley length and size, no bevel rip or lap), nor saddles, the main wall's extra header or the wing's own plates; valley flashing length is `roofing.valleyFeet`.");

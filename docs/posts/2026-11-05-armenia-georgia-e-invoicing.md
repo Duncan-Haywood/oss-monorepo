@@ -4,6 +4,7 @@ seo_title: "Armenia and Georgia e-invoicing: where the guides disagree"
 date: 2026-11-05
 tags: [einvoice-preflight, e-invoicing, armenia, georgia]
 description: "E-invoice Preflight now covers 85 countries: Armenia's SRC system and Georgia's rs.ge portal, each with the start dates sources disagree on."
+folded_into: einvoice-preflight/e-invoicing-mandates-by-country
 ---
 
 The mandates-by-country table grows from 83 to 85 rows.

@@ -15,7 +15,7 @@ import { mulberry32 } from "./rng.mjs";
  * team a home/away split within one game. A double round robin plays the same rounds again
  * with every venue reversed. With `reverseLeg` the return leg plays leg one's rounds in reverse
  * order (still venues reversed): every team flips home/away across the halfway line, so an even
- * league has 2(n-2) breaks in place of 3(n-2) and an odd one none in place of n, at the price of
+ * league has 2(n-2) breaks in place of 3(n-2) and an odd one none in place of n-2, at the price of
  * the pairs in leg one's last round meeting again the very next round.
  */
 export function roundRobin(n, { double = false, reverseLeg = false } = {}) {

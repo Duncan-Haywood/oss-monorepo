@@ -90,7 +90,7 @@ export function homeFaq(ctx: SiteContext): readonly Faq[] {
     },
     {
       q: "Does it replace my GC's billing portal?",
-      a: "No. Your GC decides how pay apps are submitted. It keeps your numbers and backup in one place and gives you the PDF and CSV, so the portal step is copying finished figures, not redoing them. For Procore, Oracle Textura, GCPay and Trimble Pay it also fills the SOV and billing files those portals take; you still submit them in the portal yourself.",
+      a: "No. Your GC decides how pay apps are submitted. It keeps your numbers and backup in one place and gives you the PDF, Excel and CSV, so the portal step is copying finished figures, not redoing them. For Procore, Oracle Textura, GCPay and Trimble Pay it also fills the SOV and billing files those portals take; you still submit them in the portal yourself.",
     },
     {
       q: "Is it an AIA G702/G703 form?",
@@ -214,7 +214,7 @@ ${appShots(ctx)}
     <ol class="steps">
       <li><strong>Set up a job once.</strong> Import the schedule of values from your own spreadsheet or the PDF bid breakdown, with the contract sum, retainage rate and pay terms. Already billing the job? Start from your last application.</li>
       <li><strong>Update progress each month.</strong> Work this period and stored materials per line; the continuation-sheet math, retainage and "less previous certificates" are calculated for you.</li>
-      <li><strong>Send it with its backup.</strong> The application and continuation sheet as PDF and CSV for the GC's portal or email, the waiver it needs, and the backup attached.</li>
+      <li><strong>Send it with its backup.</strong> The application and continuation sheet as PDF, Excel (with live formulas) or CSV for the GC's portal or email, the waiver it needs, and the backup attached.</li>
       <li><strong>Get paid and keep the books straight.</strong> Record each check, see what is past due across every job, send the invoice and payment to QuickBooks Online, and bill the retainage when the work is done, with the punch items and close-out documents it still waits on named job by job.</li>
     </ol>
     <p>${l.open ? "All four steps work in the app today." : "All four steps work in the app today and are being tested before it opens to the public."} The <a href="${href(ctx, PAGES.features.path)}">features page</a> marks what is built and what comes next.</p>

@@ -18,6 +18,7 @@ import {
   mileageTrip,
   organization,
   platformCharge,
+  purchaseReceipt,
   sale,
   saleFee,
   subscriptions,
@@ -38,6 +39,7 @@ export const TABLE_KEYS = [
   "mileageTrips",
   "expenses",
   "expenseReceipts",
+  "purchaseReceipts",
   "leftOutMerchants",
   "importMappings",
   "homeOffice",
@@ -105,6 +107,11 @@ export async function exportShop(ctx: AppContext, orgId: string): Promise<ShopEx
       .from(expenseReceipt)
       .where(eq(expenseReceipt.orgId, orgId))
       .all(),
+    purchaseReceipts: await db
+      .select()
+      .from(purchaseReceipt)
+      .where(eq(purchaseReceipt.orgId, orgId))
+      .all(),
     leftOutMerchants: await db
       .select()
       .from(leftOutMerchant)
@@ -151,7 +158,7 @@ export async function exportShop(ctx: AppContext, orgId: string): Promise<ShopEx
     notes: [
       "Money is in integer cents (USD). Calendar dates are YYYY-MM-DD; timestamps are ISO 8601 UTC.",
       "Bank and card statements, and the report files you imported, are not kept, so they are not here: only the records saved from them.",
-      "Receipt files are listed under expenseReceipts by name, type, size and SHA-256; the files themselves download from each expense, and a year's at once in the year-end ZIP (receipts/).",
+      "Receipt files are listed under expenseReceipts by name, type, size and SHA-256; the files themselves download from each expense, and a year's at once in the year-end ZIP (receipts/). Receipts for stock are listed the same way under purchaseReceipts (on a lot or an item; purchase-receipts/ in the ZIP).",
       "This is your shop's data as stored. It is not a tax return or tax advice.",
     ],
     shop: { id: org.id, name: org.name, createdAt: iso(org.createdAt) },

@@ -1,7 +1,7 @@
 # PayApps
 
 Pay-application billing for specialty subcontractors: schedule of values, change orders, retainage,
-and an application-for-payment summary + continuation sheet as PDF and CSV. Not an AIA document.
+and an application-for-payment summary + continuation sheet as PDF, Excel (.xlsx, with live formulas) and CSV. Not an AIA document.
 
 Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first; plans in [ROADMAP.md](ROADMAP.md); paid plans
 (dark until the owner sets the Paddle secrets) in [docs/BILLING.md](docs/BILLING.md); deploying in
