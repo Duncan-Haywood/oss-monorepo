@@ -48,6 +48,17 @@ test("dailySummary sums revenue_cents from sale_events and rounds revenue_per_en
   });
 });
 
+// 1000 / 3 rounds the same up or down; a half-cent case tells Math.round from
+// Math.floor (quality re-audit 2026-11-28: that mutant survived twice).
+test("dailySummary rounds revenue_per_entrant_cents half up, as the fixture day's 103800 / 47 = 2208.51 -> 2209", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertAggregate(db, aggregateEvent({ event_id: "e1", metric: "entry", value: 47, bucket_start: "2026-08-19T09:00:00Z" }));
+    insertSale(db, saleEvent({ event_id: "s1", closed_at: "2026-08-19T09:00:00Z", total_cents: 103800 }));
+    assert.equal(dailySummary(dbPath, "2026-08-19").revenue_per_entrant_cents, 2209);
+  });
+});
+
 test("dailySummary treats a sale with null total_cents as zero revenue, not NaN", () => {
   withTempDb((dbPath) => {
     const db = openDb(dbPath);
