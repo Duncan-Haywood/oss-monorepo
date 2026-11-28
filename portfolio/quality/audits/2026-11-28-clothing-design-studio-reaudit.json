@@ -1,0 +1,287 @@
+{
+ "date": "2026-11-28",
+ "subject": "ventures/clothing-design-studio",
+ "stratum": "venture",
+ "seed": "2026-11-28-3ee8",
+ "drawn_by": "reaudit",
+ "prior_audit": "portfolio/quality/audits/2026-11-22-clothing-design-studio.json",
+ "auditor": "agent session (Claude), see run record prompts/runs/ for 2026-11-28 quality/0",
+ "status": "audited",
+ "professional": "a technical designer / production pattern maker at a small knitwear brand; first checks: does the graded pattern match the spec sheet sent to the factory (shoulder, neck, sleeve per size), are the grade increments even and standard, does the sleeve cap walk to the armhole, is the full piece set there (neckband), and is fabric consumption plausible",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Re-measured the shipped pattern against the shipped spec sheet without going through the field the spec reads (spec.mjs uses bodyBlock; the auditor read the drafted front piece instead): neck width = 2 x x of the stitch ring's highest point, across shoulder = 2 x the 'shoulder' notch, sleeve = checks.sleeveLengthCm (scratchpad/cds/check.mjs). All 24 garment-size pairs (tee, long sleeve, crewneck, hoodie x XS-XXL) are inside spec.mjs's own tolerances (neck 0.5, shoulder 0.8, sleeve 1.0): e.g. tee M 18.00 / 47.40 / 21 vs spec 18 / 47.4 / 21, tee XXL 19.92 / 52.68 / 24 vs 19.9 / 52.7 / 24 (2026-11-22: 5 of 6 shoulder and 5 of 6 neck out). Neckband = 0.85 x neck seam in every size (tee M 39.32 / 46.26 = 0.850). Sleeve cap ease 1.0 cm over both armholes in tee, crewneck and hoodie XS/M/XXL, all pieces simple. Arithmetic recomputed by hand in Python against node calls: 6 oz/yd2 = 6 x 28.349523125 / 0.83612736 = 203.4345 g/m2 (code 203.4342, from the 33.9057 constant, 0.0003 off); 180 gsm x 150 cm = 3.7037 m/kg; 500 tees x 0.9 m = 121.5 kg, 150 kg minimum at 8/kg = 1,200, 617.3 garments from 150 kg; cut size 70 / 0.95 = 73.684, cloth uplift 1/(0.95 x 0.97) = 1.08519, extra cost 42.59 on 100 garments at 5/m (all match).",
+  "completeness": "Every 2026-11-22 completeness gap re-checked: draft('tee'|'longsleeve'|'crewneck', s).pieces = front, back, sleeve, neckband in all sizes; hoodie = front, back, sleeve, hood, pocket (hood takes the neck). pattern.html:45 now says 'tick the rib option for hem and cuff bands (crewneck and hoodie)', matching the checkbox at line 56. The marker's sleeve box now comes from the drafted sleeve (tee M 39.4 x 24 = girth 36.4 + 3, length 21 + 3). 53 HTML pages, all with disclaimer and usage tracking. node --test: 761 of 761.",
+  "verification": "`cd ventures/clothing-design-studio && node --test '*.test.mjs'`: 761 tests, 761 pass, 20.6 s (734 on 2026-11-22). Five mutants via platform/ci/quality_mutate.py, all caught: the three that survived on 2026-11-22, re-seeded where the code now lives (half-neck ratio 0.09 -> 0.1 at grade.mjs:71, size-run boundary off the midpoint at fit.mjs:138, run-cost area without length at runcost.mjs:26), plus two new ones in the grade rule (armhole grade 0.12 -> 0.15, grade.mjs:31; neckband ratio 0.85 -> 0.9, grade.mjs:37).",
+  "craft": "Read grade.mjs (75 lines, one rule with the reason and dates of each change), pattern.mjs draft() and bodyBlock, spec.mjs, marker.mjs patternPieces. The duplicated garment tables are gone: sleeve length at M lives once (tryon.mjs SLEEVE_CM_M, imported by pattern and spec), neck/shoulder/armhole/bicep once (grade.mjs), and the marker reads the drafted sleeve and band. Left: the marker's own SEAM_ALLOWANCE_CM = 1.5 (marker.mjs:45) against the pattern's 1.0 side / 0.6 neck / 2.5 hem, so a body rectangle is flatWidth + 3 wide (pattern cut: + 2) and length + 3 long (pattern cut: shoulder 1 + hem 2.5 = + 3.5); disclosed in the ROADMAP as the cautious default. A range-check `num` helper is still defined separately in 28 modules (grep '(const|function) num\\b'), and 9 lines in pattern.mjs and marker.mjs run 310 to 614 characters (awk length > 300).",
+  "claims": "Backed: 'No warranty' disclaimer and usage tracking on all 53 HTML pages (the five SEO landing pages that lacked tracking on 2026-11-22 now carry it); `node platform/pages/served-copy.mjs clothing-design-studio`: no placeholder or retired origin in llms.txt, sitemap, robots or canonicals; grade.mjs and the spec sheet's notes say the grade steps are typical, from general knowledge, not a standard, and replaceable; spec.mjs note 'neck about 0.6 cm and across shoulder about 1.8 cm per 8 cm of chest' matches the measured 0.64 / 1.76 from M upward; the pattern prints a note in the sizes where the armhole floor sets the shoulder. Stale: ROADMAP.md 'Known gaps' still listed the three surviving mutants as untested after the 2026-11-25 line beside it says they now fail a test (fixed in this PR's docs commit).",
+  "fitness": "Job walked: a designer drafts a regular tee XS-XXL, exports the pattern, prints the tech pack spec table and sends both to a factory. The factory now receives one set of figures: the pattern measured off its own stitch line passes the spec in every size, with a neckband piece to cut and its stretch ratio stated. Costing, size run, cloth by size and the cutting plan work as on 2026-11-22. A sampler still corrects the block (typical ratios, untested on a body), and the XS and S shoulders are narrower than the grade would put them, which the pattern says.",
+  "domain": "Compared with standard knit-top grading practice (Aldrich, Metric Pattern Cutting for Menswear; Armstrong, knit foundations; increments recalled by the auditor, not re-read this session). From M upward the grade per 8 cm chest step is now neck +0.64, across shoulder +1.76, armhole depth +0.96, bicep +2.0, sleeve +1.0, within the ranges such charts use (about 0.6-0.8 neck width, 1.6-2.0 shoulder, 0.8-1.0 armhole, 1.5-2.5 bicep, 1 sleeve); on 2026-11-22 neck, shoulder and armhole grew about twice that. Departure left: in regular (and slim) fit the block keeps 4 cm between the shoulder point and the side at the chest line, which caps the XS and S shoulders, so across-shoulder grades 40.0 -> 44.0 -> 47.4 (steps 4.0 and 3.4 cm) before settling at 1.76: an uneven grade a grader would flag on the nest. It is disclosed in the draft notes and the spec sheet agrees with it, so the factory is not given contradictory figures. The size chart (8 cm steps) is typical, not ASTM D6240, and says so."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Drafted pattern vs spec sheet, every garment and size, measured off the front piece's stitch ring and notch",
+   "method": "geometry read independently of the bodyBlock fields spec.mjs uses; spec.mjs TOLERANCE_CM",
+   "command": "node scratchpad/cds/check.mjs",
+   "expected": "24 of 24 garment-size pairs within tolerance on neck, shoulder and sleeve",
+   "observed": "24 of 24 within (tee M 18.00/47.40/21 vs 18/47.4/21; hoodie XXL 22.92/54.28/67 vs 22.9/54.3/67)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Neckband length against the neck seam",
+   "method": "ratio checks.neckbandLengthCm / checks.neckOpeningCm vs NECKBAND.ratio 0.85",
+   "command": "node scratchpad/cds/check.mjs",
+   "expected": "0.850 in every size",
+   "observed": "tee XS 35.77/42.08, M 39.32/46.26, XXL 44.71/52.59: 0.850",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "oz/yd2 to g/m2, metres per kg, order for 500 tees x 0.9 m at 180 gsm, 150 kg minimum at 8/kg",
+   "method": "definitions: 1 oz = 28.349523125 g, 1 yd2 = 0.83612736 m2; kg = gsm x W x L / 1000",
+   "command": "node -e gsm.mjs calls vs python3 -c",
+   "expected": "203.4345; 3.7037; 121.5 kg, cost 1,200, 617.3 garments",
+   "observed": "203.4342; 3.7037; 121.5, 1200, 617.28",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Cut size for 70 cm at 5% length shrinkage; cloth uplift 5% x 3% and its cost",
+   "method": "AATCC 135 / ISO 5077 dimensional change; cut = finished / (1 - s)",
+   "command": "node -e shrink.mjs calls vs python3 -c",
+   "expected": "73.684; 1.08519; 42.59 on 100 garments at 5/m",
+   "observed": "73.684; 1.0851872; 42.5936",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sleeve cap walks to both armholes plus ease in small, middle and large sizes",
+   "method": "checks.capEaseCm from the solved cap vs DEFAULTS.capEaseCm",
+   "command": "node --input-type=module -e draft(...) for tee/crewneck/hoodie XS, M, XXL",
+   "expected": "1.0 cm in all nine",
+   "observed": "1.0 in all nine; cap height ratio 0.23-0.26; all pieces simple",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Grade increments per 8 cm chest step, M upward",
+   "method": "knit-top grade charts (auditor's recollection)",
+   "command": "node scratchpad/cds/check.mjs (step lines)",
+   "expected": "neck ~0.6-0.8, shoulder ~1.6-2.0, armhole ~0.8-1.0, bicep ~1.5-2.5, sleeve 1",
+   "observed": "0.64 / 1.76 / 0.96 / 2.00 / 1.00",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Even shoulder grade across the whole size run",
+   "method": "a grader checks that each size step moves the shoulder by the same amount",
+   "command": "node scratchpad/cds/check.mjs",
+   "expected": "about 1.76 cm every step",
+   "observed": "tee XS->S 4.00, S->M 3.40, then 1.76 (XS and S capped by the 4 cm armhole floor; draft note says so)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Full piece set",
+   "method": "a production tee has front, back, sleeve and a neckband",
+   "command": "draft(g, s).pieces names",
+   "expected": "front, back, sleeve, neckband (hoodie: hood instead)",
+   "observed": "as expected in all 24 pairs",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/clothing-design-studio && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "761/761 pass, 20.6 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer and usage tracking on every page",
+   "method": "grep -i 'no warranty' and 'recordUsage|usage' in each *.html",
+   "command": "for f in *.html; do grep -qi 'no warranty' $f || echo nodisc $f; grep -qE 'recordUsage|usage' $f || echo nousage $f; done",
+   "expected": "no output, 53 pages",
+   "observed": "no output, 53 pages",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt, sitemap and canonicals as served",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs clothing-design-studio",
+   "expected": "no placeholder or retired origin",
+   "observed": "none left",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Pattern page text about rib bands",
+   "method": "read pattern.html:45 against the checkbox at :56",
+   "command": "grep -n rib ventures/clothing-design-studio/pattern.html",
+   "expected": "text matches the option",
+   "observed": "'tick the rib option for hem and cuff bands (crewneck and hoodie)'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "ROADMAP known-gaps list current",
+   "method": "read against the mutation results above",
+   "command": "sed -n 22,30p ventures/clothing-design-studio/ROADMAP.md",
+   "expected": "no gap listed that a test now covers",
+   "observed": "'Untested branches' bullet still names the three mutants that now fail tests",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "Seam allowance in the cutting plan vs the pattern",
+   "method": "compare marker.mjs SEAM_ALLOWANCE_CM with pattern.mjs DEFAULTS",
+   "command": "grep -n SEAM_ALLOWANCE_CM marker.mjs; grep -n DEFAULTS pattern.mjs",
+   "expected": "one allowance set",
+   "observed": "marker 1.5 all round; pattern 1.0 seams, 0.6 neck, 2.5 hem",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "grade.mjs:71",
+   "change": "const halfNeckCm = 0.09 * m -> const halfNeckCm = 0.1 * m",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "fit.mjs:138",
+   "change": "(bodyAt(s) + bodyAt(present[i + 1])) / 2 -> (bodyAt(s) + bodyAt(present[i + 1]) * 1.1) / 2.1",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "runcost.mjs:26",
+   "change": "const area = x => x.chest * x.length; -> const area = x => x.chest;",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "grade.mjs:31",
+   "change": "armhole: 0.12 -> armhole: 0.15",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "grade.mjs:37",
+   "change": "ratio: 0.85 } -> ratio: 0.9 }",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "high",
+   "basis": "marked",
+   "status": "closed",
+   "what": "pattern contradicts the spec sheet (shoulder, neck, sleeve)",
+   "evidence": "24 of 24 garment-size pairs within tolerance, measured off the stitch ring"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "proportional grading of armhole, shoulder, neck; sleeve ungraded",
+   "evidence": "M upward: 0.64 / 1.76 / 0.96 / sleeve +1 per step; the XS/S shoulder cap is a separate, disclosed limit (new defect 0)"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "partial",
+   "what": "garment dimensions duplicated across modules",
+   "evidence": "sleeve, neck, shoulder now from one place each; marker seam allowance 1.5 vs pattern 1.0/2.5 remains (marker.mjs:45)"
+  },
+  {
+   "index": 3,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "no neckband piece",
+   "evidence": "neckband in tee, long sleeve, crewneck at 0.85 of the neck seam"
+  },
+  {
+   "index": 4,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "tests do not pin core ratios",
+   "evidence": "all three earlier survivors now caught; two new grade mutants caught"
+  },
+  {
+   "index": 5,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "pattern.html says no rib",
+   "evidence": "pattern.html:45 now describes the rib option"
+  },
+  {
+   "index": 6,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "five SEO pages without usage tracking",
+   "evidence": "53 of 53 pages carry tracking"
+  },
+  {
+   "index": 7,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "num validator copied, 300+ character lines",
+   "evidence": "num defined in 28 modules; 9 lines of 310-614 characters in pattern.mjs and marker.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Uneven shoulder grade at XS and S in regular and slim fit: the block's 4 cm armhole-width floor caps the shoulder point, so tee across-shoulder steps 4.0 and 3.4 cm into M against 1.76 cm above it. Disclosed in the draft notes and matched by the spec sheet, so not contradictory, but a grader would correct it.",
+   "where": "ventures/clothing-design-studio/pattern.mjs:123",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Prior defect 2, partly open: the cutting plan's rectangles add 1.5 cm all round while the pattern cuts 1.0 cm seams and a 2.5 cm hem, so a body box is 1 cm wider and 0.5 cm shorter than the cut piece's extent.",
+   "where": "ventures/clothing-design-studio/marker.mjs:45",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Prior defect 7, open: the `num` range check is defined in 28 modules; 9 lines in pattern.mjs and marker.mjs run 310 to 614 characters.",
+   "where": "ventures/clothing-design-studio/pattern.mjs:473",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "ROADMAP 'Known gaps' still listed the neck ratio, size-run boundary and run-cost factor as untested after tests were added for all three.",
+   "where": "ventures/clothing-design-studio/ROADMAP.md:28",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Re-audit of the 2026-11-22 audit (prior high: a sample sewn from the studio's pattern failed the studio's own spec sheet). Closed: measured off the drafted front piece's stitch ring and notch rather than the field the spec sheet reads, all 24 garment-size pairs are within the spec's tolerances on neck, shoulder and sleeve; the neckband piece exists at 85% of the neck seam; the grade from M upward is at typical knit steps; the three mutants that survived last time now fail tests, as do two new ones in the grade rule (5 of 5 caught, 761 tests pass). Five of the eight earlier defects are closed, one is partial (the marker still uses its own 1.5 cm allowance) and one low craft defect is open. New: the XS and S shoulders are capped by the block's armhole floor, so the shoulder grade is uneven below M (disclosed, and the spec agrees). Correctness, verification and claims are now 3 and the median is 3, so the subject meets the bar; craft stays at 2."
+}
