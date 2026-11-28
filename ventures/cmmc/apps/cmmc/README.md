@@ -52,6 +52,7 @@ model that does the job; move `cmmc.implementation_statement` up only when an ev
 pnpm typecheck · pnpm test:unit · pnpm test:worker · pnpm build
 cp .dev.vars.example .dev.vars && pnpm db:migrate:local && pnpm dev   # offline, FakeLlm
 node --test scripts/provision.test.mjs                                  # deploy provisioning
+node scripts/stills.mjs        # with `pnpm dev` running on a fresh local D1: the marketing site's app stills
 ```
 
 Deploy: the `cmmc-deploy` workflow (`.github/workflows/priv-cmmc-deploy.yml`), from `main` on every merge that touches `ventures/cmmc/` (and by hand), provisions D1 (R2 when the

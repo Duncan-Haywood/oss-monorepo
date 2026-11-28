@@ -13,6 +13,7 @@ sessions reported them. A cluster whose last report is old has probably been
 fixed; one still reported this week is the process track's next job.
 
     python3 platform/ci/friction_rank.py [--days 14] [--min 2] [--top 20] [--json] [--live]
+    (--json also carries each cluster's report texts, newest first, as `texts`)
 
 Each cluster also says whether a code file its reports name (`pyenv.py`,
 `platform/ci/wait_for.py`, the reported file when it is code) changed in a commit after
@@ -645,7 +646,11 @@ def main(argv=None):
     ranked = ranked[: a.top]
     for c in ranked:
         c.pop("issues", None)
-        c.pop("dated", None)
+        dated = c.pop("dated", None) or []
+        if a.json:
+            # Every report's own words, newest first: reading what a cluster says
+            # took a second scan of prompts/runs/*.json (doc friction, 2026-11-25..28).
+            c["texts"] = [{"at": w, "issue": i} for w, i in sorted(dated, reverse=True)]
         for k in ("verdict", "reopened"):
             if c.get(k):
                 c[k] = {x: y for x, y in c[k].items() if x != "re"}
