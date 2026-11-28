@@ -16,6 +16,12 @@ checks the pair. No customers yet.
 
 ## Done (v0.1, this core)
 
+- Minimum charge guide (2026-11-28, `minimum-order-charge-guide`): https://marisstella.app/jobshop/machine-shop-minimum-charge,
+  a made-up spacer anodized and bare at 1 to 100 parts, which of the three minimums (material minimum,
+  vendor lot charge, line minimum) sets each price and where each lets go, and a line minimum worked out
+  from per-order office time ($225.23 floor → the CNC guide's $250). Checked to the cent against the engine
+  by `test/unit/site-minimum-charge-example.test.ts`. The app's minimum is per line; an order-level
+  minimum would be new work if shops ask.
 - Rush job pricing guide (2026-11-28, `rush-job-expedite-pricing`): https://marisstella.app/jobshop/how-to-price-a-rush-job,
   the CNC guide's bracket quoted normal and rush (overtime rate as a second machine, the bumped job as a
   setup-only operation, an expedited finishing op, same-day delivery as an extra), checked to the cent by

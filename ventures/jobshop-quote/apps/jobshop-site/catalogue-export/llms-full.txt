@@ -841,7 +841,9 @@ quote sheet metal and laser cut parts; welded frames and fabrications:
 how to quote welding jobs. What to put on the quote you send, with a template to
 download: machine shop quote
 template. A customer who needs the parts sooner:
-how to price a rush job.
+how to price a rush job. Orders of
+one or two parts: how to set a
+minimum charge.
 
 This page explains a common costing method. It is not accounting, tax or
 financial advice, and the prices, times and rates in it are made up. Check every quote before you send
@@ -2317,6 +2319,155 @@ financial advice, it does not say what overtime pay the law requires, and the ra
 prices and times in it are made up. Check every quote before you send it.
 
 ### Quote your next rush with every cost on it
+
+The Early access plan is free and needs no card.
+
+Start free
+
+## How to set a minimum charge
+
+Source: https://marisstella.app/jobshop/machine-shop-minimum-charge
+
+Guide
+
+## How to set a minimum charge in a machine shop
+
+An order for one part takes nearly as much quoting, buying, paperwork and shipping as
+an order for a hundred. A minimum charge is how a shop gets paid for that work. Here are the three
+minimums a quote line carries, which one sets the price at each quantity of a worked example, and how
+to work out your own line minimum instead of copying someone else's.
+
+### Three minimums, not one
+
+- The material minimum. A distributor's smallest sale, a cut charge, or the
+smallest piece of bar or plate you would buy for the job. A part that weighs a few ounces still
+costs the drop you bought.
+
+- The outside vendor's lot charge. Anodizers, platers, heat treaters and coaters
+charge a minimum per lot. Below a certain quantity, the lot charge is the price, whatever the
+per-part rate says. See how
+to quote outside processing.
+
+- The line minimum. The least the shop will take for one line of a quote at any
+quantity. It covers the work that happens whatever the size of the order and that the machine-hour
+rate does not carry well: the quote itself, order entry, buying, receiving, paperwork, packing,
+invoicing.
+
+Setup is not a minimum, but it acts like one: 45 minutes of programming and setup cost
+the same for one part or a hundred. It is already in the price; a minimum is for what is not.
+
+### A worked example
+
+A small 6061 aluminum spacer, 1.75 × 1.75 ×
+0.625 in from plate, one setup and a deburr on the same mill at the same
+$123.85 an hour as the
+CNC quoting guide, quoted twice:
+anodized by the same outside vendor ($3.50 a part, lot charge
+$150.00), and shipped as machined. Material minimum
+$25.00, line minimum $250.00, the CNC guide's
+markups and fallout. Every number is made up to show the arithmetic; none is a
+typical minimum, lot charge or rate for any region or trade. Use your own.
+
+The anodized spacer. "Minimum" and "lot charge" mark where a minimum, not the quantity, set the figure. The last column prices the same line with all three minimums at zero.
+QuantityMaterialSetup + runAnodizeLine minimum top-upLine totalEachWith no minimums
+
+1 part$25.00 (minimum)$109.40$150.00 (lot charge)–$310.65$310.65$119.812 parts$25.00 (minimum)$117.65$150.00 (lot charge)–$318.90$159.45$133.285 parts$25.00 (minimum)$142.43$150.00 (lot charge)–$343.70$68.74$173.7010 parts$25.00 (minimum)$183.71$150.00 (lot charge)–$385.00$38.50$241.0025 parts$26.69$307.56$150.00 (lot charge)–$510.75$20.43$443.0050 parts$53.37$522.23$182.00–$793.00$15.86$793.00100 parts$106.75$951.57$364.00–$1,493.00$14.93$1,493.00
+
+The same spacer shipped as machined: no vendor lot charge, so the line minimum does the work.
+QuantityMaterialSetup + runLine minimum top-upLine totalEachWith no minimums
+
+1 part$25.00 (minimum)$109.40$111.85$250.00$250.00$111.762 parts$25.00 (minimum)$117.65$103.60$250.00$125.00$121.205 parts$25.00 (minimum)$142.43$78.82$250.00$50.00$149.5510 parts$25.00 (minimum)$183.71$37.54$250.00$25.00$196.7025 parts$26.69$307.56–$338.25$13.53$338.2550 parts$53.37$522.23–$584.00$11.68$584.00100 parts$106.75$951.57–$1,075.00$10.75$1,075.00
+
+What the tables show:
+
+- Minimums set the price of small orders. At 1 part the anodized
+spacer is $310.65; with no minimums it would be
+$119.81. The material minimum holds until 23 parts
+and the anodizer's lot charge until 40 parts; from
+41 parts on, the quantity sets the price and the minimums add nothing.
+
+- A vendor's lot charge can make your own minimum idle. The anodized line never
+falls below $250.00, so the line minimum never tops it up: the lot charge already does
+that job. Leave it on anyway, for the version without a finish.
+
+- Without a finish, the line minimum holds the price. The bare spacer at
+1 part costs $111.76 without minimums; the
+line minimum lifts it to $250.00, and keeps topping it up through
+14 parts. From 15 parts on, the
+quantity sets the price.
+
+- Unit prices fall fast, then flatten. One anodized spacer is
+$310.65; a hundred are $14.93
+each. Quote several quantities and the customer sees why ordering one is expensive. See
+quantity price breaks.
+
+### Work out your line minimum
+
+Do not copy a competitor's number. A line minimum should at least cover what the cheapest line you
+would make costs you, plus the office work every order takes whatever its size. Time that work on a
+few real orders. In the example (made-up minutes):
+
+Office time per order, made up. Time your own.
+Work on every orderMinutes
+
+Read the RFQ and drawing, quote it20Enter the order, check the PO against the quote10Buy the material, receive it, file the cert15Final paperwork (packing slip, certificate of conformance)10Pack and ship15Invoice, and chase the payment10
+Total80
+
+- Office time: 80 min at a made-up
+$55.00 an hour (wage, payroll costs and the desk) =
+$73.33 an order.
+
+- The cheapest version of the job: one bare spacer with no line minimum,
+$138.15.
+
+- Floor: $211.48, rounded up to a minimum of
+$250.00.
+
+Why add office time when the hourly rate already carries overhead? Because the rate spreads the
+office over machine hours. A one-off that keeps the mill busy for under an hour pays for under an hour's share
+of the office, yet takes the full 80 minutes of office work. The minimum makes up the difference. If your
+hourly rate already counts office
+time per order some other way, do not count it twice.
+
+### Choices that change the number
+
+- Per line or per order. A minimum per line protects you when a customer sends
+ten one-off parts on one PO. A minimum per order is friendlier to that customer. Pick one and say
+which on the quote.
+
+- Show it or fold it in. Folding the top-up into the unit price keeps the quote
+simple. Showing it ("minimum charge applies below N parts") tells the customer what to do: order a
+few more and the price per part drops.
+
+- Minimums for good customers. Waiving the minimum for a customer whose
+production work you want is a sales decision. Make it on purpose, on that quote, and the rate card
+stays honest for everyone else.
+
+- Keep vendor minimums current. When an anodizer or heat treater raises its lot
+charge, every small quote with that service changes. Update it on the rate card once instead of
+remembering it on each quote.
+
+### Doing it in Job Shop Quote
+
+Job Shop Quote's rate card holds all three: each material's minimum charge, each finishing or
+outside service's lot charge, and the shop's minimum line charge. The line minimum applies to each
+quote line, not to an order. Each line's cost basis names the material and service minimums it used,
+and on every quantity break the top-up to the line minimum is its own figure ("to reach the line
+minimum"), so an estimator sees why one part costs what it does. The example above is priced to the cent the app gives for the same inputs,
+checked by a test in its code. Minimums can also come in with the rest of your settings from a
+spreadsheet.
+
+The rest of the price: how to
+quote a CNC machining job, material
+cost, markup and margin, and what
+goes on the quote you send, the machine
+shop quote template.
+
+This page explains a common costing method. It is not accounting, tax, legal or
+financial advice, and the rates, minimums, prices and times in it are made up. Check every quote
+before you send it.
+
+### Put your minimums on the rate card once
 
 The Early access plan is free and needs no card.
 
