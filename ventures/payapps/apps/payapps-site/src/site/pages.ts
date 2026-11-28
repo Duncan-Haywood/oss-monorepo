@@ -2,6 +2,7 @@
 // Free plan after (launch.ts), paid plans never "on sale" before checkout is; no customers,
 // testimonials, logos, results or ratings; a feature is "built" only once it is in the app (apps/payapps
 // ROADMAP.md, "Done"), everything else is "next"; no competitor claims.
+import { GUIDES_ORIGIN, MODULE_PAGES, type ModulePage } from "@shared/modules";
 import { formatUsd, limitText, PLANS } from "@shared/plans";
 import {
   absoluteUrl,
@@ -616,6 +617,7 @@ function features(ctx: SiteContext): BuiltPage {
     <p>${f.body}</p>
     <ul>${f.bullets.map((b) => html`<li>${b}</li>`)}</ul>
     ${f.shot ? wideShot(ctx, f.shot) : ""}
+    ${moduleLink(ctx, f.id)}
   </section>`,
   )}
   <section class="feature">
@@ -630,6 +632,92 @@ function features(ctx: SiteContext): BuiltPage {
   <p class="cta-row">${primaryCta(ctx, "features")}</p>
 </div>`;
   return { page, main, jsonLd: [webPage(ctx, page), breadcrumbs(ctx, page)] };
+}
+
+// ---------- module pages ----------
+
+/** "More on lien waivers" under a feature that has its own page. */
+function moduleLink(ctx: SiteContext, featureId: string): Html | "" {
+  const m = MODULE_PAGES.find((x) => x.featureId === featureId);
+  return m
+    ? html`<p><a href="${href(ctx, m.page.path)}">More on ${m.page.label.toLowerCase()}</a></p>`
+    : "";
+}
+
+export function moduleFaq(ctx: SiteContext, m: ModulePage): readonly Faq[] {
+  const l = launchOf(ctx);
+  return [
+    { q: `Which ${PRODUCT_NAME} plans include it?`, a: `${m.plan} ${plansSentence(l)}` },
+    {
+      q: `Is ${PRODUCT_NAME} new?`,
+      a: l.open
+        ? `Yes. It opened in November 2026 and has no customers, reviews or published results yet. Everything on this page works in the app today; check every figure before you send it.`
+        : `Yes. It is in development: everything on this page is built and being tested before the app opens to the public.`,
+    },
+  ];
+}
+
+/** A built module's own page: the features entry, which plans have it, the free guides on the topic. */
+export function modulePage(ctx: SiteContext, m: ModulePage): BuiltPage {
+  const f = FEATURES.find((x) => x.id === m.featureId);
+  if (f?.status !== "built")
+    throw new Error(`module page ${m.page.path}: no built feature ${m.featureId}`);
+  const l = launchOf(ctx);
+  const faq = moduleFaq(ctx, m);
+  const others = MODULE_PAGES.filter((x) => x !== m);
+  const main = html`
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">${l.open ? STATUS_LABEL.built : `${STATUS_LABEL.built} · in development`}</p>
+    <h1>${m.h1}</h1>
+    <p class="lede">${m.intro}</p>
+    <p class="cta-row">${primaryCta(ctx, `module/${m.featureId}`)}</p>
+  </div>
+</section>
+<div class="wrap section">
+  <section class="feature">
+    <h2>What it does</h2>
+    <p>${f.body}</p>
+    <ul>${f.bullets.map((b) => html`<li>${b}</li>`)}</ul>
+    ${f.shot ? wideShot(ctx, f.shot) : ""}
+  </section>
+  <section class="feature">
+    <h2>Plans</h2>
+    <p>${m.plan} See <a href="${href(ctx, PAGES.pricing.path)}">pricing</a>; every module works on the same jobs, so nothing is entered twice.</p>
+  </section>
+  <section class="feature">
+    <h2>Free guides on this</h2>
+    <ul>${m.guides.map((g) => html`<li><a href="${`${GUIDES_ORIGIN}${g.path}`}">${g.label}</a></li>`)}</ul>
+  </section>
+  <section class="feature">
+    <h2>Common questions</h2>
+    ${faqList(faq)}
+  </section>
+  <section class="feature">
+    <h2>The rest of ${PRODUCT_NAME}</h2>
+    <ul>${others.map((x) => html`<li><a href="${href(ctx, x.page.path)}">${x.page.label}</a></li>`)}</ul>
+    <p><a href="${href(ctx, PAGES.features.path)}">Every feature, built and next</a></p>
+  </section>
+  ${notAiaNote}
+  <p class="cta-row">${primaryCta(ctx, `module/${m.featureId}`)}</p>
+</div>`;
+  return {
+    page: m.page,
+    main,
+    jsonLd: [webPage(ctx, m.page), moduleBreadcrumbs(ctx, m.page), faqPage(faq)],
+  };
+}
+
+function moduleBreadcrumbs(ctx: SiteContext, page: PublicPage): Record<string, unknown> {
+  return {
+    "@type": "BreadcrumbList",
+    itemListElement: [PAGES.home, PAGES.features, page].map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: p.label,
+      item: absoluteUrl(ctx.siteUrl, p.path),
+    })),
+  };
 }
 
 // ---------- pricing ----------

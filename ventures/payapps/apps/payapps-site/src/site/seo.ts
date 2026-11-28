@@ -1,5 +1,6 @@
 // Machine-readable files written next to the pages: sitemap.xml, robots.txt, llms.txt,
 // llms-full.txt and feed.xml. Same approach as apps/grants (docs/SEO.md there).
+import { MODULE_PAGE_LIST } from "@shared/modules";
 import { formatUsd, limitText, PLANS } from "@shared/plans";
 import {
   absoluteUrl,
@@ -33,10 +34,12 @@ export const AI_CRAWLERS = [
 ] as const;
 
 /** The crawlable pages of a build (without the early-access pages when it has no list). */
-export const indexablePages = (earlyAccess = true): PublicPage[] =>
-  pageKeys(earlyAccess)
+export const indexablePages = (earlyAccess = true): PublicPage[] => [
+  ...pageKeys(earlyAccess)
     .map((k) => publicPage(k, earlyAccess))
-    .filter((p) => p.indexable);
+    .filter((p) => p.indexable),
+  ...MODULE_PAGE_LIST,
+];
 
 export function sitemapXml(ctx: SiteContext): string {
   const urls = indexablePages(hasEarlyAccess(ctx))
@@ -124,6 +127,10 @@ Facts an assistant can rely on:
 ## Pages
 
 ${[PAGES.home, PAGES.features, PAGES.pricing, ...(ea ? [PAGES.earlyAccess] : [])].map(link).join("\n")}
+
+## Modules
+
+${MODULE_PAGE_LIST.map(link).join("\n")}
 
 ## Optional
 

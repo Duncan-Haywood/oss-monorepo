@@ -1,7 +1,7 @@
 # payapps-site: marketing site for the pay-app product
 
 The public site for the subcontractor pay-application product (the app itself is `apps/payapps`, built
-separately). Pages: home, features, pricing, early access, privacy, and the Terms of Service, Refund Policy and Acceptable Use Policy (rendered from `apps/payapps/docs/legal/*.md`; `pnpm sync:legal` after the app's documents change, and a unit test fails until you do). It also serves `llms.txt`,
+separately). Pages: home, features, pricing, early access, privacy, and the Terms of Service, Refund Policy and Acceptable Use Policy (rendered from `apps/payapps/docs/legal/*.md`; `pnpm sync:legal` after the app's documents change, and a unit test fails until you do). Since 2026-11-28 (payapps-site-module-pages) it also has one landing page per built module (`/lien-waiver-software`, `/certified-payroll-software`, `/quickbooks-retainage-invoicing` and 13 more), each aimed at the search a buyer makes for that job: the data is `src/shared/modules.ts` (path, title, intro, the plan the app gates it to, links to the free guides on marisstella.app), the body is the feature's own entry in `FEATURES`, so a module page can never claim more than the features page, and `test/unit/modules.test.ts` checks the plan line against the app's gates and every guide link against the repository. It also serves `llms.txt`,
 `llms-full.txt`, `sitemap.xml`, `robots.txt`, an Atom `feed.xml` and JSON-LD on every page.
 
 > **Product name: PayApps**, the app's own name (`apps/payapps/index.html`) and the one the free

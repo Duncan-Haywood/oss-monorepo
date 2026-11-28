@@ -2656,6 +2656,11 @@ nothing to copy. No customers yet. Paid plans are dark
   and lists in the root sitemap index. It has no early-access pages: the app is open, and no Worker
   is behind the copy. Left: set `PAID_PLANS_ON` here and in `cta.mjs` the day checkout is live, then
   re-export
+- Done 2026-11-28 (payapps-site-module-pages): the marketing site has a landing page per built module (16, from
+  pay application and lien waiver software to T&M tickets), each with the plan that includes it, the free guides on the
+  topic and a sign-up link tagged `from=payapps-site/module/<feature>`, in the sitemap and llms.txt, linked from the
+  features page (`apps/payapps-site/src/shared/modules.ts`). Next: read which module pages bring sign-ups once the
+  `from` tags have counts, and give the leaders a still from `pnpm stills`
 - Done 2026-11-27 (launch-signups-open): the free guides point at sign-up (`APP_URL` in
   `ventures/pay-app-guides/cta.mjs`, now https://payapps.marisstella.app; 42 pages say "open now", name
   what the Free plan leaves out and link to `/?signup&from=pay-app-guides/<page>`; `state-forms.mjs`

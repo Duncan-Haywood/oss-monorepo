@@ -1,13 +1,18 @@
 // Builds every generated file of the site in memory: path (relative to the base-path directory) →
 // contents. Pure, so the unit tests check exactly what scripts/build.ts writes.
+
+import { MODULE_PAGES } from "@shared/modules";
 import { pageKeys } from "@shared/site";
 import { hasEarlyAccess, pageShell, type SiteContext } from "./html";
-import { type BuiltPage, buildPage } from "./pages";
+import { type BuiltPage, buildPage, modulePage } from "./pages";
 import { feedXml, llmsFullTxt, llmsTxt, robotsTxt, sitemapXml } from "./seo";
 
 export function buildSite(ctx: SiteContext): Map<string, string> {
   const files = new Map<string, string>();
-  const built: BuiltPage[] = pageKeys(hasEarlyAccess(ctx)).map((k) => buildPage(ctx, k));
+  const built: BuiltPage[] = [
+    ...pageKeys(hasEarlyAccess(ctx)).map((k) => buildPage(ctx, k)),
+    ...MODULE_PAGES.map((m) => modulePage(ctx, m)),
+  ];
   for (const b of built) {
     files.set(b.page.file, pageShell(ctx, { page: b.page, main: b.main, jsonLd: b.jsonLd }));
   }
