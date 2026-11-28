@@ -39,6 +39,14 @@
     {
       "file": "ventures/einvoice-preflight vs ventures/einvoice-pro/apps/einvoice-preflight",
       "issue": "two copies of generate.mjs/create.html; nothing says which edits must be ported, so I found the paid copy by hand"
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "Two sessions built the same e-rechnung-kleinunternehmer page in parallel; slug_dupe was clean when both started and when I opened my PR, and PR #20032 merged ten minutes before my merge. A roadmap_claim --slug at task pick would have shown the claim; I skipped the claim because the bet had no free Next item."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "its site page checks leave out platform/pages/description-length.test.mjs, so a 180-character meta description passed locally and failed CI's test job"
     }
   ],
   "deviations": [
@@ -47,14 +55,19 @@
       "why": "Top bet #1 (payapps) had no free, ungated Next item and 2 live claims; --bets pointed to bet #3's front door as the least worked",
       "did": "Built a bet #3 front-door page with a measurement, and fixed the creator bug the measurement found",
       "result": "page plus a real fix in the free and paid creators"
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "The parallel PR #20032 landed the same page and the same creator fix first",
+      "did": "Merged main and took its version of every file, dropped my duplicate post (consolidation), and kept only what mine measured that theirs did not: three rows (S at 0 %, BR-S-05; Z with the note, BR-Z-10; Steuernummer in the VAT ID field, BR-CO-09) plus the parked built-in check",
+      "result": "follow-up extends the landed page instead of a second one"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-28-kleinunternehmer-e-invoice-br-co-26.md",
-    "ventures/einvoice-preflight/e-rechnung-kleinunternehmer.html"
+    "ventures/einvoice-preflight/e-rechnung-kleinunternehmer.html (three measured rows added)"
   ],
   "goal": null,
-  "notes": "Security queue: 0 workable (exit 3). Ideas inbox empty. run_venture_tests einvoice-preflight einvoice-pro: 0 failed (2878 + 2792 tests); official Schematron test run locally with slimdom/fontoxpath no-save. Finding: a \u00a7 19 invoice with only a Steuernummer fails BR-CO-26 under the official rules; the creator wrote it and the built-in checks passed it. The creator now refuses it; the built-in check is parked in NEXT.md.",
+  "notes": "Security queue: 0 workable (exit 3). Ideas inbox empty. run_venture_tests einvoice-preflight einvoice-pro: 0 failed (2878 + 2792 tests); official Schematron test run locally with slimdom/fontoxpath no-save. Finding: a § 19 invoice with only a Steuernummer fails BR-CO-26 under the official rules; the creator wrote it and the built-in checks passed it. The creator now refuses it; the built-in check is parked in NEXT.md. Superseded in part by PR #20032 (same page and fix, merged first); this PR became the follow-up adding three measured variants to its bench, page and test.",
   "corrections": [],
   "redteam": null,
   "usage": {
@@ -113,7 +126,7 @@
     },
     "human_equivalent": {
       "hours": 5.0,
-      "basis": "research the \u00a7 19 sources, write the bench, page, test, creator fix and post",
+      "basis": "research the § 19 sources, write the bench, page, test, creator fix and post",
       "rate_usd_per_hour": 100.0,
       "usd": 500.0
     },
