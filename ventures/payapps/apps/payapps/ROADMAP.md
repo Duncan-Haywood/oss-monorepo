@@ -2715,7 +2715,7 @@ nothing to copy. No customers yet. Paid plans are dark
   completion and the 30 days after it before settlement (§ 39-1-1(f)), the $100,000 bond threshold and
   the certified copy on application. The retainage check gains Alabama's § 39-2-12(c): 5%, and none
   withheld once 50% complete (`lowerBps: 0`, so a job at 5% reads "within, but the rate drops to 0%"),
-  no retainage on ALDOT road contracts in the note. Thirty states in `STATE_BOND_RULES`, 24 in
+  no retainage on ALDOT road contracts in the note. Thirty-two states in `STATE_BOND_RULES` (with Alaska and Wyoming, merged the same hour), 26 in
   `RETAINAGE_CAPS`. Tests in `src/shared/state-bond.test.ts` and `src/shared/public-jobs.test.ts`; the
   public bond guide, the retainage guide, both customer posts, llms-answers and the construction page
   gain the rows. Not read here: Oklahoma (oscn.net answers with a Turnstile challenge), Indiana
