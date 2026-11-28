@@ -1706,6 +1706,144 @@ The Early access plan is free and needs no card.
 
 Start free
 
+## How to quote first article inspection
+
+Source: https://marisstella.app/jobshop/how-to-quote-first-article-inspection
+
+Guide
+
+## How to quote first article inspection (AS9102)
+
+An aerospace PO that calls for a first article inspection report asks for hours of
+work that never touch a machine: ballooning the drawing, measuring every characteristic on the first
+part and filling in the forms. On a small order that work can cost more than the machining, and it is
+the line shops most often leave off. Here is what the work is, when a partial first article is due,
+and one part priced with and without it at 1, 10 and
+100.
+
+### What a first article is, and what it is not
+
+AS9102 is the aerospace standard for first article inspection (FAI): a documented check, on a part
+from the first production run, that every design characteristic on the drawing and every requirement
+on the PO was met. It is recorded on three forms:
+
+- Form 1, part number accountability: the part, its drawing and revision, and any
+sub-assemblies.
+
+- Form 2, product accountability: the raw material, the specifications, the special
+processes (plating, anodizing, heat treat and the like) and any functional tests, each with the
+certificate that proves it.
+
+- Form 3, characteristic accountability: every dimension, tolerance and note on
+the drawing, numbered (ballooned) on the drawing and listed with its measured result.
+
+A first-piece check is not a first article. Measuring the critical features of the first part off
+the machine before running the rest is part of the setup, and the
+CNC quoting guide prices it as
+such (60 minutes on the mill). An AS9102 report is a separate job with a
+separate deliverable, and it stays on the routing in every variant below. Which revision of AS9102
+applies, and whether the customer accepts their own form or software output, is set by the PO and
+its quality clauses: read them before you price.
+
+### What the work takes
+
+- Balloon the drawing. Number every characteristic: each dimension, tolerance,
+thread, surface finish, note and flag note. A busy drawing can carry well over a hundred.
+
+- Plan the inspection. Decide which gauge or CMM program checks each one; a CMM
+program written for the first article is time too.
+
+- Measure the first part. Every characteristic, with the result written down, not
+just a pass.
+
+- Collect the certificates. Mill certs for the material and a certificate from
+every special-process vendor, some of whom charge for one.
+
+- Fill in the forms and file them. And answer the customer's questions when their
+quality team reviews the package.
+
+None of that scales with quantity: it is the same for one part as for a thousand, so it belongs in
+the quote as a charge per line or per order, not per part.
+
+### A worked example
+
+The anodized 6061 mounting bracket from the CNC quoting guide, now for a customer whose PO calls for
+an AS9102 first article. Inspection time is charged at $95.00 an hour (a CMM and bench rate of its
+own, lower than the mill's $123.85). Every time, rate and price here is
+made up to show the arithmetic; none of it is a benchmark for what a first article takes or
+costs, and AS9102 sets no price.
+
+- Full AS9102 first article: balloon the drawing and plan the inspection (45 min), measure every characteristic on the first part (90 min), fill in Forms 1 to 3 and collect the certs (60 min), plus the anodizer's certificate for Form 2 ($25.00): 195 minutes, $333.75 before markup.
+- Partial (delta) first article after a revision: re-balloon the changed characteristics (15 min), measure the changed characteristics (30 min), update Forms 1 to 3 (30 min): 75 minutes, $118.75 before markup.
+
+The made-up bracket's price per part and for the line, by first-article variant. Checked to the cent against Job Shop Quote's costing engine.
+Variant110100
+
+No first-article report$587.26 each$587.26 for the line$113.53 each$1,135.30 for the line$71.65 each$7,165.00 for the lineFull AS9102 first article$924.76 each$924.76 for the line$147.28 each$1,472.80 for the line$75.03 each$7,503.00 for the linePartial (delta) first article after a revision$706.01 each$706.01 for the line$125.40 each$1,254.00 for the line$72.84 each$7,284.00 for the line
+
+What the table shows:
+
+- On one part, the first article is 36% of the price. The full report adds
+$337.50 to a $587.26 part
+($333.75 of inspection and certificate, and $3.75 of markup
+on the certificate). Quote it without that line and the shop does that work for nothing.
+
+- Spread over the order, it fades. At 10 parts it adds
+$33.75 a part; at 100, $3.38. The
+charge is the same; only the share each part carries changes.
+
+- A partial first article is a smaller charge, not none. After a revision that
+changes a few characteristics, re-ballooning and measuring only those, and updating the forms, adds
+$118.75 to the line here, against $337.50 for a
+full one.
+
+### When a new or partial first article is due
+
+Once a part has a complete first article, repeat orders do not need another, until something
+changes. The events AS9102 lists include a change to the design that affects the part's
+characteristics, a change in the manufacturing source, process, inspection method, location,
+tooling or materials, and a lapse in production (two years in the standard). The customer can ask for
+more. A partial ("delta") first article covers only what the change affected. So check, on every repeat
+RFQ: has the revision changed, has anything about how you make it changed, and when did you last ship
+it? Your own records answer the last two; the drawing answers the first.
+
+### How to put it on the quote
+
+- Price it as time, at an inspection rate. Minutes on the inspection bench or the
+CMM, charged once per line, the same way you charge a setup.
+
+- Say it on the quote. "Includes AS9102 first article report" or "first article
+report not included" in the notes settles the question before the PO arrives, not after. When a
+customer wants it priced separately, give it a line of its own at quantity one.
+
+- Carry the vendors' certificate charges. They are small and easy to forget.
+
+- Do not charge it again on a repeat order that does not need it, and do not
+forget the partial one when the revision changes.
+
+### Doing it in Job Shop Quote
+
+Add your inspection bench or CMM to the rate card as a machine with its own rate. On a quote line,
+add the first article as operations on that machine with setup minutes and a cycle time of zero (the
+app accepts zero for setup-only work such as programming or a first article), and a certificate
+charge as an extra with a lot amount. The app then charges it once for the line, spreads it across
+each quantity break, and prints the per-part prices. The prices in the table are the ones the app gives
+for the same inputs, checked by a test in its code. Job Shop Quote does not fill in AS9102 forms or
+balloon drawings; it prices the work. The
+RFQ review checklist has the question
+to ask before you price: is a first article required, and to which standard?
+
+This page explains a common estimating approach and summarises a published
+standard in plain words. It is not quality, legal or engineering advice, it is not a substitute for
+the standard or your customer's requirements, and the figures in it are made up. Check every quote
+before you send it.
+
+### Put the first article on the quote, every time
+
+The Early access plan is free and needs no card.
+
+Start free
+
 ## FAQ
 
 Source: https://marisstella.app/jobshop/faq

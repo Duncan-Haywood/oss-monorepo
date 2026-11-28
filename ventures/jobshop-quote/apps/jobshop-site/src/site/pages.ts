@@ -15,6 +15,7 @@ import {
 import { ANNUAL_DISCOUNT, EARLY_ACCESS_PLAN, formatUsd, PLANS } from "@shared/plans";
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, type Launch, PUBLISHER, SITE_NAME } from "./config";
 import { EXAMPLE as CYCLE_EXAMPLE, cycleTimeExample, DEEP_HOLE_RATIO } from "./cycle-time-example";
+import { EXAMPLE as FAI_EXAMPLE, type FaiVariant, priceFaiExample } from "./fai-example";
 import { type Html, html } from "./html";
 import {
   LB_PER_IN3_PER_G_PER_CM3,
@@ -2499,6 +2500,175 @@ export function materialCostGuidePage(ctx: RenderContext): Html {
 ${ctaBand(ctx, "Price your material the way you buy it", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
+/**
+ * A guide aimed at the searches aerospace and defense job shops make about first articles ("how to
+ * quote first article inspection", "AS9102 FAI cost", "first article inspection charge"): what an
+ * AS9102 first article is and is not, what the work takes, when a partial one is due, and how to put
+ * it on the quote, with a worked example whose prices the app's engine checks to the cent
+ * (./fai-example and its test in apps/jobshop-quote).
+ */
+export function faiGuidePage(ctx: RenderContext): Html {
+  const e = FAI_EXAMPLE;
+  const results = priceFaiExample(e);
+  const byKey = (k: FaiVariant["key"]) => {
+    const r = results.find((x) => x.key === k);
+    const v = e.variants.find((x) => x.key === k);
+    if (!r || !v) throw new Error(`the first-article example has no ${k} variant`);
+    return { r, v };
+  };
+  const none = byKey("none");
+  const full = byKey("full");
+  const delta = byKey("delta");
+  const [one, ten, hundred] = full.r.breaks;
+  if (!one || !ten || !hundred)
+    throw new Error("the first-article example quotes three quantities");
+  const b = e.base;
+  const rate = usdCents(e.inspectionHourlyRateCents);
+  const firstPiece = b.operations.find((o) => /first-article/i.test(o.label));
+  const addedTotal = (k: FaiVariant["key"], j: number) =>
+    (byKey(k).r.breaks[j]?.totalCents ?? 0) - (none.r.breaks[j]?.totalCents ?? 0);
+  const addedUnit = (k: FaiVariant["key"], j: number) =>
+    (byKey(k).r.breaks[j]?.unitPriceCents ?? 0) - (none.r.breaks[j]?.unitPriceCents ?? 0);
+  const certMarkup = Math.round(
+    full.v.extras.reduce((s, x) => s + x.lotCents, 0) * (b.materialMarkupBps / 10_000),
+  );
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to quote first article inspection (AS9102)</h1>
+    <p class="lead">An aerospace PO that calls for a first article inspection report asks for hours of
+    work that never touch a machine: ballooning the drawing, measuring every characteristic on the first
+    part and filling in the forms. On a small order that work can cost more than the machining, and it is
+    the line shops most often leave off. Here is what the work is, when a partial first article is due,
+    and one part priced with and without it at ${one.quantity}, ${ten.quantity} and
+    ${hundred.quantity}.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>What a first article is, and what it is not</h2>
+    <p>AS9102 is the aerospace standard for first article inspection (FAI): a documented check, on a part
+    from the first production run, that every design characteristic on the drawing and every requirement
+    on the PO was met. It is recorded on three forms:</p>
+    <ul>
+      <li><strong>Form 1, part number accountability:</strong> the part, its drawing and revision, and any
+      sub-assemblies.</li>
+      <li><strong>Form 2, product accountability:</strong> the raw material, the specifications, the special
+      processes (plating, anodizing, heat treat and the like) and any functional tests, each with the
+      certificate that proves it.</li>
+      <li><strong>Form 3, characteristic accountability:</strong> every dimension, tolerance and note on
+      the drawing, numbered (ballooned) on the drawing and listed with its measured result.</li>
+    </ul>
+    <p>A first-piece check is not a first article. Measuring the critical features of the first part off
+    the machine before running the rest is part of the setup, and the
+    <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">CNC quoting guide</a> prices it as
+    such (${firstPiece?.setupMinutes ?? 0} minutes on the mill). An AS9102 report is a separate job with a
+    separate deliverable, and it stays on the routing in every variant below. Which revision of AS9102
+    applies, and whether the customer accepts their own form or software output, is set by the PO and
+    its quality clauses: read them before you price.</p>
+
+    <h2>What the work takes</h2>
+    <ol>
+      <li><strong>Balloon the drawing.</strong> Number every characteristic: each dimension, tolerance,
+      thread, surface finish, note and flag note. A busy drawing can carry well over a hundred.</li>
+      <li><strong>Plan the inspection.</strong> Decide which gauge or CMM program checks each one; a CMM
+      program written for the first article is time too.</li>
+      <li><strong>Measure the first part.</strong> Every characteristic, with the result written down, not
+      just a pass.</li>
+      <li><strong>Collect the certificates.</strong> Mill certs for the material and a certificate from
+      every special-process vendor, some of whom charge for one.</li>
+      <li><strong>Fill in the forms and file them.</strong> And answer the customer's questions when their
+      quality team reviews the package.</li>
+    </ol>
+    <p>None of that scales with quantity: it is the same for one part as for a thousand, so it belongs in
+    the quote as a charge per line or per order, not per part.</p>
+
+    <h2>A worked example</h2>
+    <p>The anodized 6061 ${b.partName} from the CNC quoting guide, now for a customer whose PO calls for
+    an AS9102 first article. Inspection time is charged at ${rate} an hour (a CMM and bench rate of its
+    own, lower than the mill's ${usdCents(b.hourlyRateCents)}). <strong>Every time, rate and price here is
+    made up to show the arithmetic</strong>; none of it is a benchmark for what a first article takes or
+    costs, and AS9102 sets no price.</p>
+    <ul>
+      ${[full, delta].map(
+        ({ r, v }) =>
+          html`<li><strong>${v.label}:</strong> ${v.inspection.map((o) => `${o.label.charAt(0).toLowerCase() + o.label.slice(1)} (${o.setupMinutes} min)`).join(", ")}${
+            v.extras.length > 0
+              ? html`, plus the ${v.extras.map((x) => `${x.label.charAt(0).toLowerCase()}${x.label.slice(1)} (${usdCents(x.lotCents)})`).join(", ")}`
+              : ""
+          }: ${r.inspectionMinutes} minutes, ${usdCents(r.faiCostCents)} before markup.</li>`,
+      )}
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up bracket's price per part and for the line, by first-article variant. Checked to the cent against ${SITE_NAME}'s costing engine.</caption>
+        <thead><tr><th scope="col">Variant</th>${full.r.breaks.map((br) => html`<th scope="col">${br.quantity}</th>`)}</tr></thead>
+        <tbody>
+          ${[none, full, delta].map(
+            ({ r, v }) =>
+              html`<tr><th scope="row">${v.label}</th>${r.breaks.map(
+                (br) =>
+                  html`<td>${usdCents(br.unitPriceCents)} each<br><span class="fineprint">${usdCents(br.totalCents)} for the line</span></td>`,
+              )}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>On one part, the first article is ${Math.round((100 * addedTotal("full", 0)) / (full.r.breaks[0]?.totalCents ?? 1))}% of the price.</strong> The full report adds
+      ${usdCents(addedTotal("full", 0))} to a ${usdCents(none.r.breaks[0]?.totalCents ?? 0)} part
+      (${usdCents(full.r.faiCostCents)} of inspection and certificate, and ${usdCents(certMarkup)} of markup
+      on the certificate). Quote it without that line and the shop does that work for nothing.</li>
+      <li><strong>Spread over the order, it fades.</strong> At ${ten.quantity} parts it adds
+      ${usdCents(addedUnit("full", 1))} a part; at ${hundred.quantity}, ${usdCents(addedUnit("full", 2))}. The
+      charge is the same; only the share each part carries changes.</li>
+      <li><strong>A partial first article is a smaller charge, not none.</strong> After a revision that
+      changes a few characteristics, re-ballooning and measuring only those, and updating the forms, adds
+      ${usdCents(addedTotal("delta", 0))} to the line here, against ${usdCents(addedTotal("full", 0))} for a
+      full one.</li>
+    </ul>
+
+    <h2>When a new or partial first article is due</h2>
+    <p>Once a part has a complete first article, repeat orders do not need another, until something
+    changes. The events AS9102 lists include a change to the design that affects the part's
+    characteristics, a change in the manufacturing source, process, inspection method, location,
+    tooling or materials, and a lapse in production (two years in the standard). The customer can ask for
+    more. A partial ("delta") first article covers only what the change affected. So check, on every repeat
+    RFQ: has the revision changed, has anything about how you make it changed, and when did you last ship
+    it? Your own records answer the last two; the drawing answers the first.</p>
+
+    <h2>How to put it on the quote</h2>
+    <ul>
+      <li><strong>Price it as time, at an inspection rate.</strong> Minutes on the inspection bench or the
+      CMM, charged once per line, the same way you charge a setup.</li>
+      <li><strong>Say it on the quote.</strong> "Includes AS9102 first article report" or "first article
+      report not included" in the notes settles the question before the PO arrives, not after. When a
+      customer wants it priced separately, give it a line of its own at quantity one.</li>
+      <li><strong>Carry the vendors' certificate charges.</strong> They are small and easy to forget.</li>
+      <li><strong>Do not charge it again on a repeat order that does not need it,</strong> and do not
+      forget the partial one when the revision changes.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>Add your inspection bench or CMM to the rate card as a machine with its own rate. On a quote line,
+    add the first article as operations on that machine with setup minutes and a cycle time of zero (the
+    app accepts zero for setup-only work such as programming or a first article), and a certificate
+    charge as an extra with a lot amount. The app then charges it once for the line, spreads it across
+    each quantity break, and prints the per-part prices. The prices in the table are the ones the app gives
+    for the same inputs, checked by a test in its code. ${SITE_NAME} does not fill in AS9102 forms or
+    balloon drawings; it prices the work. The
+    <a class="link" href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a> has the question
+    to ask before you price: is a first article required, and to which standard?</p>
+    <p class="fineprint">This page explains a common estimating approach and summarises a published
+    standard in plain words. It is not quality, legal or engineering advice, it is not a substitute for
+    the standard or your customer's requirements, and the figures in it are made up. Check every quote
+    before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Put the first article on the quote, every time", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
 /** Path → body renderer. The Worker uses earlyAccessPage directly for error re-renders. */
 export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/": homePage,
@@ -2514,6 +2684,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/how-to-estimate-cnc-machining-time": cycleTimeGuidePage,
   "/machine-shop-quote-template": quoteTemplatePage,
   "/machining-material-cost": materialCostGuidePage,
+  "/how-to-quote-first-article-inspection": faiGuidePage,
   "/rfq-review-checklist": rfqChecklistPage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
