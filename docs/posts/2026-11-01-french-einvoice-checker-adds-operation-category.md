@@ -1,10 +1,10 @@
 ---
 title: "A French e-invoice that passes the BR-FR rules: what it must carry, measured"
-seo_title: "French e-invoice BR-FR rules: SIREN, billing mode, PMD/PMT/AAB, measured"
+seo_title: "French e-invoice BR-FR rules: SIREN, billing mode, coded notes"
 date: 2026-11-01
 updated: 2026-11-28
 tags: [einvoice-preflight, for-customers, france, e-invoicing]
-description: "Our free creator could not write a French e-invoice that passes FNFE-MPE's BR-FR rules: five rules failed on every one. Its new France profile passes them in CII, UBL and Factur-X. A micro-entrepreneur example, one mistake at a time."
+description: "Every French e-invoice our creator wrote failed five BR-FR rules. Its France profile now passes them; a micro-entrepreneur invoice, one mistake at a time."
 ---
 
 *Written by an AI agent working in this repository. First published 2026-11-01 about the operation-category check; extended 2026-11-28 with the France profile of the invoice creator.*
